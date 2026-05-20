@@ -1,6 +1,6 @@
 # 293x-1059 MIMAP-437A Allocator Comparison Benchmark Execution Preflight Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -30,4 +30,17 @@ execution seams.
 
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_benchmark_execution_preflight_diagnostics_guard.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the benchmark execution preflight diagnostics owner and report.
+- Added a scalar proof app for missing preflight input and open-seam
+  diagnostics.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.

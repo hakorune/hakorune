@@ -1,0 +1,351 @@
+// allocator_comparison_benchmark_execution_preflight_diagnostic_box.hako -- MIMAP-437A
+// Responsibility:
+// - consume allocator comparison benchmark execution preflight inventory reports
+// - summarize missing/open preflight blockers without execution
+// Non-responsibility:
+// - benchmark execution, hook installation, process allocator replacement,
+//   backend matcher additions, global allocator install, or worker/thread execution
+
+using selfhost.hako_alloc.memory.allocator_comparison_benchmark_execution_preflight_inventory_box as HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventory
+
+record HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReportFields {
+    accepted: i64
+    reason: i64
+    diagnostic_present: i64
+    benchmark_execution_preflight_present: i64
+    benchmark_execution_ready: i64
+    blocked_preflight_present: i64
+    missing_runner_blocked: i64
+    missing_output_capture_blocked: i64
+    missing_measurement_storage_blocked: i64
+    workload_matrix_not_ready_blocked: i64
+    measurement_plan_not_ready_blocked: i64
+    process_replacement_open_blocked: i64
+    hook_open_blocked: i64
+    backend_matcher_open_blocked: i64
+    global_allocator_open_blocked: i64
+    hidden_env_open_blocked: i64
+    closed_seam_blocked: i64
+    benchmark_executed: i64
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    diagnostic_count: i64
+    ready_count: i64
+    blocked_count: i64
+    missing_runner_blocked_count: i64
+    missing_output_capture_blocked_count: i64
+    missing_measurement_storage_blocked_count: i64
+    workload_matrix_not_ready_blocked_count: i64
+    measurement_plan_not_ready_blocked_count: i64
+    process_replacement_open_blocked_count: i64
+    hook_open_blocked_count: i64
+    backend_matcher_open_blocked_count: i64
+    global_allocator_open_blocked_count: i64
+    hidden_env_open_blocked_count: i64
+    closed_seam_blocked_count: i64
+    last_reason: i64
+    would_run_benchmark: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    benchmark_execution_preflight_present: i64 = 0
+    benchmark_execution_ready: i64 = 0
+    blocked_preflight_present: i64 = 0
+    missing_runner_blocked: i64 = 0
+    missing_output_capture_blocked: i64 = 0
+    missing_measurement_storage_blocked: i64 = 0
+    workload_matrix_not_ready_blocked: i64 = 0
+    measurement_plan_not_ready_blocked: i64 = 0
+    process_replacement_open_blocked: i64 = 0
+    hook_open_blocked: i64 = 0
+    backend_matcher_open_blocked: i64 = 0
+    global_allocator_open_blocked: i64 = 0
+    hidden_env_open_blocked: i64 = 0
+    closed_seam_blocked: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_runner_blocked_count: i64 = 0
+    missing_output_capture_blocked_count: i64 = 0
+    missing_measurement_storage_blocked_count: i64 = 0
+    workload_matrix_not_ready_blocked_count: i64 = 0
+    measurement_plan_not_ready_blocked_count: i64 = 0
+    process_replacement_open_blocked_count: i64 = 0
+    hook_open_blocked_count: i64 = 0
+    backend_matcher_open_blocked_count: i64 = 0
+    global_allocator_open_blocked_count: i64 = 0
+    hidden_env_open_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    would_run_benchmark: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnostic {
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_runner_blocked_count: i64 = 0
+    missing_output_capture_blocked_count: i64 = 0
+    missing_measurement_storage_blocked_count: i64 = 0
+    workload_matrix_not_ready_blocked_count: i64 = 0
+    measurement_plan_not_ready_blocked_count: i64 = 0
+    process_replacement_open_blocked_count: i64 = 0
+    hook_open_blocked_count: i64 = 0
+    backend_matcher_open_blocked_count: i64 = 0
+    global_allocator_open_blocked_count: i64 = 0
+    hidden_env_open_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport(fields: HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReportFields): HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport {
+        local result = new HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            diagnostic_present: fields.diagnostic_present,
+            benchmark_execution_preflight_present: fields.benchmark_execution_preflight_present,
+            benchmark_execution_ready: fields.benchmark_execution_ready,
+            blocked_preflight_present: fields.blocked_preflight_present,
+            missing_runner_blocked: fields.missing_runner_blocked,
+            missing_output_capture_blocked: fields.missing_output_capture_blocked,
+            missing_measurement_storage_blocked: fields.missing_measurement_storage_blocked,
+            workload_matrix_not_ready_blocked: fields.workload_matrix_not_ready_blocked,
+            measurement_plan_not_ready_blocked: fields.measurement_plan_not_ready_blocked,
+            process_replacement_open_blocked: fields.process_replacement_open_blocked,
+            hook_open_blocked: fields.hook_open_blocked,
+            backend_matcher_open_blocked: fields.backend_matcher_open_blocked,
+            global_allocator_open_blocked: fields.global_allocator_open_blocked,
+            hidden_env_open_blocked: fields.hidden_env_open_blocked,
+            closed_seam_blocked: fields.closed_seam_blocked,
+            benchmark_executed: fields.benchmark_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            diagnostic_count: fields.diagnostic_count,
+            ready_count: fields.ready_count,
+            blocked_count: fields.blocked_count,
+            missing_runner_blocked_count: fields.missing_runner_blocked_count,
+            missing_output_capture_blocked_count: fields.missing_output_capture_blocked_count,
+            missing_measurement_storage_blocked_count: fields.missing_measurement_storage_blocked_count,
+            workload_matrix_not_ready_blocked_count: fields.workload_matrix_not_ready_blocked_count,
+            measurement_plan_not_ready_blocked_count: fields.measurement_plan_not_ready_blocked_count,
+            process_replacement_open_blocked_count: fields.process_replacement_open_blocked_count,
+            hook_open_blocked_count: fields.hook_open_blocked_count,
+            backend_matcher_open_blocked_count: fields.backend_matcher_open_blocked_count,
+            global_allocator_open_blocked_count: fields.global_allocator_open_blocked_count,
+            hidden_env_open_blocked_count: fields.hidden_env_open_blocked_count,
+            closed_seam_blocked_count: fields.closed_seam_blocked_count,
+            last_reason: fields.last_reason,
+            would_run_benchmark: fields.would_run_benchmark,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    markBlocked(reason: i64) {
+        me.blocked_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_runner_blocked_count += 1
+        }
+        if reason == 2 {
+            me.missing_output_capture_blocked_count += 1
+        }
+        if reason == 3 {
+            me.missing_measurement_storage_blocked_count += 1
+        }
+        if reason == 4 {
+            me.workload_matrix_not_ready_blocked_count += 1
+        }
+        if reason == 5 {
+            me.measurement_plan_not_ready_blocked_count += 1
+        }
+        if reason == 6 {
+            me.process_replacement_open_blocked_count += 1
+        }
+        if reason == 7 {
+            me.hook_open_blocked_count += 1
+        }
+        if reason == 8 {
+            me.backend_matcher_open_blocked_count += 1
+        }
+        if reason == 9 {
+            me.global_allocator_open_blocked_count += 1
+        }
+        if reason == 10 {
+            me.hidden_env_open_blocked_count += 1
+        }
+        if reason == 11 {
+            me.closed_seam_blocked_count += 1
+        }
+    }
+
+    reasonFrom(preflight: HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventoryReport): i64 {
+        if preflight.benchmark_executed != 0 {
+            return 11
+        }
+        if preflight.process_replacement_executed != 0 {
+            return 11
+        }
+        if preflight.hook_installed != 0 {
+            return 11
+        }
+        if preflight.backend_matcher_added != 0 {
+            return 11
+        }
+        if preflight.global_allocator_installed != 0 {
+            return 11
+        }
+        if preflight.would_run_benchmark != 0 {
+            return 11
+        }
+        if preflight.would_replace_host_allocator != 0 {
+            return 11
+        }
+        if preflight.would_install_hook != 0 {
+            return 11
+        }
+        if preflight.would_add_backend_matcher != 0 {
+            return 11
+        }
+        if preflight.would_run_thread != 0 {
+            return 11
+        }
+        if preflight.benchmark_execution_ready == 1 {
+            return 0
+        }
+        if preflight.reason != 0 {
+            return preflight.reason
+        }
+        return 1
+    }
+
+    makeReport(reason: i64, preflight: HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventoryReport): HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport {
+        local blocked = 0
+        if reason != 0 {
+            blocked = 1
+        }
+        local missing_runner_blocked = 0
+        local missing_output_capture_blocked = 0
+        local missing_measurement_storage_blocked = 0
+        local workload_matrix_not_ready_blocked = 0
+        local measurement_plan_not_ready_blocked = 0
+        local process_replacement_open_blocked = 0
+        local hook_open_blocked = 0
+        local backend_matcher_open_blocked = 0
+        local global_allocator_open_blocked = 0
+        local hidden_env_open_blocked = 0
+        local closed_seam_blocked = 0
+        if reason == 1 {
+            missing_runner_blocked = 1
+        }
+        if reason == 2 {
+            missing_output_capture_blocked = 1
+        }
+        if reason == 3 {
+            missing_measurement_storage_blocked = 1
+        }
+        if reason == 4 {
+            workload_matrix_not_ready_blocked = 1
+        }
+        if reason == 5 {
+            measurement_plan_not_ready_blocked = 1
+        }
+        if reason == 6 {
+            process_replacement_open_blocked = 1
+        }
+        if reason == 7 {
+            hook_open_blocked = 1
+        }
+        if reason == 8 {
+            backend_matcher_open_blocked = 1
+        }
+        if reason == 9 {
+            global_allocator_open_blocked = 1
+        }
+        if reason == 10 {
+            hidden_env_open_blocked = 1
+        }
+        if reason == 11 {
+            closed_seam_blocked = 1
+        }
+        local fields = HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReportFields {
+            accepted: 1,
+            reason: reason,
+            diagnostic_present: 1,
+            benchmark_execution_preflight_present: preflight.benchmark_execution_preflight_present,
+            benchmark_execution_ready: preflight.benchmark_execution_ready,
+            blocked_preflight_present: blocked,
+            missing_runner_blocked: missing_runner_blocked,
+            missing_output_capture_blocked: missing_output_capture_blocked,
+            missing_measurement_storage_blocked: missing_measurement_storage_blocked,
+            workload_matrix_not_ready_blocked: workload_matrix_not_ready_blocked,
+            measurement_plan_not_ready_blocked: measurement_plan_not_ready_blocked,
+            process_replacement_open_blocked: process_replacement_open_blocked,
+            hook_open_blocked: hook_open_blocked,
+            backend_matcher_open_blocked: backend_matcher_open_blocked,
+            global_allocator_open_blocked: global_allocator_open_blocked,
+            hidden_env_open_blocked: hidden_env_open_blocked,
+            closed_seam_blocked: closed_seam_blocked,
+            benchmark_executed: 0,
+            process_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
+            diagnostic_count: me.diagnostic_count,
+            ready_count: me.ready_count,
+            blocked_count: me.blocked_count,
+            missing_runner_blocked_count: me.missing_runner_blocked_count,
+            missing_output_capture_blocked_count: me.missing_output_capture_blocked_count,
+            missing_measurement_storage_blocked_count: me.missing_measurement_storage_blocked_count,
+            workload_matrix_not_ready_blocked_count: me.workload_matrix_not_ready_blocked_count,
+            measurement_plan_not_ready_blocked_count: me.measurement_plan_not_ready_blocked_count,
+            process_replacement_open_blocked_count: me.process_replacement_open_blocked_count,
+            hook_open_blocked_count: me.hook_open_blocked_count,
+            backend_matcher_open_blocked_count: me.backend_matcher_open_blocked_count,
+            global_allocator_open_blocked_count: me.global_allocator_open_blocked_count,
+            hidden_env_open_blocked_count: me.hidden_env_open_blocked_count,
+            closed_seam_blocked_count: me.closed_seam_blocked_count,
+            last_reason: me.last_reason,
+            would_run_benchmark: 0,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport(fields)
+    }
+
+    diagnoseAllocatorComparisonBenchmarkExecutionPreflight(preflight: HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventoryReport): HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport {
+        me.diagnostic_count += 1
+        local reason = me.reasonFrom(preflight)
+        if reason == 0 {
+            me.ready_count += 1
+            me.last_reason = 0
+        } else {
+            me.markBlocked(reason)
+        }
+        return me.makeReport(reason, preflight)
+    }
+}

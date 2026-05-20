@@ -85,6 +85,7 @@ Current modules
 - `allocator_comparison_measurement_plan_inventory_box.hako`
 - `allocator_comparison_measurement_plan_diagnostic_box.hako`
 - `allocator_comparison_benchmark_execution_preflight_inventory_box.hako`
+- `allocator_comparison_benchmark_execution_preflight_diagnostic_box.hako`
 - `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`
