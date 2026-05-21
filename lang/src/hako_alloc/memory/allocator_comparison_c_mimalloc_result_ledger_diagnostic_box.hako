@@ -1,0 +1,285 @@
+// allocator_comparison_c_mimalloc_result_ledger_diagnostic_box.hako -- MIMAP-455A
+// Responsibility:
+// - consume C-vs-Hako comparison result ledger reports
+// - classify accepted / blocked result ledger rows without new execution
+// Non-responsibility:
+// - performance conclusions, memory-use conclusions, repeated benchmarks,
+//   allocator replacement, hooks, backend matchers, global allocator
+//   installation, provider packages, or worker/thread execution
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_ledger_box as HakoAllocAllocatorComparisonCMimallocResultLedger
+
+record HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReportFields {
+    accepted: i64
+    reason: i64
+    diagnostic_present: i64
+    result_ledger_present: i64
+    accepted_result_present: i64
+    blocked_result_present: i64
+    comparison_available: i64
+    hako_ready_execution_present: i64
+    c_ready_evidence_present: i64
+    memory_evidence_present: i64
+    missing_hako_blocked: i64
+    blocked_hako_blocked: i64
+    missing_c_blocked: i64
+    blocked_c_blocked: i64
+    hako_allocation_count: i64
+    hako_release_count: i64
+    hako_reject_count: i64
+    hako_requested_bytes: i64
+    c_allocation_count: i64
+    c_free_count: i64
+    c_requested_bytes: i64
+    c_peak_rss_bytes: i64
+    allocation_count_delta: i64
+    requested_bytes_delta: i64
+    diagnostic_count: i64
+    ready_count: i64
+    blocked_count: i64
+    missing_hako_blocked_count: i64
+    blocked_hako_blocked_count: i64
+    missing_c_blocked_count: i64
+    blocked_c_blocked_count: i64
+    last_reason: i64
+    performance_conclusion_made: i64
+    memory_conclusion_made: i64
+    repeated_benchmark_executed: i64
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    hidden_discovery_used: i64
+    provider_package_generated: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    result_ledger_present: i64 = 0
+    accepted_result_present: i64 = 0
+    blocked_result_present: i64 = 0
+    comparison_available: i64 = 0
+    hako_ready_execution_present: i64 = 0
+    c_ready_evidence_present: i64 = 0
+    memory_evidence_present: i64 = 0
+    missing_hako_blocked: i64 = 0
+    blocked_hako_blocked: i64 = 0
+    missing_c_blocked: i64 = 0
+    blocked_c_blocked: i64 = 0
+    hako_allocation_count: i64 = 0
+    hako_release_count: i64 = 0
+    hako_reject_count: i64 = 0
+    hako_requested_bytes: i64 = 0
+    c_allocation_count: i64 = 0
+    c_free_count: i64 = 0
+    c_requested_bytes: i64 = 0
+    c_peak_rss_bytes: i64 = 0
+    allocation_count_delta: i64 = 0
+    requested_bytes_delta: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_hako_blocked_count: i64 = 0
+    blocked_hako_blocked_count: i64 = 0
+    missing_c_blocked_count: i64 = 0
+    blocked_c_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    performance_conclusion_made: i64 = 0
+    memory_conclusion_made: i64 = 0
+    repeated_benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    provider_package_generated: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic {
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_hako_blocked_count: i64 = 0
+    blocked_hako_blocked_count: i64 = 0
+    missing_c_blocked_count: i64 = 0
+    blocked_c_blocked_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonCMimallocResultLedgerDiagnosticReport(fields: HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReportFields): HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReport {
+        local result = new HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            diagnostic_present: fields.diagnostic_present,
+            result_ledger_present: fields.result_ledger_present,
+            accepted_result_present: fields.accepted_result_present,
+            blocked_result_present: fields.blocked_result_present,
+            comparison_available: fields.comparison_available,
+            hako_ready_execution_present: fields.hako_ready_execution_present,
+            c_ready_evidence_present: fields.c_ready_evidence_present,
+            memory_evidence_present: fields.memory_evidence_present,
+            missing_hako_blocked: fields.missing_hako_blocked,
+            blocked_hako_blocked: fields.blocked_hako_blocked,
+            missing_c_blocked: fields.missing_c_blocked,
+            blocked_c_blocked: fields.blocked_c_blocked,
+            hako_allocation_count: fields.hako_allocation_count,
+            hako_release_count: fields.hako_release_count,
+            hako_reject_count: fields.hako_reject_count,
+            hako_requested_bytes: fields.hako_requested_bytes,
+            c_allocation_count: fields.c_allocation_count,
+            c_free_count: fields.c_free_count,
+            c_requested_bytes: fields.c_requested_bytes,
+            c_peak_rss_bytes: fields.c_peak_rss_bytes,
+            allocation_count_delta: fields.allocation_count_delta,
+            requested_bytes_delta: fields.requested_bytes_delta,
+            diagnostic_count: fields.diagnostic_count,
+            ready_count: fields.ready_count,
+            blocked_count: fields.blocked_count,
+            missing_hako_blocked_count: fields.missing_hako_blocked_count,
+            blocked_hako_blocked_count: fields.blocked_hako_blocked_count,
+            missing_c_blocked_count: fields.missing_c_blocked_count,
+            blocked_c_blocked_count: fields.blocked_c_blocked_count,
+            last_reason: fields.last_reason,
+            performance_conclusion_made: fields.performance_conclusion_made,
+            memory_conclusion_made: fields.memory_conclusion_made,
+            repeated_benchmark_executed: fields.repeated_benchmark_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            hidden_discovery_used: fields.hidden_discovery_used,
+            provider_package_generated: fields.provider_package_generated,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    markBlocked(reason: i64) {
+        me.blocked_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_hako_blocked_count += 1
+        }
+        if reason == 2 {
+            me.blocked_hako_blocked_count += 1
+        }
+        if reason == 3 {
+            me.missing_c_blocked_count += 1
+        }
+        if reason == 4 {
+            me.blocked_c_blocked_count += 1
+        }
+    }
+
+    reasonFrom(report: HakoAllocAllocatorComparisonCMimallocResultLedgerReport): i64 {
+        if report.accepted == 1 {
+            if report.reason == 0 {
+                if report.comparison_available == 1 {
+                    return 0
+                }
+            }
+        }
+        if report.reason != 0 {
+            return report.reason
+        }
+        return 1
+    }
+
+    makeReport(reason: i64, report: HakoAllocAllocatorComparisonCMimallocResultLedgerReport): HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReport {
+        local ready = 0
+        local blocked = 0
+        if reason == 0 {
+            ready = 1
+        } else {
+            blocked = 1
+        }
+        local missing_hako = 0
+        local blocked_hako = 0
+        local missing_c = 0
+        local blocked_c = 0
+        if reason == 1 {
+            missing_hako = 1
+        }
+        if reason == 2 {
+            blocked_hako = 1
+        }
+        if reason == 3 {
+            missing_c = 1
+        }
+        if reason == 4 {
+            blocked_c = 1
+        }
+        local fields = HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReportFields {
+            accepted: 1,
+            reason: reason,
+            diagnostic_present: 1,
+            result_ledger_present: report.result_ledger_present,
+            accepted_result_present: ready,
+            blocked_result_present: blocked,
+            comparison_available: report.comparison_available,
+            hako_ready_execution_present: report.hako_ready_execution_present,
+            c_ready_evidence_present: report.c_ready_evidence_present,
+            memory_evidence_present: report.memory_evidence_present,
+            missing_hako_blocked: missing_hako,
+            blocked_hako_blocked: blocked_hako,
+            missing_c_blocked: missing_c,
+            blocked_c_blocked: blocked_c,
+            hako_allocation_count: report.hako_allocation_count,
+            hako_release_count: report.hako_release_count,
+            hako_reject_count: report.hako_reject_count,
+            hako_requested_bytes: report.hako_requested_bytes,
+            c_allocation_count: report.c_allocation_count,
+            c_free_count: report.c_free_count,
+            c_requested_bytes: report.c_requested_bytes,
+            c_peak_rss_bytes: report.c_peak_rss_bytes,
+            allocation_count_delta: report.allocation_count_delta,
+            requested_bytes_delta: report.requested_bytes_delta,
+            diagnostic_count: me.diagnostic_count,
+            ready_count: me.ready_count,
+            blocked_count: me.blocked_count,
+            missing_hako_blocked_count: me.missing_hako_blocked_count,
+            blocked_hako_blocked_count: me.blocked_hako_blocked_count,
+            missing_c_blocked_count: me.missing_c_blocked_count,
+            blocked_c_blocked_count: me.blocked_c_blocked_count,
+            last_reason: me.last_reason,
+            performance_conclusion_made: report.performance_conclusion_made,
+            memory_conclusion_made: report.memory_conclusion_made,
+            repeated_benchmark_executed: report.repeated_benchmark_executed,
+            process_replacement_executed: report.process_replacement_executed,
+            hook_installed: report.hook_installed,
+            backend_matcher_added: report.backend_matcher_added,
+            global_allocator_installed: report.global_allocator_installed,
+            hidden_discovery_used: report.hidden_discovery_used,
+            provider_package_generated: report.provider_package_generated,
+            would_replace_host_allocator: report.would_replace_host_allocator,
+            would_install_hook: report.would_install_hook,
+            would_add_backend_matcher: report.would_add_backend_matcher,
+            would_run_thread: report.would_run_thread
+        }
+        return me.makeAllocatorComparisonCMimallocResultLedgerDiagnosticReport(fields)
+    }
+
+    diagnoseAllocatorComparisonCMimallocResultLedger(report: HakoAllocAllocatorComparisonCMimallocResultLedgerReport): HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReport {
+        me.diagnostic_count += 1
+        local reason = me.reasonFrom(report)
+        if reason == 0 {
+            me.ready_count += 1
+            me.last_reason = 0
+        } else {
+            me.markBlocked(reason)
+        }
+        return me.makeReport(reason, report)
+    }
+}

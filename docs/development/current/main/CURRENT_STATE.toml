@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-454A landed allocator comparison C mimalloc result ledger pilot and selected MIMAP-455A diagnostics. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
+active_lane_status = "MIMAP-455A landed allocator comparison C mimalloc result ledger diagnostics and selected MIMAP-456A closeout. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1079-MIMAP-455A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-DIAGNOSTICS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1080-MIMAP-456A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1076-MIMAP-454A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1076-MIMAP-454A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-PILOT.md"
-latest_card_summary = "Landed a scalar C-vs-Hako comparison result ledger over MIMAP-445A Hako representative diagnostics and MIMAP-452A explicit C mimalloc evidence diagnostics while performance/memory conclusions, repeated benchmarks, allocator replacement, hooks, global allocator, and provider packages remain closed."
+latest_card = "293x-1079-MIMAP-455A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-DIAGNOSTICS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1079-MIMAP-455A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-DIAGNOSTICS.md"
+latest_card_summary = "Landed observer-only diagnostics over the MIMAP-454A C-vs-Hako result ledger while benchmark rerun, performance/memory conclusions, allocator replacement, hooks, global allocator, and provider packages remain closed."
 
-current_blocker_token = "MIMAP-455A"
+current_blocker_token = "MIMAP-456A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1079 MIMAP-455A allocator comparison C mimalloc result ledger diagnostics landed; MIMAP-456A selected",
   "293x-1076 MIMAP-454A allocator comparison C mimalloc result ledger pilot landed; MIMAP-455A selected",
   "293x-1078 ARG-DATA-002 C mimalloc explicit runner argument object pilot landed; MIMAP-454A resumed",
   "293x-1077 ARG-DATA-001 wide report argument cleanup plan landed; ARG-DATA-002 selected before MIMAP-454A",

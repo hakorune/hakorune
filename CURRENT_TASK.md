@@ -121,9 +121,9 @@ Scope: current lane / next lane / restart order only.
   C mimalloc runner evidence owner before MIMAP-454A. Syntax features such as
   spread / named args / record defaults / automatic record-to-box copy remain
   parked.
-- current allocator-comparison blocker: MIMAP-455A adds observer-only
-  diagnostics over the MIMAP-454A C-vs-Hako result ledger. It must not rerun
-  benchmarks or make performance / memory-use conclusions.
+- current allocator-comparison blocker: read `current_blocker_token` and
+  `phase_status` in `CURRENT_STATE.toml`. The current comparison-result ledger
+  pack must not rerun benchmarks or make performance / memory-use conclusions.
 - detailed landed history: phase card files and `CURRENT_STATE.toml`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only

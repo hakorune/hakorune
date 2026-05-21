@@ -1,6 +1,6 @@
 # 293x-1079 MIMAP-455A Allocator Comparison C Mimalloc Result Ledger Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -32,3 +32,26 @@ Add observer-only diagnostics over the MIMAP-454A comparison result ledger.
 ## Validation
 
 Planned validation profile: `scalar-mir`.
+
+## Design
+
+SSOT:
+
+```text
+docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-ledger-diagnostics-ssot.md
+```
+
+## Completed
+
+- Added `HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic`.
+- Added the MIMAP-455A proof app and manifest-backed guard.
+- Classified accepted / missing-Hako / blocked-Hako / missing-C / blocked-C
+  ledger rows.
+- Preserved scalar metrics and stop-line fields without rerunning benchmarks or
+  making performance / memory-use conclusions.
+
+Validated:
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_ledger_diagnostics_guard.sh --level L2
+```
