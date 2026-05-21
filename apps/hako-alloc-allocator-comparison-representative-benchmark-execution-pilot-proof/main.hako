@@ -1,0 +1,84 @@
+// hako-alloc-allocator-comparison-representative-benchmark-execution-pilot-proof
+// Purpose: prove MIMAP-444A representative benchmark execution pilot.
+
+using selfhost.hako_alloc.memory.allocator_comparison_controlled_benchmark_execution_inventory_box as HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory
+using selfhost.hako_alloc.memory.allocator_comparison_controlled_benchmark_execution_diagnostic_box as HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic
+using selfhost.hako_alloc.memory.allocator_comparison_representative_benchmark_execution_pilot_box as HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot
+
+static box Main {
+    main(args) {
+        local inventory_owner = new HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic()
+        local execution_owner = new HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot()
+
+        local inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local diagnostic = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(inventory)
+        local accepted = execution_owner.executeRepresentativeBenchmark(diagnostic, 1, 1, 1)
+
+        local blocked_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local blocked_diagnostic = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(blocked_inventory)
+        local blocked = execution_owner.executeRepresentativeBenchmark(blocked_diagnostic, 1, 1, 1)
+        local invalid_run = execution_owner.executeRepresentativeBenchmark(diagnostic, 0, 1, 1)
+        local missing_output = execution_owner.executeRepresentativeBenchmark(diagnostic, 1, 0, 1)
+        local missing_evidence = execution_owner.executeRepresentativeBenchmark(diagnostic, 1, 1, 0)
+        diagnostic.process_replacement_executed = 1
+        local closed_seam = execution_owner.executeRepresentativeBenchmark(diagnostic, 1, 1, 1)
+
+        local ok = check "mimap444a allocator comparison representative benchmark execution pilot" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "execution present": accepted.representative_benchmark_execution_present == 1
+            "diagnostic present": accepted.controlled_execution_diagnostic_present == 1
+            "shape ready": accepted.controlled_execution_shape_ready == 1
+            "benchmark executed": accepted.benchmark_executed == 1
+            "output": accepted.output_contract_present == 1
+            "evidence": accepted.evidence_storage_present == 1
+            "run count": accepted.run_count == 1
+            "alloc count": accepted.allocation_count == 3
+            "release count": accepted.release_count == 1
+            "reject count": accepted.reject_count == 2
+            "requested bytes": accepted.requested_bytes == 72
+            "outstanding": accepted.outstanding_blocks == 2
+            "small free": accepted.small_free_count == 7
+            "medium free": accepted.medium_free_count == 3
+            "owner count": execution_owner.execution_count == 6
+            "owner accepted": execution_owner.accepted_count == 1
+            "owner rejected": execution_owner.reject_total_count == 5
+            "owner not ready": execution_owner.not_ready_reject_count == 1
+            "owner invalid run": execution_owner.invalid_run_count_reject_count == 1
+            "owner output": execution_owner.missing_output_contract_reject_count == 1
+            "owner evidence": execution_owner.missing_evidence_storage_reject_count == 1
+            "owner closed": execution_owner.closed_seam_reject_count == 1
+            "last reason": execution_owner.last_reason == 5
+            "blocked reason": blocked.reason == 1
+            "invalid run reason": invalid_run.reason == 2
+            "missing output reason": missing_output.reason == 3
+            "missing evidence reason": missing_evidence.reason == 4
+            "closed seam reason": closed_seam.reason == 5
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-representative-benchmark-execution-pilot-proof")
+        print("exec=" + accepted.accepted + "," + accepted.reason + "," + accepted.representative_benchmark_execution_present + "," + accepted.controlled_execution_diagnostic_present + "," + accepted.controlled_execution_shape_ready + "," + accepted.benchmark_executed + "," + accepted.output_contract_present + "," + accepted.evidence_storage_present + "," + accepted.run_count)
+        print("metrics=" + accepted.allocation_count + "," + accepted.release_count + "," + accepted.reject_count + "," + accepted.requested_bytes + "," + accepted.outstanding_blocks + "," + accepted.small_free_count + "," + accepted.medium_free_count)
+        print("owner=" + execution_owner.execution_count + "," + execution_owner.accepted_count + "," + execution_owner.reject_total_count + "," + execution_owner.not_ready_reject_count + "," + execution_owner.invalid_run_count_reject_count + "," + execution_owner.missing_output_contract_reject_count + "," + execution_owner.missing_evidence_storage_reject_count + "," + execution_owner.closed_seam_reject_count + "," + execution_owner.last_reason)
+        print("closed=" + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + blocked.reason + "," + invalid_run.reason + "," + missing_output.reason + "," + missing_evidence.reason + "," + closed_seam.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

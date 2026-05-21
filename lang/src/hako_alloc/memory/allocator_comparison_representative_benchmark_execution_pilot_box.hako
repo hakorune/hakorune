@@ -1,0 +1,297 @@
+// allocator_comparison_representative_benchmark_execution_pilot_box.hako -- MIMAP-444A
+// Responsibility:
+// - execute the first bounded representative hako_alloc benchmark workload
+// - record scalar output evidence for allocator comparison
+// Non-responsibility:
+// - process allocator replacement, hook installation, backend matcher additions,
+//   global allocator install, C mimalloc execution, or worker/thread execution
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+using selfhost.hako_alloc.memory.allocator_comparison_controlled_benchmark_execution_diagnostic_box as HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic
+
+record HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReportFields {
+    accepted: i64
+    reason: i64
+    representative_benchmark_execution_present: i64
+    controlled_execution_diagnostic_present: i64
+    controlled_execution_shape_ready: i64
+    benchmark_executed: i64
+    output_contract_present: i64
+    evidence_storage_present: i64
+    run_count: i64
+    allocation_count: i64
+    release_count: i64
+    reject_count: i64
+    requested_bytes: i64
+    outstanding_blocks: i64
+    small_free_count: i64
+    medium_free_count: i64
+    execution_count: i64
+    accepted_count: i64
+    reject_total_count: i64
+    not_ready_reject_count: i64
+    invalid_run_count_reject_count: i64
+    missing_output_contract_reject_count: i64
+    missing_evidence_storage_reject_count: i64
+    closed_seam_reject_count: i64
+    last_reason: i64
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    representative_benchmark_execution_present: i64 = 0
+    controlled_execution_diagnostic_present: i64 = 0
+    controlled_execution_shape_ready: i64 = 0
+    benchmark_executed: i64 = 0
+    output_contract_present: i64 = 0
+    evidence_storage_present: i64 = 0
+    run_count: i64 = 0
+    allocation_count: i64 = 0
+    release_count: i64 = 0
+    reject_count: i64 = 0
+    requested_bytes: i64 = 0
+    outstanding_blocks: i64 = 0
+    small_free_count: i64 = 0
+    medium_free_count: i64 = 0
+    execution_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_total_count: i64 = 0
+    not_ready_reject_count: i64 = 0
+    invalid_run_count_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_evidence_storage_reject_count: i64 = 0
+    closed_seam_reject_count: i64 = 0
+    last_reason: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot {
+    execution_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_total_count: i64 = 0
+    not_ready_reject_count: i64 = 0
+    invalid_run_count_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_evidence_storage_reject_count: i64 = 0
+    closed_seam_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport(fields: HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReportFields): HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport {
+        local result = new HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            representative_benchmark_execution_present: fields.representative_benchmark_execution_present,
+            controlled_execution_diagnostic_present: fields.controlled_execution_diagnostic_present,
+            controlled_execution_shape_ready: fields.controlled_execution_shape_ready,
+            benchmark_executed: fields.benchmark_executed,
+            output_contract_present: fields.output_contract_present,
+            evidence_storage_present: fields.evidence_storage_present,
+            run_count: fields.run_count,
+            allocation_count: fields.allocation_count,
+            release_count: fields.release_count,
+            reject_count: fields.reject_count,
+            requested_bytes: fields.requested_bytes,
+            outstanding_blocks: fields.outstanding_blocks,
+            small_free_count: fields.small_free_count,
+            medium_free_count: fields.medium_free_count,
+            execution_count: fields.execution_count,
+            accepted_count: fields.accepted_count,
+            reject_total_count: fields.reject_total_count,
+            not_ready_reject_count: fields.not_ready_reject_count,
+            invalid_run_count_reject_count: fields.invalid_run_count_reject_count,
+            missing_output_contract_reject_count: fields.missing_output_contract_reject_count,
+            missing_evidence_storage_reject_count: fields.missing_evidence_storage_reject_count,
+            closed_seam_reject_count: fields.closed_seam_reject_count,
+            last_reason: fields.last_reason,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(
+        accepted: i64,
+        reason: i64,
+        diagnostic: HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnosticReport,
+        output_contract_present: i64,
+        evidence_storage_present: i64,
+        run_count: i64,
+        allocation_count: i64,
+        release_count: i64,
+        reject_count: i64,
+        requested_bytes: i64,
+        outstanding_blocks: i64,
+        small_free_count: i64,
+        medium_free_count: i64
+    ): HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport {
+        local fields = HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReportFields {
+            accepted: accepted,
+            reason: reason,
+            representative_benchmark_execution_present: accepted,
+            controlled_execution_diagnostic_present: diagnostic.diagnostic_present,
+            controlled_execution_shape_ready: diagnostic.controlled_benchmark_execution_shape_ready,
+            benchmark_executed: accepted,
+            output_contract_present: output_contract_present,
+            evidence_storage_present: evidence_storage_present,
+            run_count: run_count,
+            allocation_count: allocation_count,
+            release_count: release_count,
+            reject_count: reject_count,
+            requested_bytes: requested_bytes,
+            outstanding_blocks: outstanding_blocks,
+            small_free_count: small_free_count,
+            medium_free_count: medium_free_count,
+            execution_count: me.execution_count,
+            accepted_count: me.accepted_count,
+            reject_total_count: me.reject_total_count,
+            not_ready_reject_count: me.not_ready_reject_count,
+            invalid_run_count_reject_count: me.invalid_run_count_reject_count,
+            missing_output_contract_reject_count: me.missing_output_contract_reject_count,
+            missing_evidence_storage_reject_count: me.missing_evidence_storage_reject_count,
+            closed_seam_reject_count: me.closed_seam_reject_count,
+            last_reason: me.last_reason,
+            process_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport(fields)
+    }
+
+    reject(
+        reason: i64,
+        diagnostic: HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnosticReport,
+        output_contract_present: i64,
+        evidence_storage_present: i64,
+        run_count: i64
+    ): HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport {
+        me.reject_total_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.not_ready_reject_count += 1
+        }
+        if reason == 2 {
+            me.invalid_run_count_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_output_contract_reject_count += 1
+        }
+        if reason == 4 {
+            me.missing_evidence_storage_reject_count += 1
+        }
+        if reason == 5 {
+            me.closed_seam_reject_count += 1
+        }
+        return me.makeReport(0, reason, diagnostic, output_contract_present, evidence_storage_present, run_count, 0, 0, 0, 0, 0, 0, 0)
+    }
+
+    diagnosticHasClosedSeam(diagnostic: HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnosticReport): i64 {
+        if diagnostic.benchmark_executed != 0 {
+            return 1
+        }
+        if diagnostic.process_replacement_executed != 0 {
+            return 1
+        }
+        if diagnostic.hook_installed != 0 {
+            return 1
+        }
+        if diagnostic.backend_matcher_added != 0 {
+            return 1
+        }
+        if diagnostic.global_allocator_installed != 0 {
+            return 1
+        }
+        if diagnostic.would_replace_host_allocator != 0 {
+            return 1
+        }
+        if diagnostic.would_install_hook != 0 {
+            return 1
+        }
+        if diagnostic.would_add_backend_matcher != 0 {
+            return 1
+        }
+        if diagnostic.would_run_thread != 0 {
+            return 1
+        }
+        return 0
+    }
+
+    executeRepresentativeBenchmark(
+        diagnostic: HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnosticReport,
+        run_count: i64,
+        output_contract_present: i64,
+        evidence_storage_present: i64
+    ): HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport {
+        me.execution_count += 1
+        if diagnostic.diagnostic_present != 1 {
+            return me.reject(1, diagnostic, output_contract_present, evidence_storage_present, run_count)
+        }
+        if diagnostic.controlled_benchmark_execution_shape_ready != 1 {
+            return me.reject(1, diagnostic, output_contract_present, evidence_storage_present, run_count)
+        }
+        if me.diagnosticHasClosedSeam(diagnostic) != 0 {
+            return me.reject(5, diagnostic, output_contract_present, evidence_storage_present, run_count)
+        }
+        if run_count != 1 {
+            return me.reject(2, diagnostic, output_contract_present, evidence_storage_present, run_count)
+        }
+        if output_contract_present != 1 {
+            return me.reject(3, diagnostic, output_contract_present, evidence_storage_present, run_count)
+        }
+        if evidence_storage_present != 1 {
+            return me.reject(4, diagnostic, output_contract_present, evidence_storage_present, run_count)
+        }
+
+        local alloc = new HakoAllocProductionFacade()
+        local h1 = alloc.allocate(8)
+        local h2 = alloc.allocate(48)
+        local h3 = alloc.allocate(80)
+        alloc.release(h1)
+        local h4 = alloc.allocate(16)
+        alloc.release(h3)
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(
+            1,
+            0,
+            diagnostic,
+            output_contract_present,
+            evidence_storage_present,
+            run_count,
+            alloc.alloc_count,
+            alloc.free_count,
+            alloc.reject_count,
+            alloc.requestedBytes(),
+            alloc.outstandingBlocks(),
+            alloc.smallFreeCount(),
+            alloc.mediumFreeCount()
+        )
+    }
+}

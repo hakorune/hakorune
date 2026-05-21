@@ -1,6 +1,6 @@
 # 293x-1066 MIMAP-444A Allocator Comparison Representative Benchmark Execution Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -32,3 +32,21 @@ must not replace the process allocator or install process-global hooks.
 
 This is a first execution seam. Validation should include representative
 evidence for the exact runner shape chosen by the row.
+
+## Landed Scope
+
+- Added `HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot`
+  as the first bounded representative benchmark execution owner.
+- Added a manifest-backed proof app and L2 guard for the selected
+  `HakoAllocProductionFacade` workload metrics.
+- Added the MIMAP-444A pilot SSOT and selected MIMAP-445A diagnostics.
+- Kept process allocator replacement, hooks, backend matcher additions, global
+  allocator installation, C mimalloc execution, hidden env discovery, and
+  worker/thread execution closed.
+
+## Evidence
+
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_pilot_guard.sh --level L2`
+- `bash tools/checks/run_proof_app.sh --only MIMAP-444A --level L2`
+- `bash tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
