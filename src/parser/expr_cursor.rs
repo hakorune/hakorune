@@ -557,7 +557,7 @@ impl ExprParserWithCursor {
         let mut items = Vec::new();
 
         while !cursor.match_token(&TokenType::RBRACE) && !cursor.is_at_end() {
-            if cursor.match_token(&TokenType::COMMA) {
+            if cursor.match_token(&TokenType::COMMA) || cursor.match_token(&TokenType::NEWLINE) {
                 cursor.advance();
                 continue;
             }
@@ -674,8 +674,15 @@ impl ExprParserWithCursor {
                     line,
                 });
             }
-            cursor.consume(TokenType::COLON)?;
-            let value = Self::parse_expression(cursor)?;
+            let value = if cursor.match_token(&TokenType::COLON) {
+                cursor.advance();
+                Self::parse_expression(cursor)?
+            } else {
+                ASTNode::Variable {
+                    name: field_name.clone(),
+                    span: Span::unknown(),
+                }
+            };
             fields.push((field_name, value));
 
             if cursor.match_token(&TokenType::COMMA) {
@@ -707,6 +714,9 @@ impl ExprParserWithCursor {
         ) {
             offset += 1;
         }
+        if matches!(cursor.peek_nth_token(offset), TokenType::RBRACE) {
+            return true;
+        }
         if !matches!(cursor.peek_nth_token(offset), TokenType::IDENTIFIER(_)) {
             return false;
         }
@@ -714,7 +724,10 @@ impl ExprParserWithCursor {
         while matches!(cursor.peek_nth_token(offset), TokenType::NEWLINE) {
             offset += 1;
         }
-        matches!(cursor.peek_nth_token(offset), TokenType::COLON)
+        matches!(
+            cursor.peek_nth_token(offset),
+            TokenType::COLON | TokenType::COMMA | TokenType::RBRACE | TokenType::NEWLINE
+        )
     }
 
     fn parse_record_update(cursor: &mut TokenCursor, base: ASTNode) -> Result<ASTNode, ParseError> {
@@ -724,7 +737,7 @@ impl ExprParserWithCursor {
         let mut seen = BTreeSet::new();
 
         while !cursor.match_token(&TokenType::RBRACE) && !cursor.is_at_end() {
-            if cursor.match_token(&TokenType::COMMA) {
+            if cursor.match_token(&TokenType::COMMA) || cursor.match_token(&TokenType::NEWLINE) {
                 cursor.advance();
                 continue;
             }
@@ -752,8 +765,15 @@ impl ExprParserWithCursor {
                     line,
                 });
             }
-            cursor.consume(TokenType::COLON)?;
-            let value = Self::parse_expression(cursor)?;
+            let value = if cursor.match_token(&TokenType::COLON) {
+                cursor.advance();
+                Self::parse_expression(cursor)?
+            } else {
+                ASTNode::Variable {
+                    name: field_name.clone(),
+                    span: Span::unknown(),
+                }
+            };
             updates.push((field_name, value));
 
             if cursor.match_token(&TokenType::COMMA) {

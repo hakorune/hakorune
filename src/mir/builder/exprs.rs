@@ -441,6 +441,9 @@ impl super::MirBuilder {
                 fields,
                 ..
             } => self.build_record_literal_value(record_type_name.clone(), fields.clone()),
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                self.build_record_update_value(*base.clone(), updates.clone())
+            }
 
             // UsingStatement: namespace resolution is done at parser/runner level.
             // No MIR emission needed - just return void.

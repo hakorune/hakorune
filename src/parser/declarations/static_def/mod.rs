@@ -191,6 +191,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             is_weak: weak_fields.contains(&name),
             name,
             declared_type_name: None,
+            default_value: None,
         })
         .collect();
 

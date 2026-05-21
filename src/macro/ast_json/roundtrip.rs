@@ -111,6 +111,10 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                                     .get("is_weak")
                                     .and_then(|b| b.as_bool())
                                     .unwrap_or(false),
+                                default_value: item
+                                    .get("default_value")
+                                    .and_then(json_to_ast)
+                                    .map(Box::new),
                             })
                         })
                         .collect::<Vec<_>>()
@@ -123,6 +127,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             is_weak: weak_fields.contains(&name),
                             name,
                             declared_type_name: None,
+                            default_value: None,
                         })
                         .collect()
                 });
@@ -287,6 +292,10 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                                                 .get("is_weak")
                                                 .and_then(|value| value.as_bool())
                                                 .unwrap_or(false),
+                                            default_value: field
+                                                .get("default_value")
+                                                .and_then(json_to_ast)
+                                                .map(Box::new),
                                         })
                                     })
                                     .collect::<Vec<_>>()

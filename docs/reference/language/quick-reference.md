@@ -64,9 +64,14 @@ Blocks and Control
 - `match expr { pattern => expr, _ => fallback }` — MVP match form; no `case` keyword
 
 Collections and failure values
-- `record Name { field: Type }` declares an identity-free aggregate shape.
-- `local r = Name { field: value }` constructs a local record value; field reads
-  such as `r.field` are accepted for tracked local records.
+- `record Name { field: Type = default }` declares an identity-free aggregate
+  shape; scalar literal defaults are construction defaults, not runtime record
+  storage.
+- `local r = Name { field: value }` constructs a local record value; `Name {}`
+  fills declared defaults, and `Name { field }` means `Name { field: field }`.
+  Field reads such as `r.field` are accepted for tracked local records.
+- `local next = r with { field: value }` copies a tracked local record and
+  replaces selected fields without mutating `r`.
 - Narrow same-owner helper calls may accept a local record argument when the
   helper parameter declares the exact record type. This is compiler-local
   scalarization only: no runtime record object, no record return value, no

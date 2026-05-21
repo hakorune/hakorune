@@ -685,6 +685,7 @@ mod tests {
                 name: "limit".to_string(),
                 declared_type_name: Some("IntegerBox".to_string()),
                 is_weak: false,
+                default_value: None,
             }],
         );
         let me_id = builder.alloc_typed(MirType::Box("Counter".to_string()));

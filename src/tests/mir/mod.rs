@@ -82,6 +82,8 @@ pub mod mir_pure_only_core13;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_qmark_lower.rs"]
 pub mod mir_qmark_lower;
+#[path = "../record_construction_ergonomics.rs"]
+pub mod record_construction_ergonomics;
 #[path = "../mir_scope_exit_fini_vm.rs"]
 pub mod mir_scope_exit_fini_vm;
 #[path = "../mir_stage1_cli_emit_program_min.rs"]

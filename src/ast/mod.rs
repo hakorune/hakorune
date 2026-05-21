@@ -28,11 +28,12 @@ pub struct CatchClause {
 }
 
 /// Typed field declaration carried from `.hako` through MIR metadata.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FieldDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
     pub is_weak: bool,
+    pub default_value: Option<Box<ASTNode>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -114,7 +115,7 @@ impl ParamDecl {
 }
 
 /// First-class enum variant declaration carried from parser surface.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EnumVariantDecl {
     pub name: String,
     pub payload_type_name: Option<String>,
@@ -160,6 +161,7 @@ impl EnumVariantDecl {
                     name: format!("_{}", index),
                     declared_type_name: Some(declared_type_name.clone()),
                     is_weak: false,
+                    default_value: None,
                 })
                 .collect()
         } else {

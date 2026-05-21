@@ -98,6 +98,13 @@ pub(crate) struct CompilationContext {
     /// user boxes and must not enter `user_defined_boxes`.
     pub record_decls: HashMap<String, RecordDecl>,
 
+    /// Record field defaults keyed by record name then field name.
+    ///
+    /// Defaults are builder-local source expressions used to complete record
+    /// literals such as `ReportFields {}`. They are not exported as MIR record
+    /// layout truth and must not imply runtime record materialization.
+    pub record_field_defaults: HashMap<String, HashMap<String, ASTNode>>,
+
     /// Enum declarations visible to direct MIR lowering.
     ///
     /// The parser preloads `Option` / `Result` for source validation, but direct
@@ -189,6 +196,7 @@ impl CompilationContext {
             brand_decls: HashMap::new(),
             user_box_field_decls: HashMap::new(),
             record_decls: HashMap::new(),
+            record_field_defaults: HashMap::new(),
             enum_decls,
             record_local_values: HashMap::new(),
             reserved_value_ids: HashSet::new(),
@@ -262,6 +270,7 @@ impl CompilationContext {
                 name: field.clone(),
                 declared_type_name: None,
                 is_weak: weak_fields.contains(field),
+                default_value: None,
             });
         }
 
@@ -302,11 +311,24 @@ impl CompilationContext {
         self.record_decls.insert(
             name.clone(),
             RecordDecl {
-                name,
+                name: name.clone(),
                 type_parameters,
                 fields,
             },
         );
+        let defaults = field_decls
+            .iter()
+            .filter_map(|decl| {
+                decl.default_value
+                    .as_deref()
+                    .map(|expr| (decl.name.clone(), expr.clone()))
+            })
+            .collect::<HashMap<_, _>>();
+        if defaults.is_empty() {
+            self.record_field_defaults.remove(&name);
+        } else {
+            self.record_field_defaults.insert(name, defaults);
+        }
     }
 
     pub fn is_record_decl(&self, name: &str) -> bool {

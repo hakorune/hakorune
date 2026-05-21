@@ -84,7 +84,17 @@ impl MirBuilder {
 
         let mut field_values = Vec::with_capacity(decl.fields.len());
         for field in &decl.fields {
-            let Some(expr) = by_name.remove(&field.name) else {
+            let expr = if let Some(expr) = by_name.remove(&field.name) {
+                expr
+            } else if let Some(default_expr) = self
+                .comp_ctx
+                .record_field_defaults
+                .get(&record_type_name)
+                .and_then(|defaults| defaults.get(&field.name))
+                .cloned()
+            {
+                default_expr
+            } else {
                 return Err(format!(
                     "[record-literal/missing-field] record={} field={}",
                     record_type_name, field.name
@@ -105,6 +115,52 @@ impl MirBuilder {
         }
 
         self.register_record_local_fields(record_type_name, field_values)
+    }
+
+    pub(in crate::mir::builder) fn build_record_update_value(
+        &mut self,
+        base: ASTNode,
+        updates: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String> {
+        let base_value = self.build_record_value_base(base)?;
+        let Some(record) = self.comp_ctx.record_local_value(base_value).cloned() else {
+            return Err(format!(
+                "[record-update/base-not-record] value={}",
+                base_value.as_u32()
+            ));
+        };
+
+        let mut by_name = BTreeMap::new();
+        for (field_name, expr) in updates {
+            if by_name.insert(field_name.clone(), expr).is_some() {
+                return Err(format!(
+                    "[record-update/duplicate-field] record={} field={}",
+                    record.record_name, field_name
+                ));
+            }
+        }
+
+        let mut field_values = Vec::with_capacity(record.fields.len());
+        for field in record.fields {
+            if let Some(expr) = by_name.remove(&field.name) {
+                field_values.push(self.build_record_local_field_value(
+                    field.name,
+                    field.declared_type_name,
+                    expr,
+                )?);
+            } else {
+                field_values.push(field);
+            }
+        }
+
+        if let Some((field_name, _)) = by_name.into_iter().next() {
+            return Err(format!(
+                "[record-update/unknown-field] record={} field={}",
+                record.record_name, field_name
+            ));
+        }
+
+        self.register_record_local_fields(record.record_name, field_values)
     }
 
     pub(in crate::mir::builder) fn fail_if_record_value_escape_by_name(
@@ -163,6 +219,10 @@ impl MirBuilder {
                     self.build_record_literal_value(record_type_name.clone(), fields.clone())?;
                 self.lower_record_field_read_from_value(value, field)
             }
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                let value = self.build_record_update_value(*base.clone(), updates.clone())?;
+                self.lower_record_field_read_from_value(value, field)
+            }
             _ => Ok(None),
         }
     }
@@ -197,9 +257,40 @@ impl MirBuilder {
                     record_type_name, field
                 ));
             }
+            ASTNode::RecordUpdate { .. } => {
+                return Err(format!(
+                    "[record-field-set/unsupported] record-update field={}",
+                    field
+                ));
+            }
             _ => {}
         }
         Ok(())
+    }
+
+    fn build_record_value_base(&mut self, base: ASTNode) -> Result<ValueId, String> {
+        match base {
+            ASTNode::Variable { name, .. } => self
+                .variable_ctx
+                .variable_map
+                .get(&name)
+                .copied()
+                .ok_or_else(|| format!("[record-update/base-unresolved] name={}", name)),
+            ASTNode::New {
+                class, arguments, ..
+            } if self.is_record_constructor_class(&class) => {
+                self.build_record_constructor_value(class, arguments)
+            }
+            ASTNode::RecordLiteral {
+                record_type_name,
+                fields,
+                ..
+            } => self.build_record_literal_value(record_type_name, fields),
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                self.build_record_update_value(*base, updates)
+            }
+            _ => Err("[record-update/base-unsupported] expected=record-local-value".to_string()),
+        }
     }
 
     fn lower_record_field_read_from_value(

@@ -57,6 +57,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
                 "name": decl.name,
                 "declared_type": decl.declared_type_name,
                 "is_weak": decl.is_weak,
+                "default_value": decl.default_value.map(|expr| ast_to_json(&expr)),
             })).collect::<Vec<_>>(),
             "public_fields": public_fields,
             "private_fields": private_fields,
@@ -110,6 +111,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
                     "name": field.name,
                     "declared_type": field.declared_type_name,
                     "is_weak": field.is_weak,
+                    "default_value": field.default_value.map(|expr| ast_to_json(&expr)),
                 })).collect::<Vec<_>>(),
             })).collect::<Vec<_>>(),
             "type_parameters": type_parameters,
@@ -570,6 +572,10 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                                     .get("is_weak")
                                     .and_then(|b| b.as_bool())
                                     .unwrap_or(false),
+                                default_value: item
+                                    .get("default_value")
+                                    .and_then(json_to_ast)
+                                    .map(Box::new),
                             })
                         })
                         .collect::<Vec<_>>()
@@ -582,6 +588,7 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             is_weak: weak_fields.contains(&name),
                             name,
                             declared_type_name: None,
+                            default_value: None,
                         })
                         .collect()
                 });
@@ -903,6 +910,10 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                                                 .get("is_weak")
                                                 .and_then(|value| value.as_bool())
                                                 .unwrap_or(false),
+                                            default_value: field
+                                                .get("default_value")
+                                                .and_then(json_to_ast)
+                                                .map(Box::new),
                                         })
                                     })
                                     .collect::<Vec<_>>()

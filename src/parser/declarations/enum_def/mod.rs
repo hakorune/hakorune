@@ -163,6 +163,7 @@ fn parse_record_variant_fields(p: &mut NyashParser) -> Result<Vec<FieldDecl>, Pa
             name: field_name,
             declared_type_name: Some(declared_type_name),
             is_weak: false,
+            default_value: None,
         });
 
         if p.match_token(&TokenType::COMMA) || p.match_token(&TokenType::SEMICOLON) {

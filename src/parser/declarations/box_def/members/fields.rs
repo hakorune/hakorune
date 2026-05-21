@@ -98,6 +98,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
             name: fname.clone(),
             declared_type_name: None,
             is_weak,
+            default_value: None,
         });
         if let Some(expr) = init_expr {
             field_initializers.push((fname, expr));
@@ -117,6 +118,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
             name: fname.clone(),
             declared_type_name,
             is_weak,
+            default_value: None,
         });
         field_initializers.push((fname, init_expr));
         return Ok(true);
@@ -135,6 +137,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
         name: fname,
         declared_type_name,
         is_weak,
+        default_value: None,
     });
     Ok(true)
 }
@@ -195,6 +198,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
                     name: fname,
                     declared_type_name: None,
                     is_weak,
+                    default_value: None,
                 });
                 p.advance();
                 if p.match_token(&TokenType::COMMA) {
@@ -326,6 +330,7 @@ pub(crate) fn parse_weak_field(
         name: field_name.clone(),
         declared_type_name,
         is_weak: true,
+        default_value: None,
     });
     weak_fields.push(field_name);
     Ok(())

@@ -371,6 +371,7 @@ mod tests {
                 name: "x".to_string(),
                 declared_type_name: Some("IntegerBox".to_string()),
                 is_weak: false,
+                default_value: None,
             }],
         );
         let point_id = builder.alloc_typed(MirType::Box("Point".to_string()));
@@ -512,6 +513,7 @@ mod tests {
                 name: "enabled".to_string(),
                 declared_type_name: Some("BoolBox".to_string()),
                 is_weak: false,
+                default_value: None,
             }],
         );
         let acc_id = builder.alloc_typed(MirType::Integer);

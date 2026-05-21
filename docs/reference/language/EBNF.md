@@ -109,8 +109,10 @@ transition_member := 'transition' TYPE_REF '::' IDENT '-' '>' TYPE_REF '::' IDEN
 
 record_decl := 'record' IDENT type_params? '{' record_member+ '}'
 record_member:= record_field | invariant_member
-record_field:= IDENT ':' TYPE_REF ','?
+record_field:= IDENT ':' TYPE_REF ('=' record_default_expr)? ','?
            ; C202: record is the explicit identity-free aggregate surface.
+           ; ARG-DATA-003: scalar literal defaults are accepted for local
+           ; record construction defaults. They are not runtime stored fields.
            ; MVP fields must be typed and non-weak.
 
 expr      := logic
@@ -157,15 +159,14 @@ factor    := INT
            | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
            | match_expr              ; Pattern matching (replaces legacy peek)
 
-record_literal := IDENT '{' record_literal_field (',' record_literal_field)* ','? '}'
-record_literal_field := IDENT ':' expr
-              ; REC-001: explicit named fields only.
-              ; Missing/extra validation and construction/read lowering are
-              ; Stage1-owned.
-              ; Shorthand `RecordName { field }` is deferred.
+record_literal := IDENT '{' record_literal_field? ((',' | NEWLINE) record_literal_field)* ','? '}'
+record_literal_field := IDENT (':' expr)?
+              ; REC-001/ARG-DATA-003: `field` is shorthand for `field: field`.
+              ; Omitted fields use record declaration defaults when present.
+              ; Missing non-defaulted fields and extra fields fail-fast.
 
 record_update := expr 'with' '{' record_update_field (',' record_update_field)* ','? '}'
-record_update_field := IDENT ':' expr
+record_update_field := IDENT (':' expr)?
               ; REC-003: `with` is contextual in expression-postfix position.
               ; It is identity-free replacement, not mutation.
 
@@ -344,9 +345,10 @@ record HakoAllocAlignedSmallMeta {
 }
 ```
 
-The C202 MVP accepts only fixed typed fields. It rejects weak fields,
-initializers, methods, `fini`, inheritance, and interface implementation in
-record declarations.
+The C202 MVP accepts only fixed typed fields. ARG-DATA-003 additionally accepts
+scalar literal field defaults for local record construction ergonomics. Record
+declarations still reject weak fields, methods, `fini`, inheritance, and
+interface implementation.
 
 Explicit record literals construct identity-free record values:
 
@@ -359,10 +361,23 @@ local meta = HakoAllocAlignedSmallMeta {
 }
 ```
 
-Record literals must mention exactly the declared field set. Missing fields and
-extra fields are Stage1 errors. Lowered Program JSON v0 carries declared field
-index/type metadata on construction fields, and tracked local record reads lower
-as `RecordField` rather than ordinary box field access.
+Record literals may omit fields that have declaration defaults:
+
+```hako
+record ReportFields {
+    accepted: i64 = 0
+    reason: i64 = 0
+}
+
+local fields = ReportFields {}
+local rejected = ReportFields { reason: 2 }
+```
+
+`RecordName { field }` is shorthand for `RecordName { field: field }`. Missing
+non-defaulted fields and extra fields are Stage1 errors. Lowered Program JSON
+v0 carries declared field index/type metadata on construction fields, and
+tracked local record reads lower as `RecordField` rather than ordinary box field
+access.
 
 Current executable record use is intentionally narrow. A local record value may
 act as a compiler-local value carrier for:

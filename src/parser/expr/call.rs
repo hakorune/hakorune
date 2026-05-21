@@ -285,8 +285,15 @@ impl NyashParser {
                     line: self.current_token().line,
                 });
             }
-            self.consume(TokenType::COLON)?;
-            let value = self.parse_expression()?;
+            let value = if self.match_token(&TokenType::COLON) {
+                self.advance();
+                self.parse_expression()?
+            } else {
+                ASTNode::Variable {
+                    name: field_name.clone(),
+                    span: Span::unknown(),
+                }
+            };
             updates.push((field_name, value));
 
             if self.match_token(&TokenType::COMMA) {

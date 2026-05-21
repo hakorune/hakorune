@@ -640,8 +640,15 @@ impl NyashParser {
                     line: self.current_token().line,
                 });
             }
-            self.consume(TokenType::COLON)?;
-            let value = self.parse_expression()?;
+            let value = if self.match_token(&TokenType::COLON) {
+                self.advance();
+                self.parse_expression()?
+            } else {
+                ASTNode::Variable {
+                    name: field_name.clone(),
+                    span: Span::unknown(),
+                }
+            };
             fields.push((field_name, value));
 
             if self.match_token(&TokenType::COMMA) {
@@ -679,6 +686,9 @@ impl NyashParser {
         ) {
             offset += 1;
         }
+        if matches!(self.peek_nth_token(offset), TokenType::RBRACE) {
+            return true;
+        }
         if !matches!(self.peek_nth_token(offset), TokenType::IDENTIFIER(_)) {
             return false;
         }
@@ -686,7 +696,10 @@ impl NyashParser {
         while matches!(self.peek_nth_token(offset), TokenType::NEWLINE) {
             offset += 1;
         }
-        matches!(self.peek_nth_token(offset), TokenType::COLON)
+        matches!(
+            self.peek_nth_token(offset),
+            TokenType::COLON | TokenType::COMMA | TokenType::RBRACE | TokenType::NEWLINE
+        )
     }
 
     /// Parse BlockExpr: { prelude_stmts; tail_expr }
