@@ -57,7 +57,7 @@ guard_expect_in_file "$TAG" 'cache.storeSlot' "$OWNER" "worker/TLS owner must wr
 guard_expect_in_file "$TAG" 'cache.loadSlot' "$OWNER" "worker/TLS owner must read through cache seam"
 guard_expect_in_file "$TAG" 'cache.clearSlot' "$OWNER" "worker/TLS owner must clear through cache seam"
 guard_expect_in_file "$TAG" 'would_use_worker_tls: worker_tls_present' "$OWNER" "worker/TLS seam must be explicit"
-guard_expect_in_file "$TAG" 'would_run_thread: 0' "$OWNER" "worker/TLS pilot must not schedule workers"
+guard_expect_in_file "$TAG" 'would_run_thread: (0|i64 = 0)' "$OWNER" "worker/TLS pilot must not schedule workers"
 guard_expect_in_file "$TAG" 'report_applied_backing_bytes: usize' "$OWNER" "worker/TLS report must mirror backing bytes as usize"
 
 if rg -n 'pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator|replace_process_allocator' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then

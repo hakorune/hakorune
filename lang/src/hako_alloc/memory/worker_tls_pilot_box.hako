@@ -10,57 +10,57 @@ using selfhost.hako_alloc.memory.osvm_page_source_pilot_box as HakoAllocOSVMPage
 using selfhost.hako_alloc.memory.worker_tls_cache_box as HakoAllocWorkerTlsCacheBox
 
 record HakoAllocWorkerTlsPilotReportFields {
-    accepted: i64
-    reason: i64
-    worker_tls_present: i64
-    page_source_present: i64
-    page_source_accepted: i64
-    page_source_reason: i64
-    page_source_token: i64
-    bitmap_token: i64
-    mutation_token: i64
-    lookup_result_token: i64
-    arena_handle_token: i64
-    private_pointer_token: i64
-    worker_id: i64
-    worker_id_valid: i64
-    tls_slot: i64
-    tls_slot_valid: i64
-    tls_stored_value: i64
-    tls_loaded_value: i64
-    tls_cleared_value: i64
-    tls_store_rc: i64
-    tls_clear_rc: i64
-    tls_roundtrip_ok: i64
-    worker_tls_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_page_source_reject_count: i64
-    rejected_page_source_reject_count: i64
-    invalid_worker_reject_count: i64
-    invalid_tls_slot_reject_count: i64
-    tls_roundtrip_reject_count: i64
-    closed_execution_reject_count: i64
-    last_reason: i64
-    report_segment_id: i64
-    report_arena_id: i64
-    report_lifetime_generation: i64
-    report_release_applied_recycle_token: i64
-    report_continuation_token: i64
-    report_application_token: i64
-    report_applied_backing_bytes: usize
-    report_applied_committed_bytes: usize
-    report_remaining_source_bytes: usize
-    would_dereference: i64
-    would_release_arena_backing: i64
-    would_recycle_arena_backing: i64
-    would_mutate_segment_map: i64
-    would_execute_atomic_bitmap: i64
-    would_call_osvm: i64
-    would_use_worker_tls: i64
-    would_run_thread: i64
-    would_activate_provider: i64
-    would_add_backend_matcher: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    worker_tls_present: i64 = 0
+    page_source_present: i64 = 0
+    page_source_accepted: i64 = 0
+    page_source_reason: i64 = 0
+    page_source_token: i64 = 0
+    bitmap_token: i64 = 0
+    mutation_token: i64 = 0
+    lookup_result_token: i64 = 0
+    arena_handle_token: i64 = 0
+    private_pointer_token: i64 = 0
+    worker_id: i64 = -1
+    worker_id_valid: i64 = 0
+    tls_slot: i64 = -1
+    tls_slot_valid: i64 = 0
+    tls_stored_value: i64 = 0
+    tls_loaded_value: i64 = 0
+    tls_cleared_value: i64 = 0
+    tls_store_rc: i64 = -1
+    tls_clear_rc: i64 = -1
+    tls_roundtrip_ok: i64 = 0
+    worker_tls_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_page_source_reject_count: i64 = 0
+    rejected_page_source_reject_count: i64 = 0
+    invalid_worker_reject_count: i64 = 0
+    invalid_tls_slot_reject_count: i64 = 0
+    tls_roundtrip_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    would_dereference: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_mutate_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_use_worker_tls: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
 }
 
 box HakoAllocWorkerTlsPilotReport {
@@ -220,7 +220,7 @@ box HakoAllocWorkerTlsPilot {
         if slot >= 0 {
             tls_slot_valid = 1
         }
-        local fields = HakoAllocWorkerTlsPilotReportFields {
+        local payload_fields = HakoAllocWorkerTlsPilotReportFields {
             accepted: accepted,
             reason: reason,
             worker_tls_present: worker_tls_present,
@@ -273,7 +273,7 @@ box HakoAllocWorkerTlsPilot {
             would_activate_provider: page_report.would_activate_provider,
             would_add_backend_matcher: page_report.would_add_backend_matcher
         }
-        return me.makeWorkerTlsPilotReport(fields)
+        return me.makeWorkerTlsPilotReport(payload_fields)
     }
 
     reject(reason, page_report: HakoAllocOSVMPageSourcePilotReport, slot, stored_value, loaded_value, cleared_value, store_rc, clear_rc, roundtrip_ok): HakoAllocWorkerTlsPilotReport {

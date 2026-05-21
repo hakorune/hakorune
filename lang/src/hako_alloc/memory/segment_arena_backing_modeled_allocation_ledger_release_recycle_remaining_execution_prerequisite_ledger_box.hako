@@ -8,58 +8,58 @@
 //   OSVM, worker/TLS, provider activation, or backend matchers
 
 record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedgerReportFields {
-    accepted: i64
-    reason: i64
-    ledger_present: i64
-    matrix_present: i64
-    matrix_accepted: i64
-    matrix_reason: i64
-    remaining_requirement_count: i64
-    remaining_supported_count: i64
-    remaining_unsupported_count: i64
-    arena_release_required: i64
-    arena_release_supported: i64
-    arena_recycle_required: i64
-    arena_recycle_supported: i64
-    segment_map_required: i64
-    segment_map_supported: i64
-    atomic_bitmap_required: i64
-    atomic_bitmap_supported: i64
-    osvm_required: i64
-    osvm_supported: i64
-    worker_tls_required: i64
-    worker_tls_supported: i64
-    provider_required: i64
-    provider_supported: i64
-    backend_matcher_required: i64
-    backend_matcher_supported: i64
-    ledger_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_matrix_reject_count: i64
-    rejected_matrix_reject_count: i64
-    execution_open_reject_count: i64
-    last_reason: i64
-    report_segment_id: i64
-    report_arena_id: i64
-    report_lifetime_generation: i64
-    report_release_applied_recycle_token: i64
-    report_continuation_token: i64
-    report_application_token: i64
-    report_applied_backing_bytes: usize
-    report_applied_committed_bytes: usize
-    report_remaining_source_bytes: usize
-    would_create_lifecycle_generation: i64
-    would_create_pointer_residence: i64
-    would_lookup_by_pointer: i64
-    would_release_arena_backing: i64
-    would_recycle_arena_backing: i64
-    would_use_segment_map: i64
-    would_execute_atomic_bitmap: i64
-    would_call_osvm: i64
-    would_run_thread: i64
-    would_activate_provider: i64
-    would_add_backend_matcher: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    ledger_present: i64 = 0
+    matrix_present: i64 = 0
+    matrix_accepted: i64 = 0
+    matrix_reason: i64 = 0
+    remaining_requirement_count: i64 = 0
+    remaining_supported_count: i64 = 0
+    remaining_unsupported_count: i64 = 0
+    arena_release_required: i64 = 0
+    arena_release_supported: i64 = 0
+    arena_recycle_required: i64 = 0
+    arena_recycle_supported: i64 = 0
+    segment_map_required: i64 = 0
+    segment_map_supported: i64 = 0
+    atomic_bitmap_required: i64 = 0
+    atomic_bitmap_supported: i64 = 0
+    osvm_required: i64 = 0
+    osvm_supported: i64 = 0
+    worker_tls_required: i64 = 0
+    worker_tls_supported: i64 = 0
+    provider_required: i64 = 0
+    provider_supported: i64 = 0
+    backend_matcher_required: i64 = 0
+    backend_matcher_supported: i64 = 0
+    ledger_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_matrix_reject_count: i64 = 0
+    rejected_matrix_reject_count: i64 = 0
+    execution_open_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    would_create_lifecycle_generation: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
 }
 
 box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedgerReport {
