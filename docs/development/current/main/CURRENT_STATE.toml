@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-446A landed allocator comparison representative benchmark execution closeout and selected MIMAP-447A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-447A landed allocator comparison C mimalloc execution plan and selected MIMAP-448A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1069-MIMAP-447A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-PLAN.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1070-MIMAP-448A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1068-MIMAP-446A-ALLOCATOR-COMPARISON-REPRESENTATIVE-BENCHMARK-EXECUTION-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1068-MIMAP-446A-ALLOCATOR-COMPARISON-REPRESENTATIVE-BENCHMARK-EXECUTION-CLOSEOUT.md"
-latest_card_summary = "Landed allocator comparison representative benchmark execution closeout while host allocator replacement, hook install, backend matcher additions, C mimalloc execution, worker/thread execution, and global allocator install remain closed."
+latest_card = "293x-1069-MIMAP-447A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1069-MIMAP-447A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-PLAN.md"
+latest_card_summary = "Landed allocator comparison C mimalloc execution plan while host allocator replacement, hook install, backend matcher additions, implicit C mimalloc execution, worker/thread execution, and global allocator install remain closed."
 
-current_blocker_token = "MIMAP-447A"
+current_blocker_token = "MIMAP-448A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1069 MIMAP-447A allocator comparison C mimalloc execution plan landed; MIMAP-448A selected",
   "293x-1068 MIMAP-446A allocator comparison representative benchmark execution closeout landed; MIMAP-447A selected",
   "293x-1067 MIMAP-445A allocator comparison representative benchmark execution diagnostics landed; MIMAP-446A selected",
   "293x-1066 MIMAP-444A allocator comparison representative benchmark execution pilot landed; MIMAP-445A selected",

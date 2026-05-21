@@ -1,6 +1,6 @@
 # 293x-1069 MIMAP-447A Allocator Comparison C Mimalloc Execution Plan
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -28,5 +28,20 @@ benchmark execution pack is closed.
 
 ## Validation
 
-Planning validation should be L0/L1 unless a proof app or runner contract is
-added by this row.
+Planning validation is L0.
+
+## Landed Scope
+
+- Added the C mimalloc execution plan SSOT.
+- Selected MIMAP-448A as the C mimalloc execution inventory row.
+- Kept C mimalloc execution explicit and still closed until an execution row
+  opens it.
+- Kept process allocator replacement, hooks, backend matcher additions, global
+  allocator installation, hidden env discovery, and worker/thread execution
+  closed.
+
+## Evidence
+
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_plan_guard.sh`
+- `bash tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
