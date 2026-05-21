@@ -1,6 +1,6 @@
 # 293x-1075 MIMAP-453A Allocator Comparison C Mimalloc Explicit Runner Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -15,6 +15,14 @@ evidence diagnostics pack before opening a comparison-result ledger row.
 - Confirm the runner evidence contract, `.hako` evidence ledger, and diagnostic
   reason vocabulary are in sync.
 - Select the next narrow comparison-result ledger row.
+
+## Design
+
+SSOT:
+
+```text
+docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-closeout-ssot.md
+```
 
 ## Stop Lines
 
@@ -32,3 +40,22 @@ evidence diagnostics pack before opening a comparison-result ledger row.
 ## Validation
 
 Planned validation profile: closeout over MIMAP-451A / MIMAP-452A L2 guards.
+
+Required guard:
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_explicit_runner_closeout_guard.sh
+```
+
+## Completed
+
+- Added the closeout SSOT and guard.
+- Reused MIMAP-451A / MIMAP-452A L2 guards as the evidence pack.
+- Kept repeated benchmark execution, process allocator replacement, hooks,
+  backend matcher additions, `#[global_allocator]`, provider package / DLL
+  generation, hidden runtime discovery, and worker/thread execution closed.
+
+## Next
+
+MIMAP-454A should open a narrow C-vs-Hako comparison result ledger over explicit
+runner evidence and existing Hako representative metrics.
