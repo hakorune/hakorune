@@ -1,6 +1,6 @@
 # 293x-1062 MIMAP-440A Allocator Comparison Controlled Benchmark Execution Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -28,6 +28,21 @@ closed.
 - No source-level worker-local or concurrency surface.
 - No cross-function `Result` direct ABI or runtime sum materialization.
 
+## Landed Scope
+
+- Added `HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory`
+  with explicit runner, workload source, measurement source, output contract,
+  evidence storage, and representative-run inputs.
+- Added a manifest-backed proof app and L2 guard for the controlled benchmark
+  execution inventory shape.
+- Added the MIMAP-440A inventory SSOT and selected MIMAP-441A diagnostics.
+- Kept benchmark execution, process allocator replacement, hooks, backend
+  matcher additions, global allocator installation, hidden env discovery, and
+  worker/thread execution closed.
+
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_controlled_benchmark_execution_inventory_guard.sh --level L2`
+- `bash tools/checks/run_proof_app.sh --only MIMAP-440A --level L2`
+- `bash tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`

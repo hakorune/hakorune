@@ -1,0 +1,321 @@
+// allocator_comparison_controlled_benchmark_execution_inventory_box.hako -- MIMAP-440A
+// Responsibility:
+// - inventory the first controlled allocator comparison benchmark execution shape
+// Non-responsibility:
+// - benchmark execution, hook installation, process allocator replacement,
+//   backend matcher additions, global allocator install, or worker/thread execution
+
+record HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields {
+    accepted: i64
+    reason: i64
+    controlled_benchmark_execution_inventory_present: i64
+    controlled_benchmark_execution_shape_ready: i64
+    benchmark_runner_selected: i64
+    workload_source_ready: i64
+    measurement_source_ready: i64
+    output_contract_present: i64
+    evidence_storage_present: i64
+    representative_run_selected: i64
+    process_replacement_closed: i64
+    hook_install_closed: i64
+    backend_matcher_closed: i64
+    global_allocator_closed: i64
+    hidden_env_closed: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_runner_reject_count: i64
+    workload_source_not_ready_reject_count: i64
+    measurement_source_not_ready_reject_count: i64
+    missing_output_contract_reject_count: i64
+    missing_evidence_storage_reject_count: i64
+    missing_representative_run_reject_count: i64
+    process_replacement_open_reject_count: i64
+    hook_open_reject_count: i64
+    backend_matcher_open_reject_count: i64
+    global_allocator_open_reject_count: i64
+    hidden_env_open_reject_count: i64
+    last_reason: i64
+    benchmark_executed: i64
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    controlled_benchmark_execution_planned: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    controlled_benchmark_execution_inventory_present: i64 = 0
+    controlled_benchmark_execution_shape_ready: i64 = 0
+    benchmark_runner_selected: i64 = 0
+    workload_source_ready: i64 = 0
+    measurement_source_ready: i64 = 0
+    output_contract_present: i64 = 0
+    evidence_storage_present: i64 = 0
+    representative_run_selected: i64 = 0
+    process_replacement_closed: i64 = 0
+    hook_install_closed: i64 = 0
+    backend_matcher_closed: i64 = 0
+    global_allocator_closed: i64 = 0
+    hidden_env_closed: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_runner_reject_count: i64 = 0
+    workload_source_not_ready_reject_count: i64 = 0
+    measurement_source_not_ready_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_evidence_storage_reject_count: i64 = 0
+    missing_representative_run_reject_count: i64 = 0
+    process_replacement_open_reject_count: i64 = 0
+    hook_open_reject_count: i64 = 0
+    backend_matcher_open_reject_count: i64 = 0
+    global_allocator_open_reject_count: i64 = 0
+    hidden_env_open_reject_count: i64 = 0
+    last_reason: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    controlled_benchmark_execution_planned: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_runner_reject_count: i64 = 0
+    workload_source_not_ready_reject_count: i64 = 0
+    measurement_source_not_ready_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_evidence_storage_reject_count: i64 = 0
+    missing_representative_run_reject_count: i64 = 0
+    process_replacement_open_reject_count: i64 = 0
+    hook_open_reject_count: i64 = 0
+    backend_matcher_open_reject_count: i64 = 0
+    global_allocator_open_reject_count: i64 = 0
+    hidden_env_open_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonControlledBenchmarkExecutionInventoryReport(fields: HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields): HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
+        local result = new HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            controlled_benchmark_execution_inventory_present: fields.controlled_benchmark_execution_inventory_present,
+            controlled_benchmark_execution_shape_ready: fields.controlled_benchmark_execution_shape_ready,
+            benchmark_runner_selected: fields.benchmark_runner_selected,
+            workload_source_ready: fields.workload_source_ready,
+            measurement_source_ready: fields.measurement_source_ready,
+            output_contract_present: fields.output_contract_present,
+            evidence_storage_present: fields.evidence_storage_present,
+            representative_run_selected: fields.representative_run_selected,
+            process_replacement_closed: fields.process_replacement_closed,
+            hook_install_closed: fields.hook_install_closed,
+            backend_matcher_closed: fields.backend_matcher_closed,
+            global_allocator_closed: fields.global_allocator_closed,
+            hidden_env_closed: fields.hidden_env_closed,
+            inventory_count: fields.inventory_count,
+            accepted_count: fields.accepted_count,
+            reject_count: fields.reject_count,
+            missing_runner_reject_count: fields.missing_runner_reject_count,
+            workload_source_not_ready_reject_count: fields.workload_source_not_ready_reject_count,
+            measurement_source_not_ready_reject_count: fields.measurement_source_not_ready_reject_count,
+            missing_output_contract_reject_count: fields.missing_output_contract_reject_count,
+            missing_evidence_storage_reject_count: fields.missing_evidence_storage_reject_count,
+            missing_representative_run_reject_count: fields.missing_representative_run_reject_count,
+            process_replacement_open_reject_count: fields.process_replacement_open_reject_count,
+            hook_open_reject_count: fields.hook_open_reject_count,
+            backend_matcher_open_reject_count: fields.backend_matcher_open_reject_count,
+            global_allocator_open_reject_count: fields.global_allocator_open_reject_count,
+            hidden_env_open_reject_count: fields.hidden_env_open_reject_count,
+            last_reason: fields.last_reason,
+            benchmark_executed: fields.benchmark_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            controlled_benchmark_execution_planned: fields.controlled_benchmark_execution_planned,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(
+        accepted: i64,
+        reason: i64,
+        benchmark_runner_selected: i64,
+        workload_source_ready: i64,
+        measurement_source_ready: i64,
+        output_contract_present: i64,
+        evidence_storage_present: i64,
+        representative_run_selected: i64,
+        process_replacement_closed: i64,
+        hook_install_closed: i64,
+        backend_matcher_closed: i64,
+        global_allocator_closed: i64,
+        hidden_env_closed: i64
+    ): HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
+        local fields = HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields {
+            accepted: accepted,
+            reason: reason,
+            controlled_benchmark_execution_inventory_present: accepted,
+            controlled_benchmark_execution_shape_ready: accepted,
+            benchmark_runner_selected: benchmark_runner_selected,
+            workload_source_ready: workload_source_ready,
+            measurement_source_ready: measurement_source_ready,
+            output_contract_present: output_contract_present,
+            evidence_storage_present: evidence_storage_present,
+            representative_run_selected: representative_run_selected,
+            process_replacement_closed: process_replacement_closed,
+            hook_install_closed: hook_install_closed,
+            backend_matcher_closed: backend_matcher_closed,
+            global_allocator_closed: global_allocator_closed,
+            hidden_env_closed: hidden_env_closed,
+            inventory_count: me.inventory_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_runner_reject_count: me.missing_runner_reject_count,
+            workload_source_not_ready_reject_count: me.workload_source_not_ready_reject_count,
+            measurement_source_not_ready_reject_count: me.measurement_source_not_ready_reject_count,
+            missing_output_contract_reject_count: me.missing_output_contract_reject_count,
+            missing_evidence_storage_reject_count: me.missing_evidence_storage_reject_count,
+            missing_representative_run_reject_count: me.missing_representative_run_reject_count,
+            process_replacement_open_reject_count: me.process_replacement_open_reject_count,
+            hook_open_reject_count: me.hook_open_reject_count,
+            backend_matcher_open_reject_count: me.backend_matcher_open_reject_count,
+            global_allocator_open_reject_count: me.global_allocator_open_reject_count,
+            hidden_env_open_reject_count: me.hidden_env_open_reject_count,
+            last_reason: me.last_reason,
+            benchmark_executed: 0,
+            process_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
+            controlled_benchmark_execution_planned: accepted,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeAllocatorComparisonControlledBenchmarkExecutionInventoryReport(fields)
+    }
+
+    reject(
+        reason: i64,
+        benchmark_runner_selected: i64,
+        workload_source_ready: i64,
+        measurement_source_ready: i64,
+        output_contract_present: i64,
+        evidence_storage_present: i64,
+        representative_run_selected: i64,
+        process_replacement_closed: i64,
+        hook_install_closed: i64,
+        backend_matcher_closed: i64,
+        global_allocator_closed: i64,
+        hidden_env_closed: i64
+    ): HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_runner_reject_count += 1
+        }
+        if reason == 2 {
+            me.workload_source_not_ready_reject_count += 1
+        }
+        if reason == 3 {
+            me.measurement_source_not_ready_reject_count += 1
+        }
+        if reason == 4 {
+            me.missing_output_contract_reject_count += 1
+        }
+        if reason == 5 {
+            me.missing_evidence_storage_reject_count += 1
+        }
+        if reason == 6 {
+            me.missing_representative_run_reject_count += 1
+        }
+        if reason == 7 {
+            me.process_replacement_open_reject_count += 1
+        }
+        if reason == 8 {
+            me.hook_open_reject_count += 1
+        }
+        if reason == 9 {
+            me.backend_matcher_open_reject_count += 1
+        }
+        if reason == 10 {
+            me.global_allocator_open_reject_count += 1
+        }
+        if reason == 11 {
+            me.hidden_env_open_reject_count += 1
+        }
+        return me.makeReport(0, reason, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+    }
+
+    inventoryAllocatorComparisonControlledBenchmarkExecution(
+        benchmark_runner_selected: i64,
+        workload_source_ready: i64,
+        measurement_source_ready: i64,
+        output_contract_present: i64,
+        evidence_storage_present: i64,
+        representative_run_selected: i64,
+        process_replacement_closed: i64,
+        hook_install_closed: i64,
+        backend_matcher_closed: i64,
+        global_allocator_closed: i64,
+        hidden_env_closed: i64
+    ): HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
+        me.inventory_count += 1
+        if benchmark_runner_selected != 1 {
+            return me.reject(1, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if workload_source_ready != 1 {
+            return me.reject(2, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if measurement_source_ready != 1 {
+            return me.reject(3, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if output_contract_present != 1 {
+            return me.reject(4, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if evidence_storage_present != 1 {
+            return me.reject(5, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if representative_run_selected != 1 {
+            return me.reject(6, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if process_replacement_closed != 1 {
+            return me.reject(7, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if hook_install_closed != 1 {
+            return me.reject(8, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if backend_matcher_closed != 1 {
+            return me.reject(9, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if global_allocator_closed != 1 {
+            return me.reject(10, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+        if hidden_env_closed != 1 {
+            return me.reject(11, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, benchmark_runner_selected, workload_source_ready, measurement_source_ready, output_contract_present, evidence_storage_present, representative_run_selected, process_replacement_closed, hook_install_closed, backend_matcher_closed, global_allocator_closed, hidden_env_closed)
+    }
+}
