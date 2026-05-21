@@ -69,15 +69,26 @@ problem is wide, flat data:
    It is useful as a field-set contract even when it does not reduce line
    count.
 
-4. Do not introduce wide-copy sugar yet.
+4. Use record construction ergonomics only for owner-local data shaping.
+   ARG-DATA-003 accepted record field defaults, empty record literals,
+   same-name shorthand, and record-only `with` updates. These are Stage1
+   source ergonomics for tracked local records, not runtime record
+   materialization and not an automatic record-to-box copy.
+
+5. Do not introduce wide-copy sugar yet.
    The following remain parked until a later language row proves exact
    semantics and fail-fast behavior:
 
-   - record default values;
-   - record literal same-name shorthand;
    - record spread / `...fields`;
    - named arguments;
    - automatic record-to-box copy.
+
+6. Do not bulk-convert every historical diagnostic owner just to make the
+   source look uniform. The measured ARG-DATA-008 batch showed little line-count
+   reduction when only defaults and `with` are applied. Future owner work should
+   use the accepted record ergonomics for new or touched owners, and should use
+   data-shape decomposition when actual line-count or argument-pressure
+   reduction is required.
 
 ## Near-Term Pilot
 
@@ -129,13 +140,53 @@ record-local carrier escape across owner boundaries. Internally, the owner now
 constructs context records once and passes them through `reject` / `makeReport`,
 reducing repeated argument transport without adding new syntax.
 
+## ARG-DATA-003 to ARG-DATA-008 Outcome
+
+ARG-DATA-003 accepted the narrow Stage1 record construction ergonomics surface:
+
+```hako
+record ReportFields {
+    accepted: i64 = 0
+    reason: i64 = 0
+}
+
+local fields = ReportFields {}
+fields = fields with {
+    accepted: 1,
+    reason
+}
+```
+
+ARG-DATA-004 through ARG-DATA-008 applied that shape to selected
+allocator-comparison diagnostic owners. The useful effect was structural:
+
+- ReportFields defaults are visible at the owner-local record boundary;
+- omitted scalar fields use the record default rather than repeated explicit
+  zeroes;
+- `with` makes the update step explicit without mutating the base record;
+- ordinary report boxes still use explicit `new Report { field: fields.field }`
+  copy helpers.
+
+This is not a broad line-count cleanup by itself. The current task boundary is:
+
+```text
+new or touched diagnostic owner:
+  use ReportFields defaults and record-only with
+
+large historical owner with real argument pressure:
+  split data shape first, then use record ergonomics
+
+parked:
+  spread, named args, automatic record-to-box copy, box with
+```
+
 ## Stop Lines
 
 - No new source syntax in ARG-DATA-001.
 - No `...fields` / spread syntax.
 - No named argument syntax.
-- No record default value semantics.
 - No automatic record-to-box copy semantics.
+- No ordinary-box `with` copy/update.
 - No runtime record object materialization.
 - No backend route additions.
 - No process allocator replacement, hooks, backend matcher additions,
