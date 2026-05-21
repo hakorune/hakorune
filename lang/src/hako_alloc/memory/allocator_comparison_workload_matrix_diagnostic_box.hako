@@ -9,42 +9,42 @@
 using selfhost.hako_alloc.memory.allocator_comparison_workload_matrix_inventory_box as HakoAllocAllocatorComparisonWorkloadMatrixInventory
 
 record HakoAllocAllocatorComparisonWorkloadMatrixDiagnosticReportFields {
-    accepted: i64
-    reason: i64
-    diagnostic_present: i64
-    workload_matrix_inventory_present: i64
-    workload_matrix_ready: i64
-    blocked_workload_present: i64
-    missing_small_allocation_workload_blocked: i64
-    missing_small_free_workload_blocked: i64
-    missing_realloc_workload_blocked: i64
-    missing_huge_allocation_workload_blocked: i64
-    missing_throughput_workload_blocked: i64
-    missing_memory_usage_workload_blocked: i64
-    invalid_workload_family_count_blocked: i64
-    closed_seam_blocked: i64
-    benchmark_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    diagnostic_count: i64
-    ready_count: i64
-    blocked_count: i64
-    missing_small_allocation_workload_blocked_count: i64
-    missing_small_free_workload_blocked_count: i64
-    missing_realloc_workload_blocked_count: i64
-    missing_huge_allocation_workload_blocked_count: i64
-    missing_throughput_workload_blocked_count: i64
-    missing_memory_usage_workload_blocked_count: i64
-    invalid_workload_family_count_blocked_count: i64
-    closed_seam_blocked_count: i64
-    last_reason: i64
-    would_run_benchmark: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    workload_matrix_inventory_present: i64 = 0
+    workload_matrix_ready: i64 = 0
+    blocked_workload_present: i64 = 0
+    missing_small_allocation_workload_blocked: i64 = 0
+    missing_small_free_workload_blocked: i64 = 0
+    missing_realloc_workload_blocked: i64 = 0
+    missing_huge_allocation_workload_blocked: i64 = 0
+    missing_throughput_workload_blocked: i64 = 0
+    missing_memory_usage_workload_blocked: i64 = 0
+    invalid_workload_family_count_blocked: i64 = 0
+    closed_seam_blocked: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_small_allocation_workload_blocked_count: i64 = 0
+    missing_small_free_workload_blocked_count: i64 = 0
+    missing_realloc_workload_blocked_count: i64 = 0
+    missing_huge_allocation_workload_blocked_count: i64 = 0
+    missing_throughput_workload_blocked_count: i64 = 0
+    missing_memory_usage_workload_blocked_count: i64 = 0
+    invalid_workload_family_count_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    would_run_benchmark: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonWorkloadMatrixDiagnosticReport {
@@ -212,9 +212,9 @@ box HakoAllocAllocatorComparisonWorkloadMatrixDiagnostic {
     }
 
     makeReport(reason: i64, matrix: HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport): HakoAllocAllocatorComparisonWorkloadMatrixDiagnosticReport {
-        local blocked = 0
+        local blocked_workload_present = 0
         if reason != 0 {
-            blocked = 1
+            blocked_workload_present = 1
         }
         local missing_small_allocation_workload_blocked = 0
         local missing_small_free_workload_blocked = 0
@@ -248,26 +248,22 @@ box HakoAllocAllocatorComparisonWorkloadMatrixDiagnostic {
         if reason == 8 {
             closed_seam_blocked = 1
         }
-        local fields = HakoAllocAllocatorComparisonWorkloadMatrixDiagnosticReportFields {
+        local fields = HakoAllocAllocatorComparisonWorkloadMatrixDiagnosticReportFields {}
+        fields = fields with {
             accepted: 1,
-            reason: reason,
+            reason,
             diagnostic_present: 1,
             workload_matrix_inventory_present: matrix.workload_matrix_inventory_present,
             workload_matrix_ready: matrix.workload_matrix_ready,
-            blocked_workload_present: blocked,
-            missing_small_allocation_workload_blocked: missing_small_allocation_workload_blocked,
-            missing_small_free_workload_blocked: missing_small_free_workload_blocked,
-            missing_realloc_workload_blocked: missing_realloc_workload_blocked,
-            missing_huge_allocation_workload_blocked: missing_huge_allocation_workload_blocked,
-            missing_throughput_workload_blocked: missing_throughput_workload_blocked,
-            missing_memory_usage_workload_blocked: missing_memory_usage_workload_blocked,
-            invalid_workload_family_count_blocked: invalid_workload_family_count_blocked,
-            closed_seam_blocked: closed_seam_blocked,
-            benchmark_executed: 0,
-            process_replacement_executed: 0,
-            hook_installed: 0,
-            backend_matcher_added: 0,
-            global_allocator_installed: 0,
+            blocked_workload_present,
+            missing_small_allocation_workload_blocked,
+            missing_small_free_workload_blocked,
+            missing_realloc_workload_blocked,
+            missing_huge_allocation_workload_blocked,
+            missing_throughput_workload_blocked,
+            missing_memory_usage_workload_blocked,
+            invalid_workload_family_count_blocked,
+            closed_seam_blocked,
             diagnostic_count: me.diagnostic_count,
             ready_count: me.ready_count,
             blocked_count: me.blocked_count,
@@ -279,12 +275,7 @@ box HakoAllocAllocatorComparisonWorkloadMatrixDiagnostic {
             missing_memory_usage_workload_blocked_count: me.missing_memory_usage_workload_blocked_count,
             invalid_workload_family_count_blocked_count: me.invalid_workload_family_count_blocked_count,
             closed_seam_blocked_count: me.closed_seam_blocked_count,
-            last_reason: me.last_reason,
-            would_run_benchmark: 0,
-            would_replace_host_allocator: 0,
-            would_install_hook: 0,
-            would_add_backend_matcher: 0,
-            would_run_thread: 0
+            last_reason: me.last_reason
         }
         return me.makeAllocatorComparisonWorkloadMatrixDiagnosticReport(fields)
     }

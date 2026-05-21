@@ -63,14 +63,14 @@ guard_expect_in_file "$TAG" 'missing_throughput_target_blocked' "$OWNER" "owner 
 guard_expect_in_file "$TAG" 'missing_memory_usage_target_blocked' "$OWNER" "owner must diagnose missing memory target"
 guard_expect_in_file "$TAG" 'missing_workload_matrix_blocked' "$OWNER" "owner must diagnose missing workload matrix"
 guard_expect_in_file "$TAG" 'invalid_repeat_count_blocked' "$OWNER" "owner must diagnose invalid repeat count"
-guard_expect_in_file "$TAG" 'process_replacement_executed: 0' "$OWNER" "process replacement must stay closed"
-guard_expect_in_file "$TAG" 'hook_installed: 0' "$OWNER" "hook install must stay closed"
-guard_expect_in_file "$TAG" 'backend_matcher_added: 0' "$OWNER" "backend matcher addition must stay closed"
-guard_expect_in_file "$TAG" 'global_allocator_installed: 0' "$OWNER" "global allocator install must stay closed"
-guard_expect_in_file "$TAG" 'would_replace_host_allocator: 0' "$OWNER" "host replacement must not execute"
-guard_expect_in_file "$TAG" 'would_install_hook: 0' "$OWNER" "hook installation must not execute"
-guard_expect_in_file "$TAG" 'would_add_backend_matcher: 0' "$OWNER" "backend matcher addition must not execute"
-guard_expect_in_file "$TAG" 'would_run_thread: 0' "$OWNER" "thread execution must not execute"
+guard_expect_in_file "$TAG" 'process_replacement_executed: (0|i64 = 0)' "$OWNER" "process replacement must stay closed"
+guard_expect_in_file "$TAG" 'hook_installed: (0|i64 = 0)' "$OWNER" "hook install must stay closed"
+guard_expect_in_file "$TAG" 'backend_matcher_added: (0|i64 = 0)' "$OWNER" "backend matcher addition must stay closed"
+guard_expect_in_file "$TAG" 'global_allocator_installed: (0|i64 = 0)' "$OWNER" "global allocator install must stay closed"
+guard_expect_in_file "$TAG" 'would_replace_host_allocator: (0|i64 = 0)' "$OWNER" "host replacement must not execute"
+guard_expect_in_file "$TAG" 'would_install_hook: (0|i64 = 0)' "$OWNER" "hook installation must not execute"
+guard_expect_in_file "$TAG" 'would_add_backend_matcher: (0|i64 = 0)' "$OWNER" "backend matcher addition must not execute"
+guard_expect_in_file "$TAG" 'would_run_thread: (0|i64 = 0)' "$OWNER" "thread execution must not execute"
 
 if rg -n 'replace_process_allocator|install_hook[[:space:]]*\(|#\[global_allocator\]|backendMatcherInstall|pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-428A owner/app must keep benchmark/replacement/hook/backend/source-concurrency seams inactive" >&2

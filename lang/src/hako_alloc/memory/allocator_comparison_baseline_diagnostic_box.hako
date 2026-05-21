@@ -9,38 +9,38 @@
 using selfhost.hako_alloc.memory.allocator_comparison_baseline_inventory_box as HakoAllocAllocatorComparisonBaselineInventory
 
 record HakoAllocAllocatorComparisonBaselineDiagnosticReportFields {
-    accepted: i64
-    reason: i64
-    diagnostic_present: i64
-    baseline_inventory_present: i64
-    comparison_ready: i64
-    blocked_input_present: i64
-    missing_c_mimalloc_baseline_blocked: i64
-    missing_hako_alloc_baseline_blocked: i64
-    missing_throughput_target_blocked: i64
-    missing_memory_usage_target_blocked: i64
-    missing_workload_matrix_blocked: i64
-    invalid_repeat_count_blocked: i64
-    closed_seam_blocked: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    diagnostic_count: i64
-    ready_count: i64
-    blocked_count: i64
-    missing_c_mimalloc_baseline_blocked_count: i64
-    missing_hako_alloc_baseline_blocked_count: i64
-    missing_throughput_target_blocked_count: i64
-    missing_memory_usage_target_blocked_count: i64
-    missing_workload_matrix_blocked_count: i64
-    invalid_repeat_count_blocked_count: i64
-    closed_seam_blocked_count: i64
-    last_reason: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    baseline_inventory_present: i64 = 0
+    comparison_ready: i64 = 0
+    blocked_input_present: i64 = 0
+    missing_c_mimalloc_baseline_blocked: i64 = 0
+    missing_hako_alloc_baseline_blocked: i64 = 0
+    missing_throughput_target_blocked: i64 = 0
+    missing_memory_usage_target_blocked: i64 = 0
+    missing_workload_matrix_blocked: i64 = 0
+    invalid_repeat_count_blocked: i64 = 0
+    closed_seam_blocked: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_c_mimalloc_baseline_blocked_count: i64 = 0
+    missing_hako_alloc_baseline_blocked_count: i64 = 0
+    missing_throughput_target_blocked_count: i64 = 0
+    missing_memory_usage_target_blocked_count: i64 = 0
+    missing_workload_matrix_blocked_count: i64 = 0
+    invalid_repeat_count_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonBaselineDiagnosticReport {
@@ -190,9 +190,9 @@ box HakoAllocAllocatorComparisonBaselineDiagnostic {
     }
 
     makeReport(reason: i64, baseline: HakoAllocAllocatorComparisonBaselineInventoryReport): HakoAllocAllocatorComparisonBaselineDiagnosticReport {
-        local blocked = 0
+        local blocked_input_present = 0
         if reason != 0 {
-            blocked = 1
+            blocked_input_present = 1
         }
         local missing_c_mimalloc_baseline_blocked = 0
         local missing_hako_alloc_baseline_blocked = 0
@@ -222,24 +222,21 @@ box HakoAllocAllocatorComparisonBaselineDiagnostic {
         if reason == 7 {
             closed_seam_blocked = 1
         }
-        local fields = HakoAllocAllocatorComparisonBaselineDiagnosticReportFields {
+        local fields = HakoAllocAllocatorComparisonBaselineDiagnosticReportFields {}
+        fields = fields with {
             accepted: 1,
-            reason: reason,
+            reason,
             diagnostic_present: 1,
             baseline_inventory_present: baseline.baseline_inventory_present,
             comparison_ready: baseline.comparison_ready,
-            blocked_input_present: blocked,
-            missing_c_mimalloc_baseline_blocked: missing_c_mimalloc_baseline_blocked,
-            missing_hako_alloc_baseline_blocked: missing_hako_alloc_baseline_blocked,
-            missing_throughput_target_blocked: missing_throughput_target_blocked,
-            missing_memory_usage_target_blocked: missing_memory_usage_target_blocked,
-            missing_workload_matrix_blocked: missing_workload_matrix_blocked,
-            invalid_repeat_count_blocked: invalid_repeat_count_blocked,
-            closed_seam_blocked: closed_seam_blocked,
-            process_replacement_executed: 0,
-            hook_installed: 0,
-            backend_matcher_added: 0,
-            global_allocator_installed: 0,
+            blocked_input_present,
+            missing_c_mimalloc_baseline_blocked,
+            missing_hako_alloc_baseline_blocked,
+            missing_throughput_target_blocked,
+            missing_memory_usage_target_blocked,
+            missing_workload_matrix_blocked,
+            invalid_repeat_count_blocked,
+            closed_seam_blocked,
             diagnostic_count: me.diagnostic_count,
             ready_count: me.ready_count,
             blocked_count: me.blocked_count,
@@ -250,11 +247,7 @@ box HakoAllocAllocatorComparisonBaselineDiagnostic {
             missing_workload_matrix_blocked_count: me.missing_workload_matrix_blocked_count,
             invalid_repeat_count_blocked_count: me.invalid_repeat_count_blocked_count,
             closed_seam_blocked_count: me.closed_seam_blocked_count,
-            last_reason: me.last_reason,
-            would_replace_host_allocator: 0,
-            would_install_hook: 0,
-            would_add_backend_matcher: 0,
-            would_run_thread: 0
+            last_reason: me.last_reason
         }
         return me.makeAllocatorComparisonBaselineDiagnosticReport(fields)
     }

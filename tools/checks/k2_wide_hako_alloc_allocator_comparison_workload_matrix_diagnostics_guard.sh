@@ -64,12 +64,12 @@ guard_expect_in_file "$TAG" 'missing_huge_allocation_workload_blocked' "$OWNER" 
 guard_expect_in_file "$TAG" 'missing_throughput_workload_blocked' "$OWNER" "owner must diagnose missing throughput workload"
 guard_expect_in_file "$TAG" 'missing_memory_usage_workload_blocked' "$OWNER" "owner must diagnose missing memory workload"
 guard_expect_in_file "$TAG" 'invalid_workload_family_count_blocked' "$OWNER" "owner must diagnose invalid workload count"
-guard_expect_in_file "$TAG" 'benchmark_executed: 0' "$OWNER" "benchmark execution must stay closed"
-guard_expect_in_file "$TAG" 'process_replacement_executed: 0' "$OWNER" "process replacement must stay closed"
-guard_expect_in_file "$TAG" 'hook_installed: 0' "$OWNER" "hook install must stay closed"
-guard_expect_in_file "$TAG" 'backend_matcher_added: 0' "$OWNER" "backend matcher addition must stay closed"
-guard_expect_in_file "$TAG" 'global_allocator_installed: 0' "$OWNER" "global allocator install must stay closed"
-guard_expect_in_file "$TAG" 'would_run_benchmark: 0' "$OWNER" "benchmark execution must not run"
+guard_expect_in_file "$TAG" 'benchmark_executed: (0|i64 = 0)' "$OWNER" "benchmark execution must stay closed"
+guard_expect_in_file "$TAG" 'process_replacement_executed: (0|i64 = 0)' "$OWNER" "process replacement must stay closed"
+guard_expect_in_file "$TAG" 'hook_installed: (0|i64 = 0)' "$OWNER" "hook install must stay closed"
+guard_expect_in_file "$TAG" 'backend_matcher_added: (0|i64 = 0)' "$OWNER" "backend matcher addition must stay closed"
+guard_expect_in_file "$TAG" 'global_allocator_installed: (0|i64 = 0)' "$OWNER" "global allocator install must stay closed"
+guard_expect_in_file "$TAG" 'would_run_benchmark: (0|i64 = 0)' "$OWNER" "benchmark execution must not run"
 
 if rg -n 'run_benchmark[[:space:]]*\(|replace_process_allocator|install_hook[[:space:]]*\(|#\[global_allocator\]|backendMatcherInstall|pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-431A owner/app must keep benchmark/replacement/hook/backend/source-concurrency seams inactive" >&2
