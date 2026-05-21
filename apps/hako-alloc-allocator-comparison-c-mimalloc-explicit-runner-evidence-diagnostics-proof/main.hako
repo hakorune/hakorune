@@ -1,0 +1,119 @@
+// hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-evidence-diagnostics-proof
+// Purpose: prove MIMAP-452A diagnostics over MIMAP-451A explicit runner evidence.
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_inventory_box as HakoAllocAllocatorComparisonCMimallocExecutionInventory
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_diagnostic_box as HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box as HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box as HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnostic
+
+static box Main {
+    makeReadyDiagnostic(): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+        local inventory_owner = new HakoAllocAllocatorComparisonCMimallocExecutionInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic()
+        local inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 1, 3)
+        return diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(inventory)
+    }
+
+    makeBlockedDiagnostic(): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+        local inventory_owner = new HakoAllocAllocatorComparisonCMimallocExecutionInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic()
+        local inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(0, 1, 1, 1, 1, 1, 1, 3)
+        return diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(inventory)
+    }
+
+    main(args) {
+        local pilot_owner = new HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnostic()
+        local diagnostic = Main.makeReadyDiagnostic()
+
+        local accepted_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 1, 1, 0, 1, 1, 1, 64, 64, 33254, 4096)
+        local accepted = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(accepted_evidence)
+
+        local missing_diagnostic_report = new HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport()
+        local missing_diagnostic_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(missing_diagnostic_report, 1, 1, 0, 1, 1, 1, 64, 64, 33254, 4096)
+        local missing_diagnostic = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(missing_diagnostic_evidence)
+
+        local blocked_diagnostic_report = Main.makeBlockedDiagnostic()
+        local blocked_diagnostic_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(blocked_diagnostic_report, 1, 1, 0, 1, 1, 1, 64, 64, 33254, 4096)
+        local blocked_diagnostic = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(blocked_diagnostic_evidence)
+
+        local missing_runner_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 0, 1, 0, 1, 1, 1, 64, 64, 33254, 4096)
+        local missing_runner = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(missing_runner_evidence)
+        local missing_output_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 1, 0, 0, 1, 1, 1, 64, 64, 33254, 4096)
+        local missing_output = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(missing_output_evidence)
+        local missing_memory_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 1, 1, 0, 0, 1, 1, 64, 64, 33254, 4096)
+        local missing_memory = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(missing_memory_evidence)
+        local missing_contract_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 1, 1, 0, 1, 0, 1, 64, 64, 33254, 4096)
+        local missing_contract = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(missing_contract_evidence)
+        local failed_runner_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 1, 1, 12, 1, 1, 1, 64, 64, 33254, 4096)
+        local failed_runner = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(failed_runner_evidence)
+        local invalid_run_evidence = pilot_owner.recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic, 1, 1, 0, 1, 1, 0, 64, 64, 33254, 4096)
+        local invalid_run = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence(invalid_run_evidence)
+
+        local ok = check "mimap452a allocator comparison c mimalloc explicit runner evidence diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diag present": accepted.diagnostic_present == 1
+            "pilot present": accepted.execution_pilot_present == 1
+            "evidence": accepted.c_mimalloc_execution_evidence_present == 1
+            "not blocked": accepted.blocked_evidence_present == 0
+            "runner": accepted.explicit_runner_invoked == 1
+            "output": accepted.explicit_runner_output_present == 1
+            "memory": accepted.memory_usage_evidence_present == 1
+            "contract": accepted.stable_output_contract_present == 1
+            "result code": accepted.explicit_runner_result_code == 0
+            "run count": accepted.run_count == 1
+            "alloc count": accepted.allocation_count == 64
+            "free count": accepted.free_count == 64
+            "requested bytes": accepted.requested_bytes == 33254
+            "peak rss": accepted.peak_rss_bytes == 4096
+            "owner count": diagnostic_owner.diagnostic_count == 9
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 8
+            "owner missing diag": diagnostic_owner.missing_diagnostic_blocked_count == 1
+            "owner rejected diag": diagnostic_owner.rejected_diagnostic_blocked_count == 1
+            "owner missing runner": diagnostic_owner.missing_runner_blocked_count == 1
+            "owner missing output": diagnostic_owner.missing_output_blocked_count == 1
+            "owner missing memory": diagnostic_owner.missing_memory_evidence_blocked_count == 1
+            "owner missing contract": diagnostic_owner.missing_output_contract_blocked_count == 1
+            "owner failed": diagnostic_owner.failed_runner_blocked_count == 1
+            "owner invalid": diagnostic_owner.invalid_run_count_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 8
+            "missing diag reason": missing_diagnostic.reason == 1
+            "blocked diag reason": blocked_diagnostic.reason == 2
+            "missing runner reason": missing_runner.reason == 3
+            "missing output reason": missing_output.reason == 4
+            "missing memory reason": missing_memory.reason == 5
+            "missing contract reason": missing_contract.reason == 6
+            "failed reason": failed_runner.reason == 7
+            "invalid reason": invalid_run.reason == 8
+            "c mimalloc executed": accepted.c_mimalloc_executed == 1
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "hidden discovery": accepted.hidden_discovery_used == 0
+            "provider package": accepted.provider_package_generated == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-evidence-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.execution_pilot_present + "," + accepted.c_mimalloc_execution_evidence_present + "," + accepted.blocked_evidence_present + "," + accepted.run_count + "," + accepted.c_mimalloc_executed)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_diagnostic_blocked_count + "," + diagnostic_owner.rejected_diagnostic_blocked_count + "," + diagnostic_owner.missing_runner_blocked_count + "," + diagnostic_owner.missing_output_blocked_count + "," + diagnostic_owner.missing_memory_evidence_blocked_count + "," + diagnostic_owner.missing_output_contract_blocked_count + "," + diagnostic_owner.failed_runner_blocked_count + "," + diagnostic_owner.invalid_run_count_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing_diagnostic.missing_diagnostic_blocked + "," + blocked_diagnostic.rejected_diagnostic_blocked + "," + missing_runner.missing_runner_blocked + "," + missing_output.missing_output_blocked + "," + missing_memory.missing_memory_evidence_blocked + "," + missing_contract.missing_output_contract_blocked + "," + failed_runner.failed_runner_blocked + "," + invalid_run.invalid_run_count_blocked)
+        print("closed=" + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.hidden_discovery_used + "," + accepted.provider_package_generated + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_diagnostic.reason + "," + blocked_diagnostic.reason + "," + missing_runner.reason + "," + missing_output.reason + "," + missing_memory.reason + "," + missing_contract.reason + "," + failed_runner.reason + "," + invalid_run.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
