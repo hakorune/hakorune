@@ -1,0 +1,111 @@
+// hako-alloc-allocator-comparison-controlled-benchmark-execution-diagnostics-proof
+// Purpose: prove MIMAP-441A allocator comparison controlled benchmark execution diagnostics.
+
+using selfhost.hako_alloc.memory.allocator_comparison_controlled_benchmark_execution_inventory_box as HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory
+using selfhost.hako_alloc.memory.allocator_comparison_controlled_benchmark_execution_diagnostic_box as HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic
+
+static box Main {
+    main(args) {
+        local inventory_owner = new HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic()
+
+        local accepted_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local accepted = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(accepted_inventory)
+        local missing_runner_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local missing_runner = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(missing_runner_inventory)
+        local missing_workload_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local missing_workload = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(missing_workload_inventory)
+        local missing_measurement_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1)
+        local missing_measurement = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(missing_measurement_inventory)
+        local missing_output_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1)
+        local missing_output = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(missing_output_inventory)
+        local missing_evidence_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1)
+        local missing_evidence = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(missing_evidence_inventory)
+        local missing_representative_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1)
+        local missing_representative = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(missing_representative_inventory)
+        local process_open_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1)
+        local process_open = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(process_open_inventory)
+        local hook_open_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1)
+        local hook_open = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(hook_open_inventory)
+        local backend_open_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1)
+        local backend_open = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(backend_open_inventory)
+        local global_open_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1)
+        local global_open = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(global_open_inventory)
+        local hidden_env_open_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+        local hidden_env_open = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(hidden_env_open_inventory)
+
+        local leak_inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        leak_inventory.benchmark_executed = 1
+        local leak = diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(leak_inventory)
+
+        local ok = check "mimap441a allocator comparison controlled benchmark execution diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diagnostic present": accepted.diagnostic_present == 1
+            "inventory present": accepted.controlled_benchmark_execution_inventory_present == 1
+            "shape ready": accepted.controlled_benchmark_execution_shape_ready == 1
+            "not blocked": accepted.blocked_execution_shape_present == 0
+            "planned": accepted.controlled_benchmark_execution_planned == 1
+            "owner count": diagnostic_owner.diagnostic_count == 13
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 12
+            "owner runner": diagnostic_owner.missing_runner_blocked_count == 1
+            "owner workload": diagnostic_owner.workload_source_not_ready_blocked_count == 1
+            "owner measurement": diagnostic_owner.measurement_source_not_ready_blocked_count == 1
+            "owner output": diagnostic_owner.missing_output_contract_blocked_count == 1
+            "owner evidence": diagnostic_owner.missing_evidence_storage_blocked_count == 1
+            "owner representative": diagnostic_owner.missing_representative_run_blocked_count == 1
+            "owner process": diagnostic_owner.process_replacement_open_blocked_count == 1
+            "owner hook": diagnostic_owner.hook_open_blocked_count == 1
+            "owner backend": diagnostic_owner.backend_matcher_open_blocked_count == 1
+            "owner global": diagnostic_owner.global_allocator_open_blocked_count == 1
+            "owner hidden": diagnostic_owner.hidden_env_open_blocked_count == 1
+            "owner closed": diagnostic_owner.closed_seam_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 12
+            "missing runner reason": missing_runner.reason == 1
+            "missing workload reason": missing_workload.reason == 2
+            "missing measurement reason": missing_measurement.reason == 3
+            "missing output reason": missing_output.reason == 4
+            "missing evidence reason": missing_evidence.reason == 5
+            "missing representative reason": missing_representative.reason == 6
+            "process reason": process_open.reason == 7
+            "hook reason": hook_open.reason == 8
+            "backend reason": backend_open.reason == 9
+            "global reason": global_open.reason == 10
+            "hidden reason": hidden_env_open.reason == 11
+            "leak reason": leak.reason == 12
+            "runner flag": missing_runner.missing_runner_blocked == 1
+            "workload flag": missing_workload.workload_source_not_ready_blocked == 1
+            "measurement flag": missing_measurement.measurement_source_not_ready_blocked == 1
+            "output flag": missing_output.missing_output_contract_blocked == 1
+            "evidence flag": missing_evidence.missing_evidence_storage_blocked == 1
+            "representative flag": missing_representative.missing_representative_run_blocked == 1
+            "closed flag": leak.closed_seam_blocked == 1
+            "benchmark": accepted.benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-controlled-benchmark-execution-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.controlled_benchmark_execution_inventory_present + "," + accepted.controlled_benchmark_execution_shape_ready + "," + accepted.blocked_execution_shape_present + "," + accepted.controlled_benchmark_execution_planned)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_runner_blocked_count + "," + diagnostic_owner.workload_source_not_ready_blocked_count + "," + diagnostic_owner.measurement_source_not_ready_blocked_count + "," + diagnostic_owner.missing_output_contract_blocked_count + "," + diagnostic_owner.missing_evidence_storage_blocked_count + "," + diagnostic_owner.missing_representative_run_blocked_count + "," + diagnostic_owner.process_replacement_open_blocked_count + "," + diagnostic_owner.hook_open_blocked_count + "," + diagnostic_owner.backend_matcher_open_blocked_count + "," + diagnostic_owner.global_allocator_open_blocked_count + "," + diagnostic_owner.hidden_env_open_blocked_count + "," + diagnostic_owner.closed_seam_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing_runner.missing_runner_blocked + "," + missing_workload.workload_source_not_ready_blocked + "," + missing_measurement.measurement_source_not_ready_blocked + "," + missing_output.missing_output_contract_blocked + "," + missing_evidence.missing_evidence_storage_blocked + "," + missing_representative.missing_representative_run_blocked + "," + process_open.process_replacement_open_blocked + "," + hook_open.hook_open_blocked + "," + backend_open.backend_matcher_open_blocked + "," + global_open.global_allocator_open_blocked + "," + hidden_env_open.hidden_env_open_blocked + "," + leak.closed_seam_blocked)
+        print("closed=" + accepted.benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_runner.reason + "," + missing_workload.reason + "," + missing_measurement.reason + "," + missing_output.reason + "," + missing_evidence.reason + "," + missing_representative.reason + "," + process_open.reason + "," + hook_open.reason + "," + backend_open.reason + "," + global_open.reason + "," + hidden_env_open.reason + "," + leak.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -1,6 +1,6 @@
 # 293x-1063 MIMAP-441A Allocator Comparison Controlled Benchmark Execution Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -29,6 +29,20 @@ closed-seam inputs without executing a benchmark.
 - No source-level worker-local or concurrency surface.
 - No cross-function `Result` direct ABI or runtime sum materialization.
 
+## Landed Scope
+
+- Added `HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic`
+  as an observer-only diagnostic owner for the MIMAP-440A inventory report.
+- Added a manifest-backed proof app and L2 guard for missing controlled
+  execution-shape inputs and closed-seam execution leaks.
+- Added the MIMAP-441A diagnostics SSOT and selected MIMAP-442A closeout.
+- Kept benchmark execution, process allocator replacement, hooks, backend
+  matcher additions, global allocator installation, hidden env discovery, and
+  worker/thread execution closed.
+
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_controlled_benchmark_execution_diagnostics_guard.sh --level L2`
+- `bash tools/checks/run_proof_app.sh --only MIMAP-441A --level L2`
+- `bash tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
