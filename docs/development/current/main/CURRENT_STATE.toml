@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-455A landed allocator comparison C mimalloc result ledger diagnostics. ARG-DATA-007 landed a two-owner allocator-comparison prerequisite/worker-TLS ReportFields horizontal cleanup batch; next returns to MIMAP-456A closeout. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
+active_lane_status = "MIMAP-455A landed allocator comparison C mimalloc result ledger diagnostics. ARG-DATA-008 landed a two-owner readiness/support matrix ReportFields horizontal cleanup batch; next returns to MIMAP-456A closeout. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-1080-MIMAP-456A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1085-ARG-DATA-007-REMAINING-PREREQUISITE-AND-WORKER-TLS-HORIZONTAL-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1085-ARG-DATA-007-REMAINING-PREREQUISITE-AND-WORKER-TLS-HORIZONTAL-BATCH.md"
-latest_card_summary = "Landed allocator-comparison prerequisite/worker-TLS diagnostic ReportFields horizontal batch across remaining execution prerequisites and worker TLS while keeping ordinary Report boxes explicit."
+latest_card = "293x-1086-ARG-DATA-008-READINESS-AND-SUPPORT-REQUIREMENT-HORIZONTAL-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1086-ARG-DATA-008-READINESS-AND-SUPPORT-REQUIREMENT-HORIZONTAL-BATCH.md"
+latest_card_summary = "Landed allocator-comparison readiness/support matrix diagnostic ReportFields horizontal batch across the execution readiness and support requirement owners while keeping ordinary Report boxes explicit."
 
 current_blocker_token = "MIMAP-456A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1086 ARG-DATA-008 allocator comparison readiness/support matrix ReportFields horizontal batch landed; MIMAP-456A remains current",
   "293x-1085 ARG-DATA-007 allocator comparison prerequisite/worker-TLS ReportFields horizontal batch landed; MIMAP-456A remains current",
   "293x-1084 ARG-DATA-006 allocator comparison benchmark diagnostic ReportFields horizontal batch landed; MIMAP-456A remains current",
   "293x-1079 MIMAP-455A allocator comparison C mimalloc result ledger diagnostics landed; MIMAP-456A selected",

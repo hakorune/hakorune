@@ -11,55 +11,55 @@
 //   backend shortcuts
 
 record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnosticReportFields {
-    observed: i64
-    reason: i64
-    diagnostic_present: i64
-    matrix_accepted: i64
-    matrix_reason: i64
-    matrix_present: i64
-    requirements_satisfied: i64
-    requirement_count: i64
-    unsatisfied_requirement_count: i64
-    lifecycle_generation_required: i64
-    pointer_residence_required: i64
-    pointer_lookup_required: i64
-    arena_release_required: i64
-    arena_recycle_required: i64
-    segment_map_required: i64
-    atomic_bitmap_required: i64
-    osvm_required: i64
-    worker_tls_required: i64
-    provider_required: i64
-    backend_matcher_required: i64
-    matrix_count: i64
-    accepted_count: i64
-    reject_count: i64
-    observed_count: i64
-    accepted_matrix_count: i64
-    rejected_matrix_count: i64
-    unsatisfied_matrix_count: i64
-    missing_inventory_reject_count: i64
-    missing_report_reject_count: i64
-    last_reason: i64
-    report_segment_id: i64
-    report_arena_id: i64
-    report_release_applied_recycle_token: i64
-    report_continuation_token: i64
-    report_application_token: i64
-    report_applied_backing_bytes: usize
-    report_applied_committed_bytes: usize
-    report_remaining_source_bytes: usize
-    would_create_lifecycle_generation: i64
-    would_create_pointer_residence: i64
-    would_lookup_by_pointer: i64
-    would_release_arena_backing: i64
-    would_recycle_arena_backing: i64
-    would_use_segment_map: i64
-    would_execute_atomic_bitmap: i64
-    would_call_osvm: i64
-    would_run_thread: i64
-    would_activate_provider: i64
-    would_add_backend_matcher: i64
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    matrix_accepted: i64 = 0
+    matrix_reason: i64 = 0
+    matrix_present: i64 = 0
+    requirements_satisfied: i64 = 0
+    requirement_count: i64 = 0
+    unsatisfied_requirement_count: i64 = 0
+    lifecycle_generation_required: i64 = 0
+    pointer_residence_required: i64 = 0
+    pointer_lookup_required: i64 = 0
+    arena_release_required: i64 = 0
+    arena_recycle_required: i64 = 0
+    segment_map_required: i64 = 0
+    atomic_bitmap_required: i64 = 0
+    osvm_required: i64 = 0
+    worker_tls_required: i64 = 0
+    provider_required: i64 = 0
+    backend_matcher_required: i64 = 0
+    matrix_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    observed_count: i64 = 0
+    accepted_matrix_count: i64 = 0
+    rejected_matrix_count: i64 = 0
+    unsatisfied_matrix_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    missing_report_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    would_create_lifecycle_generation: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
 }
 
 box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnosticReport {
@@ -179,9 +179,10 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSu
     }
 
     makeReport(observed, reason, matrix_inventory, matrix_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnosticReport {
-        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnosticReportFields {
-            observed: observed,
-            reason: reason,
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnosticReportFields {}
+        fields = fields with {
+            observed,
+            reason,
             diagnostic_present: 1,
             matrix_accepted: matrix_report.accepted,
             matrix_reason: matrix_report.reason,
@@ -228,7 +229,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSu
             would_call_osvm: matrix_report.would_call_osvm,
             would_run_thread: matrix_report.would_run_thread,
             would_activate_provider: matrix_report.would_activate_provider,
-            would_add_backend_matcher: matrix_report.would_add_backend_matcher,
+            would_add_backend_matcher: matrix_report.would_add_backend_matcher
         }
         return me.makeExecutionSupportRequirementMatrixDiagnosticReport(fields)
     }
