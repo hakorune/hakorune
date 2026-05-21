@@ -1,6 +1,6 @@
 # 293x-1067 MIMAP-445A Allocator Comparison Representative Benchmark Execution Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -30,4 +30,11 @@ execution pilot.
 
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+Validation profile: `scalar-mir`.
+
+Evidence:
+
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_diagnostics_guard.sh --level L2`
+- `bash tools/checks/run_proof_app.sh --only MIMAP-445A --level L2`
+
+L3/L4 evidence is deferred to MIMAP-446A closeout.

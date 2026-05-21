@@ -1093,3 +1093,16 @@ closeout_pack = "allocator-comparison-representative-benchmark-execution"
 exe = "deferred-to-comparison-representative-benchmark-execution-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-445A"
+app = "apps/hako-alloc-allocator-comparison-representative-benchmark-execution-diagnostics-proof"
+label = "allocator comparison representative benchmark execution diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-representative-benchmark-execution-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-representative-benchmark-execution"
+exe = "deferred-to-comparison-representative-benchmark-execution-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_diagnostics_guard.sh", "--level", "L2"]
