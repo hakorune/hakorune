@@ -1,6 +1,6 @@
 # 293x-1087 MIMAP-457A Allocator Comparison C Mimalloc Result Summary Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -40,9 +40,9 @@ turning scalar evidence into a performance or memory-use conclusion.
 
 ## Validation
 
-Planned validation profile: `scalar-mir`.
+Validation profile: `scalar-mir`.
 
-Expected guard:
+Validated:
 
 ```bash
 bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_summary_inventory_guard.sh --level L2
@@ -55,3 +55,21 @@ bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_summ
 3. Keep all benchmark execution and conclusion fields closed.
 4. Select the next reporting / presentation row only after the inventory guard is
    green.
+
+## Completed
+
+- Added `HakoAllocAllocatorComparisonCMimallocResultSummaryInventory` as a
+  scalar summary owner over the MIMAP-454A result ledger and MIMAP-455A
+  diagnostics.
+- Added a manifest-backed proof app and focused L2 guard.
+- Preserved the closed stop lines for repeated benchmark execution,
+  performance/memory-use conclusions, allocator replacement, hooks, backend
+  matcher additions, global allocator installation, provider package
+  generation, hidden discovery, worker/thread execution, and cross-function
+  `Result` direct ABI.
+- Selected MIMAP-458A as the next summary diagnostics row.
+
+## Next
+
+MIMAP-458A should add observer-only diagnostics over the MIMAP-457A summary
+inventory and keep benchmark execution and reporting conclusions closed.

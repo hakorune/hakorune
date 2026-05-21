@@ -53,6 +53,11 @@ Current live semantics are intentionally narrow:
   semantics without rediscovering source text. AST JSON and Stage1
   Program(JSON) carry this metadata while keeping names-only `params` for
   compatibility.
+- Return type annotation is optional. Methods/functions that produce no useful
+  value may either omit the return annotation or write `: void`; omission is the
+  usual style for ordinary side-effect helpers, while explicit `: void` is
+  accepted when the source wants to document a no-value contract or when `void`
+  appears inside a generic type such as `Result<void, Error>`.
 - Pointer-sized names resolve their metadata width through the MIR numeric
   target owner (`src/mir/numeric_substrate.rs`). This is target metadata only;
   it does not enable exact `usize` runtime behavior by itself.
@@ -193,6 +198,10 @@ SSOT policy:
 Practical consequence:
 - `x == null` and `x == void` are equivalent checks.
 - `WeakRef.weak_to_strong()` returns `null` on failure (i.e., `void` / none).
+- `void` is also an accepted type annotation token. `fn(): void` and
+  `fn(): Result<void, Error>` preserve `"void"` in AST/MIR metadata. For
+  ordinary no-value methods, omitting the return annotation remains acceptable
+  and is usually less noisy.
 
 ### Option<T> / Result<T,E> (current enum prelude, null-free)
 

@@ -89,6 +89,8 @@ compound_assign_op := '+=' | '-=' | '*=' | '/='
 block     := '{' stmt* '}'
 
 function_decl := 'function' IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block
+               ; return annotation is optional. `: void` is accepted, and
+               ; omission is the usual spelling for ordinary no-value helpers.
 
 signature_clause := uses_clause | contract_clause
 
@@ -753,11 +755,13 @@ once_decl      := 'once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
 birth_once_decl:= 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
                   ; eager once. Computed during construction (before user birth), in declaration order.
 
-method_decl    := IDENT '(' params? ')' ( ':' TYPE )? signature_clause* block handler_tail?
+method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block handler_tail?
+                  ; return annotation is optional. `: void` is accepted, and
+                  ; omission is the usual spelling for ordinary no-value helpers.
 
 params         := param (',' param)*
 param          := IDENT (':' TYPE_REF)?
-TYPE_REF       := IDENT ('.' IDENT)* ('<' TYPE_REF (',' TYPE_REF)* '>')? ('[' ']')*
+TYPE_REF       := ('void' | IDENT ('.' IDENT)*) ('<' TYPE_REF (',' TYPE_REF)* '>')? ('[' ']')*
                   ; parameter list (Phase 285A1.5+)
                   ; Type annotations are preserved as AST metadata.
                   ; `params` remains the canonical names-only compatibility surface.

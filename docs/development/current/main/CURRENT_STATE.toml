@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-456A landed allocator comparison C mimalloc result ledger closeout after ARG-DATA sidecars. MIMAP-457A is selected current to add a narrow result summary inventory without rerunning benchmarks or making performance / memory-use conclusions. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
+active_lane_status = "MIMAP-459A landed allocator comparison C mimalloc result summary closeout. MIMAP-460A is selected current to add a reporting inventory without rerunning benchmarks or making performance / memory-use conclusions. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1087-MIMAP-457A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1090-MIMAP-460A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-REPORTING-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1080-MIMAP-456A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1080-MIMAP-456A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-CLOSEOUT.md"
-latest_card_summary = "Landed allocator comparison C mimalloc result ledger closeout at L2 and selected MIMAP-457A summary inventory."
+latest_card = "293x-1089-MIMAP-459A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1089-MIMAP-459A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-CLOSEOUT.md"
+latest_card_summary = "Landed allocator comparison C mimalloc result summary closeout at L2 and selected MIMAP-460A reporting inventory."
 
-current_blocker_token = "MIMAP-457A"
+current_blocker_token = "MIMAP-460A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1089 MIMAP-459A allocator comparison C mimalloc result summary closeout landed; MIMAP-460A selected",
+  "293x-1088 MIMAP-458A allocator comparison C mimalloc result summary diagnostics landed; MIMAP-459A selected",
+  "293x-1087 MIMAP-457A allocator comparison C mimalloc result summary inventory landed; MIMAP-458A selected",
   "293x-1080 MIMAP-456A allocator comparison C mimalloc result ledger closeout landed; MIMAP-457A selected",
   "293x-1086 ARG-DATA-008 allocator comparison readiness/support matrix ReportFields horizontal batch landed; MIMAP-456A remains current",
   "293x-1085 ARG-DATA-007 allocator comparison prerequisite/worker-TLS ReportFields horizontal batch landed; MIMAP-456A remains current",

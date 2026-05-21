@@ -96,6 +96,8 @@ Current modules
 - `allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box.hako`
 - `allocator_comparison_c_mimalloc_result_ledger_box.hako`
 - `allocator_comparison_c_mimalloc_result_ledger_diagnostic_box.hako`
+- `allocator_comparison_c_mimalloc_result_summary_inventory_box.hako`
+- `allocator_comparison_c_mimalloc_result_summary_diagnostic_box.hako`
 - `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`

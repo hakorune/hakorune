@@ -87,6 +87,11 @@ fn parse_optional_type_annotation(
                 type_text.push_str(name);
                 p.advance();
             }
+            TokenType::VOID => {
+                consumed_any = true;
+                type_text.push_str("void");
+                p.advance();
+            }
             TokenType::DOT => {
                 consumed_any = true;
                 type_text.push('.');

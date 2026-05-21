@@ -89,6 +89,12 @@ Collections and failure values
 - `guard let Result::Ok(v) = res else { ... }` — narrow enum-variant guard sugar
 - `Result.Ok(v)` is not canonical; dot is object/member access
 
+Return type annotations
+- `name(args): Type { ... }` preserves the declared return type as metadata.
+- Return type annotation is optional. For ordinary no-value side-effect helpers,
+  omit it or write `: void` when the no-value contract should be explicit.
+- `void` is valid inside generic annotations, e.g. `Result<void, Error>`.
+
 Declaration metadata
 - `@rune ...` attaches declaration-local metadata. It is not statement syntax.
 - Canonical inline metadata:

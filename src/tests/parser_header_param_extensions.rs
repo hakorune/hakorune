@@ -192,3 +192,38 @@ box Worker {
     );
     assert_eq!(return_type_name.as_deref(), Some("usize"));
 }
+
+#[test]
+fn parser_accepts_void_return_type_annotation() {
+    let src = r#"
+box Worker {
+  mark(reason: i64): void {
+    return void
+  }
+
+  wrap(): Result<void, Error> {
+    return Result::Ok(void)
+  }
+}
+"#;
+    let ast = parse_ok(src);
+
+    let ASTNode::FunctionDeclaration {
+        param_decls,
+        return_type_name,
+        ..
+    } = find_method_decl(&ast, "Worker", "mark")
+    else {
+        panic!("expected FunctionDeclaration mark");
+    };
+    assert_eq!(param_decls, &vec![param("reason", Some("i64"))]);
+    assert_eq!(return_type_name.as_deref(), Some("void"));
+
+    let ASTNode::FunctionDeclaration {
+        return_type_name, ..
+    } = find_method_decl(&ast, "Worker", "wrap")
+    else {
+        panic!("expected FunctionDeclaration wrap");
+    };
+    assert_eq!(return_type_name.as_deref(), Some("Result<void,Error>"));
+}
