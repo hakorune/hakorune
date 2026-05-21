@@ -112,6 +112,7 @@ search_paths = ["target/release"]
 
 # Public std sugar helpers
 "apps.std.string" = "apps/std/string.hako"
+"apps.proofs.allocator_comparison_c_mimalloc_result_fixture" = "apps/hako-alloc-allocator-comparison-c-mimalloc-result-proof-shared/fixture.hako"
 
 # Shared tools (prod profile friendly)
 "tools.hako_shared.json_parser" = "tools/hako_shared/json_parser.hako"

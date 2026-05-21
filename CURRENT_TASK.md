@@ -56,6 +56,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - future provider package / DLL ABI plan:
   `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
+- future allocator implementation-family selection SSOT:
+  `docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md`
 - current blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
@@ -114,6 +116,10 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
   remain parked unless host allocator replacement is explicitly reopened.
+- if that lane is reopened, prefer explicit provider-family selection
+  (`system` / `.hako` allocator family / native mimalloc / future custom
+  provider) over hard-wiring a new default; see
+  `docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md`
 - future Hakorune DLL/shared-library generation is parked as a provider package
   backend; current C mimalloc comparison rows stay on the explicit external C
   mimalloc runner / evidence-diagnostics path.

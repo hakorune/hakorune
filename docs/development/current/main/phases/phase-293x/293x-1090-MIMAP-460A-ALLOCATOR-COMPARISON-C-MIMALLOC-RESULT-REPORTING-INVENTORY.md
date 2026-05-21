@@ -1,6 +1,6 @@
 # 293x-1090 MIMAP-460A Allocator Comparison C Mimalloc Result Reporting Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -40,9 +40,9 @@ memory-use conclusion.
 
 ## Validation
 
-Planned validation profile: `scalar-mir`.
+Validation profile: `scalar-mir`.
 
-Expected guard:
+Validated:
 
 ```bash
 bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_reporting_inventory_guard.sh --level L2
@@ -55,6 +55,22 @@ bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_repo
 3. Keep benchmark execution and final reporting conclusions closed.
 4. Select a reporting diagnostics / presentation-preflight row only after the
    inventory guard is green.
+
+## Completed
+
+- Added `HakoAllocAllocatorComparisonCMimallocResultReportingInventory` as a
+  narrow scalar reporting owner over the MIMAP-458A summary diagnostics.
+- Added a manifest-backed proof app and focused L2 guard.
+- Preserved the closed stop lines for benchmark reruns, performance/memory-use
+  conclusions, allocator replacement, hooks, backend matcher additions, global
+  allocator installation, provider package generation, hidden discovery,
+  worker/thread execution, and cross-function `Result` direct ABI.
+- Selected MIMAP-461A as the next reporting diagnostics row.
+
+## Next
+
+MIMAP-461A should add observer-only diagnostics over the MIMAP-460A reporting
+inventory and keep final reporting / presentation conclusions closed.
 
 ## Forward Pack
 

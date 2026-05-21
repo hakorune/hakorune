@@ -1,0 +1,97 @@
+// hako-alloc-allocator-comparison-c-mimalloc-result-reporting-inventory-proof
+// Purpose: prove MIMAP-460A stable scalar reporting inventory over summary diagnostics.
+
+using apps.proofs.allocator_comparison_c_mimalloc_result_fixture as HakoAllocAllocatorComparisonCMimallocResultProofFixture
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_ledger_box as HakoAllocAllocatorComparisonCMimallocResultLedger
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_ledger_diagnostic_box as HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_summary_inventory_box as HakoAllocAllocatorComparisonCMimallocResultSummaryInventory
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_summary_diagnostic_box as HakoAllocAllocatorComparisonCMimallocResultSummaryDiagnostic
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_reporting_inventory_box as HakoAllocAllocatorComparisonCMimallocResultReportingInventory
+
+static box Main {
+    main(args) {
+        local ledger = new HakoAllocAllocatorComparisonCMimallocResultLedger()
+        local ledger_diagnostic_owner = new HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic()
+        local summary_owner = new HakoAllocAllocatorComparisonCMimallocResultSummaryInventory()
+        local summary_diagnostic_owner = new HakoAllocAllocatorComparisonCMimallocResultSummaryDiagnostic()
+        local reporting_owner = new HakoAllocAllocatorComparisonCMimallocResultReportingInventory()
+        local hako_ready = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeHakoReady()
+        local hako_blocked = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeHakoBlocked()
+        local c_ready = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeCReady()
+
+        local accepted_ledger = ledger.recordAllocatorComparisonCMimallocResult(hako_ready, c_ready)
+        local accepted_ledger_diag = ledger_diagnostic_owner.diagnoseAllocatorComparisonCMimallocResultLedger(accepted_ledger)
+        local accepted_summary = summary_owner.summarizeAllocatorComparisonCMimallocResult(accepted_ledger, accepted_ledger_diag)
+        local accepted_summary_diag = summary_diagnostic_owner.diagnoseAllocatorComparisonCMimallocResultSummary(accepted_summary)
+        local accepted = reporting_owner.inventoryAllocatorComparisonCMimallocResultReporting(accepted_summary_diag)
+
+        local missing_summary_diag = new HakoAllocAllocatorComparisonCMimallocResultSummaryDiagnosticReport()
+        local missing_reporting = reporting_owner.inventoryAllocatorComparisonCMimallocResultReporting(missing_summary_diag)
+
+        local blocked_ledger = ledger.recordAllocatorComparisonCMimallocResult(hako_blocked, c_ready)
+        local blocked_ledger_diag = ledger_diagnostic_owner.diagnoseAllocatorComparisonCMimallocResultLedger(blocked_ledger)
+        local blocked_summary = summary_owner.summarizeAllocatorComparisonCMimallocResult(blocked_ledger, blocked_ledger_diag)
+        local blocked_summary_diag = summary_diagnostic_owner.diagnoseAllocatorComparisonCMimallocResultSummary(blocked_summary)
+        local blocked_reporting = reporting_owner.inventoryAllocatorComparisonCMimallocResultReporting(blocked_summary_diag)
+
+        local ok = check "mimap460a allocator comparison c mimalloc result reporting inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "reporting": accepted.reporting_inventory_present == 1
+            "summary diagnostic": accepted.summary_diagnostic_present == 1
+            "accepted summary diagnostic": accepted.accepted_summary_diagnostic_present == 1
+            "blocked summary diagnostic": accepted.blocked_summary_diagnostic_present == 0
+            "available": accepted.comparison_available == 1
+            "hako ready": accepted.hako_ready_execution_present == 1
+            "c ready": accepted.c_ready_evidence_present == 1
+            "memory evidence": accepted.memory_evidence_present == 1
+            "hako alloc": accepted.hako_allocation_count == 3
+            "hako bytes": accepted.hako_requested_bytes == 72
+            "c alloc": accepted.c_allocation_count == 64
+            "c bytes": accepted.c_requested_bytes == 33254
+            "c rss": accepted.c_peak_rss_bytes == 4096
+            "alloc delta": accepted.allocation_count_delta == 61
+            "bytes delta": accepted.requested_bytes_delta == 33182
+            "owner count": reporting_owner.reporting_count == 3
+            "owner ready": reporting_owner.ready_count == 1
+            "owner blocked": reporting_owner.blocked_count == 2
+            "owner missing": reporting_owner.missing_summary_diagnostic_reject_count == 1
+            "owner blocked summary": reporting_owner.blocked_summary_diagnostic_reject_count == 1
+            "last reason": reporting_owner.last_reason == 2
+            "missing reason": missing_reporting.reason == 1
+            "blocked reason": blocked_reporting.reason == 2
+            "missing flag": missing_reporting.accepted == 0
+            "blocked flag": blocked_reporting.accepted == 0
+            "no perf conclusion": accepted.performance_conclusion_made == 0
+            "no memory conclusion": accepted.memory_conclusion_made == 0
+            "no repeated benchmark": accepted.repeated_benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "hidden discovery": accepted.hidden_discovery_used == 0
+            "provider package": accepted.provider_package_generated == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-result-reporting-inventory-proof")
+        print("report=" + accepted.accepted + "," + accepted.reason + "," + accepted.reporting_inventory_present + "," + accepted.summary_diagnostic_present + "," + accepted.accepted_summary_diagnostic_present + "," + accepted.blocked_summary_diagnostic_present + "," + accepted.comparison_available + "," + accepted.memory_evidence_present)
+        print("metrics=" + accepted.hako_allocation_count + "," + accepted.hako_requested_bytes + "," + accepted.c_allocation_count + "," + accepted.c_requested_bytes + "," + accepted.c_peak_rss_bytes + "," + accepted.allocation_count_delta + "," + accepted.requested_bytes_delta)
+        print("owner=" + reporting_owner.reporting_count + "," + reporting_owner.ready_count + "," + reporting_owner.blocked_count + "," + reporting_owner.missing_summary_diagnostic_reject_count + "," + reporting_owner.blocked_summary_diagnostic_reject_count + "," + reporting_owner.last_reason)
+        print("blocked=" + missing_reporting.accepted + "," + blocked_reporting.accepted)
+        print("closed=" + accepted.performance_conclusion_made + "," + accepted.memory_conclusion_made + "," + accepted.repeated_benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.hidden_discovery_used + "," + accepted.provider_package_generated + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_reporting.reason + "," + blocked_reporting.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

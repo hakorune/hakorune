@@ -1,0 +1,320 @@
+// MIMAP-474A: presentation-only conclusion pilot over landed first-conclusion pilot evidence.
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_first_conclusion_pilot_box as HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilot
+
+record HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReportFields {
+    accepted: i64 = 0
+    reason: i64 = 0
+    presentation_present: i64 = 0
+    conclusion_present: i64 = 0
+    pilot_present: i64 = 0
+    accepted_pilot_present: i64 = 0
+    blocked_pilot_present: i64 = 0
+    provisional_memory_conclusion_present: i64 = 0
+    provisional_memory_winner: i64 = 0
+    provisional_memory_reason: i64 = 0
+    comparison_available: i64 = 0
+    memory_evidence_present: i64 = 0
+    hako_allocation_count: i64 = 0
+    hako_requested_bytes: i64 = 0
+    c_allocation_count: i64 = 0
+    c_requested_bytes: i64 = 0
+    c_peak_rss_bytes: i64 = 0
+    allocation_count_delta: i64 = 0
+    requested_bytes_delta: i64 = 0
+    presentation_count: i64 = 0
+    accepted_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_pilot_reject_count: i64 = 0
+    blocked_pilot_reject_count: i64 = 0
+    missing_presentation_input_reject_count: i64 = 0
+    closed_stop_line_reject_count: i64 = 0
+    last_reason: i64 = 0
+    performance_conclusion_made: i64 = 0
+    memory_conclusion_made: i64 = 0
+    repeated_benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    provider_package_generated: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    presentation_present: i64 = 0
+    conclusion_present: i64 = 0
+    pilot_present: i64 = 0
+    accepted_pilot_present: i64 = 0
+    blocked_pilot_present: i64 = 0
+    provisional_memory_conclusion_present: i64 = 0
+    provisional_memory_winner: i64 = 0
+    provisional_memory_reason: i64 = 0
+    comparison_available: i64 = 0
+    memory_evidence_present: i64 = 0
+    hako_allocation_count: i64 = 0
+    hako_requested_bytes: i64 = 0
+    c_allocation_count: i64 = 0
+    c_requested_bytes: i64 = 0
+    c_peak_rss_bytes: i64 = 0
+    allocation_count_delta: i64 = 0
+    requested_bytes_delta: i64 = 0
+    presentation_count: i64 = 0
+    accepted_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_pilot_reject_count: i64 = 0
+    blocked_pilot_reject_count: i64 = 0
+    missing_presentation_input_reject_count: i64 = 0
+    closed_stop_line_reject_count: i64 = 0
+    last_reason: i64 = 0
+    performance_conclusion_made: i64 = 0
+    memory_conclusion_made: i64 = 0
+    repeated_benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    provider_package_generated: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilot {
+    presentation_count: i64 = 0
+    accepted_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_pilot_reject_count: i64 = 0
+    blocked_pilot_reject_count: i64 = 0
+    missing_presentation_input_reject_count: i64 = 0
+    closed_stop_line_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport(fields: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReportFields): HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport {
+        local result = new HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            presentation_present: fields.presentation_present,
+            conclusion_present: fields.conclusion_present,
+            pilot_present: fields.pilot_present,
+            accepted_pilot_present: fields.accepted_pilot_present,
+            blocked_pilot_present: fields.blocked_pilot_present,
+            provisional_memory_conclusion_present: fields.provisional_memory_conclusion_present,
+            provisional_memory_winner: fields.provisional_memory_winner,
+            provisional_memory_reason: fields.provisional_memory_reason,
+            comparison_available: fields.comparison_available,
+            memory_evidence_present: fields.memory_evidence_present,
+            hako_allocation_count: fields.hako_allocation_count,
+            hako_requested_bytes: fields.hako_requested_bytes,
+            c_allocation_count: fields.c_allocation_count,
+            c_requested_bytes: fields.c_requested_bytes,
+            c_peak_rss_bytes: fields.c_peak_rss_bytes,
+            allocation_count_delta: fields.allocation_count_delta,
+            requested_bytes_delta: fields.requested_bytes_delta,
+            presentation_count: fields.presentation_count,
+            accepted_count: fields.accepted_count,
+            blocked_count: fields.blocked_count,
+            missing_pilot_reject_count: fields.missing_pilot_reject_count,
+            blocked_pilot_reject_count: fields.blocked_pilot_reject_count,
+            missing_presentation_input_reject_count: fields.missing_presentation_input_reject_count,
+            closed_stop_line_reject_count: fields.closed_stop_line_reject_count,
+            last_reason: fields.last_reason,
+            performance_conclusion_made: fields.performance_conclusion_made,
+            memory_conclusion_made: fields.memory_conclusion_made,
+            repeated_benchmark_executed: fields.repeated_benchmark_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            hidden_discovery_used: fields.hidden_discovery_used,
+            provider_package_generated: fields.provider_package_generated,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    markBlocked(reason: i64): void {
+        me.blocked_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_pilot_reject_count += 1
+        }
+        if reason == 2 {
+            me.blocked_pilot_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_presentation_input_reject_count += 1
+        }
+        if reason == 4 {
+            me.closed_stop_line_reject_count += 1
+        }
+        return void
+    }
+
+    pilotPresentFrom(report: HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilotReport): i64 {
+        if report.conclusion_present == 1 {
+            return 1
+        }
+        if report.accepted_preflight_present == 1 {
+            return 1
+        }
+        if report.blocked_preflight_present == 1 {
+            return 1
+        }
+        return 0
+    }
+
+    reasonFrom(report: HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilotReport): i64 {
+        if me.pilotPresentFrom(report) != 1 {
+            return 1
+        }
+        if report.accepted != 1 {
+            return 2
+        }
+        if report.reason != 0 {
+            return 2
+        }
+        if report.conclusion_present != 1 {
+            return 2
+        }
+        if report.provisional_memory_conclusion_present != 1 {
+            return 3
+        }
+        if report.provisional_memory_winner == 0 {
+            return 3
+        }
+        if report.provisional_memory_reason == 0 {
+            return 3
+        }
+        if report.comparison_available != 1 {
+            return 3
+        }
+        if report.memory_evidence_present != 1 {
+            return 3
+        }
+        if report.performance_conclusion_made != 0 {
+            return 4
+        }
+        if report.memory_conclusion_made != 0 {
+            return 4
+        }
+        if report.repeated_benchmark_executed != 0 {
+            return 4
+        }
+        if report.process_replacement_executed != 0 {
+            return 4
+        }
+        if report.hook_installed != 0 {
+            return 4
+        }
+        if report.backend_matcher_added != 0 {
+            return 4
+        }
+        if report.global_allocator_installed != 0 {
+            return 4
+        }
+        if report.hidden_discovery_used != 0 {
+            return 4
+        }
+        if report.provider_package_generated != 0 {
+            return 4
+        }
+        if report.would_replace_host_allocator != 0 {
+            return 4
+        }
+        if report.would_install_hook != 0 {
+            return 4
+        }
+        if report.would_add_backend_matcher != 0 {
+            return 4
+        }
+        if report.would_run_thread != 0 {
+            return 4
+        }
+        return 0
+    }
+
+    makeReport(reason: i64, report: HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilotReport): HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport {
+        local accepted = 0
+        local presentation_present = 0
+        local accepted_pilot_present = 0
+        local blocked_pilot_present = 0
+        local pilot_present = me.pilotPresentFrom(report)
+        if reason == 0 {
+            accepted = 1
+            presentation_present = 1
+            accepted_pilot_present = 1
+        } else {
+            if pilot_present == 1 {
+                blocked_pilot_present = 1
+            }
+        }
+        local fields = HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
+            presentation_present,
+            conclusion_present: report.conclusion_present,
+            pilot_present,
+            accepted_pilot_present,
+            blocked_pilot_present,
+            provisional_memory_conclusion_present: report.provisional_memory_conclusion_present,
+            provisional_memory_winner: report.provisional_memory_winner,
+            provisional_memory_reason: report.provisional_memory_reason,
+            comparison_available: report.comparison_available,
+            memory_evidence_present: report.memory_evidence_present,
+            hako_allocation_count: report.hako_allocation_count,
+            hako_requested_bytes: report.hako_requested_bytes,
+            c_allocation_count: report.c_allocation_count,
+            c_requested_bytes: report.c_requested_bytes,
+            c_peak_rss_bytes: report.c_peak_rss_bytes,
+            allocation_count_delta: report.allocation_count_delta,
+            requested_bytes_delta: report.requested_bytes_delta,
+            presentation_count: me.presentation_count,
+            accepted_count: me.accepted_count,
+            blocked_count: me.blocked_count,
+            missing_pilot_reject_count: me.missing_pilot_reject_count,
+            blocked_pilot_reject_count: me.blocked_pilot_reject_count,
+            missing_presentation_input_reject_count: me.missing_presentation_input_reject_count,
+            closed_stop_line_reject_count: me.closed_stop_line_reject_count,
+            last_reason: me.last_reason,
+            performance_conclusion_made: report.performance_conclusion_made,
+            memory_conclusion_made: report.memory_conclusion_made,
+            repeated_benchmark_executed: report.repeated_benchmark_executed,
+            process_replacement_executed: report.process_replacement_executed,
+            hook_installed: report.hook_installed,
+            backend_matcher_added: report.backend_matcher_added,
+            global_allocator_installed: report.global_allocator_installed,
+            hidden_discovery_used: report.hidden_discovery_used,
+            provider_package_generated: report.provider_package_generated,
+            would_replace_host_allocator: report.would_replace_host_allocator,
+            would_install_hook: report.would_install_hook,
+            would_add_backend_matcher: report.would_add_backend_matcher,
+            would_run_thread: report.would_run_thread
+        }
+        return me.makeAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport(fields)
+    }
+
+    pilotAllocatorComparisonCMimallocResultPresentationOnlyConclusion(report: HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilotReport): HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilotReport {
+        me.presentation_count += 1
+        local reason = me.reasonFrom(report)
+        if reason == 0 {
+            me.accepted_count += 1
+            me.last_reason = 0
+        } else {
+            me.markBlocked(reason)
+        }
+        return me.makeReport(reason, report)
+    }
+}

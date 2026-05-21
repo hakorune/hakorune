@@ -6,6 +6,7 @@ Scope: post-M101 allocator provider activation implementation ladder.
 Related:
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-consumption-failfast-entry-ssot.md
+  - docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - docs/tools/check-scripts-index.md
   - src/runtime/allocator_provider_activation.rs
@@ -23,6 +24,11 @@ lines.
 This ladder is optional future host-replacement support. It is not the default
 implementation path for the current mimalloc port, which belongs in `.hako` /
 `hako_alloc` unless host allocator replacement is explicitly reopened.
+
+If it is reopened, the ladder must stay provider-family neutral rather than
+assuming "native mimalloc becomes the new default". Explicit selection should be
+able to name system, `.hako` allocator, native mimalloc, and future custom
+provider families under one contract.
 
 The behavior owner remains:
 

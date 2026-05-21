@@ -1,6 +1,6 @@
 # 293x-1089 MIMAP-459A Allocator Comparison C Mimalloc Result Summary Closeout
 
-Status: selected current
+Status: completed
 Date: 2026-05-21
 
 ## Purpose

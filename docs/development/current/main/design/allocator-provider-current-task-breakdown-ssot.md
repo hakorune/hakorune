@@ -43,6 +43,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md
   - docs/development/current/main/design/allocator-provider-selected-provider-precondition-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
+  - docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -70,6 +71,11 @@ The default current mimalloc implementation direction is fixed by
 `hako_alloc`, backed by narrow capability substrate rows. M104+ remains a
 future optional host allocator replacement ladder and does not gate `.hako`
 mimalloc progress.
+
+When that optional lane is reopened, it should remain provider-family neutral:
+system allocator, `.hako` allocator families, native mimalloc, and future
+custom providers should fit under one explicit provider contract instead of
+forcing a single new default allocator.
 
 ## Current Completed Checkpoint
 

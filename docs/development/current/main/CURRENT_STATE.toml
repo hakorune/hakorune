@@ -6,20 +6,20 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-21"
+date = "2026-05-22"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-459A landed allocator comparison C mimalloc result summary closeout. MIMAP-460A is selected current to add a reporting inventory without rerunning benchmarks or making performance / memory-use conclusions. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
+active_lane_status = "MIMAP-542A completed the presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on closeout. MIMAP-543A is selected current to choose the next row after the deeper follow-on pack was stabilized over the deeper extension seam while benchmark reruns and allocator/provider ladders remain closed. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1090-MIMAP-460A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-REPORTING-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1173-MIMAP-543A-POST-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1089-MIMAP-459A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1089-MIMAP-459A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-CLOSEOUT.md"
-latest_card_summary = "Landed allocator comparison C mimalloc result summary closeout at L2 and selected MIMAP-460A reporting inventory."
+latest_card = "293x-1172-MIMAP-542A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1172-MIMAP-542A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-CLOSEOUT.md"
+latest_card_summary = "Closed the presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on pilot pack at L2 and selected MIMAP-543A as the next row-selection card."
 
-current_blocker_token = "MIMAP-460A"
+current_blocker_token = "MIMAP-543A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,85 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1172 MIMAP-542A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on closeout completed; MIMAP-543A selected",
+  "293x-1171 MIMAP-541A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on pilot row selection landed; MIMAP-542A selected",
+  "293x-1170 MIMAP-540A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on pilot landed; MIMAP-541A selected",
+  "293x-1169 MIMAP-539A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on plan row selection landed; MIMAP-540A selected",
+  "293x-1168 MIMAP-538A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on plan landed; MIMAP-539A selected",
+  "293x-1166 MIMAP-536A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension closeout completed; MIMAP-537A selected",
+  "293x-1165 MIMAP-535A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension pilot row selection landed; MIMAP-536A selected",
+  "293x-1164 MIMAP-534A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension pilot landed; MIMAP-535A selected",
+  "293x-1163 MIMAP-533A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension plan row selection landed; MIMAP-534A selected",
+  "293x-1162 MIMAP-532A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension plan landed; MIMAP-533A selected",
+  "293x-1160 MIMAP-530A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on closeout completed; MIMAP-531A selected",
+  "293x-1159 MIMAP-529A post presentation extension follow-on extension follow-on extension follow-on extension follow-on pilot row selection landed; MIMAP-530A selected",
+  "293x-1158 MIMAP-528A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on pilot landed; MIMAP-529A selected",
+  "293x-1157 MIMAP-527A post presentation extension follow-on extension follow-on extension follow-on extension follow-on plan row selection landed; MIMAP-528A selected",
+  "293x-1156 MIMAP-526A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on plan landed; MIMAP-527A selected",
+  "293x-1155 MIMAP-525A post presentation extension follow-on extension follow-on extension follow-on extension closeout row selection landed; MIMAP-526A selected",
+  "293x-1154 MIMAP-524A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension closeout completed; MIMAP-525A selected",
+  "293x-1153 MIMAP-523A post presentation extension follow-on extension follow-on extension follow-on extension pilot row selection landed; MIMAP-524A selected",
+  "293x-1152 MIMAP-522A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension pilot landed; MIMAP-523A selected",
+  "293x-1151 MIMAP-521A post presentation extension follow-on extension follow-on extension follow-on extension plan row selection landed; MIMAP-522A selected",
+  "293x-1150 MIMAP-520A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension plan landed; MIMAP-521A selected",
+  "293x-1149 MIMAP-519A post presentation extension follow-on extension follow-on extension follow-on closeout row selection landed; MIMAP-520A selected",
+  "293x-1148 MIMAP-518A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on closeout completed; MIMAP-519A selected",
+  "293x-1147 MIMAP-517A post presentation extension follow-on extension follow-on extension follow-on pilot row selection landed; MIMAP-518A selected",
+  "293x-1146 MIMAP-516A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on pilot landed; MIMAP-517A selected",
+  "293x-1145 MIMAP-515A post presentation extension follow-on extension follow-on extension follow-on plan row selection landed; MIMAP-516A selected",
+  "293x-1144 MIMAP-514A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on plan landed; MIMAP-515A selected",
+  "293x-1142 MIMAP-512A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension closeout completed; MIMAP-513A selected",
+  "293x-1141 MIMAP-511A post presentation extension follow-on extension follow-on extension pilot row selection landed; MIMAP-512A selected",
+  "293x-1140 MIMAP-510A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension pilot landed; MIMAP-511A selected",
+  "293x-1139 MIMAP-509A post presentation extension follow-on extension follow-on extension plan row selection landed; MIMAP-510A selected",
+  "293x-1138 MIMAP-508A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension plan landed; MIMAP-509A selected",
+  "293x-1137 MIMAP-507A post presentation extension follow-on extension follow-on closeout row selection landed; MIMAP-508A selected",
+  "293x-1136 MIMAP-506A allocator comparison C mimalloc result presentation extension follow-on extension follow-on closeout completed; MIMAP-507A selected",
+  "293x-1135 MIMAP-505A post presentation extension follow-on extension follow-on pilot row selection landed; MIMAP-506A selected",
+  "293x-1134 MIMAP-504A allocator comparison C mimalloc result presentation extension follow-on extension follow-on pilot landed; MIMAP-505A selected",
+  "293x-1133 MIMAP-503A post presentation extension follow-on extension follow-on plan row selection landed; MIMAP-504A selected",
+  "293x-1132 MIMAP-502A allocator comparison C mimalloc result presentation extension follow-on extension follow-on plan landed; MIMAP-503A selected",
+  "293x-1131 MIMAP-501A post presentation extension follow-on extension closeout row selection landed; MIMAP-502A selected",
+  "293x-1130 MIMAP-500A allocator comparison C mimalloc result presentation extension follow-on extension closeout completed; MIMAP-501A selected",
+  "293x-1129 MIMAP-499A post presentation extension follow-on extension pilot row selection landed; MIMAP-500A selected",
+  "293x-1128 MIMAP-498A allocator comparison C mimalloc result presentation extension follow-on extension pilot landed; MIMAP-499A selected",
+  "293x-1127 MIMAP-497A post presentation extension follow-on extension plan row selection landed; MIMAP-498A selected",
+  "293x-1126 MIMAP-496A allocator comparison C mimalloc result presentation extension follow-on extension plan landed; MIMAP-497A selected",
+  "293x-1125 MIMAP-495A post presentation extension follow-on closeout row selection landed; MIMAP-496A selected",
+  "293x-1124 MIMAP-494A allocator comparison C mimalloc result presentation extension follow-on closeout completed; MIMAP-495A selected",
+  "293x-1123 MIMAP-493A post presentation extension follow-on pilot row selection landed; MIMAP-494A selected",
+  "293x-1122 MIMAP-492A allocator comparison C mimalloc result presentation extension follow-on pilot landed; MIMAP-493A selected",
+  "293x-1121 MIMAP-491A post presentation extension follow-on plan row selection landed; MIMAP-492A selected",
+  "293x-1120 MIMAP-490A allocator comparison C mimalloc result presentation extension follow-on plan landed; MIMAP-491A selected",
+  "293x-1118 MIMAP-488A allocator comparison C mimalloc result presentation extension closeout completed; MIMAP-489A selected",
+  "293x-1117 MIMAP-487A post presentation extension pilot row selection landed; MIMAP-488A selected",
+  "293x-1116 MIMAP-486A allocator comparison C mimalloc result presentation extension pilot landed; MIMAP-487A selected",
+  "293x-1115 MIMAP-485A post presentation follow-on extension plan row selection landed; MIMAP-486A selected",
+  "293x-1114 MIMAP-484A allocator comparison C mimalloc result presentation follow-on extension plan landed; MIMAP-485A selected",
+  "293x-1113 MIMAP-483A post presentation follow-on closeout row selection landed; MIMAP-484A selected",
+  "293x-1112 MIMAP-482A allocator comparison C mimalloc result presentation follow-on closeout completed; MIMAP-483A selected",
+  "293x-1111 MIMAP-481A post presentation follow-on pilot row selection landed; MIMAP-482A selected",
+  "293x-1110 MIMAP-480A allocator comparison C mimalloc result presentation follow-on pilot landed; MIMAP-481A selected",
+  "293x-1109 MIMAP-479A post presentation follow-on plan row selection landed; MIMAP-480A selected",
+  "293x-1108 MIMAP-478A allocator comparison C mimalloc result presentation follow-on plan landed; MIMAP-479A selected",
+  "293x-1107 MIMAP-477A post presentation-only conclusion closeout row selection landed; MIMAP-478A selected",
+  "293x-1106 MIMAP-476A allocator comparison C mimalloc result presentation-only conclusion closeout completed; MIMAP-477A selected",
+  "293x-1105 MIMAP-475A post presentation-only conclusion pilot row selection landed; MIMAP-476A selected",
+  "293x-1104 MIMAP-474A allocator comparison C mimalloc result presentation-only conclusion pilot landed; MIMAP-475A selected",
+  "293x-1103 MIMAP-473A post presentation-only conclusion shaping row selection landed; MIMAP-474A selected",
+  "293x-1102 MIMAP-472A allocator comparison C mimalloc result presentation-only conclusion shaping landed; MIMAP-473A selected",
+  "293x-1101 MIMAP-471A post first conclusion closeout row selection landed; MIMAP-472A selected",
+  "293x-1100 MIMAP-470A allocator comparison C mimalloc result first conclusion closeout completed; MIMAP-471A selected",
+  "293x-1099 MIMAP-469A post first conclusion pilot row selection landed; MIMAP-470A selected",
+  "293x-1098 MIMAP-468A allocator comparison C mimalloc result first conclusion pilot landed; MIMAP-469A selected",
+  "293x-1097 MIMAP-467A post first conclusion plan row selection landed; MIMAP-468A selected",
+  "293x-1096 MIMAP-466A allocator comparison C mimalloc result first conclusion plan landed; MIMAP-467A selected",
+  "293x-1095 MIMAP-465A post first conclusion preflight row selection landed; MIMAP-466A selected",
+  "293x-1094 MIMAP-464A allocator comparison C mimalloc result first conclusion preflight landed; MIMAP-465A selected",
+  "293x-1093 MIMAP-463A allocator comparison C mimalloc result presentation / decision row selection landed; MIMAP-464A selected",
+  "293x-1092 MIMAP-462A allocator comparison C mimalloc result reporting closeout landed; MIMAP-463A selected",
+  "293x-1091 MIMAP-461A allocator comparison C mimalloc result reporting diagnostics landed; MIMAP-462A selected",
+  "293x-1090 MIMAP-460A allocator comparison C mimalloc result reporting inventory landed; MIMAP-461A selected",
   "293x-1089 MIMAP-459A allocator comparison C mimalloc result summary closeout landed; MIMAP-460A selected",
   "293x-1088 MIMAP-458A allocator comparison C mimalloc result summary diagnostics landed; MIMAP-459A selected",
   "293x-1087 MIMAP-457A allocator comparison C mimalloc result summary inventory landed; MIMAP-458A selected",

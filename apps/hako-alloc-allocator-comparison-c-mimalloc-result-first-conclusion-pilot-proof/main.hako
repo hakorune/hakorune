@@ -1,0 +1,96 @@
+// hako-alloc-allocator-comparison-c-mimalloc-result-first-conclusion-pilot-proof
+// Purpose: prove MIMAP-468A first provisional conclusion pilot over first-conclusion preflight.
+
+using apps.proofs.allocator_comparison_c_mimalloc_result_fixture as HakoAllocAllocatorComparisonCMimallocResultProofFixture
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_first_conclusion_pilot_box as HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilot
+
+static box Main {
+    main(args) {
+        local pilot_owner = new HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPilot()
+
+        local accepted_preflight = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedFirstConclusionPreflight()
+        local accepted = pilot_owner.pilotAllocatorComparisonCMimallocResultFirstConclusion(accepted_preflight)
+
+        local missing_preflight = new HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPreflightReport()
+        local missing = pilot_owner.pilotAllocatorComparisonCMimallocResultFirstConclusion(missing_preflight)
+
+        local blocked_preflight = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeBlockedFirstConclusionPreflight()
+        local blocked = pilot_owner.pilotAllocatorComparisonCMimallocResultFirstConclusion(blocked_preflight)
+
+        local no_delta_preflight = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedFirstConclusionPreflight()
+        no_delta_preflight.requested_bytes_delta = 0
+        local no_delta = pilot_owner.pilotAllocatorComparisonCMimallocResultFirstConclusion(no_delta_preflight)
+
+        local closed_stop_preflight = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedFirstConclusionPreflight()
+        closed_stop_preflight.repeated_benchmark_executed = 1
+        local closed_stop = pilot_owner.pilotAllocatorComparisonCMimallocResultFirstConclusion(closed_stop_preflight)
+
+        local ok = check "mimap468a allocator comparison c mimalloc result first conclusion pilot" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "conclusion": accepted.conclusion_present == 1
+            "preflight": accepted.preflight_present == 1
+            "accepted preflight": accepted.accepted_preflight_present == 1
+            "blocked preflight": accepted.blocked_preflight_present == 0
+            "memory conclusion": accepted.provisional_memory_conclusion_present == 1
+            "performance conclusion": accepted.provisional_performance_conclusion_present == 0
+            "memory winner": accepted.provisional_memory_winner == 1
+            "memory reason": accepted.provisional_memory_reason == 1
+            "comparison available": accepted.comparison_available == 1
+            "memory evidence": accepted.memory_evidence_present == 1
+            "hako alloc": accepted.hako_allocation_count == 3
+            "hako bytes": accepted.hako_requested_bytes == 72
+            "c alloc": accepted.c_allocation_count == 64
+            "c bytes": accepted.c_requested_bytes == 33254
+            "c rss": accepted.c_peak_rss_bytes == 4096
+            "alloc delta": accepted.allocation_count_delta == 61
+            "bytes delta": accepted.requested_bytes_delta == 33182
+            "owner count": pilot_owner.pilot_count == 5
+            "owner accepted": pilot_owner.accepted_count == 1
+            "owner blocked": pilot_owner.blocked_count == 4
+            "owner missing preflight": pilot_owner.missing_preflight_reject_count == 1
+            "owner blocked preflight": pilot_owner.blocked_preflight_reject_count == 1
+            "owner missing delta": pilot_owner.missing_memory_delta_reject_count == 1
+            "owner closed stop": pilot_owner.closed_stop_line_reject_count == 1
+            "last reason": pilot_owner.last_reason == 4
+            "missing reason": missing.reason == 1
+            "blocked reason": blocked.reason == 2
+            "delta reason": no_delta.reason == 3
+            "closed reason": closed_stop.reason == 4
+            "missing flag": missing.accepted == 0
+            "blocked flag": blocked.accepted == 0
+            "delta flag": no_delta.accepted == 0
+            "closed flag": closed_stop.accepted == 0
+            "no perf made": accepted.performance_conclusion_made == 0
+            "no memory made": accepted.memory_conclusion_made == 0
+            "no repeated benchmark": accepted.repeated_benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "hidden discovery": accepted.hidden_discovery_used == 0
+            "provider package": accepted.provider_package_generated == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-result-first-conclusion-pilot-proof")
+        print("pilot=" + accepted.accepted + "," + accepted.reason + "," + accepted.conclusion_present + "," + accepted.preflight_present + "," + accepted.accepted_preflight_present + "," + accepted.blocked_preflight_present + "," + accepted.provisional_memory_conclusion_present + "," + accepted.provisional_performance_conclusion_present + "," + accepted.provisional_memory_winner + "," + accepted.provisional_memory_reason)
+        print("metrics=" + accepted.hako_allocation_count + "," + accepted.hako_requested_bytes + "," + accepted.c_allocation_count + "," + accepted.c_requested_bytes + "," + accepted.c_peak_rss_bytes + "," + accepted.allocation_count_delta + "," + accepted.requested_bytes_delta)
+        print("owner=" + pilot_owner.pilot_count + "," + pilot_owner.accepted_count + "," + pilot_owner.blocked_count + "," + pilot_owner.missing_preflight_reject_count + "," + pilot_owner.blocked_preflight_reject_count + "," + pilot_owner.missing_memory_delta_reject_count + "," + pilot_owner.closed_stop_line_reject_count + "," + pilot_owner.last_reason)
+        print("blocked=" + missing.accepted + "," + blocked.accepted + "," + no_delta.accepted + "," + closed_stop.accepted)
+        print("closed=" + accepted.performance_conclusion_made + "," + accepted.memory_conclusion_made + "," + accepted.repeated_benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.hidden_discovery_used + "," + accepted.provider_package_generated + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + blocked.reason + "," + no_delta.reason + "," + closed_stop.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

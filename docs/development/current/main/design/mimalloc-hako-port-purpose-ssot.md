@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md
   - docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md
+  - docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md
   - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
   - lang/src/hako_alloc/
 ---
@@ -86,6 +87,26 @@ allocator-provider activation ladder
 
 The provider ladder may keep proving explicit-input diagnostics and fail-fast
 preconditions, but it does not gate `.hako` mimalloc implementation progress.
+
+## Future Explicit Selection Reading
+
+If the allocator-provider lane is reopened later, the intended direction is
+explicit provider-family selection rather than silently promoting one allocator
+implementation to the default process allocator.
+
+That future family set should stay broad enough to cover:
+
+- the ordinary system allocator baseline
+- `.hako` / `hako_alloc` allocator families, including mimalloc-style
+  algorithms
+- native allocator families such as `native_mimalloc`
+- future custom allocator providers
+
+The durable roadmap owner for that direction is:
+
+```text
+docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md
+```
 
 ## Current Implementation Order
 
