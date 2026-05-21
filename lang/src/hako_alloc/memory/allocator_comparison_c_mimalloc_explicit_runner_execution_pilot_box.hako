@@ -8,6 +8,35 @@
 
 using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_diagnostic_box as HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic
 
+record HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence {
+    explicit_runner_invoked: i64
+    output_present: i64
+    result_code: i64
+    stable_output_contract_present: i64
+    run_count: i64
+    allocation_count: i64
+    free_count: i64
+}
+
+record HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence {
+    memory_usage_present: i64
+    requested_bytes: i64
+    peak_rss_bytes: i64
+}
+
+record HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence {
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    hidden_discovery_used: i64
+    provider_package_generated: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
 record HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields {
     accepted: i64
     reason: i64
@@ -183,7 +212,7 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot {
         }
     }
 
-    makeReport(reason: i64, diagnostic: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport, explicit_runner_invoked: i64, output_present: i64, result_code: i64, memory_usage_present: i64, stable_output_contract_present: i64, run_count: i64, allocation_count: i64, free_count: i64, requested_bytes: i64, peak_rss_bytes: i64): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
+    makeReport(reason: i64, diagnostic: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport, runner: HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence, memory: HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence, stop_lines: HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
         local accepted = 0
         local executed = 0
         local evidence = 0
@@ -207,17 +236,17 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot {
             diagnostic_present: diagnostic.diagnostic_present,
             diagnostic_ready: diagnostic_ready,
             diagnostic_reason: diagnostic.reason,
-            explicit_runner_invoked: explicit_runner_invoked,
-            explicit_runner_output_present: output_present,
-            explicit_runner_result_code: result_code,
+            explicit_runner_invoked: runner.explicit_runner_invoked,
+            explicit_runner_output_present: runner.output_present,
+            explicit_runner_result_code: runner.result_code,
             c_mimalloc_execution_evidence_present: evidence,
-            memory_usage_evidence_present: memory_usage_present,
-            stable_output_contract_present: stable_output_contract_present,
-            run_count: run_count,
-            allocation_count: allocation_count,
-            free_count: free_count,
-            requested_bytes: requested_bytes,
-            peak_rss_bytes: peak_rss_bytes,
+            memory_usage_evidence_present: memory.memory_usage_present,
+            stable_output_contract_present: runner.stable_output_contract_present,
+            run_count: runner.run_count,
+            allocation_count: runner.allocation_count,
+            free_count: runner.free_count,
+            requested_bytes: memory.requested_bytes,
+            peak_rss_bytes: memory.peak_rss_bytes,
             pilot_count: me.pilot_count,
             accepted_count: me.accepted_count,
             reject_count: me.reject_count,
@@ -231,6 +260,42 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot {
             invalid_run_count_reject_count: me.invalid_run_count_reject_count,
             last_reason: me.last_reason,
             c_mimalloc_executed: executed,
+            process_replacement_executed: stop_lines.process_replacement_executed,
+            hook_installed: stop_lines.hook_installed,
+            backend_matcher_added: stop_lines.backend_matcher_added,
+            global_allocator_installed: stop_lines.global_allocator_installed,
+            hidden_discovery_used: stop_lines.hidden_discovery_used,
+            provider_package_generated: stop_lines.provider_package_generated,
+            would_replace_host_allocator: stop_lines.would_replace_host_allocator,
+            would_install_hook: stop_lines.would_install_hook,
+            would_add_backend_matcher: stop_lines.would_add_backend_matcher,
+            would_run_thread: stop_lines.would_run_thread
+        }
+        return me.makeAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport(fields)
+    }
+
+    reject(reason: i64, diagnostic: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport, runner: HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence, memory: HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence, stop_lines: HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
+        me.markRejected(reason)
+        return me.makeReport(reason, diagnostic, runner, memory, stop_lines)
+    }
+
+    recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport, explicit_runner_invoked: i64, output_present: i64, result_code: i64, memory_usage_present: i64, stable_output_contract_present: i64, run_count: i64, allocation_count: i64, free_count: i64, requested_bytes: i64, peak_rss_bytes: i64): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
+        me.pilot_count += 1
+        local runner = HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence {
+            explicit_runner_invoked: explicit_runner_invoked,
+            output_present: output_present,
+            result_code: result_code,
+            stable_output_contract_present: stable_output_contract_present,
+            run_count: run_count,
+            allocation_count: allocation_count,
+            free_count: free_count
+        }
+        local memory = HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence {
+            memory_usage_present: memory_usage_present,
+            requested_bytes: requested_bytes,
+            peak_rss_bytes: peak_rss_bytes
+        }
+        local stop_lines = HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence {
             process_replacement_executed: 0,
             hook_installed: 0,
             backend_matcher_added: 0,
@@ -242,49 +307,39 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot {
             would_add_backend_matcher: 0,
             would_run_thread: 0
         }
-        return me.makeAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport(fields)
-    }
-
-    reject(reason: i64, diagnostic: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport, explicit_runner_invoked: i64, output_present: i64, result_code: i64, memory_usage_present: i64, stable_output_contract_present: i64, run_count: i64, allocation_count: i64, free_count: i64, requested_bytes: i64, peak_rss_bytes: i64): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
-        me.markRejected(reason)
-        return me.makeReport(reason, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
-    }
-
-    recordAllocatorComparisonCMimallocExplicitRunnerExecution(diagnostic: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport, explicit_runner_invoked: i64, output_present: i64, result_code: i64, memory_usage_present: i64, stable_output_contract_present: i64, run_count: i64, allocation_count: i64, free_count: i64, requested_bytes: i64, peak_rss_bytes: i64): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
-        me.pilot_count += 1
         if diagnostic.diagnostic_present != 1 {
-            return me.reject(1, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(1, diagnostic, runner, memory, stop_lines)
         }
         if diagnostic.accepted != 1 {
-            return me.reject(2, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(2, diagnostic, runner, memory, stop_lines)
         }
         if diagnostic.c_mimalloc_execution_ready != 1 {
-            return me.reject(2, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(2, diagnostic, runner, memory, stop_lines)
         }
         if diagnostic.reason != 0 {
-            return me.reject(2, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(2, diagnostic, runner, memory, stop_lines)
         }
         if explicit_runner_invoked != 1 {
-            return me.reject(3, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(3, diagnostic, runner, memory, stop_lines)
         }
         if output_present != 1 {
-            return me.reject(4, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(4, diagnostic, runner, memory, stop_lines)
         }
         if memory_usage_present != 1 {
-            return me.reject(5, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(5, diagnostic, runner, memory, stop_lines)
         }
         if stable_output_contract_present != 1 {
-            return me.reject(6, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(6, diagnostic, runner, memory, stop_lines)
         }
         if result_code != 0 {
-            return me.reject(7, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(7, diagnostic, runner, memory, stop_lines)
         }
         if run_count < 1 {
-            return me.reject(8, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+            return me.reject(8, diagnostic, runner, memory, stop_lines)
         }
 
         me.accepted_count += 1
         me.last_reason = 0
-        return me.makeReport(0, diagnostic, explicit_runner_invoked, output_present, result_code, memory_usage_present, stable_output_contract_present, run_count, allocation_count, free_count, requested_bytes, peak_rss_bytes)
+        return me.makeReport(0, diagnostic, runner, memory, stop_lines)
     }
 }

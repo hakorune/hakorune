@@ -19,8 +19,8 @@ guard_require_files "$TAG" "$CARD" "$NEXT_CARD" "$QUEUED_MIMAP" "$DESIGN" "$INDE
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "ARG-DATA-001 card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "ARG-DATA-002 must be selected current"
-guard_expect_in_file "$TAG" 'Status: queued after ARG-DATA-002' "$QUEUED_MIMAP" "MIMAP-454A must stay queued after ARG-DATA-002"
+guard_expect_in_file "$TAG" 'Status: landed' "$NEXT_CARD" "ARG-DATA-002 must be landed"
+guard_expect_in_file "$TAG" 'Status: selected current' "$QUEUED_MIMAP" "MIMAP-454A must resume after ARG-DATA-002"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "wide report argument cleanup SSOT must be accepted"
 guard_expect_in_file "$TAG" 'Replace long positional argument lists with owner-local context records' "$DESIGN" "SSOT must prefer context records"
 guard_expect_fixed_in_file "$TAG" 'No `...fields` / spread syntax' "$DESIGN" "spread syntax must stay parked"

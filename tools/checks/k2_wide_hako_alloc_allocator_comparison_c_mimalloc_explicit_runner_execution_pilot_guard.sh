@@ -60,6 +60,9 @@ guard_expect_in_file "$TAG" 'exe = "explicit-c-mimalloc-runner"' "$PROOF_MANIFES
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box' "$MODULE" "module must export explicit C mimalloc runner pilot owner"
 guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako' "$MEMORY_README" "memory README must name explicit C mimalloc runner pilot owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields' "$OWNER" "owner must use ReportFields record payload"
+guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence' "$OWNER" "owner must group runner evidence in a context record"
+guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence' "$OWNER" "owner must group memory evidence in a context record"
+guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence' "$OWNER" "owner must group stop-line evidence in a context record"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'recordAllocatorComparisonCMimallocExplicitRunnerExecution' "$OWNER" "owner must expose explicit runner evidence route"
 guard_expect_in_file "$TAG" 'HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport' "$OWNER" "owner must consume MIMAP-449A diagnostic report"
@@ -172,8 +175,9 @@ functions = {fn.get("name"): fn for fn in data.get("functions", [])}
 required = {
     "main",
     "HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot.makeAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport/1",
+    "HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot.makeReport/5",
     "HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot.recordAllocatorComparisonCMimallocExplicitRunnerExecution/11",
-    "HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot.reject/12",
+    "HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot.reject/5",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
@@ -185,6 +189,13 @@ if report is None:
 target = "HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing explicit C mimalloc runner pilot ReportFields record")
+for target in (
+    "HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence",
+    "HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence",
+    "HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence",
+):
+    if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
+        raise SystemExit(f"missing explicit C mimalloc runner context record: {target}")
 fields = {field.get("name"): field for field in report.get("fields", [])}
 for name in (
     "execution_pilot_present",

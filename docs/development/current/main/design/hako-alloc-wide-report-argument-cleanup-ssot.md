@@ -100,9 +100,34 @@ Target:
 - keep output lines unchanged;
 - keep report box fields unchanged;
 - introduce narrow context records for runner evidence and stop-line evidence;
-- reduce long positional arguments in `makeReport` / `reject` /
-  `recordAllocatorComparisonCMimallocExplicitRunnerExecution`;
+- reduce repeated long positional arguments in owner-local `makeReport` /
+  `reject` flows;
+- keep the public
+  `recordAllocatorComparisonCMimallocExplicitRunnerExecution(...)` entry
+  positional for now, because record-local carriers must not cross owner/API
+  boundaries until a future language row defines that contract;
 - do not change language syntax.
+
+## ARG-DATA-002 Outcome
+
+ARG-DATA-002 landed the first cleanup pilot in:
+
+```text
+lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako
+```
+
+It added owner-local context records:
+
+```text
+HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence
+HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence
+HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence
+```
+
+The public evidence entry remains positional for compatibility and to avoid
+record-local carrier escape across owner boundaries. Internally, the owner now
+constructs context records once and passes them through `reject` / `makeReport`,
+reducing repeated argument transport without adding new syntax.
 
 ## Stop Lines
 
