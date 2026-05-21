@@ -64,10 +64,15 @@ guard_expect_in_file "$TAG" 'missing_evidence_storage_blocked' "$OWNER" "owner m
 guard_expect_in_file "$TAG" 'closed_seam_blocked' "$OWNER" "owner must diagnose closed-seam leakage"
 guard_expect_in_file "$TAG" 'allocation_count' "$OWNER" "owner must preserve allocation count diagnostics"
 guard_expect_in_file "$TAG" 'requested_bytes' "$OWNER" "owner must preserve requested byte diagnostics"
-guard_expect_in_file "$TAG" 'process_replacement_executed: 0' "$OWNER" "process replacement must stay closed in diagnostic report"
-guard_expect_in_file "$TAG" 'hook_installed: 0' "$OWNER" "hook install must stay closed in diagnostic report"
-guard_expect_in_file "$TAG" 'backend_matcher_added: 0' "$OWNER" "backend matcher addition must stay closed in diagnostic report"
-guard_expect_in_file "$TAG" 'global_allocator_installed: 0' "$OWNER" "global allocator install must stay closed in diagnostic report"
+guard_expect_in_file "$TAG" 'benchmark_executed: (0|i64 = 0)' "$OWNER" "benchmark execution must stay closed in diagnostic report"
+guard_expect_in_file "$TAG" 'process_replacement_executed: (0|i64 = 0)' "$OWNER" "process replacement must stay closed in diagnostic report"
+guard_expect_in_file "$TAG" 'hook_installed: (0|i64 = 0)' "$OWNER" "hook install must stay closed in diagnostic report"
+guard_expect_in_file "$TAG" 'backend_matcher_added: (0|i64 = 0)' "$OWNER" "backend matcher addition must stay closed in diagnostic report"
+guard_expect_in_file "$TAG" 'global_allocator_installed: (0|i64 = 0)' "$OWNER" "global allocator install must stay closed in diagnostic report"
+guard_expect_in_file "$TAG" 'would_replace_host_allocator: (0|i64 = 0)' "$OWNER" "host replacement must not execute in diagnostic report"
+guard_expect_in_file "$TAG" 'would_install_hook: (0|i64 = 0)' "$OWNER" "hook installation must not execute in diagnostic report"
+guard_expect_in_file "$TAG" 'would_add_backend_matcher: (0|i64 = 0)' "$OWNER" "backend matcher addition must not execute in diagnostic report"
+guard_expect_in_file "$TAG" 'would_run_thread: (0|i64 = 0)' "$OWNER" "thread execution must not execute in diagnostic report"
 
 if rg -n 'replace_process_allocator[[:space:]]*\(|install_hook[[:space:]]*\(|#\[global_allocator\]|backendMatcherInstall|pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-445A owner/app must keep replacement/hook/backend/source-concurrency seams inactive" >&2

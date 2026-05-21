@@ -9,45 +9,45 @@
 using selfhost.hako_alloc.memory.allocator_comparison_representative_benchmark_execution_pilot_box as HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot
 
 record HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReportFields {
-    accepted: i64
-    reason: i64
-    diagnostic_present: i64
-    representative_benchmark_execution_present: i64
-    benchmark_executed: i64
-    output_contract_present: i64
-    evidence_storage_present: i64
-    execution_metrics_present: i64
-    ready_execution_present: i64
-    blocked_execution_present: i64
-    not_ready_blocked: i64
-    invalid_run_count_blocked: i64
-    missing_output_contract_blocked: i64
-    missing_evidence_storage_blocked: i64
-    closed_seam_blocked: i64
-    allocation_count: i64
-    release_count: i64
-    reject_count: i64
-    requested_bytes: i64
-    outstanding_blocks: i64
-    small_free_count: i64
-    medium_free_count: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    diagnostic_count: i64
-    ready_count: i64
-    blocked_count: i64
-    not_ready_blocked_count: i64
-    invalid_run_count_blocked_count: i64
-    missing_output_contract_blocked_count: i64
-    missing_evidence_storage_blocked_count: i64
-    closed_seam_blocked_count: i64
-    last_reason: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    representative_benchmark_execution_present: i64 = 0
+    benchmark_executed: i64 = 0
+    output_contract_present: i64 = 0
+    evidence_storage_present: i64 = 0
+    execution_metrics_present: i64 = 0
+    ready_execution_present: i64 = 0
+    blocked_execution_present: i64 = 0
+    not_ready_blocked: i64 = 0
+    invalid_run_count_blocked: i64 = 0
+    missing_output_contract_blocked: i64 = 0
+    missing_evidence_storage_blocked: i64 = 0
+    closed_seam_blocked: i64 = 0
+    allocation_count: i64 = 0
+    release_count: i64 = 0
+    reject_count: i64 = 0
+    requested_bytes: i64 = 0
+    outstanding_blocks: i64 = 0
+    small_free_count: i64 = 0
+    medium_free_count: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    not_ready_blocked_count: i64 = 0
+    invalid_run_count_blocked_count: i64 = 0
+    missing_output_contract_blocked_count: i64 = 0
+    missing_evidence_storage_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReport {
@@ -214,17 +214,17 @@ box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnostic {
     }
 
     makeReport(reason: i64, report: HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport): HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReport {
-        local blocked = 0
+        local blocked_execution_present = 0
         if reason != 0 {
-            blocked = 1
+            blocked_execution_present = 1
         }
-        local ready = 0
+        local ready_execution_present = 0
         if reason == 0 {
-            ready = 1
+            ready_execution_present = 1
         }
-        local metrics_present = 0
+        local execution_metrics_present = 0
         if report.allocation_count > 0 {
-            metrics_present = 1
+            execution_metrics_present = 1
         }
         local not_ready_blocked = 0
         local invalid_run_count_blocked = 0
@@ -246,22 +246,23 @@ box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnostic {
         if reason == 5 {
             closed_seam_blocked = 1
         }
-        local fields = HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReportFields {
+        local fields = HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReportFields {}
+        fields = fields with {
             accepted: 1,
-            reason: reason,
+            reason,
             diagnostic_present: 1,
             representative_benchmark_execution_present: report.representative_benchmark_execution_present,
             benchmark_executed: report.benchmark_executed,
             output_contract_present: report.output_contract_present,
             evidence_storage_present: report.evidence_storage_present,
-            execution_metrics_present: metrics_present,
-            ready_execution_present: ready,
-            blocked_execution_present: blocked,
+            execution_metrics_present,
+            ready_execution_present,
+            blocked_execution_present,
             not_ready_blocked: not_ready_blocked,
-            invalid_run_count_blocked: invalid_run_count_blocked,
-            missing_output_contract_blocked: missing_output_contract_blocked,
-            missing_evidence_storage_blocked: missing_evidence_storage_blocked,
-            closed_seam_blocked: closed_seam_blocked,
+            invalid_run_count_blocked,
+            missing_output_contract_blocked,
+            missing_evidence_storage_blocked,
+            closed_seam_blocked,
             allocation_count: report.allocation_count,
             release_count: report.release_count,
             reject_count: report.reject_count,
@@ -269,10 +270,6 @@ box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnostic {
             outstanding_blocks: report.outstanding_blocks,
             small_free_count: report.small_free_count,
             medium_free_count: report.medium_free_count,
-            process_replacement_executed: 0,
-            hook_installed: 0,
-            backend_matcher_added: 0,
-            global_allocator_installed: 0,
             diagnostic_count: me.diagnostic_count,
             ready_count: me.ready_count,
             blocked_count: me.blocked_count,
@@ -281,11 +278,7 @@ box HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnostic {
             missing_output_contract_blocked_count: me.missing_output_contract_blocked_count,
             missing_evidence_storage_blocked_count: me.missing_evidence_storage_blocked_count,
             closed_seam_blocked_count: me.closed_seam_blocked_count,
-            last_reason: me.last_reason,
-            would_replace_host_allocator: 0,
-            would_install_hook: 0,
-            would_add_backend_matcher: 0,
-            would_run_thread: 0
+            last_reason: me.last_reason
         }
         return me.makeAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReport(fields)
     }
