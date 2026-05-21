@@ -1,0 +1,79 @@
+// hako-alloc-allocator-comparison-c-mimalloc-execution-inventory-proof
+// Purpose: prove MIMAP-448A C mimalloc execution inventory.
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_inventory_box as HakoAllocAllocatorComparisonCMimallocExecutionInventory
+
+static box Main {
+    main(args) {
+        local owner = new HakoAllocAllocatorComparisonCMimallocExecutionInventory()
+
+        local accepted = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 1, 3)
+        local missing_runner = owner.inventoryAllocatorComparisonCMimallocExecution(0, 1, 1, 1, 1, 1, 1, 3)
+        local missing_workload = owner.inventoryAllocatorComparisonCMimallocExecution(1, 0, 1, 1, 1, 1, 1, 3)
+        local missing_hako_metrics = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 0, 1, 1, 1, 1, 3)
+        local missing_output = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 0, 1, 1, 1, 3)
+        local missing_memory = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 0, 1, 1, 3)
+        local missing_evidence = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 0, 1, 3)
+        local missing_run_count = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 0, 3)
+        local invalid_run_count = owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 1, 0)
+
+        local ok = check "mimap448a allocator comparison c mimalloc execution inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "inventory present": accepted.c_mimalloc_execution_inventory_present == 1
+            "ready": accepted.c_mimalloc_execution_ready == 1
+            "runner": accepted.c_mimalloc_runner_present == 1
+            "workload": accepted.representative_workload_contract_present == 1
+            "hako metrics": accepted.hako_representative_metrics_present == 1
+            "output": accepted.output_contract_present == 1
+            "memory": accepted.memory_usage_contract_present == 1
+            "evidence": accepted.evidence_storage_present == 1
+            "run present": accepted.run_count_present == 1
+            "run count": accepted.run_count == 3
+            "owner count": owner.inventory_count == 9
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 8
+            "owner runner": owner.missing_runner_reject_count == 1
+            "owner workload": owner.missing_workload_reject_count == 1
+            "owner hako metrics": owner.missing_hako_metrics_reject_count == 1
+            "owner output": owner.missing_output_contract_reject_count == 1
+            "owner memory": owner.missing_memory_usage_contract_reject_count == 1
+            "owner evidence": owner.missing_evidence_storage_reject_count == 1
+            "owner missing run": owner.missing_run_count_reject_count == 1
+            "owner invalid run": owner.invalid_run_count_reject_count == 1
+            "last reason": owner.last_reason == 8
+            "missing runner reason": missing_runner.reason == 1
+            "missing workload reason": missing_workload.reason == 2
+            "missing hako metrics reason": missing_hako_metrics.reason == 3
+            "missing output reason": missing_output.reason == 4
+            "missing memory reason": missing_memory.reason == 5
+            "missing evidence reason": missing_evidence.reason == 6
+            "missing run reason": missing_run_count.reason == 7
+            "invalid run reason": invalid_run_count.reason == 8
+            "c mimalloc not executed": accepted.c_mimalloc_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-execution-inventory-proof")
+        print("inventory=" + accepted.accepted + "," + accepted.reason + "," + accepted.c_mimalloc_execution_inventory_present + "," + accepted.c_mimalloc_execution_ready + "," + accepted.c_mimalloc_runner_present + "," + accepted.representative_workload_contract_present + "," + accepted.hako_representative_metrics_present + "," + accepted.output_contract_present + "," + accepted.memory_usage_contract_present + "," + accepted.evidence_storage_present + "," + accepted.run_count_present + "," + accepted.run_count + "," + accepted.c_mimalloc_executed)
+        print("owner=" + owner.inventory_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_runner_reject_count + "," + owner.missing_workload_reject_count + "," + owner.missing_hako_metrics_reject_count + "," + owner.missing_output_contract_reject_count + "," + owner.missing_memory_usage_contract_reject_count + "," + owner.missing_evidence_storage_reject_count + "," + owner.missing_run_count_reject_count + "," + owner.invalid_run_count_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.c_mimalloc_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_runner.reason + "," + missing_workload.reason + "," + missing_hako_metrics.reason + "," + missing_output.reason + "," + missing_memory.reason + "," + missing_evidence.reason + "," + missing_run_count.reason + "," + invalid_run_count.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
