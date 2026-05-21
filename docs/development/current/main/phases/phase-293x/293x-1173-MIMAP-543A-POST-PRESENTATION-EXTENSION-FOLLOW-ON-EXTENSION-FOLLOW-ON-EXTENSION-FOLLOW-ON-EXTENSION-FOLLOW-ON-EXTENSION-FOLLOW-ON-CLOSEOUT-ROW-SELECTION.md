@@ -1,6 +1,6 @@
 # 293x-1173 MIMAP-543A Post Presentation Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-22
 
 ## Decision
@@ -35,6 +35,19 @@ benchmark reruns and allocator/provider ladders closed.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-544A Allocator Comparison C Mimalloc Result Presentation Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Plan
+```
+
+The first deeper follow-on pack is now closed and green, so the narrowest
+useful next step is to define the next extension boundary over the stabilized
+deeper-follow-on-ready pack instead of reopening a presentation-only slice or
+adding another closeout layer first.
 
 ## Current Reading
 

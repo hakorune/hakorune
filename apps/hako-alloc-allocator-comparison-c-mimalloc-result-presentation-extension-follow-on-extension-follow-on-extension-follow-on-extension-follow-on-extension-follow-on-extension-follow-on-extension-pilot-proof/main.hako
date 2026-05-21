@@ -1,0 +1,113 @@
+// hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-pilot-proof
+// Purpose: prove MIMAP-546A presentation extension follow-on extension follow-on
+// extension follow-on extension follow-on extension pilot over deeper follow-on evidence.
+
+using apps.proofs.allocator_comparison_c_mimalloc_result_fixture as HakoAllocAllocatorComparisonCMimallocResultProofFixture
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_pilot_box as HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilot
+
+static box Main {
+    main(args) {
+        local extension_owner = new HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilot()
+
+        local accepted_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot()
+        local accepted = extension_owner.pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtension(accepted_pilot)
+
+        local missing_pilot = new HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReport()
+        local missing = extension_owner.pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtension(missing_pilot)
+
+        local blocked_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeBlockedPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot()
+        local blocked = extension_owner.pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtension(blocked_pilot)
+
+        local missing_input_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot()
+        missing_input_pilot.extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_metrics_snapshot_present = 0
+        local missing_input = extension_owner.pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtension(missing_input_pilot)
+
+        local closed_stop_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot()
+        closed_stop_pilot.repeated_benchmark_executed = 1
+        local closed_stop = extension_owner.pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtension(closed_stop_pilot)
+
+        local ok = check "mimap546a allocator comparison c mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension pilot" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "extension": accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_present == 1
+            "pilot": accepted.pilot_present == 1
+            "accepted source": accepted.accepted_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 1
+            "blocked source": accepted.blocked_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 0
+            "extension ready": accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_ready == 1
+            "extension memory": accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_memory_outcome_present == 1
+            "extension metrics": accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_metrics_snapshot_present == 1
+            "source deep follow on": accepted.extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 1
+            "source deep extension": accepted.follow_on_extension_follow_on_extension_follow_on_extension_present == 1
+            "source deep follow on base": accepted.extension_follow_on_extension_follow_on_extension_follow_on_present == 1
+            "source follow on extension": accepted.follow_on_extension_follow_on_extension_present == 1
+            "source extension follow on": accepted.extension_follow_on_extension_follow_on_present == 1
+            "source upper follow on": accepted.follow_on_extension_present == 1
+            "source upper extension": accepted.extension_follow_on_present == 1
+            "source extension": accepted.extension_present == 1
+            "source follow on": accepted.follow_on_present == 1
+            "conclusion": accepted.conclusion_present == 1
+            "memory conclusion": accepted.provisional_memory_conclusion_present == 1
+            "memory winner": accepted.provisional_memory_winner == 1
+            "memory reason": accepted.provisional_memory_reason == 1
+            "comparison available": accepted.comparison_available == 1
+            "memory evidence": accepted.memory_evidence_present == 1
+            "hako alloc": accepted.hako_allocation_count == 3
+            "hako bytes": accepted.hako_requested_bytes == 72
+            "c alloc": accepted.c_allocation_count == 64
+            "c bytes": accepted.c_requested_bytes == 33254
+            "c rss": accepted.c_peak_rss_bytes == 4096
+            "alloc delta": accepted.allocation_count_delta == 61
+            "bytes delta": accepted.requested_bytes_delta == 33182
+            "owner count": extension_owner.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_count == 5
+            "owner accepted": extension_owner.accepted_count == 1
+            "owner blocked": extension_owner.blocked_count == 4
+            "owner missing pilot": extension_owner.missing_pilot_reject_count == 1
+            "owner blocked pilot": extension_owner.blocked_pilot_reject_count == 1
+            "owner missing input": extension_owner.missing_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_input_reject_count == 1
+            "owner closed stop": extension_owner.closed_stop_line_reject_count == 1
+            "last reason": extension_owner.last_reason == 4
+            "missing reason": missing.reason == 1
+            "blocked reason": blocked.reason == 2
+            "missing input reason": missing_input.reason == 3
+            "closed reason": closed_stop.reason == 4
+            "missing flag": missing.accepted == 0
+            "blocked flag": blocked.accepted == 0
+            "missing input flag": missing_input.accepted == 0
+            "closed flag": closed_stop.accepted == 0
+            "missing blocked source": missing.blocked_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 0
+            "blocked source flag": blocked.blocked_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 1
+            "missing input blocked source": missing_input.blocked_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 1
+            "closed blocked source": closed_stop.blocked_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present == 1
+            "no perf made": accepted.performance_conclusion_made == 0
+            "no memory made": accepted.memory_conclusion_made == 0
+            "no repeated benchmark": accepted.repeated_benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "hidden discovery": accepted.hidden_discovery_used == 0
+            "provider package": accepted.provider_package_generated == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-pilot-proof")
+        print("deepfollowonextensionfollowonextensionfollowonextension=" + accepted.accepted + "," + accepted.reason + "," + accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_present + "," + accepted.pilot_present + "," + accepted.accepted_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present + "," + accepted.blocked_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present + "," + accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_ready + "," + accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_memory_outcome_present + "," + accepted.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_metrics_snapshot_present + "," + accepted.extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_present + "," + accepted.provisional_memory_winner + "," + accepted.provisional_memory_reason)
+        print("metrics=" + accepted.hako_allocation_count + "," + accepted.hako_requested_bytes + "," + accepted.c_allocation_count + "," + accepted.c_requested_bytes + "," + accepted.c_peak_rss_bytes + "," + accepted.allocation_count_delta + "," + accepted.requested_bytes_delta)
+        print("owner=" + extension_owner.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_count + "," + extension_owner.accepted_count + "," + extension_owner.blocked_count + "," + extension_owner.missing_pilot_reject_count + "," + extension_owner.blocked_pilot_reject_count + "," + extension_owner.missing_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_input_reject_count + "," + extension_owner.closed_stop_line_reject_count + "," + extension_owner.last_reason)
+        print("blocked=" + missing.accepted + "," + blocked.accepted + "," + missing_input.accepted + "," + closed_stop.accepted)
+        print("closed=" + accepted.performance_conclusion_made + "," + accepted.memory_conclusion_made + "," + accepted.repeated_benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.hidden_discovery_used + "," + accepted.provider_package_generated + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + blocked.reason + "," + missing_input.reason + "," + closed_stop.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
