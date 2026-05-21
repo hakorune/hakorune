@@ -1,6 +1,6 @@
 # 293x-1072 MIMAP-450A Allocator Comparison C Mimalloc Execution Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -28,6 +28,18 @@ any actual C mimalloc execution row.
 - No source-level worker-local or concurrency surface.
 - No cross-function `Result` direct ABI or runtime sum materialization.
 
+## Landed Scope
+
+- Added the C mimalloc execution closeout SSOT.
+- Added a closeout guard that re-runs MIMAP-448A inventory and MIMAP-449A
+  diagnostics L2 evidence.
+- Selected MIMAP-451A as the explicit C mimalloc runner execution pilot.
+- Kept C mimalloc execution, process allocator replacement, hooks, backend
+  matcher additions, global allocator installation, hidden env discovery, and
+  worker/thread execution closed.
+
 ## Validation
 
-Closeout validation should run the MIMAP-448A and MIMAP-449A L2 guards.
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_closeout_guard.sh`
+- `bash tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
