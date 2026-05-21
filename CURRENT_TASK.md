@@ -118,9 +118,12 @@ Scope: current lane / next lane / restart order only.
   backend; current C mimalloc comparison rows stay on the explicit external C
   mimalloc runner / evidence-diagnostics path.
 - ARG-DATA-001/002 sidecar landed owner-local context records for the explicit
-  C mimalloc runner evidence owner; current work has returned to MIMAP-454A.
-  Syntax features such as spread / named args / record defaults / automatic
-  record-to-box copy remain parked.
+  C mimalloc runner evidence owner before MIMAP-454A. Syntax features such as
+  spread / named args / record defaults / automatic record-to-box copy remain
+  parked.
+- current allocator-comparison blocker: MIMAP-455A adds observer-only
+  diagnostics over the MIMAP-454A C-vs-Hako result ledger. It must not rerun
+  benchmarks or make performance / memory-use conclusions.
 - detailed landed history: phase card files and `CURRENT_STATE.toml`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only

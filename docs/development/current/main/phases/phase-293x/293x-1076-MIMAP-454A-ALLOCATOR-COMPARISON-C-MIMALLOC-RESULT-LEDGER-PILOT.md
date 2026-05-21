@@ -1,6 +1,6 @@
 # 293x-1076 MIMAP-454A Allocator Comparison C Mimalloc Result Ledger Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -38,3 +38,27 @@ Planned validation profile: `scalar-mir`.
 ARG-DATA-001/002 inserted and landed a short BoxShape sidecar before this row.
 MIMAP-454A resumes after reducing owner-local explicit-runner argument
 transport without changing runner/report behavior.
+
+## Design
+
+SSOT:
+
+```text
+docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-ledger-ssot.md
+```
+
+## Completed
+
+- Added `HakoAllocAllocatorComparisonCMimallocResultLedger`.
+- Added the MIMAP-454A proof app and manifest-backed guard.
+- Recorded Hako representative benchmark scalar evidence alongside explicit C
+  mimalloc runner scalar / memory evidence.
+- Kept repeated benchmark execution, conclusions, allocator replacement, hooks,
+  backend matchers, `#[global_allocator]`, provider package generation, and
+  worker/thread execution closed.
+
+Validated:
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_ledger_guard.sh --level L2
+```
