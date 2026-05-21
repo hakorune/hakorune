@@ -1,0 +1,101 @@
+// hako-alloc-allocator-comparison-c-mimalloc-execution-diagnostics-proof
+// Purpose: prove MIMAP-449A C mimalloc execution diagnostics.
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_inventory_box as HakoAllocAllocatorComparisonCMimallocExecutionInventory
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_diagnostic_box as HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic
+
+static box Main {
+    main(args) {
+        local inventory_owner = new HakoAllocAllocatorComparisonCMimallocExecutionInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic()
+
+        local accepted_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 1, 3)
+        local accepted = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(accepted_inventory)
+        local missing_runner_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(0, 1, 1, 1, 1, 1, 1, 3)
+        local missing_runner = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_runner_inventory)
+        local missing_workload_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 0, 1, 1, 1, 1, 1, 3)
+        local missing_workload = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_workload_inventory)
+        local missing_hako_metrics_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 0, 1, 1, 1, 1, 3)
+        local missing_hako_metrics = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_hako_metrics_inventory)
+        local missing_output_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 0, 1, 1, 1, 3)
+        local missing_output = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_output_inventory)
+        local missing_memory_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 0, 1, 1, 3)
+        local missing_memory = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_memory_inventory)
+        local missing_evidence_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 0, 1, 3)
+        local missing_evidence = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_evidence_inventory)
+        local missing_run_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 0, 3)
+        local missing_run = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(missing_run_inventory)
+        local invalid_run_inventory = inventory_owner.inventoryAllocatorComparisonCMimallocExecution(1, 1, 1, 1, 1, 1, 1, 0)
+        local invalid_run = diagnostic_owner.diagnoseAllocatorComparisonCMimallocExecution(invalid_run_inventory)
+
+        local ok = check "mimap449a allocator comparison c mimalloc execution diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diagnostic present": accepted.diagnostic_present == 1
+            "inventory present": accepted.c_mimalloc_execution_inventory_present == 1
+            "ready": accepted.c_mimalloc_execution_ready == 1
+            "not blocked": accepted.blocked_execution_present == 0
+            "runner": accepted.c_mimalloc_runner_present == 1
+            "workload": accepted.representative_workload_contract_present == 1
+            "hako metrics": accepted.hako_representative_metrics_present == 1
+            "output": accepted.output_contract_present == 1
+            "memory": accepted.memory_usage_contract_present == 1
+            "evidence": accepted.evidence_storage_present == 1
+            "run present": accepted.run_count_present == 1
+            "run count": accepted.run_count == 3
+            "owner count": diagnostic_owner.diagnostic_count == 9
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 8
+            "owner runner": diagnostic_owner.missing_runner_blocked_count == 1
+            "owner workload": diagnostic_owner.missing_workload_blocked_count == 1
+            "owner hako metrics": diagnostic_owner.missing_hako_metrics_blocked_count == 1
+            "owner output": diagnostic_owner.missing_output_contract_blocked_count == 1
+            "owner memory": diagnostic_owner.missing_memory_usage_contract_blocked_count == 1
+            "owner evidence": diagnostic_owner.missing_evidence_storage_blocked_count == 1
+            "owner run": diagnostic_owner.missing_run_count_blocked_count == 1
+            "owner invalid": diagnostic_owner.invalid_run_count_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 8
+            "missing runner reason": missing_runner.reason == 1
+            "missing workload reason": missing_workload.reason == 2
+            "missing hako metrics reason": missing_hako_metrics.reason == 3
+            "missing output reason": missing_output.reason == 4
+            "missing memory reason": missing_memory.reason == 5
+            "missing evidence reason": missing_evidence.reason == 6
+            "missing run reason": missing_run.reason == 7
+            "invalid run reason": invalid_run.reason == 8
+            "runner flag": missing_runner.missing_runner_blocked == 1
+            "workload flag": missing_workload.missing_workload_blocked == 1
+            "hako flag": missing_hako_metrics.missing_hako_metrics_blocked == 1
+            "output flag": missing_output.missing_output_contract_blocked == 1
+            "memory flag": missing_memory.missing_memory_usage_contract_blocked == 1
+            "evidence flag": missing_evidence.missing_evidence_storage_blocked == 1
+            "run flag": missing_run.missing_run_count_blocked == 1
+            "invalid flag": invalid_run.invalid_run_count_blocked == 1
+            "c mimalloc not executed": accepted.c_mimalloc_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-execution-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.c_mimalloc_execution_inventory_present + "," + accepted.c_mimalloc_execution_ready + "," + accepted.blocked_execution_present + "," + accepted.run_count + "," + accepted.c_mimalloc_executed)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_runner_blocked_count + "," + diagnostic_owner.missing_workload_blocked_count + "," + diagnostic_owner.missing_hako_metrics_blocked_count + "," + diagnostic_owner.missing_output_contract_blocked_count + "," + diagnostic_owner.missing_memory_usage_contract_blocked_count + "," + diagnostic_owner.missing_evidence_storage_blocked_count + "," + diagnostic_owner.missing_run_count_blocked_count + "," + diagnostic_owner.invalid_run_count_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing_runner.missing_runner_blocked + "," + missing_workload.missing_workload_blocked + "," + missing_hako_metrics.missing_hako_metrics_blocked + "," + missing_output.missing_output_contract_blocked + "," + missing_memory.missing_memory_usage_contract_blocked + "," + missing_evidence.missing_evidence_storage_blocked + "," + missing_run.missing_run_count_blocked + "," + invalid_run.invalid_run_count_blocked)
+        print("closed=" + accepted.c_mimalloc_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_runner.reason + "," + missing_workload.reason + "," + missing_hako_metrics.reason + "," + missing_output.reason + "," + missing_memory.reason + "," + missing_evidence.reason + "," + missing_run.reason + "," + invalid_run.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

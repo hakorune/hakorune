@@ -1,6 +1,6 @@
 # 293x-1071 MIMAP-449A Allocator Comparison C Mimalloc Execution Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -32,4 +32,11 @@ inventory.
 
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+Validation profile: `scalar-mir`.
+
+Evidence:
+
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_diagnostics_guard.sh --level L2`
+- `bash tools/checks/run_proof_app.sh --only MIMAP-449A --level L2`
+
+L3/L4 evidence is deferred to MIMAP-450A closeout.

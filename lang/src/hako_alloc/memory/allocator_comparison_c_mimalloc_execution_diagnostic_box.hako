@@ -1,0 +1,303 @@
+// allocator_comparison_c_mimalloc_execution_diagnostic_box.hako -- MIMAP-449A
+// Responsibility:
+// - consume C mimalloc execution inventory reports
+// - classify missing inputs without running C mimalloc
+// Non-responsibility:
+// - C mimalloc execution, process allocator replacement, hook installation,
+//   backend matcher additions, or global allocator installation
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_execution_inventory_box as HakoAllocAllocatorComparisonCMimallocExecutionInventory
+
+record HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReportFields {
+    accepted: i64
+    reason: i64
+    diagnostic_present: i64
+    c_mimalloc_execution_inventory_present: i64
+    c_mimalloc_execution_ready: i64
+    blocked_execution_present: i64
+    c_mimalloc_runner_present: i64
+    representative_workload_contract_present: i64
+    hako_representative_metrics_present: i64
+    output_contract_present: i64
+    memory_usage_contract_present: i64
+    evidence_storage_present: i64
+    run_count_present: i64
+    run_count: i64
+    missing_runner_blocked: i64
+    missing_workload_blocked: i64
+    missing_hako_metrics_blocked: i64
+    missing_output_contract_blocked: i64
+    missing_memory_usage_contract_blocked: i64
+    missing_evidence_storage_blocked: i64
+    missing_run_count_blocked: i64
+    invalid_run_count_blocked: i64
+    diagnostic_count: i64
+    ready_count: i64
+    blocked_count: i64
+    missing_runner_blocked_count: i64
+    missing_workload_blocked_count: i64
+    missing_hako_metrics_blocked_count: i64
+    missing_output_contract_blocked_count: i64
+    missing_memory_usage_contract_blocked_count: i64
+    missing_evidence_storage_blocked_count: i64
+    missing_run_count_blocked_count: i64
+    invalid_run_count_blocked_count: i64
+    last_reason: i64
+    c_mimalloc_executed: i64
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    c_mimalloc_execution_inventory_present: i64 = 0
+    c_mimalloc_execution_ready: i64 = 0
+    blocked_execution_present: i64 = 0
+    c_mimalloc_runner_present: i64 = 0
+    representative_workload_contract_present: i64 = 0
+    hako_representative_metrics_present: i64 = 0
+    output_contract_present: i64 = 0
+    memory_usage_contract_present: i64 = 0
+    evidence_storage_present: i64 = 0
+    run_count_present: i64 = 0
+    run_count: i64 = 0
+    missing_runner_blocked: i64 = 0
+    missing_workload_blocked: i64 = 0
+    missing_hako_metrics_blocked: i64 = 0
+    missing_output_contract_blocked: i64 = 0
+    missing_memory_usage_contract_blocked: i64 = 0
+    missing_evidence_storage_blocked: i64 = 0
+    missing_run_count_blocked: i64 = 0
+    invalid_run_count_blocked: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_runner_blocked_count: i64 = 0
+    missing_workload_blocked_count: i64 = 0
+    missing_hako_metrics_blocked_count: i64 = 0
+    missing_output_contract_blocked_count: i64 = 0
+    missing_memory_usage_contract_blocked_count: i64 = 0
+    missing_evidence_storage_blocked_count: i64 = 0
+    missing_run_count_blocked_count: i64 = 0
+    invalid_run_count_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    c_mimalloc_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic {
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_runner_blocked_count: i64 = 0
+    missing_workload_blocked_count: i64 = 0
+    missing_hako_metrics_blocked_count: i64 = 0
+    missing_output_contract_blocked_count: i64 = 0
+    missing_memory_usage_contract_blocked_count: i64 = 0
+    missing_evidence_storage_blocked_count: i64 = 0
+    missing_run_count_blocked_count: i64 = 0
+    invalid_run_count_blocked_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonCMimallocExecutionDiagnosticReport(fields: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReportFields): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+        local result = new HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            diagnostic_present: fields.diagnostic_present,
+            c_mimalloc_execution_inventory_present: fields.c_mimalloc_execution_inventory_present,
+            c_mimalloc_execution_ready: fields.c_mimalloc_execution_ready,
+            blocked_execution_present: fields.blocked_execution_present,
+            c_mimalloc_runner_present: fields.c_mimalloc_runner_present,
+            representative_workload_contract_present: fields.representative_workload_contract_present,
+            hako_representative_metrics_present: fields.hako_representative_metrics_present,
+            output_contract_present: fields.output_contract_present,
+            memory_usage_contract_present: fields.memory_usage_contract_present,
+            evidence_storage_present: fields.evidence_storage_present,
+            run_count_present: fields.run_count_present,
+            run_count: fields.run_count,
+            missing_runner_blocked: fields.missing_runner_blocked,
+            missing_workload_blocked: fields.missing_workload_blocked,
+            missing_hako_metrics_blocked: fields.missing_hako_metrics_blocked,
+            missing_output_contract_blocked: fields.missing_output_contract_blocked,
+            missing_memory_usage_contract_blocked: fields.missing_memory_usage_contract_blocked,
+            missing_evidence_storage_blocked: fields.missing_evidence_storage_blocked,
+            missing_run_count_blocked: fields.missing_run_count_blocked,
+            invalid_run_count_blocked: fields.invalid_run_count_blocked,
+            diagnostic_count: fields.diagnostic_count,
+            ready_count: fields.ready_count,
+            blocked_count: fields.blocked_count,
+            missing_runner_blocked_count: fields.missing_runner_blocked_count,
+            missing_workload_blocked_count: fields.missing_workload_blocked_count,
+            missing_hako_metrics_blocked_count: fields.missing_hako_metrics_blocked_count,
+            missing_output_contract_blocked_count: fields.missing_output_contract_blocked_count,
+            missing_memory_usage_contract_blocked_count: fields.missing_memory_usage_contract_blocked_count,
+            missing_evidence_storage_blocked_count: fields.missing_evidence_storage_blocked_count,
+            missing_run_count_blocked_count: fields.missing_run_count_blocked_count,
+            invalid_run_count_blocked_count: fields.invalid_run_count_blocked_count,
+            last_reason: fields.last_reason,
+            c_mimalloc_executed: fields.c_mimalloc_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    markBlocked(reason: i64) {
+        me.blocked_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_runner_blocked_count += 1
+        }
+        if reason == 2 {
+            me.missing_workload_blocked_count += 1
+        }
+        if reason == 3 {
+            me.missing_hako_metrics_blocked_count += 1
+        }
+        if reason == 4 {
+            me.missing_output_contract_blocked_count += 1
+        }
+        if reason == 5 {
+            me.missing_memory_usage_contract_blocked_count += 1
+        }
+        if reason == 6 {
+            me.missing_evidence_storage_blocked_count += 1
+        }
+        if reason == 7 {
+            me.missing_run_count_blocked_count += 1
+        }
+        if reason == 8 {
+            me.invalid_run_count_blocked_count += 1
+        }
+    }
+
+    reasonFrom(report: HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport): i64 {
+        if report.accepted == 1 {
+            if report.c_mimalloc_execution_ready == 1 {
+                return 0
+            }
+        }
+        if report.reason != 0 {
+            return report.reason
+        }
+        return 1
+    }
+
+    makeReport(reason: i64, report: HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+        local blocked = 0
+        if reason != 0 {
+            blocked = 1
+        }
+        local missing_runner = 0
+        local missing_workload = 0
+        local missing_hako_metrics = 0
+        local missing_output = 0
+        local missing_memory = 0
+        local missing_evidence = 0
+        local missing_run = 0
+        local invalid_run = 0
+        if reason == 1 {
+            missing_runner = 1
+        }
+        if reason == 2 {
+            missing_workload = 1
+        }
+        if reason == 3 {
+            missing_hako_metrics = 1
+        }
+        if reason == 4 {
+            missing_output = 1
+        }
+        if reason == 5 {
+            missing_memory = 1
+        }
+        if reason == 6 {
+            missing_evidence = 1
+        }
+        if reason == 7 {
+            missing_run = 1
+        }
+        if reason == 8 {
+            invalid_run = 1
+        }
+        local fields = HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReportFields {
+            accepted: 1,
+            reason: reason,
+            diagnostic_present: 1,
+            c_mimalloc_execution_inventory_present: report.c_mimalloc_execution_inventory_present,
+            c_mimalloc_execution_ready: report.c_mimalloc_execution_ready,
+            blocked_execution_present: blocked,
+            c_mimalloc_runner_present: report.c_mimalloc_runner_present,
+            representative_workload_contract_present: report.representative_workload_contract_present,
+            hako_representative_metrics_present: report.hako_representative_metrics_present,
+            output_contract_present: report.output_contract_present,
+            memory_usage_contract_present: report.memory_usage_contract_present,
+            evidence_storage_present: report.evidence_storage_present,
+            run_count_present: report.run_count_present,
+            run_count: report.run_count,
+            missing_runner_blocked: missing_runner,
+            missing_workload_blocked: missing_workload,
+            missing_hako_metrics_blocked: missing_hako_metrics,
+            missing_output_contract_blocked: missing_output,
+            missing_memory_usage_contract_blocked: missing_memory,
+            missing_evidence_storage_blocked: missing_evidence,
+            missing_run_count_blocked: missing_run,
+            invalid_run_count_blocked: invalid_run,
+            diagnostic_count: me.diagnostic_count,
+            ready_count: me.ready_count,
+            blocked_count: me.blocked_count,
+            missing_runner_blocked_count: me.missing_runner_blocked_count,
+            missing_workload_blocked_count: me.missing_workload_blocked_count,
+            missing_hako_metrics_blocked_count: me.missing_hako_metrics_blocked_count,
+            missing_output_contract_blocked_count: me.missing_output_contract_blocked_count,
+            missing_memory_usage_contract_blocked_count: me.missing_memory_usage_contract_blocked_count,
+            missing_evidence_storage_blocked_count: me.missing_evidence_storage_blocked_count,
+            missing_run_count_blocked_count: me.missing_run_count_blocked_count,
+            invalid_run_count_blocked_count: me.invalid_run_count_blocked_count,
+            last_reason: me.last_reason,
+            c_mimalloc_executed: 0,
+            process_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeAllocatorComparisonCMimallocExecutionDiagnosticReport(fields)
+    }
+
+    diagnoseAllocatorComparisonCMimallocExecution(report: HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
+        me.diagnostic_count += 1
+        local reason = me.reasonFrom(report)
+        if reason == 0 {
+            me.ready_count += 1
+            me.last_reason = 0
+        } else {
+            me.markBlocked(reason)
+        }
+        return me.makeReport(reason, report)
+    }
+}

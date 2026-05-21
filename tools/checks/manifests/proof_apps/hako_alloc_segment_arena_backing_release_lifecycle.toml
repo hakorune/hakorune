@@ -1119,3 +1119,16 @@ closeout_pack = "allocator-comparison-c-mimalloc-execution"
 exe = "deferred-to-comparison-c-mimalloc-execution-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-449A"
+app = "apps/hako-alloc-allocator-comparison-c-mimalloc-execution-diagnostics-proof"
+label = "allocator comparison C mimalloc execution diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-c-mimalloc-execution-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-c-mimalloc-execution"
+exe = "deferred-to-comparison-c-mimalloc-execution-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_diagnostics_guard.sh", "--level", "L2"]
