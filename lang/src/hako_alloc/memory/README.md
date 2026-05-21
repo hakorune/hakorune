@@ -92,6 +92,7 @@ Current modules
 - `allocator_comparison_representative_benchmark_execution_diagnostic_box.hako`
 - `allocator_comparison_c_mimalloc_execution_inventory_box.hako`
 - `allocator_comparison_c_mimalloc_execution_diagnostic_box.hako`
+- `allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako`
 - `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`

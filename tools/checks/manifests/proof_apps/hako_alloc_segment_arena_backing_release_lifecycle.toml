@@ -1132,3 +1132,16 @@ closeout_pack = "allocator-comparison-c-mimalloc-execution"
 exe = "deferred-to-comparison-c-mimalloc-execution-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_diagnostics_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_execution_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-451A"
+app = "apps/hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-execution-pilot-proof"
+label = "allocator comparison C mimalloc explicit runner execution pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-c-mimalloc-explicit-runner-execution-pilot"
+validation_profile = "external-runner-pilot"
+first_pattern = true
+closeout_pack = "allocator-comparison-c-mimalloc-explicit-runner-execution"
+exe = "explicit-c-mimalloc-runner"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_guard.sh", "--level", "L2"]

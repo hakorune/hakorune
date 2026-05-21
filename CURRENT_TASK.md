@@ -115,7 +115,8 @@ Scope: current lane / next lane / restart order only.
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
   remain parked unless host allocator replacement is explicitly reopened.
 - future Hakorune DLL/shared-library generation is parked as a provider package
-  backend; MIMAP-451A stays on the explicit external C mimalloc runner path.
+  backend; current C mimalloc comparison rows stay on the explicit external C
+  mimalloc runner / evidence-diagnostics path.
 - detailed landed history: phase card files and `CURRENT_STATE.toml`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
