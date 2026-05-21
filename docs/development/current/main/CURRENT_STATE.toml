@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-453A landed allocator comparison C mimalloc explicit runner closeout and selected MIMAP-454A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
+active_lane_status = "MIMAP-453A landed allocator comparison C mimalloc explicit runner closeout; ARG-DATA-001 inserted a wide report argument cleanup sidecar and selected ARG-DATA-002 before MIMAP-454A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1076-MIMAP-454A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-PILOT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1078-ARG-DATA-002-C-MIMALLOC-EXPLICIT-RUNNER-ARGUMENT-OBJECT-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1075-MIMAP-453A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1075-MIMAP-453A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-CLOSEOUT.md"
-latest_card_summary = "Landed explicit C mimalloc runner closeout by rerunning MIMAP-451A and MIMAP-452A L2 guards while repeated benchmark execution, process allocator replacement, hook install, backend matcher additions, global allocator install, hidden runtime discovery, worker/thread execution, and provider package generation remain closed."
+latest_card = "293x-1077-ARG-DATA-001-WIDE-REPORT-ARGUMENT-CLEANUP-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1077-ARG-DATA-001-WIDE-REPORT-ARGUMENT-CLEANUP-PLAN.md"
+latest_card_summary = "Inserted wide report argument cleanup sidecar before MIMAP-454A, selecting context-record argument cleanup before any spread, named args, record defaults, or automatic record-to-box copy syntax."
 
-current_blocker_token = "MIMAP-454A"
+current_blocker_token = "ARG-DATA-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1077 ARG-DATA-001 wide report argument cleanup plan landed; ARG-DATA-002 selected before MIMAP-454A",
   "293x-1075 MIMAP-453A allocator comparison C mimalloc explicit runner closeout landed; MIMAP-454A selected",
   "293x-1074 MIMAP-452A allocator comparison C mimalloc explicit runner evidence diagnostics landed; MIMAP-453A selected",
   "293x-1073 MIMAP-451A allocator comparison C mimalloc explicit runner execution pilot landed; MIMAP-452A selected",

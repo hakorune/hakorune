@@ -1,6 +1,6 @@
 # 293x-1076 MIMAP-454A Allocator Comparison C Mimalloc Result Ledger Pilot
 
-Status: selected current
+Status: queued after ARG-DATA-002
 Date: 2026-05-21
 
 ## Purpose
@@ -32,3 +32,9 @@ and existing Hako representative metrics.
 ## Validation
 
 Planned validation profile: `scalar-mir`.
+
+## Queue Note
+
+ARG-DATA-001 inserted a short BoxShape sidecar before this row. MIMAP-454A
+should resume after ARG-DATA-002 reduces wide explicit-runner argument lists
+without changing runner/report behavior.

@@ -117,6 +117,10 @@ Scope: current lane / next lane / restart order only.
 - future Hakorune DLL/shared-library generation is parked as a provider package
   backend; current C mimalloc comparison rows stay on the explicit external C
   mimalloc runner / evidence-diagnostics path.
+- current BoxShape sidecar: ARG-DATA-002 reduces wide explicit-runner report
+  positional arguments with owner-local context records before returning to
+  MIMAP-454A. Syntax features such as spread / named args / record defaults /
+  automatic record-to-box copy remain parked.
 - detailed landed history: phase card files and `CURRENT_STATE.toml`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
