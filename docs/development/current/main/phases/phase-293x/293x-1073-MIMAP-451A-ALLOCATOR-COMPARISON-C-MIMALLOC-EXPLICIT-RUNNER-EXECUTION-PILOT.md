@@ -14,6 +14,9 @@ runner/tool contract.
 - Execute only an explicit C mimalloc comparison runner if the row provides one.
 - Capture stable output and memory-use evidence.
 - Keep the execution distinct from process allocator replacement.
+- Keep Hakorune provider package / DLL generation parked. The future ABI and
+  package contract is documented in
+  `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`.
 
 ## Stop Lines
 
@@ -22,6 +25,7 @@ runner/tool contract.
 - No backend matcher additions.
 - No `#[global_allocator]`.
 - No implicit C mimalloc execution or hidden runner discovery.
+- No provider package / DLL generation.
 - No hidden env, implicit discovery, or process-global activation config.
 - No source-level worker-local or concurrency surface.
 - No cross-function `Result` direct ABI or runtime sum materialization.

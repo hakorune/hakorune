@@ -48,6 +48,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - allocator policy/state owner vs native metal keep stop-line owner
 - `design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - pure-first/selfhost MIR artifact exactness, route preflight, and no-output diagnostics owner
+- `design/hakorune-provider-package-abi-v1-future-ssot.md`
+  - parked future provider package / DLL shared-library ABI owner; not part of current MIMAP-451A runner execution
 - `lang/README.md`
   - source-root / logical-layer placement contract
 - `lang/src/hako_alloc/README.md`
@@ -100,6 +102,7 @@ Rule:
   - Substrate Capability Ladder（allocator/collection/runtime substrate parent SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
+  - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 
 ### `docs/development/current/main/design/archive/`（historical design）
 

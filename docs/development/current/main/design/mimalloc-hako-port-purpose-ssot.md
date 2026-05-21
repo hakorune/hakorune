@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md
   - docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md
+  - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
   - lang/src/hako_alloc/
 ---
 
@@ -37,6 +38,7 @@ Use these terms precisely:
 | mimalloc port | Re-express mimalloc-derived allocator algorithms in `.hako` under `hako_alloc`, using Hakorune capability substrate rows. | active completeness lane |
 | `hako_alloc` production facade | A `.hako` policy seam and proof surface for allocator behavior. It can model allocation, release, page-source, remote-free, and stats policies. | active proof/algorithm surface |
 | C mimalloc comparison target | Throughput and memory-usage comparison against upstream C mimalloc using matched allocator workloads. | primary completion evidence, after `.hako` allocator behavior exists |
+| Hakorune provider package / DLL backend | Future package backend with descriptor, manifest, function table, and host preflight. It is not required for the current C mimalloc comparison runner. | parked future ABI/package plan |
 | allocator provider option | A future explicit runtime option that may choose a `hako_alloc` / mimalloc-style provider the way Rust can explicitly choose a global allocator. | optional future ladder only |
 | process allocator replacement | Replacing Hakorune's ordinary host/process malloc/free path or installing a global allocator hook by default. | inactive / forbidden in this lane |
 
@@ -95,7 +97,11 @@ preconditions, but it does not gate `.hako` mimalloc implementation progress.
    facade ownership.
 5. Add workload harnesses and comparison evidence after the allocator behavior
    is concrete enough to measure against C mimalloc.
-6. Reopen allocator-provider M104+ only when host allocator replacement support
+6. Keep Hakorune provider package / DLL generation parked behind
+   `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`.
+   The active C mimalloc comparison lane uses explicit external runners, not a
+   provider package.
+7. Reopen allocator-provider M104+ only when host allocator replacement support
    is explicitly requested as an optional provider/replacement row.
 
 The post-analysis implementation ladder is fixed in

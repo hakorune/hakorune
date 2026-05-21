@@ -54,6 +54,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
+- future provider package / DLL ABI plan:
+  `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 - current blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
@@ -112,6 +114,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
   remain parked unless host allocator replacement is explicitly reopened.
+- future Hakorune DLL/shared-library generation is parked as a provider package
+  backend; MIMAP-451A stays on the explicit external C mimalloc runner path.
 - detailed landed history: phase card files and `CURRENT_STATE.toml`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only

@@ -3,6 +3,8 @@
 Status: accepted
 Decision: accepted
 Scope: MIMAP-425A optional process allocator replacement proposal.
+Related:
+- docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
 
 ## Purpose
 
@@ -13,6 +15,12 @@ default process allocator replacement row.
 
 The future replacement path is optional, explicit, and parked until a separate
 execution row is accepted.
+
+Future DLL/shared-library generation is also parked. The package/ABI design is
+owned by
+`docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`;
+that SSOT defines provider descriptor, manifest, loader preflight, and
+function-table boundaries without reopening process allocator replacement.
 
 ## Proposal Boundary
 
@@ -56,6 +64,8 @@ throughput baseline
 memory usage baseline
 failure / rollback contract
 no-growth backend matcher contract
+provider package descriptor / manifest preflight contract, if a provider package
+  is involved
 ```
 
 ## Still Closed
