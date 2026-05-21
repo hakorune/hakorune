@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-441A landed allocator comparison controlled benchmark execution diagnostics and selected MIMAP-442A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-442A landed allocator comparison controlled benchmark execution closeout and selected MIMAP-443A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1064-MIMAP-442A-ALLOCATOR-COMPARISON-CONTROLLED-BENCHMARK-EXECUTION-CLOSEOUT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1065-MIMAP-443A-ALLOCATOR-COMPARISON-REPRESENTATIVE-BENCHMARK-EXECUTION-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1063-MIMAP-441A-ALLOCATOR-COMPARISON-CONTROLLED-BENCHMARK-EXECUTION-DIAGNOSTICS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1063-MIMAP-441A-ALLOCATOR-COMPARISON-CONTROLLED-BENCHMARK-EXECUTION-DIAGNOSTICS.md"
-latest_card_summary = "Landed allocator comparison controlled benchmark execution diagnostics while benchmark execution, host allocator replacement, hook install, backend matcher additions, worker/thread execution, and global allocator install remain closed."
+latest_card = "293x-1064-MIMAP-442A-ALLOCATOR-COMPARISON-CONTROLLED-BENCHMARK-EXECUTION-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1064-MIMAP-442A-ALLOCATOR-COMPARISON-CONTROLLED-BENCHMARK-EXECUTION-CLOSEOUT.md"
+latest_card_summary = "Landed allocator comparison controlled benchmark execution closeout while benchmark execution, host allocator replacement, hook install, backend matcher additions, worker/thread execution, and global allocator install remain closed."
 
-current_blocker_token = "MIMAP-442A"
+current_blocker_token = "MIMAP-443A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1064 MIMAP-442A allocator comparison controlled benchmark execution closeout landed; MIMAP-443A selected",
   "293x-1063 MIMAP-441A allocator comparison controlled benchmark execution diagnostics landed; MIMAP-442A selected",
   "293x-1062 MIMAP-440A allocator comparison controlled benchmark execution inventory landed; MIMAP-441A selected",
   "293x-1061 MIMAP-439A allocator comparison controlled benchmark execution plan landed; MIMAP-440A selected",
