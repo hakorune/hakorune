@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-22"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-548A completed and selected MIMAP-549A as the current row-selection card after closing the next deeper extension pack over the landed MIMAP-546A pilot. Benchmark reruns and allocator/provider ladders remain closed. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], and provider package generation remain inactive."
+active_lane_status = "MIMAP-552A landed and selected MIMAP-553A as the current row-selection card after opening the first comparison-ready explicit C mimalloc seam over the landed MIMAP-546A and the fixed MIMAP-550A contract. Benchmark reruns and allocator/provider ladders remain closed. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], provider package generation, and worker execution remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1179-MIMAP-549A-POST-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1183-MIMAP-553A-POST-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1178-MIMAP-548A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1178-MIMAP-548A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-CLOSEOUT.md"
-latest_card_summary = "Closed the next deeper extension pack after the landed MIMAP-546A pilot and selected MIMAP-549A as the next row-selection card."
+latest_card = "293x-1182-MIMAP-552A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1182-MIMAP-552A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT.md"
+latest_card_summary = "Opened the first comparison-ready explicit C mimalloc pilot over the landed MIMAP-546A report and fixed MIMAP-550A contract, then selected MIMAP-553A as the next row-selection card."
 
-current_blocker_token = "MIMAP-549A"
+current_blocker_token = "MIMAP-553A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1182 MIMAP-552A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on pilot landed; MIMAP-553A selected",
+  "293x-1181 MIMAP-551A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on plan row selection landed; MIMAP-552A selected",
+  "293x-1180 MIMAP-550A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on plan landed; MIMAP-551A selected",
+  "293x-1179 MIMAP-549A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension closeout row selection landed; MIMAP-550A selected",
   "293x-1178 MIMAP-548A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension closeout completed; MIMAP-549A selected",
   "293x-1177 MIMAP-547A post presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension pilot row selection landed; MIMAP-548A selected",
   "293x-1176 MIMAP-546A allocator comparison C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on extension pilot landed; MIMAP-547A selected",

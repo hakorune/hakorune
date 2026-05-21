@@ -1,6 +1,6 @@
 # 293x-1179 MIMAP-549A Post Presentation Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-22
 
 ## Decision
