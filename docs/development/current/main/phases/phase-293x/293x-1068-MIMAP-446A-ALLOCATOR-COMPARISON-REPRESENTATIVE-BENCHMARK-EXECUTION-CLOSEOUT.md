@@ -1,6 +1,6 @@
 # 293x-1068 MIMAP-446A Allocator Comparison Representative Benchmark Execution Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -26,8 +26,18 @@ pilot and MIMAP-445A diagnostics.
 - No source-level worker-local or concurrency surface.
 - No cross-function `Result` direct ABI or runtime sum materialization.
 
+## Landed Scope
+
+- Added the representative benchmark execution closeout SSOT.
+- Added a closeout guard that re-runs MIMAP-444A pilot and MIMAP-445A
+  diagnostics L2 evidence.
+- Selected MIMAP-447A as the C mimalloc comparison execution plan row.
+- Kept process allocator replacement, hooks, backend matcher additions, global
+  allocator installation, C mimalloc execution, hidden env discovery, and
+  worker/thread execution closed.
+
 ## Validation
 
-Closeout validation should run the MIMAP-444A and MIMAP-445A L2 guards and may
-add representative exact-MIR evidence for this pack. Native C mimalloc
-comparison remains reserved for a later explicit row.
+- `bash tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_closeout_guard.sh`
+- `bash tools/checks/current_state_pointer_guard.sh`
+- `git diff --check`
