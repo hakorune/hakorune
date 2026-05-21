@@ -74,6 +74,8 @@ Rules:
   construction uses positional arguments.
 - Shorthand field copy and wildcard copy are reserved for later rows; current
   construction-site field initializers must use `field: expr`.
+- `with` copy-update is record-only. Ordinary boxes are identity/resource
+  boundaries, so they must not be implicitly shallow-copied by `with`.
 
 Example:
 

@@ -21,6 +21,7 @@ less repetitive before continuing allocator comparison closeout work.
 - No `...fields` spread.
 - No named function arguments.
 - No automatic record-to-box copy.
+- No ordinary-box `with` copy/update.
 - No `::default()` surface.
 - No runtime record object.
 - No record return ABI.

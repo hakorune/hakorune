@@ -168,7 +168,9 @@ record_literal_field := IDENT (':' expr)?
 record_update := expr 'with' '{' record_update_field (',' record_update_field)* ','? '}'
 record_update_field := IDENT (':' expr)?
               ; REC-003: `with` is contextual in expression-postfix position.
-              ; It is identity-free replacement, not mutation.
+              ; It is identity-free record replacement, not mutation.
+              ; The base expression must lower to a tracked local record value.
+              ; Ordinary boxes do not support `with`.
 
 check_expr := 'check' STRING? '{' check_item* '}'
 check_item := STRING ':' expr
@@ -447,9 +449,14 @@ local next = meta with {
 }
 ```
 
-The update field names must exist on the tracked record type. Array element
-field write-through such as `metas[i].usable_size = next` is not part of this
-surface; use explicit get/update/set composition in later container rows.
+The base must be a tracked local record value. The update field names must exist
+on that record type. `with` is not an ordinary box copy surface: `box_value with
+{ field: expr }` is rejected rather than shallow-copying or calling `new`.
+Construct boxes explicitly with `new Box { field: expr }`, or provide an
+ordinary named copy/update method when box identity or resources are involved.
+Array element field write-through such as `metas[i].usable_size = next` is not
+part of this surface; use explicit get/update/set composition in later
+container rows.
 
 Stop line:
 The current record surface does not add runtime record materialization, packed

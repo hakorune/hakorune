@@ -70,11 +70,16 @@ copy.
 copying the base record fields and replacing the listed fields. It does not
 mutate the base value.
 
+`with` is record-only. Ordinary boxes are identity/resource boundaries, so
+`box_value with { field: expr }` is rejected rather than shallow-copying,
+deep-copying, re-running construction, or silently calling `new`.
+
 ## Stop Lines
 
 - No `...fields` spread.
 - No named function arguments.
 - No automatic record-to-box copy.
+- No ordinary-box `with` copy/update.
 - No `::default()` constructor surface.
 - No runtime record materialization.
 - No record return ABI.
