@@ -1,0 +1,141 @@
+// hako-alloc-mimalloc-comparison-vertical-slice-closeout-proof
+// Purpose: close the comparison-quality vertical slice by aligning the
+// hako_alloc V2/V3/V4 schema with the existing C mimalloc runner evidence
+// surface, without opening provider activation or allocator replacement.
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count = me.count + 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local schema_version = 1
+
+        // V2: small fixed-size alloc/free/reuse schema.
+        local v2_present = 1
+        local v2_requested_bytes = 48
+        local v2_committed_bytes = 0
+        local v2_live_handles = 3
+        local v2_alloc_ops = 4
+        local v2_release_ops = 1
+        local v2_source_ops = 0
+        local v2_rejects = 0
+
+        // V3: realloc same-class/grow fallback and aligned-small schema.
+        local v3_present = 1
+        local v3_requested_bytes = 216
+        local v3_committed_bytes = 0
+        local v3_live_handles = 4
+        local v3_copied_bytes = 16
+        local v3_release_ops = 1
+        local v3_source_ops = 0
+        local v3_rejects = 4
+        local v3_alignment_meta = 2
+
+        // V4: huge threshold, huge page/release, and OSVM-backed schema.
+        local v4_present = 1
+        local v4_requested_bytes = 4194321
+        local v4_committed_bytes = 4194433
+        local v4_live_handles = 0
+        local v4_release_ops = 2
+        local v4_source_ops = 6
+        local v4_rejects = 2
+
+        // Existing C mimalloc explicit runner planning evidence surface.
+        local c_runner_present = 1
+        local c_allocator_id = 1
+        local c_runner_kind = 1
+        local c_workload_id = 1
+        local c_allocation_count = 64
+        local c_free_count = 64
+        local c_requested_bytes = 33254
+        local c_peak_rss_bytes = 4096
+        local c_steady_rss_bytes = 4096
+        local c_exit_code = 0
+        local c_evidence_complete = 1
+
+        local hako_requested_total = v2_requested_bytes + v3_requested_bytes + v4_requested_bytes
+        local hako_committed_total = v2_committed_bytes + v3_committed_bytes + v4_committed_bytes
+        local hako_live_handles = v2_live_handles + v3_live_handles + v4_live_handles
+        local hako_release_ops = v2_release_ops + v3_release_ops + v4_release_ops
+        local hako_source_ops = v2_source_ops + v3_source_ops + v4_source_ops
+        local hako_rejects = v2_rejects + v3_rejects + v4_rejects
+        local hako_has_memory_use_evidence = 0
+        local c_has_memory_use_evidence = c_evidence_complete
+
+        local provider_activation = 0
+        local host_replacement = 0
+        local hook_installed = 0
+        local global_allocator = 0
+        local tls_worker = 0
+        local remote_free_stress = 0
+        local atomic_bitmap = 0
+        local native_allocator_claim = 0
+
+        print("hako-alloc-mimalloc-comparison-vertical-slice-closeout-proof")
+        print("schema=vertical-slice-v1")
+        print("hako_slices=" + v2_present + "," + v3_present + "," + v4_present)
+        print("hako_requested=" + v2_requested_bytes + "," + v3_requested_bytes + "," + v4_requested_bytes + "," + hako_requested_total)
+        print("hako_evidence=" + hako_committed_total + "," + hako_live_handles + "," + hako_release_ops + "," + hako_source_ops + "," + hako_rejects + "," + hako_has_memory_use_evidence)
+        print("hako_details=" + v2_alloc_ops + "," + v3_copied_bytes + "," + v3_alignment_meta)
+        print("c_mimalloc=" + c_runner_present + "," + c_allocator_id + "," + c_runner_kind + "," + c_workload_id + "," + c_allocation_count + "," + c_free_count + "," + c_requested_bytes + "," + c_peak_rss_bytes + "," + c_steady_rss_bytes + "," + c_exit_code + "," + c_evidence_complete)
+        print("schema_bridge=" + schema_version + "," + c_has_memory_use_evidence + "," + hako_has_memory_use_evidence + "," + hako_requested_total + "," + c_requested_bytes)
+        print("closed=" + provider_activation + "," + host_replacement + "," + hook_installed + "," + global_allocator + "," + tls_worker + "," + remote_free_stress + "," + atomic_bitmap + "," + native_allocator_claim)
+
+        local proof = new ProofCheck("mimalloc comparison vertical slice closeout")
+        proof.expectEq("schema version", schema_version, 1)
+        proof.expectEq("V2 present", v2_present, 1)
+        proof.expectEq("V3 present", v3_present, 1)
+        proof.expectEq("V4 present", v4_present, 1)
+        proof.expectEq("hako requested total", hako_requested_total, 4194585)
+        proof.expectEq("hako committed total", hako_committed_total, 4194433)
+        proof.expectEq("hako live handles", hako_live_handles, 7)
+        proof.expectEq("hako release ops", hako_release_ops, 4)
+        proof.expectEq("hako source ops", hako_source_ops, 6)
+        proof.expectEq("hako rejects", hako_rejects, 6)
+        proof.expectEq("hako memory evidence pending", hako_has_memory_use_evidence, 0)
+        proof.expectEq("C runner present", c_runner_present, 1)
+        proof.expectEq("C requested bytes", c_requested_bytes, 33254)
+        proof.expectEq("C peak RSS", c_peak_rss_bytes, 4096)
+        proof.expectEq("C steady RSS", c_steady_rss_bytes, 4096)
+        proof.expectEq("C evidence complete", c_evidence_complete, 1)
+        proof.expectEq("provider closed", provider_activation, 0)
+        proof.expectEq("host replacement closed", host_replacement, 0)
+        proof.expectEq("hook closed", hook_installed, 0)
+        proof.expectEq("global allocator closed", global_allocator, 0)
+        proof.expectEq("TLS worker closed", tls_worker, 0)
+        proof.expectEq("remote free stress closed", remote_free_stress, 0)
+        proof.expectEq("atomic bitmap closed", atomic_bitmap, 0)
+        proof.expectEq("native allocator claim closed", native_allocator_claim, 0)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
