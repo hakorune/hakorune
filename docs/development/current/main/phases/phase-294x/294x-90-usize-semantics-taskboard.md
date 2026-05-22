@@ -265,6 +265,13 @@ remaining field groups and allocator API parity only.
   - Stop line: keep `meta_count`, `next_ptr`, `last_result_ptr`,
     `last_alignment`, and `last_padded_size` signed until metadata-store,
     pointer, alignment, and size observer contracts are split.
+  - Follow-on migrated group: `HakoAllocHugeThresholdRouter` route/reject
+    counters (`small_route_count`, `small_success_count`,
+    `small_reject_count`, `huge_route_count`, `huge_reject_count`,
+    `invalid_alignment_count`, `invalid_size_count`, `reject_count`) in
+    `294x-27-HAKO-ALLOC-USIZE-HUGE-THRESHOLD-ROUTER-COUNTERS.md`.
+  - Stop line: keep route-kind, pointer, size, and threshold observer fields
+    signed until their own exactness contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

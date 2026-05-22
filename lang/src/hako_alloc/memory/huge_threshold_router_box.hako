@@ -8,14 +8,14 @@ using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
 
 box HakoAllocHugeThresholdRouter {
     small_path: HakoAllocPageMapAlignedSmallPath
-    small_route_count: i64 = 0
-    small_success_count: i64 = 0
-    small_reject_count: i64 = 0
-    huge_route_count: i64 = 0
-    huge_reject_count: i64 = 0
-    invalid_alignment_count: i64 = 0
-    invalid_size_count: i64 = 0
-    reject_count: i64 = 0
+    small_route_count: usize = 0
+    small_success_count: usize = 0
+    small_reject_count: usize = 0
+    huge_route_count: usize = 0
+    huge_reject_count: usize = 0
+    invalid_alignment_count: usize = 0
+    invalid_size_count: usize = 0
+    reject_count: usize = 0
     last_route_kind: i64 = 0
     last_result_ptr: i64 = 0
     last_padded_size: i64 = 0
