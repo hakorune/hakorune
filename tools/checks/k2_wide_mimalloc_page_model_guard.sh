@@ -14,6 +14,7 @@ APP_README="apps/mimalloc-page-model-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-166-M165-MIMALLOC-PAGE-MODEL-SPLIT.md"
 USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-31-HAKO-ALLOC-USIZE-PAGE-MODEL-LIFECYCLE-COUNTERS.md"
 USIZE_STACK_CARD="docs/development/current/main/phases/phase-294x/294x-43-HAKO-ALLOC-USIZE-PAGE-MODEL-STACK-OCCUPANCY.md"
+USIZE_CAPACITY_CARD="docs/development/current/main/phases/phase-294x/294x-45-HAKO-ALLOC-USIZE-PAGE-MODEL-CAPACITY.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -34,6 +35,7 @@ guard_require_files \
   "$CARD" \
   "$USIZE_CARD" \
   "$USIZE_STACK_CARD" \
+  "$USIZE_CAPACITY_CARD" \
   "$PLAN" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
@@ -45,8 +47,8 @@ guard_expect_in_file "$TAG" 'block_used: ArrayBox = new ArrayBox\(\)' "$PAGE_BOX
 guard_expect_in_file "$TAG" 'used: usize = 0' "$PAGE_BOX" "page model must expose used as exact usize storage"
 guard_expect_in_file "$TAG" 'free_top: usize = 0' "$PAGE_BOX" "page model must expose free_top as exact usize storage"
 guard_expect_in_file "$TAG" 'local_free_top: usize = 0' "$PAGE_BOX" "page model must expose local_free_top as exact usize storage"
-guard_expect_in_file "$TAG" 'capacity: i64' "$PAGE_BOX" "page model must expose capacity as a scalar stored member"
-guard_expect_in_file "$TAG" 'reserved: i64' "$PAGE_BOX" "page model must expose reserved as a scalar stored member"
+guard_expect_in_file "$TAG" 'capacity: usize' "$PAGE_BOX" "page model must expose capacity as exact usize storage"
+guard_expect_in_file "$TAG" 'reserved: usize' "$PAGE_BOX" "page model must expose reserved as exact usize storage"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$PAGE_BOX" "page alloc counter must be exact usize"
 guard_expect_in_file "$TAG" 'local_free_count: usize = 0' "$PAGE_BOX" "page local-free counter must be exact usize"
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$PAGE_BOX" "page reject counter must be exact usize"
@@ -69,6 +71,7 @@ guard_expect_in_file "$TAG" 'M165 page model split' "$PLAN" "plan must retain M1
 guard_expect_in_file "$TAG" '293x-166 M165 Mimalloc Page Model Split' "$CARD" "missing M165 card"
 guard_expect_in_file "$TAG" '294x-31 Hako Alloc Usize Page Model Lifecycle Counters' "$USIZE_CARD" "missing page model lifecycle counter usize card"
 guard_expect_in_file "$TAG" '294x-43 Hako Alloc Usize Page Model Stack Occupancy' "$USIZE_STACK_CARD" "missing page model stack occupancy usize card"
+guard_expect_in_file "$TAG" '294x-45 Hako Alloc Usize Page Model Capacity' "$USIZE_CAPACITY_CARD" "missing page model capacity usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M165 guard"
 guard_expect_in_file "$TAG" 'loop\(i < me\.capacity\)' "$PAGE_BOX" "page seeding must exercise JoinIR field-read loop bound"
 
@@ -161,8 +164,6 @@ for name in (
 for name in (
     "page_id",
     "block_size",
-    "capacity",
-    "reserved",
     "retired",
     "decommitted",
     "requested_bytes",
@@ -175,6 +176,8 @@ for name in (
     "free_top",
     "local_free_top",
     "peak_used",
+    "capacity",
+    "reserved",
 ):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":

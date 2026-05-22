@@ -368,6 +368,13 @@ Selected next production `usize` field group:
   landed. Identity, block size, capacity, reserved count, lifecycle flags, and
   byte-length fields stay `i64`.
 
+- `page_box.hako` / `HakoAllocPageModel` capacity fields:
+  `capacity`, `reserved`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-075` selects and migrates this group after the
+  proof-only capacity-bound row fixed signed-index guards and loop bounds
+  against exact `usize` capacity. Identity, block size, lifecycle flags, and
+  byte-length fields stay `i64`.
+
 - `aligned_small_meta_store_box.hako` / `HakoAllocAlignedSmallMetaStore` and
   `page_map_aligned_small_path_box.hako` / `HakoAllocPageMapAlignedSmallPath`
   metadata count fields:
@@ -438,8 +445,8 @@ readable without losing field names.
 | --- | --- | --- | --- | --- | --- |
 | `page_box.hako` | `HakoAllocPageModel` | `page_id` | `i64` | `index` | Candidate after id/index call sites use exact non-negative semantics. |
 | `page_box.hako` | `HakoAllocPageModel` | `block_size` | `i64` | `size` | Candidate after exact `usize` backend/storage lowering exists. |
-| `page_box.hako` | `HakoAllocPageModel` | `capacity` | `i64` | `capacity` | Structural candidate after stats groups and capacity invariant guard. |
-| `page_box.hako` | `HakoAllocPageModel` | `reserved` | `i64` | `capacity` | Candidate with `capacity`; keep invariant `reserved <= capacity`. |
+| `page_box.hako` | `HakoAllocPageModel` | `capacity` | `usize` | `capacity` | Exact page capacity via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`. |
+| `page_box.hako` | `HakoAllocPageModel` | `reserved` | `usize` | `capacity` | Exact reserved block bound via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`. |
 | `page_box.hako` | `HakoAllocPageModel` | `used` | `usize` | `count` | Exact page occupancy count via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`. |
 | `page_box.hako` | `HakoAllocPageModel` | `free_top` | `usize` | `count` | Exact page free-stack top via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`. |
 | `page_box.hako` | `HakoAllocPageModel` | `local_free_top` | `usize` | `count` | Exact page local-free stack top via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`. |
@@ -492,7 +499,7 @@ excludes `usize_field_probe_box.hako`.
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmPageBacking` | `page_id`, `base`, `bytes` | id/ptr-like base/byte-length group; keep `i64` until OSVM pointer-size contract. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedHandle` | `page_id`, `block_id`, `requested_size` | id/index + size fields; keep `i64` until object-return API parity. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `backing_count`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count`, `reserve_count`, `commit_count`, `decommit_count`, `source_reject_count` | event/source counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-068`; bin, size/capacity metadata, next page id, and `backing_count` stay `i64`. |
-| `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `decommitted`, `retire_count`, `decommit_count`, `recommit_count`, `reuse_count`, `lifecycle_reject_count`, `reactivate_count`, `reactivate_reject_count`, `peak_used`, `requested_bytes` | page-local alloc/local-free/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`; local-free collection counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-060`; lifecycle event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-061`; stack-top/occupancy fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`; identity, size/capacity, lifecycle state flags, and byte fields stay `i64`. |
+| `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `decommitted`, `retire_count`, `decommit_count`, `recommit_count`, `reuse_count`, `lifecycle_reject_count`, `reactivate_count`, `reactivate_reject_count`, `peak_used`, `requested_bytes` | page-local alloc/local-free/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`; local-free collection counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-060`; lifecycle event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-061`; stack-top/occupancy fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`; capacity fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`; identity, block-size, lifecycle state flags, and byte fields stay `i64`. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `page_id`, `block_id`, `requested_size` | legacy prototype handle; keep `i64` until superseded by current page-map owners or object-return parity. |
 | `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; migrate only if this owner remains live after page-model migration. |
 | `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | aligned-small path event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-056`; `meta_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062` as the C205c store count mirror; ptr/result/alignment/size observers stay `i64`. |
@@ -535,7 +542,8 @@ Non-stored sentinel seams that must be considered in the next row:
    exact `usize` stack-top values used as `ArrayBox.get/set` indexes. `294x-43`
    migrates the production page stack-top/occupancy owner-local group.
    `294x-44` probes exact `usize` capacity bounds with current-lane signed
-   indexes before production capacity/reserved migration.
+   indexes before production capacity/reserved migration. `294x-45` migrates
+   the production page capacity/reserved owner-local group.
 4. Probe `size` and `byte-length` fields only after checked arithmetic
    diagnostics are stable enough for allocator byte sums.
 5. Probe `index` fields after sentinel returns and not-found states are
