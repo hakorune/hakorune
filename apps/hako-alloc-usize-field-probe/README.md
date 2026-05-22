@@ -3,6 +3,8 @@
 Purpose
 - Proves that non-negative hako_alloc field shapes can be represented as
   exact `usize` stored fields in an isolated probe.
+- Covers the first stack-top shape with guarded decrement/increment paths:
+  `free_top`, `local_free_top`, and explicit underflow/overflow reject counters.
 - Does not migrate production allocator state by itself; production migration
   is tracked by explicit 294x field-group rows.
 

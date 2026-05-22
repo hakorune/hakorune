@@ -412,6 +412,8 @@ remain `i64`.
 
 Probe-only exact `usize` stored fields live in `usize_field_probe_box.hako`.
 They are intentionally excluded from the production migration inventory below.
+The probe covers capacity, occupancy, byte-length accumulation, and the first
+stack-top decrement/increment shape with explicit underflow/overflow rejects.
 C205a allocator metadata `record` declarations are also excluded from the live
 stored-field count: they describe identity-free metadata shapes, not runtime
 state. C205c/C205d store-owner counters are counted because those boxes own
@@ -517,7 +519,9 @@ Non-stored sentinel seams that must be considered in the next row:
 
 1. Keep `signed-sentinel` fields as `i64` or split them first.
 2. Migrate low-risk stats `count` fields by owner-local group.
-3. Probe `capacity` / stack-top fields with underflow checks.
+3. Probe `capacity` / stack-top fields with underflow checks. `294x-41`
+   extends the proof-only probe for this; production page stack-top fields
+   still require their own owner-local row.
 4. Probe `size` and `byte-length` fields only after checked arithmetic
    diagnostics are stable enough for allocator byte sums.
 5. Probe `index` fields after sentinel returns and not-found states are

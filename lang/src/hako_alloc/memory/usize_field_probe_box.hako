@@ -5,14 +5,20 @@
 box HakoAllocUsizeFieldProbe {
     capacity: usize = 0
     used: usize = 0
+    free_top: usize = 0
+    local_free_top: usize = 0
     alloc_count: usize = 0
     requested_bytes: usize = 0
+    free_top_underflow_reject_count: usize = 0
+    local_free_overflow_reject_count: usize = 0
+    local_free_underflow_reject_count: usize = 0
 
     birth(capacity: usize) {
         me.capacity = capacity
+        me.free_top = capacity
     }
 
-    record(requested_bytes: usize) {
+    recordAllocation(requested_bytes: usize) {
         if me.used >= me.capacity {
             return 0
         }
@@ -20,6 +26,36 @@ box HakoAllocUsizeFieldProbe {
         me.used = me.used + 1
         me.alloc_count = me.alloc_count + 1
         me.requested_bytes = me.requested_bytes + requested_bytes
+        return 1
+    }
+
+    takeFreeTop() {
+        if me.free_top == 0 {
+            me.free_top_underflow_reject_count = me.free_top_underflow_reject_count + 1
+            return 0
+        }
+
+        me.free_top = me.free_top - 1
+        return 1
+    }
+
+    pushLocalFreeTop() {
+        if me.local_free_top >= me.capacity {
+            me.local_free_overflow_reject_count = me.local_free_overflow_reject_count + 1
+            return 0
+        }
+
+        me.local_free_top = me.local_free_top + 1
+        return 1
+    }
+
+    collectLocalFreeTop() {
+        if me.local_free_top == 0 {
+            me.local_free_underflow_reject_count = me.local_free_underflow_reject_count + 1
+            return 0
+        }
+
+        me.local_free_top = me.local_free_top - 1
         return 1
     }
 }

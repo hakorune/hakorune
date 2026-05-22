@@ -212,6 +212,8 @@ remaining field groups and allocator API parity only.
   signed until their API shape changes.
 - [x] Probe capacity/count/byte-length `usize` fields in an isolated hako_alloc
   proof app before production migration.
+- [x] Probe stack-top `usize` decrement/increment paths with explicit
+  underflow/overflow rejects in the isolated hako_alloc proof app.
 - [x] Mark production `usize` field migration blocked on non-VM exact numeric
   storage, exact field ABI, and backend ABI consumption.
 - [x] Update first production proof apps for the facade stats field group.
@@ -352,6 +354,13 @@ remaining field groups and allocator API parity only.
     `294x-40-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-OBSERVER-COUNTERS.md`.
   - Stop line: keep release observer before-snapshots, sentinels, statuses, and
     signed deltas as `i64`.
+  - Follow-on probe row: `HakoAllocUsizeFieldProbe` stack-top fields
+    (`free_top`, `local_free_top`) and reject counters
+    (`free_top_underflow_reject_count`, `local_free_overflow_reject_count`,
+    `local_free_underflow_reject_count`) in
+    `294x-41-HAKO-ALLOC-USIZE-STACK-TOP-PROBE.md`.
+  - Stop line: production page stack-top, live-count, capacity, byte-length,
+    and remote-free mailbox fields remain signed until their owner-local rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.
