@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-34-HAKO-ALLOC-USIZE-HUGE-MODEL-META-MIRRORS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-34-HAKO-ALLOC-USIZE-HUGE-MODEL-META-MIRRORS.md"
-latest_card_summary = "Migrated the huge-page model huge_count/live_count metadata mirrors to exact usize storage while keeping event/reject counters and pointer/id/size/status observers on i64."
+latest_card = "294x-35-HAKO-ALLOC-USIZE-HUGE-MODEL-EVENT-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-35-HAKO-ALLOC-USIZE-HUGE-MODEL-EVENT-COUNTERS.md"
+latest_card_summary = "Migrated the huge-page model allocate/release/reject event counters to exact usize storage while keeping pointer/id/size/status observers on i64."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-064"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-065"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-35 HAKO-ALLOC-USIZE-FIELD-GROUP-065 huge-page model allocate/release/reject event counter migration landed; pointer/id/size/status observers remain i64",
   "294x-34 HAKO-ALLOC-USIZE-FIELD-GROUP-064 huge-page model huge_count/live_count metadata mirror migration landed; event/reject counters and pointer/id/size/status observers remain i64",
   "294x-33 HAKO-ALLOC-USIZE-FIELD-GROUP-063 huge-page metadata store count/live_count migration landed; pointer/id/size/live-flag payload observers remain i64",
   "294x-32 HAKO-ALLOC-USIZE-FIELD-GROUP-062 aligned-small metadata store count and path mirror migration landed; ptr/alignment/padded-size observers remain i64",

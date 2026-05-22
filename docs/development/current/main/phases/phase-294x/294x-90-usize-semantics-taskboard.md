@@ -312,6 +312,13 @@ remaining field groups and allocator API parity only.
     `294x-34-HAKO-ALLOC-USIZE-HUGE-MODEL-META-MIRRORS.md`.
   - Stop line: keep huge-model event/reject counters, pointer/id/size/status
     observers, and facade report fields signed until their own rows.
+  - Follow-on migrated group: `HakoAllocHugePageModel` event/reject counters
+    (`allocate_count`, `release_count`, `release_reject_count`,
+    `zero_reject_count`, `commit_reject_count`, `register_fail_count`,
+    `reject_count`) in
+    `294x-35-HAKO-ALLOC-USIZE-HUGE-MODEL-EVENT-COUNTERS.md`.
+  - Stop line: keep huge-model pointer/id/size/status observers and facade
+    report fields signed until their own rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

@@ -124,11 +124,9 @@ huge_fields = {
     field.get("name"): field
     for field in plans["HakoAllocHugePageModel"].get("fields", [])
 }
-for field_name in ("huge_count", "live_count"):
-    field = huge_fields.get(field_name)
-    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
-        raise SystemExit(f"huge page model {field_name} must be exact usize storage: {field}")
 for field_name in (
+    "huge_count",
+    "live_count",
     "allocate_count",
     "release_count",
     "release_reject_count",
@@ -136,6 +134,11 @@ for field_name in (
     "commit_reject_count",
     "register_fail_count",
     "reject_count",
+):
+    field = huge_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"huge page model {field_name} must be exact usize storage: {field}")
+for field_name in (
     "next_page_id",
     "next_ptr",
     "last_result_ptr",
