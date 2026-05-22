@@ -19,7 +19,7 @@
 | --- | --- |
 | `usize` semantics | VM reference execution can keep exact numeric results tagged instead of collapsing them back to `Integer(i64)`. |
 | production `hako_alloc` fields | Facade-local stats, page-map owner counters, page-map release event/reject counters, realloc path/failure-contract counters, aligned-small path counters, huge-threshold router counters, page-queue stats counters, page-model local alloc/free/reject counters, and page-model collection counters are exact `usize`; page/heap/queue/handle state remains `i64` until its own field-group row. |
-| mimalloc `.hako` rows | May continue under the still-`i64` page/heap/queue production boundary. |
+| mimalloc `.hako` rows | Continue as a comparison-quality vertical slice under the still-`i64` page/heap/queue production boundary. Do not wait for every remaining field group before producing comparable evidence. |
 | native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`. |
 | field get/set ABI | Python LLVM and the pure-first C shim consume exact typed-object field ABI for exact-storage plans. |
 | exact op backend lowering | Python LLVM consumes exact add/sub/mul, compare, and logical-shift route facts; div/mod/bitwise/wrapping remain closed. |
@@ -42,6 +42,14 @@ Roadmap SSOT: `docs/development/current/main/design/mimalloc-hako-port-implement
 The important correction is that facade-local exact `usize` stats already
 landed as `294x-19e`; future `M185-M190` rows must focus on remaining field
 groups, request-path sizes, object-return parity, and failure-handle shape.
+
+Acceleration correction: phase 294x should not become a full allocator field
+drain. The next mimalloc-facing work is a comparison-quality vertical slice:
+select the workload pack, close only the `usize` fields required by that pack,
+compose the existing small/realloc/aligned/huge paths into one output schema,
+and compare against C mimalloc evidence. Full remote-free stress, abandoned
+heap behavior, atomic bitmap execution, provider/DLL packaging, and
+host/global allocator replacement remain later lanes.
 
 ## Policy
 
@@ -224,8 +232,9 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M179 huge-threshold routing work before scheduling huge-page model
-   or secure-list rows.
+7. prefer comparison-required field/path closure over broad field migration;
+8. produce a C mimalloc vs `.hako` report closeout before reopening larger
+   native-allocator work.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

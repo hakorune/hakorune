@@ -35,6 +35,10 @@ hako_alloc or mimalloc migration.
 - Python LLVM consumes exact add/sub/mul, compare, and logical-shift route
   facts; div/mod/bitwise/wrapping stay later vocabulary.
 - Further production `hako_alloc` migration remains field-group gated.
+- Mimalloc `.hako` work should now target a comparison-quality vertical slice,
+  not a full allocator-wide port. Required fields and paths should be selected
+  by the workload/report slice below; broad field migration, provider
+  activation, DLL packaging, and host allocator replacement remain parked.
 
 ## Next Implementation Queue
 
@@ -50,6 +54,34 @@ hako_alloc or mimalloc migration.
 Roadmap correction: `M186 exact usize facade stats` is already complete as
 `294x-19e`. Do not schedule duplicate facade migration; use `M185+` for
 remaining field groups and allocator API parity only.
+
+## Mimalloc Comparison Vertical Slice Queue
+
+This queue overrides the tempting "finish every remaining allocator field"
+interpretation. The short-term goal is a measurable `.hako` / `hako_alloc`
+slice that can be compared against the existing C mimalloc runner evidence,
+not a full native mimalloc-compatible allocator.
+
+| Order | Slice | Validation | Boundary |
+| --- | --- | --- | --- |
+| V0 | Select the comparison workload pack | docs + manifest/static guard | Use a small fixed-size alloc/free/reuse workload, a mixed small-size workload, realloc same-class/grow fallback, aligned-small, and huge/OSVM-backed allocation. Do not add provider activation or host replacement. |
+| V1 | Close only comparison-required `usize` fields | field-group L2, L3 only when first-pattern requires it | Migrate request size, block size, capacity, queue count/index, and report counters only when the workload consumes them. Keep ids, pointer payloads, sentinels, and status flags signed until their own contracts are needed. |
+| V2 | Hako alloc small-path comparison slice | VM + MIR + route preflight; representative EXE closeout | Compose existing size-class, page model, page queue, page-map release, and local reuse paths into one stable output schema. No remote-free stress, TLS, abandoned heap, or atomic bitmap expansion. |
+| V3 | Realloc/aligned comparison slice | same as V2 | Reuse M174-M178 behavior and produce requested bytes, copied bytes, live handles, failure reason, and alignment metadata evidence. No new API surface unless the report schema requires it. |
+| V4 | Huge/OSVM comparison slice | same as V2 | Reuse M179-M181 and OSVM page-source composition for huge requests, reporting reserve/commit/decommit intent/evidence without widening page-source ownership. |
+| V5 | C mimalloc vs `.hako` report closeout | representative L3 / allocator-wide only at closeout | Compare the selected workload outputs using the same schema: requested bytes, live bytes/handles, operation counts, failure reasons, and RSS/memory-use evidence where available. |
+
+Defer beyond this queue:
+
+- full size-class table parity;
+- true worker/TLS and remote-free stress;
+- abandoned heap reclamation;
+- atomic bitmap execution;
+- provider/DLL/global allocator integration;
+- complete replacement of all remaining `i64` allocator fields.
+
+Rule: if a row does not help V0-V5 produce comparable evidence, it should be
+parked or batched into a later native-allocator phase.
 
 ## Ladder
 
