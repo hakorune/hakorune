@@ -470,6 +470,14 @@ impl MirInterpreter {
             (Le, Integer(x), Integer(y)) => x <= y,
             (Gt, Integer(x), Integer(y)) => x > y,
             (Ge, Integer(x), Integer(y)) => x >= y,
+            (Lt, VMValue::ExactNumeric(x), Integer(y)) => x.value < i128::from(*y),
+            (Le, VMValue::ExactNumeric(x), Integer(y)) => x.value <= i128::from(*y),
+            (Gt, VMValue::ExactNumeric(x), Integer(y)) => x.value > i128::from(*y),
+            (Ge, VMValue::ExactNumeric(x), Integer(y)) => x.value >= i128::from(*y),
+            (Lt, Integer(x), VMValue::ExactNumeric(y)) => i128::from(*x) < y.value,
+            (Le, Integer(x), VMValue::ExactNumeric(y)) => i128::from(*x) <= y.value,
+            (Gt, Integer(x), VMValue::ExactNumeric(y)) => i128::from(*x) > y.value,
+            (Ge, Integer(x), VMValue::ExactNumeric(y)) => i128::from(*x) >= y.value,
             (Lt, Float(x), Float(y)) => x < y,
             (Le, Float(x), Float(y)) => x <= y,
             (Gt, Float(x), Float(y)) => x > y,
@@ -492,6 +500,37 @@ impl MirInterpreter {
             }
         };
         Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::backend::vm_types::ExactNumericRuntimeValue;
+
+    fn exact_usize(value: i128) -> VMValue {
+        VMValue::ExactNumeric(ExactNumericRuntimeValue::new("usize", value))
+    }
+
+    #[test]
+    fn eval_cmp_accepts_exact_usize_against_dynamic_zero_boundary() {
+        let vm = MirInterpreter::new();
+
+        assert_eq!(
+            vm.eval_cmp(CompareOp::Lt, exact_usize(64), VMValue::Integer(0))
+                .expect("usize < 0 compares"),
+            false
+        );
+        assert_eq!(
+            vm.eval_cmp(CompareOp::Gt, exact_usize(64), VMValue::Integer(0))
+                .expect("usize > 0 compares"),
+            true
+        );
+        assert_eq!(
+            vm.eval_cmp(CompareOp::Lt, VMValue::Integer(-1), exact_usize(64))
+                .expect("-1 < usize compares"),
+            true
+        );
     }
 }
 

@@ -53,6 +53,7 @@ pub fn eq_vm(a: &VMValue, b: &VMValue) -> bool {
     match (a, b) {
         (Integer(x), Integer(y)) => x == y,
         (ExactNumeric(x), ExactNumeric(y)) => x == y,
+        (ExactNumeric(x), Integer(y)) | (Integer(y), ExactNumeric(x)) => x.value == i128::from(*y),
         (Float(x), Float(y)) => x == y,
         (Bool(x), Bool(y)) => x == y,
         (String(x), String(y)) => x == y,
@@ -121,4 +122,20 @@ pub fn handle_of(_boxref: Arc<dyn NyashBox>) -> Handle {
 pub fn handle_get(_h: Handle) -> Option<Arc<dyn NyashBox>> {
     // TODO: Implement handle registry for Phase 15 VM/LLVM backends
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::backend::vm_types::ExactNumericRuntimeValue;
+
+    #[test]
+    fn eq_vm_accepts_exact_numeric_and_dynamic_integer_same_value() {
+        let exact = VMValue::ExactNumeric(ExactNumericRuntimeValue::new("usize", 64));
+        let dynamic = VMValue::Integer(64);
+
+        assert!(eq_vm(&exact, &dynamic));
+        assert!(eq_vm(&dynamic, &exact));
+        assert!(!eq_vm(&exact, &VMValue::Integer(63)));
+    }
 }
