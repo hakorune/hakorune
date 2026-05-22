@@ -1,0 +1,408 @@
+// MIMAP-566A: terminal explicit runner planning pilot (execution stays closed).
+
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_box as HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot
+
+record HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReportFields {
+    accepted: i64 = 0
+    reason: i64 = 0
+    explicit_runner_planning_pilot_present: i64 = 0
+    planning_input_present: i64 = 0
+    accepted_pilot_present: i64 = 0
+    blocked_pilot_present: i64 = 0
+    accepted_input_pack_present: i64 = 0
+    blocked_input_pack_present: i64 = 0
+    explicit_runner_contract_present: i64 = 0
+    external_evidence_source: i64 = 0
+    runner_output_contract_present: i64 = 0
+    memory_evidence_contract_present: i64 = 0
+    schema_anchor_present: i64 = 0
+    allocator_id: i64 = 0
+    runner_kind: i64 = 0
+    workload_id: i64 = 0
+    allocation_count: i64 = 0
+    free_count: i64 = 0
+    requested_bytes: i64 = 0
+    peak_rss_bytes: i64 = 0
+    steady_rss_bytes: i64 = 0
+    exit_code: i64 = 0
+    evidence_complete: i64 = 0
+    planning_count: i64 = 0
+    accepted_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_planning_input_reject_count: i64 = 0
+    missing_runner_output_contract_reject_count: i64 = 0
+    missing_memory_evidence_contract_reject_count: i64 = 0
+    stop_line_violation_reject_count: i64 = 0
+    accidental_execution_seam_reject_count: i64 = 0
+    last_reason: i64 = 0
+    runner_execution_performed: i64 = 0
+    benchmark_rerun_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    provider_package_generated: i64 = 0
+    worker_thread_executed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    explicit_runner_planning_pilot_present: i64 = 0
+    planning_input_present: i64 = 0
+    accepted_pilot_present: i64 = 0
+    blocked_pilot_present: i64 = 0
+    accepted_input_pack_present: i64 = 0
+    blocked_input_pack_present: i64 = 0
+    explicit_runner_contract_present: i64 = 0
+    external_evidence_source: i64 = 0
+    runner_output_contract_present: i64 = 0
+    memory_evidence_contract_present: i64 = 0
+    schema_anchor_present: i64 = 0
+    allocator_id: i64 = 0
+    runner_kind: i64 = 0
+    workload_id: i64 = 0
+    allocation_count: i64 = 0
+    free_count: i64 = 0
+    requested_bytes: i64 = 0
+    peak_rss_bytes: i64 = 0
+    steady_rss_bytes: i64 = 0
+    exit_code: i64 = 0
+    evidence_complete: i64 = 0
+    planning_count: i64 = 0
+    accepted_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_planning_input_reject_count: i64 = 0
+    missing_runner_output_contract_reject_count: i64 = 0
+    missing_memory_evidence_contract_reject_count: i64 = 0
+    stop_line_violation_reject_count: i64 = 0
+    accidental_execution_seam_reject_count: i64 = 0
+    last_reason: i64 = 0
+    runner_execution_performed: i64 = 0
+    benchmark_rerun_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    provider_package_generated: i64 = 0
+    worker_thread_executed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilot {
+    planning_count: i64 = 0
+    accepted_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_planning_input_reject_count: i64 = 0
+    missing_runner_output_contract_reject_count: i64 = 0
+    missing_memory_evidence_contract_reject_count: i64 = 0
+    stop_line_violation_reject_count: i64 = 0
+    accidental_execution_seam_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport(fields: HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReportFields): HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport {
+        local result = new HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            explicit_runner_planning_pilot_present: fields.explicit_runner_planning_pilot_present,
+            planning_input_present: fields.planning_input_present,
+            accepted_pilot_present: fields.accepted_pilot_present,
+            blocked_pilot_present: fields.blocked_pilot_present,
+            accepted_input_pack_present: fields.accepted_input_pack_present,
+            blocked_input_pack_present: fields.blocked_input_pack_present,
+            explicit_runner_contract_present: fields.explicit_runner_contract_present,
+            external_evidence_source: fields.external_evidence_source,
+            runner_output_contract_present: fields.runner_output_contract_present,
+            memory_evidence_contract_present: fields.memory_evidence_contract_present,
+            schema_anchor_present: fields.schema_anchor_present,
+            allocator_id: fields.allocator_id,
+            runner_kind: fields.runner_kind,
+            workload_id: fields.workload_id,
+            allocation_count: fields.allocation_count,
+            free_count: fields.free_count,
+            requested_bytes: fields.requested_bytes,
+            peak_rss_bytes: fields.peak_rss_bytes,
+            steady_rss_bytes: fields.steady_rss_bytes,
+            exit_code: fields.exit_code,
+            evidence_complete: fields.evidence_complete,
+            planning_count: fields.planning_count,
+            accepted_count: fields.accepted_count,
+            blocked_count: fields.blocked_count,
+            missing_planning_input_reject_count: fields.missing_planning_input_reject_count,
+            missing_runner_output_contract_reject_count: fields.missing_runner_output_contract_reject_count,
+            missing_memory_evidence_contract_reject_count: fields.missing_memory_evidence_contract_reject_count,
+            stop_line_violation_reject_count: fields.stop_line_violation_reject_count,
+            accidental_execution_seam_reject_count: fields.accidental_execution_seam_reject_count,
+            last_reason: fields.last_reason,
+            runner_execution_performed: fields.runner_execution_performed,
+            benchmark_rerun_executed: fields.benchmark_rerun_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            provider_package_generated: fields.provider_package_generated,
+            worker_thread_executed: fields.worker_thread_executed,
+            hidden_discovery_used: fields.hidden_discovery_used,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher
+        }
+        return result
+    }
+
+    planningPresentFrom(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if report.presentation_only_extension_present == 1 {
+            return 1
+        }
+        if report.comparison_ready_present == 1 {
+            return 1
+        }
+        if report.accepted_input_pack_present == 1 {
+            return 1
+        }
+        if report.blocked_input_pack_present == 1 {
+            return 1
+        }
+        return 0
+    }
+
+    acceptedInputFrom(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if report.accepted != 1 {
+            return 0
+        }
+        if report.reason != 0 {
+            return 0
+        }
+        if report.presentation_only_extension_present != 1 {
+            return 0
+        }
+        if report.accepted_input_pack_present != 1 {
+            return 0
+        }
+        if report.blocked_input_pack_present != 0 {
+            return 0
+        }
+        return 1
+    }
+
+    runnerOutputContractFrom(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if report.allocator_id != 1 {
+            return 0
+        }
+        if report.runner_kind != 1 {
+            return 0
+        }
+        if report.workload_id != 1 {
+            return 0
+        }
+        if report.evidence_complete != 1 {
+            return 0
+        }
+        if report.c_mimalloc_runner_contract_present != 1 {
+            return 0
+        }
+        return 1
+    }
+
+    memoryEvidenceContractFrom(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if report.memory_evidence_fields_present != 1 {
+            return 0
+        }
+        if report.allocation_count <= 0 {
+            return 0
+        }
+        if report.free_count <= 0 {
+            return 0
+        }
+        if report.requested_bytes <= 0 {
+            return 0
+        }
+        if report.peak_rss_bytes <= 0 {
+            return 0
+        }
+        if report.steady_rss_bytes <= 0 {
+            return 0
+        }
+        return 1
+    }
+
+    runnerExecutionPerformedFrom(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if report.exit_code != 0 {
+            return 1
+        }
+        return 0
+    }
+
+    stopLineViolated(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if report.performance_conclusion_made != 0 {
+            return 1
+        }
+        if report.memory_conclusion_made != 0 {
+            return 1
+        }
+        if report.repeated_benchmark_executed != 0 {
+            return 1
+        }
+        if report.process_replacement_executed != 0 {
+            return 1
+        }
+        if report.hook_installed != 0 {
+            return 1
+        }
+        if report.backend_matcher_added != 0 {
+            return 1
+        }
+        if report.global_allocator_installed != 0 {
+            return 1
+        }
+        if report.hidden_discovery_used != 0 {
+            return 1
+        }
+        if report.provider_package_generated != 0 {
+            return 1
+        }
+        if report.would_replace_host_allocator != 0 {
+            return 1
+        }
+        if report.would_install_hook != 0 {
+            return 1
+        }
+        if report.would_add_backend_matcher != 0 {
+            return 1
+        }
+        if report.would_run_thread != 0 {
+            return 1
+        }
+        return 0
+    }
+
+    reasonFrom(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): i64 {
+        if me.planningPresentFrom(report) != 1 {
+            return 1
+        }
+        if me.acceptedInputFrom(report) != 1 {
+            return 1
+        }
+        if me.runnerOutputContractFrom(report) != 1 {
+            return 2
+        }
+        if me.memoryEvidenceContractFrom(report) != 1 {
+            return 3
+        }
+        if report.comparison_preconditions_present != 1 {
+            return 3
+        }
+        if me.runnerExecutionPerformedFrom(report) != 0 {
+            return 5
+        }
+        if me.stopLineViolated(report) != 0 {
+            return 4
+        }
+        return 0
+    }
+
+    markBlocked(reason: i64): void {
+        me.blocked_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_planning_input_reject_count += 1
+        }
+        if reason == 2 {
+            me.missing_runner_output_contract_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_memory_evidence_contract_reject_count += 1
+        }
+        if reason == 4 {
+            me.stop_line_violation_reject_count += 1
+        }
+        if reason == 5 {
+            me.accidental_execution_seam_reject_count += 1
+        }
+        return void
+    }
+
+    makeReport(reason: i64, report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport {
+        local accepted = 0
+        local explicit_runner_planning_pilot_present = 0
+        local accepted_pilot_present = 0
+        local blocked_pilot_present = 0
+        local planning_input_present = me.planningPresentFrom(report)
+        if reason == 0 {
+            accepted = 1
+            explicit_runner_planning_pilot_present = 1
+            accepted_pilot_present = 1
+        } else {
+            if planning_input_present == 1 {
+                blocked_pilot_present = 1
+            }
+        }
+        local fields = HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
+            explicit_runner_planning_pilot_present,
+            planning_input_present,
+            accepted_pilot_present,
+            blocked_pilot_present,
+            accepted_input_pack_present: report.accepted_input_pack_present,
+            blocked_input_pack_present: report.blocked_input_pack_present,
+            explicit_runner_contract_present: report.c_mimalloc_runner_contract_present,
+            external_evidence_source: report.runner_kind,
+            runner_output_contract_present: me.runnerOutputContractFrom(report),
+            memory_evidence_contract_present: me.memoryEvidenceContractFrom(report),
+            schema_anchor_present: report.hako_alloc_report_contract_present,
+            allocator_id: report.allocator_id,
+            runner_kind: report.runner_kind,
+            workload_id: report.workload_id,
+            allocation_count: report.allocation_count,
+            free_count: report.free_count,
+            requested_bytes: report.requested_bytes,
+            peak_rss_bytes: report.peak_rss_bytes,
+            steady_rss_bytes: report.steady_rss_bytes,
+            exit_code: report.exit_code,
+            evidence_complete: report.evidence_complete,
+            planning_count: me.planning_count,
+            accepted_count: me.accepted_count,
+            blocked_count: me.blocked_count,
+            missing_planning_input_reject_count: me.missing_planning_input_reject_count,
+            missing_runner_output_contract_reject_count: me.missing_runner_output_contract_reject_count,
+            missing_memory_evidence_contract_reject_count: me.missing_memory_evidence_contract_reject_count,
+            stop_line_violation_reject_count: me.stop_line_violation_reject_count,
+            accidental_execution_seam_reject_count: me.accidental_execution_seam_reject_count,
+            last_reason: me.last_reason,
+            runner_execution_performed: me.runnerExecutionPerformedFrom(report),
+            benchmark_rerun_executed: report.repeated_benchmark_executed,
+            process_replacement_executed: report.process_replacement_executed,
+            hook_installed: report.hook_installed,
+            backend_matcher_added: report.backend_matcher_added,
+            global_allocator_installed: report.global_allocator_installed,
+            provider_package_generated: report.provider_package_generated,
+            worker_thread_executed: report.would_run_thread,
+            hidden_discovery_used: report.hidden_discovery_used,
+            would_replace_host_allocator: report.would_replace_host_allocator,
+            would_install_hook: report.would_install_hook,
+            would_add_backend_matcher: report.would_add_backend_matcher
+        }
+        return me.makeAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport(fields)
+    }
+
+    pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(report: HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport): HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReport {
+        me.planning_count += 1
+        local reason = me.reasonFrom(report)
+        if reason == 0 {
+            me.accepted_count += 1
+            me.last_reason = 0
+        } else {
+            me.markBlocked(reason)
+        }
+        return me.makeReport(reason, report)
+    }
+}

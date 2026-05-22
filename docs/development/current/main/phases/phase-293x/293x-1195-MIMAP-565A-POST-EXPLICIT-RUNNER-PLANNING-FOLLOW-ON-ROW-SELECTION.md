@@ -1,6 +1,6 @@
 # 293x-1195 MIMAP-565A Post Explicit Runner Planning Follow-On Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-22
 
 ## Decision

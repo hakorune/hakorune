@@ -83,10 +83,10 @@ not part of this sidecar:
 
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
-| `MIMAP-566A` | selected next | Terminal explicit-runner planning pilot; keep execution seam closed. | after MIMAP-565A |
-| `MIMAP-567A` | planned | Fix phase-293x close criteria row and synchronize with close-criteria SSOT. | after MIMAP-566A |
-| `MIMAP-568A` | planned | Fix inventory/carryover boundary for rows/proof apps/hako fixtures. | after MIMAP-567A |
-| `MIMAP-569A` | planned | Phase-293x closeout and next-phase handoff selection. | after MIMAP-568A |
+| `MIMAP-566A` | landed | Terminal explicit-runner planning pilot; keep execution seam closed. | after MIMAP-565A |
+| `MIMAP-567A` | landed | Fix phase-293x close criteria row and synchronize with close-criteria SSOT. | after MIMAP-566A |
+| `MIMAP-568A` | landed | Fix inventory/carryover boundary for rows/proof apps/hako fixtures. | after MIMAP-567A |
+| `MIMAP-569A` | selected current | Phase-293x closeout and next-phase handoff selection. | after MIMAP-568A |
 
 ## Active Source Policy
 

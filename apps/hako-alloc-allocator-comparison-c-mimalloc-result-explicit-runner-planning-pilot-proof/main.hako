@@ -1,0 +1,113 @@
+// hako-alloc-allocator-comparison-c-mimalloc-result-explicit-runner-planning-pilot-proof
+// Purpose: prove MIMAP-566A terminal explicit-runner planning pilot.
+
+using apps.proofs.allocator_comparison_c_mimalloc_result_fixture as HakoAllocAllocatorComparisonCMimallocResultProofFixture
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_box as HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_box as HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilot
+
+static box Main {
+    main(args) {
+        local presentation_owner = new HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot()
+        local planning_owner = new HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilot()
+
+        local accepted_seed = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        local accepted_input = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(accepted_seed)
+        local accepted = planning_owner.pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(accepted_input)
+
+        local missing_input = new HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport()
+        local missing = planning_owner.pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(missing_input)
+
+        local missing_runner_seed = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        local missing_runner_input = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(missing_runner_seed)
+        missing_runner_input.runner_kind = 0
+        local missing_runner = planning_owner.pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(missing_runner_input)
+
+        local missing_memory_seed = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        local missing_memory_input = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(missing_memory_seed)
+        missing_memory_input.memory_evidence_fields_present = 0
+        local missing_memory = planning_owner.pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(missing_memory_input)
+
+        local stop_line_seed = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        local stop_line_input = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(stop_line_seed)
+        stop_line_input.repeated_benchmark_executed = 1
+        local stop_line = planning_owner.pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(stop_line_input)
+
+        local accidental_seed = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        local accidental_input = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(accidental_seed)
+        accidental_input.exit_code = 9
+        local accidental = planning_owner.pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning(accidental_input)
+
+        local ok = check "mimap566a allocator comparison c mimalloc result explicit runner planning pilot" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "pilot present": accepted.explicit_runner_planning_pilot_present == 1
+            "planning input": accepted.planning_input_present == 1
+            "accepted pilot": accepted.accepted_pilot_present == 1
+            "blocked pilot": accepted.blocked_pilot_present == 0
+            "accepted pack": accepted.accepted_input_pack_present == 1
+            "blocked pack": accepted.blocked_input_pack_present == 0
+            "explicit runner contract": accepted.explicit_runner_contract_present == 1
+            "external evidence": accepted.external_evidence_source == 1
+            "runner output contract": accepted.runner_output_contract_present == 1
+            "memory evidence contract": accepted.memory_evidence_contract_present == 1
+            "schema anchor": accepted.schema_anchor_present == 1
+            "allocator id": accepted.allocator_id == 1
+            "runner kind": accepted.runner_kind == 1
+            "workload id": accepted.workload_id == 1
+            "allocation count": accepted.allocation_count == 64
+            "free count": accepted.free_count == 64
+            "requested bytes": accepted.requested_bytes == 33254
+            "peak rss": accepted.peak_rss_bytes == 4096
+            "steady rss": accepted.steady_rss_bytes == 4096
+            "exit code": accepted.exit_code == 0
+            "evidence complete": accepted.evidence_complete == 1
+            "runner execution": accepted.runner_execution_performed == 0
+            "benchmark rerun": accepted.benchmark_rerun_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "backend matcher": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "provider package": accepted.provider_package_generated == 0
+            "worker thread": accepted.worker_thread_executed == 0
+            "hidden discovery": accepted.hidden_discovery_used == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "owner planning": planning_owner.planning_count == 6
+            "owner accepted": planning_owner.accepted_count == 1
+            "owner blocked": planning_owner.blocked_count == 5
+            "owner missing planning": planning_owner.missing_planning_input_reject_count == 1
+            "owner missing runner": planning_owner.missing_runner_output_contract_reject_count == 1
+            "owner missing memory": planning_owner.missing_memory_evidence_contract_reject_count == 1
+            "owner stop line": planning_owner.stop_line_violation_reject_count == 1
+            "owner accidental execution": planning_owner.accidental_execution_seam_reject_count == 1
+            "owner last reason": planning_owner.last_reason == 5
+            "missing reason": missing.reason == 1
+            "missing runner reason": missing_runner.reason == 2
+            "missing memory reason": missing_memory.reason == 3
+            "stop line reason": stop_line.reason == 4
+            "accidental reason": accidental.reason == 5
+            "missing blocked pilot": missing.blocked_pilot_present == 0
+            "missing runner blocked pilot": missing_runner.blocked_pilot_present == 1
+            "missing memory blocked pilot": missing_memory.blocked_pilot_present == 1
+            "stop line blocked pilot": stop_line.blocked_pilot_present == 1
+            "accidental blocked pilot": accidental.blocked_pilot_present == 1
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-result-explicit-runner-planning-pilot-proof")
+        print("explicitrunner=" + accepted.accepted + "," + accepted.reason + "," + accepted.explicit_runner_planning_pilot_present + "," + accepted.planning_input_present + "," + accepted.accepted_pilot_present + "," + accepted.blocked_pilot_present + "," + accepted.explicit_runner_contract_present + "," + accepted.external_evidence_source + "," + accepted.runner_output_contract_present + "," + accepted.memory_evidence_contract_present + "," + accepted.schema_anchor_present)
+        print("contract=" + accepted.allocator_id + "," + accepted.runner_kind + "," + accepted.workload_id + "," + accepted.allocation_count + "," + accepted.free_count + "," + accepted.requested_bytes + "," + accepted.peak_rss_bytes + "," + accepted.steady_rss_bytes + "," + accepted.exit_code + "," + accepted.evidence_complete)
+        print("owner=" + planning_owner.planning_count + "," + planning_owner.accepted_count + "," + planning_owner.blocked_count + "," + planning_owner.missing_planning_input_reject_count + "," + planning_owner.missing_runner_output_contract_reject_count + "," + planning_owner.missing_memory_evidence_contract_reject_count + "," + planning_owner.stop_line_violation_reject_count + "," + planning_owner.accidental_execution_seam_reject_count + "," + planning_owner.last_reason)
+        print("closed=" + accepted.runner_execution_performed + "," + accepted.benchmark_rerun_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.provider_package_generated + "," + accepted.worker_thread_executed)
+        print("rejected=" + missing.reason + "," + missing_runner.reason + "," + missing_memory.reason + "," + stop_line.reason + "," + accidental.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

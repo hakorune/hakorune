@@ -1457,3 +1457,16 @@ closeout_pack = "allocator-comparison-c-mimalloc-result-presentation-only-extens
 exe = "deferred-to-presentation-only-extension-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-566A"
+app = "apps/hako-alloc-allocator-comparison-c-mimalloc-result-explicit-runner-planning-pilot-proof"
+label = "allocator comparison c mimalloc result explicit runner planning pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "pilot"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-c-mimalloc-result-explicit-runner-planning-pilot"
+exe = "deferred-to-phase-293x-close-criteria"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_guard.sh", "--level", "L2"]
