@@ -16,6 +16,7 @@ APP_README="apps/mimalloc-page-map-release-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-180-M172-MIMALLOC-PAGE-MAP-BACKED-RELEASE-SEAM.md"
 CLEANUP_CARD="docs/development/current/main/phases/phase-293x/293x-182-M172-PROOF-CHECK-CLEANUP.md"
 USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-22-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-COUNTERS.md"
+USIZE_PAGE_COUNT_CARD="docs/development/current/main/phases/phase-294x/294x-65-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-PAGE-COUNT.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_page_map_release_guard.sh"
@@ -37,6 +38,7 @@ guard_require_files \
   "$CARD" \
   "$CLEANUP_CARD" \
   "$USIZE_CARD" \
+  "$USIZE_PAGE_COUNT_CARD" \
   "$PLAN" \
   "$INDEX"
 
@@ -47,7 +49,7 @@ guard_expect_in_file "$TAG" 'releasePtr\(ptr\)' "$PAGE_RELEASE" "M172 release se
 guard_expect_in_file "$TAG" 'page_map\.lookup\(ptr\)' "$PAGE_RELEASE" "M172 must resolve pointer ownership through HakoAllocPageMap.lookup"
 guard_expect_in_file "$TAG" 'page\.releaseLocal\(entry\.block_id\)' "$PAGE_RELEASE" "M172 must delegate block release to HakoAllocPageModel.releaseLocal"
 guard_expect_in_file "$TAG" 'page_map\.unregister\(ptr\)' "$PAGE_RELEASE" "M172 must unregister ownership after page-local release succeeds"
-guard_expect_in_file "$TAG" 'page_count: i64 = 0' "$PAGE_RELEASE" "release seam page_count must remain i64"
+guard_expect_in_file "$TAG" 'page_count: usize = 0' "$PAGE_RELEASE" "release seam page_count must be exact usize"
 guard_expect_in_file "$TAG" 'page_register_count: usize = 0' "$PAGE_RELEASE" "release seam page-register counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_count: usize = 0' "$PAGE_RELEASE" "release seam release counter must be exact usize"
 guard_expect_in_file "$TAG" 'unregister_count: usize = 0' "$PAGE_RELEASE" "release seam unregister counter must be exact usize"
@@ -62,6 +64,7 @@ guard_expect_in_file "$TAG" 'proof\.ok\(\)' "$APP" "M172 proof app must use the 
 guard_expect_in_file "$TAG" '293x-180 M172 Mimalloc Page-Map-Backed Release Seam' "$CARD" "missing M172 card"
 guard_expect_in_file "$TAG" '293x-182 M172 Proof Check Cleanup' "$CLEANUP_CARD" "missing M172 proof cleanup card"
 guard_expect_in_file "$TAG" '294x-22 Hako Alloc Usize Page-Map Release Counters' "$USIZE_CARD" "missing release counter usize card"
+guard_expect_in_file "$TAG" '294x-65 Hako Alloc Usize Page Map Release Page Count' "$USIZE_PAGE_COUNT_CARD" "missing release page-count usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M172 guard"
 guard_expect_in_file "$TAG" 'M172 page-map-backed release seam' "$PLAN" "plan must retain M172 row"
 guard_expect_in_file "$TAG" '293x-182 M172 proof check cleanup' "$PLAN" "plan must retain the proof cleanup row"
@@ -165,8 +168,8 @@ if release is None:
     raise SystemExit("missing typed object plan: HakoAllocPageMapReleaseSeam")
 fields = {field.get("name"): field for field in release.get("fields", [])}
 page_count = fields.get("page_count")
-if page_count is None or page_count.get("declared_type") != "i64" or page_count.get("storage") != "i64":
-    raise SystemExit(f"release seam page_count must remain i64 storage: {page_count}")
+if page_count is None or page_count.get("declared_type") != "usize" or page_count.get("storage") != "usize":
+    raise SystemExit(f"release seam page_count must be exact usize storage: {page_count}")
 for name in (
     "page_register_count",
     "release_count",

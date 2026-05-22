@@ -8,7 +8,7 @@ using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
 box HakoAllocPageMapReleaseSeam {
     pages: ArrayBox = new ArrayBox()
     page_map: HakoAllocPageMap
-    page_count: i64 = 0
+    page_count: usize = 0
     page_register_count: usize = 0
     release_count: usize = 0
     unregister_count: usize = 0

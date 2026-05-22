@@ -134,10 +134,17 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-087:
-  migrate only `HakoAllocPageMapReleaseSeam.page_count` to exact `usize`,
-  preserving the signed `page_id < 0` guard as the id/index seam. Do not
-  migrate page/block identity, flag, sentinel, pointer-like,
-  occupancy-decrement, or byte-sum fields.
+  landed by 294x-65. Migrated `HakoAllocPageMapReleaseSeam.page_count` to exact
+  `usize`, preserving the signed `page_id < 0` guard as the id/index seam.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-088:
+  select the next explicit non-negative production field group. Do not migrate
+  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
+  byte-sum fields without a dedicated row.
 ```
 
 ## Ladder
@@ -471,6 +478,10 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-087:
     `294x-63-HAKO-ALLOC-USIZE-OSVM-BACKING-COUNT-ID-SEAM.md`.
   - Stop line: keep OSVM-backed `bin`, `next_page_id`, backing `page_id` /
     `base`, and handle page/block ids signed.
+  - Follow-on migrated group: `HakoAllocPageMapReleaseSeam.page_count` in
+    `294x-65-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-PAGE-COUNT.md`.
+  - Stop line: keep page-map entry ids, block ids, pointer-like fields, and
+    binary flags signed until their own rows.
   - Follow-on migrated group: `HakoAllocSecureFreeListDiagnostics` diagnostic
     counters (`scan_count`, `ok_count`, `fail_count`,
     `out_of_range_free_block_count`, `duplicate_free_block_count`,
