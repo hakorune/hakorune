@@ -65,12 +65,19 @@ use pattern_util_local_value_probe_body::{
 };
 use program_json_emit_body::is_program_json_emit_body_function;
 use static_string_array_body::is_static_string_array_body_function;
+use string_return_profile::GenericStringReturnProfileCache;
 use value_type_publish::{
     propagate_global_call_box_value_types, publish_global_call_route_param_value_types,
 };
 use void_side_effect_body::is_void_side_effect_body_function;
 
 use crate::mir::same_module_body_shape::{same_module_body_supported, supported_backend_global};
+
+// Module-wide route convergence is owned by route_fixpoint.rs. Keep this
+// family-local refresh bounded so large Stage-B modules do not multiply
+// per-function target discovery by module size.
+const GLOBAL_CALL_REFRESH_LOCAL_ITERATIONS: usize = 4;
+const GLOBAL_CALL_TARGET_COLLECT_ITERATIONS: usize = 8;
 
 fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool {
     matches!(
@@ -86,13 +93,15 @@ pub fn refresh_module_global_call_routes(module: &mut MirModule) {
         .iter()
         .map(|plan| (plan.box_name.clone(), plan.type_id))
         .collect::<BTreeMap<_, _>>();
-    for _ in 0..module.functions.len().saturating_mul(4).max(8) {
+    let mut string_return_profiles = GenericStringReturnProfileCache::default();
+    for _ in 0..GLOBAL_CALL_REFRESH_LOCAL_ITERATIONS {
         let before = module
             .functions
             .iter()
             .map(|(name, function)| (name.clone(), function.metadata.global_call_routes.clone()))
             .collect::<BTreeMap<_, _>>();
-        let targets = collect_global_call_targets(module, &typed_plan_type_ids);
+        let targets =
+            collect_global_call_targets(module, &typed_plan_type_ids, &mut string_return_profiles);
         for function in module.functions.values_mut() {
             refresh_function_global_call_routes_with_targets(function, &targets);
         }
@@ -116,6 +125,7 @@ pub fn refresh_function_global_call_routes(function: &mut MirFunction) {
 fn collect_global_call_targets(
     module: &MirModule,
     typed_plan_type_ids: &BTreeMap<String, u32>,
+    string_return_profiles: &mut GenericStringReturnProfileCache,
 ) -> BTreeMap<String, GlobalCallTargetFacts> {
     let mut targets = module
         .functions
@@ -138,7 +148,7 @@ fn collect_global_call_targets(
         .collect::<BTreeMap<_, _>>();
     let mut function_names = module.functions.keys().collect::<Vec<_>>();
     function_names.sort();
-    for _ in 0..module.functions.len() {
+    for _ in 0..GLOBAL_CALL_TARGET_COLLECT_ITERATIONS {
         let mut changed = false;
         for name in &function_names {
             let name = *name;
@@ -148,8 +158,12 @@ fn collect_global_call_targets(
             let Some(current) = targets.get(name).cloned() else {
                 continue;
             };
-            let classification =
-                classify_global_call_target_shape(function, &targets, typed_plan_type_ids);
+            let classification = classify_global_call_target_shape(
+                function,
+                &targets,
+                typed_plan_type_ids,
+                string_return_profiles,
+            );
             if current.shape() != classification.shape
                 || current.return_contract() != classification.return_contract
                 || current.proof() != classification.proof
@@ -171,6 +185,7 @@ fn classify_global_call_target_shape(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
     typed_plan_type_ids: &BTreeMap<String, u32>,
+    string_return_profiles: &mut GenericStringReturnProfileCache,
 ) -> GlobalCallTargetClassification {
     if function.params.len() != function.signature.params.len() {
         return GlobalCallTargetClassification::unknown(
@@ -241,7 +256,9 @@ fn classify_global_call_target_shape(
         );
     }
     if is_builder_registry_dispatch_body_candidate(function) {
-        if let Some(reject) = builder_registry_dispatch_body_reject_reason(function, targets) {
+        if let Some(reject) =
+            builder_registry_dispatch_body_reject_reason(function, targets, string_return_profiles)
+        {
             return if let Some(blocker) = reject.blocker {
                 GlobalCallTargetClassification::unknown_with_blocker(
                     reject.reason,
@@ -258,7 +275,12 @@ fn classify_global_call_target_shape(
         );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {
-        if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets) {
+        if let Some(reject) = generic_string_void_sentinel_body_reject_reason(
+            function,
+            targets,
+            string_return_profiles,
+        )
+        {
             if reject.reason
                 == GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate
                 && reject.blocker.is_none()
@@ -306,7 +328,9 @@ fn classify_global_call_target_shape(
             }
         }
     }
-    if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
+    if let Some(reject) =
+        generic_pure_string_body_reject_reason(function, targets, string_return_profiles)
+    {
         if let Some(blocker) = reject.blocker {
             GlobalCallTargetClassification::unknown_with_blocker(
                 reject.reason,

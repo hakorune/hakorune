@@ -12,6 +12,7 @@ use crate::mir::same_module_body_shape::supported_backend_global;
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Write as _;
 
 // Return-profile evidence only: this must not make the target lowerable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -22,6 +23,215 @@ enum GenericStringReturnValueClass {
     StringOrVoid,
     Object,
     Other,
+}
+
+pub(super) struct GenericStringReturnProfile {
+    values: BTreeMap<ValueId, GenericStringReturnValueClass>,
+    passthrough: BTreeSet<ValueId>,
+    blockers: BTreeMap<ValueId, GlobalCallShapeBlocker>,
+}
+
+#[derive(Default)]
+pub(super) struct GenericStringReturnProfileCache {
+    profiles: BTreeMap<String, GenericStringReturnProfile>,
+}
+
+impl GenericStringReturnProfileCache {
+    pub(super) fn profile_for<'a>(
+        &'a mut self,
+        function: &MirFunction,
+        targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    ) -> &'a GenericStringReturnProfile {
+        let key = generic_string_return_profile_cache_key(function, targets);
+        self.profiles
+            .entry(key)
+            .or_insert_with(|| build_generic_string_return_profile(function, targets))
+    }
+}
+
+fn generic_string_return_profile_cache_key(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> String {
+    let mut key = function.signature.name.clone();
+    let mut callees = BTreeSet::<&str>::new();
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            if let MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                ..
+            } = instruction
+            {
+                callees.insert(name.as_str());
+            }
+        }
+    }
+    for callee in callees {
+        key.push('|');
+        key.push_str(callee);
+        match lookup_global_call_target(callee, targets) {
+            Some(target) => {
+                let _ = write!(
+                    key,
+                    ":{:?}:{:?}:{:?}:{:?}:{:?}:{:?}",
+                    target.shape(),
+                    target.return_contract(),
+                    target.proof(),
+                    target.shape_reason(),
+                    target.shape_blocker_symbol(),
+                    target.shape_blocker_reason()
+                );
+            }
+            None => key.push_str(":missing"),
+        }
+    }
+    key
+}
+
+pub(super) fn build_generic_string_return_profile(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> GenericStringReturnProfile {
+    let mut values = BTreeMap::<ValueId, GenericStringReturnValueClass>::new();
+    let mut blockers = BTreeMap::<ValueId, GlobalCallShapeBlocker>::new();
+    seed_generic_string_return_values(function, &mut values);
+
+    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
+    block_ids.sort_by_key(|id| id.as_u32());
+    for _ in 0..16 {
+        let mut changed = false;
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                continue;
+            };
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                refine_generic_string_return_value_class(
+                    instruction,
+                    targets,
+                    &mut values,
+                    &mut changed,
+                );
+                refine_generic_string_return_blocker(
+                    instruction,
+                    targets,
+                    &mut blockers,
+                    &mut changed,
+                );
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    GenericStringReturnProfile {
+        values,
+        passthrough: unknown_param_passthrough_values(function),
+        blockers,
+    }
+}
+
+pub(super) fn generic_string_void_sentinel_profile_may_apply(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    if matches!(
+        &function.signature.return_type,
+        MirType::Unknown | MirType::Void | MirType::String
+    ) || matches!(&function.signature.return_type, MirType::Box(name) if name == "StringBox")
+    {
+        return true;
+    }
+    if function.signature.params.iter().any(|ty| {
+        matches!(ty, MirType::Unknown | MirType::String)
+            || matches!(ty, MirType::Box(name) if name == "StringBox")
+    }) {
+        return true;
+    }
+    if function
+        .metadata
+        .string_corridor_facts
+        .values()
+        .any(|fact| {
+            matches!(
+                fact.op,
+                StringCorridorOp::StrLen | StringCorridorOp::StrSlice | StringCorridorOp::FreezeStr
+            )
+        })
+    {
+        return true;
+    }
+    function.blocks.values().any(|block| {
+        block
+            .instructions
+            .iter()
+            .chain(block.terminator.iter())
+            .any(|instruction| {
+                generic_string_void_sentinel_instruction_may_apply(instruction, targets)
+            })
+    })
+}
+
+fn generic_string_void_sentinel_instruction_may_apply(
+    instruction: &MirInstruction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    match instruction {
+        MirInstruction::Const {
+            value: ConstValue::String(_) | ConstValue::Null | ConstValue::Void,
+            ..
+        } => true,
+        MirInstruction::NewBox { box_type, .. } if box_type == "StringBox" => true,
+        MirInstruction::Return { value: None } => true,
+        MirInstruction::Call {
+            callee: Some(Callee::Extern(name)),
+            args,
+            ..
+        } if matches!(
+            classify_extern_call_route(name, args.len()),
+            Some(
+                ExternCallRouteKind::EnvGet
+                    | ExternCallRouteKind::Stage1EmitProgramJson
+                    | ExternCallRouteKind::Stage1EmitMirFromSource
+                    | ExternCallRouteKind::Stage1EmitMirFromProgramJson
+                    | ExternCallRouteKind::HostBridgeExternInvoke
+            )
+        ) =>
+        {
+            true
+        }
+        MirInstruction::Call {
+            callee: Some(Callee::Method {
+                box_name, method, ..
+            }),
+            ..
+        } if matches!(box_name.as_str(), "RuntimeDataBox" | "StringBox")
+            && method == "substring" =>
+        {
+            true
+        }
+        MirInstruction::Call {
+            callee: Some(Callee::Global(name)),
+            args,
+            ..
+        } if is_hostbridge_extern_invoke_symbol(name, args.len()) => true,
+        MirInstruction::Call {
+            callee: Some(Callee::Global(name)),
+            ..
+        } if !supported_backend_global(name) => lookup_global_call_target(name, targets)
+            .map(|target| {
+                matches!(
+                    target.return_contract(),
+                    Some(
+                        GlobalCallReturnContract::StringHandle
+                            | GlobalCallReturnContract::StringHandleOrNull
+                            | GlobalCallReturnContract::VoidSentinelI64Zero
+                    ) | None
+                )
+            })
+            .unwrap_or(true),
+        _ => false,
+    }
 }
 
 fn seed_generic_string_return_values(
@@ -126,50 +336,27 @@ fn generic_string_return_metadata_value_class_from_type(
     }
 }
 
+#[cfg(test)]
 pub(super) fn generic_string_void_sentinel_return_global_blocker(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> Option<GenericPureStringReject> {
-    let mut values = BTreeMap::<ValueId, GenericStringReturnValueClass>::new();
-    let mut blockers = BTreeMap::<ValueId, GlobalCallShapeBlocker>::new();
-    seed_generic_string_return_values(function, &mut values);
+    let profile = build_generic_string_return_profile(function, targets);
+    generic_string_void_sentinel_return_global_blocker_from_profile(function, &profile)
+}
 
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
-    for _ in 0..16 {
-        let mut changed = false;
-        for block_id in &block_ids {
-            let Some(block) = function.blocks.get(block_id) else {
-                continue;
-            };
-            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-                refine_generic_string_return_value_class(
-                    instruction,
-                    targets,
-                    &mut values,
-                    &mut changed,
-                );
-                refine_generic_string_return_blocker(
-                    instruction,
-                    targets,
-                    &mut blockers,
-                    &mut changed,
-                );
-            }
-        }
-        if !changed {
-            break;
-        }
-    }
-
+pub(super) fn generic_string_void_sentinel_return_global_blocker_from_profile(
+    function: &MirFunction,
+    profile: &GenericStringReturnProfile,
+) -> Option<GenericPureStringReject> {
     let mut saw_void = false;
     let mut return_blocker = None;
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
-                    let class = generic_string_return_value_class(&values, *value);
-                    if let Some(blocker) = blockers.get(value).cloned() {
+                    let class = generic_string_return_value_class(&profile.values, *value);
+                    if let Some(blocker) = profile.blockers.get(value).cloned() {
                         if return_blocker.is_none() {
                             return_blocker = Some(blocker);
                         }
@@ -196,11 +383,10 @@ pub(super) fn generic_string_void_sentinel_return_global_blocker(
     }
 }
 
-pub(super) fn generic_string_return_object_boundary_candidate(
+pub(super) fn generic_string_return_object_boundary_candidate_from_profile(
     function: &MirFunction,
-    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    profile: &GenericStringReturnProfile,
 ) -> bool {
-    let values = refined_generic_string_return_values(function, targets);
     function.blocks.values().any(|block| {
         block
             .instructions
@@ -210,20 +396,17 @@ pub(super) fn generic_string_return_object_boundary_candidate(
                 matches!(
                     instruction,
                     MirInstruction::Return { value: Some(value) }
-                        if generic_string_return_value_class(&values, *value)
+                        if generic_string_return_value_class(&profile.values, *value)
                             == GenericStringReturnValueClass::Object
                 )
             })
     })
 }
 
-pub(super) fn generic_string_void_sentinel_return_candidate(
+pub(super) fn generic_string_void_sentinel_return_candidate_from_profile(
     function: &MirFunction,
-    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    profile: &GenericStringReturnProfile,
 ) -> bool {
-    let values = refined_generic_string_return_values(function, targets);
-    let passthrough = unknown_param_passthrough_values(function);
-
     let mut saw_string = false;
     let mut saw_concrete_string = false;
     let mut saw_string_or_void_child = false;
@@ -233,7 +416,7 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Return { value: Some(value) } => {
-                    match generic_string_return_value_class(&values, *value) {
+                    match generic_string_return_value_class(&profile.values, *value) {
                         GenericStringReturnValueClass::String => {
                             saw_string = true;
                             saw_concrete_string = true;
@@ -244,7 +427,9 @@ pub(super) fn generic_string_void_sentinel_return_candidate(
                             saw_void = true;
                         }
                         GenericStringReturnValueClass::Void => saw_void = true,
-                        GenericStringReturnValueClass::Unknown if passthrough.contains(value) => {
+                        GenericStringReturnValueClass::Unknown
+                            if profile.passthrough.contains(value) =>
+                        {
                             saw_string = true;
                             saw_unknown_param_passthrough = true;
                         }
@@ -320,37 +505,6 @@ fn generic_string_return_type_allows_unknown_param_passthrough(ty: &MirType) -> 
 fn generic_string_return_type_requires_concrete_unknown_passthrough(ty: &MirType) -> bool {
     matches!(ty, MirType::Unknown | MirType::String)
         || matches!(ty, MirType::Box(name) if name == "StringBox")
-}
-
-fn refined_generic_string_return_values(
-    function: &MirFunction,
-    targets: &BTreeMap<String, GlobalCallTargetFacts>,
-) -> BTreeMap<ValueId, GenericStringReturnValueClass> {
-    let mut values = BTreeMap::<ValueId, GenericStringReturnValueClass>::new();
-    seed_generic_string_return_values(function, &mut values);
-
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
-    for _ in 0..16 {
-        let mut changed = false;
-        for block_id in &block_ids {
-            let Some(block) = function.blocks.get(block_id) else {
-                continue;
-            };
-            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-                refine_generic_string_return_value_class(
-                    instruction,
-                    targets,
-                    &mut values,
-                    &mut changed,
-                );
-            }
-        }
-        if !changed {
-            break;
-        }
-    }
-    values
 }
 
 fn refine_generic_string_return_value_class(

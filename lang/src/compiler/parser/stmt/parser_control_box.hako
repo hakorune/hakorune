@@ -9,7 +9,10 @@ using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
 static box ParserControlBox {
   // Parse: if (cond) { ... } else { ... }
   parse_if(src, i, stmt_start, ctx) {
-    // Depth guard (allow nesting, cap runaway recursion)
+    // Depth guard (allow nesting, cap runaway recursion).
+    // Keep parse_if itself as a thin router: the Stage-B MIR emitter can stall
+    // on a single method that combines the Option-some branch with the full
+    // then/else tail. The helpers below keep the branch shapes separated.
     local if_depth_before = 0
     {
       local depth_raw = env.get("HAKO_STAGEB_IF_DEPTH")
@@ -25,41 +28,62 @@ static box ParserControlBox {
     local paren = 0
     if src.substring(j, j+1) == "(" { paren = 1 j = j + 1 }
 
-    local cond = null
-    local some_subject_expr = null
-    local some_subject_temp = ""
-    local some_binding_name = ""
     if ctx.starts_with_kw(src, j, "some") == 1 {
-      j = j + 4
-      j = ctx.skip_ws(src, j)
-      local bindp = ctx.read_ident2(src, j)
-      local at_bind = bindp.lastIndexOf("@")
-      some_binding_name = bindp.substring(0, at_bind)
-      j = ctx.to_int(bindp.substring(at_bind + 1, bindp.length()))
-      j = ctx.skip_ws(src, j)
-      if j < src.length() && src.substring(j, j + 1) == "=" { j = j + 1 }
-      j = ctx.skip_ws(src, j)
-      some_subject_expr = ctx.parse_expr2(src, j)
-      j = ctx.gpos_get()
-      some_subject_temp = "__ny_option_some_subject_" + ctx.i2s(stmt_start)
-      cond = me._option_some_cond_json(some_subject_temp)
-    } else {
-      cond = ctx.parse_expr2(src, j)
-      j = ctx.gpos_get()
+      return me._parse_if_some_after_kw(src, j, stmt_start, ctx, paren, if_depth_before)
     }
+    return me._parse_if_plain_after_kw(src, j, stmt_start, ctx, paren, if_depth_before)
+  }
+
+  _restore_parse_if_depth(if_depth_before) {
+    env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+  }
+
+  _parse_if_plain_after_kw(src, j, stmt_start, ctx, paren, if_depth_before) {
+    local cond = null
+    cond = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
 
     if paren == 1 {
       j = ctx.skip_ws(src, j)
       if src.substring(j, j+1) == ")" { j = j + 1 }
     }
 
+    return me._parse_if_after_cond(src, j, stmt_start, ctx, cond, "", "", if_depth_before)
+  }
+
+  _parse_if_some_after_kw(src, j, stmt_start, ctx, paren, if_depth_before) {
+    j = j + 4
+    j = ctx.skip_ws(src, j)
+    local bindp = ctx.read_ident2(src, j)
+    local at_bind = bindp.lastIndexOf("@")
+    local some_binding_name = bindp.substring(0, at_bind)
+    j = ctx.to_int(bindp.substring(at_bind + 1, bindp.length()))
+    j = ctx.skip_ws(src, j)
+    if j < src.length() && src.substring(j, j + 1) == "=" { j = j + 1 }
+    j = ctx.skip_ws(src, j)
+    local some_subject_expr = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+    local some_subject_temp = "__ny_option_some_subject_" + ctx.i2s(stmt_start)
+    local cond = me._option_some_cond_json(some_subject_temp)
+
+    if paren == 1 {
+      j = ctx.skip_ws(src, j)
+      if src.substring(j, j+1) == ")" { j = j + 1 }
+    }
+
+    local bind_stmt = "{\"type\":\"Local\",\"name\":\"" + some_binding_name + "\",\"expr\":" + me._option_some_bind_json(some_subject_temp, some_binding_name) + "}"
+    local temp_stmt = "{\"type\":\"Local\",\"name\":\"" + some_subject_temp + "\",\"expr\":" + some_subject_expr + "}"
+    return me._parse_if_after_cond(src, j, stmt_start, ctx, cond, bind_stmt, temp_stmt, if_depth_before)
+  }
+
+  _parse_if_after_cond(src, j, stmt_start, ctx, cond, then_prefix_stmt, pre_if_stmt, if_depth_before) {
     j = ctx.skip_ws(src, j)
     local then_res = me.parse_block(src, j, ctx)
     if ParserStringUtilsBox.starts_with("" + then_res, 0, "[freeze:contract]") == 1 {
       local at_fail_then = then_res.lastIndexOf("@")
       local fail_then = "" + then_res
       if at_fail_then >= 0 { fail_then = then_res.substring(0, at_fail_then) }
-      env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+      me._restore_parse_if_depth(if_depth_before)
       ctx.gpos_set(src.length())
       return fail_then
     }
@@ -123,7 +147,7 @@ static box ParserControlBox {
         local at_fail_else = else_res.lastIndexOf("@")
         local fail_else = "" + else_res
         if at_fail_else >= 0 { fail_else = else_res.substring(0, at_fail_else) }
-        env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+        me._restore_parse_if_depth(if_depth_before)
         ctx.gpos_set(src.length())
         return fail_else
       }
@@ -160,21 +184,17 @@ static box ParserControlBox {
     }
     ctx.gpos_set(j)
 
-    env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
-    if some_subject_expr != null {
-      local bind_stmt = "{\"type\":\"Local\",\"name\":\"" + some_binding_name + "\",\"expr\":" + me._option_some_bind_json(some_subject_temp, some_binding_name) + "}"
-      then_json = me._prepend_stmt_json(then_json, bind_stmt)
-      local if_json = "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json
-      if else_json != null { if_json = if_json + ",\"else\":" + else_json }
-      if_json = if_json + "}"
-      local temp_stmt = "{\"type\":\"Local\",\"name\":\"" + some_subject_temp + "\",\"expr\":" + some_subject_expr + "}"
-      return temp_stmt + "," + if_json
+    me._restore_parse_if_depth(if_depth_before)
+    if then_prefix_stmt != "" {
+      then_json = me._prepend_stmt_json(then_json, then_prefix_stmt)
     }
-    if else_json == null {
-      return "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json + "}"
-    } else {
-      return "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json + ",\"else\":" + else_json + "}"
+    local if_json = "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json
+    if else_json != null { if_json = if_json + ",\"else\":" + else_json }
+    if_json = if_json + "}"
+    if pre_if_stmt != "" {
+      return pre_if_stmt + "," + if_json
     }
+    return if_json
   }
 
   _prepend_stmt_json(array_json, stmt_json) {

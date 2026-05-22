@@ -16,24 +16,27 @@ use super::generic_string_guards::generic_pure_string_non_void_guard_phi_values;
 use super::generic_string_reject::GenericPureStringReject;
 use super::model::{GlobalCallReturnContract, GlobalCallTargetFacts, GlobalCallTargetShapeReason};
 use super::string_return_profile::{
-    generic_string_return_object_boundary_candidate, generic_string_void_sentinel_return_candidate,
-    generic_string_void_sentinel_return_global_blocker,
+    generic_string_return_object_boundary_candidate_from_profile,
+    generic_string_void_sentinel_profile_may_apply,
+    generic_string_void_sentinel_return_candidate_from_profile,
+    generic_string_void_sentinel_return_global_blocker_from_profile,
+    GenericStringReturnProfileCache,
 };
 
 pub(super) fn generic_pure_string_body_reject_reason(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    string_return_profiles: &mut GenericStringReturnProfileCache,
 ) -> Option<GenericPureStringReject> {
     if !generic_pure_string_abi_type_is_handle_compatible(&function.signature.return_type) {
         if function.signature.return_type == MirType::Void {
-            if let Some(reject) = generic_string_void_sentinel_body_reject_reason(function, targets)
+            if let Some(reject) = generic_string_void_sentinel_body_reject_reason(
+                function,
+                targets,
+                string_return_profiles,
+            )
             {
                 return Some(reject);
-            }
-            if generic_string_return_object_boundary_candidate(function, targets) {
-                return Some(GenericPureStringReject::new(
-                    GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
-                ));
             }
         }
         if matches!(&function.signature.return_type, MirType::Box(name) if name != "StringBox") {
@@ -263,13 +266,21 @@ fn update_generic_pure_string_known_receiver_return_blockers(
 pub(super) fn generic_string_void_sentinel_body_reject_reason(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    string_return_profiles: &mut GenericStringReturnProfileCache,
 ) -> Option<GenericPureStringReject> {
-    if !generic_string_void_sentinel_return_candidate(function, targets) {
-        if let Some(reject) = generic_string_void_sentinel_return_global_blocker(function, targets)
+    if function.signature.return_type == MirType::Integer
+        && !generic_string_void_sentinel_profile_may_apply(function, targets)
+    {
+        return None;
+    }
+    let profile = string_return_profiles.profile_for(function, targets);
+    if !generic_string_void_sentinel_return_candidate_from_profile(function, &profile) {
+        if let Some(reject) =
+            generic_string_void_sentinel_return_global_blocker_from_profile(function, &profile)
         {
             return Some(reject);
         }
-        if generic_string_return_object_boundary_candidate(function, targets) {
+        if generic_string_return_object_boundary_candidate_from_profile(function, &profile) {
             return Some(GenericPureStringReject::new(
                 GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
             ));

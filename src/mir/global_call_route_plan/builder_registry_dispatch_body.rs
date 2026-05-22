@@ -6,18 +6,23 @@ use super::generic_string_abi::generic_pure_string_abi_type_is_handle_compatible
 use super::generic_string_reject::GenericPureStringReject;
 use super::model::{GlobalCallTargetFacts, GlobalCallTargetShapeReason};
 use super::string_return_profile::{
-    generic_string_void_sentinel_return_candidate,
-    generic_string_void_sentinel_return_global_blocker,
+    generic_string_void_sentinel_return_candidate_from_profile,
+    generic_string_void_sentinel_return_global_blocker_from_profile,
+    GenericStringReturnProfileCache,
 };
 
 pub(super) fn builder_registry_dispatch_body_reject_reason(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    string_return_profiles: &mut GenericStringReturnProfileCache,
 ) -> Option<GenericPureStringReject> {
-    if let Some(reject) = generic_string_void_sentinel_return_global_blocker(function, targets) {
+    let profile = string_return_profiles.profile_for(function, targets);
+    if let Some(reject) =
+        generic_string_void_sentinel_return_global_blocker_from_profile(function, &profile)
+    {
         return Some(reject);
     }
-    if !generic_string_void_sentinel_return_candidate(function, targets) {
+    if !generic_string_void_sentinel_return_candidate_from_profile(function, &profile) {
         return Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringReturnNotString,
         ));
