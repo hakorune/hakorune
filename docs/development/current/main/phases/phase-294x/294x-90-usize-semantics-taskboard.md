@@ -159,9 +159,17 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-090:
-  select the next explicit non-negative production field group. Do not migrate
-  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
-  byte-sum fields without a dedicated row.
+  landed by 294x-68. Selected `HakoAllocHugePageModel.next_page_id` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-091`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-091:
+  migrate only `HakoAllocHugePageModel.next_page_id` to exact `usize`. Keep
+  published page id payloads, pointer-like fields, size observers, statuses,
+  page-map entries, and OSVM-backed `next_page_id` signed until their own rows.
 ```
 
 ## Ladder
@@ -451,6 +459,8 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-090:
     `zero_reject_count`, `commit_reject_count`, `register_fail_count`,
     `reject_count`) in
     `294x-35-HAKO-ALLOC-USIZE-HUGE-MODEL-EVENT-COUNTERS.md`.
+  - Follow-on selected group: `HakoAllocHugePageModel.next_page_id` in
+    `294x-68-HAKO-ALLOC-USIZE-HUGE-MODEL-NEXT-PAGE-ID-SELECTION.md`.
   - Stop line: keep huge-model pointer/id/size/status observers and facade
     report fields signed until their own rows.
   - Follow-on migrated group: `HakoAllocHugeReleaseSeam` event/reject counters
