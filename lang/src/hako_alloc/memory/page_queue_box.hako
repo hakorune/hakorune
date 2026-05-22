@@ -7,7 +7,7 @@ using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 box HakoAllocPageQueue {
     bin: i64
     pages: ArrayBox = new ArrayBox()
-    page_count: i64 = 0
+    page_count: usize = 0
     has_direct_page: i64 = 0
     direct_page_index: i64 = 0
     add_count: usize = 0

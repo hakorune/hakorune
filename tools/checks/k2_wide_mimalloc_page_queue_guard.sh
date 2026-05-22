@@ -14,6 +14,7 @@ APP_TEST="apps/mimalloc-page-queue-proof/test.sh"
 APP_README="apps/mimalloc-page-queue-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-167-M166-MIMALLOC-PAGE-QUEUE-DIRECT-CACHE.md"
 USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-28-HAKO-ALLOC-USIZE-PAGE-QUEUE-COUNTERS.md"
+USIZE_COUNT_CARD="docs/development/current/main/phases/phase-294x/294x-48-HAKO-ALLOC-USIZE-PAGE-QUEUE-PAGE-COUNT.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -34,13 +35,14 @@ guard_require_files \
   "$APP_README" \
   "$CARD" \
   "$USIZE_CARD" \
+  "$USIZE_COUNT_CARD" \
   "$PLAN" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
 
 guard_expect_in_file "$TAG" 'box HakoAllocPageQueue' "$QUEUE_BOX" "HakoAllocPageQueue must own page selection"
 guard_expect_in_file "$TAG" 'pages: ArrayBox = new ArrayBox\(\)' "$QUEUE_BOX" "page queue must initialize pages as a stored member"
-guard_expect_in_file "$TAG" 'page_count: i64 = 0' "$QUEUE_BOX" "page queue length must remain i64 until queue index contract migrates"
+guard_expect_in_file "$TAG" 'page_count: usize = 0' "$QUEUE_BOX" "page queue length must be exact usize storage"
 guard_expect_in_file "$TAG" 'has_direct_page: i64 = 0' "$QUEUE_BOX" "page queue must initialize direct-page presence state"
 guard_expect_in_file "$TAG" 'direct_page_index: i64 = 0' "$QUEUE_BOX" "page queue must keep direct-page index non-negative"
 guard_expect_in_file "$TAG" 'add_count: usize = 0' "$QUEUE_BOX" "page queue add counter must be exact usize"
@@ -56,6 +58,7 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_queue_box as 
 guard_expect_in_file "$TAG" 'M166 page queue and direct-page cache' "$PLAN" "plan must retain M166 row"
 guard_expect_in_file "$TAG" '293x-167 M166 Mimalloc Page Queue Direct Cache' "$CARD" "missing M166 card"
 guard_expect_in_file "$TAG" '294x-28 Hako Alloc Usize Page Queue Counters' "$USIZE_CARD" "missing page queue counter usize card"
+guard_expect_in_file "$TAG" '294x-48 Hako Alloc Usize Page Queue Page Count' "$USIZE_COUNT_CARD" "missing page queue page-count usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M166 guard"
 
 if rg -n 'init[[:space:]]*\\{' "$QUEUE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
@@ -146,11 +149,11 @@ queue = plans.get("HakoAllocPageQueue")
 if queue is None:
     raise SystemExit("missing typed object plan: HakoAllocPageQueue")
 fields = {field.get("name"): field for field in queue.get("fields", [])}
-for name in ("add_count", "select_count", "direct_hit_count", "refresh_count", "reject_count"):
+for name in ("add_count", "select_count", "direct_hit_count", "refresh_count", "reject_count", "page_count"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"page queue {name} must be exact usize storage: {field}")
-for name in ("bin", "page_count", "has_direct_page", "direct_page_index"):
+for name in ("bin", "has_direct_page", "direct_page_index"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"page queue {name} must remain i64 storage: {field}")
