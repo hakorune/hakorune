@@ -8,12 +8,12 @@ using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapRelease
 box HakoAllocPageMapReallocSameClassPath {
     seam: HakoAllocPageMapReleaseSeam
     page_map: HakoAllocPageMap
-    same_class_count: i64 = 0
-    grow_reject_count: i64 = 0
-    lookup_miss_count: i64 = 0
-    stale_page_count: i64 = 0
-    released_block_count: i64 = 0
-    reject_count: i64 = 0
+    same_class_count: usize = 0
+    grow_reject_count: usize = 0
+    lookup_miss_count: usize = 0
+    stale_page_count: usize = 0
+    released_block_count: usize = 0
+    reject_count: usize = 0
     last_result_ptr: i64 = 0
 
     birth(seam) {

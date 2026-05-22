@@ -18,6 +18,7 @@ APP="apps/mimalloc-realloc-same-class-proof/main.hako"
 APP_TEST="apps/mimalloc-realloc-same-class-proof/test.sh"
 APP_README="apps/mimalloc-realloc-same-class-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-184-M174-REALLOC-SAME-CLASS-NO-MOVE-PATH.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-23-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-SAME-CLASS-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_realloc_same_class_guard.sh"
@@ -41,6 +42,7 @@ guard_require_files \
   "$APP_TEST" \
   "$APP_README" \
   "$CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$INDEX"
 
@@ -51,10 +53,18 @@ guard_expect_in_file "$TAG" 'me\.page_map = seam\.page_map' "$REALLOC_PATH" "M17
 guard_expect_in_file "$TAG" 'tryReallocSameClass\(ptr, requested_size\)' "$REALLOC_PATH" "M174 must expose the same-class/no-move path"
 guard_expect_in_file "$TAG" 'page\.blockIsLive\(block_id\)' "$REALLOC_PATH" "M174 must reject released blocks without calling release"
 guard_expect_in_file "$TAG" 'requested_size > page\.block_size' "$REALLOC_PATH" "M174 must reject grow requests that do not fit the current block"
+guard_expect_in_file "$TAG" 'same_class_count: usize = 0' "$REALLOC_PATH" "M174 same-class counter must be exact usize"
+guard_expect_in_file "$TAG" 'grow_reject_count: usize = 0' "$REALLOC_PATH" "M174 grow-reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'lookup_miss_count: usize = 0' "$REALLOC_PATH" "M174 lookup-miss counter must be exact usize"
+guard_expect_in_file "$TAG" 'stale_page_count: usize = 0' "$REALLOC_PATH" "M174 stale-page counter must be exact usize"
+guard_expect_in_file "$TAG" 'released_block_count: usize = 0' "$REALLOC_PATH" "M174 released-block counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$REALLOC_PATH" "M174 reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_result_ptr: i64 = 0' "$REALLOC_PATH" "M174 result pointer observer must remain i64"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_realloc_same_class_box as HakoAllocPageMapReallocSameClassBox' "$APP" "proof app must import the M174 path"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_release_invariant_box as HakoAllocPageMapReleaseInvariantBox' "$APP" "proof app must observe the frozen M173 handle lifetime contract"
 guard_expect_in_file "$TAG" 'seam\.releasePtr\(' "$APP" "proof app must use the M172 seam only to set up released-block evidence"
 guard_expect_in_file "$TAG" '293x-184 M174 Realloc Same-Class No-Move Path' "$CARD" "missing M174 card"
+guard_expect_in_file "$TAG" '294x-23 Hako Alloc Usize Page-Map Realloc Same-Class Counters' "$USIZE_CARD" "missing realloc same-class counter usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M174 guard"
 guard_expect_in_file "$TAG" 'M174 realloc same-class/no-move path' "$PLAN" "plan must retain the M174 row"
 guard_expect_in_file "$TAG" 'HakoAllocPageMapReallocSameClassPath' "$ROOT_README" "root README must document the M174 no-move owner"
@@ -140,6 +150,26 @@ for fn in functions.values():
             unsupported.append((fn.get("name"), plan.get("site"), plan.get("symbol"), plan.get("reason")))
 if unsupported:
     raise SystemExit(f"unsupported lowering plans remain: {unsupported[:5]}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+path_plan = plans.get("HakoAllocPageMapReallocSameClassPath")
+if path_plan is None:
+    raise SystemExit("missing typed object plan: HakoAllocPageMapReallocSameClassPath")
+fields = {field.get("name"): field for field in path_plan.get("fields", [])}
+for name in (
+    "same_class_count",
+    "grow_reject_count",
+    "lookup_miss_count",
+    "stale_page_count",
+    "released_block_count",
+    "reject_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"realloc same-class {name} must be exact usize storage: {field}")
+last_result = fields.get("last_result_ptr")
+if last_result is None or last_result.get("declared_type") != "i64" or last_result.get("storage") != "i64":
+    raise SystemExit(f"realloc same-class last_result_ptr must remain i64 storage: {last_result}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

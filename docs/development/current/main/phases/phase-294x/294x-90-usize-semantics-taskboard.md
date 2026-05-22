@@ -23,7 +23,8 @@ hako_alloc or mimalloc migration.
 
 - `294x-10f` landed the VM reference exact numeric value representation.
 - Production `hako_alloc` facade-local stats are exact `usize`; remaining
-  page/heap/queue/handle fields stay `i64`.
+  page/heap/queue/handle fields stay `i64` except for explicitly migrated
+  page-map, release-seam, and realloc same-class/no-move counter groups.
 - Mimalloc `.hako` algorithm rows may continue, but they must not claim
   production `usize` field migration yet.
 - Native exact numeric typed-object slot representation exists in
@@ -233,6 +234,13 @@ remaining field groups and allocator API parity only.
     `294x-22-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-COUNTERS.md`.
   - Stop line: keep `page_count` signed until the page-id/page-count
     comparison contract is split.
+  - Follow-on migrated group: `HakoAllocPageMapReallocSameClassPath`
+    event/reject counters (`same_class_count`, `grow_reject_count`,
+    `lookup_miss_count`, `stale_page_count`, `released_block_count`,
+    `reject_count`) in
+    `294x-23-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-SAME-CLASS-COUNTERS.md`.
+  - Stop line: keep `last_result_ptr` signed/pointer-shaped until pointer
+    result handles are migrated by their own row.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

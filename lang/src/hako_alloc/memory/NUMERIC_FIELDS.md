@@ -280,10 +280,21 @@ Selected next production `usize` field group:
   counter group. `page_count` stays `i64` because it is compared with
   signed `page_id` values in this owner.
 
+- `page_map_realloc_same_class_box.hako` /
+  `HakoAllocPageMapReallocSameClassPath` same-class/no-move event / reject
+  counter fields:
+  `same_class_count`, `grow_reject_count`, `lookup_miss_count`,
+  `stale_page_count`, `released_block_count`, `reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-053` selects and migrates this group because
+  these are non-negative path-local counters downstream of the page-map and
+  release-seam counter groups. `last_result_ptr` stays `i64` because it is a
+  pointer-shaped result observer.
+
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-052` migrates the page-map release-seam
-  event/reject counter group selected after the page-map owner counter group.
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-053` migrates the page-map realloc
+  same-class/no-move event/reject counter group selected after the release-seam
+  counter group.
   Future field-group rows must choose another explicit non-negative
   owner-local group.
 
@@ -396,7 +407,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | already exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-051`; entry pointer/id fields remain `i64`. |
 | `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | copy/counters are candidates; `last_alloc_* = -1` sentinels and ptr fields stay `i64`. |
 | `page_map_realloc_failure_contract_box.hako` | `HakoAllocPageMapReallocFailureContract` | `success_count`, `same_class_success_count`, `move_success_count`, `zero_reject_count`, `oversized_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `unexpected_reject_count`, `reject_count`, `last_result_ptr`, `last_failure_kind`, `last_max_block_size` | failure-matrix counters are candidates; ptr/status/size observers wait for API parity. |
-| `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | counters are candidates; result pointer stays `i64`. |
+| `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | same-class/no-move counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-053`; result pointer stays `i64`. |
 | `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | release event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-052`; `page_count` remains `i64` while it is compared with signed `page_id`. |
 | `page_map_release_invariant_box.hako` | `HakoAllocPageMapReleaseObserver` | `observe_count`, `success_count`, `reject_count`, `live_count_before`, `release_count_before`, `unregister_count_before`, `page_used_before`, `local_free_before`, `last_ptr`, `last_page_id`, `last_block_id`, `last_result`, `last_entry_live_before`, `last_lookup_after`, `last_live_count_delta`, `last_release_count_delta`, `last_unregister_count_delta`, `last_page_used_delta`, `last_local_free_delta` | observer-only; signed sentinel and signed delta fields stay `i64`. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue counters are candidates; index/flag migration waits for queue contracts. |
