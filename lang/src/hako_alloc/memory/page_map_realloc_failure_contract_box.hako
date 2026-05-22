@@ -10,17 +10,17 @@ box HakoAllocPageMapReallocFailureContract {
     seam: HakoAllocPageMapReleaseSeam
     same_class_path: HakoAllocPageMapReallocSameClassPath
     fallback_path: HakoAllocPageMapReallocAllocCopyReleasePath
-    success_count: i64 = 0
-    same_class_success_count: i64 = 0
-    move_success_count: i64 = 0
-    zero_reject_count: i64 = 0
-    oversized_reject_count: i64 = 0
-    alloc_fail_count: i64 = 0
-    lookup_miss_count: i64 = 0
-    stale_page_count: i64 = 0
-    released_block_count: i64 = 0
-    unexpected_reject_count: i64 = 0
-    reject_count: i64 = 0
+    success_count: usize = 0
+    same_class_success_count: usize = 0
+    move_success_count: usize = 0
+    zero_reject_count: usize = 0
+    oversized_reject_count: usize = 0
+    alloc_fail_count: usize = 0
+    lookup_miss_count: usize = 0
+    stale_page_count: usize = 0
+    released_block_count: usize = 0
+    unexpected_reject_count: usize = 0
+    reject_count: usize = 0
     last_result_ptr: i64 = 0
     last_failure_kind: i64 = 0
     last_max_block_size: i64 = 0

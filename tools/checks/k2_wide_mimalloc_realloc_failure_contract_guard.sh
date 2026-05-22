@@ -20,6 +20,7 @@ APP="apps/mimalloc-realloc-failure-contract-proof/main.hako"
 APP_TEST="apps/mimalloc-realloc-failure-contract-proof/test.sh"
 APP_README="apps/mimalloc-realloc-failure-contract-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-186-M176-REALLOC-NEGATIVE-MATRIX-FAILURE-CONTRACT.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-25-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-FAILURE-CONTRACT-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_realloc_failure_contract_guard.sh"
@@ -45,6 +46,7 @@ guard_require_files \
   "$APP_TEST" \
   "$APP_README" \
   "$CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$INDEX"
 
@@ -56,8 +58,23 @@ guard_expect_in_file "$TAG" 'requested_size > me\.last_max_block_size' "$FAILURE
 guard_expect_in_file "$TAG" 'me\.same_class_path\.tryReallocSameClass\(ptr, requested_size\)' "$FAILURE_PATH" "M176 must delegate same-class success detection to M174"
 guard_expect_in_file "$TAG" 'me\.fallback_path\.tryReallocAllocCopyRelease\(ptr, requested_size\)' "$FAILURE_PATH" "M176 must delegate grow fallback to M175"
 guard_expect_in_file "$TAG" 'last_failure_kind = 6' "$FAILURE_PATH" "M176 must keep alloc-fail distinct in the failure matrix"
+guard_expect_in_file "$TAG" 'success_count: usize = 0' "$FAILURE_PATH" "M176 success counter must be exact usize"
+guard_expect_in_file "$TAG" 'same_class_success_count: usize = 0' "$FAILURE_PATH" "M176 same-class success counter must be exact usize"
+guard_expect_in_file "$TAG" 'move_success_count: usize = 0' "$FAILURE_PATH" "M176 move success counter must be exact usize"
+guard_expect_in_file "$TAG" 'zero_reject_count: usize = 0' "$FAILURE_PATH" "M176 zero reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'oversized_reject_count: usize = 0' "$FAILURE_PATH" "M176 oversized reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'alloc_fail_count: usize = 0' "$FAILURE_PATH" "M176 alloc-fail counter must be exact usize"
+guard_expect_in_file "$TAG" 'lookup_miss_count: usize = 0' "$FAILURE_PATH" "M176 lookup-miss counter must be exact usize"
+guard_expect_in_file "$TAG" 'stale_page_count: usize = 0' "$FAILURE_PATH" "M176 stale-page counter must be exact usize"
+guard_expect_in_file "$TAG" 'released_block_count: usize = 0' "$FAILURE_PATH" "M176 released-block counter must be exact usize"
+guard_expect_in_file "$TAG" 'unexpected_reject_count: usize = 0' "$FAILURE_PATH" "M176 unexpected reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$FAILURE_PATH" "M176 reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_result_ptr: i64 = 0' "$FAILURE_PATH" "M176 result pointer observer must remain i64"
+guard_expect_in_file "$TAG" 'last_failure_kind: i64 = 0' "$FAILURE_PATH" "M176 failure-kind status must remain i64"
+guard_expect_in_file "$TAG" 'last_max_block_size: i64 = 0' "$FAILURE_PATH" "M176 max block-size observer must remain i64"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_realloc_failure_contract_box as HakoAllocPageMapReallocFailureContractBox' "$APP" "proof app must import the M176 failure-contract owner"
 guard_expect_in_file "$TAG" '293x-186 M176 Realloc Negative Matrix / Failure Contract' "$CARD" "missing M176 card"
+guard_expect_in_file "$TAG" '294x-25 Hako Alloc Usize Page-Map Realloc Failure-Contract Counters' "$USIZE_CARD" "missing realloc failure-contract counter usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M176 guard"
 guard_expect_in_file "$TAG" 'M176 realloc negative matrix / failure contract' "$PLAN" "plan must retain the M176 row"
 guard_expect_in_file "$TAG" 'HakoAllocPageMapReallocFailureContract' "$ROOT_README" "root README must document the M176 failure-contract owner"
@@ -143,6 +160,32 @@ for fn in functions.values():
             unsupported.append((fn.get("name"), plan.get("site"), plan.get("symbol"), plan.get("reason")))
 if unsupported:
     raise SystemExit(f"unsupported lowering plans remain: {unsupported[:5]}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+contract = plans.get("HakoAllocPageMapReallocFailureContract")
+if contract is None:
+    raise SystemExit("missing typed object plan: HakoAllocPageMapReallocFailureContract")
+fields = {field.get("name"): field for field in contract.get("fields", [])}
+for name in (
+    "success_count",
+    "same_class_success_count",
+    "move_success_count",
+    "zero_reject_count",
+    "oversized_reject_count",
+    "alloc_fail_count",
+    "lookup_miss_count",
+    "stale_page_count",
+    "released_block_count",
+    "unexpected_reject_count",
+    "reject_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"realloc failure-contract {name} must be exact usize storage: {field}")
+for name in ("last_result_ptr", "last_failure_kind", "last_max_block_size"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"realloc failure-contract {name} must remain i64 storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):
