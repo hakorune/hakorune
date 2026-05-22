@@ -34,8 +34,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
                 function,
                 targets,
                 string_return_profiles,
-            )
-            {
+            ) {
                 return Some(reject);
             }
         }

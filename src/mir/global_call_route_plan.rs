@@ -279,8 +279,7 @@ fn classify_global_call_target_shape(
             function,
             targets,
             string_return_profiles,
-        )
-        {
+        ) {
             if reject.reason
                 == GlobalCallTargetShapeReason::GenericStringReturnVoidSentinelCandidate
                 && reject.blocker.is_none()

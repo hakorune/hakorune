@@ -49,6 +49,14 @@ impl GenericStringReturnProfileCache {
     }
 }
 
+#[cfg(test)]
+pub(super) fn generic_string_return_profile_test_cache_key(
+    function: &MirFunction,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> String {
+    generic_string_return_profile_cache_key(function, targets)
+}
+
 fn generic_string_return_profile_cache_key(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
