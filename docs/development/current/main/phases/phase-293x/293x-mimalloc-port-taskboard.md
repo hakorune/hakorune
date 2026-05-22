@@ -6,6 +6,7 @@ Canonical SSOT:
   - docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md
   - docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md
   - docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md
+  - docs/development/current/main/design/mimalloc-blueprint-lane-close-criteria-ssot.md
 ---
 
 # Phase 293x mimalloc Port Taskboard
@@ -56,6 +57,36 @@ Closed cleanup sidecar:
 ```text
 docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md
 ```
+
+## Phase-293x Closure Criteria Sidecar
+
+SSOT:
+
+```text
+docs/development/current/main/design/mimalloc-blueprint-lane-close-criteria-ssot.md
+```
+
+Decision:
+
+```text
+before opening explicit C runner execution:
+  close the blueprint lane with a terminal planning pilot and explicit close criteria
+  fix inventory and carryover boundaries
+  close phase-293x and hand off execution to the next phase
+
+not part of this sidecar:
+  provider / DLL packaging
+  process allocator replacement
+  hook/global allocator activation
+  benchmark rerun-heavy execution packs
+```
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `MIMAP-566A` | selected next | Terminal explicit-runner planning pilot; keep execution seam closed. | after MIMAP-565A |
+| `MIMAP-567A` | planned | Fix phase-293x close criteria row and synchronize with close-criteria SSOT. | after MIMAP-566A |
+| `MIMAP-568A` | planned | Fix inventory/carryover boundary for rows/proof apps/hako fixtures. | after MIMAP-567A |
+| `MIMAP-569A` | planned | Phase-293x closeout and next-phase handoff selection. | after MIMAP-568A |
 
 ## Active Source Policy
 

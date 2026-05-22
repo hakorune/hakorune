@@ -46,3 +46,20 @@ MIMAP-566A Allocator Comparison C Mimalloc Result Explicit Runner Planning Pilot
 
 The narrowest useful next step is to open an explicit runner planning pilot
 contract while keeping execution and benchmark seams closed.
+
+## Closure Direction
+
+This selection is treated as the entry of the phase-293x closure window.
+
+Closure sequence policy:
+
+1. `MIMAP-566A` terminal planning pilot (still no explicit runner execution)
+2. `MIMAP-567A` phase close-criteria row
+3. `MIMAP-568A` inventory/carryover boundary row
+4. `MIMAP-569A` phase closeout row
+
+SSOT:
+
+```text
+docs/development/current/main/design/mimalloc-blueprint-lane-close-criteria-ssot.md
+```
