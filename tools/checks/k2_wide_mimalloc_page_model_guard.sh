@@ -12,12 +12,14 @@ APP="apps/mimalloc-page-model-proof/main.hako"
 APP_TEST="apps/mimalloc-page-model-proof/test.sh"
 APP_README="apps/mimalloc-page-model-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-166-M165-MIMALLOC-PAGE-MODEL-SPLIT.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_page_model_guard.sh"
 OUT="${TMPDIR:-/tmp}/hakorune_mimalloc_page_model.out"
 ERR="${TMPDIR:-/tmp}/hakorune_mimalloc_page_model.err"
+MIR="${TMPDIR:-/tmp}/hakorune_mimalloc_page_model.mir.json"
 
 echo "[$TAG] checking M165 mimalloc page model split"
 
@@ -29,6 +31,7 @@ guard_require_files \
   "$APP_TEST" \
   "$APP_README" \
   "$CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
@@ -40,6 +43,11 @@ guard_expect_in_file "$TAG" 'block_used: ArrayBox = new ArrayBox\(\)' "$PAGE_BOX
 guard_expect_in_file "$TAG" 'used: i64 = 0' "$PAGE_BOX" "page model must expose used with a scalar field initializer"
 guard_expect_in_file "$TAG" 'capacity: i64' "$PAGE_BOX" "page model must expose capacity as a scalar stored member"
 guard_expect_in_file "$TAG" 'reserved: i64' "$PAGE_BOX" "page model must expose reserved as a scalar stored member"
+guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$PAGE_BOX" "page alloc counter must be exact usize"
+guard_expect_in_file "$TAG" 'local_free_count: usize = 0' "$PAGE_BOX" "page local-free counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$PAGE_BOX" "page reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'local_free_collect_count: i64 = 0' "$PAGE_BOX" "local-free collection counter stays i64 until collection row"
+guard_expect_in_file "$TAG" 'local_free_collected_blocks: i64 = 0' "$PAGE_BOX" "collected-block counter stays i64 until collection row"
 guard_expect_in_file "$TAG" 'seedFreeBlocks' "$PAGE_BOX" "page model must seed free blocks locally"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_BOX" "page model must have local release seam"
 guard_expect_in_file "$TAG" 'memory.page_box = "memory/page_box.hako"' "$MODULE" "hako module must export page_box"
@@ -47,6 +55,7 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_box as HakoAl
 guard_expect_in_file "$TAG" 'local_free' "$APP_README" "proof README must describe local_free"
 guard_expect_in_file "$TAG" 'M165 page model split' "$PLAN" "plan must retain M165 row"
 guard_expect_in_file "$TAG" '293x-166 M165 Mimalloc Page Model Split' "$CARD" "missing M165 card"
+guard_expect_in_file "$TAG" '294x-29 Hako Alloc Usize Page Model Local Counters' "$USIZE_CARD" "missing page model local counter usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M165 guard"
 guard_expect_in_file "$TAG" 'loop\(i < me\.capacity\)' "$PAGE_BOX" "page seeding must exercise JoinIR field-read loop bound"
 
@@ -87,6 +96,70 @@ grep -q '^state=3,3,5,0,0$' "$OUT"
 grep -q '^counts=4,1,3,3,56$' "$OUT"
 grep -q '^shape=13$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
+
+NYASH_FEATURES="${NYASH_FEATURES:-rune}" \
+NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+  cargo run -q --bin hakorune -- --emit-mir-json "$MIR" "$ROOT_DIR/$APP" >/tmp/"$TAG".emit.out 2>/tmp/"$TAG".emit.err
+
+python3 - "$MIR" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as fh:
+    data = json.load(fh)
+
+functions = {fn.get("name"): fn for fn in data.get("functions", [])}
+required = {
+    "main",
+    "HakoAllocPageModel.birth/4",
+    "HakoAllocPageModel.acquire/1",
+    "HakoAllocPageModel.releaseLocal/1",
+    "HakoAllocPageModel.freeCount/0",
+    "HakoAllocPageModel.localFreeCount/0",
+    "HakoAllocPageModel.availableBlockCount/0",
+}
+missing = sorted(name for name in required if functions.get(name) is None)
+if missing:
+    raise SystemExit(f"missing functions: {missing}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+page = plans.get("HakoAllocPageModel")
+if page is None:
+    raise SystemExit("missing typed object plan: HakoAllocPageModel")
+fields = {field.get("name"): field for field in page.get("fields", [])}
+for name in ("alloc_count", "local_free_count", "reject_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"page model {name} must be exact usize storage: {field}")
+for name in (
+    "page_id",
+    "block_size",
+    "capacity",
+    "reserved",
+    "used",
+    "free_top",
+    "local_free_top",
+    "local_free_collect_count",
+    "local_free_collected_blocks",
+    "retired",
+    "decommitted",
+    "retire_count",
+    "decommit_count",
+    "recommit_count",
+    "reuse_count",
+    "lifecycle_reject_count",
+    "reactivate_count",
+    "reactivate_reject_count",
+    "peak_used",
+    "requested_bytes",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"page model {name} must remain i64 storage: {field}")
+PY
+
+rm -f /tmp/"$TAG".emit.out /tmp/"$TAG".emit.err
 
 cat "$OUT"
 

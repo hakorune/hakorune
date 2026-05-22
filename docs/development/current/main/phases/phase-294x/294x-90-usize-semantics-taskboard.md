@@ -277,6 +277,12 @@ remaining field groups and allocator API parity only.
     `reject_count`) in `294x-28-HAKO-ALLOC-USIZE-PAGE-QUEUE-COUNTERS.md`.
   - Stop line: keep `bin`, `page_count`, `has_direct_page`, and
     `direct_page_index` signed until queue index/presence contracts are split.
+  - Follow-on migrated group: `HakoAllocPageModel` local page counters
+    (`alloc_count`, `local_free_count`, `reject_count`) in
+    `294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS.md`.
+  - Stop line: keep page identity, size/capacity, stack-top, live-count,
+    collection, lifecycle, and byte-length fields signed until their own
+    contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

@@ -340,10 +340,17 @@ Selected next production `usize` field group:
   these are non-negative queue-local counters. `bin`, `page_count`,
   `has_direct_page`, and `direct_page_index` stay `i64`.
 
+- `page_box.hako` / `HakoAllocPageModel` local page counter fields:
+  `alloc_count`, `local_free_count`, `reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-059` selects and migrates this group because
+  these are monotonic, non-negative page-local counters. Identity,
+  size/capacity, stack-top, live-count, local-free collection, lifecycle, and
+  byte-length fields stay `i64`.
+
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-058` migrates the page queue stats
-  counter group selected after the huge-threshold router counter group.
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-059` migrates the page model local
+  counter group selected after the page queue stats counter group.
   Future field-group rows must choose another explicit non-negative
   owner-local group.
 
@@ -399,9 +406,9 @@ readable without losing field names.
 | `page_box.hako` | `HakoAllocPageModel` | `used` | `i64` | `count` | Candidate after dynamic range checks cover decrement paths. |
 | `page_box.hako` | `HakoAllocPageModel` | `free_top` | `i64` | `count` | Candidate, but preserve stack-top underflow checks first. |
 | `page_box.hako` | `HakoAllocPageModel` | `local_free_top` | `i64` | `count` | Candidate with local-free collection row. |
-| `page_box.hako` | `HakoAllocPageModel` | `alloc_count` | `i64` | `count` | Low-risk stats candidate. |
-| `page_box.hako` | `HakoAllocPageModel` | `local_free_count` | `i64` | `count` | Low-risk stats candidate. |
-| `page_box.hako` | `HakoAllocPageModel` | `reject_count` | `i64` | `count` | Low-risk stats candidate. |
+| `page_box.hako` | `HakoAllocPageModel` | `alloc_count` | `usize` | `count` | Exact page-local counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`. |
+| `page_box.hako` | `HakoAllocPageModel` | `local_free_count` | `usize` | `count` | Exact page-local counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`. |
+| `page_box.hako` | `HakoAllocPageModel` | `reject_count` | `usize` | `count` | Exact page-local counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`. |
 | `page_box.hako` | `HakoAllocPageModel` | `peak_used` | `i64` | `count` | Candidate with `used`. |
 | `page_box.hako` | `HakoAllocPageModel` | `requested_bytes` | `i64` | `byte-length` | Candidate after checked add/overflow diagnostics are live for byte sums. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin` | `i64` | `index` | Candidate after bin vocabulary is exact non-negative. |
@@ -448,7 +455,7 @@ excludes `usize_field_probe_box.hako`.
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmPageBacking` | `page_id`, `base`, `bytes` | id/ptr-like base/byte-length group; keep `i64` until OSVM pointer-size contract. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedHandle` | `page_id`, `block_id`, `requested_size` | id/index + size fields; keep `i64` until object-return API parity. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `backing_count`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count`, `reserve_count`, `commit_count`, `decommit_count`, `source_reject_count` | mixed index/size/capacity/count group; migrate after OSVM request-path exactness. |
-| `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `retire_count`, `peak_used`, `requested_bytes` | page-local core group; migrate in smaller owner-local rows because decrement/stack-top invariants matter. |
+| `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `retire_count`, `peak_used`, `requested_bytes` | page-local alloc/local-free/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`; remaining identity, size/capacity, stack-top, live-count, collection, lifecycle, and byte fields stay `i64`. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `page_id`, `block_id`, `requested_size` | legacy prototype handle; keep `i64` until superseded by current page-map owners or object-return parity. |
 | `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; migrate only if this owner remains live after page-model migration. |
 | `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | aligned-small path event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-056`; `meta_count`, ptr/result/alignment/size observers stay `i64`. |
