@@ -120,6 +120,34 @@ for name in (
     if plans.get(name) is None:
         raise SystemExit(f"missing typed object plan: {name}")
 
+huge_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocHugePageModel"].get("fields", [])
+}
+for field_name in ("huge_count", "live_count"):
+    field = huge_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"huge page model {field_name} must be exact usize storage: {field}")
+for field_name in (
+    "allocate_count",
+    "release_count",
+    "release_reject_count",
+    "zero_reject_count",
+    "commit_reject_count",
+    "register_fail_count",
+    "reject_count",
+    "next_page_id",
+    "next_ptr",
+    "last_result_ptr",
+    "last_page_id",
+    "last_requested_size",
+    "last_committed_size",
+    "last_failure_kind",
+):
+    field = huge_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"huge page model {field_name} must remain i64 storage: {field}")
+
 report_fields = {
     field.get("name")
     for field in plans["HakoAllocObjectLifecycleFacadeHugePageModelReport"].get("fields", [])

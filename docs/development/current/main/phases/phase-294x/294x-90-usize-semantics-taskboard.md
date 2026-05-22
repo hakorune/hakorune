@@ -307,6 +307,11 @@ remaining field groups and allocator API parity only.
   - Stop line: keep huge-page pointer, id, requested-size, committed-size, and
     live-flag payload / observer fields signed until their own contracts are
     split.
+  - Follow-on migrated group: `HakoAllocHugePageModel` metadata mirrors
+    (`huge_count`, `live_count`) in
+    `294x-34-HAKO-ALLOC-USIZE-HUGE-MODEL-META-MIRRORS.md`.
+  - Stop line: keep huge-model event/reject counters, pointer/id/size/status
+    observers, and facade report fields signed until their own rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

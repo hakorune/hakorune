@@ -8,8 +8,8 @@ using selfhost.hako_alloc.memory.huge_page_meta_store_box as HakoAllocHugePageMe
 box HakoAllocHugePageModel {
     page_map: HakoAllocPageMap
     meta_store: HakoAllocHugePageMetaStore = new HakoAllocHugePageMetaStore()
-    huge_count: i64 = 0
-    live_count: i64 = 0
+    huge_count: usize = 0
+    live_count: usize = 0
     allocate_count: i64 = 0
     release_count: i64 = 0
     release_reject_count: i64 = 0
