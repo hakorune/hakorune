@@ -15,6 +15,7 @@ APP_TEST="apps/mimalloc-alloc-fast-path-proof/test.sh"
 APP_README="apps/mimalloc-alloc-fast-path-proof/README.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-175-M167-MIMALLOC-ALLOC-FAST-PATH.md"
+USIZE_SIZE_CARD="docs/development/current/main/phases/phase-294x/294x-50-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-SIZE-CAPACITY.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_alloc_fast_path_guard.sh"
@@ -34,6 +35,7 @@ guard_require_files \
   "$APP_README" \
   "$PLAN" \
   "$CARD" \
+  "$USIZE_SIZE_CARD" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
 
@@ -44,8 +46,9 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_queue_box as 
 guard_expect_in_file "$TAG" 'me.queue.selectPage()' "$FAST_HEAP" "fast path must select pages through the queue owner"
 guard_expect_in_file "$TAG" 'page\.acquire\(size\)' "$FAST_HEAP" "fast path must pop blocks through the page owner"
 guard_expect_in_file "$TAG" 'bin: i64' "$FAST_HEAP" "bin must remain signed route/index metadata"
-guard_expect_in_file "$TAG" 'block_size: i64' "$FAST_HEAP" "block_size must remain signed size-class metadata"
-guard_expect_in_file "$TAG" 'page_capacity: i64' "$FAST_HEAP" "page_capacity must remain signed capacity metadata"
+guard_expect_in_file "$TAG" 'block_size: usize' "$FAST_HEAP" "block_size must be exact usize size-class metadata"
+guard_expect_in_file "$TAG" 'page_capacity: usize' "$FAST_HEAP" "page_capacity must be exact usize capacity metadata"
+guard_expect_fixed_in_file "$TAG" 'birth(bin, block_size: usize, page_capacity: usize)' "$FAST_HEAP" "fast path heap birth must carry exact size/capacity parameters"
 guard_expect_in_file "$TAG" 'next_page_id: i64 = 0' "$FAST_HEAP" "next_page_id must remain signed index metadata"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$FAST_HEAP" "alloc accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'release_count: usize = 0' "$FAST_HEAP" "release accounting must be exact usize storage"
@@ -54,6 +57,7 @@ guard_expect_in_file "$TAG" 'page_create_count: usize = 0' "$FAST_HEAP" "page cr
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$FAST_HEAP" "reject accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'M167 alloc fast path plus generic fallback' "$PLAN" "plan must retain M167 row"
 guard_expect_in_file "$TAG" '293x-175 M167 Mimalloc Alloc Fast Path' "$CARD" "missing M167 card"
+guard_expect_in_file "$TAG" '294x-50 Hako Alloc Usize Fast Path Heap Size Capacity' "$USIZE_SIZE_CARD" "missing 294x-50 usize size/capacity card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M167 guard"
 
 if rg -n 'init[[:space:]]*\\{' "$FAST_HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
@@ -136,6 +140,8 @@ heap_fields = {
     for field in plans["HakoAllocFastPathHeap"].get("fields", [])
 }
 for field_name in (
+    "block_size",
+    "page_capacity",
     "alloc_count",
     "release_count",
     "fallback_count",
@@ -146,7 +152,7 @@ for field_name in (
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"fast path heap {field_name} must be exact usize storage: {field}")
 
-for field_name in ("bin", "block_size", "page_capacity", "next_page_id"):
+for field_name in ("bin", "next_page_id"):
     field = heap_fields.get(field_name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"fast path heap {field_name} must remain i64 storage: {field}")

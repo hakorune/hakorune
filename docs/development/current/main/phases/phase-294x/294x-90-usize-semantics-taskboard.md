@@ -350,8 +350,11 @@ remaining field groups and allocator API parity only.
     (`alloc_count`, `release_count`, `fallback_count`, `page_create_count`,
     `reject_count`) in
     `294x-37-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-COUNTERS.md`.
-  - Stop line: keep fast-path route/index/size/capacity metadata and handle
-    id/size fields signed until their own rows.
+  - Follow-on migrated group: `HakoAllocFastPathHeap` size/capacity metadata
+    (`block_size`, `page_capacity`) in
+    `294x-50-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-SIZE-CAPACITY.md`.
+  - Stop line: keep fast-path route/index metadata and handle id/size fields
+    signed until their own rows.
   - Follow-on migrated group: `HakoAllocOsVmBackedFastPathHeap` event/source
     counters (`alloc_count`, `release_count`, `fallback_count`,
     `page_create_count`, `reject_count`, `reserve_count`, `commit_count`,

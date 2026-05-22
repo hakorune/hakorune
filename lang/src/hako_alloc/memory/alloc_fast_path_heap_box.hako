@@ -19,8 +19,8 @@ box HakoAllocFastPathHandle {
 
 box HakoAllocFastPathHeap {
     bin: i64
-    block_size: i64
-    page_capacity: i64
+    block_size: usize
+    page_capacity: usize
     queue: HakoAllocPageQueue
     pages: ArrayBox = new ArrayBox()
     next_page_id: i64 = 0
@@ -30,7 +30,7 @@ box HakoAllocFastPathHeap {
     page_create_count: usize = 0
     reject_count: usize = 0
 
-    birth(bin, block_size, page_capacity) {
+    birth(bin, block_size: usize, page_capacity: usize) {
         me.bin = bin
         me.block_size = block_size
         me.page_capacity = page_capacity
