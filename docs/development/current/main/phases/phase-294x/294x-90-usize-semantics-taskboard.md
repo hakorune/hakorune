@@ -347,6 +347,11 @@ remaining field groups and allocator API parity only.
     `294x-39-HAKO-ALLOC-USIZE-SECURE-LIST-DIAGNOSTIC-COUNTERS.md`.
   - Stop line: keep secure-list `last_*` observation flags signed until bool /
     flag semantics are split.
+  - Follow-on migrated group: `HakoAllocPageMapReleaseObserver` observer
+    counters (`observe_count`, `success_count`, `reject_count`) in
+    `294x-40-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-OBSERVER-COUNTERS.md`.
+  - Stop line: keep release observer before-snapshots, sentinels, statuses, and
+    signed deltas as `i64`.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

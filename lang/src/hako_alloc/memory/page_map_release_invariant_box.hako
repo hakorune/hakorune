@@ -8,9 +8,9 @@ using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapRelease
 box HakoAllocPageMapReleaseObserver {
     seam: HakoAllocPageMapReleaseSeam
     page_map: HakoAllocPageMap
-    observe_count: i64 = 0
-    success_count: i64 = 0
-    reject_count: i64 = 0
+    observe_count: usize = 0
+    success_count: usize = 0
+    reject_count: usize = 0
     live_count_before: i64 = 0
     release_count_before: i64 = 0
     unregister_count_before: i64 = 0

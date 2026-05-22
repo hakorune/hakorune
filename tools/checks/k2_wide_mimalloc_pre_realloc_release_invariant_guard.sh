@@ -50,6 +50,13 @@ guard_expect_in_file "$TAG" 'handleIsLive\(ptr\)' "$OBSERVER" "M173 observer mus
 guard_expect_in_file "$TAG" 'beginRelease\(ptr\)' "$OBSERVER" "M173 observer must expose pre-release observation"
 guard_expect_in_file "$TAG" 'finishRelease\(ptr, result\)' "$OBSERVER" "M173 observer must expose post-release observation"
 guard_expect_in_file "$TAG" 'me\.page_map\.lookup\(ptr\)' "$OBSERVER" "M173 observer must observe page-map lookup"
+guard_expect_in_file "$TAG" 'observe_count: usize = 0' "$OBSERVER" "observer count must be exact usize storage"
+guard_expect_in_file "$TAG" 'success_count: usize = 0' "$OBSERVER" "success count must be exact usize storage"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$OBSERVER" "reject count must be exact usize storage"
+guard_expect_in_file "$TAG" 'live_count_before: i64 = 0' "$OBSERVER" "before snapshots must remain signed observers"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$OBSERVER" "last_page_id sentinel must remain signed"
+guard_expect_in_file "$TAG" 'last_block_id: i64 = -1' "$OBSERVER" "last_block_id sentinel must remain signed"
+guard_expect_in_file "$TAG" 'last_live_count_delta: i64 = 0' "$OBSERVER" "delta observers must remain signed"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_release_invariant_box as HakoAllocPageMapReleaseInvariantBox' "$APP" "proof app must import the M173 observer box"
 guard_expect_in_file "$TAG" 'seam\.releasePtr\(' "$APP" "proof app must keep release execution in the M172 seam"
 guard_expect_in_file "$TAG" 'box ProofCheck' "$APP" "M173 proof app must keep labelled proof checks readable"
@@ -67,6 +74,22 @@ if rg -n 'init[[:space:]]*\{' "$OBSERVER" >/tmp/"$TAG".legacy_init 2>&1; then
   exit 1
 fi
 rm -f /tmp/"$TAG".legacy_init
+
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$OBSERVER" "$APP" >/tmp/"$TAG".usize_probe 2>&1; then
+  echo "[$TAG] ERROR: M173 must not depend on the usize probe owner" >&2
+  cat /tmp/"$TAG".usize_probe >&2
+  rm -f /tmp/"$TAG".usize_probe
+  exit 1
+fi
+rm -f /tmp/"$TAG".usize_probe
+
+if rg -n ': usize' "$APP" >/tmp/"$TAG".usize_app 2>&1; then
+  echo "[$TAG] ERROR: M173 proof app must not introduce extra usize locals or fields" >&2
+  cat /tmp/"$TAG".usize_app >&2
+  rm -f /tmp/"$TAG".usize_app
+  exit 1
+fi
+rm -f /tmp/"$TAG".usize_app
 
 if rg -n '\.register\(|releaseLocal\(|\.unregister\(|\.releasePtr\(' "$OBSERVER" >/tmp/"$TAG".owner_leak 2>&1; then
   echo "[$TAG] ERROR: M173 observer must not take ownership of registration, page release, unregister, or seam execution logic" >&2
@@ -146,6 +169,39 @@ for fn in functions.values():
             unsupported.append((fn.get("name"), plan.get("site"), plan.get("symbol"), plan.get("reason")))
 if unsupported:
     raise SystemExit(f"unsupported lowering plans remain: {unsupported[:5]}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+observer_plan = plans.get("HakoAllocPageMapReleaseObserver")
+if observer_plan is None:
+    raise SystemExit("missing typed object plan: HakoAllocPageMapReleaseObserver")
+
+fields = {field.get("name"): field for field in observer_plan.get("fields", [])}
+for field_name in ("observe_count", "success_count", "reject_count"):
+    field = fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"release observer {field_name} must be exact usize storage: {field}")
+
+for field_name in (
+    "live_count_before",
+    "release_count_before",
+    "unregister_count_before",
+    "page_used_before",
+    "local_free_before",
+    "last_ptr",
+    "last_page_id",
+    "last_block_id",
+    "last_result",
+    "last_entry_live_before",
+    "last_lookup_after",
+    "last_live_count_delta",
+    "last_release_count_delta",
+    "last_unregister_count_delta",
+    "last_page_used_delta",
+    "last_local_free_delta",
+):
+    field = fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"release observer {field_name} must remain i64 storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):
