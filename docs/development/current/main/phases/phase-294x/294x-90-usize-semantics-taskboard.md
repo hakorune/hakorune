@@ -114,10 +114,20 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-085:
+  landed by 294x-63. Migrated OSVM-backed `backing_count` to exact `usize`
+  after preserving the signed `page_id < 0` guard as the id/index seam.
+  Page/block identity, backing pointer-like payloads, provider activation,
+  host replacement, hooks, TLS, atomics, and allocator replacement remain
+  parked.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-086:
   select the next explicit non-negative production field group. Do not migrate
-  OSVM-backed `backing_count` until the signed `page_id` comparison seam is
-  split, and do not migrate page/block identity, flag, sentinel, pointer-like,
-  occupancy-decrement, or byte-sum fields without a dedicated row.
+  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
+  byte-sum fields without a dedicated row.
 ```
 
 ## Ladder
@@ -446,8 +456,11 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-085:
     `HakoAllocOsVmPageBacking.bytes` and the page-source policy byte-length
     params in
     `294x-54-HAKO-ALLOC-USIZE-OSVM-BACKED-BYTE-LENGTH-SEAM.md`.
-  - Stop line: keep OSVM-backed `bin`, `next_page_id`, `backing_count`,
-    backing `page_id` / `base`, and handle page/block ids signed.
+  - Follow-on migrated group: `HakoAllocOsVmBackedFastPathHeap.backing_count`
+    in
+    `294x-63-HAKO-ALLOC-USIZE-OSVM-BACKING-COUNT-ID-SEAM.md`.
+  - Stop line: keep OSVM-backed `bin`, `next_page_id`, backing `page_id` /
+    `base`, and handle page/block ids signed.
   - Follow-on migrated group: `HakoAllocSecureFreeListDiagnostics` diagnostic
     counters (`scan_count`, `ok_count`, `fail_count`,
     `out_of_range_free_block_count`, `duplicate_free_block_count`,

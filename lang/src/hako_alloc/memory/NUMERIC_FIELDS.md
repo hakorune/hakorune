@@ -408,12 +408,17 @@ Selected next production `usize` field group:
   `meta_count` is only the M178 path-local mirror of that owner count.
   Pointer, alignment, and padded-size observers stay `i64`.
 
+- `osvm_backed_fast_path_heap_box.hako` /
+  `HakoAllocOsVmBackedFastPathHeap.backing_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-085` selects and migrates this owner-local
+  backing-array length after the signed `page_id < 0` guard remained the
+  explicit id/index seam. `bin`, `next_page_id`, backing `page_id` / `base`,
+  and handle page/block ids stay `i64`.
+
 Selected next production `usize` field group:
 
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-085` is intentionally selection-only until the
-  next explicit non-negative owner-local group is chosen. Do not use it to
-  migrate OSVM-backed `backing_count`; that field remains signed while compared
-  with signed `page_id` inputs.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-086` is intentionally selection-only until the
+  next explicit non-negative owner-local group is chosen.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -524,7 +529,7 @@ excludes `usize_field_probe_box.hako`.
 | `huge_threshold_router_box.hako` | `HakoAllocHugeThresholdRouter` | `small_route_count`, `small_success_count`, `small_reject_count`, `huge_route_count`, `huge_reject_count`, `invalid_alignment_count`, `invalid_size_count`, `reject_count`, `last_route_kind`, `last_result_ptr`, `last_padded_size`, `last_good_size`, `last_huge_threshold` | route/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-057`; enum/ptr/size observers stay `i64`. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmPageBacking` | `page_id`, `base`, `bytes` | `bytes` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-083`; page id and ptr-like base stay `i64` until OSVM pointer/id contracts split. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedHandle` | `page_id`, `block_id`, `requested_size` | `requested_size` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-082`; page/block id fields stay `i64` until id/index contracts are split. |
-| `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `backing_count`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count`, `reserve_count`, `commit_count`, `decommit_count`, `source_reject_count` | event/source counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-068`; `block_size` / `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-083`; bin, next page id, and `backing_count` stay `i64`. |
+| `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `backing_count`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count`, `reserve_count`, `commit_count`, `decommit_count`, `source_reject_count` | event/source counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-068`; `block_size` / `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-083`; `backing_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-085`; bin and next page id stay `i64`. |
 | `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `decommitted`, `retire_count`, `decommit_count`, `recommit_count`, `reuse_count`, `lifecycle_reject_count`, `reactivate_count`, `reactivate_reject_count`, `peak_used`, `requested_bytes` | page-local alloc/local-free/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`; local-free collection counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-060`; lifecycle event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-061`; stack-top/occupancy fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`; capacity fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`; block-size and requested-byte fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-077`; identity and lifecycle state flags stay `i64`. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `page_id`, `block_id`, `requested_size` | legacy prototype handle; keep `i64` until superseded by current page-map owners or object-return parity. |
 | `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-084`; identity, size/capacity, occupancy, and byte fields stay signed until their own rows. |

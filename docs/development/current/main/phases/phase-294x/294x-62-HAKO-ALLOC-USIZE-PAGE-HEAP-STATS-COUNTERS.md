@@ -37,9 +37,9 @@ This row does not migrate:
   atomics, provider activation, host allocator replacement, hooks, or
   `#[global_allocator]`.
 
-`HakoAllocOsVmBackedFastPathHeap.backing_count` remains signed because existing
-guards still require it to compare against signed `page_id` inputs until an
-id/index split row opens that seam.
+At this row, `HakoAllocOsVmBackedFastPathHeap.backing_count` remained signed
+because existing guards still required it to compare against signed `page_id`
+inputs. The follow-on id/index seam is intentionally left to its own row.
 
 ## Verification
 

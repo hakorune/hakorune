@@ -40,7 +40,7 @@ box HakoAllocOsVmBackedFastPathHeap {
     pages: ArrayBox = new ArrayBox()
     backings: ArrayBox = new ArrayBox()
     next_page_id: i64 = 0
-    backing_count: i64 = 0
+    backing_count: usize = 0
     alloc_count: usize = 0
     release_count: usize = 0
     fallback_count: usize = 0

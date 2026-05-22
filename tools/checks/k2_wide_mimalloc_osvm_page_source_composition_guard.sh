@@ -52,7 +52,7 @@ guard_expect_in_file "$TAG" 'block_size: usize' "$HEAP" "block_size must be exac
 guard_expect_in_file "$TAG" 'page_capacity: usize' "$HEAP" "page_capacity must be exact usize capacity metadata"
 guard_expect_fixed_in_file "$TAG" 'birth(bin, block_size: usize, page_capacity: usize)' "$HEAP" "OSVM-backed heap birth must carry exact size/capacity parameters"
 guard_expect_in_file "$TAG" 'next_page_id: i64 = 0' "$HEAP" "next_page_id must remain signed index metadata"
-guard_expect_in_file "$TAG" 'backing_count: i64 = 0' "$HEAP" "backing_count must remain signed while compared with page_id"
+guard_expect_in_file "$TAG" 'backing_count: usize = 0' "$HEAP" "backing_count must be exact usize backing-array length storage"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$HEAP" "alloc accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'release_count: usize = 0' "$HEAP" "release accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'fallback_count: usize = 0' "$HEAP" "fallback accounting must be exact usize storage"
@@ -202,10 +202,14 @@ for field_name in (
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"osvm-backed fast path heap {field_name} must be exact usize storage: {field}")
 
-for field_name in ("bin", "next_page_id", "backing_count"):
+for field_name in ("bin", "next_page_id"):
     field = heap_fields.get(field_name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"osvm-backed fast path heap {field_name} must remain i64 storage: {field}")
+
+field = heap_fields.get("backing_count")
+if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+    raise SystemExit(f"osvm-backed fast path heap backing_count must be exact usize storage: {field}")
 
 for box_name, field_names in (
     ("HakoAllocOsVmBackedHandle", ("page_id", "block_id", "requested_size")),

@@ -188,8 +188,9 @@ for name in (
 ):
     require_storage("HakoAllocOsVmBackedFastPathHeap", name, "usize", "usize")
 
-for name in ("bin", "next_page_id", "backing_count"):
+for name in ("bin", "next_page_id"):
     require_storage("HakoAllocOsVmBackedFastPathHeap", name, "i64", "i64")
+require_storage("HakoAllocOsVmBackedFastPathHeap", "backing_count", "usize", "usize")
 
 require_storage("HakoAllocOsVmBackedHandle", "requested_size", "usize", "usize")
 require_storage("HakoAllocOsVmBackedHandle", "page_id", "i64", "i64")
