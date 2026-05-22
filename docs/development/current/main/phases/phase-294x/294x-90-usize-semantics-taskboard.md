@@ -150,11 +150,18 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-089:
-  migrate only `HakoAllocFastPathHeap.next_page_id` to exact `usize`, preserving
-  signed handle/page id payloads and the `handle.page_id < 0` guard as the
-  explicit id/index seam. Do not migrate `bin`, handle `page_id` / `block_id`,
-  OSVM-backed `next_page_id`, page identity, flag, sentinel, pointer-like,
-  occupancy-decrement, or byte-sum fields.
+  landed by 294x-67. Migrated `HakoAllocFastPathHeap.next_page_id` to exact
+  `usize`, preserving signed handle/page id payloads and the
+  `handle.page_id < 0` guard as the explicit id/index seam.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-090:
+  select the next explicit non-negative production field group. Do not migrate
+  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
+  byte-sum fields without a dedicated row.
 ```
 
 ## Ladder
@@ -494,6 +501,8 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-089:
     binary flags signed until their own rows.
   - Follow-on selected group: `HakoAllocFastPathHeap.next_page_id` in
     `294x-66-HAKO-ALLOC-USIZE-FAST-PATH-NEXT-PAGE-ID-SELECTION.md`.
+  - Follow-on migrated group: `HakoAllocFastPathHeap.next_page_id` in
+    `294x-67-HAKO-ALLOC-USIZE-FAST-PATH-NEXT-PAGE-ID.md`.
   - Stop line: keep fast-path `bin`, handle page/block ids, and OSVM-backed
     `next_page_id` signed until their own rows.
   - Follow-on migrated group: `HakoAllocSecureFreeListDiagnostics` diagnostic

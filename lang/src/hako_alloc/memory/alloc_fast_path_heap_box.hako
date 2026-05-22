@@ -23,7 +23,7 @@ box HakoAllocFastPathHeap {
     page_capacity: usize
     queue: HakoAllocPageQueue
     pages: ArrayBox = new ArrayBox()
-    next_page_id: i64 = 0
+    next_page_id: usize = 0
     alloc_count: usize = 0
     release_count: usize = 0
     fallback_count: usize = 0
