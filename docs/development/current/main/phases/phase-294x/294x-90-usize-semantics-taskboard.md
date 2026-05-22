@@ -226,6 +226,13 @@ remaining field groups and allocator API parity only.
   - Proof: existing page-map proof app verifies behavior-preserving counters.
   - Guard: existing page-map guard checks exact `usize` typed-object storage.
   - Stop line: do not migrate page-map entry pointer/id fields in this group.
+  - Follow-on migrated group: `HakoAllocPageMapReleaseSeam` event/reject
+    counters (`page_register_count`, `release_count`, `unregister_count`,
+    `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`,
+    `reject_count`) in
+    `294x-22-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-COUNTERS.md`.
+  - Stop line: keep `page_count` signed until the page-id/page-count
+    comparison contract is split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

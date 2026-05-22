@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-21-HAKO-ALLOC-USIZE-PAGE-MAP-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-21-HAKO-ALLOC-USIZE-PAGE-MAP-COUNTERS.md"
-latest_card_summary = "Migrated the HakoAllocPageMap owner-local counter group to exact usize storage while keeping page-map entry pointer/id/live fields on i64."
+latest_card = "294x-22-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-22-HAKO-ALLOC-USIZE-PAGE-MAP-RELEASE-COUNTERS.md"
+latest_card_summary = "Migrated the HakoAllocPageMapReleaseSeam event/reject counter group to exact usize storage while keeping page_count on i64 for signed page-id comparisons."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-051"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-052"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-22 HAKO-ALLOC-USIZE-FIELD-GROUP-052 page-map release event/reject counter migration landed; page_count remains i64",
   "294x-21 HAKO-ALLOC-USIZE-FIELD-GROUP-051 page-map owner counter migration landed; next field group remains explicit-selection only",
   "293x-1198 MIMAP-568A mimalloc blueprint lane inventory carryover boundary completed; MIMAP-569A selected",
   "293x-1197 MIMAP-567A mimalloc blueprint lane close criteria completed; MIMAP-568A selected",

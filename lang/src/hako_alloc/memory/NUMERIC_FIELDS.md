@@ -270,11 +270,22 @@ Selected next production `usize` field group:
   these are non-negative page-map owner counters with no signed sentinels.
   `HakoAllocPageMapEntry` pointer/id fields and live flag stay `i64`.
 
+- `page_map_release_box.hako` / `HakoAllocPageMapReleaseSeam` release event /
+  reject counter fields:
+  `page_register_count`, `release_count`, `unregister_count`,
+  `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`,
+  `reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-052` selects and migrates this group because
+  these are non-negative release-seam counters downstream of the page-map
+  counter group. `page_count` stays `i64` because it is compared with
+  signed `page_id` values in this owner.
+
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-051` migrates the page-map owner counter
-  group selected by the phase-294x taskboard. Future field-group rows must
-  choose another explicit non-negative owner-local group.
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-052` migrates the page-map release-seam
+  event/reject counter group selected after the page-map owner counter group.
+  Future field-group rows must choose another explicit non-negative
+  owner-local group.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -386,7 +397,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | copy/counters are candidates; `last_alloc_* = -1` sentinels and ptr fields stay `i64`. |
 | `page_map_realloc_failure_contract_box.hako` | `HakoAllocPageMapReallocFailureContract` | `success_count`, `same_class_success_count`, `move_success_count`, `zero_reject_count`, `oversized_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `unexpected_reject_count`, `reject_count`, `last_result_ptr`, `last_failure_kind`, `last_max_block_size` | failure-matrix counters are candidates; ptr/status/size observers wait for API parity. |
 | `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | counters are candidates; result pointer stays `i64`. |
-| `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | counters are candidates after release invariant rows remain green. |
+| `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | release event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-052`; `page_count` remains `i64` while it is compared with signed `page_id`. |
 | `page_map_release_invariant_box.hako` | `HakoAllocPageMapReleaseObserver` | `observe_count`, `success_count`, `reject_count`, `live_count_before`, `release_count_before`, `unregister_count_before`, `page_used_before`, `local_free_before`, `last_ptr`, `last_page_id`, `last_block_id`, `last_result`, `last_entry_live_before`, `last_lookup_after`, `last_live_count_delta`, `last_release_count_delta`, `last_unregister_count_delta`, `last_page_used_delta`, `last_local_free_delta` | observer-only; signed sentinel and signed delta fields stay `i64`. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue counters are candidates; index/flag migration waits for queue contracts. |
 | `remote_free_page_integration_box.hako` | `HakoAllocRemoteFreePageInbox` | `head_cell`, `init_status`, `pending_top`, `remote_push_count`, `remote_collect_count`, `retry_count`, `reject_count` | mailbox status/count fields remain `i64` until pointer-atomic lane is exact. |

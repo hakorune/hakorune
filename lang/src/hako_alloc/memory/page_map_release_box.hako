@@ -9,13 +9,13 @@ box HakoAllocPageMapReleaseSeam {
     pages: ArrayBox = new ArrayBox()
     page_map: HakoAllocPageMap
     page_count: i64 = 0
-    page_register_count: i64 = 0
-    release_count: i64 = 0
-    unregister_count: i64 = 0
-    lookup_miss_count: i64 = 0
-    stale_page_count: i64 = 0
-    page_release_reject_count: i64 = 0
-    reject_count: i64 = 0
+    page_register_count: usize = 0
+    release_count: usize = 0
+    unregister_count: usize = 0
+    lookup_miss_count: usize = 0
+    stale_page_count: usize = 0
+    page_release_reject_count: usize = 0
+    reject_count: usize = 0
 
     birth(page_map) {
         me.page_map = page_map
