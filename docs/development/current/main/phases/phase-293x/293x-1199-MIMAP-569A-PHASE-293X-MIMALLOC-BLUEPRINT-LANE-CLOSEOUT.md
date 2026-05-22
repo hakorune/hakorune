@@ -28,3 +28,10 @@ bash tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_phas
 ```text
 phase-294x explicit C mimalloc evidence execution lane
 ```
+
+Related deferred lane (separate from mimalloc execution closeout):
+
+```text
+record ergonomics expansion lane
+docs/development/current/main/design/record-ergonomics-expansion-post-293x-ssot.md
+```

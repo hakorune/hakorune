@@ -37,6 +37,12 @@ Classification for phase closeout:
 Record syntax expansion (`default/shorthand/with` ergonomics widening) is
 deferred to the post-293x lane and must not be mixed into this closure row.
 
+Deferred design owner:
+
+```text
+docs/development/current/main/design/record-ergonomics-expansion-post-293x-ssot.md
+```
+
 ## Validation
 
 Validation profile: `inventory-boundary L2 pack`.
