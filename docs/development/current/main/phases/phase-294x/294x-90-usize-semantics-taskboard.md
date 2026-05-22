@@ -225,6 +225,8 @@ remaining field groups and allocator API parity only.
 - [x] Probe exact `usize` request-size / block-size comparison and
   accepted-request byte-sum accumulation before production page-model
   size/byte fields migrate.
+- [x] Migrate production page-model `block_size` / `requested_bytes` fields
+  after the proof-only request byte-sum probe.
 - [x] Mark production `usize` field migration blocked on non-VM exact numeric
   storage, exact field ABI, and backend ABI consumption.
 - [x] Update first production proof apps for the facade stats field group.
@@ -397,6 +399,11 @@ remaining field groups and allocator API parity only.
     `294x-46-HAKO-ALLOC-USIZE-REQUEST-BYTE-SUM-PROBE.md`.
   - Stop line: production page `block_size` and `requested_bytes` still do not
     migrate in this row.
+  - Follow-on migrated group: `HakoAllocPageModel` size/byte fields
+    (`block_size`, `requested_bytes`) in
+    `294x-47-HAKO-ALLOC-USIZE-PAGE-MODEL-SIZE-BYTES.md`.
+  - Stop line: keep page identity, lifecycle state flags, queue indexes, and
+    remote-free mailbox fields signed.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

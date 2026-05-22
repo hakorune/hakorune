@@ -4,7 +4,7 @@
 
 box HakoAllocPageModel {
     page_id: i64
-    block_size: i64
+    block_size: usize
     capacity: usize
     reserved: usize
     free: ArrayBox = new ArrayBox()
@@ -28,9 +28,9 @@ box HakoAllocPageModel {
     reactivate_count: usize = 0
     reactivate_reject_count: usize = 0
     peak_used: usize = 0
-    requested_bytes: i64 = 0
+    requested_bytes: usize = 0
 
-    birth(page_id, block_size, capacity, reserved) {
+    birth(page_id, block_size: usize, capacity: usize, reserved: usize) {
         me.page_id = page_id
         me.block_size = block_size
         me.capacity = capacity
@@ -54,7 +54,7 @@ box HakoAllocPageModel {
         me.free_top = free_top
     }
 
-    acquire(requested_size) {
+    acquire(requested_size: usize) {
         if me.retired != 0 {
             me.reject_count = me.reject_count + 1
             return -1
