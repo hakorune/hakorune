@@ -339,6 +339,14 @@ remaining field groups and allocator API parity only.
   - Stop line: keep OSVM-backed route/index/size/capacity metadata,
     `backing_count`, backing payloads, and handle payloads signed until their
     own rows.
+  - Follow-on migrated group: `HakoAllocSecureFreeListDiagnostics` diagnostic
+    counters (`scan_count`, `ok_count`, `fail_count`,
+    `out_of_range_free_block_count`, `duplicate_free_block_count`,
+    `live_block_in_free_list_count`, `free_count_mismatch_count`,
+    `local_free_count_mismatch_count`) in
+    `294x-39-HAKO-ALLOC-USIZE-SECURE-LIST-DIAGNOSTIC-COUNTERS.md`.
+  - Stop line: keep secure-list `last_*` observation flags signed until bool /
+    flag semantics are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

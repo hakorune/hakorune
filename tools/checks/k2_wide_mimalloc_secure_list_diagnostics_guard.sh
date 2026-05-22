@@ -45,6 +45,20 @@ guard_expect_in_file "$TAG" 'duplicate_free_block_count' "$DIAG" "M183 must coun
 guard_expect_in_file "$TAG" 'live_block_in_free_list_count' "$DIAG" "M183 must count live blocks in free-list entries"
 guard_expect_in_file "$TAG" 'free_count_mismatch_count' "$DIAG" "M183 must count free/local/used total mismatches"
 guard_expect_in_file "$TAG" 'local_free_count_mismatch_count' "$DIAG" "M183 must count malformed local-free tops"
+guard_expect_in_file "$TAG" 'scan_count: usize = 0' "$DIAG" "scan counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'ok_count: usize = 0' "$DIAG" "ok counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'fail_count: usize = 0' "$DIAG" "fail counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'out_of_range_free_block_count: usize = 0' "$DIAG" "out-of-range counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'duplicate_free_block_count: usize = 0' "$DIAG" "duplicate counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'live_block_in_free_list_count: usize = 0' "$DIAG" "live-block counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'free_count_mismatch_count: usize = 0' "$DIAG" "free mismatch counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'local_free_count_mismatch_count: usize = 0' "$DIAG" "local-free mismatch counter must be exact usize storage"
+guard_expect_in_file "$TAG" 'last_ok: i64 = 0' "$DIAG" "last_ok flag must remain signed flag storage"
+guard_expect_in_file "$TAG" 'last_out_of_range_free_block: i64 = 0' "$DIAG" "last out-of-range flag must remain signed flag storage"
+guard_expect_in_file "$TAG" 'last_duplicate_free_block: i64 = 0' "$DIAG" "last duplicate flag must remain signed flag storage"
+guard_expect_in_file "$TAG" 'last_live_block_in_free_list: i64 = 0' "$DIAG" "last live-block flag must remain signed flag storage"
+guard_expect_in_file "$TAG" 'last_free_count_mismatch: i64 = 0' "$DIAG" "last free mismatch flag must remain signed flag storage"
+guard_expect_in_file "$TAG" 'last_local_free_count_mismatch: i64 = 0' "$DIAG" "last local-free mismatch flag must remain signed flag storage"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.secure_free_list_diagnostics_box as HakoAllocSecureFreeListDiagnosticsBox' "$APP" "proof app must import the M183 owner"
 guard_expect_in_file "$TAG" 'HakoAllocSecureFreeListDiagnostics' "$ROOT_README" "root README must document the M183 owner"
 guard_expect_in_file "$TAG" 'secure_free_list_diagnostics_box.hako' "$MEMORY_README" "memory README must document the M183 module"
@@ -59,6 +73,22 @@ if rg -n 'init[[:space:]]*\{' "$DIAG" >/tmp/"$TAG".legacy_init 2>&1; then
   exit 1
 fi
 rm -f /tmp/"$TAG".legacy_init
+
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$DIAG" "$APP" >/tmp/"$TAG".usize_probe 2>&1; then
+  echo "[$TAG] ERROR: M183 must not depend on the usize probe owner" >&2
+  cat /tmp/"$TAG".usize_probe >&2
+  rm -f /tmp/"$TAG".usize_probe
+  exit 1
+fi
+rm -f /tmp/"$TAG".usize_probe
+
+if rg -n ': usize' "$APP" >/tmp/"$TAG".usize_app 2>&1; then
+  echo "[$TAG] ERROR: M183 proof app must not introduce extra usize locals or fields" >&2
+  cat /tmp/"$TAG".usize_app >&2
+  rm -f /tmp/"$TAG".usize_app
+  exit 1
+fi
+rm -f /tmp/"$TAG".usize_app
 
 if rg -n 'encodeNext|decodeNext|validateDecodedIndex|cookie_source|random_source|xor|rotate|hash|provider|hook|hako_mem_|externcall|OSVM|OsVm|unreserve|release_bytes|decommit|aligned_alloc|HugeRelease|huge_release' \
   "$DIAG" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
@@ -98,6 +128,51 @@ rg -F -q 'bad=0,0,1,1,1,1,0' "$out"
 rg -F -q 'local_bad=0,0,0,1,0,1,1' "$out"
 rg -F -q 'totals=3,1,2,1,2,1,2,1' "$out"
 rg -F -q 'summary=ok' "$out"
+
+mir_json="$tmp_dir/m183.mir.json"
+NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+  "${HAKO_CMD[@]}" --backend mir --emit-mir-json "$mir_json" "$APP" >"$tmp_dir/mir.out" 2>"$tmp_dir/mir.err"
+
+python3 - "$mir_json" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as fh:
+    data = json.load(fh)
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+plan = plans.get("HakoAllocSecureFreeListDiagnostics")
+if plan is None:
+    raise SystemExit("missing typed object plan: HakoAllocSecureFreeListDiagnostics")
+
+fields = {field.get("name"): field for field in plan.get("fields", [])}
+for field_name in (
+    "scan_count",
+    "ok_count",
+    "fail_count",
+    "out_of_range_free_block_count",
+    "duplicate_free_block_count",
+    "live_block_in_free_list_count",
+    "free_count_mismatch_count",
+    "local_free_count_mismatch_count",
+):
+    field = fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"secure-list diagnostics {field_name} must be exact usize storage: {field}")
+
+for field_name in (
+    "last_ok",
+    "last_out_of_range_free_block",
+    "last_duplicate_free_block",
+    "last_live_block_in_free_list",
+    "last_free_count_mismatch",
+    "last_local_free_count_mismatch",
+):
+    field = fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"secure-list diagnostics {field_name} must remain i64 storage: {field}")
+PY
 
 cat "$out"
 echo "[$TAG] ok"

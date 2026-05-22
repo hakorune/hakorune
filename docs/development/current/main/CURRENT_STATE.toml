@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-38-HAKO-ALLOC-USIZE-OSVM-BACKED-FAST-PATH-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-38-HAKO-ALLOC-USIZE-OSVM-BACKED-FAST-PATH-COUNTERS.md"
-latest_card_summary = "Migrated the OSVM-backed fast-path heap event/source counters to exact usize storage while keeping route/index/size/capacity and backing metadata on i64."
+latest_card = "294x-39-HAKO-ALLOC-USIZE-SECURE-LIST-DIAGNOSTIC-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-39-HAKO-ALLOC-USIZE-SECURE-LIST-DIAGNOSTIC-COUNTERS.md"
+latest_card_summary = "Migrated the secure-list diagnostics scan/ok/fail/mismatch counters to exact usize storage while keeping last-observation flags on i64."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-068"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-069"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-39 HAKO-ALLOC-USIZE-FIELD-GROUP-069 secure-list diagnostics counter migration landed; last-observation flags remain i64",
   "294x-38 HAKO-ALLOC-USIZE-FIELD-GROUP-068 OSVM-backed fast-path heap event/source counter migration landed; route/index/size/capacity/backing metadata and handle fields remain i64",
   "294x-37 HAKO-ALLOC-USIZE-FIELD-GROUP-067 fast-path heap event/reject counter migration landed; route/index/size/capacity metadata and handle fields remain i64",
   "294x-36 HAKO-ALLOC-USIZE-FIELD-GROUP-066 huge release seam release/unregister/reject counter migration landed; sentinel/status observers remain i64",

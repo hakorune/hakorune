@@ -5,14 +5,14 @@
 using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 
 box HakoAllocSecureFreeListDiagnostics {
-    scan_count: i64 = 0
-    ok_count: i64 = 0
-    fail_count: i64 = 0
-    out_of_range_free_block_count: i64 = 0
-    duplicate_free_block_count: i64 = 0
-    live_block_in_free_list_count: i64 = 0
-    free_count_mismatch_count: i64 = 0
-    local_free_count_mismatch_count: i64 = 0
+    scan_count: usize = 0
+    ok_count: usize = 0
+    fail_count: usize = 0
+    out_of_range_free_block_count: usize = 0
+    duplicate_free_block_count: usize = 0
+    live_block_in_free_list_count: usize = 0
+    free_count_mismatch_count: usize = 0
+    local_free_count_mismatch_count: usize = 0
     last_ok: i64 = 0
     last_out_of_range_free_block: i64 = 0
     last_duplicate_free_block: i64 = 0
