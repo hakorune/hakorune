@@ -283,6 +283,11 @@ remaining field groups and allocator API parity only.
   - Stop line: keep page identity, size/capacity, stack-top, live-count,
     collection, lifecycle, and byte-length fields signed until their own
     contracts are split.
+  - Follow-on migrated group: `HakoAllocPageModel` local-free collection
+    counters (`local_free_collect_count`, `local_free_collected_blocks`) in
+    `294x-30-HAKO-ALLOC-USIZE-PAGE-MODEL-COLLECTION-COUNTERS.md`.
+  - Stop line: keep stack-top, live-count, lifecycle, and byte-length fields
+    signed until their own contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

@@ -12,6 +12,7 @@ APP_TEST="apps/mimalloc-local-free-retire-proof/test.sh"
 APP_README="apps/mimalloc-local-free-retire-proof/README.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-177-M169-MIMALLOC-LOCAL-FREE-RETIRE.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-30-HAKO-ALLOC-USIZE-PAGE-MODEL-COLLECTION-COUNTERS.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_local_free_retire_guard.sh"
@@ -28,13 +29,14 @@ guard_require_files \
   "$APP_README" \
   "$PLAN" \
   "$CARD" \
+  "$USIZE_CARD" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
 
 guard_expect_in_file "$TAG" 'if 0 < local_free_top' "$PAGE_BOX" "page model must collect one local-free entry in acquire"
 guard_expect_in_file "$TAG" 'if me\.used == 0' "$PAGE_BOX" "page model must record empty-page retire state on final local release"
-guard_expect_in_file "$TAG" 'local_free_collect_count: i64 = 0' "$PAGE_BOX" "collection accounting must be explicit"
-guard_expect_in_file "$TAG" 'local_free_collected_blocks: i64 = 0' "$PAGE_BOX" "collected block accounting must be explicit"
+guard_expect_in_file "$TAG" 'local_free_collect_count: usize = 0' "$PAGE_BOX" "collection accounting must be exact usize"
+guard_expect_in_file "$TAG" 'local_free_collected_blocks: usize = 0' "$PAGE_BOX" "collected block accounting must be exact usize"
 guard_expect_in_file "$TAG" 'retired: i64 = 0' "$PAGE_BOX" "retire state must be observable"
 guard_expect_in_file "$TAG" 'retire_count: i64 = 0' "$PAGE_BOX" "retire accounting must be explicit"
 guard_expect_in_file "$TAG" 'me\.local_free\.set\(local_free_top, block_id\)' "$PAGE_BOX" "local_free stack slots must be reusable after collection"
@@ -42,6 +44,7 @@ guard_expect_in_file "$TAG" 'me\.free\.set\(me\.free_top, block_id\)' "$PAGE_BOX
 guard_expect_in_file "$TAG" 'mimalloc-local-free-retire-proof' "$APP_README" "proof README must describe M169 fixture"
 guard_expect_in_file "$TAG" 'M169 local free collection and retire' "$PLAN" "plan must retain M169 row"
 guard_expect_in_file "$TAG" '293x-177 M169 Mimalloc Local-Free Retire' "$CARD" "missing M169 card"
+guard_expect_in_file "$TAG" '294x-30 Hako Alloc Usize Page Model Collection Counters' "$USIZE_CARD" "missing page model collection counter usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M169 guard"
 
 if rg -n 'init[[:space:]]*\\{' "$PAGE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
@@ -52,8 +55,8 @@ if rg -n 'init[[:space:]]*\\{' "$PAGE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
 fi
 rm -f /tmp/"$TAG".legacy_init
 
-if rg -n '^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*:[[:space:]]+usize|HakoAllocUsizeFieldProbe|usize_field_probe' "$PAGE_BOX" "$APP" >/tmp/"$TAG".usize 2>&1; then
-  echo "[$TAG] ERROR: M169 production state must stay on current i64 lane; usize probe remains isolated" >&2
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$PAGE_BOX" "$APP" >/tmp/"$TAG".usize 2>&1; then
+  echo "[$TAG] ERROR: isolated usize probe must not leak into M169 page-local proof" >&2
   cat /tmp/"$TAG".usize >&2
   rm -f /tmp/"$TAG".usize
   exit 1

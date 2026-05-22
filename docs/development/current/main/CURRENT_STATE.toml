@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS.md"
-latest_card_summary = "Migrated the HakoAllocPageModel alloc/local-free/reject counters to exact usize storage while keeping identity, size, stack-top, live-count, collection, lifecycle, and byte fields on i64."
+latest_card = "294x-30-HAKO-ALLOC-USIZE-PAGE-MODEL-COLLECTION-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-30-HAKO-ALLOC-USIZE-PAGE-MODEL-COLLECTION-COUNTERS.md"
+latest_card_summary = "Migrated the HakoAllocPageModel local-free collection counters to exact usize storage while keeping stack-top, live-count, lifecycle, and byte fields on i64."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-059"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-060"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-30 HAKO-ALLOC-USIZE-FIELD-GROUP-060 page model local-free collection counter migration landed; stack/lifecycle/byte fields remain i64",
   "294x-29 HAKO-ALLOC-USIZE-FIELD-GROUP-059 page model alloc/local-free/reject counter migration landed; identity/size/stack/lifecycle/byte fields remain i64",
   "294x-28 HAKO-ALLOC-USIZE-FIELD-GROUP-058 page queue stats counter migration landed; bin/page_count/direct-page presence and index remain i64",
   "294x-27 HAKO-ALLOC-USIZE-FIELD-GROUP-057 huge-threshold router counter migration landed; route-kind, pointer, size, and threshold observers remain i64",

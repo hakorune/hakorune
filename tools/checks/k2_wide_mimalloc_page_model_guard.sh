@@ -46,8 +46,8 @@ guard_expect_in_file "$TAG" 'reserved: i64' "$PAGE_BOX" "page model must expose 
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$PAGE_BOX" "page alloc counter must be exact usize"
 guard_expect_in_file "$TAG" 'local_free_count: usize = 0' "$PAGE_BOX" "page local-free counter must be exact usize"
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$PAGE_BOX" "page reject counter must be exact usize"
-guard_expect_in_file "$TAG" 'local_free_collect_count: i64 = 0' "$PAGE_BOX" "local-free collection counter stays i64 until collection row"
-guard_expect_in_file "$TAG" 'local_free_collected_blocks: i64 = 0' "$PAGE_BOX" "collected-block counter stays i64 until collection row"
+guard_expect_in_file "$TAG" 'local_free_collect_count: usize = 0' "$PAGE_BOX" "local-free collection counter must be exact usize"
+guard_expect_in_file "$TAG" 'local_free_collected_blocks: usize = 0' "$PAGE_BOX" "collected-block counter must be exact usize"
 guard_expect_in_file "$TAG" 'seedFreeBlocks' "$PAGE_BOX" "page model must seed free blocks locally"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_BOX" "page model must have local release seam"
 guard_expect_in_file "$TAG" 'memory.page_box = "memory/page_box.hako"' "$MODULE" "hako module must export page_box"
@@ -128,7 +128,13 @@ page = plans.get("HakoAllocPageModel")
 if page is None:
     raise SystemExit("missing typed object plan: HakoAllocPageModel")
 fields = {field.get("name"): field for field in page.get("fields", [])}
-for name in ("alloc_count", "local_free_count", "reject_count"):
+for name in (
+    "alloc_count",
+    "local_free_count",
+    "local_free_collect_count",
+    "local_free_collected_blocks",
+    "reject_count",
+):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"page model {name} must be exact usize storage: {field}")
@@ -140,8 +146,6 @@ for name in (
     "used",
     "free_top",
     "local_free_top",
-    "local_free_collect_count",
-    "local_free_collected_blocks",
     "retired",
     "decommitted",
     "retire_count",
