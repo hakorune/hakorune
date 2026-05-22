@@ -12,6 +12,7 @@ APP_TEST="apps/hako-alloc-osvm-fast-path-purge-route-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-516-MIMAP-042A-OSVM-FAST-PATH-BOUNDED-PURGE-ROUTE.md"
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_osvm_fast_path.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/osvm_fast_path_purge_route_box.hako"
@@ -30,6 +31,7 @@ guard_require_files \
   "$CARD" \
   "$INDEX" \
   "$PROOF_MANIFEST" \
+  "$PROOF_MANIFEST_INCLUDE" \
   "$MODULE" \
   "$MEMORY_README" \
   "$OWNER" \
@@ -42,7 +44,8 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-042A card must be landed"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list MIMAP-042A guard"
-guard_expect_in_file "$TAG" 'id = "MIMAP-042A"' "$PROOF_MANIFEST" "proof app manifest must list MIMAP-042A"
+guard_expect_in_file "$TAG" "$PROOF_MANIFEST_INCLUDE" "$PROOF_MANIFEST" "root proof manifest must include OSVM fast-path family"
+guard_expect_in_file "$TAG" 'id = "MIMAP-042A"' "$PROOF_MANIFEST_INCLUDE" "proof app manifest must list MIMAP-042A"
 guard_expect_in_file "$TAG" 'memory.osvm_fast_path_purge_route_box = "memory/osvm_fast_path_purge_route_box.hako"' "$MODULE" "hako_alloc module must export MIMAP-042A owner"
 guard_expect_in_file "$TAG" 'osvm_fast_path_purge_route_box.hako` owns MIMAP-042A' "$MEMORY_README" "memory README must define MIMAP-042A owner"
 guard_expect_in_file "$TAG" 'box HakoAllocOsVmFastPathPurgeRoute' "$OWNER" "MIMAP-042A owner box must exist"

@@ -12,6 +12,7 @@ APP_TEST="apps/hako-alloc-osvm-fast-path-unreserve-failfast-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-524-MIMAP-046A-OSVM-FAST-PATH-UNRESERVE-FAILFAST.md"
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_osvm_fast_path.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 ROOT_README="lang/src/hako_alloc/README.md"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
@@ -29,6 +30,7 @@ guard_require_files \
   "$CARD" \
   "$INDEX" \
   "$PROOF_MANIFEST" \
+  "$PROOF_MANIFEST_INCLUDE" \
   "$MODULE" \
   "$ROOT_README" \
   "$MEMORY_README" \
@@ -40,7 +42,8 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'MIMAP-046A' "$CARD" "MIMAP-046A card must name the row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list MIMAP-046A guard"
-guard_expect_in_file "$TAG" 'id = "MIMAP-046A"' "$PROOF_MANIFEST" "proof app manifest must list MIMAP-046A"
+guard_expect_in_file "$TAG" "$PROOF_MANIFEST_INCLUDE" "$PROOF_MANIFEST" "root proof manifest must include OSVM fast-path family"
+guard_expect_in_file "$TAG" 'id = "MIMAP-046A"' "$PROOF_MANIFEST_INCLUDE" "proof app manifest must list MIMAP-046A"
 guard_expect_in_file "$TAG" 'memory.osvm_fast_path_unreserve_failfast_box = "memory/osvm_fast_path_unreserve_failfast_box.hako"' "$MODULE" "hako_alloc module must export MIMAP-046A owner"
 guard_expect_in_file "$TAG" 'HakoAllocOsVmFastPathUnreserveFailFastRoute' "$ROOT_README" "root README must name MIMAP-046A owner"
 guard_expect_in_file "$TAG" 'osvm_fast_path_unreserve_failfast_box.hako` owns MIMAP-046A' "$MEMORY_README" "memory README must define MIMAP-046A owner"
