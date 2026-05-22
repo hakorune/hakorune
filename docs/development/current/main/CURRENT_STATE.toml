@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-22"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-562A completed and selected MIMAP-563A as the current row-selection card after closing the first presentation-only extension pack opened over the landed MIMAP-552A comparison-ready report and shaped MIMAP-558A contract seam. Benchmark reruns and allocator/provider ladders remain closed. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], provider package generation, explicit C runner execution, and worker execution remain inactive."
+active_lane_status = "MIMAP-564A completed and selected MIMAP-565A as the current row-selection card after fixing a deeper explicit C mimalloc runner planning follow-on boundary as an external-evidence seam over the closed presentation-only extension pack. Benchmark reruns and allocator/provider ladders remain closed. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, #[global_allocator], provider package generation, explicit C runner execution, and worker execution remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1193-MIMAP-563A-POST-PRESENTATION-ONLY-EXTENSION-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1195-MIMAP-565A-POST-EXPLICIT-RUNNER-PLANNING-FOLLOW-ON-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1192-MIMAP-562A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1192-MIMAP-562A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-CLOSEOUT.md"
-latest_card_summary = "Closed the first presentation-only extension pilot pack over the landed MIMAP-552A comparison-ready report and shaped MIMAP-558A contract seam, then selected MIMAP-563A as the next row-selection card."
+latest_card = "293x-1194-MIMAP-564A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-EXPLICIT-RUNNER-PLANNING-FOLLOW-ON"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1194-MIMAP-564A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-EXPLICIT-RUNNER-PLANNING-FOLLOW-ON.md"
+latest_card_summary = "Fixed a deeper explicit C mimalloc runner planning follow-on boundary as an external-evidence seam and selected MIMAP-565A as the next row-selection card while keeping execution seams closed."
 
-current_blocker_token = "MIMAP-563A"
+current_blocker_token = "MIMAP-565A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1194 MIMAP-564A allocator comparison C mimalloc result explicit runner planning follow-on completed; MIMAP-565A selected",
+  "293x-1193 MIMAP-563A post presentation-only extension closeout row selection landed; MIMAP-564A selected",
   "293x-1192 MIMAP-562A allocator comparison C mimalloc result presentation-only extension closeout completed; MIMAP-563A selected",
   "293x-1191 MIMAP-561A post presentation-only extension pilot row selection landed; MIMAP-562A selected",
   "293x-1190 MIMAP-560A allocator comparison C mimalloc result presentation-only extension pilot landed; MIMAP-561A selected",

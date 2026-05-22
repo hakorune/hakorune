@@ -1,6 +1,6 @@
 # 293x-1193 MIMAP-563A Post Presentation-Only Extension Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-22
 
 ## Decision

@@ -1,6 +1,6 @@
 # 293x-1183 MIMAP-553A Post Presentation Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Extension Follow-On Pilot Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-22
 
 ## Decision
