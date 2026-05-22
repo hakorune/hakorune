@@ -424,8 +424,13 @@ Selected next production `usize` field group:
 
 Selected next production `usize` field group:
 
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-088` is intentionally selection-only until the
-  next explicit non-negative owner-local group is chosen.
+- `alloc_fast_path_heap_box.hako` / `HakoAllocFastPathHeap.next_page_id`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-088` selects this field for
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-089` because it is the non-OSVM fast-path
+  heap's owner-local page-array length and next page id source. The follow-on
+  row must keep `HakoAllocFastPathHeap.bin`, `HakoAllocFastPathHandle.page_id`,
+  `HakoAllocFastPathHandle.block_id`, and `HakoAllocPageModel.page_id` signed
+  until their own id/index contract rows.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -527,7 +532,7 @@ excludes `usize_field_probe_box.hako`.
 | File | Box | Stored Numeric Fields | Migration Note |
 | --- | --- | --- | --- |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | `requested_size` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-081`; page/block id fields stay `i64` until id/index contracts are split. |
-| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; bin and next page id stay `i64`. |
+| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; `next_page_id` is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-088` for `HAKO-ALLOC-USIZE-FIELD-GROUP-089`; bin stays `i64`. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
 | `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062`; C205c metadata-store counter migrated with the aligned-small metadata owner. |
 | `huge_page_meta_store_box.hako` | `HakoAllocHugePageMetaStore` | `count`, `live_count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-063`; C205d metadata-store counters migrated with the huge-page metadata owner, not with record declarations. |
