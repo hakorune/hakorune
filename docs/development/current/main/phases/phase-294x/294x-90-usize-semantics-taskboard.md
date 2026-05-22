@@ -288,6 +288,14 @@ remaining field groups and allocator API parity only.
     `294x-30-HAKO-ALLOC-USIZE-PAGE-MODEL-COLLECTION-COUNTERS.md`.
   - Stop line: keep stack-top, live-count, lifecycle, and byte-length fields
     signed until their own contracts are split.
+  - Follow-on migrated group: `HakoAllocPageModel` lifecycle event/reject
+    counters (`retire_count`, `decommit_count`, `recommit_count`,
+    `reuse_count`, `lifecycle_reject_count`, `reactivate_count`,
+    `reactivate_reject_count`) in
+    `294x-31-HAKO-ALLOC-USIZE-PAGE-MODEL-LIFECYCLE-COUNTERS.md`.
+  - Stop line: keep `retired` / `decommitted` lifecycle state flags,
+    stack-top/live-count, identity, size/capacity, and byte-length fields
+    signed until their own contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

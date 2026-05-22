@@ -20,13 +20,13 @@ box HakoAllocPageModel {
     reject_count: usize = 0
     retired: i64 = 0
     decommitted: i64 = 0
-    retire_count: i64 = 0
-    decommit_count: i64 = 0
-    recommit_count: i64 = 0
-    reuse_count: i64 = 0
-    lifecycle_reject_count: i64 = 0
-    reactivate_count: i64 = 0
-    reactivate_reject_count: i64 = 0
+    retire_count: usize = 0
+    decommit_count: usize = 0
+    recommit_count: usize = 0
+    reuse_count: usize = 0
+    lifecycle_reject_count: usize = 0
+    reactivate_count: usize = 0
+    reactivate_reject_count: usize = 0
     peak_used: i64 = 0
     requested_bytes: i64 = 0
 

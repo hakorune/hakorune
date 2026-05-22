@@ -37,10 +37,10 @@ for path in "$APP" "$README" "$PAGE" "$CARD" "$SSOT" "$INDEX"; do
 done
 
 expect_in_file 'decommitted: i64 = 0' "$PAGE" "page model must expose decommitted state"
-expect_in_file 'decommit_count: i64 = 0' "$PAGE" "page model must count accepted decommit transitions"
-expect_in_file 'recommit_count: i64 = 0' "$PAGE" "page model must count accepted recommit transitions"
-expect_in_file 'reuse_count: i64 = 0' "$PAGE" "page model must count accepted reuse transitions"
-expect_in_file 'lifecycle_reject_count: i64 = 0' "$PAGE" "page model must count rejected lifecycle transitions"
+expect_in_file 'decommit_count: usize = 0' "$PAGE" "page model must count accepted decommit transitions with exact usize storage"
+expect_in_file 'recommit_count: usize = 0' "$PAGE" "page model must count accepted recommit transitions with exact usize storage"
+expect_in_file 'reuse_count: usize = 0' "$PAGE" "page model must count accepted reuse transitions with exact usize storage"
+expect_in_file 'lifecycle_reject_count: usize = 0' "$PAGE" "page model must count rejected lifecycle transitions with exact usize storage"
 expect_in_file 'decommit\(\)' "$PAGE" "page model must expose decommit"
 expect_in_file 'recommit\(\)' "$PAGE" "page model must expose recommit"
 expect_in_file 'canReuse\(\)' "$PAGE" "page model must expose canReuse"

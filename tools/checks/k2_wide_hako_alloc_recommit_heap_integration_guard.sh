@@ -135,7 +135,7 @@ fields = {
 }
 for name in ("reactivate_count", "reactivate_reject_count"):
     field = fields.get(name)
-    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"bad page reactivation field {name}: {field}")
 
 print("[m205-mir-json] ok")

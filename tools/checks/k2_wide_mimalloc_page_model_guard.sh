@@ -12,7 +12,7 @@ APP="apps/mimalloc-page-model-proof/main.hako"
 APP_TEST="apps/mimalloc-page-model-proof/test.sh"
 APP_README="apps/mimalloc-page-model-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-166-M165-MIMALLOC-PAGE-MODEL-SPLIT.md"
-USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-31-HAKO-ALLOC-USIZE-PAGE-MODEL-LIFECYCLE-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -48,6 +48,13 @@ guard_expect_in_file "$TAG" 'local_free_count: usize = 0' "$PAGE_BOX" "page loca
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$PAGE_BOX" "page reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'local_free_collect_count: usize = 0' "$PAGE_BOX" "local-free collection counter must be exact usize"
 guard_expect_in_file "$TAG" 'local_free_collected_blocks: usize = 0' "$PAGE_BOX" "collected-block counter must be exact usize"
+guard_expect_in_file "$TAG" 'retire_count: usize = 0' "$PAGE_BOX" "retire counter must be exact usize"
+guard_expect_in_file "$TAG" 'decommit_count: usize = 0' "$PAGE_BOX" "decommit counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommit_count: usize = 0' "$PAGE_BOX" "recommit counter must be exact usize"
+guard_expect_in_file "$TAG" 'reuse_count: usize = 0' "$PAGE_BOX" "reuse counter must be exact usize"
+guard_expect_in_file "$TAG" 'lifecycle_reject_count: usize = 0' "$PAGE_BOX" "lifecycle reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'reactivate_count: usize = 0' "$PAGE_BOX" "reactivate counter must be exact usize"
+guard_expect_in_file "$TAG" 'reactivate_reject_count: usize = 0' "$PAGE_BOX" "reactivate reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'seedFreeBlocks' "$PAGE_BOX" "page model must seed free blocks locally"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_BOX" "page model must have local release seam"
 guard_expect_in_file "$TAG" 'memory.page_box = "memory/page_box.hako"' "$MODULE" "hako module must export page_box"
@@ -55,7 +62,7 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_box as HakoAl
 guard_expect_in_file "$TAG" 'local_free' "$APP_README" "proof README must describe local_free"
 guard_expect_in_file "$TAG" 'M165 page model split' "$PLAN" "plan must retain M165 row"
 guard_expect_in_file "$TAG" '293x-166 M165 Mimalloc Page Model Split' "$CARD" "missing M165 card"
-guard_expect_in_file "$TAG" '294x-29 Hako Alloc Usize Page Model Local Counters' "$USIZE_CARD" "missing page model local counter usize card"
+guard_expect_in_file "$TAG" '294x-31 Hako Alloc Usize Page Model Lifecycle Counters' "$USIZE_CARD" "missing page model lifecycle counter usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M165 guard"
 guard_expect_in_file "$TAG" 'loop\(i < me\.capacity\)' "$PAGE_BOX" "page seeding must exercise JoinIR field-read loop bound"
 
@@ -134,6 +141,13 @@ for name in (
     "local_free_collect_count",
     "local_free_collected_blocks",
     "reject_count",
+    "retire_count",
+    "decommit_count",
+    "recommit_count",
+    "reuse_count",
+    "lifecycle_reject_count",
+    "reactivate_count",
+    "reactivate_reject_count",
 ):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
@@ -148,13 +162,6 @@ for name in (
     "local_free_top",
     "retired",
     "decommitted",
-    "retire_count",
-    "decommit_count",
-    "recommit_count",
-    "reuse_count",
-    "lifecycle_reject_count",
-    "reactivate_count",
-    "reactivate_reject_count",
     "peak_used",
     "requested_bytes",
 ):
