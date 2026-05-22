@@ -16,6 +16,7 @@ APP_README="apps/mimalloc-alloc-fast-path-proof/README.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-175-M167-MIMALLOC-ALLOC-FAST-PATH.md"
 USIZE_SIZE_CARD="docs/development/current/main/phases/phase-294x/294x-50-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-SIZE-CAPACITY.md"
+USIZE_HANDLE_SIZE_CARD="docs/development/current/main/phases/phase-294x/294x-51-HAKO-ALLOC-USIZE-FAST-PATH-HANDLE-REQUESTED-SIZE.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_alloc_fast_path_guard.sh"
@@ -36,6 +37,7 @@ guard_require_files \
   "$PLAN" \
   "$CARD" \
   "$USIZE_SIZE_CARD" \
+  "$USIZE_HANDLE_SIZE_CARD" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
 
@@ -49,6 +51,8 @@ guard_expect_in_file "$TAG" 'bin: i64' "$FAST_HEAP" "bin must remain signed rout
 guard_expect_in_file "$TAG" 'block_size: usize' "$FAST_HEAP" "block_size must be exact usize size-class metadata"
 guard_expect_in_file "$TAG" 'page_capacity: usize' "$FAST_HEAP" "page_capacity must be exact usize capacity metadata"
 guard_expect_fixed_in_file "$TAG" 'birth(bin, block_size: usize, page_capacity: usize)' "$FAST_HEAP" "fast path heap birth must carry exact size/capacity parameters"
+guard_expect_in_file "$TAG" 'requested_size: usize' "$FAST_HEAP" "fast path handle requested_size must be exact usize"
+guard_expect_fixed_in_file "$TAG" 'birth(page_id, block_id, requested_size: usize)' "$FAST_HEAP" "fast path handle birth must carry exact requested_size"
 guard_expect_in_file "$TAG" 'next_page_id: i64 = 0' "$FAST_HEAP" "next_page_id must remain signed index metadata"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$FAST_HEAP" "alloc accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'release_count: usize = 0' "$FAST_HEAP" "release accounting must be exact usize storage"
@@ -58,6 +62,7 @@ guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$FAST_HEAP" "reject accou
 guard_expect_in_file "$TAG" 'M167 alloc fast path plus generic fallback' "$PLAN" "plan must retain M167 row"
 guard_expect_in_file "$TAG" '293x-175 M167 Mimalloc Alloc Fast Path' "$CARD" "missing M167 card"
 guard_expect_in_file "$TAG" '294x-50 Hako Alloc Usize Fast Path Heap Size Capacity' "$USIZE_SIZE_CARD" "missing 294x-50 usize size/capacity card"
+guard_expect_in_file "$TAG" '294x-51 Hako Alloc Usize Fast Path Handle Requested Size' "$USIZE_HANDLE_SIZE_CARD" "missing 294x-51 usize handle requested-size card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M167 guard"
 
 if rg -n 'init[[:space:]]*\\{' "$FAST_HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
@@ -163,6 +168,10 @@ handle_fields = {
 }
 for field_name in ("page_id", "block_id", "requested_size"):
     field = handle_fields.get(field_name)
+    if field_name == "requested_size":
+        if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+            raise SystemExit(f"fast path handle {field_name} must be exact usize storage: {field}")
+        continue
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"fast path handle {field_name} must remain i64 storage: {field}")
 PY

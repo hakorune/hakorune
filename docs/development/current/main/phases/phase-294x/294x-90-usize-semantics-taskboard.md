@@ -355,6 +355,10 @@ remaining field groups and allocator API parity only.
     `294x-50-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-SIZE-CAPACITY.md`.
   - Stop line: keep fast-path route/index metadata and handle id/size fields
     signed until their own rows.
+  - Follow-on migrated group: `HakoAllocFastPathHandle.requested_size` in
+    `294x-51-HAKO-ALLOC-USIZE-FAST-PATH-HANDLE-REQUESTED-SIZE.md`.
+  - Stop line: keep fast-path handle page/block id fields signed until
+    id/index contracts are split.
   - Follow-on migrated group: `HakoAllocOsVmBackedFastPathHeap` event/source
     counters (`alloc_count`, `release_count`, `fallback_count`,
     `page_create_count`, `reject_count`, `reserve_count`, `commit_count`,
