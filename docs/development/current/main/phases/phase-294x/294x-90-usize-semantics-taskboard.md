@@ -301,6 +301,12 @@ remaining field groups and allocator API parity only.
     `294x-32-HAKO-ALLOC-USIZE-ALIGNED-SMALL-META-COUNT.md`.
   - Stop line: keep aligned-small pointer, alignment, and padded-size
     observers signed until their own contracts are split.
+  - Follow-on migrated group: `HakoAllocHugePageMetaStore` metadata counters
+    (`count`, `live_count`) in
+    `294x-33-HAKO-ALLOC-USIZE-HUGE-META-STORE-COUNTERS.md`.
+  - Stop line: keep huge-page pointer, id, requested-size, committed-size, and
+    live-flag payload / observer fields signed until their own contracts are
+    split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

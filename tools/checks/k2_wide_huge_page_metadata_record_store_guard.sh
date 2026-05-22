@@ -45,6 +45,8 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 
 guard_expect_in_file "$TAG" 'memory.huge_page_meta_store_box = "memory/huge_page_meta_store_box.hako"' "$MODULE" "hako module must export C205d store"
 guard_expect_in_file "$TAG" 'box HakoAllocHugePageMetaStore' "$STORE" "C205d store owner must exist"
+guard_expect_in_file "$TAG" 'count: usize = 0' "$STORE" "C205d store count must be exact usize after 294x-33"
+guard_expect_in_file "$TAG" 'live_count: usize = 0' "$STORE" "C205d store live_count must be exact usize after 294x-33"
 guard_expect_in_file "$TAG" 'new HakoAllocHugePageMeta' "$STORE" "C205d store must construct huge-page metadata records"
 guard_expect_in_file "$TAG" 'me\.page_ids\.push\(meta\.page_id\)' "$STORE" "C205d store must read record page_id locally"
 guard_expect_in_file "$TAG" 'me\.ptrs\.push\(meta\.ptr\)' "$STORE" "C205d store must read record ptr locally"
@@ -136,6 +138,16 @@ if any(node.get("op") == "newbox" and node.get("type") == "HakoAllocHugePageMeta
     raise SystemExit("huge metadata record leaked to NewBox in store append")
 if any(node.get("op") == "field_get" and node.get("field") in {"page_id", "ptr", "requested_size", "committed_size", "live"} for node in nodes):
     raise SystemExit("huge metadata record field read leaked to FieldGet in store append")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+store_plan = plans.get("HakoAllocHugePageMetaStore")
+if store_plan is None:
+    raise SystemExit("missing typed object plan: HakoAllocHugePageMetaStore")
+fields = {field.get("name"): field for field in store_plan.get("fields", [])}
+for name in ("count", "live_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"huge metadata store {name} must be exact usize storage: {field}")
 PY
 
 NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \

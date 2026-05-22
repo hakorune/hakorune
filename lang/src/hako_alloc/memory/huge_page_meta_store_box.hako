@@ -11,8 +11,8 @@ box HakoAllocHugePageMetaStore {
     requested_sizes: ArrayBox = new ArrayBox()
     committed_sizes: ArrayBox = new ArrayBox()
     live_flags: ArrayBox = new ArrayBox()
-    count: i64 = 0
-    live_count: i64 = 0
+    count: usize = 0
+    live_count: usize = 0
 
     append(page_id, ptr, requested_size, committed_size): i64 {
         local meta = new HakoAllocHugePageMeta(page_id, ptr, requested_size, committed_size, 1)

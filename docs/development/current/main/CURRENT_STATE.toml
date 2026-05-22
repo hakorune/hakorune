@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-22"
+date = "2026-05-23"
 
 active_lane = "phase-294x usize semantic foundation"
 active_lane_status = "Phase-293x mimalloc blueprint lane closed with record ergonomics feature (127 tests green) and terminal planning pilot. Transitioning to phase-294x usize semantic foundation as prerequisite for mimalloc execution lane. Explicit C mimalloc runner execution will open in follow-on phase after usize semantics."
@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-32-HAKO-ALLOC-USIZE-ALIGNED-SMALL-META-COUNT"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-32-HAKO-ALLOC-USIZE-ALIGNED-SMALL-META-COUNT.md"
-latest_card_summary = "Migrated the aligned-small metadata store count and its path-local meta_count mirror to exact usize storage while keeping pointer, alignment, and padded-size observers on i64."
+latest_card = "294x-33-HAKO-ALLOC-USIZE-HUGE-META-STORE-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-33-HAKO-ALLOC-USIZE-HUGE-META-STORE-COUNTERS.md"
+latest_card_summary = "Migrated the huge-page metadata store count and live_count counters to exact usize storage while keeping huge pointer, id, size, and live-flag payload observers on i64."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-062"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-063"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-33 HAKO-ALLOC-USIZE-FIELD-GROUP-063 huge-page metadata store count/live_count migration landed; pointer/id/size/live-flag payload observers remain i64",
   "294x-32 HAKO-ALLOC-USIZE-FIELD-GROUP-062 aligned-small metadata store count and path mirror migration landed; ptr/alignment/padded-size observers remain i64",
   "294x-31 HAKO-ALLOC-USIZE-FIELD-GROUP-061 page model lifecycle event/reject counter migration landed; lifecycle state flags and stack/live/byte fields remain i64",
   "294x-30 HAKO-ALLOC-USIZE-FIELD-GROUP-060 page model local-free collection counter migration landed; stack/lifecycle/byte fields remain i64",

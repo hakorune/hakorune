@@ -48,6 +48,8 @@ guard_expect_in_file "$TAG" 'me\.meta_store\.append\(page_id, ptr, requested_siz
 guard_expect_in_file "$TAG" 'requested_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "C205d store must own requested-size metadata"
 guard_expect_in_file "$TAG" 'committed_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "C205d store must own committed-size metadata"
 guard_expect_in_file "$TAG" 'live_flags: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "C205d store must keep live metadata separate from page-local free lists"
+guard_expect_in_file "$TAG" 'count: usize = 0' "$HUGE_STORE" "C205d store count must be exact usize"
+guard_expect_in_file "$TAG" 'live_count: usize = 0' "$HUGE_STORE" "C205d store live_count must be exact usize"
 guard_expect_in_file "$TAG" 'isLiveHugePtr\(ptr\)' "$HUGE_MODEL" "M180 must expose live-huge observer"
 guard_expect_in_file "$TAG" 'requestedSizeFor\(ptr\)' "$HUGE_MODEL" "M180 must expose requested-size observer"
 guard_expect_in_file "$TAG" 'committedSizeFor\(ptr\)' "$HUGE_MODEL" "M180 must expose committed-size observer"
