@@ -83,14 +83,22 @@ Defer beyond this queue:
 Rule: if a row does not help V0-V5 produce comparable evidence, it should be
 parked or batched into a later native-allocator phase.
 
-Current blocker:
+Post-closeout follow-on:
 
 ```text
 MIMALLOC-COMPARISON-VSLICE-008:
-  select the post-closeout follow-on. Either add hako-side memory-use evidence
-  for the comparison schema or return to the next explicit `usize` field-group
-  row. Keep provider activation, host replacement, hooks, TLS, atomics, and
-  allocator replacement parked unless a new row explicitly opens them.
+  landed by 294x-60. Selected hako-side pure-first EXE memory-use evidence as
+  the next narrow comparison row.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-001:
+  add a hako pure-first EXE memory-use evidence runner over an already selected
+  comparison `.hako` app. The runner may build/run an exact-MIR EXE and record
+  peak RSS / exit status / output-summary evidence. Keep provider activation,
+  host replacement, hooks, TLS, atomics, and allocator replacement parked.
 ```
 
 ## Ladder
