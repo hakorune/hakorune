@@ -9,7 +9,7 @@ box HakoAllocAlignedSmallMetaStore {
     ptrs: ArrayBox = new ArrayBox()
     alignments: ArrayBox = new ArrayBox()
     padded_sizes: ArrayBox = new ArrayBox()
-    count: i64 = 0
+    count: usize = 0
 
     append(ptr, alignment, padded_size): i64 {
         local meta = new HakoAllocAlignedSmallMeta(ptr, alignment, padded_size)

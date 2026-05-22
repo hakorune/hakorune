@@ -47,6 +47,7 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 
 guard_expect_in_file "$TAG" 'memory.aligned_small_meta_store_box = "memory/aligned_small_meta_store_box.hako"' "$MODULE" "hako module must export C205c store"
 guard_expect_in_file "$TAG" 'box HakoAllocAlignedSmallMetaStore' "$STORE" "C205c store owner must exist"
+guard_expect_in_file "$TAG" 'count: usize = 0' "$STORE" "C205c store count must be exact usize after 294x-32"
 guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "$STORE" "C205c store must construct aligned-small metadata records"
 guard_expect_in_file "$TAG" 'me\.ptrs\.push\(meta\.ptr\)' "$STORE" "C205c store must read record ptr locally"
 guard_expect_in_file "$TAG" 'me\.alignments\.push\(meta\.alignment\)' "$STORE" "C205c store must read record alignment locally"
@@ -55,8 +56,8 @@ guard_expect_in_file "$TAG" 'findIndex\(ptr\)' "$STORE" "C206a store lookup seam
 guard_expect_in_file "$TAG" 'local index = me\.findIndex\(ptr\)' "$STORE" "C206a read APIs must delegate to the lookup seam"
 guard_expect_in_file "$TAG" 'meta_store: HakoAllocAlignedSmallMetaStore' "$PATH_BOX" "M178 owner must delegate metadata storage"
 guard_expect_in_file "$TAG" 'me\.meta_store\.append\(ptr, normalized, padded_size\)' "$PATH_BOX" "M178 owner must append through C205c store"
-guard_expect_in_file "$TAG" 'return me\.meta_store\.alignmentFor\(ptr\)' "$PATH_BOX" "M178 owner must read alignment through C205c store"
-guard_expect_in_file "$TAG" 'return me\.meta_store\.paddedSizeFor\(ptr\)' "$PATH_BOX" "M178 owner must read padded size through C205c store"
+guard_expect_in_file "$TAG" 'local alignment: i64 = me\.meta_store\.alignmentFor\(ptr\)' "$PATH_BOX" "M178 owner must read alignment through C205c store"
+guard_expect_in_file "$TAG" 'local padded_size: i64 = me\.meta_store\.paddedSizeFor\(ptr\)' "$PATH_BOX" "M178 owner must read padded size through C205c store"
 guard_expect_in_file "$TAG" 'aligned_small_meta_store_box.hako' "$ROOT_README" "root README must document C205c store"
 guard_expect_in_file "$TAG" 'aligned_small_meta_store_box.hako' "$MEMORY_README" "memory README must document C205c store"
 

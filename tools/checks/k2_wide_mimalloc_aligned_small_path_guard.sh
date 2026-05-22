@@ -19,7 +19,7 @@ APP="apps/mimalloc-aligned-small-path-proof/main.hako"
 APP_TEST="apps/mimalloc-aligned-small-path-proof/test.sh"
 APP_README="apps/mimalloc-aligned-small-path-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-188-M178-ALIGNED-ALLOCATION-SMALL-PATH.md"
-USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-26-HAKO-ALLOC-USIZE-ALIGNED-SMALL-PATH-COUNTERS.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-32-HAKO-ALLOC-USIZE-ALIGNED-SMALL-META-COUNT.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_aligned_small_path_guard.sh"
@@ -50,7 +50,7 @@ guard_expect_in_file "$TAG" 'allocateAlignedSmall\(size, alignment\)' "$PATH_BOX
 guard_expect_in_file "$TAG" 'HakoAllocAlignmentPolicy\.normalize_alignment' "$PATH_BOX" "M178 must use the M177 alignment policy"
 guard_expect_in_file "$TAG" 'me\.page_map\.register\(ptr, page\.page_id, block_id\)' "$PATH_BOX" "M178 must publish aligned small handles through page_map.register"
 guard_expect_in_file "$TAG" 'meta_store: HakoAllocAlignedSmallMetaStore' "$PATH_BOX" "M178 must delegate live alignment metadata to the C205c store"
-guard_expect_in_file "$TAG" 'meta_count: i64 = 0' "$PATH_BOX" "M178 meta_count mirror must remain i64 until metadata store count migrates"
+guard_expect_in_file "$TAG" 'meta_count: usize = 0' "$PATH_BOX" "M178 meta_count mirror must be exact usize after metadata store count migration"
 guard_expect_in_file "$TAG" 'next_ptr: i64 = 12000' "$PATH_BOX" "M178 next_ptr must remain i64 pointer-shaped state"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$PATH_BOX" "M178 alloc counter must be exact usize"
 guard_expect_in_file "$TAG" 'invalid_alignment_count: usize = 0' "$PATH_BOX" "M178 invalid-alignment counter must be exact usize"
@@ -62,6 +62,7 @@ guard_expect_in_file "$TAG" 'last_result_ptr: i64 = 0' "$PATH_BOX" "M178 result 
 guard_expect_in_file "$TAG" 'last_alignment: i64 = 0' "$PATH_BOX" "M178 alignment observer must remain i64"
 guard_expect_in_file "$TAG" 'last_padded_size: i64 = 0' "$PATH_BOX" "M178 padded-size observer must remain i64"
 guard_expect_in_file "$TAG" 'box HakoAllocAlignedSmallMetaStore' "$META_STORE" "C205c aligned-small metadata store must exist"
+guard_expect_in_file "$TAG" 'count: usize = 0' "$META_STORE" "C205c aligned-small metadata store count must be exact usize"
 guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "$META_STORE" "C205c store must use the aligned-small metadata record seam"
 guard_expect_in_file "$TAG" 'alignments: ArrayBox = new ArrayBox\(\)' "$META_STORE" "C205c store must keep live alignment scalar storage"
 guard_expect_in_file "$TAG" 'alignmentFor\(ptr\): i64' "$PATH_BOX" "M178 must expose scalar alignment metadata for live ptrs"
@@ -75,7 +76,7 @@ guard_expect_in_file "$TAG" 'HakoAllocPageMapAlignedSmallPath' "$ROOT_README" "r
 guard_expect_in_file "$TAG" 'page_map_aligned_small_path_box.hako' "$MEMORY_README" "memory README must document the M178 module"
 guard_expect_in_file "$TAG" 'M178 aligned allocation small path' "$PLAN" "plan must retain the M178 row"
 guard_expect_in_file "$TAG" '293x-188 M178 Aligned Allocation Small Path' "$CARD" "missing M178 card"
-guard_expect_in_file "$TAG" '294x-26 Hako Alloc Usize Aligned-Small Path Counters' "$USIZE_CARD" "missing aligned-small path counter usize card"
+guard_expect_in_file "$TAG" '294x-32 Hako Alloc Usize Aligned-Small Meta Count' "$USIZE_CARD" "missing aligned-small metadata count usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M178 guard"
 
 if rg -n 'init[[:space:]]*\{' "$PATH_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
@@ -173,14 +174,22 @@ for name in (
     "alloc_fail_count",
     "register_fail_count",
     "reject_count",
+    "meta_count",
 ):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"aligned-small path {name} must be exact usize storage: {field}")
-for name in ("meta_count", "next_ptr", "last_result_ptr", "last_alignment", "last_padded_size"):
+for name in ("next_ptr", "last_result_ptr", "last_alignment", "last_padded_size"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"aligned-small path {name} must remain i64 storage: {field}")
+store_plan = plans.get("HakoAllocAlignedSmallMetaStore")
+if store_plan is None:
+    raise SystemExit("missing typed object plan: HakoAllocAlignedSmallMetaStore")
+store_fields = {field.get("name"): field for field in store_plan.get("fields", [])}
+field = store_fields.get("count")
+if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+    raise SystemExit(f"aligned-small meta store count must be exact usize storage: {field}")
 PY
 
 cat "$out"

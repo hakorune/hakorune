@@ -296,6 +296,11 @@ remaining field groups and allocator API parity only.
   - Stop line: keep `retired` / `decommitted` lifecycle state flags,
     stack-top/live-count, identity, size/capacity, and byte-length fields
     signed until their own contracts are split.
+  - Follow-on migrated group: `HakoAllocAlignedSmallMetaStore.count` and
+    `HakoAllocPageMapAlignedSmallPath.meta_count` in
+    `294x-32-HAKO-ALLOC-USIZE-ALIGNED-SMALL-META-COUNT.md`.
+  - Stop line: keep aligned-small pointer, alignment, and padded-size
+    observers signed until their own contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

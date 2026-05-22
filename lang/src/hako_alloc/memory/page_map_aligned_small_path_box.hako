@@ -11,7 +11,7 @@ box HakoAllocPageMapAlignedSmallPath {
     seam: HakoAllocPageMapReleaseSeam
     page_map: HakoAllocPageMap
     meta_store: HakoAllocAlignedSmallMetaStore = new HakoAllocAlignedSmallMetaStore()
-    meta_count: i64 = 0
+    meta_count: usize = 0
     next_ptr: i64 = 12000
     alloc_count: usize = 0
     invalid_alignment_count: usize = 0
