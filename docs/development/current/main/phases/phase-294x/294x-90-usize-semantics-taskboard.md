@@ -176,9 +176,18 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-092:
-  select the next explicit non-negative production field group. Do not migrate
-  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
-  byte-sum fields without a dedicated row.
+  landed by 294x-70. Selected `HakoAllocPageQueue.bin` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-093`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-093:
+  migrate only `HakoAllocPageQueue.bin` to exact `usize`. Keep fast/OSVM heap
+  bin mirrors, size-class policy return shapes, direct-page flags/indexes,
+  page/block identities, sentinels, pointer-like fields, and byte-sum fields
+  unchanged.
 ```
 
 ## Ladder
@@ -427,7 +436,10 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-092:
   - Stop line: keep `bin`, `has_direct_page`, and `direct_page_index` signed.
   - Follow-on migrated group: `HakoAllocPageQueue.direct_page_index` in
     `294x-49-HAKO-ALLOC-USIZE-PAGE-QUEUE-DIRECT-INDEX.md`.
-  - Stop line: keep `bin` and `has_direct_page` signed.
+  - Follow-on selected group: `HakoAllocPageQueue.bin` in
+    `294x-70-HAKO-ALLOC-USIZE-PAGE-QUEUE-BIN-SELECTION.md`.
+  - Stop line: keep `has_direct_page` signed; heap-level bin mirrors and
+    size-class return shapes remain separate rows.
   - Follow-on migrated group: `HakoAllocPageModel` local page counters
     (`alloc_count`, `local_free_count`, `reject_count`) in
     `294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS.md`.
