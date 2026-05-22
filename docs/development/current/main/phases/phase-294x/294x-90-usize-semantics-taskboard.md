@@ -86,10 +86,10 @@ parked or batched into a later native-allocator phase.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-VSLICE-004:
-  decide whether the V2 small-path schema pilot needs a representative
-  exact-MIR EXE closeout now, or whether the queue should continue to V3
-  realloc/aligned schema composition and batch the L3 evidence at closeout.
+MIMALLOC-COMPARISON-VSLICE-005:
+  implement the V3 realloc/aligned comparison schema pilot over existing
+  M174-M178 owners, keeping byte-copy execution, provider activation, host
+  replacement, hooks, TLS, atomics, and OSVM behavior closed.
 ```
 
 ## Ladder
