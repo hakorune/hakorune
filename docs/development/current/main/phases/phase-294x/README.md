@@ -197,6 +197,9 @@ host/global allocator replacement remain later lanes.
   vertical-slice workload pack instead of a full allocator field drain.
 - `294x-54`: the OSVM-backed comparison slice moved the page-source
   byte-length seam to exact `usize` while leaving OSVM base/id payloads signed.
+- `294x-55`: the V2 comparison slice started with a model-only small-path
+  schema pilot over size-class, page model, page queue, page-map release, and
+  local-free reuse owners.
 - `M168`: parent mimalloc lane landed OSVM page-source composition as a
   separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
   pages through existing reserve/commit/decommit rows.

@@ -1,0 +1,131 @@
+// hako-alloc-mimalloc-comparison-small-path-slice-proof
+// Purpose: compose the comparison-facing small allocation slice without
+// opening any substrate or process-wide allocator integration seams.
+
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_queue_box as HakoAllocPageQueueBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local small_request = 8
+        local medium_request = 24
+        local small_bin = SizeClassBox.size_to_bin_usize(small_request)
+        local medium_bin = SizeClassBox.size_to_bin_usize(medium_request)
+        local small_block_size = SizeClassBox.good_size_usize(small_request)
+        local medium_block_size = SizeClassBox.good_size_usize(medium_request)
+
+        local small_page = new HakoAllocPageModel(0, small_block_size, 2, 2)
+        local medium_page = new HakoAllocPageModel(1, medium_block_size, 2, 2)
+        local small_queue = new HakoAllocPageQueue(small_bin)
+        local medium_queue = new HakoAllocPageQueue(medium_bin)
+        local page_map = new HakoAllocPageMap()
+        local release_seam = new HakoAllocPageMapReleaseSeam(page_map)
+
+        local add_small_queue = small_queue.addPage(small_page)
+        local add_medium_queue = medium_queue.addPage(medium_page)
+        local add_small_release = release_seam.addPage(small_page)
+        local add_medium_release = release_seam.addPage(medium_page)
+
+        local selected_small_a = small_queue.selectPage()
+        local small_block_a = selected_small_a.acquire_usize(small_request)
+        local register_small_a = page_map.register(1001, 0, small_block_a)
+
+        local selected_small_b = small_queue.selectPage()
+        local small_block_b = selected_small_b.acquire_usize(small_request)
+        local register_small_b = page_map.register(1002, 0, small_block_b)
+
+        local selected_medium = medium_queue.selectPage()
+        local medium_block = selected_medium.acquire_usize(medium_request)
+        local register_medium = page_map.register(2001, 1, medium_block)
+
+        local release_small_a = release_seam.releasePtr(1001)
+        local small_block_reuse = small_page.acquire_usize(small_request)
+        local register_small_reuse = page_map.register(1003, 0, small_block_reuse)
+
+        local total_requested = small_page.requested_bytes + medium_page.requested_bytes
+        local live_blocks = page_map.live_count
+        local release_successes = release_seam.release_count
+        local local_reuse_collected = small_page.local_free_collected_blocks
+        local queue_selects = small_queue.select_count + medium_queue.select_count
+        local queue_direct_hits = small_queue.direct_hit_count + medium_queue.direct_hit_count
+        local alloc_successes = small_page.alloc_count + medium_page.alloc_count
+
+        print("hako-alloc-mimalloc-comparison-small-path-slice-proof")
+        print("workload=small-path-v1")
+        print("requests=" + small_request + "," + small_request + "," + medium_request + "," + small_request)
+        print("bins=" + small_bin + "," + medium_bin)
+        print("block_sizes=" + small_block_size + "," + medium_block_size)
+        print("queue=" + queue_selects + "," + queue_direct_hits + "," + small_queue.reject_count + "," + medium_queue.reject_count)
+        print("register=" + register_small_a + "," + register_small_b + "," + register_medium + "," + register_small_reuse)
+        print("release=" + release_small_a + "," + release_successes + "," + release_seam.reject_count)
+        print("page_small=" + small_page.alloc_count + "," + small_page.used + "," + small_page.free_top + "," + small_page.local_free_top + "," + local_reuse_collected + "," + small_page.requested_bytes)
+        print("page_medium=" + medium_page.alloc_count + "," + medium_page.used + "," + medium_page.free_top + "," + medium_page.local_free_top + "," + medium_page.requested_bytes)
+        print("map=" + page_map.entry_count + "," + live_blocks + "," + page_map.register_count + "," + page_map.unregister_count + "," + page_map.reject_count)
+        print("summary_fields=" + alloc_successes + "," + release_successes + "," + live_blocks + "," + total_requested + "," + local_reuse_collected)
+
+        local proof = new ProofCheck("small-path comparison slice")
+        proof.expect("queue add small", add_small_queue == 0)
+        proof.expect("queue add medium", add_medium_queue == 0)
+        proof.expect("release seam add small", add_small_release == 1)
+        proof.expect("release seam add medium", add_medium_release == 1)
+        proof.expect("small bin", small_bin == 1)
+        proof.expect("medium bin", medium_bin == 3)
+        proof.expect("small block size", small_block_size == 8)
+        proof.expect("medium block size", medium_block_size == 24)
+        proof.expect("small block a", small_block_a >= 0)
+        proof.expect("small block b", small_block_b >= 0)
+        proof.expect("medium block", medium_block >= 0)
+        proof.expect("register small a", register_small_a == 1)
+        proof.expect("register small b", register_small_b == 1)
+        proof.expect("register medium", register_medium == 1)
+        proof.expect("release small a", release_small_a == 1)
+        proof.expect("small reuse block", small_block_reuse == small_block_a)
+        proof.expect("register small reuse", register_small_reuse == 1)
+        proof.expect("alloc successes", alloc_successes == 4)
+        proof.expect("release successes", release_successes == 1)
+        proof.expect("live blocks", live_blocks == 3)
+        proof.expect("total requested", total_requested == 48)
+        proof.expect("local reuse collected", local_reuse_collected == 1)
+        proof.expect("queue selects", queue_selects == 3)
+        proof.expect("queue direct hits", queue_direct_hits == 3)
+        proof.expect("no page-map rejects", page_map.reject_count == 0)
+        proof.expect("no release rejects", release_seam.reject_count == 0)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

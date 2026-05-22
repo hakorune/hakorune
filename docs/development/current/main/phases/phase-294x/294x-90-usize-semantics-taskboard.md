@@ -66,7 +66,7 @@ not a full native mimalloc-compatible allocator.
 | --- | --- | --- | --- |
 | V0 | Select the comparison workload pack | docs + manifest/static guard | Selected by `294x-53`. Use a small fixed-size alloc/free/reuse workload, a mixed small-size workload, realloc same-class/grow fallback, aligned-small, and huge/OSVM-backed allocation. Do not add provider activation or host replacement. |
 | V1 | Close only comparison-required `usize` fields | field-group L2, L3 only when first-pattern requires it | Started by `294x-54` for the OSVM-backed byte-length seam. Migrate request size, block size, capacity, queue count/index, and report counters only when the workload consumes them. Keep ids, pointer payloads, sentinels, and status flags signed until their own contracts are needed. |
-| V2 | Hako alloc small-path comparison slice | VM + MIR + route preflight; representative EXE closeout | Compose existing size-class, page model, page queue, page-map release, and local reuse paths into one stable output schema. No remote-free stress, TLS, abandoned heap, or atomic bitmap expansion. |
+| V2 | Hako alloc small-path comparison slice | VM + MIR + route preflight; representative EXE closeout | Started by `294x-55` / `MIMALLOC-COMPARISON-VSLICE-003` as a model-only schema pilot. Compose existing size-class, page model, page queue, page-map release, and local reuse paths into one stable output schema. No remote-free stress, TLS, abandoned heap, or atomic bitmap expansion. |
 | V3 | Realloc/aligned comparison slice | same as V2 | Reuse M174-M178 behavior and produce requested bytes, copied bytes, live handles, failure reason, and alignment metadata evidence. No new API surface unless the report schema requires it. |
 | V4 | Huge/OSVM comparison slice | same as V2 | Reuse M179-M181 and OSVM page-source composition for huge requests, reporting reserve/commit/decommit intent/evidence without widening page-source ownership. |
 | V5 | C mimalloc vs `.hako` report closeout | representative L3 / allocator-wide only at closeout | Compare the selected workload outputs using the same schema: requested bytes, live bytes/handles, operation counts, failure reasons, and RSS/memory-use evidence where available. |
@@ -82,6 +82,15 @@ Defer beyond this queue:
 
 Rule: if a row does not help V0-V5 produce comparable evidence, it should be
 parked or batched into a later native-allocator phase.
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-VSLICE-004:
+  decide whether the V2 small-path schema pilot needs a representative
+  exact-MIR EXE closeout now, or whether the queue should continue to V3
+  realloc/aligned schema composition and batch the L3 evidence at closeout.
+```
 
 ## Ladder
 
