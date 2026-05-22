@@ -7,12 +7,12 @@ using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBo
 box HakoAllocHugeReleaseSeam {
     huge_model: HakoAllocHugePageModel
     page_map: HakoAllocPageMap
-    release_count: i64 = 0
-    unregister_count: i64 = 0
-    lookup_miss_count: i64 = 0
-    not_huge_count: i64 = 0
-    model_reject_count: i64 = 0
-    reject_count: i64 = 0
+    release_count: usize = 0
+    unregister_count: usize = 0
+    lookup_miss_count: usize = 0
+    not_huge_count: usize = 0
+    model_reject_count: usize = 0
+    reject_count: usize = 0
     last_page_id: i64 = -1
     last_requested_size: i64 = 0
     last_committed_size: i64 = 0

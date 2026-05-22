@@ -319,6 +319,12 @@ remaining field groups and allocator API parity only.
     `294x-35-HAKO-ALLOC-USIZE-HUGE-MODEL-EVENT-COUNTERS.md`.
   - Stop line: keep huge-model pointer/id/size/status observers and facade
     report fields signed until their own rows.
+  - Follow-on migrated group: `HakoAllocHugeReleaseSeam` event/reject counters
+    (`release_count`, `unregister_count`, `lookup_miss_count`,
+    `not_huge_count`, `model_reject_count`, `reject_count`) in
+    `294x-36-HAKO-ALLOC-USIZE-HUGE-RELEASE-SEAM-COUNTERS.md`.
+  - Stop line: keep huge release seam sentinel/status observer fields signed
+    until their own rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

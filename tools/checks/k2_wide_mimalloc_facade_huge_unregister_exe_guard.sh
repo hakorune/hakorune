@@ -131,6 +131,31 @@ for name in (
     if plans.get(name) is None:
         raise SystemExit(f"missing typed object plan: {name}")
 
+seam_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocHugeReleaseSeam"].get("fields", [])
+}
+for field_name in (
+    "release_count",
+    "unregister_count",
+    "lookup_miss_count",
+    "not_huge_count",
+    "model_reject_count",
+    "reject_count",
+):
+    field = seam_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"huge release seam {field_name} must be exact usize storage: {field}")
+for field_name in (
+    "last_page_id",
+    "last_requested_size",
+    "last_committed_size",
+    "last_failure_kind",
+):
+    field = seam_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"huge release seam {field_name} must remain i64 storage: {field}")
+
 report_fields = {
     field.get("name")
     for field in plans["HakoAllocObjectLifecycleFacadeHugeUnregisterReport"].get("fields", [])
