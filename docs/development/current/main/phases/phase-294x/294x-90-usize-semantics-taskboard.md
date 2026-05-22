@@ -218,6 +218,8 @@ remaining field groups and allocator API parity only.
   isolated hako_alloc proof app.
 - [x] Migrate production page-model stack-top/occupancy fields after the
   proof-only stack-top and ArrayBox-index probes.
+- [x] Probe exact `usize` capacity bounds with current-lane signed loop/index
+  values before production page capacity migration.
 - [x] Mark production `usize` field migration blocked on non-VM exact numeric
   storage, exact field ABI, and backend ABI consumption.
 - [x] Update first production proof apps for the facade stats field group.
@@ -375,6 +377,11 @@ remaining field groups and allocator API parity only.
   - Stop line: keep page identity, block size, capacity, reserved count,
     lifecycle state flags, byte-length fields, queue indexes, and remote-free
     mailbox fields signed until their own owner-local rows.
+  - Follow-on probe row: `HakoAllocUsizeFieldProbe` exact `usize` capacity
+    bound checks with signed loop/index values in
+    `294x-44-HAKO-ALLOC-USIZE-CAPACITY-BOUND-PROBE.md`.
+  - Stop line: production page capacity/reserved fields still do not migrate
+    in this row.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

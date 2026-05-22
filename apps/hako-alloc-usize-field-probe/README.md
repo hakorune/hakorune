@@ -7,6 +7,8 @@ Purpose
   `free_top`, `local_free_top`, and explicit underflow/overflow reject counters.
 - Covers `ArrayBox.get/set` index use with exact `usize` stack-top values
   before production page stack fields migrate.
+- Covers signed index guards against an exact `usize` capacity bound and a
+  simple `loop(i < capacity)` bound shape.
 - Does not migrate production allocator state by itself; production migration
   is tracked by explicit 294x field-group rows.
 

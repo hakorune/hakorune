@@ -423,6 +423,8 @@ The probe covers capacity, occupancy, byte-length accumulation, and the first
 stack-top decrement/increment shape with explicit underflow/overflow rejects.
 It also covers exact `usize` stack-top values used as `ArrayBox.get/set`
 indexes before production page stack fields migrate.
+`294x-44` extends the probe to signed-index guards against exact `usize`
+capacity bounds and `loop(i < capacity)` bound checks.
 C205a allocator metadata `record` declarations are also excluded from the live
 stored-field count: they describe identity-free metadata shapes, not runtime
 state. C205c/C205d store-owner counters are counted because those boxes own
@@ -532,6 +534,8 @@ Non-stored sentinel seams that must be considered in the next row:
    extends the proof-only probe for this; `294x-42` extends the same probe to
    exact `usize` stack-top values used as `ArrayBox.get/set` indexes. `294x-43`
    migrates the production page stack-top/occupancy owner-local group.
+   `294x-44` probes exact `usize` capacity bounds with current-lane signed
+   indexes before production capacity/reserved migration.
 4. Probe `size` and `byte-length` fields only after checked arithmetic
    diagnostics are stable enough for allocator byte sums.
 5. Probe `index` fields after sentinel returns and not-found states are

@@ -12,6 +12,9 @@ box HakoAllocUsizeFieldProbe {
     alloc_count: usize = 0
     requested_bytes: usize = 0
     array_index_probe_count: usize = 0
+    capacity_loop_count: usize = 0
+    index_accept_count: usize = 0
+    index_reject_count: usize = 0
     free_top_underflow_reject_count: usize = 0
     local_free_overflow_reject_count: usize = 0
     local_free_underflow_reject_count: usize = 0
@@ -96,5 +99,29 @@ box HakoAllocUsizeFieldProbe {
         me.local_free_top = me.local_free_top - 1
         me.array_index_probe_count = me.array_index_probe_count + 1
         return me.local_free_stack_values.get(me.local_free_top)
+    }
+
+    countToCapacity() {
+        local i = 0
+        loop(i < me.capacity) {
+            me.capacity_loop_count = me.capacity_loop_count + 1
+            i = i + 1
+        }
+        return me.capacity_loop_count
+    }
+
+    acceptIndex(index) {
+        if index < 0 {
+            me.index_reject_count = me.index_reject_count + 1
+            return 0
+        }
+
+        if index >= me.capacity {
+            me.index_reject_count = me.index_reject_count + 1
+            return 0
+        }
+
+        me.index_accept_count = me.index_accept_count + 1
+        return 1
     }
 }

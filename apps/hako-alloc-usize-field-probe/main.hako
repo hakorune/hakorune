@@ -24,6 +24,10 @@ static box Main {
         local c0 = probe.collectLocalFreeBlock()
         local c1 = probe.collectLocalFreeBlock()
         local c2 = probe.collectLocalFreeBlock()
+        local cap_loop = probe.countToCapacity()
+        local idx_neg = probe.acceptIndex(-1)
+        local idx_low = probe.acceptIndex(0)
+        local idx_high = probe.acceptIndex(2)
 
         local shape = 0
         if a0 == 1 { shape = shape + 1 }
@@ -43,6 +47,10 @@ static box Main {
         if c0 == 41 { shape = shape + 1 }
         if c1 == 40 { shape = shape + 1 }
         if c2 == -1 { shape = shape + 1 }
+        if cap_loop == 2 { shape = shape + 1 }
+        if idx_neg == 0 { shape = shape + 1 }
+        if idx_low == 1 { shape = shape + 1 }
+        if idx_high == 0 { shape = shape + 1 }
         if probe.capacity == 2 { shape = shape + 1 }
         if probe.used == 2 { shape = shape + 1 }
         if probe.free_top == 0 { shape = shape + 1 }
@@ -50,6 +58,9 @@ static box Main {
         if probe.alloc_count == 2 { shape = shape + 1 }
         if probe.requested_bytes == 56 { shape = shape + 1 }
         if probe.array_index_probe_count == 3 { shape = shape + 1 }
+        if probe.capacity_loop_count == 2 { shape = shape + 1 }
+        if probe.index_accept_count == 1 { shape = shape + 1 }
+        if probe.index_reject_count == 2 { shape = shape + 1 }
         if probe.free_top_underflow_reject_count == 1 { shape = shape + 1 }
         if probe.local_free_overflow_reject_count == 1 { shape = shape + 1 }
         if probe.local_free_underflow_reject_count == 1 { shape = shape + 1 }
@@ -59,11 +70,12 @@ static box Main {
         print("seed=" + s0 + "," + s1 + "," + s2 + "," + s3 + "," + p0)
         print("free=" + f0 + "," + f1 + "," + f2)
         print("local=" + l0 + "," + l1 + "," + l2 + "," + c0 + "," + c1 + "," + c2)
-        print("state=" + probe.capacity + "," + probe.used + "," + probe.free_top + "," + probe.local_free_top + "," + probe.alloc_count + "," + probe.requested_bytes + "," + probe.array_index_probe_count)
+        print("bounds=" + cap_loop + "," + idx_neg + "," + idx_low + "," + idx_high)
+        print("state=" + probe.capacity + "," + probe.used + "," + probe.free_top + "," + probe.local_free_top + "," + probe.alloc_count + "," + probe.requested_bytes + "," + probe.array_index_probe_count + "," + probe.capacity_loop_count + "," + probe.index_accept_count + "," + probe.index_reject_count)
         print("rejects=" + probe.free_top_underflow_reject_count + "," + probe.local_free_overflow_reject_count + "," + probe.local_free_underflow_reject_count)
         print("shape=" + shape)
 
-        if shape == 27 {
+        if shape == 34 {
             print("summary=ok")
             return 0
         }
