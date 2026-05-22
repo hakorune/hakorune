@@ -7,8 +7,11 @@ box HakoAllocUsizeFieldProbe {
     used: usize = 0
     free_top: usize = 0
     local_free_top: usize = 0
+    free_stack_values: ArrayBox = new ArrayBox()
+    local_free_stack_values: ArrayBox = new ArrayBox()
     alloc_count: usize = 0
     requested_bytes: usize = 0
+    array_index_probe_count: usize = 0
     free_top_underflow_reject_count: usize = 0
     local_free_overflow_reject_count: usize = 0
     local_free_underflow_reject_count: usize = 0
@@ -29,6 +32,27 @@ box HakoAllocUsizeFieldProbe {
         return 1
     }
 
+    seedFreeStackValue(value) {
+        me.free_stack_values.push(value)
+        return 1
+    }
+
+    seedLocalFreeSlot() {
+        me.local_free_stack_values.push(0)
+        return 1
+    }
+
+    peekFreeTopBlock() {
+        if me.free_top == 0 {
+            me.free_top_underflow_reject_count = me.free_top_underflow_reject_count + 1
+            return -1
+        }
+
+        local index = me.free_top - 1
+        me.array_index_probe_count = me.array_index_probe_count + 1
+        return me.free_stack_values.get(index)
+    }
+
     takeFreeTop() {
         if me.free_top == 0 {
             me.free_top_underflow_reject_count = me.free_top_underflow_reject_count + 1
@@ -40,22 +64,37 @@ box HakoAllocUsizeFieldProbe {
     }
 
     pushLocalFreeTop() {
+        return me.pushLocalFreeBlock(0)
+    }
+
+    pushLocalFreeBlock(value) {
         if me.local_free_top >= me.capacity {
             me.local_free_overflow_reject_count = me.local_free_overflow_reject_count + 1
             return 0
         }
 
+        me.local_free_stack_values.set(me.local_free_top, value)
         me.local_free_top = me.local_free_top + 1
         return 1
     }
 
     collectLocalFreeTop() {
-        if me.local_free_top == 0 {
-            me.local_free_underflow_reject_count = me.local_free_underflow_reject_count + 1
+        local block_id = me.collectLocalFreeBlock()
+        if block_id < 0 {
             return 0
         }
 
-        me.local_free_top = me.local_free_top - 1
         return 1
+    }
+
+    collectLocalFreeBlock() {
+        if me.local_free_top == 0 {
+            me.local_free_underflow_reject_count = me.local_free_underflow_reject_count + 1
+            return -1
+        }
+
+        me.local_free_top = me.local_free_top - 1
+        me.array_index_probe_count = me.array_index_probe_count + 1
+        return me.local_free_stack_values.get(me.local_free_top)
     }
 }

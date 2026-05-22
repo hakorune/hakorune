@@ -10,48 +10,60 @@ static box Main {
         local a0 = probe.recordAllocation(24)
         local a1 = probe.recordAllocation(32)
         local a2 = probe.recordAllocation(8)
+        local s0 = probe.seedFreeStackValue(10)
+        local s1 = probe.seedFreeStackValue(11)
+        local s2 = probe.seedLocalFreeSlot()
+        local s3 = probe.seedLocalFreeSlot()
+        local p0 = probe.peekFreeTopBlock()
         local f0 = probe.takeFreeTop()
         local f1 = probe.takeFreeTop()
         local f2 = probe.takeFreeTop()
-        local l0 = probe.pushLocalFreeTop()
-        local l1 = probe.pushLocalFreeTop()
-        local l2 = probe.pushLocalFreeTop()
-        local c0 = probe.collectLocalFreeTop()
-        local c1 = probe.collectLocalFreeTop()
-        local c2 = probe.collectLocalFreeTop()
+        local l0 = probe.pushLocalFreeBlock(40)
+        local l1 = probe.pushLocalFreeBlock(41)
+        local l2 = probe.pushLocalFreeBlock(42)
+        local c0 = probe.collectLocalFreeBlock()
+        local c1 = probe.collectLocalFreeBlock()
+        local c2 = probe.collectLocalFreeBlock()
 
         local shape = 0
         if a0 == 1 { shape = shape + 1 }
         if a1 == 1 { shape = shape + 1 }
         if a2 == 0 { shape = shape + 1 }
+        if s0 == 1 { shape = shape + 1 }
+        if s1 == 1 { shape = shape + 1 }
+        if s2 == 1 { shape = shape + 1 }
+        if s3 == 1 { shape = shape + 1 }
+        if p0 == 11 { shape = shape + 1 }
         if f0 == 1 { shape = shape + 1 }
         if f1 == 1 { shape = shape + 1 }
         if f2 == 0 { shape = shape + 1 }
         if l0 == 1 { shape = shape + 1 }
         if l1 == 1 { shape = shape + 1 }
         if l2 == 0 { shape = shape + 1 }
-        if c0 == 1 { shape = shape + 1 }
-        if c1 == 1 { shape = shape + 1 }
-        if c2 == 0 { shape = shape + 1 }
+        if c0 == 41 { shape = shape + 1 }
+        if c1 == 40 { shape = shape + 1 }
+        if c2 == -1 { shape = shape + 1 }
         if probe.capacity == 2 { shape = shape + 1 }
         if probe.used == 2 { shape = shape + 1 }
         if probe.free_top == 0 { shape = shape + 1 }
         if probe.local_free_top == 0 { shape = shape + 1 }
         if probe.alloc_count == 2 { shape = shape + 1 }
         if probe.requested_bytes == 56 { shape = shape + 1 }
+        if probe.array_index_probe_count == 3 { shape = shape + 1 }
         if probe.free_top_underflow_reject_count == 1 { shape = shape + 1 }
         if probe.local_free_overflow_reject_count == 1 { shape = shape + 1 }
         if probe.local_free_underflow_reject_count == 1 { shape = shape + 1 }
 
         print("hako-alloc-usize-field-probe")
         print("accept=" + a0 + "," + a1 + "," + a2)
+        print("seed=" + s0 + "," + s1 + "," + s2 + "," + s3 + "," + p0)
         print("free=" + f0 + "," + f1 + "," + f2)
         print("local=" + l0 + "," + l1 + "," + l2 + "," + c0 + "," + c1 + "," + c2)
-        print("state=" + probe.capacity + "," + probe.used + "," + probe.free_top + "," + probe.local_free_top + "," + probe.alloc_count + "," + probe.requested_bytes)
+        print("state=" + probe.capacity + "," + probe.used + "," + probe.free_top + "," + probe.local_free_top + "," + probe.alloc_count + "," + probe.requested_bytes + "," + probe.array_index_probe_count)
         print("rejects=" + probe.free_top_underflow_reject_count + "," + probe.local_free_overflow_reject_count + "," + probe.local_free_underflow_reject_count)
         print("shape=" + shape)
 
-        if shape == 21 {
+        if shape == 27 {
             print("summary=ok")
             return 0
         }

@@ -5,6 +5,8 @@ Purpose
   exact `usize` stored fields in an isolated probe.
 - Covers the first stack-top shape with guarded decrement/increment paths:
   `free_top`, `local_free_top`, and explicit underflow/overflow reject counters.
+- Covers `ArrayBox.get/set` index use with exact `usize` stack-top values
+  before production page stack fields migrate.
 - Does not migrate production allocator state by itself; production migration
   is tracked by explicit 294x field-group rows.
 
