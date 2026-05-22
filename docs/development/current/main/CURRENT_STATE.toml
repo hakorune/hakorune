@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-51-HAKO-ALLOC-USIZE-FAST-PATH-HANDLE-REQUESTED-SIZE"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-51-HAKO-ALLOC-USIZE-FAST-PATH-HANDLE-REQUESTED-SIZE.md"
-latest_card_summary = "Migrated HakoAllocFastPathHandle.requested_size to exact usize storage while keeping page/block identity payloads signed."
+latest_card = "294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE.md"
+latest_card_summary = "Migrated HakoAllocOsVmBackedHandle.requested_size to exact usize storage while keeping OSVM backing and id payload seams signed."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-081"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-082"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-52 HAKO-ALLOC-USIZE-FIELD-GROUP-082 OSVM-backed fast-path handle requested_size migration landed; backing and page/block identity payload fields remain i64",
   "294x-51 HAKO-ALLOC-USIZE-FIELD-GROUP-081 fast-path handle requested_size migration landed; page/block identity payload fields remain i64",
   "294x-50 HAKO-ALLOC-USIZE-FIELD-GROUP-080 fast-path heap block_size/page_capacity migration landed; bin, next_page_id, and handle payload fields remain i64",
   "294x-49 HAKO-ALLOC-USIZE-FIELD-GROUP-079 page-queue direct_page_index migration landed; bin and has_direct_page remain i64",

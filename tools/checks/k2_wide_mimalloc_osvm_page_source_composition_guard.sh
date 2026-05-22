@@ -15,6 +15,7 @@ APP_TEST="apps/mimalloc-osvm-page-source-composition-proof/test.sh"
 APP_README="apps/mimalloc-osvm-page-source-composition-proof/README.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-176-M168-MIMALLOC-OSVM-PAGE-SOURCE-COMPOSITION.md"
+USIZE_HANDLE_SIZE_CARD="docs/development/current/main/phases/phase-294x/294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_osvm_page_source_composition_guard.sh"
 
@@ -31,6 +32,7 @@ guard_require_files \
   "$APP_README" \
   "$PLAN" \
   "$CARD" \
+  "$USIZE_HANDLE_SIZE_CARD" \
   "$INDEX"
 
 guard_expect_in_file "$TAG" 'memory.osvm_backed_fast_path_heap_box = "memory/osvm_backed_fast_path_heap_box.hako"' "$MODULE" "hako module must export M168 heap adapter"
@@ -54,8 +56,11 @@ guard_expect_in_file "$TAG" 'reserve_count: usize = 0' "$HEAP" "reserve accounti
 guard_expect_in_file "$TAG" 'commit_count: usize = 0' "$HEAP" "commit accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'decommit_count: usize = 0' "$HEAP" "decommit accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'source_reject_count: usize = 0' "$HEAP" "source reject accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'requested_size: usize' "$HEAP" "OSVM-backed handle requested_size must be exact usize"
+guard_expect_fixed_in_file "$TAG" 'birth(page_id, block_id, requested_size: usize)' "$HEAP" "OSVM-backed handle birth must carry exact requested_size"
 guard_expect_in_file "$TAG" 'M168 OSVM page source composition' "$PLAN" "plan must retain M168 row"
 guard_expect_in_file "$TAG" '293x-176 M168 Mimalloc OSVM Page-Source Composition' "$CARD" "missing M168 card"
+guard_expect_in_file "$TAG" '294x-52 Hako Alloc Usize OSVM Backed Handle Requested Size' "$USIZE_HANDLE_SIZE_CARD" "missing 294x-52 usize OSVM-backed handle requested-size card"
 guard_expect_in_file "$TAG" 'scalar-return proof seam' "$CARD" "M168 card must document addFreshPage as a proof-only scalar seam"
 guard_expect_in_file "$TAG" 'semantic allocator API' "$CARD" "M168 card must preserve allocate(size) as the semantic API"
 guard_expect_in_file "$TAG" 'object-return allocation surface' "$CARD" "M168 card must preserve object-return allocation semantics"
@@ -199,6 +204,10 @@ for box_name, field_names in (
     }
     for field_name in field_names:
         field = fields.get(field_name)
+        if box_name == "HakoAllocOsVmBackedHandle" and field_name == "requested_size":
+            if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+                raise SystemExit(f"{box_name}.{field_name} must be exact usize storage: {field}")
+            continue
         if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
             raise SystemExit(f"{box_name}.{field_name} must remain i64 storage: {field}")
 

@@ -367,6 +367,11 @@ remaining field groups and allocator API parity only.
   - Stop line: keep OSVM-backed route/index/size/capacity metadata,
     `backing_count`, backing payloads, and handle payloads signed until their
     own rows.
+  - Follow-on migrated group: `HakoAllocOsVmBackedHandle.requested_size` in
+    `294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE.md`.
+  - Stop line: keep OSVM-backed page/block id fields, backing payloads,
+    size/capacity metadata, and OSVM byte-length seams signed until their own
+    rows.
   - Follow-on migrated group: `HakoAllocSecureFreeListDiagnostics` diagnostic
     counters (`scan_count`, `ok_count`, `fail_count`,
     `out_of_range_free_block_count`, `duplicate_free_block_count`,

@@ -23,9 +23,9 @@ box HakoAllocOsVmPageBacking {
 box HakoAllocOsVmBackedHandle {
     page_id: i64
     block_id: i64
-    requested_size: i64
+    requested_size: usize
 
-    birth(page_id, block_id, requested_size) {
+    birth(page_id, block_id, requested_size: usize) {
         me.page_id = page_id
         me.block_id = block_id
         me.requested_size = requested_size
