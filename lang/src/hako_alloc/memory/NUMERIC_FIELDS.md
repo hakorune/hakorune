@@ -424,13 +424,8 @@ Selected next production `usize` field group:
 
 Selected next production `usize` field group:
 
-- `page_queue_box.hako` / `HakoAllocPageQueue.bin`.
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-092` selects this field for
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-093` because it is the queue-local size-class
-  index and is not a failure sentinel, pointer, or mutable occupancy value.
-  Fast/OSVM heap bin mirrors, size-class policy return shapes, direct-page
-  flags/indexes, page identities, and sentinel-returning methods stay in their
-  own rows.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-094` is intentionally selection-only until the
+  next explicit non-negative owner-local group is chosen.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -553,7 +548,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | same-class/no-move counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-053`; result pointer stays `i64`. |
 | `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | release event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-052`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-087`; page-map entry ids and flags remain `i64`. |
 | `page_map_release_invariant_box.hako` | `HakoAllocPageMapReleaseObserver` | `observe_count`, `success_count`, `reject_count`, `live_count_before`, `release_count_before`, `unregister_count_before`, `page_used_before`, `local_free_before`, `last_ptr`, `last_page_id`, `last_block_id`, `last_result`, `last_entry_live_before`, `last_lookup_after`, `last_live_count_delta`, `last_release_count_delta`, `last_unregister_count_delta`, `last_page_used_delta`, `last_local_free_delta` | observer counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-070`; before-snapshots, signed sentinels, statuses, and signed delta fields stay `i64`. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`; `direct_page_index` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-079`; `bin` is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-092` for `HAKO-ALLOC-USIZE-FIELD-GROUP-093`; presence flag stays `i64`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`; `direct_page_index` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-079`; `bin` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-093`; presence flag stays `i64`. |
 | `remote_free_page_integration_box.hako` | `HakoAllocRemoteFreePageInbox` | `head_cell`, `init_status`, `pending_top`, `remote_push_count`, `remote_collect_count`, `retry_count`, `reject_count` | mailbox status/count fields remain `i64` until pointer-atomic lane is exact. |
 | `secure_free_list_diagnostics_box.hako` | `HakoAllocSecureFreeListDiagnostics` | `scan_count`, `ok_count`, `fail_count`, `out_of_range_free_block_count`, `duplicate_free_block_count`, `live_block_in_free_list_count`, `free_count_mismatch_count`, `local_free_count_mismatch_count`, `last_ok`, `last_out_of_range_free_block`, `last_duplicate_free_block`, `last_live_block_in_free_list`, `last_free_count_mismatch`, `last_local_free_count_mismatch` | diagnostics counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-069`; `last_*` observation flags stay `i64` until bool / flag semantics are split. |
 | `secure_free_list_policy_box.hako` | `HakoAllocSecureFreeListPolicy` | none | M184 has no stored numeric fields; `-1` and `-2` are non-stored return sentinels. |
