@@ -272,6 +272,11 @@ remaining field groups and allocator API parity only.
     `294x-27-HAKO-ALLOC-USIZE-HUGE-THRESHOLD-ROUTER-COUNTERS.md`.
   - Stop line: keep route-kind, pointer, size, and threshold observer fields
     signed until their own exactness contracts are split.
+  - Follow-on migrated group: `HakoAllocPageQueue` stats counters
+    (`add_count`, `select_count`, `direct_hit_count`, `refresh_count`,
+    `reject_count`) in `294x-28-HAKO-ALLOC-USIZE-PAGE-QUEUE-COUNTERS.md`.
+  - Stop line: keep `bin`, `page_count`, `has_direct_page`, and
+    `direct_page_index` signed until queue index/presence contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

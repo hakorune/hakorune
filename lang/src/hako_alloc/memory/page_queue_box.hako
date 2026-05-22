@@ -10,11 +10,11 @@ box HakoAllocPageQueue {
     page_count: i64 = 0
     has_direct_page: i64 = 0
     direct_page_index: i64 = 0
-    add_count: i64 = 0
-    select_count: i64 = 0
-    direct_hit_count: i64 = 0
-    refresh_count: i64 = 0
-    reject_count: i64 = 0
+    add_count: usize = 0
+    select_count: usize = 0
+    direct_hit_count: usize = 0
+    refresh_count: usize = 0
+    reject_count: usize = 0
 
     birth(bin) {
         me.bin = bin
