@@ -40,6 +40,20 @@ guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.commitPage' "$HEAP" "M168
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.decommitPage' "$HEAP" "M168 adapter must decommit through page-source policy"
 guard_expect_in_file "$TAG" 'me\.queue\.addPage\(page\)' "$HEAP" "M168 adapter must register backed pages through the queue owner"
 guard_expect_in_file "$TAG" 'new HakoAllocPageModel' "$HEAP" "M168 adapter must still create page-local models"
+guard_expect_in_file "$TAG" 'bin: i64' "$HEAP" "bin must remain signed route/index metadata"
+guard_expect_in_file "$TAG" 'block_size: i64' "$HEAP" "block_size must remain signed size-class metadata"
+guard_expect_in_file "$TAG" 'page_capacity: i64' "$HEAP" "page_capacity must remain signed capacity metadata"
+guard_expect_in_file "$TAG" 'next_page_id: i64 = 0' "$HEAP" "next_page_id must remain signed index metadata"
+guard_expect_in_file "$TAG" 'backing_count: i64 = 0' "$HEAP" "backing_count must remain signed while compared with page_id"
+guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$HEAP" "alloc accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'release_count: usize = 0' "$HEAP" "release accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'fallback_count: usize = 0' "$HEAP" "fallback accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'page_create_count: usize = 0' "$HEAP" "page creation accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$HEAP" "reject accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'reserve_count: usize = 0' "$HEAP" "reserve accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'commit_count: usize = 0' "$HEAP" "commit accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'decommit_count: usize = 0' "$HEAP" "decommit accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'source_reject_count: usize = 0' "$HEAP" "source reject accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'M168 OSVM page source composition' "$PLAN" "plan must retain M168 row"
 guard_expect_in_file "$TAG" '293x-176 M168 Mimalloc OSVM Page-Source Composition' "$CARD" "missing M168 card"
 guard_expect_in_file "$TAG" 'scalar-return proof seam' "$CARD" "M168 card must document addFreshPage as a proof-only scalar seam"
@@ -63,13 +77,21 @@ if rg -n 'OSVM|OsVm|page_source|PageSource|reservePage|commitPage|decommitPage' 
 fi
 rm -f /tmp/"$TAG".m167_leak
 
-if rg -n ': usize|HakoAllocUsizeFieldProbe|usize_field_probe' "$HEAP" "$APP" >/tmp/"$TAG".usize 2>&1; then
-  echo "[$TAG] ERROR: M168 must not expand production usize field migration" >&2
-  cat /tmp/"$TAG".usize >&2
-  rm -f /tmp/"$TAG".usize
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$HEAP" "$APP" >/tmp/"$TAG".usize_probe 2>&1; then
+  echo "[$TAG] ERROR: M168 must not depend on the usize probe owner" >&2
+  cat /tmp/"$TAG".usize_probe >&2
+  rm -f /tmp/"$TAG".usize_probe
   exit 1
 fi
-rm -f /tmp/"$TAG".usize
+rm -f /tmp/"$TAG".usize_probe
+
+if rg -n ': usize' "$APP" >/tmp/"$TAG".usize_app 2>&1; then
+  echo "[$TAG] ERROR: M168 proof app must not introduce extra usize locals or fields" >&2
+  cat /tmp/"$TAG".usize_app >&2
+  rm -f /tmp/"$TAG".usize_app
+  exit 1
+fi
+rm -f /tmp/"$TAG".usize_app
 
 if rg -n 'Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook|provider' "$HEAP" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
   echo "[$TAG] ERROR: M169+/M170+ or provider/hook ownership leaked into M168" >&2
@@ -80,8 +102,8 @@ fi
 rm -f /tmp/"$TAG".forbidden
 
 if rg -n 'hako_osvm_(unreserve|release)|unreserve_bytes|release_bytes' \
-  src lang/c-abi/shims crates/nyash_kernel lang/src >/tmp/"$TAG".inactive_osvm_rows 2>&1; then
-  echo "[$TAG] ERROR: OSVM unreserve/release rows must stay inactive in M168" >&2
+  "$HEAP" "$APP" >/tmp/"$TAG".inactive_osvm_rows 2>&1; then
+  echo "[$TAG] ERROR: M168 heap/app must not own OSVM unreserve/release behavior" >&2
   cat /tmp/"$TAG".inactive_osvm_rows >&2
   rm -f /tmp/"$TAG".inactive_osvm_rows
   exit 1
@@ -142,6 +164,43 @@ for box_name in (
 ):
     if plans.get(box_name) is None:
         raise SystemExit(f"missing typed object plan: {box_name}")
+
+heap_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocOsVmBackedFastPathHeap"].get("fields", [])
+}
+for field_name in (
+    "alloc_count",
+    "release_count",
+    "fallback_count",
+    "page_create_count",
+    "reject_count",
+    "reserve_count",
+    "commit_count",
+    "decommit_count",
+    "source_reject_count",
+):
+    field = heap_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"osvm-backed fast path heap {field_name} must be exact usize storage: {field}")
+
+for field_name in ("bin", "block_size", "page_capacity", "next_page_id", "backing_count"):
+    field = heap_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"osvm-backed fast path heap {field_name} must remain i64 storage: {field}")
+
+for box_name, field_names in (
+    ("HakoAllocOsVmBackedHandle", ("page_id", "block_id", "requested_size")),
+    ("HakoAllocOsVmPageBacking", ("page_id", "base", "bytes")),
+):
+    fields = {
+        field.get("name"): field
+        for field in plans[box_name].get("fields", [])
+    }
+    for field_name in field_names:
+        field = fields.get(field_name)
+        if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+            raise SystemExit(f"{box_name}.{field_name} must remain i64 storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

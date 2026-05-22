@@ -331,6 +331,14 @@ remaining field groups and allocator API parity only.
     `294x-37-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-COUNTERS.md`.
   - Stop line: keep fast-path route/index/size/capacity metadata and handle
     id/size fields signed until their own rows.
+  - Follow-on migrated group: `HakoAllocOsVmBackedFastPathHeap` event/source
+    counters (`alloc_count`, `release_count`, `fallback_count`,
+    `page_create_count`, `reject_count`, `reserve_count`, `commit_count`,
+    `decommit_count`, `source_reject_count`) in
+    `294x-38-HAKO-ALLOC-USIZE-OSVM-BACKED-FAST-PATH-COUNTERS.md`.
+  - Stop line: keep OSVM-backed route/index/size/capacity metadata,
+    `backing_count`, backing payloads, and handle payloads signed until their
+    own rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

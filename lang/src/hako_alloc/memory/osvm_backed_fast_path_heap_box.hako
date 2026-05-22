@@ -41,15 +41,15 @@ box HakoAllocOsVmBackedFastPathHeap {
     backings: ArrayBox = new ArrayBox()
     next_page_id: i64 = 0
     backing_count: i64 = 0
-    alloc_count: i64 = 0
-    release_count: i64 = 0
-    fallback_count: i64 = 0
-    page_create_count: i64 = 0
-    reject_count: i64 = 0
-    reserve_count: i64 = 0
-    commit_count: i64 = 0
-    decommit_count: i64 = 0
-    source_reject_count: i64 = 0
+    alloc_count: usize = 0
+    release_count: usize = 0
+    fallback_count: usize = 0
+    page_create_count: usize = 0
+    reject_count: usize = 0
+    reserve_count: usize = 0
+    commit_count: usize = 0
+    decommit_count: usize = 0
+    source_reject_count: usize = 0
 
     birth(bin, block_size, page_capacity) {
         me.bin = bin
