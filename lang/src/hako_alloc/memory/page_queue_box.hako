@@ -9,7 +9,7 @@ box HakoAllocPageQueue {
     pages: ArrayBox = new ArrayBox()
     page_count: usize = 0
     has_direct_page: i64 = 0
-    direct_page_index: i64 = 0
+    direct_page_index: usize = 0
     add_count: usize = 0
     select_count: usize = 0
     direct_hit_count: usize = 0

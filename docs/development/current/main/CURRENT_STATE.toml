@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-48-HAKO-ALLOC-USIZE-PAGE-QUEUE-PAGE-COUNT"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-48-HAKO-ALLOC-USIZE-PAGE-QUEUE-PAGE-COUNT.md"
-latest_card_summary = "Migrated HakoAllocPageQueue.page_count to exact usize storage after direct-page cache presence split made the queue length non-sentinel."
+latest_card = "294x-49-HAKO-ALLOC-USIZE-PAGE-QUEUE-DIRECT-INDEX"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-49-HAKO-ALLOC-USIZE-PAGE-QUEUE-DIRECT-INDEX.md"
+latest_card_summary = "Migrated HakoAllocPageQueue.direct_page_index to exact usize storage after the direct-page sentinel split made it a non-negative cache index."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-078"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-079"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-49 HAKO-ALLOC-USIZE-FIELD-GROUP-079 page-queue direct_page_index migration landed; bin and has_direct_page remain i64",
   "294x-48 HAKO-ALLOC-USIZE-FIELD-GROUP-078 page-queue page_count migration landed; bin, direct_page_index, and has_direct_page remain i64",
   "294x-47 HAKO-ALLOC-USIZE-FIELD-GROUP-077 page-model block_size/requested_bytes migration landed; page identity and lifecycle state flags remain i64",
   "294x-46 HAKO-ALLOC-USIZE-REQUEST-BYTE-SUM-PROBE-076 proof-only request-size/block-size compare and accepted-request byte-sum probe landed; production page block_size/requested_bytes remain i64",

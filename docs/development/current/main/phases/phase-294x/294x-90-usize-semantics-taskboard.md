@@ -295,6 +295,9 @@ remaining field groups and allocator API parity only.
   - Follow-on migrated group: `HakoAllocPageQueue.page_count` in
     `294x-48-HAKO-ALLOC-USIZE-PAGE-QUEUE-PAGE-COUNT.md`.
   - Stop line: keep `bin`, `has_direct_page`, and `direct_page_index` signed.
+  - Follow-on migrated group: `HakoAllocPageQueue.direct_page_index` in
+    `294x-49-HAKO-ALLOC-USIZE-PAGE-QUEUE-DIRECT-INDEX.md`.
+  - Stop line: keep `bin` and `has_direct_page` signed.
   - Follow-on migrated group: `HakoAllocPageModel` local page counters
     (`alloc_count`, `local_free_count`, `reject_count`) in
     `294x-29-HAKO-ALLOC-USIZE-PAGE-MODEL-LOCAL-COUNTERS.md`.

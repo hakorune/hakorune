@@ -345,6 +345,11 @@ Selected next production `usize` field group:
   queue length after the direct-page cache presence/index split. `bin`,
   `has_direct_page`, and `direct_page_index` stay `i64`.
 
+- `page_queue_box.hako` / `HakoAllocPageQueue.direct_page_index`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-079` selects and migrates this non-negative
+  direct-page cache index after `has_direct_page` became the explicit presence
+  flag. `bin` and `has_direct_page` stay `i64`.
+
 - `page_box.hako` / `HakoAllocPageModel` local page counter fields:
   `alloc_count`, `local_free_count`, `reject_count`.
   `HAKO-ALLOC-USIZE-FIELD-GROUP-059` selects and migrates this group because
@@ -472,7 +477,7 @@ readable without losing field names.
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin` | `i64` | `index` | Candidate after bin vocabulary is exact non-negative. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `page_count` | `usize` | `count` | Exact queue page count via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `has_direct_page` | `i64` | `count` | Binary presence state split from the old `-1` direct-page sentinel. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_page_index` | `i64` | `index` | Non-negative after 294x-17; migration candidate after queue index contracts. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_page_index` | `usize` | `index` | Exact direct-page cache index via `HAKO-ALLOC-USIZE-FIELD-GROUP-079`. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `add_count` | `i64` | `count` | Low-risk stats candidate. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `select_count` | `i64` | `count` | Low-risk stats candidate. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_hit_count` | `i64` | `count` | Low-risk stats candidate. |
@@ -524,7 +529,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | same-class/no-move counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-053`; result pointer stays `i64`. |
 | `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | release event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-052`; `page_count` remains `i64` while it is compared with signed `page_id`. |
 | `page_map_release_invariant_box.hako` | `HakoAllocPageMapReleaseObserver` | `observe_count`, `success_count`, `reject_count`, `live_count_before`, `release_count_before`, `unregister_count_before`, `page_used_before`, `local_free_before`, `last_ptr`, `last_page_id`, `last_block_id`, `last_result`, `last_entry_live_before`, `last_lookup_after`, `last_live_count_delta`, `last_release_count_delta`, `last_unregister_count_delta`, `last_page_used_delta`, `last_local_free_delta` | observer counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-070`; before-snapshots, signed sentinels, statuses, and signed delta fields stay `i64`. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`; bin/index/presence fields stay `i64`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`; `direct_page_index` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-079`; bin/presence fields stay `i64`. |
 | `remote_free_page_integration_box.hako` | `HakoAllocRemoteFreePageInbox` | `head_cell`, `init_status`, `pending_top`, `remote_push_count`, `remote_collect_count`, `retry_count`, `reject_count` | mailbox status/count fields remain `i64` until pointer-atomic lane is exact. |
 | `secure_free_list_diagnostics_box.hako` | `HakoAllocSecureFreeListDiagnostics` | `scan_count`, `ok_count`, `fail_count`, `out_of_range_free_block_count`, `duplicate_free_block_count`, `live_block_in_free_list_count`, `free_count_mismatch_count`, `local_free_count_mismatch_count`, `last_ok`, `last_out_of_range_free_block`, `last_duplicate_free_block`, `last_live_block_in_free_list`, `last_free_count_mismatch`, `last_local_free_count_mismatch` | diagnostics counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-069`; `last_*` observation flags stay `i64` until bool / flag semantics are split. |
 | `secure_free_list_policy_box.hako` | `HakoAllocSecureFreeListPolicy` | none | M184 has no stored numeric fields; `-1` and `-2` are non-stored return sentinels. |
