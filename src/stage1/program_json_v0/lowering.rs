@@ -777,11 +777,29 @@ fn record_literal_to_json_v0(
     local_types: &mut ProgramJsonV0LocalTypes,
 ) -> Result<serde_json::Value, String> {
     validate_record_literal_fields(context, record_type_name, fields)?;
-    let mut lowered_fields = Vec::with_capacity(fields.len());
+    let declared_fields = context.find_record(record_type_name).ok_or_else(|| {
+        format!(
+            "[record/literal-shape] unknown record `{}`",
+            record_type_name
+        )
+    })?;
+    let mut provided_fields = BTreeMap::new();
     for (name, value) in fields {
-        let (field_index, field_decl) = record_field_decl(context, record_type_name, name)?;
+        provided_fields.insert(name.as_str(), value);
+    }
+    let mut lowered_fields = Vec::with_capacity(declared_fields.len());
+    for (field_index, field_decl) in declared_fields.iter().enumerate() {
+        let value = match provided_fields.get(field_decl.name.as_str()) {
+            Some(value) => *value,
+            None => field_decl.default_value.as_deref().ok_or_else(|| {
+                format!(
+                    "[record/literal-shape] {} missing field `{}`",
+                    record_type_name, field_decl.name
+                )
+            })?,
+        };
         lowered_fields.push(serde_json::json!({
-            "name": name,
+            "name": field_decl.name,
             "field_index": field_index,
             "declared_type": field_decl.declared_type_name.clone(),
             "value": expression_to_json_v0(value, context, local_types)?,
@@ -1161,7 +1179,8 @@ fn validate_record_literal_fields(
         }
     }
     for declared_field in declared_fields {
-        if !actual.contains(declared_field.name.as_str()) {
+        if !actual.contains(declared_field.name.as_str()) && declared_field.default_value.is_none()
+        {
             return Err(format!(
                 "[record/literal-shape] {} missing field `{}`",
                 record_type_name, declared_field.name

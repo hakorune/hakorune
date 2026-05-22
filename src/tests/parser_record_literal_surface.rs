@@ -73,6 +73,44 @@ return 0
 }
 
 #[test]
+fn parser_record_literal_surface_allows_same_type_and_value_name() {
+    let ast = parse_ok(
+        r#"
+record Meta {
+  Meta: i64 = 0
+}
+
+static box Main {
+  main() {
+local Meta = 1
+local rec = Meta { Meta }
+return 0
+  }
+}
+"#,
+    );
+    let body = find_method_body(&ast, "Main", "main");
+    let ASTNode::Local { initial_values, .. } = &body[1] else {
+        panic!("expected second local statement");
+    };
+    let Some(value) = initial_values[0].as_deref() else {
+        panic!("expected local initializer");
+    };
+    let ASTNode::RecordLiteral {
+        record_type_name,
+        fields,
+        ..
+    } = value
+    else {
+        panic!("expected RecordLiteral");
+    };
+    assert_eq!(record_type_name, "Meta");
+    assert_eq!(fields.len(), 1);
+    assert_eq!(fields[0].0, "Meta");
+    assert!(matches!(&fields[0].1, ASTNode::Variable { name, .. } if name == "Meta"));
+}
+
+#[test]
 fn parser_record_update_surface_parses_explicit_named_updates() {
     let ast = parse_ok(
         r#"

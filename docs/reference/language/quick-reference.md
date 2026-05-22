@@ -70,6 +70,8 @@ Collections and failure values
 - `local r = Name { field: value }` constructs a local record value; `Name {}`
   fills declared defaults, and `Name { field }` means `Name { field: field }`.
   Field reads such as `r.field` are accepted for tracked local records.
+- Constructor lookup is type-namespace based, so `local Name = 1; Name { Name }`
+  still means “construct record `Name` with shorthand value `Name`”.
 - `local next = r with { field: value }` copies a tracked local record and
   replaces selected fields without mutating `r`. `with` is record-only; boxes
   use explicit `new Box { field: expr }` or named copy/update methods.

@@ -608,6 +608,67 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_fills_record_literal_defaults_when_omitted() {
+    let source = r#"
+record Meta {
+  ptr: i64
+  size: usize = 64
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1 }
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[0]["type"], "Local");
+    assert_eq!(body[0]["expr"]["type"], "RecordLiteral");
+    assert_eq!(body[0]["expr"]["record"], "Meta");
+    assert_eq!(body[0]["expr"]["fields"][0]["name"], "ptr");
+    assert_eq!(body[0]["expr"]["fields"][0]["value"]["value"], 1);
+    assert_eq!(body[0]["expr"]["fields"][1]["name"], "size");
+    assert_eq!(body[0]["expr"]["fields"][1]["value"]["value"], 64);
+}
+
+#[test]
+fn source_to_program_json_v0_record_literal_keeps_type_namespace_with_same_value_name() {
+    let source = r#"
+record Meta {
+  Meta: i64 = 0
+  flag: i64 = 1
+}
+
+static box Main {
+  main() {
+local Meta = 9
+local rec = Meta { Meta }
+return rec.Meta
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[1]["type"], "Local");
+    assert_eq!(body[1]["expr"]["type"], "RecordLiteral");
+    assert_eq!(body[1]["expr"]["record"], "Meta");
+    assert_eq!(body[1]["expr"]["fields"][0]["name"], "Meta");
+    assert_eq!(body[1]["expr"]["fields"][0]["value"]["type"], "Var");
+    assert_eq!(body[1]["expr"]["fields"][0]["value"]["name"], "Meta");
+    assert_eq!(body[1]["expr"]["fields"][1]["name"], "flag");
+    assert_eq!(body[1]["expr"]["fields"][1]["value"]["value"], 1);
+    assert_eq!(body[2]["expr"]["type"], "RecordField");
+    assert_eq!(body[2]["expr"]["record"], "Meta");
+    assert_eq!(body[2]["expr"]["field"], "Meta");
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_record_literal_extra_field() {
     let source = r#"
 record Meta {

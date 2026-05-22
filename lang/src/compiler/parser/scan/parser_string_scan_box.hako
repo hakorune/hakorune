@@ -17,12 +17,12 @@ static box ParserStringScanBox {
     if j >= n || src.substring(j, j+1) != quote { return "@" + ParserCommonUtilsBox.i2s(i) }
     j = j + 1
     local out = ""
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
     local skip_rem = 0
     loop(j < n) {
-      if guard > max { return out + "@" + ParserCommonUtilsBox.i2s(j) }
-      guard = guard + 1
+      if loop_guard > max { return out + "@" + ParserCommonUtilsBox.i2s(j) }
+      loop_guard = loop_guard + 1
       local ch = src.substring(j, j+1)
       local append = ""
       local skipping = 0

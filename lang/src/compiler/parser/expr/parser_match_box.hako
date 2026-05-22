@@ -14,10 +14,10 @@ static box ParserMatchBox {
     local arm_names_json = "["
     local arm_name_count = 0
     local else_json = null
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
 
-    loop(guard < max) {
+    loop(loop_guard < max) {
       j = ctx.skip_ws(src, j)
       if j >= n { break }
       if src.substring(j, j + 1) == "}" { break }
@@ -61,7 +61,7 @@ static box ParserMatchBox {
 
       j = ctx.skip_ws(src, j)
       if j < n && src.substring(j, j + 1) == "," { j = j + 1 }
-      guard = guard + 1
+      loop_guard = loop_guard + 1
     }
 
     if j < n && src.substring(j, j + 1) == "}" { j = j + 1 }

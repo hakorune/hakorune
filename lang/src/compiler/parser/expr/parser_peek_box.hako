@@ -23,11 +23,11 @@ static box ParserPeekBox {
     local else_json = null
 
     // JoinIR/CorePlan-friendly loop:
-    // - const step (guard = guard + 1)
+    // - const step (loop_guard = loop_guard + 1)
     // - no `continue` (use if/else blocks instead)
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
-    loop(guard < max) {
+    loop(loop_guard < max) {
       j = ctx.skip_ws(src, j)
 
       if j >= n { break }
@@ -88,7 +88,7 @@ static box ParserPeekBox {
         }
       }
 
-      guard = guard + 1
+      loop_guard = loop_guard + 1
     }
 
     // If we stopped at the closing brace, consume it.

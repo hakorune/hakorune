@@ -166,6 +166,8 @@ record_literal_field := IDENT (':' expr)?
               ; REC-001/ARG-DATA-003: `field` is shorthand for `field: field`.
               ; Omitted fields use record declaration defaults when present.
               ; Missing non-defaulted fields and extra fields fail-fast.
+              ; Constructor IDENT is resolved in the type namespace.
+              ; Value identifiers inside shorthand are resolved in the value namespace.
 
 record_update := expr 'with' '{' record_update_field (',' record_update_field)* ','? '}'
 record_update_field := IDENT (':' expr)?

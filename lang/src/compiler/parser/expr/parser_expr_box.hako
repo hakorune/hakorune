@@ -10,6 +10,67 @@ using lang.compiler.parser.expr.parser_match_box
 using lang.compiler.parser.expr.parser_literal_box
 
 static box ParserExprBox {
+  parse_record_fields2(src, i, ctx) {
+    local j = ctx.skip_ws(src, i)
+    local n = src.length()
+    local out = "["
+    local first = 1
+    local loop_guard = 0
+    local max = 200000
+    loop(loop_guard < max) {
+      j = ctx.skip_ws(src, j)
+      if j >= n { break }
+      if src.substring(j, j+1) == "}" {
+        j = j + 1
+        break
+      }
+
+      local pair = ctx.read_ident2(src, j)
+      local at = pair.lastIndexOf("@")
+      local field_name = pair.substring(0, at)
+      j = ctx.to_int(pair.substring(at+1, pair.length()))
+      j = ctx.skip_ws(src, j)
+
+      local value_json = ""
+      if j < n && src.substring(j, j+1) == ":" {
+        value_json = ParserExprBox.parse_expr2(src, j + 1, ctx)
+        j = ctx.gpos_get()
+      } else {
+        value_json = "{\"type\":\"Var\",\"name\":\"" + ctx.esc_json(field_name) + "\"}"
+      }
+
+      if first == 0 { out = out + "," } else { first = 0 }
+      out = out + "{\"name\":\"" + ctx.esc_json(field_name) + "\",\"value\":" + value_json + "}"
+
+      j = ctx.skip_ws(src, j)
+      if j < n && src.substring(j, j+1) == "," { j = j + 1 }
+      loop_guard = loop_guard + 1
+    }
+
+    out = out + "]"
+    return out + "@" + ctx.i2s(j)
+  }
+
+  parse_record_literal2(record_type_name, src, i, ctx) {
+    local fields_and_pos = ParserExprBox.parse_record_fields2(src, i + 1, ctx)
+    local at = fields_and_pos.lastIndexOf("@")
+    local fields_json = fields_and_pos.substring(0, at)
+    local pos = ctx.to_int(fields_and_pos.substring(at + 1, fields_and_pos.length()))
+    return "{\"type\":\"RecordLiteral\",\"record\":\"" + ctx.esc_json(record_type_name) + "\",\"fields\":" + fields_json + "}@" + ctx.i2s(pos)
+  }
+
+  parse_record_update2(base_json, src, i, ctx) {
+    local j = ctx.skip_ws(src, i)
+    if j >= src.length() || src.substring(j, j+1) != "{" {
+      return "{\"type\":\"Error\",\"message\":\"record update expects `{` after `with`\"}@" + ctx.i2s(j)
+    }
+    local updates_and_pos = ParserExprBox.parse_record_fields2(src, j + 1, ctx)
+    local at = updates_and_pos.lastIndexOf("@")
+    local updates_json = updates_and_pos.substring(0, at)
+    local pos = ctx.to_int(updates_and_pos.substring(at + 1, updates_and_pos.length()))
+    return "{\"type\":\"RecordUpdate\",\"base\":" + base_json + ",\"updates\":" + updates_json + "}@" + ctx.i2s(pos)
+  }
+
   parse_number2(src, i, ctx) {
     local pair = ParserNumberScanBox.scan_int(src, i)
     local at = pair.lastIndexOf("@")
@@ -24,12 +85,12 @@ static box ParserExprBox {
     local n = src.length()
     local j = i + 1
     local out = ""
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
 
     loop(j < n) {
-      if guard > max { break }
-      guard = guard + 1
+      if loop_guard > max { break }
+      loop_guard = loop_guard + 1
       local ch = src.substring(j, j+1)
 
       if ch == "\"" {
@@ -144,10 +205,10 @@ static box ParserExprBox {
 
       // Support method chaining on string literals: "abc".indexOf("b")
       // (Required by Stage-B fixtures and compiler parser utils.)
-      local guard = 0
+      local loop_guard = 0
       local max = 200000
-      loop(guard < max) {
-        guard = guard + 1
+      loop(loop_guard < max) {
+        loop_guard = loop_guard + 1
         k = ctx.skip_ws(src, k)
         local handled = 0
         if k < src.length() && src.substring(k, k+1) == "." {
@@ -226,10 +287,10 @@ static box ParserExprBox {
       // Build initial New node
       local node = "{\"type\":\"New\",\"class\":\"" + cls + "\",\"args\":" + args_json + "}"
       // Optional method chain: .method(args...) - MirBuilder-friendly
-      local guard = 0
+      local loop_guard = 0
       local max = 200000
-      loop(guard < max) {
-        guard = guard + 1
+      loop(loop_guard < max) {
+        loop_guard = loop_guard + 1
         k = ctx.skip_ws(src, k)
         local handled = 0
         if k < src.length() {
@@ -295,13 +356,36 @@ static box ParserExprBox {
         return "{\"type\":\"EnumCtor\",\"enum\":\"" + name + "\",\"variant\":\"" + variant + "\",\"args\":" + args_json + "}"
       }
 
+      k = ctx.skip_ws(src, k)
+      if k < src.length() && src.substring(k, k+1) == "{" {
+        local rec_pair = ParserExprBox.parse_record_literal2(name, src, k, ctx)
+        local rec_at = rec_pair.lastIndexOf("@")
+        local node_record = rec_pair.substring(0, rec_at)
+        k = ctx.to_int(rec_pair.substring(rec_at+1, rec_pair.length()))
+
+        local with_guard = 0
+        local max_with = 200000
+        loop(with_guard < max_with) {
+          with_guard = with_guard + 1
+          k = ctx.skip_ws(src, k)
+          if ctx.starts_with_kw(src, k, "with") != 1 { break }
+          local upd_pair = ParserExprBox.parse_record_update2(node_record, src, k + 4, ctx)
+          local upd_at = upd_pair.lastIndexOf("@")
+          node_record = upd_pair.substring(0, upd_at)
+          k = ctx.to_int(upd_pair.substring(upd_at+1, upd_pair.length()))
+        }
+
+        ctx.gpos_set(k)
+        return node_record
+      }
+
       local node = "{\"type\":\"Var\",\"name\":\"" + name + "\"}"
 
       // MirBuilder-friendly: explicit continue/break instead of flag
-      local guard = 0
+      local loop_guard = 0
       local max = 200000
-      loop(guard < max) {
-        guard = guard + 1
+      loop(loop_guard < max) {
+        loop_guard = loop_guard + 1
         k = ctx.skip_ws(src, k)
         local handled = 0
         if k < src.length() {
@@ -349,6 +433,14 @@ static box ParserExprBox {
               node = node + ",\"is_static_box_call\":true"
             }
             node = node + "}"
+            handled = handled + 1
+          }
+
+          if handled == 0 && ctx.starts_with_kw(src, k, "with") == 1 {
+            local upd_pair_tail = ParserExprBox.parse_record_update2(node, src, k + 4, ctx)
+            local upd_at_tail = upd_pair_tail.lastIndexOf("@")
+            node = upd_pair_tail.substring(0, upd_at_tail)
+            k = ctx.to_int(upd_pair_tail.substring(upd_at_tail+1, upd_pair_tail.length()))
             handled = handled + 1
           }
         }

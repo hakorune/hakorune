@@ -12,9 +12,9 @@ static box ParserLiteralBox {
     local prelude = "["
     local stmts_count = 0
     local last_stmt = ""
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
-    loop(guard < max) {
+    loop(loop_guard < max) {
       j = ctx.skip_ws(src, j)
       if j >= n { break }
       if src.substring(j, j+1) == "}" { break }
@@ -33,7 +33,7 @@ static box ParserLiteralBox {
 
       // progress guard
       if j <= before && j < n { j = j + 1 }
-      guard = guard + 1
+      loop_guard = loop_guard + 1
     }
     prelude = prelude + "]"
 
@@ -57,9 +57,9 @@ static box ParserLiteralBox {
     local j = i + 2  // skip opening '%{'
     local out = "["
     local pair_count = 0
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
-    loop(guard < max) {
+    loop(loop_guard < max) {
       j = ctx.skip_ws(src, j)
 
       if j >= n { break }
@@ -99,7 +99,7 @@ static box ParserLiteralBox {
       // optional comma
       j = ctx.skip_ws(src, j)
       if j < n && src.substring(j, j+1) == "," { j = j + 1 }
-      guard = guard + 1
+      loop_guard = loop_guard + 1
     }
 
     // If we stopped at the closing brace, consume it.
@@ -116,9 +116,9 @@ static box ParserLiteralBox {
     local j = i + 1  // skip opening '['
     local out = "["
     local elem_count = 0
-    local guard = 0
+    local loop_guard = 0
     local max = 200000
-    loop(guard < max) {
+    loop(loop_guard < max) {
       j = ctx.skip_ws(src, j)
 
       if j >= n { break }
@@ -140,7 +140,7 @@ static box ParserLiteralBox {
       // progress guard
       if j <= before && j < n { j = j + 1 }
 
-      guard = guard + 1
+      loop_guard = loop_guard + 1
     }
 
     // If we stopped at the closing bracket, consume it.
