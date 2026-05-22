@@ -35,39 +35,12 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-293x mimalloc blueprint lane`
+- active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- mimalloc blueprint SSOT:
-  `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
-- mimalloc port purpose:
-  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- mimalloc blueprint / port taskboard:
-  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- allocator-first granularity SSOT:
-  `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
-- pure-first MIR artifact / diagnostics SSOT:
-  `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
-- mimalloc row validation cadence SSOT:
-  `docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`
-- mimalloc / Hakorune joint task order:
-  `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
-- future provider package / DLL ABI plan:
-  `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
-- future allocator implementation-family selection SSOT:
-  `docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md`
+- task breakdown: read `taskboard` in `CURRENT_STATE.toml`
+- method anchor / design SSOT: read `method_anchor` in `CURRENT_STATE.toml`
 - current blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- current BoxShape sidecar:
-  read `latest_card_path`, `phase_status`, and `landed_tail` in
-  `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
-  sidecar history into this root pointer.
-- primary mode: mimalloc substrate implementation lane; keep upstream source
-  untracked and keep each allocator row behind explicit guards before any
-  optional provider activation. The current goal is a `.hako` / `hako_alloc`
-  allocator whose performance and memory usage can be compared against C
-  mimalloc, not default process allocator replacement.
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -79,71 +52,31 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x from `current_blocker_token`,
+- resume point: continue the active phase from `current_blocker_token`,
   `phase_status`, and `latest_card_path` in `CURRENT_STATE.toml`.
-  VM-LIM-001 remains parked diagnostic.
-  Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
-- next 293x order:
+- current task source: `CURRENT_STATE.toml` plus the active taskboard
+- next active-lane order:
   1. read `current_blocker_token`, `phase_status`, and `latest_card_path` from
      `CURRENT_STATE.toml`
-  2. keep raw pointer residence, real segment-map execution, and provider
-     activation closed
-  3. keep cross-function `Result` direct ABI and runtime sum materialization
-     closed
-  4. keep real thread scheduling, worker spawning, source-level concurrency features,
-     page-source calls, OSVM release, and provider activation inactive
-  5. keep secure entropy execution parked until a separate random substrate
-     route and audit row are accepted
-- post-mimalloc selfhost order:
-  `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
-  reduction after mimalloc completeness evidence. Do not make broad `.hako`
-  parser/mirbuilder migration a prerequisite for current mimalloc rows.
-- recent BoxShape sidecar:
-  MIRBUILDER-DIET builder core / FlowPlanner boundary cleanup closed through MIR-SEMANTIC-PLANS-001
-- metadata promotion queue:
-  `docs/reference/mir/metadata-facts-ssot.md` `Current Promotion Matrix`
-  and
-  `docs/development/current/main/phases/phase-293x/293x-369-METADATA-CATALOG-003-PROMOTION-MATRIX.md`
-  are now historical entries for the landed promotion wave through
-  `METADATA-PROMOTE-006`. Future metadata work must use owner-triggered rows
-  from `docs/reference/mir/metadata-facts-ssot.md`; do not combine metadata
-  cleanup cards with allocator behavior rows.
-- optional future allocator-provider ladder:
-  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-  and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
-  remain parked unless host allocator replacement is explicitly reopened.
-- if that lane is reopened, prefer explicit provider-family selection
-  (`system` / `.hako` allocator family / native mimalloc / future custom
-  provider) over hard-wiring a new default; see
-  `docs/development/current/main/design/allocator-provider-implementation-family-selection-future-ssot.md`
-- future Hakorune DLL/shared-library generation is parked as a provider package
-  backend; current C mimalloc comparison rows stay on the explicit external C
-  mimalloc runner / evidence-diagnostics path.
-- ARG-DATA-001/002 sidecar landed owner-local context records for the explicit
-  C mimalloc runner evidence owner before MIMAP-454A. Syntax features such as
-  spread / named args / record defaults / automatic record-to-box copy remain
-  parked.
-- current allocator-comparison blocker: read `current_blocker_token` and
-  `phase_status` in `CURRENT_STATE.toml`. The current comparison-result ledger
-  pack must not rerun benchmarks or make performance / memory-use conclusions.
+  2. keep allocator-provider activation, host allocator replacement, hooks, and
+     `#[global_allocator]` out of scope
+  3. migrate hako_alloc non-negative fields only by explicit field-group rows
+  4. keep sentinel-bearing indexes signed
+  5. keep BoxShape cleanup separate from BoxCount feature rows
+- parked lanes:
+  - the previous mimalloc blueprint lane is closed; follow-on execution opens
+    only after the current semantic foundation lane is complete
+  - allocator-provider ladder remains parked unless host allocator replacement
+    is explicitly reopened
+  - record defaults / spread / named args / automatic record-to-box copy remain
+    parked syntax features
+- VM retreat reading: VM is a semantic reference executor, not a product owner
 - detailed landed history: phase card files and `CURRENT_STATE.toml`
-- VM retreat reading: new substrate / allocator features should target
-  `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
-  and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a
-  default requirement for new rows
-- MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
-  standalone MIR hints scaffold is retired and that audited MIR vocabulary set
-  no longer carries a broad dead-code hold
-- normalized-shadow / normalization cleanup burst is closed; larger findings
-  must move to a new lane
 - keep BoxShape cleanup separate from BoxCount feature rows
-- keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
-- do not reopen landed CoreBox router rows without an owner-path change
 
 ## Current Ordered App Bringup
 
@@ -173,18 +106,9 @@ Scope: current lane / next lane / restart order only.
 
 ## Detail Pointers
 
-- Real-app bringup phase:
-  `docs/development/current/main/phases/phase-293x/README.md`
-- Language-minimal taskboard:
-  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- Real-app smoke suite:
-  `tools/smokes/v2/suites/integration/real-apps.txt`
-- Real-app EXE boundary suite:
-  `tools/smokes/v2/suites/integration/real-apps-exe-boundary.txt`
-- Current app checkpoint: read `latest_card_path` in
-  `docs/development/current/main/CURRENT_STATE.toml`
-- Current app card: read `latest_card_path` in
-  `docs/development/current/main/CURRENT_STATE.toml`
+- Active phase: read `active_phase` in `CURRENT_STATE.toml`
+- Active taskboard: read `taskboard` in `CURRENT_STATE.toml`
+- Active design SSOT: read `method_anchor` in `CURRENT_STATE.toml`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:

@@ -85,14 +85,15 @@ if [[ "$latest_card_path" != *"$latest_card"* ]]; then
   guard_fail "$TAG" "latest_card_path does not contain latest_card: $latest_card -> $latest_card_path"
 fi
 
-for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC" "$PHASE137X_README"; do
-  expect_fixed "$active_lane" "$doc"
-done
-
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$doc"
+  expect_fixed "active_lane" "$doc"
   expect_fixed "current_blocker_token" "$doc"
 done
+
+expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
+expect_fixed "active_lane" "$PHASE137X_README"
+expect_fixed "current_blocker_token" "$PHASE137X_README"
 
 expect_fixed "$pre_perf_gate" "$PHASE137X_TASKBOARD"
 expect_fixed "$pre_perf_gate_status" "$PHASE137X_TASKBOARD"

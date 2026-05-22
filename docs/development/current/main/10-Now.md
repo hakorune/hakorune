@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-19
+Date: 2026-05-22
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -14,41 +14,25 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x mimalloc blueprint lane`
+- active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- allocator-first granularity SSOT:
-  `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
-- pure-first MIR artifact / diagnostics SSOT:
-  `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
-- mimalloc row validation cadence SSOT:
-  `docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`
-- mimalloc / Hakorune joint task order:
-  `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
-- mimalloc blueprint SSOT:
-  `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
-- mimalloc port purpose:
-  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x from `current_blocker_token`, `phase_status`, and
+- continue the active phase from `current_blocker_token`, `phase_status`, and
   `latest_card_path` in `CURRENT_STATE.toml`
-- keep LoopRange on the Stage1 route; do not source-desugar range loops
-- keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
+- keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 
 ## Rules
 
 - keep BoxShape and BoxCount separate
-- keep Stage-B adapter thinning separate from CoreMethodContract migration
 - do not add hot inline lowering without proof/evidence gate
 - do not update current mirrors for every landed card
 - update `CURRENT_STATE.toml` and the active card first
@@ -56,15 +40,10 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
-3. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-4. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-5. `docs/development/current/main/phases/phase-293x/README.md`
-6. `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-8. `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
-9. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-10. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+2. read `method_anchor` in `CURRENT_STATE.toml`
+3. read `active_phase` in `CURRENT_STATE.toml`
+4. read `taskboard` in `CURRENT_STATE.toml`
+5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 
@@ -72,6 +51,4 @@ Related:
 git status -sb
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
-tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
-tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight
 ```

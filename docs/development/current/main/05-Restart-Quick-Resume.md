@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-19
+Date: 2026-05-22
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -30,20 +30,11 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x mimalloc blueprint lane`
+- active lane: read `active_lane` from `CURRENT_STATE.toml`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
 - current blocker token: read `current_blocker_token` from `CURRENT_STATE.toml`
-- allocator-first granularity SSOT:
-  `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
-- pure-first MIR artifact / diagnostics SSOT:
-  `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
-- mimalloc row validation cadence SSOT:
-  `docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`
-- mimalloc blueprint SSOT:
-  `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
-- mimalloc port purpose:
-  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
+- method anchor / design SSOT: read `method_anchor` from `CURRENT_STATE.toml`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -52,20 +43,14 @@ cargo check -q
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token: read `current_blocker_token` from
   `CURRENT_STATE.toml`
-- latest known checkpoint: read `latest_card` / `latest_card_path` in
-  `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
-  inventory baseline
-- no-growth checkpoint: `classifiers=0 rows=0`; no `.inc` method/box string
-  classifiers are allowlisted
 - worktree expectation: clean after the last commit unless an active slice is
   underway
 
 ## Immediate Next
 
-- continue `phase-293x` from `current_blocker_token`, `phase_status`, and
+- continue the active phase from `current_blocker_token`, `phase_status`, and
   `latest_card_path` in `CURRENT_STATE.toml`
-- keep LoopRange on the Stage1 route; do not source-desugar range loops
-- keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
+- keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 
 ## Restart Notes
 

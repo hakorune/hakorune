@@ -118,6 +118,13 @@ remaining field groups and allocator API parity only.
 - [x] Preserve return type annotations or reject them consistently.
 - [x] Round-trip declared numeric metadata through AST JSON / Program(JSON).
 - [ ] Keep Rust and `.hako` parser fronts aligned.
+  - Rust parser supports: literal suffixes (`0usize`), parameter type annotations,
+    return type annotations, field type annotations with exact numeric types.
+  - Stage-B `.hako` parser (`lang/src/compiler/parser/`) does not yet support:
+    literal suffixes, parameter type annotations, return type annotations, or
+    field type annotations with exact numeric types.
+  - Next row: add literal suffix scanning to Stage-B number scanner, then
+    parameter/return type annotation parsing. Separate commit per feature.
 
 ### MIR / Analysis
 
@@ -211,6 +218,14 @@ remaining field groups and allocator API parity only.
   ABI backend consumption and needed exact op backend subset are green.
 - [ ] Migrate remaining production non-negative fields only by explicit
   field-group rows.
+  - Next candidate: `HakoAllocPageMap` counter fields (`entry_count`,
+    `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`,
+    `unregister_count`, `reject_count`). All non-negative counts, no sentinels,
+    owner-local to one box. Low-risk per NUMERIC_FIELDS.md.
+  - Row granularity: 1 selection row + 1 migration row + 1 closeout row.
+  - Proof: update existing page-map proof app to verify exact usize counters.
+  - Guard: existing page-map guard extended for usize field assertions.
+  - Stop line: do not migrate page-map entry pointer/id fields in this group.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

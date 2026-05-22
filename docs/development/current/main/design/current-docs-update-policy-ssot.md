@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-13
+Date: 2026-05-22
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - AGENTS.md
@@ -103,7 +103,8 @@ target maximum:
 - referenced repo-relative paths exist
 - `latest_card_path` matches `latest_card`
 - root/current/restart docs still point at `CURRENT_STATE.toml`
-- active lane is present in the thin mirrors
+- thin mirrors name the `active_lane` field instead of repeating its current
+  value
 - thin mirrors name the `current_blocker_token` field instead of repeating its
   current value
 - stale pointer patterns from
