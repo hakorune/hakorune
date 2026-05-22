@@ -18,7 +18,7 @@
 | Lane | Current truth |
 | --- | --- |
 | `usize` semantics | VM reference execution can keep exact numeric results tagged instead of collapsing them back to `Integer(i64)`. |
-| production `hako_alloc` fields | Facade-local stats, page-map owner counters, page-map release event/reject counters, and realloc path/failure-contract counters are exact `usize`; page/heap/queue/handle state remains `i64` until its own field-group row. |
+| production `hako_alloc` fields | Facade-local stats, page-map owner counters, page-map release event/reject counters, realloc path/failure-contract counters, and aligned-small path counters are exact `usize`; page/heap/queue/handle state remains `i64` until its own field-group row. |
 | mimalloc `.hako` rows | May continue under the still-`i64` page/heap/queue production boundary. |
 | native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`. |
 | field get/set ABI | Python LLVM and the pure-first C shim consume exact typed-object field ABI for exact-storage plans. |

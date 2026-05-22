@@ -257,6 +257,14 @@ remaining field groups and allocator API parity only.
     `294x-25-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-FAILURE-CONTRACT-COUNTERS.md`.
   - Stop line: keep `last_result_ptr`, `last_failure_kind`, and
     `last_max_block_size` as signed/pointer/status/size observers.
+  - Follow-on migrated group: `HakoAllocPageMapAlignedSmallPath`
+    event/reject counters (`alloc_count`, `invalid_alignment_count`,
+    `oversized_count`, `alloc_fail_count`, `register_fail_count`,
+    `reject_count`) in
+    `294x-26-HAKO-ALLOC-USIZE-ALIGNED-SMALL-PATH-COUNTERS.md`.
+  - Stop line: keep `meta_count`, `next_ptr`, `last_result_ptr`,
+    `last_alignment`, and `last_padded_size` signed until metadata-store,
+    pointer, alignment, and size observer contracts are split.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

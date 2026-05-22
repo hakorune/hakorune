@@ -13,12 +13,12 @@ box HakoAllocPageMapAlignedSmallPath {
     meta_store: HakoAllocAlignedSmallMetaStore = new HakoAllocAlignedSmallMetaStore()
     meta_count: i64 = 0
     next_ptr: i64 = 12000
-    alloc_count: i64 = 0
-    invalid_alignment_count: i64 = 0
-    oversized_count: i64 = 0
-    alloc_fail_count: i64 = 0
-    register_fail_count: i64 = 0
-    reject_count: i64 = 0
+    alloc_count: usize = 0
+    invalid_alignment_count: usize = 0
+    oversized_count: usize = 0
+    alloc_fail_count: usize = 0
+    register_fail_count: usize = 0
+    reject_count: usize = 0
     last_result_ptr: i64 = 0
     last_alignment: i64 = 0
     last_padded_size: i64 = 0
@@ -28,7 +28,7 @@ box HakoAllocPageMapAlignedSmallPath {
         me.page_map = seam.page_map
     }
 
-    allocateAlignedSmall(size, alignment) {
+    allocateAlignedSmall(size, alignment): i64 {
         me.last_result_ptr = 0
         me.last_alignment = 0
         me.last_padded_size = 0
@@ -86,25 +86,27 @@ box HakoAllocPageMapAlignedSmallPath {
         return 0
     }
 
-    allocateAlignedSmallUsize(size: usize, alignment: usize) {
+    allocateAlignedSmallUsize(size: usize, alignment: usize): i64 {
         return me.allocateAlignedSmall(size, alignment)
     }
 
-    alignmentFor(ptr) {
+    alignmentFor(ptr): i64 {
         local entry = me.page_map.lookup(ptr)
         if entry == null {
             return 0
         }
 
-        return me.meta_store.alignmentFor(ptr)
+        local alignment: i64 = me.meta_store.alignmentFor(ptr)
+        return alignment
     }
 
-    paddedSizeFor(ptr) {
+    paddedSizeFor(ptr): i64 {
         local entry = me.page_map.lookup(ptr)
         if entry == null {
             return 0
         }
 
-        return me.meta_store.paddedSizeFor(ptr)
+        local padded_size: i64 = me.meta_store.paddedSizeFor(ptr)
+        return padded_size
     }
 }

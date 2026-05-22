@@ -11,7 +11,7 @@ box HakoAllocAlignedSmallMetaStore {
     padded_sizes: ArrayBox = new ArrayBox()
     count: i64 = 0
 
-    append(ptr, alignment, padded_size) {
+    append(ptr, alignment, padded_size): i64 {
         local meta = new HakoAllocAlignedSmallMeta(ptr, alignment, padded_size)
         me.ptrs.push(meta.ptr)
         me.alignments.push(meta.alignment)
@@ -20,7 +20,7 @@ box HakoAllocAlignedSmallMetaStore {
         return 1
     }
 
-    findIndex(ptr) {
+    findIndex(ptr): i64 {
         local i = 0
         loop(i < me.count) {
             local meta_ptr = me.ptrs.get(i)
@@ -32,12 +32,13 @@ box HakoAllocAlignedSmallMetaStore {
         return -1
     }
 
-    alignmentFor(ptr) {
+    alignmentFor(ptr): i64 {
         local index = me.findIndex(ptr)
-        return me.alignmentAt(index)
+        local alignment: i64 = me.alignmentAt(index)
+        return alignment
     }
 
-    alignmentAt(index) {
+    alignmentAt(index): i64 {
         if index < 0 {
             return 0
         }
@@ -46,15 +47,17 @@ box HakoAllocAlignedSmallMetaStore {
             return 0
         }
 
-        return me.alignments.get(index)
+        local alignment: i64 = me.alignments.get(index)
+        return alignment
     }
 
-    paddedSizeFor(ptr) {
+    paddedSizeFor(ptr): i64 {
         local index = me.findIndex(ptr)
-        return me.paddedSizeAt(index)
+        local padded_size: i64 = me.paddedSizeAt(index)
+        return padded_size
     }
 
-    paddedSizeAt(index) {
+    paddedSizeAt(index): i64 {
         if index < 0 {
             return 0
         }
@@ -63,6 +66,7 @@ box HakoAllocAlignedSmallMetaStore {
             return 0
         }
 
-        return me.padded_sizes.get(index)
+        local padded_size: i64 = me.padded_sizes.get(index)
+        return padded_size
     }
 }

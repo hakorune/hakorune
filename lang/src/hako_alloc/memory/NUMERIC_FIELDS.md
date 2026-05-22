@@ -313,10 +313,20 @@ Selected next production `usize` field group:
   M174/M175 path counters. `last_result_ptr`, `last_failure_kind`, and
   `last_max_block_size` stay `i64`.
 
+- `page_map_aligned_small_path_box.hako` /
+  `HakoAllocPageMapAlignedSmallPath` aligned-small path event / reject counter
+  fields:
+  `alloc_count`, `invalid_alignment_count`, `oversized_count`,
+  `alloc_fail_count`, `register_fail_count`, `reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-056` selects and migrates this group because
+  these are non-negative M178 path-local counters. `meta_count` stays `i64`
+  until the aligned-small metadata store count migrates; pointer, alignment,
+  and padded-size observers stay `i64`.
+
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-055` migrates the page-map realloc
-  failure-contract event/reject counter group selected after the fallback
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-056` migrates the aligned-small path
+  event/reject counter group selected after the realloc failure-contract
   counter group.
   Future field-group rows must choose another explicit non-negative
   owner-local group.
@@ -425,7 +435,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `retire_count`, `peak_used`, `requested_bytes` | page-local core group; migrate in smaller owner-local rows because decrement/stack-top invariants matter. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `page_id`, `block_id`, `requested_size` | legacy prototype handle; keep `i64` until superseded by current page-map owners or object-return parity. |
 | `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; migrate only if this owner remains live after page-model migration. |
-| `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | counters are candidates; ptr/result/alignment/size observers wait for M188. |
+| `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | aligned-small path event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-056`; `meta_count`, ptr/result/alignment/size observers stay `i64`. |
 | `page_map_box.hako` | `HakoAllocPageMapEntry` | `ptr`, `page_id`, `block_id`, `live` | ptr/id/index + binary live flag; keep `i64` until pointer/result API shape is exact. |
 | `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | already exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-051`; entry pointer/id fields remain `i64`. |
 | `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | fallback event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-054`; `next_ptr`, result ptr, and `last_alloc_* = -1` sentinels stay `i64`. |
