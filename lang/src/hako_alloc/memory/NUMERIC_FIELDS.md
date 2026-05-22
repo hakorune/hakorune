@@ -432,6 +432,9 @@ It also covers exact `usize` stack-top values used as `ArrayBox.get/set`
 indexes before production page stack fields migrate.
 `294x-44` extends the probe to signed-index guards against exact `usize`
 capacity bounds and `loop(i < capacity)` bound checks.
+`294x-46` extends the probe to request-size comparison against exact `usize`
+block size and accepted-request byte-sum accumulation before production
+page-model size/byte fields migrate.
 C205a allocator metadata `record` declarations are also excluded from the live
 stored-field count: they describe identity-free metadata shapes, not runtime
 state. C205c/C205d store-owner counters are counted because those boxes own
@@ -444,7 +447,7 @@ readable without losing field names.
 | File | Box | Field | Current Type | Category | Migration Note |
 | --- | --- | --- | --- | --- | --- |
 | `page_box.hako` | `HakoAllocPageModel` | `page_id` | `i64` | `index` | Candidate after id/index call sites use exact non-negative semantics. |
-| `page_box.hako` | `HakoAllocPageModel` | `block_size` | `i64` | `size` | Candidate after exact `usize` backend/storage lowering exists. |
+| `page_box.hako` | `HakoAllocPageModel` | `block_size` | `i64` | `size` | Candidate after the proof-only request-size/block-size compare row. |
 | `page_box.hako` | `HakoAllocPageModel` | `capacity` | `usize` | `capacity` | Exact page capacity via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`. |
 | `page_box.hako` | `HakoAllocPageModel` | `reserved` | `usize` | `capacity` | Exact reserved block bound via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`. |
 | `page_box.hako` | `HakoAllocPageModel` | `used` | `usize` | `count` | Exact page occupancy count via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`. |
@@ -454,7 +457,7 @@ readable without losing field names.
 | `page_box.hako` | `HakoAllocPageModel` | `local_free_count` | `usize` | `count` | Exact page-local counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`. |
 | `page_box.hako` | `HakoAllocPageModel` | `reject_count` | `usize` | `count` | Exact page-local counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`. |
 | `page_box.hako` | `HakoAllocPageModel` | `peak_used` | `usize` | `count` | Exact page peak occupancy mirror via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`. |
-| `page_box.hako` | `HakoAllocPageModel` | `requested_bytes` | `i64` | `byte-length` | Candidate after checked add/overflow diagnostics are live for byte sums. |
+| `page_box.hako` | `HakoAllocPageModel` | `requested_bytes` | `i64` | `byte-length` | Candidate after the proof-only request byte-sum row. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin` | `i64` | `index` | Candidate after bin vocabulary is exact non-negative. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `page_count` | `i64` | `count` | Candidate with queue length/capacity rows. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `has_direct_page` | `i64` | `count` | Binary presence state split from the old `-1` direct-page sentinel. |
@@ -544,7 +547,8 @@ Non-stored sentinel seams that must be considered in the next row:
    `294x-44` probes exact `usize` capacity bounds with current-lane signed
    indexes before production capacity/reserved migration. `294x-45` migrates
    the production page capacity/reserved owner-local group.
-4. Probe `size` and `byte-length` fields only after checked arithmetic
-   diagnostics are stable enough for allocator byte sums.
+4. Probe `size` and `byte-length` fields. `294x-46` extends the proof-only
+   probe to exact `usize` block-size comparison and accepted-request byte-sum
+   accumulation before production page-model size/byte fields migrate.
 5. Probe `index` fields after sentinel returns and not-found states are
    explicit.

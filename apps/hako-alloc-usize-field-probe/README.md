@@ -9,6 +9,9 @@ Purpose
   before production page stack fields migrate.
 - Covers signed index guards against an exact `usize` capacity bound and a
   simple `loop(i < capacity)` bound shape.
+- Covers request-size comparison against an exact `usize` block size and
+  accepted-request byte-sum accumulation before production page size/byte
+  fields migrate.
 - Does not migrate production allocator state by itself; production migration
   is tracked by explicit 294x field-group rows.
 

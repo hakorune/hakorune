@@ -4,6 +4,7 @@
 
 box HakoAllocUsizeFieldProbe {
     capacity: usize = 0
+    block_size: usize = 0
     used: usize = 0
     free_top: usize = 0
     local_free_top: usize = 0
@@ -11,6 +12,9 @@ box HakoAllocUsizeFieldProbe {
     local_free_stack_values: ArrayBox = new ArrayBox()
     alloc_count: usize = 0
     requested_bytes: usize = 0
+    request_accept_count: usize = 0
+    request_oversize_reject_count: usize = 0
+    byte_sum_count: usize = 0
     array_index_probe_count: usize = 0
     capacity_loop_count: usize = 0
     index_accept_count: usize = 0
@@ -19,8 +23,9 @@ box HakoAllocUsizeFieldProbe {
     local_free_overflow_reject_count: usize = 0
     local_free_underflow_reject_count: usize = 0
 
-    birth(capacity: usize) {
+    birth(capacity: usize, block_size: usize) {
         me.capacity = capacity
+        me.block_size = block_size
         me.free_top = capacity
     }
 
@@ -32,6 +37,18 @@ box HakoAllocUsizeFieldProbe {
         me.used = me.used + 1
         me.alloc_count = me.alloc_count + 1
         me.requested_bytes = me.requested_bytes + requested_bytes
+        return 1
+    }
+
+    recordSizedRequest(requested_size: usize) {
+        if requested_size > me.block_size {
+            me.request_oversize_reject_count = me.request_oversize_reject_count + 1
+            return 0
+        }
+
+        me.request_accept_count = me.request_accept_count + 1
+        me.byte_sum_count = me.byte_sum_count + 1
+        me.requested_bytes = me.requested_bytes + requested_size
         return 1
     }
 

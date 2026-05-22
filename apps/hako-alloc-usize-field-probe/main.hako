@@ -5,11 +5,13 @@ using selfhost.hako_alloc.memory.usize_field_probe_box as HakoAllocUsizeFieldPro
 
 static box Main {
     main(args) {
-        local probe = new HakoAllocUsizeFieldProbe(2)
+        local probe = new HakoAllocUsizeFieldProbe(2, 32)
 
         local a0 = probe.recordAllocation(24)
         local a1 = probe.recordAllocation(32)
         local a2 = probe.recordAllocation(8)
+        local r0 = probe.recordSizedRequest(16)
+        local r1 = probe.recordSizedRequest(64)
         local s0 = probe.seedFreeStackValue(10)
         local s1 = probe.seedFreeStackValue(11)
         local s2 = probe.seedLocalFreeSlot()
@@ -33,6 +35,8 @@ static box Main {
         if a0 == 1 { shape = shape + 1 }
         if a1 == 1 { shape = shape + 1 }
         if a2 == 0 { shape = shape + 1 }
+        if r0 == 1 { shape = shape + 1 }
+        if r1 == 0 { shape = shape + 1 }
         if s0 == 1 { shape = shape + 1 }
         if s1 == 1 { shape = shape + 1 }
         if s2 == 1 { shape = shape + 1 }
@@ -52,11 +56,15 @@ static box Main {
         if idx_low == 1 { shape = shape + 1 }
         if idx_high == 0 { shape = shape + 1 }
         if probe.capacity == 2 { shape = shape + 1 }
+        if probe.block_size == 32 { shape = shape + 1 }
         if probe.used == 2 { shape = shape + 1 }
         if probe.free_top == 0 { shape = shape + 1 }
         if probe.local_free_top == 0 { shape = shape + 1 }
         if probe.alloc_count == 2 { shape = shape + 1 }
-        if probe.requested_bytes == 56 { shape = shape + 1 }
+        if probe.requested_bytes == 72 { shape = shape + 1 }
+        if probe.request_accept_count == 1 { shape = shape + 1 }
+        if probe.request_oversize_reject_count == 1 { shape = shape + 1 }
+        if probe.byte_sum_count == 1 { shape = shape + 1 }
         if probe.array_index_probe_count == 3 { shape = shape + 1 }
         if probe.capacity_loop_count == 2 { shape = shape + 1 }
         if probe.index_accept_count == 1 { shape = shape + 1 }
@@ -67,15 +75,16 @@ static box Main {
 
         print("hako-alloc-usize-field-probe")
         print("accept=" + a0 + "," + a1 + "," + a2)
+        print("request=" + r0 + "," + r1)
         print("seed=" + s0 + "," + s1 + "," + s2 + "," + s3 + "," + p0)
         print("free=" + f0 + "," + f1 + "," + f2)
         print("local=" + l0 + "," + l1 + "," + l2 + "," + c0 + "," + c1 + "," + c2)
         print("bounds=" + cap_loop + "," + idx_neg + "," + idx_low + "," + idx_high)
-        print("state=" + probe.capacity + "," + probe.used + "," + probe.free_top + "," + probe.local_free_top + "," + probe.alloc_count + "," + probe.requested_bytes + "," + probe.array_index_probe_count + "," + probe.capacity_loop_count + "," + probe.index_accept_count + "," + probe.index_reject_count)
+        print("state=" + probe.capacity + "," + probe.block_size + "," + probe.used + "," + probe.free_top + "," + probe.local_free_top + "," + probe.alloc_count + "," + probe.requested_bytes + "," + probe.request_accept_count + "," + probe.request_oversize_reject_count + "," + probe.byte_sum_count + "," + probe.array_index_probe_count + "," + probe.capacity_loop_count + "," + probe.index_accept_count + "," + probe.index_reject_count)
         print("rejects=" + probe.free_top_underflow_reject_count + "," + probe.local_free_overflow_reject_count + "," + probe.local_free_underflow_reject_count)
         print("shape=" + shape)
 
-        if shape == 34 {
+        if shape == 40 {
             print("summary=ok")
             return 0
         }

@@ -13,13 +13,14 @@ NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
 
 grep -q '^hako-alloc-usize-field-probe$' "$OUT"
 grep -q '^accept=1,1,0$' "$OUT"
+grep -q '^request=1,0$' "$OUT"
 grep -q '^seed=1,1,1,1,11$' "$OUT"
 grep -q '^free=1,1,0$' "$OUT"
 grep -q '^local=1,1,0,41,40,-1$' "$OUT"
 grep -q '^bounds=2,0,1,0$' "$OUT"
-grep -q '^state=2,2,0,0,2,56,3,2,1,2$' "$OUT"
+grep -q '^state=2,32,2,0,0,2,72,1,1,1,3,2,1,2$' "$OUT"
 grep -q '^rejects=1,1,1$' "$OUT"
-grep -q '^shape=34$' "$OUT"
+grep -q '^shape=40$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
 cat "$OUT"
