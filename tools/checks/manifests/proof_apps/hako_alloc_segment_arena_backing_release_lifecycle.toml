@@ -1444,3 +1444,16 @@ closeout_pack = "allocator-comparison-c-mimalloc-result-presentation-extension-f
 exe = "deferred-to-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-560A"
+app = "apps/hako-alloc-allocator-comparison-c-mimalloc-result-presentation-only-extension-pilot-proof"
+label = "allocator comparison c mimalloc result presentation-only extension pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "pilot"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-c-mimalloc-result-presentation-only-extension"
+exe = "deferred-to-presentation-only-extension-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_guard.sh", "--level", "L2"]

@@ -1,0 +1,109 @@
+// hako-alloc-allocator-comparison-c-mimalloc-result-presentation-only-extension-pilot-proof
+// Purpose: prove MIMAP-560A presentation-only extension pilot over MIMAP-552A evidence.
+
+using apps.proofs.allocator_comparison_c_mimalloc_result_fixture as HakoAllocAllocatorComparisonCMimallocResultProofFixture
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_pilot_box as HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot
+using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_box as HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot
+
+static box Main {
+    main(args) {
+        local presentation_owner = new HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot()
+
+        local accepted_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        local accepted = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(accepted_pilot)
+
+        local missing_pilot = new HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReport()
+        local missing = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(missing_pilot)
+
+        local blocked_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeBlockedPresentationOnlyExtensionPilot()
+        local blocked = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(blocked_pilot)
+
+        local missing_input_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        missing_input_pilot.comparison_preconditions_present = 0
+        local missing_input = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(missing_input_pilot)
+
+        local closed_stop_pilot = HakoAllocAllocatorComparisonCMimallocResultProofFixture.makeAcceptedPresentationOnlyExtensionPilot()
+        closed_stop_pilot.repeated_benchmark_executed = 1
+        local closed_stop = presentation_owner.pilotAllocatorComparisonCMimallocResultPresentationOnlyExtension(closed_stop_pilot)
+
+        local ok = check "mimap560a allocator comparison c mimalloc result presentation-only extension pilot" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "presentation": accepted.presentation_only_extension_present == 1
+            "comparison ready": accepted.comparison_ready_present == 1
+            "pilot": accepted.pilot_present == 1
+            "accepted pilot": accepted.accepted_pilot_present == 1
+            "blocked pilot": accepted.blocked_pilot_present == 0
+            "accepted pack": accepted.accepted_input_pack_present == 1
+            "blocked pack": accepted.blocked_input_pack_present == 0
+            "hako contract": accepted.hako_alloc_report_contract_present == 1
+            "c contract": accepted.c_mimalloc_runner_contract_present == 1
+            "workload contract": accepted.shared_workload_id_present == 1
+            "memory fields": accepted.memory_evidence_fields_present == 1
+            "preconditions": accepted.comparison_preconditions_present == 1
+            "allocator id": accepted.allocator_id == 1
+            "runner kind": accepted.runner_kind == 1
+            "workload id": accepted.workload_id == 1
+            "allocation count": accepted.allocation_count == 64
+            "free count": accepted.free_count == 64
+            "requested bytes": accepted.requested_bytes == 33254
+            "peak rss": accepted.peak_rss_bytes == 4096
+            "steady rss": accepted.steady_rss_bytes == 4096
+            "exit code": accepted.exit_code == 0
+            "evidence complete": accepted.evidence_complete == 1
+            "hako alloc": accepted.hako_allocation_count == 3
+            "hako bytes": accepted.hako_requested_bytes == 72
+            "c alloc": accepted.c_allocation_count == 64
+            "c bytes": accepted.c_requested_bytes == 33254
+            "c rss": accepted.c_peak_rss_bytes == 4096
+            "alloc delta": accepted.allocation_count_delta == 61
+            "bytes delta": accepted.requested_bytes_delta == 33182
+            "owner count": presentation_owner.presentation_count == 5
+            "owner accepted": presentation_owner.accepted_count == 1
+            "owner blocked": presentation_owner.blocked_count == 4
+            "owner missing pilot": presentation_owner.missing_pilot_reject_count == 1
+            "owner blocked pilot": presentation_owner.blocked_pilot_reject_count == 1
+            "owner missing input": presentation_owner.missing_presentation_input_reject_count == 1
+            "owner closed stop": presentation_owner.closed_stop_line_reject_count == 1
+            "last reason": presentation_owner.last_reason == 4
+            "missing reason": missing.reason == 1
+            "blocked reason": blocked.reason == 2
+            "missing input reason": missing_input.reason == 3
+            "closed reason": closed_stop.reason == 4
+            "missing blocked pilot": missing.blocked_pilot_present == 0
+            "blocked pilot flag": blocked.blocked_pilot_present == 1
+            "missing input blocked pilot": missing_input.blocked_pilot_present == 1
+            "closed blocked pilot": closed_stop.blocked_pilot_present == 1
+            "no perf made": accepted.performance_conclusion_made == 0
+            "no memory made": accepted.memory_conclusion_made == 0
+            "no repeated benchmark": accepted.repeated_benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "hidden discovery": accepted.hidden_discovery_used == 0
+            "provider package": accepted.provider_package_generated == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-c-mimalloc-result-presentation-only-extension-pilot-proof")
+        print("presentationext=" + accepted.accepted + "," + accepted.reason + "," + accepted.presentation_only_extension_present + "," + accepted.comparison_ready_present + "," + accepted.pilot_present + "," + accepted.accepted_pilot_present + "," + accepted.blocked_pilot_present + "," + accepted.hako_alloc_report_contract_present + "," + accepted.c_mimalloc_runner_contract_present + "," + accepted.shared_workload_id_present + "," + accepted.memory_evidence_fields_present + "," + accepted.comparison_preconditions_present)
+        print("contract=" + accepted.allocator_id + "," + accepted.runner_kind + "," + accepted.workload_id + "," + accepted.allocation_count + "," + accepted.free_count + "," + accepted.requested_bytes + "," + accepted.peak_rss_bytes + "," + accepted.steady_rss_bytes + "," + accepted.exit_code + "," + accepted.evidence_complete)
+        print("metrics=" + accepted.hako_allocation_count + "," + accepted.hako_requested_bytes + "," + accepted.c_allocation_count + "," + accepted.c_requested_bytes + "," + accepted.c_peak_rss_bytes + "," + accepted.allocation_count_delta + "," + accepted.requested_bytes_delta)
+        print("owner=" + presentation_owner.presentation_count + "," + presentation_owner.accepted_count + "," + presentation_owner.blocked_count + "," + presentation_owner.missing_pilot_reject_count + "," + presentation_owner.blocked_pilot_reject_count + "," + presentation_owner.missing_presentation_input_reject_count + "," + presentation_owner.closed_stop_line_reject_count + "," + presentation_owner.last_reason)
+        print("closed=" + accepted.performance_conclusion_made + "," + accepted.memory_conclusion_made + "," + accepted.repeated_benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.hidden_discovery_used + "," + accepted.provider_package_generated + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + blocked.reason + "," + missing_input.reason + "," + closed_stop.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
