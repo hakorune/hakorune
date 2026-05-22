@@ -64,7 +64,7 @@ not a full native mimalloc-compatible allocator.
 
 | Order | Slice | Validation | Boundary |
 | --- | --- | --- | --- |
-| V0 | Select the comparison workload pack | docs + manifest/static guard | Use a small fixed-size alloc/free/reuse workload, a mixed small-size workload, realloc same-class/grow fallback, aligned-small, and huge/OSVM-backed allocation. Do not add provider activation or host replacement. |
+| V0 | Select the comparison workload pack | docs + manifest/static guard | Selected by `294x-53`. Use a small fixed-size alloc/free/reuse workload, a mixed small-size workload, realloc same-class/grow fallback, aligned-small, and huge/OSVM-backed allocation. Do not add provider activation or host replacement. |
 | V1 | Close only comparison-required `usize` fields | field-group L2, L3 only when first-pattern requires it | Migrate request size, block size, capacity, queue count/index, and report counters only when the workload consumes them. Keep ids, pointer payloads, sentinels, and status flags signed until their own contracts are needed. |
 | V2 | Hako alloc small-path comparison slice | VM + MIR + route preflight; representative EXE closeout | Compose existing size-class, page model, page queue, page-map release, and local reuse paths into one stable output schema. No remote-free stress, TLS, abandoned heap, or atomic bitmap expansion. |
 | V3 | Realloc/aligned comparison slice | same as V2 | Reuse M174-M178 behavior and produce requested bytes, copied bytes, live handles, failure reason, and alignment metadata evidence. No new API surface unless the report schema requires it. |

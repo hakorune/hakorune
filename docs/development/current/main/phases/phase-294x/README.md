@@ -193,6 +193,8 @@ host/global allocator replacement remain later lanes.
   `usize` stored fields while page/heap/queue/handle state stays `i64`.
 - `294x-20`: mimalloc algorithm rows resume under the still-`i64`
   page/heap/queue production boundary; M167 landed as the first resumed row.
+- `294x-53`: the mimalloc-facing work was narrowed to a comparison-quality
+  vertical-slice workload pack instead of a full allocator field drain.
 - `M168`: parent mimalloc lane landed OSVM page-source composition as a
   separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
   pages through existing reserve/commit/decommit rows.

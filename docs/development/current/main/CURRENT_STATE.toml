@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-23"
 
 active_lane = "phase-294x usize semantic foundation"
-active_lane_status = "Phase-293x mimalloc blueprint lane closed with record ergonomics feature (127 tests green) and terminal planning pilot. Transitioning to phase-294x usize semantic foundation as prerequisite for mimalloc execution lane. Explicit C mimalloc runner execution will open in follow-on phase after usize semantics."
+active_lane_status = "Phase-293x mimalloc blueprint lane closed with record ergonomics feature (127 tests green) and terminal planning pilot. Phase-294x continues as usize semantic foundation while narrowing mimalloc-facing work to a comparison-quality vertical slice before broader native allocator work."
 active_phase = "docs/development/current/main/phases/phase-294x/README.md"
 phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE.md"
-latest_card_summary = "Migrated HakoAllocOsVmBackedHandle.requested_size to exact usize storage while keeping OSVM backing and id payload seams signed."
+latest_card = "294x-53-MIMALLOC-COMPARISON-VERTICAL-SLICE-WORKLOAD-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-53-MIMALLOC-COMPARISON-VERTICAL-SLICE-WORKLOAD-PACK.md"
+latest_card_summary = "Selected the first comparison-quality mimalloc .hako workload pack: small reuse, mixed small sizes, realloc, aligned-small, and huge/OSVM-backed evidence."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-082"
+current_blocker_token = "MIMALLOC-COMPARISON-VSLICE-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
