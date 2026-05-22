@@ -290,11 +290,22 @@ Selected next production `usize` field group:
   release-seam counter groups. `last_result_ptr` stays `i64` because it is a
   pointer-shaped result observer.
 
+- `page_map_realloc_alloc_copy_release_box.hako` /
+  `HakoAllocPageMapReallocAllocCopyReleasePath` fallback event / reject
+  counter fields:
+  `success_count`, `copy_count`, `same_class_reject_count`,
+  `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`,
+  `released_block_count`, `reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-054` selects and migrates this group because
+  these are non-negative fallback-local counters downstream of the page-map,
+  release-seam, and same-class/no-move counter groups. `next_ptr`,
+  `last_result_ptr`, and the `last_alloc_* = -1` sentinel fields stay `i64`.
+
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-053` migrates the page-map realloc
-  same-class/no-move event/reject counter group selected after the release-seam
-  counter group.
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-054` migrates the page-map realloc
+  alloc-copy-release fallback event/reject counter group selected after the
+  same-class/no-move counter group.
   Future field-group rows must choose another explicit non-negative
   owner-local group.
 
@@ -405,7 +416,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | counters are candidates; ptr/result/alignment/size observers wait for M188. |
 | `page_map_box.hako` | `HakoAllocPageMapEntry` | `ptr`, `page_id`, `block_id`, `live` | ptr/id/index + binary live flag; keep `i64` until pointer/result API shape is exact. |
 | `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | already exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-051`; entry pointer/id fields remain `i64`. |
-| `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | copy/counters are candidates; `last_alloc_* = -1` sentinels and ptr fields stay `i64`. |
+| `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | fallback event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-054`; `next_ptr`, result ptr, and `last_alloc_* = -1` sentinels stay `i64`. |
 | `page_map_realloc_failure_contract_box.hako` | `HakoAllocPageMapReallocFailureContract` | `success_count`, `same_class_success_count`, `move_success_count`, `zero_reject_count`, `oversized_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `unexpected_reject_count`, `reject_count`, `last_result_ptr`, `last_failure_kind`, `last_max_block_size` | failure-matrix counters are candidates; ptr/status/size observers wait for API parity. |
 | `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | same-class/no-move counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-053`; result pointer stays `i64`. |
 | `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | release event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-052`; `page_count` remains `i64` while it is compared with signed `page_id`. |

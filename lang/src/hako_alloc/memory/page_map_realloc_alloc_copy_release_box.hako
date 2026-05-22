@@ -9,14 +9,14 @@ box HakoAllocPageMapReallocAllocCopyReleasePath {
     seam: HakoAllocPageMapReleaseSeam
     page_map: HakoAllocPageMap
     next_ptr: i64 = 9000
-    success_count: i64 = 0
-    copy_count: i64 = 0
-    same_class_reject_count: i64 = 0
-    alloc_fail_count: i64 = 0
-    lookup_miss_count: i64 = 0
-    stale_page_count: i64 = 0
-    released_block_count: i64 = 0
-    reject_count: i64 = 0
+    success_count: usize = 0
+    copy_count: usize = 0
+    same_class_reject_count: usize = 0
+    alloc_fail_count: usize = 0
+    lookup_miss_count: usize = 0
+    stale_page_count: usize = 0
+    released_block_count: usize = 0
+    reject_count: usize = 0
     last_result_ptr: i64 = 0
     last_alloc_page_id: i64 = -1
     last_alloc_block_id: i64 = -1

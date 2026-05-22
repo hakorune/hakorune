@@ -19,6 +19,7 @@ APP="apps/mimalloc-realloc-alloc-copy-release-proof/main.hako"
 APP_TEST="apps/mimalloc-realloc-alloc-copy-release-proof/test.sh"
 APP_README="apps/mimalloc-realloc-alloc-copy-release-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-185-M175-REALLOC-ALLOC-COPY-RELEASE-FALLBACK.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-24-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-ALLOC-COPY-RELEASE-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_realloc_alloc_copy_release_guard.sh"
@@ -43,6 +44,7 @@ guard_require_files \
   "$APP_TEST" \
   "$APP_README" \
   "$CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$INDEX"
 
@@ -54,9 +56,22 @@ guard_expect_in_file "$TAG" 'me\.page_map\.register\(new_ptr, me\.last_alloc_pag
 guard_expect_in_file "$TAG" 'me\.seam\.releasePtr\(old_ptr\)' "$REALLOC_PATH" "M175 fallback must release the old ptr only after allocation succeeds"
 guard_expect_in_file "$TAG" 'me\.copy_count = me\.copy_count \+ 1' "$REALLOC_PATH" "M175 fallback must model copy count without byte copy"
 guard_expect_in_file "$TAG" 'requested_size <= page\.block_size' "$REALLOC_PATH" "M175 fallback must reject same-class requests so M174 stays the owner"
+guard_expect_in_file "$TAG" 'next_ptr: i64 = 9000' "$REALLOC_PATH" "M175 next_ptr must remain i64 pointer-shaped state"
+guard_expect_in_file "$TAG" 'success_count: usize = 0' "$REALLOC_PATH" "M175 success counter must be exact usize"
+guard_expect_in_file "$TAG" 'copy_count: usize = 0' "$REALLOC_PATH" "M175 copy counter must be exact usize"
+guard_expect_in_file "$TAG" 'same_class_reject_count: usize = 0' "$REALLOC_PATH" "M175 same-class reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'alloc_fail_count: usize = 0' "$REALLOC_PATH" "M175 alloc-fail counter must be exact usize"
+guard_expect_in_file "$TAG" 'lookup_miss_count: usize = 0' "$REALLOC_PATH" "M175 lookup-miss counter must be exact usize"
+guard_expect_in_file "$TAG" 'stale_page_count: usize = 0' "$REALLOC_PATH" "M175 stale-page counter must be exact usize"
+guard_expect_in_file "$TAG" 'released_block_count: usize = 0' "$REALLOC_PATH" "M175 released-block counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$REALLOC_PATH" "M175 reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_result_ptr: i64 = 0' "$REALLOC_PATH" "M175 result pointer observer must remain i64"
+guard_expect_in_file "$TAG" 'last_alloc_page_id: i64 = -1' "$REALLOC_PATH" "M175 last_alloc_page_id sentinel must remain i64"
+guard_expect_in_file "$TAG" 'last_alloc_block_id: i64 = -1' "$REALLOC_PATH" "M175 last_alloc_block_id sentinel must remain i64"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_realloc_alloc_copy_release_box as HakoAllocPageMapReallocAllocCopyReleaseBox' "$APP" "proof app must import the M175 fallback path"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_release_invariant_box as HakoAllocPageMapReleaseInvariantBox' "$APP" "proof app must observe old/new ptr liveness through the M173 contract"
 guard_expect_in_file "$TAG" '293x-185 M175 Realloc Alloc-Copy-Release Fallback' "$CARD" "missing M175 card"
+guard_expect_in_file "$TAG" '294x-24 Hako Alloc Usize Page-Map Realloc Alloc-Copy-Release Counters' "$USIZE_CARD" "missing realloc alloc-copy-release counter usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M175 guard"
 guard_expect_in_file "$TAG" 'M175 realloc alloc-copy-release fallback' "$PLAN" "plan must retain the M175 row"
 guard_expect_in_file "$TAG" 'HakoAllocPageMapReallocAllocCopyReleasePath' "$ROOT_README" "root README must document the M175 fallback owner"
@@ -139,6 +154,29 @@ for fn in functions.values():
             unsupported.append((fn.get("name"), plan.get("site"), plan.get("symbol"), plan.get("reason")))
 if unsupported:
     raise SystemExit(f"unsupported lowering plans remain: {unsupported[:5]}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+fallback = plans.get("HakoAllocPageMapReallocAllocCopyReleasePath")
+if fallback is None:
+    raise SystemExit("missing typed object plan: HakoAllocPageMapReallocAllocCopyReleasePath")
+fields = {field.get("name"): field for field in fallback.get("fields", [])}
+for name in (
+    "success_count",
+    "copy_count",
+    "same_class_reject_count",
+    "alloc_fail_count",
+    "lookup_miss_count",
+    "stale_page_count",
+    "released_block_count",
+    "reject_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"realloc alloc-copy-release {name} must be exact usize storage: {field}")
+for name in ("next_ptr", "last_result_ptr", "last_alloc_page_id", "last_alloc_block_id"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"realloc alloc-copy-release {name} must remain i64 storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

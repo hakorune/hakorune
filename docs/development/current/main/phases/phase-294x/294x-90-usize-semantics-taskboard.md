@@ -241,6 +241,13 @@ remaining field groups and allocator API parity only.
     `294x-23-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-SAME-CLASS-COUNTERS.md`.
   - Stop line: keep `last_result_ptr` signed/pointer-shaped until pointer
     result handles are migrated by their own row.
+  - Follow-on migrated group: `HakoAllocPageMapReallocAllocCopyReleasePath`
+    fallback event/reject counters (`success_count`, `copy_count`,
+    `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`,
+    `stale_page_count`, `released_block_count`, `reject_count`) in
+    `294x-24-HAKO-ALLOC-USIZE-PAGE-MAP-REALLOC-ALLOC-COPY-RELEASE-COUNTERS.md`.
+  - Stop line: keep `next_ptr`, `last_result_ptr`, and `last_alloc_*`
+    signed/pointer-shaped or sentinel-bearing until their own rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.
