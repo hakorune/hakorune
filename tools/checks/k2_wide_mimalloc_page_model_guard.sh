@@ -13,6 +13,7 @@ APP_TEST="apps/mimalloc-page-model-proof/test.sh"
 APP_README="apps/mimalloc-page-model-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-166-M165-MIMALLOC-PAGE-MODEL-SPLIT.md"
 USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-31-HAKO-ALLOC-USIZE-PAGE-MODEL-LIFECYCLE-COUNTERS.md"
+USIZE_STACK_CARD="docs/development/current/main/phases/phase-294x/294x-43-HAKO-ALLOC-USIZE-PAGE-MODEL-STACK-OCCUPANCY.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -32,6 +33,7 @@ guard_require_files \
   "$APP_README" \
   "$CARD" \
   "$USIZE_CARD" \
+  "$USIZE_STACK_CARD" \
   "$PLAN" \
   "$INDEX" \
   "$ALLOCATOR_GROUP"
@@ -40,7 +42,9 @@ guard_expect_in_file "$TAG" 'box HakoAllocPageModel' "$PAGE_BOX" "HakoAllocPageM
 guard_expect_in_file "$TAG" 'free: ArrayBox = new ArrayBox\(\)' "$PAGE_BOX" "page model must initialize free as a stored member"
 guard_expect_in_file "$TAG" 'local_free: ArrayBox = new ArrayBox\(\)' "$PAGE_BOX" "page model must initialize local_free as a stored member"
 guard_expect_in_file "$TAG" 'block_used: ArrayBox = new ArrayBox\(\)' "$PAGE_BOX" "page model must initialize block_used"
-guard_expect_in_file "$TAG" 'used: i64 = 0' "$PAGE_BOX" "page model must expose used with a scalar field initializer"
+guard_expect_in_file "$TAG" 'used: usize = 0' "$PAGE_BOX" "page model must expose used as exact usize storage"
+guard_expect_in_file "$TAG" 'free_top: usize = 0' "$PAGE_BOX" "page model must expose free_top as exact usize storage"
+guard_expect_in_file "$TAG" 'local_free_top: usize = 0' "$PAGE_BOX" "page model must expose local_free_top as exact usize storage"
 guard_expect_in_file "$TAG" 'capacity: i64' "$PAGE_BOX" "page model must expose capacity as a scalar stored member"
 guard_expect_in_file "$TAG" 'reserved: i64' "$PAGE_BOX" "page model must expose reserved as a scalar stored member"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$PAGE_BOX" "page alloc counter must be exact usize"
@@ -55,6 +59,7 @@ guard_expect_in_file "$TAG" 'reuse_count: usize = 0' "$PAGE_BOX" "reuse counter 
 guard_expect_in_file "$TAG" 'lifecycle_reject_count: usize = 0' "$PAGE_BOX" "lifecycle reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'reactivate_count: usize = 0' "$PAGE_BOX" "reactivate counter must be exact usize"
 guard_expect_in_file "$TAG" 'reactivate_reject_count: usize = 0' "$PAGE_BOX" "reactivate reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'peak_used: usize = 0' "$PAGE_BOX" "page model peak_used must be exact usize storage"
 guard_expect_in_file "$TAG" 'seedFreeBlocks' "$PAGE_BOX" "page model must seed free blocks locally"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_BOX" "page model must have local release seam"
 guard_expect_in_file "$TAG" 'memory.page_box = "memory/page_box.hako"' "$MODULE" "hako module must export page_box"
@@ -63,6 +68,7 @@ guard_expect_in_file "$TAG" 'local_free' "$APP_README" "proof README must descri
 guard_expect_in_file "$TAG" 'M165 page model split' "$PLAN" "plan must retain M165 row"
 guard_expect_in_file "$TAG" '293x-166 M165 Mimalloc Page Model Split' "$CARD" "missing M165 card"
 guard_expect_in_file "$TAG" '294x-31 Hako Alloc Usize Page Model Lifecycle Counters' "$USIZE_CARD" "missing page model lifecycle counter usize card"
+guard_expect_in_file "$TAG" '294x-43 Hako Alloc Usize Page Model Stack Occupancy' "$USIZE_STACK_CARD" "missing page model stack occupancy usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M165 guard"
 guard_expect_in_file "$TAG" 'loop\(i < me\.capacity\)' "$PAGE_BOX" "page seeding must exercise JoinIR field-read loop bound"
 
@@ -157,17 +163,22 @@ for name in (
     "block_size",
     "capacity",
     "reserved",
-    "used",
-    "free_top",
-    "local_free_top",
     "retired",
     "decommitted",
-    "peak_used",
     "requested_bytes",
 ):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"page model {name} must remain i64 storage: {field}")
+for name in (
+    "used",
+    "free_top",
+    "local_free_top",
+    "peak_used",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"page model {name} must be exact usize storage: {field}")
 PY
 
 rm -f /tmp/"$TAG".emit.out /tmp/"$TAG".emit.err

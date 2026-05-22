@@ -216,6 +216,8 @@ remaining field groups and allocator API parity only.
   underflow/overflow rejects in the isolated hako_alloc proof app.
 - [x] Probe exact `usize` stack-top values as `ArrayBox.get/set` indexes in the
   isolated hako_alloc proof app.
+- [x] Migrate production page-model stack-top/occupancy fields after the
+  proof-only stack-top and ArrayBox-index probes.
 - [x] Mark production `usize` field migration blocked on non-VM exact numeric
   storage, exact field ABI, and backend ABI consumption.
 - [x] Update first production proof apps for the facade stats field group.
@@ -367,6 +369,12 @@ remaining field groups and allocator API parity only.
     values used as `ArrayBox.get/set` indexes in
     `294x-42-HAKO-ALLOC-USIZE-STACK-ARRAY-INDEX-PROBE.md`.
   - Stop line: production page stack fields still do not migrate in this row.
+  - Follow-on migrated group: `HakoAllocPageModel` stack-top and occupancy
+    fields (`used`, `free_top`, `local_free_top`, `peak_used`) in
+    `294x-43-HAKO-ALLOC-USIZE-PAGE-MODEL-STACK-OCCUPANCY.md`.
+  - Stop line: keep page identity, block size, capacity, reserved count,
+    lifecycle state flags, byte-length fields, queue indexes, and remote-free
+    mailbox fields signed until their own owner-local rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

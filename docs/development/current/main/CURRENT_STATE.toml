@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-42-HAKO-ALLOC-USIZE-STACK-ARRAY-INDEX-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-42-HAKO-ALLOC-USIZE-STACK-ARRAY-INDEX-PROBE.md"
-latest_card_summary = "Extended the isolated hako_alloc usize field probe so exact usize stack-top values are consumed by ArrayBox get/set index operations before production page stack migration."
+latest_card = "294x-43-HAKO-ALLOC-USIZE-PAGE-MODEL-STACK-OCCUPANCY"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-43-HAKO-ALLOC-USIZE-PAGE-MODEL-STACK-OCCUPANCY.md"
+latest_card_summary = "Migrated HakoAllocPageModel used/free_top/local_free_top/peak_used to exact usize storage after proof-only stack-top and ArrayBox-index probes."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-STACK-ARRAY-INDEX-PROBE-072"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-073"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-43 HAKO-ALLOC-USIZE-FIELD-GROUP-073 page-model stack-top/occupancy migration landed; identity, size/capacity, lifecycle flags, and byte fields remain i64",
   "294x-42 HAKO-ALLOC-USIZE-STACK-ARRAY-INDEX-PROBE-072 proof-only ArrayBox get/set index probe landed; production page stack fields remain i64",
   "294x-41 HAKO-ALLOC-USIZE-STACK-TOP-PROBE-071 proof-only stack-top decrement/increment probe landed; production page stack-top/capacity/byte fields remain i64",
   "294x-40 HAKO-ALLOC-USIZE-FIELD-GROUP-070 page-map release observer counter migration landed; snapshots, sentinels, statuses, and deltas remain i64",
