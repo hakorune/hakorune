@@ -204,6 +204,9 @@ host/global allocator replacement remain later lanes.
   vertical-slice closeout and selected V3 realloc/aligned schema composition.
 - `294x-57`: the V3 comparison slice started with a model-only realloc/aligned
   schema pilot over same-class realloc, grow fallback, and aligned-small owners.
+- `294x-58`: the V4 comparison slice started with a representative exact-MIR
+  pure-first EXE huge/OSVM schema pilot over existing huge and OSVM-backed
+  page-source owners.
 - `M168`: parent mimalloc lane landed OSVM page-source composition as a
   separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
   pages through existing reserve/commit/decommit rows.

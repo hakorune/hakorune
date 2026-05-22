@@ -1,0 +1,152 @@
+// hako-alloc-mimalloc-comparison-huge-osvm-slice-proof
+// Purpose: compose V4 huge/OSVM comparison schema from existing owners.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
+using selfhost.hako_alloc.memory.huge_threshold_router_box as HakoAllocHugeThresholdRouterBox
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+using selfhost.hako_alloc.memory.huge_release_seam_box as HakoAllocHugeReleaseSeamBox
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeapBox
+using selfhost.hako_alloc.memory.osvm_fast_path_purge_route_box as HakoAllocOsVmFastPathPurgeRouteBox
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegrationBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count = me.count + 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    expectNonZero(label, actual) {
+        me.count = me.count + 1
+        if actual == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local route_map = new HakoAllocPageMap()
+        local route_seam = new HakoAllocPageMapReleaseSeam(route_map)
+        local route_page = new HakoAllocPageModel(0, 64, 1, 1)
+        local route_add = route_seam.addPage(route_page)
+        local small_path = new HakoAllocPageMapAlignedSmallPath(route_seam)
+        local router = new HakoAllocHugeThresholdRouter(small_path)
+        local small_route_ok = router.allocateAlignedUsize(24, 8)
+        local small_route_kind = router.last_route_kind
+        local small_route_ptr = router.last_result_ptr
+        local huge_class = router.classifyAlignedRequestUsize(4194305, 8)
+        local huge_route_ok = router.allocateAlignedUsize(4194305, 8)
+        local huge_route_kind = router.last_route_kind
+
+        local huge_map = new HakoAllocPageMap()
+        local huge_model = new HakoAllocHugePageModel(huge_map)
+        local huge_release = new HakoAllocHugeReleaseSeam(huge_model)
+        local huge_alloc = huge_model.allocateHuge(4194305, 4194305)
+        local huge_ptr = huge_model.last_result_ptr
+        local huge_page = huge_model.last_page_id
+        local huge_requested = huge_model.requestedSizeFor(huge_ptr)
+        local huge_committed = huge_model.committedSizeFor(huge_ptr)
+        local huge_live_before = huge_model.isLiveHugePtr(huge_ptr)
+        local huge_release_ok = huge_release.releaseHugePtr(huge_ptr)
+        local huge_live_after = huge_model.isLiveHugePtr(huge_ptr)
+        local huge_unknown_release = huge_release.releaseHugePtr(99999)
+
+        local osvm_route = new HakoAllocOsVmFastPathPurgeRoute(4, 32, 2, 64)
+        local osvm_heap = osvm_route.heap
+        local osvm_handle = osvm_route.allocate(16)
+        local osvm_release = osvm_route.release(osvm_handle)
+        local osvm_handle_present = osvm_release
+        local osvm_page1 = osvm_heap.addFreshPage()
+        local osvm_base0 = osvm_heap.pageBase(0)
+        local osvm_base1 = osvm_heap.pageBase(1)
+        local osvm_bytes0 = osvm_heap.pageBackingBytes(0)
+        local osvm_bytes1 = osvm_heap.pageBackingBytes(1)
+        local osvm_cleanup = osvm_heap.decommitAll()
+
+        local requested_bytes = huge_requested + osvm_heap.requestedBytes()
+        local committed_bytes = huge_committed + osvm_bytes0 + osvm_bytes1
+        local live_handles = huge_map.live_count + osvm_heap.outstandingBlocks()
+        local release_count = huge_release.release_count + osvm_heap.release_count
+        local source_ops = osvm_heap.reserve_count + osvm_heap.commit_count + osvm_heap.decommit_count
+        local rejects = router.reject_count + huge_model.reject_count + huge_release.reject_count + osvm_heap.reject_count
+
+        print("hako-alloc-mimalloc-comparison-huge-osvm-slice-proof")
+        print("workload=huge-osvm-v1")
+        print("route=" + route_add + "," + small_route_ok + "," + small_route_kind + "," + small_route_ptr + "," + huge_class + "," + huge_route_ok + "," + huge_route_kind + "," + router.huge_route_count + "," + router.huge_reject_count)
+        print("huge=" + huge_alloc + "," + huge_ptr + "," + huge_page + "," + huge_requested + "," + huge_committed + "," + huge_live_before + "," + huge_release_ok + "," + huge_live_after + "," + huge_unknown_release)
+        print("osvm=" + osvm_page1 + "," + osvm_bytes0 + "," + osvm_bytes1 + "," + osvm_heap.reserve_count + "," + osvm_heap.commit_count + "," + osvm_heap.decommit_count + "," + osvm_heap.source_reject_count + "," + osvm_cleanup)
+        print("osvm_bases=" + osvm_base0 + "," + osvm_base1)
+        print("summary_fields=" + requested_bytes + "," + committed_bytes + "," + live_handles + "," + release_count + "," + source_ops + "," + rejects)
+
+        local proof = new ProofCheck("huge osvm comparison slice")
+        proof.expectEq("route add page", route_add, 1)
+        proof.expectEq("small route ok", small_route_ok, 1)
+        proof.expectEq("small route kind", small_route_kind, 1)
+        proof.expectEq("small route ptr", small_route_ptr, 12000)
+        proof.expectEq("huge classify", huge_class, 2)
+        proof.expectEq("huge route rejects", huge_route_ok, 0)
+        proof.expectEq("huge route kind", huge_route_kind, 2)
+        proof.expectEq("huge route count", router.huge_route_count, 1)
+        proof.expectEq("huge alloc ok", huge_alloc, 1)
+        proof.expectEq("huge ptr", huge_ptr, 70000)
+        proof.expectEq("huge page id", huge_page, 1000)
+        proof.expectEq("huge requested", huge_requested, 4194305)
+        proof.expectEq("huge committed", huge_committed, 4194305)
+        proof.expectEq("huge live before", huge_live_before, 1)
+        proof.expectEq("huge release ok", huge_release_ok, 1)
+        proof.expectEq("huge live after", huge_live_after, 0)
+        proof.expectEq("huge unknown release", huge_unknown_release, 0)
+        proof.expectEq("osvm allocated handle", osvm_handle_present, 1)
+        proof.expectEq("osvm release", osvm_release, 1)
+        proof.expectEq("osvm page1", osvm_page1, 1)
+        proof.expectEq("osvm bytes0", osvm_bytes0, 64)
+        proof.expectEq("osvm bytes1", osvm_bytes1, 64)
+        proof.expectNonZero("osvm base0", osvm_base0)
+        proof.expectNonZero("osvm base1", osvm_base1)
+        proof.expectEq("osvm reserve count", osvm_heap.reserve_count, 2)
+        proof.expectEq("osvm commit count", osvm_heap.commit_count, 2)
+        proof.expectEq("osvm decommit count", osvm_heap.decommit_count, 2)
+        proof.expectEq("osvm source reject count", osvm_heap.source_reject_count, 0)
+        proof.expectEq("osvm cleanup", osvm_cleanup, 1)
+        proof.expectEq("requested bytes", requested_bytes, 4194321)
+        proof.expectEq("committed bytes", committed_bytes, 4194433)
+        proof.expectEq("live handles", live_handles, 0)
+        proof.expectEq("release count", release_count, 2)
+        proof.expectEq("source ops", source_ops, 6)
+        proof.expectEq("rejects", rejects, 2)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
