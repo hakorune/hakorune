@@ -25,13 +25,13 @@ box HakoAllocPageMapEntry {
 
 box HakoAllocPageMap {
     entries: ArrayBox = new ArrayBox()
-    entry_count: i64 = 0
-    live_count: i64 = 0
-    register_count: i64 = 0
-    lookup_count: i64 = 0
-    lookup_miss_count: i64 = 0
-    unregister_count: i64 = 0
-    reject_count: i64 = 0
+    entry_count: usize = 0
+    live_count: usize = 0
+    register_count: usize = 0
+    lookup_count: usize = 0
+    lookup_miss_count: usize = 0
+    unregister_count: usize = 0
+    reject_count: usize = 0
 
     findIndex(ptr) {
         local entry_count = me.entry_count

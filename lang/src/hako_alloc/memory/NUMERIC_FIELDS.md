@@ -263,12 +263,18 @@ Selected next production `usize` field group:
   counters after the shape/lookup group was closed out. Reasons, indexes,
   tokens, segment/page ids, reused block ids, flags, and sentinels stay `i64`.
 
+- `page_map_box.hako` / `HakoAllocPageMap` owner-local counter fields:
+  `entry_count`, `live_count`, `register_count`, `lookup_count`,
+  `lookup_miss_count`, `unregister_count`, `reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-051` selects and migrates this group because
+  these are non-negative page-map owner counters with no signed sentinels.
+  `HakoAllocPageMapEntry` pointer/id fields and live flag stay `i64`.
+
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-050` closed out the modeled local-free
-  reuse ledger release-apply execution/capability reject counter group.
-  `HAKO-ALLOC-REPORT-RECORD-006` is the current report-carrier record row, not
-  a numeric stored-field migration.
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-051` migrates the page-map owner counter
+  group selected by the phase-294x taskboard. Future field-group rows must
+  choose another explicit non-negative owner-local group.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -376,7 +382,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; migrate only if this owner remains live after page-model migration. |
 | `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | counters are candidates; ptr/result/alignment/size observers wait for M188. |
 | `page_map_box.hako` | `HakoAllocPageMapEntry` | `ptr`, `page_id`, `block_id`, `live` | ptr/id/index + binary live flag; keep `i64` until pointer/result API shape is exact. |
-| `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | page-map counters are low-risk candidates after page-map owner gate. |
+| `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | already exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-051`; entry pointer/id fields remain `i64`. |
 | `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | copy/counters are candidates; `last_alloc_* = -1` sentinels and ptr fields stay `i64`. |
 | `page_map_realloc_failure_contract_box.hako` | `HakoAllocPageMapReallocFailureContract` | `success_count`, `same_class_success_count`, `move_success_count`, `zero_reject_count`, `oversized_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `unexpected_reject_count`, `reject_count`, `last_result_ptr`, `last_failure_kind`, `last_max_block_size` | failure-matrix counters are candidates; ptr/status/size observers wait for API parity. |
 | `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | counters are candidates; result pointer stays `i64`. |

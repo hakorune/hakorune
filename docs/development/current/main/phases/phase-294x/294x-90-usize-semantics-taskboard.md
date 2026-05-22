@@ -218,13 +218,13 @@ remaining field groups and allocator API parity only.
   ABI backend consumption and needed exact op backend subset are green.
 - [ ] Migrate remaining production non-negative fields only by explicit
   field-group rows.
-  - Next candidate: `HakoAllocPageMap` counter fields (`entry_count`,
+  - Current migrated candidate: `HakoAllocPageMap` counter fields (`entry_count`,
     `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`,
     `unregister_count`, `reject_count`). All non-negative counts, no sentinels,
     owner-local to one box. Low-risk per NUMERIC_FIELDS.md.
-  - Row granularity: 1 selection row + 1 migration row + 1 closeout row.
-  - Proof: update existing page-map proof app to verify exact usize counters.
-  - Guard: existing page-map guard extended for usize field assertions.
+  - Row: `294x-21-HAKO-ALLOC-USIZE-PAGE-MAP-COUNTERS.md`.
+  - Proof: existing page-map proof app verifies behavior-preserving counters.
+  - Guard: existing page-map guard checks exact `usize` typed-object storage.
   - Stop line: do not migrate page-map entry pointer/id fields in this group.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
