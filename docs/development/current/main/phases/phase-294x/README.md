@@ -195,6 +195,8 @@ host/global allocator replacement remain later lanes.
   page/heap/queue production boundary; M167 landed as the first resumed row.
 - `294x-53`: the mimalloc-facing work was narrowed to a comparison-quality
   vertical-slice workload pack instead of a full allocator field drain.
+- `294x-54`: the OSVM-backed comparison slice moved the page-source
+  byte-length seam to exact `usize` while leaving OSVM base/id payloads signed.
 - `M168`: parent mimalloc lane landed OSVM page-source composition as a
   separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
   pages through existing reserve/commit/decommit rows.

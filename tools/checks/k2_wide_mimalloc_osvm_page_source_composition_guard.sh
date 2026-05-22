@@ -16,6 +16,7 @@ APP_README="apps/mimalloc-osvm-page-source-composition-proof/README.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-176-M168-MIMALLOC-OSVM-PAGE-SOURCE-COMPOSITION.md"
 USIZE_HANDLE_SIZE_CARD="docs/development/current/main/phases/phase-294x/294x-52-HAKO-ALLOC-USIZE-OSVM-BACKED-HANDLE-REQUESTED-SIZE.md"
+USIZE_OSVM_BYTE_CARD="docs/development/current/main/phases/phase-294x/294x-54-HAKO-ALLOC-USIZE-OSVM-BACKED-BYTE-LENGTH-SEAM.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_osvm_page_source_composition_guard.sh"
 
@@ -33,6 +34,7 @@ guard_require_files \
   "$PLAN" \
   "$CARD" \
   "$USIZE_HANDLE_SIZE_CARD" \
+  "$USIZE_OSVM_BYTE_CARD" \
   "$INDEX"
 
 guard_expect_in_file "$TAG" 'memory.osvm_backed_fast_path_heap_box = "memory/osvm_backed_fast_path_heap_box.hako"' "$MODULE" "hako module must export M168 heap adapter"
@@ -40,11 +42,15 @@ guard_expect_in_file "$TAG" 'box HakoAllocOsVmBackedFastPathHeap' "$HEAP" "M168 
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.reservePage' "$HEAP" "M168 adapter must reserve through page-source policy"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.commitPage' "$HEAP" "M168 adapter must commit through page-source policy"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.decommitPage' "$HEAP" "M168 adapter must decommit through page-source policy"
+guard_expect_in_file "$TAG" 'reserve_bytes_usize' "$PAGE_SOURCE_POLICY" "page-source policy must use exact usize reserve facade"
+guard_expect_in_file "$TAG" 'commit_bytes_usize' "$PAGE_SOURCE_POLICY" "page-source policy must use exact usize commit facade"
+guard_expect_in_file "$TAG" 'decommit_bytes_usize' "$PAGE_SOURCE_POLICY" "page-source policy must use exact usize decommit facade"
 guard_expect_in_file "$TAG" 'me\.queue\.addPage\(page\)' "$HEAP" "M168 adapter must register backed pages through the queue owner"
 guard_expect_in_file "$TAG" 'new HakoAllocPageModel' "$HEAP" "M168 adapter must still create page-local models"
 guard_expect_in_file "$TAG" 'bin: i64' "$HEAP" "bin must remain signed route/index metadata"
-guard_expect_in_file "$TAG" 'block_size: i64' "$HEAP" "block_size must remain signed size-class metadata"
-guard_expect_in_file "$TAG" 'page_capacity: i64' "$HEAP" "page_capacity must remain signed capacity metadata"
+guard_expect_in_file "$TAG" 'block_size: usize' "$HEAP" "block_size must be exact usize size-class metadata"
+guard_expect_in_file "$TAG" 'page_capacity: usize' "$HEAP" "page_capacity must be exact usize capacity metadata"
+guard_expect_fixed_in_file "$TAG" 'birth(bin, block_size: usize, page_capacity: usize)' "$HEAP" "OSVM-backed heap birth must carry exact size/capacity parameters"
 guard_expect_in_file "$TAG" 'next_page_id: i64 = 0' "$HEAP" "next_page_id must remain signed index metadata"
 guard_expect_in_file "$TAG" 'backing_count: i64 = 0' "$HEAP" "backing_count must remain signed while compared with page_id"
 guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$HEAP" "alloc accounting must be exact usize storage"
@@ -58,9 +64,11 @@ guard_expect_in_file "$TAG" 'decommit_count: usize = 0' "$HEAP" "decommit accoun
 guard_expect_in_file "$TAG" 'source_reject_count: usize = 0' "$HEAP" "source reject accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'requested_size: usize' "$HEAP" "OSVM-backed handle requested_size must be exact usize"
 guard_expect_fixed_in_file "$TAG" 'birth(page_id, block_id, requested_size: usize)' "$HEAP" "OSVM-backed handle birth must carry exact requested_size"
+guard_expect_in_file "$TAG" 'bytes: usize' "$HEAP" "OSVM page backing bytes must be exact usize"
 guard_expect_in_file "$TAG" 'M168 OSVM page source composition' "$PLAN" "plan must retain M168 row"
 guard_expect_in_file "$TAG" '293x-176 M168 Mimalloc OSVM Page-Source Composition' "$CARD" "missing M168 card"
 guard_expect_in_file "$TAG" '294x-52 Hako Alloc Usize OSVM Backed Handle Requested Size' "$USIZE_HANDLE_SIZE_CARD" "missing 294x-52 usize OSVM-backed handle requested-size card"
+guard_expect_in_file "$TAG" '294x-54 Hako Alloc Usize OSVM Backed Byte-Length Seam' "$USIZE_OSVM_BYTE_CARD" "missing 294x-54 usize OSVM-backed byte-length seam card"
 guard_expect_in_file "$TAG" 'scalar-return proof seam' "$CARD" "M168 card must document addFreshPage as a proof-only scalar seam"
 guard_expect_in_file "$TAG" 'semantic allocator API' "$CARD" "M168 card must preserve allocate(size) as the semantic API"
 guard_expect_in_file "$TAG" 'object-return allocation surface' "$CARD" "M168 card must preserve object-return allocation semantics"
@@ -153,6 +161,9 @@ required = {
     "HakoAllocPageSourcePolicy.reservePage/1",
     "HakoAllocPageSourcePolicy.commitPage/2",
     "HakoAllocPageSourcePolicy.decommitPage/2",
+    "OsVmCoreBox.reserve_bytes_usize/1",
+    "OsVmCoreBox.commit_bytes_usize/2",
+    "OsVmCoreBox.decommit_bytes_usize/2",
     "OsVmCoreBox.reserve_bytes_i64/1",
     "OsVmCoreBox.commit_bytes_i64/2",
     "OsVmCoreBox.decommit_bytes_i64/2",
@@ -175,6 +186,8 @@ heap_fields = {
     for field in plans["HakoAllocOsVmBackedFastPathHeap"].get("fields", [])
 }
 for field_name in (
+    "block_size",
+    "page_capacity",
     "alloc_count",
     "release_count",
     "fallback_count",
@@ -189,7 +202,7 @@ for field_name in (
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"osvm-backed fast path heap {field_name} must be exact usize storage: {field}")
 
-for field_name in ("bin", "block_size", "page_capacity", "next_page_id", "backing_count"):
+for field_name in ("bin", "next_page_id", "backing_count"):
     field = heap_fields.get(field_name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"osvm-backed fast path heap {field_name} must remain i64 storage: {field}")
@@ -205,6 +218,10 @@ for box_name, field_names in (
     for field_name in field_names:
         field = fields.get(field_name)
         if box_name == "HakoAllocOsVmBackedHandle" and field_name == "requested_size":
+            if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+                raise SystemExit(f"{box_name}.{field_name} must be exact usize storage: {field}")
+            continue
+        if field_name == "bytes":
             if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
                 raise SystemExit(f"{box_name}.{field_name} must be exact usize storage: {field}")
             continue
@@ -234,9 +251,9 @@ for owner_name, symbol in (
     ("HakoAllocOsVmBackedFastPathHeap.addBackedPage/0", "HakoAllocPageSourcePolicy.reservePage/1"),
     ("HakoAllocOsVmBackedFastPathHeap.addBackedPage/0", "HakoAllocPageSourcePolicy.commitPage/2"),
     ("HakoAllocOsVmBackedFastPathHeap.decommitPage/1", "HakoAllocPageSourcePolicy.decommitPage/2"),
-    ("HakoAllocPageSourcePolicy.reservePage/1", "OsVmCoreBox.reserve_bytes_i64/1"),
-    ("HakoAllocPageSourcePolicy.commitPage/2", "OsVmCoreBox.commit_bytes_i64/2"),
-    ("HakoAllocPageSourcePolicy.decommitPage/2", "OsVmCoreBox.decommit_bytes_i64/2"),
+    ("HakoAllocPageSourcePolicy.reservePage/1", "OsVmCoreBox.reserve_bytes_usize/1"),
+    ("HakoAllocPageSourcePolicy.commitPage/2", "OsVmCoreBox.commit_bytes_usize/2"),
+    ("HakoAllocPageSourcePolicy.decommitPage/2", "OsVmCoreBox.decommit_bytes_usize/2"),
 ):
     require_global(owner_name, symbol)
 

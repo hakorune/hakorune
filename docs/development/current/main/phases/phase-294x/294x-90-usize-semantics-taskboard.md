@@ -65,7 +65,7 @@ not a full native mimalloc-compatible allocator.
 | Order | Slice | Validation | Boundary |
 | --- | --- | --- | --- |
 | V0 | Select the comparison workload pack | docs + manifest/static guard | Selected by `294x-53`. Use a small fixed-size alloc/free/reuse workload, a mixed small-size workload, realloc same-class/grow fallback, aligned-small, and huge/OSVM-backed allocation. Do not add provider activation or host replacement. |
-| V1 | Close only comparison-required `usize` fields | field-group L2, L3 only when first-pattern requires it | Migrate request size, block size, capacity, queue count/index, and report counters only when the workload consumes them. Keep ids, pointer payloads, sentinels, and status flags signed until their own contracts are needed. |
+| V1 | Close only comparison-required `usize` fields | field-group L2, L3 only when first-pattern requires it | Started by `294x-54` for the OSVM-backed byte-length seam. Migrate request size, block size, capacity, queue count/index, and report counters only when the workload consumes them. Keep ids, pointer payloads, sentinels, and status flags signed until their own contracts are needed. |
 | V2 | Hako alloc small-path comparison slice | VM + MIR + route preflight; representative EXE closeout | Compose existing size-class, page model, page queue, page-map release, and local reuse paths into one stable output schema. No remote-free stress, TLS, abandoned heap, or atomic bitmap expansion. |
 | V3 | Realloc/aligned comparison slice | same as V2 | Reuse M174-M178 behavior and produce requested bytes, copied bytes, live handles, failure reason, and alignment metadata evidence. No new API surface unless the report schema requires it. |
 | V4 | Huge/OSVM comparison slice | same as V2 | Reuse M179-M181 and OSVM page-source composition for huge requests, reporting reserve/commit/decommit intent/evidence without widening page-source ownership. |
@@ -404,6 +404,13 @@ parked or batched into a later native-allocator phase.
   - Stop line: keep OSVM-backed page/block id fields, backing payloads,
     size/capacity metadata, and OSVM byte-length seams signed until their own
     rows.
+  - Follow-on migrated group: `HakoAllocOsVmBackedFastPathHeap` size/capacity
+    metadata (`block_size`, `page_capacity`) plus
+    `HakoAllocOsVmPageBacking.bytes` and the page-source policy byte-length
+    params in
+    `294x-54-HAKO-ALLOC-USIZE-OSVM-BACKED-BYTE-LENGTH-SEAM.md`.
+  - Stop line: keep OSVM-backed `bin`, `next_page_id`, `backing_count`,
+    backing `page_id` / `base`, and handle page/block ids signed.
   - Follow-on migrated group: `HakoAllocSecureFreeListDiagnostics` diagnostic
     counters (`scan_count`, `ok_count`, `fail_count`,
     `out_of_range_free_block_count`, `duplicate_free_block_count`,

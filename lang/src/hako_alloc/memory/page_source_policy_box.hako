@@ -5,19 +5,19 @@
 using selfhost.runtime.substrate.osvm.osvm_core_box as OsVmCoreBox
 
 static box HakoAllocPageSourcePolicy {
-    reservePage(bytes) {
-        return OsVmCoreBox.reserve_bytes_i64(bytes)
+    reservePage(bytes: usize) {
+        return OsVmCoreBox.reserve_bytes_usize(bytes)
     }
 
-    commitPage(base, bytes) {
-        return OsVmCoreBox.commit_bytes_i64(base, bytes)
+    commitPage(base: i64, bytes: usize) {
+        return OsVmCoreBox.commit_bytes_usize(base, bytes)
     }
 
-    decommitPage(base, bytes) {
-        return OsVmCoreBox.decommit_bytes_i64(base, bytes)
+    decommitPage(base: i64, bytes: usize) {
+        return OsVmCoreBox.decommit_bytes_usize(base, bytes)
     }
 
-    unreservePage(base, bytes) {
-        return OsVmCoreBox.unreserve_bytes_i64(base, bytes)
+    unreservePage(base: i64, bytes: usize) {
+        return OsVmCoreBox.unreserve_bytes_usize(base, bytes)
     }
 }

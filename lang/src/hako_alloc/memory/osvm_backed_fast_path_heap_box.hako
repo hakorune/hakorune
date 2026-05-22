@@ -11,9 +11,9 @@ using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePo
 box HakoAllocOsVmPageBacking {
     page_id: i64
     base: i64
-    bytes: i64
+    bytes: usize
 
-    birth(page_id, base, bytes) {
+    birth(page_id: i64, base: i64, bytes: usize) {
         me.page_id = page_id
         me.base = base
         me.bytes = bytes
@@ -34,8 +34,8 @@ box HakoAllocOsVmBackedHandle {
 
 box HakoAllocOsVmBackedFastPathHeap {
     bin: i64
-    block_size: i64
-    page_capacity: i64
+    block_size: usize
+    page_capacity: usize
     queue: HakoAllocPageQueue
     pages: ArrayBox = new ArrayBox()
     backings: ArrayBox = new ArrayBox()
@@ -51,7 +51,7 @@ box HakoAllocOsVmBackedFastPathHeap {
     decommit_count: usize = 0
     source_reject_count: usize = 0
 
-    birth(bin, block_size, page_capacity) {
+    birth(bin, block_size: usize, page_capacity: usize) {
         me.bin = bin
         me.block_size = block_size
         me.page_capacity = page_capacity
