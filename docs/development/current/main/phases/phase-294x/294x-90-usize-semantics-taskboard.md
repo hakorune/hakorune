@@ -125,9 +125,19 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-086:
-  select the next explicit non-negative production field group. Do not migrate
-  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
-  byte-sum fields without a dedicated row.
+  landed by 294x-64. Selected
+  `HakoAllocPageMapReleaseSeam.page_count` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-087`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-087:
+  migrate only `HakoAllocPageMapReleaseSeam.page_count` to exact `usize`,
+  preserving the signed `page_id < 0` guard as the id/index seam. Do not
+  migrate page/block identity, flag, sentinel, pointer-like,
+  occupancy-decrement, or byte-sum fields.
 ```
 
 ## Ladder

@@ -417,8 +417,11 @@ Selected next production `usize` field group:
 
 Selected next production `usize` field group:
 
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-086` is intentionally selection-only until the
-  next explicit non-negative owner-local group is chosen.
+- `page_map_release_box.hako` / `HakoAllocPageMapReleaseSeam.page_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-086` selects this field for
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-087` because it is the release seam page-array
+  length. The follow-on row must keep the signed `page_id < 0` guard as the
+  id/index seam before comparing against exact `usize` `page_count`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
