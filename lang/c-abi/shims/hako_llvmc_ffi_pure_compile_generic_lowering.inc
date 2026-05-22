@@ -134,11 +134,61 @@
         snprintf(label, sizeof(label), "exact_status_continue_%lld_%zu", bid, ii);
         set_block_tail_label(bid, label);
       }
+      auto int find_exact_status_tail_label_for_block(
+          long long bid,
+          char* label,
+          size_t label_len) {
+        size_t last_exact_status_ii = (size_t)-1;
+        if (!label || label_len == 0) return 0;
+        for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
+          struct GenericPureBlockView block;
+          if (!read_generic_pure_block_view(bi, &block)) continue;
+          if (block.id != bid) continue;
+          for (size_t ii = 0; ii < block.instruction_count; ii++) {
+            yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
+            const char* op = read_str(ins, "op");
+            long long box_reg = 0;
+            const char* field = NULL;
+            struct GenericPureTypedObjectFieldSlotView field_slot;
+            if (!op || strcmp(op, "field_set") != 0) continue;
+            box_reg = read_int(ins, "box");
+            field = read_str(ins, "field");
+            if (generic_pure_read_typed_object_field_slot(
+                    box_reg,
+                    field,
+                    &field_slot) &&
+                (typed_object_storage_is_unsigned_exact(field_slot.storage) ||
+                 typed_object_storage_is_signed_exact(field_slot.storage))) {
+              last_exact_status_ii = ii;
+            }
+          }
+          break;
+        }
+        if (last_exact_status_ii == (size_t)-1) return 0;
+        snprintf(
+            label,
+            label_len,
+            "exact_status_continue_%lld_%zu",
+            bid,
+            last_exact_status_ii);
+        return 1;
+      }
       auto const char* phi_predecessor_label(long long pred, char* buf, size_t buf_len) {
         if (!buf || buf_len == 0) return "%bb0";
         for (size_t i = 0; i < block_tail_labels_n; i++) {
           if (block_tail_labels[i].bid == pred && block_tail_labels[i].label[0]) {
             snprintf(buf, buf_len, "%%%s", block_tail_labels[i].label);
+            return buf;
+          }
+        }
+        {
+          char tail_label[96];
+          if (find_exact_status_tail_label_for_block(
+                  pred,
+                  tail_label,
+                  sizeof(tail_label))) {
+            set_block_tail_label(pred, tail_label);
+            snprintf(buf, buf_len, "%%%s", tail_label);
             return buf;
           }
         }

@@ -71,10 +71,15 @@
           const char* field,
           struct GenericPureTypedObjectFieldSlotView* out) {
         int typed_plan_index = -1;
+        long long box_base = 0;
         long long slot = -1;
         const char* storage = NULL;
         if (!(box_reg && field && out)) return 0;
-        if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
+        box_base = resolve_copy_source_reg(box_reg);
+        if (!get_typed_object_binding(box_reg, &typed_plan_index) &&
+            !get_typed_object_binding(box_base, &typed_plan_index)) {
+          return 0;
+        }
         if (!typed_object_plan_field_runtime_slot_with_storage(
                 typed_plan_index,
                 field,
