@@ -202,6 +202,8 @@ host/global allocator replacement remain later lanes.
   local-free reuse owners.
 - `294x-56`: the V2 small-path pilot deferred dedicated L3 evidence to the
   vertical-slice closeout and selected V3 realloc/aligned schema composition.
+- `294x-57`: the V3 comparison slice started with a model-only realloc/aligned
+  schema pilot over same-class realloc, grow fallback, and aligned-small owners.
 - `M168`: parent mimalloc lane landed OSVM page-source composition as a
   separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
   pages through existing reserve/commit/decommit rows.
