@@ -17,7 +17,7 @@ box HakoAllocHugePageModel {
     commit_reject_count: usize = 0
     register_fail_count: usize = 0
     reject_count: usize = 0
-    next_page_id: i64 = 1000
+    next_page_id: usize = 1000
     next_ptr: i64 = 70000
     last_result_ptr: i64 = 0
     last_page_id: i64 = 0

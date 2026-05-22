@@ -16,6 +16,7 @@ APP="apps/mimalloc-huge-page-model-proof/main.hako"
 APP_TEST="apps/mimalloc-huge-page-model-proof/test.sh"
 APP_README="apps/mimalloc-huge-page-model-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-191-M180-HUGE-PAGE-MODEL.md"
+USIZE_NEXT_PAGE_ID_CARD="docs/development/current/main/phases/phase-294x/294x-69-HAKO-ALLOC-USIZE-HUGE-MODEL-NEXT-PAGE-ID.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_huge_page_model_guard.sh"
@@ -34,6 +35,7 @@ guard_require_files \
   "$APP_TEST" \
   "$APP_README" \
   "$CARD" \
+  "$USIZE_NEXT_PAGE_ID_CARD" \
   "$PLAN" \
   "$INDEX"
 
@@ -50,6 +52,7 @@ guard_expect_in_file "$TAG" 'zero_reject_count: usize = 0' "$HUGE_MODEL" "M180 z
 guard_expect_in_file "$TAG" 'commit_reject_count: usize = 0' "$HUGE_MODEL" "M180 commit_reject_count must be exact usize after 294x-35"
 guard_expect_in_file "$TAG" 'register_fail_count: usize = 0' "$HUGE_MODEL" "M180 register_fail_count must be exact usize after 294x-35"
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$HUGE_MODEL" "M180 reject_count must be exact usize after 294x-35"
+guard_expect_in_file "$TAG" 'next_page_id: usize = 1000' "$HUGE_MODEL" "M180 next_page_id must be exact usize id-source storage"
 guard_expect_in_file "$TAG" 'allocateHuge\(requested_size, committed_size\)' "$HUGE_MODEL" "M180 must expose a huge allocation model entry"
 guard_expect_in_file "$TAG" 'me\.page_map\.register\(ptr, page_id, 0\)' "$HUGE_MODEL" "M180 must publish huge handles through HakoAllocPageMap"
 guard_expect_in_file "$TAG" 'meta_store: HakoAllocHugePageMetaStore' "$HUGE_MODEL" "M180 must delegate metadata storage after C205d"
@@ -68,6 +71,7 @@ guard_expect_in_file "$TAG" 'huge_page_model_box.hako' "$MEMORY_README" "memory 
 guard_expect_in_file "$TAG" 'huge_page_meta_store_box.hako' "$MEMORY_README" "memory README must document the C205d store module"
 guard_expect_in_file "$TAG" 'M180 huge page model' "$PLAN" "plan must retain the M180 row"
 guard_expect_in_file "$TAG" '293x-191 M180 Huge Page Model' "$CARD" "missing M180 card"
+guard_expect_in_file "$TAG" '294x-69 Hako Alloc Usize Huge Model Next Page Id' "$USIZE_NEXT_PAGE_ID_CARD" "missing 294x-69 usize next-page-id card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M180 guard"
 
 if rg -n 'init[[:space:]]*\{' "$HUGE_MODEL" >/tmp/"$TAG".legacy_init 2>&1; then
