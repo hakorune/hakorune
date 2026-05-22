@@ -469,7 +469,7 @@ excludes `usize_field_probe_box.hako`.
 | File | Box | Stored Numeric Fields | Migration Note |
 | --- | --- | --- | --- |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | id/index + size fields; keep `i64` until object-return API parity and sentinel-return seams are split. |
-| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | mixed index/size/capacity/count group; migrate only after owner-local exact numeric gate. |
+| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; bin, size/capacity metadata, and next page id stay `i64`. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
 | `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062`; C205c metadata-store counter migrated with the aligned-small metadata owner. |
 | `huge_page_meta_store_box.hako` | `HakoAllocHugePageMetaStore` | `count`, `live_count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-063`; C205d metadata-store counters migrated with the huge-page metadata owner, not with record declarations. |

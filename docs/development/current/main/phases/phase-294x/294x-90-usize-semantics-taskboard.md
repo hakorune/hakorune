@@ -325,6 +325,12 @@ remaining field groups and allocator API parity only.
     `294x-36-HAKO-ALLOC-USIZE-HUGE-RELEASE-SEAM-COUNTERS.md`.
   - Stop line: keep huge release seam sentinel/status observer fields signed
     until their own rows.
+  - Follow-on migrated group: `HakoAllocFastPathHeap` event/reject counters
+    (`alloc_count`, `release_count`, `fallback_count`, `page_create_count`,
+    `reject_count`) in
+    `294x-37-HAKO-ALLOC-USIZE-FAST-PATH-HEAP-COUNTERS.md`.
+  - Stop line: keep fast-path route/index/size/capacity metadata and handle
+    id/size fields signed until their own rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.

@@ -24,11 +24,11 @@ box HakoAllocFastPathHeap {
     queue: HakoAllocPageQueue
     pages: ArrayBox = new ArrayBox()
     next_page_id: i64 = 0
-    alloc_count: i64 = 0
-    release_count: i64 = 0
-    fallback_count: i64 = 0
-    page_create_count: i64 = 0
-    reject_count: i64 = 0
+    alloc_count: usize = 0
+    release_count: usize = 0
+    fallback_count: usize = 0
+    page_create_count: usize = 0
+    reject_count: usize = 0
 
     birth(bin, block_size, page_capacity) {
         me.bin = bin

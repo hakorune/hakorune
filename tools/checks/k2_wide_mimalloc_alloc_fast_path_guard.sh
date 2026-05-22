@@ -43,7 +43,15 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_box as HakoAl
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_queue_box as HakoAllocPageQueueBox' "$FAST_HEAP" "fast path heap must compose page queue"
 guard_expect_in_file "$TAG" 'me.queue.selectPage()' "$FAST_HEAP" "fast path must select pages through the queue owner"
 guard_expect_in_file "$TAG" 'page\.acquire\(size\)' "$FAST_HEAP" "fast path must pop blocks through the page owner"
-guard_expect_in_file "$TAG" 'fallback_count: i64 = 0' "$FAST_HEAP" "fallback accounting must be explicit"
+guard_expect_in_file "$TAG" 'bin: i64' "$FAST_HEAP" "bin must remain signed route/index metadata"
+guard_expect_in_file "$TAG" 'block_size: i64' "$FAST_HEAP" "block_size must remain signed size-class metadata"
+guard_expect_in_file "$TAG" 'page_capacity: i64' "$FAST_HEAP" "page_capacity must remain signed capacity metadata"
+guard_expect_in_file "$TAG" 'next_page_id: i64 = 0' "$FAST_HEAP" "next_page_id must remain signed index metadata"
+guard_expect_in_file "$TAG" 'alloc_count: usize = 0' "$FAST_HEAP" "alloc accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'release_count: usize = 0' "$FAST_HEAP" "release accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'fallback_count: usize = 0' "$FAST_HEAP" "fallback accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'page_create_count: usize = 0' "$FAST_HEAP" "page creation accounting must be exact usize storage"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$FAST_HEAP" "reject accounting must be exact usize storage"
 guard_expect_in_file "$TAG" 'M167 alloc fast path plus generic fallback' "$PLAN" "plan must retain M167 row"
 guard_expect_in_file "$TAG" '293x-175 M167 Mimalloc Alloc Fast Path' "$CARD" "missing M167 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M167 guard"
@@ -56,13 +64,21 @@ if rg -n 'init[[:space:]]*\\{' "$FAST_HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
 fi
 rm -f /tmp/"$TAG".legacy_init
 
-if rg -n ': usize|HakoAllocUsizeFieldProbe|usize_field_probe' "$FAST_HEAP" "$APP" >/tmp/"$TAG".usize 2>&1; then
-  echo "[$TAG] ERROR: M167 production algorithm must stay on current i64 lane; usize probe remains isolated" >&2
-  cat /tmp/"$TAG".usize >&2
-  rm -f /tmp/"$TAG".usize
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$FAST_HEAP" "$APP" >/tmp/"$TAG".usize_probe 2>&1; then
+  echo "[$TAG] ERROR: M167 production algorithm must not depend on the usize probe owner" >&2
+  cat /tmp/"$TAG".usize_probe >&2
+  rm -f /tmp/"$TAG".usize_probe
   exit 1
 fi
-rm -f /tmp/"$TAG".usize
+rm -f /tmp/"$TAG".usize_probe
+
+if rg -n ': usize' "$APP" >/tmp/"$TAG".usize_app 2>&1; then
+  echo "[$TAG] ERROR: M167 proof app must not introduce extra usize locals or fields" >&2
+  cat /tmp/"$TAG".usize_app >&2
+  rm -f /tmp/"$TAG".usize_app
+  exit 1
+fi
+rm -f /tmp/"$TAG".usize_app
 
 if rg -n 'OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook|provider' "$FAST_HEAP" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
   echo "[$TAG] ERROR: M168+ or provider/hook ownership leaked into M167" >&2
@@ -97,5 +113,52 @@ grep -q '^shape=12$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
 cat "$OUT"
+
+MIR_JSON="${TMPDIR:-/tmp}/hakorune_mimalloc_alloc_fast_path.mir.json"
+NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+  cargo run -q --bin hakorune -- --backend mir --emit-mir-json "$MIR_JSON" "$ROOT_DIR/$APP" >/tmp/"$TAG".mir.out 2>/tmp/"$TAG".mir.err
+
+python3 - "$MIR_JSON" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as fh:
+    data = json.load(fh)
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+for name in ("HakoAllocFastPathHeap", "HakoAllocFastPathHandle", "HakoAllocPageQueue", "HakoAllocPageModel"):
+    if plans.get(name) is None:
+        raise SystemExit(f"missing typed object plan: {name}")
+
+heap_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocFastPathHeap"].get("fields", [])
+}
+for field_name in (
+    "alloc_count",
+    "release_count",
+    "fallback_count",
+    "page_create_count",
+    "reject_count",
+):
+    field = heap_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"fast path heap {field_name} must be exact usize storage: {field}")
+
+for field_name in ("bin", "block_size", "page_capacity", "next_page_id"):
+    field = heap_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"fast path heap {field_name} must remain i64 storage: {field}")
+
+handle_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocFastPathHandle"].get("fields", [])
+}
+for field_name in ("page_id", "block_id", "requested_size"):
+    field = handle_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"fast path handle {field_name} must remain i64 storage: {field}")
+PY
 
 echo "[$TAG] ok"
