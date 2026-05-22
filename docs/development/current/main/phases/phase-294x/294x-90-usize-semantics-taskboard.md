@@ -103,10 +103,21 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-002:
-  consume the hako EXE memory evidence in the comparison schema / presentation
-  lane, or explicitly return to the next `usize` field-group row if no further
-  comparison evidence is needed in this phase. Keep provider activation, host
-  replacement, hooks, TLS, atomics, and allocator replacement parked.
+  landed by 294x-62. Returned from the comparison evidence lane to
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-084` and migrated the live legacy page-heap
+  stats counters (`alloc_count`, `free_count`, `reuse_count`) to exact `usize`.
+  Provider activation, host replacement, hooks, TLS, atomics, and allocator
+  replacement remain parked.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-085:
+  select the next explicit non-negative production field group. Do not migrate
+  OSVM-backed `backing_count` until the signed `page_id` comparison seam is
+  split, and do not migrate page/block identity, flag, sentinel, pointer-like,
+  occupancy-decrement, or byte-sum fields without a dedicated row.
 ```
 
 ## Ladder
