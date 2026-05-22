@@ -95,10 +95,18 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-001:
-  add a hako pure-first EXE memory-use evidence runner over an already selected
-  comparison `.hako` app. The runner may build/run an exact-MIR EXE and record
-  peak RSS / exit status / output-summary evidence. Keep provider activation,
-  host replacement, hooks, TLS, atomics, and allocator replacement parked.
+  landed by 294x-61. Added a hako pure-first EXE memory-use evidence runner
+  over already selected comparison `.hako` apps.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-002:
+  consume the hako EXE memory evidence in the comparison schema / presentation
+  lane, or explicitly return to the next `usize` field-group row if no further
+  comparison evidence is needed in this phase. Keep provider activation, host
+  replacement, hooks, TLS, atomics, and allocator replacement parked.
 ```
 
 ## Ladder

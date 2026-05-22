@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-60-MIMALLOC-COMPARISON-POST-CLOSEOUT-FOLLOW-ON-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-60-MIMALLOC-COMPARISON-POST-CLOSEOUT-FOLLOW-ON-SELECTION.md"
-latest_card_summary = "Selected hako-side pure-first EXE memory-use evidence as the next post-closeout comparison row while keeping provider activation and host replacement parked."
+latest_card = "294x-61-MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-RUNNER"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-61-MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-RUNNER.md"
+latest_card_summary = "Added a hako-side pure-first EXE memory-use evidence runner for selected comparison apps without opening provider activation or host replacement."
 
-current_blocker_token = "MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-001"
+current_blocker_token = "MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
