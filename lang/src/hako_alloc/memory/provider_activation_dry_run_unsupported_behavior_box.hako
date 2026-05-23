@@ -89,15 +89,15 @@ box HakoAllocProviderActivationDryRunUnsupportedBehaviorReport {
 }
 
 box HakoAllocProviderActivationDryRunUnsupportedBehavior {
-    dry_run_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_bundle_reject_count: i64 = 0
-    rejected_bundle_reject_count: i64 = 0
-    invalid_request_token_reject_count: i64 = 0
-    invalid_mode_reject_count: i64 = 0
-    unsupported_evidence_reject_count: i64 = 0
-    closed_execution_reject_count: i64 = 0
+    dry_run_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_bundle_reject_count: usize = 0
+    rejected_bundle_reject_count: usize = 0
+    invalid_request_token_reject_count: usize = 0
+    invalid_mode_reject_count: usize = 0
+    unsupported_evidence_reject_count: usize = 0
+    closed_execution_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeProviderActivationDryRunUnsupportedBehaviorReport(fields: HakoAllocProviderActivationDryRunUnsupportedBehaviorReportFields): HakoAllocProviderActivationDryRunUnsupportedBehaviorReport {

@@ -44,7 +44,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_376A" "MIMAP-376A input bundle inventory must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_377A" "MIMAP-377A row-selection card must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-378A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-379A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-379A must be selected current or landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-378A design must be accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-378A guard"
 guard_expect_in_file "$TAG" 'id = "MIMAP-378A"' "$PROOF_MANIFEST_INCLUDE" "proof manifest must list MIMAP-378A"
@@ -56,6 +56,9 @@ guard_expect_in_file "$TAG" 'record HakoAllocProviderActivationDryRunUnsupported
 guard_expect_in_file "$TAG" 'makeProviderActivationDryRunUnsupportedBehaviorReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'dryRunProviderActivationUnsupported' "$OWNER" "owner must expose dry-run route"
 guard_expect_in_file "$TAG" 'HakoAllocProviderActivationInputBundleInventoryReport' "$OWNER" "owner must consume input bundle report"
+guard_expect_in_file "$TAG" 'dry_run_count: usize = 0' "$OWNER" "dry-run owner-local counters must be exact usize"
+guard_expect_in_file "$TAG" 'closed_execution_reject_count: usize = 0' "$OWNER" "dry-run closed-execution reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "dry-run reason vocabulary must remain signed"
 guard_expect_in_file "$TAG" 'dry_run_attempted' "$OWNER" "owner must report dry-run attempt"
 guard_expect_in_file "$TAG" 'unsupported_outcome_present' "$OWNER" "owner must report unsupported outcome"
 guard_expect_in_file "$TAG" 'provider_activation_unsupported: i64 = 1' "$OWNER" "activation must stay unsupported by default"
@@ -129,10 +132,31 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocProviderActivationDryRunUnsupportedBehaviorReport")
 if report is None:
     raise SystemExit("missing provider activation dry-run report typed object plan")
+owner = plans.get("HakoAllocProviderActivationDryRunUnsupportedBehavior")
+if owner is None:
+    raise SystemExit("missing provider activation dry-run typed object plan")
 target = "HakoAllocProviderActivationDryRunUnsupportedBehaviorReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing provider activation dry-run ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "dry_run_count",
+    "accepted_count",
+    "reject_count",
+    "missing_bundle_reject_count",
+    "rejected_bundle_reject_count",
+    "invalid_request_token_reject_count",
+    "invalid_mode_reject_count",
+    "unsupported_evidence_reject_count",
+    "closed_execution_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"owner-local counter {name} must be exact usize: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain signed: {field}")
 for name in (
     "dry_run_attempted",
     "unsupported_outcome_present",
