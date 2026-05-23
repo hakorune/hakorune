@@ -1045,6 +1045,22 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-167:
     performance conclusion, memory conclusion, repeated-benchmark, and
     process-replacement evidence fields.
 
+HAKO-ALLOC-USIZE-FIELD-GROUP-168:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, signed sentinels, route/state/status/reason
+  vocabulary, comparison payload deltas, performance/memory conclusions,
+  repeated-benchmark / process-replacement rows, worker/TLS, threads, and
+  `#[global_allocator]` out of scope unless the selected group explicitly owns
+  one of those seams.
+
+  Next hint:
+    unless a newer SSOT overrides it, select the MIMAP-560A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot`
+    hook_installed, backend_matcher_added, global_allocator_installed,
+    hidden_discovery_used, provider_package_generated,
+    would_replace_host_allocator, would_install_hook,
+    would_add_backend_matcher, and would_run_thread evidence flags.
+
 ## Ladder
 
 | Row | Status | Scope | Done When |
