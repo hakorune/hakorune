@@ -625,6 +625,15 @@ Selected next production `usize` field group:
   exact `usize`, while comparison payloads, signed deltas, report fields,
   `last_reason`, conclusion flags, repeated benchmark execution, provider /
   hook / global-allocator rows, worker/TLS, and threads stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-132` selected
+  `HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic` owner-local
+  counters (`diagnostic_count`, `ready_count`, `blocked_count`,
+  `missing_hako_blocked_count`, `blocked_hako_blocked_count`,
+  `missing_c_blocked_count`, `blocked_c_blocked_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-133`, while comparison payloads, signed deltas,
+  report fields, `last_reason`, conclusion flags, repeated benchmark
+  execution, provider / hook / global-allocator rows, worker/TLS, and threads
+  stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -792,6 +801,7 @@ excludes `usize_field_probe_box.hako`.
 | `allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako` | `HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot` | `pilot_count`, `accepted_count`, `reject_count`, `missing_diagnostic_reject_count`, `rejected_diagnostic_reject_count`, `missing_runner_reject_count`, `missing_output_reject_count`, `missing_memory_evidence_reject_count`, `missing_output_contract_reject_count`, `failed_runner_reject_count`, `invalid_run_count_reject_count`, `last_reason` | owner-local counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-127`; `last_reason` stays signed reason vocabulary. |
 | `allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box.hako` | `HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnostic` | `diagnostic_count`, `ready_count`, `blocked_count`, `missing_diagnostic_blocked_count`, `rejected_diagnostic_blocked_count`, `missing_runner_blocked_count`, `missing_output_blocked_count`, `missing_memory_evidence_blocked_count`, `missing_output_contract_blocked_count`, `failed_runner_blocked_count`, `invalid_run_count_blocked_count`, `last_reason` | owner-local counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-129`; `last_reason` stays signed reason vocabulary. |
 | `allocator_comparison_c_mimalloc_result_ledger_box.hako` | `HakoAllocAllocatorComparisonCMimallocResultLedger` | `ledger_count`, `accepted_count`, `reject_count`, `missing_hako_diagnostic_reject_count`, `blocked_hako_diagnostic_reject_count`, `missing_c_diagnostic_reject_count`, `blocked_c_diagnostic_reject_count`, `last_reason` | owner-local counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-131`; `last_reason` stays signed reason vocabulary. |
+| `allocator_comparison_c_mimalloc_result_ledger_diagnostic_box.hako` | `HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic` | `diagnostic_count`, `ready_count`, `blocked_count`, `missing_hako_blocked_count`, `blocked_hako_blocked_count`, `missing_c_blocked_count`, `blocked_c_blocked_count`, `last_reason` | owner-local counters are selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-132` for `HAKO-ALLOC-USIZE-FIELD-GROUP-133`; `last_reason` stays signed reason vocabulary. |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-089`; `bin` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-095`. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
 | `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062`; C205c metadata-store counter migrated with the aligned-small metadata owner. |
