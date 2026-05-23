@@ -1111,10 +1111,19 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-RSS-PRESENTATION-001:
-  selected current. Format the existing same-workload single-run RSS evidence
-  into a clearer presentation contract without adding repeated-run aggregation,
+  landed by 294x-164. Formatted the existing same-workload single-run RSS
+  evidence into `mimalloc-comparison-rss-presentation-v0`, including byte
+  fields and MiB display helpers, without adding repeated-run aggregation,
   provider activation, host replacement, hooks, global allocator install,
   worker/TLS, atomics, or winner claims.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-RSS-PRESENTATION-CLOSEOUT-001:
+  selected current. Close out the presentation-only RSS report, then choose
+  repeated-run evidence or return to the next explicit `usize` field-group row.
 ```
 
 ## Ladder
