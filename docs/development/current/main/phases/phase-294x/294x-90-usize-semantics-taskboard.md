@@ -618,11 +618,28 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-130:
-  selection-only row for the next explicit non-negative stored field group.
-  Keep decision/report fields, signed sentinels, route/state/status/reason
-  vocabulary, runner payloads, memory/RSS evidence, provider / hook /
+  landed by 294x-109. Selected the
+  `HakoAllocAllocatorComparisonCMimallocResultLedger` owner-local counters
+  (`ledger_count`, `accepted_count`, `reject_count`,
+  `missing_hako_diagnostic_reject_count`,
+  `blocked_hako_diagnostic_reject_count`,
+  `missing_c_diagnostic_reject_count`, and
+  `blocked_c_diagnostic_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-131`, while keeping comparison payloads,
+  signed deltas, report mirrors, `last_reason`, conclusion flags, repeated
+  benchmark execution, provider / hook / global-allocator rows, worker/TLS,
+  threads, and `#[global_allocator]` out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-131:
+  migration row for the selected C mimalloc result ledger owner-local
+  counters. Keep comparison payloads, signed deltas, report fields, reason
+  vocabulary, conclusion flags, repeated benchmark execution, provider / hook /
   global-allocator rows, worker/TLS, threads, and `#[global_allocator]` out of
-  scope unless the selected group explicitly owns one of those seams.
+  scope.
 ```
 
 ## Ladder
