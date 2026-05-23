@@ -1294,8 +1294,18 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-180:
-  selected current. Migrate only the selected huge-threshold router size
-  observers to exact `usize`.
+  landed by 294x-181 as deferred. Direct router observer migration passed the
+  narrow VM/MIR huge-threshold route guard, but failed the downstream
+  pure-first huge/OSVM comparison EXE path. Keep router size observers selected
+  but deferred; select aligned-small padded-size as the next dependency row.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-181:
+  selected current. Migrate only
+  `HakoAllocPageMapAlignedSmallPath.last_padded_size` to exact `usize`.
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
   allocator install, worker/TLS, atomics, provider package / DLL generation, or
