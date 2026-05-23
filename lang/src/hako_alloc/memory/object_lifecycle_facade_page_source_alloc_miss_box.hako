@@ -16,11 +16,11 @@ box HakoAllocObjectLifecycleFacadePageSourceAllocMissReport {
     initial_reason: i64 = 0
     fallback_attempted: i64 = 0
     source_status: i64 = 0
-    source_reserved: i64 = 0
-    source_committed: i64 = 0
-    source_reject: i64 = 0
+    source_reserved: usize = 0
+    source_committed: usize = 0
+    source_reject: usize = 0
     source_added_page_id: i64 = -1
-    source_facade_page_count: i64 = 0
+    source_facade_page_count: usize = 0
     source_base: i64 = 0
     source_bytes: i64 = 0
     retry_ok: i64 = 0

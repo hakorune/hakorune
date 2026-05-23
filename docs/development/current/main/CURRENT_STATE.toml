@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-176-HAKO-ALLOC-USIZE-PAGE-SOURCE-ALLOC-MISS-SOURCE-MIRROR-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-176-HAKO-ALLOC-USIZE-PAGE-SOURCE-ALLOC-MISS-SOURCE-MIRROR-SELECTION.md"
-latest_card_summary = "Selected the alloc-miss source count mirror fields for the next exact usize migration row."
+latest_card = "294x-177-HAKO-ALLOC-USIZE-PAGE-SOURCE-ALLOC-MISS-SOURCE-MIRRORS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-177-HAKO-ALLOC-USIZE-PAGE-SOURCE-ALLOC-MISS-SOURCE-MIRRORS.md"
+latest_card_summary = "Migrated the alloc-miss source count mirror fields to exact usize storage."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-176"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-177"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-177 migrated object-lifecycle facade page-source alloc-miss source count mirrors to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-177 is now current",
   "294x-176 selected object-lifecycle facade page-source alloc-miss source count mirrors as HAKO-ALLOC-USIZE-FIELD-GROUP-176",
   "294x-175 migrated object-lifecycle facade page-source attach report payload fields to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-175 is now current",
   "294x-174 selected object-lifecycle facade page-source attach report payload fields as HAKO-ALLOC-USIZE-FIELD-GROUP-174",

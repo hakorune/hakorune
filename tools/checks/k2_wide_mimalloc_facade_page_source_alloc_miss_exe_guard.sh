@@ -214,11 +214,7 @@ for field in (
     "initial_reason",
     "fallback_attempted",
     "source_status",
-    "source_reserved",
-    "source_committed",
-    "source_reject",
     "source_added_page_id",
-    "source_facade_page_count",
     "source_base",
     "source_bytes",
     "retry_ok",
@@ -231,6 +227,16 @@ for field in (
     report_field = report_fields.get(field)
     if report_field is None or report_field.get("declared_type") != "i64" or report_field.get("storage") != "i64":
         raise SystemExit(f"alloc-miss report {field} must remain signed storage: {report_field}")
+
+for field in (
+    "source_reserved",
+    "source_committed",
+    "source_reject",
+    "source_facade_page_count",
+):
+    report_field = report_fields.get(field)
+    if report_field is None or report_field.get("declared_type") != "usize" or report_field.get("storage") != "usize":
+        raise SystemExit(f"alloc-miss source mirror {field} must be exact usize storage: {report_field}")
 
 for field in (
     "fallback_attempt_count",
