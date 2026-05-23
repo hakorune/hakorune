@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-173-HAKO-ALLOC-USIZE-PAGE-SOURCE-ATTACH-REPORT-MIRROR-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-173-HAKO-ALLOC-USIZE-PAGE-SOURCE-ATTACH-REPORT-MIRROR-COUNTERS.md"
-latest_card_summary = "Migrated the object-lifecycle facade page-source attach report mirror counters to exact usize storage."
+latest_card = "294x-174-HAKO-ALLOC-USIZE-PAGE-SOURCE-ATTACH-REPORT-PAYLOAD-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-174-HAKO-ALLOC-USIZE-PAGE-SOURCE-ATTACH-REPORT-PAYLOAD-SELECTION.md"
+latest_card_summary = "Selected the object-lifecycle facade page-source attach report non-negative payload fields as the next exact usize field group."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-173"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-174"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-174 selected object-lifecycle facade page-source attach report payload fields as HAKO-ALLOC-USIZE-FIELD-GROUP-174",
   "294x-173 migrated object-lifecycle facade page-source attach report mirror counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-173 is now current",
   "294x-172 selected object-lifecycle facade page-source attach report mirror counters as HAKO-ALLOC-USIZE-FIELD-GROUP-172",
   "294x-171 migrated object-lifecycle facade page-source alloc-miss report mirror counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-171 is now current",
