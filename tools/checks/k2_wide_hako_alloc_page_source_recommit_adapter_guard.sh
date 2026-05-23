@@ -10,14 +10,17 @@ APP="apps/hako-alloc-page-source-recommit-adapter-proof/main.hako"
 APP_README="apps/hako-alloc-page-source-recommit-adapter-proof/README.md"
 APP_TEST="apps/hako-alloc-page-source-recommit-adapter-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-247-M203-PAGE-SOURCE-RECOMMIT-ADAPTER.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-88-HAKO-ALLOC-USIZE-PAGE-SOURCE-RECOMMIT-ADAPTER-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-89-HAKO-ALLOC-USIZE-PAGE-SOURCE-RECOMMIT-ADAPTER-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 OWNER="lang/src/hako_alloc/memory/purge_page_source_recommit_adapter_box.hako"
+POLICY="lang/src/hako_alloc/memory/page_source_policy_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_purge_core.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_page_source_recommit_adapter_guard.sh"
@@ -30,11 +33,14 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
   "$INDEX" \
   "$OWNER" \
+  "$POLICY" \
   "$MODULE" \
   "$MEMORY_README" \
   "$PROOF_MANIFEST" \
@@ -45,6 +51,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M203 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "recommit adapter usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "recommit adapter usize counter card must be landed"
 guard_expect_in_file "$TAG" 'M203 status:' "$PLAN" "mimalloc plan must record M203 status"
 guard_expect_in_file "$TAG" '`293x-247`' "$PHASE_README" "phase README must list M203 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-247`' "$TASKBOARD" "taskboard must mark M203 complete"
@@ -52,7 +60,15 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 guard_expect_in_file "$TAG" 'id = "M203"' "$PROOF_MANIFEST" "proof app manifest must list M203"
 
 guard_expect_in_file "$TAG" 'memory.purge_page_source_recommit_adapter_box = "memory/purge_page_source_recommit_adapter_box.hako"' "$MODULE" "hako_alloc module must export recommit adapter"
+guard_expect_in_file "$TAG" 'commitPage\(base: i64, bytes: usize\)' "$POLICY" "page-source policy must own typed commitPage"
+guard_expect_in_file "$TAG" 'OsVmCoreBox\.commit_bytes_usize\(base, bytes\)' "$POLICY" "page-source policy must delegate to OsVmCoreBox commit usize facade"
 guard_expect_in_file "$TAG" 'box HakoAllocPageSourceRecommitAdapter' "$OWNER" "recommit adapter box must exist"
+guard_expect_in_file "$TAG" 'call_count: usize = 0' "$OWNER" "recommit adapter call counter must be exact usize"
+guard_expect_in_file "$TAG" 'success_count: usize = 0' "$OWNER" "recommit adapter success counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$OWNER" "recommit adapter reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_base: i64 = 0' "$OWNER" "recommit adapter base payload must remain signed"
+guard_expect_in_file "$TAG" 'last_bytes: i64 = 0' "$OWNER" "recommit adapter byte payload must remain signed"
+guard_expect_in_file "$TAG" 'last_rc: i64 = 0' "$OWNER" "recommit adapter status payload must remain signed"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.commitPage' "$OWNER" "M203 adapter must delegate to commitPage"
 guard_expect_in_file "$TAG" 'M203 page-source recommit' "$MEMORY_README" "memory README must define M203 owner"
 
@@ -115,6 +131,9 @@ functions = {fn.get("name"): fn for fn in data.get("functions", [])}
 required = {
     "main",
     "HakoAllocPageSourceRecommitAdapter.commitPage/2",
+    "HakoAllocPageSourcePolicy.commitPage/2",
+    "OsVmCoreBox.commit_bytes_usize/2",
+    "OsVmCoreBox.commit_bytes_i64/2",
     "HakoAllocBoundedRecommitPolicy.attemptRecommit/4",
     "HakoAllocDecommittedPageReusePrecondition.classifyHeapPage/3",
     "HakoAllocPurgeStateAwareDecommitGuard.attemptHeapPage/2",
@@ -134,10 +153,14 @@ fields = {
     field.get("name"): field
     for field in adapter.get("fields", [])
 }
-for name in ("call_count", "success_count", "reject_count", "last_base", "last_bytes", "last_rc"):
+for name in ("call_count", "success_count", "reject_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad recommit adapter exact usize counter field {name}: {field}")
+for name in ("last_base", "last_bytes", "last_rc"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"bad recommit adapter field {name}: {field}")
+        raise SystemExit(f"bad recommit adapter signed payload field {name}: {field}")
 
 print("[m203-mir-json] ok")
 PY
