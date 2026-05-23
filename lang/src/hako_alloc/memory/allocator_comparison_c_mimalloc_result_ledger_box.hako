@@ -114,13 +114,13 @@ box HakoAllocAllocatorComparisonCMimallocResultLedgerReport {
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultLedger {
-    ledger_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_hako_diagnostic_reject_count: i64 = 0
-    blocked_hako_diagnostic_reject_count: i64 = 0
-    missing_c_diagnostic_reject_count: i64 = 0
-    blocked_c_diagnostic_reject_count: i64 = 0
+    ledger_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_hako_diagnostic_reject_count: usize = 0
+    blocked_hako_diagnostic_reject_count: usize = 0
+    missing_c_diagnostic_reject_count: usize = 0
+    blocked_c_diagnostic_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocResultLedgerReport(fields: HakoAllocAllocatorComparisonCMimallocResultLedgerReportFields): HakoAllocAllocatorComparisonCMimallocResultLedgerReport {

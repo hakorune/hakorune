@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-109-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-LEDGER-COUNTER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-109-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-LEDGER-COUNTER-SELECTION.md"
-latest_card_summary = "Selected only the C mimalloc result ledger owner-local counters as the next exact usize field group while keeping comparison payloads, deltas, reports, reasons, and replacement/provider seams signed or closed."
+latest_card = "294x-110-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-LEDGER-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-110-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-LEDGER-COUNTERS.md"
+latest_card_summary = "Migrated only the C mimalloc result ledger owner-local counters to exact usize while keeping comparison payloads, deltas, report mirrors, reasons, and replacement/provider seams signed or closed."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-131"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-132"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-110 HAKO-ALLOC-USIZE-FIELD-GROUP-131 C mimalloc result ledger owner-local counters migrated; comparison payloads, deltas, report mirrors, reasons, and replacement/provider seams remain unchanged",
   "294x-109 HAKO-ALLOC-USIZE-FIELD-GROUP-130 C mimalloc result ledger counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-131 selected",
   "294x-108 HAKO-ALLOC-USIZE-FIELD-GROUP-129 explicit C mimalloc runner evidence diagnostic owner-local counters migrated; runner payloads, report mirrors, reasons, and replacement/provider seams remain unchanged",
   "294x-107 HAKO-ALLOC-USIZE-FIELD-GROUP-128 explicit C mimalloc runner evidence diagnostic counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-129 selected",
