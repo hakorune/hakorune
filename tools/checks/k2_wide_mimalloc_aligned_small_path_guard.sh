@@ -60,7 +60,7 @@ guard_expect_in_file "$TAG" 'register_fail_count: usize = 0' "$PATH_BOX" "M178 r
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$PATH_BOX" "M178 reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'last_result_ptr: i64 = 0' "$PATH_BOX" "M178 result pointer observer must remain i64"
 guard_expect_in_file "$TAG" 'last_alignment: i64 = 0' "$PATH_BOX" "M178 alignment observer must remain i64"
-guard_expect_in_file "$TAG" 'last_padded_size: i64 = 0' "$PATH_BOX" "M178 padded-size observer must remain i64"
+guard_expect_in_file "$TAG" 'last_padded_size: usize = 0' "$PATH_BOX" "M178 padded-size observer must be exact usize"
 guard_expect_in_file "$TAG" 'box HakoAllocAlignedSmallMetaStore' "$META_STORE" "C205c aligned-small metadata store must exist"
 guard_expect_in_file "$TAG" 'count: usize = 0' "$META_STORE" "C205c aligned-small metadata store count must be exact usize"
 guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "$META_STORE" "C205c store must use the aligned-small metadata record seam"
@@ -179,10 +179,13 @@ for name in (
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"aligned-small path {name} must be exact usize storage: {field}")
-for name in ("next_ptr", "last_result_ptr", "last_alignment", "last_padded_size"):
+for name in ("next_ptr", "last_result_ptr", "last_alignment"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"aligned-small path {name} must remain i64 storage: {field}")
+field = fields.get("last_padded_size")
+if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+    raise SystemExit(f"aligned-small path last_padded_size must be exact usize storage: {field}")
 store_plan = plans.get("HakoAllocAlignedSmallMetaStore")
 if store_plan is None:
     raise SystemExit("missing typed object plan: HakoAllocAlignedSmallMetaStore")

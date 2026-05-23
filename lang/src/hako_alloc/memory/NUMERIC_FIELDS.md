@@ -320,8 +320,9 @@ Selected next production `usize` field group:
   `alloc_fail_count`, `register_fail_count`, `reject_count`.
   `HAKO-ALLOC-USIZE-FIELD-GROUP-056` selects and migrates this group because
   these are non-negative M178 path-local counters. `meta_count` stays `i64`
-  until the aligned-small metadata store count migrates; pointer, alignment,
-  and padded-size observers stay `i64`.
+  until the aligned-small metadata store count migrates; pointer and alignment
+  observers stay `i64`, while padded-size observer migration is handled by
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-181`.
 
 - `huge_threshold_router_box.hako` / `HakoAllocHugeThresholdRouter` route /
   reject counter fields:
@@ -332,6 +333,15 @@ Selected next production `usize` field group:
   these are non-negative route-local counters. `last_route_kind`,
   `last_result_ptr`, `last_padded_size`, `last_good_size`, and
   `last_huge_threshold` stay `i64`.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-180` was deferred by `294x-181` after the
+  downstream pure-first huge/OSVM comparison EXE path rejected the direct
+  router observer migration. The row selected
+  `HakoAllocPageMapAlignedSmallPath.last_padded_size` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-181`.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-181` migrated
+  `HakoAllocPageMapAlignedSmallPath.last_padded_size` to exact `usize`, while
+  the router observers, pointer-shaped fields, alignment observer, and metadata
+  store payloads stay signed/closed.
 
 - `page_queue_box.hako` / `HakoAllocPageQueue` stats counter fields:
   `add_count`, `select_count`, `direct_hit_count`, `refresh_count`,
@@ -981,7 +991,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `decommitted`, `retire_count`, `decommit_count`, `recommit_count`, `reuse_count`, `lifecycle_reject_count`, `reactivate_count`, `reactivate_reject_count`, `peak_used`, `requested_bytes` | page-local alloc/local-free/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`; local-free collection counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-060`; lifecycle event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-061`; stack-top/occupancy fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`; capacity fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-075`; block-size and requested-byte fields are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-077`; identity and lifecycle state flags stay `i64`. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `page_id`, `block_id`, `requested_size` | legacy prototype handle; keep `i64` until superseded by current page-map owners or object-return parity. |
 | `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-084`; identity, size/capacity, occupancy, and byte fields stay signed until their own rows. |
-| `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | aligned-small path event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-056`; `meta_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062` as the C205c store count mirror; ptr/result/alignment/size observers stay `i64`. |
+| `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | aligned-small path event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-056`; `meta_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062` as the C205c store count mirror; padded-size observer is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-181`; ptr/result/alignment observers stay `i64`. |
 | `page_map_box.hako` | `HakoAllocPageMapEntry` | `ptr`, `page_id`, `block_id`, `live` | ptr/id/index + binary live flag; keep `i64` until pointer/result API shape is exact. |
 | `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | already exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-051`; entry pointer/id fields remain `i64`. |
 | `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | fallback event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-054`; `next_ptr`, result ptr, and `last_alloc_* = -1` sentinels stay `i64`. |

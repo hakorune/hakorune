@@ -21,7 +21,7 @@ box HakoAllocPageMapAlignedSmallPath {
     reject_count: usize = 0
     last_result_ptr: i64 = 0
     last_alignment: i64 = 0
-    last_padded_size: i64 = 0
+    last_padded_size: usize = 0
 
     birth(seam) {
         me.seam = seam

@@ -1304,8 +1304,17 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-181:
-  selected current. Migrate only
-  `HakoAllocPageMapAlignedSmallPath.last_padded_size` to exact `usize`.
+  landed by 294x-182. Migrated only
+  `HakoAllocPageMapAlignedSmallPath.last_padded_size` to exact `usize`, while
+  huge-threshold router observers, pointer-shaped fields, alignment observer,
+  metadata store payloads, and provider seams remain signed/closed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-182:
+  selected current. Select the next explicit non-negative stored field group.
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
   allocator install, worker/TLS, atomics, provider package / DLL generation, or
