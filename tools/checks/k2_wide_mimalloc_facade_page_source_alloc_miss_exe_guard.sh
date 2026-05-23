@@ -162,11 +162,7 @@ attach_report_fields = {
 }
 for field in (
     "status",
-    "source_reserved",
-    "source_committed",
     "added_page_id",
-    "facade_page_count",
-    "source_reject",
     "base",
     "bytes",
     "block_size",
@@ -176,6 +172,16 @@ for field in (
     attach_report_field = attach_report_fields.get(field)
     if attach_report_field is None or attach_report_field.get("declared_type") != "i64" or attach_report_field.get("storage") != "i64":
         raise SystemExit(f"attach report {field} must remain signed storage: {attach_report_field}")
+
+for field in (
+    "source_reserved",
+    "source_committed",
+    "facade_page_count",
+    "source_reject",
+):
+    attach_report_field = attach_report_fields.get(field)
+    if attach_report_field is None or attach_report_field.get("declared_type") != "usize" or attach_report_field.get("storage") != "usize":
+        raise SystemExit(f"attach report mirror {field} must be exact usize storage: {attach_report_field}")
 
 fallback_fields = {
     field.get("name"): field

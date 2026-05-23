@@ -1210,10 +1210,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-172:
-  selected current. Migrate only the selected page-source attach report mirror
-  counters to exact `usize`; keep status, added page id, base, bytes,
+  landed by 294x-173. Migrated only the selected page-source attach report
+  mirror counters to exact `usize`, while status, added page id, base, bytes,
   block-size, capacity, reserved, alloc-miss source/final mirrors, and provider
-  seams signed/closed.
+  seams remain signed/closed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-173:
+  selected current. Select the next explicit non-negative stored field group.
+  Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
+  pointer-like payloads, byte/page payload mirrors without a selected owner,
+  provider activation, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, or
+  `#[global_allocator]`.
 ```
 
 ## Ladder

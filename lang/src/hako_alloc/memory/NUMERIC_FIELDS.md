@@ -463,6 +463,14 @@ Selected next production `usize` field group:
   `HakoAllocObjectLifecycleFacadePageSourceAttachReport.status`, `source_*`,
   `added_page_id`, `facade_page_count`, `base`, `bytes`, `block_size`,
   `capacity`, and `reserved` remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-171` selected the downstream
+  `HakoAllocObjectLifecycleFacadePageSourceAttachReport` mirror counters as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-172`.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-172` migrated
+  `HakoAllocObjectLifecycleFacadePageSourceAttachReport.source_reserved`,
+  `source_committed`, `facade_page_count`, and `source_reject` to exact
+  `usize`, while status, added-page id, pointer-like base, byte-length, and
+  page payload mirrors stay signed.
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-104` selected the owner-local
   `HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback` counter owner in
   `object_lifecycle_facade_page_source_alloc_miss_box.hako` as
@@ -873,11 +881,11 @@ readable without losing field names.
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_reason` | `i64` | `enum` | Facade realloc reason vocabulary stays signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_ok` | `i64` | `enum` | Facade realloc success flag stays signed until bool/flag storage gets a dedicated row. |
 | `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `status` | `i64` | `enum` | Page-source attach status vocabulary stays signed while the owner-local counter row remains separate from report observers. |
-| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_reserved` | `i64` | `count` | Page-source reserve mirror stays signed until the report observer seam gets its own row. |
-| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_committed` | `i64` | `count` | Page-source commit mirror stays signed until the report observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_reserved` | `usize` | `count` | Exact page-source reserve mirror via `HAKO-ALLOC-USIZE-FIELD-GROUP-172`. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_committed` | `usize` | `count` | Exact page-source commit mirror via `HAKO-ALLOC-USIZE-FIELD-GROUP-172`. |
 | `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `added_page_id` | `i64` | `signed-sentinel` | `-1` marks attach failure; added page-id publication stays signed. |
-| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `facade_page_count` | `i64` | `count` | Downstream facade page-count mirror stays signed until the page-source report observer seam gets its own row. |
-| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_reject` | `i64` | `count` | Page-source reject mirror stays signed until the report observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `facade_page_count` | `usize` | `count` | Exact downstream facade page-count mirror via `HAKO-ALLOC-USIZE-FIELD-GROUP-172`. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_reject` | `usize` | `count` | Exact page-source reject mirror via `HAKO-ALLOC-USIZE-FIELD-GROUP-172`. |
 | `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `base` | `i64` | `ptr-id` | Reserved OSVM base payload stays signed until the pointer/id seam gets its own row. |
 | `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `bytes` | `i64` | `byte-length` | Reserved/committed byte-length observer stays signed until the page-source observer seam gets its own row. |
 | `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `block_size` | `i64` | `size` | Attached page block-size payload stays signed until page payload migration is explicit. |
@@ -939,7 +947,7 @@ excludes `usize_field_probe_box.hako`.
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `success_count`, `failure_count` | release success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_requested`, `last_normalized`, `last_reason`, `last_supported` | alignment observers remain signed until the alignment request/normalized seam gets a dedicated row. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_page_id`, `last_block_id`, `last_new_page_id`, `last_new_block_id`, `last_requested_size`, `last_reason`, `last_ok` | realloc observers remain signed until realloc ids/requested-size and success/failure vocabularies get their own rows. |
-| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `status`, `source_reserved`, `source_committed`, `added_page_id`, `facade_page_count`, `source_reject`, `base`, `bytes`, `block_size`, `capacity`, `reserved` | page-source attach report observer stays signed after `HAKO-ALLOC-USIZE-FIELD-GROUP-103`; status/source mirrors, page id, pointer-like base, byte-length, and page payload mirrors remain deferred. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `status`, `source_reserved`, `source_committed`, `added_page_id`, `facade_page_count`, `source_reject`, `base`, `bytes`, `block_size`, `capacity`, `reserved` | page-source attach report mirror counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-172`; status, added page id, pointer-like base, byte-length, and page payload mirrors stay signed. |
 | `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttach` | `reserve_count`, `commit_count`, `attach_count`, `reject_count` | exact owner-local counters via `HAKO-ALLOC-USIZE-FIELD-GROUP-103`; report/status/source/page payload observers remain separate. |
 | `object_lifecycle_facade_page_source_alloc_miss_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAllocMissReport` | `status`, `initial_ok`, `initial_reason`, `fallback_attempted`, `source_status`, `source_reserved`, `source_committed`, `source_reject`, `source_added_page_id`, `source_facade_page_count`, `source_base`, `source_bytes`, `retry_ok`, `retry_reason`, `final_ok`, `final_reason`, `final_page_id`, `final_block_id`, `fallback_attempt_count`, `source_success_count`, `source_failure_count`, `retry_success_count`, `retry_failure_count` | alloc-miss report mirror counts are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-170`; status/reason/ok-like, source/final, page/block id, pointer-like base, and byte-length mirrors stay signed. |
 | `object_lifecycle_facade_page_source_alloc_miss_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback` | `fallback_attempt_count`, `source_success_count`, `source_failure_count`, `retry_success_count`, `retry_failure_count` | exact owner-local alloc-miss fallback counters via `HAKO-ALLOC-USIZE-FIELD-GROUP-105`; signed report/status/source/final mirrors remain separate. |

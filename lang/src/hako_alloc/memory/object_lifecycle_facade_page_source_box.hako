@@ -10,11 +10,11 @@ using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePo
 
 box HakoAllocObjectLifecycleFacadePageSourceAttachReport {
     status: i64 = 0
-    source_reserved: i64 = 0
-    source_committed: i64 = 0
+    source_reserved: usize = 0
+    source_committed: usize = 0
     added_page_id: i64 = -1
-    facade_page_count: i64 = 0
-    source_reject: i64 = 0
+    facade_page_count: usize = 0
+    source_reject: usize = 0
     base: i64 = 0
     bytes: i64 = 0
     block_size: i64 = 0
