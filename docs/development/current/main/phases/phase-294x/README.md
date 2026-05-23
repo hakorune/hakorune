@@ -5,7 +5,7 @@
   mimalloc `.hako` port to use `usize` without lying about runtime behavior.
 - Active lane token: `phase-294x usize semantic foundation`
 - Current blocker token:
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-169`
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-170`
 - Design SSOT:
   `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 - Taskboard:

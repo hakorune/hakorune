@@ -1176,11 +1176,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-169:
-  selected current. Return to explicit non-negative stored-field group
-  selection for production `hako_alloc`. Keep comparison summary outputs,
-  winner claims, provider / hook / global-allocator rows, worker/TLS, threads,
-  and `#[global_allocator]` out of scope unless the selected group explicitly
-  owns one of those seams.
+  landed by 294x-170. Selected
+  `HakoAllocObjectLifecycleFacadePageSourceAllocMissReport` report mirror
+  counters (`fallback_attempt_count`, `source_success_count`,
+  `source_failure_count`, `retry_success_count`, `retry_failure_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-170`, while keeping alloc-miss
+  status/source/final/id/base/byte mirrors and comparison/provider seams out of
+  scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-170:
+  selected current. Migrate only the selected alloc-miss report mirror counters
+  to exact `usize`; keep status, reason, bool-like, source/final, id, pointer,
+  and byte payload fields signed.
 ```
 
 ## Ladder
