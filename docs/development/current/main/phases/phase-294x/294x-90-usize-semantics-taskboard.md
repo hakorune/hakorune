@@ -994,20 +994,17 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-155:
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-157:
-  selected by 294x-136 from the MIMAP-504A presentation extension follow-on
-  extension follow-on pilot owner-local monotonic counters. Migrate only the
-  selected owner-local counters in
-  `HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnPilot`
-  to exact `usize`:
-  `extension_follow_on_extension_follow_on_count`, `accepted_count`,
-  `blocked_count`, `missing_pilot_reject_count`, `blocked_pilot_reject_count`,
-  `missing_follow_on_input_reject_count`, and
-  `closed_stop_line_reject_count`.
-  Keep `last_reason`, report mirrors, comparison payloads, performance/memory
-  conclusions, repeated benchmark execution, provider / hook /
-  global-allocator rows, worker/TLS, threads, and `#[global_allocator]` out of
-  scope.
+HAKO-ALLOC-USIZE-FIELD-GROUP-158:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, signed sentinels, route/state/status/reason
+  vocabulary, comparison payloads, performance/memory conclusions, provider /
+  hook / global-allocator rows, worker/TLS, threads, and `#[global_allocator]`
+  out of scope unless the selected group explicitly owns one of those seams.
+
+  Next hint:
+    unless a newer SSOT overrides it, select the MIMAP-510A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionPilot`
+    owner-local counters.
 ```
 
 ## Ladder
