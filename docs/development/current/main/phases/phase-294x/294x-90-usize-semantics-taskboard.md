@@ -1155,9 +1155,19 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-SUMMARY-NO-WINNER-001:
-  selected current. Add a small summary formatter over the repeated-run
-  evidence. It may present workload, sample count, RSS ranges, and closed seams,
-  but must not claim a performance or memory-use winner.
+  landed by 294x-168. Added
+  `mimalloc-comparison-summary-no-winner-v0` over repeated-run RSS evidence,
+  exposing workload, sample count, RSS ranges, and closed seams without
+  claiming a performance or memory-use winner.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-SUMMARY-NO-WINNER-CLOSEOUT-001:
+  selected current. Close out the no-winner summary row, then return to the
+  next explicit `usize` field-group row unless a later comparison card names a
+  narrower evidence gap.
 ```
 
 ## Ladder
