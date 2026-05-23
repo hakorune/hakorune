@@ -25,13 +25,13 @@ box HakoAllocHeapReusePriorityDecision {
 
 box HakoAllocHeapReusePriorityPolicy {
     observer: HakoAllocPageLifecycleInvariantObserver = new HakoAllocPageLifecycleInvariantObserver()
-    select_count: i64 = 0
-    active_pick_count: i64 = 0
-    recommitted_pick_count: i64 = 0
-    retired_pick_count: i64 = 0
-    fresh_pick_count: i64 = 0
-    decommitted_skip_count: i64 = 0
-    missing_skip_count: i64 = 0
+    select_count: usize = 0
+    active_pick_count: usize = 0
+    recommitted_pick_count: usize = 0
+    retired_pick_count: usize = 0
+    fresh_pick_count: usize = 0
+    decommitted_skip_count: usize = 0
+    missing_skip_count: usize = 0
     last_route: i64 = 0
     last_page_id: i64 = -1
 

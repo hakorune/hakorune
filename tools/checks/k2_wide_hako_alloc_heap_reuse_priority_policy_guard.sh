@@ -10,11 +10,13 @@ APP="apps/hako-alloc-heap-reuse-priority-policy-proof/main.hako"
 APP_README="apps/hako-alloc-heap-reuse-priority-policy-proof/README.md"
 APP_TEST="apps/hako-alloc-heap-reuse-priority-policy-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-253-M208-HEAP-REUSE-PRIORITY-POLICY.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-99-HAKO-ALLOC-USIZE-HEAP-REUSE-PRIORITY-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-100-HAKO-ALLOC-USIZE-HEAP-REUSE-PRIORITY-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_purge_core.toml"
 POLICY="lang/src/hako_alloc/memory/heap_reuse_priority_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
@@ -31,6 +33,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
@@ -47,6 +51,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M208 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-99 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-100 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'M208 status:' "$PLAN" "mimalloc plan must record M208 status"
 guard_expect_in_file "$TAG" '`293x-253`' "$PHASE_README" "phase README must list M208 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-253`' "$TASKBOARD" "taskboard must mark M208 complete"
@@ -56,6 +62,15 @@ guard_expect_in_file "$TAG" 'memory.heap_reuse_priority_box = "memory/heap_reuse
 guard_expect_in_file "$TAG" 'box HakoAllocHeapReusePriorityPolicy' "$POLICY" "reuse priority policy box must exist"
 guard_expect_in_file "$TAG" 'selectHeapPage' "$POLICY" "reuse priority policy must expose selectHeapPage"
 guard_expect_in_file "$TAG" 'route: i64 = 0' "$POLICY" "decision route field must exist"
+guard_expect_in_file "$TAG" 'select_count: usize = 0' "$POLICY" "reuse priority select counter must be exact usize"
+guard_expect_in_file "$TAG" 'active_pick_count: usize = 0' "$POLICY" "reuse priority active pick counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommitted_pick_count: usize = 0' "$POLICY" "reuse priority recommitted pick counter must be exact usize"
+guard_expect_in_file "$TAG" 'retired_pick_count: usize = 0' "$POLICY" "reuse priority retired pick counter must be exact usize"
+guard_expect_in_file "$TAG" 'fresh_pick_count: usize = 0' "$POLICY" "reuse priority fresh pick counter must be exact usize"
+guard_expect_in_file "$TAG" 'decommitted_skip_count: usize = 0' "$POLICY" "reuse priority decommitted skip counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_skip_count: usize = 0' "$POLICY" "reuse priority missing skip counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_route: i64 = 0' "$POLICY" "reuse priority last route must remain signed"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$POLICY" "reuse priority last page id must remain signed sentinel"
 guard_expect_in_file "$TAG" 'active reuse' "$POLICY" "policy must document active route"
 guard_expect_in_file "$TAG" 'observer: HakoAllocPageLifecycleInvariantObserver' "$POLICY" "policy must consume lifecycle observer facts"
 guard_expect_in_file "$TAG" 'owns M208 heap reuse priority policy' "$MEMORY_README" "memory README must define M208 owner"
@@ -144,6 +159,47 @@ required_fields = {
 missing_fields = sorted(name for name in required_fields if name not in decision_fields)
 if missing_fields:
     raise SystemExit(f"missing reuse decision fields: {missing_fields}")
+for name in required_fields:
+    field = decision_fields[name]
+    declared = field.get("declared_type")
+    storage = field.get("storage")
+    if declared != "i64" or storage != "i64":
+        raise SystemExit(
+            f"reuse decision field {name} must remain i64, got declared={declared!r} storage={storage!r}"
+        )
+
+policy_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocHeapReusePriorityPolicy"].get("fields", [])
+}
+for name in (
+    "select_count",
+    "active_pick_count",
+    "recommitted_pick_count",
+    "retired_pick_count",
+    "fresh_pick_count",
+    "decommitted_skip_count",
+    "missing_skip_count",
+):
+    field = policy_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing reuse priority policy field: {name}")
+    declared = field.get("declared_type")
+    storage = field.get("storage")
+    if declared != "usize" or storage != "usize":
+        raise SystemExit(
+            f"reuse priority policy counter {name} must be usize, got declared={declared!r} storage={storage!r}"
+        )
+for name in ("last_route", "last_page_id"):
+    field = policy_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing reuse priority policy field: {name}")
+    declared = field.get("declared_type")
+    storage = field.get("storage")
+    if declared != "i64" or storage != "i64":
+        raise SystemExit(
+            f"reuse priority policy field {name} must remain i64, got declared={declared!r} storage={storage!r}"
+        )
 
 print("[m208-mir-json] ok")
 PY

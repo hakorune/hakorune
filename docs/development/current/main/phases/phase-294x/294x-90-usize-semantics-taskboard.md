@@ -496,11 +496,24 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-121:
-  migrate only the selected heap reuse priority owner-local counters to exact
-  `usize`. Keep decision fields, `last_route`, `last_page_id`, page lifecycle
+  landed by 294x-100. Migrated only the selected heap reuse priority
+  owner-local counters to exact `usize`, while keeping decision fields,
+  `last_route`, `last_page_id`, page lifecycle observer counters, heap/page
+  queues, page-source adapters, heap/page mutation, OSVM byte/pointer payloads,
+  provider / hook / global-allocator rows, TLS, atomics, and
+  `#[global_allocator]` out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-122:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, route/page-id sentinels, page lifecycle
   observer counters, heap/page queues, page-source adapters, heap/page
   mutation, OSVM byte/pointer payloads, provider / hook / global-allocator
-  rows, TLS, atomics, and `#[global_allocator]` out of scope.
+  rows, TLS, atomics, and `#[global_allocator]` out of scope unless the
+  selected group explicitly owns one of those seams.
 ```
 
 ## Ladder

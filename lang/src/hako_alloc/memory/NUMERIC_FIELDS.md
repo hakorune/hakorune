@@ -548,7 +548,12 @@ Selected next production `usize` field group:
   `HAKO-ALLOC-USIZE-FIELD-GROUP-121`, while decision fields, route/page-id
   sentinels, page lifecycle observer counters, heap/page queues, page-source
   adapters, and heap/page execution state stay unchanged.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-121` is now the next migration row.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-121` migrated those seven
+  `HakoAllocHeapReusePriorityPolicy` owner-local counters to exact `usize`,
+  while decision fields, `last_route`, `last_page_id`, page lifecycle observer
+  counters, heap/page queues, page-source adapters, and heap/page execution
+  state stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-122` is now the next selection-only row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -719,7 +724,7 @@ excludes `usize_field_probe_box.hako`.
 | `huge_page_model_box.hako` | `HakoAllocHugePageModel` | `huge_count`, `live_count`, `allocate_count`, `release_count`, `release_reject_count`, `zero_reject_count`, `commit_reject_count`, `register_fail_count`, `reject_count`, `next_page_id`, `next_ptr`, `last_result_ptr`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | `huge_count` and `live_count` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-064`; event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-065`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-091`; ptr/id/status/size observers stay `i64` until huge handle contract is exact. |
 | `huge_release_seam_box.hako` | `HakoAllocHugeReleaseSeam` | `release_count`, `unregister_count`, `lookup_miss_count`, `not_huge_count`, `model_reject_count`, `reject_count`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-066`; `last_page_id = -1` is signed-sentinel and stays `i64`. |
 | `huge_threshold_router_box.hako` | `HakoAllocHugeThresholdRouter` | `small_route_count`, `small_success_count`, `small_reject_count`, `huge_route_count`, `huge_reject_count`, `invalid_alignment_count`, `invalid_size_count`, `reject_count`, `last_route_kind`, `last_result_ptr`, `last_padded_size`, `last_good_size`, `last_huge_threshold` | route/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-057`; enum/ptr/size observers stay `i64`. |
-| `heap_reuse_priority_box.hako` | `HakoAllocHeapReusePriorityPolicy` | `select_count`, `active_pick_count`, `recommitted_pick_count`, `retired_pick_count`, `fresh_pick_count`, `decommitted_skip_count`, `missing_skip_count`, `last_route`, `last_page_id` | selected pick/skip counters for `HAKO-ALLOC-USIZE-FIELD-GROUP-121`; route vocabulary and `last_page_id = -1` stay signed. |
+| `heap_reuse_priority_box.hako` | `HakoAllocHeapReusePriorityPolicy` | `select_count`, `active_pick_count`, `recommitted_pick_count`, `retired_pick_count`, `fresh_pick_count`, `decommitted_skip_count`, `missing_skip_count`, `last_route`, `last_page_id` | pick/skip counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-121`; route vocabulary and `last_page_id = -1` stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `attempt_count`, `success_count`, `failure_count`, `reusable_success_count`, `active_success_count` | alloc attempt/success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `success_count`, `failure_count` | release success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_requested`, `last_normalized`, `last_reason`, `last_supported` | alignment observers remain signed until the alignment request/normalized seam gets a dedicated row. |
