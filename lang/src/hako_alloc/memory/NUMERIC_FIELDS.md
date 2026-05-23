@@ -476,9 +476,13 @@ Selected next production `usize` field group:
   `final_*`, `source_base`, `source_bytes`, `final_page_id`,
   `final_block_id`, and report-mirror counts remain signed.
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-106` is now the next selection-only
-  placeholder. Keep the page-source attach report seam, the alloc-miss
-  report/count-mirror seam, and unrelated lifecycle / OSVM / bin / provider /
-  hook rows separate from any later id/payload or alignment/realloc work.
+  row. It selected the owner-local `HakoAllocRecommitFailFastEntry`
+  classification/report counters (`attempt_count`, `no_recommit_count`,
+  `blocked_count`, `missing_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-107`. Keep the recommit report,
+  `last_page_id`, closed-execution evidence counters, page-source attach report
+  seam, alloc-miss report/count-mirror seam, and unrelated lifecycle / OSVM /
+  bin / provider / hook rows separate from this migration.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
