@@ -10,6 +10,8 @@ APP="apps/hako-alloc-page-source-unreserve-adapter-proof/main.hako"
 APP_README="apps/hako-alloc-page-source-unreserve-adapter-proof/README.md"
 APP_TEST="apps/hako-alloc-page-source-unreserve-adapter-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-459-MIMAP-033A-PAGE-SOURCE-UNRESERVE-ADAPTER.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-86-HAKO-ALLOC-USIZE-PAGE-SOURCE-UNRESERVE-ADAPTER-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-87-HAKO-ALLOC-USIZE-PAGE-SOURCE-UNRESERVE-ADAPTER-COUNTERS.md"
 INDEX="docs/tools/check-scripts-index.md"
 POLICY="lang/src/hako_alloc/memory/page_source_policy_box.hako"
 ADAPTER="lang/src/hako_alloc/memory/purge_page_source_unreserve_adapter_box.hako"
@@ -25,6 +27,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$INDEX" \
   "$POLICY" \
   "$ADAPTER" \
@@ -35,11 +39,19 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-033A card must be landed before the guard is green"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "unreserve adapter usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "unreserve adapter usize counter card must be landed"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list MIMAP-033A guard"
 guard_expect_in_file "$TAG" 'memory.purge_page_source_unreserve_adapter_box = "memory/purge_page_source_unreserve_adapter_box.hako"' "$MODULE" "hako_alloc module must export page-source unreserve adapter"
-guard_expect_in_file "$TAG" 'unreservePage\(base, bytes\)' "$POLICY" "page-source policy must own unreservePage"
-guard_expect_in_file "$TAG" 'OsVmCoreBox\.unreserve_bytes_i64\(base, bytes\)' "$POLICY" "page-source policy must delegate to OsVmCoreBox unreserve"
+guard_expect_in_file "$TAG" 'unreservePage\(base: i64, bytes: usize\)' "$POLICY" "page-source policy must own typed unreservePage"
+guard_expect_in_file "$TAG" 'OsVmCoreBox\.unreserve_bytes_usize\(base, bytes\)' "$POLICY" "page-source policy must delegate to OsVmCoreBox unreserve usize facade"
 guard_expect_in_file "$TAG" 'box HakoAllocPageSourceUnreserveAdapter' "$ADAPTER" "page-source unreserve adapter box must exist"
+guard_expect_in_file "$TAG" 'call_count: usize = 0' "$ADAPTER" "unreserve adapter call counter must be exact usize"
+guard_expect_in_file "$TAG" 'success_count: usize = 0' "$ADAPTER" "unreserve adapter success counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$ADAPTER" "unreserve adapter reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_base: i64 = 0' "$ADAPTER" "unreserve adapter base payload must remain signed"
+guard_expect_in_file "$TAG" 'last_bytes: i64 = 0' "$ADAPTER" "unreserve adapter byte payload must remain signed"
+guard_expect_in_file "$TAG" 'last_rc: i64 = 0' "$ADAPTER" "unreserve adapter status payload must remain signed"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy\.unreservePage\(base, bytes\)' "$ADAPTER" "adapter must delegate only to page-source unreserve"
 guard_expect_in_file "$TAG" 'purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source' "$MEMORY_README" "memory README must define MIMAP-033A owner"
 
@@ -70,9 +82,9 @@ if rg -n 'HakoAllocPageSourceUnreserveAdapter|hako-alloc-page-source-unreserve-a
 fi
 rm -f /tmp/"$TAG".inc_leak
 
-if rg -n 'HakoAllocPageSourceUnreserveAdapter|unreservePage[[:space:]]*\(' \
+if rg -n 'HakoAllocPageSourcePolicy\.unreservePage|OsVmCoreBox\.|hako_osvm_' \
   lang/src/hako_alloc/memory/object_lifecycle_facade_huge_*.hako >/tmp/"$TAG".facade_leak 2>&1; then
-  echo "[$TAG] ERROR: facade huge owners must not adopt unreserve in MIMAP-033A" >&2
+  echo "[$TAG] ERROR: facade huge owners must not bypass the page-source unreserve adapter" >&2
   cat /tmp/"$TAG".facade_leak >&2
   rm -f /tmp/"$TAG".facade_leak
   exit 1
@@ -107,6 +119,10 @@ required = {
     "HakoAllocPageSourcePolicy.decommitPage/2",
     "HakoAllocPageSourcePolicy.unreservePage/2",
     "HakoAllocPageSourceUnreserveAdapter.unreservePage/2",
+    "OsVmCoreBox.reserve_bytes_usize/1",
+    "OsVmCoreBox.commit_bytes_usize/2",
+    "OsVmCoreBox.decommit_bytes_usize/2",
+    "OsVmCoreBox.unreserve_bytes_usize/2",
     "OsVmCoreBox.reserve_bytes_i64/1",
     "OsVmCoreBox.commit_bytes_i64/2",
     "OsVmCoreBox.decommit_bytes_i64/2",
@@ -119,6 +135,16 @@ if missing:
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
 if plans.get("HakoAllocPageSourceUnreserveAdapter") is None:
     raise SystemExit("missing typed object plan: HakoAllocPageSourceUnreserveAdapter")
+adapter_plan = plans["HakoAllocPageSourceUnreserveAdapter"]
+fields = {field.get("name"): field for field in adapter_plan.get("fields", [])}
+for name in ("call_count", "success_count", "reject_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad unreserve adapter exact usize counter field {name}: {field}")
+for name in ("last_base", "last_bytes", "last_rc"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad unreserve adapter signed payload field {name}: {field}")
 
 def require_global(owner_name, symbol):
     owner = functions[owner_name]
@@ -138,10 +164,10 @@ for owner_name, symbol in (
     ("main", "HakoAllocPageSourcePolicy.commitPage/2"),
     ("main", "HakoAllocPageSourcePolicy.decommitPage/2"),
     ("HakoAllocPageSourceUnreserveAdapter.unreservePage/2", "HakoAllocPageSourcePolicy.unreservePage/2"),
-    ("HakoAllocPageSourcePolicy.reservePage/1", "OsVmCoreBox.reserve_bytes_i64/1"),
-    ("HakoAllocPageSourcePolicy.commitPage/2", "OsVmCoreBox.commit_bytes_i64/2"),
-    ("HakoAllocPageSourcePolicy.decommitPage/2", "OsVmCoreBox.decommit_bytes_i64/2"),
-    ("HakoAllocPageSourcePolicy.unreservePage/2", "OsVmCoreBox.unreserve_bytes_i64/2"),
+    ("HakoAllocPageSourcePolicy.reservePage/1", "OsVmCoreBox.reserve_bytes_usize/1"),
+    ("HakoAllocPageSourcePolicy.commitPage/2", "OsVmCoreBox.commit_bytes_usize/2"),
+    ("HakoAllocPageSourcePolicy.decommitPage/2", "OsVmCoreBox.decommit_bytes_usize/2"),
+    ("HakoAllocPageSourcePolicy.unreservePage/2", "OsVmCoreBox.unreserve_bytes_usize/2"),
 ):
     require_global(owner_name, symbol)
 

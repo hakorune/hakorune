@@ -351,11 +351,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-109:
-  migrate only the selected `HakoAllocPageSourceUnreserveAdapter` owner-local
-  monotonic counters to exact `usize`. Keep `last_base`, `last_bytes`,
-  `last_rc`, page-source policy state, facade huge unreserve owners,
-  OSVM-backed fast-path owners, provider / hook / global-allocator rows, TLS,
-  atomics, and `#[global_allocator]` out of scope.
+  landed by 294x-87. Migrated only
+  `HakoAllocPageSourceUnreserveAdapter.call_count`, `success_count`, and
+  `reject_count` to exact `usize`, while keeping `last_base`, `last_bytes`,
+  and `last_rc` signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-110:
+  select the next owner-local production exact `usize` field group. Keep
+  unreserve adapter payload/status fields, recommit report/status/page-id
+  fields, closed-execution evidence counters, page-source attach report seams,
+  alloc-miss report seams, huge-page-source / huge-failfast seams, OSVM
+  byte/pointer payloads, provider / hook / global-allocator rows, TLS, atomics,
+  and `#[global_allocator]` out of scope.
 ```
 
 ## Ladder

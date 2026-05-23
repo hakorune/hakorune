@@ -492,6 +492,11 @@ Selected next production `usize` field group:
   `HakoAllocPageSourceUnreserveAdapter` outcome counters (`call_count`,
   `success_count`, `reject_count`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-109`, while
   `last_base`, `last_bytes`, and `last_rc` remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-109` migrated those three
+  `HakoAllocPageSourceUnreserveAdapter` owner-local counters to exact `usize`,
+  while `last_base`, `last_bytes`, and `last_rc` remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-110` is now the next selection-only
+  placeholder.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -686,7 +691,7 @@ excludes `usize_field_probe_box.hako`.
 | `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | same-class/no-move counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-053`; result pointer stays `i64`. |
 | `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | release event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-052`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-087`; page-map entry ids and flags remain `i64`. |
 | `page_map_release_invariant_box.hako` | `HakoAllocPageMapReleaseObserver` | `observe_count`, `success_count`, `reject_count`, `live_count_before`, `release_count_before`, `unregister_count_before`, `page_used_before`, `local_free_before`, `last_ptr`, `last_page_id`, `last_block_id`, `last_result`, `last_entry_live_before`, `last_lookup_after`, `last_live_count_delta`, `last_release_count_delta`, `last_unregister_count_delta`, `last_page_used_delta`, `last_local_free_delta` | observer counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-070`; before-snapshots, signed sentinels, statuses, and signed delta fields stay `i64`. |
-| `purge_page_source_unreserve_adapter_box.hako` | `HakoAllocPageSourceUnreserveAdapter` | `call_count`, `success_count`, `reject_count`, `last_base`, `last_bytes`, `last_rc` | selected for exact counter migration by `HAKO-ALLOC-USIZE-FIELD-GROUP-108`; pointer-like base, byte-length payload, and rc/status stay signed. |
+| `purge_page_source_unreserve_adapter_box.hako` | `HakoAllocPageSourceUnreserveAdapter` | `call_count`, `success_count`, `reject_count`, `last_base`, `last_bytes`, `last_rc` | call/success/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-109`; pointer-like base, byte-length payload, and rc/status stay signed. |
 | `purge_recommit_failfast_box.hako` | `HakoAllocRecommitFailFastEntry` | `attempt_count`, `no_recommit_count`, `blocked_count`, `missing_count`, `recommit_execution_count`, `source_execution_count`, `last_page_id` | attempt/no-recommit/blocked/missing counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-107`; closed-execution evidence counters and `last_page_id = -1` stay signed. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue stats counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`; `page_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`; `direct_page_index` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-079`; `bin` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-093`; presence flag stays `i64`. |
 | `remote_free_page_integration_box.hako` | `HakoAllocRemoteFreePageInbox` | `head_cell`, `init_status`, `pending_top`, `remote_push_count`, `remote_collect_count`, `retry_count`, `reject_count` | mailbox status/count fields remain `i64` until pointer-atomic lane is exact. |
