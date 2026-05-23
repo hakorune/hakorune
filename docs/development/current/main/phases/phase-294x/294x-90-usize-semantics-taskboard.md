@@ -672,12 +672,29 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-134:
-  selection-only row for the next explicit non-negative stored field group.
-  Keep decision/report fields, signed sentinels, route/state/status/reason
-  vocabulary, comparison payloads, signed deltas, conclusion flags, repeated
-  benchmark execution, provider / hook / global-allocator rows, worker/TLS,
-  threads, and `#[global_allocator]` out of scope unless the selected group
-  explicitly owns one of those seams.
+  landed by 294x-113. Selected the
+  `HakoAllocAllocatorComparisonCMimallocExecutionInventory` owner-local
+  counters (`inventory_count`, `accepted_count`, `reject_count`,
+  `missing_runner_reject_count`, `missing_workload_reject_count`,
+  `missing_hako_metrics_reject_count`,
+  `missing_output_contract_reject_count`,
+  `missing_memory_usage_contract_reject_count`,
+  `missing_evidence_storage_reject_count`, `missing_run_count_reject_count`,
+  and `invalid_run_count_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-135`, while keeping run-count payloads, report
+  mirrors, `last_reason`, C execution behavior, provider / hook /
+  global-allocator rows, worker/TLS, threads, and `#[global_allocator]` out of
+  scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-135:
+  migration row for the selected C mimalloc execution inventory owner-local
+  counters. Keep run-count payloads, report fields, reason vocabulary,
+  C execution behavior, provider / hook / global-allocator rows, worker/TLS,
+  threads, and `#[global_allocator]` out of scope.
 ```
 
 ## Ladder
