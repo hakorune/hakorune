@@ -138,20 +138,26 @@ report_fields = {
 }
 for field in (
     "status",
+    "added_page_id",
+    "base",
+):
+    report_field = report_fields.get(field)
+    if report_field is None or report_field.get("declared_type") != "i64" or report_field.get("storage") != "i64":
+        raise SystemExit(f"report {field} must remain signed storage: {report_field}")
+
+for field in (
     "source_reserved",
     "source_committed",
-    "added_page_id",
     "facade_page_count",
     "source_reject",
-    "base",
     "bytes",
     "block_size",
     "capacity",
     "reserved",
 ):
     report_field = report_fields.get(field)
-    if report_field is None or report_field.get("declared_type") != "i64" or report_field.get("storage") != "i64":
-        raise SystemExit(f"report {field} must remain signed storage: {report_field}")
+    if report_field is None or report_field.get("declared_type") != "usize" or report_field.get("storage") != "usize":
+        raise SystemExit(f"report {field} must be exact usize storage: {report_field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

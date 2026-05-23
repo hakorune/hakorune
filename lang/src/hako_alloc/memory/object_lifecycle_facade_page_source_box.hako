@@ -16,10 +16,10 @@ box HakoAllocObjectLifecycleFacadePageSourceAttachReport {
     facade_page_count: usize = 0
     source_reject: usize = 0
     base: i64 = 0
-    bytes: i64 = 0
-    block_size: i64 = 0
-    capacity: i64 = 0
-    reserved: i64 = 0
+    bytes: usize = 0
+    block_size: usize = 0
+    capacity: usize = 0
+    reserved: usize = 0
 }
 
 box HakoAllocObjectLifecycleFacadePageSourceAttach {

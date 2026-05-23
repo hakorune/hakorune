@@ -164,10 +164,6 @@ for field in (
     "status",
     "added_page_id",
     "base",
-    "bytes",
-    "block_size",
-    "capacity",
-    "reserved",
 ):
     attach_report_field = attach_report_fields.get(field)
     if attach_report_field is None or attach_report_field.get("declared_type") != "i64" or attach_report_field.get("storage") != "i64":
@@ -182,6 +178,16 @@ for field in (
     attach_report_field = attach_report_fields.get(field)
     if attach_report_field is None or attach_report_field.get("declared_type") != "usize" or attach_report_field.get("storage") != "usize":
         raise SystemExit(f"attach report mirror {field} must be exact usize storage: {attach_report_field}")
+
+for field in (
+    "bytes",
+    "block_size",
+    "capacity",
+    "reserved",
+):
+    attach_report_field = attach_report_fields.get(field)
+    if attach_report_field is None or attach_report_field.get("declared_type") != "usize" or attach_report_field.get("storage") != "usize":
+        raise SystemExit(f"attach report payload {field} must be exact usize storage: {attach_report_field}")
 
 fallback_fields = {
     field.get("name"): field
