@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-186-HAKO-ALLOC-USIZE-HUGE-MODEL-SIZE-OBSERVERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-186-HAKO-ALLOC-USIZE-HUGE-MODEL-SIZE-OBSERVERS.md"
-latest_card_summary = "Migrated HakoAllocHugePageModel last_requested_size and last_committed_size to exact usize."
+latest_card = "294x-187-HAKO-ALLOC-USIZE-PAGE-SOURCE-ADAPTER-BYTE-PAYLOAD-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-187-HAKO-ALLOC-USIZE-PAGE-SOURCE-ADAPTER-BYTE-PAYLOAD-SELECTION.md"
+latest_card_summary = "Selected page-source adapter last_bytes observers as the next exact usize field group."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-185"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-186"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-187 selected page-source adapter last_bytes observers as HAKO-ALLOC-USIZE-FIELD-GROUP-186",
   "294x-186 migrated huge page model last_requested_size and last_committed_size to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-185 is now current",
   "294x-185 selected huge page model last_requested_size and last_committed_size as HAKO-ALLOC-USIZE-FIELD-GROUP-184",
   "294x-184 migrated huge-threshold router last_padded_size and last_huge_threshold to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-183 is now current",

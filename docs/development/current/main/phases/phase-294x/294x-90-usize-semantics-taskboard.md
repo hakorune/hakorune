@@ -1341,8 +1341,16 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-185:
-  selected current. Select the next explicit non-negative production field
-  group. Do not migrate status/reason vocabularies, bool-like flags,
+  landed by 294x-187. Selected page-source adapter `last_bytes` observers as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-186`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-186:
+  selected current. Migrate only the selected page-source adapter byte-length
+  observers. Do not migrate status/reason vocabularies, bool-like flags,
   signed sentinels, pointer-like payloads, provider activation, host
   replacement, hooks, global allocator install, worker/TLS, atomics, provider
   package / DLL generation, or `#[global_allocator]`.

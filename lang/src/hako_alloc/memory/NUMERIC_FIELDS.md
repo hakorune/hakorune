@@ -561,6 +561,13 @@ Selected next production `usize` field group:
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-113` migrated those three
   `HakoAllocPageSourceDecommitAdapter` owner-local counters to exact `usize`,
   while `last_base`, `last_bytes`, and `last_rc` remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-185` selected the page-source executor adapter
+  byte-length observers (`HakoAllocPageSourceUnreserveAdapter.last_bytes`,
+  `HakoAllocPageSourceRecommitAdapter.last_bytes`, and
+  `HakoAllocPageSourceDecommitAdapter.last_bytes`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-186`. Keep pointer-like `last_base`, status
+  `last_rc`, policy behavior, OSVM substrate behavior, and provider / hook /
+  replacement seams separate.
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-114` selected the decommit-side
   `HakoAllocPurgeDecommitStateMarker` counters (`attempt_count`,
   `marked_count`, `reject_count`, `duplicate_count`,
