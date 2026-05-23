@@ -56,6 +56,9 @@ guard_expect_in_file "$TAG" 'record HakoAllocProviderSelectionInventoryReportFie
 guard_expect_in_file "$TAG" 'makeProviderSelectionInventoryReport' "$OWNER" "provider selection owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'inventoryProviderSelection' "$OWNER" "provider selection owner must expose inventory route"
 guard_expect_in_file "$TAG" 'HakoAllocProviderReadinessPreflightReport' "$OWNER" "provider selection owner must consume readiness report"
+guard_expect_in_file "$TAG" 'selection_count: usize = 0' "$OWNER" "provider selection owner-local counters must be exact usize"
+guard_expect_in_file "$TAG" 'closed_execution_reject_count: usize = 0' "$OWNER" "provider selection closed-execution reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "provider selection reason vocabulary must remain signed"
 guard_expect_in_file "$TAG" 'would_select_provider: accepted' "$OWNER" "provider selection must stay inventory-only"
 guard_expect_in_file "$TAG" 'would_activate_provider: 0' "$OWNER" "provider activation must not execute"
 guard_expect_in_file "$TAG" 'would_replace_host_allocator: 0' "$OWNER" "host replacement must not execute"
@@ -125,10 +128,31 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocProviderSelectionInventoryReport")
 if report is None:
     raise SystemExit("missing provider selection inventory report typed object plan")
+owner = plans.get("HakoAllocProviderSelectionInventory")
+if owner is None:
+    raise SystemExit("missing provider selection inventory typed object plan")
 target = "HakoAllocProviderSelectionInventoryReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing provider selection inventory ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "selection_count",
+    "accepted_count",
+    "reject_count",
+    "missing_readiness_reject_count",
+    "rejected_readiness_reject_count",
+    "invalid_readiness_token_reject_count",
+    "invalid_candidate_token_reject_count",
+    "invalid_provider_kind_reject_count",
+    "closed_execution_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"owner-local counter {name} must be exact usize: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain signed: {field}")
 for name in (
     "provider_candidate_token",
     "provider_candidate_token_valid",
