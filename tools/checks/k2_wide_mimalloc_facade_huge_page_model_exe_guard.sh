@@ -135,6 +135,8 @@ for field_name in (
     "register_fail_count",
     "reject_count",
     "next_page_id",
+    "last_requested_size",
+    "last_committed_size",
 ):
     field = huge_fields.get(field_name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
@@ -143,8 +145,6 @@ for field_name in (
     "next_ptr",
     "last_result_ptr",
     "last_page_id",
-    "last_requested_size",
-    "last_committed_size",
     "last_failure_kind",
 ):
     field = huge_fields.get(field_name)

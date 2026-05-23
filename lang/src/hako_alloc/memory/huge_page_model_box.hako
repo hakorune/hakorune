@@ -21,8 +21,8 @@ box HakoAllocHugePageModel {
     next_ptr: i64 = 70000
     last_result_ptr: i64 = 0
     last_page_id: i64 = 0
-    last_requested_size: i64 = 0
-    last_committed_size: i64 = 0
+    last_requested_size: usize = 0
+    last_committed_size: usize = 0
     last_failure_kind: i64 = 0
 
     birth(page_map) {

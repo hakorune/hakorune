@@ -1333,7 +1333,24 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-184:
-  selected current. Migrate only the selected huge page model size observers.
+  landed by 294x-186. Migrated only the selected huge page model size observers
+  to exact `usize`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-185:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags,
+  signed sentinels, pointer-like payloads, provider activation, host
+  replacement, hooks, global allocator install, worker/TLS, atomics, provider
+  package / DLL generation, or `#[global_allocator]`.
+```
+
+Stop line for the landed huge-model observer row:
+
+```text
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
   allocator install, worker/TLS, atomics, provider package / DLL generation, or

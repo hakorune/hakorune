@@ -135,6 +135,27 @@ seam_fields = {
     field.get("name"): field
     for field in plans["HakoAllocHugeReleaseSeam"].get("fields", [])
 }
+model_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocHugePageModel"].get("fields", [])
+}
+for field_name in (
+    "last_requested_size",
+    "last_committed_size",
+):
+    field = model_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"huge page model {field_name} must be exact usize storage: {field}")
+for field_name in (
+    "next_ptr",
+    "last_result_ptr",
+    "last_page_id",
+    "last_failure_kind",
+):
+    field = model_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"huge page model {field_name} must remain i64 storage: {field}")
+
 for field_name in (
     "release_count",
     "unregister_count",

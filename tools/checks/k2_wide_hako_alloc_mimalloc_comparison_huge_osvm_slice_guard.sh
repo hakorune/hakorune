@@ -173,6 +173,18 @@ for name in (
     "reject_count",
 ):
     require_storage("HakoAllocHugePageModel", name, "usize", "usize")
+for name in (
+    "last_requested_size",
+    "last_committed_size",
+):
+    require_storage("HakoAllocHugePageModel", name, "usize", "usize")
+for name in (
+    "next_ptr",
+    "last_result_ptr",
+    "last_page_id",
+    "last_failure_kind",
+):
+    require_storage("HakoAllocHugePageModel", name, "i64", "i64")
 
 for name in (
     "release_count",
