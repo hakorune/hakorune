@@ -25,6 +25,8 @@ APP_TEST="apps/hako-alloc-allocator-comparison-c-mimalloc-execution-inventory-pr
 CARD_447A="docs/development/current/main/phases/phase-293x/293x-1069-MIMAP-447A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-PLAN.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1070-MIMAP-448A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-INVENTORY.md"
 NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-1071-MIMAP-449A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-DIAGNOSTICS.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-113-HAKO-ALLOC-USIZE-C-MIMALLOC-EXECUTION-INVENTORY-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-114-HAKO-ALLOC-USIZE-C-MIMALLOC-EXECUTION-INVENTORY-COUNTERS.md"
 DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-execution-inventory-ssot.md"
 PREV_DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-execution-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -37,13 +39,15 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-448A C mimalloc execution inventory\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_447A" "$CARD" "$NEXT_CARD" "$DESIGN" "$PREV_DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_447A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$PREV_DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_447A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
 guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-449A must be selected current or landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-113 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-114 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-448A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$PREV_DESIGN" "MIMAP-447A design must remain accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-448A guard"
@@ -61,6 +65,18 @@ guard_expect_in_file "$TAG" 'hako_representative_metrics_present' "$OWNER" "owne
 guard_expect_in_file "$TAG" 'output_contract_present' "$OWNER" "owner must track output contract"
 guard_expect_in_file "$TAG" 'memory_usage_contract_present' "$OWNER" "owner must track memory usage contract"
 guard_expect_in_file "$TAG" 'evidence_storage_present' "$OWNER" "owner must track evidence storage"
+guard_expect_in_file "$TAG" 'inventory_count: usize = 0' "$OWNER" "inventory counter must be exact usize"
+guard_expect_in_file "$TAG" 'accepted_count: usize = 0' "$OWNER" "accepted counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$OWNER" "reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_runner_reject_count: usize = 0' "$OWNER" "missing runner reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_workload_reject_count: usize = 0' "$OWNER" "missing workload reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_hako_metrics_reject_count: usize = 0' "$OWNER" "missing hako metrics reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_output_contract_reject_count: usize = 0' "$OWNER" "missing output contract reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_memory_usage_contract_reject_count: usize = 0' "$OWNER" "missing memory usage contract reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_evidence_storage_reject_count: usize = 0' "$OWNER" "missing evidence storage reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_run_count_reject_count: usize = 0' "$OWNER" "missing run count reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'invalid_run_count_reject_count: usize = 0' "$OWNER" "invalid run count reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last reason must remain signed reason vocabulary"
 guard_expect_in_file "$TAG" 'c_mimalloc_executed: 0' "$OWNER" "C mimalloc execution must stay closed"
 guard_expect_in_file "$TAG" 'process_replacement_executed: 0' "$OWNER" "process replacement must stay closed"
 guard_expect_in_file "$TAG" 'hook_installed: 0' "$OWNER" "hook install must stay closed"
@@ -126,6 +142,9 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocExecutionInventory")
+if owner is None:
+    raise SystemExit("missing C mimalloc execution inventory owner typed object plan")
 report = plans.get("HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport")
 if report is None:
     raise SystemExit("missing C mimalloc execution inventory report typed object plan")
@@ -133,6 +152,26 @@ target = "HakoAllocAllocatorComparisonCMimallocExecutionInventoryReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing C mimalloc execution inventory ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "inventory_count",
+    "accepted_count",
+    "reject_count",
+    "missing_runner_reject_count",
+    "missing_workload_reject_count",
+    "missing_hako_metrics_reject_count",
+    "missing_output_contract_reject_count",
+    "missing_memory_usage_contract_reject_count",
+    "missing_evidence_storage_reject_count",
+    "missing_run_count_reject_count",
+    "invalid_run_count_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"C mimalloc execution inventory owner counter {name} must be usize storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"C mimalloc execution inventory last_reason must remain i64 storage: {field}")
 for name in (
     "c_mimalloc_execution_inventory_present",
     "c_mimalloc_execution_ready",

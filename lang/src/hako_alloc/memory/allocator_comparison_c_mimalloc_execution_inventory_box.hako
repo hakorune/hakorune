@@ -79,17 +79,17 @@ box HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport {
 }
 
 box HakoAllocAllocatorComparisonCMimallocExecutionInventory {
-    inventory_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_runner_reject_count: i64 = 0
-    missing_workload_reject_count: i64 = 0
-    missing_hako_metrics_reject_count: i64 = 0
-    missing_output_contract_reject_count: i64 = 0
-    missing_memory_usage_contract_reject_count: i64 = 0
-    missing_evidence_storage_reject_count: i64 = 0
-    missing_run_count_reject_count: i64 = 0
-    invalid_run_count_reject_count: i64 = 0
+    inventory_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_runner_reject_count: usize = 0
+    missing_workload_reject_count: usize = 0
+    missing_hako_metrics_reject_count: usize = 0
+    missing_output_contract_reject_count: usize = 0
+    missing_memory_usage_contract_reject_count: usize = 0
+    missing_evidence_storage_reject_count: usize = 0
+    missing_run_count_reject_count: usize = 0
+    invalid_run_count_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocExecutionInventoryReport(fields: HakoAllocAllocatorComparisonCMimallocExecutionInventoryReportFields): HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport {
