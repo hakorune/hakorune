@@ -83,11 +83,11 @@ box HakoAllocAllocatorComparisonCMimallocResultReportingInventoryReport {
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultReportingInventory {
-    reporting_count: i64 = 0
-    ready_count: i64 = 0
-    blocked_count: i64 = 0
-    missing_summary_diagnostic_reject_count: i64 = 0
-    blocked_summary_diagnostic_reject_count: i64 = 0
+    reporting_count: usize = 0
+    ready_count: usize = 0
+    blocked_count: usize = 0
+    missing_summary_diagnostic_reject_count: usize = 0
+    blocked_summary_diagnostic_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocResultReportingInventoryReport(fields: HakoAllocAllocatorComparisonCMimallocResultReportingInventoryReportFields): HakoAllocAllocatorComparisonCMimallocResultReportingInventoryReport {

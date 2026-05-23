@@ -25,6 +25,8 @@ APP_TEST="apps/hako-alloc-allocator-comparison-c-mimalloc-result-reporting-inven
 CARD_458A="docs/development/current/main/phases/phase-293x/293x-1088-MIMAP-458A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-DIAGNOSTICS.md"
 CARD_459A="docs/development/current/main/phases/phase-293x/293x-1089-MIMAP-459A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-SUMMARY-CLOSEOUT.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1090-MIMAP-460A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-REPORTING-INVENTORY.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-121-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-REPORTING-INVENTORY-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-122-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-REPORTING-INVENTORY-COUNTERS.md"
 DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-reporting-inventory-ssot.md"
 DESIGN_458A="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-summary-diagnostics-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -38,12 +40,14 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-460A allocator comparison C mimalloc result reporting inventory\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_458A" "$CARD_459A" "$CARD" "$DESIGN" "$DESIGN_458A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_458A" "$CARD_459A" "$CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_458A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_458A" "MIMAP-458A must be landed"
 guard_expect_in_file "$TAG" 'Status: completed' "$CARD_459A" "MIMAP-459A closeout must be completed"
 guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$CARD" "MIMAP-460A must be selected current or landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-121 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-122 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-460A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_458A" "MIMAP-458A design must remain accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-460A guard"
@@ -60,6 +64,12 @@ guard_expect_in_file "$TAG" 'performance_conclusion_made: report.performance_con
 guard_expect_in_file "$TAG" 'memory_conclusion_made: report.memory_conclusion_made' "$OWNER" "reporting inventory must preserve memory conclusion field"
 guard_expect_in_file "$TAG" 'repeated_benchmark_executed: report.repeated_benchmark_executed' "$OWNER" "reporting inventory must preserve repeated benchmark field"
 guard_expect_in_file "$TAG" 'provider_package_generated: report.provider_package_generated' "$OWNER" "reporting inventory must preserve provider package field"
+guard_expect_in_file "$TAG" 'reporting_count: usize = 0' "$OWNER" "reporting counter must be exact usize"
+guard_expect_in_file "$TAG" 'ready_count: usize = 0' "$OWNER" "ready counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$OWNER" "blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_summary_diagnostic_reject_count: usize = 0' "$OWNER" "missing summary diagnostic reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_summary_diagnostic_reject_count: usize = 0' "$OWNER" "blocked summary diagnostic reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last reason must remain signed reason vocabulary"
 
 if rg -n 'run_benchmark[[:space:]]*\(|bash[[:space:]]+tools/allocator/c_mimalloc_explicit_runner|replace_process_allocator[[:space:]]*\(|install_hook[[:space:]]*\(|#\[global_allocator\]|backendMatcherInstall|pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-460A owner/app must keep benchmark/replacement/hook/backend/source-concurrency seams inactive" >&2
@@ -122,6 +132,9 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocResultReportingInventory")
+if owner is None:
+    raise SystemExit("missing C mimalloc result reporting inventory owner typed object plan")
 report = plans.get("HakoAllocAllocatorComparisonCMimallocResultReportingInventoryReport")
 if report is None:
     raise SystemExit("missing C mimalloc result reporting inventory report typed object plan")
@@ -129,6 +142,20 @@ target = "HakoAllocAllocatorComparisonCMimallocResultReportingInventoryReportFie
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing C mimalloc result reporting inventory ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "reporting_count",
+    "ready_count",
+    "blocked_count",
+    "missing_summary_diagnostic_reject_count",
+    "blocked_summary_diagnostic_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"C mimalloc result reporting inventory owner counter {name} must be usize storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"C mimalloc result reporting inventory last_reason must remain i64 storage: {field}")
 for name in (
     "reporting_inventory_present",
     "summary_diagnostic_present",
