@@ -112,13 +112,13 @@ box HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExte
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot {
-    extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_count: i64 = 0
-    accepted_count: i64 = 0
-    blocked_count: i64 = 0
-    missing_follow_on_extension_follow_on_extension_follow_on_extension_input_reject_count: i64 = 0
-    blocked_pilot_reject_count: i64 = 0
-    missing_pilot_reject_count: i64 = 0
-    closed_stop_line_reject_count: i64 = 0
+    extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_count: usize = 0
+    accepted_count: usize = 0
+    blocked_count: usize = 0
+    missing_follow_on_extension_follow_on_extension_follow_on_extension_input_reject_count: usize = 0
+    blocked_pilot_reject_count: usize = 0
+    missing_pilot_reject_count: usize = 0
+    closed_stop_line_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReport(fields: HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReportFields): HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReport {
