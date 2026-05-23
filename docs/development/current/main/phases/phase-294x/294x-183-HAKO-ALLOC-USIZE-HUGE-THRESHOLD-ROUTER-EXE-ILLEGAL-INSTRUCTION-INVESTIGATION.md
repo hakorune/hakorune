@@ -28,6 +28,11 @@ This row records the pure-first EXE failure that appears when those three
 router-local observers are temporarily migrated from `i64` to exact `usize`.
 It does not change source code or broaden the migrated field group.
 
+Follow-up `294x-184` refined this finding: the invalid member of the group is
+`last_good_size`, because `SizeClassBox.good_size(...)` returns `-1` for huge
+requests. The safe non-negative subset, `last_padded_size` and
+`last_huge_threshold`, can migrate separately.
+
 ## Finding
 
 The failure is not in parsing, MIR emission, route preflight, or EXE linking.
@@ -122,8 +127,10 @@ rbx = -6
 rip = 0x41084a <HakoAllocHugeThresholdRouter.allocateAligned/2+1002>
 ```
 
-This suggests the crash is in the exact typed-object field helper / generated
-EXE fail-fast lane, not in source-level allocator policy.
+This initially suggested the crash was in the exact typed-object field helper /
+generated EXE fail-fast lane. Follow-up `294x-184` narrowed the root cause to a
+source-level field-group mistake: `last_good_size` can carry the signed `-1`
+sentinel on the huge request path.
 
 ## Interpretation
 
@@ -140,8 +147,9 @@ that:
 4. stores the read value back into an exact `usize` field on `me`;
 5. increments exact `usize` route counters in the same function.
 
-That is the next minimal compiler/backend fixture. Do not continue allocator
-field migration for the router observers until that shape is fixed and covered.
+That shape remains a useful backend stress case, but it is not required to
+explain the all-three router observer failure. Do not migrate
+`last_good_size` while it can carry the `-1` sentinel.
 
 ## Next Compiler Fixture
 
@@ -178,11 +186,9 @@ The fixture should prove:
 
 ## Stop Line
 
-Do not migrate the huge-threshold router size observers yet:
+Do not migrate the sentinel-bearing huge-threshold router size observer yet:
 
-- `HakoAllocHugeThresholdRouter.last_padded_size`
 - `HakoAllocHugeThresholdRouter.last_good_size`
-- `HakoAllocHugeThresholdRouter.last_huge_threshold`
 
 Do not work around this by inlining the `.hako` source path or avoiding the
 child method call. The compiler/backend route should support the source shape,

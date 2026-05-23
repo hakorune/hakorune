@@ -149,6 +149,17 @@ for name in (
     "reject_count",
 ):
     require_storage("HakoAllocHugeThresholdRouter", name, "usize", "usize")
+for name in (
+    "last_padded_size",
+    "last_huge_threshold",
+):
+    require_storage("HakoAllocHugeThresholdRouter", name, "usize", "usize")
+for name in (
+    "last_route_kind",
+    "last_result_ptr",
+    "last_good_size",
+):
+    require_storage("HakoAllocHugeThresholdRouter", name, "i64", "i64")
 
 for name in (
     "huge_count",

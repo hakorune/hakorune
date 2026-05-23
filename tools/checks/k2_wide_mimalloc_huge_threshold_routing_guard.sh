@@ -59,9 +59,9 @@ guard_expect_in_file "$TAG" 'invalid_size_count: usize = 0' "$ROUTER" "M179 inva
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$ROUTER" "M179 reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'last_route_kind: i64 = 0' "$ROUTER" "M179 route-kind status must remain i64"
 guard_expect_in_file "$TAG" 'last_result_ptr: i64 = 0' "$ROUTER" "M179 result pointer observer must remain i64"
-guard_expect_in_file "$TAG" 'last_padded_size: i64 = 0' "$ROUTER" "M179 padded-size observer must remain i64"
-guard_expect_in_file "$TAG" 'last_good_size: i64 = 0' "$ROUTER" "M179 good-size observer must remain i64"
-guard_expect_in_file "$TAG" 'last_huge_threshold: i64 = 0' "$ROUTER" "M179 threshold observer must remain i64"
+guard_expect_in_file "$TAG" 'last_padded_size: usize = 0' "$ROUTER" "M179 padded-size observer must be exact usize"
+guard_expect_in_file "$TAG" 'last_good_size: i64 = 0' "$ROUTER" "M179 good-size observer must remain i64 because it can carry -1"
+guard_expect_in_file "$TAG" 'last_huge_threshold: usize = 0' "$ROUTER" "M179 threshold observer must be exact usize"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.huge_threshold_router_box as HakoAllocHugeThresholdRouterBox' "$APP" "proof app must import the M179 router"
 guard_expect_in_file "$TAG" 'HakoAllocHugeThresholdRouter' "$ROOT_README" "root README must document the M179 owner"
 guard_expect_in_file "$TAG" 'huge_threshold_router_box.hako' "$MEMORY_README" "memory README must document the M179 module"
@@ -163,7 +163,11 @@ for name in (
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"huge-threshold router {name} must be exact usize storage: {field}")
-for name in ("last_route_kind", "last_result_ptr", "last_padded_size", "last_good_size", "last_huge_threshold"):
+for name in ("last_padded_size", "last_huge_threshold"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"huge-threshold router {name} must be exact usize storage: {field}")
+for name in ("last_route_kind", "last_result_ptr", "last_good_size"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"huge-threshold router {name} must remain i64 storage: {field}")

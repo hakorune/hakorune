@@ -18,9 +18,9 @@ box HakoAllocHugeThresholdRouter {
     reject_count: usize = 0
     last_route_kind: i64 = 0
     last_result_ptr: i64 = 0
-    last_padded_size: i64 = 0
+    last_padded_size: usize = 0
     last_good_size: i64 = 0
-    last_huge_threshold: i64 = 0
+    last_huge_threshold: usize = 0
 
     birth(small_path) {
         me.small_path = small_path

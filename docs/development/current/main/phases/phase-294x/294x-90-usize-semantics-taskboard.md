@@ -1314,6 +1314,16 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-182:
+  landed by 294x-184. Migrated the safe huge-threshold router size observers
+  `last_padded_size` and `last_huge_threshold` to exact `usize`; kept
+  `last_good_size` signed because the huge path can store the
+  `SizeClassBox.good_size(...) == -1` sentinel there.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-183:
   selected current. Select the next explicit non-negative stored field group.
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
