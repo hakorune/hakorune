@@ -531,8 +531,13 @@ Selected next production `usize` field group:
   `HakoAllocPurgeDecommitStateMarker` counters to exact `usize`, while marker
   arrays, `last_page_id`, report fields, and page-source / heap execution
   state stay unchanged.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-118` is now the next selection-only
-  placeholder.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-118` selected
+  `HakoAllocBoundedDecommitPolicy` counters (`attempt_count`, `blocked_count`,
+  `decommit_attempt_count`, `decommit_success_count`, `source_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-119`, while `max_decommit_bytes`, report
+  fields, fake proof source counters, page-source adapter state, and heap/page
+  execution state stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-119` is now the next migration row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
