@@ -39,6 +39,28 @@ VMは本線実装者ではない。
 VMは意味論の参照実行器。
 ```
 
+## Phase-294x Closeout Target
+
+Phase 294x closes when the C mimalloc comparison vertical slice has enough
+exact `usize` owner-local/storage fields to emit stable `.hako` / `hako_alloc`
+reports and compare them against the C mimalloc runner evidence.
+
+This phase does not need to migrate every numeric field. In particular, keep
+these as explicit carryovers unless a future row names a narrower contract:
+
+- report mirrors and `ReportFields` payload mirrors;
+- bool/status/reason vocabulary fields;
+- signed sentinel-bearing ids, indexes, and deltas;
+- broad page/heap/queue/handle state that is not consumed by the comparison
+  slice;
+- provider/DLL packaging, hook installation, host/global allocator replacement,
+  worker/TLS, true threads, and remote-free stress.
+
+Rule: migrate only named production field groups that are needed by the
+comparison-quality vertical slice or by the exact-`usize` language/runtime
+foundation itself. Everything else remains `i64` until its own field-group row
+or a later native-allocator phase.
+
 ## Current Truth
 
 Live today:

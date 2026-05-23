@@ -83,6 +83,25 @@ Defer beyond this queue:
 Rule: if a row does not help V0-V5 produce comparable evidence, it should be
 parked or batched into a later native-allocator phase.
 
+## Phase Closeout Target
+
+Close phase 294x after the comparison vertical slice has enough exact `usize`
+storage to produce stable `.hako` / `hako_alloc` reports and compare them with
+the C mimalloc runner evidence.
+
+Do not keep extending this phase to drain:
+
+- report mirrors / `ReportFields` payload mirrors;
+- bool/status/reason vocabulary fields;
+- signed sentinel-bearing ids, indexes, and deltas;
+- broad page/heap/queue/handle state outside the comparison slice;
+- provider/DLL packaging, hook installation, host/global allocator replacement,
+  worker/TLS, true threads, remote-free stress, or abandoned-heap stress.
+
+Next field-group rows should therefore prefer owner-local monotonic counters
+that the comparison slice already reads. If the next candidate is only a mirror
+or a broad identity/payload field, park it and move to closeout planning.
+
 Post-closeout follow-on:
 
 ```text

@@ -51,6 +51,12 @@ and compare against C mimalloc evidence. Full remote-free stress, abandoned
 heap behavior, atomic bitmap execution, provider/DLL packaging, and
 host/global allocator replacement remain later lanes.
 
+Phase closeout target: finish only the exact `usize` field groups required by
+the C mimalloc comparison vertical slice, then close the slice with stable
+reports and representative guards. Do not drain every report mirror, bool flag,
+identity/id/index payload, provider/DLL row, or host allocator replacement row
+inside this phase. Those are explicit carryovers unless a later row names them.
+
 ## Policy
 
 - Treat `usize` as a language/runtime completeness feature, not as a
