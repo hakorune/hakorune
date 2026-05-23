@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-164-MIMALLOC-COMPARISON-RSS-PRESENTATION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-164-MIMALLOC-COMPARISON-RSS-PRESENTATION.md"
-latest_card_summary = "Added a presentation-only single-run RSS report over the same-workload hako-vs-C mimalloc memory evidence, including MiB display helpers while repeated-run aggregation and winner claims remain closed."
+latest_card = "294x-165-MIMALLOC-COMPARISON-RSS-PRESENTATION-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-165-MIMALLOC-COMPARISON-RSS-PRESENTATION-CLOSEOUT.md"
+latest_card_summary = "Closed the presentation-only single-run RSS report over same-workload hako-vs-C mimalloc evidence and selected repeated-run evidence as the next narrow comparison row."
 
-current_blocker_token = "MIMALLOC-COMPARISON-RSS-PRESENTATION-CLOSEOUT-001"
+current_blocker_token = "MIMALLOC-COMPARISON-REPEATED-RUN-EVIDENCE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-165 closed the presentation-only same-workload RSS report; MIMALLOC-COMPARISON-REPEATED-RUN-EVIDENCE-001 is now current",
   "294x-164 added a presentation-only single-run RSS report over same-workload memory evidence; MIMALLOC-COMPARISON-RSS-PRESENTATION-CLOSEOUT-001 is now current",
   "294x-163 closed the same-workload hako-vs-C mimalloc memory report pack; MIMALLOC-COMPARISON-RSS-PRESENTATION-001 is now current",
   "294x-162 added same-workload hako memory evidence for the explicit C mimalloc representative small-block runner; MIMALLOC-COMPARISON-SAME-WORKLOAD-PACK-CLOSEOUT-001 is now current",

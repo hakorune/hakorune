@@ -1122,8 +1122,20 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-RSS-PRESENTATION-CLOSEOUT-001:
-  selected current. Close out the presentation-only RSS report, then choose
-  repeated-run evidence or return to the next explicit `usize` field-group row.
+  landed by 294x-165. Closed the presentation-only RSS report after
+  `mimalloc-comparison-rss-presentation-v0` stabilized single-run byte and
+  MiB display fields while repeated-run aggregation, winner claims, provider
+  activation, host replacement, hooks, global allocator install, worker/TLS,
+  atomics, and provider package / DLL generation remain closed.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-REPEATED-RUN-EVIDENCE-001:
+  selected current. Add a narrow repeated-run evidence contract over the same
+  workload pair. Keep winner claims closed; publish sample count and simple
+  RSS aggregates only.
 ```
 
 ## Ladder
