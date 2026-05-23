@@ -1432,12 +1432,19 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-196:
-  selected current. Migrate only the selected provider call capability gate
-  inventory owner-local counters to exact `usize`. Keep `last_reason`, report
-  mirrors, capability flags, modeled-open payloads, bool-like inactive /
-  would-execute flags, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  and `#[global_allocator]` unchanged.
+  landed by 294x-198. Migrated only the selected provider call capability gate
+  inventory owner-local counters to exact `usize`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-197:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags,
+  signed sentinels, pointer-like payloads, provider calls, host replacement,
+  hooks, global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, or `#[global_allocator]`.
 ```
 
 Stop line for the landed huge-model observer row:
