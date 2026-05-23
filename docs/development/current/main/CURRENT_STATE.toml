@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-87-HAKO-ALLOC-USIZE-PAGE-SOURCE-UNRESERVE-ADAPTER-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-87-HAKO-ALLOC-USIZE-PAGE-SOURCE-UNRESERVE-ADAPTER-COUNTERS.md"
-latest_card_summary = "Migrated only the page-source unreserve adapter owner-local call/success/reject counters to exact usize while keeping last_base, last_bytes, and last_rc signed."
+latest_card = "294x-88-HAKO-ALLOC-USIZE-PAGE-SOURCE-RECOMMIT-ADAPTER-COUNTER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-88-HAKO-ALLOC-USIZE-PAGE-SOURCE-RECOMMIT-ADAPTER-COUNTER-SELECTION.md"
+latest_card_summary = "Selected only the page-source recommit adapter owner-local call/success/reject counters for exact usize migration while keeping last_base, last_bytes, and last_rc signed."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-110"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-111"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-88 HAKO-ALLOC-USIZE-FIELD-GROUP-110 page-source recommit adapter owner-local counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-111 selected",
   "294x-87 HAKO-ALLOC-USIZE-FIELD-GROUP-109 page-source unreserve adapter owner-local counters migrated; last_base, last_bytes, and last_rc remain signed",
   "294x-86 HAKO-ALLOC-USIZE-FIELD-GROUP-108 page-source unreserve adapter owner-local counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-109 selected",
   "294x-85 HAKO-ALLOC-USIZE-FIELD-GROUP-107 recommit fail-fast entry owner-local counters migrated; report fields, last_page_id, and closed-execution evidence remain signed",

@@ -361,10 +361,21 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-110:
-  select the next owner-local production exact `usize` field group. Keep
-  unreserve adapter payload/status fields, recommit report/status/page-id
-  fields, closed-execution evidence counters, page-source attach report seams,
-  alloc-miss report seams, huge-page-source / huge-failfast seams, OSVM
+  landed by 294x-88. Selected
+  `HakoAllocPageSourceRecommitAdapter.call_count`, `success_count`, and
+  `reject_count` as `HAKO-ALLOC-USIZE-FIELD-GROUP-111`, while keeping
+  `last_base`, `last_bytes`, and `last_rc` signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-111:
+  migrate only the selected page-source recommit adapter owner-local
+  call/success/reject counters to exact `usize`. Keep recommit adapter
+  payload/status fields, recommit policy state, marker state, heap/page
+  mutation, closed-execution evidence counters, page-source attach report
+  seams, alloc-miss report seams, huge-page-source / huge-failfast seams, OSVM
   byte/pointer payloads, provider / hook / global-allocator rows, TLS, atomics,
   and `#[global_allocator]` out of scope.
 ```

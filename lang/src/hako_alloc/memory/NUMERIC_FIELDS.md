@@ -495,8 +495,11 @@ Selected next production `usize` field group:
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-109` migrated those three
   `HakoAllocPageSourceUnreserveAdapter` owner-local counters to exact `usize`,
   while `last_base`, `last_bytes`, and `last_rc` remain signed.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-110` is now the next selection-only
-  placeholder.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-110` selected the owner-local
+  `HakoAllocPageSourceRecommitAdapter` outcome counters (`call_count`,
+  `success_count`, `reject_count`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-111`, while
+  `last_base`, `last_bytes`, and `last_rc` remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-111` is now the next migration row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
