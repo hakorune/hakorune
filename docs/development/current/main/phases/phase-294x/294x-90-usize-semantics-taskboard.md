@@ -1065,6 +1065,26 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-168:
   Closeout follow-on:
     `MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-001`
 
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-MEMORY-REPORT-001:
+  landed by 294x-161. Added a normalized memory comparison report that
+  consumes the existing hako EXE memory evidence and explicit C mimalloc
+  runner evidence, keeps hako/C workloads separately visible, and leaves
+  provider activation, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, and winner claims closed.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-MEMORY-REPORT-CLOSEOUT-001:
+  selected current. Close out the normalized memory report, then choose either
+  a same-workload comparison pack or an explicit return to the next `usize`
+  field-group row.
+```
+
 ## Ladder
 
 | Row | Status | Scope | Done When |
