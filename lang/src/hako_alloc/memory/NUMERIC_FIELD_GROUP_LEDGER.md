@@ -647,6 +647,13 @@ Selected next production `usize` field group:
   `usize`, while `last_reason`, report mirrors, capability flags,
   modeled-open payloads, bool-like inactive / would-execute flags, and provider
   call / hook / replacement seams remain unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-197` selected the owner-local
+  `HakoAllocProviderCallDryRunUnsupportedBehavior` counters (`dry_run_count`,
+  `accepted_count`, `reject_count`, `missing_gate_reject_count`,
+  `rejected_gate_reject_count`, and `closed_execution_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-198`. Keep `last_reason`, report mirrors,
+  capability flags, dry-run payloads, bool-like inactive / would-execute flags,
+  and provider call / hook / replacement seams separate.
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-114` selected the decommit-side
   `HakoAllocPurgeDecommitStateMarker` counters (`attempt_count`,
   `marked_count`, `reject_count`, `duplicate_count`,

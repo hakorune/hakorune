@@ -672,13 +672,22 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-196:
   inventory owner-local counters to exact `usize`.
 ```
 
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-197` selected the owner-local
+  `HakoAllocProviderCallDryRunUnsupportedBehavior` counters (`dry_run_count`,
+  `accepted_count`, `reject_count`, `missing_gate_reject_count`,
+  `rejected_gate_reject_count`, and `closed_execution_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-198`. Keep `last_reason`, report mirrors,
+  capability flags, dry-run payloads, bool-like inactive / would-execute flags,
+  and provider call / hook / replacement seams separate.
+
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-197:
-  selected current. Select the next explicit non-negative production field
-  group. Do not migrate status/reason vocabularies, bool-like flags,
-  signed sentinels, pointer-like payloads, provider calls, host replacement,
-  hooks, global allocator install, worker/TLS, atomics, provider package / DLL
-  generation, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-198:
+  selected current. Migrate only the selected owner-local
+  HakoAllocProviderCallDryRunUnsupportedBehavior counters. Do not migrate
+  status/reason vocabularies, report mirrors, bool-like flags, signed
+  sentinels, pointer-like payloads, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, or #[global_allocator].
 ```

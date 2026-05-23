@@ -116,9 +116,10 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-197:
-  selected current. Select the next explicit non-negative production field
-  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+HAKO-ALLOC-USIZE-FIELD-GROUP-198:
+  selected current. Migrate only the selected owner-local
+  `HakoAllocProviderCallDryRunUnsupportedBehavior` counters. Do not migrate
+  status/reason vocabularies, report mirrors, bool-like flags, signed
   sentinels, pointer-like payloads, provider calls, host replacement, hooks,
   global allocator install, worker/TLS, atomics, provider package / DLL
   generation, or `#[global_allocator]`.
