@@ -67,7 +67,7 @@ guard_expect_in_file "$TAG" 'call_count: usize = 0' "$OWNER" "recommit adapter c
 guard_expect_in_file "$TAG" 'success_count: usize = 0' "$OWNER" "recommit adapter success counter must be exact usize"
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$OWNER" "recommit adapter reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'last_base: i64 = 0' "$OWNER" "recommit adapter base payload must remain signed"
-guard_expect_in_file "$TAG" 'last_bytes: i64 = 0' "$OWNER" "recommit adapter byte payload must remain signed"
+guard_expect_in_file "$TAG" 'last_bytes: usize = 0' "$OWNER" "recommit adapter byte payload must be exact usize"
 guard_expect_in_file "$TAG" 'last_rc: i64 = 0' "$OWNER" "recommit adapter status payload must remain signed"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.commitPage' "$OWNER" "M203 adapter must delegate to commitPage"
 guard_expect_in_file "$TAG" 'M203 page-source recommit' "$MEMORY_README" "memory README must define M203 owner"
@@ -157,7 +157,11 @@ for name in ("call_count", "success_count", "reject_count"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"bad recommit adapter exact usize counter field {name}: {field}")
-for name in ("last_base", "last_bytes", "last_rc"):
+for name in ("last_bytes",):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad recommit adapter exact usize byte field {name}: {field}")
+for name in ("last_base", "last_rc"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"bad recommit adapter signed payload field {name}: {field}")

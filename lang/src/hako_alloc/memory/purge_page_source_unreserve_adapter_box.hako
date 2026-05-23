@@ -13,7 +13,7 @@ box HakoAllocPageSourceUnreserveAdapter {
     success_count: usize = 0
     reject_count: usize = 0
     last_base: i64 = 0
-    last_bytes: i64 = 0
+    last_bytes: usize = 0
     last_rc: i64 = 0
 
     unreservePage(base, bytes) {

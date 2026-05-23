@@ -66,7 +66,7 @@ guard_expect_in_file "$TAG" 'call_count: usize = 0' "$ADAPTER" "decommit adapter
 guard_expect_in_file "$TAG" 'success_count: usize = 0' "$ADAPTER" "decommit adapter success counter must be exact usize"
 guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$ADAPTER" "decommit adapter reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'last_base: i64 = 0' "$ADAPTER" "decommit adapter base payload must remain signed"
-guard_expect_in_file "$TAG" 'last_bytes: i64 = 0' "$ADAPTER" "decommit adapter byte payload must remain signed"
+guard_expect_in_file "$TAG" 'last_bytes: usize = 0' "$ADAPTER" "decommit adapter byte payload must be exact usize"
 guard_expect_in_file "$TAG" 'last_rc: i64 = 0' "$ADAPTER" "decommit adapter status payload must remain signed"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy\.decommitPage\(base, bytes\)' "$ADAPTER" "adapter must delegate only to page-source decommit"
 guard_expect_in_file "$TAG" 'purge_page_source_decommit_adapter_box.hako` owns M196 page-source decommit' "$MEMORY_README" "memory README must define M196 owner"
@@ -143,7 +143,11 @@ for name in ("call_count", "success_count", "reject_count"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"bad decommit adapter exact usize counter field {name}: {field}")
-for name in ("last_base", "last_bytes", "last_rc"):
+for name in ("last_bytes",):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad decommit adapter exact usize byte field {name}: {field}")
+for name in ("last_base", "last_rc"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"bad decommit adapter signed payload field {name}: {field}")
