@@ -1165,9 +1165,22 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-SUMMARY-NO-WINNER-CLOSEOUT-001:
-  selected current. Close out the no-winner summary row, then return to the
-  next explicit `usize` field-group row unless a later comparison card names a
-  narrower evidence gap.
+  landed by 294x-169. Closed the no-winner comparison summary slice after
+  repeated-run RSS evidence and range-only summary formatting landed. Winner
+  claims, statistical significance claims, provider activation, host
+  replacement, hooks, global allocator install, worker/TLS, atomics, and
+  provider package / DLL generation remain closed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-169:
+  selected current. Return to explicit non-negative stored-field group
+  selection for production `hako_alloc`. Keep comparison summary outputs,
+  winner claims, provider / hook / global-allocator rows, worker/TLS, threads,
+  and `#[global_allocator]` out of scope unless the selected group explicitly
+  owns one of those seams.
 ```
 
 ## Ladder
