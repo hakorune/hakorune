@@ -44,7 +44,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_378A" "MIMAP-378A dry-run unsupported behavior must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_379A" "MIMAP-379A row-selection card must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-380A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-381A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-381A must be selected current or landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-380A design must be accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-380A guard"
 guard_expect_in_file "$TAG" 'id = "MIMAP-380A"' "$PROOF_MANIFEST_INCLUDE" "proof manifest must list MIMAP-380A"
@@ -56,6 +56,9 @@ guard_expect_in_file "$TAG" 'record HakoAllocProviderActivationModeledOpenPilotR
 guard_expect_in_file "$TAG" 'makeProviderActivationModeledOpenPilotReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'openModeledProviderActivation' "$OWNER" "owner must expose modeled activation-open route"
 guard_expect_in_file "$TAG" 'HakoAllocProviderActivationDryRunUnsupportedBehaviorReport' "$OWNER" "owner must consume dry-run unsupported report"
+guard_expect_in_file "$TAG" 'modeled_open_count: usize = 0' "$OWNER" "modeled-open owner-local counters must be exact usize"
+guard_expect_in_file "$TAG" 'closed_backend_matcher_reject_count: usize = 0' "$OWNER" "closed backend matcher owner-local counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "modeled-open reason vocabulary must remain signed"
 guard_expect_in_file "$TAG" 'provider_activation_modeled_open' "$OWNER" "owner must report modeled activation open state"
 guard_expect_in_file "$TAG" 'provider_activation_model_active' "$OWNER" "owner must report modeled activation active state"
 guard_expect_in_file "$TAG" 'would_activate_provider: would_activate' "$OWNER" "modeled-open report must expose would_activate_provider"
@@ -128,11 +131,45 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocProviderActivationModeledOpenPilotReport")
 if report is None:
     raise SystemExit("missing provider activation modeled-open report typed object plan")
+owner = plans.get("HakoAllocProviderActivationModeledOpenPilot")
+if owner is None:
+    raise SystemExit("missing provider activation modeled-open typed object plan")
 target = "HakoAllocProviderActivationModeledOpenPilotReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing provider activation modeled-open ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
 for name in (
+    "modeled_open_count",
+    "accepted_count",
+    "reject_count",
+    "missing_dry_run_reject_count",
+    "rejected_dry_run_reject_count",
+    "invalid_request_token_reject_count",
+    "invalid_mode_reject_count",
+    "closed_call_reject_count",
+    "closed_host_replacement_reject_count",
+    "closed_hook_reject_count",
+    "closed_backend_matcher_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"owner-local counter {name} must be exact usize: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain signed: {field}")
+for name in (
+    "modeled_open_count",
+    "accepted_count",
+    "reject_count",
+    "missing_dry_run_reject_count",
+    "rejected_dry_run_reject_count",
+    "invalid_request_token_reject_count",
+    "invalid_mode_reject_count",
+    "closed_call_reject_count",
+    "closed_host_replacement_reject_count",
+    "closed_hook_reject_count",
+    "closed_backend_matcher_reject_count",
     "provider_activation_modeled_open",
     "provider_activation_model_active",
     "provider_activation_inactive",
