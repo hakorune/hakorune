@@ -46,15 +46,15 @@ record HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot
     memory_conclusion_made: usize = 0
     repeated_benchmark_executed: usize = 0
     process_replacement_executed: usize = 0
-    hook_installed: i64 = 0
-    backend_matcher_added: i64 = 0
-    global_allocator_installed: i64 = 0
-    hidden_discovery_used: i64 = 0
-    provider_package_generated: i64 = 0
-    would_replace_host_allocator: i64 = 0
-    would_install_hook: i64 = 0
-    would_add_backend_matcher: i64 = 0
-    would_run_thread: i64 = 0
+    hook_installed: usize = 0
+    backend_matcher_added: usize = 0
+    global_allocator_installed: usize = 0
+    hidden_discovery_used: usize = 0
+    provider_package_generated: usize = 0
+    would_replace_host_allocator: usize = 0
+    would_install_hook: usize = 0
+    would_add_backend_matcher: usize = 0
+    would_run_thread: usize = 0
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport {
@@ -101,15 +101,15 @@ box HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotRep
     memory_conclusion_made: usize = 0
     repeated_benchmark_executed: usize = 0
     process_replacement_executed: usize = 0
-    hook_installed: i64 = 0
-    backend_matcher_added: i64 = 0
-    global_allocator_installed: i64 = 0
-    hidden_discovery_used: i64 = 0
-    provider_package_generated: i64 = 0
-    would_replace_host_allocator: i64 = 0
-    would_install_hook: i64 = 0
-    would_add_backend_matcher: i64 = 0
-    would_run_thread: i64 = 0
+    hook_installed: usize = 0
+    backend_matcher_added: usize = 0
+    global_allocator_installed: usize = 0
+    hidden_discovery_used: usize = 0
+    provider_package_generated: usize = 0
+    would_replace_host_allocator: usize = 0
+    would_install_hook: usize = 0
+    would_add_backend_matcher: usize = 0
+    would_run_thread: usize = 0
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot {

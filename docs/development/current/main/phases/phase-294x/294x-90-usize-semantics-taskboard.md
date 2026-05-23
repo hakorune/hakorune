@@ -1054,12 +1054,13 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-168:
   one of those seams.
 
   Next hint:
-    unless a newer SSOT overrides it, select the MIMAP-560A
+    unless a newer SSOT overrides it, close out the MIMAP-560A
     `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot`
+    presentation-only extension pilot after the later
     hook_installed, backend_matcher_added, global_allocator_installed,
     hidden_discovery_used, provider_package_generated,
     would_replace_host_allocator, would_install_hook,
-    would_add_backend_matcher, and would_run_thread evidence flags.
+    would_add_backend_matcher, and would_run_thread evidence flags land.
 
 ## Ladder
 

@@ -85,17 +85,17 @@ guard_expect_in_file "$TAG" 'performance_conclusion_made: usize = 0' "$OWNER" "p
 guard_expect_in_file "$TAG" 'memory_conclusion_made: usize = 0' "$OWNER" "pilot report memory_conclusion_made must be usize"
 guard_expect_in_file "$TAG" 'repeated_benchmark_executed: usize = 0' "$OWNER" "pilot report repeated_benchmark_executed must be usize"
 guard_expect_in_file "$TAG" 'process_replacement_executed: usize = 0' "$OWNER" "pilot report process_replacement_executed must be usize"
-guard_expect_in_file "$TAG" 'hook_installed: i64 = 0' "$OWNER" "pilot report hook_installed must stay signed"
-guard_expect_in_file "$TAG" 'backend_matcher_added: i64 = 0' "$OWNER" "pilot report backend_matcher_added must stay signed"
-guard_expect_in_file "$TAG" 'global_allocator_installed: i64 = 0' "$OWNER" "pilot report global_allocator_installed must stay signed"
-guard_expect_in_file "$TAG" 'hidden_discovery_used: i64 = 0' "$OWNER" "pilot report hidden_discovery_used must stay signed"
-guard_expect_in_file "$TAG" 'provider_package_generated: i64 = 0' "$OWNER" "pilot report provider_package_generated must stay signed"
-guard_expect_in_file "$TAG" 'would_replace_host_allocator: i64 = 0' "$OWNER" "pilot report would_replace_host_allocator must stay signed"
-guard_expect_in_file "$TAG" 'would_install_hook: i64 = 0' "$OWNER" "pilot report would_install_hook must stay signed"
-guard_expect_in_file "$TAG" 'would_add_backend_matcher: i64 = 0' "$OWNER" "pilot report would_add_backend_matcher must stay signed"
-guard_expect_in_file "$TAG" 'would_run_thread: i64 = 0' "$OWNER" "pilot report would_run_thread must stay signed"
+guard_expect_in_file "$TAG" 'hook_installed: usize = 0' "$OWNER" "pilot report hook_installed must be usize"
+guard_expect_in_file "$TAG" 'backend_matcher_added: usize = 0' "$OWNER" "pilot report backend_matcher_added must be usize"
+guard_expect_in_file "$TAG" 'global_allocator_installed: usize = 0' "$OWNER" "pilot report global_allocator_installed must be usize"
+guard_expect_in_file "$TAG" 'hidden_discovery_used: usize = 0' "$OWNER" "pilot report hidden_discovery_used must be usize"
+guard_expect_in_file "$TAG" 'provider_package_generated: usize = 0' "$OWNER" "pilot report provider_package_generated must be usize"
+guard_expect_in_file "$TAG" 'would_replace_host_allocator: usize = 0' "$OWNER" "pilot report would_replace_host_allocator must be usize"
+guard_expect_in_file "$TAG" 'would_install_hook: usize = 0' "$OWNER" "pilot report would_install_hook must be usize"
+guard_expect_in_file "$TAG" 'would_add_backend_matcher: usize = 0' "$OWNER" "pilot report would_add_backend_matcher must be usize"
+guard_expect_in_file "$TAG" 'would_run_thread: usize = 0' "$OWNER" "pilot report would_run_thread must be usize"
 
-if rg -n 'presentation_count: i64 = 0|accepted_count: i64 = 0|blocked_count: i64 = 0|missing_pilot_reject_count: i64 = 0|blocked_pilot_reject_count: i64 = 0|missing_presentation_input_reject_count: i64 = 0|closed_stop_line_reject_count: i64 = 0|allocation_count: i64 = 0|free_count: i64 = 0|requested_bytes: i64 = 0|peak_rss_bytes: i64 = 0|steady_rss_bytes: i64 = 0|hako_allocation_count: i64 = 0|hako_requested_bytes: i64 = 0|c_allocation_count: i64 = 0|c_requested_bytes: i64 = 0|c_peak_rss_bytes: i64 = 0|allocator_id: i64 = 0|runner_kind: i64 = 0|workload_id: i64 = 0|exit_code: i64 = 0|evidence_complete: i64 = 0|performance_conclusion_made: i64 = 0|memory_conclusion_made: i64 = 0|repeated_benchmark_executed: i64 = 0|process_replacement_executed: i64 = 0|hook_installed: usize = 0|backend_matcher_added: usize = 0|global_allocator_installed: usize = 0|hidden_discovery_used: usize = 0|provider_package_generated: usize = 0|would_replace_host_allocator: usize = 0|would_install_hook: usize = 0|would_add_backend_matcher: usize = 0|would_run_thread: usize = 0' "$OWNER" >/tmp/"$TAG".pilot_counter_leak 2>&1; then
+if rg -n 'presentation_count: i64 = 0|accepted_count: i64 = 0|blocked_count: i64 = 0|missing_pilot_reject_count: i64 = 0|blocked_pilot_reject_count: i64 = 0|missing_presentation_input_reject_count: i64 = 0|closed_stop_line_reject_count: i64 = 0|allocation_count: i64 = 0|free_count: i64 = 0|requested_bytes: i64 = 0|peak_rss_bytes: i64 = 0|steady_rss_bytes: i64 = 0|hako_allocation_count: i64 = 0|hako_requested_bytes: i64 = 0|c_allocation_count: i64 = 0|c_requested_bytes: i64 = 0|c_peak_rss_bytes: i64 = 0|allocator_id: i64 = 0|runner_kind: i64 = 0|workload_id: i64 = 0|exit_code: i64 = 0|evidence_complete: i64 = 0|performance_conclusion_made: i64 = 0|memory_conclusion_made: i64 = 0|repeated_benchmark_executed: i64 = 0|process_replacement_executed: i64 = 0|hook_installed: i64 = 0|backend_matcher_added: i64 = 0|global_allocator_installed: i64 = 0|hidden_discovery_used: i64 = 0|provider_package_generated: i64 = 0|would_replace_host_allocator: i64 = 0|would_install_hook: i64 = 0|would_add_backend_matcher: i64 = 0|would_run_thread: i64 = 0' "$OWNER" >/tmp/"$TAG".pilot_counter_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-560A pilot owner/report payload fields must be exact usize" >&2
   cat /tmp/"$TAG".pilot_counter_leak >&2
   rm -f /tmp/"$TAG".pilot_counter_leak
@@ -226,8 +226,8 @@ for name in (
     "would_run_thread",
 ):
     field = fields.get(name)
-    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"{name} must stay i64 in report plan: {field}")
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"{name} must be usize in report plan: {field}")
 for name in (
     "allocation_count_delta",
     "requested_bytes_delta",
