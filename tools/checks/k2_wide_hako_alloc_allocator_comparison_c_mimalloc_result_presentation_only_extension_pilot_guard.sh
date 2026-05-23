@@ -58,6 +58,22 @@ guard_expect_in_file "$TAG" 'pilotAllocatorComparisonCMimallocResultPresentation
 guard_expect_in_file "$TAG" 'HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReport' "$OWNER" "owner must consume MIMAP-552A comparison-ready pilot report"
 guard_expect_in_file "$TAG" 'presentation_only_extension_present' "$OWNER" "pilot must publish presentation-only extension state"
 guard_expect_in_file "$TAG" 'comparison_preconditions_present: report.comparison_preconditions_present' "$OWNER" "pilot must preserve comparison preconditions field"
+guard_expect_in_file "$TAG" 'presentation_count: usize = 0' "$OWNER" "pilot owner presentation_count must be usize"
+guard_expect_in_file "$TAG" 'accepted_count: usize = 0' "$OWNER" "pilot owner accepted_count must be usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$OWNER" "pilot owner blocked_count must be usize"
+guard_expect_in_file "$TAG" 'missing_pilot_reject_count: usize = 0' "$OWNER" "pilot owner missing_pilot_reject_count must be usize"
+guard_expect_in_file "$TAG" 'blocked_pilot_reject_count: usize = 0' "$OWNER" "pilot owner blocked_pilot_reject_count must be usize"
+guard_expect_in_file "$TAG" 'missing_presentation_input_reject_count: usize = 0' "$OWNER" "pilot owner missing_presentation_input_reject_count must be usize"
+guard_expect_in_file "$TAG" 'closed_stop_line_reject_count: usize = 0' "$OWNER" "pilot owner closed_stop_line_reject_count must be usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "pilot owner last_reason must stay signed"
+
+if rg -n 'presentation_count: i64 = 0|accepted_count: i64 = 0|blocked_count: i64 = 0|missing_pilot_reject_count: i64 = 0|blocked_pilot_reject_count: i64 = 0|missing_presentation_input_reject_count: i64 = 0|closed_stop_line_reject_count: i64 = 0' "$OWNER" >/tmp/"$TAG".pilot_counter_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-560A pilot owner counters must all be usize" >&2
+  cat /tmp/"$TAG".pilot_counter_leak >&2
+  rm -f /tmp/"$TAG".pilot_counter_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".pilot_counter_leak
 
 if rg -n 'run_benchmark[[:space:]]*\(|bash[[:space:]]+tools/allocator/c_mimalloc_explicit_runner|replace_process_allocator[[:space:]]*\(|install_hook[[:space:]]*\(|#\[global_allocator\]|backendMatcherInstall|pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-560A owner/app must keep benchmark/replacement/hook/backend/source-concurrency seams inactive" >&2
@@ -123,6 +139,9 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport")
 if report is None:
     raise SystemExit("missing presentation-only extension pilot report typed object plan")
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot")
+if owner is None:
+    raise SystemExit("missing presentation-only extension pilot typed object plan")
 target = "HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing presentation-only extension pilot ReportFields record")
@@ -139,6 +158,22 @@ for name in (
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64":
         raise SystemExit(f"{name} must be i64: {field}")
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "presentation_count",
+    "accepted_count",
+    "blocked_count",
+    "missing_pilot_reject_count",
+    "blocked_pilot_reject_count",
+    "missing_presentation_input_reject_count",
+    "closed_stop_line_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"{name} must be usize in owner plan: {field}")
+last_reason = owner_fields.get("last_reason")
+if last_reason is None or last_reason.get("declared_type") != "i64" or last_reason.get("storage") != "i64":
+    raise SystemExit(f"last_reason must stay i64 in owner plan: {last_reason}")
 print("[mimap560a-mir-json] ok")
 PY
 

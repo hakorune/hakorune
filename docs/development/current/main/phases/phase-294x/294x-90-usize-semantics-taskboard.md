@@ -1002,10 +1002,22 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-164:
   out of scope unless the selected group explicitly owns one of those seams.
 
   Next hint:
-    unless a newer SSOT overrides it, select the MIMAP-552A
-    `HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot`
+    unless a newer SSOT overrides it, select the MIMAP-560A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot`
     owner-local counters.
 ```
+
+HAKO-ALLOC-USIZE-FIELD-GROUP-165:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, signed sentinels, route/state/status/reason
+  vocabulary, comparison payloads, performance/memory conclusions, provider /
+  hook / global-allocator rows, worker/TLS, threads, and `#[global_allocator]`
+  out of scope unless the selected group explicitly owns one of those seams.
+
+  Next hint:
+    unless a newer SSOT overrides it, select the MIMAP-560A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot`
+    comparison count and byte payload fields.
 
 ## Ladder
 
