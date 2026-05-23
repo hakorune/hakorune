@@ -15,6 +15,15 @@ MODULE="lang/src/hako_alloc/hako_module.toml"
 CARD="docs/development/current/main/phases/phase-293x/293x-378-MIMAP-018A-FACADE-STATS-SNAPSHOT.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+TMP_DIR="$ARTIFACT_DIR/tmp"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+INC_LOG="$ARTIFACT_DIR/inc_leak.log"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+rm -f "$FORBIDDEN_LOG" "$INC_LOG"
 
 for path in "$APP" "$APP_README" "$FACADE" "$STATS" "$RESULT" "$MODULE" "$CARD" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
@@ -27,40 +36,47 @@ rg -F -q 'objectLifecycleReleaseSuccessCount()' "$FACADE"
 rg -F -q 'objectLifecycleReleaseFailureCount()' "$FACADE"
 rg -F -q 'box HakoAllocObjectLifecycleFacadeStatsSnapshot' "$STATS"
 rg -F -q 'box HakoAllocObjectLifecycleFacadeStatsSurface' "$STATS"
-rg -F -q 'success_count: i64 = 0' "$RESULT"
-rg -F -q 'failure_count: i64 = 0' "$RESULT"
+rg -F -q 'attempt_count: usize = 0' "$RESULT"
+rg -F -q 'success_count: usize = 0' "$RESULT"
+rg -F -q 'failure_count: usize = 0' "$RESULT"
+rg -F -q 'reusable_success_count: usize = 0' "$RESULT"
+rg -F -q 'active_success_count: usize = 0' "$RESULT"
+rg -F -q 'alloc_attempt_count: usize = 0' "$STATS"
+rg -F -q 'alloc_success_count: usize = 0' "$STATS"
+rg -F -q 'alloc_failure_count: usize = 0' "$STATS"
+rg -F -q 'alloc_reusable_success_count: usize = 0' "$STATS"
+rg -F -q 'alloc_active_success_count: usize = 0' "$STATS"
+rg -F -q 'release_success_count: usize = 0' "$STATS"
+rg -F -q 'release_failure_count: usize = 0' "$STATS"
 rg -F -q 'memory.object_lifecycle_facade_stats_box = "memory/object_lifecycle_facade_stats_box.hako"' "$MODULE"
 rg -F -q 'MIMAP-018A' "$CARD"
 rg -F -q 'k2_wide_mimalloc_facade_stats_snapshot_exe_guard.sh' "$INDEX"
 rg -F -q 'object_lifecycle_facade_stats_box.hako' "$README"
 
 if rg -n 'PageMap|page_map|lookup\(|copy[A-Za-z0-9_]*\(|byte[A-Za-z0-9_]*\(|memcpy|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|purge[A-Za-z0-9_]*\(|decommit[A-Za-z0-9_]*\(' \
-  "$STATS" >/tmp/"$TAG".stats_forbidden 2>&1; then
+  "$STATS" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-018A stats surface must stay read-only and policy-free" >&2
-  cat /tmp/"$TAG".stats_forbidden >&2
-  rm -f /tmp/"$TAG".stats_forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".stats_forbidden
+rm -f "$FORBIDDEN_LOG"
 
 if rg -n 'mimalloc-facade-stats-snapshot-proof|objectLifecycleStatsSnapshot|HakoAllocObjectLifecycleFacadeStats' \
-  lang/c-abi/shims >/tmp/"$TAG".inc_leak 2>&1; then
+  lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-018A matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".inc_leak >&2
-  rm -f /tmp/"$TAG".inc_leak
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".inc_leak
+rm -f "$INC_LOG"
 
 pure_first_guard_build_toolchain
 
-tmp_dir="$(mktemp -d /tmp/hakorune_mimap018a_facade_stats.XXXXXX)"
-trap 'rm -rf "$tmp_dir"' EXIT
-
-mir_json="$tmp_dir/mimap018a.mir.json"
-exe_out="$tmp_dir/mimap018a.exe"
-build_log="$tmp_dir/build.log"
-run_log="$tmp_dir/run.log"
+mir_json="$TMP_DIR/mimap018a.mir.json"
+exe_out="$TMP_DIR/mimap018a.exe"
+build_log="$TMP_DIR/build.log"
+run_log="$TMP_DIR/run.log"
 
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
@@ -91,6 +107,8 @@ plans = {
 }
 for name in (
     "HakoAllocObjectLifecycleFacade",
+    "HakoAllocObjectLifecycleAllocResult",
+    "HakoAllocObjectLifecycleReleaseResult",
     "HakoAllocObjectLifecycleFacadeStatsSurface",
     "HakoAllocObjectLifecycleFacadeStatsSnapshot",
 ):
@@ -122,8 +140,35 @@ for field in (
     "release_success_count",
     "release_failure_count",
 ):
-    if field not in snapshot_fields:
+    snapshot_field = snapshot_fields.get(field)
+    if snapshot_field is None:
         raise SystemExit(f"missing stats snapshot field: {field}")
+    if snapshot_field.get("declared_type") != "usize" or snapshot_field.get("storage") != "usize":
+        raise SystemExit(f"stats snapshot {field} must be exact usize storage: {snapshot_field}")
+
+alloc_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocObjectLifecycleAllocResult"].get("fields", [])
+}
+for field in (
+    "attempt_count",
+    "success_count",
+    "failure_count",
+    "reusable_success_count",
+    "active_success_count",
+):
+    alloc_field = alloc_fields.get(field)
+    if alloc_field is None or alloc_field.get("declared_type") != "usize" or alloc_field.get("storage") != "usize":
+        raise SystemExit(f"alloc result {field} must be exact usize storage: {alloc_field}")
+
+release_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocObjectLifecycleReleaseResult"].get("fields", [])
+}
+for field in ("success_count", "failure_count"):
+    release_field = release_fields.get(field)
+    if release_field is None or release_field.get("declared_type") != "usize" or release_field.get("storage") != "usize":
+        raise SystemExit(f"release result {field} must be exact usize storage: {release_field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

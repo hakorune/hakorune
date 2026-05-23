@@ -18,6 +18,8 @@ static box Main {
 
         local stale_status = alloc.objectLifecycleReleaseBlock(999, alloc_block)
         local stale_reason = alloc.objectLifecycleReleaseReason()
+        local release_success_count = alloc.objectLifecycleReleaseSuccessCount()
+        local release_failure_count = alloc.objectLifecycleReleaseFailureCount()
 
         local shape = 0
         if alloc_ok == 1 { shape = shape + 1 }
@@ -26,13 +28,16 @@ static box Main {
         if double_reason == 3 { shape = shape + 1 }
         if stale_status == 0 { shape = shape + 1 }
         if stale_reason == 1 { shape = shape + 1 }
+        if release_success_count == 1 { shape = shape + 1 }
+        if release_failure_count == 2 { shape = shape + 1 }
         if page.localFreeCount() == 1 { shape = shape + 1 }
 
         print("mimalloc-facade-release-failfast-proof")
         print("double=" + double_status + "," + double_reason)
         print("stale=" + stale_status + "," + stale_reason)
+        print("release_counts=" + release_success_count + "," + release_failure_count)
 
-        if shape == 7 {
+        if shape == 9 {
             print("summary=ok")
             return 0
         }

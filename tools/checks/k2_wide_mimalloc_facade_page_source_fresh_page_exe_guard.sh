@@ -17,6 +17,15 @@ MODULE="lang/src/hako_alloc/hako_module.toml"
 CARD="docs/development/current/main/phases/phase-293x/293x-383-MIMAP-021B-FACADE-PAGE-SOURCE-FRESH-PAGE-ATTACH.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+TMP_DIR="$ARTIFACT_DIR/tmp"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+INC_LOG="$ARTIFACT_DIR/inc_leak.log"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+rm -f "$FORBIDDEN_LOG" "$INC_LOG"
 
 echo "[$TAG] running MIMAP-021B facade page-source fresh-page guard"
 
@@ -36,6 +45,10 @@ guard_require_files \
 
 guard_expect_in_file "$TAG" 'box HakoAllocObjectLifecycleFacadePageSourceAttach' "$ADAPTER" "MIMAP-021B adapter owner missing"
 guard_expect_in_file "$TAG" 'box HakoAllocObjectLifecycleFacadePageSourceAttachReport' "$ADAPTER" "MIMAP-021B report owner missing"
+guard_expect_in_file "$TAG" 'reserve_count: usize = 0' "$ADAPTER" "attach reserve counter must be exact usize"
+guard_expect_in_file "$TAG" 'commit_count: usize = 0' "$ADAPTER" "attach commit counter must be exact usize"
+guard_expect_in_file "$TAG" 'attach_count: usize = 0' "$ADAPTER" "attach counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$ADAPTER" "attach reject counter must be exact usize"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.reservePage' "$ADAPTER" "adapter must reserve through page-source policy"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy.commitPage' "$ADAPTER" "adapter must commit through page-source policy"
 guard_expect_in_file "$TAG" 'new HakoAllocPageModel' "$ADAPTER" "adapter must construct one modeled page"
@@ -46,32 +59,29 @@ guard_expect_in_file "$TAG" 'MIMAP-021B' "$CARD" "MIMAP-021B card missing"
 guard_expect_in_file "$TAG" "$0" "$INDEX" "check script index must list MIMAP-021B guard"
 
 if rg -n 'objectLifecycleSmallAlloc|objectLifecycleRelease|objectLifecycleRealloc|objectLifecycleSmallAllocAligned|HakoAllocObjectLifecycleFacadePurge|HakoAllocBoundedPurge|HakoAllocPurgeState|decommitPage[[:space:]]*\(|recommit|unreserve|releasePage|PageMap|page_map|lookup[[:space:]]*\(|remote[A-Za-z0-9_]*[[:space:]]*\(|Tls|Atomic|provider[A-Za-z0-9_]*[[:space:]]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*[[:space:]]*\(' \
-  "$ADAPTER" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
+  "$ADAPTER" "$APP" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-021B leaked behavior beyond fresh-page attach" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
 if rg -n 'mimalloc-facade-page-source-fresh-page|HakoAllocObjectLifecycleFacadePageSource|objectLifecycleFacadePageSource' \
-  lang/c-abi/shims >/tmp/"$TAG".inc_leak 2>&1; then
+  lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-021B matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".inc_leak >&2
-  rm -f /tmp/"$TAG".inc_leak
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".inc_leak
+rm -f "$INC_LOG"
 
 pure_first_guard_build_toolchain
 
-tmp_dir="$(mktemp -d /tmp/hakorune_mimap021b_facade_page_source.XXXXXX)"
-trap 'rm -rf "$tmp_dir"' EXIT
-
-mir_json="$tmp_dir/mimap021b.mir.json"
-exe_out="$tmp_dir/mimap021b.exe"
-build_log="$tmp_dir/build.log"
-run_log="$tmp_dir/run.log"
+mir_json="$TMP_DIR/mimap021b.mir.json"
+exe_out="$TMP_DIR/mimap021b.exe"
+build_log="$TMP_DIR/build.log"
+run_log="$TMP_DIR/run.log"
 
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
@@ -113,8 +123,17 @@ for name in (
     if plans.get(name) is None:
         raise SystemExit(f"missing typed object plan: {name}")
 
+attach_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocObjectLifecycleFacadePageSourceAttach"].get("fields", [])
+}
+for field in ("reserve_count", "commit_count", "attach_count", "reject_count"):
+    attach_field = attach_fields.get(field)
+    if attach_field is None or attach_field.get("declared_type") != "usize" or attach_field.get("storage") != "usize":
+        raise SystemExit(f"attach {field} must be exact usize storage: {attach_field}")
+
 report_fields = {
-    field.get("name")
+    field.get("name"): field
     for field in plans["HakoAllocObjectLifecycleFacadePageSourceAttachReport"].get("fields", [])
 }
 for field in (
@@ -126,9 +145,13 @@ for field in (
     "source_reject",
     "base",
     "bytes",
+    "block_size",
+    "capacity",
+    "reserved",
 ):
-    if field not in report_fields:
-        raise SystemExit(f"missing report field: {field}")
+    report_field = report_fields.get(field)
+    if report_field is None or report_field.get("declared_type") != "i64" or report_field.get("storage") != "i64":
+        raise SystemExit(f"report {field} must remain signed storage: {report_field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

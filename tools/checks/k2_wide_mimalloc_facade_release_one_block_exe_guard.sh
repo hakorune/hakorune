@@ -15,8 +15,19 @@ CARD="docs/development/current/main/phases/phase-293x/293x-360-MIMAP-015A-FACADE
 SSOT="docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
+RESULT="lang/src/hako_alloc/memory/object_lifecycle_facade_result_box.hako"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+TMP_DIR="$ARTIFACT_DIR/tmp"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+APP_FORBIDDEN_LOG="$ARTIFACT_DIR/app.forbidden.log"
+INC_LOG="$ARTIFACT_DIR/app_specific.inc.log"
 
-for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$PAGE" "$CARD" "$SSOT" "$INDEX" "$README"; do
+mkdir -p "$ARTIFACT_DIR"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+rm -f "$FORBIDDEN_LOG" "$APP_FORBIDDEN_LOG" "$INC_LOG"
+
+for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$PAGE" "$RESULT" "$CARD" "$SSOT" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
@@ -32,45 +43,46 @@ rg -F -q 'objectLifecycleReleasePageId()' "$FACADE"
 rg -F -q 'objectLifecycleReleaseBlockId()' "$FACADE"
 rg -F -q 'objectLifecycleReleaseReason()' "$FACADE"
 rg -F -q 'objectLifecycleReleaseOk()' "$FACADE"
+rg -F -q 'objectLifecycleReleaseSuccessCount()' "$FACADE"
+rg -F -q 'objectLifecycleReleaseFailureCount()' "$FACADE"
+rg -F -q 'success_count: usize = 0' "$RESULT"
+rg -F -q 'failure_count: usize = 0' "$RESULT"
 rg -F -q 'MIMAP-015A' "$CARD"
 rg -F -q 'MIMAP-015A' "$SSOT"
 rg -F -q 'k2_wide_mimalloc_facade_release_one_block_exe_guard.sh' "$INDEX"
 rg -F -q 'MIMAP-015A' "$README"
 
-if rg -n 'allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$FACADE" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-015A facade must not activate substrate/provider/page-map behavior" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
-if rg -n 'releaseLocal\(|realloc[A-Za-z0-9_]*\(|align[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$APP" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'releaseLocal\(|realloc[A-Za-z0-9_]*\(|align[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$APP" >"$APP_FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-015A proof app must route release through the facade only" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$APP_FORBIDDEN_LOG" >&2
+  rm -f "$APP_FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$APP_FORBIDDEN_LOG"
 
-if rg -n 'mimalloc-facade-release-one-block-proof|objectLifecycleRelease(Block|Page|Reason|Ok)' \
-  lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
+if rg -n 'mimalloc-facade-release-one-block-proof|objectLifecycleRelease(Block|Page|Reason|Ok|SuccessCount|FailureCount)' \
+  lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-015A matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".app_specific.inc >&2
-  rm -f /tmp/"$TAG".app_specific.inc
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".app_specific.inc
+rm -f "$INC_LOG"
 
 pure_first_guard_build_toolchain
 
-tmp_dir="$(mktemp -d /tmp/hakorune_mimap015a_facade_release.XXXXXX)"
-trap 'rm -rf "$tmp_dir"' EXIT
-
-mir_json="$tmp_dir/mimap015a.mir.json"
-exe_out="$tmp_dir/mimap015a.exe"
-build_log="$tmp_dir/build.log"
-run_log="$tmp_dir/run.log"
+mir_json="$TMP_DIR/mimap015a.mir.json"
+exe_out="$TMP_DIR/mimap015a.exe"
+build_log="$TMP_DIR/build.log"
+run_log="$TMP_DIR/run.log"
 
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
@@ -96,10 +108,26 @@ for required in (
     "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlockId/0",
     "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseReason/0",
     "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseOk/0",
+    "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseSuccessCount/0",
+    "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseFailureCount/0",
     "HakoAllocPageModel.releaseLocal/1",
 ):
     if functions.get(required) is None:
         raise SystemExit(f"missing MIMAP-015A function: {required}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+result = plans.get("HakoAllocObjectLifecycleReleaseResult")
+if result is None:
+    raise SystemExit("missing typed object plan: HakoAllocObjectLifecycleReleaseResult")
+fields = {field.get("name"): field for field in result.get("fields", [])}
+for name in ("success_count", "failure_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"release result {name} must be exact usize storage: {field}")
+for name in ("last_page_id", "last_block_id", "last_reason", "last_ok"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"release result {name} must remain signed storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):
@@ -125,6 +153,8 @@ for name in (
     "objectLifecycleReleaseBlockId",
     "objectLifecycleReleaseReason",
     "objectLifecycleReleaseOk",
+    "objectLifecycleReleaseSuccessCount",
+    "objectLifecycleReleaseFailureCount",
 ):
     require_method(main, "HakoAllocObjectLifecycleFacade", name)
 
@@ -146,6 +176,7 @@ pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 rg -F -q 'mimalloc-facade-release-one-block-proof' "$run_log"
 rg -F -q 'alloc=90,0' "$run_log"
 rg -F -q 'release=90,0,0' "$run_log"
+rg -F -q 'release_counts=1,0' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
 echo "[$TAG] ok"

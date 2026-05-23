@@ -19,6 +19,33 @@ USIZE_HANDLE_SIZE_CARD="docs/development/current/main/phases/phase-294x/294x-52-
 USIZE_OSVM_BYTE_CARD="docs/development/current/main/phases/phase-294x/294x-54-HAKO-ALLOC-USIZE-OSVM-BACKED-BYTE-LENGTH-SEAM.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_osvm_page_source_composition_guard.sh"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+LEGACY_INIT_LOG="$ARTIFACT_DIR/legacy_init.log"
+M167_LEAK_LOG="$ARTIFACT_DIR/m167_leak.log"
+USIZE_PROBE_LOG="$ARTIFACT_DIR/usize_probe.log"
+USIZE_APP_LOG="$ARTIFACT_DIR/usize_app.log"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+INACTIVE_OSVM_LOG="$ARTIFACT_DIR/inactive_osvm_rows.log"
+INC_LOG="$ARTIFACT_DIR/inc.log"
+MIR_JSON="$ARTIFACT_DIR/m168.mir.json"
+EXE_OUT="$ARTIFACT_DIR/m168.exe"
+BUILD_LOG="$ARTIFACT_DIR/build.log"
+RUN_LOG="$ARTIFACT_DIR/run.log"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -f \
+  "$LEGACY_INIT_LOG" \
+  "$M167_LEAK_LOG" \
+  "$USIZE_PROBE_LOG" \
+  "$USIZE_APP_LOG" \
+  "$FORBIDDEN_LOG" \
+  "$INACTIVE_OSVM_LOG" \
+  "$INC_LOG" \
+  "$MIR_JSON" \
+  "$EXE_OUT" \
+  "$BUILD_LOG" \
+  "$RUN_LOG" \
+  "$BUILD_LOG.progress"
 
 echo "[$TAG] running M168 mimalloc OSVM page-source composition guard"
 
@@ -74,76 +101,68 @@ guard_expect_in_file "$TAG" 'semantic allocator API' "$CARD" "M168 card must pre
 guard_expect_in_file "$TAG" 'object-return allocation surface' "$CARD" "M168 card must preserve object-return allocation semantics"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M168 guard"
 
-if rg -n 'init[[:space:]]*\\{' "$HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
+if rg -n 'init[[:space:]]*\\{' "$HEAP" >"$LEGACY_INIT_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168 heap adapter must use Unified Members stored fields, not legacy init slots" >&2
-  cat /tmp/"$TAG".legacy_init >&2
-  rm -f /tmp/"$TAG".legacy_init
+  cat "$LEGACY_INIT_LOG" >&2
+  rm -f "$LEGACY_INIT_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".legacy_init
+rm -f "$LEGACY_INIT_LOG"
 
-if rg -n 'OSVM|OsVm|page_source|PageSource|reservePage|commitPage|decommitPage' "$FAST_HEAP" >/tmp/"$TAG".m167_leak 2>&1; then
+if rg -n 'OSVM|OsVm|page_source|PageSource|reservePage|commitPage|decommitPage' "$FAST_HEAP" >"$M167_LEAK_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168 OSVM sourcing leaked into the M167 fast-path heap" >&2
-  cat /tmp/"$TAG".m167_leak >&2
-  rm -f /tmp/"$TAG".m167_leak
+  cat "$M167_LEAK_LOG" >&2
+  rm -f "$M167_LEAK_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".m167_leak
+rm -f "$M167_LEAK_LOG"
 
-if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$HEAP" "$APP" >/tmp/"$TAG".usize_probe 2>&1; then
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$HEAP" "$APP" >"$USIZE_PROBE_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168 must not depend on the usize probe owner" >&2
-  cat /tmp/"$TAG".usize_probe >&2
-  rm -f /tmp/"$TAG".usize_probe
+  cat "$USIZE_PROBE_LOG" >&2
+  rm -f "$USIZE_PROBE_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".usize_probe
+rm -f "$USIZE_PROBE_LOG"
 
-if rg -n ': usize' "$APP" >/tmp/"$TAG".usize_app 2>&1; then
+if rg -n ': usize' "$APP" >"$USIZE_APP_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168 proof app must not introduce extra usize locals or fields" >&2
-  cat /tmp/"$TAG".usize_app >&2
-  rm -f /tmp/"$TAG".usize_app
+  cat "$USIZE_APP_LOG" >&2
+  rm -f "$USIZE_APP_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".usize_app
+rm -f "$USIZE_APP_LOG"
 
-if rg -n 'Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook|provider' "$HEAP" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook|provider' "$HEAP" "$APP" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: M169+/M170+ or provider/hook ownership leaked into M168" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
 if rg -n 'hako_osvm_(unreserve|release)|unreserve_bytes|release_bytes' \
-  "$HEAP" "$APP" >/tmp/"$TAG".inactive_osvm_rows 2>&1; then
+  "$HEAP" "$APP" >"$INACTIVE_OSVM_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168 heap/app must not own OSVM unreserve/release behavior" >&2
-  cat /tmp/"$TAG".inactive_osvm_rows >&2
-  rm -f /tmp/"$TAG".inactive_osvm_rows
+  cat "$INACTIVE_OSVM_LOG" >&2
+  rm -f "$INACTIVE_OSVM_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".inactive_osvm_rows
+rm -f "$INACTIVE_OSVM_LOG"
 
-if rg -n 'mimalloc-osvm-page-source-composition|HakoAllocOsVmBackedFastPathHeap|osvm_backed_fast_path' lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
+if rg -n 'mimalloc-osvm-page-source-composition|HakoAllocOsVmBackedFastPathHeap|osvm_backed_fast_path' lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168 app/box matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".inc >&2
-  rm -f /tmp/"$TAG".inc
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".inc
+rm -f "$INC_LOG"
 
 pure_first_guard_build_toolchain
 
-tmp_dir="$(mktemp -d /tmp/hakorune_m168_osvm_page_source.XXXXXX)"
-trap 'rm -rf "$tmp_dir"' EXIT
+pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$MIR_JSON"
 
-mir_json="$tmp_dir/m168.mir.json"
-exe_out="$tmp_dir/m168.exe"
-build_log="$tmp_dir/build.log"
-run_log="$tmp_dir/run.log"
-
-pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
-
-python3 - "$mir_json" <<'PY'
+python3 - "$MIR_JSON" <<'PY'
 import json
 import sys
 
@@ -279,26 +298,26 @@ for method in (
 print("[m168-mir-json] ok")
 PY
 
-pure_first_guard_build_exe "$TAG" "$ROOT_DIR" "$APP" "$mir_json" "$exe_out" "$build_log"
-pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
+pure_first_guard_build_exe "$TAG" "$ROOT_DIR" "$APP" "$MIR_JSON" "$EXE_OUT" "$BUILD_LOG"
+pure_first_guard_assert_clean_build_log "$TAG" "$BUILD_LOG"
 
-rg -F -q 'mir_call_user_box_method_same_module_emit' "$build_log"
-rg -F -q 'mir_call_global_generic_i64_emit' "$build_log"
-rg -F -q 'mir_call_hako_osvm_reserve_bytes_i64_emit' "$build_log"
-rg -F -q 'mir_call_hako_osvm_commit_bytes_i64_emit' "$build_log"
-rg -F -q 'mir_call_hako_osvm_decommit_bytes_i64_emit' "$build_log"
+rg -F -q 'mir_call_user_box_method_same_module_emit' "$BUILD_LOG"
+rg -F -q 'mir_call_global_generic_i64_emit' "$BUILD_LOG"
+rg -F -q 'mir_call_hako_osvm_reserve_bytes_i64_emit' "$BUILD_LOG"
+rg -F -q 'mir_call_hako_osvm_commit_bytes_i64_emit' "$BUILD_LOG"
+rg -F -q 'mir_call_hako_osvm_decommit_bytes_i64_emit' "$BUILD_LOG"
 
-pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
+pure_first_guard_run_exe "$TAG" "$EXE_OUT" "$RUN_LOG"
 
-rg -F -q 'mimalloc-osvm-page-source-composition-proof' "$run_log"
-rg -F -q 'page_ids=0,1' "$run_log"
-rg -F -q 'heap_counts=0,0,0,2,0' "$run_log"
-rg -F -q 'queue_counts=2,2' "$run_log"
-rg -F -q 'source_counts=2,2,2,0' "$run_log"
-rg -F -q 'cleanup=1' "$run_log"
-rg -F -q 'shape=10' "$run_log"
-rg -F -q 'summary=ok' "$run_log"
+rg -F -q 'mimalloc-osvm-page-source-composition-proof' "$RUN_LOG"
+rg -F -q 'page_ids=0,1' "$RUN_LOG"
+rg -F -q 'heap_counts=0,0,0,2,0' "$RUN_LOG"
+rg -F -q 'queue_counts=2,2' "$RUN_LOG"
+rg -F -q 'source_counts=2,2,2,0' "$RUN_LOG"
+rg -F -q 'cleanup=1' "$RUN_LOG"
+rg -F -q 'shape=10' "$RUN_LOG"
+rg -F -q 'summary=ok' "$RUN_LOG"
 
-cat "$run_log"
+cat "$RUN_LOG"
 
 echo "[$TAG] ok"

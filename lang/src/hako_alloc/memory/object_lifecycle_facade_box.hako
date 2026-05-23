@@ -293,6 +293,10 @@ box HakoAllocObjectLifecycleFacade {
         return me.object_lifecycle_queue.add_count
     }
 
+    objectLifecycleRequestCount() {
+        return me.object_lifecycle_queue.request_count
+    }
+
     objectLifecycleSelectCount() {
         return me.object_lifecycle_queue.select_count
     }

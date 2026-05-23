@@ -5,7 +5,7 @@ using selfhost.hako_alloc.memory.alloc_fast_path_heap_box as HakoAllocFastPathHe
 
 static box Main {
     main(args) {
-        local heap = new HakoAllocFastPathHeap(4, 32, 2)
+        local heap = new HakoAllocFastPathHeap(4usize, 32, 2)
 
         local h0 = heap.allocate(8)
         local h1 = heap.allocate(16)

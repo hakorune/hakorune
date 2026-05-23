@@ -4,13 +4,13 @@
 // mutate allocator behavior, or activate provider/backend routes.
 
 box HakoAllocObjectLifecycleFacadeStatsSnapshot {
-    alloc_attempt_count: i64 = 0
-    alloc_success_count: i64 = 0
-    alloc_failure_count: i64 = 0
-    alloc_reusable_success_count: i64 = 0
-    alloc_active_success_count: i64 = 0
-    release_success_count: i64 = 0
-    release_failure_count: i64 = 0
+    alloc_attempt_count: usize = 0
+    alloc_success_count: usize = 0
+    alloc_failure_count: usize = 0
+    alloc_reusable_success_count: usize = 0
+    alloc_active_success_count: usize = 0
+    release_success_count: usize = 0
+    release_failure_count: usize = 0
 
     allocTerminalCount() {
         return me.alloc_success_count + me.alloc_failure_count

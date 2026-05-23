@@ -14,6 +14,16 @@ CARD="docs/development/current/main/phases/phase-293x/293x-359-MIMAP-014C-ALLOC-
 SSOT="docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+TMP_DIR="$ARTIFACT_DIR/tmp"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+APP_FORBIDDEN_LOG="$ARTIFACT_DIR/app.forbidden.log"
+INC_LOG="$ARTIFACT_DIR/app_specific.inc.log"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+rm -f "$FORBIDDEN_LOG" "$APP_FORBIDDEN_LOG" "$INC_LOG"
 
 for path in "$APP" "$APP_README" "$FACADE" "$RESULT" "$CARD" "$SSOT" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
@@ -21,11 +31,11 @@ done
 
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox' "$APP"
 rg -F -q 'alloc_result: HakoAllocObjectLifecycleAllocResult = new HakoAllocObjectLifecycleAllocResult()' "$FACADE"
-rg -F -q 'attempt_count: i64 = 0' "$RESULT"
-rg -F -q 'success_count: i64 = 0' "$RESULT"
-rg -F -q 'failure_count: i64 = 0' "$RESULT"
-rg -F -q 'reusable_success_count: i64 = 0' "$RESULT"
-rg -F -q 'active_success_count: i64 = 0' "$RESULT"
+rg -F -q 'attempt_count: usize = 0' "$RESULT"
+rg -F -q 'success_count: usize = 0' "$RESULT"
+rg -F -q 'failure_count: usize = 0' "$RESULT"
+rg -F -q 'reusable_success_count: usize = 0' "$RESULT"
+rg -F -q 'active_success_count: usize = 0' "$RESULT"
 rg -F -q 'recordSmallAllocFailure(reason)' "$FACADE"
 rg -F -q 'recordSmallAllocSuccess(selected_kind)' "$FACADE"
 rg -F -q 'objectLifecycleAllocAttemptCount()' "$FACADE"
@@ -37,40 +47,37 @@ rg -F -q 'MIMAP-014C allocation fast-path stats observers' "$SSOT"
 rg -F -q 'k2_wide_mimalloc_facade_small_alloc_stats_exe_guard.sh' "$INDEX"
 rg -F -q 'MIMAP-014C' "$README"
 
-if rg -n 'allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-014C facade must not activate substrate/provider/hook behavior" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
-if rg -n 'objectLifecycleReleaseBlock\(|realloc[A-Za-z0-9_]*\(|align[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$APP" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'objectLifecycleReleaseBlock\(|realloc[A-Za-z0-9_]*\(|align[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$APP" >"$APP_FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-014C proof app must not activate facade release/realloc/substrate/provider/hook behavior" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$APP_FORBIDDEN_LOG" >&2
+  rm -f "$APP_FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$APP_FORBIDDEN_LOG"
 
 if rg -n 'mimalloc-facade-small-alloc-stats-proof|objectLifecycleAlloc(Attempt|Success|Failure|ReusableSuccess|ActiveSuccess)Count' \
-  lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
+  lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-014C matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".app_specific.inc >&2
-  rm -f /tmp/"$TAG".app_specific.inc
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".app_specific.inc
+rm -f "$INC_LOG"
 
 pure_first_guard_build_toolchain
 
-tmp_dir="$(mktemp -d /tmp/hakorune_mimap014c_facade_small_alloc_stats.XXXXXX)"
-trap 'rm -rf "$tmp_dir"' EXIT
-
-mir_json="$tmp_dir/mimap014c.mir.json"
-exe_out="$tmp_dir/mimap014c.exe"
-build_log="$tmp_dir/build.log"
-run_log="$tmp_dir/run.log"
+mir_json="$TMP_DIR/mimap014c.mir.json"
+exe_out="$TMP_DIR/mimap014c.exe"
+build_log="$TMP_DIR/build.log"
+run_log="$TMP_DIR/run.log"
 
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
@@ -99,6 +106,26 @@ for required in (
 ):
     if functions.get(required) is None:
         raise SystemExit(f"missing MIMAP-014C function: {required}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+result = plans.get("HakoAllocObjectLifecycleAllocResult")
+if result is None:
+    raise SystemExit("missing typed object plan: HakoAllocObjectLifecycleAllocResult")
+fields = {field.get("name"): field for field in result.get("fields", [])}
+for name in (
+    "attempt_count",
+    "success_count",
+    "failure_count",
+    "reusable_success_count",
+    "active_success_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"alloc result {name} must be exact usize storage: {field}")
+for name in ("last_page_id", "last_block_id", "last_reason", "last_ok"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"alloc result {name} must remain signed storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

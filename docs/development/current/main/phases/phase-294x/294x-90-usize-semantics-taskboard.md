@@ -194,9 +194,138 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-094:
-  select the next explicit non-negative production field group. Do not migrate
-  page/block identity, flag, sentinel, pointer-like, occupancy-decrement, or
-  byte-sum fields without a dedicated row.
+  landed by 294x-72. Selected `HakoAllocFastPathHeap.bin` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-095`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-095:
+  landed by 294x-73. Migrated `HakoAllocFastPathHeap.bin` to exact `usize`,
+  tightened the heap-local `birth(bin: usize, ...)` surface, and kept
+  `HakoAllocOsVmBackedFastPathHeap.bin`, `SizeClassBox.size_to_bin(...)` /
+  `size_to_bin_usize(...)` return shapes, page/block identity payloads,
+  pointer-like fields, and sentinel-bearing seams unchanged.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-096:
+  landed by 294x-74. Selected `HakoAllocObjectLifecyclePageQueue`
+  count/page-count group as `HAKO-ALLOC-USIZE-FIELD-GROUP-097`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-097:
+  landed by 294x-75. Migrated `HakoAllocObjectLifecyclePageQueue.page_count`
+  plus the monotonic queue-local count group to exact `usize`, and kept
+  `last_selected_index`, `last_selected_page_id`, `last_selected_kind`, and the
+  `addPage()` `-1` reject seam signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-098:
+  landed by 294x-76. Selected the object-lifecycle facade result source-counter
+  owner in `object_lifecycle_facade_result_box.hako` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-099`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-099:
+  landed by 294x-77. Migrated
+  `HakoAllocObjectLifecycleAllocResult.attempt_count`, `success_count`,
+  `failure_count`, `reusable_success_count`, `active_success_count` plus
+  `HakoAllocObjectLifecycleReleaseResult.success_count` and `failure_count` to
+  exact `usize`, while keeping `last_*`, `last_reason`, `last_ok`,
+  alignment/realloc observers, and the downstream stats-snapshot mirror signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-100:
+  landed by 294x-78. Selected the downstream
+  `object_lifecycle_facade_stats_box.hako` snapshot mirror owner as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-101`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-101:
+  landed by 294x-79. Migrated the seven
+  `HakoAllocObjectLifecycleFacadeStatsSnapshot` mirror counts to exact `usize`,
+  while keeping `last_*`, `last_reason`, `last_ok`, alignment/realloc
+  observers, totals helpers, page/block identity payloads, pointer-like
+  fields, and unrelated lifecycle observer owners unchanged.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-102:
+  landed by 294x-80. Selected the owner-local
+  `object_lifecycle_facade_page_source_box.hako` counter owner as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-103`, but kept page-source report/status/source
+  observer fields, ids, bytes, and page payload mirrors out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-103:
+  landed by 294x-81. Migrated
+  `HakoAllocObjectLifecycleFacadePageSourceAttach.reserve_count`,
+  `commit_count`, `attach_count`, and `reject_count` to exact `usize`, while
+  keeping `HakoAllocObjectLifecycleFacadePageSourceAttachReport.status`,
+  `source_*`, `added_page_id`, `facade_page_count`, `base`, `bytes`,
+  `block_size`, `capacity`, and `reserved` signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-104:
+  landed by 294x-82. Selected the owner-local
+  `object_lifecycle_facade_page_source_alloc_miss_box.hako` fallback counter
+  owner as `HAKO-ALLOC-USIZE-FIELD-GROUP-105`, while keeping the alloc-miss
+  report observer seam, its count mirrors, and unrelated OSVM/bin/provider/hook
+  rows out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-105:
+  landed by 294x-83. Migrated
+  `HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback.fallback_attempt_count`,
+  `source_success_count`, `source_failure_count`, `retry_success_count`, and
+  `retry_failure_count` to exact `usize`, while keeping the alloc-miss report
+  `status`, `initial_*`, `fallback_attempted`, `source_*`, `retry_*`,
+  `final_*`, `source_base`, `source_bytes`, `final_page_id`,
+  `final_block_id`, and the report-mirror counts signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-106:
+  select the next owner-local production exact `usize` field group after the
+  page-source alloc-miss fallback counter closeout. Do not widen the
+  page-source attach report seam, the alloc-miss report/status/source/final
+  observer seam, alloc-miss report-mirror counts while the owner/report split
+  stays strict, page/block identity payloads, pointer-like fields, unrelated
+  lifecycle observer owners, huge-page-source / huge-failfast seams, or
+  unrelated OSVM/bin/provider/hook/global-allocator rows as part of this
+  selection-only row.
 ```
 
 ## Ladder

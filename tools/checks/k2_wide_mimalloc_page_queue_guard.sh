@@ -21,9 +21,30 @@ PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-pla
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_page_queue_guard.sh"
-OUT="${TMPDIR:-/tmp}/hakorune_mimalloc_page_queue.out"
-ERR="${TMPDIR:-/tmp}/hakorune_mimalloc_page_queue.err"
-MIR="${TMPDIR:-/tmp}/hakorune_mimalloc_page_queue.mir.json"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+OUT="$ARTIFACT_DIR/hakorune_mimalloc_page_queue.out"
+ERR="$ARTIFACT_DIR/hakorune_mimalloc_page_queue.err"
+MIR="$ARTIFACT_DIR/hakorune_mimalloc_page_queue.mir.json"
+LEGACY_INIT_LOG="$ARTIFACT_DIR/legacy_init.log"
+ACQUIRE_LOG="$ARTIFACT_DIR/acquire.log"
+SENTINEL_LOG="$ARTIFACT_DIR/sentinel.log"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+INC_LOG="$ARTIFACT_DIR/inc.log"
+EMIT_OUT_LOG="$ARTIFACT_DIR/emit.out"
+EMIT_ERR_LOG="$ARTIFACT_DIR/emit.err"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -f \
+  "$OUT" \
+  "$ERR" \
+  "$MIR" \
+  "$LEGACY_INIT_LOG" \
+  "$ACQUIRE_LOG" \
+  "$SENTINEL_LOG" \
+  "$FORBIDDEN_LOG" \
+  "$INC_LOG" \
+  "$EMIT_OUT_LOG" \
+  "$EMIT_ERR_LOG"
 
 echo "[$TAG] checking M166 mimalloc page queue/direct-cache"
 
@@ -69,49 +90,49 @@ guard_expect_in_file "$TAG" '294x-49 Hako Alloc Usize Page Queue Direct Index' "
 guard_expect_in_file "$TAG" '294x-71 Hako Alloc Usize Page Queue Bin' "$USIZE_BIN_CARD" "missing page queue bin usize card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M166 guard"
 
-if rg -n 'init[[:space:]]*\\{' "$QUEUE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
+if rg -n 'init[[:space:]]*\\{' "$QUEUE_BOX" >"$LEGACY_INIT_LOG" 2>&1; then
   echo "[$TAG] ERROR: new page queue must use Unified Members stored fields, not legacy init slots" >&2
-  cat /tmp/"$TAG".legacy_init >&2
-  rm -f /tmp/"$TAG".legacy_init
+  cat "$LEGACY_INIT_LOG" >&2
+  rm -f "$LEGACY_INIT_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".legacy_init
+rm -f "$LEGACY_INIT_LOG"
 
-if rg -n '\.acquire\(' "$QUEUE_BOX" >/tmp/"$TAG".acquire 2>&1; then
+if rg -n '\.acquire\(' "$QUEUE_BOX" >"$ACQUIRE_LOG" 2>&1; then
   echo "[$TAG] ERROR: M166 queue must choose pages, not pop allocation blocks" >&2
-  cat /tmp/"$TAG".acquire >&2
-  rm -f /tmp/"$TAG".acquire
+  cat "$ACQUIRE_LOG" >&2
+  rm -f "$ACQUIRE_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".acquire
+rm -f "$ACQUIRE_LOG"
 
-if rg -n 'direct_page_index: i64 = -1|direct_page_index[[:space:]]*<[[:space:]]*0|direct_page_index[[:space:]]*=[[:space:]]*-1|found_index[[:space:]]*=[[:space:]]*-1' "$QUEUE_BOX" >/tmp/"$TAG".sentinel 2>&1; then
+if rg -n 'direct_page_index: i64 = -1|direct_page_index[[:space:]]*<[[:space:]]*0|direct_page_index[[:space:]]*=[[:space:]]*-1|found_index[[:space:]]*=[[:space:]]*-1' "$QUEUE_BOX" >"$SENTINEL_LOG" 2>&1; then
   echo "[$TAG] ERROR: direct-page cache must use explicit presence state, not -1 sentinel storage" >&2
-  cat /tmp/"$TAG".sentinel >&2
-  rm -f /tmp/"$TAG".sentinel
+  cat "$SENTINEL_LOG" >&2
+  rm -f "$SENTINEL_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".sentinel
+rm -f "$SENTINEL_LOG"
 
-if rg -n 'OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook' "$QUEUE_BOX" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook' "$QUEUE_BOX" "$APP" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: M166+ or substrate ownership leaked into page queue" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
 if rg -F -q "$SELF_SCRIPT" "$ALLOCATOR_GROUP"; then
   guard_fail "$TAG" "M166 focused guard must not be registered as another wide allocator gate step"
 fi
 
-if rg -n 'mimalloc-page-queue|HakoAllocPageQueue|page_queue_box|direct_page_index' lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
+if rg -n 'mimalloc-page-queue|HakoAllocPageQueue|page_queue_box|direct_page_index' lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: page queue matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".inc >&2
-  rm -f /tmp/"$TAG".inc
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".inc
+rm -f "$INC_LOG"
 
 if ! guard_timeout_run "$TAG" "${MIMAP_VM_TIMEOUT:-25s}" "$OUT" "$ERR" env NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" cargo run -q --bin hakorune -- --backend vm "$ROOT_DIR/$APP"; then
   cat "$OUT" >&2 || true
@@ -129,7 +150,7 @@ grep -q '^summary=ok$' "$OUT"
 
 NYASH_FEATURES="${NYASH_FEATURES:-rune}" \
 NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
-  cargo run -q --bin hakorune -- --emit-mir-json "$MIR" "$ROOT_DIR/$APP" >/tmp/"$TAG".emit.out 2>/tmp/"$TAG".emit.err
+  cargo run -q --bin hakorune -- --emit-mir-json "$MIR" "$ROOT_DIR/$APP" >"$EMIT_OUT_LOG" 2>"$EMIT_ERR_LOG"
 
 python3 - "$MIR" <<'PY'
 import json
@@ -167,7 +188,7 @@ for name in ("has_direct_page",):
         raise SystemExit(f"page queue {name} must remain i64 storage: {field}")
 PY
 
-rm -f /tmp/"$TAG".emit.out /tmp/"$TAG".emit.err
+rm -f "$EMIT_OUT_LOG" "$EMIT_ERR_LOG"
 
 cat "$OUT"
 

@@ -21,8 +21,30 @@ USIZE_NEXT_PAGE_ID_CARD="docs/development/current/main/phases/phase-294x/294x-67
 INDEX="docs/tools/check-scripts-index.md"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_alloc_fast_path_guard.sh"
-OUT="${TMPDIR:-/tmp}/hakorune_mimalloc_alloc_fast_path.out"
-ERR="${TMPDIR:-/tmp}/hakorune_mimalloc_alloc_fast_path.err"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+OUT="$ARTIFACT_DIR/hakorune_mimalloc_alloc_fast_path.out"
+ERR="$ARTIFACT_DIR/hakorune_mimalloc_alloc_fast_path.err"
+MIR_JSON="$ARTIFACT_DIR/hakorune_mimalloc_alloc_fast_path.mir.json"
+LEGACY_INIT_LOG="$ARTIFACT_DIR/legacy_init.log"
+USIZE_PROBE_LOG="$ARTIFACT_DIR/usize_probe.log"
+USIZE_APP_LOG="$ARTIFACT_DIR/usize_app.log"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+INC_LOG="$ARTIFACT_DIR/inc.log"
+MIR_OUT_LOG="$ARTIFACT_DIR/mir.out"
+MIR_ERR_LOG="$ARTIFACT_DIR/mir.err"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -f \
+  "$OUT" \
+  "$ERR" \
+  "$MIR_JSON" \
+  "$LEGACY_INIT_LOG" \
+  "$USIZE_PROBE_LOG" \
+  "$USIZE_APP_LOG" \
+  "$FORBIDDEN_LOG" \
+  "$INC_LOG" \
+  "$MIR_OUT_LOG" \
+  "$MIR_ERR_LOG"
 
 echo "[$TAG] checking M167 mimalloc alloc fast path"
 
@@ -49,10 +71,10 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_box as HakoAl
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_queue_box as HakoAllocPageQueueBox' "$FAST_HEAP" "fast path heap must compose page queue"
 guard_expect_in_file "$TAG" 'me.queue.selectPage()' "$FAST_HEAP" "fast path must select pages through the queue owner"
 guard_expect_in_file "$TAG" 'page\.acquire\(size\)' "$FAST_HEAP" "fast path must pop blocks through the page owner"
-guard_expect_in_file "$TAG" 'bin: i64' "$FAST_HEAP" "bin must remain signed route/index metadata"
+guard_expect_in_file "$TAG" 'bin: usize' "$FAST_HEAP" "bin must be exact usize size-class index storage"
 guard_expect_in_file "$TAG" 'block_size: usize' "$FAST_HEAP" "block_size must be exact usize size-class metadata"
 guard_expect_in_file "$TAG" 'page_capacity: usize' "$FAST_HEAP" "page_capacity must be exact usize capacity metadata"
-guard_expect_fixed_in_file "$TAG" 'birth(bin, block_size: usize, page_capacity: usize)' "$FAST_HEAP" "fast path heap birth must carry exact size/capacity parameters"
+guard_expect_fixed_in_file "$TAG" 'birth(bin: usize, block_size: usize, page_capacity: usize)' "$FAST_HEAP" "fast path heap birth must carry exact usize bin plus size/capacity parameters"
 guard_expect_in_file "$TAG" 'requested_size: usize' "$FAST_HEAP" "fast path handle requested_size must be exact usize"
 guard_expect_fixed_in_file "$TAG" 'birth(page_id, block_id, requested_size: usize)' "$FAST_HEAP" "fast path handle birth must carry exact requested_size"
 guard_expect_in_file "$TAG" 'next_page_id: usize = 0' "$FAST_HEAP" "next_page_id must be exact usize page-array length metadata"
@@ -67,50 +89,51 @@ guard_expect_in_file "$TAG" '294x-50 Hako Alloc Usize Fast Path Heap Size Capaci
 guard_expect_in_file "$TAG" '294x-51 Hako Alloc Usize Fast Path Handle Requested Size' "$USIZE_HANDLE_SIZE_CARD" "missing 294x-51 usize handle requested-size card"
 guard_expect_in_file "$TAG" '294x-67 Hako Alloc Usize Fast Path Next Page Id' "$USIZE_NEXT_PAGE_ID_CARD" "missing 294x-67 usize next-page-id card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M167 guard"
+guard_expect_in_file "$TAG" 'new HakoAllocFastPathHeap\(4usize, 32, 2\)' "$APP" "proof app must exercise exact usize bin construction"
 
-if rg -n 'init[[:space:]]*\\{' "$FAST_HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
+if rg -n 'init[[:space:]]*\\{' "$FAST_HEAP" >"$LEGACY_INIT_LOG" 2>&1; then
   echo "[$TAG] ERROR: M167 heap must use Unified Members stored fields, not legacy init slots" >&2
-  cat /tmp/"$TAG".legacy_init >&2
-  rm -f /tmp/"$TAG".legacy_init
+  cat "$LEGACY_INIT_LOG" >&2
+  rm -f "$LEGACY_INIT_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".legacy_init
+rm -f "$LEGACY_INIT_LOG"
 
-if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$FAST_HEAP" "$APP" >/tmp/"$TAG".usize_probe 2>&1; then
+if rg -n 'HakoAllocUsizeFieldProbe|usize_field_probe' "$FAST_HEAP" "$APP" >"$USIZE_PROBE_LOG" 2>&1; then
   echo "[$TAG] ERROR: M167 production algorithm must not depend on the usize probe owner" >&2
-  cat /tmp/"$TAG".usize_probe >&2
-  rm -f /tmp/"$TAG".usize_probe
+  cat "$USIZE_PROBE_LOG" >&2
+  rm -f "$USIZE_PROBE_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".usize_probe
+rm -f "$USIZE_PROBE_LOG"
 
-if rg -n ': usize' "$APP" >/tmp/"$TAG".usize_app 2>&1; then
+if rg -n ': usize' "$APP" >"$USIZE_APP_LOG" 2>&1; then
   echo "[$TAG] ERROR: M167 proof app must not introduce extra usize locals or fields" >&2
-  cat /tmp/"$TAG".usize_app >&2
-  rm -f /tmp/"$TAG".usize_app
+  cat "$USIZE_APP_LOG" >&2
+  rm -f "$USIZE_APP_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".usize_app
+rm -f "$USIZE_APP_LOG"
 
-if rg -n 'OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook|provider' "$FAST_HEAP" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook|provider' "$FAST_HEAP" "$APP" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: M168+ or provider/hook ownership leaked into M167" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
 if rg -F -q "$SELF_SCRIPT" "$ALLOCATOR_GROUP"; then
   guard_fail "$TAG" "M167 focused guard must not be registered as another wide allocator gate step"
 fi
 
-if rg -n 'mimalloc-alloc-fast-path|HakoAllocFastPath|alloc_fast_path_heap' lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
+if rg -n 'mimalloc-alloc-fast-path|HakoAllocFastPath|alloc_fast_path_heap' lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: alloc fast path matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".inc >&2
-  rm -f /tmp/"$TAG".inc
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".inc
+rm -f "$INC_LOG"
 
 NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   cargo run -q --bin hakorune -- --backend vm "$ROOT_DIR/$APP" >"$OUT" 2>"$ERR"
@@ -126,9 +149,8 @@ grep -q '^summary=ok$' "$OUT"
 
 cat "$OUT"
 
-MIR_JSON="${TMPDIR:-/tmp}/hakorune_mimalloc_alloc_fast_path.mir.json"
 NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
-  cargo run -q --bin hakorune -- --backend mir --emit-mir-json "$MIR_JSON" "$ROOT_DIR/$APP" >/tmp/"$TAG".mir.out 2>/tmp/"$TAG".mir.err
+  cargo run -q --bin hakorune -- --backend mir --emit-mir-json "$MIR_JSON" "$ROOT_DIR/$APP" >"$MIR_OUT_LOG" 2>"$MIR_ERR_LOG"
 
 python3 - "$MIR_JSON" <<'PY'
 import json
@@ -163,8 +185,8 @@ for field_name in (
 
 for field_name in ("bin",):
     field = heap_fields.get(field_name)
-    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"fast path heap {field_name} must remain i64 storage: {field}")
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"fast path heap {field_name} must be exact usize storage: {field}")
 
 handle_fields = {
     field.get("name"): field

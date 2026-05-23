@@ -196,6 +196,14 @@ Guard-compatible early row anchor. Detail lives in the row card and archive.
 
 Guard-compatible early row anchor. Detail lives in the row card and archive.
 
+### MIMAP-015A facade release one block
+
+Guard-compatible early row anchor. Detail lives in the row card and archive.
+
+### MIMAP-015B facade release fail-fast
+
+Guard-compatible early row anchor. Detail lives in the row card and archive.
+
 ### MIMAP-142A granularity
 
 Guard-compatible granularity anchor. Detail lives in the row card, taskboard, or archive.

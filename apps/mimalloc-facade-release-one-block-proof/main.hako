@@ -16,6 +16,8 @@ static box Main {
         local release_block = alloc.objectLifecycleReleaseBlockId()
         local release_reason = alloc.objectLifecycleReleaseReason()
         local release_summary = alloc.objectLifecycleReleaseOk()
+        local release_success_count = alloc.objectLifecycleReleaseSuccessCount()
+        local release_failure_count = alloc.objectLifecycleReleaseFailureCount()
 
         local shape = 0
         if alloc_ok == 1 { shape = shape + 1 }
@@ -26,14 +28,17 @@ static box Main {
         if release_block == 0 { shape = shape + 1 }
         if release_reason == 0 { shape = shape + 1 }
         if release_summary == 1 { shape = shape + 1 }
+        if release_success_count == 1 { shape = shape + 1 }
+        if release_failure_count == 0 { shape = shape + 1 }
         if page.localFreeCount() == 1 { shape = shape + 1 }
         if page.retired == 1 { shape = shape + 1 }
 
         print("mimalloc-facade-release-one-block-proof")
         print("alloc=" + alloc_page + "," + alloc_block)
         print("release=" + release_page + "," + release_block + "," + release_reason)
+        print("release_counts=" + release_success_count + "," + release_failure_count)
 
-        if shape == 10 {
+        if shape == 12 {
             print("summary=ok")
             return 0
         }

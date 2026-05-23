@@ -424,8 +424,61 @@ Selected next production `usize` field group:
 
 Selected next production `usize` field group:
 
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-094` is intentionally selection-only until the
-  next explicit non-negative owner-local group is chosen.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-096` selected the
+  `HakoAllocObjectLifecyclePageQueue` count/page-count group as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-097`.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-097` migrated
+  `HakoAllocObjectLifecyclePageQueue.page_count`, `add_count`,
+  `request_count`, `select_count`, `reuse_select_count`,
+  `active_select_count`, `decommitted_skip_count`, `retired_skip_count`,
+  `unavailable_skip_count`, `miss_count`, and `reject_count` to exact
+  `usize`, while `last_selected_index`, `last_selected_page_id`,
+  `last_selected_kind`, and the `addPage()` `-1` reject seam stay signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-098` selected the facade source-owner monotonic
+  alloc/release counters in `object_lifecycle_facade_result_box.hako` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-099`.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-099` migrated
+  `HakoAllocObjectLifecycleAllocResult.attempt_count`, `success_count`,
+  `failure_count`, `reusable_success_count`, `active_success_count` plus
+  `HakoAllocObjectLifecycleReleaseResult.success_count` and `failure_count` to
+  exact `usize`, while `last_*`, `last_reason`, `last_ok`,
+  alignment/realloc observers, and the downstream stats snapshot mirror remain
+  signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-100` selected the downstream
+  `object_lifecycle_facade_stats_box.hako` mirror owner as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-101`.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-101` migrated the seven
+  `HakoAllocObjectLifecycleFacadeStatsSnapshot` mirror counts to exact `usize`,
+  while `last_*`, `last_reason`, `last_ok`, alignment/realloc observers,
+  totals helpers, and unrelated lifecycle observer owners remain unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-102` selected the owner-local
+  `HakoAllocObjectLifecycleFacadePageSourceAttach` counter owner in
+  `object_lifecycle_facade_page_source_box.hako` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-103`, while explicitly deferring the attached
+  page-source report/status/source observer fields, ids, bytes, and page
+  payload mirrors.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-103` migrated
+  `HakoAllocObjectLifecycleFacadePageSourceAttach.reserve_count`,
+  `commit_count`, `attach_count`, and `reject_count` to exact `usize`, while
+  `HakoAllocObjectLifecycleFacadePageSourceAttachReport.status`, `source_*`,
+  `added_page_id`, `facade_page_count`, `base`, `bytes`, `block_size`,
+  `capacity`, and `reserved` remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-104` selected the owner-local
+  `HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback` counter owner in
+  `object_lifecycle_facade_page_source_alloc_miss_box.hako` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-105`, while explicitly deferring the signed
+  alloc-miss report observer seam and its count mirrors.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-105` migrated
+  `HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback.fallback_attempt_count`,
+  `source_success_count`, `source_failure_count`, `retry_success_count`, and
+  `retry_failure_count` to exact `usize`, while the alloc-miss report
+  `status`, `initial_*`, `fallback_attempted`, `source_*`, `retry_*`,
+  `final_*`, `source_base`, `source_bytes`, `final_page_id`,
+  `final_block_id`, and report-mirror counts remain signed.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-106` is now the next selection-only
+  placeholder. Keep the page-source attach report seam, the alloc-miss
+  report/count-mirror seam, and unrelated lifecycle / OSVM / bin / provider /
+  hook rows separate from any later id/payload or alignment/realloc work.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -452,7 +505,7 @@ that non-stored facade pattern to allocation request sizes and alignments.
 
 ## Stored Field Inventory
 
-Current stored numeric field count: 220.
+Current stored numeric field count: 267.
 
 Stored `signed-delta` fields are live only in observer delta fields and remain
 `i64`.
@@ -518,6 +571,68 @@ readable without losing field names.
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `free_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `reject_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `page_count` | `usize` | `count` | Exact object-lifecycle queue page-count storage via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `add_count` | `usize` | `count` | Exact object-lifecycle queue add counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `request_count` | `usize` | `count` | Exact object-lifecycle queue request counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `select_count` | `usize` | `count` | Exact object-lifecycle queue successful-select counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `reuse_select_count` | `usize` | `count` | Exact object-lifecycle queue reuse-select counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `active_select_count` | `usize` | `count` | Exact object-lifecycle queue active-select counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `decommitted_skip_count` | `usize` | `count` | Exact object-lifecycle queue decommitted-skip counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `retired_skip_count` | `usize` | `count` | Exact object-lifecycle queue retired-skip counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `unavailable_skip_count` | `usize` | `count` | Exact object-lifecycle queue unavailable-skip counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `miss_count` | `usize` | `count` | Exact object-lifecycle queue miss counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `reject_count` | `usize` | `count` | Exact object-lifecycle queue reject counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `last_selected_index` | `i64` | `signed-sentinel` | `-1` marks the no-selection seam; keep signed until the selected-index contract is split from the reject vocabulary. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `last_selected_page_id` | `i64` | `signed-sentinel` | `-1` marks the no-selection seam; selected page-id publication stays signed until page-id seams are split. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `last_selected_kind` | `i64` | `enum` | Small selection-kind vocabulary stays signed until the enum lane gets a dedicated representation row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_page_id` | `i64` | `signed-sentinel` | `-1` marks the no-selection seam; alloc page-id publication stays signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_block_id` | `i64` | `signed-sentinel` | `-1` marks the no-selection seam; alloc block-id publication stays signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_reason` | `i64` | `enum` | Facade alloc failure vocabulary stays signed until its own representation row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_ok` | `i64` | `enum` | Facade alloc success flag stays signed until bool/flag storage gets a dedicated row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `attempt_count` | `usize` | `count` | Exact facade alloc attempt counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `success_count` | `usize` | `count` | Exact facade alloc success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `failure_count` | `usize` | `count` | Exact facade alloc failure counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `reusable_success_count` | `usize` | `count` | Exact facade alloc reusable-success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `active_success_count` | `usize` | `count` | Exact facade alloc active-success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_page_id` | `i64` | `signed-sentinel` | `-1` marks the no-selection seam; release page-id publication stays signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_block_id` | `i64` | `signed-sentinel` | `-1` marks the no-selection seam; release block-id publication stays signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_reason` | `i64` | `enum` | Facade release failure vocabulary stays signed until its own representation row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_ok` | `i64` | `enum` | Facade release success flag stays signed until bool/flag storage gets a dedicated row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `success_count` | `usize` | `count` | Exact facade release success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `failure_count` | `usize` | `count` | Exact facade release failure counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_requested` | `i64` | `signed-sentinel` | `-1` marks unsupported/unset alignment requests; keep signed until alignment observers split from the reject seam. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_normalized` | `i64` | `signed-sentinel` | `-1` marks unsupported/unset normalized alignment; keep signed until alignment observers split from the reject seam. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_reason` | `i64` | `enum` | Facade alignment reason vocabulary stays signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_supported` | `i64` | `enum` | Facade alignment supported flag stays signed until bool/flag storage gets a dedicated row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_page_id` | `i64` | `signed-sentinel` | `-1` marks missing source page-id; realloc page-id observers stay signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_block_id` | `i64` | `signed-sentinel` | `-1` marks missing source block-id; realloc block-id observers stay signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_new_page_id` | `i64` | `signed-sentinel` | `-1` marks missing destination page-id; move-result observers stay signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_new_block_id` | `i64` | `signed-sentinel` | `-1` marks missing destination block-id; move-result observers stay signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_requested_size` | `i64` | `size` | Requested-size observer stays signed until realloc request-size storage gets its own row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_reason` | `i64` | `enum` | Facade realloc reason vocabulary stays signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_ok` | `i64` | `enum` | Facade realloc success flag stays signed until bool/flag storage gets a dedicated row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `status` | `i64` | `enum` | Page-source attach status vocabulary stays signed while the owner-local counter row remains separate from report observers. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_reserved` | `i64` | `count` | Page-source reserve mirror stays signed until the report observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_committed` | `i64` | `count` | Page-source commit mirror stays signed until the report observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `added_page_id` | `i64` | `signed-sentinel` | `-1` marks attach failure; added page-id publication stays signed. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `facade_page_count` | `i64` | `count` | Downstream facade page-count mirror stays signed until the page-source report observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `source_reject` | `i64` | `count` | Page-source reject mirror stays signed until the report observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `base` | `i64` | `ptr-id` | Reserved OSVM base payload stays signed until the pointer/id seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `bytes` | `i64` | `byte-length` | Reserved/committed byte-length observer stays signed until the page-source observer seam gets its own row. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `block_size` | `i64` | `size` | Attached page block-size payload stays signed until page payload migration is explicit. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `capacity` | `i64` | `capacity` | Attached page capacity payload stays signed until page payload migration is explicit. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `reserved` | `i64` | `capacity` | Attached page reserved-block payload stays signed until page payload migration is explicit. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttach` | `reserve_count` | `usize` | `count` | Exact owner-local page-source reserve counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-103`. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttach` | `commit_count` | `usize` | `count` | Exact owner-local page-source commit counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-103`. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttach` | `attach_count` | `usize` | `count` | Exact owner-local page attach counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-103`. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttach` | `reject_count` | `usize` | `count` | Exact owner-local page-source reject counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-103`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `alloc_attempt_count` | `usize` | `count` | Exact downstream mirror of the facade alloc attempt counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `alloc_success_count` | `usize` | `count` | Exact downstream mirror of the facade alloc success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `alloc_failure_count` | `usize` | `count` | Exact downstream mirror of the facade alloc failure counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `alloc_reusable_success_count` | `usize` | `count` | Exact downstream mirror of the facade alloc reusable-success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `alloc_active_success_count` | `usize` | `count` | Exact downstream mirror of the facade alloc active-success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `release_success_count` | `usize` | `count` | Exact downstream mirror of the facade release success counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `release_failure_count` | `usize` | `count` | Exact downstream mirror of the facade release failure counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`. |
 
 ## M185 Grouped Current Inventory
 
@@ -527,13 +642,23 @@ excludes `usize_field_probe_box.hako`.
 | File | Box | Stored Numeric Fields | Migration Note |
 | --- | --- | --- | --- |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | `requested_size` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-081`; page/block id fields stay `i64` until id/index contracts are split. |
-| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-089`; bin stays `i64`. |
+| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-089`; `bin` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-095`. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
 | `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062`; C205c metadata-store counter migrated with the aligned-small metadata owner. |
 | `huge_page_meta_store_box.hako` | `HakoAllocHugePageMetaStore` | `count`, `live_count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-063`; C205d metadata-store counters migrated with the huge-page metadata owner, not with record declarations. |
 | `huge_page_model_box.hako` | `HakoAllocHugePageModel` | `huge_count`, `live_count`, `allocate_count`, `release_count`, `release_reject_count`, `zero_reject_count`, `commit_reject_count`, `register_fail_count`, `reject_count`, `next_page_id`, `next_ptr`, `last_result_ptr`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | `huge_count` and `live_count` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-064`; event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-065`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-091`; ptr/id/status/size observers stay `i64` until huge handle contract is exact. |
 | `huge_release_seam_box.hako` | `HakoAllocHugeReleaseSeam` | `release_count`, `unregister_count`, `lookup_miss_count`, `not_huge_count`, `model_reject_count`, `reject_count`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-066`; `last_page_id = -1` is signed-sentinel and stays `i64`. |
 | `huge_threshold_router_box.hako` | `HakoAllocHugeThresholdRouter` | `small_route_count`, `small_success_count`, `small_reject_count`, `huge_route_count`, `huge_reject_count`, `invalid_alignment_count`, `invalid_size_count`, `reject_count`, `last_route_kind`, `last_result_ptr`, `last_padded_size`, `last_good_size`, `last_huge_threshold` | route/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-057`; enum/ptr/size observers stay `i64`. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `attempt_count`, `success_count`, `failure_count`, `reusable_success_count`, `active_success_count` | alloc attempt/success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `success_count`, `failure_count` | release success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_requested`, `last_normalized`, `last_reason`, `last_supported` | alignment observers remain signed until the alignment request/normalized seam gets a dedicated row. |
+| `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReallocResult` | `last_page_id`, `last_block_id`, `last_new_page_id`, `last_new_block_id`, `last_requested_size`, `last_reason`, `last_ok` | realloc observers remain signed until realloc ids/requested-size and success/failure vocabularies get their own rows. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttachReport` | `status`, `source_reserved`, `source_committed`, `added_page_id`, `facade_page_count`, `source_reject`, `base`, `bytes`, `block_size`, `capacity`, `reserved` | page-source attach report observer stays signed after `HAKO-ALLOC-USIZE-FIELD-GROUP-103`; status/source mirrors, page id, pointer-like base, byte-length, and page payload mirrors remain deferred. |
+| `object_lifecycle_facade_page_source_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAttach` | `reserve_count`, `commit_count`, `attach_count`, `reject_count` | exact owner-local counters via `HAKO-ALLOC-USIZE-FIELD-GROUP-103`; report/status/source/page payload observers remain separate. |
+| `object_lifecycle_facade_page_source_alloc_miss_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAllocMissReport` | `status`, `initial_ok`, `initial_reason`, `fallback_attempted`, `source_status`, `source_reserved`, `source_committed`, `source_reject`, `source_added_page_id`, `source_facade_page_count`, `source_base`, `source_bytes`, `retry_ok`, `retry_reason`, `final_ok`, `final_reason`, `final_page_id`, `final_block_id`, `fallback_attempt_count`, `source_success_count`, `source_failure_count`, `retry_success_count`, `retry_failure_count` | alloc-miss report observer stays signed after `HAKO-ALLOC-USIZE-FIELD-GROUP-105`; initial/source/retry/final mirrors, page/block ids, pointer-like base, byte-length, and count mirrors remain deferred while the owner/report split stays strict. |
+| `object_lifecycle_facade_page_source_alloc_miss_box.hako` | `HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback` | `fallback_attempt_count`, `source_success_count`, `source_failure_count`, `retry_success_count`, `retry_failure_count` | exact owner-local alloc-miss fallback counters via `HAKO-ALLOC-USIZE-FIELD-GROUP-105`; signed report/status/source/final mirrors remain separate. |
+| `object_lifecycle_facade_stats_box.hako` | `HakoAllocObjectLifecycleFacadeStatsSnapshot` | `alloc_attempt_count`, `alloc_success_count`, `alloc_failure_count`, `alloc_reusable_success_count`, `alloc_active_success_count`, `release_success_count`, `release_failure_count` | exact downstream mirror owner via `HAKO-ALLOC-USIZE-FIELD-GROUP-101`; totals helpers stay derived and alignment/realloc/lifecycle observer seams remain separate. |
+| `object_lifecycle_page_queue_box.hako` | `HakoAllocObjectLifecyclePageQueue` | `page_count`, `add_count`, `request_count`, `select_count`, `reuse_select_count`, `active_select_count`, `decommitted_skip_count`, `retired_skip_count`, `unavailable_skip_count`, `miss_count`, `reject_count`, `last_selected_index`, `last_selected_page_id`, `last_selected_kind` | page-count plus monotonic queue counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-097`; selected index/page id `-1` seams and the selection-kind vocabulary stay signed. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmPageBacking` | `page_id`, `base`, `bytes` | `bytes` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-083`; page id and ptr-like base stay `i64` until OSVM pointer/id contracts split. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedHandle` | `page_id`, `block_id`, `requested_size` | `requested_size` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-082`; page/block id fields stay `i64` until id/index contracts are split. |
 | `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `backing_count`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count`, `reserve_count`, `commit_count`, `decommit_count`, `source_reject_count` | event/source counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-068`; `block_size` / `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-083`; `backing_count` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-085`; bin and next page id stay `i64`. |

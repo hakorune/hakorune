@@ -50,7 +50,6 @@ static box Main {
         local decommitted_skip_count = alloc.objectLifecycleDecommittedSkipCount()
         local retired_skip_count = alloc.objectLifecycleRetiredSkipCount()
         local miss_count = alloc.objectLifecycleMissCount()
-        local final_selected_page_id = alloc.objectLifecycleSelectedPageId()
 
         local shape = 18
 

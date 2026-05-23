@@ -45,15 +45,18 @@ static box Main {
         if id3 == -1 { shape = shape + 1 }
         if k3 == 0 { shape = shape + 1 }
         if q.page_count == 4 { shape = shape + 1 }
+        if q.request_count == 3 { shape = shape + 1 }
+        if q.retired_skip_count == 0 { shape = shape + 1 }
         if q.unavailable_skip_count == 5 { shape = shape + 1 }
+        if q.reject_count == 0 { shape = shape + 1 }
 
         print("mimalloc-object-lifecycle-queue-proof")
         print("pages=" + id1 + "," + id2 + "," + id3)
         print("kinds=" + k1 + "," + k2 + "," + k3)
-        print("queue=" + q.page_count + "," + q.add_count + "," + q.select_count + "," + q.reuse_select_count + "," + q.active_select_count + "," + q.decommitted_skip_count + "," + q.unavailable_skip_count + "," + q.miss_count)
+        print("queue=" + q.page_count + "," + q.add_count + "," + q.request_count + "," + q.select_count + "," + q.reuse_select_count + "," + q.active_select_count + "," + q.decommitted_skip_count + "," + q.retired_skip_count + "," + q.unavailable_skip_count + "," + q.miss_count + "," + q.reject_count)
         print("shape=" + shape)
 
-        if shape == 8 {
+        if shape == 11 {
             print("summary=ok")
             return 0
         }

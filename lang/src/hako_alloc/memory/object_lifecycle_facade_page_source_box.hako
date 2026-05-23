@@ -23,10 +23,10 @@ box HakoAllocObjectLifecycleFacadePageSourceAttachReport {
 }
 
 box HakoAllocObjectLifecycleFacadePageSourceAttach {
-    reserve_count: i64 = 0
-    commit_count: i64 = 0
-    attach_count: i64 = 0
-    reject_count: i64 = 0
+    reserve_count: usize = 0
+    commit_count: usize = 0
+    attach_count: usize = 0
+    reject_count: usize = 0
 
     report(status, source_reserved, source_committed, added_page_id, facade_page_count, source_reject, base, bytes, block_size, capacity, reserved) {
         local result = new HakoAllocObjectLifecycleFacadePageSourceAttachReport()

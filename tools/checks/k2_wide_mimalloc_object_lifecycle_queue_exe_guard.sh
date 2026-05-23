@@ -17,6 +17,16 @@ SSOT="docs/development/current/main/design/mimalloc-object-lifecycle-queue-ssot.
 INDEX="docs/tools/check-scripts-index.md"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 README="lang/src/hako_alloc/memory/README.md"
+ARTIFACT_DIR="$ROOT_DIR/target/checks/$TAG"
+TMP_DIR="$ARTIFACT_DIR/tmp"
+FORBIDDEN_LOG="$ARTIFACT_DIR/forbidden.log"
+FIXED_SLOTS_LOG="$ARTIFACT_DIR/fixed_slots.log"
+INC_LOG="$ARTIFACT_DIR/app_specific.inc.log"
+
+mkdir -p "$ARTIFACT_DIR"
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+rm -f "$FORBIDDEN_LOG" "$FIXED_SLOTS_LOG" "$INC_LOG"
 
 for path in "$APP" "$APP_README" "$QUEUE" "$PAGE" "$POLICY" "$LIMITS" "$CARD" "$SSOT" "$INDEX" "$MODULE" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
@@ -25,10 +35,24 @@ done
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox' "$APP"
 rg -F -q 'box HakoAllocObjectLifecyclePageQueue' "$QUEUE"
 rg -F -q 'pages: ArrayBox = new ArrayBox()' "$QUEUE"
+rg -F -q 'page_count: usize = 0' "$QUEUE"
+rg -F -q 'add_count: usize = 0' "$QUEUE"
+rg -F -q 'request_count: usize = 0' "$QUEUE"
+rg -F -q 'select_count: usize = 0' "$QUEUE"
+rg -F -q 'reuse_select_count: usize = 0' "$QUEUE"
+rg -F -q 'active_select_count: usize = 0' "$QUEUE"
+rg -F -q 'decommitted_skip_count: usize = 0' "$QUEUE"
+rg -F -q 'retired_skip_count: usize = 0' "$QUEUE"
+rg -F -q 'unavailable_skip_count: usize = 0' "$QUEUE"
+rg -F -q 'miss_count: usize = 0' "$QUEUE"
+rg -F -q 'reject_count: usize = 0' "$QUEUE"
+rg -F -q 'last_selected_index: i64 = -1' "$QUEUE"
+rg -F -q 'last_selected_page_id: i64 = -1' "$QUEUE"
+rg -F -q 'last_selected_kind: i64 = 0' "$QUEUE"
 rg -F -q 'addPage(page)' "$QUEUE"
 rg -F -q 'selectPage()' "$QUEUE"
 rg -F -q 'pages.get(' "$QUEUE"
-rg -F -q 'pages.length()' "$QUEUE"
+rg -F -q 'local count = me.page_count' "$QUEUE"
 rg -F -q 'isDecommitted() != 0' "$QUEUE"
 rg -F -q 'canReuse() != 0' "$QUEUE"
 rg -F -q 'freeCount() > 0' "$QUEUE"
@@ -38,40 +62,37 @@ rg -F -q 'Acceptance backend: LLVM/EXE primary' "$SSOT"
 rg -F -q 'VM-LIM-001 object-heavy page queue/facade route' "$LIMITS"
 rg -F -q 'k2_wide_mimalloc_object_lifecycle_queue_exe_guard.sh' "$INDEX"
 
-if rg -n 'OSVM|OsVm|externcall|atomic|RawBuf|provider|global_allocator|install_hook|hook|pageSource|remote' "$APP" "$QUEUE" >/tmp/"$TAG".forbidden 2>&1; then
+if rg -n 'OSVM|OsVm|externcall|atomic|RawBuf|provider|global_allocator|install_hook|hook|pageSource|remote' "$APP" "$QUEUE" >"$FORBIDDEN_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-012 object queue must not activate substrate/provider/hook behavior" >&2
-  cat /tmp/"$TAG".forbidden >&2
-  rm -f /tmp/"$TAG".forbidden
+  cat "$FORBIDDEN_LOG" >&2
+  rm -f "$FORBIDDEN_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".forbidden
+rm -f "$FORBIDDEN_LOG"
 
-if rg -n 'local page[0-9]+ = pages\.get\([0-9]+\)' "$QUEUE" >/tmp/"$TAG".fixed_slots 2>&1; then
+if rg -n 'local page[0-9]+ = pages\.get\([0-9]+\)' "$QUEUE" >"$FIXED_SLOTS_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-040A must not reintroduce fixed page0/page1/page2 selection slots" >&2
-  cat /tmp/"$TAG".fixed_slots >&2
-  rm -f /tmp/"$TAG".fixed_slots
+  cat "$FIXED_SLOTS_LOG" >&2
+  rm -f "$FIXED_SLOTS_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".fixed_slots
+rm -f "$FIXED_SLOTS_LOG"
 
 if rg -n 'mimalloc-object-lifecycle-queue-proof|HakoAllocObjectLifecyclePageQueue' \
-  lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
+  lang/c-abi/shims >"$INC_LOG" 2>&1; then
   echo "[$TAG] ERROR: MIMAP-012 matcher leaked into .inc" >&2
-  cat /tmp/"$TAG".app_specific.inc >&2
-  rm -f /tmp/"$TAG".app_specific.inc
+  cat "$INC_LOG" >&2
+  rm -f "$INC_LOG"
   exit 1
 fi
-rm -f /tmp/"$TAG".app_specific.inc
+rm -f "$INC_LOG"
 
 pure_first_guard_build_toolchain
 
-tmp_dir="$(mktemp -d /tmp/hakorune_mimap012_object_queue.XXXXXX)"
-trap 'rm -rf "$tmp_dir"' EXIT
-
-mir_json="$tmp_dir/mimap012.mir.json"
-exe_out="$tmp_dir/mimap012.exe"
-build_log="$tmp_dir/build.log"
-run_log="$tmp_dir/run.log"
+mir_json="$TMP_DIR/mimap012.mir.json"
+exe_out="$TMP_DIR/mimap012.exe"
+build_log="$TMP_DIR/build.log"
+run_log="$TMP_DIR/run.log"
 
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
@@ -101,8 +122,30 @@ for required in (
         raise SystemExit(f"missing object queue function: {required}")
 
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
-if plans.get("HakoAllocObjectLifecyclePageQueue") is None:
+queue = plans.get("HakoAllocObjectLifecyclePageQueue")
+if queue is None:
     raise SystemExit("missing object lifecycle queue typed object plan")
+fields = {field.get("name"): field for field in queue.get("fields", [])}
+for name in (
+    "page_count",
+    "add_count",
+    "request_count",
+    "select_count",
+    "reuse_select_count",
+    "active_select_count",
+    "decommitted_skip_count",
+    "retired_skip_count",
+    "unavailable_skip_count",
+    "miss_count",
+    "reject_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"queue {name} must be exact usize storage: {field}")
+for name in ("last_selected_index", "last_selected_page_id", "last_selected_kind"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"queue {name} must remain signed storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):
@@ -156,8 +199,8 @@ pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 rg -F -q 'mimalloc-object-lifecycle-queue-proof' "$run_log"
 rg -F -q 'pages=20,40,-1' "$run_log"
 rg -F -q 'kinds=1,2,0' "$run_log"
-rg -F -q 'queue=4,4,2,1,1,3,5,1' "$run_log"
-rg -F -q 'shape=8' "$run_log"
+rg -F -q 'queue=4,4,3,2,1,1,3,0,5,1,0' "$run_log"
+rg -F -q 'shape=11' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
 echo "[$TAG] ok"

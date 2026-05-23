@@ -10,11 +10,11 @@ box HakoAllocObjectLifecycleAllocResult {
     last_block_id: i64 = -1
     last_reason: i64 = 0
     last_ok: i64 = 0
-    attempt_count: i64 = 0
-    success_count: i64 = 0
-    failure_count: i64 = 0
-    reusable_success_count: i64 = 0
-    active_success_count: i64 = 0
+    attempt_count: usize = 0
+    success_count: usize = 0
+    failure_count: usize = 0
+    reusable_success_count: usize = 0
+    active_success_count: usize = 0
 
     reset() {
         me.last_page_id = -1
@@ -80,8 +80,8 @@ box HakoAllocObjectLifecycleReleaseResult {
     last_block_id: i64 = -1
     last_reason: i64 = 0
     last_ok: i64 = 0
-    success_count: i64 = 0
-    failure_count: i64 = 0
+    success_count: usize = 0
+    failure_count: usize = 0
 
     reset() {
         me.last_page_id = -1

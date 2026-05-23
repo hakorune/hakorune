@@ -37,11 +37,11 @@ box HakoAllocObjectLifecycleFacadePageSourceAllocMissReport {
 }
 
 box HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback {
-    fallback_attempt_count: i64 = 0
-    source_success_count: i64 = 0
-    source_failure_count: i64 = 0
-    retry_success_count: i64 = 0
-    retry_failure_count: i64 = 0
+    fallback_attempt_count: usize = 0
+    source_success_count: usize = 0
+    source_failure_count: usize = 0
+    retry_success_count: usize = 0
+    retry_failure_count: usize = 0
 
     snapshotCounters(result) {
         result.fallback_attempt_count = me.fallback_attempt_count

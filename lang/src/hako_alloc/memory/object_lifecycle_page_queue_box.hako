@@ -6,17 +6,17 @@ using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 
 box HakoAllocObjectLifecyclePageQueue {
     pages: ArrayBox = new ArrayBox()
-    page_count: i64 = 0
-    add_count: i64 = 0
-    request_count: i64 = 0
-    select_count: i64 = 0
-    reuse_select_count: i64 = 0
-    active_select_count: i64 = 0
-    decommitted_skip_count: i64 = 0
-    retired_skip_count: i64 = 0
-    unavailable_skip_count: i64 = 0
-    miss_count: i64 = 0
-    reject_count: i64 = 0
+    page_count: usize = 0
+    add_count: usize = 0
+    request_count: usize = 0
+    select_count: usize = 0
+    reuse_select_count: usize = 0
+    active_select_count: usize = 0
+    decommitted_skip_count: usize = 0
+    retired_skip_count: usize = 0
+    unavailable_skip_count: usize = 0
+    miss_count: usize = 0
+    reject_count: usize = 0
     last_selected_index: i64 = -1
     last_selected_page_id: i64 = -1
     last_selected_kind: i64 = 0
@@ -46,7 +46,7 @@ box HakoAllocObjectLifecyclePageQueue {
         me.beginSelection()
 
         local pages = me.pages
-        local count = pages.length()
+        local count = me.page_count
         local selected = null
         local i = 0
         loop(i < count) {

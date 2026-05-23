@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-71-HAKO-ALLOC-USIZE-PAGE-QUEUE-BIN"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-71-HAKO-ALLOC-USIZE-PAGE-QUEUE-BIN.md"
-latest_card_summary = "Migrated HakoAllocPageQueue.bin to exact usize while keeping heap bin mirrors and size-class return shapes separate."
+latest_card = "294x-83-HAKO-ALLOC-USIZE-OBJECT-LIFECYCLE-FACADE-PAGE-SOURCE-ALLOC-MISS-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-83-HAKO-ALLOC-USIZE-OBJECT-LIFECYCLE-FACADE-PAGE-SOURCE-ALLOC-MISS-COUNTERS.md"
+latest_card_summary = "Selected the object-lifecycle facade page-source alloc-miss fallback owner and migrated only its five owner-local counters to exact usize while keeping alloc-miss report mirrors, ids, bytes, and unrelated seams signed."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-094"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-106"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,18 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-83 HAKO-ALLOC-USIZE-FIELD-GROUP-105 object-lifecycle facade page-source alloc-miss fallback counters migrated; alloc-miss report mirrors, ids, bytes, and unrelated seams remain signed",
+  "294x-82 HAKO-ALLOC-USIZE-FIELD-GROUP-104 page-source alloc-miss fallback owner selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-105 selected",
+  "294x-81 HAKO-ALLOC-USIZE-FIELD-GROUP-103 object-lifecycle facade page-source attach counters migrated; report/status/source mirrors, ids, bytes, and OSVM-adjacent payload seams remain signed",
+  "294x-80 HAKO-ALLOC-USIZE-FIELD-GROUP-102 page-source attach owner selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-103 selected",
+  "294x-79 HAKO-ALLOC-USIZE-FIELD-GROUP-101 object-lifecycle facade stats snapshot mirror counters migrated; last-result/alignment/realloc observers, totals helpers, and unrelated lifecycle observer seams remain unchanged",
+  "294x-78 HAKO-ALLOC-USIZE-FIELD-GROUP-100 stats snapshot mirror owner selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-101 selected",
+  "294x-77 HAKO-ALLOC-USIZE-FIELD-GROUP-099 object-lifecycle facade source-owner alloc/release counters migrated; last-result/alignment/realloc observers and stats snapshot remain signed",
+  "294x-76 HAKO-ALLOC-USIZE-FIELD-GROUP-098 facade result source-counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-099 selected",
+  "294x-75 HAKO-ALLOC-USIZE-FIELD-GROUP-097 object-lifecycle page-queue count/page-count group migrated; selected-index/page-id/kind and addPage reject seam remain signed",
+  "294x-74 HAKO-ALLOC-USIZE-FIELD-GROUP-096 object-lifecycle page-queue count/page-count selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-097 selected",
+  "294x-73 HAKO-ALLOC-USIZE-FIELD-GROUP-095 fast-path heap bin migrated; OSVM bin mirrors and size-class return shapes remain signed",
+  "294x-72 HAKO-ALLOC-USIZE-FIELD-GROUP-094 fast-path heap bin selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-095 selected",
   "294x-71 HAKO-ALLOC-USIZE-FIELD-GROUP-093 page-queue bin migrated; heap bin mirrors and size-class return shapes remain i64",
   "294x-70 HAKO-ALLOC-USIZE-FIELD-GROUP-092 page-queue bin selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-093 selected",
   "294x-69 HAKO-ALLOC-USIZE-FIELD-GROUP-091 huge-page model next_page_id migrated; huge pointer/id/size observers remain i64",
