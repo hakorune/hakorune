@@ -1000,6 +1000,14 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-156:
   vocabulary, comparison payloads, performance/memory conclusions, provider /
   hook / global-allocator rows, worker/TLS, threads, and `#[global_allocator]`
   out of scope unless the selected group explicitly owns one of those seams.
+
+  Mini handoff:
+    use `294x-135-HAKO-ALLOC-USIZE-PRESENTATION-CHAIN-MINI-HANDOFF.md`
+    before continuing the C mimalloc result presentation chain. Unless a newer
+    SSOT overrides it, this blocker should select the MIMAP-504A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnPilot`
+    owner-local counters, and the following migration row should become
+    `HAKO-ALLOC-USIZE-FIELD-GROUP-157`.
 ```
 
 ## Ladder

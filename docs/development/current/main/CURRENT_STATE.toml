@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-134-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-134-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTERS.md"
-latest_card_summary = "Migrated only the C mimalloc result presentation extension follow-on extension pilot owner-local counters to exact usize while keeping comparison payloads, report mirrors, reasons, and replacement/provider seams signed or closed."
+latest_card = "294x-135-HAKO-ALLOC-USIZE-PRESENTATION-CHAIN-MINI-HANDOFF"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-135-HAKO-ALLOC-USIZE-PRESENTATION-CHAIN-MINI-HANDOFF.md"
+latest_card_summary = "Documented the mini handoff for remaining C mimalloc result presentation-chain usize field-group rows; HAKO-ALLOC-USIZE-FIELD-GROUP-156 remains current."
 
 current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-156"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-135 mini handoff for remaining C mimalloc result presentation-chain usize field-group rows landed; HAKO-ALLOC-USIZE-FIELD-GROUP-156 remains current",
   "294x-134 HAKO-ALLOC-USIZE-FIELD-GROUP-155 C mimalloc result presentation extension follow-on extension pilot owner-local counters migrated; comparison payloads, report mirrors, reasons, and replacement/provider seams remain unchanged",
   "294x-133 HAKO-ALLOC-USIZE-FIELD-GROUP-154 C mimalloc result presentation extension follow-on extension pilot counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-155 selected",
   "294x-132 HAKO-ALLOC-USIZE-FIELD-GROUP-153 C mimalloc result presentation extension follow-on pilot owner-local counters migrated; comparison payloads, report mirrors, reasons, and replacement/provider seams remain unchanged",
