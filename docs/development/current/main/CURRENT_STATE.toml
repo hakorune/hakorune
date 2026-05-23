@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-182-HAKO-ALLOC-USIZE-ALIGNED-SMALL-PADDED-SIZE"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-182-HAKO-ALLOC-USIZE-ALIGNED-SMALL-PADDED-SIZE.md"
-latest_card_summary = "Migrated the aligned-small path padded-size observer to exact usize storage."
+latest_card = "294x-183-HAKO-ALLOC-USIZE-HUGE-THRESHOLD-ROUTER-EXE-ILLEGAL-INSTRUCTION-INVESTIGATION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-183-HAKO-ALLOC-USIZE-HUGE-THRESHOLD-ROUTER-EXE-ILLEGAL-INSTRUCTION-INVESTIGATION.md"
+latest_card_summary = "Documented the pure-first EXE SIGILL when the huge-threshold router size observers are temporarily migrated to exact usize; router observers remain deferred."
 
 current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-182"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-183 documented the huge-threshold router exact-usize observer pure-first EXE SIGILL; HAKO-ALLOC-USIZE-FIELD-GROUP-182 remains current",
   "294x-182 migrated aligned-small path padded-size observer to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-182 is now current",
   "294x-181 deferred direct huge-threshold router observer migration and selected aligned-small padded-size as HAKO-ALLOC-USIZE-FIELD-GROUP-181",
   "294x-180 selected huge-threshold router size observers as HAKO-ALLOC-USIZE-FIELD-GROUP-180",
