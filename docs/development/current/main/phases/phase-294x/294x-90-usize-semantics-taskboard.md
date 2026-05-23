@@ -1133,9 +1133,21 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-REPEATED-RUN-EVIDENCE-001:
-  selected current. Add a narrow repeated-run evidence contract over the same
-  workload pair. Keep winner claims closed; publish sample count and simple
-  RSS aggregates only.
+  landed by 294x-166. Added
+  `mimalloc-comparison-repeated-run-evidence-v0` over same-workload RSS
+  presentation samples, publishing sample count and min/max RSS ranges while
+  winner claims, provider activation, host replacement, hooks, global allocator
+  install, worker/TLS, atomics, and provider package / DLL generation remain
+  closed.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-REPEATED-RUN-EVIDENCE-CLOSEOUT-001:
+  selected current. Close out the repeated-run evidence row, then choose either
+  a small comparison summary row or return to the next explicit `usize`
+  field-group row.
 ```
 
 ## Ladder
