@@ -1145,9 +1145,19 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-REPEATED-RUN-EVIDENCE-CLOSEOUT-001:
-  selected current. Close out the repeated-run evidence row, then choose either
-  a small comparison summary row or return to the next explicit `usize`
-  field-group row.
+  landed by 294x-167. Closed the repeated-run RSS evidence row after sample
+  count and min/max RSS ranges landed, while winner claims, provider
+  activation, host replacement, hooks, global allocator install, worker/TLS,
+  atomics, and provider package / DLL generation remain closed.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-SUMMARY-NO-WINNER-001:
+  selected current. Add a small summary formatter over the repeated-run
+  evidence. It may present workload, sample count, RSS ranges, and closed seams,
+  but must not claim a performance or memory-use winner.
 ```
 
 ## Ladder
