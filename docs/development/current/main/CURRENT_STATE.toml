@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-98-HAKO-ALLOC-USIZE-BOUNDED-DECOMMIT-POLICY-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-98-HAKO-ALLOC-USIZE-BOUNDED-DECOMMIT-POLICY-COUNTERS.md"
-latest_card_summary = "Migrated only the bounded decommit policy owner-local counters to exact usize while keeping max_decommit_bytes, report fields, proof source counters, and execution state unchanged."
+latest_card = "294x-99-HAKO-ALLOC-USIZE-HEAP-REUSE-PRIORITY-COUNTER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-99-HAKO-ALLOC-USIZE-HEAP-REUSE-PRIORITY-COUNTER-SELECTION.md"
+latest_card_summary = "Selected only the heap reuse priority owner-local pick and skip counters for exact usize migration while keeping decision fields, route/page-id sentinels, and execution state unchanged."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-120"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-121"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-99 HAKO-ALLOC-USIZE-FIELD-GROUP-120 heap reuse priority counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-121 selected",
   "294x-98 HAKO-ALLOC-USIZE-FIELD-GROUP-119 bounded decommit policy owner-local counters migrated; max_decommit_bytes, report fields, proof source counters, and execution state remain unchanged",
   "294x-97 HAKO-ALLOC-USIZE-FIELD-GROUP-118 bounded decommit policy counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-119 selected",
   "294x-96 HAKO-ALLOC-USIZE-FIELD-GROUP-117 recommit-side purge marker owner-local counters migrated; marker arrays, last_page_id, report fields, and page-source / heap execution state remain unchanged",
