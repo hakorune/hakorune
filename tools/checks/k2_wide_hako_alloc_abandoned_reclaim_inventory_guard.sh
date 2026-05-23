@@ -10,9 +10,11 @@ APP="apps/hako-alloc-abandoned-reclaim-inventory-proof/main.hako"
 APP_README="apps/hako-alloc-abandoned-reclaim-inventory-proof/README.md"
 APP_TEST="apps/hako-alloc-abandoned-reclaim-inventory-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-261-M213-ABANDONED-RECLAIM-INVENTORY.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-103-HAKO-ALLOC-USIZE-ABANDONED-RECLAIM-INVENTORY-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-104-HAKO-ALLOC-USIZE-ABANDONED-RECLAIM-INVENTORY-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_inventory.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/abandoned_reclaim_inventory_box.hako"
@@ -28,6 +30,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$INDEX" \
   "$PROOF_MANIFEST" \
@@ -41,6 +45,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M213 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-103 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-104 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'M213 status:' "$PLAN" "mimalloc plan must record M213 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M213 guard"
 guard_expect_in_file "$TAG" 'id = "M213"' "$PROOF_MANIFEST" "proof app manifest must list M213"
@@ -48,6 +54,18 @@ guard_expect_in_file "$TAG" 'memory.abandoned_reclaim_inventory_box = "memory/ab
 guard_expect_in_file "$TAG" 'box HakoAllocAbandonedReclaimDecision' "$OWNER" "M213 decision box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocAbandonedReclaimInventory' "$OWNER" "M213 inventory box must exist"
 guard_expect_in_file "$TAG" 'classifyPage' "$OWNER" "M213 inventory must expose classifyPage"
+guard_expect_in_file "$TAG" 'classify_count: usize = 0' "$OWNER" "M213 classify counter must be exact usize"
+guard_expect_in_file "$TAG" 'candidate_count: usize = 0' "$OWNER" "M213 candidate counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$OWNER" "M213 reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_backing_reject_count: usize = 0' "$OWNER" "M213 missing backing reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'owner_active_reject_count: usize = 0' "$OWNER" "M213 owner active reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'remote_pending_reject_count: usize = 0' "$OWNER" "M213 remote pending reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'decommitted_reject_count: usize = 0' "$OWNER" "M213 decommitted reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'abandoned_live_count: usize = 0' "$OWNER" "M213 abandoned live counter must be exact usize"
+guard_expect_in_file "$TAG" 'abandoned_retired_count: usize = 0' "$OWNER" "M213 abandoned retired counter must be exact usize"
+guard_expect_in_file "$TAG" 'purge_forward_candidate_count: usize = 0' "$OWNER" "M213 purge forward candidate counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$OWNER" "M213 last page id must remain signed sentinel"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "M213 last reason must remain signed reason vocabulary"
 guard_expect_in_file "$TAG" 'would_schedule_reclaim: i64 = 0' "$OWNER" "M213 reclaim scheduling must stay inactive"
 guard_expect_in_file "$TAG" 'would_reclaim: i64 = 0' "$OWNER" "M213 reclaim execution must stay inactive"
 guard_expect_in_file "$TAG" 'would_atomic_claim: i64 = 0' "$OWNER" "M213 atomic claim must stay inactive"
@@ -189,6 +207,34 @@ for name in required_fields:
     field = decision_fields.get(name)
     if field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"bad abandoned reclaim field {name}: {field}")
+
+inventory_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocAbandonedReclaimInventory"].get("fields", [])
+}
+for name in (
+    "classify_count",
+    "candidate_count",
+    "reject_count",
+    "missing_backing_reject_count",
+    "owner_active_reject_count",
+    "remote_pending_reject_count",
+    "decommitted_reject_count",
+    "abandoned_live_count",
+    "abandoned_retired_count",
+    "purge_forward_candidate_count",
+):
+    field = inventory_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing abandoned reclaim inventory field: {name}")
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad abandoned reclaim inventory counter {name}: {field}")
+for name in ("last_page_id", "last_reason"):
+    field = inventory_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing abandoned reclaim inventory field: {name}")
+    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad abandoned reclaim inventory signed field {name}: {field}")
 
 print("[m213-mir-json] ok")
 PY

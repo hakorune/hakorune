@@ -33,16 +33,16 @@ box HakoAllocAbandonedReclaimDecision {
 }
 
 box HakoAllocAbandonedReclaimInventory {
-    classify_count: i64 = 0
-    candidate_count: i64 = 0
-    reject_count: i64 = 0
-    missing_backing_reject_count: i64 = 0
-    owner_active_reject_count: i64 = 0
-    remote_pending_reject_count: i64 = 0
-    decommitted_reject_count: i64 = 0
-    abandoned_live_count: i64 = 0
-    abandoned_retired_count: i64 = 0
-    purge_forward_candidate_count: i64 = 0
+    classify_count: usize = 0
+    candidate_count: usize = 0
+    reject_count: usize = 0
+    missing_backing_reject_count: usize = 0
+    owner_active_reject_count: usize = 0
+    remote_pending_reject_count: usize = 0
+    decommitted_reject_count: usize = 0
+    abandoned_live_count: usize = 0
+    abandoned_retired_count: usize = 0
+    purge_forward_candidate_count: usize = 0
     last_page_id: i64 = -1
     last_reason: i64 = 0
 
@@ -143,4 +143,3 @@ box HakoAllocAbandonedReclaimInventory {
         return me.decision(1, 0, page_id, owner_thread_id, observer_thread_id, abandoned, 1, 1, can_forward_to_purge_candidate, has_backing, owner_active, remote_free_pending, page_empty, retired, decommitted, backing_bytes)
     }
 }
-

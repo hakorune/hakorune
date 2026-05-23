@@ -550,11 +550,24 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-125:
-  migrate only the selected abandoned/reclaim inventory owner-local counters
-  to exact `usize`. Keep decision fields, `last_page_id`, `last_reason`,
-  reclaim scheduling/execution, atomics, remote-free draining, page-source
+  landed by 294x-104. Migrated only the selected abandoned/reclaim inventory
+  owner-local counters to exact `usize`, while keeping decision fields,
+  `last_page_id`, `last_reason`, reclaim scheduling/execution, atomics,
+  remote-free draining, page-source calls, OSVM byte/pointer payloads,
+  provider / hook / global-allocator rows, TLS, and `#[global_allocator]` out
+  of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-126:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, signed sentinels, route/state/status/reason
+  vocabulary, reclaim execution, atomics, remote-free draining, page-source
   calls, OSVM byte/pointer payloads, provider / hook / global-allocator rows,
-  TLS, and `#[global_allocator]` out of scope.
+  TLS, and `#[global_allocator]` out of scope unless the selected group
+  explicitly owns one of those seams.
 ```
 
 ## Ladder
