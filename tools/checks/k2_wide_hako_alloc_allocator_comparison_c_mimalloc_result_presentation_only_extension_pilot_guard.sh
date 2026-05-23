@@ -65,10 +65,20 @@ guard_expect_in_file "$TAG" 'missing_pilot_reject_count: usize = 0' "$OWNER" "pi
 guard_expect_in_file "$TAG" 'blocked_pilot_reject_count: usize = 0' "$OWNER" "pilot owner blocked_pilot_reject_count must be usize"
 guard_expect_in_file "$TAG" 'missing_presentation_input_reject_count: usize = 0' "$OWNER" "pilot owner missing_presentation_input_reject_count must be usize"
 guard_expect_in_file "$TAG" 'closed_stop_line_reject_count: usize = 0' "$OWNER" "pilot owner closed_stop_line_reject_count must be usize"
+guard_expect_in_file "$TAG" 'allocation_count: usize = 0' "$OWNER" "pilot report allocation_count must be usize"
+guard_expect_in_file "$TAG" 'free_count: usize = 0' "$OWNER" "pilot report free_count must be usize"
+guard_expect_in_file "$TAG" 'requested_bytes: usize = 0' "$OWNER" "pilot report requested_bytes must be usize"
+guard_expect_in_file "$TAG" 'peak_rss_bytes: usize = 0' "$OWNER" "pilot report peak_rss_bytes must be usize"
+guard_expect_in_file "$TAG" 'steady_rss_bytes: usize = 0' "$OWNER" "pilot report steady_rss_bytes must be usize"
+guard_expect_in_file "$TAG" 'hako_allocation_count: usize = 0' "$OWNER" "pilot report hako_allocation_count must be usize"
+guard_expect_in_file "$TAG" 'hako_requested_bytes: usize = 0' "$OWNER" "pilot report hako_requested_bytes must be usize"
+guard_expect_in_file "$TAG" 'c_allocation_count: usize = 0' "$OWNER" "pilot report c_allocation_count must be usize"
+guard_expect_in_file "$TAG" 'c_requested_bytes: usize = 0' "$OWNER" "pilot report c_requested_bytes must be usize"
+guard_expect_in_file "$TAG" 'c_peak_rss_bytes: usize = 0' "$OWNER" "pilot report c_peak_rss_bytes must be usize"
 guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "pilot owner last_reason must stay signed"
 
-if rg -n 'presentation_count: i64 = 0|accepted_count: i64 = 0|blocked_count: i64 = 0|missing_pilot_reject_count: i64 = 0|blocked_pilot_reject_count: i64 = 0|missing_presentation_input_reject_count: i64 = 0|closed_stop_line_reject_count: i64 = 0' "$OWNER" >/tmp/"$TAG".pilot_counter_leak 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-560A pilot owner counters must all be usize" >&2
+if rg -n 'presentation_count: i64 = 0|accepted_count: i64 = 0|blocked_count: i64 = 0|missing_pilot_reject_count: i64 = 0|blocked_pilot_reject_count: i64 = 0|missing_presentation_input_reject_count: i64 = 0|closed_stop_line_reject_count: i64 = 0|allocation_count: i64 = 0|free_count: i64 = 0|requested_bytes: i64 = 0|peak_rss_bytes: i64 = 0|steady_rss_bytes: i64 = 0|hako_allocation_count: i64 = 0|hako_requested_bytes: i64 = 0|c_allocation_count: i64 = 0|c_requested_bytes: i64 = 0|c_peak_rss_bytes: i64 = 0' "$OWNER" >/tmp/"$TAG".pilot_counter_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-560A pilot owner/report payload fields must be exact usize" >&2
   cat /tmp/"$TAG".pilot_counter_leak >&2
   rm -f /tmp/"$TAG".pilot_counter_leak
   exit 1
@@ -158,6 +168,33 @@ for name in (
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64":
         raise SystemExit(f"{name} must be i64: {field}")
+for name in (
+    "allocation_count",
+    "free_count",
+    "requested_bytes",
+    "peak_rss_bytes",
+    "steady_rss_bytes",
+    "hako_allocation_count",
+    "hako_requested_bytes",
+    "c_allocation_count",
+    "c_requested_bytes",
+    "c_peak_rss_bytes",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"{name} must be usize in report plan: {field}")
+for name in (
+    "allocator_id",
+    "runner_kind",
+    "workload_id",
+    "exit_code",
+    "evidence_complete",
+    "allocation_count_delta",
+    "requested_bytes_delta",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"{name} must stay i64 in report plan: {field}")
 owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
 for name in (
     "presentation_count",
