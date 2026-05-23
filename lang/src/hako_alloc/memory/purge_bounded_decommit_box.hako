@@ -22,11 +22,11 @@ box HakoAllocBoundedDecommitReport {
 
 box HakoAllocBoundedDecommitPolicy {
     max_decommit_bytes: i64 = 0
-    attempt_count: i64 = 0
-    blocked_count: i64 = 0
-    decommit_attempt_count: i64 = 0
-    decommit_success_count: i64 = 0
-    source_reject_count: i64 = 0
+    attempt_count: usize = 0
+    blocked_count: usize = 0
+    decommit_attempt_count: usize = 0
+    decommit_success_count: usize = 0
+    source_reject_count: usize = 0
 
     birth(max_decommit_bytes) {
         me.max_decommit_bytes = max_decommit_bytes

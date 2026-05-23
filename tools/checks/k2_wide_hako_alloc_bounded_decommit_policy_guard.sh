@@ -10,6 +10,8 @@ APP="apps/hako-alloc-bounded-decommit-policy-proof/main.hako"
 APP_README="apps/hako-alloc-bounded-decommit-policy-proof/README.md"
 APP_TEST="apps/hako-alloc-bounded-decommit-policy-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-235-M195-BOUNDED-DECOMMIT-EXECUTION-POLICY.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-97-HAKO-ALLOC-USIZE-BOUNDED-DECOMMIT-POLICY-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-98-HAKO-ALLOC-USIZE-BOUNDED-DECOMMIT-POLICY-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
@@ -29,6 +31,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
@@ -43,6 +47,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M195 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-97 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-98 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'M195 status:' "$PLAN" "mimalloc plan must record M195 status"
 guard_expect_in_file "$TAG" '`293x-235`' "$PHASE_README" "phase README must list M195 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-235`' "$TASKBOARD" "taskboard must mark M195 complete"
@@ -53,6 +59,15 @@ guard_expect_in_file "$TAG" 'box HakoAllocBoundedDecommitReport' "$BOUNDED" "bou
 guard_expect_in_file "$TAG" 'box HakoAllocBoundedDecommitPolicy' "$BOUNDED" "bounded decommit policy must exist"
 guard_expect_in_file "$TAG" 'attemptDecommit' "$BOUNDED" "bounded decommit policy must expose attemptDecommit"
 guard_expect_in_file "$TAG" 'source.decommitPage\(base, bytes\)' "$BOUNDED" "bounded decommit must execute through caller-provided source"
+guard_expect_in_file "$TAG" 'max_decommit_bytes: i64 = 0' "$BOUNDED" "bounded decommit max byte limit must remain signed"
+guard_expect_in_file "$TAG" 'attempt_count: usize = 0' "$BOUNDED" "bounded decommit attempt counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$BOUNDED" "bounded decommit blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'decommit_attempt_count: usize = 0' "$BOUNDED" "bounded decommit attempt execution counter must be exact usize"
+guard_expect_in_file "$TAG" 'decommit_success_count: usize = 0' "$BOUNDED" "bounded decommit success counter must be exact usize"
+guard_expect_in_file "$TAG" 'source_reject_count: usize = 0' "$BOUNDED" "bounded decommit source reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'status: i64 = 0' "$BOUNDED" "bounded decommit report status must remain signed"
+guard_expect_in_file "$TAG" 'base: i64 = 0' "$BOUNDED" "bounded decommit report base must remain signed"
+guard_expect_in_file "$TAG" 'bytes: i64 = 0' "$BOUNDED" "bounded decommit report bytes must remain signed"
 guard_expect_in_file "$TAG" 'unreserve_executed: i64 = 0' "$BOUNDED" "M195 must keep unreserve inactive"
 guard_expect_in_file "$TAG" 'os_release_executed: i64 = 0' "$BOUNDED" "M195 must keep OS release inactive"
 guard_expect_in_file "$TAG" 'purge_bounded_decommit_box.hako` owns M195 bounded decommit execution' "$MEMORY_README" "memory README must define bounded decommit owner"
@@ -147,9 +162,53 @@ report_fields = {
     field.get("name"): field
     for field in plans["HakoAllocBoundedDecommitReport"].get("fields", [])
 }
-for name in ("decommit_attempted", "decommit_executed", "unreserve_executed", "os_release_executed"):
+for name in (
+    "status",
+    "base",
+    "bytes",
+    "decommit_attempted",
+    "decommit_executed",
+    "unreserve_executed",
+    "os_release_executed",
+):
     if name not in report_fields:
         raise SystemExit(f"missing bounded decommit report field: {name}")
+    declared = report_fields[name].get("declared_type")
+    storage = report_fields[name].get("storage")
+    if declared != "i64" or storage != "i64":
+        raise SystemExit(
+            f"bounded decommit report field {name} must remain i64, got declared={declared!r} storage={storage!r}"
+        )
+
+policy_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocBoundedDecommitPolicy"].get("fields", [])
+}
+for name in (
+    "attempt_count",
+    "blocked_count",
+    "decommit_attempt_count",
+    "decommit_success_count",
+    "source_reject_count",
+):
+    field = policy_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing bounded decommit policy field: {name}")
+    declared = field.get("declared_type")
+    storage = field.get("storage")
+    if declared != "usize" or storage != "usize":
+        raise SystemExit(
+            f"bounded decommit policy counter {name} must be usize, got declared={declared!r} storage={storage!r}"
+        )
+
+max_field = policy_fields.get("max_decommit_bytes")
+if max_field is None:
+    raise SystemExit("missing bounded decommit max_decommit_bytes field")
+if max_field.get("declared_type") != "i64" or max_field.get("storage") != "i64":
+    raise SystemExit(
+        "bounded decommit max_decommit_bytes must remain i64, "
+        f"got declared={max_field.get('declared_type')!r} storage={max_field.get('storage')!r}"
+    )
 
 print("[m195-mir-json] ok")
 PY

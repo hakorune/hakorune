@@ -467,11 +467,26 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-119:
-  migrate only the selected bounded decommit policy owner-local counters to
-  exact `usize`. Keep `max_decommit_bytes`, report fields, fake proof source
+  landed by 294x-98. Migrated only the selected
+  `HakoAllocBoundedDecommitPolicy` owner-local counters
+  (`attempt_count`, `blocked_count`, `decommit_attempt_count`,
+  `decommit_success_count`, and `source_reject_count`) to exact `usize`,
+  while keeping `max_decommit_bytes`, report fields, fake proof source
   counters, page-source adapter state, heap/page mutation, OSVM byte/pointer
   payloads, provider / hook / global-allocator rows, TLS, atomics, and
   `#[global_allocator]` out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-120:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep `max_decommit_bytes`, report fields, fake proof source counters,
+  page-source adapter state, heap/page mutation, OSVM byte/pointer payloads,
+  provider / hook / global-allocator rows, TLS, atomics, and
+  `#[global_allocator]` out of scope unless the selected group owns one of
+  those seams explicitly.
 ```
 
 ## Ladder

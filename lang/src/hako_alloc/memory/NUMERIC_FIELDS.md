@@ -537,7 +537,11 @@ Selected next production `usize` field group:
   `HAKO-ALLOC-USIZE-FIELD-GROUP-119`, while `max_decommit_bytes`, report
   fields, fake proof source counters, page-source adapter state, and heap/page
   execution state stay unchanged.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-119` is now the next migration row.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-119` migrated those five
+  `HakoAllocBoundedDecommitPolicy` owner-local counters to exact `usize`,
+  while `max_decommit_bytes`, report fields, fake proof source counters,
+  page-source adapter state, and heap/page execution state stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-120` is now the next selection-only row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
