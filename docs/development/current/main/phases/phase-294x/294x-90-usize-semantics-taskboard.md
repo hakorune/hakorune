@@ -533,12 +533,28 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-124:
-  selection-only row for the next explicit non-negative stored field group.
-  Keep lifecycle report fields, signed sentinels, route/state/status
-  vocabulary, heap/page queues, page-source adapters, heap/page mutation,
-  OSVM byte/pointer payloads, provider / hook / global-allocator rows, TLS,
-  atomics, and `#[global_allocator]` out of scope unless the selected group
-  explicitly owns one of those seams.
+  landed by 294x-103. Selected the
+  `HakoAllocAbandonedReclaimInventory` owner-local counters
+  (`classify_count`, `candidate_count`, `reject_count`,
+  `missing_backing_reject_count`, `owner_active_reject_count`,
+  `remote_pending_reject_count`, `decommitted_reject_count`,
+  `abandoned_live_count`, `abandoned_retired_count`, and
+  `purge_forward_candidate_count`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-125`,
+  while keeping decision fields, `last_page_id`, `last_reason`, reclaim
+  scheduling/execution, atomics, remote-free draining, page-source calls, OSVM
+  byte/pointer payloads, provider / hook / global-allocator rows, TLS, and
+  `#[global_allocator]` out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-125:
+  migrate only the selected abandoned/reclaim inventory owner-local counters
+  to exact `usize`. Keep decision fields, `last_page_id`, `last_reason`,
+  reclaim scheduling/execution, atomics, remote-free draining, page-source
+  calls, OSVM byte/pointer payloads, provider / hook / global-allocator rows,
+  TLS, and `#[global_allocator]` out of scope.
 ```
 
 ## Ladder

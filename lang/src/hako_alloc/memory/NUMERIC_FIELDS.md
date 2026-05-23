@@ -564,7 +564,16 @@ Selected next production `usize` field group:
   `usize`, while lifecycle report fields, `last_page_id`, `last_state`,
   heap/page queues, page-source adapters, and heap/page execution state stay
   unchanged.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-124` is now the next selection-only row.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-124` selected
+  `HakoAllocAbandonedReclaimInventory` counters (`classify_count`,
+  `candidate_count`, `reject_count`, `missing_backing_reject_count`,
+  `owner_active_reject_count`, `remote_pending_reject_count`,
+  `decommitted_reject_count`, `abandoned_live_count`,
+  `abandoned_retired_count`, `purge_forward_candidate_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-125`, while decision fields, `last_page_id`,
+  `last_reason`, reclaim execution, atomics, remote-free draining,
+  page-source calls, and OSVM execution state stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-125` is now the next migration row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -728,6 +737,7 @@ excludes `usize_field_probe_box.hako`.
 | File | Box | Stored Numeric Fields | Migration Note |
 | --- | --- | --- | --- |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | `requested_size` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-081`; page/block id fields stay `i64` until id/index contracts are split. |
+| `abandoned_reclaim_inventory_box.hako` | `HakoAllocAbandonedReclaimInventory` | `classify_count`, `candidate_count`, `reject_count`, `missing_backing_reject_count`, `owner_active_reject_count`, `remote_pending_reject_count`, `decommitted_reject_count`, `abandoned_live_count`, `abandoned_retired_count`, `purge_forward_candidate_count`, `last_page_id`, `last_reason` | selected inventory counters for `HAKO-ALLOC-USIZE-FIELD-GROUP-125`; `last_page_id = -1` and reason vocabulary stay signed. |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-089`; `bin` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-095`. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
 | `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062`; C205c metadata-store counter migrated with the aligned-small metadata owner. |
