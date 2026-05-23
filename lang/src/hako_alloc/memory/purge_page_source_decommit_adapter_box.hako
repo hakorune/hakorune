@@ -8,9 +8,9 @@
 using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
 
 box HakoAllocPageSourceDecommitAdapter {
-    call_count: i64 = 0
-    success_count: i64 = 0
-    reject_count: i64 = 0
+    call_count: usize = 0
+    success_count: usize = 0
+    reject_count: usize = 0
     last_base: i64 = 0
     last_bytes: i64 = 0
     last_rc: i64 = 0

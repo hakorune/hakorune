@@ -10,11 +10,14 @@ APP="apps/hako-alloc-page-source-decommit-adapter-proof/main.hako"
 APP_README="apps/hako-alloc-page-source-decommit-adapter-proof/README.md"
 APP_TEST="apps/hako-alloc-page-source-decommit-adapter-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-236-M196-PAGE-SOURCE-DECOMMIT-ADAPTER.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-91-HAKO-ALLOC-USIZE-PAGE-SOURCE-DECOMMIT-ADAPTER-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-92-HAKO-ALLOC-USIZE-PAGE-SOURCE-DECOMMIT-ADAPTER-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 ADAPTER="lang/src/hako_alloc/memory/purge_page_source_decommit_adapter_box.hako"
+POLICY="lang/src/hako_alloc/memory/page_source_policy_box.hako"
 BOUNDED="lang/src/hako_alloc/memory/purge_bounded_decommit_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
@@ -30,11 +33,14 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
   "$INDEX" \
   "$ADAPTER" \
+  "$POLICY" \
   "$BOUNDED" \
   "$MODULE" \
   "$MEMORY_README" \
@@ -45,13 +51,23 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M196 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "decommit adapter usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "decommit adapter usize counter card must be landed"
 guard_expect_in_file "$TAG" 'M196 status:' "$PLAN" "mimalloc plan must record M196 status"
 guard_expect_in_file "$TAG" '`293x-236`' "$PHASE_README" "phase README must list M196 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-236`' "$TASKBOARD" "taskboard must mark M196 complete"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M196 guard"
 
 guard_expect_in_file "$TAG" 'memory.purge_page_source_decommit_adapter_box = "memory/purge_page_source_decommit_adapter_box.hako"' "$MODULE" "hako_alloc module must export page-source adapter"
+guard_expect_in_file "$TAG" 'decommitPage\(base: i64, bytes: usize\)' "$POLICY" "page-source policy must own typed decommitPage"
+guard_expect_in_file "$TAG" 'OsVmCoreBox\.decommit_bytes_usize\(base, bytes\)' "$POLICY" "page-source policy must delegate to OsVmCoreBox decommit usize facade"
 guard_expect_in_file "$TAG" 'box HakoAllocPageSourceDecommitAdapter' "$ADAPTER" "page-source decommit adapter box must exist"
+guard_expect_in_file "$TAG" 'call_count: usize = 0' "$ADAPTER" "decommit adapter call counter must be exact usize"
+guard_expect_in_file "$TAG" 'success_count: usize = 0' "$ADAPTER" "decommit adapter success counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$ADAPTER" "decommit adapter reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_base: i64 = 0' "$ADAPTER" "decommit adapter base payload must remain signed"
+guard_expect_in_file "$TAG" 'last_bytes: i64 = 0' "$ADAPTER" "decommit adapter byte payload must remain signed"
+guard_expect_in_file "$TAG" 'last_rc: i64 = 0' "$ADAPTER" "decommit adapter status payload must remain signed"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy\.decommitPage\(base, bytes\)' "$ADAPTER" "adapter must delegate only to page-source decommit"
 guard_expect_in_file "$TAG" 'purge_page_source_decommit_adapter_box.hako` owns M196 page-source decommit' "$MEMORY_README" "memory README must define M196 owner"
 
@@ -108,6 +124,7 @@ required = {
     "HakoAllocPageSourceDecommitAdapter.decommitPage/2",
     "HakoAllocBoundedDecommitPolicy.attemptDecommit/4",
     "HakoAllocPageSourcePolicy.decommitPage/2",
+    "OsVmCoreBox.decommit_bytes_usize/2",
     "OsVmCoreBox.decommit_bytes_i64/2",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
@@ -120,6 +137,16 @@ plans = {
 }
 if plans.get("HakoAllocPageSourceDecommitAdapter") is None:
     raise SystemExit("missing typed object plan: HakoAllocPageSourceDecommitAdapter")
+adapter_plan = plans["HakoAllocPageSourceDecommitAdapter"]
+fields = {field.get("name"): field for field in adapter_plan.get("fields", [])}
+for name in ("call_count", "success_count", "reject_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad decommit adapter exact usize counter field {name}: {field}")
+for name in ("last_base", "last_bytes", "last_rc"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad decommit adapter signed payload field {name}: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):
@@ -143,7 +170,7 @@ require_global(
 require_global(
     functions["HakoAllocPageSourcePolicy.decommitPage/2"],
     "HakoAllocPageSourcePolicy.decommitPage/2",
-    "OsVmCoreBox.decommit_bytes_i64/2",
+    "OsVmCoreBox.decommit_bytes_usize/2",
 )
 
 print("[m196-mir-json] ok")

@@ -391,13 +391,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-113:
-  migrate only the selected page-source decommit adapter owner-local
-  call/success/reject counters to exact `usize`. Keep decommit adapter
-  payload/status fields, bounded decommit policy state, purge inventory state,
-  heap/page mutation, facade page-source seams, closed-execution evidence
-  counters, huge-page-source / huge-failfast seams, OSVM byte/pointer payloads,
-  provider / hook / global-allocator rows, TLS, atomics, and
-  `#[global_allocator]` out of scope.
+  landed by 294x-92. Migrated only
+  `HakoAllocPageSourceDecommitAdapter.call_count`, `success_count`, and
+  `reject_count` to exact `usize`, while keeping `last_base`, `last_bytes`,
+  and `last_rc` signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-114:
+  select the next owner-local production exact `usize` field group. Keep
+  decommit adapter payload/status fields, bounded decommit policy state, purge
+  inventory state, heap/page mutation, facade page-source seams,
+  closed-execution evidence counters, huge-page-source / huge-failfast seams,
+  OSVM byte/pointer payloads, provider / hook / global-allocator rows, TLS,
+  atomics, and `#[global_allocator]` out of scope.
 ```
 
 ## Ladder
