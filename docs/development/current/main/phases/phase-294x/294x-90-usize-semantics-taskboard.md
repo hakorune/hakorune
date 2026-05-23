@@ -1282,7 +1282,20 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-179:
-  selected current. Select the next explicit non-negative stored field group.
+  landed by 294x-180. Selected `HakoAllocHugeThresholdRouter`
+  size observers (`last_padded_size`, `last_good_size`,
+  `last_huge_threshold`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-180`, while
+  route-kind and pointer observers, aligned-small path observers, huge model /
+  release / unreserve / unregister / decommit rows, and provider seams remain
+  signed/closed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-180:
+  selected current. Migrate only the selected huge-threshold router size
+  observers to exact `usize`.
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
   allocator install, worker/TLS, atomics, provider package / DLL generation, or
