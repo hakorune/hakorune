@@ -10,13 +10,15 @@ APP="apps/hako-alloc-recommit-marker-transition-proof/main.hako"
 APP_README="apps/hako-alloc-recommit-marker-transition-proof/README.md"
 APP_TEST="apps/hako-alloc-recommit-marker-transition-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-248-M204-RECOMMIT-MARKER-TRANSITION.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-95-HAKO-ALLOC-USIZE-PURGE-RECOMMIT-MARKER-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-96-HAKO-ALLOC-USIZE-PURGE-RECOMMIT-MARKER-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 MARKER="lang/src/hako_alloc/memory/purge_decommit_state_marker_box.hako"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_purge_core.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_recommit_marker_transition_guard.sh"
@@ -29,6 +31,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
@@ -43,6 +47,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M204 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "recommit marker usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "recommit marker usize counter card must be landed"
 guard_expect_in_file "$TAG" 'M204 status:' "$PLAN" "mimalloc plan must record M204 status"
 guard_expect_in_file "$TAG" '`293x-248`' "$PHASE_README" "phase README must list M204 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-248`' "$TASKBOARD" "taskboard must mark M204 complete"
@@ -50,6 +56,15 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 guard_expect_in_file "$TAG" 'id = "M204"' "$PROOF_MANIFEST" "proof app manifest must list M204"
 
 guard_expect_in_file "$TAG" 'recommitted_page_ids' "$MARKER" "marker must own recommitted page ids"
+guard_expect_in_file "$TAG" 'recommit_attempt_count: usize = 0' "$MARKER" "recommit marker attempt counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommitted_count: usize = 0' "$MARKER" "recommit marker accepted counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommit_reject_count: usize = 0' "$MARKER" "recommit marker reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'duplicate_recommit_count: usize = 0' "$MARKER" "recommit marker duplicate counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_recommit_report_count: usize = 0' "$MARKER" "recommit marker missing-report counter must be exact usize"
+guard_expect_in_file "$TAG" 'not_recommitted_count: usize = 0' "$MARKER" "recommit marker not-recommitted counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommit_widened_reject_count: usize = 0' "$MARKER" "recommit marker widened reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'unmarked_recommit_reject_count: usize = 0' "$MARKER" "recommit marker unmarked reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$MARKER" "marker last page id must remain signed"
 guard_expect_in_file "$TAG" 'markIfRecommitted' "$MARKER" "marker must expose recommit transition entry"
 guard_expect_in_file "$TAG" 'countMarkedPage' "$MARKER" "marker must count marked generations"
 guard_expect_in_file "$TAG" 'countRecommittedPage' "$MARKER" "marker must count recommitted generations"
@@ -138,10 +153,23 @@ fields = {
 ids = fields.get("recommitted_page_ids")
 if ids is None or ids.get("declared_type") != "ArrayBox" or ids.get("storage") != "handle":
     raise SystemExit(f"bad recommitted_page_ids field: {ids}")
-for name in ("recommit_attempt_count", "recommitted_count", "recommit_reject_count", "duplicate_recommit_count"):
+for name in (
+    "recommit_attempt_count",
+    "recommitted_count",
+    "recommit_reject_count",
+    "duplicate_recommit_count",
+    "missing_recommit_report_count",
+    "not_recommitted_count",
+    "recommit_widened_reject_count",
+    "unmarked_recommit_reject_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad recommit marker exact usize counter field {name}: {field}")
+for name in ("last_page_id",):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"bad recommit marker counter field {name}: {field}")
+        raise SystemExit(f"bad recommit marker signed field {name}: {field}")
 
 print("[m204-mir-json] ok")
 PY

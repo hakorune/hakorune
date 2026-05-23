@@ -31,14 +31,14 @@ box HakoAllocPurgeDecommitStateMarker {
     missing_report_count: usize = 0
     not_decommitted_count: usize = 0
     release_field_reject_count: usize = 0
-    recommit_attempt_count: i64 = 0
-    recommitted_count: i64 = 0
-    recommit_reject_count: i64 = 0
-    duplicate_recommit_count: i64 = 0
-    missing_recommit_report_count: i64 = 0
-    not_recommitted_count: i64 = 0
-    recommit_widened_reject_count: i64 = 0
-    unmarked_recommit_reject_count: i64 = 0
+    recommit_attempt_count: usize = 0
+    recommitted_count: usize = 0
+    recommit_reject_count: usize = 0
+    duplicate_recommit_count: usize = 0
+    missing_recommit_report_count: usize = 0
+    not_recommitted_count: usize = 0
+    recommit_widened_reject_count: usize = 0
+    unmarked_recommit_reject_count: usize = 0
     last_page_id: i64 = -1
 
     report(status, page_id, marked, already_marked, rejected) {
