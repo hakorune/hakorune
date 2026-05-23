@@ -101,17 +101,17 @@ box HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {
 }
 
 box HakoAllocAllocatorComparisonCMimallocExecutionDiagnostic {
-    diagnostic_count: i64 = 0
-    ready_count: i64 = 0
-    blocked_count: i64 = 0
-    missing_runner_blocked_count: i64 = 0
-    missing_workload_blocked_count: i64 = 0
-    missing_hako_metrics_blocked_count: i64 = 0
-    missing_output_contract_blocked_count: i64 = 0
-    missing_memory_usage_contract_blocked_count: i64 = 0
-    missing_evidence_storage_blocked_count: i64 = 0
-    missing_run_count_blocked_count: i64 = 0
-    invalid_run_count_blocked_count: i64 = 0
+    diagnostic_count: usize = 0
+    ready_count: usize = 0
+    blocked_count: usize = 0
+    missing_runner_blocked_count: usize = 0
+    missing_workload_blocked_count: usize = 0
+    missing_hako_metrics_blocked_count: usize = 0
+    missing_output_contract_blocked_count: usize = 0
+    missing_memory_usage_contract_blocked_count: usize = 0
+    missing_evidence_storage_blocked_count: usize = 0
+    missing_run_count_blocked_count: usize = 0
+    invalid_run_count_blocked_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocExecutionDiagnosticReport(fields: HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReportFields): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {

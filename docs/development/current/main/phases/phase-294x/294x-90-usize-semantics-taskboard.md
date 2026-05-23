@@ -721,10 +721,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-137:
-  migration row for the selected C mimalloc execution diagnostic owner-local
-  counters. Keep run-count payloads, report fields, reason vocabulary,
-  C execution behavior, provider / hook / global-allocator rows, worker/TLS,
-  threads, and `#[global_allocator]` out of scope.
+  landed by 294x-116. Migrated only the selected C mimalloc execution
+  diagnostic owner-local counters to exact `usize`, while keeping run-count
+  payloads, report fields, reason vocabulary, C execution behavior, provider /
+  hook / global-allocator rows, worker/TLS, threads, and `#[global_allocator]`
+  out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-138:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, signed sentinels, route/state/status/reason
+  vocabulary, C execution behavior, provider / hook / global-allocator rows,
+  worker/TLS, threads, and `#[global_allocator]` out of scope unless the
+  selected group explicitly owns one of those seams.
 ```
 
 ## Ladder
