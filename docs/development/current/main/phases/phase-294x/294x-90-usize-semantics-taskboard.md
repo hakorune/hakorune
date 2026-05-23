@@ -1324,7 +1324,16 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-183:
-  selected current. Select the next explicit non-negative stored field group.
+  landed by 294x-185. Selected `HakoAllocHugePageModel`
+  `last_requested_size` and `last_committed_size` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-184`.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-184:
+  selected current. Migrate only the selected huge page model size observers.
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
   allocator install, worker/TLS, atomics, provider package / DLL generation, or
