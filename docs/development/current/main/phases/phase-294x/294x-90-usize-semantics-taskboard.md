@@ -1189,9 +1189,20 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-170:
-  selected current. Migrate only the selected alloc-miss report mirror counters
-  to exact `usize`; keep status, reason, bool-like, source/final, id, pointer,
-  and byte payload fields signed.
+  landed by 294x-171. Migrated only the selected alloc-miss report mirror
+  counters to exact `usize`, while status, reason, bool-like, source/final, id,
+  pointer, and byte payload fields remain signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-171:
+  selected current. Select the next explicit non-negative stored field group.
+  Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
+  pointer-like payloads, byte payloads that lack an owner-local row, provider
+  activation, host replacement, hooks, global allocator install, worker/TLS,
+  atomics, provider package / DLL generation, or `#[global_allocator]`.
 ```
 
 ## Ladder

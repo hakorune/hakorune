@@ -215,11 +215,6 @@ for field in (
     "final_reason",
     "final_page_id",
     "final_block_id",
-    "fallback_attempt_count",
-    "source_success_count",
-    "source_failure_count",
-    "retry_success_count",
-    "retry_failure_count",
 ):
     report_field = report_fields.get(field)
     if report_field is None or report_field.get("declared_type") != "i64" or report_field.get("storage") != "i64":
@@ -232,8 +227,9 @@ for field in (
     "retry_success_count",
     "retry_failure_count",
 ):
-    if report_fields.get(field) is None:
-        raise SystemExit(f"missing alloc-miss report field: {field}")
+    report_field = report_fields.get(field)
+    if report_field is None or report_field.get("declared_type") != "usize" or report_field.get("storage") != "usize":
+        raise SystemExit(f"alloc-miss report mirror {field} must be exact usize storage: {report_field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

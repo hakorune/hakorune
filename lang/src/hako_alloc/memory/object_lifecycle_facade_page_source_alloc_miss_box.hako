@@ -29,11 +29,11 @@ box HakoAllocObjectLifecycleFacadePageSourceAllocMissReport {
     final_reason: i64 = 0
     final_page_id: i64 = -1
     final_block_id: i64 = -1
-    fallback_attempt_count: i64 = 0
-    source_success_count: i64 = 0
-    source_failure_count: i64 = 0
-    retry_success_count: i64 = 0
-    retry_failure_count: i64 = 0
+    fallback_attempt_count: usize = 0
+    source_success_count: usize = 0
+    source_failure_count: usize = 0
+    retry_success_count: usize = 0
+    retry_failure_count: usize = 0
 }
 
 box HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback {
