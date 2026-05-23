@@ -330,12 +330,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-107:
-  migrate only the selected `HakoAllocRecommitFailFastEntry` owner-local
-  monotonic counters to exact `usize`. Do not migrate recommit report fields,
-  `last_page_id`, closed-execution evidence counters, page-source attach report
-  seams, alloc-miss report seams, huge-page-source / huge-failfast seams,
-  OSVM byte/pointer payloads, provider / hook / global-allocator rows, TLS,
-  atomics, or `#[global_allocator]`.
+  landed by 294x-85. Migrated only
+  `HakoAllocRecommitFailFastEntry.attempt_count`, `no_recommit_count`,
+  `blocked_count`, and `missing_count` to exact `usize`, while keeping the
+  recommit report, `last_page_id = -1`, and the closed-execution
+  `recommit_execution_count` / `source_execution_count` evidence signed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-108:
+  select the next owner-local production exact `usize` field group. Keep
+  recommit report/status/page-id fields, closed-execution evidence counters,
+  page-source attach report seams, alloc-miss report seams, huge-page-source /
+  huge-failfast seams, OSVM byte/pointer payloads, provider / hook /
+  global-allocator rows, TLS, atomics, and `#[global_allocator]` out of scope.
 ```
 
 ## Ladder

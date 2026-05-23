@@ -10,6 +10,8 @@ APP="apps/hako-alloc-recommit-failfast-proof/main.hako"
 APP_README="apps/hako-alloc-recommit-failfast-proof/README.md"
 APP_TEST="apps/hako-alloc-recommit-failfast-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-245-M201-RECOMMIT-FAILFAST-ENTRY.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-84-HAKO-ALLOC-USIZE-RECOMMIT-FAILFAST-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-85-HAKO-ALLOC-USIZE-RECOMMIT-FAILFAST-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
@@ -18,7 +20,7 @@ OWNER="lang/src/hako_alloc/memory/purge_recommit_failfast_box.hako"
 PRECONDITION="lang/src/hako_alloc/memory/purge_decommitted_page_reuse_precondition_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_purge_core.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_recommit_failfast_guard.sh"
@@ -31,6 +33,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
@@ -47,6 +51,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M201 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "recommit fail-fast usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "recommit fail-fast usize counter card must be landed"
 guard_expect_in_file "$TAG" 'M201 status:' "$PLAN" "mimalloc plan must record M201 status"
 guard_expect_in_file "$TAG" '`293x-245`' "$PHASE_README" "phase README must list M201 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-245`' "$TASKBOARD" "taskboard must mark M201 complete"
@@ -55,6 +61,13 @@ guard_expect_in_file "$TAG" 'id = "M201"' "$PROOF_MANIFEST" "proof app manifest 
 
 guard_expect_in_file "$TAG" 'memory.purge_recommit_failfast_box = "memory/purge_recommit_failfast_box.hako"' "$MODULE" "hako_alloc module must export recommit fail-fast entry"
 guard_expect_in_file "$TAG" 'box HakoAllocRecommitFailFastEntry' "$OWNER" "recommit fail-fast entry box must exist"
+guard_expect_in_file "$TAG" 'attempt_count: usize = 0' "$OWNER" "recommit attempt counter must be exact usize"
+guard_expect_in_file "$TAG" 'no_recommit_count: usize = 0' "$OWNER" "recommit no-op counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$OWNER" "recommit blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_count: usize = 0' "$OWNER" "recommit missing-page counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommit_execution_count: i64 = 0' "$OWNER" "recommit execution evidence counter must remain signed/closed"
+guard_expect_in_file "$TAG" 'source_execution_count: i64 = 0' "$OWNER" "source execution evidence counter must remain signed/closed"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$OWNER" "last page id must remain signed sentinel"
 guard_expect_in_file "$TAG" 'attemptHeapPage' "$OWNER" "recommit fail-fast entry must expose attemptHeapPage"
 guard_expect_in_file "$TAG" 'HakoAllocDecommittedPageReusePrecondition' "$OWNER" "M201 must read the M200 precondition"
 guard_expect_in_file "$TAG" 'recommit_executed = 0' "$OWNER" "M201 report must keep recommit execution closed"
@@ -140,7 +153,11 @@ fields = {
     field.get("name"): field
     for field in entry.get("fields", [])
 }
-for name in ("attempt_count", "no_recommit_count", "blocked_count", "missing_count", "recommit_execution_count", "source_execution_count"):
+for name in ("attempt_count", "no_recommit_count", "blocked_count", "missing_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad recommit entry exact usize counter field {name}: {field}")
+for name in ("recommit_execution_count", "source_execution_count"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"bad recommit entry counter field {name}: {field}")

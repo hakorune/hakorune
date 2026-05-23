@@ -24,10 +24,10 @@ box HakoAllocRecommitFailFastReport {
 
 box HakoAllocRecommitFailFastEntry {
     precondition: HakoAllocDecommittedPageReusePrecondition = new HakoAllocDecommittedPageReusePrecondition()
-    attempt_count: i64 = 0
-    no_recommit_count: i64 = 0
-    blocked_count: i64 = 0
-    missing_count: i64 = 0
+    attempt_count: usize = 0
+    no_recommit_count: usize = 0
+    blocked_count: usize = 0
+    missing_count: usize = 0
     recommit_execution_count: i64 = 0
     source_execution_count: i64 = 0
     last_page_id: i64 = -1
