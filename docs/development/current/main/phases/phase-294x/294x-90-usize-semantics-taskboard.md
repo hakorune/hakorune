@@ -1062,6 +1062,9 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-168:
     would_replace_host_allocator, would_install_hook,
     would_add_backend_matcher, and would_run_thread evidence flags land.
 
+  Closeout follow-on:
+    `MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-001`
+
 ## Ladder
 
 | Row | Status | Scope | Done When |
