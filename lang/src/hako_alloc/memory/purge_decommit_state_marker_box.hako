@@ -24,13 +24,13 @@ box HakoAllocPurgeRecommitStateMarkReport {
 box HakoAllocPurgeDecommitStateMarker {
     marked_page_ids: ArrayBox = new ArrayBox()
     recommitted_page_ids: ArrayBox = new ArrayBox()
-    attempt_count: i64 = 0
-    marked_count: i64 = 0
-    reject_count: i64 = 0
-    duplicate_count: i64 = 0
-    missing_report_count: i64 = 0
-    not_decommitted_count: i64 = 0
-    release_field_reject_count: i64 = 0
+    attempt_count: usize = 0
+    marked_count: usize = 0
+    reject_count: usize = 0
+    duplicate_count: usize = 0
+    missing_report_count: usize = 0
+    not_decommitted_count: usize = 0
+    release_field_reject_count: usize = 0
     recommit_attempt_count: i64 = 0
     recommitted_count: i64 = 0
     recommit_reject_count: i64 = 0

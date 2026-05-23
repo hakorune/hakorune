@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-93-HAKO-ALLOC-USIZE-PURGE-DECOMMIT-MARKER-COUNTER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-93-HAKO-ALLOC-USIZE-PURGE-DECOMMIT-MARKER-COUNTER-SELECTION.md"
-latest_card_summary = "Selected only the decommit-side purge marker owner-local counters for exact usize migration while keeping marker arrays, last_page_id, report fields, and recommit-side counters unchanged."
+latest_card = "294x-94-HAKO-ALLOC-USIZE-PURGE-DECOMMIT-MARKER-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-94-HAKO-ALLOC-USIZE-PURGE-DECOMMIT-MARKER-COUNTERS.md"
+latest_card_summary = "Migrated only the decommit-side purge marker owner-local counters to exact usize while keeping marker arrays, last_page_id, report fields, and recommit-side counters unchanged."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-115"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-116"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-94 HAKO-ALLOC-USIZE-FIELD-GROUP-115 decommit-side purge marker owner-local counters migrated; marker arrays, last_page_id, report fields, and recommit-side counters remain unchanged",
   "294x-93 HAKO-ALLOC-USIZE-FIELD-GROUP-114 decommit-side purge marker counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-115 selected",
   "294x-92 HAKO-ALLOC-USIZE-FIELD-GROUP-113 page-source decommit adapter owner-local counters migrated; last_base, last_bytes, and last_rc remain signed",
   "294x-91 HAKO-ALLOC-USIZE-FIELD-GROUP-112 page-source decommit adapter owner-local counter selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-113 selected",

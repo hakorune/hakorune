@@ -10,6 +10,8 @@ APP="apps/hako-alloc-purge-decommit-state-marker-proof/main.hako"
 APP_README="apps/hako-alloc-purge-decommit-state-marker-proof/README.md"
 APP_TEST="apps/hako-alloc-purge-decommit-state-marker-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-238-M198-PURGE-DECOMMIT-STATE-MARKER.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-93-HAKO-ALLOC-USIZE-PURGE-DECOMMIT-MARKER-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-94-HAKO-ALLOC-USIZE-PURGE-DECOMMIT-MARKER-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
@@ -29,6 +31,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
@@ -43,6 +47,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M198 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "decommit marker usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "decommit marker usize counter card must be landed"
 guard_expect_in_file "$TAG" 'M198 status:' "$PLAN" "mimalloc plan must record M198 status"
 guard_expect_in_file "$TAG" '`293x-238`' "$PHASE_README" "phase README must list M198 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-238`' "$TASKBOARD" "taskboard must mark M198 complete"
@@ -50,6 +56,15 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 
 guard_expect_in_file "$TAG" 'memory.purge_decommit_state_marker_box = "memory/purge_decommit_state_marker_box.hako"' "$MODULE" "hako_alloc module must export decommit state marker"
 guard_expect_in_file "$TAG" 'box HakoAllocPurgeDecommitStateMarker' "$MARKER" "state marker box must exist"
+guard_expect_in_file "$TAG" 'attempt_count: usize = 0' "$MARKER" "decommit marker attempt counter must be exact usize"
+guard_expect_in_file "$TAG" 'marked_count: usize = 0' "$MARKER" "decommit marker marked counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$MARKER" "decommit marker reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'duplicate_count: usize = 0' "$MARKER" "decommit marker duplicate counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_report_count: usize = 0' "$MARKER" "decommit marker missing-report counter must be exact usize"
+guard_expect_in_file "$TAG" 'not_decommitted_count: usize = 0' "$MARKER" "decommit marker not-decommitted counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_field_reject_count: usize = 0' "$MARKER" "decommit marker release-field reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$MARKER" "decommit marker last page id must remain signed"
+guard_expect_in_file "$TAG" 'recommit_attempt_count: i64 = 0' "$MARKER" "recommit marker counters must stay signed for their own row"
 guard_expect_in_file "$TAG" 'markIfDecommitted' "$MARKER" "state marker entry must exist"
 guard_expect_in_file "$TAG" 'isMarked' "$MARKER" "state marker observer must exist"
 guard_expect_in_file "$TAG" 'purge_decommit_state_marker_box.hako` owns M198 purge decommit state marker' "$MEMORY_README" "memory README must define M198 owner"
@@ -128,10 +143,32 @@ fields = {
 page_ids = fields.get("marked_page_ids")
 if page_ids is None or page_ids.get("declared_type") != "ArrayBox" or page_ids.get("storage") != "handle":
     raise SystemExit(f"bad marked_page_ids field: {page_ids}")
-for name in ("attempt_count", "marked_count", "reject_count", "duplicate_count"):
+for name in (
+    "attempt_count",
+    "marked_count",
+    "reject_count",
+    "duplicate_count",
+    "missing_report_count",
+    "not_decommitted_count",
+    "release_field_reject_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad decommit marker exact usize counter field {name}: {field}")
+for name in (
+    "recommit_attempt_count",
+    "recommitted_count",
+    "recommit_reject_count",
+    "duplicate_recommit_count",
+    "missing_recommit_report_count",
+    "not_recommitted_count",
+    "recommit_widened_reject_count",
+    "unmarked_recommit_reject_count",
+    "last_page_id",
+):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"bad marker counter field {name}: {field}")
+        raise SystemExit(f"bad marker signed field {name}: {field}")
 
 print("[m198-mir-json] ok")
 PY

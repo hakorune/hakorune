@@ -516,7 +516,12 @@ Selected next production `usize` field group:
   `release_field_reject_count`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-115`, while
   marker arrays, `last_page_id`, report fields, and recommit-side counters
   stay unchanged.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-115` is now the next migration row.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-115` migrated those seven decommit-side
+  `HakoAllocPurgeDecommitStateMarker` counters to exact `usize`, while marker
+  arrays, `last_page_id`, report fields, and recommit-side counters stay
+  unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-116` is now the next selection-only
+  placeholder.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
