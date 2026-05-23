@@ -1085,6 +1085,27 @@ MIMALLOC-COMPARISON-MEMORY-REPORT-CLOSEOUT-001:
   field-group row.
 ```
 
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-SAME-WORKLOAD-PACK-001:
+  landed by 294x-162. Added a hako-side representative small-block proof app
+  that mirrors the explicit C mimalloc runner request sequence, allowing the
+  normalized memory report to publish `workload_match=1` and
+  `requested_bytes_delta=0` while provider activation, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, and winner claims remain
+  closed.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-SAME-WORKLOAD-PACK-CLOSEOUT-001:
+  selected current. Close out the same-workload memory report and choose
+  whether to continue with repeated runs / RSS presentation or return to the
+  next explicit `usize` field-group row.
+```
+
 ## Ladder
 
 | Row | Status | Scope | Done When |

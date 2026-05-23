@@ -1,0 +1,91 @@
+// hako-alloc-mimalloc-comparison-representative-small-block-proof
+// Purpose: mirror the C runner's representative small-block workload in hako_alloc model space.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+        local i = 0
+        local cycle = 0
+        local alloc_ok = 1
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local block = page.acquire_usize(requested)
+            if block < 0 {
+                alloc_ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+
+        local released = 0
+        local release_ok = 1
+        loop(released < 64) {
+            local ok = page.releaseLocal(released)
+            if ok != 1 {
+                release_ok = 0
+            }
+            released += 1
+        }
+
+        local committed_bytes = page.block_size * page.capacity
+        local live_blocks = page.used
+        local source_ops = 0
+        local rejects = page.reject_count
+
+        print("hako-alloc-mimalloc-comparison-representative-small-block-proof")
+        print("workload=representative-small-block-v0")
+        print("page=" + page.alloc_count + "," + page.local_free_count + "," + page.peak_used + "," + page.requested_bytes + "," + committed_bytes + "," + rejects)
+        print("summary_fields=" + page.requested_bytes + "," + committed_bytes + "," + live_blocks + "," + page.local_free_count + "," + source_ops + "," + rejects)
+
+        local proof = new ProofCheck("representative small-block comparison")
+        proof.expectEq("alloc ok", alloc_ok, 1)
+        proof.expectEq("release ok", release_ok, 1)
+        proof.expectEq("alloc count", page.alloc_count, 64)
+        proof.expectEq("release count", page.local_free_count, 64)
+        proof.expectEq("requested bytes", page.requested_bytes, 33254)
+        proof.expectEq("committed bytes", committed_bytes, 33792)
+        proof.expectEq("peak used", page.peak_used, 64)
+        proof.expectEq("live blocks", page.used, 0)
+        proof.expectEq("rejects", page.reject_count, 0)
+        proof.expectEq("retired", page.retired, 1)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

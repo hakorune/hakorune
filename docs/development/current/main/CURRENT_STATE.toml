@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-161-MIMALLOC-COMPARISON-MEMORY-REPORT"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-161-MIMALLOC-COMPARISON-MEMORY-REPORT.md"
-latest_card_summary = "Added a normalized memory comparison report that consumes the existing hako EXE memory evidence and explicit C mimalloc runner evidence without opening provider activation, hooks, host replacement, or winner claims."
+latest_card = "294x-162-MIMALLOC-COMPARISON-SAME-WORKLOAD-MEMORY-REPORT"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-162-MIMALLOC-COMPARISON-SAME-WORKLOAD-MEMORY-REPORT.md"
+latest_card_summary = "Added a same-workload hako memory evidence app for the explicit C mimalloc representative small-block runner shape, allowing the normalized memory report to publish workload_match=1 and requested_bytes_delta=0 without opening replacement or winner claims."
 
-current_blocker_token = "MIMALLOC-COMPARISON-MEMORY-REPORT-CLOSEOUT-001"
+current_blocker_token = "MIMALLOC-COMPARISON-SAME-WORKLOAD-PACK-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-162 added same-workload hako memory evidence for the explicit C mimalloc representative small-block runner; MIMALLOC-COMPARISON-SAME-WORKLOAD-PACK-CLOSEOUT-001 is now current",
   "294x-161 added a normalized hako-vs-C mimalloc memory report over existing evidence contracts; MIMALLOC-COMPARISON-MEMORY-REPORT-CLOSEOUT-001 is now current",
   "294x-160 closed the MIMAP-560A presentation-only extension pilot after the later hook/provider/global-allocator evidence flags landed; MIMALLOC-COMPARISON-HAKO-MEMORY-EVIDENCE-001 is now current",
   "294x-159 migrated the MIMAP-560A presentation-only extension pilot later hook/provider/global-allocator evidence flags to exact usize; MIMAP-560A presentation-only extension pilot closeout is now current",
