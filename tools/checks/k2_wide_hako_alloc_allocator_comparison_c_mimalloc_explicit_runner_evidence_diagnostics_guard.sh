@@ -25,6 +25,8 @@ APP_TEST="apps/hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-eviden
 CARD_451A="docs/development/current/main/phases/phase-293x/293x-1073-MIMAP-451A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-EXECUTION-PILOT.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1074-MIMAP-452A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-EVIDENCE-DIAGNOSTICS.md"
 NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-1075-MIMAP-453A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-CLOSEOUT.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-107-HAKO-ALLOC-USIZE-C-MIMALLOC-EXPLICIT-RUNNER-EVIDENCE-DIAGNOSTIC-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-108-HAKO-ALLOC-USIZE-C-MIMALLOC-EXPLICIT-RUNNER-EVIDENCE-DIAGNOSTIC-COUNTERS.md"
 DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-evidence-diagnostics-ssot.md"
 DESIGN_451A="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-execution-pilot-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -38,13 +40,15 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-452A explicit C mimalloc runner evidence diagnostics\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_451A" "$CARD" "$NEXT_CARD" "$DESIGN" "$DESIGN_451A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_451A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_451A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_451A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
 guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-453A must be selected current or landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-107 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-108 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-452A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_451A" "MIMAP-451A design must remain accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-452A guard"
@@ -63,6 +67,18 @@ guard_expect_in_file "$TAG" 'missing_memory_evidence_blocked' "$OWNER" "owner mu
 guard_expect_in_file "$TAG" 'missing_output_contract_blocked' "$OWNER" "owner must diagnose missing output contract"
 guard_expect_in_file "$TAG" 'failed_runner_blocked' "$OWNER" "owner must diagnose failed runner"
 guard_expect_in_file "$TAG" 'invalid_run_count_blocked' "$OWNER" "owner must diagnose invalid run count"
+guard_expect_in_file "$TAG" 'diagnostic_count: usize = 0' "$OWNER" "diagnostic counter must be exact usize"
+guard_expect_in_file "$TAG" 'ready_count: usize = 0' "$OWNER" "ready counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$OWNER" "blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_diagnostic_blocked_count: usize = 0' "$OWNER" "missing diagnostic blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'rejected_diagnostic_blocked_count: usize = 0' "$OWNER" "rejected diagnostic blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_runner_blocked_count: usize = 0' "$OWNER" "missing runner blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_output_blocked_count: usize = 0' "$OWNER" "missing output blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_memory_evidence_blocked_count: usize = 0' "$OWNER" "missing memory evidence blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_output_contract_blocked_count: usize = 0' "$OWNER" "missing output contract blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'failed_runner_blocked_count: usize = 0' "$OWNER" "failed runner blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'invalid_run_count_blocked_count: usize = 0' "$OWNER" "invalid run count blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last reason must remain signed reason vocabulary"
 guard_expect_in_file "$TAG" 'process_replacement_executed: report.process_replacement_executed' "$OWNER" "diagnostics must preserve process replacement closed field"
 guard_expect_in_file "$TAG" 'provider_package_generated: report.provider_package_generated' "$OWNER" "diagnostics must preserve provider package closed field"
 
@@ -126,6 +142,9 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnostic")
+if owner is None:
+    raise SystemExit("missing explicit C mimalloc runner evidence diagnostic owner typed object plan")
 report = plans.get("HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReport")
 if report is None:
     raise SystemExit("missing explicit C mimalloc runner evidence diagnostic report typed object plan")
@@ -133,6 +152,26 @@ target = "HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticR
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing explicit C mimalloc runner evidence diagnostic ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "diagnostic_count",
+    "ready_count",
+    "blocked_count",
+    "missing_diagnostic_blocked_count",
+    "rejected_diagnostic_blocked_count",
+    "missing_runner_blocked_count",
+    "missing_output_blocked_count",
+    "missing_memory_evidence_blocked_count",
+    "missing_output_contract_blocked_count",
+    "failed_runner_blocked_count",
+    "invalid_run_count_blocked_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"explicit runner evidence diagnostic owner counter {name} must be usize storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"explicit runner evidence diagnostic last_reason must remain i64 storage: {field}")
 for name in (
     "diagnostic_present",
     "execution_pilot_present",
