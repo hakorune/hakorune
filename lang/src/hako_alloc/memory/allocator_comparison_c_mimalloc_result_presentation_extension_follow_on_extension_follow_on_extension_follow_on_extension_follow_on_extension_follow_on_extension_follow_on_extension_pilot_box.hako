@@ -114,13 +114,13 @@ box HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExte
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilot {
-    follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_count: i64 = 0
-    accepted_count: i64 = 0
-    blocked_count: i64 = 0
-    missing_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_input_reject_count: i64 = 0
-    blocked_pilot_reject_count: i64 = 0
-    missing_pilot_reject_count: i64 = 0
-    closed_stop_line_reject_count: i64 = 0
+    follow_on_extension_follow_on_extension_follow_on_extension_follow_on_count: usize = 0
+    accepted_count: usize = 0
+    blocked_count: usize = 0
+    missing_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_input_reject_count: usize = 0
+    blocked_pilot_reject_count: usize = 0
+    missing_pilot_reject_count: usize = 0
+    closed_stop_line_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilotReport(fields: HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilotReportFields): HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilotReport {
@@ -395,7 +395,7 @@ box HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExte
     }
 
     pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtension(report: HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilotReport): HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilotReport {
-        me.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_count += 1
+        me.follow_on_extension_follow_on_extension_follow_on_extension_follow_on_count += 1
         local reason = me.reasonFrom(report)
         if reason == 0 {
             me.accepted_count += 1

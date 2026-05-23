@@ -994,7 +994,7 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-155:
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-163:
+HAKO-ALLOC-USIZE-FIELD-GROUP-164:
   selection-only row for the next explicit non-negative stored field group.
   Keep decision/report fields, signed sentinels, route/state/status/reason
   vocabulary, comparison payloads, performance/memory conclusions, provider /
@@ -1002,8 +1002,8 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-163:
   out of scope unless the selected group explicitly owns one of those seams.
 
   Next hint:
-    unless a newer SSOT overrides it, select the MIMAP-546A
-    `HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionPilot`
+    unless a newer SSOT overrides it, select the MIMAP-552A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnExtensionFollowOnPilot`
     owner-local counters.
 ```
 
