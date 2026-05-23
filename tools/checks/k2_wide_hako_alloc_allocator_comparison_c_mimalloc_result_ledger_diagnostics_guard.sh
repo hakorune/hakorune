@@ -25,6 +25,8 @@ APP_TEST="apps/hako-alloc-allocator-comparison-c-mimalloc-result-ledger-diagnost
 CARD_454A="docs/development/current/main/phases/phase-293x/293x-1076-MIMAP-454A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-PILOT.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1079-MIMAP-455A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-DIAGNOSTICS.md"
 NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-1080-MIMAP-456A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-LEDGER-CLOSEOUT.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-111-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-LEDGER-DIAGNOSTIC-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-112-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-LEDGER-DIAGNOSTIC-COUNTERS.md"
 DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-ledger-diagnostics-ssot.md"
 DESIGN_454A="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-ledger-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -38,13 +40,15 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-455A allocator comparison C mimalloc result ledger diagnostics\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_454A" "$CARD" "$NEXT_CARD" "$DESIGN" "$DESIGN_454A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_454A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_454A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_454A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-456A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed|completed)' "$NEXT_CARD" "MIMAP-456A must be selected current, landed, or completed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-111 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-112 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-455A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_454A" "MIMAP-454A design must remain accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-455A guard"
@@ -57,6 +61,14 @@ guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocResultL
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocResultLedgerDiagnosticReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'diagnoseAllocatorComparisonCMimallocResultLedger' "$OWNER" "owner must expose result ledger diagnostic route"
 guard_expect_in_file "$TAG" 'HakoAllocAllocatorComparisonCMimallocResultLedgerReport' "$OWNER" "owner must consume MIMAP-454A result ledger report"
+guard_expect_in_file "$TAG" 'diagnostic_count: usize = 0' "$OWNER" "diagnostic counter must be exact usize"
+guard_expect_in_file "$TAG" 'ready_count: usize = 0' "$OWNER" "ready counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$OWNER" "blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_hako_blocked_count: usize = 0' "$OWNER" "missing hako blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_hako_blocked_count: usize = 0' "$OWNER" "blocked hako blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_c_blocked_count: usize = 0' "$OWNER" "missing C blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_c_blocked_count: usize = 0' "$OWNER" "blocked C blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last reason must remain signed reason vocabulary"
 guard_expect_in_file "$TAG" 'performance_conclusion_made: report.performance_conclusion_made' "$OWNER" "diagnostics must preserve performance conclusion field"
 guard_expect_in_file "$TAG" 'memory_conclusion_made: report.memory_conclusion_made' "$OWNER" "diagnostics must preserve memory conclusion field"
 guard_expect_in_file "$TAG" 'repeated_benchmark_executed: report.repeated_benchmark_executed' "$OWNER" "diagnostics must preserve repeated benchmark field"
@@ -123,6 +135,9 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnostic")
+if owner is None:
+    raise SystemExit("missing C mimalloc result ledger diagnostic owner typed object plan")
 report = plans.get("HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReport")
 if report is None:
     raise SystemExit("missing C mimalloc result ledger diagnostic report typed object plan")
@@ -130,6 +145,22 @@ target = "HakoAllocAllocatorComparisonCMimallocResultLedgerDiagnosticReportField
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing C mimalloc result ledger diagnostic ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "diagnostic_count",
+    "ready_count",
+    "blocked_count",
+    "missing_hako_blocked_count",
+    "blocked_hako_blocked_count",
+    "missing_c_blocked_count",
+    "blocked_c_blocked_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"C mimalloc result ledger diagnostic owner counter {name} must be usize storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"C mimalloc result ledger diagnostic last_reason must remain i64 storage: {field}")
 for name in (
     "diagnostic_present",
     "result_ledger_present",
