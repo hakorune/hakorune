@@ -44,7 +44,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_374A" "MIMAP-374A explicit-input contract must be landed"
 guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$CARD_375A" "MIMAP-375A row-selection card must be selected current or landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-376A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-377A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-377A must be selected current or landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-376A design must be accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-376A guard"
 guard_expect_in_file "$TAG" 'id = "MIMAP-376A"' "$PROOF_MANIFEST_INCLUDE" "proof manifest must list MIMAP-376A"
@@ -57,6 +57,9 @@ guard_expect_in_file "$TAG" 'record HakoAllocProviderActivationInputBundleInvent
 guard_expect_in_file "$TAG" 'makeProviderActivationInputBundleInventoryReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'inventoryProviderActivationInputBundle' "$OWNER" "owner must expose input bundle inventory route"
 guard_expect_in_file "$TAG" 'HakoAllocProviderActivationUnsupportedOutcomeLedgerReport' "$OWNER" "owner must consume unsupported-outcome ledger report"
+guard_expect_in_file "$TAG" 'bundle_count: usize = 0' "$OWNER" "input bundle owner-local counters must be exact usize"
+guard_expect_in_file "$TAG" 'closed_execution_reject_count: usize = 0' "$OWNER" "closed-execution owner-local counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "input bundle reason vocabulary must remain signed"
 guard_expect_in_file "$TAG" 'activation_request_token' "$OWNER" "owner must require explicit activation request token"
 guard_expect_in_file "$TAG" 'activation_mode' "$OWNER" "owner must require explicit activation mode"
 guard_expect_in_file "$TAG" 'provider_activation_unsupported: i64 = 1' "$OWNER" "activation must stay unsupported by default"
@@ -130,11 +133,45 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocProviderActivationInputBundleInventoryReport")
 if report is None:
     raise SystemExit("missing provider activation input bundle inventory report typed object plan")
+owner = plans.get("HakoAllocProviderActivationInputBundleInventory")
+if owner is None:
+    raise SystemExit("missing provider activation input bundle inventory typed object plan")
 target = "HakoAllocProviderActivationInputBundleInventoryReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing provider activation input bundle ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
 for name in (
+    "bundle_count",
+    "accepted_count",
+    "reject_count",
+    "missing_outcome_reject_count",
+    "rejected_outcome_reject_count",
+    "invalid_candidate_reject_count",
+    "invalid_kind_reject_count",
+    "invalid_request_token_reject_count",
+    "invalid_mode_reject_count",
+    "unsupported_evidence_reject_count",
+    "closed_execution_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"owner-local counter {name} must be exact usize: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain signed: {field}")
+for name in (
+    "bundle_count",
+    "accepted_count",
+    "reject_count",
+    "missing_outcome_reject_count",
+    "rejected_outcome_reject_count",
+    "invalid_candidate_reject_count",
+    "invalid_kind_reject_count",
+    "invalid_request_token_reject_count",
+    "invalid_mode_reject_count",
+    "unsupported_evidence_reject_count",
+    "closed_execution_reject_count",
     "activation_request_token",
     "activation_request_token_valid",
     "activation_mode",
