@@ -854,11 +854,27 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-146:
-  selection-only row for the next explicit non-negative stored field group.
-  Keep decision/report fields, signed sentinels, route/state/status/reason
-  vocabulary, comparison payloads, performance/memory conclusions, provider /
-  hook / global-allocator rows, worker/TLS, threads, and `#[global_allocator]`
-  out of scope unless the selected group explicitly owns one of those seams.
+  landed by 294x-125. Selected the
+  `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyConclusionPilot`
+  owner-local counters (`presentation_count`, `accepted_count`,
+  `blocked_count`, `missing_pilot_reject_count`,
+  `blocked_pilot_reject_count`, `missing_presentation_input_reject_count`,
+  and `closed_stop_line_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-147`, while keeping comparison payloads,
+  report mirrors, `last_reason`, performance/memory conclusions, repeated
+  benchmark execution, provider / hook / global-allocator rows, worker/TLS,
+  threads, and `#[global_allocator]` out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-147:
+  migrate only the selected C mimalloc result presentation-only conclusion
+  pilot owner-local counters to exact `usize`. Keep decision/report fields,
+  signed sentinels, route/state/status/reason vocabulary, comparison payloads,
+  performance/memory conclusions, provider / hook / global-allocator rows,
+  worker/TLS, threads, and `#[global_allocator]` out of scope.
 ```
 
 ## Ladder
