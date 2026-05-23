@@ -1032,6 +1032,19 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-166:
     `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot`
     report metadata and evidence-status fields.
 
+HAKO-ALLOC-USIZE-FIELD-GROUP-167:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep decision/report fields, signed sentinels, route/state/status/reason
+  vocabulary, comparison payload deltas, provider / hook / global-allocator
+  rows, worker/TLS, threads, and `#[global_allocator]` out of scope unless
+  the selected group explicitly owns one of those seams.
+
+  Next hint:
+    unless a newer SSOT overrides it, select the MIMAP-560A
+    `HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilot`
+    performance conclusion, memory conclusion, repeated-benchmark, and
+    process-replacement evidence fields.
+
 ## Ladder
 
 | Row | Status | Scope | Done When |
