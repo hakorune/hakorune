@@ -27,6 +27,8 @@ CARD_449A="docs/development/current/main/phases/phase-293x/293x-1071-MIMAP-449A-
 CARD_450A="docs/development/current/main/phases/phase-293x/293x-1072-MIMAP-450A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXECUTION-CLOSEOUT.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1073-MIMAP-451A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-EXECUTION-PILOT.md"
 NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-1074-MIMAP-452A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-EVIDENCE-DIAGNOSTICS.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-105-HAKO-ALLOC-USIZE-C-MIMALLOC-EXPLICIT-RUNNER-EXECUTION-PILOT-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-106-HAKO-ALLOC-USIZE-C-MIMALLOC-EXPLICIT-RUNNER-EXECUTION-PILOT-COUNTERS.md"
 DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-execution-pilot-ssot.md"
 DESIGN_449A="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-execution-diagnostics-ssot.md"
 PROVIDER_PACKAGE_SSOT="docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md"
@@ -43,13 +45,15 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-451A explicit C mimalloc runner execution pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_448A" "$CARD_449A" "$CARD_450A" "$CARD" "$NEXT_CARD" "$DESIGN" "$DESIGN_449A" "$PROVIDER_PACKAGE_SSOT" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$C_RUNNER_SH" "$C_RUNNER_C" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_448A" "$CARD_449A" "$CARD_450A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_449A" "$PROVIDER_PACKAGE_SSOT" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$C_RUNNER_SH" "$C_RUNNER_C" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$C_RUNNER_SH" "$RUN_PROOF"
 
 for card in "$CARD_448A" "$CARD_449A" "$CARD_450A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
 guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-452A must be selected current or landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-105 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-106 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-451A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_449A" "MIMAP-449A design must remain accepted"
 guard_expect_in_file "$TAG" 'MIMAP-451A should continue to build the C mimalloc explicit runner execution' "$PROVIDER_PACKAGE_SSOT" "provider package SSOT must keep MIMAP-451A distinct from DLL generation"
@@ -66,6 +70,18 @@ guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplici
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'recordAllocatorComparisonCMimallocExplicitRunnerExecution' "$OWNER" "owner must expose explicit runner evidence route"
 guard_expect_in_file "$TAG" 'HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport' "$OWNER" "owner must consume MIMAP-449A diagnostic report"
+guard_expect_in_file "$TAG" 'pilot_count: usize = 0' "$OWNER" "execution pilot counter must be exact usize"
+guard_expect_in_file "$TAG" 'accepted_count: usize = 0' "$OWNER" "accepted counter must be exact usize"
+guard_expect_in_file "$TAG" 'reject_count: usize = 0' "$OWNER" "reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_diagnostic_reject_count: usize = 0' "$OWNER" "missing diagnostic reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'rejected_diagnostic_reject_count: usize = 0' "$OWNER" "rejected diagnostic reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_runner_reject_count: usize = 0' "$OWNER" "missing runner reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_output_reject_count: usize = 0' "$OWNER" "missing output reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_memory_evidence_reject_count: usize = 0' "$OWNER" "missing memory evidence reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_output_contract_reject_count: usize = 0' "$OWNER" "missing output contract reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'failed_runner_reject_count: usize = 0' "$OWNER" "failed runner reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'invalid_run_count_reject_count: usize = 0' "$OWNER" "invalid run count reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last reason must remain signed reason vocabulary"
 guard_expect_in_file "$TAG" 'c_mimalloc_executed: executed' "$OWNER" "accepted report must record C mimalloc execution evidence"
 guard_expect_in_file "$TAG" 'process_replacement_executed: 0' "$OWNER" "process replacement must stay closed"
 guard_expect_in_file "$TAG" 'hook_installed: 0' "$OWNER" "hook installation must stay closed"
@@ -183,6 +199,9 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot")
+if owner is None:
+    raise SystemExit("missing explicit C mimalloc runner pilot owner typed object plan")
 report = plans.get("HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport")
 if report is None:
     raise SystemExit("missing explicit C mimalloc runner pilot report typed object plan")
@@ -197,6 +216,26 @@ for target in (
     if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
         raise SystemExit(f"missing explicit C mimalloc runner context record: {target}")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "pilot_count",
+    "accepted_count",
+    "reject_count",
+    "missing_diagnostic_reject_count",
+    "rejected_diagnostic_reject_count",
+    "missing_runner_reject_count",
+    "missing_output_reject_count",
+    "missing_memory_evidence_reject_count",
+    "missing_output_contract_reject_count",
+    "failed_runner_reject_count",
+    "invalid_run_count_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"explicit runner pilot owner counter {name} must be usize storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"explicit runner pilot last_reason must remain i64 storage: {field}")
 for name in (
     "execution_pilot_present",
     "diagnostic_ready",

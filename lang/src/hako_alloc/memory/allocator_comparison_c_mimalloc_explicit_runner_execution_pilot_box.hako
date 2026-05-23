@@ -124,17 +124,17 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
 }
 
 box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot {
-    pilot_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_diagnostic_reject_count: i64 = 0
-    rejected_diagnostic_reject_count: i64 = 0
-    missing_runner_reject_count: i64 = 0
-    missing_output_reject_count: i64 = 0
-    missing_memory_evidence_reject_count: i64 = 0
-    missing_output_contract_reject_count: i64 = 0
-    failed_runner_reject_count: i64 = 0
-    invalid_run_count_reject_count: i64 = 0
+    pilot_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_diagnostic_reject_count: usize = 0
+    rejected_diagnostic_reject_count: usize = 0
+    missing_runner_reject_count: usize = 0
+    missing_output_reject_count: usize = 0
+    missing_memory_evidence_reject_count: usize = 0
+    missing_output_contract_reject_count: usize = 0
+    failed_runner_reject_count: usize = 0
+    invalid_run_count_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport(fields: HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields): HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {

@@ -589,6 +589,11 @@ Selected next production `usize` field group:
   while runner payload records, report fields, `last_reason`, stop-line flags,
   provider / hook / global-allocator rows, worker/TLS, and threads stay
   unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-127` migrated those eleven
+  `HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot`
+  owner-local counters to exact `usize`, while runner payload records, report
+  fields, `last_reason`, stop-line flags, provider / hook / global-allocator
+  rows, worker/TLS, and threads stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -753,7 +758,7 @@ excludes `usize_field_probe_box.hako`.
 | --- | --- | --- | --- |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | `requested_size` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-081`; page/block id fields stay `i64` until id/index contracts are split. |
 | `abandoned_reclaim_inventory_box.hako` | `HakoAllocAbandonedReclaimInventory` | `classify_count`, `candidate_count`, `reject_count`, `missing_backing_reject_count`, `owner_active_reject_count`, `remote_pending_reject_count`, `decommitted_reject_count`, `abandoned_live_count`, `abandoned_retired_count`, `purge_forward_candidate_count`, `last_page_id`, `last_reason` | inventory counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-125`; `last_page_id = -1` and reason vocabulary stay signed. |
-| `allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako` | `HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot` | `pilot_count`, `accepted_count`, `reject_count`, `missing_diagnostic_reject_count`, `rejected_diagnostic_reject_count`, `missing_runner_reject_count`, `missing_output_reject_count`, `missing_memory_evidence_reject_count`, `missing_output_contract_reject_count`, `failed_runner_reject_count`, `invalid_run_count_reject_count`, `last_reason` | owner-local counters are selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-126` for `HAKO-ALLOC-USIZE-FIELD-GROUP-127`; `last_reason` stays signed reason vocabulary. |
+| `allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako` | `HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot` | `pilot_count`, `accepted_count`, `reject_count`, `missing_diagnostic_reject_count`, `rejected_diagnostic_reject_count`, `missing_runner_reject_count`, `missing_output_reject_count`, `missing_memory_evidence_reject_count`, `missing_output_contract_reject_count`, `failed_runner_reject_count`, `invalid_run_count_reject_count`, `last_reason` | owner-local counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-127`; `last_reason` stays signed reason vocabulary. |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | event/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-067`; `block_size` and `page_capacity` are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-080`; `next_page_id` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-089`; `bin` is exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-095`. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
 | `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-062`; C205c metadata-store counter migrated with the aligned-small metadata owner. |
