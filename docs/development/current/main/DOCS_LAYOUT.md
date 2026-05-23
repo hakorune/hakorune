@@ -148,6 +148,23 @@ in `phase-293x/README.md`.
 - physical card moves require either guard-reference decoupling or forwarding
   stubs at the old paths.
 
+### `docs/development/current/main/phases/phase-294x/`（usize active phase）
+
+- current taskboard:
+  `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
+- landed field-group ledger index:
+  `docs/development/current/main/phases/phase-294x/294x-usize-field-group-ledger.md`
+- split detailed field-group ledgers:
+  `294x-usize-field-group-ledger-084-139.md` and
+  `294x-usize-field-group-ledger-140-196.md`
+
+Rule:
+
+- keep `294x-90-usize-semantics-taskboard.md` under the active queue/current
+  blocker shape; do not append the full landed field-group chronology there.
+- add long landed field-group summaries to the split ledgers only when they are
+  useful for handoff/debugging.
+
 ### `docs/private/development/current/main/`（private canonical）
 
 公開したくない計画本文・作業メモの正本を置くローカル領域。

@@ -5,11 +5,14 @@
   mimalloc `.hako` port to use `usize` without lying about runtime behavior.
 - Active lane token: `phase-294x usize semantic foundation`
 - Current blocker token:
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-175`
+  read `current_blocker_token` in
+  `docs/development/current/main/CURRENT_STATE.toml`
 - Design SSOT:
   `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 - Taskboard:
   `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
+- Field-group ledger index:
+  `docs/development/current/main/phases/phase-294x/294x-usize-field-group-ledger.md`
 - Parent app lane:
   `docs/development/current/main/phases/phase-293x/README.md`
 
@@ -18,7 +21,7 @@
 | Lane | Current truth |
 | --- | --- |
 | `usize` semantics | VM reference execution can keep exact numeric results tagged instead of collapsing them back to `Integer(i64)`. |
-| production `hako_alloc` fields | Facade-local stats, page-map owner counters, page-map release event/reject counters, realloc path/failure-contract counters, aligned-small path counters, huge-threshold router counters, page-queue stats counters, page-model local alloc/free/reject counters, and page-model collection counters are exact `usize`; page/heap/queue/handle state remains `i64` until its own field-group row. |
+| production `hako_alloc` fields | Exact `usize` production fields advance only through named field-group rows. Current details live in `NUMERIC_FIELDS.md` and the field-group ledger; status/reason vocabularies, flags, pointer-like payloads, and signed sentinels remain separate unless a row names them. |
 | mimalloc `.hako` rows | Continue as a comparison-quality vertical slice under the still-`i64` page/heap/queue production boundary. Do not wait for every remaining field group before producing comparable evidence. |
 | native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`. |
 | field get/set ABI | Python LLVM and the pure-first C shim consume exact typed-object field ABI for exact-storage plans. |
@@ -80,9 +83,11 @@ inside this phase. Those are explicit carryovers unless a later row names them.
 
 1. `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 2. `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
-3. `docs/reference/language/types.md`
-4. `docs/reference/runtime/substrate-capabilities.md`
-5. `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
+3. `docs/development/current/main/phases/phase-294x/294x-usize-field-group-ledger.md`
+4. `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md`
+5. `docs/reference/language/types.md`
+6. `docs/reference/runtime/substrate-capabilities.md`
+7. `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
 
 ## Completed Ledger
 
