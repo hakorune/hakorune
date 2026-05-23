@@ -10,11 +10,13 @@ APP="apps/hako-alloc-page-lifecycle-invariant-proof/main.hako"
 APP_README="apps/hako-alloc-page-lifecycle-invariant-proof/README.md"
 APP_TEST="apps/hako-alloc-page-lifecycle-invariant-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-251-M207-PAGE-LIFECYCLE-INVARIANT-FREEZE.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-101-HAKO-ALLOC-USIZE-PAGE-LIFECYCLE-OBSERVER-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-102-HAKO-ALLOC-USIZE-PAGE-LIFECYCLE-OBSERVER-COUNTERS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_purge_core.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/page_lifecycle_invariant_box.hako"
@@ -30,6 +32,8 @@ guard_require_files \
   "$APP_README" \
   "$APP_TEST" \
   "$CARD" \
+  "$USIZE_SELECTION_CARD" \
+  "$USIZE_CARD" \
   "$PLAN" \
   "$PHASE_README" \
   "$TASKBOARD" \
@@ -45,6 +49,8 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M207 card must be complete"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-101 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-102 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'M207 status:' "$PLAN" "mimalloc plan must record M207 status"
 guard_expect_in_file "$TAG" '`293x-251`' "$PHASE_README" "phase README must list M207 row"
 guard_expect_in_file "$TAG" '\[x\] `293x-251`' "$TASKBOARD" "taskboard must mark M207 complete"
@@ -54,6 +60,14 @@ guard_expect_in_file "$TAG" 'memory.page_lifecycle_invariant_box = "memory/page_
 guard_expect_in_file "$TAG" 'owns M207 page lifecycle invariant' "$MEMORY_README" "memory README must define M207 owner"
 guard_expect_in_file "$TAG" 'State codes:' "$OWNER" "M207 owner must document state codes"
 guard_expect_in_file "$TAG" 'box HakoAllocPageLifecycleInvariantObserver' "$OWNER" "M207 observer box must exist"
+guard_expect_in_file "$TAG" 'observe_count: usize = 0' "$OWNER" "M207 observe counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_count: usize = 0' "$OWNER" "M207 missing counter must be exact usize"
+guard_expect_in_file "$TAG" 'active_count: usize = 0' "$OWNER" "M207 active counter must be exact usize"
+guard_expect_in_file "$TAG" 'retired_count: usize = 0' "$OWNER" "M207 retired counter must be exact usize"
+guard_expect_in_file "$TAG" 'decommitted_count: usize = 0' "$OWNER" "M207 decommitted counter must be exact usize"
+guard_expect_in_file "$TAG" 'recommitted_count: usize = 0' "$OWNER" "M207 recommitted counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_page_id: i64 = -1' "$OWNER" "M207 last page id must remain signed sentinel"
+guard_expect_in_file "$TAG" 'last_state: i64 = 0' "$OWNER" "M207 last state must remain signed state vocabulary"
 guard_expect_in_file "$TAG" 'check "m207 page lifecycle"' "$APP" "M207 proof must use labelled check block"
 
 if rg -n 'reservePage[[:space:]]*\(|commitPage[[:space:]]*\(|decommitPage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\(|attemptHeapPage[[:space:]]*\(|markIf|reactivate[[:space:]]*\(|releaseLocal[[:space:]]*\(|acquire[[:space:]]*\(' \
@@ -123,6 +137,9 @@ plans = {
 report = plans.get("HakoAllocPageLifecycleInvariantReport")
 if report is None:
     raise SystemExit("missing typed object plan: HakoAllocPageLifecycleInvariantReport")
+observer = plans.get("HakoAllocPageLifecycleInvariantObserver")
+if observer is None:
+    raise SystemExit("missing typed object plan: HakoAllocPageLifecycleInvariantObserver")
 fields = {
     field.get("name"): field
     for field in report.get("fields", [])
@@ -131,6 +148,30 @@ for name in ("state", "acquire_allowed", "decommit_candidate", "recommit_require
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"bad lifecycle report field {name}: {field}")
+
+observer_fields = {
+    field.get("name"): field
+    for field in observer.get("fields", [])
+}
+for name in (
+    "observe_count",
+    "missing_count",
+    "active_count",
+    "retired_count",
+    "decommitted_count",
+    "recommitted_count",
+):
+    field = observer_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing lifecycle observer field: {name}")
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad lifecycle observer counter {name}: {field}")
+for name in ("last_page_id", "last_state"):
+    field = observer_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing lifecycle observer field: {name}")
+    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad lifecycle observer signed field {name}: {field}")
 
 print("[m207-mir-json] ok")
 PY

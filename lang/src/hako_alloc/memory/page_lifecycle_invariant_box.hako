@@ -33,12 +33,12 @@ box HakoAllocPageLifecycleInvariantReport {
 }
 
 box HakoAllocPageLifecycleInvariantObserver {
-    observe_count: i64 = 0
-    missing_count: i64 = 0
-    active_count: i64 = 0
-    retired_count: i64 = 0
-    decommitted_count: i64 = 0
-    recommitted_count: i64 = 0
+    observe_count: usize = 0
+    missing_count: usize = 0
+    active_count: usize = 0
+    retired_count: usize = 0
+    decommitted_count: usize = 0
+    recommitted_count: usize = 0
     last_page_id: i64 = -1
     last_state: i64 = 0
 

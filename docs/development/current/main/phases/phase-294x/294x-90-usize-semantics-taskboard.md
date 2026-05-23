@@ -522,11 +522,23 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-123:
-  migrate only the selected page lifecycle observer owner-local counters to
-  exact `usize`. Keep lifecycle report fields, `last_page_id`, `last_state`,
-  heap/page queues, page-source adapters, heap/page mutation, OSVM
-  byte/pointer payloads, provider / hook / global-allocator rows, TLS,
-  atomics, and `#[global_allocator]` out of scope.
+  landed by 294x-102. Migrated only the selected page lifecycle observer
+  owner-local counters to exact `usize`, while keeping lifecycle report
+  fields, `last_page_id`, `last_state`, heap/page queues, page-source
+  adapters, heap/page mutation, OSVM byte/pointer payloads, provider / hook /
+  global-allocator rows, TLS, atomics, and `#[global_allocator]` out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-124:
+  selection-only row for the next explicit non-negative stored field group.
+  Keep lifecycle report fields, signed sentinels, route/state/status
+  vocabulary, heap/page queues, page-source adapters, heap/page mutation,
+  OSVM byte/pointer payloads, provider / hook / global-allocator rows, TLS,
+  atomics, and `#[global_allocator]` out of scope unless the selected group
+  explicitly owns one of those seams.
 ```
 
 ## Ladder

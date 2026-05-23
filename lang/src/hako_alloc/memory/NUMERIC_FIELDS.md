@@ -559,7 +559,12 @@ Selected next production `usize` field group:
   `recommitted_count`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-123`, while lifecycle
   report fields, `last_page_id`, `last_state`, heap/page queues, page-source
   adapters, and heap/page execution state stay unchanged.
-- `HAKO-ALLOC-USIZE-FIELD-GROUP-123` is now the next migration row.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-123` migrated those six
+  `HakoAllocPageLifecycleInvariantObserver` owner-local counters to exact
+  `usize`, while lifecycle report fields, `last_page_id`, `last_state`,
+  heap/page queues, page-source adapters, and heap/page execution state stay
+  unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-124` is now the next selection-only row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
@@ -731,7 +736,7 @@ excludes `usize_field_probe_box.hako`.
 | `huge_release_seam_box.hako` | `HakoAllocHugeReleaseSeam` | `release_count`, `unregister_count`, `lookup_miss_count`, `not_huge_count`, `model_reject_count`, `reject_count`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-066`; `last_page_id = -1` is signed-sentinel and stays `i64`. |
 | `huge_threshold_router_box.hako` | `HakoAllocHugeThresholdRouter` | `small_route_count`, `small_success_count`, `small_reject_count`, `huge_route_count`, `huge_reject_count`, `invalid_alignment_count`, `invalid_size_count`, `reject_count`, `last_route_kind`, `last_result_ptr`, `last_padded_size`, `last_good_size`, `last_huge_threshold` | route/reject counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-057`; enum/ptr/size observers stay `i64`. |
 | `heap_reuse_priority_box.hako` | `HakoAllocHeapReusePriorityPolicy` | `select_count`, `active_pick_count`, `recommitted_pick_count`, `retired_pick_count`, `fresh_pick_count`, `decommitted_skip_count`, `missing_skip_count`, `last_route`, `last_page_id` | pick/skip counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-121`; route vocabulary and `last_page_id = -1` stay signed. |
-| `page_lifecycle_invariant_box.hako` | `HakoAllocPageLifecycleInvariantObserver` | `observe_count`, `missing_count`, `active_count`, `retired_count`, `decommitted_count`, `recommitted_count`, `last_page_id`, `last_state` | selected observer state counters for `HAKO-ALLOC-USIZE-FIELD-GROUP-123`; `last_page_id = -1` and state vocabulary stay signed. |
+| `page_lifecycle_invariant_box.hako` | `HakoAllocPageLifecycleInvariantObserver` | `observe_count`, `missing_count`, `active_count`, `retired_count`, `decommitted_count`, `recommitted_count`, `last_page_id`, `last_state` | observer state counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-123`; `last_page_id = -1` and state vocabulary stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAllocResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `attempt_count`, `success_count`, `failure_count`, `reusable_success_count`, `active_success_count` | alloc attempt/success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleReleaseResult` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, `success_count`, `failure_count` | release success/failure counters are exact `usize` via `HAKO-ALLOC-USIZE-FIELD-GROUP-099`; page/block id sentinels, reason vocabulary, and ok flag stay signed. |
 | `object_lifecycle_facade_result_box.hako` | `HakoAllocObjectLifecycleAlignmentResult` | `last_requested`, `last_normalized`, `last_reason`, `last_supported` | alignment observers remain signed until the alignment request/normalized seam gets a dedicated row. |
