@@ -1262,7 +1262,18 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-177:
-  selected current. Select the next explicit non-negative stored field group.
+  landed by 294x-178. Selected the alloc-miss report source byte-length mirror
+  (`source_bytes`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-178`, while source status,
+  source added page id, pointer-like base, retry/final status and reason, and
+  page/block id payloads remain signed/closed.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-178:
+  selected current. Migrate only the selected alloc-miss source byte-length
+  mirror to exact `usize`.
   Do not migrate status/reason vocabularies, bool-like flags, signed sentinels,
   pointer-like payloads, provider activation, host replacement, hooks, global
   allocator install, worker/TLS, atomics, provider package / DLL generation, or
