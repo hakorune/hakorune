@@ -22,7 +22,7 @@ box HakoAllocObjectLifecycleFacadePageSourceAllocMissReport {
     source_added_page_id: i64 = -1
     source_facade_page_count: usize = 0
     source_base: i64 = 0
-    source_bytes: i64 = 0
+    source_bytes: usize = 0
     retry_ok: i64 = 0
     retry_reason: i64 = 0
     final_ok: i64 = 0

@@ -216,7 +216,6 @@ for field in (
     "source_status",
     "source_added_page_id",
     "source_base",
-    "source_bytes",
     "retry_ok",
     "retry_reason",
     "final_ok",
@@ -237,6 +236,13 @@ for field in (
     report_field = report_fields.get(field)
     if report_field is None or report_field.get("declared_type") != "usize" or report_field.get("storage") != "usize":
         raise SystemExit(f"alloc-miss source mirror {field} must be exact usize storage: {report_field}")
+
+for field in (
+    "source_bytes",
+):
+    report_field = report_fields.get(field)
+    if report_field is None or report_field.get("declared_type") != "usize" or report_field.get("storage") != "usize":
+        raise SystemExit(f"alloc-miss source payload {field} must be exact usize storage: {report_field}")
 
 for field in (
     "fallback_attempt_count",
