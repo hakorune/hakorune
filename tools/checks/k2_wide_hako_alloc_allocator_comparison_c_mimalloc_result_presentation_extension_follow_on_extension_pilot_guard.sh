@@ -25,6 +25,8 @@ APP_TEST="apps/hako-alloc-allocator-comparison-c-mimalloc-result-presentation-ex
 CARD_492A="docs/development/current/main/phases/phase-293x/293x-1122-MIMAP-492A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-PILOT.md"
 CARD_496A="docs/development/current/main/phases/phase-293x/293x-1126-MIMAP-496A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PLAN.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1128-MIMAP-498A-ALLOCATOR-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PILOT.md"
+USIZE_SELECTION_CARD="docs/development/current/main/phases/phase-294x/294x-133-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTER-SELECTION.md"
+USIZE_CARD="docs/development/current/main/phases/phase-294x/294x-134-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTERS.md"
 DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-pilot-ssot.md"
 DESIGN_492A="docs/development/current/main/design/hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-pilot-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -38,12 +40,14 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-498A allocator comparison C mimalloc result presentation extension follow-on extension pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_492A" "$CARD_496A" "$CARD" "$DESIGN" "$DESIGN_492A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_492A" "$CARD_496A" "$CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_492A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_492A" "MIMAP-492A must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_496A" "MIMAP-496A must be landed"
 guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$CARD" "MIMAP-498A must be selected current or landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_SELECTION_CARD" "294x-133 usize selection card must be landed"
+guard_expect_in_file "$TAG" 'Status: Landed' "$USIZE_CARD" "294x-134 usize migration card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-498A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_492A" "MIMAP-492A design must remain accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-498A guard"
@@ -59,6 +63,14 @@ guard_expect_in_file "$TAG" 'HakoAllocAllocatorComparisonCMimallocResultPresenta
 guard_expect_in_file "$TAG" 'follow_on_extension_ready' "$OWNER" "pilot must publish follow-on extension readiness"
 guard_expect_in_file "$TAG" 'requested_bytes_delta: report.requested_bytes_delta' "$OWNER" "pilot must preserve requested bytes delta field"
 guard_expect_in_file "$TAG" 'provider_package_generated: report.provider_package_generated' "$OWNER" "pilot must preserve provider package field"
+guard_expect_in_file "$TAG" 'follow_on_extension_count: usize = 0' "$OWNER" "follow-on extension counter must be exact usize"
+guard_expect_in_file "$TAG" 'accepted_count: usize = 0' "$OWNER" "accepted counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_count: usize = 0' "$OWNER" "blocked counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_pilot_reject_count: usize = 0' "$OWNER" "missing pilot reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'blocked_pilot_reject_count: usize = 0' "$OWNER" "blocked pilot reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'missing_follow_on_extension_input_reject_count: usize = 0' "$OWNER" "missing follow-on extension input reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'closed_stop_line_reject_count: usize = 0' "$OWNER" "closed stop-line reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last reason must remain signed reason vocabulary"
 
 if rg -n 'run_benchmark[[:space:]]*\(|bash[[:space:]]+tools/allocator/c_mimalloc_explicit_runner|replace_process_allocator[[:space:]]*\(|install_hook[[:space:]]*\(|#\[global_allocator\]|backendMatcherInstall|pointer_member|dereference[[:space:]]*\(|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|await|sync[[:space:]]+box|context[[:space:]]' "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
   echo "[$TAG] ERROR: MIMAP-498A owner/app must keep benchmark/replacement/hook/backend/source-concurrency seams inactive" >&2
@@ -121,6 +133,9 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionPilot")
+if owner is None:
+    raise SystemExit("missing C mimalloc result presentation extension follow-on extension pilot owner typed object plan")
 report = plans.get("HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnExtensionPilotReport")
 if report is None:
     raise SystemExit("missing C mimalloc result presentation extension follow-on extension pilot report typed object plan")
@@ -128,6 +143,22 @@ target = "HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollow
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing C mimalloc result presentation extension follow-on extension pilot ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+for name in (
+    "follow_on_extension_count",
+    "accepted_count",
+    "blocked_count",
+    "missing_pilot_reject_count",
+    "blocked_pilot_reject_count",
+    "missing_follow_on_extension_input_reject_count",
+    "closed_stop_line_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"C mimalloc result presentation extension follow-on extension owner counter {name} must be usize storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"C mimalloc result presentation extension follow-on extension last_reason must remain i64 storage: {field}")
 for name in (
     "follow_on_extension_present",
     "pilot_present",
