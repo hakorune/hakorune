@@ -1101,9 +1101,20 @@ Current blocker:
 
 ```text
 MIMALLOC-COMPARISON-SAME-WORKLOAD-PACK-CLOSEOUT-001:
-  selected current. Close out the same-workload memory report and choose
-  whether to continue with repeated runs / RSS presentation or return to the
-  next explicit `usize` field-group row.
+  landed by 294x-163. Closed the same-workload memory report pack after
+  `workload_match=1`, `requested_bytes_delta=0`, and positive single-run RSS
+  evidence landed on both sides, while winner claims and repeated-run
+  statistics remain closed.
+```
+
+Current blocker:
+
+```text
+MIMALLOC-COMPARISON-RSS-PRESENTATION-001:
+  selected current. Format the existing same-workload single-run RSS evidence
+  into a clearer presentation contract without adding repeated-run aggregation,
+  provider activation, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, or winner claims.
 ```
 
 ## Ladder
