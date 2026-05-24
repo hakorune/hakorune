@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-51-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-RUN"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-51-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-RUN.md"
-latest_card_summary = "Ran selected repeated comparison pack with empty runtime config profile."
+latest_card = "295x-52-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-52-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-CLOSEOUT.md"
+latest_card_summary = "Closed guard-fast minimal config repeated pack and selected full repeated measurement pack."
 
-current_blocker_token = "MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-CLOSEOUT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-52 closed guard-fast minimal config repeated pack and selected full repeated measurement pack",
   "295x-51 ran selected repeated comparison pack with empty runtime config profile",
   "295x-50 documented comparison-runner runtime config profiles",
   "295x-49 closed generated-empty runtime config evidence and selected runtime config profile contract",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-43 added and ran plugin-host substage RSS checkpoints",
   "295x-42 selected plugin-host substage RSS diagnostics",
   "295x-41 ran empty no-output exact-EXE RSS checkpoint diagnostic",
-  "295x-40 added env-gated NyRT self-RSS checkpoints",
 ]
