@@ -916,10 +916,22 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-216:
-  selected current. Migrate only those selected no-escape pointer residence
-  pilot owner-local counters to exact `usize`; keep status/reason vocabularies,
-  bool-like flags, signed sentinels, pointer-like payloads, byte-count
-  payloads, provider calls, host replacement, hooks, global allocator install,
-  worker/TLS, atomics, provider package / DLL generation, and
-  #[global_allocator] out of scope.
+  landed by 294x-218. Migrated only those selected no-escape pointer residence
+  pilot owner-local counters to exact `usize`; kept `last_reason`, report
+  mirrors, pointer tokens, no-escape scope fields, byte-count payloads,
+  bool-like would-execute flags, pointer-derived lookup, arena release/recycle,
+  segment-map mutation, atomic bitmap execution, OSVM, worker/TLS, providers,
+  backend matchers, provider package / DLL generation, and #[global_allocator]
+  out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-217:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+  sentinels, pointer-like payloads, byte-count payloads, provider calls, host
+  replacement, hooks, global allocator install, worker/TLS, atomics, provider
+  package / DLL generation, or #[global_allocator].
 ```

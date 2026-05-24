@@ -29,13 +29,14 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/segment_arena_backing_no_escape_pointer_residence_pilot_box.hako"
 LEDGER_OWNER="lang/src/hako_alloc/memory/segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_segment_arena_backing_no_escape_pointer_residence_pilot_guard.sh"
 
 printf '[%s] checking MIMAP-344A segment arena backing no-escape pointer residence pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_343A" "$CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$LEDGER_OWNER" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_343A" "$CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$MODULE_INDEX" "$OWNER" "$LEDGER_OWNER" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_343A" "MIMAP-343A closeout must be landed before no-escape pointer residence pilot"
@@ -48,10 +49,13 @@ guard_expect_in_file "$TAG" 'row_kind = "first-real-seam"' "$PROOF_MANIFEST_INCL
 guard_expect_in_file "$TAG" 'first_pattern = true' "$PROOF_MANIFEST_INCLUDE" "MIMAP-344A must mark first pattern"
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-344A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_no_escape_pointer_residence_pilot_box' "$MODULE" "module must export no-escape pointer residence pilot owner"
-guard_expect_in_file "$TAG" 'segment_arena_backing_no_escape_pointer_residence_pilot_box.hako' "$MEMORY_README" "memory README must name no-escape pointer residence pilot owner"
+guard_expect_in_file "$TAG" 'segment_arena_backing_no_escape_pointer_residence_pilot_box.hako' "$MODULE_INDEX" "module index must name no-escape pointer residence pilot owner"
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingNoEscapePointerResidencePilotReportFields' "$OWNER" "pilot owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeNoEscapePointerResidencePilotReport' "$OWNER" "pilot owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'recordNoEscapePointerResidence' "$OWNER" "pilot owner must expose no-escape pointer residence route"
+guard_expect_in_file "$TAG" 'residence_count: usize = 0' "$OWNER" "owner residence_count counter must be exact usize"
+guard_expect_in_file "$TAG" 'closed_execution_reject_count: usize = 0' "$OWNER" "owner closed execution reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "last_reason must remain signed"
 guard_expect_in_file "$TAG" 'private_pointer_token: i64' "$OWNER" "pilot report must carry private pointer token"
 guard_expect_in_file "$TAG" 'report_applied_backing_bytes: usize' "$OWNER" "pilot must mirror backing bytes as usize"
 
@@ -114,6 +118,27 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot")
+if owner is None:
+    raise SystemExit("missing no-escape pointer residence pilot typed object plan")
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+owner_usize_fields = [
+    "residence_count",
+    "accepted_count",
+    "reject_count",
+    "missing_ledger_reject_count",
+    "rejected_ledger_reject_count",
+    "invalid_token_reject_count",
+    "escape_reject_count",
+    "closed_execution_reject_count",
+]
+for name in owner_usize_fields:
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"{name} must be exact usize storage on owner: {field}")
+last_reason = owner_fields.get("last_reason")
+if last_reason is None or last_reason.get("declared_type") != "i64" or last_reason.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain i64 storage on owner: {last_reason}")
 report = plans.get("HakoAllocSegmentArenaBackingNoEscapePointerResidencePilotReport")
 if report is None:
     raise SystemExit("missing no-escape pointer residence pilot report typed object plan")
@@ -129,6 +154,10 @@ for name in ("private_pointer_token", "token_valid", "non_dereferenceable"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64":
         raise SystemExit(f"{name} must be i64: {field}")
+for name in owner_usize_fields:
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"{name} report mirror must remain i64 storage: {field}")
 print("[mimap344a-mir-json] ok")
 PY
 

@@ -1024,6 +1024,14 @@ Selected next production `usize` field group:
   arena release/recycle, segment-map mutation, atomic bitmap execution, OSVM,
   worker/TLS, providers, backend matchers, provider package / DLL generation,
   and `#[global_allocator]` stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-216` migrated those eight
+  `HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot` owner-local
+  counters to exact `usize`, while `last_reason`, report fields, pointer
+  tokens, no-escape scope fields, byte-count payloads, bool-like
+  would-execute flags, pointer-derived lookup, arena release/recycle,
+  segment-map mutation, atomic bitmap execution, OSVM, worker/TLS, providers,
+  backend matchers, provider package / DLL generation, and
+  `#[global_allocator]` stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
