@@ -30,11 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-POLICY-295X-001:
-  selected current after 295x-27. Define repeated measurement policy before
-  any performance or memory winner claim: sample count, warmup count, summary
-  statistic, environment capture, binary/library identity, and RSS collector
-  rules.
+MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001:
+  selected current after 295x-28. Implement a small repeated evidence runner
+  for measurement_profile=phase295x-repeated-v0 without winner claims.
 ```
 
 ## Queue
@@ -69,7 +67,8 @@ MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-POLICY-295X-001:
 | 25 | `295x-25` | Landed | Added C runner and `.hako` evidence contract support for representative-huge-ish-v0. |
 | 26 | `295x-26` | Landed | Ran huge-ish same-workload evidence through the normalizer. |
 | 27 | `295x-27` | Landed | Closed the huge-ish workload family. |
-| 28 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-POLICY-295X-001` | Current | Define repeated measurement policy before winner claims. |
+| 28 | `295x-28` | Landed | Defined repeated measurement policy before winner claims. |
+| 29 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001` | Current | Implement repeated evidence runner without winner claims. |
 
 ## Parked
 

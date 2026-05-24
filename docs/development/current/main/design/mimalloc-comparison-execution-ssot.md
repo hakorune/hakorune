@@ -144,6 +144,49 @@ hako_alloc is faster/slower than mimalloc
 hako_alloc uses less/more memory than mimalloc
 ```
 
+## Repeated Measurement Policy v0
+
+Decision: accepted for phase-295x repeated evidence rows.
+
+```text
+measurement_profile=phase295x-repeated-v0
+warmup_count=1
+sample_count=5
+summary=min,median,max
+canonical_rss_collector=external-time
+internal_rss_evidence=preserved
+winner_claim=0
+```
+
+The initial workload pack is:
+
+```text
+representative-small-block-v0
+representative-realloc-aligned-v0
+representative-mixed-small-v0
+representative-huge-ish-v0
+```
+
+The canonical RSS field for repeated comparison rows must come from one
+external collector policy for both sides. Existing runner-internal RSS fields
+may be preserved as evidence, but they must not be used as the canonical
+summary if the external collector is available.
+
+Required repeated report identity fields:
+
+- measurement profile id;
+- workload id;
+- runner side (`hako` or `c-mimalloc`);
+- sample index;
+- warmup/sample classification;
+- binary path or app path;
+- C mimalloc library path when present;
+- stop-line fields for provider/replacement/hook/global allocator state.
+
+This policy still does not permit performance or memory winner claims. A later
+row must explicitly open winner presentation and define how to compare
+summaries.
+
 ## Stop Line
 
 Do not use the comparison lane as a back door for allocator-provider
