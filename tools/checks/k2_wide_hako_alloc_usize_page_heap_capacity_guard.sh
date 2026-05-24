@@ -2,22 +2,21 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="k2-wide-hako-alloc-usize-page-heap-block-size"
+TAG="k2-wide-hako-alloc-usize-page-heap-capacity"
 cd "$ROOT_DIR"
 source tools/checks/lib/guard_common.sh
 
 PAGE_HEAP="lang/src/hako_alloc/memory/page_heap_box.hako"
 NUMERIC_FIELDS="lang/src/hako_alloc/memory/NUMERIC_FIELDS.md"
-CARD="docs/development/current/main/phases/phase-294x/294x-260-HAKO-ALLOC-USIZE-PAGE-HEAP-BLOCK-SIZE.md"
+CARD="docs/development/current/main/phases/phase-294x/294x-262-HAKO-ALLOC-USIZE-PAGE-HEAP-CAPACITY.md"
 INDEX="docs/tools/check-scripts-index.md"
 MIMALLOC_LITE="apps/mimalloc-lite/test.sh"
 ALLOCATOR_STRESS="apps/allocator-stress/test.sh"
-BOXTORRENT="apps/boxtorrent-mini/test.sh"
 OBJECT_RETURN="apps/mimalloc-object-return-api-proof/test.sh"
 RESULT_CONTRACT="apps/mimalloc-result-contract-proof/test.sh"
-MIR="${TMPDIR:-/tmp}/hakorune_page_heap_block_size_usize.mir.json"
+MIR="${TMPDIR:-/tmp}/hakorune_page_heap_capacity_usize.mir.json"
 
-echo "[$TAG] checking page_heap block_size exact usize field group"
+echo "[$TAG] checking page_heap capacity exact usize field group"
 
 guard_require_files \
   "$TAG" \
@@ -27,26 +26,22 @@ guard_require_files \
   "$INDEX" \
   "$MIMALLOC_LITE" \
   "$ALLOCATOR_STRESS" \
-  "$BOXTORRENT" \
   "$OBJECT_RETURN" \
   "$RESULT_CONTRACT"
 
-guard_expect_in_file "$TAG" 'block_size: usize' "$PAGE_HEAP" "page heap block_size must be exact usize"
-guard_expect_in_file "$TAG" 'page_id: i64' "$PAGE_HEAP" "page heap page_id must stay signed"
-guard_expect_in_file "$TAG" 'capacity: usize' "$PAGE_HEAP" "page heap capacity is exact usize after capacity row"
+guard_expect_in_file "$TAG" 'capacity: usize' "$PAGE_HEAP" "page heap capacity must be exact usize"
+guard_expect_in_file "$TAG" 'block_size: usize' "$PAGE_HEAP" "page heap block_size remains exact usize"
 guard_expect_in_file "$TAG" 'free_top: i64' "$PAGE_HEAP" "page heap free_top must stay signed"
-guard_expect_in_file "$TAG" 'requested_size: usize' "$PAGE_HEAP" "handle requested_size remains exact usize"
-guard_expect_in_file "$TAG" 'isLiveHandle\(handle\): i64' "$PAGE_HEAP" "live-handle observer must expose scalar return contract"
-guard_expect_in_file "$TAG" 'if requested_size > me\.block_size' "$PAGE_HEAP" "allocation checks must still compare request to block size"
-guard_expect_in_file "$TAG" 'if requested_size > me\.block_size' "$PAGE_HEAP" "resize checks must still compare request to block size"
-guard_expect_fixed_in_file "$TAG" 'birth(page_id, block_size, capacity)' "$PAGE_HEAP" "page birth parameter surface stays current-lane"
-guard_expect_fixed_in_file "$TAG" '| `page_heap_box.hako` | `HakoAllocPage` | `block_size` | `usize` |' "$NUMERIC_FIELDS" "numeric inventory must mark block_size exact usize"
-guard_expect_in_file "$TAG" 'HAKO-ALLOC-USIZE-FIELD-GROUP-259' "$NUMERIC_FIELDS" "numeric inventory must record field group 259"
-guard_expect_in_file "$TAG" '294x-260 Hako Alloc Usize Page Heap Block Size' "$CARD" "missing field-group card"
-guard_expect_in_file "$TAG" 'k2_wide_hako_alloc_usize_page_heap_block_size_guard.sh' "$INDEX" "check script index must list block-size guard"
+guard_expect_fixed_in_file "$TAG" 'me.free_top = capacity' "$PAGE_HEAP" "capacity still seeds signed free_top until stack-top row"
+guard_expect_in_file "$TAG" 'loop\(i < capacity\)' "$PAGE_HEAP" "seed loop must still be bounded by capacity"
+guard_expect_in_file "$TAG" 'if handle\.block_id >= me\.capacity' "$PAGE_HEAP" "live-handle bound must still use capacity"
+guard_expect_fixed_in_file "$TAG" '| `page_heap_box.hako` | `HakoAllocPage` | `capacity` | `usize` |' "$NUMERIC_FIELDS" "numeric inventory must mark capacity exact usize"
+guard_expect_in_file "$TAG" 'HAKO-ALLOC-USIZE-FIELD-GROUP-261' "$NUMERIC_FIELDS" "numeric inventory must record field group 261"
+guard_expect_in_file "$TAG" '294x-262 Hako Alloc Usize Page Heap Capacity' "$CARD" "missing field-group card"
+guard_expect_in_file "$TAG" 'k2_wide_hako_alloc_usize_page_heap_capacity_guard.sh' "$INDEX" "check script index must list capacity guard"
 
-if rg -n 'block_size: i64' "$PAGE_HEAP" >/tmp/"$TAG".stale 2>&1; then
-  echo "[$TAG] ERROR: stale signed page heap block_size storage remains in page_heap_box" >&2
+if rg -n 'capacity: i64' "$PAGE_HEAP" >/tmp/"$TAG".stale 2>&1; then
+  echo "[$TAG] ERROR: stale signed page heap capacity storage remains in page_heap_box" >&2
   cat /tmp/"$TAG".stale >&2
   rm -f /tmp/"$TAG".stale
   exit 1
@@ -55,7 +50,6 @@ rm -f /tmp/"$TAG".stale
 
 bash "$MIMALLOC_LITE"
 bash "$ALLOCATOR_STRESS"
-bash "$BOXTORRENT"
 bash "$OBJECT_RETURN"
 bash "$RESULT_CONTRACT"
 

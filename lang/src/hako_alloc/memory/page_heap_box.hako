@@ -35,7 +35,7 @@ box HakoAllocHandleResult {
 box HakoAllocPage {
     page_id: i64
     block_size: usize
-    capacity: i64
+    capacity: usize
     free_stack: ArrayBox = new ArrayBox()
     block_used: ArrayBox = new ArrayBox()
     use_counts: ArrayBox = new ArrayBox()

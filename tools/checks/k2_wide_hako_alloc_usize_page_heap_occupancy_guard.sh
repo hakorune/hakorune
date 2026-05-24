@@ -78,7 +78,11 @@ field = fields.get("block_size")
 if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
     raise SystemExit(f"HakoAllocPage.block_size must be exact usize storage after block-size row: {field}")
 
-for name in ("page_id", "capacity", "free_top"):
+field = fields.get("capacity")
+if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+    raise SystemExit(f"HakoAllocPage.capacity must be exact usize storage after capacity row: {field}")
+
+for name in ("page_id", "free_top"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"HakoAllocPage.{name} must remain i64 storage: {field}")
