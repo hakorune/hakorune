@@ -199,6 +199,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_plugin_loadset_preflight_plan_guard.sh` | 295x-56 の plugin loadset preflight plan を固定し、`hako_plugin_loadset_plan.py` が no-dlopen で empty/root loadset plan を出せることを検証する。 |
 | `tools/checks/k2_wide_phase295x_plugin_loadset_preflight_closeout_guard.sh` | 295x-57 の plugin loadset preflight closeout を固定し、no-dlopen preflight plan から runner loadset evidence row へ進むことを検証する。 |
 | `tools/checks/k2_wide_phase295x_runner_loadset_evidence_guard.sh` | 295x-58 の runner loadset evidence を固定し、repeated comparison runner が `hako_selected_loadset` / `hako_selected_library_count` を出すことを検証する。 |
+| `tools/checks/k2_wide_phase295x_runner_loadset_evidence_closeout_guard.sh` | 295x-59 の runner loadset evidence closeout を固定し、selected-loadset fields を閉じて standalone EXE route contract row へ進むことを検証する。 |
+| `tools/checks/k2_wide_phase295x_standalone_exe_route_contract_guard.sh` | 295x-60 の standalone EXE route contract を固定し、standalone-minimal/root/diagnostic と link-policy evidence vocabulary を検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |

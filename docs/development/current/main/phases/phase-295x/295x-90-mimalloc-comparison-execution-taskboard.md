@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001:
-  selected current after 295x-58. Close selected-loadset fields in repeated
-  comparison evidence before returning to workload comparison rows.
+MIMALLOC-COMPARISON-POST-STANDALONE-ROUTE-SELECTION-295X-001:
+  selected current after 295x-60. Decide whether to wire standalone-route
+  fields into comparison evidence next or return to workload/measurement rows.
 ```
 
 ## Queue
@@ -98,7 +98,9 @@ MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001:
 | 56 | `295x-56` | Landed | Added `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-PLAN-295X-001` no-dlopen plugin loadset preflight plan artifact. |
 | 57 | `295x-57` | Landed | Closed `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001` and selected runner loadset evidence. |
 | 58 | `295x-58` | Landed | Added `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-295X-001` selected-loadset fields to repeated comparison evidence. |
-| 59 | `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001` | Current | Close selected-loadset fields in repeated comparison evidence. |
+| 59 | `295x-59` | Landed | Closed `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001` selected-loadset fields in repeated comparison evidence. |
+| 60 | `295x-60` | Landed | Defined `MIMALLOC-COMPARISON-STANDALONE-EXE-ROUTE-CONTRACT-295X-001` standalone EXE route contract. |
+| 61 | `MIMALLOC-COMPARISON-POST-STANDALONE-ROUTE-SELECTION-295X-001` | Current | Select standalone-route evidence wiring or return to workload/measurement rows. |
 
 ## Parked
 
