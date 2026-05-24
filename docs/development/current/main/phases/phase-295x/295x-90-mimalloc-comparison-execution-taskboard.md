@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PRESENTATION-295X-001:
-  selected current after 295x-31. Add compact presentation-only reporting for
-  repeated measurement evidence while preserving winner_claim=0.
+MIMALLOC-COMPARISON-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001:
+  selected current after 295x-32. Select how to attribute the RSS gap by
+  separating fixed process/runtime baseline from workload-incremental RSS.
 ```
 
 ## Queue
@@ -71,7 +71,8 @@ MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PRESENTATION-295X-001:
 | 29 | `295x-29` | Landed | Implemented repeated evidence runner without winner claims. |
 | 30 | `295x-30` | Landed | Ran selected workload pack without winner claims. |
 | 31 | `295x-31` | Landed | Closed repeated measurement pack. |
-| 32 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PRESENTATION-295X-001` | Current | Add presentation-only repeated measurement report. |
+| 32 | `295x-32` | Landed | Added presentation-only repeated measurement report. |
+| 33 | `MIMALLOC-COMPARISON-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Current | Select RSS gap attribution plan. |
 
 ## Parked
 
