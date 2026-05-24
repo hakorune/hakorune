@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-25-MIMALLOC-COMPARISON-HUGE-ISH-CONTRACT-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-25-MIMALLOC-COMPARISON-HUGE-ISH-CONTRACT-REFRESH.md"
-latest_card_summary = "Added C runner and .hako EXE evidence contract support for representative-huge-ish-v0."
+latest_card = "295x-26-MIMALLOC-COMPARISON-HUGE-ISH-EVIDENCE-RUN"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-26-MIMALLOC-COMPARISON-HUGE-ISH-EVIDENCE-RUN.md"
+latest_card_summary = "Ran C mimalloc and .hako huge-ish same-workload evidence through the normalizer."
 
-current_blocker_token = "MIMALLOC-COMPARISON-HUGE-ISH-EVIDENCE-295X-RUN-001"
+current_blocker_token = "MIMALLOC-COMPARISON-HUGE-ISH-CLOSEOUT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-26 ran C mimalloc and .hako huge-ish same-workload evidence through the normalizer",
   "295x-25 added C runner and .hako EXE evidence contract support for representative-huge-ish-v0",
   "295x-24 selected representative-huge-ish-v0 and kept OSVM/page-source parity parked",
   "295x-23 closed the mixed-size workload family and selected huge-ish workload seam selection",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-17 added narrow exact-EXE .hako realloc/aligned evidence acceptance and selected the evidence run",
   "295x-16 added representative-realloc-aligned-v0 contract fields and selected hako EXE acceptance follow-on",
   "295x-15 selected representative-realloc-aligned-v0 and required operation/free-order contracts",
-  "295x-14 closed matching .hako/C allocation-free count evidence and selected next workload seam selection",
 ]
