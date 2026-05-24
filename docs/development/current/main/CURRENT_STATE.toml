@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-210-HAKO-ALLOC-USIZE-PROVIDER-CALL-REAL-API-STUB-COUNTERS"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-210-HAKO-ALLOC-USIZE-PROVIDER-CALL-REAL-API-STUB-COUNTERS.md"
-latest_card_summary = "Migrated provider call real API stub execution owner-local counters to exact usize."
+latest_card = "294x-211-HAKO-ALLOC-USIZE-PROVIDER-CALL-EXTERNAL-ADAPTER-INVENTORY-COUNTER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-211-HAKO-ALLOC-USIZE-PROVIDER-CALL-EXTERNAL-ADAPTER-INVENTORY-COUNTER-SELECTION.md"
+latest_card_summary = "Selected provider call external API adapter inventory owner-local counters as the next exact usize field group."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-209"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-210"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-211 selected provider call external API adapter inventory owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-210",
   "294x-210 migrated provider call real API stub execution owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-209 is now current",
   "294x-209 selected provider call real API stub execution owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-208",
   "294x-208 migrated provider call real API execution preflight owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-207 is now current",
