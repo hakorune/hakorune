@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001:
-  selected current after 295x-41. Choose a narrow plugin-host baseline
-  diagnostic seam before any default runtime shrink.
+MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-001:
+  selected current after 295x-43. Choose a narrow plugin load-set
+  footprint seam before any default plugin-host shrink.
 ```
 
 ## Queue
@@ -81,7 +81,9 @@ MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001:
 | 39 | `295x-39` | Landed | Closed empty exact-EXE footprint diagnostic. |
 | 40 | `295x-40` | Landed | Added env-gated NyRT self-RSS checkpoints. |
 | 41 | `295x-41` | Landed | Ran empty no-output exact-EXE checkpoint diagnostic. |
-| 42 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001` | Current | Select a narrow plugin-host baseline diagnostic seam. |
+| 42 | `295x-42` | Landed | Selected plugin-host substage RSS diagnostics. |
+| 43 | `295x-43` | Landed | Added and ran plugin-host substage RSS checkpoints. |
+| 44 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-001` | Current | Select a narrow plugin load-set footprint seam. |
 
 ## Parked
 

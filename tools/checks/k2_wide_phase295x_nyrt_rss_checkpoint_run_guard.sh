@@ -22,7 +22,7 @@ guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-00
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001' "$CARD" "card must select plugin-host follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-001' "$PREV_CARD" "previous row must select this run"
 guard_expect_in_file "$TAG" 'after_plugin_host' "$CARD" "card must identify plugin-host jump"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001' "$TASKBOARD" "taskboard must expose selected follow-on"
+guard_expect_in_file "$TAG" '| 42 | `295x-42` | Landed | Selected plugin-host substage RSS diagnostics. |' "$TASKBOARD" "taskboard must retain selected follow-on as landed"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_nyrt_rss_run.XXXXXX)"

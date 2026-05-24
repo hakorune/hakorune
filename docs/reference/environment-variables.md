@@ -29,7 +29,7 @@ Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`
 | `NYASH_BINOP_REPROP_DEBUG=1` | OFF | Any | BinOp 型再伝播（MIR）をトレース |
 | `NYASH_LEAK_LOG=1` | OFF | VM (full), LLVM (parent process roots only) | プログラム終了時に残存する強参照を報告（サマリー） |
 | `NYASH_LEAK_LOG=2` | OFF | VM (full), LLVM (parent process roots only) | プログラム終了時に残存する強参照を報告（詳細、最初の10件まで） |
-| `HAKO_NYRT_RSS_CHECKPOINTS=1` | OFF | NyRT exact-EXE | NyRT entry 内の RSS checkpoint を stderr に出す（Linux は `/proc/self/status` の `VmRSS`、タグは `[nyrt/rss]`）。診断専用。 |
+| `HAKO_NYRT_RSS_CHECKPOINTS=1` | OFF | NyRT exact-EXE | NyRT entry / runtime plugin-host 内の RSS checkpoint を stderr に出す（Linux は `/proc/self/status` の `VmRSS`、タグは `[nyrt/rss]` / `[runtime/rss]`）。診断専用。 |
 
 ### ダンプの使い分け
 - 実行経路SSOT（推奨）: `NYASH_VM_DUMP_MIR=1 ./target/release/hakorune --backend vm apps/tests/minimal.hako`

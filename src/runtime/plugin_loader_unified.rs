@@ -72,24 +72,31 @@ impl PluginHost {
 
     /// Load config and dynamic libraries, keeping a local config cache.
     pub fn load_libraries(&mut self, config_path: &str) -> BidResult<()> {
+        crate::runtime::rss_observe::checkpoint("plugin_host_load_libraries_start");
         {
             let mut l = self.loader_write();
             l.load_config(config_path)?;
         }
+        crate::runtime::rss_observe::checkpoint("plugin_host_after_loader_load_config");
 
         // Keep our own copy for quick lookups
         let canonical = std::fs::canonicalize(config_path)
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| config_path.to_string());
         let content = std::fs::read_to_string(&canonical).map_err(|_| BidError::PluginError)?;
+        crate::runtime::rss_observe::checkpoint("plugin_host_after_config_read");
         self.config = Some(NyashConfigV2::from_str(&content).map_err(|_| BidError::PluginError)?);
         self.config_toml =
             Some(toml::from_str::<toml::Value>(&content).map_err(|_| BidError::PluginError)?);
         self.config_path = Some(canonical);
+        crate::runtime::rss_observe::checkpoint("plugin_host_after_host_config_parse");
 
         // Delegate actual library loads + pre-birth singletons to v2
         let l = self.loader_read();
-        l.load_all_plugins()
+        crate::runtime::rss_observe::checkpoint("plugin_host_before_load_all_plugins");
+        let result = l.load_all_plugins();
+        crate::runtime::rss_observe::checkpoint("plugin_host_after_load_all_plugins");
+        result
     }
 
     /// Register built-ins or user-defined boxes if needed (no-op for now).

@@ -45,6 +45,7 @@ pub mod plugin_loader_v2;
 pub mod provider_lock;
 pub mod provider_verify;
 pub mod ring0; // Phase 88: Ring0Context - OS API 抽象化レイヤー
+pub mod rss_observe;
 pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
 pub mod semantics;

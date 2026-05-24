@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 pub(super) fn load_all_plugins(loader: &PluginLoaderV2) -> BidResult<()> {
+    crate::runtime::rss_observe::checkpoint("plugin_loader_load_all_start");
     let config = loader.config.as_ref().ok_or(BidError::PluginError)?;
     // Strict mode policy (SSOT): reuse JoinIR strict flag to avoid env-var sprawl.
     // - strict=0: Phase 134 best-effort load (continue on failure)
@@ -39,6 +40,7 @@ pub(super) fn load_all_plugins(loader: &PluginLoaderV2) -> BidResult<()> {
             }
         }
     }
+    crate::runtime::rss_observe::checkpoint("plugin_loader_after_library_loop");
 
     // Load plugins in deterministic order (sorted by name)
     let mut plugin_items: Vec<_> = config.plugins.iter().collect();
@@ -56,6 +58,7 @@ pub(super) fn load_all_plugins(loader: &PluginLoaderV2) -> BidResult<()> {
             }
         }
     }
+    crate::runtime::rss_observe::checkpoint("plugin_loader_after_plugin_root_loop");
 
     // Phase 134 P0: Log summary
     if failed_count > 0 {
@@ -67,7 +70,9 @@ pub(super) fn load_all_plugins(loader: &PluginLoaderV2) -> BidResult<()> {
 
     // Continue with singleton prebirth even if some plugins failed
     // This follows "fail gracefully" principle: partially working state is better than complete failure
+    crate::runtime::rss_observe::checkpoint("plugin_loader_before_prebirth_singletons");
     super::singletons::prebirth_singletons(loader)?;
+    crate::runtime::rss_observe::checkpoint("plugin_loader_after_prebirth_singletons");
     Ok(())
 }
 
