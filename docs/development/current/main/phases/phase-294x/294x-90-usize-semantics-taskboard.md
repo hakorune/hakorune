@@ -116,11 +116,11 @@ human restart clarity.
 Current blocker:
 
 ```text
-PHASE-294X-USIZE-COMPARISON-CLOSEOUT-001:
-  selected current after 294x-269. Close phase-294x's exact `usize`
-  comparison-quality slice instead of selecting another production field-group
-  migration. Keep identity, sentinel, status/reason, bool-like, mirror,
-  pointer-like, provider, worker/TLS, atomic, and replacement seams parked.
+PHASE-294X-POST-CLOSEOUT-ROW-SELECTION-001:
+  selected current after 294x-270. Choose the next lane/row after the exact
+  `usize` comparison-quality slice closeout. Expected direction: resume
+  mimalloc `.hako` port work from a comparison or execution seam, not another
+  broad production field-group migration.
 ```
 
 ## Cleanup Slice Queue
@@ -315,6 +315,8 @@ Field-group selection after parser-front alignment:
   non-id `usize` closeout (`294x-268`).
 - [x] Select phase-294x exact `usize` comparison closeout instead of another
   field-group migration (`294x-269`).
+- [x] Close phase-294x exact `usize` comparison-quality slice and park broad
+  field migration (`294x-270`).
 
 ### MIR / Analysis
 

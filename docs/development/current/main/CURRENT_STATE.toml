@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-269-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-269-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION.md"
-latest_card_summary = "Selected phase-294x usize comparison closeout instead of another production field-group migration."
+latest_card = "294x-270-PHASE-294X-USIZE-COMPARISON-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-270-PHASE-294X-USIZE-COMPARISON-CLOSEOUT.md"
+latest_card_summary = "Closed phase-294x's exact usize comparison-quality slice and parked broad field migration."
 
-current_blocker_token = "PHASE-294X-USIZE-COMPARISON-CLOSEOUT-001"
+current_blocker_token = "PHASE-294X-POST-CLOSEOUT-ROW-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-270 closed phase-294x's exact usize comparison-quality slice and parked broad field migration",
   "294x-269 selected phase-294x usize comparison closeout instead of another production field-group migration",
   "294x-268 refreshed the mimalloc comparison vertical slice after the page-heap exact non-id usize closeout",
   "294x-267 selected a mimalloc comparison vertical-slice refresh instead of migrating page/handle identity fields",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-262 migrated HakoAllocPage.capacity to exact usize",
   "294x-261 selected HakoAllocPage.capacity as the next exact usize field group",
   "294x-260 migrated HakoAllocPage.block_size to exact usize",
-  "294x-259 selected HakoAllocPage.block_size as the next exact usize field group",
 ]
