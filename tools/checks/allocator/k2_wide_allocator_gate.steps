@@ -5,3 +5,4 @@
 @tools/checks/allocator/families/hako_alloc_production.steps
 @tools/checks/allocator/families/hooks.steps
 @tools/checks/allocator/families/provider.steps
+tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_cli_surface_guard.sh

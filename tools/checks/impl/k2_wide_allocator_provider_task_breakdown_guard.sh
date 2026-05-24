@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+TAG="k2-wide-allocator-provider-task-breakdown"
+cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
+source tools/checks/lib/allocator_provider_forbidden_patterns.sh
+
+SSOT="docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md"
+TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-118-M66-ALLOCATOR-PROVIDER-TASK-BREAKDOWN.md")"
+CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
+INDEX="docs/tools/check-scripts-index.md"
+DEV_GATE="tools/checks/dev_gate.sh"
+ALLOCATOR_GROUP_STEPS="tools/checks/allocator/families/provider/core.steps"
+
+echo "[$TAG] checking M66 allocator provider task breakdown"
+
+fail() {
+  echo "[$TAG] ERROR: $*" >&2
+  exit 1
+}
+
+require_file() {
+  local path="$1"
+  [[ -f "$path" ]] || fail "missing file: $path"
+}
+
+require_text() {
+  local file="$1"
+  local needle="$2"
+  rg -F -q "$needle" "$file" || fail "missing text in $file: $needle"
+}
+
+require_file "$SSOT"
+require_file "$TASKBOARD"
+require_file "$CARD"
+require_file "$CURRENT_STATE"
+require_file "$INDEX"
+require_file "$DEV_GATE"
+require_file "$ALLOCATOR_GROUP_STEPS"
+
+require_text "$SSOT" "Allocator Provider Current Task Breakdown (SSOT)"
+require_text "$SSOT" "Current Completed Checkpoint"
+require_text "$SSOT" "Immediate Task Ladder"
+require_text "$SSOT" "M67 | provider manifest diagnostic parser"
+require_text "$SSOT" "M70 | combined hook/provider dry-run report"
+require_text "$SSOT" "M75 | native mimalloc provider proof boundary"
+require_text "$SSOT" "Provider proof boundary ladder is now closed"
+require_text "$SSOT" 'Past card guards should not pin `CURRENT_STATE.latest_card`'
+require_text "$TASKBOARD" '| `M66 allocator provider task breakdown` | `live-docs` |'
+require_text "$TASKBOARD" '`M67 allocator provider manifest parser`'
+require_text "$TASKBOARD" '`M75 native mimalloc provider proof boundary`'
+require_text "$TASKBOARD" '89. `M66 allocator provider task breakdown`'
+require_text "$TASKBOARD" '98. `M75 native mimalloc provider proof boundary`'
+require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh"
+require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh"
+require_text "$ALLOCATOR_GROUP_STEPS" "tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh"
+
+allocator_provider_forbid_global_allocator "$TAG"
+
+allocator_provider_forbid_selection "$TAG"
+
+echo "[$TAG] ok"

@@ -47,6 +47,28 @@ LIST
   allocator-wide:
     - quick
     - tools/checks/k2_wide_allocator_gate.sh (full allocator/mimalloc/provider proof group below)
+    - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_cli_surface_guard.sh
+    - tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh
+    - tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh
+    - tools/checks/k2_wide_allocator_provider_selected_provider_precondition_guard.sh
+    - tools/checks/k2_wide_allocator_provider_selection_decision_cli_surface_guard.sh
+    - tools/checks/k2_wide_allocator_provider_selection_decision_diagnostic_report_guard.sh
+    - tools/checks/k2_wide_allocator_provider_manifest_parser_guard.sh
+    - tools/checks/k2_wide_allocator_provider_manifest_cli_surface_guard.sh
+    - tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh
+    - tools/checks/k2_wide_allocator_provider_combined_dry_run_guard.sh
+    - tools/checks/k2_wide_allocator_provider_proof_validation_guard.sh
+    - tools/checks/k2_wide_allocator_provider_diagnostic_inactive_actions_guard.sh
+    - tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh
+    - tools/checks/k2_wide_allocator_provider_diagnostic_helper_cleanup_guard.sh
+    - tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh
+    - tools/checks/k2_wide_allocator_provider_debug_guarded_proof_guard.sh
+    - tools/checks/k2_wide_allocator_provider_native_system_proof_guard.sh
+    - tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh
+    - tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh
+    - tools/checks/k2_wide_allocator_provider_registry_boundary_guard.sh
+    - tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh
+    - tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh
 LIST
   bash "${ROOT_DIR}/tools/checks/k2_wide_allocator_gate.sh" --list | sed 's/^/    /'
   cat <<'LIST'
