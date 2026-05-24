@@ -67,14 +67,14 @@ box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
     non_dereferenceable: i64 = 1
     closed_execution_blocker_count: i64 = 0
     lookup_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_handle_reject_count: i64 = 0
-    rejected_handle_reject_count: i64 = 0
-    invalid_pointer_token_reject_count: i64 = 0
-    invalid_handle_reject_count: i64 = 0
-    invalid_lookup_reject_count: i64 = 0
-    closed_execution_reject_count: i64 = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_handle_reject_count: usize = 0
+    rejected_handle_reject_count: usize = 0
+    invalid_pointer_token_reject_count: usize = 0
+    invalid_handle_reject_count: usize = 0
+    invalid_lookup_reject_count: usize = 0
+    closed_execution_reject_count: usize = 0
     last_reason: i64 = 0
     report_segment_id: i64 = -1
     report_arena_id: i64 = -1
@@ -98,14 +98,14 @@ box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
 
 box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot {
     lookup_count: usize = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_handle_reject_count: i64 = 0
-    rejected_handle_reject_count: i64 = 0
-    invalid_pointer_token_reject_count: i64 = 0
-    invalid_handle_reject_count: i64 = 0
-    invalid_lookup_reject_count: i64 = 0
-    closed_execution_reject_count: i64 = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_handle_reject_count: usize = 0
+    rejected_handle_reject_count: usize = 0
+    invalid_pointer_token_reject_count: usize = 0
+    invalid_handle_reject_count: usize = 0
+    invalid_lookup_reject_count: usize = 0
+    closed_execution_reject_count: usize = 0
     last_reason: i64 = 0
 
     closedExecutionBlockerCount(handle_report): i64 {

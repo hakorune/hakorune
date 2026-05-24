@@ -1012,3 +1012,27 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-220:
   payload fields, token fields, reason/status fields, and downstream execution
   seams unchanged.
 ```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-220:
+  landed by 294x-224. Migrated only the selected pointer-derived lookup
+  execution pilot accept/reject counters to exact `usize`; kept `last_reason`,
+  report mirrors, lookup result tokens, arena handle tokens, private pointer
+  tokens, lifecycle identity fields, byte-count payloads, bool-like
+  would-execute flags, dereference, arena release/recycle, segment-map
+  mutation, atomic bitmap execution, OSVM, worker/TLS, providers, backend
+  matchers, provider package / DLL generation, and #[global_allocator] out of
+  scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-221:
+  selected current. Select the next explicit non-negative production field
+  group, or move to closeout planning if the remaining candidates are only
+  report mirrors, identity payloads, status/reason vocabularies, bool-like
+  flags, signed sentinels, pointer-like payloads, or byte-count payloads.
+```

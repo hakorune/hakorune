@@ -52,6 +52,8 @@ guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingPointerDerivedLo
 guard_expect_in_file "$TAG" 'makePointerDerivedLookupExecutionPilotReport' "$OWNER" "lookup owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'recordPointerDerivedLookup' "$OWNER" "lookup owner must expose bounded pointer-derived lookup route"
 guard_expect_in_file "$TAG" 'lookup_count: usize = 0' "$OWNER" "lookup owner-local counter must be exact usize"
+guard_expect_in_file "$TAG" 'accepted_count: usize = 0' "$OWNER" "lookup owner-local accepted counter must be exact usize"
+guard_expect_in_file "$TAG" 'invalid_lookup_reject_count: usize = 0' "$OWNER" "lookup owner-local reject counters must be exact usize"
 guard_expect_in_file "$TAG" 'lookup_count: i64' "$OWNER" "lookup report mirror must stay signed in this row"
 guard_expect_in_file "$TAG" 'lookup_result_token: i64' "$OWNER" "lookup report must carry lookup result token"
 guard_expect_in_file "$TAG" 'report_applied_backing_bytes: usize' "$OWNER" "lookup report must mirror backing bytes as usize"
@@ -132,11 +134,13 @@ for name in (
     "invalid_handle_reject_count",
     "invalid_lookup_reject_count",
     "closed_execution_reject_count",
-    "last_reason",
 ):
     field = owner_fields.get(name)
-    if field is None or field.get("declared_type") != "i64":
-        raise SystemExit(f"{name} must remain i64 owner storage: {field}")
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"{name} must be exact usize owner storage: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64":
+    raise SystemExit(f"last_reason must remain i64 owner storage: {field}")
 report = plans.get("HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport")
 if report is None:
     raise SystemExit("missing pointer-derived lookup execution pilot report typed object plan")
