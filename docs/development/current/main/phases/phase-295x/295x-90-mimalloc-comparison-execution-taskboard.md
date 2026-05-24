@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NEXT-PORT-SEAM-SELECTION-295X-001:
-  selected current after 295x-08. Choose one `.hako` port seam that improves
-  comparison quality without opening provider/replacement or winner claims.
+MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001:
+  selected current after 295x-09. Refresh the same-workload repeated-run RSS
+  evidence path before adding a wider `.hako` port seam.
 ```
 
 ## Queue
@@ -48,7 +48,8 @@ MIMALLOC-COMPARISON-NEXT-PORT-SEAM-SELECTION-295X-001:
 | 6 | `295x-06` | Landed | Closed the refreshed result ledger pack without winner claims. |
 | 7 | `295x-07` | Landed | Executed the same-workload memory report path for representative-small-block-v0. |
 | 8 | `295x-08` | Landed | Closed the same-workload execution refresh without benchmark/winner expansion. |
-| 9 | `MIMALLOC-COMPARISON-NEXT-PORT-SEAM-SELECTION-295X-001` | Current | Select only one seam that improves the comparison workload. |
+| 9 | `295x-09` | Landed | Selected repeated-run evidence refresh before adding a wider `.hako` port seam. |
+| 10 | `MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001` | Current | Refresh repeated same-workload RSS evidence without winner claims. |
 
 ## Parked
 
