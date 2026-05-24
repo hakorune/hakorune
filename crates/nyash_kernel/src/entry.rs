@@ -4,11 +4,13 @@
 #[cfg(not(test))]
 #[no_mangle]
 pub extern "C" fn main() -> i32 {
+    crate::rss_observe::checkpoint("entry_start");
     // Phase 88: AOT 実行器でも Ring0Context は必須（PluginHost/ログなどが依存する）。
     // EXE 直起動では host 側の init が存在しないため、ここで先に初期化する。
     if nyash_rust::runtime::ring0::GLOBAL_RING0.get().is_none() {
         nyash_rust::runtime::ring0::init_global_ring0(nyash_rust::runtime::ring0::default_ring0());
     }
+    crate::rss_observe::checkpoint("after_ring0");
 
     // Initialize plugin host: prefer nyash.toml next to the executable; fallback to CWD
     let exe_dir = std::env::current_exe()
@@ -65,6 +67,7 @@ pub extern "C" fn main() -> i32 {
     rt_builder = rt_builder.with_gc_hooks(controller);
     let rt_hooks = rt_builder.build();
     nyash_rust::runtime::global_hooks::set_from_runtime(&rt_hooks);
+    crate::rss_observe::checkpoint("after_runtime_hooks");
 
     let mut inited = false;
     if let Some(dir) = &exe_dir {
@@ -78,6 +81,7 @@ pub extern "C" fn main() -> i32 {
     if !inited {
         let _ = nyash_rust::runtime::init_global_plugin_host("nyash.toml");
     }
+    crate::rss_observe::checkpoint("after_plugin_host");
     // Optional verbosity
     if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
         println!(
@@ -97,7 +101,9 @@ pub extern "C" fn main() -> i32 {
             fn ny_main() -> i64;
         }
         // SAFETY: if not linked, calling will be an unresolved symbol at link-time; we rely on link step to include ny_main.
+        crate::rss_observe::checkpoint("before_ny_main");
         let v = ny_main();
+        crate::rss_observe::checkpoint("after_ny_main");
         let exit_code: i64 = {
             use nyash_rust::{box_trait::IntegerBox, runtime::host_handles as handles};
             if v > 0 {

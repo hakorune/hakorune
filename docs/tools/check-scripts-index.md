@@ -179,6 +179,9 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_memory_gap_closeout_guard.sh` | 295x-36 の memory gap closeout を固定し、total RSS delta を fixed baseline + workload incremental として扱い、`.hako` baseline breakdown follow-on を検証する。 |
 | `tools/checks/k2_wide_phase295x_hako_baseline_breakdown_selection_guard.sh` | 295x-37 の hako baseline breakdown selection を固定し、empty exact-EXE footprint diagnostic / no-output control / PT_LOAD / C reference follow-on を検証する。 |
 | `tools/checks/k2_wide_phase295x_hako_empty_exe_footprint_diagnostic_guard.sh` | 295x-38 の hako empty EXE footprint diagnostic を固定し、empty evidence RSS / no-output RSS / ELF PT_LOAD / section / dependency / C reference footprint を検証する。 |
+| `tools/checks/k2_wide_phase295x_hako_empty_exe_footprint_closeout_guard.sh` | 295x-39 の hako empty EXE footprint closeout を固定し、print/output 主因ではない診断結果から NyRT RSS checkpoint follow-on を検証する。 |
+| `tools/checks/k2_wide_phase295x_nyrt_rss_checkpoint_diagnostic_guard.sh` | 295x-40 の NyRT RSS checkpoint diagnostic を固定し、`HAKO_NYRT_RSS_CHECKPOINTS=1` の env-gated self-RSS checkpoints と既定OFF境界を検証する。 |
+| `tools/checks/k2_wide_phase295x_nyrt_rss_checkpoint_run_guard.sh` | 295x-41 の NyRT RSS checkpoint run を固定し、empty no-output exact-EXE の RSS jump が plugin host init 周辺にあることを検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |

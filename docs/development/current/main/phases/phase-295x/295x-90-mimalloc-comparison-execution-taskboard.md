@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001:
-  selected current after 295x-38. Classify the empty exact-EXE footprint
-  diagnostic and select one next baseline seam.
+MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001:
+  selected current after 295x-41. Choose a narrow plugin-host baseline
+  diagnostic seam before any default runtime shrink.
 ```
 
 ## Queue
@@ -78,7 +78,10 @@ MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001:
 | 36 | `295x-36` | Landed | Closed RSS gap attribution pack. |
 | 37 | `295x-37` | Landed | Selected empty exact-EXE footprint diagnostic. |
 | 38 | `295x-38` | Landed | Observed empty exact-EXE RSS and static/loadable footprint. |
-| 39 | `MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Current | Classify footprint diagnostic and select next baseline seam. |
+| 39 | `295x-39` | Landed | Closed empty exact-EXE footprint diagnostic. |
+| 40 | `295x-40` | Landed | Added env-gated NyRT self-RSS checkpoints. |
+| 41 | `295x-41` | Landed | Ran empty no-output exact-EXE checkpoint diagnostic. |
+| 42 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-001` | Current | Select a narrow plugin-host baseline diagnostic seam. |
 
 ## Parked
 

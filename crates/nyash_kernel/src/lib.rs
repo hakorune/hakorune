@@ -9,6 +9,7 @@ mod hako_forward;
 mod hako_forward_bridge;
 mod observe;
 mod plugin;
+mod rss_observe;
 mod user_box_registry;
 
 pub use exports::*;
