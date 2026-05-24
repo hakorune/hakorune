@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001:
-  selected current after 295x-62. Close runtime reference docs for plugin
-  loadsets and standalone EXE routes before implementation work resumes.
+MIMALLOC-COMPARISON-POST-LOADSET-AWARE-MEASUREMENT-SELECTION-295X-001:
+  selected current after 295x-65. Choose the next mimalloc comparison row after
+  repeated measurement evidence now carries explicit runtime/loadset fields.
 ```
 
 ## Queue
@@ -102,7 +102,10 @@ MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001:
 | 60 | `295x-60` | Landed | Defined `MIMALLOC-COMPARISON-STANDALONE-EXE-ROUTE-CONTRACT-295X-001` standalone EXE route contract. |
 | 61 | `295x-61` | Landed | Selected `MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-295X-001` reference-doc alignment before standalone implementation work. |
 | 62 | `295x-62` | Landed | Added runtime reference docs for plugin loadsets and standalone EXE routes. |
-| 63 | `MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001` | Current | Close runtime reference docs for plugin loadsets and standalone EXE routes. |
+| 63 | `295x-63` | Landed | Closed `MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001` and returned to comparison measurement. |
+| 64 | `295x-64` | Landed | Ran `MIMALLOC-COMPARISON-LOADSET-AWARE-REPEATED-MEASUREMENT-PACK-295X-001` with explicit loadset evidence. |
+| 65 | `295x-65` | Landed | Closed `MIMALLOC-COMPARISON-LOADSET-AWARE-REPEATED-MEASUREMENT-CLOSEOUT-295X-001` repeated measurement evidence. |
+| 66 | `MIMALLOC-COMPARISON-POST-LOADSET-AWARE-MEASUREMENT-SELECTION-295X-001` | Current | Select presentation summary, next workload, or narrow diagnostic after loadset-aware repeated evidence. |
 
 ## Parked
 
