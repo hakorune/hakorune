@@ -116,14 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-FIRST-CONCLUSION-PILOT-REFRESH-001:
-  selected current after 294x-234. Refresh the existing MIMAP-468A
-  first-conclusion pilot before replaying its closeout. Do not drain report
-  mirrors, identity payloads, status/reason vocabularies, bool-like flags,
-  signed sentinels, pointer-like payloads, byte-count payloads, provider calls,
-  host replacement, hooks, global allocator install, worker/TLS, atomics,
-  provider package / DLL generation, repeated benchmark packs, or
-  `#[global_allocator]`.
+MIMALLOC-COMPARISON-FIRST-CONCLUSION-CLOSEOUT-REFRESH-001:
+  selected current after 294x-235. Refresh the existing MIMAP-470A
+  first-conclusion closeout before moving to presentation-only follow-on rows.
+  Do not drain report mirrors, identity payloads, status/reason vocabularies,
+  bool-like flags, signed sentinels, pointer-like payloads, byte-count
+  payloads, provider calls, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
+  packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
