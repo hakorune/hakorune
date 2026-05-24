@@ -240,6 +240,41 @@ static int run_realloc_aligned(const MimallocApi *api, RunnerEvidence *evidence)
     return 0;
 }
 
+static int run_mixed_small(const MimallocApi *api, RunnerEvidence *evidence) {
+    static const size_t sizes[] = {
+        16, 24, 32, 48, 64, 80, 96, 112,
+        128, 160, 192, 224, 256, 384, 512, 768,
+    };
+    enum { kCount = (int)(sizeof(sizes) / sizeof(sizes[0])) };
+    void *blocks[kCount];
+    memset(blocks, 0, sizeof(blocks));
+
+    evidence->workload = "representative-mixed-small-v0";
+    evidence->operation_family = "mixed-small";
+    evidence->operation_sequence_id = "representative-mixed-small-v0-seq";
+    evidence->free_order_id = "ascending-release-v0";
+
+    for (int i = 0; i < kCount; i++) {
+        void *ptr = api->malloc_fn(sizes[i]);
+        if (ptr == NULL) {
+            for (int j = 0; j < i; j++) {
+                api->free_fn(blocks[j]);
+            }
+            return 6;
+        }
+        memset(ptr, (int)(i & 0x7f), sizes[i]);
+        blocks[i] = ptr;
+        evidence->requested_bytes += (uint64_t)sizes[i];
+        evidence->allocation_count += 1;
+    }
+
+    for (int i = 0; i < kCount; i++) {
+        api->free_fn(blocks[i]);
+        evidence->free_count += 1;
+    }
+    return 0;
+}
+
 int main(int argc, char **argv) {
     RunnerConfig config;
     if (!parse_args(argc, argv, &config)) {
@@ -271,6 +306,8 @@ int main(int argc, char **argv) {
         result_code = run_small_block(&config, &api, &evidence);
     } else if (strcmp(config.workload, "representative-realloc-aligned-v0") == 0) {
         result_code = run_realloc_aligned(&api, &evidence);
+    } else if (strcmp(config.workload, "representative-mixed-small-v0") == 0) {
+        result_code = run_mixed_small(&api, &evidence);
     } else {
         fprintf(stderr, "[c-mimalloc-runner] unsupported workload: %s\n", config.workload);
         dlclose(library);

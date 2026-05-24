@@ -1,0 +1,63 @@
+// hako-alloc-mimalloc-comparison-mixed-small-exe-proof
+// Purpose: exact-EXE-friendly mixed-small comparison evidence app for phase-295x.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(0, 768, 16, 16)
+
+        local b0 = page.acquire_usize(16)
+        local b1 = page.acquire_usize(24)
+        local b2 = page.acquire_usize(32)
+        local b3 = page.acquire_usize(48)
+        local b4 = page.acquire_usize(64)
+        local b5 = page.acquire_usize(80)
+        local b6 = page.acquire_usize(96)
+        local b7 = page.acquire_usize(112)
+        local b8 = page.acquire_usize(128)
+        local b9 = page.acquire_usize(160)
+        local b10 = page.acquire_usize(192)
+        local b11 = page.acquire_usize(224)
+        local b12 = page.acquire_usize(256)
+        local b13 = page.acquire_usize(384)
+        local b14 = page.acquire_usize(512)
+        local b15 = page.acquire_usize(768)
+
+        local r0 = page.releaseLocal(0)
+        local r1 = page.releaseLocal(1)
+        local r2 = page.releaseLocal(2)
+        local r3 = page.releaseLocal(3)
+        local r4 = page.releaseLocal(4)
+        local r5 = page.releaseLocal(5)
+        local r6 = page.releaseLocal(6)
+        local r7 = page.releaseLocal(7)
+        local r8 = page.releaseLocal(8)
+        local r9 = page.releaseLocal(9)
+        local r10 = page.releaseLocal(10)
+        local r11 = page.releaseLocal(11)
+        local r12 = page.releaseLocal(12)
+        local r13 = page.releaseLocal(13)
+        local r14 = page.releaseLocal(14)
+        local r15 = page.releaseLocal(15)
+
+        local committed_bytes = page.block_size * page.capacity
+        local live_blocks = page.used
+        local source_ops = 0
+        local rejects = page.reject_count
+
+        print("hako-alloc-mimalloc-comparison-mixed-small-exe-proof")
+        print("workload=representative-mixed-small-v0")
+        print("operation_family=mixed-small")
+        print("operation_sequence_id=representative-mixed-small-v0-seq")
+        print("free_order_id=ascending-release-v0")
+        print("blocks=" + b0 + "," + b1 + "," + b2 + "," + b3 + "," + b4 + "," + b5 + "," + b6 + "," + b7 + "," + b8 + "," + b9 + "," + b10 + "," + b11 + "," + b12 + "," + b13 + "," + b14 + "," + b15)
+        print("releases=" + r0 + "," + r1 + "," + r2 + "," + r3 + "," + r4 + "," + r5 + "," + r6 + "," + r7 + "," + r8 + "," + r9 + "," + r10 + "," + r11 + "," + r12 + "," + r13 + "," + r14 + "," + r15)
+        print("allocation_count=16")
+        print("free_count=16")
+        print("requested_bytes=" + page.requested_bytes)
+        print("summary_fields=" + page.requested_bytes + "," + committed_bytes + "," + live_blocks + "," + page.local_free_count + "," + source_ops + "," + rejects)
+        print("summary=ok")
+        return 0
+    }
+}
