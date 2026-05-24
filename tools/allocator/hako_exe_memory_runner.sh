@@ -104,8 +104,16 @@ lines = Path(run_out_path).read_text(encoding="utf-8", errors="replace").splitli
 summary_ok = 1 if any(line == "summary=ok" for line in lines) else 0
 requested_bytes = 0
 committed_bytes = 0
+allocation_count = 0
+free_count = 0
 
 for line in lines:
+    if line.startswith("page="):
+        fields = line.split("=", 1)[1].split(",")
+        if fields:
+            allocation_count = int(fields[0])
+        if len(fields) > 1:
+            free_count = int(fields[1])
     if line.startswith("hako_requested="):
         fields = line.split("=", 1)[1].split(",")
         if fields:
@@ -127,6 +135,8 @@ print(f"workload={workload}")
 print(f"app_path={app}")
 print(f"result_code={rc}")
 print("run_count=1")
+print(f"allocation_count={allocation_count}")
+print(f"free_count={free_count}")
 print(f"requested_bytes={requested_bytes}")
 print(f"committed_bytes={committed_bytes}")
 print(f"peak_rss_bytes={peak_rss}")

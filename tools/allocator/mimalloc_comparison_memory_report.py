@@ -61,6 +61,10 @@ def main() -> int:
 
     hako_requested = as_int(hako, "requested_bytes")
     c_requested = as_int(c, "requested_bytes")
+    hako_allocation_count = as_int(hako, "allocation_count")
+    c_allocation_count = as_int(c, "allocation_count")
+    hako_free_count = as_int(hako, "free_count")
+    c_free_count = as_int(c, "free_count")
     hako_peak = as_int(hako, "peak_rss_bytes")
     c_peak = as_int(c, "peak_rss_bytes")
 
@@ -78,6 +82,12 @@ def main() -> int:
         f"c_result_code={as_int(c, 'result_code')}",
         f"hako_run_count={as_int(hako, 'run_count')}",
         f"c_run_count={as_int(c, 'run_count')}",
+        f"hako_allocation_count={hako_allocation_count}",
+        f"c_allocation_count={c_allocation_count}",
+        f"allocation_count_delta={hako_allocation_count - c_allocation_count}",
+        f"hako_free_count={hako_free_count}",
+        f"c_free_count={c_free_count}",
+        f"free_count_delta={hako_free_count - c_free_count}",
         f"hako_requested_bytes={hako_requested}",
         f"c_requested_bytes={c_requested}",
         f"hako_peak_rss_bytes={hako_peak}",

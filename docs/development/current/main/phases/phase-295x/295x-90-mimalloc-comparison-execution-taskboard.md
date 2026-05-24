@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-HAKO-COUNT-EVIDENCE-295X-REFRESH-001:
-  selected current after 295x-12. Surface `.hako` allocation/free counts in
-  hako memory evidence and the shared comparison report.
+MIMALLOC-COMPARISON-COUNT-EVIDENCE-CLOSEOUT-295X-001:
+  selected current after 295x-13. Close count evidence after hako/C allocation
+  and free counts match for the representative workload.
 ```
 
 ## Queue
@@ -52,7 +52,8 @@ MIMALLOC-COMPARISON-HAKO-COUNT-EVIDENCE-295X-REFRESH-001:
 | 10 | `295x-10` | Landed | Refreshed repeated same-workload RSS evidence without winner claims. |
 | 11 | `295x-11` | Landed | Closed repeated-run evidence and selected count-evidence seam selection. |
 | 12 | `295x-12` | Landed | Selected `.hako` allocation/free count evidence refresh. |
-| 13 | `MIMALLOC-COMPARISON-HAKO-COUNT-EVIDENCE-295X-REFRESH-001` | Current | Surface `.hako` allocation/free counts in hako memory evidence. |
+| 13 | `295x-13` | Landed | Surfaced `.hako` allocation/free counts in hako memory evidence. |
+| 14 | `MIMALLOC-COMPARISON-COUNT-EVIDENCE-CLOSEOUT-295X-001` | Current | Close count evidence and choose the next comparison seam. |
 
 ## Parked
 
