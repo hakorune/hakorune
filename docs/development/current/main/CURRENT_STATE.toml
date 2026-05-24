@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-49-MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-49-MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-CLOSEOUT.md"
-latest_card_summary = "Closed generated-empty runtime config evidence and selected runtime config profile contract."
+latest_card = "295x-50-MIMALLOC-COMPARISON-RUNTIME-CONFIG-PROFILE-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-50-MIMALLOC-COMPARISON-RUNTIME-CONFIG-PROFILE-CONTRACT.md"
+latest_card_summary = "Documented comparison-runner runtime config profiles."
 
-current_blocker_token = "MIMALLOC-COMPARISON-RUNTIME-CONFIG-PROFILE-CONTRACT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-RUN-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-50 documented comparison-runner runtime config profiles",
   "295x-49 closed generated-empty runtime config evidence and selected runtime config profile contract",
   "295x-48 compared root versus generated-empty runtime config exact-EXE evidence",
   "295x-47 added comparison-runner-only exact-EXE minimal runtime config pilot",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-41 ran empty no-output exact-EXE RSS checkpoint diagnostic",
   "295x-40 added env-gated NyRT self-RSS checkpoints",
   "295x-39 closed empty EXE footprint diagnostic and selected NyRT RSS checkpoints",
-  "295x-38 observed empty exact-EXE RSS and static/loadable footprint",
 ]
