@@ -116,19 +116,12 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-210:
-  selected current. Migrate only the selected
-  `HakoAllocProviderCallExternalApiAdapterInventory` owner-local counters
-  (`inventory_count`, `accepted_count`, `reject_count`,
-  `missing_stub_reject_count`, `rejected_stub_reject_count`,
-  `missing_adapter_reject_count`, `invalid_adapter_reject_count`,
-  `already_executed_reject_count`, `closed_execution_reject_count`,
-  `closed_host_replacement_reject_count`, `closed_hook_reject_count`, and
-  `closed_backend_matcher_reject_count`) to exact `usize`. Do not migrate
-  `last_reason`, report mirrors, adapter payloads, external API readiness /
-  executed flags, bool-like would-execute flags, provider calls, host
-  replacement, hooks, global allocator install, worker/TLS, atomics, provider
-  package / DLL generation, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-211:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+  sentinels, pointer-like payloads, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, or `#[global_allocator]`.
 ```
 
 ## Ladder

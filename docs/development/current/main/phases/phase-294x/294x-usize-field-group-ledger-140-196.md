@@ -828,10 +828,21 @@ Current blocker:
 
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-210:
-  selected current. Migrate only those selected provider-call external API
-  adapter inventory owner-local counters to exact `usize`; keep `last_reason`,
-  report mirrors, adapter payloads, external API readiness / executed flags,
-  bool-like would-execute flags, provider calls, host replacement, hooks,
+  landed by 294x-212. Migrated only those selected provider-call external API
+  adapter inventory owner-local counters to exact `usize`; kept
+  `last_reason`, report mirrors, adapter payloads, external API readiness /
+  executed flags, bool-like would-execute flags, provider calls, host
+  replacement, hooks, global allocator install, worker/TLS, atomics, provider
+  package / DLL generation, and #[global_allocator] out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-211:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+  sentinels, pointer-like payloads, provider calls, host replacement, hooks,
   global allocator install, worker/TLS, atomics, provider package / DLL
-  generation, and #[global_allocator] out of scope.
+  generation, or #[global_allocator].
 ```
