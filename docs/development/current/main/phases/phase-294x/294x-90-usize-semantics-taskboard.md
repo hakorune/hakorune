@@ -116,15 +116,13 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-221:
-  selected current after 294x-224. Select the next explicit non-negative
-  production field group. Prefer fields consumed by the comparison vertical
-  slice; if the next candidate is only a report mirror, identity payload,
-  status/reason vocabulary, bool-like flag, signed sentinel, pointer-like
-  payload, or byte-count payload, park it and move to closeout planning.
-  Do not migrate provider calls, host replacement, hooks, global allocator
-  install, worker/TLS, atomics, provider package / DLL generation, or
-  `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-222:
+  selected by 294x-225. Migrate only the facade huge page-model route
+  owner-local counters to exact `usize`. Do not migrate report mirrors,
+  status/reason vocabularies, bool-like flags, signed sentinels, pointer-like
+  payloads, byte-count payloads, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
