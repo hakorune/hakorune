@@ -30,9 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-POST-LOADSET-AWARE-MEASUREMENT-SELECTION-295X-001:
-  selected current after 295x-65. Choose the next mimalloc comparison row after
-  repeated measurement evidence now carries explicit runtime/loadset fields.
+MIMALLOC-COMPARISON-HIGH-RES-TIMING-SEAM-SELECTION-295X-001:
+  selected current after 295x-68. The existing external elapsed-time evidence is
+  present but floored at 1ms for the selected workloads, so choose a
+  high-resolution timing seam before using speed evidence for comparison.
 ```
 
 ## Queue
@@ -105,7 +106,10 @@ MIMALLOC-COMPARISON-POST-LOADSET-AWARE-MEASUREMENT-SELECTION-295X-001:
 | 63 | `295x-63` | Landed | Closed `MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001` and returned to comparison measurement. |
 | 64 | `295x-64` | Landed | Ran `MIMALLOC-COMPARISON-LOADSET-AWARE-REPEATED-MEASUREMENT-PACK-295X-001` with explicit loadset evidence. |
 | 65 | `295x-65` | Landed | Closed `MIMALLOC-COMPARISON-LOADSET-AWARE-REPEATED-MEASUREMENT-CLOSEOUT-295X-001` repeated measurement evidence. |
-| 66 | `MIMALLOC-COMPARISON-POST-LOADSET-AWARE-MEASUREMENT-SELECTION-295X-001` | Current | Select presentation summary, next workload, or narrow diagnostic after loadset-aware repeated evidence. |
+| 66 | `295x-66` | Landed | Selected `MIMALLOC-COMPARISON-SPEED-STABILITY-OBSERVATION-PACK-295X-001` before more mimalloc porting. |
+| 67 | `295x-67` | Landed | Observed elapsed-time stability on selected repeated comparison workloads. |
+| 68 | `295x-68` | Landed | Closed speed/stability observation and selected a high-resolution timing seam. |
+| 69 | `MIMALLOC-COMPARISON-HIGH-RES-TIMING-SEAM-SELECTION-295X-001` | Current | Choose a sub-millisecond timing seam before speed comparison. |
 
 ## Parked
 

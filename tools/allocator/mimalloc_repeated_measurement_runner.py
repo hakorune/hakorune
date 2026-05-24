@@ -177,6 +177,10 @@ def validate_sample(workload: str, hako: dict[str, str], c: dict[str, str], labe
             raise SystemExit(f"{label}: hako {key} must be positive")
         if as_int(c, key) <= 0:
             raise SystemExit(f"{label}: c {key} must be positive")
+    if as_int(hako, "external_elapsed_ms") <= 0:
+        raise SystemExit(f"{label}: hako external_elapsed_ms must be positive")
+    if as_int(c, "external_elapsed_ms") <= 0:
+        raise SystemExit(f"{label}: c external_elapsed_ms must be positive")
 
 
 def main() -> int:
@@ -225,6 +229,8 @@ def main() -> int:
         for workload_index, workload in enumerate(workloads):
             sample_hako_rss: list[int] = []
             sample_c_rss: list[int] = []
+            sample_hako_elapsed: list[int] = []
+            sample_c_elapsed: list[int] = []
             internal_hako_rss: list[int] = []
             internal_c_rss: list[int] = []
             operation_family = ""
@@ -260,6 +266,8 @@ def main() -> int:
                 if kind == "sample":
                     sample_hako_rss.append(as_int(hako, "external_peak_rss_bytes"))
                     sample_c_rss.append(as_int(c, "external_peak_rss_bytes"))
+                    sample_hako_elapsed.append(as_int(hako, "external_elapsed_ms"))
+                    sample_c_elapsed.append(as_int(c, "external_elapsed_ms"))
                     internal_hako_rss.append(as_int(hako, "peak_rss_bytes"))
                     internal_c_rss.append(as_int(c, "peak_rss_bytes"))
                     prefix = f"sample_{workload_index}_{sample_index}"
@@ -268,6 +276,8 @@ def main() -> int:
                             f"{prefix}_workload={workload}",
                             f"{prefix}_hako_external_peak_rss_bytes={sample_hako_rss[-1]}",
                             f"{prefix}_c_external_peak_rss_bytes={sample_c_rss[-1]}",
+                            f"{prefix}_hako_external_elapsed_ms={sample_hako_elapsed[-1]}",
+                            f"{prefix}_c_external_elapsed_ms={sample_c_elapsed[-1]}",
                             f"{prefix}_winner_claim=0",
                         ]
                     )
@@ -284,6 +294,12 @@ def main() -> int:
                     f"{prefix}_c_external_rss_min_bytes={min(sample_c_rss)}",
                     f"{prefix}_c_external_rss_median_bytes={median_int(sample_c_rss)}",
                     f"{prefix}_c_external_rss_max_bytes={max(sample_c_rss)}",
+                    f"{prefix}_hako_external_elapsed_min_ms={min(sample_hako_elapsed)}",
+                    f"{prefix}_hako_external_elapsed_median_ms={median_int(sample_hako_elapsed)}",
+                    f"{prefix}_hako_external_elapsed_max_ms={max(sample_hako_elapsed)}",
+                    f"{prefix}_c_external_elapsed_min_ms={min(sample_c_elapsed)}",
+                    f"{prefix}_c_external_elapsed_median_ms={median_int(sample_c_elapsed)}",
+                    f"{prefix}_c_external_elapsed_max_ms={max(sample_c_elapsed)}",
                     f"{prefix}_hako_internal_rss_median_bytes={median_int(internal_hako_rss)}",
                     f"{prefix}_c_internal_rss_median_bytes={median_int(internal_c_rss)}",
                     f"{prefix}_winner_claim=0",

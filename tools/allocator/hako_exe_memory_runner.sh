@@ -109,24 +109,36 @@ NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
 set +e
 (
   cd "$run_cwd"
-  /usr/bin/time -f '%M' -o "$time_out" "$exe_out" >"$run_out" 2>"$run_err"
+  /usr/bin/time -f '%e %M' -o "$time_out" "$exe_out" >"$run_out" 2>"$run_err"
 )
 run_rc="$?"
 set -e
 
-peak_rss_kb="$(tr -d '[:space:]' < "$time_out")"
+read -r external_elapsed_seconds peak_rss_kb < "$time_out" || true
+external_elapsed_seconds="${external_elapsed_seconds:-0}"
+peak_rss_kb="${peak_rss_kb:-0}"
 case "$peak_rss_kb" in
   ''|*[!0-9]*) peak_rss_kb=0 ;;
 esac
+external_elapsed_ms="$(python3 - "$external_elapsed_seconds" <<'PY'
+import sys
+try:
+    elapsed_ms = int(round(float(sys.argv[1]) * 1000))
+    print(elapsed_ms if elapsed_ms > 0 else 1)
+except Exception:
+    print(0)
+PY
+)"
 peak_rss_bytes=$((peak_rss_kb * 1024))
 
-python3 - "$WORKLOAD" "$APP" "$RUNTIME_CONFIG" "$run_rc" "$peak_rss_bytes" "$run_out" >"$tmp_report" <<'PY'
+python3 - "$WORKLOAD" "$APP" "$RUNTIME_CONFIG" "$run_rc" "$peak_rss_bytes" "$external_elapsed_ms" "$run_out" >"$tmp_report" <<'PY'
 import sys
 from pathlib import Path
 
-workload, app, runtime_config, rc_text, peak_rss_text, run_out_path = sys.argv[1:7]
+workload, app, runtime_config, rc_text, peak_rss_text, elapsed_ms_text, run_out_path = sys.argv[1:8]
 rc = int(rc_text)
 peak_rss = int(peak_rss_text)
+elapsed_ms = int(elapsed_ms_text)
 lines = Path(run_out_path).read_text(encoding="utf-8", errors="replace").splitlines()
 
 summary_ok = 1 if any(line == "summary=ok" for line in lines) else 0
@@ -220,6 +232,7 @@ print(f"large_request_count={large_request_count}")
 print(f"realloc_same_ptr_count={realloc_same_ptr_count}")
 print(f"realloc_moved_count={realloc_moved_count}")
 print(f"copied_bytes={copied_bytes}")
+print(f"external_elapsed_ms={elapsed_ms}")
 print(f"peak_rss_bytes={peak_rss}")
 print(f"external_peak_rss_bytes={peak_rss}")
 print("memory_usage_evidence=1")

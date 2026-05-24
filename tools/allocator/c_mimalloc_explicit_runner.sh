@@ -92,14 +92,26 @@ cc -std=c11 -O2 -Wall -Wextra "$SRC" -ldl -o "$bin"
 
 echo "[c-mimalloc-runner] library=$LIBRARY_PATH" >&2
 set +e
-/usr/bin/time -f '%M' -o "$time_out" "$bin" --library "$LIBRARY_PATH" --workload "$WORKLOAD" --alloc-count "$ALLOC_COUNT" --block-size "$BLOCK_SIZE" >"$tmp_out"
+/usr/bin/time -f '%e %M' -o "$time_out" "$bin" --library "$LIBRARY_PATH" --workload "$WORKLOAD" --alloc-count "$ALLOC_COUNT" --block-size "$BLOCK_SIZE" >"$tmp_out"
 run_rc="$?"
 set -e
 
-peak_rss_kb="$(tr -d '[:space:]' < "$time_out")"
+read -r external_elapsed_seconds peak_rss_kb < "$time_out" || true
+external_elapsed_seconds="${external_elapsed_seconds:-0}"
+peak_rss_kb="${peak_rss_kb:-0}"
 case "$peak_rss_kb" in
   ''|*[!0-9]*) peak_rss_kb=0 ;;
 esac
+external_elapsed_ms="$(python3 - "$external_elapsed_seconds" <<'PY'
+import sys
+try:
+    elapsed_ms = int(round(float(sys.argv[1]) * 1000))
+    print(elapsed_ms if elapsed_ms > 0 else 1)
+except Exception:
+    print(0)
+PY
+)"
+echo "external_elapsed_ms=$external_elapsed_ms" >>"$tmp_out"
 echo "external_peak_rss_bytes=$((peak_rss_kb * 1024))" >>"$tmp_out"
 
 mv "$tmp_out" "$OUT_FILE"
