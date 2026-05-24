@@ -116,11 +116,12 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-007:
-  selected current after 294x-260. Select the next explicit non-negative
-  production field group only if it helps the comparison vertical slice. Prefer
-  narrow size/count payloads over ids, sentinels, broad page state, provider/DLL
-  seams, hooks, worker/TLS, atomics, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-261-PAGE-HEAP-CAPACITY-001:
+  selected current after 294x-261. Migrate only
+  `HakoAllocPage.capacity` to exact `usize`. Do not migrate page id, free_top,
+  handle ids, method parameter surfaces, requested_sizes array payload
+  semantics, page-model production fields, provider/DLL seams, hooks,
+  worker/TLS, atomics, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -282,6 +283,11 @@ Field-group selection after parser-front alignment:
     parameter surfaces, and requested_sizes array payload semantics.
 - [ ] Select the next explicit non-negative production field group as
   `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-007`.
+- [x] Select `HakoAllocPage.capacity` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-261-PAGE-HEAP-CAPACITY-001`
+  (`294x-261`).
+  - Stop line: keep page id, free_top, handle ids, method parameter surfaces,
+    and requested_sizes array payload semantics current-lane.
 
 ### MIR / Analysis
 
