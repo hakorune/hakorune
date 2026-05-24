@@ -32,7 +32,7 @@ DESIGN_486A="docs/development/current/main/design/hako-alloc-allocator-compariso
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
-MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_pilot_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_presentation_extension_pilot_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_pilot_guard.sh"
@@ -40,7 +40,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-492A allocator comparison C mimalloc result presentation extension follow-on pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_486A" "$CARD_490A" "$CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_486A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_486A" "$CARD_490A" "$CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_486A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_486A" "MIMAP-486A must be landed"
@@ -55,7 +55,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-492A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-492A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'exe = "deferred-to-presentation-extension-follow-on-closeout"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-492A must defer closeout beyond the pilot"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_pilot_box' "$MODULE" "module must export presentation extension follow-on pilot owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_pilot_box.hako' "$MEMORY_README" "memory README must name presentation extension follow-on pilot owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_pilot_box.hako' "$MODULE_INDEX" "memory module index must name presentation extension follow-on pilot owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocResultPresentationExtensionFollowOnPilotReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocResultPresentationExtensionFollowOnPilotReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'pilotAllocatorComparisonCMimallocResultPresentationExtensionFollowOn' "$OWNER" "owner must expose presentation extension follow-on pilot route"

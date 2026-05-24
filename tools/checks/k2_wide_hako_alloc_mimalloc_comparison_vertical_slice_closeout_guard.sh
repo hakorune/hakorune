@@ -46,7 +46,6 @@ guard_expect_in_file "$TAG" 'closed=' "$APP" "closeout proof must publish closed
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-VSLICE-007' "$CARD" "card must identify V5 blocker token"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-VSLICE-008' "$CARD" "card must select the next follow-on blocker"
 guard_expect_in_file "$TAG" 'V5' "$TASKBOARD" "taskboard must track V5 closeout"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-VSLICE-008' "$TASKBOARD" "taskboard must expose the follow-on blocker"
 guard_expect_in_file "$TAG" "$APP" "$INDEX" "check script index must list the V5 proof app"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 

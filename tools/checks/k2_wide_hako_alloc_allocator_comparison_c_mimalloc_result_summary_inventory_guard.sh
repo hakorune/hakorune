@@ -33,7 +33,7 @@ DESIGN_455A="docs/development/current/main/design/hako-alloc-allocator-compariso
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
-MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_summary_inventory_box.hako"
 LEDGER_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_ledger_box.hako"
 DIAG_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_ledger_diagnostic_box.hako"
@@ -42,7 +42,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-457A allocator comparison C mimalloc result summary inventory\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_454A" "$CARD_455A" "$CARD_456A" "$CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_455A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$LEDGER_OWNER" "$DIAG_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_454A" "$CARD_455A" "$CARD_456A" "$CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_455A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MODULE_INDEX" "$OWNER" "$LEDGER_OWNER" "$DIAG_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_454A" "$CARD_455A"; do
@@ -59,7 +59,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-457A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-457A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'exe = "deferred-to-c-mimalloc-result-summary-closeout"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-457A must defer EXE to summary closeout"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_result_summary_inventory_box' "$MODULE" "module must export summary inventory owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_summary_inventory_box.hako' "$MEMORY_README" "memory README must name summary inventory owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_summary_inventory_box.hako' "$MODULE_INDEX" "memory module index must name summary inventory owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocResultSummaryInventoryReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocResultSummaryInventoryReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'summarizeAllocatorComparisonCMimallocResult' "$OWNER" "owner must expose summary inventory route"

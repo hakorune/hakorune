@@ -30,7 +30,7 @@ DESIGN="docs/development/current/main/design/hako-alloc-allocator-comparison-c-m
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
-MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_presentation_only_extension_pilot_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_guard.sh"
@@ -39,7 +39,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-566A allocator comparison C mimalloc result explicit runner planning pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_564A" "$CARD_565A" "$CARD" "$NEXT_CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$PREV_GUARD" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_564A" "$CARD_565A" "$CARD" "$NEXT_CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$PREV_GUARD" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$PREV_GUARD" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: (completed|landed)' "$CARD_564A" "MIMAP-564A must be completed/landed"
@@ -52,7 +52,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-566A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-566A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'exe = "deferred-to-phase-293x-close-criteria"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-566A must defer closeout to close-criteria rows"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_box' "$MODULE" "module must export explicit runner planning pilot owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_box.hako' "$MEMORY_README" "memory README must name explicit runner planning pilot owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_explicit_runner_planning_pilot_box.hako' "$MODULE_INDEX" "memory module index must name explicit runner planning pilot owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocResultExplicitRunnerPlanningPilotReportFields' "$OWNER" "owner must use explicit runner planning ReportFields record"
 guard_expect_in_file "$TAG" 'pilotAllocatorComparisonCMimallocResultExplicitRunnerPlanning' "$OWNER" "owner must expose explicit runner planning pilot route"
 guard_expect_in_file "$TAG" 'HakoAllocAllocatorComparisonCMimallocResultPresentationOnlyExtensionPilotReport' "$OWNER" "owner must consume presentation-only extension pilot report"

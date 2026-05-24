@@ -1088,3 +1088,14 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-223:
   report mirrors, identity payloads, status/reason vocabularies, bool-like
   flags, signed sentinels, pointer-like payloads, or byte-count payloads.
 ```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-223:
+  landed by 294x-227. No additional exact `usize` production field group was
+  selected because the remaining visible candidates are report mirrors,
+  identity/status/reason/flag payloads, signed sentinels, pointer-like payloads,
+  byte-count payloads, or later provider/worker/atomic/native allocator seams.
+  The next blocker is `MIMALLOC-COMPARISON-VSLICE-009`.
+```

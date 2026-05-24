@@ -29,7 +29,7 @@ DESIGN_461A="docs/development/current/main/design/hako-alloc-allocator-compariso
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
-MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_first_conclusion_preflight_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_result_reporting_diagnostic_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_first_conclusion_preflight_guard.sh"
@@ -37,7 +37,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-464A allocator comparison C mimalloc result first conclusion preflight\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_461A" "$CARD" "$DESIGN" "$DESIGN_461A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_461A" "$CARD" "$DESIGN" "$DESIGN_461A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_461A" "MIMAP-461A must be landed"
@@ -49,7 +49,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-464A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-464A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'exe = "deferred-to-c-mimalloc-result-conclusion-row-selection"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-464A must defer final conclusion beyond preflight"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_result_first_conclusion_preflight_box' "$MODULE" "module must export first conclusion preflight owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_first_conclusion_preflight_box.hako' "$MEMORY_README" "memory README must name first conclusion preflight owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_result_first_conclusion_preflight_box.hako' "$MODULE_INDEX" "memory module index must name first conclusion preflight owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocResultFirstConclusionPreflightReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocResultFirstConclusionPreflightReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'preflightAllocatorComparisonCMimallocResultFirstConclusion' "$OWNER" "owner must expose first conclusion preflight route"
