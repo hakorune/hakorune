@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-29-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-29-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER.md"
-latest_card_summary = "Implemented repeated measurement runner without winner claims."
+latest_card = "295x-30-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-30-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN.md"
+latest_card_summary = "Ran selected repeated measurement workload pack without winner claims."
 
-current_blocker_token = "MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-CLOSEOUT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-30 ran selected repeated measurement workload pack without winner claims",
   "295x-29 implemented repeated measurement runner without winner claims",
   "295x-28 defined repeated measurement policy before winner claims",
   "295x-27 closed the huge-ish workload family and selected repeated measurement policy",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-21 added C runner and .hako EXE evidence contract support for representative-mixed-small-v0",
   "295x-20 selected representative-mixed-small-v0 with operation sequence and expected structural fields",
   "295x-19 closed the realloc/aligned workload family and selected mixed-size workload seam selection",
-  "295x-18 ran C mimalloc and .hako realloc/aligned same-workload evidence through the normalizer",
 ]

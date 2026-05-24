@@ -170,6 +170,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_huge_ish_closeout_guard.sh` | 295x-27 の huge-ish workload closeout を固定し、295x-26 evidence guard を再実行して repeated measurement policy へ進むことを検証する。 |
 | `tools/checks/k2_wide_phase295x_repeated_measurement_policy_guard.sh` | 295x-28 の repeated measurement policy を固定し、sample/warmup/summary/RSS collector と winner-claim closed 境界を検証する。 |
 | `tools/checks/k2_wide_phase295x_repeated_measurement_runner_guard.sh` | 295x-29 の repeated measurement runner を固定し、phase295x-repeated-v0 を代表 workload で実行して winner-claim closed 境界を検証する。 |
+| `tools/checks/k2_wide_phase295x_repeated_measurement_pack_run_guard.sh` | 295x-30 の repeated measurement pack run を固定し、選択済み4 workload を phase295x-repeated-v0 で実行して winner-claim closed 境界を検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/hako_exe_memory_runner.sh` | 294x-61 の hako-side memory evidence runner。選択済み比較 `.hako` app を exact-MIR EXE に変換して外部プロセス実行し、`peak_rss_bytes` / exit status / output summary を stable evidence として出力する。 |
 | `tools/checks/k2_wide_hako_alloc_mimalloc_comparison_hako_memory_evidence_runner_guard.sh` | 294x-61 の `tools/allocator/hako_exe_memory_runner.sh` が hako-side pure-first EXE memory-use evidence を出し、provider / hook / replacement / `#[global_allocator]` を開かないことを検証する。 |
