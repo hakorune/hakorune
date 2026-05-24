@@ -30,10 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-CLOSEOUT-295X-001:
-  selected current after 295x-48. Close the generated-empty runtime config
-  evidence pack and decide whether to make minimal config a comparison-runner
-  profile, not a default NyRT behavior change.
+MIMALLOC-COMPARISON-RUNTIME-CONFIG-PROFILE-CONTRACT-295X-001:
+  selected current after 295x-49. Document the comparison-runner runtime
+  config profile contract: hako.toml remains package intent while the exact-EXE
+  runner may generate minimal runtime nyash.toml load sets.
 ```
 
 ## Queue
@@ -89,7 +89,8 @@ MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-CLOSEOUT-295X-001:
 | 46 | `295x-46` | Landed | Closed plugin load-set diagnostic and selected exact-EXE minimal config pilot. |
 | 47 | `295x-47` | Landed | Added comparison-runner-only exact-EXE minimal runtime config pilot. |
 | 48 | `295x-48` | Landed | Compared root versus generated-empty runtime config exact-EXE evidence. |
-| 49 | `MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-CLOSEOUT-295X-001` | Current | Close the generated-empty runtime config evidence pack and select the config-profile follow-on. |
+| 49 | `295x-49` | Landed | Closed `MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-CLOSEOUT-295X-001` and selected runtime config profile contract. |
+| 50 | `MIMALLOC-COMPARISON-RUNTIME-CONFIG-PROFILE-CONTRACT-295X-001` | Current | Document the comparison-runner runtime config profile contract. |
 
 ## Parked
 

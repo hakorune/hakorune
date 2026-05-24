@@ -189,6 +189,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_nyrt_plugin_loadset_closeout_guard.sh` | 295x-46 の NyRT plugin load-set closeout を固定し、comparison-runner-only minimal config pilot follow-on を検証する。 |
 | `tools/checks/k2_wide_phase295x_exact_exe_minimal_config_pilot_guard.sh` | 295x-47 の exact-EXE minimal config pilot を固定し、`hako_exe_memory_runner.sh --runtime-config empty` が生成最小 `nyash.toml` で動くことを検証する。 |
 | `tools/checks/k2_wide_phase295x_exact_exe_minimal_config_evidence_guard.sh` | 295x-48 の exact-EXE minimal config evidence を固定し、root と生成 empty runtime config の selected workload RSS を比較して workload identity / counts / closed seams が変わらないことを検証する。 |
+| `tools/checks/k2_wide_phase295x_exact_exe_minimal_config_closeout_guard.sh` | 295x-49 の exact-EXE minimal config closeout を固定し、`hako.toml` を package-facing intent、生成 `nyash.toml` を comparison-runner runtime profile とする境界を検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |
