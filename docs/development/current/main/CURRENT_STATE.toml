@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-87-MIMALLOC-COMPARISON-HAKMEM-EXTERNAL-CORPUS-CATALOG"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-87-MIMALLOC-COMPARISON-HAKMEM-EXTERNAL-CORPUS-CATALOG.md"
-latest_card_summary = "Cataloged selected hakmem external artifacts and chose malloc-large workload alignment."
+latest_card = "295x-88-MIMALLOC-COMPARISON-HAKO-RECORD-ERGONOMICS-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-88-MIMALLOC-COMPARISON-HAKO-RECORD-ERGONOMICS-CLEANUP.md"
+latest_card_summary = "Applied accepted record defaults / empty literal / with ergonomics to one guarded allocator-comparison owner."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-88 applied accepted record ergonomics to one guarded allocator-comparison owner",
   "295x-87 cataloged selected hakmem external artifacts and chose malloc-large workload alignment",
   "295x-86 added hakozuna_compare log adapter",
   "295x-85 closed hakmem benchres adapter",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-79 defined reuse-cycle small-block workload contract",
   "295x-78 selected reuse-cycle small-block port seam",
   "295x-77 parked .hako body timing and selected port-resume seam selection",
-  "295x-76 added C-runner allocator-body timing pilot",
 ]
