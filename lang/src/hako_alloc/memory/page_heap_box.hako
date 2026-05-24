@@ -34,7 +34,7 @@ box HakoAllocHandleResult {
 
 box HakoAllocPage {
     page_id: i64
-    block_size: i64
+    block_size: usize
     capacity: i64
     free_stack: ArrayBox = new ArrayBox()
     block_used: ArrayBox = new ArrayBox()
@@ -121,7 +121,7 @@ box HakoAllocPage {
         return true
     }
 
-    isLiveHandle(handle) {
+    isLiveHandle(handle): i64 {
         // Returns scalar 1/0 status, not a Bool lane, to keep EXE proof ABI stable.
         if handle == null {
             return 0
@@ -240,7 +240,7 @@ box HakoAllocHeap {
         return false
     }
 
-    isLiveHandle(handle) {
+    isLiveHandle(handle): i64 {
         // Returns scalar 1/0 status, not a Bool lane, to keep EXE proof ABI stable.
         if handle == null {
             return 0
