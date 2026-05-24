@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REALLOC-ALIGNED-CONTRACT-295X-REFRESH-001:
-  selected current after 295x-15. Add the representative-realloc-aligned-v0
-  workload contract while keeping evidence execution as the follow-on row.
+MIMALLOC-COMPARISON-REALLOC-ALIGNED-HAKO-EXE-ACCEPTANCE-295X-001:
+  selected current after 295x-16. Make the realloc/aligned `.hako` proof app
+  acceptable to the hako EXE memory runner before evidence comparison.
 ```
 
 ## Queue
@@ -55,7 +55,8 @@ MIMALLOC-COMPARISON-REALLOC-ALIGNED-CONTRACT-295X-REFRESH-001:
 | 13 | `295x-13` | Landed | Surfaced `.hako` allocation/free counts in hako memory evidence. |
 | 14 | `295x-14` | Landed | Closed matching `.hako`/C allocation-free count evidence. |
 | 15 | `295x-15` | Landed | Selected representative-realloc-aligned-v0 as the next same-workload family. |
-| 16 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-CONTRACT-295X-REFRESH-001` | Current | Add realloc/aligned workload contract and optional evidence fields. |
+| 16 | `295x-16` | Landed | Added realloc/aligned workload contract and optional evidence fields. |
+| 17 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-HAKO-EXE-ACCEPTANCE-295X-001` | Current | Fix/narrow exact-EXE acceptance for the realloc/aligned `.hako` proof app. |
 
 ## Parked
 

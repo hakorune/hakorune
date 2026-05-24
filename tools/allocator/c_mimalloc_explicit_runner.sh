@@ -5,13 +5,14 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 SRC="$ROOT_DIR/tools/allocator/c_mimalloc_explicit_runner.c"
 OUT_FILE=""
 LIBRARY_PATH=""
+WORKLOAD="representative-small-block-v0"
 ALLOC_COUNT="64"
 BLOCK_SIZE="512"
 ALLOW_LDCONFIG_DISCOVERY=0
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/c_mimalloc_explicit_runner.sh --out FILE [--library PATH] [--allow-ldconfig-discovery]
+usage: tools/allocator/c_mimalloc_explicit_runner.sh --out FILE [--library PATH] [--workload ID] [--allow-ldconfig-discovery]
 
 Runs the MIMAP-451A explicit C mimalloc runner. The preferred path is an
 explicit --library PATH. --allow-ldconfig-discovery is a guard/tool convenience:
@@ -27,6 +28,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --library)
       LIBRARY_PATH="${2:-}"
+      shift 2
+      ;;
+    --workload)
+      WORKLOAD="${2:-}"
       shift 2
       ;;
     --alloc-count)
@@ -80,6 +85,6 @@ tmp_out="$tmp_dir/runner.out"
 cc -std=c11 -O2 -Wall -Wextra "$SRC" -ldl -o "$bin"
 
 echo "[c-mimalloc-runner] library=$LIBRARY_PATH" >&2
-"$bin" --library "$LIBRARY_PATH" --alloc-count "$ALLOC_COUNT" --block-size "$BLOCK_SIZE" >"$tmp_out"
+"$bin" --library "$LIBRARY_PATH" --workload "$WORKLOAD" --alloc-count "$ALLOC_COUNT" --block-size "$BLOCK_SIZE" >"$tmp_out"
 mv "$tmp_out" "$OUT_FILE"
 cat "$OUT_FILE"

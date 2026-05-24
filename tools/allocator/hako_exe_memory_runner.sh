@@ -106,8 +106,45 @@ requested_bytes = 0
 committed_bytes = 0
 allocation_count = 0
 free_count = 0
+operation_family = ""
+operation_sequence_id = ""
+free_order_id = ""
+realloc_count = 0
+aligned_alloc_count = 0
+alignment_request_count = 0
+alignment_ok_count = 0
+alignment_reject_count = 0
+realloc_same_ptr_count = 0
+realloc_moved_count = 0
+copied_bytes = 0
 
 for line in lines:
+    if line.startswith("operation_family="):
+        operation_family = line.split("=", 1)[1]
+    if line.startswith("operation_sequence_id="):
+        operation_sequence_id = line.split("=", 1)[1]
+    if line.startswith("free_order_id="):
+        free_order_id = line.split("=", 1)[1]
+    if line.startswith("allocation_count="):
+        allocation_count = int(line.split("=", 1)[1])
+    if line.startswith("free_count="):
+        free_count = int(line.split("=", 1)[1])
+    if line.startswith("realloc_count="):
+        realloc_count = int(line.split("=", 1)[1])
+    if line.startswith("aligned_alloc_count="):
+        aligned_alloc_count = int(line.split("=", 1)[1])
+    if line.startswith("alignment_request_count="):
+        alignment_request_count = int(line.split("=", 1)[1])
+    if line.startswith("alignment_ok_count="):
+        alignment_ok_count = int(line.split("=", 1)[1])
+    if line.startswith("alignment_reject_count="):
+        alignment_reject_count = int(line.split("=", 1)[1])
+    if line.startswith("realloc_same_ptr_count="):
+        realloc_same_ptr_count = int(line.split("=", 1)[1])
+    if line.startswith("realloc_moved_count="):
+        realloc_moved_count = int(line.split("=", 1)[1])
+    if line.startswith("copied_bytes="):
+        copied_bytes = int(line.split("=", 1)[1])
     if line.startswith("page="):
         fields = line.split("=", 1)[1].split(",")
         if fields:
@@ -132,6 +169,9 @@ for line in lines:
 print("hako_exe_runner=1")
 print("output_contract=hako-exe-memory-evidence-v0")
 print(f"workload={workload}")
+print(f"operation_family={operation_family}")
+print(f"operation_sequence_id={operation_sequence_id}")
+print(f"free_order_id={free_order_id}")
 print(f"app_path={app}")
 print(f"result_code={rc}")
 print("run_count=1")
@@ -139,6 +179,14 @@ print(f"allocation_count={allocation_count}")
 print(f"free_count={free_count}")
 print(f"requested_bytes={requested_bytes}")
 print(f"committed_bytes={committed_bytes}")
+print(f"realloc_count={realloc_count}")
+print(f"aligned_alloc_count={aligned_alloc_count}")
+print(f"alignment_request_count={alignment_request_count}")
+print(f"alignment_ok_count={alignment_ok_count}")
+print(f"alignment_reject_count={alignment_reject_count}")
+print(f"realloc_same_ptr_count={realloc_same_ptr_count}")
+print(f"realloc_moved_count={realloc_moved_count}")
+print(f"copied_bytes={copied_bytes}")
 print(f"peak_rss_bytes={peak_rss}")
 print("memory_usage_evidence=1")
 print(f"output_summary_ok={summary_ok}")

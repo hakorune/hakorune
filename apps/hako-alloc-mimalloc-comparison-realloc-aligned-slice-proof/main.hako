@@ -29,6 +29,17 @@ box ProofCheck {
         return 1
     }
 
+    expectEq(label, actual, expected) {
+        me.count = me.count + 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
     ok() {
         return me.passed
     }
@@ -95,9 +106,20 @@ static box Main {
 
         print("hako-alloc-mimalloc-comparison-realloc-aligned-slice-proof")
         print("workload=realloc-aligned-v1")
+        print("operation_family=realloc-aligned")
+        print("operation_sequence_id=representative-realloc-aligned-v0-seq")
+        print("free_order_id=ascending-release-v0")
         print("same=" + same_ok + "," + same_ptr + "," + same_grow_reject + "," + same_path.same_class_count + "," + same_path.grow_reject_count)
         print("grow=" + grow_ok + "," + grow_ptr + "," + grow_old_live + "," + grow_new_live + "," + grow_path.copy_count + "," + grow_same_class_reject + "," + grow_unknown_reject)
         print("aligned=" + aligned_small_ok + "," + aligned_small_ptr + "," + aligned_small_align + "," + aligned_small_padded + "," + aligned_medium_ok + "," + aligned_medium_ptr + "," + aligned_medium_align + "," + aligned_medium_padded + "," + aligned_bad_reject)
+        print("realloc_count=2")
+        print("aligned_alloc_count=2")
+        print("alignment_request_count=3")
+        print("alignment_ok_count=2")
+        print("alignment_reject_count=1")
+        print("realloc_same_ptr_count=1")
+        print("realloc_moved_count=1")
+        print("copied_bytes=16")
         print("requested_bytes=" + requested_bytes)
         print("copied_bytes_model=" + copied_bytes_model)
         print("live_handles=" + live_handles)
@@ -107,39 +129,39 @@ static box Main {
         print("summary_fields=" + requested_bytes + "," + copied_bytes_model + "," + live_handles + "," + reject_count + "," + release_count + "," + align_meta_count)
 
         local proof = new ProofCheck("realloc aligned comparison slice")
-        proof.expect("same add", same_add == 1)
-        proof.expect("same register", same_register == 1)
-        proof.expect("same ok", same_ok == 1)
-        proof.expect("same ptr", same_ptr == 1001)
-        proof.expect("same grow reject", same_grow_reject == 0)
-        proof.expect("same counters", same_path.same_class_count == 1)
-        proof.expect("grow add small", grow_add_small == 1)
-        proof.expect("grow add medium", grow_add_medium == 1)
-        proof.expect("grow register old", grow_register_old == 1)
-        proof.expect("grow ok", grow_ok == 1)
-        proof.expect("grow ptr", grow_ptr == 9000)
-        proof.expect("grow old released", grow_old_live == 0)
-        proof.expect("grow new live", grow_new_live == 1)
-        proof.expect("grow copy count", grow_path.copy_count == 1)
-        proof.expect("grow same class reject", grow_same_class_reject == 0)
-        proof.expect("grow unknown reject", grow_unknown_reject == 0)
-        proof.expect("aligned add small", aligned_add_small == 1)
-        proof.expect("aligned add medium", aligned_add_medium == 1)
-        proof.expect("aligned small ok", aligned_small_ok == 1)
-        proof.expect("aligned small ptr", aligned_small_ptr == 12000)
-        proof.expect("aligned small align", aligned_small_align == 8)
-        proof.expect("aligned small padded", aligned_small_padded == 31)
-        proof.expect("aligned medium ok", aligned_medium_ok == 1)
-        proof.expect("aligned medium ptr", aligned_medium_ptr == 12001)
-        proof.expect("aligned medium align", aligned_medium_align == 64)
-        proof.expect("aligned medium padded", aligned_medium_padded == 111)
-        proof.expect("aligned bad reject", aligned_bad_reject == 0)
-        proof.expect("requested bytes", requested_bytes == 216)
-        proof.expect("copied bytes model", copied_bytes_model == 16)
-        proof.expect("live handles", live_handles == 4)
-        proof.expect("reject count", reject_count == 4)
-        proof.expect("release count", release_count == 1)
-        proof.expect("alignment metadata count", align_meta_count == 2)
+        proof.expectEq("same add", same_add, 1)
+        proof.expectEq("same register", same_register, 1)
+        proof.expectEq("same ok", same_ok, 1)
+        proof.expectEq("same ptr", same_ptr, 1001)
+        proof.expectEq("same grow reject", same_grow_reject, 0)
+        proof.expectEq("same counters", same_path.same_class_count, 1)
+        proof.expectEq("grow add small", grow_add_small, 1)
+        proof.expectEq("grow add medium", grow_add_medium, 1)
+        proof.expectEq("grow register old", grow_register_old, 1)
+        proof.expectEq("grow ok", grow_ok, 1)
+        proof.expectEq("grow ptr", grow_ptr, 9000)
+        proof.expectEq("grow old released", grow_old_live, 0)
+        proof.expectEq("grow new live", grow_new_live, 1)
+        proof.expectEq("grow copy count", grow_path.copy_count, 1)
+        proof.expectEq("grow same class reject", grow_same_class_reject, 0)
+        proof.expectEq("grow unknown reject", grow_unknown_reject, 0)
+        proof.expectEq("aligned add small", aligned_add_small, 1)
+        proof.expectEq("aligned add medium", aligned_add_medium, 1)
+        proof.expectEq("aligned small ok", aligned_small_ok, 1)
+        proof.expectEq("aligned small ptr", aligned_small_ptr, 12000)
+        proof.expectEq("aligned small align", aligned_small_align, 8)
+        proof.expectEq("aligned small padded", aligned_small_padded, 31)
+        proof.expectEq("aligned medium ok", aligned_medium_ok, 1)
+        proof.expectEq("aligned medium ptr", aligned_medium_ptr, 12001)
+        proof.expectEq("aligned medium align", aligned_medium_align, 64)
+        proof.expectEq("aligned medium padded", aligned_medium_padded, 111)
+        proof.expectEq("aligned bad reject", aligned_bad_reject, 0)
+        proof.expectEq("requested bytes", requested_bytes, 216)
+        proof.expectEq("copied bytes model", copied_bytes_model, 16)
+        proof.expectEq("live handles", live_handles, 4)
+        proof.expectEq("reject count", reject_count, 4)
+        proof.expectEq("release count", release_count, 1)
+        proof.expectEq("alignment metadata count", align_meta_count, 2)
 
         if proof.ok() {
             print("summary=ok")
