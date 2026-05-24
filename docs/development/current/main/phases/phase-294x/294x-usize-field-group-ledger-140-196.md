@@ -984,3 +984,31 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-219:
   report mirrors, identity payloads, status/reason vocabularies, bool-like
   flags, signed sentinels, pointer-like payloads, or byte-count payloads.
 ```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-219:
+  landed by 294x-223. Selected the remaining owner-local
+  `HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot`
+  accept/reject counters (`accepted_count`, `reject_count`,
+  `missing_handle_reject_count`, `rejected_handle_reject_count`,
+  `invalid_pointer_token_reject_count`, `invalid_handle_reject_count`,
+  `invalid_lookup_reject_count`, and `closed_execution_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-220`. Keep `last_reason`, report mirrors,
+  lookup result tokens, arena handle tokens, private pointer tokens, lifecycle
+  identity fields, byte-count payloads, bool-like would-execute flags,
+  dereference, arena release/recycle, segment-map mutation, atomic bitmap
+  execution, OSVM, worker/TLS, providers, backend matchers, provider package /
+  DLL generation, and #[global_allocator] separate.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-220:
+  selected current. Migrate only the selected pointer-derived lookup execution
+  pilot accept/reject counters to exact `usize`; keep all report mirrors,
+  payload fields, token fields, reason/status fields, and downstream execution
+  seams unchanged.
+```
