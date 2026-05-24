@@ -68,6 +68,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_block_size_guard.sh` | legacy `HakoAllocPage.block_size` が exact `usize` で、capacity/free_top の exact 化と整合し、page id・handle ids・method parameter surfaces・requested_sizes array payload semantics は current-lane のまま保たれることを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_capacity_guard.sh` | legacy `HakoAllocPage.capacity` が exact `usize` で、free_top の exact 化と整合し、page id・handle ids・method parameter surfaces・requested_sizes array payload semantics は current-lane のまま保たれることを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_free_top_guard.sh` | legacy `HakoAllocPage.free_top` が exact `usize` で、underflow guard / stack push-pop behavior と page id / handle id stop-lines が保たれることを固定する。 |
+| `tools/checks/k2_wide_hako_alloc_usize_page_heap_non_id_closeout_guard.sh` | legacy page-heap の non-id `usize` slice が exact storage で閉じ、page/handle identity fields は signed のまま保たれることを固定する。 |
 | `tools/checks/stage1_program_json_compat_caller_guard.sh` | Stage1 Program(JSON) compat execution helper の active shell caller を phase29ch explicit probe に限定する。 |
 | `tools/checks/phase29ch_route_probe_surface_guard.sh` | archived phase29ch route diagnostics probes が active `tools/dev` surface に戻らず、live compat keeper だけが残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_preperf_probe_surface_guard.sh` | archived phase29ck pre-perf diagnostics probes が active `tools/dev` surface に戻らず、live compat/dialect keepers が残ることを fail-fast で検出する。 |

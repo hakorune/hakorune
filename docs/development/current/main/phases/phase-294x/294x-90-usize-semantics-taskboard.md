@@ -116,11 +116,10 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-PAGE-HEAP-NON-ID-CLOSEOUT-001:
-  selected current after 294x-265. Close out the legacy page-heap exact non-id
-  slice instead of migrating identity fields. Keep page/handle ids signed and
-  stop before provider/DLL seams, hooks, worker/TLS, atomics, or
-  `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-010:
+  selected current after 294x-266. Select the next explicit non-negative
+  production field group only if it helps the comparison vertical slice. Do not
+  migrate page/handle ids by momentum after page-heap non-id closeout.
 ```
 
 ## Cleanup Slice Queue
@@ -305,6 +304,10 @@ Field-group selection after parser-front alignment:
 - [x] Select page-heap non-id exact `usize` closeout as
   `HAKO-ALLOC-USIZE-PAGE-HEAP-NON-ID-CLOSEOUT-001` (`294x-265`).
   - Stop line: do not migrate page/handle identity fields in this slice.
+- [x] Close out the legacy page-heap exact non-id `usize` slice (`294x-266`).
+  - Stop line preserved page/handle identity fields as signed.
+- [ ] Select the next explicit non-negative production field group as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-010`.
 
 ### MIR / Analysis
 
