@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK-295X-001:
-  selected current after 295x-52. Run the explicit empty runtime config with
-  the phase-295x repeated measurement policy before presentation or winner
-  claims.
+MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-CLOSEOUT-295X-001:
+  selected current after 295x-53. Close the explicit empty runtime config full
+  repeated measurement pack before presentation or winner claims.
 ```
 
 ## Queue
@@ -93,7 +92,8 @@ MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK-295X-001:
 | 50 | `295x-50` | Landed | Documented `MIMALLOC-COMPARISON-RUNTIME-CONFIG-PROFILE-CONTRACT-295X-001` for comparison-runner runtime config profiles. |
 | 51 | `295x-51` | Landed | Ran `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-RUN-295X-001` with explicit empty runtime config. |
 | 52 | `295x-52` | Landed | Closed `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-CLOSEOUT-295X-001` and selected full repeated measurement pack. |
-| 53 | `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK-295X-001` | Current | Run explicit empty runtime config with full repeated measurement policy. |
+| 53 | `295x-53` | Landed | Ran `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK-295X-001` with full repeated measurement policy. |
+| 54 | `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-CLOSEOUT-295X-001` | Current | Close the explicit empty runtime config full repeated measurement pack. |
 
 ## Parked
 
