@@ -321,6 +321,12 @@ static box FuncScannerHelpersBox {
     return out + "]"
   }
 
+  method parse_return_type_json(signature_tail) {
+    local name = me._normalize_return_type_name(signature_tail)
+    if name.length() > 0 { return StringHelpers.json_quote(name) }
+    return "null"
+  }
+
   method _push_param_token_raw(tokens, token) {
     if tokens == null { return 0 }
     local t = me._trim("" + token)
@@ -360,6 +366,50 @@ static box FuncScannerHelpersBox {
     local eq = after.indexOf("=")
     if eq >= 0 { after = me._trim(after.substring(0, eq)) }
     return after
+  }
+
+  method _normalize_return_type_name(signature_tail) {
+    if signature_tail == null { return "" }
+    local t = me._trim("" + signature_tail)
+    if t == "" { return "" }
+    if t.substring(0, 1) != ":" { return "" }
+    local after = me._trim(t.substring(1, t.length()))
+    return me._take_type_annotation_text(after)
+  }
+
+  method _take_type_annotation_text(text) {
+    if text == null { return "" }
+    local s = "" + text
+    local out = ""
+    local angle = 0
+    local bracket = 0
+    local i = 0
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if angle == 0 && bracket == 0 {
+        if ch == "{" || ch == ";" { break }
+        if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+          local rest = me._trim(s.substring(i, n))
+          if StringHelpers.starts_with(rest, 0, "requires") == 1 { break }
+          if StringHelpers.starts_with(rest, 0, "ensures") == 1 { break }
+          if StringHelpers.starts_with(rest, 0, "uses") == 1 { break }
+          i = i + 1
+          continue
+        }
+      }
+      if ch == "<" { angle = angle + 1 }
+      if ch == ">" {
+        if angle > 0 { angle = angle - 1 }
+      }
+      if ch == "[" { bracket = bracket + 1 }
+      if ch == "]" {
+        if bracket > 0 { bracket = bracket - 1 }
+      }
+      out = out + ch
+      i = i + 1
+    }
+    return me._trim(out)
   }
 
   method _trim(str) {
