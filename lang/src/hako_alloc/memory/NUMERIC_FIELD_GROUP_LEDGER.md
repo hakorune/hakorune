@@ -674,6 +674,16 @@ Selected next production `usize` field group:
   `usize`, while `last_reason`, report mirrors, capability flags,
   modeled-open payloads, bool-like inactive / would-execute flags, and
   provider call / hook / replacement seams remain unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-201` selected the owner-local
+  `HakoAllocProviderCallExecutionCapabilityPreflight` counters
+  (`preflight_count`, `accepted_count`, `reject_count`,
+  `missing_model_reject_count`, `inactive_model_reject_count`,
+  `missing_capability_reject_count`, `invalid_capability_reject_count`,
+  `closed_execution_reject_count`, `closed_host_replacement_reject_count`,
+  `closed_hook_reject_count`, and `closed_backend_matcher_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-202`. Keep `last_reason`, report mirrors,
+  capability flags, preflight payloads, bool-like readiness / would-execute
+  flags, and provider call / hook / replacement seams separate.
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-114` selected the decommit-side
   `HakoAllocPurgeDecommitStateMarker` counters (`attempt_count`,
   `marked_count`, `reject_count`, `duplicate_count`,

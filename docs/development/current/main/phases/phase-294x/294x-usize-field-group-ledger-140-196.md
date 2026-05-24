@@ -703,12 +703,24 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-196:
   modeled-open payloads, bool-like inactive / would-execute flags, and
   provider call / hook / replacement seams remain unchanged.
 
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-201` selected the owner-local
+  `HakoAllocProviderCallExecutionCapabilityPreflight` counters
+  (`preflight_count`, `accepted_count`, `reject_count`,
+  `missing_model_reject_count`, `inactive_model_reject_count`,
+  `missing_capability_reject_count`, `invalid_capability_reject_count`,
+  `closed_execution_reject_count`, `closed_host_replacement_reject_count`,
+  `closed_hook_reject_count`, and `closed_backend_matcher_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-202`. Keep `last_reason`, report mirrors,
+  capability flags, preflight payloads, bool-like readiness / would-execute
+  flags, and provider call / hook / replacement seams separate.
+
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-201:
-  selected current. Select the next explicit non-negative production field
-  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+HAKO-ALLOC-USIZE-FIELD-GROUP-202:
+  selected current. Migrate only the selected owner-local
+  HakoAllocProviderCallExecutionCapabilityPreflight counters. Do not migrate
+  status/reason vocabularies, report mirrors, bool-like flags, signed
   sentinels, pointer-like payloads, provider calls, host replacement, hooks,
   global allocator install, worker/TLS, atomics, provider package / DLL
   generation, or #[global_allocator].
