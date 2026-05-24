@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-250-HAKO-ALLOC-USIZE-REALLOC-REQUESTED-SIZE-RESULT-OBSERVER"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-250-HAKO-ALLOC-USIZE-REALLOC-REQUESTED-SIZE-RESULT-OBSERVER.md"
-latest_card_summary = "Migrated HakoAllocObjectLifecycleReallocResult.last_requested_size to exact usize."
+latest_card = "294x-251-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-251-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION.md"
+latest_card_summary = "Selected page-queue numeric inventory drift cleanup before the next code migration."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-002"
+current_blocker_token = "HAKO-ALLOC-USIZE-NUMERIC-INVENTORY-PAGE-QUEUE-DRIFT-CLEANUP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-251 selected page-queue numeric inventory drift cleanup before the next code migration",
   "294x-250 migrated HakoAllocObjectLifecycleReallocResult.last_requested_size to exact usize",
   "294x-249 selected HakoAllocObjectLifecycleReallocResult.last_requested_size as the next exact usize field group",
   "294x-248 aligned Stage-B user-box field type annotation metadata with Rust parser Program(JSON v0)",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-243 selected the final phase-294x mimalloc comparison closeout row",
   "294x-242 consolidated the mimalloc comparison presentation refresh chain and selected phase closeout selection",
   "294x-241 refreshed the presentation extension follow-on extension pack and selected presentation chain consolidation",
-  "294x-240 refreshed the presentation extension follow-on pilot/closeout pack and selected follow-on extension pilot refresh",
 ]

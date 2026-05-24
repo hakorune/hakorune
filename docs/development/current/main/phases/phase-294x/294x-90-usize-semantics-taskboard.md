@@ -116,13 +116,11 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-002:
-  selected current after 294x-250. Inspect `NUMERIC_FIELDS.md` and select one
-  narrow non-negative production field group. Do not migrate signed sentinels,
-  reason/status fields, ids/indexes, pointer payloads, broad owner state,
-  mimalloc comparison rows, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  repeated benchmark packs, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-NUMERIC-INVENTORY-PAGE-QUEUE-DRIFT-CLEANUP-001:
+  selected current after 294x-251. Synchronize stale `NUMERIC_FIELDS.md`
+  detailed rows for already-exact `HakoAllocPageQueue` fields with
+  `page_queue_box.hako` storage and the existing summary row. Do not change
+  allocator behavior or migrate new fields.
 ```
 
 ## Cleanup Slice Queue
@@ -233,6 +231,12 @@ Field-group selection after parser-front alignment:
     result observers, and huge requested-size observers as signed.
 - [ ] Select the next explicit non-negative production field group as
   `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-002`.
+- [x] Select page-queue numeric inventory drift cleanup before the next code
+  migration (`294x-251`).
+  - This is metadata cleanup only. It must not change `page_queue_box.hako`
+    semantics.
+- [ ] Synchronize stale `HakoAllocPageQueue` detailed numeric inventory rows as
+  `HAKO-ALLOC-USIZE-NUMERIC-INVENTORY-PAGE-QUEUE-DRIFT-CLEANUP-001`.
 
 ### MIR / Analysis
 
