@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-SAME-WORKLOAD-295X-REFRESH-001:
-  selected current after 295x-06. Execute the same-workload memory report path
-  for representative-small-block-v0 and keep winner claims closed.
+MIMALLOC-COMPARISON-SAME-WORKLOAD-CLOSEOUT-295X-001:
+  selected current after 295x-07. Close out the same-workload memory report
+  execution refresh and keep repeated benchmark / winner claims closed.
 ```
 
 ## Queue
@@ -46,8 +46,9 @@ MIMALLOC-COMPARISON-SAME-WORKLOAD-295X-REFRESH-001:
 | 4 | `295x-04` | Landed | Consumed existing `.hako` vertical-slice and C runner evidence through the result ledger and diagnostics. |
 | 5 | `295x-05` | Landed | Consolidated the comparison method and selected result ledger closeout. |
 | 6 | `295x-06` | Landed | Closed the refreshed result ledger pack without winner claims. |
-| 7 | `MIMALLOC-COMPARISON-SAME-WORKLOAD-295X-REFRESH-001` | Current | Execute the same-workload memory report path for representative-small-block-v0. |
-| 8 | next `.hako` port seam selection | Planned | Select only a seam that improves the comparison workload. |
+| 7 | `295x-07` | Landed | Executed the same-workload memory report path for representative-small-block-v0. |
+| 8 | `MIMALLOC-COMPARISON-SAME-WORKLOAD-CLOSEOUT-295X-001` | Current | Close out the same-workload execution refresh without benchmark/winner expansion. |
+| 9 | next `.hako` port seam selection | Planned | Select only a seam that improves the comparison workload. |
 
 ## Parked
 
