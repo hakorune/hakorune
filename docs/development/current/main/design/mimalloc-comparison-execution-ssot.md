@@ -187,6 +187,33 @@ This policy still does not permit performance or memory winner claims. A later
 row must explicitly open winner presentation and define how to compare
 summaries.
 
+## Memory Gap Attribution
+
+Decision: accepted as the next diagnostic layer after repeated presentation.
+
+Repeated measurement can show an RSS gap, but the first diagnostic question is
+not which allocator wins. The first question is where the gap comes from.
+
+Attribution rows split repeated RSS evidence into:
+
+```text
+fixed_process_runtime_baseline
+workload_incremental_rss
+unattributed_residual
+```
+
+The intended baseline is an explicit empty workload on both sides under the
+same repeated measurement profile. A workload row may then report:
+
+```text
+hako_incremental_rss = hako_workload_rss - hako_baseline_rss
+c_incremental_rss    = c_workload_rss    - c_baseline_rss
+incremental_delta    = hako_incremental_rss - c_incremental_rss
+```
+
+Attribution evidence remains diagnostic. It must keep `winner_claim=0` until a
+later row opens a winner presentation policy.
+
 ## Stop Line
 
 Do not use the comparison lane as a back door for allocator-provider
