@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-239-MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-239-MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-REFRESH.md"
-latest_card_summary = "Refreshed the presentation extension pilot and closeout pack."
+latest_card = "294x-240-MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-FOLLOW-ON-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-240-MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-FOLLOW-ON-REFRESH.md"
+latest_card_summary = "Refreshed the presentation extension follow-on pilot and closeout pack."
 
-current_blocker_token = "MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-FOLLOW-ON-PILOT-REFRESH-001"
+current_blocker_token = "MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-240 refreshed the presentation extension follow-on pilot/closeout pack and selected follow-on extension pilot refresh",
   "294x-239 refreshed the presentation extension pilot/closeout pack and selected extension follow-on pilot refresh",
   "294x-238 refreshed the presentation follow-on pilot/closeout pack and selected presentation extension pilot refresh",
   "294x-237 refreshed the presentation-only conclusion pilot/closeout boundary and selected presentation follow-on pilot refresh",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-232 refreshed the C-vs-Hako comparison result reporting pack and selected presentation decision refresh",
   "294x-231 refreshed the C-vs-Hako comparison result summary inventory/diagnostics and selected reporting refresh",
   "294x-230 refreshed the C-vs-Hako comparison result ledger closeout pack and selected summary inventory refresh",
-  "294x-229 refreshed the C-vs-Hako comparison result ledger and selected result ledger closeout refresh",
 ]
