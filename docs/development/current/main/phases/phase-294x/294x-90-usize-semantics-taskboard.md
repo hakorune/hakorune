@@ -116,13 +116,13 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-004:
-  selected current after 294x-254. Inspect `NUMERIC_FIELDS.md` and select one
-  narrow non-negative production field group. Do not migrate signed sentinels,
-  reason/status fields, ids/indexes, pointer payloads, broad owner state,
-  mimalloc comparison rows, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  repeated benchmark packs, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-255-PAGE-HEAP-REQUESTED-BYTES-001:
+  selected current after 294x-255. Migrate only
+  `HakoAllocPage.requested_bytes` to exact `usize`. Do not migrate
+  handle/page ids, handle requested size, block size, capacity, free_top,
+  requested_sizes array payload semantics, page-model production fields,
+  pointer-like payloads, provider/DLL seams, hooks, worker/TLS, atomics, or
+  `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -254,6 +254,11 @@ Field-group selection after parser-front alignment:
     requested_bytes as signed.
 - [ ] Select the next explicit non-negative production field group as
   `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-004`.
+- [x] Select `HakoAllocPage.requested_bytes` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-255-PAGE-HEAP-REQUESTED-BYTES-001`
+  (`294x-255`).
+  - Stop line: keep handle/page ids, handle requested size, block size,
+    capacity, free_top, and requested_sizes array payload semantics signed.
 
 ### MIR / Analysis
 
