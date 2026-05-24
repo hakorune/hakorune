@@ -927,6 +927,18 @@ Selected next production `usize` field group:
   `usize`, while `last_reason`, report fields, no-op/open/executed flags,
   provider API call flags, bool-like readiness / would-execute flags, provider
   / hook / replacement rows, worker/TLS, and threads stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-205` selected
+  `HakoAllocProviderCallRealApiExecutionPreflight` owner-local counters
+  (`preflight_count`, `accepted_count`, `reject_count`,
+  `missing_noop_reject_count`, `rejected_noop_reject_count`,
+  `missing_capability_reject_count`, `invalid_capability_reject_count`,
+  `already_executed_reject_count`, `closed_execution_reject_count`,
+  `closed_host_replacement_reject_count`, `closed_hook_reject_count`, and
+  `closed_backend_matcher_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-206`, while `last_reason`, report fields, real
+  API preflight payloads, capability flags, provider API call flags,
+  bool-like readiness / would-execute flags, provider / hook / replacement
+  rows, worker/TLS, and threads stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
