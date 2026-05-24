@@ -31,7 +31,7 @@ guard_expect_in_file "$TAG" 'free_count: usize = 0' "$PAGE_HEAP" "page heap free
 guard_expect_in_file "$TAG" 'reuse_count: usize = 0' "$PAGE_HEAP" "page heap reuse_count must be exact usize"
 guard_expect_in_file "$TAG" 'current_used: usize = 0' "$PAGE_HEAP" "page heap current_used is exact usize after occupancy row"
 guard_expect_in_file "$TAG" 'peak_used: usize = 0' "$PAGE_HEAP" "page heap peak_used is exact usize after occupancy row"
-guard_expect_in_file "$TAG" 'requested_bytes: i64 = 0' "$PAGE_HEAP" "page heap requested_bytes remains signed until byte-sum row"
+guard_expect_in_file "$TAG" 'requested_bytes: usize = 0' "$PAGE_HEAP" "page heap requested_bytes is exact usize after byte-sum row"
 guard_expect_in_file "$TAG" 'HAKO-ALLOC-USIZE-FIELD-GROUP-084' "$NUMERIC_FIELDS" "numeric inventory must record field group 084"
 guard_expect_in_file "$TAG" '294x-62 Hako Alloc Usize Page Heap Stats Counters' "$CARD" "missing field-group card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list field-group guard"
@@ -75,7 +75,12 @@ for name in ("current_used", "peak_used"):
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"HakoAllocPage.{name} must be exact usize storage after occupancy row: {field}")
 
-for name in ("page_id", "block_size", "capacity", "free_top", "requested_bytes"):
+for name in ("requested_bytes",):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"HakoAllocPage.{name} must be exact usize storage after requested-bytes row: {field}")
+
+for name in ("page_id", "block_size", "capacity", "free_top"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"HakoAllocPage.{name} must remain i64 storage: {field}")

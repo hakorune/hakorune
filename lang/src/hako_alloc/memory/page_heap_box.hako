@@ -46,7 +46,7 @@ box HakoAllocPage {
     reuse_count: usize = 0
     current_used: usize = 0
     peak_used: usize = 0
-    requested_bytes: i64 = 0
+    requested_bytes: usize = 0
 
     birth(page_id, block_size, capacity) {
         me.page_id = page_id
