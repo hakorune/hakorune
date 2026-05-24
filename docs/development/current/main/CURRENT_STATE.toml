@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-14-MIMALLOC-COMPARISON-COUNT-EVIDENCE-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-14-MIMALLOC-COMPARISON-COUNT-EVIDENCE-CLOSEOUT.md"
-latest_card_summary = "Closed matching .hako/C allocation-free count evidence and selected the next workload seam selection row."
+latest_card = "295x-15-MIMALLOC-COMPARISON-NEXT-WORKLOAD-SEAM-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-15-MIMALLOC-COMPARISON-NEXT-WORKLOAD-SEAM-SELECTION.md"
+latest_card_summary = "Selected representative-realloc-aligned-v0 as the next same-workload family and required operation/free-order contracts."
 
-current_blocker_token = "MIMALLOC-COMPARISON-NEXT-WORKLOAD-SEAM-SELECTION-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-REALLOC-ALIGNED-CONTRACT-295X-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-15 selected representative-realloc-aligned-v0 and required operation/free-order contracts",
   "295x-14 closed matching .hako/C allocation-free count evidence and selected next workload seam selection",
   "295x-13 surfaced .hako allocation/free counts in hako memory evidence and shared comparison reports",
   "295x-12 selected .hako allocation/free count evidence refresh",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-06 closed the refreshed comparison result ledger pack and selected same-workload execution refresh",
   "295x-05 consolidated the comparison method and separated evidence comparison from winner claims",
   "295x-04 refreshed the C-vs-Hako comparison result ledger against the phase-295x evidence chain",
-  "295x-03 selected the C-vs-Hako result ledger refresh after the C runner evidence contract refresh",
 ]

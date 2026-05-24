@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NEXT-WORKLOAD-SEAM-SELECTION-295X-001:
-  selected current after 295x-14. Choose the next same-workload seam while
-  keeping provider/replacement and winner claims closed.
+MIMALLOC-COMPARISON-REALLOC-ALIGNED-CONTRACT-295X-REFRESH-001:
+  selected current after 295x-15. Add the representative-realloc-aligned-v0
+  workload contract while keeping evidence execution as the follow-on row.
 ```
 
 ## Queue
@@ -54,7 +54,8 @@ MIMALLOC-COMPARISON-NEXT-WORKLOAD-SEAM-SELECTION-295X-001:
 | 12 | `295x-12` | Landed | Selected `.hako` allocation/free count evidence refresh. |
 | 13 | `295x-13` | Landed | Surfaced `.hako` allocation/free counts in hako memory evidence. |
 | 14 | `295x-14` | Landed | Closed matching `.hako`/C allocation-free count evidence. |
-| 15 | `MIMALLOC-COMPARISON-NEXT-WORKLOAD-SEAM-SELECTION-295X-001` | Current | Choose the next same-workload seam. |
+| 15 | `295x-15` | Landed | Selected representative-realloc-aligned-v0 as the next same-workload family. |
+| 16 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-CONTRACT-295X-REFRESH-001` | Current | Add realloc/aligned workload contract and optional evidence fields. |
 
 ## Parked
 
