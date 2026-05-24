@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -14,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 HAKO_RUNNER = ROOT / "tools/allocator/hako_exe_memory_runner.sh"
 C_RUNNER = ROOT / "tools/allocator/c_mimalloc_explicit_runner.sh"
+LOADSET_PLAN = ROOT / "tools/allocator/hako_plugin_loadset_plan.py"
 
 WORKLOAD_APPS = {
     "representative-empty-v0": ROOT
@@ -68,6 +70,40 @@ def median_int(values: list[int]) -> int:
 
 def key_part(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_")
+
+
+def hako_loadset_for_runtime_config(runtime_config: str) -> str:
+    if runtime_config == "empty":
+        return "empty"
+    if runtime_config == "root":
+        return "root"
+    raise SystemExit(f"unsupported hako runtime config: {runtime_config}")
+
+
+def load_hako_loadset_plan(runtime_config: str) -> dict[str, object]:
+    loadset = hako_loadset_for_runtime_config(runtime_config)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(LOADSET_PLAN),
+            "--config",
+            "hako.toml",
+            "--loadset",
+            loadset,
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    )
+    plan = json.loads(completed.stdout)
+    if plan.get("output_contract") != "hako-plugin-loadset-plan-v0":
+        raise SystemExit("bad hako loadset plan output_contract")
+    if plan.get("selected_loadset") != loadset:
+        raise SystemExit("hako loadset plan selected_loadset mismatch")
+    if plan.get("plugin_load_policy") != "eager_selected":
+        raise SystemExit("hako loadset plan plugin_load_policy mismatch")
+    return plan
 
 
 def run_one(
@@ -164,6 +200,7 @@ def main() -> int:
         if not app.exists():
             raise SystemExit(f"missing .hako workload app: {app}")
 
+    hako_loadset_plan = load_hako_loadset_plan(args.hako_runtime_config)
     lines = [
         "mimalloc_repeated_measurement_runner=1",
         "output_contract=mimalloc-comparison-repeated-measurement-v0",
@@ -176,6 +213,11 @@ def main() -> int:
         "canonical_rss_collector=external-time",
         "internal_rss_evidence=preserved",
         f"hako_runtime_config_profile={args.hako_runtime_config}",
+        f"hako_selected_loadset={hako_loadset_plan['selected_loadset']}",
+        f"hako_plugin_load_policy={hako_loadset_plan['plugin_load_policy']}",
+        f"hako_selected_library_count={hako_loadset_plan['library_count']}",
+        f"hako_missing_library_count={hako_loadset_plan['missing_library_count']}",
+        f"hako_loadset_preflight_ok={hako_loadset_plan['preflight_ok']}",
     ]
 
     with tempfile.TemporaryDirectory(prefix="hakorune_repeated_measurement.") as tmp:

@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001:
-  selected current after 295x-56. Close the no-dlopen plugin loadset preflight
-  plan and decide whether to wire selected-loadset evidence into the comparison
-  runner next.
+MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001:
+  selected current after 295x-58. Close selected-loadset fields in repeated
+  comparison evidence before returning to workload comparison rows.
 ```
 
 ## Queue
@@ -97,7 +96,9 @@ MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001:
 | 54 | `295x-54` | Landed | Closed the explicit empty runtime config full repeated measurement pack. |
 | 55 | `295x-55` | Landed | Defined `MIMALLOC-COMPARISON-PLUGIN-LOADSET-CONTRACT-295X-001` before changing default plugin loading behavior. |
 | 56 | `295x-56` | Landed | Added `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-PLAN-295X-001` no-dlopen plugin loadset preflight plan artifact. |
-| 57 | `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001` | Current | Close the no-dlopen plugin loadset preflight plan. |
+| 57 | `295x-57` | Landed | Closed `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001` and selected runner loadset evidence. |
+| 58 | `295x-58` | Landed | Added `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-295X-001` selected-loadset fields to repeated comparison evidence. |
+| 59 | `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001` | Current | Close selected-loadset fields in repeated comparison evidence. |
 
 ## Parked
 
