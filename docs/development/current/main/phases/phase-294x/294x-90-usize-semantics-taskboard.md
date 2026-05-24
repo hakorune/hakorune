@@ -116,9 +116,9 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-PILOT-REFRESH-001:
-  selected current after 294x-238. Refresh the existing MIMAP-486A
-  presentation extension pilot over the landed presentation follow-on pack.
+MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-FOLLOW-ON-PILOT-REFRESH-001:
+  selected current after 294x-239. Refresh the existing MIMAP-492A
+  presentation extension follow-on pilot over the landed extension-ready pack.
   Do not drain report mirrors, identity payloads, status/reason vocabularies,
   bool-like flags, signed sentinels, pointer-like payloads, byte-count
   payloads, provider calls, host replacement, hooks, global allocator install,
