@@ -8,18 +8,18 @@
 status = "Active"
 date = "2026-05-24"
 
-active_lane = "phase-294x usize semantic foundation"
-active_lane_status = "Phase-293x mimalloc blueprint lane closed with record ergonomics feature (127 tests green) and terminal planning pilot. Phase-294x continues as usize semantic foundation while narrowing mimalloc-facing work to a comparison-quality vertical slice before broader native allocator work."
-active_phase = "docs/development/current/main/phases/phase-294x/README.md"
-phase_status = "docs/development/current/main/phases/phase-294x/README.md"
-method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
+active_lane = "phase-295x mimalloc comparison execution"
+active_lane_status = "Phase-294x exact usize comparison-quality slice closed at 294x-270. Phase-295x resumes mimalloc-facing work from explicit comparison evidence and keeps provider/DLL/replacement seams parked."
+active_phase = "docs/development/current/main/phases/phase-295x/README.md"
+phase_status = "docs/development/current/main/phases/phase-295x/README.md"
+method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
+taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "294x-270-PHASE-294X-USIZE-COMPARISON-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-270-PHASE-294X-USIZE-COMPARISON-CLOSEOUT.md"
-latest_card_summary = "Closed phase-294x's exact usize comparison-quality slice and parked broad field migration."
+latest_card = "295x-00-MIMALLOC-COMPARISON-EXECUTION-LANE-LOCK"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-00-MIMALLOC-COMPARISON-EXECUTION-LANE-LOCK.md"
+latest_card_summary = "Locked phase-295x as the mimalloc comparison execution lane after phase-294x closeout."
 
-current_blocker_token = "PHASE-294X-POST-CLOSEOUT-ROW-SELECTION-001"
+current_blocker_token = "MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-00 locked phase-295x as the mimalloc comparison execution lane after phase-294x closeout",
   "294x-270 closed phase-294x's exact usize comparison-quality slice and parked broad field migration",
   "294x-269 selected phase-294x usize comparison closeout instead of another production field-group migration",
   "294x-268 refreshed the mimalloc comparison vertical slice after the page-heap exact non-id usize closeout",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-263 selected HakoAllocPage.free_top as the next exact usize field group",
   "294x-262 migrated HakoAllocPage.capacity to exact usize",
   "294x-261 selected HakoAllocPage.capacity as the next exact usize field group",
-  "294x-260 migrated HakoAllocPage.block_size to exact usize",
 ]

@@ -67,8 +67,8 @@ Scope: current lane / next lane / restart order only.
   4. keep sentinel-bearing indexes signed
   5. keep BoxShape cleanup separate from BoxCount feature rows
 - parked lanes:
-  - the previous mimalloc blueprint lane is closed; follow-on execution opens
-    only after the current semantic foundation lane is complete
+  - the exact `usize` semantic foundation lane is closed; follow-on mimalloc
+    comparison execution is now the active lane
   - allocator-provider ladder remains parked unless host allocator replacement
     is explicitly reopened
   - record defaults / spread / named args / automatic record-to-box copy remain
