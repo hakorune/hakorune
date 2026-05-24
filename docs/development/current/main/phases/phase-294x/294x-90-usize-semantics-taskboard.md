@@ -116,14 +116,13 @@ human restart clarity.
 Current blocker:
 
 ```text
-STAGEB-PARSER-PARAM-TYPE-ANNOTATION-ALIGNMENT-001:
-  selected current after 294x-245. Align Stage-B method parameter type
+STAGEB-PARSER-RETURN-TYPE-ANNOTATION-ALIGNMENT-001:
+  selected current after 294x-246. Align Stage-B method return type
   annotation parsing with the Rust parser as the next parser-front alignment
-  row. Do not add return type annotations, field type annotations, additional
-  hako_alloc field-group migration, mimalloc comparison rows, provider calls,
-  host replacement, hooks, global allocator install, worker/TLS, atomics,
-  provider package / DLL generation, repeated benchmark packs, or
-  `#[global_allocator]`.
+  row. Do not add field type annotations, additional hako_alloc field-group
+  migration, mimalloc comparison rows, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, repeated benchmark packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -208,10 +207,12 @@ STAGEB-PARSER-PARAM-TYPE-ANNOTATION-ALIGNMENT-001:
   - Stage-B `.hako` parser (`lang/src/compiler/parser/`) now supports literal
     suffixes and preserves them as Program(JSON v0) `Int.declared_type`
     metadata (`294x-245`).
-  - Stage-B still does not support parameter type annotations, return type
-    annotations, or field type annotations with exact numeric types.
-  - Next row: add parameter type annotation parsing. Separate commit per
-    feature.
+  - Stage-B FuncScanner / JSON builder now preserves method parameter type
+    annotations as Program(JSON v0) `param_decls[].declared_type` while keeping
+    `params` as bare names (`294x-246`).
+  - Stage-B still does not support return type annotations or field type
+    annotations with exact numeric types.
+  - Next row: add return type annotation parsing. Separate commit per feature.
 
 ### MIR / Analysis
 

@@ -35,16 +35,18 @@ static box StageBJsonBuilderBox {
       local mbody = "" + def.get("body_json")
       local mbox = "" + def.get("box")
       local runes_json = me._map_s_or_empty(def, "runes_json")
+      local param_decls_json = me._map_s_or_empty(def, "param_decls_json")
       // JSON v0 bridge expects FuncDef.body to be Program(JSON v0), not Block.
       local wrapped_body = "{\"version\":0,\"kind\":\"Program\",\"body\":" + mbody + "}"
       // Build params array JSON
       local params_arr = me._build_params_json(mparams)
+      if param_decls_json == "" { param_decls_json = me._build_param_decls_json(mparams) }
       local attrs_frag = ""
       if runes_json != null && runes_json != "" && runes_json != "[]" {
         attrs_frag = ",\"attrs\":{\"runes\":" + runes_json + "}"
       }
       if mi > 0 { defs_json = defs_json + "," }
-      defs_json = defs_json + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"" + attrs_frag + "}"
+      defs_json = defs_json + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"param_decls\":" + param_decls_json + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"" + attrs_frag + "}"
       mi = mi + 1
     }
     defs_json = defs_json + "]"
@@ -122,6 +124,21 @@ static box StageBJsonBuilderBox {
     }
     params_arr = params_arr + "]"
     return params_arr
+  }
+
+  method _build_param_decls_json(mparams) {
+    local out = "["
+    if mparams != null {
+      local pi = 0
+      local pn = mparams.length()
+      loop(pi < pn) {
+        if pi > 0 { out = out + "," }
+        out = out + "{\"name\":" + StringHelpers.json_quote("" + mparams.get(pi)) + ",\"declared_type\":null}"
+        pi = pi + 1
+      }
+    }
+    out = out + "]"
+    return out
   }
 
   method _map_s_or_empty(map, key) {

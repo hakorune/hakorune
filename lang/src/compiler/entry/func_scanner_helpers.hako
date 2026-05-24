@@ -1,4 +1,5 @@
 // FuncScannerHelpersBox — shared helpers for FuncScannerBox
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box FuncScannerHelpersBox {
   method _append_defs(dst, defs_box) {
@@ -221,9 +222,21 @@ static box FuncScannerHelpersBox {
   // - "a: Int" -> ["a"]
   // - empty / whitespace only -> []
   method parse_params(params_str) {
+    local tokens = me.parse_param_tokens(params_str)
+    local params = new ArrayBox()
+    local i = 0
+    local n = tokens.length()
+    loop(i < n) {
+      me._push_param_token(params, tokens.get(i))
+      i = i + 1
+    }
+    return params
+  }
+
+  method parse_param_tokens(params_str) {
     if params_str == null { return new ArrayBox() }
     // Keep scanner deterministic: split only on top-level commas.
-    local params = new ArrayBox()
+    local tokens = new ArrayBox()
     local s = "" + params_str
     local n = s.length()
     local cur = ""
@@ -264,7 +277,7 @@ static box FuncScannerHelpersBox {
         continue
       }
       if ch == "," && depth == 0 {
-        me._push_param_token(params, cur)
+        me._push_param_token_raw(tokens, cur)
         cur = ""
         i = i + 1
         continue
@@ -272,8 +285,47 @@ static box FuncScannerHelpersBox {
       cur = cur + ch
       i = i + 1
     }
-    me._push_param_token(params, cur)
-    return params
+    me._push_param_token_raw(tokens, cur)
+    return tokens
+  }
+
+  method parse_param_decls_json(params_str, include_me) {
+    local tokens = me.parse_param_tokens(params_str)
+    local first_name = ""
+    if tokens.length() > 0 { first_name = me._normalize_param_name(tokens.get(0)) }
+    local out = "["
+    local count = 0
+    if include_me == 1 && first_name != "me" {
+      out = out + "{\"name\":\"me\",\"declared_type\":null}"
+      count = 1
+    }
+    local i = 0
+    local n = tokens.length()
+    loop(i < n) {
+      local token = tokens.get(i)
+      local name = me._normalize_param_name(token)
+      if name.length() > 0 {
+        if count > 0 { out = out + "," }
+        local declared_type = me._normalize_param_type_name(token)
+        out = out + "{\"name\":" + StringHelpers.json_quote(name) + ",\"declared_type\":"
+        if declared_type.length() > 0 {
+          out = out + StringHelpers.json_quote(declared_type)
+        } else {
+          out = out + "null"
+        }
+        out = out + "}"
+        count = count + 1
+      }
+      i = i + 1
+    }
+    return out + "]"
+  }
+
+  method _push_param_token_raw(tokens, token) {
+    if tokens == null { return 0 }
+    local t = me._trim("" + token)
+    if t.length() > 0 { tokens.push(t) }
+    return 0
   }
 
   method _push_param_token(params, token) {
@@ -296,6 +348,18 @@ static box FuncScannerHelpersBox {
       t = me._trim(t.substring(0, eq))
     }
     return t
+  }
+
+  method _normalize_param_type_name(token) {
+    if token == null { return "" }
+    local t = me._trim("" + token)
+    if t == "" { return "" }
+    local colon = t.indexOf(":")
+    if colon < 0 { return "" }
+    local after = me._trim(t.substring(colon + 1, t.length()))
+    local eq = after.indexOf("=")
+    if eq >= 0 { after = me._trim(after.substring(0, eq)) }
+    return after
   }
 
   method _trim(str) {

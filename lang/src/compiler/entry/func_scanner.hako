@@ -314,6 +314,7 @@ static box FuncScannerBox {
           if rparen >= 0 {
             local params_str = s.substring(lparen + 1, rparen)
             local params_json = FuncScannerBox._params_json_text(params_str, include_me)
+            local param_decls_json = FuncScannerHelpersBox.parse_param_decls_json(params_str, include_me)
             local lbrace = FuncScannerHelpersBox._seek_method_body_open_brace(s, rparen + 1)
 
             if lbrace >= 0 {
@@ -355,7 +356,7 @@ static box FuncScannerBox {
                 if body_json != "" {
                   if skip_this == 0 {
                     if count > 0 { out = out + "," }
-                    out = out + "{\"name\":" + StringHelpers.json_quote(method_name) + ",\"params\":" + params_json + ",\"body\":" + body_json + ",\"box\":" + StringHelpers.json_quote(box_name) + "}"
+                    out = out + "{\"name\":" + StringHelpers.json_quote(method_name) + ",\"params\":" + params_json + ",\"param_decls\":" + param_decls_json + ",\"body\":" + body_json + ",\"box\":" + StringHelpers.json_quote(box_name) + "}"
                     count = count + 1
                   }
                 }
@@ -605,6 +606,7 @@ static box FuncScannerBox {
             if rparen >= 0 {
               local params_str = s.substring(lparen + 1, rparen)
               local params = new ArrayBox()
+              local param_decls_json = FuncScannerHelpersBox.parse_param_decls_json(params_str, include_me)
               if params_str != null && params_str != "" {
                 params = FuncScannerHelpersBox._parse_params(params_str)
               }
@@ -674,6 +676,7 @@ static box FuncScannerBox {
                       local def = new MapBox()
                       def.set("name", method_name)
                       def.set("params", params)
+                      def.set("param_decls_json", param_decls_json)
                       def.set("body_json", body_json)
                       def.set("box", box_name)
                       methods.push(def)
