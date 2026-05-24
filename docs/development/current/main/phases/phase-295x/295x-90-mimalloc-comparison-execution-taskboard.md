@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CLOSEOUT-295X-001:
-  selected current after 295x-80. Close the C/.hako reuse-cycle small-block
-  workload evidence and choose whether to add it to repeated measurement.
+MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
+  selected current after 295x-87. Define the first `.hako` workload alignment
+  contract against the external `mimalloc-bench` `malloc-large` family.
 ```
 
 ## Queue
@@ -120,7 +120,14 @@ MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CLOSEOUT-295X-001:
 | 78 | `295x-78` | Landed | Selected reuse-cycle small-block as the next narrow `.hako` mimalloc port seam. |
 | 79 | `295x-79` | Landed | Defined C/.hako reuse-cycle small-block workload contract. |
 | 80 | `295x-80` | Landed | Implemented C/.hako evidence for reuse-cycle small-block workload. |
-| 81 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CLOSEOUT-295X-001` | Current | Close reuse-cycle small-block workload evidence and select next measurement/port seam. |
+| 81 | `295x-81` | Landed | Closed reuse-cycle small-block workload evidence and selected the hakmem external benchmark bridge. |
+| 82 | `295x-82` | Landed | Added a target-local bridge for the extracted hakmem mimalloc-bench corpus. |
+| 83 | `295x-83` | Landed | Selected a narrow benchres.csv adapter for hakmem schema alignment. |
+| 84 | `295x-84` | Landed | Added a narrow benchres.csv adapter for the extracted hakmem benchmark corpus. |
+| 85 | `295x-85` | Landed | Closed the benchres adapter and selected the hakozuna_compare log adapter. |
+| 86 | `295x-86` | Landed | Added a hakozuna_compare log adapter for repeated throughput/RSS evidence. |
+| 87 | `295x-87` | Landed | Cataloged selected hakmem external artifacts and selected malloc-large workload alignment. |
+| 88 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001` | Current | Define the first `.hako` workload alignment contract against external `malloc-large`. |
 
 ## Parked
 

@@ -1,0 +1,53 @@
+# phase-295x external hakmem result catalog.
+#
+# This catalog records selected artifacts from the extracted hakmem_20260525
+# corpus. It is for workload/schema alignment only. It is not phase-295x
+# repeated measurement evidence.
+
+dataset_root = "/home/tomoaki/git/hakmem_20260525_extracted/hakmem"
+dataset_role = "external-historical-benchmark-corpus"
+winner_claim = 0
+provider_activation = 0
+host_replacement = 0
+hook_installed = 0
+global_allocator_installed = 0
+
+selected_next_workload_family = "mimalloc-bench-malloc-large"
+selected_next_blocker = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
+selection_reason = "allocator-focused external mimalloc-bench workload before thread/remote-heavy families"
+
+[[artifacts]]
+id = "mimalloc-benchres-clean-full-20260117-064211"
+path = "bench_results/mimalloc_bench_full_20260117_064211/benchres.csv"
+kind = "mimalloc-benchres"
+adapter = "tools/allocator/hakmem_benchres_adapter.py"
+use = "schema-discovery"
+
+[[artifacts]]
+id = "mimalloc-benchres-latest-full-20260117-064626"
+path = "bench_results/mimalloc_bench_full_20260117_064626/benchres.csv"
+kind = "mimalloc-benchres"
+adapter = "tools/allocator/hakmem_benchres_adapter.py"
+use = "latest-candidate-with-signal-caveat"
+
+[[artifacts]]
+id = "hakozuna-compare-pure-20260118-034633"
+path = "bench_results/hakozuna_compare_20260118_034633"
+kind = "hakozuna-compare-log-set"
+adapter = "tools/allocator/hakmem_hakozuna_compare_log_adapter.py"
+use = "pure-libhakozuna-comparison-candidate"
+
+[[artifacts]]
+id = "hakozuna-compare-scale-20260118-035003"
+path = "bench_results/hakozuna_compare_20260118_035003"
+kind = "hakozuna-compare-log-set"
+adapter = "tools/allocator/hakmem_hakozuna_compare_log_adapter.py"
+use = "latest-four-allocator-candidate-hz3-scale-label-caveat"
+
+[[artifacts]]
+id = "malloc-large-perf-strace-20260105-105541"
+path = "bench_results/s51_malloc_large_b40795031_20260105_105541"
+kind = "perf-strace-secondary-evidence"
+adapter = "none"
+use = "secondary-pagefault-syscall-context"
+
