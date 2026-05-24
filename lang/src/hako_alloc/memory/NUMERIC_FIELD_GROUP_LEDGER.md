@@ -911,6 +911,17 @@ Selected next production `usize` field group:
   `last_reason`, performance/memory conclusions, repeated benchmark execution,
   provider / hook / global-allocator rows, worker/TLS, and threads stay
   unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-203` selected
+  `HakoAllocProviderCallNoopExecutionSeamPilot` owner-local counters
+  (`seam_count`, `accepted_count`, `reject_count`,
+  `missing_preflight_reject_count`, `rejected_preflight_reject_count`,
+  `not_ready_reject_count`, `closed_execution_reject_count`,
+  `closed_host_replacement_reject_count`, `closed_hook_reject_count`, and
+  `closed_backend_matcher_reject_count`) as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-204`, while `last_reason`, report fields,
+  no-op/open/executed flags, provider API call flags, bool-like readiness /
+  would-execute flags, provider / hook / replacement rows, worker/TLS, and
+  threads stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
