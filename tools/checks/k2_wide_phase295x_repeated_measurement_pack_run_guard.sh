@@ -21,7 +21,7 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$RUNNER"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-CLOSEOUT-295X-001' "$CARD" "card must select closeout follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001' "$PREV_CARD" "previous row must select this pack run"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-CLOSEOUT-295X-001' "$TASKBOARD" "taskboard must expose closeout follow-on"
+guard_expect_in_file "$TAG" '| 30 | `295x-30` | Landed |' "$TASKBOARD" "taskboard must retain this row as landed"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 guard_expect_in_file "$TAG" 'winner_claim=0' "$RUNNER" "runner must keep winner claims closed"
 

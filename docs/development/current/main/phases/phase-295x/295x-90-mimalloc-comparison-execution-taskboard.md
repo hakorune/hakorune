@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-CLOSEOUT-295X-001:
-  selected current after 295x-30. Close the repeated measurement pack and
-  select presentation-only reporting, next workload family, or phase pause.
+MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PRESENTATION-295X-001:
+  selected current after 295x-31. Add compact presentation-only reporting for
+  repeated measurement evidence while preserving winner_claim=0.
 ```
 
 ## Queue
@@ -70,7 +70,8 @@ MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-CLOSEOUT-295X-001:
 | 28 | `295x-28` | Landed | Defined repeated measurement policy before winner claims. |
 | 29 | `295x-29` | Landed | Implemented repeated evidence runner without winner claims. |
 | 30 | `295x-30` | Landed | Ran selected workload pack without winner claims. |
-| 31 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-CLOSEOUT-295X-001` | Current | Close repeated measurement pack. |
+| 31 | `295x-31` | Landed | Closed repeated measurement pack. |
+| 32 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PRESENTATION-295X-001` | Current | Add presentation-only repeated measurement report. |
 
 ## Parked
 
