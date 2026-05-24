@@ -26,11 +26,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION-001:
-  selected current after 295x-00. Choose the first comparison execution row.
-  Expected direction: refresh/select the explicit C mimalloc runner evidence
-  contract against the current `.hako` vertical slice before opening any new
-  provider or replacement seam.
+MIMALLOC-COMPARISON-C-RUNNER-EVIDENCE-CONTRACT-REFRESH-001:
+  selected current after 295x-01. Revalidate the explicit C mimalloc runner
+  evidence contract against the current `.hako` vertical slice before choosing
+  the next `.hako` port seam. Do not open provider/DLL/replacement seams.
 ```
 
 ## Queue
@@ -38,8 +37,8 @@ MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION-001:
 | Order | Row | Status | Boundary |
 | --- | --- | --- | --- |
 | 0 | `295x-00` | Landed | Lock phase-295x and switch current pointers from phase-294x closeout to mimalloc comparison execution. |
-| 1 | `MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION-001` | Current | Select the first execution/evidence row. Do not open provider/DLL/replacement seams. |
-| 2 | explicit C mimalloc evidence contract refresh | Planned | Validate stable output / memory-use evidence contract; no benchmark repetition expansion unless selected. |
+| 1 | `295x-01` | Landed | Selected explicit C mimalloc evidence contract refresh as the first execution/evidence row. |
+| 2 | `MIMALLOC-COMPARISON-C-RUNNER-EVIDENCE-CONTRACT-REFRESH-001` | Current | Validate stable output / memory-use evidence contract; no benchmark repetition expansion unless selected. |
 | 3 | `.hako` vs C comparison ledger refresh | Planned | Consume existing `.hako` vertical-slice and C runner evidence. |
 | 4 | next `.hako` port seam selection | Planned | Select only a seam that improves the comparison workload. |
 

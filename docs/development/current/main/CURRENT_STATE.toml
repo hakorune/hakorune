@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-00-MIMALLOC-COMPARISON-EXECUTION-LANE-LOCK"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-00-MIMALLOC-COMPARISON-EXECUTION-LANE-LOCK.md"
-latest_card_summary = "Locked phase-295x as the mimalloc comparison execution lane after phase-294x closeout."
+latest_card = "295x-01-MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-01-MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION.md"
+latest_card_summary = "Selected an explicit C mimalloc runner evidence contract refresh as the first phase-295x row."
 
-current_blocker_token = "MIMALLOC-COMPARISON-EXECUTION-ROW-SELECTION-001"
+current_blocker_token = "MIMALLOC-COMPARISON-C-RUNNER-EVIDENCE-CONTRACT-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-01 selected an explicit C mimalloc runner evidence contract refresh as the first phase-295x row",
   "295x-00 locked phase-295x as the mimalloc comparison execution lane after phase-294x closeout",
   "294x-270 closed phase-294x's exact usize comparison-quality slice and parked broad field migration",
   "294x-269 selected phase-294x usize comparison closeout instead of another production field-group migration",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-264 migrated HakoAllocPage.free_top to exact usize",
   "294x-263 selected HakoAllocPage.free_top as the next exact usize field group",
   "294x-262 migrated HakoAllocPage.capacity to exact usize",
-  "294x-261 selected HakoAllocPage.capacity as the next exact usize field group",
 ]
