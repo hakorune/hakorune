@@ -35,7 +35,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$H_RUNNER" "$C_RUNNER" "$NORMALI
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-HAKO-COUNT-EVIDENCE-295X-REFRESH-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-COUNT-EVIDENCE-CLOSEOUT-295X-001' "$CARD" "card must select closeout follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-HAKO-COUNT-EVIDENCE-295X-REFRESH-001' "$PREV_CARD" "previous row must select this refresh"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-COUNT-EVIDENCE-CLOSEOUT-295X-001' "$TASKBOARD" "taskboard must expose count evidence closeout"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 guard_expect_in_file "$TAG" 'allocation_count=' "$H_RUNNER" "hako runner must publish allocation_count"
 guard_expect_in_file "$TAG" 'free_count=' "$H_RUNNER" "hako runner must publish free_count"
