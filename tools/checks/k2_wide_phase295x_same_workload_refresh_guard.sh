@@ -37,7 +37,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$SAME_WORKLOAD_GUARD" "$NORMALIZ
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-SAME-WORKLOAD-295X-REFRESH-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-SAME-WORKLOAD-CLOSEOUT-295X-001' "$CARD" "card must select the same-workload closeout follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-SAME-WORKLOAD-295X-REFRESH-001' "$PREV_CARD" "previous row must select this refresh"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-SAME-WORKLOAD-CLOSEOUT-295X-001' "$TASKBOARD" "taskboard must expose closeout follow-on"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 guard_expect_in_file "$TAG" "$SAME_WORKLOAD_GUARD" "$INDEX" "check script index must list the reused same-workload guard"
 guard_expect_in_file "$TAG" 'workload_match=1' "$CARD" "same-workload refresh must require matching workload ids"
