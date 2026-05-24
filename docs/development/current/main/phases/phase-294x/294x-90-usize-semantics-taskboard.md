@@ -116,14 +116,15 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-PRESENTATION-CHAIN-CONSOLIDATION-001:
-  selected current after 294x-241. Consolidate the refreshed presentation
-  boundary and park the deeper presentation-only extension chain unless a
-  concrete comparison consumer needs it. Do not drain report mirrors, identity
-  payloads, status/reason vocabularies, bool-like flags, signed sentinels,
-  pointer-like payloads, byte-count payloads, provider calls, host replacement,
-  hooks, global allocator install, worker/TLS, atomics, provider package / DLL
-  generation, repeated benchmark packs, or `#[global_allocator]`.
+MIMALLOC-COMPARISON-PHASE-CLOSEOUT-SELECTION-001:
+  selected current after 294x-242. Decide whether phase-294x closes after the
+  refreshed comparison-quality vertical slice, or whether one final closeout
+  card is needed before returning to the usize semantic foundation backlog.
+  Do not drain report mirrors, identity payloads, status/reason vocabularies,
+  bool-like flags, signed sentinels, pointer-like payloads, byte-count payloads,
+  provider calls, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
+  packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
