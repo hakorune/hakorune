@@ -116,13 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-217:
-  selected current again after 294x-220 cleanup. Select the next explicit
-  non-negative production field group. Do not migrate status/reason
-  vocabularies, bool-like flags, signed sentinels, pointer-like payloads,
-  byte-count payloads, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-218:
+  selected by 294x-221. Migrate only
+  `HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot.lookup_count`
+  to exact `usize`. Do not migrate status/reason vocabularies, bool-like
+  flags, signed sentinels, pointer-like payloads, byte-count payloads, report
+  mirrors, provider calls, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, or
+  `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue

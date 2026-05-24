@@ -935,3 +935,28 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-217:
   replacement, hooks, global allocator install, worker/TLS, atomics, provider
   package / DLL generation, or #[global_allocator].
 ```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-217:
+  landed by 294x-221. Selected the owner-local
+  `HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot.lookup_count`
+  counter as `HAKO-ALLOC-USIZE-FIELD-GROUP-218`. Keep accepted/reject
+  subcounters, `last_reason`, report mirrors, lookup result tokens, arena
+  handle tokens, private pointer tokens, lifecycle identity fields,
+  byte-count payloads, bool-like would-execute flags, dereference, arena
+  release/recycle, segment-map mutation, atomic bitmap execution, OSVM,
+  worker/TLS, providers, backend matchers, provider package / DLL generation,
+  and #[global_allocator] separate.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-218:
+  selected current. Migrate only the selected pointer-derived lookup execution
+  pilot `lookup_count` counter to exact `usize`; keep all report mirrors,
+  payload fields, token fields, reason/status fields, and downstream execution
+  seams unchanged.
+```
