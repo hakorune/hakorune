@@ -669,6 +669,11 @@ Selected next production `usize` field group:
   `HAKO-ALLOC-USIZE-FIELD-GROUP-200`. Keep `last_reason`, report mirrors,
   capability flags, modeled-open payloads, bool-like inactive / would-execute
   flags, and provider call / hook / replacement seams separate.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-200` migrated those
+  `HakoAllocProviderCallModeledOpenPilot` owner-local counters to exact
+  `usize`, while `last_reason`, report mirrors, capability flags,
+  modeled-open payloads, bool-like inactive / would-execute flags, and
+  provider call / hook / replacement seams remain unchanged.
 - `HAKO-ALLOC-USIZE-FIELD-GROUP-114` selected the decommit-side
   `HakoAllocPurgeDecommitStateMarker` counters (`attempt_count`,
   `marked_count`, `reject_count`, `duplicate_count`,

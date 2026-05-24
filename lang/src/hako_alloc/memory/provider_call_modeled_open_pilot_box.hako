@@ -91,18 +91,18 @@ box HakoAllocProviderCallModeledOpenPilotReport {
 }
 
 box HakoAllocProviderCallModeledOpenPilot {
-    modeled_open_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_dry_run_reject_count: i64 = 0
-    rejected_dry_run_reject_count: i64 = 0
-    missing_capability_reject_count: i64 = 0
-    invalid_capability_reject_count: i64 = 0
-    unsupported_outcome_reject_count: i64 = 0
-    closed_call_reject_count: i64 = 0
-    closed_host_replacement_reject_count: i64 = 0
-    closed_hook_reject_count: i64 = 0
-    closed_backend_matcher_reject_count: i64 = 0
+    modeled_open_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_dry_run_reject_count: usize = 0
+    rejected_dry_run_reject_count: usize = 0
+    missing_capability_reject_count: usize = 0
+    invalid_capability_reject_count: usize = 0
+    unsupported_outcome_reject_count: usize = 0
+    closed_call_reject_count: usize = 0
+    closed_host_replacement_reject_count: usize = 0
+    closed_hook_reject_count: usize = 0
+    closed_backend_matcher_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeProviderCallModeledOpenPilotReport(fields: HakoAllocProviderCallModeledOpenPilotReportFields): HakoAllocProviderCallModeledOpenPilotReport {

@@ -697,14 +697,19 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-196:
   capability flags, modeled-open payloads, bool-like inactive / would-execute
   flags, and provider call / hook / replacement seams separate.
 
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-200` migrated those
+  `HakoAllocProviderCallModeledOpenPilot` owner-local counters to exact
+  `usize`, while `last_reason`, report mirrors, capability flags,
+  modeled-open payloads, bool-like inactive / would-execute flags, and
+  provider call / hook / replacement seams remain unchanged.
+
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-200:
-  selected current. Migrate only the selected owner-local
-  HakoAllocProviderCallModeledOpenPilot counters. Do not migrate status/reason
-  vocabularies, report mirrors, bool-like flags, signed sentinels,
-  pointer-like payloads, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation, or
-  #[global_allocator].
+HAKO-ALLOC-USIZE-FIELD-GROUP-201:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+  sentinels, pointer-like payloads, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, or #[global_allocator].
 ```
