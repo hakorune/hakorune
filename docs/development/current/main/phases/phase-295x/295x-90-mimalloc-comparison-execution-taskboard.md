@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-POST-STANDALONE-ROUTE-SELECTION-295X-001:
-  selected current after 295x-60. Decide whether to wire standalone-route
-  fields into comparison evidence next or return to workload/measurement rows.
+MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001:
+  selected current after 295x-62. Close runtime reference docs for plugin
+  loadsets and standalone EXE routes before implementation work resumes.
 ```
 
 ## Queue
@@ -100,7 +100,9 @@ MIMALLOC-COMPARISON-POST-STANDALONE-ROUTE-SELECTION-295X-001:
 | 58 | `295x-58` | Landed | Added `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-295X-001` selected-loadset fields to repeated comparison evidence. |
 | 59 | `295x-59` | Landed | Closed `MIMALLOC-COMPARISON-RUNNER-LOADSET-EVIDENCE-CLOSEOUT-295X-001` selected-loadset fields in repeated comparison evidence. |
 | 60 | `295x-60` | Landed | Defined `MIMALLOC-COMPARISON-STANDALONE-EXE-ROUTE-CONTRACT-295X-001` standalone EXE route contract. |
-| 61 | `MIMALLOC-COMPARISON-POST-STANDALONE-ROUTE-SELECTION-295X-001` | Current | Select standalone-route evidence wiring or return to workload/measurement rows. |
+| 61 | `295x-61` | Landed | Selected `MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-295X-001` reference-doc alignment before standalone implementation work. |
+| 62 | `295x-62` | Landed | Added runtime reference docs for plugin loadsets and standalone EXE routes. |
+| 63 | `MIMALLOC-COMPARISON-RUNTIME-REFERENCE-LOADSET-STANDALONE-CLOSEOUT-295X-001` | Current | Close runtime reference docs for plugin loadsets and standalone EXE routes. |
 
 ## Parked
 

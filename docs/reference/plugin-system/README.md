@@ -30,6 +30,10 @@
   - 共有ハンドル、scope終了時の扱い、`shutdown_plugins_v2()` の動作
   - NetPlugin（HTTP/TCP）の並列E2E時の注意点
 
+- **[../runtime/plugin-loadsets.md](../runtime/plugin-loadsets.md)** - Runtime plugin loadset selection
+  - `root` / `empty` / `all` / reserved `app` / reserved `core`
+  - selected-loadset preflight and no implicit lazy loading
+
 - **[net-plugin.md](./net-plugin.md)** - Netプラグイン（HTTP/TCP PoC）
   - GET/POST、ヘッダ、Content-Length、環境変数によるログ
 

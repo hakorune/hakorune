@@ -22,6 +22,10 @@
 ### runtime/
 - runtime/kernel/substrate reference manuals
 - current substrate capability manual: `docs/reference/runtime/substrate-capabilities.md`
+- runtime plugin loadset selection:
+  `docs/reference/runtime/plugin-loadsets.md`
+- standalone EXE route vocabulary:
+  `docs/reference/runtime/standalone-exe-routes.md`
 
 ### boxes-system/
 - ビルトイン Box / Box システムの仕様
