@@ -70,7 +70,13 @@ def key_part(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_")
 
 
-def run_one(workload: str, side: str, out_path: Path, allow_ldconfig: bool) -> dict[str, str]:
+def run_one(
+    workload: str,
+    side: str,
+    out_path: Path,
+    allow_ldconfig: bool,
+    hako_runtime_config: str,
+) -> dict[str, str]:
     if side == "hako":
         app = WORKLOAD_APPS[workload]
         cmd = [
@@ -80,6 +86,8 @@ def run_one(workload: str, side: str, out_path: Path, allow_ldconfig: bool) -> d
             str(app),
             "--workload",
             workload,
+            "--runtime-config",
+            hako_runtime_config,
             "--out",
             str(out_path),
         ]
@@ -142,6 +150,7 @@ def main() -> int:
     parser.add_argument("--warmup-count", type=int, default=1)
     parser.add_argument("--workload", action="append", choices=sorted(WORKLOAD_APPS))
     parser.add_argument("--allow-ldconfig-discovery", action="store_true")
+    parser.add_argument("--hako-runtime-config", choices=("root", "empty"), default="root")
     args = parser.parse_args()
 
     if args.sample_count < 1:
@@ -166,6 +175,7 @@ def main() -> int:
         "summary_statistic=min,median,max",
         "canonical_rss_collector=external-time",
         "internal_rss_evidence=preserved",
+        f"hako_runtime_config_profile={args.hako_runtime_config}",
     ]
 
     with tempfile.TemporaryDirectory(prefix="hakorune_repeated_measurement.") as tmp:
@@ -183,9 +193,27 @@ def main() -> int:
                 sample_index = run_index - args.warmup_count
                 hako_out = tmp_dir / f"{key_part(workload)}.{run_index}.hako.out"
                 c_out = tmp_dir / f"{key_part(workload)}.{run_index}.c.out"
-                hako = run_one(workload, "hako", hako_out, args.allow_ldconfig_discovery)
-                c = run_one(workload, "c", c_out, args.allow_ldconfig_discovery)
+                hako = run_one(
+                    workload,
+                    "hako",
+                    hako_out,
+                    args.allow_ldconfig_discovery,
+                    args.hako_runtime_config,
+                )
+                c = run_one(
+                    workload,
+                    "c",
+                    c_out,
+                    args.allow_ldconfig_discovery,
+                    args.hako_runtime_config,
+                )
                 validate_sample(workload, hako, c, f"{workload}:{kind}:{run_index}")
+                require(
+                    hako,
+                    "runtime_config_profile",
+                    args.hako_runtime_config,
+                    f"{workload}:{kind}:{run_index}:hako",
+                )
                 operation_family = hako.get("operation_family", "")
                 if kind == "sample":
                     sample_hako_rss.append(as_int(hako, "external_peak_rss_bytes"))
