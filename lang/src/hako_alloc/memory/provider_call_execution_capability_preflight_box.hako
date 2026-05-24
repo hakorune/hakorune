@@ -87,17 +87,17 @@ box HakoAllocProviderCallExecutionCapabilityPreflightReport {
 }
 
 box HakoAllocProviderCallExecutionCapabilityPreflight {
-    preflight_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_model_reject_count: i64 = 0
-    inactive_model_reject_count: i64 = 0
-    missing_capability_reject_count: i64 = 0
-    invalid_capability_reject_count: i64 = 0
-    closed_execution_reject_count: i64 = 0
-    closed_host_replacement_reject_count: i64 = 0
-    closed_hook_reject_count: i64 = 0
-    closed_backend_matcher_reject_count: i64 = 0
+    preflight_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_model_reject_count: usize = 0
+    inactive_model_reject_count: usize = 0
+    missing_capability_reject_count: usize = 0
+    invalid_capability_reject_count: usize = 0
+    closed_execution_reject_count: usize = 0
+    closed_host_replacement_reject_count: usize = 0
+    closed_hook_reject_count: usize = 0
+    closed_backend_matcher_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeProviderCallExecutionCapabilityPreflightReport(fields: HakoAllocProviderCallExecutionCapabilityPreflightReportFields): HakoAllocProviderCallExecutionCapabilityPreflightReport {
