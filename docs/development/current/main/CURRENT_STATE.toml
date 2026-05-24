@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-89-MIMALLOC-COMPARISON-HAKO-RECORD-ERGONOMICS-BATCH-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-89-MIMALLOC-COMPARISON-HAKO-RECORD-ERGONOMICS-BATCH-CLEANUP.md"
-latest_card_summary = "Batch-applied accepted record ergonomics to allocator-comparison owners that still used direct ReportFields literals."
+latest_card = "295x-91-MIMALLOC-COMPARISON-ALLOCATOR-PROVIDER-GUARD-THIN-WRAP-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-91-MIMALLOC-COMPARISON-ALLOCATOR-PROVIDER-GUARD-THIN-WRAP-CLEANUP.md"
+latest_card_summary = "Thin-wrapped allocator-provider guard families into root wrappers and impl entries while keeping the current mimalloc comparison blocker parked."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-91 thin-wrapped allocator-provider guard families into root wrappers and impl entries",
   "295x-89 batch-applied accepted record ergonomics to allocator-comparison owners",
   "295x-88 applied accepted record ergonomics to one guarded allocator-comparison owner",
   "295x-87 cataloged selected hakmem external artifacts and chose malloc-large workload alignment",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-81 closed reuse-cycle small-block workload evidence",
   "295x-80 implemented reuse-cycle small-block workload evidence",
   "295x-79 defined reuse-cycle small-block workload contract",
-  "295x-78 selected reuse-cycle small-block port seam",
 ]
