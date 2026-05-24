@@ -69,7 +69,7 @@ not a full native mimalloc-compatible allocator.
 | V2 | Hako alloc small-path comparison slice | VM + MIR + route preflight; representative EXE closeout | Started by `294x-55` / `MIMALLOC-COMPARISON-VSLICE-003` as a model-only schema pilot. Compose existing size-class, page model, page queue, page-map release, and local reuse paths into one stable output schema. No remote-free stress, TLS, abandoned heap, or atomic bitmap expansion. |
 | V3 | Realloc/aligned comparison slice | same as V2 | Started by `294x-57` / `MIMALLOC-COMPARISON-VSLICE-005` as a model-only schema pilot. Reuse M174-M178 behavior and produce requested bytes, copied bytes, live handles, failure reason, and alignment metadata evidence. No new API surface unless the report schema requires it. |
 | V4 | Huge/OSVM comparison slice | MIR + route preflight + representative pure-first EXE | Started by `294x-58` / `MIMALLOC-COMPARISON-VSLICE-006` as an OSVM-backed schema pilot. Reuse M179-M181 and existing OSVM page-source composition for huge requests, reporting reserve/commit/decommit evidence without widening page-source ownership. |
-| V5 | C mimalloc vs `.hako` report closeout | representative L3 / allocator-wide only at closeout | Landed by `294x-59` / `MIMALLOC-COMPARISON-VSLICE-007`. Aligns the selected V2/V3/V4 `.hako` output schema with the existing C mimalloc explicit runner planning surface: requested bytes, committed/live bytes or handles, operation counts, failure reasons, and RSS/memory-use evidence where available. `294x-227` returns here as `MIMALLOC-COMPARISON-VSLICE-009` after the exact `usize` field-group drain. |
+| V5 | C mimalloc vs `.hako` report closeout | representative L3 / allocator-wide only at closeout | Landed by `294x-59` / `MIMALLOC-COMPARISON-VSLICE-007`. Aligns the selected V2/V3/V4 `.hako` output schema with the existing C mimalloc explicit runner planning surface: requested bytes, committed/live bytes or handles, operation counts, failure reasons, and RSS/memory-use evidence where available. `294x-228` refreshed this path as `MIMALLOC-COMPARISON-VSLICE-009` after the exact `usize` field-group drain. |
 
 Defer beyond this queue:
 
@@ -116,15 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-VSLICE-009:
-  selected current after 294x-227. Refresh the comparison vertical-slice
-  closeout after the exact `usize` field-group series and return to the C
-  mimalloc comparison execution/evidence lane if the selected V2/V3/V4 `.hako`
-  schema remains stable. Do not drain report mirrors, identity payloads,
-  status/reason vocabularies, bool-like flags, signed sentinels, pointer-like
-  payloads, byte-count payloads, provider calls, host replacement, hooks,
-  global allocator install, worker/TLS, atomics, provider package / DLL
-  generation, or `#[global_allocator]`.
+MIMALLOC-COMPARISON-RESULT-LEDGER-REFRESH-001:
+  selected current after 294x-228. Refresh the existing MIMAP-454A C-vs-Hako
+  comparison result ledger against the current explicit C mimalloc runner
+  evidence. Do not drain report mirrors, identity payloads, status/reason
+  vocabularies, bool-like flags, signed sentinels, pointer-like payloads,
+  byte-count payloads, provider calls, host replacement, hooks, global
+  allocator install, worker/TLS, atomics, provider package / DLL generation,
+  repeated benchmark packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue

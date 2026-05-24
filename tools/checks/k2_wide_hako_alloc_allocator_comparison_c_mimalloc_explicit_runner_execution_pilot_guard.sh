@@ -35,7 +35,7 @@ PROVIDER_PACKAGE_SSOT="docs/development/current/main/design/hakorune-provider-pa
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
-MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_execution_diagnostic_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_guard.sh"
@@ -45,7 +45,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-451A explicit C mimalloc runner execution pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_448A" "$CARD_449A" "$CARD_450A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_449A" "$PROVIDER_PACKAGE_SSOT" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$C_RUNNER_SH" "$C_RUNNER_C" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_448A" "$CARD_449A" "$CARD_450A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_449A" "$PROVIDER_PACKAGE_SSOT" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$C_RUNNER_SH" "$C_RUNNER_C" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$C_RUNNER_SH" "$RUN_PROOF"
 
 for card in "$CARD_448A" "$CARD_449A" "$CARD_450A" "$CARD"; do
@@ -62,7 +62,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-451A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "external-runner-pilot"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-451A must use external-runner-pilot validation"
 guard_expect_in_file "$TAG" 'exe = "explicit-c-mimalloc-runner"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-451A must record explicit C mimalloc runner execution"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box' "$MODULE" "module must export explicit C mimalloc runner pilot owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako' "$MEMORY_README" "memory README must name explicit C mimalloc runner pilot owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako' "$MODULE_INDEX" "memory module index must name explicit C mimalloc runner pilot owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerRunEvidence' "$OWNER" "owner must group runner evidence in a context record"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerMemoryEvidence' "$OWNER" "owner must group memory evidence in a context record"

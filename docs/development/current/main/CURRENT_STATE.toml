@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-227-HAKO-ALLOC-USIZE-FIELD-GROUP-CLOSEOUT-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-227-HAKO-ALLOC-USIZE-FIELD-GROUP-CLOSEOUT-SELECTION.md"
-latest_card_summary = "Closed the current exact usize field-group drain and selected comparison vertical-slice closeout refresh."
+latest_card = "294x-228-MIMALLOC-COMPARISON-VSLICE-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-228-MIMALLOC-COMPARISON-VSLICE-REFRESH.md"
+latest_card_summary = "Refreshed the mimalloc comparison vertical-slice closeout after the exact usize field-group series."
 
-current_blocker_token = "MIMALLOC-COMPARISON-VSLICE-009"
+current_blocker_token = "MIMALLOC-COMPARISON-RESULT-LEDGER-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-228 refreshed the mimalloc comparison vertical-slice closeout and selected result ledger refresh",
   "294x-227 closed the current exact usize field-group drain and selected MIMALLOC-COMPARISON-VSLICE-009",
   "294x-226 migrated facade huge page-model route counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-223 is now current",
   "294x-225 selected facade huge page-model route counters as HAKO-ALLOC-USIZE-FIELD-GROUP-222",
@@ -39,5 +40,4 @@ landed_tail = [
   "294x-219 started proof app entrypoint cleanup slice; PROOF-APP-ENTRYPOINT-CLEANUP-001 is now current",
   "294x-218 migrated no-escape pointer residence pilot owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-217 is now current",
   "294x-217 selected no-escape pointer residence pilot owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-216",
-  "294x-216 migrated provider call external API call stub execution owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-215 is now current",
 ]

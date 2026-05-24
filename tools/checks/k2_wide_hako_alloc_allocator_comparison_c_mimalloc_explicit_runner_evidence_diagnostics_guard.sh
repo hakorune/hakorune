@@ -32,7 +32,7 @@ DESIGN_451A="docs/development/current/main/design/hako-alloc-allocator-compariso
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
-MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostics_guard.sh"
@@ -40,7 +40,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-452A explicit C mimalloc runner evidence diagnostics\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_451A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_451A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_451A" "$CARD" "$NEXT_CARD" "$USIZE_SELECTION_CARD" "$USIZE_CARD" "$DESIGN" "$DESIGN_451A" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_451A" "$CARD"; do
@@ -56,7 +56,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-452A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-452A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'exe = "deferred-to-c-mimalloc-explicit-runner-closeout"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-452A must defer repeated EXE/runner evidence to closeout"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box' "$MODULE" "module must export explicit runner evidence diagnostics owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box.hako' "$MEMORY_README" "memory README must name explicit runner evidence diagnostics owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box.hako' "$MODULE_INDEX" "memory module index must name explicit runner evidence diagnostics owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'diagnoseAllocatorComparisonCMimallocExplicitRunnerEvidence' "$OWNER" "owner must expose evidence diagnostic route"
