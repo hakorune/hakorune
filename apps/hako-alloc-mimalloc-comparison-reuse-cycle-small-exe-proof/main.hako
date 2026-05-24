@@ -1,0 +1,120 @@
+// hako-alloc-mimalloc-comparison-reuse-cycle-small-exe-proof
+// Purpose: mirror a page-local small-block free/reacquire reuse cycle.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    allocateWave(page) {
+        local i = 0
+        local cycle = 0
+        local ok = 1
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local block = page.acquire_usize(requested)
+            if block < 0 {
+                ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+        return ok
+    }
+
+    releaseEvenOdd(page) {
+        local released = 0
+        local ok = 1
+        loop(released < 64) {
+            local released_ok = page.releaseLocal(released)
+            if released_ok != 1 {
+                ok = 0
+            }
+            released += 2
+        }
+        released = 1
+        loop(released < 64) {
+            local released_ok = page.releaseLocal(released)
+            if released_ok != 1 {
+                ok = 0
+            }
+            released += 2
+        }
+        return ok
+    }
+
+    main(args) {
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+
+        local first_alloc_ok = Main.allocateWave(page)
+        local first_release_ok = Main.releaseEvenOdd(page)
+        local reuse_ok = page.reuse()
+        local second_alloc_ok = Main.allocateWave(page)
+        local second_release_ok = Main.releaseEvenOdd(page)
+
+        local committed_bytes = page.block_size * page.capacity
+        local live_blocks = page.used
+        local source_ops = 0
+        local rejects = page.reject_count
+
+        print("hako-alloc-mimalloc-comparison-reuse-cycle-small-exe-proof")
+        print("workload=representative-reuse-cycle-small-v0")
+        print("operation_family=reuse-cycle-small")
+        print("operation_sequence_id=representative-reuse-cycle-small-v0-seq")
+        print("free_order_id=even-odd-release-then-reacquire-v0")
+        print("reuse_cycle_count=" + page.reuse_count)
+        print("page=" + page.alloc_count + "," + page.local_free_count + "," + page.peak_used + "," + page.requested_bytes + "," + committed_bytes + "," + rejects)
+        print("summary_fields=" + page.requested_bytes + "," + committed_bytes + "," + live_blocks + "," + page.local_free_count + "," + source_ops + "," + rejects)
+
+        local proof = new ProofCheck("reuse-cycle small-block comparison")
+        proof.expectEq("first alloc ok", first_alloc_ok, 1)
+        proof.expectEq("first release ok", first_release_ok, 1)
+        proof.expectEq("reuse ok", reuse_ok, 1)
+        proof.expectEq("second alloc ok", second_alloc_ok, 1)
+        proof.expectEq("second release ok", second_release_ok, 1)
+        proof.expectEq("alloc count", page.alloc_count, 128)
+        proof.expectEq("release count", page.local_free_count, 128)
+        proof.expectEq("requested bytes", page.requested_bytes, 66508)
+        proof.expectEq("committed bytes", committed_bytes, 33792)
+        proof.expectEq("peak used", page.peak_used, 64)
+        proof.expectEq("live blocks", page.used, 0)
+        proof.expectEq("reuse count", page.reuse_count, 1)
+        proof.expectEq("rejects", page.reject_count, 0)
+        proof.expectEq("retired", page.retired, 1)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

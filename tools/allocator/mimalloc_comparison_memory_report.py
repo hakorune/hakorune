@@ -92,6 +92,8 @@ def main() -> int:
     c_alignment_reject_count = as_int(c, "alignment_reject_count")
     hako_large_request_count = as_int(hako, "large_request_count")
     c_large_request_count = as_int(c, "large_request_count")
+    hako_reuse_cycle_count = as_int(hako, "reuse_cycle_count")
+    c_reuse_cycle_count = as_int(c, "reuse_cycle_count")
 
     lines = [
         "mimalloc_comparison_memory_report=1",
@@ -136,6 +138,9 @@ def main() -> int:
         f"hako_large_request_count={hako_large_request_count}",
         f"c_large_request_count={c_large_request_count}",
         f"large_request_count_delta={hako_large_request_count - c_large_request_count}",
+        f"hako_reuse_cycle_count={hako_reuse_cycle_count}",
+        f"c_reuse_cycle_count={c_reuse_cycle_count}",
+        f"reuse_cycle_count_delta={hako_reuse_cycle_count - c_reuse_cycle_count}",
         f"hako_realloc_same_ptr_count={as_int(hako, 'realloc_same_ptr_count')}",
         f"c_realloc_same_ptr_count={as_int(c, 'realloc_same_ptr_count')}",
         f"hako_realloc_moved_count={as_int(hako, 'realloc_moved_count')}",

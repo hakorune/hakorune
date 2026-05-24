@@ -160,6 +160,7 @@ scale_keys = {
     "large_request_count",
     "realloc_same_ptr_count",
     "realloc_moved_count",
+    "reuse_cycle_count",
     "copied_bytes",
 }
 out = []

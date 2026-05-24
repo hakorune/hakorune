@@ -23,7 +23,7 @@ guard_expect_in_file "$TAG" 'workload=representative-reuse-cycle-small-v0' "$CAR
 guard_expect_in_file "$TAG" 'operation_family=reuse-cycle-small' "$CARD" "card must define operation family"
 guard_expect_in_file "$TAG" 'free_order_id=even-odd-release-then-reacquire-v0' "$CARD" "card must define free order"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PORT-RESUME-SEAM-SELECTION-295X-001' "$PREV_CARD" "previous card must select port resume seam"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CONTRACT-295X-001' "$TASKBOARD" "taskboard must expose reuse-cycle contract"
+guard_expect_in_file "$TAG" '295x-79' "$TASKBOARD" "taskboard must expose reuse-cycle contract"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 echo "[$TAG] ok"

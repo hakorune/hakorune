@@ -219,6 +219,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_c_body_timing_pilot_guard.sh` | 295x-76 の C body timing pilot を固定し、explicit C mimalloc runner が workload-body monotonic timing を出しつつ process timing / provider stop-line を維持することを検証する。 |
 | `tools/checks/k2_wide_phase295x_hako_body_timing_feasibility_selection_guard.sh` | 295x-77 の .hako body timing feasibility selection を固定し、.hako clock seam を開かず port-resume seam selection へ戻ることを検証する。 |
 | `tools/checks/k2_wide_phase295x_port_resume_seam_selection_guard.sh` | 295x-78 の port resume seam selection を固定し、次の narrow .hako mimalloc port seam として reuse-cycle small-block workload contract を選ぶことを検証する。 |
+| `tools/checks/k2_wide_phase295x_reuse_cycle_small_workload_contract_guard.sh` | 295x-79 の reuse-cycle small-block workload contract を固定し、C/.hako 実装前に workload identity と期待 count evidence を定義する。 |
+| `tools/checks/k2_wide_phase295x_reuse_cycle_small_workload_implementation_guard.sh` | 295x-80 の reuse-cycle small-block workload implementation を固定し、C/.hako evidence と memory report の count parity を検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |

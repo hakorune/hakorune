@@ -184,6 +184,7 @@ alignment_reject_count = 0
 large_request_count = 0
 realloc_same_ptr_count = 0
 realloc_moved_count = 0
+reuse_cycle_count = 0
 copied_bytes = 0
 
 for line in lines:
@@ -213,6 +214,8 @@ for line in lines:
         realloc_same_ptr_count = int(line.split("=", 1)[1])
     if line.startswith("realloc_moved_count="):
         realloc_moved_count = int(line.split("=", 1)[1])
+    if line.startswith("reuse_cycle_count="):
+        reuse_cycle_count = int(line.split("=", 1)[1])
     if line.startswith("copied_bytes="):
         copied_bytes = int(line.split("=", 1)[1])
     if line.startswith("page="):
@@ -260,6 +263,7 @@ print(f"alignment_reject_count={alignment_reject_count * repeat}")
 print(f"large_request_count={large_request_count * repeat}")
 print(f"realloc_same_ptr_count={realloc_same_ptr_count * repeat}")
 print(f"realloc_moved_count={realloc_moved_count * repeat}")
+print(f"reuse_cycle_count={reuse_cycle_count * repeat}")
 print(f"copied_bytes={copied_bytes * repeat}")
 print(f"external_elapsed_ms={elapsed_ms}")
 print(f"peak_rss_bytes={peak_rss}")

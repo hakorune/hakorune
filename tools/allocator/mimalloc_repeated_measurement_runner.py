@@ -28,6 +28,8 @@ WORKLOAD_APPS = {
     / "apps/hako-alloc-mimalloc-comparison-mixed-small-exe-proof/main.hako",
     "representative-huge-ish-v0": ROOT
     / "apps/hako-alloc-mimalloc-comparison-huge-ish-exe-proof/main.hako",
+    "representative-reuse-cycle-small-v0": ROOT
+    / "apps/hako-alloc-mimalloc-comparison-reuse-cycle-small-exe-proof/main.hako",
 }
 
 DEFAULT_WORKLOADS = [
@@ -185,6 +187,7 @@ def validate_sample(workload: str, hako: dict[str, str], c: dict[str, str], labe
         "realloc_count",
         "aligned_alloc_count",
         "large_request_count",
+        "reuse_cycle_count",
     ):
         if as_int(hako, key) != as_int(c, key):
             raise SystemExit(f"{label}: {key} mismatch")

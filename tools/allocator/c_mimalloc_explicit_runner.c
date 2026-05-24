@@ -49,6 +49,7 @@ typedef struct RunnerEvidence {
     long large_request_count;
     long realloc_same_ptr_count;
     long realloc_moved_count;
+    long reuse_cycle_count;
     uint64_t copied_bytes;
     uint64_t body_elapsed_ns;
 } RunnerEvidence;
@@ -329,6 +330,54 @@ static int run_huge_ish(const MimallocApi *api, RunnerEvidence *evidence) {
     return 0;
 }
 
+static int run_reuse_cycle_small(const RunnerConfig *config, const MimallocApi *api, RunnerEvidence *evidence) {
+    void **blocks = (void **)calloc((size_t)config->alloc_count, sizeof(void *));
+    if (blocks == NULL) {
+        return 5;
+    }
+
+    evidence->workload = "representative-reuse-cycle-small-v0";
+    evidence->operation_family = "reuse-cycle-small";
+    evidence->operation_sequence_id = "representative-reuse-cycle-small-v0-seq";
+    evidence->free_order_id = "even-odd-release-then-reacquire-v0";
+
+    for (int wave = 0; wave < 2; wave++) {
+        for (long i = 0; i < config->alloc_count; i++) {
+            size_t size = (size_t)(config->block_size + (i % 17));
+            void *ptr = api->malloc_fn(size);
+            if (ptr == NULL) {
+                fprintf(stderr, "[c-mimalloc-runner] mi_malloc returned null at wave %d index %ld\n", wave, i);
+                for (long j = 0; j < i; j++) {
+                    api->free_fn(blocks[j]);
+                }
+                free(blocks);
+                return 6;
+            }
+            memset(ptr, (int)((i + wave) & 0x7f), size);
+            blocks[i] = ptr;
+            evidence->requested_bytes += (uint64_t)size;
+            evidence->allocation_count += 1;
+        }
+
+        for (long i = 0; i < config->alloc_count; i += 2) {
+            api->free_fn(blocks[i]);
+            blocks[i] = NULL;
+            evidence->free_count += 1;
+        }
+        for (long i = 1; i < config->alloc_count; i += 2) {
+            api->free_fn(blocks[i]);
+            blocks[i] = NULL;
+            evidence->free_count += 1;
+        }
+        if (wave == 0) {
+            evidence->reuse_cycle_count += 1;
+        }
+    }
+
+    free(blocks);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     RunnerConfig config;
     if (!parse_args(argc, argv, &config)) {
@@ -367,6 +416,8 @@ int main(int argc, char **argv) {
         result_code = run_mixed_small(&api, &evidence);
     } else if (strcmp(config.workload, "representative-huge-ish-v0") == 0) {
         result_code = run_huge_ish(&api, &evidence);
+    } else if (strcmp(config.workload, "representative-reuse-cycle-small-v0") == 0) {
+        result_code = run_reuse_cycle_small(&config, &api, &evidence);
     } else {
         fprintf(stderr, "[c-mimalloc-runner] unsupported workload: %s\n", config.workload);
         dlclose(library);
@@ -404,6 +455,7 @@ int main(int argc, char **argv) {
     printf("large_request_count=%ld\n", evidence.large_request_count);
     printf("realloc_same_ptr_count=%ld\n", evidence.realloc_same_ptr_count);
     printf("realloc_moved_count=%ld\n", evidence.realloc_moved_count);
+    printf("reuse_cycle_count=%ld\n", evidence.reuse_cycle_count);
     printf("copied_bytes=%llu\n", (unsigned long long)evidence.copied_bytes);
     printf("c_body_timing_available=1\n");
     printf("hako_body_timing_available=0\n");

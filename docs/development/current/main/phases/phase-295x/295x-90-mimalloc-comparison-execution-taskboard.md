@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CONTRACT-295X-001:
-  selected current after 295x-78. Add a reuse-cycle small-block workload
-  contract before implementing C/.hako evidence for the next narrow port seam.
+MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CLOSEOUT-295X-001:
+  selected current after 295x-80. Close the C/.hako reuse-cycle small-block
+  workload evidence and choose whether to add it to repeated measurement.
 ```
 
 ## Queue
@@ -118,7 +118,9 @@ MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CONTRACT-295X-001:
 | 76 | `295x-76` | Landed | Added C-runner body timing for one workload while preserving process timing. |
 | 77 | `295x-77` | Landed | Parked `.hako` body timing until a clock seam exists and returned to port seam selection. |
 | 78 | `295x-78` | Landed | Selected reuse-cycle small-block as the next narrow `.hako` mimalloc port seam. |
-| 79 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CONTRACT-295X-001` | Current | Define C/.hako reuse-cycle small-block workload contract. |
+| 79 | `295x-79` | Landed | Defined C/.hako reuse-cycle small-block workload contract. |
+| 80 | `295x-80` | Landed | Implemented C/.hako evidence for reuse-cycle small-block workload. |
+| 81 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CLOSEOUT-295X-001` | Current | Close reuse-cycle small-block workload evidence and select next measurement/port seam. |
 
 ## Parked
 
