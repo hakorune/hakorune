@@ -6,10 +6,11 @@ APP=""
 OUT_FILE=""
 WORKLOAD="hako-exe-workload-v0"
 RUNTIME_CONFIG="root"
+OPERATION_REPEAT="1"
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/hako_exe_memory_runner.sh --app FILE --out FILE [--workload ID] [--runtime-config root|empty]
+usage: tools/allocator/hako_exe_memory_runner.sh --app FILE --out FILE [--workload ID] [--runtime-config root|empty] [--operation-repeat N]
 
 Builds a selected .hako app through the exact-MIR EXE route, runs that EXE as
 an external process, and records stable memory-use evidence. This tool is
@@ -37,6 +38,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --runtime-config)
       RUNTIME_CONFIG="${2:-}"
+      shift 2
+      ;;
+    --operation-repeat)
+      OPERATION_REPEAT="${2:-}"
       shift 2
       ;;
     -h|--help)
@@ -75,6 +80,17 @@ case "$RUNTIME_CONFIG" in
     ;;
 esac
 
+case "$OPERATION_REPEAT" in
+  ''|*[!0-9]*)
+    echo "[hako-exe-memory-runner] ERROR: --operation-repeat must be a positive integer" >&2
+    exit 2
+    ;;
+esac
+if [ "$OPERATION_REPEAT" -lt 1 ]; then
+  echo "[hako-exe-memory-runner] ERROR: --operation-repeat must be >= 1" >&2
+  exit 2
+fi
+
 if [ ! -x "$ROOT_DIR/target/release/hakorune" ] || [ ! -x "$ROOT_DIR/target/release/ny-llvmc" ]; then
   cargo build --release --bin hakorune --bin ny-llvmc
 fi
@@ -109,7 +125,17 @@ NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
 set +e
 (
   cd "$run_cwd"
-  /usr/bin/time -f '%e %M' -o "$time_out" "$exe_out" >"$run_out" 2>"$run_err"
+  /usr/bin/time -f '%e %M' -o "$time_out" bash -c '
+    i=0
+    repeat="$1"
+    exe="$2"
+    out="$3"
+    err="$4"
+    while [ "$i" -lt "$repeat" ]; do
+      "$exe" >"$out" 2>"$err" || exit "$?"
+      i=$((i + 1))
+    done
+  ' _ "$OPERATION_REPEAT" "$exe_out" "$run_out" "$run_err"
 )
 run_rc="$?"
 set -e
@@ -131,11 +157,12 @@ PY
 )"
 peak_rss_bytes=$((peak_rss_kb * 1024))
 
-python3 - "$WORKLOAD" "$APP" "$RUNTIME_CONFIG" "$run_rc" "$peak_rss_bytes" "$external_elapsed_ms" "$run_out" >"$tmp_report" <<'PY'
+python3 - "$WORKLOAD" "$APP" "$RUNTIME_CONFIG" "$OPERATION_REPEAT" "$run_rc" "$peak_rss_bytes" "$external_elapsed_ms" "$run_out" >"$tmp_report" <<'PY'
 import sys
 from pathlib import Path
 
-workload, app, runtime_config, rc_text, peak_rss_text, elapsed_ms_text, run_out_path = sys.argv[1:8]
+workload, app, runtime_config, repeat_text, rc_text, peak_rss_text, elapsed_ms_text, run_out_path = sys.argv[1:9]
+repeat = int(repeat_text)
 rc = int(rc_text)
 peak_rss = int(peak_rss_text)
 elapsed_ms = int(elapsed_ms_text)
@@ -218,20 +245,22 @@ print(f"free_order_id={free_order_id}")
 print(f"app_path={app}")
 print(f"runtime_config_profile={runtime_config}")
 print(f"result_code={rc}")
-print("run_count=1")
-print(f"allocation_count={allocation_count}")
-print(f"free_count={free_count}")
-print(f"requested_bytes={requested_bytes}")
+print(f"run_count={repeat}")
+print(f"operation_repeat={repeat}")
+print("timing_repeat_kind=process-invocation-v0")
+print(f"allocation_count={allocation_count * repeat}")
+print(f"free_count={free_count * repeat}")
+print(f"requested_bytes={requested_bytes * repeat}")
 print(f"committed_bytes={committed_bytes}")
-print(f"realloc_count={realloc_count}")
-print(f"aligned_alloc_count={aligned_alloc_count}")
-print(f"alignment_request_count={alignment_request_count}")
-print(f"alignment_ok_count={alignment_ok_count}")
-print(f"alignment_reject_count={alignment_reject_count}")
-print(f"large_request_count={large_request_count}")
-print(f"realloc_same_ptr_count={realloc_same_ptr_count}")
-print(f"realloc_moved_count={realloc_moved_count}")
-print(f"copied_bytes={copied_bytes}")
+print(f"realloc_count={realloc_count * repeat}")
+print(f"aligned_alloc_count={aligned_alloc_count * repeat}")
+print(f"alignment_request_count={alignment_request_count * repeat}")
+print(f"alignment_ok_count={alignment_ok_count * repeat}")
+print(f"alignment_reject_count={alignment_reject_count * repeat}")
+print(f"large_request_count={large_request_count * repeat}")
+print(f"realloc_same_ptr_count={realloc_same_ptr_count * repeat}")
+print(f"realloc_moved_count={realloc_moved_count * repeat}")
+print(f"copied_bytes={copied_bytes * repeat}")
 print(f"external_elapsed_ms={elapsed_ms}")
 print(f"peak_rss_bytes={peak_rss}")
 print(f"external_peak_rss_bytes={peak_rss}")

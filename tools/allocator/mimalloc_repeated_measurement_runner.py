@@ -112,6 +112,7 @@ def run_one(
     out_path: Path,
     allow_ldconfig: bool,
     hako_runtime_config: str,
+    operation_repeat: int,
 ) -> dict[str, str]:
     if side == "hako":
         app = WORKLOAD_APPS[workload]
@@ -124,11 +125,22 @@ def run_one(
             workload,
             "--runtime-config",
             hako_runtime_config,
+            "--operation-repeat",
+            str(operation_repeat),
             "--out",
             str(out_path),
         ]
     elif side == "c":
-        cmd = ["bash", str(C_RUNNER), "--out", str(out_path), "--workload", workload]
+        cmd = [
+            "bash",
+            str(C_RUNNER),
+            "--out",
+            str(out_path),
+            "--workload",
+            workload,
+            "--operation-repeat",
+            str(operation_repeat),
+        ]
         if allow_ldconfig:
             cmd.append("--allow-ldconfig-discovery")
     else:
@@ -162,6 +174,10 @@ def validate_sample(workload: str, hako: dict[str, str], c: dict[str, str], labe
         raise SystemExit(f"{label}: operation_sequence_id mismatch")
     if hako.get("free_order_id", "") != c.get("free_order_id", ""):
         raise SystemExit(f"{label}: free_order_id mismatch")
+    if hako.get("timing_repeat_kind", "") != c.get("timing_repeat_kind", ""):
+        raise SystemExit(f"{label}: timing_repeat_kind mismatch")
+    if hako.get("operation_repeat", "") != c.get("operation_repeat", ""):
+        raise SystemExit(f"{label}: operation_repeat mismatch")
     for key in (
         "allocation_count",
         "free_count",
@@ -191,12 +207,15 @@ def main() -> int:
     parser.add_argument("--workload", action="append", choices=sorted(WORKLOAD_APPS))
     parser.add_argument("--allow-ldconfig-discovery", action="store_true")
     parser.add_argument("--hako-runtime-config", choices=("root", "empty"), default="root")
+    parser.add_argument("--operation-repeat", type=int, default=1)
     args = parser.parse_args()
 
     if args.sample_count < 1:
         raise SystemExit("--sample-count must be positive")
     if args.warmup_count < 0:
         raise SystemExit("--warmup-count must be non-negative")
+    if args.operation_repeat < 1:
+        raise SystemExit("--operation-repeat must be positive")
 
     workloads = args.workload or DEFAULT_WORKLOADS
     for workload in workloads:
@@ -211,6 +230,8 @@ def main() -> int:
         "measurement_profile=phase295x-repeated-v0",
         f"warmup_count={args.warmup_count}",
         f"sample_count={args.sample_count}",
+        f"operation_repeat={args.operation_repeat}",
+        "timing_repeat_kind=process-invocation-v0",
         f"workload_count={len(workloads)}",
         "workloads=" + ",".join(workloads),
         "summary_statistic=min,median,max",
@@ -247,6 +268,7 @@ def main() -> int:
                     hako_out,
                     args.allow_ldconfig_discovery,
                     args.hako_runtime_config,
+                    args.operation_repeat,
                 )
                 c = run_one(
                     workload,
@@ -254,6 +276,7 @@ def main() -> int:
                     c_out,
                     args.allow_ldconfig_discovery,
                     args.hako_runtime_config,
+                    args.operation_repeat,
                 )
                 validate_sample(workload, hako, c, f"{workload}:{kind}:{run_index}")
                 require(
@@ -287,6 +310,8 @@ def main() -> int:
                 [
                     f"{prefix}_id={workload}",
                     f"{prefix}_operation_family={operation_family}",
+                    f"{prefix}_operation_repeat={args.operation_repeat}",
+                    f"{prefix}_timing_repeat_kind=process-invocation-v0",
                     f"{prefix}_sample_count={args.sample_count}",
                     f"{prefix}_hako_external_rss_min_bytes={min(sample_hako_rss)}",
                     f"{prefix}_hako_external_rss_median_bytes={median_int(sample_hako_rss)}",

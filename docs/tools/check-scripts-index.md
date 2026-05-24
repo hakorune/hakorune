@@ -209,6 +209,9 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_post_loadset_aware_measurement_selection_guard.sh` | 295x-66 の post loadset-aware measurement selection を固定し、既存4 workload を使う speed/stability observation pack へ進むことを検証する。 |
 | `tools/checks/k2_wide_phase295x_speed_stability_observation_pack_guard.sh` | 295x-67 の speed/stability observation pack を固定し、repeated measurement runner が external elapsed min/median/max を出すことを検証する。 |
 | `tools/checks/k2_wide_phase295x_speed_stability_observation_closeout_guard.sh` | 295x-68 の speed/stability observation closeout を固定し、external elapsed evidence が 1ms 床で速度比較には粗いことを記録して high-resolution timing seam selection へ進むことを検証する。 |
+| `tools/checks/k2_wide_phase295x_high_res_timing_seam_selection_guard.sh` | 295x-69 の high-resolution timing seam selection を固定し、process-invocation repeat による長め timing pack を選択することを検証する。 |
+| `tools/checks/k2_wide_phase295x_long_process_repeat_timing_pack_guard.sh` | 295x-70 の long process-repeat timing pack を固定し、operation_repeat=128 で selected workloads が 1ms 床を抜ける elapsed evidence を出すことを検証する。 |
+| `tools/checks/k2_wide_phase295x_long_process_repeat_timing_closeout_guard.sh` | 295x-71 の long process-repeat timing closeout を固定し、process-repeat evidence を allocator-body-only timing と混同せず次の post-long-timing selection へ進むことを検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |

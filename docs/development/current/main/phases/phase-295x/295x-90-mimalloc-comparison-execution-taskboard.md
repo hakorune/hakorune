@@ -30,10 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-HIGH-RES-TIMING-SEAM-SELECTION-295X-001:
-  selected current after 295x-68. The existing external elapsed-time evidence is
-  present but floored at 1ms for the selected workloads, so choose a
-  high-resolution timing seam before using speed evidence for comparison.
+MIMALLOC-COMPARISON-POST-LONG-TIMING-SELECTION-295X-001:
+  selected current after 295x-71. Choose whether to resume .hako mimalloc port
+  work, add allocator-body-only timing, or prepare presentation-only evidence
+  after long process-repeat timing escaped the 1ms floor.
 ```
 
 ## Queue
@@ -109,7 +109,10 @@ MIMALLOC-COMPARISON-HIGH-RES-TIMING-SEAM-SELECTION-295X-001:
 | 66 | `295x-66` | Landed | Selected `MIMALLOC-COMPARISON-SPEED-STABILITY-OBSERVATION-PACK-295X-001` before more mimalloc porting. |
 | 67 | `295x-67` | Landed | Observed elapsed-time stability on selected repeated comparison workloads. |
 | 68 | `295x-68` | Landed | Closed speed/stability observation and selected a high-resolution timing seam. |
-| 69 | `MIMALLOC-COMPARISON-HIGH-RES-TIMING-SEAM-SELECTION-295X-001` | Current | Choose a sub-millisecond timing seam before speed comparison. |
+| 69 | `295x-69` | Landed | Selected long process-repeat timing to escape the 1ms elapsed-time floor. |
+| 70 | `295x-70` | Landed | Observed long process-repeat timing across selected comparison workloads. |
+| 71 | `295x-71` | Landed | Closed long process-repeat timing evidence and selected a post-long-timing decision row. |
+| 72 | `MIMALLOC-COMPARISON-POST-LONG-TIMING-SELECTION-295X-001` | Current | Choose porting, body-internal timing, or presentation-only follow-on. |
 
 ## Parked
 
