@@ -116,15 +116,13 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-249-REALLOC-REQUESTED-SIZE-RESULT-OBSERVER-001:
-  selected current after 294x-249. Migrate only
-  `HakoAllocObjectLifecycleReallocResult.last_requested_size` to exact
-  `usize`. Do not migrate page/block ids, new page/block ids, reason/ok fields,
-  alignment result observers, huge requested-size observers, broad
-  page/heap/queue/handle state, report mirrors, mimalloc comparison rows,
-  provider calls, host replacement, hooks, global allocator install,
-  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
-  packs, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-002:
+  selected current after 294x-250. Inspect `NUMERIC_FIELDS.md` and select one
+  narrow non-negative production field group. Do not migrate signed sentinels,
+  reason/status fields, ids/indexes, pointer payloads, broad owner state,
+  mimalloc comparison rows, provider calls, host replacement, hooks, global
+  allocator install, worker/TLS, atomics, provider package / DLL generation,
+  repeated benchmark packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -229,6 +227,12 @@ Field-group selection after parser-front alignment:
     or ok/bool-like status.
   - Stop line: keep `last_page_id`, `last_block_id`, `last_new_page_id`,
     `last_new_block_id`, `last_reason`, and `last_ok` signed.
+- [x] Migrate `HakoAllocObjectLifecycleReallocResult.last_requested_size` to
+  exact `usize` (`294x-250`).
+  - Stop line preserved page/block id sentinels, reason/ok fields, alignment
+    result observers, and huge requested-size observers as signed.
+- [ ] Select the next explicit non-negative production field group as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-002`.
 
 ### MIR / Analysis
 

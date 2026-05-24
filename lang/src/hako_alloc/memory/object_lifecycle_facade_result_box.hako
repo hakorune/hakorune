@@ -181,7 +181,7 @@ box HakoAllocObjectLifecycleReallocResult {
     last_block_id: i64 = -1
     last_new_page_id: i64 = -1
     last_new_block_id: i64 = -1
-    last_requested_size: i64 = 0
+    last_requested_size: usize = 0
     last_reason: i64 = 0
     last_ok: i64 = 0
 

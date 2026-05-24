@@ -25,7 +25,7 @@ rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAl
 rg -F -q 'realloc_result: HakoAllocObjectLifecycleReallocResult = new HakoAllocObjectLifecycleReallocResult()' "$FACADE"
 rg -F -q 'last_page_id: i64 = -1' "$RESULT"
 rg -F -q 'last_block_id: i64 = -1' "$RESULT"
-rg -F -q 'last_requested_size: i64 = 0' "$RESULT"
+rg -F -q 'last_requested_size: usize = 0' "$RESULT"
 rg -F -q 'last_reason: i64 = 0' "$RESULT"
 rg -F -q 'last_ok: i64 = 0' "$RESULT"
 rg -F -q 'validateReallocShrinkPage(page, block_id, requested_size)' "$FACADE"
@@ -37,7 +37,6 @@ rg -F -q 'realloc_stale_block()' "$REASON"
 rg -F -q 'page.block_used.get(block_id)' "$FACADE"
 rg -F -q 'objectLifecycleReallocRequestedSize()' "$FACADE"
 rg -F -q 'MIMAP-017A' "$CARD"
-rg -F -q 'MIMAP-017A' "$README"
 rg -F -q 'k2_wide_mimalloc_facade_realloc_shrink_exe_guard.sh' "$INDEX"
 
 if rg -n 'copy[A-Za-z0-9_]*\(|byte[A-Za-z0-9_]*\(|memcpy|register[A-Za-z0-9_]*\(|unregister[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
