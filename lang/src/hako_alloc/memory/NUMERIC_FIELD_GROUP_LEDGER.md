@@ -991,6 +991,11 @@ Selected next production `usize` field group:
   preflight payloads, external API readiness / executed flags, bool-like
   would-execute flags, provider / hook / replacement rows, worker/TLS, and
   threads stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-212` migrated those twelve
+  `HakoAllocProviderCallExternalApiAdapterPreflight` owner-local counters to
+  exact `usize`, while `last_reason`, report fields, preflight payloads,
+  external API readiness / executed flags, bool-like would-execute flags,
+  provider / hook / replacement rows, worker/TLS, and threads stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
