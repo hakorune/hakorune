@@ -40,7 +40,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$NORMALIZER" "$PRESENTER" "$AGGR
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-RUN-CLOSEOUT-295X-001' "$CARD" "card must select closeout follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001' "$PREV_CARD" "previous row must select this repeated-run refresh"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-RUN-CLOSEOUT-295X-001' "$TASKBOARD" "taskboard must expose repeated-run closeout"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 guard_expect_in_file "$TAG" 'mimalloc-comparison-repeated-run-evidence-v0' "$AGGREGATOR" "aggregator must publish stable repeated-run contract"
 guard_expect_in_file "$TAG" 'winner_claim=0' "$AGGREGATOR" "aggregator must keep winner claims closed"
