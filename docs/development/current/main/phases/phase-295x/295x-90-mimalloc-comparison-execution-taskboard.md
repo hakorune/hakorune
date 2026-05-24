@@ -30,9 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL-295X-001:
-  selected current after 295x-34. Compute workload-incremental RSS by
-  subtracting representative-empty-v0 medians from each selected workload.
+MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT-295X-001:
+  selected current after 295x-35. Close the RSS gap attribution pack and
+  select whether the next seam is measurement refinement, workload expansion,
+  or .hako runtime baseline reduction.
 ```
 
 ## Queue
@@ -74,7 +75,8 @@ MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL-295X-001:
 | 32 | `295x-32` | Landed | Added presentation-only repeated measurement report. |
 | 33 | `295x-33` | Landed | Selected RSS gap attribution plan. |
 | 34 | `295x-34` | Landed | Added empty/baseline repeated evidence. |
-| 35 | `MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL-295X-001` | Current | Compute workload-incremental RSS evidence. |
+| 35 | `295x-35` | Landed | Computed baseline-subtracted RSS gap evidence. |
+| 36 | `MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT-295X-001` | Current | Close RSS gap attribution pack. |
 
 ## Parked
 
