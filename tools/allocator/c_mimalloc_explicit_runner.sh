@@ -69,7 +69,7 @@ if [ -z "$LIBRARY_PATH" ]; then
     echo "[c-mimalloc-runner] ERROR: --library PATH is required unless --allow-ldconfig-discovery is explicit" >&2
     exit 2
   fi
-  LIBRARY_PATH="$(ldconfig -p 2>/dev/null | awk '/libmimalloc\.so\.2[[:space:]]/ { print $NF; exit }')"
+  LIBRARY_PATH="$(ldconfig -p 2>/dev/null | awk '/libmimalloc\.so\.2[[:space:]]/ { print $NF; exit }' || true)"
 fi
 
 if [ -z "$LIBRARY_PATH" ] || [ ! -f "$LIBRARY_PATH" ]; then
@@ -77,14 +77,31 @@ if [ -z "$LIBRARY_PATH" ] || [ ! -f "$LIBRARY_PATH" ]; then
   exit 3
 fi
 
+if [ ! -x /usr/bin/time ]; then
+  echo "[c-mimalloc-runner] ERROR: /usr/bin/time is required for external RSS evidence" >&2
+  exit 2
+fi
+
 tmp_dir="$(mktemp -d /tmp/hakorune_c_mimalloc_runner.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 bin="$tmp_dir/c_mimalloc_explicit_runner"
 tmp_out="$tmp_dir/runner.out"
+time_out="$tmp_dir/time.out"
 
 cc -std=c11 -O2 -Wall -Wextra "$SRC" -ldl -o "$bin"
 
 echo "[c-mimalloc-runner] library=$LIBRARY_PATH" >&2
-"$bin" --library "$LIBRARY_PATH" --workload "$WORKLOAD" --alloc-count "$ALLOC_COUNT" --block-size "$BLOCK_SIZE" >"$tmp_out"
+set +e
+/usr/bin/time -f '%M' -o "$time_out" "$bin" --library "$LIBRARY_PATH" --workload "$WORKLOAD" --alloc-count "$ALLOC_COUNT" --block-size "$BLOCK_SIZE" >"$tmp_out"
+run_rc="$?"
+set -e
+
+peak_rss_kb="$(tr -d '[:space:]' < "$time_out")"
+case "$peak_rss_kb" in
+  ''|*[!0-9]*) peak_rss_kb=0 ;;
+esac
+echo "external_peak_rss_bytes=$((peak_rss_kb * 1024))" >>"$tmp_out"
+
 mv "$tmp_out" "$OUT_FILE"
 cat "$OUT_FILE"
+exit "$run_rc"

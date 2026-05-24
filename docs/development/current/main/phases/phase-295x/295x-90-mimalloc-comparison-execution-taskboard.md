@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001:
-  selected current after 295x-28. Implement a small repeated evidence runner
-  for measurement_profile=phase295x-repeated-v0 without winner claims.
+MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001:
+  selected current after 295x-29. Run the selected workload pack with
+  measurement_profile=phase295x-repeated-v0 and keep winner claims closed.
 ```
 
 ## Queue
@@ -68,7 +68,8 @@ MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001:
 | 26 | `295x-26` | Landed | Ran huge-ish same-workload evidence through the normalizer. |
 | 27 | `295x-27` | Landed | Closed the huge-ish workload family. |
 | 28 | `295x-28` | Landed | Defined repeated measurement policy before winner claims. |
-| 29 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001` | Current | Implement repeated evidence runner without winner claims. |
+| 29 | `295x-29` | Landed | Implemented repeated evidence runner without winner claims. |
+| 30 | `MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001` | Current | Run selected workload pack without winner claims. |
 
 ## Parked
 

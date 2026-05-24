@@ -55,7 +55,15 @@ static box Main {
             if ok != 1 {
                 release_ok = 0
             }
-            released += 1
+            released += 2
+        }
+        released = 1
+        loop(released < 64) {
+            local ok = page.releaseLocal(released)
+            if ok != 1 {
+                release_ok = 0
+            }
+            released += 2
         }
 
         local committed_bytes = page.block_size * page.capacity
@@ -65,6 +73,9 @@ static box Main {
 
         print("hako-alloc-mimalloc-comparison-representative-small-block-proof")
         print("workload=representative-small-block-v0")
+        print("operation_family=small-block")
+        print("operation_sequence_id=representative-small-block-v0-seq")
+        print("free_order_id=even-odd-release-v0")
         print("page=" + page.alloc_count + "," + page.local_free_count + "," + page.peak_used + "," + page.requested_bytes + "," + committed_bytes + "," + rejects)
         print("summary_fields=" + page.requested_bytes + "," + committed_bytes + "," + live_blocks + "," + page.local_free_count + "," + source_ops + "," + rejects)
 
