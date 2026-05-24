@@ -1013,6 +1013,17 @@ Selected next production `usize` field group:
   payloads, result-code fields, actual external provider API call flags,
   bool-like would-execute flags, provider / hook / replacement rows,
   worker/TLS, and threads stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-215` selected
+  `HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot` owner-local
+  counters (`residence_count`, `accepted_count`, `reject_count`,
+  `missing_ledger_reject_count`, `rejected_ledger_reject_count`,
+  `invalid_token_reject_count`, `escape_reject_count`, and
+  `closed_execution_reject_count`) as `HAKO-ALLOC-USIZE-FIELD-GROUP-216`,
+  while `last_reason`, report fields, pointer tokens, no-escape scope fields,
+  byte-count payloads, bool-like would-execute flags, pointer-derived lookup,
+  arena release/recycle, segment-map mutation, atomic bitmap execution, OSVM,
+  worker/TLS, providers, backend matchers, provider package / DLL generation,
+  and `#[global_allocator]` stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
