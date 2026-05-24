@@ -31,6 +31,7 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/provider_call_real_api_stub_execution_pilot_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/provider_call_real_api_execution_preflight_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_provider_call_real_api_stub_execution_pilot_guard.sh"
@@ -38,7 +39,7 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-396A provider-call real API stub execution pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_392A" "$CARD_395A" "$CARD" "$NEXT_CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_392A" "$CARD_395A" "$CARD" "$NEXT_CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_392A" "MIMAP-392A real API preflight must be landed"
@@ -50,11 +51,14 @@ guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list
 guard_expect_in_file "$TAG" 'id = "MIMAP-396A"' "$PROOF_MANIFEST_INCLUDE" "proof manifest must list MIMAP-396A"
 guard_expect_in_file "$TAG" 'row_kind = "real-api-stub-execution-pilot"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-396A must be a real-api-stub-execution row"
 guard_expect_in_file "$TAG" 'memory.provider_call_real_api_stub_execution_pilot_box' "$MODULE" "module must export provider-call real API stub execution owner"
-guard_expect_in_file "$TAG" 'provider_call_real_api_stub_execution_pilot_box.hako' "$MEMORY_README" "memory README must name provider-call real API stub execution owner"
+guard_expect_in_file "$TAG" 'provider_call_real_api_stub_execution_pilot_box.hako' "$MODULE_INDEX" "memory module index must name provider-call real API stub execution owner"
 guard_expect_in_file "$TAG" 'record HakoAllocProviderCallRealApiStubExecutionPilotReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeProviderCallRealApiStubExecutionPilotReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'executeProviderCallRealApiStub' "$OWNER" "owner must expose stub execution route"
 guard_expect_in_file "$TAG" 'HakoAllocProviderCallRealApiExecutionPreflightReport' "$OWNER" "owner must consume real API preflight report"
+guard_expect_in_file "$TAG" 'execution_count: usize = 0' "$OWNER" "stub execution owner-local counters must be exact usize"
+guard_expect_in_file "$TAG" 'closed_backend_matcher_reject_count: usize = 0' "$OWNER" "backend matcher owner-local counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "stub execution reason vocabulary must remain signed"
 guard_expect_in_file "$TAG" 'provider_call_stub_execution_open' "$OWNER" "owner must report stub execution open"
 guard_expect_in_file "$TAG" 'provider_api_stub_call_executed' "$OWNER" "owner must report stub execution"
 guard_expect_in_file "$TAG" 'provider_api_call_result_present' "$OWNER" "owner must report stub result"
@@ -127,11 +131,45 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocProviderCallRealApiStubExecutionPilotReport")
 if report is None:
     raise SystemExit("missing provider-call real API stub execution report typed object plan")
+owner = plans.get("HakoAllocProviderCallRealApiStubExecutionPilot")
+if owner is None:
+    raise SystemExit("missing provider-call real API stub execution typed object plan")
 target = "HakoAllocProviderCallRealApiStubExecutionPilotReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing provider-call real API stub execution ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
 for name in (
+    "execution_count",
+    "accepted_count",
+    "reject_count",
+    "missing_preflight_reject_count",
+    "rejected_preflight_reject_count",
+    "not_ready_reject_count",
+    "already_executed_reject_count",
+    "closed_execution_reject_count",
+    "closed_host_replacement_reject_count",
+    "closed_hook_reject_count",
+    "closed_backend_matcher_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"owner-local counter {name} must be exact usize: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain signed: {field}")
+for name in (
+    "execution_count",
+    "accepted_count",
+    "reject_count",
+    "missing_preflight_reject_count",
+    "rejected_preflight_reject_count",
+    "not_ready_reject_count",
+    "already_executed_reject_count",
+    "closed_execution_reject_count",
+    "closed_host_replacement_reject_count",
+    "closed_hook_reject_count",
+    "closed_backend_matcher_reject_count",
     "stub_execution_present",
     "provider_call_stub_execution_open",
     "provider_api_stub_call_executed",
