@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001:
-  selected current after 295x-37. Observe empty exact-EXE RSS, no-output
-  control RSS, ELF/loadable footprint, and C empty runner reference footprint.
+MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001:
+  selected current after 295x-38. Classify the empty exact-EXE footprint
+  diagnostic and select one next baseline seam.
 ```
 
 ## Queue
@@ -77,7 +77,8 @@ MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001:
 | 35 | `295x-35` | Landed | Computed baseline-subtracted RSS gap evidence. |
 | 36 | `295x-36` | Landed | Closed RSS gap attribution pack. |
 | 37 | `295x-37` | Landed | Selected empty exact-EXE footprint diagnostic. |
-| 38 | `MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Current | Observe empty exact-EXE RSS and static/loadable footprint. |
+| 38 | `295x-38` | Landed | Observed empty exact-EXE RSS and static/loadable footprint. |
+| 39 | `MIMALLOC-COMPARISON-HAKO-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Current | Classify footprint diagnostic and select next baseline seam. |
 
 ## Parked
 

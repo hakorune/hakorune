@@ -1,0 +1,8 @@
+// hako-alloc-mimalloc-comparison-empty-noio-exe-proof
+// Purpose: exact-EXE no-output control for fixed baseline diagnostics.
+
+static box Main {
+    main(args) {
+        return 0
+    }
+}
