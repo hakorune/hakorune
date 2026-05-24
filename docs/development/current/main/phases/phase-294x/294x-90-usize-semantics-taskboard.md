@@ -116,13 +116,22 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-217:
-  selected current. Select the next explicit non-negative production field
-  group. Do not migrate status/reason vocabularies, bool-like flags, signed
-  sentinels, pointer-like payloads, byte-count payloads, provider calls, host
-  replacement, hooks, global allocator install, worker/TLS, atomics, provider
-  package / DLL generation, or `#[global_allocator]`.
+PROOF-APP-ENTRYPOINT-CLEANUP-001:
+  selected current by 294x-219. Normalize only manifest-backed proof app
+  `test.sh` delegates that already call `run_proof_app.sh`. Keep direct guard
+  delegates, non-proof app tests, proof behavior, and exact `usize` semantics
+  out of scope. Resume `HAKO-ALLOC-USIZE-FIELD-GROUP-217` after this short
+  cleanup slice.
 ```
+
+## Cleanup Slice Queue
+
+| Order | Row | Status | Boundary |
+| --- | --- | --- | --- |
+| C0 | `294x-219` | Landed | Inventory and phase-lock for proof app entrypoint cleanup. |
+| C1 | `PROOF-APP-ENTRYPOINT-CLEANUP-001` | Current | Normalize manifest-backed `run_proof_app.sh --only <id>` app-local delegates only. |
+| C2 | `GUARD-WRAPPER-CLEANUP-001` | Later | Classify direct guard delegates before touching them. |
+| C3 | `PROOF-APP-TEMPLATE-CLEANUP-001` | Later | Only after entrypoint compatibility stays green. |
 
 ## Ladder
 
