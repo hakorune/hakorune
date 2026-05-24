@@ -116,11 +116,11 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-011:
-  selected current after 294x-268. Select a comparison-needed non-id field
-  group only if the comparison workload consumes it. Otherwise park field
-  migration and move to comparison evidence/presentation work. Do not migrate
-  page/handle ids by momentum after page-heap non-id closeout.
+PHASE-294X-USIZE-COMPARISON-CLOSEOUT-001:
+  selected current after 294x-269. Close phase-294x's exact `usize`
+  comparison-quality slice instead of selecting another production field-group
+  migration. Keep identity, sentinel, status/reason, bool-like, mirror,
+  pointer-like, provider, worker/TLS, atomic, and replacement seams parked.
 ```
 
 ## Cleanup Slice Queue
@@ -307,8 +307,14 @@ Field-group selection after parser-front alignment:
   - Stop line: do not migrate page/handle identity fields in this slice.
 - [x] Close out the legacy page-heap exact non-id `usize` slice (`294x-266`).
   - Stop line preserved page/handle identity fields as signed.
-- [ ] Select the next explicit non-negative production field group as
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-010`.
+- [x] Select the next row after page-heap non-id closeout as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-010` (`294x-267`).
+  - Selected a mimalloc comparison vertical-slice refresh instead of migrating
+    page/handle identity fields.
+- [x] Refresh the mimalloc comparison vertical slice after page-heap exact
+  non-id `usize` closeout (`294x-268`).
+- [x] Select phase-294x exact `usize` comparison closeout instead of another
+  field-group migration (`294x-269`).
 
 ### MIR / Analysis
 
