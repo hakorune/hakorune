@@ -40,7 +40,7 @@ box HakoAllocPage {
     block_used: ArrayBox = new ArrayBox()
     use_counts: ArrayBox = new ArrayBox()
     requested_sizes: ArrayBox = new ArrayBox()
-    free_top: i64
+    free_top: usize
     alloc_count: usize = 0
     free_count: usize = 0
     reuse_count: usize = 0

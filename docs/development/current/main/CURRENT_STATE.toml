@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-263-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-263-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION.md"
-latest_card_summary = "Selected HakoAllocPage.free_top as the next exact usize field group."
+latest_card = "294x-264-HAKO-ALLOC-USIZE-PAGE-HEAP-FREE-TOP"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-264-HAKO-ALLOC-USIZE-PAGE-HEAP-FREE-TOP.md"
+latest_card_summary = "Migrated HakoAllocPage.free_top to exact usize."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-263-PAGE-HEAP-FREE-TOP-001"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-009"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-264 migrated HakoAllocPage.free_top to exact usize",
   "294x-263 selected HakoAllocPage.free_top as the next exact usize field group",
   "294x-262 migrated HakoAllocPage.capacity to exact usize",
   "294x-261 selected HakoAllocPage.capacity as the next exact usize field group",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-256 migrated HakoAllocPage.requested_bytes to exact usize",
   "294x-255 selected HakoAllocPage.requested_bytes as the next exact usize field group",
   "294x-254 migrated HakoAllocPage.current_used and peak_used to exact usize",
-  "294x-253 selected HakoAllocPage.current_used and peak_used as the next exact usize field group",
 ]

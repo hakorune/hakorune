@@ -34,7 +34,7 @@ guard_require_files \
 guard_expect_in_file "$TAG" 'block_size: usize' "$PAGE_HEAP" "page heap block_size must be exact usize"
 guard_expect_in_file "$TAG" 'page_id: i64' "$PAGE_HEAP" "page heap page_id must stay signed"
 guard_expect_in_file "$TAG" 'capacity: usize' "$PAGE_HEAP" "page heap capacity is exact usize after capacity row"
-guard_expect_in_file "$TAG" 'free_top: i64' "$PAGE_HEAP" "page heap free_top must stay signed"
+guard_expect_in_file "$TAG" 'free_top: usize' "$PAGE_HEAP" "page heap free_top is exact usize after stack-top row"
 guard_expect_in_file "$TAG" 'requested_size: usize' "$PAGE_HEAP" "handle requested_size remains exact usize"
 guard_expect_in_file "$TAG" 'isLiveHandle\(handle\): i64' "$PAGE_HEAP" "live-handle observer must expose scalar return contract"
 guard_expect_in_file "$TAG" 'if requested_size > me\.block_size' "$PAGE_HEAP" "allocation checks must still compare request to block size"
@@ -77,12 +77,12 @@ if page is None:
     raise SystemExit("missing typed object plan: HakoAllocPage")
 fields = {field.get("name"): field for field in page.get("fields", [])}
 
-for name in ("block_size", "capacity", "alloc_count", "free_count", "reuse_count", "current_used", "peak_used", "requested_bytes"):
+for name in ("block_size", "capacity", "free_top", "alloc_count", "free_count", "reuse_count", "current_used", "peak_used", "requested_bytes"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"HakoAllocPage.{name} must be exact usize storage: {field}")
 
-for name in ("page_id", "free_top"):
+for name in ("page_id",):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"HakoAllocPage.{name} must remain i64 storage: {field}")

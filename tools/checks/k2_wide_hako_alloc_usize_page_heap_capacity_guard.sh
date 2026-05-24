@@ -31,8 +31,8 @@ guard_require_files \
 
 guard_expect_in_file "$TAG" 'capacity: usize' "$PAGE_HEAP" "page heap capacity must be exact usize"
 guard_expect_in_file "$TAG" 'block_size: usize' "$PAGE_HEAP" "page heap block_size remains exact usize"
-guard_expect_in_file "$TAG" 'free_top: i64' "$PAGE_HEAP" "page heap free_top must stay signed"
-guard_expect_fixed_in_file "$TAG" 'me.free_top = capacity' "$PAGE_HEAP" "capacity still seeds signed free_top until stack-top row"
+guard_expect_in_file "$TAG" 'free_top: usize' "$PAGE_HEAP" "page heap free_top is exact usize after stack-top row"
+guard_expect_fixed_in_file "$TAG" 'me.free_top = capacity' "$PAGE_HEAP" "capacity still seeds free_top"
 guard_expect_in_file "$TAG" 'loop\(i < capacity\)' "$PAGE_HEAP" "seed loop must still be bounded by capacity"
 guard_expect_in_file "$TAG" 'if handle\.block_id >= me\.capacity' "$PAGE_HEAP" "live-handle bound must still use capacity"
 guard_expect_fixed_in_file "$TAG" '| `page_heap_box.hako` | `HakoAllocPage` | `capacity` | `usize` |' "$NUMERIC_FIELDS" "numeric inventory must mark capacity exact usize"
@@ -71,12 +71,12 @@ if page is None:
     raise SystemExit("missing typed object plan: HakoAllocPage")
 fields = {field.get("name"): field for field in page.get("fields", [])}
 
-for name in ("block_size", "capacity", "alloc_count", "free_count", "reuse_count", "current_used", "peak_used", "requested_bytes"):
+for name in ("block_size", "capacity", "free_top", "alloc_count", "free_count", "reuse_count", "current_used", "peak_used", "requested_bytes"):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"HakoAllocPage.{name} must be exact usize storage: {field}")
 
-for name in ("page_id", "free_top"):
+for name in ("page_id",):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"HakoAllocPage.{name} must remain i64 storage: {field}")

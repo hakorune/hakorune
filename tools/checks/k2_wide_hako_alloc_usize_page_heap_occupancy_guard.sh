@@ -27,7 +27,7 @@ guard_require_files \
 
 guard_expect_in_file "$TAG" 'current_used: usize = 0' "$PAGE_HEAP" "page heap current_used must be exact usize"
 guard_expect_in_file "$TAG" 'peak_used: usize = 0' "$PAGE_HEAP" "page heap peak_used must be exact usize"
-guard_expect_in_file "$TAG" 'free_top: i64' "$PAGE_HEAP" "page heap free_top stays signed"
+guard_expect_in_file "$TAG" 'free_top: usize' "$PAGE_HEAP" "page heap free_top is exact usize after stack-top row"
 guard_expect_in_file "$TAG" 'requested_bytes: usize = 0' "$PAGE_HEAP" "page heap requested_bytes is exact usize after byte-sum row"
 guard_expect_in_file "$TAG" 'HakoAllocPage` | `current_used` | `usize`' "$NUMERIC_FIELDS" "numeric inventory must mark current_used exact usize"
 guard_expect_in_file "$TAG" 'HakoAllocPage` | `peak_used` | `usize`' "$NUMERIC_FIELDS" "numeric inventory must mark peak_used exact usize"
@@ -82,7 +82,11 @@ field = fields.get("capacity")
 if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
     raise SystemExit(f"HakoAllocPage.capacity must be exact usize storage after capacity row: {field}")
 
-for name in ("page_id", "free_top"):
+field = fields.get("free_top")
+if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+    raise SystemExit(f"HakoAllocPage.free_top must be exact usize storage after stack-top row: {field}")
+
+for name in ("page_id",):
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"HakoAllocPage.{name} must remain i64 storage: {field}")
