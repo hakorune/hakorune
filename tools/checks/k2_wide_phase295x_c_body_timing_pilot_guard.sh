@@ -26,7 +26,7 @@ guard_expect_in_file "$TAG" 'CLOCK_MONOTONIC' "$C_SOURCE" "C source must use mon
 guard_expect_in_file "$TAG" 'c_body_timing_available=1' "$C_SOURCE" "C source must expose C body timing"
 guard_expect_in_file "$TAG" 'hako_body_timing_available=0' "$C_SOURCE" "C source must keep hako timing unavailable"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-C-BODY-TIMING-PILOT-295X-001' "$PREV_CARD" "previous card must select this pilot"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-HAKO-BODY-TIMING-FEASIBILITY-SELECTION-295X-001' "$TASKBOARD" "taskboard must expose hako feasibility follow-on"
+guard_expect_in_file "$TAG" '295x-77' "$TASKBOARD" "taskboard must expose hako feasibility follow-on"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_c_body_timing.XXXXXX)"

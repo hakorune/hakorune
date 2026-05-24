@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-HAKO-BODY-TIMING-FEASIBILITY-SELECTION-295X-001:
-  selected current after 295x-76. Decide whether .hako body timing can be
-  exposed without changing runtime defaults or opening a broad clock surface.
+MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CONTRACT-295X-001:
+  selected current after 295x-78. Add a reuse-cycle small-block workload
+  contract before implementing C/.hako evidence for the next narrow port seam.
 ```
 
 ## Queue
@@ -116,7 +116,9 @@ MIMALLOC-COMPARISON-HAKO-BODY-TIMING-FEASIBILITY-SELECTION-295X-001:
 | 74 | `295x-74` | Landed | Closed process timing presentation and selected allocator-body timing contract work. |
 | 75 | `295x-75` | Landed | Defined body timing vocabulary before C/.hako implementation. |
 | 76 | `295x-76` | Landed | Added C-runner body timing for one workload while preserving process timing. |
-| 77 | `MIMALLOC-COMPARISON-HAKO-BODY-TIMING-FEASIBILITY-SELECTION-295X-001` | Current | Decide whether `.hako` body timing is feasible without runtime/default changes. |
+| 77 | `295x-77` | Landed | Parked `.hako` body timing until a clock seam exists and returned to port seam selection. |
+| 78 | `295x-78` | Landed | Selected reuse-cycle small-block as the next narrow `.hako` mimalloc port seam. |
+| 79 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CONTRACT-295X-001` | Current | Define C/.hako reuse-cycle small-block workload contract. |
 
 ## Parked
 
