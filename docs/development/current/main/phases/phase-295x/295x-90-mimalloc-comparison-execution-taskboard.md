@@ -30,9 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-CLOSEOUT-295X-001:
-  selected current after 295x-53. Close the explicit empty runtime config full
-  repeated measurement pack before presentation or winner claims.
+MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001:
+  selected current after 295x-56. Close the no-dlopen plugin loadset preflight
+  plan and decide whether to wire selected-loadset evidence into the comparison
+  runner next.
 ```
 
 ## Queue
@@ -93,7 +94,10 @@ MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-CLOSEOUT-295X-001:
 | 51 | `295x-51` | Landed | Ran `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-RUN-295X-001` with explicit empty runtime config. |
 | 52 | `295x-52` | Landed | Closed `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-PACK-CLOSEOUT-295X-001` and selected full repeated measurement pack. |
 | 53 | `295x-53` | Landed | Ran `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK-295X-001` with full repeated measurement policy. |
-| 54 | `MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-CLOSEOUT-295X-001` | Current | Close the explicit empty runtime config full repeated measurement pack. |
+| 54 | `295x-54` | Landed | Closed the explicit empty runtime config full repeated measurement pack. |
+| 55 | `295x-55` | Landed | Defined `MIMALLOC-COMPARISON-PLUGIN-LOADSET-CONTRACT-295X-001` before changing default plugin loading behavior. |
+| 56 | `295x-56` | Landed | Added `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-PLAN-295X-001` no-dlopen plugin loadset preflight plan artifact. |
+| 57 | `MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001` | Current | Close the no-dlopen plugin loadset preflight plan. |
 
 ## Parked
 

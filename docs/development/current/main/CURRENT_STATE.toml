@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-53-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-53-MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-PACK.md"
-latest_card_summary = "Ran full repeated measurement pack with empty runtime config profile."
+latest_card = "295x-56-MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-56-MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-PLAN.md"
+latest_card_summary = "Added no-dlopen plugin loadset preflight plan tool."
 
-current_blocker_token = "MIMALLOC-COMPARISON-MINIMAL-CONFIG-REPEATED-MEASUREMENT-CLOSEOUT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-PLUGIN-LOADSET-PREFLIGHT-CLOSEOUT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-56 added no-dlopen plugin loadset preflight plan tool",
+  "295x-55 defined selected-loadset plugin linking contract",
+  "295x-54 closed full repeated measurement pack with empty runtime config profile",
   "295x-53 ran full repeated measurement pack with empty runtime config profile",
   "295x-52 closed guard-fast minimal config repeated pack and selected full repeated measurement pack",
   "295x-51 ran selected repeated comparison pack with empty runtime config profile",
@@ -37,7 +40,4 @@ landed_tail = [
   "295x-47 added comparison-runner-only exact-EXE minimal runtime config pilot",
   "295x-46 closed plugin load-set diagnostic and selected exact-EXE minimal config pilot",
   "295x-45 ran generated-config plugin load-set RSS diagnostic",
-  "295x-44 selected generated-config plugin load-set footprint diagnostic",
-  "295x-43 added and ran plugin-host substage RSS checkpoints",
-  "295x-42 selected plugin-host substage RSS diagnostics",
 ]
