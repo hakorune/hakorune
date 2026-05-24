@@ -922,6 +922,11 @@ Selected next production `usize` field group:
   no-op/open/executed flags, provider API call flags, bool-like readiness /
   would-execute flags, provider / hook / replacement rows, worker/TLS, and
   threads stay unchanged.
+- `HAKO-ALLOC-USIZE-FIELD-GROUP-204` migrated those ten
+  `HakoAllocProviderCallNoopExecutionSeamPilot` owner-local counters to exact
+  `usize`, while `last_reason`, report fields, no-op/open/executed flags,
+  provider API call flags, bool-like readiness / would-execute flags, provider
+  / hook / replacement rows, worker/TLS, and threads stay unchanged.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

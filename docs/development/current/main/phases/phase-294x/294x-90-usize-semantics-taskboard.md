@@ -116,18 +116,12 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-204:
-  selected current. Migrate only the selected
-  `HakoAllocProviderCallNoopExecutionSeamPilot` owner-local counters
-  (`seam_count`, `accepted_count`, `reject_count`,
-  `missing_preflight_reject_count`, `rejected_preflight_reject_count`,
-  `not_ready_reject_count`, `closed_execution_reject_count`,
-  `closed_host_replacement_reject_count`, `closed_hook_reject_count`, and
-  `closed_backend_matcher_reject_count`) to exact `usize`. Do not migrate
-  `last_reason`, report mirrors, no-op/open/executed flags, provider API call
-  flags, bool-like readiness / would-execute flags, provider calls, host
-  replacement, hooks, global allocator install, worker/TLS, atomics, provider
-  package / DLL generation, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-205:
+  selected current. Select the next explicit non-negative production field
+  group. Do not migrate status/reason vocabularies, bool-like flags, signed
+  sentinels, pointer-like payloads, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, or `#[global_allocator]`.
 ```
 
 ## Ladder

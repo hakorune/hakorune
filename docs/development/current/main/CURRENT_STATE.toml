@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-205-HAKO-ALLOC-USIZE-PROVIDER-CALL-NOOP-SEAM-COUNTER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-205-HAKO-ALLOC-USIZE-PROVIDER-CALL-NOOP-SEAM-COUNTER-SELECTION.md"
-latest_card_summary = "Selected provider call no-op execution seam owner-local counters as the next exact usize field group."
+latest_card = "294x-206-HAKO-ALLOC-USIZE-PROVIDER-CALL-NOOP-SEAM-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-206-HAKO-ALLOC-USIZE-PROVIDER-CALL-NOOP-SEAM-COUNTERS.md"
+latest_card_summary = "Migrated provider call no-op execution seam owner-local counters to exact usize."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-204"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-205"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-206 migrated provider call no-op execution seam owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-205 is now current",
   "294x-205 selected provider call no-op execution seam owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-204",
   "294x-204 migrated provider call execution capability preflight owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-203 is now current",
   "294x-203 selected provider call execution capability preflight owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-202",
