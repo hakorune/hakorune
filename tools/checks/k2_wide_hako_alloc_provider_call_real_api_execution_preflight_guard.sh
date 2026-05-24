@@ -31,6 +31,7 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/provider_call_real_api_execution_preflight_box.hako"
 PREV_OWNER="lang/src/hako_alloc/memory/provider_call_noop_execution_seam_pilot_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_provider_call_real_api_execution_preflight_guard.sh"
@@ -38,23 +39,26 @@ RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-392A provider-call real API execution preflight\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_390A" "$CARD_391A" "$CARD" "$NEXT_CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_390A" "$CARD_391A" "$CARD" "$NEXT_CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$MODULE_INDEX" "$OWNER" "$PREV_OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_390A" "MIMAP-390A no-op execution seam must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_391A" "MIMAP-391A row-selection card must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-392A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-393A must be selected current"
+guard_expect_in_file "$TAG" 'Status: landed' "$NEXT_CARD" "MIMAP-393A row-selection card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-392A design must be accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-392A guard"
 guard_expect_in_file "$TAG" 'id = "MIMAP-392A"' "$PROOF_MANIFEST_INCLUDE" "proof manifest must list MIMAP-392A"
 guard_expect_in_file "$TAG" 'row_kind = "real-api-execution-preflight"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-392A must be a real-api-execution-preflight row"
 guard_expect_in_file "$TAG" 'memory.provider_call_real_api_execution_preflight_box' "$MODULE" "module must export provider-call real API preflight owner"
-guard_expect_in_file "$TAG" 'provider_call_real_api_execution_preflight_box.hako' "$MEMORY_README" "memory README must name provider-call real API preflight owner"
+guard_expect_in_file "$TAG" 'provider_call_real_api_execution_preflight_box.hako' "$MODULE_INDEX" "memory module index must name provider-call real API preflight owner"
 guard_expect_in_file "$TAG" 'record HakoAllocProviderCallRealApiExecutionPreflightReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeProviderCallRealApiExecutionPreflightReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'preflightProviderCallRealApiExecution' "$OWNER" "owner must expose real API execution preflight route"
 guard_expect_in_file "$TAG" 'HakoAllocProviderCallNoopExecutionSeamPilotReport' "$OWNER" "owner must consume no-op execution seam report"
+guard_expect_in_file "$TAG" 'preflight_count: usize = 0' "$OWNER" "real API preflight owner-local counters must be exact usize"
+guard_expect_in_file "$TAG" 'closed_backend_matcher_reject_count: usize = 0' "$OWNER" "backend matcher owner-local counter must be exact usize"
+guard_expect_in_file "$TAG" 'last_reason: i64 = 0' "$OWNER" "real API preflight reason vocabulary must remain signed"
 guard_expect_in_file "$TAG" 'provider_api_call_ready' "$OWNER" "owner must report provider API readiness"
 guard_expect_in_file "$TAG" 'provider_api_call_executed: 0' "$OWNER" "actual provider API calls must not execute"
 guard_expect_in_file "$TAG" 'would_execute_provider_api: would_api' "$OWNER" "preflight report must expose would_execute_provider_api"
@@ -126,11 +130,47 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocProviderCallRealApiExecutionPreflightReport")
 if report is None:
     raise SystemExit("missing provider-call real API preflight report typed object plan")
+owner = plans.get("HakoAllocProviderCallRealApiExecutionPreflight")
+if owner is None:
+    raise SystemExit("missing provider-call real API preflight typed object plan")
 target = "HakoAllocProviderCallRealApiExecutionPreflightReportFields"
 if not any((decl.get("name") if isinstance(decl, dict) else decl) == target for decl in data.get("record_decls", [])):
     raise SystemExit("missing provider-call real API preflight ReportFields record")
 fields = {field.get("name"): field for field in report.get("fields", [])}
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
 for name in (
+    "preflight_count",
+    "accepted_count",
+    "reject_count",
+    "missing_noop_reject_count",
+    "rejected_noop_reject_count",
+    "missing_capability_reject_count",
+    "invalid_capability_reject_count",
+    "already_executed_reject_count",
+    "closed_execution_reject_count",
+    "closed_host_replacement_reject_count",
+    "closed_hook_reject_count",
+    "closed_backend_matcher_reject_count",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"owner-local counter {name} must be exact usize: {field}")
+field = owner_fields.get("last_reason")
+if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    raise SystemExit(f"last_reason must remain signed: {field}")
+for name in (
+    "preflight_count",
+    "accepted_count",
+    "reject_count",
+    "missing_noop_reject_count",
+    "rejected_noop_reject_count",
+    "missing_capability_reject_count",
+    "invalid_capability_reject_count",
+    "already_executed_reject_count",
+    "closed_execution_reject_count",
+    "closed_host_replacement_reject_count",
+    "closed_hook_reject_count",
+    "closed_backend_matcher_reject_count",
     "real_api_preflight_present",
     "provider_api_call_capability_present",
     "provider_api_call_capability_valid",
