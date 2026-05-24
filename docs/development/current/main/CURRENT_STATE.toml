@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-266-HAKO-ALLOC-USIZE-PAGE-HEAP-NON-ID-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-266-HAKO-ALLOC-USIZE-PAGE-HEAP-NON-ID-CLOSEOUT.md"
-latest_card_summary = "Closed out the legacy page-heap exact non-id usize slice while keeping identity fields signed."
+latest_card = "294x-267-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-267-HAKO-ALLOC-USIZE-NEXT-FIELD-GROUP-SELECTION.md"
+latest_card_summary = "Selected a mimalloc comparison vertical-slice refresh after the page-heap exact non-id usize closeout instead of migrating identity fields."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-010"
+current_blocker_token = "MIMALLOC-COMPARISON-VSLICE-PAGE-HEAP-USIZE-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-267 selected a mimalloc comparison vertical-slice refresh instead of migrating page/handle identity fields",
   "294x-266 closed out the legacy page-heap exact non-id usize slice while keeping identity fields signed",
   "294x-265 selected page-heap non-id exact usize closeout instead of migrating identity fields",
   "294x-264 migrated HakoAllocPage.free_top to exact usize",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-259 selected HakoAllocPage.block_size as the next exact usize field group",
   "294x-258 migrated HakoAllocHandle.requested_size to exact usize",
   "294x-257 selected HakoAllocHandle.requested_size as the next exact usize field group",
-  "294x-256 migrated HakoAllocPage.requested_bytes to exact usize",
 ]
