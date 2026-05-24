@@ -116,15 +116,15 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-PHASE-CLOSEOUT-SELECTION-001:
-  selected current after 294x-242. Decide whether phase-294x closes after the
-  refreshed comparison-quality vertical slice, or whether one final closeout
-  card is needed before returning to the usize semantic foundation backlog.
-  Do not drain report mirrors, identity payloads, status/reason vocabularies,
-  bool-like flags, signed sentinels, pointer-like payloads, byte-count payloads,
-  provider calls, host replacement, hooks, global allocator install,
-  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
-  packs, or `#[global_allocator]`.
+PHASE-294X-MIMALLOC-COMPARISON-CLOSEOUT-001:
+  selected current after 294x-243. Write the final closeout card for the
+  phase-294x mimalloc comparison-quality vertical slice, summarize validated
+  evidence and parked rows, then return to the usize semantic foundation
+  backlog. Do not drain report mirrors, identity payloads, status/reason
+  vocabularies, bool-like flags, signed sentinels, pointer-like payloads,
+  byte-count payloads, provider calls, host replacement, hooks, global
+  allocator install, worker/TLS, atomics, provider package / DLL generation,
+  repeated benchmark packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
