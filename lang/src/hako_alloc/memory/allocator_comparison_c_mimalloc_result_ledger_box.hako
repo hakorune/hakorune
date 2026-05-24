@@ -12,54 +12,54 @@ using selfhost.hako_alloc.memory.allocator_comparison_representative_benchmark_e
 using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_explicit_runner_evidence_diagnostic_box as HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnostic
 
 record HakoAllocAllocatorComparisonCMimallocResultLedgerReportFields {
-    accepted: i64
-    reason: i64
-    result_ledger_present: i64
-    hako_diagnostic_present: i64
-    hako_ready_execution_present: i64
-    hako_reason: i64
-    hako_benchmark_executed: i64
-    c_diagnostic_present: i64
-    c_ready_evidence_present: i64
-    c_reason: i64
-    c_mimalloc_executed: i64
-    comparison_available: i64
-    hako_allocation_count: i64
-    hako_release_count: i64
-    hako_reject_count: i64
-    hako_requested_bytes: i64
-    hako_outstanding_blocks: i64
-    hako_small_free_count: i64
-    hako_medium_free_count: i64
-    c_allocation_count: i64
-    c_free_count: i64
-    c_requested_bytes: i64
-    c_peak_rss_bytes: i64
-    c_run_count: i64
-    allocation_count_delta: i64
-    requested_bytes_delta: i64
-    memory_evidence_present: i64
-    ledger_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_hako_diagnostic_reject_count: i64
-    blocked_hako_diagnostic_reject_count: i64
-    missing_c_diagnostic_reject_count: i64
-    blocked_c_diagnostic_reject_count: i64
-    last_reason: i64
-    performance_conclusion_made: i64
-    memory_conclusion_made: i64
-    repeated_benchmark_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    hidden_discovery_used: i64
-    provider_package_generated: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    result_ledger_present: i64 = 0
+    hako_diagnostic_present: i64 = 0
+    hako_ready_execution_present: i64 = 0
+    hako_reason: i64 = 0
+    hako_benchmark_executed: i64 = 0
+    c_diagnostic_present: i64 = 0
+    c_ready_evidence_present: i64 = 0
+    c_reason: i64 = 0
+    c_mimalloc_executed: i64 = 0
+    comparison_available: i64 = 0
+    hako_allocation_count: i64 = 0
+    hako_release_count: i64 = 0
+    hako_reject_count: i64 = 0
+    hako_requested_bytes: i64 = 0
+    hako_outstanding_blocks: i64 = 0
+    hako_small_free_count: i64 = 0
+    hako_medium_free_count: i64 = 0
+    c_allocation_count: i64 = 0
+    c_free_count: i64 = 0
+    c_requested_bytes: i64 = 0
+    c_peak_rss_bytes: i64 = 0
+    c_run_count: i64 = 0
+    allocation_count_delta: i64 = 0
+    requested_bytes_delta: i64 = 0
+    memory_evidence_present: i64 = 0
+    ledger_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_hako_diagnostic_reject_count: i64 = 0
+    blocked_hako_diagnostic_reject_count: i64 = 0
+    missing_c_diagnostic_reject_count: i64 = 0
+    blocked_c_diagnostic_reject_count: i64 = 0
+    last_reason: i64 = 0
+    performance_conclusion_made: i64 = 0
+    memory_conclusion_made: i64 = 0
+    repeated_benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    provider_package_generated: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonCMimallocResultLedgerReport {
@@ -201,9 +201,10 @@ box HakoAllocAllocatorComparisonCMimallocResultLedger {
         }
         local allocation_count_delta = c_report.allocation_count - hako.allocation_count
         local requested_bytes_delta = c_report.requested_bytes - hako.requested_bytes
-        local fields = HakoAllocAllocatorComparisonCMimallocResultLedgerReportFields {
-            accepted: accepted,
-            reason: reason,
+        local fields = HakoAllocAllocatorComparisonCMimallocResultLedgerReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
             result_ledger_present: 1,
             hako_diagnostic_present: hako.diagnostic_present,
             hako_ready_execution_present: hako.ready_execution_present,
@@ -226,8 +227,8 @@ box HakoAllocAllocatorComparisonCMimallocResultLedger {
             c_requested_bytes: c_report.requested_bytes,
             c_peak_rss_bytes: c_report.peak_rss_bytes,
             c_run_count: c_report.run_count,
-            allocation_count_delta: allocation_count_delta,
-            requested_bytes_delta: requested_bytes_delta,
+            allocation_count_delta,
+            requested_bytes_delta,
             memory_evidence_present: c_report.memory_usage_evidence_present,
             ledger_count: me.ledger_count,
             accepted_count: me.accepted_count,

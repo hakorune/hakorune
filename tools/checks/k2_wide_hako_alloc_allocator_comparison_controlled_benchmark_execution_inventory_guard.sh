@@ -31,13 +31,14 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MEMORY_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_controlled_benchmark_execution_inventory_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_controlled_benchmark_execution_inventory_guard.sh"
 RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-440A allocator comparison controlled benchmark execution inventory\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_439A" "$CARD" "$NEXT_CARD" "$DESIGN_PLAN" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_439A" "$CARD" "$NEXT_CARD" "$DESIGN_PLAN" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$MEMORY_INDEX" "$OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_439A" "$CARD"; do
@@ -51,7 +52,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-440A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-440A must be scalar-mir validation"
 guard_expect_in_file "$TAG" 'exe = "deferred-to-comparison-controlled-benchmark-execution-closeout"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-440A must defer EXE to closeout"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_controlled_benchmark_execution_inventory_box' "$MODULE" "module must export controlled benchmark execution inventory owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_controlled_benchmark_execution_inventory_box.hako' "$MEMORY_README" "memory README must name controlled benchmark execution inventory owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_controlled_benchmark_execution_inventory_box.hako' "$MEMORY_INDEX" "memory module index must name controlled benchmark execution inventory owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonControlledBenchmarkExecutionInventoryReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'inventoryAllocatorComparisonControlledBenchmarkExecution' "$OWNER" "owner must expose controlled execution inventory route"

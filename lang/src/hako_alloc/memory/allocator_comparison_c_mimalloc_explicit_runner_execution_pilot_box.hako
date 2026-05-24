@@ -38,46 +38,46 @@ record HakoAllocAllocatorComparisonCMimallocExplicitRunnerStopLineEvidence {
 }
 
 record HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields {
-    accepted: i64
-    reason: i64
-    execution_pilot_present: i64
-    diagnostic_present: i64
-    diagnostic_ready: i64
-    diagnostic_reason: i64
-    explicit_runner_invoked: i64
-    explicit_runner_output_present: i64
-    explicit_runner_result_code: i64
-    c_mimalloc_execution_evidence_present: i64
-    memory_usage_evidence_present: i64
-    stable_output_contract_present: i64
-    run_count: i64
-    allocation_count: i64
-    free_count: i64
-    requested_bytes: i64
-    peak_rss_bytes: i64
-    pilot_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_diagnostic_reject_count: i64
-    rejected_diagnostic_reject_count: i64
-    missing_runner_reject_count: i64
-    missing_output_reject_count: i64
-    missing_memory_evidence_reject_count: i64
-    missing_output_contract_reject_count: i64
-    failed_runner_reject_count: i64
-    invalid_run_count_reject_count: i64
-    last_reason: i64
-    c_mimalloc_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    hidden_discovery_used: i64
-    provider_package_generated: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    execution_pilot_present: i64 = 0
+    diagnostic_present: i64 = 0
+    diagnostic_ready: i64 = 0
+    diagnostic_reason: i64 = 0
+    explicit_runner_invoked: i64 = 0
+    explicit_runner_output_present: i64 = 0
+    explicit_runner_result_code: i64 = 0
+    c_mimalloc_execution_evidence_present: i64 = 0
+    memory_usage_evidence_present: i64 = 0
+    stable_output_contract_present: i64 = 0
+    run_count: i64 = 0
+    allocation_count: i64 = 0
+    free_count: i64 = 0
+    requested_bytes: i64 = 0
+    peak_rss_bytes: i64 = 0
+    pilot_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_diagnostic_reject_count: i64 = 0
+    rejected_diagnostic_reject_count: i64 = 0
+    missing_runner_reject_count: i64 = 0
+    missing_output_reject_count: i64 = 0
+    missing_memory_evidence_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    failed_runner_reject_count: i64 = 0
+    invalid_run_count_reject_count: i64 = 0
+    last_reason: i64 = 0
+    c_mimalloc_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    provider_package_generated: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReport {
@@ -229,12 +229,13 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot {
                 }
             }
         }
-        local fields = HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields {
-            accepted: accepted,
-            reason: reason,
+        local fields = HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilotReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
             execution_pilot_present: 1,
             diagnostic_present: diagnostic.diagnostic_present,
-            diagnostic_ready: diagnostic_ready,
+            diagnostic_ready,
             diagnostic_reason: diagnostic.reason,
             explicit_runner_invoked: runner.explicit_runner_invoked,
             explicit_runner_output_present: runner.output_present,

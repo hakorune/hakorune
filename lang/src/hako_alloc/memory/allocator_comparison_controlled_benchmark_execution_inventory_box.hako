@@ -6,46 +6,46 @@
 //   backend matcher additions, global allocator install, or worker/thread execution
 
 record HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields {
-    accepted: i64
-    reason: i64
-    controlled_benchmark_execution_inventory_present: i64
-    controlled_benchmark_execution_shape_ready: i64
-    benchmark_runner_selected: i64
-    workload_source_ready: i64
-    measurement_source_ready: i64
-    output_contract_present: i64
-    evidence_storage_present: i64
-    representative_run_selected: i64
-    process_replacement_closed: i64
-    hook_install_closed: i64
-    backend_matcher_closed: i64
-    global_allocator_closed: i64
-    hidden_env_closed: i64
-    inventory_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_runner_reject_count: i64
-    workload_source_not_ready_reject_count: i64
-    measurement_source_not_ready_reject_count: i64
-    missing_output_contract_reject_count: i64
-    missing_evidence_storage_reject_count: i64
-    missing_representative_run_reject_count: i64
-    process_replacement_open_reject_count: i64
-    hook_open_reject_count: i64
-    backend_matcher_open_reject_count: i64
-    global_allocator_open_reject_count: i64
-    hidden_env_open_reject_count: i64
-    last_reason: i64
-    benchmark_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    controlled_benchmark_execution_planned: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    controlled_benchmark_execution_inventory_present: i64 = 0
+    controlled_benchmark_execution_shape_ready: i64 = 0
+    benchmark_runner_selected: i64 = 0
+    workload_source_ready: i64 = 0
+    measurement_source_ready: i64 = 0
+    output_contract_present: i64 = 0
+    evidence_storage_present: i64 = 0
+    representative_run_selected: i64 = 0
+    process_replacement_closed: i64 = 0
+    hook_install_closed: i64 = 0
+    backend_matcher_closed: i64 = 0
+    global_allocator_closed: i64 = 0
+    hidden_env_closed: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_runner_reject_count: i64 = 0
+    workload_source_not_ready_reject_count: i64 = 0
+    measurement_source_not_ready_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_evidence_storage_reject_count: i64 = 0
+    missing_representative_run_reject_count: i64 = 0
+    process_replacement_open_reject_count: i64 = 0
+    hook_open_reject_count: i64 = 0
+    backend_matcher_open_reject_count: i64 = 0
+    global_allocator_open_reject_count: i64 = 0
+    hidden_env_open_reject_count: i64 = 0
+    last_reason: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    controlled_benchmark_execution_planned: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
@@ -169,22 +169,23 @@ box HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventory {
         global_allocator_closed: i64,
         hidden_env_closed: i64
     ): HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReport {
-        local fields = HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields {
-            accepted: accepted,
-            reason: reason,
+        local fields = HakoAllocAllocatorComparisonControlledBenchmarkExecutionInventoryReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
             controlled_benchmark_execution_inventory_present: accepted,
             controlled_benchmark_execution_shape_ready: accepted,
-            benchmark_runner_selected: benchmark_runner_selected,
-            workload_source_ready: workload_source_ready,
-            measurement_source_ready: measurement_source_ready,
-            output_contract_present: output_contract_present,
-            evidence_storage_present: evidence_storage_present,
-            representative_run_selected: representative_run_selected,
-            process_replacement_closed: process_replacement_closed,
-            hook_install_closed: hook_install_closed,
-            backend_matcher_closed: backend_matcher_closed,
-            global_allocator_closed: global_allocator_closed,
-            hidden_env_closed: hidden_env_closed,
+            benchmark_runner_selected,
+            workload_source_ready,
+            measurement_source_ready,
+            output_contract_present,
+            evidence_storage_present,
+            representative_run_selected,
+            process_replacement_closed,
+            hook_install_closed,
+            backend_matcher_closed,
+            global_allocator_closed,
+            hidden_env_closed,
             inventory_count: me.inventory_count,
             accepted_count: me.accepted_count,
             reject_count: me.reject_count,

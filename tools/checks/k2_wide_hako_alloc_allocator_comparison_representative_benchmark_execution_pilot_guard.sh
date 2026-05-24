@@ -31,13 +31,14 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MEMORY_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/allocator_comparison_representative_benchmark_execution_pilot_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_allocator_comparison_representative_benchmark_execution_pilot_guard.sh"
 RUN_PROOF="tools/checks/run_proof_app.sh"
 
 printf '[%s] checking MIMAP-444A allocator comparison representative benchmark execution pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_443A" "$CARD" "$NEXT_CARD" "$DESIGN" "$CONTROLLED_DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_443A" "$CARD" "$NEXT_CARD" "$DESIGN" "$CONTROLLED_DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$MEMORY_INDEX" "$OWNER" "$SELF_SCRIPT" "$RUN_PROOF"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 
 for card in "$CARD_443A" "$CARD"; do
@@ -51,7 +52,7 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-444A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-444A must be scalar-mir validation"
 guard_expect_in_file "$TAG" 'first_pattern = true' "$PROOF_MANIFEST_INCLUDE" "MIMAP-444A must be marked first-pattern"
 guard_expect_in_file "$TAG" 'memory.allocator_comparison_representative_benchmark_execution_pilot_box' "$MODULE" "module must export representative benchmark execution pilot owner"
-guard_expect_in_file "$TAG" 'allocator_comparison_representative_benchmark_execution_pilot_box.hako' "$MEMORY_README" "memory README must name representative benchmark execution pilot owner"
+guard_expect_in_file "$TAG" 'allocator_comparison_representative_benchmark_execution_pilot_box.hako' "$MEMORY_INDEX" "memory module index must name representative benchmark execution pilot owner"
 guard_expect_in_file "$TAG" 'record HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilotReportFields' "$OWNER" "owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makeAllocatorComparisonRepresentativeBenchmarkExecutionPilotReport' "$OWNER" "owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'executeRepresentativeBenchmark' "$OWNER" "owner must expose representative execution route"

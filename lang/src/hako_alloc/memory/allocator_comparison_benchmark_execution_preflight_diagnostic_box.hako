@@ -9,48 +9,48 @@
 using selfhost.hako_alloc.memory.allocator_comparison_benchmark_execution_preflight_inventory_box as HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventory
 
 record HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReportFields {
-    accepted: i64
-    reason: i64
-    diagnostic_present: i64
-    benchmark_execution_preflight_present: i64
-    benchmark_execution_ready: i64
-    blocked_preflight_present: i64
-    missing_runner_blocked: i64
-    missing_output_capture_blocked: i64
-    missing_measurement_storage_blocked: i64
-    workload_matrix_not_ready_blocked: i64
-    measurement_plan_not_ready_blocked: i64
-    process_replacement_open_blocked: i64
-    hook_open_blocked: i64
-    backend_matcher_open_blocked: i64
-    global_allocator_open_blocked: i64
-    hidden_env_open_blocked: i64
-    closed_seam_blocked: i64
-    benchmark_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    diagnostic_count: i64
-    ready_count: i64
-    blocked_count: i64
-    missing_runner_blocked_count: i64
-    missing_output_capture_blocked_count: i64
-    missing_measurement_storage_blocked_count: i64
-    workload_matrix_not_ready_blocked_count: i64
-    measurement_plan_not_ready_blocked_count: i64
-    process_replacement_open_blocked_count: i64
-    hook_open_blocked_count: i64
-    backend_matcher_open_blocked_count: i64
-    global_allocator_open_blocked_count: i64
-    hidden_env_open_blocked_count: i64
-    closed_seam_blocked_count: i64
-    last_reason: i64
-    would_run_benchmark: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    benchmark_execution_preflight_present: i64 = 0
+    benchmark_execution_ready: i64 = 0
+    blocked_preflight_present: i64 = 0
+    missing_runner_blocked: i64 = 0
+    missing_output_capture_blocked: i64 = 0
+    missing_measurement_storage_blocked: i64 = 0
+    workload_matrix_not_ready_blocked: i64 = 0
+    measurement_plan_not_ready_blocked: i64 = 0
+    process_replacement_open_blocked: i64 = 0
+    hook_open_blocked: i64 = 0
+    backend_matcher_open_blocked: i64 = 0
+    global_allocator_open_blocked: i64 = 0
+    hidden_env_open_blocked: i64 = 0
+    closed_seam_blocked: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_runner_blocked_count: i64 = 0
+    missing_output_capture_blocked_count: i64 = 0
+    missing_measurement_storage_blocked_count: i64 = 0
+    workload_matrix_not_ready_blocked_count: i64 = 0
+    measurement_plan_not_ready_blocked_count: i64 = 0
+    process_replacement_open_blocked_count: i64 = 0
+    hook_open_blocked_count: i64 = 0
+    backend_matcher_open_blocked_count: i64 = 0
+    global_allocator_open_blocked_count: i64 = 0
+    hidden_env_open_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    would_run_benchmark: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReport {
@@ -290,24 +290,25 @@ box HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnostic {
         if reason == 11 {
             closed_seam_blocked = 1
         }
-        local fields = HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReportFields {
+        local fields = HakoAllocAllocatorComparisonBenchmarkExecutionPreflightDiagnosticReportFields {}
+        fields = fields with {
             accepted: 1,
-            reason: reason,
+            reason,
             diagnostic_present: 1,
             benchmark_execution_preflight_present: preflight.benchmark_execution_preflight_present,
             benchmark_execution_ready: preflight.benchmark_execution_ready,
             blocked_preflight_present: blocked,
-            missing_runner_blocked: missing_runner_blocked,
-            missing_output_capture_blocked: missing_output_capture_blocked,
-            missing_measurement_storage_blocked: missing_measurement_storage_blocked,
-            workload_matrix_not_ready_blocked: workload_matrix_not_ready_blocked,
-            measurement_plan_not_ready_blocked: measurement_plan_not_ready_blocked,
-            process_replacement_open_blocked: process_replacement_open_blocked,
-            hook_open_blocked: hook_open_blocked,
-            backend_matcher_open_blocked: backend_matcher_open_blocked,
-            global_allocator_open_blocked: global_allocator_open_blocked,
-            hidden_env_open_blocked: hidden_env_open_blocked,
-            closed_seam_blocked: closed_seam_blocked,
+            missing_runner_blocked,
+            missing_output_capture_blocked,
+            missing_measurement_storage_blocked,
+            workload_matrix_not_ready_blocked,
+            measurement_plan_not_ready_blocked,
+            process_replacement_open_blocked,
+            hook_open_blocked,
+            backend_matcher_open_blocked,
+            global_allocator_open_blocked,
+            hidden_env_open_blocked,
+            closed_seam_blocked,
             benchmark_executed: 0,
             process_replacement_executed: 0,
             hook_installed: 0,

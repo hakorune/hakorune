@@ -6,34 +6,34 @@
 //   backend matcher additions, global allocator install, or worker/thread execution
 
 record HakoAllocAllocatorComparisonBaselineInventoryReportFields {
-    accepted: i64
-    reason: i64
-    baseline_inventory_present: i64
-    comparison_ready: i64
-    c_mimalloc_baseline_present: i64
-    hako_alloc_baseline_present: i64
-    throughput_target_present: i64
-    memory_usage_target_present: i64
-    workload_matrix_present: i64
-    repeat_count: i64
-    inventory_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_c_mimalloc_baseline_reject_count: i64
-    missing_hako_alloc_baseline_reject_count: i64
-    missing_throughput_target_reject_count: i64
-    missing_memory_usage_target_reject_count: i64
-    missing_workload_matrix_reject_count: i64
-    invalid_repeat_count_reject_count: i64
-    last_reason: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    baseline_inventory_present: i64 = 0
+    comparison_ready: i64 = 0
+    c_mimalloc_baseline_present: i64 = 0
+    hako_alloc_baseline_present: i64 = 0
+    throughput_target_present: i64 = 0
+    memory_usage_target_present: i64 = 0
+    workload_matrix_present: i64 = 0
+    repeat_count: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_c_mimalloc_baseline_reject_count: i64 = 0
+    missing_hako_alloc_baseline_reject_count: i64 = 0
+    missing_throughput_target_reject_count: i64 = 0
+    missing_memory_usage_target_reject_count: i64 = 0
+    missing_workload_matrix_reject_count: i64 = 0
+    invalid_repeat_count_reject_count: i64 = 0
+    last_reason: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonBaselineInventoryReport {
@@ -123,17 +123,18 @@ box HakoAllocAllocatorComparisonBaselineInventory {
         workload_matrix_present: i64,
         repeat_count: i64
     ): HakoAllocAllocatorComparisonBaselineInventoryReport {
-        local fields = HakoAllocAllocatorComparisonBaselineInventoryReportFields {
-            accepted: accepted,
-            reason: reason,
+        local fields = HakoAllocAllocatorComparisonBaselineInventoryReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
             baseline_inventory_present: accepted,
             comparison_ready: accepted,
-            c_mimalloc_baseline_present: c_mimalloc_baseline_present,
-            hako_alloc_baseline_present: hako_alloc_baseline_present,
-            throughput_target_present: throughput_target_present,
-            memory_usage_target_present: memory_usage_target_present,
-            workload_matrix_present: workload_matrix_present,
-            repeat_count: repeat_count,
+            c_mimalloc_baseline_present,
+            hako_alloc_baseline_present,
+            throughput_target_present,
+            memory_usage_target_present,
+            workload_matrix_present,
+            repeat_count,
             inventory_count: me.inventory_count,
             accepted_count: me.accepted_count,
             reject_count: me.reject_count,

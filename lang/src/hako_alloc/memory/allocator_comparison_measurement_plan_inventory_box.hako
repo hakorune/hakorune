@@ -6,38 +6,38 @@
 //   backend matcher additions, global allocator install, or worker/thread execution
 
 record HakoAllocAllocatorComparisonMeasurementPlanInventoryReportFields {
-    accepted: i64
-    reason: i64
-    measurement_plan_inventory_present: i64
-    measurement_plan_ready: i64
-    run_count_present: i64
-    warmup_plan_present: i64
-    output_contract_present: i64
-    throughput_measurement_present: i64
-    memory_usage_measurement_present: i64
-    run_count: i64
-    warmup_count: i64
-    inventory_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_run_count_reject_count: i64
-    missing_warmup_plan_reject_count: i64
-    missing_output_contract_reject_count: i64
-    missing_throughput_measurement_reject_count: i64
-    missing_memory_usage_measurement_reject_count: i64
-    invalid_run_count_reject_count: i64
-    invalid_warmup_count_reject_count: i64
-    last_reason: i64
-    benchmark_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    would_run_benchmark: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    measurement_plan_inventory_present: i64 = 0
+    measurement_plan_ready: i64 = 0
+    run_count_present: i64 = 0
+    warmup_plan_present: i64 = 0
+    output_contract_present: i64 = 0
+    throughput_measurement_present: i64 = 0
+    memory_usage_measurement_present: i64 = 0
+    run_count: i64 = 0
+    warmup_count: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_run_count_reject_count: i64 = 0
+    missing_warmup_plan_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_throughput_measurement_reject_count: i64 = 0
+    missing_memory_usage_measurement_reject_count: i64 = 0
+    invalid_run_count_reject_count: i64 = 0
+    invalid_warmup_count_reject_count: i64 = 0
+    last_reason: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    would_run_benchmark: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonMeasurementPlanInventoryReport {
@@ -137,18 +137,19 @@ box HakoAllocAllocatorComparisonMeasurementPlanInventory {
         run_count: i64,
         warmup_count: i64
     ): HakoAllocAllocatorComparisonMeasurementPlanInventoryReport {
-        local fields = HakoAllocAllocatorComparisonMeasurementPlanInventoryReportFields {
-            accepted: accepted,
-            reason: reason,
+        local fields = HakoAllocAllocatorComparisonMeasurementPlanInventoryReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
             measurement_plan_inventory_present: accepted,
             measurement_plan_ready: accepted,
-            run_count_present: run_count_present,
-            warmup_plan_present: warmup_plan_present,
-            output_contract_present: output_contract_present,
-            throughput_measurement_present: throughput_measurement_present,
-            memory_usage_measurement_present: memory_usage_measurement_present,
-            run_count: run_count,
-            warmup_count: warmup_count,
+            run_count_present,
+            warmup_plan_present,
+            output_contract_present,
+            throughput_measurement_present,
+            memory_usage_measurement_present,
+            run_count,
+            warmup_count,
             inventory_count: me.inventory_count,
             accepted_count: me.accepted_count,
             reject_count: me.reject_count,

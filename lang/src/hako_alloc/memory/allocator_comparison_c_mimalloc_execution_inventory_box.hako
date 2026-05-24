@@ -7,39 +7,39 @@
 //   adding backend matchers, or installing a global allocator
 
 record HakoAllocAllocatorComparisonCMimallocExecutionInventoryReportFields {
-    accepted: i64
-    reason: i64
-    c_mimalloc_execution_inventory_present: i64
-    c_mimalloc_execution_ready: i64
-    c_mimalloc_runner_present: i64
-    representative_workload_contract_present: i64
-    hako_representative_metrics_present: i64
-    output_contract_present: i64
-    memory_usage_contract_present: i64
-    evidence_storage_present: i64
-    run_count_present: i64
-    run_count: i64
-    inventory_count: i64
-    accepted_count: i64
-    reject_count: i64
-    missing_runner_reject_count: i64
-    missing_workload_reject_count: i64
-    missing_hako_metrics_reject_count: i64
-    missing_output_contract_reject_count: i64
-    missing_memory_usage_contract_reject_count: i64
-    missing_evidence_storage_reject_count: i64
-    missing_run_count_reject_count: i64
-    invalid_run_count_reject_count: i64
-    last_reason: i64
-    c_mimalloc_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    c_mimalloc_execution_inventory_present: i64 = 0
+    c_mimalloc_execution_ready: i64 = 0
+    c_mimalloc_runner_present: i64 = 0
+    representative_workload_contract_present: i64 = 0
+    hako_representative_metrics_present: i64 = 0
+    output_contract_present: i64 = 0
+    memory_usage_contract_present: i64 = 0
+    evidence_storage_present: i64 = 0
+    run_count_present: i64 = 0
+    run_count: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_runner_reject_count: i64 = 0
+    missing_workload_reject_count: i64 = 0
+    missing_hako_metrics_reject_count: i64 = 0
+    missing_output_contract_reject_count: i64 = 0
+    missing_memory_usage_contract_reject_count: i64 = 0
+    missing_evidence_storage_reject_count: i64 = 0
+    missing_run_count_reject_count: i64 = 0
+    invalid_run_count_reject_count: i64 = 0
+    last_reason: i64 = 0
+    c_mimalloc_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonCMimallocExecutionInventoryReport {
@@ -176,19 +176,20 @@ box HakoAllocAllocatorComparisonCMimallocExecutionInventory {
         if accepted == 1 {
             ready = 1
         }
-        local fields = HakoAllocAllocatorComparisonCMimallocExecutionInventoryReportFields {
-            accepted: accepted,
-            reason: reason,
+        local fields = HakoAllocAllocatorComparisonCMimallocExecutionInventoryReportFields {}
+        fields = fields with {
+            accepted,
+            reason,
             c_mimalloc_execution_inventory_present: 1,
             c_mimalloc_execution_ready: ready,
-            c_mimalloc_runner_present: c_mimalloc_runner_present,
-            representative_workload_contract_present: representative_workload_contract_present,
-            hako_representative_metrics_present: hako_representative_metrics_present,
-            output_contract_present: output_contract_present,
-            memory_usage_contract_present: memory_usage_contract_present,
-            evidence_storage_present: evidence_storage_present,
-            run_count_present: run_count_present,
-            run_count: run_count,
+            c_mimalloc_runner_present,
+            representative_workload_contract_present,
+            hako_representative_metrics_present,
+            output_contract_present,
+            memory_usage_contract_present,
+            evidence_storage_present,
+            run_count_present,
+            run_count,
             inventory_count: me.inventory_count,
             accepted_count: me.accepted_count,
             reject_count: me.reject_count,

@@ -10,53 +10,53 @@
 using selfhost.hako_alloc.memory.allocator_comparison_c_mimalloc_explicit_runner_execution_pilot_box as HakoAllocAllocatorComparisonCMimallocExplicitRunnerExecutionPilot
 
 record HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReportFields {
-    accepted: i64
-    reason: i64
-    diagnostic_present: i64
-    execution_pilot_present: i64
-    c_mimalloc_execution_evidence_present: i64
-    blocked_evidence_present: i64
-    explicit_runner_invoked: i64
-    explicit_runner_output_present: i64
-    explicit_runner_result_code: i64
-    memory_usage_evidence_present: i64
-    stable_output_contract_present: i64
-    run_count: i64
-    allocation_count: i64
-    free_count: i64
-    requested_bytes: i64
-    peak_rss_bytes: i64
-    missing_diagnostic_blocked: i64
-    rejected_diagnostic_blocked: i64
-    missing_runner_blocked: i64
-    missing_output_blocked: i64
-    missing_memory_evidence_blocked: i64
-    missing_output_contract_blocked: i64
-    failed_runner_blocked: i64
-    invalid_run_count_blocked: i64
-    diagnostic_count: i64
-    ready_count: i64
-    blocked_count: i64
-    missing_diagnostic_blocked_count: i64
-    rejected_diagnostic_blocked_count: i64
-    missing_runner_blocked_count: i64
-    missing_output_blocked_count: i64
-    missing_memory_evidence_blocked_count: i64
-    missing_output_contract_blocked_count: i64
-    failed_runner_blocked_count: i64
-    invalid_run_count_blocked_count: i64
-    last_reason: i64
-    c_mimalloc_executed: i64
-    process_replacement_executed: i64
-    hook_installed: i64
-    backend_matcher_added: i64
-    global_allocator_installed: i64
-    hidden_discovery_used: i64
-    provider_package_generated: i64
-    would_replace_host_allocator: i64
-    would_install_hook: i64
-    would_add_backend_matcher: i64
-    would_run_thread: i64
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    execution_pilot_present: i64 = 0
+    c_mimalloc_execution_evidence_present: i64 = 0
+    blocked_evidence_present: i64 = 0
+    explicit_runner_invoked: i64 = 0
+    explicit_runner_output_present: i64 = 0
+    explicit_runner_result_code: i64 = 0
+    memory_usage_evidence_present: i64 = 0
+    stable_output_contract_present: i64 = 0
+    run_count: i64 = 0
+    allocation_count: i64 = 0
+    free_count: i64 = 0
+    requested_bytes: i64 = 0
+    peak_rss_bytes: i64 = 0
+    missing_diagnostic_blocked: i64 = 0
+    rejected_diagnostic_blocked: i64 = 0
+    missing_runner_blocked: i64 = 0
+    missing_output_blocked: i64 = 0
+    missing_memory_evidence_blocked: i64 = 0
+    missing_output_contract_blocked: i64 = 0
+    failed_runner_blocked: i64 = 0
+    invalid_run_count_blocked: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_diagnostic_blocked_count: i64 = 0
+    rejected_diagnostic_blocked_count: i64 = 0
+    missing_runner_blocked_count: i64 = 0
+    missing_output_blocked_count: i64 = 0
+    missing_memory_evidence_blocked_count: i64 = 0
+    missing_output_contract_blocked_count: i64 = 0
+    failed_runner_blocked_count: i64 = 0
+    invalid_run_count_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    c_mimalloc_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    hidden_discovery_used: i64 = 0
+    provider_package_generated: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
 }
 
 box HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReport {
@@ -256,9 +256,10 @@ box HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnostic {
         if reason == 8 {
             invalid_run = 1
         }
-        local fields = HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReportFields {
+        local fields = HakoAllocAllocatorComparisonCMimallocExplicitRunnerEvidenceDiagnosticReportFields {}
+        fields = fields with {
             accepted: 1,
-            reason: reason,
+            reason,
             diagnostic_present: 1,
             execution_pilot_present: report.execution_pilot_present,
             c_mimalloc_execution_evidence_present: report.c_mimalloc_execution_evidence_present,

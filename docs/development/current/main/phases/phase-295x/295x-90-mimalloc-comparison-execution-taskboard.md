@@ -128,7 +128,8 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 86 | `295x-86` | Landed | Added a hakozuna_compare log adapter for repeated throughput/RSS evidence. |
 | 87 | `295x-87` | Landed | Cataloged selected hakmem external artifacts and selected malloc-large workload alignment. |
 | 88 | `295x-88` | Landed | Applied accepted record defaults / empty literal / `with` ergonomics to one guarded allocator-comparison owner. |
-| 89 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001` | Current | Define the first `.hako` workload alignment contract against external `malloc-large`. |
+| 89 | `295x-89` | Landed | Batch-applied accepted record defaults / empty literal / `with` ergonomics to allocator-comparison owners that still used direct ReportFields literals. |
+| 90 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001` | Current | Define the first `.hako` workload alignment contract against external `malloc-large`. |
 
 ## Parked
 
