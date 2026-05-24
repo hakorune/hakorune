@@ -24,7 +24,7 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$HAKO_RUNNER" "$C_RUNNER" "$NORM
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MIXED-SIZE-EVIDENCE-295X-RUN-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001' "$CARD" "card must select closeout follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MIXED-SIZE-EVIDENCE-295X-RUN-001' "$PREV_CARD" "previous row must select this evidence run"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001' "$TASKBOARD" "taskboard must expose closeout follow-on"
+guard_expect_in_file "$TAG" '| 22 | `295x-22` | Landed |' "$TASKBOARD" "taskboard must retain this row as landed"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_mixed_evidence.XXXXXX)"

@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001:
-  selected current after 295x-22. Close the mixed-size workload family and
-  choose the next comparison seam.
+MIMALLOC-COMPARISON-HUGE-ISH-WORKLOAD-SEAM-SELECTION-295X-001:
+  selected current after 295x-23. Choose a huge-ish workload family while
+  keeping OSVM/page-source parity claims and winner claims parked.
 ```
 
 ## Queue
@@ -62,7 +62,8 @@ MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001:
 | 20 | `295x-20` | Landed | Selected representative-mixed-small-v0 as the next mixed-size workload family. |
 | 21 | `295x-21` | Landed | Added C runner and `.hako` evidence contract support for representative-mixed-small-v0. |
 | 22 | `295x-22` | Landed | Ran mixed-size same-workload evidence through the normalizer. |
-| 23 | `MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001` | Current | Close the mixed-size workload family and select the next comparison seam. |
+| 23 | `295x-23` | Landed | Closed the mixed-size workload family. |
+| 24 | `MIMALLOC-COMPARISON-HUGE-ISH-WORKLOAD-SEAM-SELECTION-295X-001` | Current | Select the next huge-ish workload family. |
 
 ## Parked
 
