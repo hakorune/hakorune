@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT-295X-001:
-  selected current after 295x-35. Close the RSS gap attribution pack and
-  select whether the next seam is measurement refinement, workload expansion,
-  or .hako runtime baseline reduction.
+MIMALLOC-COMPARISON-HAKO-BASELINE-BREAKDOWN-SELECTION-295X-001:
+  selected current after 295x-36. Choose a narrow diagnostic seam to break down
+  the fixed `.hako` exact-EXE baseline before any RSS winner claim.
 ```
 
 ## Queue
@@ -76,7 +75,8 @@ MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT-295X-001:
 | 33 | `295x-33` | Landed | Selected RSS gap attribution plan. |
 | 34 | `295x-34` | Landed | Added empty/baseline repeated evidence. |
 | 35 | `295x-35` | Landed | Computed baseline-subtracted RSS gap evidence. |
-| 36 | `MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT-295X-001` | Current | Close RSS gap attribution pack. |
+| 36 | `295x-36` | Landed | Closed RSS gap attribution pack. |
+| 37 | `MIMALLOC-COMPARISON-HAKO-BASELINE-BREAKDOWN-SELECTION-295X-001` | Current | Select a narrow `.hako` exact-EXE baseline breakdown seam. |
 
 ## Parked
 

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-35-MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-35-MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL.md"
-latest_card_summary = "Computed baseline-subtracted RSS gap evidence."
+latest_card = "295x-36-MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-36-MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT.md"
+latest_card_summary = "Closed RSS gap attribution and selected .hako baseline breakdown."
 
-current_blocker_token = "MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-HAKO-BASELINE-BREAKDOWN-SELECTION-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-36 closed RSS gap attribution and selected .hako baseline breakdown",
   "295x-35 computed baseline-subtracted RSS gap evidence",
   "295x-34 added empty/baseline repeated evidence for RSS gap attribution",
   "295x-33 selected baseline attribution plan for RSS gap diagnosis",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-27 closed the huge-ish workload family and selected repeated measurement policy",
   "295x-26 ran C mimalloc and .hako huge-ish same-workload evidence through the normalizer",
   "295x-25 added C runner and .hako EXE evidence contract support for representative-huge-ish-v0",
-  "295x-24 selected representative-huge-ish-v0 and kept OSVM/page-source parity parked",
 ]
