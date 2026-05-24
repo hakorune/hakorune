@@ -1,6 +1,8 @@
 // Moved from apps/selfhost-compiler/boxes/parser/scan/parser_number_scan_box.hako
 // ParserNumberScanBox — scan integer literal starting at index i
-// Returns: "{\"type\":\"Int\",\"value\":<digits>}@<pos>"
+// Returns:
+//   "{\"type\":\"Int\",\"value\":<digits>}@<pos>"
+//   "{\"type\":\"Int\",\"value\":<digits>,\"declared_type\":\"usize\"}@<pos>"
 
 using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
 
@@ -21,6 +23,22 @@ static box ParserNumberScanBox {
     }
     local s = src.substring(i, j)
     if s.length() == 0 { s = "0" }
+
+    local suffix_start = j
+    local suffix_done = 0
+    loop(j < n && suffix_done == 0) {
+      local ch = src.substring(j, j+1)
+      if ParserCommonUtilsBox.is_alnum_or_underscore(ch) == 1 {
+        j = j + 1
+      } else {
+        suffix_done = 1
+      }
+    }
+
+    local suffix = src.substring(suffix_start, j)
+    if suffix.length() > 0 {
+      return "{\"type\":\"Int\",\"value\":" + s + ",\"declared_type\":\"" + suffix + "\"}@" + ParserCommonUtilsBox.i2s(j)
+    }
     return "{\"type\":\"Int\",\"value\":" + s + "}@" + ParserCommonUtilsBox.i2s(j)
   }
 }

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-244-MIMALLOC-COMPARISON-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-244-MIMALLOC-COMPARISON-CLOSEOUT.md"
-latest_card_summary = "Closed the mimalloc comparison-quality vertical slice detour and returned to Stage-B parser literal suffix alignment."
+latest_card = "294x-245-STAGEB-PARSER-LITERAL-SUFFIX-ALIGNMENT"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-245-STAGEB-PARSER-LITERAL-SUFFIX-ALIGNMENT.md"
+latest_card_summary = "Aligned Stage-B numeric literal suffix scanning and Program(JSON) declared_type preservation."
 
-current_blocker_token = "STAGEB-PARSER-LITERAL-SUFFIX-ALIGNMENT-001"
+current_blocker_token = "STAGEB-PARSER-PARAM-TYPE-ANNOTATION-ALIGNMENT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-245 aligned Stage-B numeric literal suffix scanning with Rust parser metadata preservation",
   "294x-244 closed the mimalloc comparison-quality vertical slice detour and selected Stage-B parser literal suffix alignment",
   "294x-243 selected the final phase-294x mimalloc comparison closeout row",
   "294x-242 consolidated the mimalloc comparison presentation refresh chain and selected phase closeout selection",
@@ -38,5 +39,4 @@ landed_tail = [
   "294x-237 refreshed the presentation-only conclusion pilot/closeout boundary and selected presentation follow-on pilot refresh",
   "294x-236 refreshed the first-conclusion closeout pack and selected presentation-only follow-on refresh",
   "294x-235 refreshed the first-conclusion pilot and selected first-conclusion closeout refresh",
-  "294x-234 refreshed the first-conclusion plan boundary and selected first-conclusion pilot refresh",
 ]

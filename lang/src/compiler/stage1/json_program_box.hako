@@ -230,7 +230,12 @@ static box JsonProgramBox {
     if type_name == "Int" {
       local value_raw = JsonUtilsBox.extract_value(trimmed, "value")
       if value_raw == null { value_raw = "0" }
-      return "{\"type\":\"Int\",\"value\":" + me.trim(value_raw) + "}"
+      local declared_type = JsonUtilsBox.extract_string_value(trimmed, "declared_type", null)
+      local out = "{\"type\":\"Int\",\"value\":" + me.trim(value_raw)
+      if declared_type != null {
+        out = out + ",\"declared_type\":" + me.quote(declared_type)
+      }
+      return out + "}"
     }
     if type_name == "Str" {
       local value_raw2 = JsonUtilsBox.extract_value(trimmed, "value")

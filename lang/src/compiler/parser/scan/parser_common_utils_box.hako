@@ -21,6 +21,12 @@ static box ParserCommonUtilsBox {
     return 0
   }
 
+  is_alnum_or_underscore(ch) {
+    if me.is_alpha(ch) == 1 { return 1 }
+    if me.is_digit(ch) == 1 { return 1 }
+    return 0
+  }
+
   // ===== 文字列検索・操作 =====
 
   dq() { return "\"" }

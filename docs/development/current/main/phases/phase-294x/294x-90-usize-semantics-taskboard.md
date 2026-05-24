@@ -116,14 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-STAGEB-PARSER-LITERAL-SUFFIX-ALIGNMENT-001:
-  selected current after 294x-244. Align the Stage-B `.hako` parser with the
-  Rust parser for numeric literal suffixes such as `0usize` as the first
-  parser-front alignment row. Do not add parameter type annotations, return
-  type annotations, field type annotations, additional hako_alloc field-group
-  migration, mimalloc comparison rows, provider calls, host replacement, hooks,
-  global allocator install, worker/TLS, atomics, provider package / DLL
-  generation, repeated benchmark packs, or `#[global_allocator]`.
+STAGEB-PARSER-PARAM-TYPE-ANNOTATION-ALIGNMENT-001:
+  selected current after 294x-245. Align Stage-B method parameter type
+  annotation parsing with the Rust parser as the next parser-front alignment
+  row. Do not add return type annotations, field type annotations, additional
+  hako_alloc field-group migration, mimalloc comparison rows, provider calls,
+  host replacement, hooks, global allocator install, worker/TLS, atomics,
+  provider package / DLL generation, repeated benchmark packs, or
+  `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -205,11 +205,13 @@ STAGEB-PARSER-LITERAL-SUFFIX-ALIGNMENT-001:
 - [ ] Keep Rust and `.hako` parser fronts aligned.
   - Rust parser supports: literal suffixes (`0usize`), parameter type annotations,
     return type annotations, field type annotations with exact numeric types.
-  - Stage-B `.hako` parser (`lang/src/compiler/parser/`) does not yet support:
-    literal suffixes, parameter type annotations, return type annotations, or
-    field type annotations with exact numeric types.
-  - Next row: add literal suffix scanning to Stage-B number scanner, then
-    parameter/return type annotation parsing. Separate commit per feature.
+  - Stage-B `.hako` parser (`lang/src/compiler/parser/`) now supports literal
+    suffixes and preserves them as Program(JSON v0) `Int.declared_type`
+    metadata (`294x-245`).
+  - Stage-B still does not support parameter type annotations, return type
+    annotations, or field type annotations with exact numeric types.
+  - Next row: add parameter type annotation parsing. Separate commit per
+    feature.
 
 ### MIR / Analysis
 
