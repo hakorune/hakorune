@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-POST-LONG-TIMING-SELECTION-295X-001:
-  selected current after 295x-71. Choose whether to resume .hako mimalloc port
-  work, add allocator-body-only timing, or prepare presentation-only evidence
-  after long process-repeat timing escaped the 1ms floor.
+MIMALLOC-COMPARISON-HAKO-BODY-TIMING-FEASIBILITY-SELECTION-295X-001:
+  selected current after 295x-76. Decide whether .hako body timing can be
+  exposed without changing runtime defaults or opening a broad clock surface.
 ```
 
 ## Queue
@@ -112,7 +111,12 @@ MIMALLOC-COMPARISON-POST-LONG-TIMING-SELECTION-295X-001:
 | 69 | `295x-69` | Landed | Selected long process-repeat timing to escape the 1ms elapsed-time floor. |
 | 70 | `295x-70` | Landed | Observed long process-repeat timing across selected comparison workloads. |
 | 71 | `295x-71` | Landed | Closed long process-repeat timing evidence and selected a post-long-timing decision row. |
-| 72 | `MIMALLOC-COMPARISON-POST-LONG-TIMING-SELECTION-295X-001` | Current | Choose porting, body-internal timing, or presentation-only follow-on. |
+| 72 | `295x-72` | Landed | Selected presentation-only process timing before allocator-body timing or more `.hako` porting. |
+| 73 | `295x-73` | Landed | Added process-repeat timing presentation evidence with allocator-body timing and winner claims closed. |
+| 74 | `295x-74` | Landed | Closed process timing presentation and selected allocator-body timing contract work. |
+| 75 | `295x-75` | Landed | Defined body timing vocabulary before C/.hako implementation. |
+| 76 | `295x-76` | Landed | Added C-runner body timing for one workload while preserving process timing. |
+| 77 | `MIMALLOC-COMPARISON-HAKO-BODY-TIMING-FEASIBILITY-SELECTION-295X-001` | Current | Decide whether `.hako` body timing is feasible without runtime/default changes. |
 
 ## Parked
 

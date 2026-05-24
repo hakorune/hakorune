@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/resource.h>
+#include <time.h>
 
 typedef void *(*mi_malloc_fn)(size_t);
 typedef void *(*mi_realloc_fn)(void *, size_t);
@@ -49,6 +50,7 @@ typedef struct RunnerEvidence {
     long realloc_same_ptr_count;
     long realloc_moved_count;
     uint64_t copied_bytes;
+    uint64_t body_elapsed_ns;
 } RunnerEvidence;
 
 static void usage(const char *argv0) {
@@ -113,6 +115,14 @@ static uint64_t peak_rss_bytes(void) {
         return 0;
     }
     return (uint64_t)usage.ru_maxrss * 1024ULL;
+}
+
+static uint64_t monotonic_ns(void) {
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+        return 0;
+    }
+    return ((uint64_t)ts.tv_sec * 1000000000ULL) + (uint64_t)ts.tv_nsec;
 }
 
 static int run_small_block(const RunnerConfig *config, const MimallocApi *api, RunnerEvidence *evidence) {
@@ -346,6 +356,7 @@ int main(int argc, char **argv) {
     RunnerEvidence evidence;
     memset(&evidence, 0, sizeof(evidence));
     int result_code = 0;
+    uint64_t body_start_ns = monotonic_ns();
     if (strcmp(config.workload, "representative-empty-v0") == 0) {
         result_code = run_empty(&evidence);
     } else if (strcmp(config.workload, "representative-small-block-v0") == 0) {
@@ -360,6 +371,10 @@ int main(int argc, char **argv) {
         fprintf(stderr, "[c-mimalloc-runner] unsupported workload: %s\n", config.workload);
         dlclose(library);
         return 2;
+    }
+    uint64_t body_end_ns = monotonic_ns();
+    if (body_start_ns > 0 && body_end_ns >= body_start_ns) {
+        evidence.body_elapsed_ns = body_end_ns - body_start_ns;
     }
     if (result_code != 0) {
         dlclose(library);
@@ -390,6 +405,12 @@ int main(int argc, char **argv) {
     printf("realloc_same_ptr_count=%ld\n", evidence.realloc_same_ptr_count);
     printf("realloc_moved_count=%ld\n", evidence.realloc_moved_count);
     printf("copied_bytes=%llu\n", (unsigned long long)evidence.copied_bytes);
+    printf("c_body_timing_available=1\n");
+    printf("hako_body_timing_available=0\n");
+    printf("body_timing_repeat_kind=workload-body-monotonic-v0\n");
+    printf("body_timing_scope=allocator-workload-body\n");
+    printf("body_timing_is_process_timing=0\n");
+    printf("body_elapsed_ns=%llu\n", (unsigned long long)evidence.body_elapsed_ns);
     printf("peak_rss_bytes=%llu\n", (unsigned long long)rss_bytes);
     printf("memory_usage_evidence=1\n");
     printf("process_replacement_executed=0\n");
