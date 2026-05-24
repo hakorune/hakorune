@@ -29,13 +29,14 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 OWNER="lang/src/hako_alloc/memory/segment_arena_backing_pointer_derived_lookup_execution_pilot_box.hako"
 HANDLE_OWNER="lang/src/hako_alloc/memory/segment_arena_backing_handle_pilot_box.hako"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_segment_arena_backing_pointer_derived_lookup_execution_pilot_guard.sh"
 
 printf '[%s] checking MIMAP-346A segment arena backing pointer-derived lookup execution pilot\n' "$TAG"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_345A" "$CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$OWNER" "$HANDLE_OWNER" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$APP" "$APP_README" "$APP_TEST" "$CARD_345A" "$CARD" "$DESIGN" "$INDEX" "$PROOF_MANIFEST_INCLUDE" "$MODULE" "$MEMORY_README" "$MODULE_INDEX" "$OWNER" "$HANDLE_OWNER" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_345A" "MIMAP-345A arena backing handle pilot must be landed before pointer-derived lookup pilot"
@@ -46,10 +47,12 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-346A"' "$PROOF_MANIFEST_INCLUDE" "proof
 guard_expect_in_file "$TAG" 'row_kind = "first-real-seam"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-346A must be marked as first-real-seam"
 guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-346A must use scalar-mir validation"
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box' "$MODULE" "module must export pointer-derived lookup owner"
-guard_expect_in_file "$TAG" 'segment_arena_backing_pointer_derived_lookup_execution_pilot_box.hako' "$MEMORY_README" "memory README must name pointer-derived lookup owner"
+guard_expect_in_file "$TAG" 'segment_arena_backing_pointer_derived_lookup_execution_pilot_box.hako' "$MODULE_INDEX" "memory module index must name pointer-derived lookup owner"
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReportFields' "$OWNER" "lookup owner must use ReportFields record payload"
 guard_expect_in_file "$TAG" 'makePointerDerivedLookupExecutionPilotReport' "$OWNER" "lookup owner must expose ReportFields helper"
 guard_expect_in_file "$TAG" 'recordPointerDerivedLookup' "$OWNER" "lookup owner must expose bounded pointer-derived lookup route"
+guard_expect_in_file "$TAG" 'lookup_count: usize = 0' "$OWNER" "lookup owner-local counter must be exact usize"
+guard_expect_in_file "$TAG" 'lookup_count: i64' "$OWNER" "lookup report mirror must stay signed in this row"
 guard_expect_in_file "$TAG" 'lookup_result_token: i64' "$OWNER" "lookup report must carry lookup result token"
 guard_expect_in_file "$TAG" 'report_applied_backing_bytes: usize' "$OWNER" "lookup report must mirror backing bytes as usize"
 guard_expect_in_file "$TAG" 'would_dereference: 0' "$OWNER" "lookup owner must explicitly keep dereference closed"
@@ -113,6 +116,27 @@ missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+owner = plans.get("HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot")
+if owner is None:
+    raise SystemExit("missing pointer-derived lookup execution pilot owner typed object plan")
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+field = owner_fields.get("lookup_count")
+if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+    raise SystemExit(f"owner lookup_count must be exact usize storage: {field}")
+for name in (
+    "accepted_count",
+    "reject_count",
+    "missing_handle_reject_count",
+    "rejected_handle_reject_count",
+    "invalid_pointer_token_reject_count",
+    "invalid_handle_reject_count",
+    "invalid_lookup_reject_count",
+    "closed_execution_reject_count",
+    "last_reason",
+):
+    field = owner_fields.get(name)
+    if field is None or field.get("declared_type") != "i64":
+        raise SystemExit(f"{name} must remain i64 owner storage: {field}")
 report = plans.get("HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport")
 if report is None:
     raise SystemExit("missing pointer-derived lookup execution pilot report typed object plan")
@@ -128,6 +152,9 @@ for name in ("lookup_result_token", "lookup_result_valid", "arena_handle_token")
     field = fields.get(name)
     if field is None or field.get("declared_type") != "i64":
         raise SystemExit(f"{name} must be i64: {field}")
+field = fields.get("lookup_count")
+if field is None or field.get("declared_type") != "i64":
+    raise SystemExit(f"report lookup_count mirror must remain i64: {field}")
 print("[mimap346a-mir-json] ok")
 PY
 

@@ -97,7 +97,7 @@ box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
 }
 
 box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot {
-    lookup_count: i64 = 0
+    lookup_count: usize = 0
     accepted_count: i64 = 0
     reject_count: i64 = 0
     missing_handle_reject_count: i64 = 0

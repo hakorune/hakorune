@@ -73,6 +73,7 @@ Current modules
 - `segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_intent_marker_diagnostic_box.hako`
 - `segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_box.hako`
 - `segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_diagnostic_box.hako`
+- `segment_arena_backing_pointer_derived_lookup_execution_pilot_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
