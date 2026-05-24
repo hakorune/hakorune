@@ -116,14 +116,15 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-001:
-  selected current after 294x-248. Return from the Stage-B parser-front
-  alignment detour and select the next explicit non-negative production
-  `hako_alloc` field group. Do not migrate broad page/heap/queue/handle state,
-  report mirrors, signed sentinel fields, mimalloc comparison rows, provider
-  calls, host replacement, hooks, global allocator install, worker/TLS, atomics,
-  provider package / DLL generation, repeated benchmark packs, or
-  `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-249-REALLOC-REQUESTED-SIZE-RESULT-OBSERVER-001:
+  selected current after 294x-249. Migrate only
+  `HakoAllocObjectLifecycleReallocResult.last_requested_size` to exact
+  `usize`. Do not migrate page/block ids, new page/block ids, reason/ok fields,
+  alignment result observers, huge requested-size observers, broad
+  page/heap/queue/handle state, report mirrors, mimalloc comparison rows,
+  provider calls, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
+  packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -217,6 +218,17 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-001:
     Program(JSON v0) `user_box_decls[].field_decls[].declared_type` metadata
     (`294x-248`).
   - Next row: return to explicit `hako_alloc` field-group selection.
+
+Field-group selection after parser-front alignment:
+
+- [x] Select `HakoAllocObjectLifecycleReallocResult.last_requested_size` as
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-249-REALLOC-REQUESTED-SIZE-RESULT-OBSERVER-001`
+  (`294x-249`).
+  - It is a non-negative requested-size observer initialized to `0`.
+  - It does not carry page/block identity, pointer payload, reason vocabulary,
+    or ok/bool-like status.
+  - Stop line: keep `last_page_id`, `last_block_id`, `last_new_page_id`,
+    `last_new_block_id`, `last_reason`, and `last_ok` signed.
 
 ### MIR / Analysis
 
