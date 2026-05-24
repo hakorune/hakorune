@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT-295X-001:
-  selected current after 295x-46. Test whether phase-295x exact-EXE
-  comparison runs can use a generated minimal config without changing default
-  NyRT plugin-host behavior.
+MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-EVIDENCE-295X-001:
+  selected current after 295x-47. Compare root versus generated empty runtime
+  config evidence for selected phase-295x exact-EXE workloads.
 ```
 
 ## Queue
@@ -87,7 +86,8 @@ MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT-295X-001:
 | 44 | `295x-44` | Landed | Selected generated-config plugin load-set footprint diagnostic. |
 | 45 | `295x-45` | Landed | Ran generated-config plugin load-set RSS diagnostic. |
 | 46 | `295x-46` | Landed | Closed plugin load-set diagnostic and selected exact-EXE minimal config pilot. |
-| 47 | `MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT-295X-001` | Current | Pilot a generated minimal config for phase-295x exact-EXE comparison runs. |
+| 47 | `295x-47` | Landed | Added comparison-runner-only exact-EXE minimal runtime config pilot. |
+| 48 | `MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-EVIDENCE-295X-001` | Current | Compare root versus generated empty runtime config evidence. |
 
 ## Parked
 

@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-46-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-46-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-CLOSEOUT.md"
-latest_card_summary = "Closed plugin load-set diagnostic and selected exact-EXE minimal config pilot."
+latest_card = "295x-47-MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-47-MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT.md"
+latest_card_summary = "Added comparison-runner-only exact-EXE minimal runtime config pilot."
 
-current_blocker_token = "MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-EVIDENCE-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-47 added comparison-runner-only exact-EXE minimal runtime config pilot",
   "295x-46 closed plugin load-set diagnostic and selected exact-EXE minimal config pilot",
   "295x-45 ran generated-config plugin load-set RSS diagnostic",
   "295x-44 selected generated-config plugin load-set footprint diagnostic",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-38 observed empty exact-EXE RSS and static/loadable footprint",
   "295x-37 selected empty exact-EXE footprint diagnostic",
   "295x-36 closed RSS gap attribution and selected .hako baseline breakdown",
-  "295x-35 computed baseline-subtracted RSS gap evidence",
 ]

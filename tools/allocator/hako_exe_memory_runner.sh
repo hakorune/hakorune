@@ -5,14 +5,19 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 APP=""
 OUT_FILE=""
 WORKLOAD="hako-exe-workload-v0"
+RUNTIME_CONFIG="root"
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/hako_exe_memory_runner.sh --app FILE --out FILE [--workload ID]
+usage: tools/allocator/hako_exe_memory_runner.sh --app FILE --out FILE [--workload ID] [--runtime-config root|empty]
 
 Builds a selected .hako app through the exact-MIR EXE route, runs that EXE as
 an external process, and records stable memory-use evidence. This tool is
 measurement evidence only; it does not replace the process allocator.
+
+--runtime-config empty runs the exact EXE from a generated working directory
+containing an empty nyash.toml [libraries] profile. It is diagnostic-only and
+does not change default NyRT behavior.
 USAGE
 }
 
@@ -28,6 +33,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --workload)
       WORKLOAD="${2:-}"
+      shift 2
+      ;;
+    --runtime-config)
+      RUNTIME_CONFIG="${2:-}"
       shift 2
       ;;
     -h|--help)
@@ -58,6 +67,14 @@ if [ ! -x /usr/bin/time ]; then
   exit 2
 fi
 
+case "$RUNTIME_CONFIG" in
+  root|empty) ;;
+  *)
+    echo "[hako-exe-memory-runner] ERROR: --runtime-config must be root or empty" >&2
+    exit 2
+    ;;
+esac
+
 if [ ! -x "$ROOT_DIR/target/release/hakorune" ] || [ ! -x "$ROOT_DIR/target/release/ny-llvmc" ]; then
   cargo build --release --bin hakorune --bin ny-llvmc
 fi
@@ -71,6 +88,14 @@ run_out="$tmp_dir/run.out"
 run_err="$tmp_dir/run.err"
 time_out="$tmp_dir/time.out"
 tmp_report="$tmp_dir/report.out"
+run_cwd="$ROOT_DIR"
+if [ "$RUNTIME_CONFIG" = "empty" ]; then
+  run_cwd="$tmp_dir/runtime-empty-config"
+  mkdir -p "$run_cwd"
+  cat > "$run_cwd/nyash.toml" <<'TOML'
+[libraries]
+TOML
+fi
 
 NYASH_FEATURES="${NYASH_FEATURES:-rune}" \
 NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
@@ -82,7 +107,10 @@ NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   "$ROOT_DIR/tools/selfhost/selfhost_build.sh" --mir-in "$mir_json" --exe "$exe_out" >/dev/null
 
 set +e
-/usr/bin/time -f '%M' -o "$time_out" "$exe_out" >"$run_out" 2>"$run_err"
+(
+  cd "$run_cwd"
+  /usr/bin/time -f '%M' -o "$time_out" "$exe_out" >"$run_out" 2>"$run_err"
+)
 run_rc="$?"
 set -e
 
@@ -92,11 +120,11 @@ case "$peak_rss_kb" in
 esac
 peak_rss_bytes=$((peak_rss_kb * 1024))
 
-python3 - "$WORKLOAD" "$APP" "$run_rc" "$peak_rss_bytes" "$run_out" >"$tmp_report" <<'PY'
+python3 - "$WORKLOAD" "$APP" "$RUNTIME_CONFIG" "$run_rc" "$peak_rss_bytes" "$run_out" >"$tmp_report" <<'PY'
 import sys
 from pathlib import Path
 
-workload, app, rc_text, peak_rss_text, run_out_path = sys.argv[1:6]
+workload, app, runtime_config, rc_text, peak_rss_text, run_out_path = sys.argv[1:7]
 rc = int(rc_text)
 peak_rss = int(peak_rss_text)
 lines = Path(run_out_path).read_text(encoding="utf-8", errors="replace").splitlines()
@@ -176,6 +204,7 @@ print(f"operation_family={operation_family}")
 print(f"operation_sequence_id={operation_sequence_id}")
 print(f"free_order_id={free_order_id}")
 print(f"app_path={app}")
+print(f"runtime_config_profile={runtime_config}")
 print(f"result_code={rc}")
 print("run_count=1")
 print(f"allocation_count={allocation_count}")
