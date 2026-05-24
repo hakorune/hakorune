@@ -59,6 +59,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh` | Stage-B `.hako` parser が `0usize` を trailing `Var(usize)` に分割せず、Program(JSON v0) の `Int.declared_type` として保持することを固定する。 |
 | `tools/checks/k2_wide_stageb_param_type_annotation_alignment_guard.sh` | Stage-B FuncScanner / JSON builder が method parameter annotations を `params` の bare names と `param_decls[].declared_type` に分けて保持することを固定する。 |
 | `tools/checks/k2_wide_stageb_return_type_annotation_alignment_guard.sh` | Stage-B FuncScanner / JSON builder が method return annotations を Program(JSON v0) `return_type` として保持することを固定する。 |
+| `tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh` | Stage-B enrichment seam が user-box field annotations を Program(JSON v0) `user_box_decls[].field_decls[].declared_type` として保持することを固定する。 |
 | `tools/checks/stage1_program_json_compat_caller_guard.sh` | Stage1 Program(JSON) compat execution helper の active shell caller を phase29ch explicit probe に限定する。 |
 | `tools/checks/phase29ch_route_probe_surface_guard.sh` | archived phase29ch route diagnostics probes が active `tools/dev` surface に戻らず、live compat keeper だけが残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_preperf_probe_surface_guard.sh` | archived phase29ck pre-perf diagnostics probes が active `tools/dev` surface に戻らず、live compat/dialect keepers が残ることを fail-fast で検出する。 |

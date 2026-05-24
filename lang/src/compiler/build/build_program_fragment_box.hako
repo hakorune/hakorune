@@ -4,12 +4,15 @@
 
 using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
+using lang.compiler.entry.stageb.stageb_user_box_decl_scanner_box as StageBUserBoxDeclScannerBox
 using lang.compiler.parser.enum.parser_enum_inventory_box as ParserEnumInventoryBox
 using selfhost.shared.common.string_helpers as StringHelpers
 
 static box BuildProgramFragmentBox {
   method enrich(ast_json, scan_src) {
     local enriched = me._inject_defs_json(ast_json, scan_src)
+    if me._is_freeze_tag(enriched) == 1 { return enriched }
+    enriched = me._inject_user_box_decls_json(enriched, scan_src)
     if me._is_freeze_tag(enriched) == 1 { return enriched }
     enriched = me._inject_enum_decls_json(enriched, scan_src)
     if me._is_freeze_tag(enriched) == 1 { return enriched }
@@ -29,6 +32,13 @@ static box BuildProgramFragmentBox {
     local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
     if func_scan_env != null && me._coerce_text(func_scan_env) == "0" { return 0 }
     return 1
+  }
+
+  method _inject_user_box_decls_json(ast_json, scan_src) {
+    local decls_json = StageBUserBoxDeclScannerBox.collect(scan_src)
+    if me._is_freeze_tag(decls_json) == 1 { return decls_json }
+    if decls_json == "" || decls_json.length() <= 0 { return "" + ast_json }
+    return me.inject_json_fragment(ast_json, decls_json)
   }
 
   method _inject_imports_json(ast_json, scan_src) {

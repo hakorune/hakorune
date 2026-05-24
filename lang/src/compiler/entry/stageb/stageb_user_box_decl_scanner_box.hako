@@ -1,0 +1,116 @@
+// stageb_user_box_decl_scanner_box.hako — Stage-B user-box field declaration scanner
+// Responsibility: source-level user_box_decls metadata for Program(JSON v0).
+// Stop line: this scanner preserves field names and declared type text only.
+
+using sh_core as StringHelpers
+using lang.compiler.entry.func_scanner_helpers as FuncScannerHelpersBox
+
+static box StageBUserBoxDeclScannerBox {
+  method collect(source) {
+    if source == null { return "" }
+    local s = "" + source
+    s = FuncScannerHelpersBox._strip_comments(s)
+    local scan_s = FuncScannerHelpersBox.mask_string_literals_keep_len(s)
+    local n = s.length()
+    local out = ",\"user_box_decls\":["
+    local count = 0
+    local i = 0
+
+    loop(i < n) {
+      local next_i = i + 1
+      if i + 3 <= n && scan_s.substring(i, i + 3) == "box" && FuncScannerHelpersBox.kw_boundary_before(scan_s, i) == 1 && FuncScannerHelpersBox.kw_boundary_after(scan_s, i + 3) == 1 {
+        local cursor = FuncScannerHelpersBox.skip_whitespace(scan_s, i + 3)
+        local ident = FuncScannerHelpersBox._extract_ident(scan_s, cursor)
+        local box_name = "" + ident.get("name")
+        cursor = ident.get("end")
+        if box_name.length() > 0 {
+          local body_open = FuncScannerHelpersBox._seek_box_body_open_brace(s, cursor)
+          if body_open >= 0 {
+            local body_close = FuncScannerHelpersBox.find_matching_brace(s, body_open)
+            if body_close > body_open {
+              local body = s.substring(body_open + 1, body_close)
+              local decl = me._box_decl_json(box_name, body)
+              if decl != "" {
+                if count > 0 { out = out + "," }
+                out = out + decl
+                count = count + 1
+              }
+              next_i = body_close + 1
+            }
+          }
+        }
+      }
+      if next_i <= i { next_i = i + 1 }
+      i = next_i
+    }
+
+    if count == 0 { return "" }
+    return out + "]"
+  }
+
+  method _box_decl_json(box_name, body) {
+    local fields_json = "["
+    local field_decls_json = "["
+    local count = 0
+    local pos = 0
+    local n = body.length()
+
+    loop(pos <= n) {
+      local line_end = pos
+      loop(line_end < n && body.substring(line_end, line_end + 1) != "\n") {
+        line_end = line_end + 1
+      }
+      local line = body.substring(pos, line_end)
+      local field_json = me._field_decl_json_or_empty(line, count)
+      if field_json != "" {
+        local at = StringHelpers.index_of(field_json, 0, "@")
+        if at >= 0 {
+          local name = field_json.substring(0, at)
+          local decl_json = field_json.substring(at + 1, field_json.length())
+          if count > 0 {
+            fields_json = fields_json + ","
+            field_decls_json = field_decls_json + ","
+          }
+          fields_json = fields_json + StringHelpers.json_quote(name)
+          field_decls_json = field_decls_json + decl_json
+          count = count + 1
+        }
+      }
+      if line_end >= n { break }
+      pos = line_end + 1
+    }
+
+    if count == 0 { return "" }
+    fields_json = fields_json + "]"
+    field_decls_json = field_decls_json + "]"
+    return "{\"name\":" + StringHelpers.json_quote(box_name) + ",\"fields\":" + fields_json + ",\"type_parameters\":[],\"invariants\":[],\"transitions\":[],\"field_decls\":" + field_decls_json + ",\"delegates\":[]}"
+  }
+
+  method _field_decl_json_or_empty(line, field_index) {
+    if line == null { return "" }
+    local t = FuncScannerHelpersBox._trim("" + line)
+    if t == "" { return "" }
+    if StringHelpers.starts_with(t, 0, "@") == 1 { return "" }
+    if StringHelpers.starts_with(t, 0, "method ") == 1 { return "" }
+    if StringHelpers.starts_with(t, 0, "static ") == 1 { return "" }
+    if StringHelpers.starts_with(t, 0, "birth") == 1 { return "" }
+    if StringHelpers.starts_with(t, 0, "init") == 1 { return "" }
+    if StringHelpers.starts_with(t, 0, "pack") == 1 { return "" }
+    if StringHelpers.starts_with(t, 0, "delegate ") == 1 { return "" }
+
+    local colon = StringHelpers.index_of(t, 0, ":")
+    if colon < 0 { return "" }
+    local lparen = StringHelpers.index_of(t, 0, "(")
+    if lparen >= 0 && lparen < colon { return "" }
+
+    local name = FuncScannerHelpersBox._trim(t.substring(0, colon))
+    if name == "" { return "" }
+    local declared_type = FuncScannerHelpersBox._normalize_param_type_name(t)
+    if declared_type == "" { return "" }
+    local eq = StringHelpers.index_of(declared_type, 0, "=")
+    if eq >= 0 { declared_type = FuncScannerHelpersBox._trim(declared_type.substring(0, eq)) }
+
+    local decl = "{\"name\":" + StringHelpers.json_quote(name) + ",\"declared_type\":" + StringHelpers.json_quote(declared_type) + ",\"is_weak\":false}"
+    return name + "@" + decl
+  }
+}

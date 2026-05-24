@@ -116,13 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-STAGEB-PARSER-FIELD-TYPE-ANNOTATION-ALIGNMENT-001:
-  selected current after 294x-247. Align Stage-B field type annotation parsing
-  with the Rust parser as the next parser-front alignment row. Do not add
-  additional hako_alloc field-group migration, mimalloc comparison rows,
-  provider calls, host replacement, hooks, global allocator install,
-  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
-  packs, or `#[global_allocator]`.
+HAKO-ALLOC-USIZE-FIELD-GROUP-NEXT-SELECTION-001:
+  selected current after 294x-248. Return from the Stage-B parser-front
+  alignment detour and select the next explicit non-negative production
+  `hako_alloc` field group. Do not migrate broad page/heap/queue/handle state,
+  report mirrors, signed sentinel fields, mimalloc comparison rows, provider
+  calls, host replacement, hooks, global allocator install, worker/TLS, atomics,
+  provider package / DLL generation, repeated benchmark packs, or
+  `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
@@ -201,7 +202,7 @@ STAGEB-PARSER-FIELD-TYPE-ANNOTATION-ALIGNMENT-001:
 - [x] Preserve `birth` parameter type annotations.
 - [x] Preserve return type annotations or reject them consistently.
 - [x] Round-trip declared numeric metadata through AST JSON / Program(JSON).
-- [ ] Keep Rust and `.hako` parser fronts aligned.
+- [x] Keep Rust and `.hako` parser fronts aligned for the current exact numeric gap set.
   - Rust parser supports: literal suffixes (`0usize`), parameter type annotations,
     return type annotations, field type annotations with exact numeric types.
   - Stage-B `.hako` parser (`lang/src/compiler/parser/`) now supports literal
@@ -212,9 +213,10 @@ STAGEB-PARSER-FIELD-TYPE-ANNOTATION-ALIGNMENT-001:
     `params` as bare names (`294x-246`).
   - Stage-B FuncScanner / JSON builder now preserves method return type
     annotations as Program(JSON v0) `return_type` metadata (`294x-247`).
-  - Stage-B still does not support field type annotations with exact numeric
-    types.
-  - Next row: add field type annotation parsing. Separate commit per feature.
+  - Stage-B enrichment now preserves user-box field type annotations as
+    Program(JSON v0) `user_box_decls[].field_decls[].declared_type` metadata
+    (`294x-248`).
+  - Next row: return to explicit `hako_alloc` field-group selection.
 
 ### MIR / Analysis
 
