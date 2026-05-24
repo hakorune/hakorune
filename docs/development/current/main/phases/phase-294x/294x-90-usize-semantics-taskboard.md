@@ -116,14 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-PRESENTATION-FOLLOW-ON-PILOT-REFRESH-001:
-  selected current after 294x-237. Refresh the existing MIMAP-480A
-  presentation follow-on pilot over the landed presentation-only conclusion
-  report. Do not drain report mirrors, identity payloads, status/reason
-  vocabularies, bool-like flags, signed sentinels, pointer-like payloads,
-  byte-count payloads, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  repeated benchmark packs, or `#[global_allocator]`.
+MIMALLOC-COMPARISON-PRESENTATION-EXTENSION-PILOT-REFRESH-001:
+  selected current after 294x-238. Refresh the existing MIMAP-486A
+  presentation extension pilot over the landed presentation follow-on pack.
+  Do not drain report mirrors, identity payloads, status/reason vocabularies,
+  bool-like flags, signed sentinels, pointer-like payloads, byte-count
+  payloads, provider calls, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
+  packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
