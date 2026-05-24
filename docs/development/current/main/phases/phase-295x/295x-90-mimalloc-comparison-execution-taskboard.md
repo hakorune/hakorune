@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REALLOC-ALIGNED-CLOSEOUT-295X-001:
-  selected current after 295x-18. Close the realloc/aligned workload family and
-  choose whether the next seam is mixed-size workload evidence or repeated
-  measurement policy.
+MIMALLOC-COMPARISON-MIXED-SIZE-WORKLOAD-SEAM-SELECTION-295X-001:
+  selected current after 295x-19. Choose the next mixed-size workload family
+  while keeping repeated benchmark policy and winner claims parked.
 ```
 
 ## Queue
@@ -59,7 +58,8 @@ MIMALLOC-COMPARISON-REALLOC-ALIGNED-CLOSEOUT-295X-001:
 | 16 | `295x-16` | Landed | Added realloc/aligned workload contract and optional evidence fields. |
 | 17 | `295x-17` | Landed | Added a narrow exact-EXE `.hako` realloc/aligned evidence app. |
 | 18 | `295x-18` | Landed | Ran C mimalloc and `.hako` realloc/aligned same-workload evidence through the normalizer. |
-| 19 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-CLOSEOUT-295X-001` | Current | Close the realloc/aligned workload family and select the next comparison seam. |
+| 19 | `295x-19` | Landed | Closed the realloc/aligned workload family. |
+| 20 | `MIMALLOC-COMPARISON-MIXED-SIZE-WORKLOAD-SEAM-SELECTION-295X-001` | Current | Select the next mixed-size workload family. |
 
 ## Parked
 
