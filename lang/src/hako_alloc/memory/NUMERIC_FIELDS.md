@@ -80,15 +80,15 @@ readable without losing field names.
 | `page_box.hako` | `HakoAllocPageModel` | `reject_count` | `usize` | `count` | Exact page-local counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-059`. |
 | `page_box.hako` | `HakoAllocPageModel` | `peak_used` | `usize` | `count` | Exact page peak occupancy mirror via `HAKO-ALLOC-USIZE-FIELD-GROUP-073`. |
 | `page_box.hako` | `HakoAllocPageModel` | `requested_bytes` | `usize` | `byte-length` | Exact page requested-byte sum via `HAKO-ALLOC-USIZE-FIELD-GROUP-077`. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin` | `i64` | `index` | Candidate after bin vocabulary is exact non-negative. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin` | `usize` | `index` | Exact queue bin index via `HAKO-ALLOC-USIZE-FIELD-GROUP-093`. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `page_count` | `usize` | `count` | Exact queue page count via `HAKO-ALLOC-USIZE-FIELD-GROUP-078`. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `has_direct_page` | `i64` | `count` | Binary presence state split from the old `-1` direct-page sentinel. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `has_direct_page` | `i64` | `enum` | Binary presence state stays signed until bool/flag storage gets a dedicated row. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_page_index` | `usize` | `index` | Exact direct-page cache index via `HAKO-ALLOC-USIZE-FIELD-GROUP-079`. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `add_count` | `i64` | `count` | Low-risk stats candidate. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `select_count` | `i64` | `count` | Low-risk stats candidate. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_hit_count` | `i64` | `count` | Low-risk stats candidate. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `refresh_count` | `i64` | `count` | Low-risk stats candidate. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `reject_count` | `i64` | `count` | Low-risk stats candidate. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `add_count` | `usize` | `count` | Exact queue stats counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `select_count` | `usize` | `count` | Exact queue stats counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_hit_count` | `usize` | `count` | Exact queue stats counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `refresh_count` | `usize` | `count` | Exact queue stats counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `reject_count` | `usize` | `count` | Exact queue stats counter via `HAKO-ALLOC-USIZE-FIELD-GROUP-058`. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `page_id` | `i64` | `index` | Candidate after handle id contracts are exact non-negative. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `block_id` | `i64` | `index` | Candidate after block-id sentinel returns are split. |
 | `page_heap_box.hako` | `HakoAllocHandle` | `requested_size` | `i64` | `size` | Candidate after requested-size callers use exact non-negative semantics. |

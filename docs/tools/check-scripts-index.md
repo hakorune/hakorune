@@ -61,6 +61,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_stageb_return_type_annotation_alignment_guard.sh` | Stage-B FuncScanner / JSON builder が method return annotations を Program(JSON v0) `return_type` として保持することを固定する。 |
 | `tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh` | Stage-B enrichment seam が user-box field annotations を Program(JSON v0) `user_box_decls[].field_decls[].declared_type` として保持することを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_realloc_requested_size_result_observer_guard.sh` | `HakoAllocObjectLifecycleReallocResult.last_requested_size` が exact `usize` で、周辺の page/block id sentinels・reason・ok・alignment result は signed のまま保たれることを固定する。 |
+| `tools/checks/k2_wide_hako_alloc_usize_page_queue_numeric_inventory_guard.sh` | `HakoAllocPageQueue` の already-exact `usize` storage と `NUMERIC_FIELDS.md` 詳細行が同期し、`has_direct_page` は signed flag として残ることを固定する。 |
 | `tools/checks/stage1_program_json_compat_caller_guard.sh` | Stage1 Program(JSON) compat execution helper の active shell caller を phase29ch explicit probe に限定する。 |
 | `tools/checks/phase29ch_route_probe_surface_guard.sh` | archived phase29ch route diagnostics probes が active `tools/dev` surface に戻らず、live compat keeper だけが残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_preperf_probe_surface_guard.sh` | archived phase29ck pre-perf diagnostics probes が active `tools/dev` surface に戻らず、live compat/dialect keepers が残ることを fail-fast で検出する。 |
