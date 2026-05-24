@@ -71,12 +71,12 @@ box HakoAllocProviderCallDryRunUnsupportedBehaviorReport {
 }
 
 box HakoAllocProviderCallDryRunUnsupportedBehavior {
-    dry_run_count: i64 = 0
-    accepted_count: i64 = 0
-    reject_count: i64 = 0
-    missing_gate_reject_count: i64 = 0
-    rejected_gate_reject_count: i64 = 0
-    closed_execution_reject_count: i64 = 0
+    dry_run_count: usize = 0
+    accepted_count: usize = 0
+    reject_count: usize = 0
+    missing_gate_reject_count: usize = 0
+    rejected_gate_reject_count: usize = 0
+    closed_execution_reject_count: usize = 0
     last_reason: i64 = 0
 
     makeProviderCallDryRunUnsupportedBehaviorReport(fields: HakoAllocProviderCallDryRunUnsupportedBehaviorReportFields): HakoAllocProviderCallDryRunUnsupportedBehaviorReport {
