@@ -158,6 +158,14 @@ static int run_small_block(const RunnerConfig *config, const MimallocApi *api, R
     return 0;
 }
 
+static int run_empty(RunnerEvidence *evidence) {
+    evidence->workload = "representative-empty-v0";
+    evidence->operation_family = "empty-baseline";
+    evidence->operation_sequence_id = "representative-empty-v0-seq";
+    evidence->free_order_id = "no-release-v0";
+    return 0;
+}
+
 static int run_realloc_aligned(const MimallocApi *api, RunnerEvidence *evidence) {
     evidence->workload = "representative-realloc-aligned-v0";
     evidence->operation_family = "realloc-aligned";
@@ -338,7 +346,9 @@ int main(int argc, char **argv) {
     RunnerEvidence evidence;
     memset(&evidence, 0, sizeof(evidence));
     int result_code = 0;
-    if (strcmp(config.workload, "representative-small-block-v0") == 0) {
+    if (strcmp(config.workload, "representative-empty-v0") == 0) {
+        result_code = run_empty(&evidence);
+    } else if (strcmp(config.workload, "representative-small-block-v0") == 0) {
         result_code = run_small_block(&config, &api, &evidence);
     } else if (strcmp(config.workload, "representative-realloc-aligned-v0") == 0) {
         result_code = run_realloc_aligned(&api, &evidence);

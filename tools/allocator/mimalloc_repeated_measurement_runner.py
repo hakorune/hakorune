@@ -16,6 +16,8 @@ HAKO_RUNNER = ROOT / "tools/allocator/hako_exe_memory_runner.sh"
 C_RUNNER = ROOT / "tools/allocator/c_mimalloc_explicit_runner.sh"
 
 WORKLOAD_APPS = {
+    "representative-empty-v0": ROOT
+    / "apps/hako-alloc-mimalloc-comparison-empty-exe-proof/main.hako",
     "representative-small-block-v0": ROOT
     / "apps/hako-alloc-mimalloc-comparison-representative-small-block-proof/main.hako",
     "representative-realloc-aligned-v0": ROOT
@@ -25,6 +27,13 @@ WORKLOAD_APPS = {
     "representative-huge-ish-v0": ROOT
     / "apps/hako-alloc-mimalloc-comparison-huge-ish-exe-proof/main.hako",
 }
+
+DEFAULT_WORKLOADS = [
+    "representative-small-block-v0",
+    "representative-realloc-aligned-v0",
+    "representative-mixed-small-v0",
+    "representative-huge-ish-v0",
+]
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -140,7 +149,7 @@ def main() -> int:
     if args.warmup_count < 0:
         raise SystemExit("--warmup-count must be non-negative")
 
-    workloads = args.workload or list(WORKLOAD_APPS)
+    workloads = args.workload or DEFAULT_WORKLOADS
     for workload in workloads:
         app = WORKLOAD_APPS[workload]
         if not app.exists():

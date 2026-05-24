@@ -174,6 +174,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_repeated_measurement_closeout_guard.sh` | 295x-31 の repeated measurement closeout を固定し、295x-30 pack guard を再実行して presentation-only reporting へ進むことを検証する。 |
 | `tools/checks/k2_wide_phase295x_repeated_measurement_presentation_guard.sh` | 295x-32 の repeated measurement presentation を固定し、presentation-only RSS median report と winner-claim closed 境界を検証する。 |
 | `tools/checks/k2_wide_phase295x_memory_gap_attribution_selection_guard.sh` | 295x-33 の memory gap attribution selection を固定し、fixed baseline / workload incremental RSS / residual の診断方針と baseline follow-on を検証する。 |
+| `tools/checks/k2_wide_phase295x_memory_gap_baseline_guard.sh` | 295x-34 の memory gap baseline evidence を固定し、representative-empty-v0 を repeated measurement runner に opt-in 追加して winner-claim closed 境界を検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/hako_exe_memory_runner.sh` | 294x-61 の hako-side memory evidence runner。選択済み比較 `.hako` app を exact-MIR EXE に変換して外部プロセス実行し、`peak_rss_bytes` / exit status / output summary を stable evidence として出力する。 |

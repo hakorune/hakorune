@@ -1,0 +1,26 @@
+// hako-alloc-mimalloc-comparison-empty-exe-proof
+// Purpose: exact-EXE-friendly empty baseline comparison evidence app.
+
+static box Main {
+    main(args) {
+        print("hako-alloc-mimalloc-comparison-empty-exe-proof")
+        print("workload=representative-empty-v0")
+        print("operation_family=empty-baseline")
+        print("operation_sequence_id=representative-empty-v0-seq")
+        print("free_order_id=no-release-v0")
+        print("allocation_count=0")
+        print("free_count=0")
+        print("realloc_count=0")
+        print("aligned_alloc_count=0")
+        print("alignment_request_count=0")
+        print("alignment_ok_count=0")
+        print("alignment_reject_count=0")
+        print("large_request_count=0")
+        print("realloc_same_ptr_count=0")
+        print("realloc_moved_count=0")
+        print("copied_bytes=0")
+        print("summary_fields=0,0,0,0,0,0")
+        print("summary=ok")
+        return 0
+    }
+}
