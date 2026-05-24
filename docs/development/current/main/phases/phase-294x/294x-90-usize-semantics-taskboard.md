@@ -116,15 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-PHASE-294X-MIMALLOC-COMPARISON-CLOSEOUT-001:
-  selected current after 294x-243. Write the final closeout card for the
-  phase-294x mimalloc comparison-quality vertical slice, summarize validated
-  evidence and parked rows, then return to the usize semantic foundation
-  backlog. Do not drain report mirrors, identity payloads, status/reason
-  vocabularies, bool-like flags, signed sentinels, pointer-like payloads,
-  byte-count payloads, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  repeated benchmark packs, or `#[global_allocator]`.
+STAGEB-PARSER-LITERAL-SUFFIX-ALIGNMENT-001:
+  selected current after 294x-244. Align the Stage-B `.hako` parser with the
+  Rust parser for numeric literal suffixes such as `0usize` as the first
+  parser-front alignment row. Do not add parameter type annotations, return
+  type annotations, field type annotations, additional hako_alloc field-group
+  migration, mimalloc comparison rows, provider calls, host replacement, hooks,
+  global allocator install, worker/TLS, atomics, provider package / DLL
+  generation, repeated benchmark packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
