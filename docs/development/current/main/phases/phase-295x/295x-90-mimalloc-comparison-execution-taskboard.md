@@ -30,9 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001:
-  selected current after 295x-09. Refresh the same-workload repeated-run RSS
-  evidence path before adding a wider `.hako` port seam.
+MIMALLOC-COMPARISON-REPEATED-RUN-CLOSEOUT-295X-001:
+  selected current after 295x-10. Close out repeated-run evidence while keeping
+  warmup/statistics/winner claims closed.
 ```
 
 ## Queue
@@ -49,7 +49,8 @@ MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001:
 | 7 | `295x-07` | Landed | Executed the same-workload memory report path for representative-small-block-v0. |
 | 8 | `295x-08` | Landed | Closed the same-workload execution refresh without benchmark/winner expansion. |
 | 9 | `295x-09` | Landed | Selected repeated-run evidence refresh before adding a wider `.hako` port seam. |
-| 10 | `MIMALLOC-COMPARISON-REPEATED-RUN-295X-REFRESH-001` | Current | Refresh repeated same-workload RSS evidence without winner claims. |
+| 10 | `295x-10` | Landed | Refreshed repeated same-workload RSS evidence without winner claims. |
+| 11 | `MIMALLOC-COMPARISON-REPEATED-RUN-CLOSEOUT-295X-001` | Current | Close out repeated-run evidence and choose the next comparison seam. |
 
 ## Parked
 
