@@ -1063,3 +1063,28 @@ HAKO-ALLOC-USIZE-FIELD-GROUP-222:
   owner-local counters to exact `usize`; keep all report mirrors, payload
   fields, status/reason fields, and downstream execution seams unchanged.
 ```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-222:
+  landed by 294x-226. Migrated only the selected facade huge page-model route
+  owner-local counters to exact `usize`; kept
+  `HakoAllocObjectLifecycleFacadeHugePageModelReport`, report mirrors, final
+  result fields, status/reason vocabularies, page/block ids, pointer-like
+  payloads, requested/committed size mirrors, fallback source fields,
+  `HakoAllocHugePageModel` fields already owned by earlier rows, huge release,
+  unregister, unreserve, decommit, OSVM page-source execution, remote-free,
+  worker/TLS, atomics, providers, backend matchers, provider package / DLL
+  generation, hooks, host replacement, and #[global_allocator] out of scope.
+```
+
+Current blocker:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-223:
+  selected current. Select the next explicit non-negative production field
+  group, or move to closeout planning if the remaining candidates are only
+  report mirrors, identity payloads, status/reason vocabularies, bool-like
+  flags, signed sentinels, pointer-like payloads, or byte-count payloads.
+```

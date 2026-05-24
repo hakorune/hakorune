@@ -18,6 +18,7 @@ MODULE="lang/src/hako_alloc/hako_module.toml"
 CARD="docs/development/current/main/phases/phase-293x/293x-436-MIMAP-023A-FACADE-HUGE-PAGE-MODEL-ROUTE.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
+MODULE_INDEX="lang/src/hako_alloc/memory/MODULE_INDEX.md"
 
 echo "[$TAG] running MIMAP-023A facade huge-page model guard"
 
@@ -34,7 +35,8 @@ guard_require_files \
   "$MODULE" \
   "$CARD" \
   "$INDEX" \
-  "$README"
+  "$README" \
+  "$MODULE_INDEX"
 guard_require_exec_files "$TAG" "$APP_TEST" "$0"
 
 guard_expect_in_file "$TAG" 'box HakoAllocObjectLifecycleFacadeHugePageModelRoute' "$ROUTE" "MIMAP-023A route owner missing"
@@ -46,8 +48,11 @@ guard_expect_in_file "$TAG" 'SizeClassBox\.huge_bin\(\)' "$ROUTE" "route must co
 guard_expect_in_file "$TAG" 'SizeClassBox\.bin_size\(SizeClassBox\.max_regular_bin\(\)\)' "$ROUTE" "route must use the same huge threshold as MIMAP-022B"
 guard_expect_in_file "$TAG" 'me\.huge_model\.allocateHuge\(size, size\)' "$ROUTE" "huge route must delegate allocation to M180"
 guard_expect_in_file "$TAG" 'me\.alloc_miss_fallback\.allocateOnMiss\(facade, size, page_id, block_size, capacity, reserved\)' "$ROUTE" "non-huge path must forward through MIMAP-021C"
+guard_expect_in_file "$TAG" 'huge_attempt_count: usize = 0' "$ROUTE" "route owner counters must be exact usize"
+guard_expect_in_file "$TAG" 'fallback_attempt_count: usize = 0' "$ROUTE" "route fallback counter must be exact usize"
+guard_expect_in_file "$TAG" 'huge_attempt_count: i64 = 0' "$ROUTE" "report mirror counters must remain signed in this row"
 guard_expect_in_file "$TAG" 'memory.object_lifecycle_facade_huge_page_model_box = "memory/object_lifecycle_facade_huge_page_model_box.hako"' "$MODULE" "hako module must export MIMAP-023A route"
-guard_expect_in_file "$TAG" 'object_lifecycle_facade_huge_page_model_box.hako' "$README" "memory README must name MIMAP-023A owner"
+guard_expect_in_file "$TAG" 'object_lifecycle_facade_huge_page_model_box.hako' "$MODULE_INDEX" "memory module index must name MIMAP-023A owner"
 guard_expect_in_file "$TAG" 'MIMAP-023A' "$CARD" "MIMAP-023A card missing"
 guard_expect_in_file "$TAG" "$0" "$INDEX" "check script index must list MIMAP-023A guard"
 
@@ -120,6 +125,23 @@ for name in (
     if plans.get(name) is None:
         raise SystemExit(f"missing typed object plan: {name}")
 
+route_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocObjectLifecycleFacadeHugePageModelRoute"].get("fields", [])
+}
+for field_name in (
+    "huge_attempt_count",
+    "huge_success_count",
+    "huge_failure_count",
+    "small_forward_count",
+    "fallback_attempt_count",
+    "success_count",
+    "failure_count",
+):
+    field = route_fields.get(field_name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"facade huge route {field_name} must be exact usize storage: {field}")
+
 huge_fields = {
     field.get("name"): field
     for field in plans["HakoAllocHugePageModel"].get("fields", [])
@@ -152,7 +174,7 @@ for field_name in (
         raise SystemExit(f"huge page model {field_name} must remain i64 storage: {field}")
 
 report_fields = {
-    field.get("name")
+    field.get("name"): field
     for field in plans["HakoAllocObjectLifecycleFacadeHugePageModelReport"].get("fields", [])
 }
 for field in (
@@ -191,6 +213,18 @@ for field in (
 ):
     if field not in report_fields:
         raise SystemExit(f"missing huge-page model report field: {field}")
+for field_name in (
+    "huge_attempt_count",
+    "huge_success_count",
+    "huge_failure_count",
+    "small_forward_count",
+    "fallback_attempt_count",
+    "success_count",
+    "failure_count",
+):
+    field = report_fields.get(field_name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"facade huge report mirror {field_name} must remain i64 storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

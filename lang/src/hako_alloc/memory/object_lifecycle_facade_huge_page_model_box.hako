@@ -51,13 +51,13 @@ box HakoAllocObjectLifecycleFacadeHugePageModelRoute {
     alloc_miss_fallback: HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback = new HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback()
     page_map: HakoAllocPageMap = new HakoAllocPageMap()
     huge_model: HakoAllocHugePageModel
-    huge_attempt_count: i64 = 0
-    huge_success_count: i64 = 0
-    huge_failure_count: i64 = 0
-    small_forward_count: i64 = 0
-    fallback_attempt_count: i64 = 0
-    success_count: i64 = 0
-    failure_count: i64 = 0
+    huge_attempt_count: usize = 0
+    huge_success_count: usize = 0
+    huge_failure_count: usize = 0
+    small_forward_count: usize = 0
+    fallback_attempt_count: usize = 0
+    success_count: usize = 0
+    failure_count: usize = 0
 
     birth() {
         me.huge_model = new HakoAllocHugePageModel(me.page_map)

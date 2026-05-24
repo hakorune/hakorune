@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-294x/README.md"
 method_anchor = "docs/development/current/main/design/usize-semantic-foundation-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md"
 
-latest_card = "294x-225-HAKO-ALLOC-USIZE-FACADE-HUGE-PAGE-MODEL-ROUTE-COUNTER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-294x/294x-225-HAKO-ALLOC-USIZE-FACADE-HUGE-PAGE-MODEL-ROUTE-COUNTER-SELECTION.md"
-latest_card_summary = "Selected facade huge page-model route counters as the next exact usize field group."
+latest_card = "294x-226-HAKO-ALLOC-USIZE-FACADE-HUGE-PAGE-MODEL-ROUTE-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-294x/294x-226-HAKO-ALLOC-USIZE-FACADE-HUGE-PAGE-MODEL-ROUTE-COUNTERS.md"
+latest_card_summary = "Migrated facade huge page-model route counters to exact usize."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-222"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-223"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "294x-226 migrated facade huge page-model route counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-223 is now current",
   "294x-225 selected facade huge page-model route counters as HAKO-ALLOC-USIZE-FIELD-GROUP-222",
   "294x-224 migrated pointer-derived lookup execution pilot accept/reject counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-221 is now current",
   "294x-223 selected pointer-derived lookup execution pilot accept/reject counters as HAKO-ALLOC-USIZE-FIELD-GROUP-220",
@@ -39,5 +40,4 @@ landed_tail = [
   "294x-217 selected no-escape pointer residence pilot owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-216",
   "294x-216 migrated provider call external API call stub execution owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-215 is now current",
   "294x-215 selected provider call external API call stub execution owner-local counters as HAKO-ALLOC-USIZE-FIELD-GROUP-214",
-  "294x-214 migrated provider call external API adapter preflight owner-local counters to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-213 is now current",
 ]
