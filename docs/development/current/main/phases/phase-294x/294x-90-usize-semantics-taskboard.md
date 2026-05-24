@@ -116,14 +116,14 @@ human restart clarity.
 Current blocker:
 
 ```text
-MIMALLOC-COMPARISON-RESULT-LEDGER-REFRESH-001:
-  selected current after 294x-228. Refresh the existing MIMAP-454A C-vs-Hako
-  comparison result ledger against the current explicit C mimalloc runner
-  evidence. Do not drain report mirrors, identity payloads, status/reason
-  vocabularies, bool-like flags, signed sentinels, pointer-like payloads,
-  byte-count payloads, provider calls, host replacement, hooks, global
-  allocator install, worker/TLS, atomics, provider package / DLL generation,
-  repeated benchmark packs, or `#[global_allocator]`.
+MIMALLOC-COMPARISON-RESULT-LEDGER-CLOSEOUT-REFRESH-001:
+  selected current after 294x-229. Refresh the existing MIMAP-456A C-vs-Hako
+  result ledger closeout pack before moving to summary/reporting rows. Do not
+  drain report mirrors, identity payloads, status/reason vocabularies,
+  bool-like flags, signed sentinels, pointer-like payloads, byte-count
+  payloads, provider calls, host replacement, hooks, global allocator install,
+  worker/TLS, atomics, provider package / DLL generation, repeated benchmark
+  packs, or `#[global_allocator]`.
 ```
 
 ## Cleanup Slice Queue
