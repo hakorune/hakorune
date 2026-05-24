@@ -30,9 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-001:
-  selected current after 295x-43. Choose a narrow plugin load-set
-  footprint seam before any default plugin-host shrink.
+MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT-295X-001:
+  selected current after 295x-46. Test whether phase-295x exact-EXE
+  comparison runs can use a generated minimal config without changing default
+  NyRT plugin-host behavior.
 ```
 
 ## Queue
@@ -83,7 +84,10 @@ MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-001:
 | 41 | `295x-41` | Landed | Ran empty no-output exact-EXE checkpoint diagnostic. |
 | 42 | `295x-42` | Landed | Selected plugin-host substage RSS diagnostics. |
 | 43 | `295x-43` | Landed | Added and ran plugin-host substage RSS checkpoints. |
-| 44 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-001` | Current | Select a narrow plugin load-set footprint seam. |
+| 44 | `295x-44` | Landed | Selected generated-config plugin load-set footprint diagnostic. |
+| 45 | `295x-45` | Landed | Ran generated-config plugin load-set RSS diagnostic. |
+| 46 | `295x-46` | Landed | Closed plugin load-set diagnostic and selected exact-EXE minimal config pilot. |
+| 47 | `MIMALLOC-COMPARISON-EXACT-EXE-MINIMAL-CONFIG-PILOT-295X-001` | Current | Pilot a generated minimal config for phase-295x exact-EXE comparison runs. |
 
 ## Parked
 
