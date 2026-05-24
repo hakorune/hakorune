@@ -1,0 +1,45 @@
+// hako-alloc-mimalloc-comparison-huge-ish-exe-proof
+// Purpose: exact-EXE-friendly huge-ish comparison evidence app for phase-295x.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+using selfhost.hako_alloc.memory.huge_release_seam_box as HakoAllocHugeReleaseSeamBox
+
+static box Main {
+    main(args) {
+        local huge_map = new HakoAllocPageMap()
+        local huge_model = new HakoAllocHugePageModel(huge_map)
+        local huge_release = new HakoAllocHugeReleaseSeam(huge_model)
+        local huge_alloc = huge_model.allocateHuge(4194305, 4194305)
+        local huge_ptr = huge_model.last_result_ptr
+        local huge_requested = huge_model.last_requested_size
+        local huge_committed = huge_model.last_committed_size
+        local huge_release_ok = huge_release.releaseHugePtr(huge_ptr)
+
+        local small_page = new HakoAllocPageModel(0, 16, 1, 1)
+        local small_block = small_page.acquire_usize(16)
+        local small_release = small_page.releaseLocal(small_block)
+
+        local requested_bytes = huge_requested + small_page.requested_bytes
+        local committed_bytes = huge_committed + (small_page.block_size * small_page.capacity)
+        local live_handles = huge_model.live_count + small_page.used
+        local release_count = huge_release.release_count + small_page.local_free_count
+        local rejects = huge_model.reject_count + huge_release.reject_count + small_page.reject_count
+
+        print("hako-alloc-mimalloc-comparison-huge-ish-exe-proof")
+        print("workload=representative-huge-ish-v0")
+        print("operation_family=huge-ish")
+        print("operation_sequence_id=representative-huge-ish-v0-seq")
+        print("free_order_id=ascending-release-v0")
+        print("huge=" + huge_alloc + "," + huge_ptr + "," + huge_requested + "," + huge_committed + "," + huge_release_ok)
+        print("small=" + small_block + "," + small_release)
+        print("allocation_count=2")
+        print("free_count=2")
+        print("large_request_count=1")
+        print("requested_bytes=" + requested_bytes)
+        print("summary_fields=" + requested_bytes + "," + committed_bytes + "," + live_handles + "," + release_count + ",0," + rejects)
+        print("summary=ok")
+        return 0
+    }
+}

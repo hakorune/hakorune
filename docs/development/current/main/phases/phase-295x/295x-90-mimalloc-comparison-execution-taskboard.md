@@ -30,10 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-HUGE-ISH-CONTRACT-295X-REFRESH-001:
-  selected current after 295x-24. Add runner/evidence contract support for
-  representative-huge-ish-v0 while keeping OSVM/page-source parity claims and
-  winner claims parked.
+MIMALLOC-COMPARISON-HUGE-ISH-EVIDENCE-295X-RUN-001:
+  selected current after 295x-25. Run C mimalloc and `.hako` through the
+  normalizer for representative-huge-ish-v0 while keeping OSVM/page-source
+  parity and winner claims parked.
 ```
 
 ## Queue
@@ -65,7 +65,8 @@ MIMALLOC-COMPARISON-HUGE-ISH-CONTRACT-295X-REFRESH-001:
 | 22 | `295x-22` | Landed | Ran mixed-size same-workload evidence through the normalizer. |
 | 23 | `295x-23` | Landed | Closed the mixed-size workload family. |
 | 24 | `295x-24` | Landed | Selected representative-huge-ish-v0 as the next huge-ish workload family. |
-| 25 | `MIMALLOC-COMPARISON-HUGE-ISH-CONTRACT-295X-REFRESH-001` | Current | Add C runner and `.hako` evidence contract support for representative-huge-ish-v0. |
+| 25 | `295x-25` | Landed | Added C runner and `.hako` evidence contract support for representative-huge-ish-v0. |
+| 26 | `MIMALLOC-COMPARISON-HUGE-ISH-EVIDENCE-295X-RUN-001` | Current | Run huge-ish same-workload evidence through the normalizer. |
 
 ## Parked
 

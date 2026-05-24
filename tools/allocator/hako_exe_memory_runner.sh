@@ -114,6 +114,7 @@ aligned_alloc_count = 0
 alignment_request_count = 0
 alignment_ok_count = 0
 alignment_reject_count = 0
+large_request_count = 0
 realloc_same_ptr_count = 0
 realloc_moved_count = 0
 copied_bytes = 0
@@ -139,6 +140,8 @@ for line in lines:
         alignment_ok_count = int(line.split("=", 1)[1])
     if line.startswith("alignment_reject_count="):
         alignment_reject_count = int(line.split("=", 1)[1])
+    if line.startswith("large_request_count="):
+        large_request_count = int(line.split("=", 1)[1])
     if line.startswith("realloc_same_ptr_count="):
         realloc_same_ptr_count = int(line.split("=", 1)[1])
     if line.startswith("realloc_moved_count="):
@@ -184,6 +187,7 @@ print(f"aligned_alloc_count={aligned_alloc_count}")
 print(f"alignment_request_count={alignment_request_count}")
 print(f"alignment_ok_count={alignment_ok_count}")
 print(f"alignment_reject_count={alignment_reject_count}")
+print(f"large_request_count={large_request_count}")
 print(f"realloc_same_ptr_count={realloc_same_ptr_count}")
 print(f"realloc_moved_count={realloc_moved_count}")
 print(f"copied_bytes={copied_bytes}")

@@ -45,6 +45,7 @@ typedef struct RunnerEvidence {
     long alignment_request_count;
     long alignment_ok_count;
     long alignment_reject_count;
+    long large_request_count;
     long realloc_same_ptr_count;
     long realloc_moved_count;
     uint64_t copied_bytes;
@@ -275,6 +276,41 @@ static int run_mixed_small(const MimallocApi *api, RunnerEvidence *evidence) {
     return 0;
 }
 
+static int run_huge_ish(const MimallocApi *api, RunnerEvidence *evidence) {
+    static const size_t sizes[] = {4194305, 16};
+    enum { kCount = (int)(sizeof(sizes) / sizeof(sizes[0])) };
+    void *blocks[kCount];
+    memset(blocks, 0, sizeof(blocks));
+
+    evidence->workload = "representative-huge-ish-v0";
+    evidence->operation_family = "huge-ish";
+    evidence->operation_sequence_id = "representative-huge-ish-v0-seq";
+    evidence->free_order_id = "ascending-release-v0";
+
+    for (int i = 0; i < kCount; i++) {
+        void *ptr = api->malloc_fn(sizes[i]);
+        if (ptr == NULL) {
+            for (int j = 0; j < i; j++) {
+                api->free_fn(blocks[j]);
+            }
+            return 6;
+        }
+        memset(ptr, (int)(i & 0x7f), sizes[i]);
+        blocks[i] = ptr;
+        evidence->requested_bytes += (uint64_t)sizes[i];
+        evidence->allocation_count += 1;
+        if (sizes[i] > 4194304) {
+            evidence->large_request_count += 1;
+        }
+    }
+
+    for (int i = 0; i < kCount; i++) {
+        api->free_fn(blocks[i]);
+        evidence->free_count += 1;
+    }
+    return 0;
+}
+
 int main(int argc, char **argv) {
     RunnerConfig config;
     if (!parse_args(argc, argv, &config)) {
@@ -308,6 +344,8 @@ int main(int argc, char **argv) {
         result_code = run_realloc_aligned(&api, &evidence);
     } else if (strcmp(config.workload, "representative-mixed-small-v0") == 0) {
         result_code = run_mixed_small(&api, &evidence);
+    } else if (strcmp(config.workload, "representative-huge-ish-v0") == 0) {
+        result_code = run_huge_ish(&api, &evidence);
     } else {
         fprintf(stderr, "[c-mimalloc-runner] unsupported workload: %s\n", config.workload);
         dlclose(library);
@@ -338,6 +376,7 @@ int main(int argc, char **argv) {
     printf("alignment_request_count=%ld\n", evidence.alignment_request_count);
     printf("alignment_ok_count=%ld\n", evidence.alignment_ok_count);
     printf("alignment_reject_count=%ld\n", evidence.alignment_reject_count);
+    printf("large_request_count=%ld\n", evidence.large_request_count);
     printf("realloc_same_ptr_count=%ld\n", evidence.realloc_same_ptr_count);
     printf("realloc_moved_count=%ld\n", evidence.realloc_moved_count);
     printf("copied_bytes=%llu\n", (unsigned long long)evidence.copied_bytes);
