@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-05-MIMALLOC-COMPARISON-METHOD-CONSOLIDATION"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-05-MIMALLOC-COMPARISON-METHOD-CONSOLIDATION.md"
-latest_card_summary = "Consolidated the phase-295x comparison method and separated evidence comparison from winner claims."
+latest_card = "295x-06-MIMALLOC-COMPARISON-RESULT-LEDGER-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-06-MIMALLOC-COMPARISON-RESULT-LEDGER-CLOSEOUT.md"
+latest_card_summary = "Closed the refreshed phase-295x comparison result ledger pack and selected same-workload execution refresh."
 
-current_blocker_token = "MIMALLOC-COMPARISON-RESULT-LEDGER-CLOSEOUT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-SAME-WORKLOAD-295X-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-06 closed the refreshed comparison result ledger pack and selected same-workload execution refresh",
   "295x-05 consolidated the comparison method and separated evidence comparison from winner claims",
   "295x-04 refreshed the C-vs-Hako comparison result ledger against the phase-295x evidence chain",
   "295x-03 selected the C-vs-Hako result ledger refresh after the C runner evidence contract refresh",
