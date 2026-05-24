@@ -30,7 +30,7 @@ guard_require_files \
 guard_expect_in_file "$TAG" 'requested_bytes: usize = 0' "$PAGE_HEAP" "page heap requested_bytes must be exact usize"
 guard_expect_in_file "$TAG" 'requestedBytes()' "$PAGE_HEAP" "page heap must keep requestedBytes observer"
 guard_expect_fixed_in_file "$TAG" 'me.requested_bytes = me.requested_bytes + requested_size' "$PAGE_HEAP" "page heap must keep accepted request byte accumulation"
-guard_expect_in_file "$TAG" 'requested_size: i64' "$PAGE_HEAP" "handle requested_size stays signed"
+guard_expect_in_file "$TAG" 'requested_size: usize' "$PAGE_HEAP" "handle requested_size is exact usize after handle-payload row"
 guard_expect_in_file "$TAG" 'block_size: i64' "$PAGE_HEAP" "page heap block_size stays signed"
 guard_expect_in_file "$TAG" 'capacity: i64' "$PAGE_HEAP" "page heap capacity stays signed"
 guard_expect_in_file "$TAG" 'free_top: i64' "$PAGE_HEAP" "page heap free_top stays signed"

@@ -7,7 +7,7 @@ using selfhost.hako_alloc.memory.layout_box as LayoutBox
 box HakoAllocHandle {
     page_id: i64
     block_id: i64
-    requested_size: i64
+    requested_size: usize
 
     birth(page_id, block_id, requested_size) {
         me.page_id = page_id
