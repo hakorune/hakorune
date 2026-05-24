@@ -30,10 +30,9 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MIXED-SIZE-EVIDENCE-295X-RUN-001:
-  selected current after 295x-21. Run C mimalloc and `.hako` through the
-  normalizer for representative-mixed-small-v0 while keeping RSS as
-  evidence-only.
+MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001:
+  selected current after 295x-22. Close the mixed-size workload family and
+  choose the next comparison seam.
 ```
 
 ## Queue
@@ -62,7 +61,8 @@ MIMALLOC-COMPARISON-MIXED-SIZE-EVIDENCE-295X-RUN-001:
 | 19 | `295x-19` | Landed | Closed the realloc/aligned workload family. |
 | 20 | `295x-20` | Landed | Selected representative-mixed-small-v0 as the next mixed-size workload family. |
 | 21 | `295x-21` | Landed | Added C runner and `.hako` evidence contract support for representative-mixed-small-v0. |
-| 22 | `MIMALLOC-COMPARISON-MIXED-SIZE-EVIDENCE-295X-RUN-001` | Current | Run mixed-size same-workload evidence through the normalizer. |
+| 22 | `295x-22` | Landed | Ran mixed-size same-workload evidence through the normalizer. |
+| 23 | `MIMALLOC-COMPARISON-MIXED-SIZE-CLOSEOUT-295X-001` | Current | Close the mixed-size workload family and select the next comparison seam. |
 
 ## Parked
 
