@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT"
-exec bash tools/checks/run_proof_app.sh --only MIMAP-204A
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+exec "$ROOT_DIR/tools/checks/lib/proof_app_test_entry.sh" MIMAP-204A "$@"

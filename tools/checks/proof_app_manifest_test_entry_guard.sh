@@ -8,6 +8,7 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
 PROOF_RUNNER="tools/checks/run_proof_app.sh"
+TEST_ENTRY_HELPER="tools/checks/lib/proof_app_test_entry.sh"
 SHARED_RUNNER="tools/checks/lib/manifest_runner.py"
 DESIGN="docs/development/current/main/design/guard-manifest-migration-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-575-GUARD-MANIFEST-001-PROOF-APP-TEST-WRAPPER-CLEANUP.md"
@@ -16,13 +17,15 @@ guard_require_command "$TAG" python3
 guard_require_files "$TAG" \
   "$PROOF_MANIFEST" \
   "$PROOF_RUNNER" \
+  "$TEST_ENTRY_HELPER" \
   "$SHARED_RUNNER" \
   "$DESIGN" \
   "$CARD"
-guard_require_exec_files "$TAG" "$PROOF_RUNNER" "$SHARED_RUNNER" "$0"
+guard_require_exec_files "$TAG" "$PROOF_RUNNER" "$TEST_ENTRY_HELPER" "$SHARED_RUNNER" "$0"
 
 guard_expect_in_file "$TAG" "Guard Manifest Migration SSOT" "$DESIGN" "migration SSOT must exist"
 guard_expect_in_file "$TAG" "proof_app_manifest_test_entry_guard.sh" "$CARD" "phase card must name this guard"
+guard_expect_in_file "$TAG" "tools/checks/run_proof_app.sh" "$TEST_ENTRY_HELPER" "shared app-local test entry helper must call proof app runner"
 
 python3 - "$ROOT_DIR" "$PROOF_MANIFEST" <<'PY'
 import os
@@ -88,10 +91,10 @@ for entry in entries:
         continue
 
     text = test_path.read_text(encoding="utf-8")
-    if "tools/checks/run_proof_app.sh" not in text:
-        errors.append(f"{proof_id}: test.sh must call tools/checks/run_proof_app.sh")
-    if f"--only {proof_id}" not in text:
-        errors.append(f"{proof_id}: test.sh must select --only {proof_id}")
+    if "tools/checks/lib/proof_app_test_entry.sh" not in text:
+        errors.append(f"{proof_id}: test.sh must call tools/checks/lib/proof_app_test_entry.sh")
+    if not re.search(rf"proof_app_test_entry\.sh\"?\s+{re.escape(proof_id)}(?:\s|\"|$)", text):
+        errors.append(f"{proof_id}: test.sh must pass proof id {proof_id} to proof_app_test_entry.sh")
     if direct_guard.search(text):
         errors.append(f"{proof_id}: test.sh must not call k2_wide_* guard directly")
     checked += 1

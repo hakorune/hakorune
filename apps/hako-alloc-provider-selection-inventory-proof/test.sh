@@ -2,6 +2,4 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT_DIR"
-
-exec bash tools/checks/run_proof_app.sh --only MIMAP-364A --level L2
+exec "$ROOT_DIR/tools/checks/lib/proof_app_test_entry.sh" MIMAP-364A "$@"

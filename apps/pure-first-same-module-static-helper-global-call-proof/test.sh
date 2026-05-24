@@ -2,5 +2,4 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-exec "$ROOT_DIR/tools/checks/run_proof_app.sh" --only PURE-FIRST-GLOBAL-CALL-001
-
+exec "$ROOT_DIR/tools/checks/lib/proof_app_test_entry.sh" PURE-FIRST-GLOBAL-CALL-001 "$@"
