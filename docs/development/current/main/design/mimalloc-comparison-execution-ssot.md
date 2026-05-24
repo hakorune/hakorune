@@ -49,6 +49,101 @@ Keep closed:
   requires it.
 - Heavy allocator-wide packs: explicit only.
 
+## Comparison Method
+
+Phase-295x compares in layers. Do not collapse these layers into one winner
+claim.
+
+### Layer 1: Contract / Schema
+
+Compare whether both sides publish stable evidence:
+
+- output contract id;
+- workload id;
+- allocation/free counts;
+- requested bytes;
+- memory-use evidence presence;
+- stop-line fields for replacement / hook / backend matcher / provider package.
+
+This layer answers:
+
+```text
+Can the `.hako` evidence and C mimalloc evidence be consumed by one ledger?
+```
+
+It does not answer:
+
+```text
+Which allocator is faster or more memory efficient?
+```
+
+### Layer 2: Semantic / Workload Shape
+
+Compare only fields that mean the same thing:
+
+- operation family;
+- request-size family;
+- allocation/free/reuse/realloc/huge behavior category;
+- failure/reject reason category;
+- live handle / released handle evidence where the schema defines it.
+
+If the workload ids or operation families differ, the row may compare schema
+compatibility and evidence availability, but it must not compare speed or RSS as
+an allocator-quality conclusion.
+
+Current status:
+
+- `.hako` V5 vertical-slice evidence combines small, realloc/aligned, and
+  huge/OSVM model slices.
+- the C mimalloc explicit runner currently uses
+  `representative-small-block-v0`.
+
+Therefore the current ledger is a contract/evidence bridge, not a final
+apples-to-apples performance benchmark.
+
+### Layer 3: Memory Evidence
+
+Memory evidence is recorded as evidence, not as a winner claim, until a row
+selects a repeated apples-to-apples benchmark pack.
+
+Current acceptable memory fields:
+
+- C runner `peak_rss_bytes`;
+- `.hako` requested/committed/live evidence exposed by the selected vertical
+  slice;
+- bridge fields that state whether the evidence exists.
+
+Rows must not compare unrelated memory concepts as if they were identical.
+For example, requested bytes, committed bytes, live bytes, and RSS are different
+observations.
+
+### Layer 4: Performance / Winner Claims
+
+Performance and memory winner claims require a later row with:
+
+- identical workload ids or an explicit workload equivalence map;
+- repeated runs;
+- warmup policy;
+- summary statistic policy;
+- environment capture;
+- no provider/hook/replacement side effects unless that lane is explicitly
+  opened.
+
+Until that row exists, phase-295x may say:
+
+```text
+evidence is comparable
+schema is stable
+ledger is accepted
+```
+
+It must not say:
+
+```text
+hako_alloc is faster/slower than mimalloc
+hako_alloc uses less/more memory than mimalloc
+```
+
 ## Stop Line
 
 Do not use the comparison lane as a back door for allocator-provider

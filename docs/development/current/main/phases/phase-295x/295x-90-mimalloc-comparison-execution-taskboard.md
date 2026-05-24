@@ -22,15 +22,18 @@ worker/TLS, or broad exact `usize` field migration.
   page-heap non-id exact `usize` closeout.
 - The next work should resume mimalloc-facing development from explicit
   comparison evidence, not from broad allocator field drainage.
+- Current comparison rows are contract/evidence rows. They do not make
+  performance or memory winner claims until a later apples-to-apples repeated
+  benchmark row defines workload equivalence, warmup, repetitions, and summary
+  statistics.
 
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-POST-RESULT-LEDGER-ROW-SELECTION-001:
-  selected current after 295x-04. Choose the next row after refreshing the
-  C-vs-Hako result ledger. Expected direction: close the comparison ledger pack
-  or select the next `.hako` port seam that directly improves the comparison
-  workload.
+MIMALLOC-COMPARISON-RESULT-LEDGER-CLOSEOUT-295X-001:
+  selected current after 295x-05. Close the refreshed result ledger pack after
+  fixing the comparison method. Keep winner claims and benchmark expansion
+  closed.
 ```
 
 ## Queue
@@ -42,8 +45,9 @@ MIMALLOC-COMPARISON-POST-RESULT-LEDGER-ROW-SELECTION-001:
 | 2 | `295x-02` | Landed | Validated stable output / memory-use evidence contract without benchmark repetition expansion. |
 | 3 | `295x-03` | Landed | Selected the `.hako` vs C comparison ledger refresh. |
 | 4 | `295x-04` | Landed | Consumed existing `.hako` vertical-slice and C runner evidence through the result ledger and diagnostics. |
-| 5 | `MIMALLOC-COMPARISON-POST-RESULT-LEDGER-ROW-SELECTION-001` | Current | Select comparison ledger closeout or the next `.hako` port seam. |
-| 6 | next `.hako` port seam selection | Planned | Select only a seam that improves the comparison workload. |
+| 5 | `295x-05` | Landed | Consolidated the comparison method and selected result ledger closeout. |
+| 6 | `MIMALLOC-COMPARISON-RESULT-LEDGER-CLOSEOUT-295X-001` | Current | Close the refreshed result ledger pack without winner claims. |
+| 7 | next `.hako` port seam selection | Planned | Select only a seam that improves the comparison workload. |
 
 ## Parked
 
