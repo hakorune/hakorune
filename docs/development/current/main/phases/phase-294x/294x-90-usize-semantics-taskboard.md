@@ -116,10 +116,17 @@ human restart clarity.
 Current blocker:
 
 ```text
-HAKO-ALLOC-USIZE-FIELD-GROUP-207:
-  selected current. Select the next explicit non-negative production field
-  group. Do not migrate status/reason vocabularies, bool-like flags, signed
-  sentinels, pointer-like payloads, provider calls, host replacement, hooks,
+HAKO-ALLOC-USIZE-FIELD-GROUP-208:
+  selected current. Migrate only the selected
+  `HakoAllocProviderCallRealApiStubExecutionPilot` owner-local counters
+  (`execution_count`, `accepted_count`, `reject_count`,
+  `missing_preflight_reject_count`, `rejected_preflight_reject_count`,
+  `not_ready_reject_count`, `already_executed_reject_count`,
+  `closed_execution_reject_count`, `closed_host_replacement_reject_count`,
+  `closed_hook_reject_count`, and `closed_backend_matcher_reject_count`) to
+  exact `usize`. Do not migrate `last_reason`, report mirrors, stub execution
+  payloads, result-code fields, actual provider API call flags, bool-like
+  readiness / would-execute flags, provider calls, host replacement, hooks,
   global allocator install, worker/TLS, atomics, provider package / DLL
   generation, or `#[global_allocator]`.
 ```
