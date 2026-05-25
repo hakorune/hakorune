@@ -101,6 +101,7 @@ Scope
 - `segment_arena_backing_modeled_residence_arena_binding_diagnostic_box.hako` owns MIMAP-253A segment arena backing modeled residence arena-binding diagnostics. It keeps the diagnostic route narrow, exact, and explicit before any closeout pack opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako` owns MIMAP-200A segment-map local-free reuse ledger release apply bridge. It keeps the release apply bridge route narrow, exact, and explicit before any wider bridge work opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns MIMAP-204A segment-map local-free reuse ledger release-applied recycle bridge. It keeps the release-applied recycle bridge route narrow, exact, and explicit before any wider bridge work opens.
+- `segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako` owns MIMAP-232A segment-map local-free reuse ledger lifecycle-keyed release apply/recycle continuation bridge and its `applyReuseLedgerLifecycleKeyedRelease` entry. It keeps the apply entry narrow, exact, and explicit before any closeout pack opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns
   MIMAP-196A segment-map local-free reuse ledger release bridge. It keeps the
   release bridge route narrow, exact, and explicit before any closeout pack
