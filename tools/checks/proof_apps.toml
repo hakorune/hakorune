@@ -436,6 +436,32 @@ exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_diagnostics_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-436A"
+app = "apps/hako-alloc-allocator-comparison-benchmark-execution-preflight-inventory-proof"
+label = "allocator comparison benchmark execution preflight inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-benchmark-execution-preflight-inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-benchmark-execution-preflight"
+exe = "deferred-to-comparison-benchmark-execution-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_benchmark_execution_preflight_inventory_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_benchmark_execution_preflight_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-437A"
+app = "apps/hako-alloc-allocator-comparison-benchmark-execution-preflight-diagnostics-proof"
+label = "allocator comparison benchmark execution preflight diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-benchmark-execution-preflight-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-benchmark-execution-preflight"
+exe = "deferred-to-comparison-benchmark-execution-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_benchmark_execution_preflight_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_benchmark_execution_preflight_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-240A"
 app = "apps/hako-alloc-segment-arena-backing-requirement-matrix-proof"
 label = "segment arena backing scalar requirement matrix proof"
