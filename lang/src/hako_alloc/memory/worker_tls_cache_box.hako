@@ -53,8 +53,4 @@ box HakoAllocWorkerTlsCache {
     observedWorkerId() {
         return me.observed_worker_id
     }
-
-    lastWorkerId() {
-        return me.observedWorkerId()
-    }
 }
