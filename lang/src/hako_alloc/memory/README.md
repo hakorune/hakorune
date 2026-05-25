@@ -30,6 +30,9 @@ Scope
 - `purge_bounded_scheduler_box.hako` owns M212 bounded purge/decommit scheduler.
   scheduler. It keeps the bounded scheduler route narrow, exact, and explicit
   before any closeout or wider purge policy work opens.
+- `stats_box.hako` owns M191 allocator stats snapshots. It keeps the stats
+  surface read-only, exact, and explicit before any wider stats or reporting
+  work opens.
 - `segment_allocation_modeled_ledger_box.hako` owns MIMAP-094A segment
   allocation modeled ledger. It keeps the modeled ledger route narrow, exact,
   and explicit before any release/consume bridge work opens.

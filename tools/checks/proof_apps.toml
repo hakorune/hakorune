@@ -26,6 +26,18 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_guard.sh"]
 
 [[proof_apps]]
+id = "M191"
+app = "apps/hako-alloc-stats-surface-proof"
+label = "hako alloc stats surface proof"
+profiles = ["pilot", "hako-alloc-stats"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_stats_surface_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_stats_surface_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "M212"
 app = "apps/hako-alloc-bounded-purge-decommit-scheduler-proof"
 label = "bounded purge decommit scheduler proof"
