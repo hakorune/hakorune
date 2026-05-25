@@ -19,6 +19,7 @@ Scope
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
+- `object_lifecycle_facade_page_source_box.hako` owns MIMAP-021B facade page-source fresh-page attach.
 
 Syntax/style contract
 - New allocator state boxes should use Unified Members stored fields:
