@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-202-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-202-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC.md"
-latest_card_summary = "Ran the plugin load-set footprint diagnostic on the malloc-large path and selected the closeout row."
-current_blocker_token = "MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002"
+latest_card = "295x-203-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-203-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-CLOSEOUT.md"
+latest_card_summary = "Closed the load-set diagnostic and selected a smaller-default-load-set pilot for the no-output exact-EXE path."
+current_blocker_token = "MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-203 Closed the load-set diagnostic and selected a smaller-default-load-set pilot for the no-output exact-EXE path.",
   "295x-202 Ran the plugin load-set footprint diagnostic on the malloc-large path and selected the closeout row.",
   "295x-201 Selected the plugin load-set footprint diagnostic after the malloc-large plugin-host substage diagnostic.",
   "295x-200 opened the NyRT plugin-host substage diagnostic on the external `malloc-large` path after the baseline selection",
@@ -38,5 +39,4 @@ landed_tail = [
   "295x-194 selected the empty exact-EXE footprint diagnostic as the next comparison seam for the external `malloc-large` path",
   "295x-193 closed the external `malloc-large` memory-gap attribution pack and selected baseline breakdown as the next comparison seam",
   "295x-192 computed baseline-subtracted RSS evidence for the external `malloc-large` attribution family",
-  "295x-191 added empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy",
 ]

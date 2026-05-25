@@ -225,6 +225,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_reuse_cycle_small_workload_contract_guard.sh` | 295x-79 の reuse-cycle small-block workload contract を固定し、C/.hako 実装前に workload identity と期待 count evidence を定義する。 |
 | `tools/checks/k2_wide_phase295x_reuse_cycle_small_workload_implementation_guard.sh` | 295x-80 の reuse-cycle small-block workload implementation を固定し、C/.hako evidence と memory report の count parity を検証する。 |
 | `tools/checks/k2_wide_phase295x_hakmem_external_bench_bridge_guard.sh` | 295x-82 の hakmem external bench bridge を固定し、抽出済み `hakmem_20260525` mimalloc-bench 実行ファイルを `target/hakmem-bench` にコピーする導線と winner/provider stop-line を検証する。 |
+| `tools/checks/k2_wide_phase295x_malloc_large_nyrt_plugin_loadset_closeout_guard.sh` | Close the plugin load-set diagnostic and keep the smaller-default-load-set pilot seam explicit. |
 | `tools/allocator/hakmem_external_bench.py` | phase-295x hakmem external benchmark bridge。`--list` で導線を表示し、抽出済み hakmem corpus から mimalloc-bench 実行ファイルを `target/hakmem-bench` にコピーして、選択した外部 benchmark を winner claim なしで実行・要約する。 |
 | `tools/checks/k2_wide_phase295x_hakmem_benchres_adapter_guard.sh` | 295x-84 の hakmem benchres adapter を固定し、`benchres.csv` の whitespace rows を phase-295x key-value evidence に変換しつつ winner/provider stop-line を維持する。 |
 | `tools/allocator/hakmem_benchres_adapter.py` | phase-295x hakmem benchres adapter。`mimalloc-bench` の `benchres.csv` を読み、elapsed/RSS/faults を external historical corpus evidence として key-value 化する。 |
