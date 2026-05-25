@@ -118,6 +118,7 @@ Scope
 - `object_lifecycle_facade_page_source_box.hako` owns MIMAP-021B facade page-source fresh-page attach.
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns MIMAP-265A segment arena backing modeled source accounting diagnostics.
 - `segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box.hako` owns MIMAP-281A segment arena backing modeled allocation ledger release candidate diagnostics.
+- `segment_arena_backing_modeled_allocation_apply_diagnostic_box.hako` owns MIMAP-273A segment arena backing modeled allocation apply diagnostics. It keeps the observer-only allocation-apply route narrow, exact, and explicit before any real pointer residence, pointer lookup, arena backing, segment-map, atomic bitmap, OSVM, worker, provider, or backend matcher work opens.
 - `segment_arena_backing_modeled_allocation_ledger_diagnostic_box.hako` owns MIMAP-277A segment arena backing modeled allocation ledger diagnostics.
 - `segment_arena_backing_modeled_allocation_ledger_release_apply_box.hako` owns MIMAP-288A segment arena backing modeled allocation ledger release apply.
 - `segment_arena_backing_modeled_allocation_ledger_release_apply_diagnostic_box.hako` owns MIMAP-289A segment arena backing modeled allocation ledger release apply diagnostics.
