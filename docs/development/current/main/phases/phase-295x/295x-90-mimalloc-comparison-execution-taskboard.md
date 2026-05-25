@@ -134,6 +134,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 94 | `295x-94` | Landed | Thin-wrapped the remaining mimalloc facade huge page-model and decommit guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
+| 95 | `295x-95` | Landed | Thin-wrapped the remaining mimalloc remote-free guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 
 ## Parked
 
