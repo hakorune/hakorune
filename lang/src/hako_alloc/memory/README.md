@@ -33,6 +33,10 @@ Scope
 - `stats_box.hako` owns M191 allocator stats snapshots. It keeps the stats
   surface read-only, exact, and explicit before any wider stats or reporting
   work opens.
+- `segment_allocation_modeled_local_free_integration_box.hako` owns M119A
+  segment allocation modeled local-free integration. It keeps the integration
+  route narrow, exact, and explicit before any wider local-free integration
+  or page-apply work opens.
 - `segment_allocation_modeled_ledger_box.hako` owns MIMAP-094A segment
   allocation modeled ledger. It keeps the modeled ledger route narrow, exact,
   and explicit before any release/consume bridge work opens.
