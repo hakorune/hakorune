@@ -258,4 +258,6 @@ rg -F -q 'counts=7,2,5,1,2,1,1,1,1,1,16,0' "$run_log"
 rg -F -q 'check=1' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
+cat "$run_log"
+
 echo "[$TAG] ok"

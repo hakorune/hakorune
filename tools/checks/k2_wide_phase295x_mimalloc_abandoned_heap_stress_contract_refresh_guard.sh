@@ -35,7 +35,7 @@ guard_require_files \
   "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$REMOTE_GUARD" "$HKO_GUARD" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" 'Status: Current' "$CARD" "card must remain current while the contract refresh row is being exercised"
+guard_expect_in_file "$TAG" 'Status: Landed' "$CARD" "card must remain landed after the contract refresh row is closed"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002' "$CARD" "card must identify the contract refresh blocker"
 guard_expect_in_file "$TAG" 'output_contract=mimalloc-comparison-abandoned-heap-stress-contract-v0' "$CARD" "card must name the comparison contract"
 guard_expect_in_file "$TAG" 'mimalloc-remote-abandoned-owner-policy-proof' "$CARD" "card must reference the mimalloc abandoned-owner policy proof"
@@ -44,7 +44,8 @@ guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EVIDENCE-
 guard_expect_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous selection row must be landed before contract refresh"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002' "$PREV_CARD" "previous row must select this contract refresh row"
 guard_expect_in_file "$TAG" '| 214 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the selection row as landed"
-guard_expect_in_file "$TAG" '| 215 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the contract refresh row as current"
+guard_expect_in_file "$TAG" '| 215 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the contract refresh row as landed"
+guard_expect_in_file "$TAG" '| 216 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EVIDENCE-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the evidence row as current"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 bash "$REMOTE_GUARD"
