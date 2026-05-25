@@ -12,6 +12,18 @@ includes = [
 ]
 
 [[proof_apps]]
+id = "M211"
+app = "apps/hako-alloc-purge-candidate-policy-inventory-proof"
+label = "purge candidate policy inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

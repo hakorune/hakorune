@@ -183,6 +183,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 143 | `295x-143` | Landed | Thin-wrapped the M42 and M43 remote-free policy and retry-loop guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 144 | `295x-144` | Landed | Thin-wrapped the M175 realloc alloc-copy-release guard root into an impl-backed wrapper and kept the current mimalloc comparison blocker unchanged. |
 | 145 | `295x-145` | Landed | Thin-wrapped the MIMAP-TLS-001 worker TLS cache guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
+| 146 | `295x-146` | Landed | Thin-wrapped the M211 purge candidate policy inventory guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

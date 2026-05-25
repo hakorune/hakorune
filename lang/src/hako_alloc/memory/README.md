@@ -16,6 +16,9 @@ Scope
 - `page_map_release_invariant_box.hako`: the M173 pre-realloc release invariant
   observer module. It stays as an observer-only seam for release/realloc
   freeze evidence and does not take over page release execution.
+- `purge_candidate_policy_box.hako` owns M211 purge candidate policy inventory.
+  It keeps the candidate classification route narrow, exact, and explicit
+  before any wider purge or decommit policy work opens.
 - `worker_tls_cache_box.hako`: the MIMAP-TLS-001 internal worker TLS cache-slot
   substrate. It keeps the worker identity, TLS cache-slot read/write, and
   cache-slot clear routes narrow, exact, and explicit before any wider worker
