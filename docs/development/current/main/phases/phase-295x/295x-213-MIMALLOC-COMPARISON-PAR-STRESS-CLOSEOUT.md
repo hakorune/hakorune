@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x native multi-worker substrate stress closeout on the comparison lane
 Blocker: MIMALLOC-COMPARISON-PAR-STRESS-CLOSEOUT-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-212-MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION.md
+  - docs/development/current/main/phases/phase-295x/295x-214-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION.md
   - tools/checks/k2_wide_phase295x_mimalloc_parallel_substrate_stress_closeout_guard.sh
 ---
 
