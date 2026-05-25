@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-103-MIMALLOC-PAGE-SOURCE-UNRESERVE-ADAPTER-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-103-MIMALLOC-PAGE-SOURCE-UNRESERVE-ADAPTER-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the MIMAP-033A page-source unreserve adapter guard root into an impl-backed wrapper and kept the memory README owner note in sync."
+latest_card = "295x-104-MIMALLOC-REMOTE-FREE-POLICY-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-104-MIMALLOC-REMOTE-FREE-POLICY-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the M48 remote-free policy guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

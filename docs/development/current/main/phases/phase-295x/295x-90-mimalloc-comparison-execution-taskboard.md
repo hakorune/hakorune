@@ -143,6 +143,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 101 | `295x-101` | Landed | Thin-wrapped the huge/OSVM comparison slice guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker. |
 | 102 | `295x-102` | Landed | Thin-wrapped the M173 pre-realloc release invariant guard root into an impl-backed wrapper and added the missing memory README owner note without changing the current mimalloc comparison blocker. |
 | 103 | `295x-103` | Landed | Thin-wrapped the MIMAP-033A page-source unreserve adapter guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
+| 104 | `295x-104` | Landed | Thin-wrapped the M48 remote-free policy guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker. |
 
 ## Parked
 
