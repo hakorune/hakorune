@@ -46,6 +46,7 @@ guard_expect_in_file "$TAG" 'HakoAllocRemoteFreePolicy.pushRetry' "$OWNER" "poli
 guard_expect_in_file "$TAG" 'HakoAllocThreadHeapOwnerInventory' "$OWNER" "policy must reuse thread owner inventory"
 guard_expect_in_file "$TAG" 'HakoAllocAbandonedReclaimInventory' "$OWNER" "policy must reuse abandoned reclaim inventory"
 guard_expect_in_file "$TAG" 'cache.observedWorkerId' "$OWNER" "policy must read the observed worker-id helper from cache"
+guard_expect_in_file "$TAG" 'cache.observedWorkerIdValid' "$OWNER" "policy must read the worker-id validity helper from cache"
 guard_expect_in_file "$TAG" 'remote_free_abandoned_owner_policy_box.hako` owns MIMAP-REMOTE-001' "$MEMORY_README" "memory README must define MIMAP-REMOTE-001 owner"
 guard_expect_in_file "$TAG" 'Existing Proof Role Table' "$CARD" "MIMAP-REMOTE-001 card must include remote-free role table"
 guard_expect_in_file "$TAG" 'k2_wide_mimalloc_remote_free_i64_exe_guard.sh' "$CARD" "MIMAP-REMOTE-001 card must require M31 proof guard"
@@ -113,6 +114,7 @@ required = {
     "HakoAllocWorkerTlsCache.loadSlot/1",
     "HakoAllocWorkerTlsCache.storeSlot/2",
     "HakoAllocWorkerTlsCache.clearSlot/1",
+    "HakoAllocWorkerTlsCache.observedWorkerIdValid/0",
     "HakoAllocRemoteFreePolicy.pushRetry/3",
     "HakoAllocRemoteFreePolicy.peekHead/1",
     "HakoAllocThreadHeapOwnerInventory.classifyOwner/6",
@@ -163,6 +165,7 @@ route = "HakoAllocRemoteAbandonedOwnerPolicy.routeFreeOrClassify/11"
 for fragment in (
     "HakoAllocWorkerTlsCache.loadSlot",
     "HakoAllocWorkerTlsCache.observedWorkerId",
+    "HakoAllocWorkerTlsCache.observedWorkerIdValid",
     "HakoAllocRemoteFreePolicy.pushRetry",
     "HakoAllocRemoteFreePolicy.peekHead",
     "HakoAllocThreadHeapOwnerInventory.classifyOwner",

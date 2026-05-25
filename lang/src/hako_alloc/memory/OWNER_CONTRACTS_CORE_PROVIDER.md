@@ -313,7 +313,8 @@ Related:
   allocator, expose hooks, or add backend matchers.
 - `worker_tls_pilot_box.hako` owns MIMAP-350A. It may record one bounded
   worker/TLS fact from an accepted OSVM/page-source report through the
-  observed-worker `HakoAllocWorkerTlsCache` seam. It must not expose
+  observed-worker and observed-worker-validity `HakoAllocWorkerTlsCache`
+  seam. It must not expose
   source-level worker-local syntax, spawn or schedule workers, execute
   release/recycle behavior, activate providers, replace the host allocator,
   expose hooks, or add backend matchers.

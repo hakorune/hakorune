@@ -96,6 +96,7 @@ required = {
     "HakoAllocWorkerTlsCache.loadSlot/1",
     "HakoAllocWorkerTlsCache.clearSlot/1",
     "HakoAllocWorkerTlsCache.observedWorkerId/0",
+    "HakoAllocWorkerTlsCache.observedWorkerIdValid/0",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
@@ -182,6 +183,7 @@ require_call("HakoAllocWorkerTlsCache.loadSlot/1", "HakoAllocWorkerIdentity.curr
 require_call("HakoAllocWorkerTlsCache.loadSlot/1", "TlsCoreBox.cache_slot_get_i64")
 require_call("HakoAllocWorkerTlsCache.clearSlot/1", "HakoAllocWorkerTlsCache.storeSlot")
 require_call("main", "HakoAllocWorkerTlsCache.observedWorkerId")
+require_call("main", "HakoAllocWorkerTlsCache.observedWorkerIdValid")
 
 for fn_name in (
     "main",
@@ -216,7 +218,7 @@ rg -F -q 'values=0,8192,0' "$run_log"
 rg -F -q 'rc=0,0' "$run_log"
 rg -F -q 'state=0,0,0' "$run_log"
 rg -F -q 'counts=3,2,5' "$run_log"
-rg -F -q 'shape=13' "$run_log"
+rg -F -q 'shape=14' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
 cat "$run_log"

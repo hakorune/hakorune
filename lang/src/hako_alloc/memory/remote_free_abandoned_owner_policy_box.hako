@@ -97,9 +97,14 @@ box HakoAllocRemoteAbandonedOwnerPolicy {
 
         local head_cell = me.cache.loadSlot(tls_slot)
         local observer_worker_id = me.cache.observedWorkerId()
+        local observer_worker_id_valid = me.cache.observedWorkerIdValid()
 
         if owner_worker_id < 0 {
             return me.reject(1, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 1, 0)
+        }
+
+        if observer_worker_id_valid == 0 {
+            return me.reject(7, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 1, 0)
         }
 
         if owner_worker_id == observer_worker_id {

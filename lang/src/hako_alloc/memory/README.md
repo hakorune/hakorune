@@ -46,16 +46,17 @@ Scope
   snapshot. It keeps the stats snapshot route narrow, exact, and explicit
   before any wider policy or backend-visible behavior work opens.
 - `worker_tls_cache_box.hako`: the MIMAP-TLS-001 internal worker TLS cache-slot
-  substrate. It keeps the worker identity, observed-worker helper, TLS
-  cache-slot read/write, and cache-slot clear routes narrow, exact, and
-  explicit before any wider worker or TLS substrate work opens.
+  substrate. It keeps the worker identity, observed-worker helper,
+  observed-worker validity helper, TLS cache-slot read/write, and cache-slot
+  clear routes narrow, exact, and explicit before any wider worker or TLS
+  substrate work opens.
 - `worker_identity_box.hako` owns MIMAP-WORKER-001 internal worker identity
   substrate. It keeps the worker-id route narrow, exact, and explicit before
   any TLS cache, remote-free, atomic, provider, or backend matcher work opens.
 - `worker_tls_pilot_box.hako` owns MIMAP-350A worker/TLS pilot. It keeps the
-  observed-worker helper, TLS roundtrip, and OSVM/page-source composition route
-  narrow, exact, and explicit before any wider worker/TLS or provider work
-  opens.
+  observed-worker helper, observed-worker validity helper, TLS roundtrip, and
+  OSVM/page-source composition route narrow, exact, and explicit before any
+  wider worker/TLS or provider work opens.
 - `alloc_fast_path_heap_box.hako` owns M167 mimalloc alloc fast path
   orchestration. It keeps the page queue selection, page acquisition, and
   deterministic fallback route narrow, exact, and explicit before any OSVM

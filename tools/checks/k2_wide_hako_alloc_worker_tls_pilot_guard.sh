@@ -57,6 +57,7 @@ guard_expect_in_file "$TAG" 'cache.storeSlot' "$OWNER" "worker/TLS owner must wr
 guard_expect_in_file "$TAG" 'cache.loadSlot' "$OWNER" "worker/TLS owner must read through cache seam"
 guard_expect_in_file "$TAG" 'cache.clearSlot' "$OWNER" "worker/TLS owner must clear through cache seam"
 guard_expect_in_file "$TAG" 'cache.observedWorkerId' "$OWNER" "worker/TLS owner must expose observed worker-id helper"
+guard_expect_in_file "$TAG" 'cache.observedWorkerIdValid' "$OWNER" "worker/TLS owner must expose worker-id validity helper"
 guard_expect_in_file "$TAG" 'would_use_worker_tls: worker_tls_present' "$OWNER" "worker/TLS seam must be explicit"
 guard_expect_in_file "$TAG" 'would_run_thread: (0|i64 = 0)' "$OWNER" "worker/TLS pilot must not schedule workers"
 guard_expect_in_file "$TAG" 'report_applied_backing_bytes: usize' "$OWNER" "worker/TLS report must mirror backing bytes as usize"
@@ -105,6 +106,7 @@ required = {
     "HakoAllocWorkerTlsCache.loadSlot/1",
     "HakoAllocWorkerTlsCache.clearSlot/1",
     "HakoAllocWorkerTlsCache.observedWorkerId/0",
+    "HakoAllocWorkerTlsCache.observedWorkerIdValid/0",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
@@ -146,6 +148,7 @@ require_call("HakoAllocWorkerTlsPilot.recordWorkerTlsFact/3", "HakoAllocWorkerTl
 require_call("HakoAllocWorkerTlsPilot.recordWorkerTlsFact/3", "HakoAllocWorkerTlsCache.clearSlot")
 require_call("HakoAllocWorkerTlsPilot.recordWorkerTlsFact/3", "HakoAllocWorkerTlsPilot.closedExecutionBlockerCount")
 require_call("HakoAllocWorkerTlsPilot.makeReport/11", "HakoAllocWorkerTlsCache.observedWorkerId")
+require_call("HakoAllocWorkerTlsPilot.makeReport/11", "HakoAllocWorkerTlsCache.observedWorkerIdValid")
 require_call("HakoAllocWorkerTlsCache.storeSlot/2", "TlsCoreBox.cache_slot_set_i64")
 require_call("HakoAllocWorkerTlsCache.loadSlot/1", "TlsCoreBox.cache_slot_get_i64")
 require_call("HakoAllocWorkerTlsCache.storeSlot/2", "HakoAllocWorkerIdentity.currentWorkerId")
