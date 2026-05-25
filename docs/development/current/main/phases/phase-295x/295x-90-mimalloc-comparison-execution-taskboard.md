@@ -138,6 +138,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 96 | `295x-96` | Landed | Thin-wrapped the remaining mimalloc facade huge fail-fast guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 97 | `295x-97` | Landed | Thin-wrapped the remaining hako_alloc local-free reuse ledger release-apply and release-applied-recycle guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 98 | `295x-98` | Landed | Thin-wrapped the segment-map accepted-readiness consume-ledger guard root and aligned the consume-ledger closeout guard to the included proof / guard manifests without changing the current mimalloc comparison blocker. |
+| 99 | `295x-99` | Landed | Thin-wrapped the remaining mimalloc facade huge page-source and decommit fail-fast guard roots into impl-backed wrappers while aligning the owner-contract checks to the arena-reclaim family contract. |
 
 ## Parked
 
