@@ -2,8 +2,8 @@ use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 
 use super::origin_inference::{
-    field_box_origin, generic_method_route_result_box_name, param_box_origin, sorted_block_ids,
-    user_box_value_box_name,
+    build_route_result_box_lookup, field_box_origin, generic_method_route_result_box_name,
+    param_box_origin, sorted_block_ids, user_box_value_box_name,
 };
 use super::{FieldBoxOriginMap, ParamBoxOriginMap};
 
@@ -33,6 +33,7 @@ pub(super) fn publish_user_box_route_param_value_types(
     let mut facts = Vec::<(String, usize, String)>::new();
     for function in module.functions.values() {
         let def_map = build_value_def_map(function);
+        let route_result_lookup = build_route_result_box_lookup(function);
         for route in function
             .metadata
             .user_box_method_routes
@@ -56,6 +57,7 @@ pub(super) fn publish_user_box_route_param_value_types(
                 let Some(box_name) = user_box_value_box_name(
                     function,
                     &def_map,
+                    &route_result_lookup,
                     *arg,
                     param_box_origins,
                     field_box_origins,
@@ -197,6 +199,7 @@ pub(super) fn publish_user_box_field_get_value_types(
     let mut changed = false;
     for function in module.functions.values_mut() {
         let def_map = build_value_def_map(function);
+        let route_result_lookup = build_route_result_box_lookup(function);
         for block_id in sorted_block_ids(function) {
             let instructions = function
                 .blocks
@@ -213,6 +216,7 @@ pub(super) fn publish_user_box_field_get_value_types(
                 let Some(base_box) = user_box_value_box_name(
                     function,
                     &def_map,
+                    &route_result_lookup,
                     base,
                     param_box_origins,
                     field_box_origins,

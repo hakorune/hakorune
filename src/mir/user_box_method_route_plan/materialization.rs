@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::origin_inference::user_box_route_receiver_box_name;
+use super::origin_inference::{build_route_result_box_lookup, user_box_route_receiver_box_name};
 use super::target_collection::{method_target_symbol, UserBoxMethodTargetFacts};
 use super::{FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute, UserBoxMethodRouteSite};
 use crate::mir::value_origin::build_value_def_map;
@@ -20,6 +20,7 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
         .collect::<BTreeSet<_>>();
     user_box_names.extend(typed_plan_type_ids.keys().cloned());
     let def_map = build_value_def_map(function);
+    let route_result_lookup = build_route_result_box_lookup(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -47,6 +48,7 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
             let Some(route_box_name) = user_box_route_receiver_box_name(
                 function,
                 &def_map,
+                &route_result_lookup,
                 &user_box_names,
                 box_name,
                 *certainty,

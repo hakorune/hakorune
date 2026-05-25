@@ -33,12 +33,17 @@ pub(super) fn infer_user_box_method_param_box_origins(
     let typed_plan_fields = typed_object_plan_field_sets(module);
     let mut origins = ParamBoxOriginMap::new();
     let mut function_def_maps = BTreeMap::<String, ValueDefMap>::new();
+    let mut function_block_ids = BTreeMap::<String, Vec<BasicBlockId>>::new();
+    let mut function_route_result_lookups = BTreeMap::<String, HashMap<ValueId, String>>::new();
     let mut function_param_index_caches =
         BTreeMap::<String, HashMap<ValueId, Option<usize>>>::new();
 
     for function in module.functions.values() {
         let function_name = function.signature.name.clone();
         function_def_maps.insert(function_name.clone(), build_value_def_map(function));
+        function_block_ids.insert(function_name.clone(), sorted_block_ids(function));
+        function_route_result_lookups
+            .insert(function_name.clone(), build_route_result_box_lookup(function));
         function_param_index_caches.insert(function_name, HashMap::new());
     }
 
@@ -53,11 +58,18 @@ pub(super) fn infer_user_box_method_param_box_origins(
             let Some(param_index_cache) = function_param_index_caches.get_mut(function_name) else {
                 continue;
             };
+            let Some(block_ids) = function_block_ids.get(function_name) else {
+                continue;
+            };
+            let Some(route_result_lookup) = function_route_result_lookups.get(function_name) else {
+                continue;
+            };
 
             for (param_index, box_name) in
                 infer_param_box_origins_from_field_uses(
                     function,
                     def_map,
+                    block_ids,
                     &typed_plan_fields,
                     param_index_cache,
                 )
@@ -71,8 +83,8 @@ pub(super) fn infer_user_box_method_param_box_origins(
                     box_name,
                 );
             }
-            for block_id in sorted_block_ids(function) {
-                let Some(block) = function.blocks.get(&block_id) else {
+            for block_id in block_ids {
+                let Some(block) = function.blocks.get(block_id) else {
                     continue;
                 };
                 for instruction in &block.instructions {
@@ -94,6 +106,7 @@ pub(super) fn infer_user_box_method_param_box_origins(
                     let Some(route_box_name) = user_box_route_receiver_box_name(
                         function,
                         def_map,
+                        route_result_lookup,
                         &user_box_names,
                         box_name,
                         *certainty,
@@ -117,6 +130,7 @@ pub(super) fn infer_user_box_method_param_box_origins(
                         let Some(arg_box_name) = user_box_value_box_name(
                             function,
                             def_map,
+                            route_result_lookup,
                             *arg,
                             &current,
                             field_box_origins,
@@ -187,12 +201,13 @@ fn typed_object_plan_field_sets(module: &MirModule) -> BTreeMap<String, BTreeSet
 fn infer_param_box_origins_from_field_uses(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    block_ids: &[BasicBlockId],
     typed_plan_fields: &BTreeMap<String, BTreeSet<String>>,
     param_index_cache: &mut HashMap<ValueId, Option<usize>>,
 ) -> Vec<(usize, String)> {
     let mut param_fields = BTreeMap::<usize, BTreeSet<String>>::new();
-    for block_id in sorted_block_ids(function) {
-        let Some(block) = function.blocks.get(&block_id) else {
+    for block_id in block_ids {
+        let Some(block) = function.blocks.get(block_id) else {
             continue;
         };
         for instruction in &block.instructions {
@@ -270,104 +285,124 @@ pub(super) fn infer_user_box_field_box_origins(
     );
     let birth_field_params = collect_birth_field_param_bindings(module);
     let mut origins = FieldBoxOriginMap::new();
+    let mut function_def_maps = BTreeMap::<String, ValueDefMap>::new();
+    let mut function_block_ids = BTreeMap::<String, Vec<BasicBlockId>>::new();
+    let mut function_route_result_lookups = BTreeMap::<String, HashMap<ValueId, String>>::new();
+    for function in module.functions.values() {
+        let function_name = function.signature.name.clone();
+        function_def_maps.insert(function_name.clone(), build_value_def_map(function));
+        function_block_ids.insert(function_name.clone(), sorted_block_ids(function));
+        function_route_result_lookups.insert(function_name, build_route_result_box_lookup(function));
+    }
 
     for _ in 0..module.functions.len().saturating_mul(2).max(1) {
         let current = origins.clone();
         let mut changed = false;
         for function in module.functions.values() {
-            let def_map = build_value_def_map(function);
-            for block_id in sorted_block_ids(function) {
-                let Some(block) = function.blocks.get(&block_id) else {
+            let function_name = function.signature.name.as_str();
+            let Some(def_map) = function_def_maps.get(function_name) else {
+                continue;
+            };
+            let Some(block_ids) = function_block_ids.get(function_name) else {
+                continue;
+            };
+            let Some(route_result_lookup) = function_route_result_lookups.get(function_name) else {
+                continue;
+            };
+            for block_id in block_ids {
+                let Some(block) = function.blocks.get(block_id) else {
                     continue;
                 };
                 for instruction in &block.instructions {
-                    let MirInstruction::FieldSet {
-                        base, field, value, ..
-                    } = instruction
-                    else {
-                        continue;
-                    };
-                    let Some(base_box) = user_box_value_box_name(
-                        function,
-                        &def_map,
-                        *base,
-                        param_box_origins,
-                        &current,
-                    ) else {
-                        continue;
-                    };
-                    let Some(value_box) = user_box_value_box_name(
-                        function,
-                        &def_map,
-                        *value,
-                        param_box_origins,
-                        &current,
-                    ) else {
-                        continue;
-                    };
-                    if !user_box_names.contains(&base_box)
-                        || !(user_box_names.contains(&value_box) || value_box == "StringBox")
-                    {
-                        continue;
-                    }
-                    changed |=
-                        merge_field_box_origin(&mut origins, (base_box, field.clone()), value_box);
-                }
-                for instruction in &block.instructions {
-                    let MirInstruction::Call {
-                        callee:
-                            Some(Callee::Method {
+                    match instruction {
+                        MirInstruction::FieldSet {
+                            base, field, value, ..
+                        } => {
+                            let Some(base_box) = user_box_value_box_name(
+                                function,
+                                def_map,
+                                route_result_lookup,
+                                *base,
+                                param_box_origins,
+                                &current,
+                            ) else {
+                                continue;
+                            };
+                            let Some(value_box) = user_box_value_box_name(
+                                function,
+                                def_map,
+                                route_result_lookup,
+                                *value,
+                                param_box_origins,
+                                &current,
+                            ) else {
+                                continue;
+                            };
+                            if !user_box_names.contains(&base_box)
+                                || !(user_box_names.contains(&value_box) || value_box == "StringBox")
+                            {
+                                continue;
+                            }
+                            changed |= merge_field_box_origin(
+                                &mut origins,
+                                (base_box, field.clone()),
+                                value_box,
+                            );
+                        }
+                        MirInstruction::Call {
+                            callee:
+                                Some(Callee::Method {
+                                    box_name,
+                                    method,
+                                    receiver: Some(receiver),
+                                    certainty,
+                                    ..
+                                }),
+                            args,
+                            ..
+                        } if method == "birth" => {
+                            let Some(route_box_name) = user_box_route_receiver_box_name(
+                                function,
+                                def_map,
+                                route_result_lookup,
+                                &user_box_names,
                                 box_name,
-                                method,
-                                receiver: Some(receiver),
-                                certainty,
-                                ..
-                            }),
-                        args,
-                        ..
-                    } = instruction
-                    else {
-                        continue;
-                    };
-                    if method != "birth" {
-                        continue;
-                    }
-                    let Some(route_box_name) = user_box_route_receiver_box_name(
-                        function,
-                        &def_map,
-                        &user_box_names,
-                        box_name,
-                        *certainty,
-                        *receiver,
-                        param_box_origins,
-                        &current,
-                    ) else {
-                        continue;
-                    };
-                    for ((birth_box, field), param_index) in &birth_field_params {
-                        if birth_box != &route_box_name || *param_index == 0 {
-                            continue;
+                                *certainty,
+                                *receiver,
+                                param_box_origins,
+                                &current,
+                            ) else {
+                                continue;
+                            };
+                            for ((birth_box, field), param_index) in &birth_field_params {
+                                if birth_box != &route_box_name || *param_index == 0 {
+                                    continue;
+                                }
+                                let Some(arg) = args.get(param_index - 1) else {
+                                    continue;
+                                };
+                                let Some(value_box) = user_box_value_box_name(
+                                    function,
+                                    def_map,
+                                    route_result_lookup,
+                                    *arg,
+                                    param_box_origins,
+                                    &current,
+                                ) else {
+                                    continue;
+                                };
+                                if !(user_box_names.contains(&value_box) || value_box == "StringBox")
+                                {
+                                    continue;
+                                }
+                                changed |= merge_field_box_origin(
+                                    &mut origins,
+                                    (route_box_name.clone(), field.clone()),
+                                    value_box,
+                                );
+                            }
                         }
-                        let Some(arg) = args.get(param_index - 1) else {
-                            continue;
-                        };
-                        let Some(value_box) = user_box_value_box_name(
-                            function,
-                            &def_map,
-                            *arg,
-                            param_box_origins,
-                            &current,
-                        ) else {
-                            continue;
-                        };
-                        if !(user_box_names.contains(&value_box) || value_box == "StringBox") {
-                            continue;
-                        }
-                        changed |= merge_field_box_origin(
-                            &mut origins,
-                            (route_box_name.clone(), field.clone()),
-                            value_box,
-                        );
+                        _ => {}
                     }
                 }
             }
@@ -496,6 +531,7 @@ fn merge_field_box_origin(
 pub(super) fn user_box_route_receiver_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    route_result_lookup: &HashMap<ValueId, String>,
     user_box_names: &BTreeSet<String>,
     callee_box_name: &str,
     certainty: TypeCertainty,
@@ -509,6 +545,7 @@ pub(super) fn user_box_route_receiver_box_name(
     user_box_value_box_name(
         function,
         def_map,
+        route_result_lookup,
         receiver,
         param_box_origins,
         field_box_origins,
@@ -519,6 +556,7 @@ pub(super) fn user_box_route_receiver_box_name(
 pub(super) fn user_box_value_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    route_result_lookup: &HashMap<ValueId, String>,
     value: ValueId,
     param_box_origins: &ParamBoxOriginMap,
     field_box_origins: &FieldBoxOriginMap,
@@ -527,7 +565,7 @@ pub(super) fn user_box_value_box_name(
     if let Some(box_name) = value_box_name(function, origin).map(str::to_string) {
         return Some(box_name);
     }
-    if let Some(box_name) = route_result_box_name(function, origin).map(str::to_string) {
+    if let Some(box_name) = route_result_box_name_cached(route_result_lookup, origin).map(str::to_string) {
         return Some(box_name);
     }
     if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
@@ -544,7 +582,9 @@ pub(super) fn user_box_value_box_name(
                 if let Some(box_name) = type_hint.as_ref().and_then(box_name_from_type) {
                     return Some(box_name.to_string());
                 }
-                if let Some(box_name) = phi_input_box_name(function, def_map, inputs) {
+                if let Some(box_name) =
+                    phi_input_box_name(function, def_map, route_result_lookup, inputs)
+                {
                     return Some(box_name);
                 }
             }
@@ -552,6 +592,7 @@ pub(super) fn user_box_value_box_name(
                 let base_box = user_box_value_box_name(
                     function,
                     def_map,
+                    route_result_lookup,
                     *base,
                     param_box_origins,
                     field_box_origins,
@@ -644,13 +685,14 @@ fn value_param_index_inner(
 fn phi_input_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    route_result_lookup: &HashMap<ValueId, String>,
     inputs: &[(BasicBlockId, ValueId)],
 ) -> Option<String> {
     let mut inferred = None;
     for (_, input) in inputs {
         let origin = resolve_value_origin(function, def_map, *input);
         let box_name = value_box_name(function, origin)
-            .or_else(|| route_result_box_name(function, origin))?
+            .or_else(|| route_result_box_name_cached(route_result_lookup, origin))?
             .to_string();
         inferred = match inferred {
             None => Some(box_name),
@@ -684,6 +726,41 @@ pub(super) fn route_result_box_name(function: &MirFunction, value: ValueId) -> O
                 .find(|route| route.result_value() == Some(value))
                 .and_then(global_call_route_result_box_name)
         })
+}
+
+fn route_result_box_name_cached(
+    route_result_lookup: &HashMap<ValueId, String>,
+    value: ValueId,
+) -> Option<&str> {
+    route_result_lookup.get(&value).map(String::as_str)
+}
+
+pub(super) fn build_route_result_box_lookup(function: &MirFunction) -> HashMap<ValueId, String> {
+    let mut lookup = HashMap::new();
+    for route in &function.metadata.user_box_method_routes {
+        if route.reason().is_none() {
+            if let (Some(value), Some(box_name)) =
+                (route.result_value(), route.target_result_box_name())
+            {
+                lookup.entry(value).or_insert_with(|| box_name.to_string());
+            }
+        }
+    }
+    for route in &function.metadata.generic_method_routes {
+        if let (Some(value), Some(box_name)) =
+            (route.result_value(), generic_method_route_result_box_name(route))
+        {
+            lookup.entry(value).or_insert_with(|| box_name.to_string());
+        }
+    }
+    for route in &function.metadata.global_call_routes {
+        if let (Some(value), Some(box_name)) =
+            (route.result_value(), global_call_route_result_box_name(route))
+        {
+            lookup.entry(value).or_insert_with(|| box_name.to_string());
+        }
+    }
+    lookup
 }
 
 pub(super) fn generic_method_route_result_box_name(
