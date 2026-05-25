@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x abandoned-heap stress closeout on the comparison lane
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002
