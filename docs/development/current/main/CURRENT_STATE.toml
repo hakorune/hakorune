@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-169-M49-ALLOCATOR-OSVM-PAGE-SOURCE-POLICY-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-169-M49-ALLOCATOR-OSVM-PAGE-SOURCE-POLICY-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the M49 allocator OSVM page-source policy guard root into an impl-backed wrapper."
+latest_card = "295x-170-MIMAP-057A-RECLAIM-REMOTE-FREE-DRAIN-EXECUTION-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-170-MIMAP-057A-RECLAIM-REMOTE-FREE-DRAIN-EXECUTION-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the MIMAP-057A reclaim remote-free drain execution guard root into an impl-backed wrapper."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-170 thin-wrapped the MIMAP-057A reclaim remote-free drain execution guard root into an impl-backed wrapper",
   "295x-169 thin-wrapped the M49 allocator OSVM page-source policy guard root into an impl-backed wrapper",
   "295x-168 thin-wrapped the MIMAP-236A segment arena backing readiness inventory guard root into an impl-backed wrapper",
   "295x-167 thin-wrapped the M215 thread heap owner-token inventory guard root into an impl-backed wrapper",

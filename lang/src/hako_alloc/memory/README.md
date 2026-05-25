@@ -122,6 +122,7 @@ Scope
 - `thread_heap_owner_inventory_box.hako` owns M215 thread heap owner-token inventory. It keeps the owner-token inventory route narrow, exact, and explicit before any thread scheduling, atomic claim, remote-free drain, owner mutation, reclaim execution, page-source, unreserve, OS release, provider activation, or host allocator swap work opens.
 - `segment_arena_backing_readiness_inventory_box.hako` owns MIMAP-236A segment arena backing readiness inventory. It keeps the readiness route narrow, exact, and explicit before any arena backing, raw pointer, segment-map, atomic bitmap, OSVM, worker/TLS, provider activation, or backend matcher work opens.
 - `page_source_policy_box.hako` owns M49 allocator OSVM page-source policy. It keeps the page-source policy route narrow, exact, and explicit before any unreserve, OS release, provider activation, or allocator replacement work opens.
+- `reclaim_remote_free_drain_execution_box.hako` owns MIMAP-057A reclaim remote-free drain execution. It keeps the drain route narrow, exact, and explicit before any thread scheduling, atomic claim, page-source, unreserve, OS release, provider activation, or allocator replacement work opens.
 - `remote_free_abandoned_owner_policy_box.hako` owns MIMAP-REMOTE-001
   remote-free / abandoned-owner policy composition. It keeps the
   same-owner / remote-owner / abandoned-owner decision route narrow, exact,
