@@ -239,6 +239,16 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledg
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_span_observation_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-184A"
+app = "apps/hako-alloc-segment-map-local-free-integration-bridge-proof"
+label = "segment map local-free integration bridge proof"
+profiles = ["pilot", "hako-alloc-purge"]
+validation_profile = "scalar-mir"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_integration_bridge_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_integration_bridge_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-196A"
 app = "apps/hako-alloc-segment-map-local-free-reuse-ledger-release-bridge-proof"
 label = "segment map local-free reuse ledger release bridge proof"
