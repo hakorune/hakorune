@@ -14,8 +14,8 @@ TASKBOARD="docs/development/current/main/phases/phase-293x/293x-mimalloc-port-ta
 GRANULARITY="docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 JOINT="docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
-PROOF_MANIFEST="tools/checks/proof_apps.toml"
-GUARD_MANIFEST="tools/checks/guard_rows.toml"
+PROOF_MANIFEST="tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_readiness.toml"
+GUARD_MANIFEST="tools/checks/manifests/guard_rows/hako_alloc_closeout.toml"
 CARD_252A="docs/development/current/main/phases/phase-293x/293x-775-MIMAP-252A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-INVENTORY.md"
 CARD_253A="docs/development/current/main/phases/phase-293x/293x-776-MIMAP-253A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-DIAGNOSTICS.md"
 CARD_254A="docs/development/current/main/phases/phase-293x/293x-777-MIMAP-254A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-CLOSEOUT-PACK.md"
@@ -80,7 +80,16 @@ guard_expect_in_file "$TAG" "$GUARD_252A" "$INDEX" "check index must list MIMAP-
 guard_expect_in_file "$TAG" "$GUARD_253A" "$INDEX" "check index must list MIMAP-253A guard"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-254A closeout guard"
 
-bash "$RUN_PROOF" --closeout-pack segment-arena-backing-modeled-residence-arena-binding --level L2 --dry-run >/tmp/"$TAG".proof_dry_run 2>&1 || {
+python3 "$ROOT_DIR/tools/checks/lib/manifest_runner.py" \
+  --root "$ROOT_DIR" \
+  --manifest tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_readiness.toml \
+  --table proof_apps \
+  --tag proof-app \
+  --item-name "proof app" \
+  --app-key app \
+  --closeout-pack segment-arena-backing-modeled-residence-arena-binding \
+  --level L2 \
+  --dry-run >/tmp/"$TAG".proof_dry_run 2>&1 || {
   cat /tmp/"$TAG".proof_dry_run >&2
   rm -f /tmp/"$TAG".proof_dry_run
   guard_fail "$TAG" "modeled residence arena-binding L2 dry-run selection failed"
