@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x abandoned-heap stress seam selection on the comparison lane
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002

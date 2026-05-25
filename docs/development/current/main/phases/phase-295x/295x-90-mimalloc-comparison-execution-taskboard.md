@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002:
-  Select the abandoned-heap stress contract refresh after the PAR-STRESS closeout.
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002:
+  Refresh the abandoned-heap stress contract by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces.
 ```
 
 ## Queue
@@ -58,7 +58,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002:
 | 211 | `MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002` | Landed | Run the native multi-worker substrate stress evidence row after thread-safe hako_mem ABI selection. |
 | 212 | `MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002` | Landed | Present the native multi-worker substrate stress evidence as a stable comparison contract after the evidence row. |
 | 213 | `MIMALLOC-COMPARISON-PAR-STRESS-CLOSEOUT-295X-002` | Landed | Close the native multi-worker substrate stress presentation and park the lane on the next narrow abandoned-heap stress seam. |
-| 214 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002` | Current | Select the abandoned-heap stress contract refresh after the PAR-STRESS closeout. |
+| 214 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002` | Landed | Select the abandoned-heap stress contract refresh after the PAR-STRESS closeout. |
+| 215 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002` | Current | Refresh the abandoned-heap stress contract by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces. |
 
 ## Full Queue
 
