@@ -168,6 +168,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 128 | `295x-128` | Landed | Thin-wrapped the MIMAP-292A release-applied recycle guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 129 | `295x-129` | Landed | Thin-wrapped the MIMAP-094A modeled ledger guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 130 | `295x-130` | Landed | Thin-wrapped the MIMAP-196A release bridge guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
+| 131 | `295x-131` | Landed | Thin-wrapped the M212 bounded purge/decommit scheduler guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

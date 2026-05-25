@@ -24,6 +24,9 @@ Scope
 - `page_map_realloc_failure_contract_box.hako`: the M176 realloc failure-
   contract diagnostics owner. It freezes zero / oversized reject reporting and
   delegates same-class and grow handling back to M174 / M175.
+- `purge_bounded_scheduler_box.hako` owns M212 bounded purge/decommit scheduler.
+  scheduler. It keeps the bounded scheduler route narrow, exact, and explicit
+  before any closeout or wider purge policy work opens.
 - `segment_allocation_modeled_ledger_box.hako` owns MIMAP-094A segment
   allocation modeled ledger. It keeps the modeled ledger route narrow, exact,
   and explicit before any release/consume bridge work opens.
