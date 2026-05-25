@@ -174,6 +174,32 @@ fn lower_cond_expr_to_if_plans(
             right,
             ..
         } => {
+            if joins.is_empty() {
+                // Joinless branch-context fast path:
+                // keep short-circuit semantics but avoid the generic join remap/clone
+                // scaffolding that is only needed when branch joins carry payloads.
+                let else_base = else_plans.unwrap_or_else(|| vec![CorePlan::Seq(Vec::new())]);
+                let else_for_right = clone_plans_with_fresh_loops(builder, &else_base)?.plans;
+                let right_plans = lower_cond_expr_to_if_plans(
+                    builder,
+                    phi_bindings,
+                    right,
+                    then_plans,
+                    Some(else_for_right),
+                    Vec::new(),
+                    error_prefix,
+                )?;
+                return lower_cond_expr_to_if_plans(
+                    builder,
+                    phi_bindings,
+                    left,
+                    right_plans,
+                    Some(else_base),
+                    Vec::new(),
+                    error_prefix,
+                );
+            }
+
             let (else_plans_for_right, joins_for_right) = match else_plans.as_ref() {
                 Some(plans) => {
                     let fresh = clone_plans_with_fresh_loops(builder, plans)?;
@@ -247,6 +273,32 @@ fn lower_cond_expr_to_if_plans(
             right,
             ..
         } => {
+            if joins.is_empty() {
+                // Joinless branch-context fast path:
+                // OR chains in fail-predicate conditions should not pay the full
+                // payload-join cloning/remap path.
+                let then_for_right = clone_plans_with_fresh_loops(builder, &then_plans)?.plans;
+                let else_for_right = else_plans.unwrap_or_else(|| vec![CorePlan::Seq(Vec::new())]);
+                let right_plans = lower_cond_expr_to_if_plans(
+                    builder,
+                    phi_bindings,
+                    right,
+                    then_for_right,
+                    Some(else_for_right),
+                    Vec::new(),
+                    error_prefix,
+                )?;
+                return lower_cond_expr_to_if_plans(
+                    builder,
+                    phi_bindings,
+                    left,
+                    then_plans,
+                    Some(right_plans),
+                    Vec::new(),
+                    error_prefix,
+                );
+            }
+
             let then_fresh = clone_plans_with_fresh_loops(builder, &then_plans)?;
             let else_fresh = match else_plans.as_ref() {
                 Some(plans) => Some(clone_plans_with_fresh_loops(builder, plans)?),
