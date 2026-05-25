@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION-295X-002:
-  Select the allocator-facing atomic route set as the next narrow concurrency seam after worker TLS cache-slot selection.
+MIMALLOC-COMPARISON-REMOTE-FREE-POLICY-SELECTION-295X-002:
+  Select the production-facade remote-free policy integration as the next narrow concurrency seam after allocator-facing atomic routes.
 ```
 
 ## Queue
@@ -51,7 +51,8 @@ MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION-295X-002:
 | 204 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Landed | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility. |
 | 205 | `MIMALLOC-COMPARISON-WORKER-IDENTITY-SELECTION-295X-002` | Landed | Select the allocator-internal worker identity substrate as the next narrow concurrency seam after smaller-default load-set evidence. |
 | 206 | `MIMALLOC-COMPARISON-WORKER-TLS-SELECTION-295X-002` | Landed | Select the allocator worker TLS cache-slot substrate as the next narrow concurrency seam after worker identity selection. |
-| 207 | `MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION-295X-002` | Current | Select the allocator-facing atomic route set as the next narrow concurrency seam after worker TLS cache-slot selection. |
+| 207 | `MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION-295X-002` | Landed | Select the allocator-facing atomic route set as the next narrow concurrency seam after worker TLS cache-slot selection. |
+| 208 | `MIMALLOC-COMPARISON-REMOTE-FREE-POLICY-SELECTION-295X-002` | Current | Select the production-facade remote-free policy integration as the next narrow concurrency seam after allocator-facing atomic routes. |
 
 ## Full Queue
 
