@@ -26,11 +26,14 @@ abandoned-heap stress path.
 
 Repeated comparison samples with `sample-count=5` and `warmup-count=1`
 showed the smaller default load set staying materially below explicit root
-compatibility on the selected workload:
+compatibility on every selected workload:
 
 | workload | empty default median RSS | explicit root median RSS |
 | --- | ---: | ---: |
 | representative-small-block-v0 | 3,588,096 | 9,457,664 |
+| representative-realloc-aligned-v0 | 3,657,728 | 9,580,544 |
+| representative-mixed-small-v0 | 3,641,344 | 9,637,888 |
+| representative-huge-ish-v0 | 3,612,672 | 9,478,144 |
 
 The repeated runner default is now `empty`, while explicit `root`
 compatibility remains available for comparison runs. The runner reports this
