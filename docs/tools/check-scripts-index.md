@@ -233,6 +233,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_malloc_large_closeout_guard.sh` | 295x-189 の `malloc-large` closeout を固定し、evidence run を閉じて次 workload seam selection へ進むことを検証する。 |
 | `tools/checks/k2_wide_phase295x_malloc_large_memory_gap_attribution_selection_guard.sh` | 295x-190 の `malloc-large` memory-gap attribution selection を固定し、空ベースラインへの移行と repeated measurement policy の維持を検証する。 |
 | `tools/checks/k2_wide_phase295x_malloc_large_memory_gap_baseline_guard.sh` | 295x-191 の `malloc-large` memory-gap baseline を固定し、空 baseline evidence と repeated measurement policy の継続を検証する。 |
+| `tools/checks/k2_wide_phase295x_malloc_large_memory_gap_incremental_guard.sh` | 295x-192 の `malloc-large` memory-gap incremental を固定し、空 baseline との差分分解と repeated measurement policy の継続を検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |

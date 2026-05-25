@@ -134,7 +134,8 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001:
 | 188 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001` | Landed | Run the external `mimalloc-bench` `malloc-large` corpus and the selected huge-ish `.hako` evidence through the comparison normalizer. |
 | 189 | `MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT-295X-001` | Landed | Close the external `malloc-large` evidence family and choose the next comparison seam. |
 | 190 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Landed | Select baseline attribution for the external `malloc-large` evidence family before any winner claim. |
-| 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Current | Add empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy. |
+| 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Landed | Add empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy. |
+| 192 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001` | Current | Compute baseline-subtracted RSS evidence for the external `malloc-large` attribution family. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

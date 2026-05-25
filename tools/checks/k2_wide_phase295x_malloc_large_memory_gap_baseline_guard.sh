@@ -21,7 +21,7 @@ echo "[$TAG] checking phase-295x malloc-large memory gap baseline"
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$SSOT" "$TASKBOARD" "$INDEX" "$SELF_SCRIPT" "$RUNNER" "$C_RUNNER" "$APP"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$RUNNER"
 
-guard_expect_in_file "$TAG" 'Status: Current' "$CARD" "card must remain current while baseline evidence is open"
+guard_expect_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after opening the incremental row"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001' "$CARD" "card must select incremental follow-on"
 guard_expect_in_file "$TAG" 'workload=representative-empty-v0' "$CARD" "card must select empty baseline workload"
@@ -37,7 +37,7 @@ guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELIN
 guard_expect_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous row must be landed"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001' "$TASKBOARD" "taskboard must expose the baseline row"
 guard_expect_in_file "$TAG" '| 190 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Landed |' "$TASKBOARD" "taskboard must keep the attribution row landed"
-guard_expect_in_file "$TAG" '| 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Current |' "$TASKBOARD" "taskboard must expose the baseline row"
+guard_expect_in_file "$TAG" '| 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the baseline row landed"
 guard_expect_in_file "$TAG" 'Memory Gap Attribution' "$SSOT" "SSOT must define attribution policy"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
