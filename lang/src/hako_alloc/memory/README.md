@@ -52,6 +52,12 @@ Scope
 - `worker_identity_box.hako` owns MIMAP-WORKER-001 internal worker identity
   substrate. It keeps the worker-id route narrow, exact, and explicit before
   any TLS cache, remote-free, atomic, provider, or backend matcher work opens.
+- `alloc_fast_path_heap_box.hako` owns M167 mimalloc alloc fast path
+  orchestration. It keeps the page queue selection, page acquisition, and
+  deterministic fallback route narrow, exact, and explicit before any OSVM
+  page sourcing, local-free collection/retire, remote-free atomics, page-map
+  lookup, provider activation, hook install, process allocator replacement,
+  `.inc` name matching, or production `usize` field migration opens.
 - `page_map_realloc_alloc_copy_release_box.hako`: the M175 realloc
   alloc-copy-release fallback module. It keeps the fallback route narrow,
   exact, and explicit before any broader alloc-copy or release-order work
