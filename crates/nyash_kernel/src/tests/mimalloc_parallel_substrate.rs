@@ -37,6 +37,47 @@ fn set_node_payload(node: *mut c_void, payload: usize) {
     }
 }
 
+fn spawn_stress_worker(
+    head: Arc<AtomicUsize>,
+    worker_index: usize,
+) -> std::thread::JoinHandle<()> {
+    std::thread::spawn(move || {
+        let tls_value = 10_000 + worker_index as i64;
+        assert_eq!(hako_worker_current_id_i64(0), 0);
+        assert_eq!(
+            hako_tls_cache_slot_set_i64(TLS_CACHE_SLOT, tls_value),
+            HAKO_OK
+        );
+        assert_eq!(hako_tls_cache_slot_get_i64(TLS_CACHE_SLOT), tls_value);
+
+        for iteration in 0..ITERATIONS_PER_WORKER {
+            let node = hako_mem_alloc(NODE_BYTES);
+            assert!(!node.is_null());
+            let payload = (worker_index << 16) | iteration;
+            set_node_payload(node, payload);
+            push_remote_free(&head, node);
+            hako_atomic_slot_fetch_add_i64(REMOTE_FREE_COUNT_SLOT, 1);
+        }
+
+        assert_eq!(hako_tls_cache_slot_get_i64(TLS_CACHE_SLOT), tls_value);
+    })
+}
+
+fn drain_remote_free_stack(head: &AtomicUsize) -> (usize, usize) {
+    let mut drained = 0usize;
+    let mut payload_sum = 0usize;
+    loop {
+        let node = pop_remote_free(head);
+        if node.is_null() {
+            break;
+        }
+        payload_sum = payload_sum.wrapping_add(node_payload(node));
+        drained += 1;
+        hako_mem_free(node);
+    }
+    (drained, payload_sum)
+}
+
 fn push_remote_free(head: &AtomicUsize, node: *mut c_void) {
     let head_ptr = (head as *const AtomicUsize).cast_mut().cast::<c_void>();
     loop {
@@ -74,27 +115,7 @@ fn mimalloc_parallel_substrate_stress_exercises_native_worker_tls_atomic_and_rem
     let remote_head = Arc::new(AtomicUsize::new(0));
     let mut workers = Vec::new();
     for worker_index in 0..WORKER_COUNT {
-        let head = Arc::clone(&remote_head);
-        workers.push(std::thread::spawn(move || {
-            let tls_value = 10_000 + worker_index as i64;
-            assert_eq!(hako_worker_current_id_i64(0), 0);
-            assert_eq!(
-                hako_tls_cache_slot_set_i64(TLS_CACHE_SLOT, tls_value),
-                HAKO_OK
-            );
-            assert_eq!(hako_tls_cache_slot_get_i64(TLS_CACHE_SLOT), tls_value);
-
-            for iteration in 0..ITERATIONS_PER_WORKER {
-                let node = hako_mem_alloc(NODE_BYTES);
-                assert!(!node.is_null());
-                let payload = (worker_index << 16) | iteration;
-                set_node_payload(node, payload);
-                push_remote_free(&head, node);
-                hako_atomic_slot_fetch_add_i64(REMOTE_FREE_COUNT_SLOT, 1);
-            }
-
-            assert_eq!(hako_tls_cache_slot_get_i64(TLS_CACHE_SLOT), tls_value);
-        }));
+        workers.push(spawn_stress_worker(Arc::clone(&remote_head), worker_index));
     }
 
     for worker in workers {
@@ -109,17 +130,7 @@ fn mimalloc_parallel_substrate_stress_exercises_native_worker_tls_atomic_and_rem
         expected_count
     );
 
-    let mut drained = 0usize;
-    let mut payload_sum = 0usize;
-    loop {
-        let node = pop_remote_free(&remote_head);
-        if node.is_null() {
-            break;
-        }
-        payload_sum = payload_sum.wrapping_add(node_payload(node));
-        drained += 1;
-        hako_mem_free(node);
-    }
+    let (drained, payload_sum) = drain_remote_free_stack(&remote_head);
 
     assert_eq!(drained, WORKER_COUNT * ITERATIONS_PER_WORKER);
     assert_ne!(payload_sum, 0);
