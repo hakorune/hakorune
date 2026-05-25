@@ -132,6 +132,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 90 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001` | Current | Define the first `.hako` workload alignment contract against external `malloc-large`. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
+| 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 
 ## Parked
 
