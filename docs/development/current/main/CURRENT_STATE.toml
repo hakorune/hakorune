@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-163-MIMAP-232A-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-163-MIMAP-232A-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the MIMAP-232A source lifecycle-keyed release apply/recycle continuation guard root into an impl-backed wrapper."
+latest_card = "295x-164-MIMAP-045A-OSVM-FAST-PATH-UNRESERVE-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-164-MIMAP-045A-OSVM-FAST-PATH-UNRESERVE-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the MIMAP-045A OSVM fast-path unreserve guard root into an impl-backed wrapper."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-164 thin-wrapped the MIMAP-045A OSVM fast-path unreserve guard root into an impl-backed wrapper",
   "295x-163 thin-wrapped the MIMAP-232A source lifecycle-keyed release apply/recycle continuation guard root into an impl-backed wrapper",
   "295x-162 thin-wrapped the MIMAP-252A segment-arena-backed residence-binding inventory guard root into an impl-backed wrapper",
   "295x-161 thin-wrapped the MIMAP-042A and MIMAP-043A OSVM fast-path guard roots into impl-backed wrappers and kept the memory README owner notes and proof manifest rows in sync",

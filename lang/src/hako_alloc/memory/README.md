@@ -113,6 +113,7 @@ Scope
   diagnostics, recommit, provider activation, and allocator replacement.
 - `osvm_fast_path_purge_route_box.hako` owns MIMAP-042A OSVM-backed fast-path bounded purge route. It keeps the bounded purge route narrow, exact, and explicit before any recommit, reuse, unreserve, provider activation, or concurrency work opens.
 - `osvm_fast_path_reuse_route_box.hako` owns MIMAP-043A OSVM-backed fast-path recommit/reuse route. It keeps the recommit/reuse route narrow, exact, and explicit before any page-source, OSVM, unreserve, provider activation, or concurrency work opens.
+- `osvm_fast_path_unreserve_route_box.hako` owns MIMAP-045A OSVM-backed fast-path unreserve route. It keeps the unreserve route narrow, exact, and explicit before any provider activation, concurrency, or wider page-source work opens.
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
