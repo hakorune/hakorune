@@ -49,6 +49,9 @@ Scope
   substrate. It keeps the worker identity, TLS cache-slot read/write, and
   cache-slot clear routes narrow, exact, and explicit before any wider worker
   or TLS substrate work opens.
+- `worker_identity_box.hako` owns MIMAP-WORKER-001 internal worker identity
+  substrate. It keeps the worker-id route narrow, exact, and explicit before
+  any TLS cache, remote-free, atomic, provider, or backend matcher work opens.
 - `page_map_realloc_alloc_copy_release_box.hako`: the M175 realloc
   alloc-copy-release fallback module. It keeps the fallback route narrow,
   exact, and explicit before any broader alloc-copy or release-order work
