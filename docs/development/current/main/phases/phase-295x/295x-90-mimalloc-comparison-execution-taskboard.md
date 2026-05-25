@@ -161,6 +161,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 120 | `295x-120` | Landed | Thin-wrapped the M289A release-apply diagnostics guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
 | 121 | `295x-121` | Landed | Thin-wrapped the M288A release-apply guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
 | 122 | `295x-122` | Landed | Thin-wrapped the M301A lifecycle-continuation bridge diagnostics guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
+| 124 | `295x-124` | Landed | Thin-wrapped the M174 no-move realloc guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

@@ -19,6 +19,8 @@ Scope
 - `page_map_release_box.hako`: the M172 page-map-backed release seam. It
   composes page-map lookup, page-local release, and ownership unregistering
   for the explicit release route and keeps the counter fields exact.
+- `page_map_realloc_same_class_box.hako`: the M174 no-move realloc module. It
+  owns the same-class path and keeps the exact counters for no-move evidence.
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
