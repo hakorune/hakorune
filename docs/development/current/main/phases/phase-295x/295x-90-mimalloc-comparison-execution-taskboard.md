@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002:
-  Select the post-long-process follow-on that resumes the actual .hako mimalloc port work using the current process-repeat evidence.
+MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002:
+  Resume `.hako` mimalloc porting through the existing reuse-cycle small-block workload with process-repeat evidence.
 ```
 
 ## Queue
@@ -79,7 +79,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECT
 | 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap speed/stability observation pack and select an abandoned-heap-specific high-resolution timing seam. |
 | 233 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002` | Landed | Select an abandoned-heap-specific long process-repeat timing pack after the high-res timing seam selection. |
 | 234 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-PACK-295X-002` | Landed | Close the abandoned-heap-specific long process-repeat timing pack after the repeated process evidence escapes the 1ms floor. |
-| 235 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002` | Current | Resume the actual `.hako` mimalloc port work using the current process-repeat evidence. |
+| 235 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002` | Landed | Resume the actual `.hako` mimalloc port work using the current process-repeat evidence. |
+| 236 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002` | Current | Resume `.hako` mimalloc porting through the existing reuse-cycle small-block workload with process-repeat evidence. |
 
 ## Full Queue
 
@@ -199,7 +200,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECT
 | 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap speed/stability observation pack and select an abandoned-heap-specific high-resolution timing seam. |
 | 233 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002` | Landed | Select an abandoned-heap-specific long process-repeat timing pack after the high-res timing seam selection. |
 | 234 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-PACK-295X-002` | Landed | Close the abandoned-heap-specific long process-repeat timing pack after the repeated process evidence escapes the 1ms floor. |
-| 235 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002` | Current | Resume the actual `.hako` mimalloc port work using the current process-repeat evidence. |
+| 235 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002` | Landed | Resume the actual `.hako` mimalloc port work using the current process-repeat evidence. |
+| 236 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002` | Current | Resume `.hako` mimalloc porting through the existing reuse-cycle small-block workload with process-repeat evidence. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

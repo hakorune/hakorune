@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: choose the post-long process-repeat follow-on after the abandoned-heap stress timing pack escaped the 1ms floor.
 Related:
@@ -20,15 +20,17 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECT
 The long process-repeat timing evidence is useful, but it still includes
 process/runtime startup and evidence-output costs.
 
-resume the actual `.hako` mimalloc port work using the current RSS + process-repeat evidence rather than treating this as allocator-body-only timing.
-
 Select:
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HAKO-MIMALLOC-PORT-RESUME-SEAM-295X-002
+MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002
 ```
 
-allocator-body timing and presentation-only alternatives parked unless they are needed to keep the port seam narrow and honest.
+resume the actual `.hako` mimalloc port work using the current RSS + process-repeat evidence rather than treating this as allocator-body-only timing.
+
+The next row should keep allocator-body timing and presentation-only
+alternatives parked unless they are needed to keep the port seam narrow and
+honest.
 
 ## Deferred
 
