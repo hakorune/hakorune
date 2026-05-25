@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-24
+Date: 2026-05-26
 Scope: taskboard for phase-295x mimalloc comparison execution.
 Related:
   - docs/development/current/main/design/mimalloc-comparison-execution-ssot.md
@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002:
-  Refresh the smallest production-facing remote-free comparison contract.
+MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002:
+  Run the selected exact-EXE-first minimum benchmark pack through process-invocation repeat timing without widening backend split or native comparison seams.
 ```
 
 ## Queue
@@ -88,8 +88,8 @@ MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002:
 | 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed | Select the remote-free production facade as the next allocator-facing semantic seam. |
 | 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed | Refresh the smallest production-facing remote-free comparison contract. |
 | 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Landed | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
-| 244 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002` | Current | Fold the semantic closeout into an implementation-first minimum benchmark selection proof instead of a presentation-only mimalloc row. |
-| 245 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002` | Selected | Run the selected exact-EXE-first minimum benchmark pack without widening backend split or native comparison seams. |
+| 244 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002` | Landed | Fold the semantic closeout into an implementation-first minimum benchmark selection proof instead of a presentation-only mimalloc row. |
+| 245 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002` | Current | Run the selected exact-EXE-first minimum benchmark pack through process-invocation repeat timing without widening backend split or native comparison seams. |
 | 246 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Queued | Select the first backend-split comparison seam after the minimum exact-EXE benchmark run lands. |
 
 ## Full Queue

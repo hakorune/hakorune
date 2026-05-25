@@ -1,0 +1,113 @@
+// mimalloc-remote-free-minimum-benchmark-run-proof
+// Remote-free collect-only workload proof app for the exact-EXE-first minimum benchmark row.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+box HakoAllocRemoteFreeMinimumBenchmarkRunReport {
+    operation_repeat: i64 = 128
+    workload_id: StringBox = "remote-free-collect-only-v0"
+    completed_ops: i64 = 0
+
+    outputContractLine() { return "output_contract=mimalloc-comparison-remote-free-minimum-benchmark-run-v0" }
+    benchmarkPackLine() { return "benchmark_pack=remote-free-minimum-v0" }
+    backendScopeLine() { return "backend_scope=exact-exe-first" }
+    timingRepeatKindLine() { return "timing_repeat_kind=process-invocation-v0" }
+    operationRepeatLine() { return "operation_repeat=" + me.operation_repeat }
+    warmupCountLine() { return "warmup_count=1" }
+    sampleCountLine() { return "sample_count=5" }
+    workloadLine() { return "workload_id=" + me.workload_id }
+    completedOpsLine() { return "completed_ops=" + me.completed_ops }
+    stopLine() { return "stop_line=provider:0,replacement:0,winner:0" }
+    ok() {
+        if me.completed_ops != me.operation_repeat { return 0 }
+        return 1
+    }
+    summaryLine() {
+        if me.ok() == 1 { return "summary=ok" }
+        return "summary=fail"
+    }
+}
+
+static box Main {
+    main(args) {
+        local report = new HakoAllocRemoteFreeMinimumBenchmarkRunReport()
+        local alloc = new HakoAllocProductionFacade()
+        local i = 0
+        local ok = 1
+
+        loop(i < report.operation_repeat) {
+            if ok == 1 {
+                local head_cell = externcall "hako_mem_alloc"(8)
+                local block_a = externcall "hako_mem_alloc"(24)
+                local block_b = externcall "hako_mem_alloc"(24)
+                if head_cell == 0 {
+                    if block_b != 0 { local free_head_b = externcall "hako_mem_free"(block_b) }
+                    if block_a != 0 { local free_head_a = externcall "hako_mem_free"(block_a) }
+                    ok = 0
+                } else if block_a == 0 {
+                    if block_b != 0 { local free_blocka_b = externcall "hako_mem_free"(block_b) }
+                    local free_blocka_head = externcall "hako_mem_free"(head_cell)
+                    ok = 0
+                } else if block_b == 0 {
+                    local free_blockb_a = externcall "hako_mem_free"(block_a)
+                    local free_blockb_head = externcall "hako_mem_free"(head_cell)
+                    ok = 0
+                } else {
+                    local port = alloc.remotePagePort(17, 32, 2, 2, head_cell)
+                    local block0 = alloc.remotePageAcquire(port, 8)
+                    local block1 = alloc.remotePageAcquire(port, 16)
+                    if block0 < 0 {
+                        ok = 0
+                    } else if block1 < 0 {
+                        ok = 0
+                    } else if alloc.remotePagePublishPort(port, block_a, block0, 0) != 1 {
+                        ok = 0
+                    } else if alloc.remotePagePublishPort(port, block_b, block1, 0) != 1 {
+                        ok = 0
+                    } else if alloc.remotePageCollectPendingPort(port) != 2 {
+                        ok = 0
+                    } else if alloc.remotePageCollectOnePort(port) != 0 {
+                        ok = 0
+                    } else {
+                        local snapshot = alloc.remotePagePortSnapshot(port)
+                        if snapshot.page_local_free_count != 2 {
+                            ok = 0
+                        } else if snapshot.inbox_pending_count != 0 {
+                            ok = 0
+                        }
+                    }
+                    local free_done_b = externcall "hako_mem_free"(block_b)
+                    local free_done_a = externcall "hako_mem_free"(block_a)
+                    local free_done_head = externcall "hako_mem_free"(head_cell)
+                    if ok == 1 {
+                        report.completed_ops = report.completed_ops + 1
+                    }
+                }
+            }
+            i = i + 1
+        }
+
+        if ok != 1 {
+            print("mimalloc-remote-free-minimum-benchmark-run-proof")
+            print(report.workloadLine())
+            print(report.completedOpsLine())
+            print("summary=fail")
+            return 1
+        }
+
+        print("mimalloc-remote-free-minimum-benchmark-run-proof")
+        print(report.outputContractLine())
+        print(report.benchmarkPackLine())
+        print(report.backendScopeLine())
+        print(report.timingRepeatKindLine())
+        print(report.operationRepeatLine())
+        print(report.warmupCountLine())
+        print(report.sampleCountLine())
+        print(report.workloadLine())
+        print(report.completedOpsLine())
+        print(report.stopLine())
+        print(report.summaryLine())
+        if report.ok() == 1 { return 0 }
+        return 1
+    }
+}

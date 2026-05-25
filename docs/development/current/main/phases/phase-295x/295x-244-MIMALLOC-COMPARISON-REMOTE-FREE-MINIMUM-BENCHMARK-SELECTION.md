@@ -82,5 +82,6 @@ Select:
 MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002
 ```
 
-The next row should run the selected minimum pack on the exact-EXE/AOT-first
-path without widening backend split or native C comparison yet.
+The next row should run the selected minimum pack on the exact-EXE-first path
+with process-invocation repeat timing, still without widening backend split or
+native C comparison yet.

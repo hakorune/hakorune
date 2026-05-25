@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-25"
+date = "2026-05-26"
 
 active_lane = "phase-295x mimalloc comparison execution"
 active_lane_status = "Phase-294x exact usize comparison-quality slice closed at 294x-270. Phase-295x resumes mimalloc-facing work from explicit comparison evidence and keeps provider/DLL/replacement seams parked."
@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-244-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-244-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION.md"
-latest_card_summary = "Folded the remote-free semantic closeout into an implementation-first minimum benchmark selection proof and fixed the exact-EXE-first pack contract."
-current_blocker_token = "MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002"
+latest_card = "295x-245-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-245-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN.md"
+latest_card_summary = "Ran the exact-EXE-first remote-free minimum benchmark pack through process-invocation repeat timing with winner/provider/replacement seams still closed."
+current_blocker_token = "MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
