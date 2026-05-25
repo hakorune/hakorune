@@ -31,6 +31,9 @@ Scope
   local-free reuse ledger bridge. It keeps the bridge route narrow, exact, and
   explicit before any released-token recycle, released-span observation, or
   closeout-pack work opens.
+- `object_lifecycle_facade_stats_box.hako` owns MIMAP-018A facade stats
+  snapshot. It keeps the stats snapshot route narrow, exact, and explicit
+  before any wider policy or backend-visible behavior work opens.
 - `worker_tls_cache_box.hako`: the MIMAP-TLS-001 internal worker TLS cache-slot
   substrate. It keeps the worker identity, TLS cache-slot read/write, and
   cache-slot clear routes narrow, exact, and explicit before any wider worker
