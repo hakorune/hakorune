@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x native multi-worker substrate stress evidence on the comparison lane
 Blocker: MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002
@@ -49,7 +49,7 @@ cargo_test_passed=1
 Select:
 
 ```text
-MIMALLOC-COMPARISON-PAR-STRESS-CLOSEOUT-295X-002
+MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002
 ```
 
 ## Stop Line

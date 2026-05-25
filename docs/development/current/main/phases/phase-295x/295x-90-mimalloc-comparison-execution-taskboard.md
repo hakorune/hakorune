@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002:
-  Run the native multi-worker substrate stress evidence row after thread-safe hako_mem ABI selection.
+MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002:
+  Present the native multi-worker substrate stress evidence as a stable comparison contract after the evidence row.
 ```
 
 ## Queue
@@ -55,7 +55,8 @@ MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002:
 | 208 | `MIMALLOC-COMPARISON-REMOTE-FREE-POLICY-SELECTION-295X-002` | Landed | Select the production-facade remote-free policy integration as the next narrow concurrency seam after allocator-facing atomic routes. |
 | 209 | `MIMALLOC-COMPARISON-THREADSAFE-ABI-SELECTION-295X-002` | Landed | Select the thread-safe hako_mem ABI boundary as the next narrow concurrency seam after production-facade remote-free policy integration. |
 | 210 | `MIMALLOC-COMPARISON-PAR-STRESS-SELECTION-295X-002` | Landed | Select the native multi-worker substrate stress as the next narrow concurrency seam after thread-safe hako_mem ABI selection. |
-| 211 | `MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002` | Current | Run the native multi-worker substrate stress evidence row after thread-safe hako_mem ABI selection. |
+| 211 | `MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002` | Landed | Run the native multi-worker substrate stress evidence row after thread-safe hako_mem ABI selection. |
+| 212 | `MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002` | Current | Present the native multi-worker substrate stress evidence as a stable comparison contract after the evidence row. |
 
 ## Full Queue
 

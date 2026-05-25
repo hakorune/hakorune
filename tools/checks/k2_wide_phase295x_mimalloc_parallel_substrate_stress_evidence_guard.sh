@@ -20,7 +20,7 @@ guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$SELF_SCR
 guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$RUNNER"
 
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002' "$CARD" "card must identify the current blocker"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PAR-STRESS-CLOSEOUT-295X-002' "$CARD" "card must select closeout follow-on"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002' "$CARD" "card must select presentation follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002' "$PREV_CARD" "previous row must select this evidence row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 guard_expect_in_file "$TAG" 'mimalloc_parallel_substrate_stress_runner=1' "$RUNNER" "runner must publish stable stress evidence"
@@ -28,8 +28,9 @@ guard_expect_in_file "$TAG" 'output_contract=mimalloc-comparison-par-stress-evid
 guard_expect_in_file "$TAG" 'cargo_test_filter=mimalloc_parallel_substrate_stress' "$RUNNER" "runner must target the native stress test"
 guard_expect_fixed_in_file "$TAG" 'println!("mimalloc_parallel_substrate_stress=1");' "$TEST_FILE" "stress test must emit a stable evidence marker"
 guard_expect_fixed_in_file "$TAG" 'println!("payload_sum_nonzero={}", if payload_sum != 0 { 1 } else { 0 });' "$TEST_FILE" "stress test must emit payload summary"
-guard_expect_in_file "$TAG" '| 211 | `295x-211` | Current |' "$TASKBOARD" "taskboard must expose the evidence row"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002:' "$TASKBOARD" "taskboard must track the current evidence blocker"
+guard_expect_in_file "$TAG" '| 211 | `295x-211` | Landed |' "$TASKBOARD" "taskboard must retain the evidence row as landed"
+guard_expect_in_file "$TAG" '| 212 | `295x-212` | Current |' "$TASKBOARD" "taskboard must expose the presentation row"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002:' "$TASKBOARD" "taskboard must track the current presentation blocker"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_par_stress_evidence.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
