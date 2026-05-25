@@ -110,6 +110,11 @@ Scope
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
+- `remote_free_abandoned_owner_policy_box.hako` owns MIMAP-REMOTE-001
+  remote-free / abandoned-owner policy composition. It keeps the
+  same-owner / remote-owner / abandoned-owner decision route narrow, exact,
+  and explicit before any wider reclaim, worker/TLS, atomic, or policy
+  expansion opens.
 - `object_lifecycle_facade_page_source_box.hako` owns MIMAP-021B facade page-source fresh-page attach.
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns MIMAP-265A segment arena backing modeled source accounting diagnostics.
 - `segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box.hako` owns MIMAP-281A segment arena backing modeled allocation ledger release candidate diagnostics.
