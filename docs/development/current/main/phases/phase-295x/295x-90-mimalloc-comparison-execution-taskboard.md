@@ -188,6 +188,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 148 | `295x-148` | Landed | Thin-wrapped the MIMAP-149A segment allocation blocked-substrate matrix guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 149 | `295x-149` | Landed | Thin-wrapped the M192A segment-map local-free reuse ledger bridge guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 150 | `295x-150` | Landed | Thin-wrapped the MIMAP-018A facade stats snapshot guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
+| 151 | `295x-151` | Landed | Thin-wrapped the MIMAP-153A segment-map lookup guarded readiness composition guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

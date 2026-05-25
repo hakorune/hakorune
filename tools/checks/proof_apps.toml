@@ -36,6 +36,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_subst
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-153A"
+app = "apps/hako-alloc-segment-map-lookup-guarded-readiness-composition-proof"
+label = "segment-map lookup guarded readiness composition proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-composition"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-lookup-guarded-readiness-composition"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

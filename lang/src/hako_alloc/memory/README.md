@@ -31,6 +31,10 @@ Scope
   local-free reuse ledger bridge. It keeps the bridge route narrow, exact, and
   explicit before any released-token recycle, released-span observation, or
   closeout-pack work opens.
+- `segment_map_lookup_guarded_readiness_composition_box.hako` owns MIMAP-153A
+  segment-map lookup guarded readiness composition. It keeps the lookup route
+  narrow, exact, and explicit before any real execution, raw pointer lookup,
+  atomics, or page-source/OS release seams open.
 - `object_lifecycle_facade_stats_box.hako` owns MIMAP-018A facade stats
   snapshot. It keeps the stats snapshot route narrow, exact, and explicit
   before any wider policy or backend-visible behavior work opens.
