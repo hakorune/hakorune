@@ -130,6 +130,7 @@ Scope
   expansion opens.
 - `object_lifecycle_facade_page_source_box.hako` owns MIMAP-021B facade page-source fresh-page attach.
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns MIMAP-265A segment arena backing modeled source accounting diagnostics.
+- `reclaim_scheduler_request_ledger_box.hako` owns MIMAP-068A reclaim scheduler request ledger. It keeps the scheduler request ledger route narrow, exact, and explicit before any thread scheduling, worker spawning, source concurrency, page-source, unreserve, OS release, provider activation, or host allocator swap work opens.
 - `segment_arena_backing_modeled_allocation_plan_box.hako` owns MIMAP-268A segment arena backing modeled allocation plan. It keeps the allocation-plan route narrow, exact, and explicit before any wider apply or ledger work opens.
 - `allocator_comparison_benchmark_execution_preflight_inventory_box.hako` owns MIMAP-436A allocator comparison benchmark execution preflight inventory. It keeps the benchmark execution preflight inventory route narrow, exact, and explicit before any benchmark execution, process replacement, hook, backend matcher, or global allocator work opens.
 - `segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box.hako` owns MIMAP-281A segment arena backing modeled allocation ledger release candidate diagnostics.
