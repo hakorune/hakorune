@@ -30,10 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002:
-  selected current after 295x-197. Run the env-gated NyRT self-RSS checkpoints
-  on the empty no-output exact-EXE path and select the plugin-host baseline
-  follow-on without changing runtime behavior when the env is unset.
+MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002:
+  selected current after 295x-198. Close the plugin-host baseline selection row
+  and open the narrow plugin-host substage diagnostic without changing runtime
+  behavior when the env is unset.
 ```
 
 ## Queue
@@ -44,8 +44,8 @@ MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002:
 | 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Landed | Diagnose the fixed `malloc-large` empty exact-EXE baseline through evidence-output and no-output control pairs. |
 | 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Landed | Observe the fixed `malloc-large` empty exact-EXE baseline into likely next seams. |
 | 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Landed | Add env-gated NyRT self-RSS checkpoints to locate the fixed-cost step without changing runtime behavior when the env is unset. |
-| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current | Run the env-gated NyRT self-RSS checkpoints on the empty no-output exact-EXE path and select the plugin-host baseline follow-on without changing runtime behavior when the env is unset. |
-| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Current | Add env-gated NyRT self-RSS checkpoints to locate the fixed-cost step without changing runtime behavior when the env is unset. |
+| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Landed | Run the env-gated NyRT self-RSS checkpoints on the empty no-output exact-EXE path and select the plugin-host baseline follow-on without changing runtime behavior when the env is unset. |
+| 199 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Current | Close the plugin-host baseline selection row and open the narrow plugin-host substage diagnostic without changing runtime behavior when the env is unset. |
 
 ## Full Queue
 

@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: run the NyRT self-RSS checkpoint diagnostic on the external `malloc-large` empty no-output exact-EXE path.
 Blocker: MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002

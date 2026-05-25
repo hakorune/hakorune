@@ -29,7 +29,8 @@ guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-
 guard_expect_fixed_in_file "$TAG" '| 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark diagnostic landed"
 guard_expect_fixed_in_file "$TAG" '| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the closeout row landed"
 guard_expect_fixed_in_file "$TAG" '| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the NyRT diagnostic row landed"
-guard_expect_fixed_in_file "$TAG" '| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the run row"
+guard_expect_fixed_in_file "$TAG" '| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the run row landed"
+guard_expect_fixed_in_file "$TAG" '| 199 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the plugin-host baseline row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 echo "[$TAG] ok"

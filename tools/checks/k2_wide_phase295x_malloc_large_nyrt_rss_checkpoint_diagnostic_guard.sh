@@ -35,7 +35,8 @@ guard_expect_fixed_in_file "$TAG" 'checkpoint("before_ny_main")' "$ENTRY" "entry
 guard_expect_fixed_in_file "$TAG" 'checkpoint("after_ny_main")' "$ENTRY" "entry must include after_ny_main checkpoint"
 guard_expect_in_file "$TAG" '| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the closeout row landed"
 guard_expect_in_file "$TAG" '| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the diagnostic row landed"
-guard_expect_in_file "$TAG" '| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the run row"
+guard_expect_in_file "$TAG" '| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the run row landed"
+guard_expect_in_file "$TAG" '| 199 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the plugin-host baseline row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 cargo check -p nyash_kernel
