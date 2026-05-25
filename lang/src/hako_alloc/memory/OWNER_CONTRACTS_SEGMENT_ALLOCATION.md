@@ -55,6 +55,15 @@ Related:
   `modeled_block_end` and record successful segment-map release reports into
   the existing MIMAP-107A released-span ledger, while keeping real segment free
   execution and free-list mutation closed.
+- `page_map_release_box.hako` owns M172. It may compose
+  `HakoAllocPageMap.lookup(...)`, `HakoAllocPageModel.releaseLocal(...)`, and
+  `HakoAllocPageMap.unregister(...)` into the explicit page-map-backed release
+  seam. It must keep pointer registration owned by `page_map_box`, keep the
+  release counters exact, and must not own pointer registration, execute real
+  segment free, allocate arena backing, use raw pointer residence, perform
+  segment-map lookup beyond the explicit page-map route, execute atomic bitmap
+  claims, call page-source/OSVM seams, schedule workers, activate provider
+  hooks, replace the host allocator, or add backend shortcuts.
 - `segment_allocation_modeled_ledger_report_box.hako` owns MIMAP-094A report capsules. It may build the scalar modeled ledger reports and update the
   ledger observer counters. It must not execute real segment allocation/free,
   allocate arena backing, use raw pointer residence, perform segment-map

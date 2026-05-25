@@ -16,6 +16,9 @@ Scope
 - `page_map_release_invariant_box.hako`: the M173 pre-realloc release invariant
   observer module. It stays as an observer-only seam for release/realloc
   freeze evidence and does not take over page release execution.
+- `page_map_release_box.hako`: the M172 page-map-backed release seam. It
+  composes page-map lookup, page-local release, and ownership unregistering
+  for the explicit release route and keeps the counter fields exact.
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
