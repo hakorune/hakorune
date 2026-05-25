@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x native multi-worker substrate stress presentation on the comparison lane
 Blocker: MIMALLOC-COMPARISON-PAR-STRESS-PRESENTATION-295X-002
