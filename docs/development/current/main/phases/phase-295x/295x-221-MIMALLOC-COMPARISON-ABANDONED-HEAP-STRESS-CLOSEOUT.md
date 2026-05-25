@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: close the abandoned-heap stress empty exact-EXE footprint diagnostic and select runtime RSS checkpoints.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002
