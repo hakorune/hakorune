@@ -3,6 +3,7 @@
 // - provide the public allocator port facade name under hako_alloc
 // - delegate local policy/state to the existing page/free-list heap row
 // - expose remote-free policy through the production facade seam
+// - expose page-owned remote-free inbox composition through the facade seam
 // - expose page-source policy through the production facade seam
 // Non-responsibility:
 // - process allocator replacement
@@ -13,6 +14,7 @@ using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePo
 using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
 using selfhost.hako_alloc.memory.page_queue_lifecycle_box as HakoAllocLifecyclePageQueueBox
 using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
+using selfhost.hako_alloc.memory.remote_free_page_integration_box as HakoAllocRemoteFreePageIntegration
 using selfhost.hako_alloc.memory.stats_box as HakoAllocStats
 
 box HakoAllocProductionFacade {
@@ -166,6 +168,62 @@ box HakoAllocProductionFacade {
 
     remotePeekNext(block_ptr) {
         return HakoAllocRemoteFreePolicy.peekNext(block_ptr)
+    }
+
+    remotePageInbox(page, head_cell) {
+        return new HakoAllocRemoteFreePageInbox(page, head_cell)
+    }
+
+    remotePagePort(page_id, block_size, capacity, reserved, head_cell) {
+        return new HakoAllocRemoteFreePagePort(page_id, block_size, capacity, reserved, head_cell)
+    }
+
+    remotePageAcquire(port, requested_size) {
+        return port.acquire(requested_size)
+    }
+
+    remotePagePublishPort(port, block_ptr, block_id, interferer_ptr) {
+        return port.publish(block_ptr, block_id, interferer_ptr)
+    }
+
+    remotePageCollectOnePort(port) {
+        return port.collectOne()
+    }
+
+    remotePageCollectPendingPort(port) {
+        return port.collectPending()
+    }
+
+    remotePagePeekPortHead(port) {
+        return port.peekHead()
+    }
+
+    remotePagePeekPortNext(port, block_ptr) {
+        return port.peekNext(block_ptr)
+    }
+
+    remotePagePortSnapshot(port) {
+        return port.snapshot()
+    }
+
+    remotePagePublish(inbox, block_ptr, block_id, interferer_ptr) {
+        return inbox.publish(block_ptr, block_id, interferer_ptr)
+    }
+
+    remotePageCollectOne(inbox) {
+        return inbox.collectOne()
+    }
+
+    remotePageCollectPending(inbox) {
+        return inbox.collectPending()
+    }
+
+    remotePagePeekInboxHead(inbox) {
+        return inbox.peekHead()
+    }
+
+    remotePagePeekInboxNext(inbox, block_ptr) {
+        return inbox.peekNext(block_ptr)
     }
 
     pageSourceReserve(bytes) {
