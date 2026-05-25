@@ -235,6 +235,10 @@ small and explicit:
 1. `MIMAP-WORKER-001` internal worker identity substrate.
 2. `MIMAP-TLS-001` allocator-local TLS / worker-local cache-slot substrate.
 3. `MIMAP-ATOMIC-001` allocator-facing atomic load/store/CAS/fetch_add routes.
+   This row should extend the existing `hako_atomic_slot_*` and
+   `hako_atomic_ptr_*` route vocabulary and guards first; add a new primitive
+   only if a missing semantic cannot be expressed by the existing narrow leaf
+   routes.
 4. `MIMAP-REMOTE-001` remote-free / abandoned-owner / page ownership policy.
 5. `MIMAP-THREADSAFE-ABI-001` thread-safe `hako_mem` ABI requirements and smoke boundary.
 6. `MIMAP-PAR-STRESS-001` native multi-worker substrate stress for per-worker heaps and remote-free pressure.
