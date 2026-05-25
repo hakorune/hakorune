@@ -166,9 +166,13 @@ def elf_footprint(path: Path, prefix: str) -> dict[str, int | str]:
     return values
 
 
-def find_mimalloc_library(allow_ldconfig_discovery: bool) -> Path:
+def find_mimalloc_library(c_library: Path | None, allow_ldconfig_discovery: bool) -> Path:
+    if c_library is not None:
+        if not c_library.exists():
+            raise SystemExit(f"--c-library path does not exist: {c_library}")
+        return c_library
     if not allow_ldconfig_discovery:
-        raise SystemExit("--allow-ldconfig-discovery is required unless a future --library option is added")
+        raise SystemExit("--c-library PATH or --allow-ldconfig-discovery is required")
     output = subprocess.run(
         ["bash", "-lc", r"ldconfig -p 2>/dev/null | awk '/libmimalloc\.so\.2[[:space:]]/ { print $NF; exit }'"],
         cwd=ROOT,
@@ -189,6 +193,7 @@ def main() -> int:
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--sample-count", type=int, default=5)
     parser.add_argument("--warmup-count", type=int, default=1)
+    parser.add_argument("--c-library", type=Path)
     parser.add_argument("--allow-ldconfig-discovery", action="store_true")
     args = parser.parse_args()
 
@@ -196,6 +201,8 @@ def main() -> int:
         raise SystemExit("--sample-count must be positive")
     if args.warmup_count < 0:
         raise SystemExit("--warmup-count must be non-negative")
+    if args.c_library is not None:
+        args.allow_ldconfig_discovery = False
     for command in ("readelf", "cc", "/usr/bin/time"):
         if shutil.which(command) is None and not Path(command).exists():
             raise SystemExit(f"missing required command: {command}")
@@ -215,7 +222,8 @@ def main() -> int:
                 str(args.warmup_count),
                 "--workload",
                 "representative-empty-v0",
-                "--allow-ldconfig-discovery",
+                *(["--c-library", str(args.c_library)] if args.c_library is not None else []),
+                *(["--allow-ldconfig-discovery"] if args.c_library is None and args.allow_ldconfig_discovery else []),
             ],
             stdout=tmp_dir / "baseline.stdout",
         )
@@ -230,7 +238,7 @@ def main() -> int:
         noio_samples = run_external_rss(noio_exe, tmp_dir, "hako-noio", args.sample_count, args.warmup_count)
         hako_noio_rss = int(statistics.median(noio_samples))
 
-        mimalloc_library = find_mimalloc_library(args.allow_ldconfig_discovery)
+        mimalloc_library = find_mimalloc_library(args.c_library, args.allow_ldconfig_discovery)
 
         lines: list[str] = [
             "mimalloc_hako_empty_exe_footprint=1",
@@ -265,6 +273,7 @@ def main() -> int:
                 "host_replacement=0",
                 "hook_installed=0",
                 "global_allocator_installed=0",
+                f"c_library_path={mimalloc_library}",
                 "winner_claim=0",
                 "summary=ok",
             ]
