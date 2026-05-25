@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: add env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-221-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-295x/295x-223-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN.md
   - crates/nyash_kernel/src/rss_observe.rs
   - src/runtime/rss_observe.rs
   - crates/nyash_kernel/src/entry.rs

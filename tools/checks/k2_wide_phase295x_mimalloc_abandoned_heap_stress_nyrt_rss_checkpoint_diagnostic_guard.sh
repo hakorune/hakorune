@@ -21,7 +21,8 @@ echo "[$TAG] checking phase-295x abandoned-heap stress NyRT RSS checkpoint diagn
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$ENV_DOC" "$SELF_SCRIPT" "$RSS_MOD" "$RUNTIME_RSS" "$ENTRY"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002' "$CARD" "card must identify the current blocker"
+guard_expect_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after the diagnostic row is exercised"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002' "$CARD" "card must identify the diagnostic blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002' "$CARD" "card must select checkpoint run follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002' "$PREV_CARD" "previous row must select this diagnostic"
 guard_expect_in_file "$TAG" 'HAKO_NYRT_RSS_CHECKPOINTS=1' "$CARD" "card must name the env gate"
@@ -33,7 +34,8 @@ guard_expect_fixed_in_file "$TAG" 'checkpoint("after_plugin_host")' "$ENTRY" "en
 guard_expect_fixed_in_file "$TAG" 'checkpoint("before_ny_main")' "$ENTRY" "entry must include before_ny_main checkpoint"
 guard_expect_fixed_in_file "$TAG" 'checkpoint("after_ny_main")' "$ENTRY" "entry must include after_ny_main checkpoint"
 guard_expect_in_file "$TAG" '| 221 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002` | Landed |' "$TASKBOARD" "taskboard must retain the closeout row as landed"
-guard_expect_in_file "$TAG" '| 222 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the NyRT diagnostic row"
+guard_expect_in_file "$TAG" '| 222 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002` | Landed |' "$TASKBOARD" "taskboard must retain the NyRT diagnostic row as landed"
+guard_expect_in_file "$TAG" '| 223 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the NyRT run row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 cargo check -p nyash_kernel

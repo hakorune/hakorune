@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002:
-  Add env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path.
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002:
+  Run env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path and classify the fixed RSS step.
 ```
 
 ## Queue
@@ -66,7 +66,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-00
 | 219 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-BASELINE-BREAKDOWN-SELECTION-295X-002` | Landed | Select the abandoned-heap stress empty exact-EXE footprint diagnostic `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` after the closeout pack lands. |
 | 220 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Diagnose the fixed abandoned-heap stress exact-EXE empty footprint and select the closeout seam after the baseline-breakdown selection lands. |
 | 221 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress empty exact-EXE footprint diagnostic and park the lane on runtime RSS checkpoints. |
-| 222 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002` | Current | Add env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path. |
+| 222 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002` | Landed | Add env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path. |
+| 223 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current | Run env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path and classify the fixed RSS step. |
 
 ## Full Queue
 
@@ -173,7 +174,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-00
 | 219 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-BASELINE-BREAKDOWN-SELECTION-295X-002` | Landed | Select the abandoned-heap stress empty exact-EXE footprint diagnostic `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` after the closeout pack lands. |
 | 220 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Diagnose the fixed abandoned-heap stress exact-EXE empty footprint and select the closeout seam after the baseline-breakdown selection lands. |
 | 221 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress empty exact-EXE footprint diagnostic and park the lane on runtime RSS checkpoints. |
-| 222 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002` | Current | Add env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path. |
+| 222 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-002` | Landed | Add env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path. |
+| 223 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current | Run env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path and classify the fixed RSS step. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
