@@ -132,7 +132,8 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001:
 | 89 | `295x-89` | Landed | Batch-applied accepted record defaults / empty literal / `with` ergonomics to allocator-comparison owners that still used direct ReportFields literals. |
 | 90 | `295x-187` | Landed | Defined the first `.hako` workload alignment contract against external `malloc-large`. |
 | 188 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001` | Landed | Run the external `mimalloc-bench` `malloc-large` corpus and the selected huge-ish `.hako` evidence through the comparison normalizer. |
-| 189 | `MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT-295X-001` | Current | Close the external `malloc-large` evidence family and choose the next workload seam. |
+| 189 | `MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT-295X-001` | Landed | Close the external `malloc-large` evidence family and choose the next comparison seam. |
+| 190 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Current | Select baseline attribution for the external `malloc-large` evidence family before any winner claim. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

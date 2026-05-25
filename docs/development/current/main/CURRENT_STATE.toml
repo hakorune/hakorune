@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-188-MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-RUN"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-188-MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-RUN.md"
-latest_card_summary = "Ran the external `mimalloc-bench-malloc-large` corpus and the selected huge-ish `.hako` evidence through the comparison normalizer, then parked the closeout row as current."
+latest_card = "295x-189-MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-189-MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT.md"
+latest_card_summary = "Closed the external `mimalloc-bench-malloc-large` evidence family and selected baseline attribution as the next comparison seam."
 
-current_blocker_token = "MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-189 closed the external `mimalloc-bench-malloc-large` evidence family and selected baseline attribution as the next comparison seam",
   "295x-188 ran the external `mimalloc-bench-malloc-large` corpus and the selected huge-ish `.hako` evidence through the comparison normalizer, then parked the closeout row as current",
   "295x-187 locked the first `.hako` workload alignment contract against external `mimalloc-bench` `malloc-large` using the selected huge-ish evidence shape and parked the follow-on evidence run as current",
   "295x-186 thin-wrapped the MIMAP-180A segment-map local-free page-apply bridge guard root into an impl-backed wrapper and kept the memory README owner note in place",

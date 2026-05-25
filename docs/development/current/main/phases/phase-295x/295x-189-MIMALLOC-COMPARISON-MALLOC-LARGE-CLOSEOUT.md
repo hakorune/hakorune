@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: close the malloc-large evidence alignment family and choose the next workload seam.
 Blocker: MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT-295X-001
 Related:
   - docs/development/current/main/phases/phase-295x/295x-188-MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-RUN.md
+  - docs/development/current/main/phases/phase-295x/295x-190-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION.md
   - docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md
   - tools/checks/k2_wide_phase295x_malloc_large_evidence_run_guard.sh
   - tools/checks/k2_wide_phase295x_malloc_large_closeout_guard.sh
@@ -35,11 +36,11 @@ family.
 Select:
 
 ```text
-MIMALLOC-COMPARISON-MALLOC-LARGE-NEXT-WORKLOAD-SEAM-SELECTION-295X-001
+MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001
 ```
 
-The next row should choose the next workload seam after the external
-`malloc-large` alignment has been normalized.
+The next row should select baseline attribution for the external
+`malloc-large` alignment family before any winner claim.
 
 ## Stop Line
 
