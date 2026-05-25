@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002:
-  Select the load-set footprint diagnostic for the malloc-large path.
+MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002:
+  Run the load-set footprint diagnostic for the malloc-large path.
 ```
 
 ## Queue
@@ -45,7 +45,8 @@ MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002:
 | 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Landed | Run the env-gated NyRT self-RSS checkpoints on the empty no-output exact-EXE path and select the plugin-host baseline follow-on without changing runtime behavior when the env is unset. |
 | 199 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Landed | Close the plugin-host baseline selection row and open the narrow plugin-host substage diagnostic without changing runtime behavior when the env is unset. |
 | 200 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002` | Landed | Add the narrow plugin-host substage diagnostic without changing runtime behavior when the env is unset. |
-| 201 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Current | Select the load-set footprint diagnostic for the malloc-large path. |
+| 201 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed | Select the load-set footprint diagnostic for the malloc-large path. |
+| 202 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Current | Run the load-set footprint diagnostic for the malloc-large path. |
 
 ## Full Queue
 
