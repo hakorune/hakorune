@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: run the NyRT self-RSS checkpoint diagnostic on the abandoned-heap stress path and classify the fixed RSS step.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-222-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-DIAGNOSTIC.md
+  - docs/development/current/main/phases/phase-295x/295x-224-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-BASELINE-SELECTION.md
   - tools/checks/k2_wide_phase295x_mimalloc_abandoned_heap_stress_nyrt_rss_checkpoint_run_guard.sh
 ---
 
