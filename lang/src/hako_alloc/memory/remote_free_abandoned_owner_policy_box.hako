@@ -96,7 +96,7 @@ box HakoAllocRemoteAbandonedOwnerPolicy {
         me.classify_count = me.classify_count + 1
 
         local head_cell = me.cache.loadSlot(tls_slot)
-        local observer_worker_id = me.cache.lastWorkerId()
+        local observer_worker_id = me.cache.observedWorkerId()
 
         if owner_worker_id < 0 {
             return me.reject(1, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 1, 0)

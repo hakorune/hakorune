@@ -211,7 +211,7 @@ box HakoAllocWorkerTlsPilot {
     }
 
     makeReport(accepted, reason, worker_tls_present, page_report: HakoAllocOSVMPageSourcePilotReport, slot, stored_value, loaded_value, cleared_value, store_rc, clear_rc, roundtrip_ok): HakoAllocWorkerTlsPilotReport {
-        local worker_id = me.cache.lastWorkerId()
+        local worker_id = me.cache.observedWorkerId()
         local worker_id_valid = 0
         if worker_id >= 0 {
             worker_id_valid = 1
@@ -329,7 +329,7 @@ box HakoAllocWorkerTlsPilot {
                 }
             }
         }
-        if me.cache.lastWorkerId() < 0 {
+        if me.cache.observedWorkerId() < 0 {
             return me.reject(3, page_report, slot, value, loaded_value, cleared_value, store_rc, clear_rc, roundtrip_ok)
         }
         if roundtrip_ok != 1 {

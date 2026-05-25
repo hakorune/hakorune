@@ -18,7 +18,7 @@ static box Main {
         if final == 0 { shape = shape + 1 }
         if cache.slot_id == 0 { shape = shape + 1 }
         if cache.stored_value == 0 { shape = shape + 1 }
-        if cache.observed_worker_id == 0 { shape = shape + 1 }
+        if cache.observedWorkerId() == 0 { shape = shape + 1 }
         if cache.get_count == 3 { shape = shape + 1 }
         if cache.set_count == 2 { shape = shape + 1 }
         if cache.operationCount() == 5 { shape = shape + 1 }
@@ -26,10 +26,10 @@ static box Main {
         if cache.lastWorkerId() == 0 { shape = shape + 1 }
 
         print("mimalloc-worker-tls-cache-proof")
-        print("worker=" + cache.lastWorkerId() + " identity_calls=" + cache.identityCallCount())
+        print("worker=" + cache.observedWorkerId() + " identity_calls=" + cache.identityCallCount())
         print("values=" + before + "," + after + "," + final)
         print("rc=" + set_rc + "," + clear_rc)
-        print("state=" + cache.slot_id + "," + cache.stored_value + "," + cache.observed_worker_id)
+        print("state=" + cache.slot_id + "," + cache.stored_value + "," + cache.observedWorkerId())
         print("counts=" + cache.get_count + "," + cache.set_count + "," + cache.operationCount())
         print("shape=" + shape)
 

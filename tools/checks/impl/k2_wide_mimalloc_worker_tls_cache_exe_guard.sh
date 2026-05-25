@@ -95,6 +95,7 @@ required = {
     "HakoAllocWorkerTlsCache.storeSlot/2",
     "HakoAllocWorkerTlsCache.loadSlot/1",
     "HakoAllocWorkerTlsCache.clearSlot/1",
+    "HakoAllocWorkerTlsCache.observedWorkerId/0",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
@@ -180,6 +181,7 @@ require_call("HakoAllocWorkerTlsCache.storeSlot/2", "TlsCoreBox.cache_slot_set_i
 require_call("HakoAllocWorkerTlsCache.loadSlot/1", "HakoAllocWorkerIdentity.currentWorkerId")
 require_call("HakoAllocWorkerTlsCache.loadSlot/1", "TlsCoreBox.cache_slot_get_i64")
 require_call("HakoAllocWorkerTlsCache.clearSlot/1", "HakoAllocWorkerTlsCache.storeSlot")
+require_call("main", "HakoAllocWorkerTlsCache.observedWorkerId")
 
 for fn_name in (
     "main",

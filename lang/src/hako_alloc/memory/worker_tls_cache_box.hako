@@ -50,7 +50,11 @@ box HakoAllocWorkerTlsCache {
         return me.identity.call_count
     }
 
+    observedWorkerId() {
+        return me.observed_worker_id
+    }
+
     lastWorkerId() {
-        return me.identity.last_worker_id
+        return me.observedWorkerId()
     }
 }

@@ -312,11 +312,11 @@ Related:
   backing, run worker/TLS behavior, activate providers, replace the host
   allocator, expose hooks, or add backend matchers.
 - `worker_tls_pilot_box.hako` owns MIMAP-350A. It may record one bounded
-  worker/TLS fact from an accepted OSVM/page-source report through the existing
-  internal `HakoAllocWorkerTlsCache` seam. It must not expose source-level
-  worker-local syntax, spawn or schedule workers, execute release/recycle
-  behavior, activate providers, replace the host allocator, expose hooks, or
-  add backend matchers.
+  worker/TLS fact from an accepted OSVM/page-source report through the
+  observed-worker `HakoAllocWorkerTlsCache` seam. It must not expose
+  source-level worker-local syntax, spawn or schedule workers, execute
+  release/recycle behavior, activate providers, replace the host allocator,
+  expose hooks, or add backend matchers.
 - `provider_inactive_boundary_inventory_box.hako` owns MIMAP-352A. It may
   record that provider activation, host allocator replacement, hooks, and
   backend matchers remain inactive after an accepted worker/TLS report. It must
