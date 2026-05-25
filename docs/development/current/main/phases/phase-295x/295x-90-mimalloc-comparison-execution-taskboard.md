@@ -42,6 +42,14 @@ MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001:
   for the external `malloc-large` exact-EXE path.
 ```
 
+## Current Blocker
+
+```text
+MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001:
+  selected current after 295x-194. Diagnose the fixed `malloc-large` empty
+  exact-EXE baseline through evidence-output and no-output control pairs.
+```
+
 ## Queue
 
 | Order | Row | Status | Boundary |
@@ -143,6 +151,7 @@ MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001:
 | 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Landed | Add empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy. |
 | 192 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001` | Landed | Compute baseline-subtracted RSS evidence for the external `malloc-large` attribution family. |
 | 193 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001` | Current | Close the external `malloc-large` memory-gap attribution pack and choose the next comparison seam. |
+| 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Current | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
