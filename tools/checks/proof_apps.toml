@@ -18,6 +18,8 @@ includes = [
 # id = "MIMAP-055A" is provided via tools/checks/manifests/proof_apps/hako_alloc_reclaim_core.toml.
 # id = "MIMAP-056A" is provided via tools/checks/manifests/proof_apps/hako_alloc_reclaim_core.toml.
 # Keep the root manifest textually aligned with the guard's SSOT check without duplicating the ids.
+# id = "M209" is provided via tools/checks/manifests/proof_apps/hako_alloc_purge_core.toml.
+# Keep the root manifest textually aligned with the guard's SSOT check without duplicating the M209 id.
 
 [[proof_apps]]
 id = "MIMAP-019A"
