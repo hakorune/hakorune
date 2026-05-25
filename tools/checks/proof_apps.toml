@@ -144,6 +144,15 @@ exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-296A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-proof"
+label = "segment arena backing modeled allocation ledger release-applied recycle second-release diagnostic proof"
+profiles = ["pilot", "hako-alloc-purge"]
+validation_profile = "scalar-mir"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_guard.sh"]
+
+[[proof_apps]]
 id = "PURE-FIRST-GLOBAL-CALL-001"
 app = "apps/pure-first-same-module-static-helper-global-call-proof"
 label = "same-module static helper global-call route proof"
