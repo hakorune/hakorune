@@ -78,6 +78,24 @@ fn drain_remote_free_stack(head: &AtomicUsize) -> (usize, usize) {
     (drained, payload_sum)
 }
 
+fn emit_stress_report(
+    observed_remote_free_count: i64,
+    drained_nodes: usize,
+    payload_sum: usize,
+) {
+    println!("mimalloc_parallel_substrate_stress=1");
+    println!("worker_count={WORKER_COUNT}");
+    println!("iterations_per_worker={ITERATIONS_PER_WORKER}");
+    println!(
+        "expected_remote_free_count={}",
+        WORKER_COUNT * ITERATIONS_PER_WORKER
+    );
+    println!("observed_remote_free_count={observed_remote_free_count}");
+    println!("drained_nodes={drained_nodes}");
+    println!("payload_sum_nonzero={}", if payload_sum != 0 { 1 } else { 0 });
+    println!("summary=ok");
+}
+
 fn push_remote_free(head: &AtomicUsize, node: *mut c_void) {
     let head_ptr = (head as *const AtomicUsize).cast_mut().cast::<c_void>();
     loop {
@@ -129,6 +147,7 @@ fn mimalloc_parallel_substrate_stress_exercises_native_worker_tls_atomic_and_rem
         hako_atomic_slot_load_i64(REMOTE_FREE_COUNT_SLOT),
         expected_count
     );
+    let observed_remote_free_count = hako_atomic_slot_load_i64(REMOTE_FREE_COUNT_SLOT);
 
     let (drained, payload_sum) = drain_remote_free_stack(&remote_head);
 
@@ -139,4 +158,6 @@ fn mimalloc_parallel_substrate_stress_exercises_native_worker_tls_atomic_and_rem
         hako_atomic_slot_store_i64(REMOTE_FREE_COUNT_SLOT, 0),
         HAKO_OK
     );
+
+    emit_stress_report(observed_remote_free_count, drained, payload_sum);
 }

@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x native multi-worker substrate stress selection on the comparison lane
 Blocker: MIMALLOC-COMPARISON-PAR-STRESS-SELECTION-295X-002
@@ -26,6 +26,14 @@ Select:
 
 ```text
 MIMAP-PAR-STRESS-001 native multi-worker substrate stress for per-worker heaps and remote-free pressure
+```
+
+## Follow-On
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-PAR-STRESS-EVIDENCE-295X-002
 ```
 
 ## Stop Line
