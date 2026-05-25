@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: select a narrow `malloc-large` exact-EXE baseline breakdown seam.
 Blocker: MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001

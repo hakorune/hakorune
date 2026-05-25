@@ -30,27 +30,19 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001:
-  selected current after 295x-187. Run the external `mimalloc-bench`
-  `malloc-large` corpus and the selected huge-ish `.hako` evidence through the
-  comparison normalizer.
-```
-
-```text
-MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001:
-  selected follow-on after 295x-193. Choose a narrow baseline breakdown seam
-  for the external `malloc-large` exact-EXE path.
-```
-
-## Current Blocker
-
-```text
-MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001:
-  selected current after 295x-194. Diagnose the fixed `malloc-large` empty
-  exact-EXE baseline through evidence-output and no-output control pairs.
+MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001:
+  selected current after 295x-195. Observe the fixed `malloc-large` empty
+  exact-EXE baseline into likely next seams.
 ```
 
 ## Queue
+
+| Order | Row | Status | Boundary |
+| --- | --- | --- | --- |
+| 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Landed | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
+| 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Current | Diagnose the fixed `malloc-large` empty exact-EXE baseline through evidence-output and no-output control pairs. |
+
+## Full Queue
 
 | Order | Row | Status | Boundary |
 | --- | --- | --- | --- |
