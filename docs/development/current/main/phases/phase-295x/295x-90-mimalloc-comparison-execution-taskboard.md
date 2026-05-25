@@ -86,7 +86,8 @@ MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002:
 | 239 | `MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002` | Landed | Close the selected process-repeat evidence pack and park further same-policy median-only rows. |
 | 240 | `MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002` | Landed | Select the next allocator-facing semantic seam after parking same-policy median-only rows. |
 | 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed | Select the remote-free production facade as the next allocator-facing semantic seam. |
-| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Current | Refresh the smallest production-facing remote-free comparison contract. |
+| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed | Refresh the smallest production-facing remote-free comparison contract. |
+| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Current | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
 
 ## Full Queue
 
@@ -213,7 +214,8 @@ MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002:
 | 239 | `MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002` | Landed | Close the selected process-repeat evidence pack and park further same-policy median-only rows. |
 | 240 | `MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002` | Landed | Select the next allocator-facing semantic seam after parking same-policy median-only rows. |
 | 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed | Select the remote-free production facade as the next allocator-facing semantic seam. |
-| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Current | Refresh the smallest production-facing remote-free comparison contract. |
+| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed | Refresh the smallest production-facing remote-free comparison contract. |
+| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Current | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

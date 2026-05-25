@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: refresh the smallest production-facing remote-free comparison contract.
 Related:
