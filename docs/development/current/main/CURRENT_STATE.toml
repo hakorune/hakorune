@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-237-MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-237-MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK.md"
-latest_card_summary = "Added process-repeat evidence to the realloc/aligned port seam after closing the reuse-cycle small pack."
-current_blocker_token = "MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002"
+latest_card = "295x-238-MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-238-MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK.md"
+latest_card_summary = "Added process-repeat evidence to the mixed-small port seam after closing the realloc/aligned pack."
+current_blocker_token = "MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK-295X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-237 Closed the realloc/aligned process-repeat pack and selected the mixed-small process-repeat pack as the next repeated-evidence seam.",
   "295x-236 Closed the reuse-cycle small process-repeat pack and selected the realloc/aligned process-repeat pack as the next repeated-evidence seam.",
   "295x-234 Closed the abandoned-heap-specific long process-repeat timing pack after the repeated process evidence escaped the 1ms floor.",
   "295x-235 Selected the reuse-cycle small process-repeat pack after the abandoned-heap post-long-process selection.",

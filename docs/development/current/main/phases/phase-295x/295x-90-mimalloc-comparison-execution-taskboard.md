@@ -81,7 +81,8 @@ MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002:
 | 234 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-PACK-295X-002` | Landed | Close the abandoned-heap-specific long process-repeat timing pack after the repeated process evidence escapes the 1ms floor. |
 | 235 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002` | Landed | Resume the actual `.hako` mimalloc port work using the current process-repeat evidence. |
 | 236 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002` | Landed | Resume `.hako` mimalloc porting through the existing reuse-cycle small-block workload with process-repeat evidence. |
-| 237 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002` | Current | Resume `.hako` mimalloc porting through the existing realloc/aligned workload with process-repeat evidence. |
+| 237 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002` | Landed | Resume `.hako` mimalloc porting through the existing realloc/aligned workload with process-repeat evidence. |
+| 238 | `MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK-295X-002` | Current | Resume `.hako` mimalloc porting through the existing mixed-small workload with process-repeat evidence. |
 
 ## Full Queue
 
@@ -203,7 +204,8 @@ MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002:
 | 234 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-PACK-295X-002` | Landed | Close the abandoned-heap-specific long process-repeat timing pack after the repeated process evidence escapes the 1ms floor. |
 | 235 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002` | Landed | Resume the actual `.hako` mimalloc port work using the current process-repeat evidence. |
 | 236 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002` | Landed | Resume `.hako` mimalloc porting through the existing reuse-cycle small-block workload with process-repeat evidence. |
-| 237 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002` | Current | Resume `.hako` mimalloc porting through the existing realloc/aligned workload with process-repeat evidence. |
+| 237 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002` | Landed | Resume `.hako` mimalloc porting through the existing realloc/aligned workload with process-repeat evidence. |
+| 238 | `MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK-295X-002` | Current | Resume `.hako` mimalloc porting through the existing mixed-small workload with process-repeat evidence. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

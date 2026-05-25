@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: add process-repeat evidence to the realloc/aligned port seam.
 Related:
@@ -41,7 +41,7 @@ Median repeated evidence:
 
 ```text
 representative-realloc-aligned-v0: hako=70ms c=60ms
-representative-realloc-aligned-v0: hako_rss_median=3592192 c_rss_median=3985408
+representative-realloc-aligned-v0: hako_rss_median=3608576 c_rss_median=3985408
 ```
 
 ## Stop Line
@@ -50,3 +50,14 @@ This row does not compute speed winners, compute RSS winners, require timing
 parity, add body-internal timers, change runtime behavior, make `empty` the
 default runtime config, or open provider/DLL/replacement/hook/global allocator
 seams.
+
+## Selected Next
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK-295X-002
+```
+
+The next row continues the repeated-measurement `.hako` porting path on the
+mixed-small workload family with the same process-repeat evidence policy.
