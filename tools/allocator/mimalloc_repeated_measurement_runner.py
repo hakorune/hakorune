@@ -113,6 +113,7 @@ def run_one(
     side: str,
     out_path: Path,
     allow_ldconfig: bool,
+    c_library: Path | None,
     hako_runtime_config: str,
     operation_repeat: int,
 ) -> dict[str, str]:
@@ -143,8 +144,12 @@ def run_one(
             "--operation-repeat",
             str(operation_repeat),
         ]
-        if allow_ldconfig:
+        if c_library is not None:
+            cmd.extend(["--library", str(c_library)])
+        elif allow_ldconfig:
             cmd.append("--allow-ldconfig-discovery")
+        else:
+            raise SystemExit("--c-library PATH or --allow-ldconfig-discovery is required for C samples")
     else:
         raise AssertionError(side)
 
@@ -153,7 +158,13 @@ def run_one(
     return read_kv(out_path)
 
 
-def validate_sample(workload: str, hako: dict[str, str], c: dict[str, str], label: str) -> None:
+def validate_sample(
+    workload: str,
+    hako: dict[str, str],
+    c: dict[str, str],
+    label: str,
+    expected_c_library: Path | None,
+) -> None:
     require(hako, "output_contract", "hako-exe-memory-evidence-v0", f"{label}:hako")
     require(c, "output_contract", "allocator-comparison-c-mimalloc-explicit-runner-v0", f"{label}:c")
     require(hako, "summary", "ok", f"{label}:hako")
@@ -170,6 +181,8 @@ def validate_sample(workload: str, hako: dict[str, str], c: dict[str, str], labe
     require(c, "global_allocator_installed", "0", f"{label}:c")
     require(c, "hidden_discovery_used", "0", f"{label}:c")
     require(c, "provider_package_generated", "0", f"{label}:c")
+    if expected_c_library is not None:
+        require(c, "library_path", str(expected_c_library), f"{label}:c")
     if hako.get("operation_family", "") != c.get("operation_family", ""):
         raise SystemExit(f"{label}: operation_family mismatch")
     if hako.get("operation_sequence_id", "") != c.get("operation_sequence_id", ""):
@@ -208,6 +221,7 @@ def main() -> int:
     parser.add_argument("--sample-count", type=int, default=5)
     parser.add_argument("--warmup-count", type=int, default=1)
     parser.add_argument("--workload", action="append", choices=sorted(WORKLOAD_APPS))
+    parser.add_argument("--c-library", type=Path)
     parser.add_argument("--allow-ldconfig-discovery", action="store_true")
     parser.add_argument(
         "--hako-runtime-config",
@@ -224,6 +238,10 @@ def main() -> int:
         raise SystemExit("--warmup-count must be non-negative")
     if args.operation_repeat < 1:
         raise SystemExit("--operation-repeat must be positive")
+    if args.c_library is not None:
+        if not args.c_library.exists():
+            raise SystemExit(f"--c-library path does not exist: {args.c_library}")
+        args.allow_ldconfig_discovery = False
 
     workloads = args.workload or DEFAULT_WORKLOADS
     for workload in workloads:
@@ -252,6 +270,7 @@ def main() -> int:
         f"hako_selected_library_count={hako_loadset_plan['library_count']}",
         f"hako_missing_library_count={hako_loadset_plan['missing_library_count']}",
         f"hako_loadset_preflight_ok={hako_loadset_plan['preflight_ok']}",
+        f"c_library_path={args.c_library if args.c_library is not None else 'ldconfig-discovery'}",
     ]
 
     with tempfile.TemporaryDirectory(prefix="hakorune_repeated_measurement.") as tmp:
@@ -276,6 +295,7 @@ def main() -> int:
                     "hako",
                     hako_out,
                     args.allow_ldconfig_discovery,
+                    args.c_library,
                     args.hako_runtime_config,
                     args.operation_repeat,
                 )
@@ -284,10 +304,11 @@ def main() -> int:
                     "c",
                     c_out,
                     args.allow_ldconfig_discovery,
+                    args.c_library,
                     args.hako_runtime_config,
                     args.operation_repeat,
                 )
-                validate_sample(workload, hako, c, f"{workload}:{kind}:{run_index}")
+                validate_sample(workload, hako, c, f"{workload}:{kind}:{run_index}", args.c_library)
                 require(
                     hako,
                     "runtime_config_profile",
