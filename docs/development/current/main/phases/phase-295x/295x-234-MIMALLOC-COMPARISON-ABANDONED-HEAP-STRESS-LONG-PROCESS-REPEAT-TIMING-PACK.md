@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: abandoned-heap stress long process-repeat timing pack.
 Related:
@@ -86,7 +86,7 @@ evidence, not allocator-body-only evidence.
 ## Follow-On
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-CLOSEOUT-295X-002
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LONG-PROCESS-REPEAT-TIMING-SELECTION-295X-002
 ```
 
 ## Stop Line
