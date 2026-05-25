@@ -175,27 +175,13 @@ fn lower_cond_expr_to_if_plans(
             ..
         } => {
             if joins.is_empty() {
-                // Joinless branch-context fast path:
-                // keep short-circuit semantics but avoid the generic join remap/clone
-                // scaffolding that is only needed when branch joins carry payloads.
                 let else_base = else_plans.unwrap_or_else(|| vec![CorePlan::Seq(Vec::new())]);
-                let else_for_right = clone_plans_with_fresh_loops(builder, &else_base)?.plans;
-                let right_plans = lower_cond_expr_to_if_plans(
+                return lower_joinless_and_leaf_chain(
                     builder,
                     phi_bindings,
-                    right,
+                    expr,
                     then_plans,
-                    Some(else_for_right),
-                    Vec::new(),
-                    error_prefix,
-                )?;
-                return lower_cond_expr_to_if_plans(
-                    builder,
-                    phi_bindings,
-                    left,
-                    right_plans,
-                    Some(else_base),
-                    Vec::new(),
+                    else_base,
                     error_prefix,
                 );
             }
@@ -274,27 +260,13 @@ fn lower_cond_expr_to_if_plans(
             ..
         } => {
             if joins.is_empty() {
-                // Joinless branch-context fast path:
-                // OR chains in fail-predicate conditions should not pay the full
-                // payload-join cloning/remap path.
-                let then_for_right = clone_plans_with_fresh_loops(builder, &then_plans)?.plans;
                 let else_for_right = else_plans.unwrap_or_else(|| vec![CorePlan::Seq(Vec::new())]);
-                let right_plans = lower_cond_expr_to_if_plans(
+                return lower_joinless_or_leaf_chain(
                     builder,
                     phi_bindings,
-                    right,
-                    then_for_right,
-                    Some(else_for_right),
-                    Vec::new(),
-                    error_prefix,
-                )?;
-                return lower_cond_expr_to_if_plans(
-                    builder,
-                    phi_bindings,
-                    left,
+                    expr,
                     then_plans,
-                    Some(right_plans),
-                    Vec::new(),
+                    else_for_right,
                     error_prefix,
                 );
             }
@@ -383,6 +355,179 @@ fn lower_cond_expr_to_if_plans(
             }));
             Ok(plans)
         }
+    }
+}
+
+fn lower_joinless_or_leaf_chain(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    expr: &ASTNode,
+    then_plans: Vec<LoweredRecipe>,
+    else_plans: Vec<LoweredRecipe>,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let mut terms = Vec::new();
+    collect_or_terms(expr, &mut terms);
+    if terms.is_empty() {
+        return Err("[freeze:contract][cond_or_leaf] OR leaf lowering got empty term list".to_string());
+    }
+
+    let then_has_loop_like = plans_have_loop_like(&then_plans);
+    let mut root_then = Some(then_plans);
+    let mut current_else = else_plans;
+
+    for idx in (0..terms.len()).rev() {
+        let term = terms[idx];
+        let (cond_id, cond_effects) = lower_cond_value_expr(builder, phi_bindings, term, error_prefix)?;
+        debug_log_cond_if_lit3_origin(builder, &cond_effects);
+
+        let then_branch = if idx == 0 {
+            root_then
+                .take()
+                .ok_or_else(|| "[freeze:contract][cond_or_leaf] missing root then branch".to_string())?
+        } else {
+            clone_branch_plans_for_shortcircuit(
+                builder,
+                root_then
+                    .as_ref()
+                    .ok_or_else(|| "[freeze:contract][cond_or_leaf] missing then template".to_string())?,
+                then_has_loop_like,
+            )?
+        };
+
+        let mut node_plans = effects_to_plans(cond_effects);
+        node_plans.push(CorePlan::If(CoreIfPlan {
+            condition: cond_id,
+            then_plans: then_branch,
+            else_plans: Some(current_else),
+            joins: Vec::new(),
+        }));
+        current_else = node_plans;
+    }
+
+    Ok(current_else)
+}
+
+fn lower_joinless_and_leaf_chain(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    expr: &ASTNode,
+    then_plans: Vec<LoweredRecipe>,
+    else_plans: Vec<LoweredRecipe>,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let mut terms = Vec::new();
+    collect_and_terms(expr, &mut terms);
+    if terms.is_empty() {
+        return Err(
+            "[freeze:contract][cond_and_leaf] AND leaf lowering got empty term list".to_string(),
+        );
+    }
+
+    let else_has_loop_like = plans_have_loop_like(&else_plans);
+    let mut root_else = Some(else_plans);
+    let mut current_then = then_plans;
+
+    for idx in (0..terms.len()).rev() {
+        let term = terms[idx];
+        let (cond_id, cond_effects) = lower_cond_value_expr(builder, phi_bindings, term, error_prefix)?;
+        debug_log_cond_if_lit3_origin(builder, &cond_effects);
+
+        let else_branch = if idx == 0 {
+            root_else
+                .take()
+                .ok_or_else(|| "[freeze:contract][cond_and_leaf] missing root else branch".to_string())?
+        } else {
+            clone_branch_plans_for_shortcircuit(
+                builder,
+                root_else
+                    .as_ref()
+                    .ok_or_else(|| "[freeze:contract][cond_and_leaf] missing else template".to_string())?,
+                else_has_loop_like,
+            )?
+        };
+
+        let mut node_plans = effects_to_plans(cond_effects);
+        node_plans.push(CorePlan::If(CoreIfPlan {
+            condition: cond_id,
+            then_plans: current_then,
+            else_plans: Some(else_branch),
+            joins: Vec::new(),
+        }));
+        current_then = node_plans;
+    }
+
+    Ok(current_then)
+}
+
+fn collect_or_terms<'a>(expr: &'a ASTNode, out: &mut Vec<&'a ASTNode>) {
+    if let ASTNode::BinaryOp {
+        operator: BinaryOperator::Or,
+        left,
+        right,
+        ..
+    } = expr
+    {
+        collect_or_terms(left, out);
+        collect_or_terms(right, out);
+        return;
+    }
+    out.push(expr);
+}
+
+fn collect_and_terms<'a>(expr: &'a ASTNode, out: &mut Vec<&'a ASTNode>) {
+    if let ASTNode::BinaryOp {
+        operator: BinaryOperator::And,
+        left,
+        right,
+        ..
+    } = expr
+    {
+        collect_and_terms(left, out);
+        collect_and_terms(right, out);
+        return;
+    }
+    out.push(expr);
+}
+
+fn clone_branch_plans_for_shortcircuit(
+    builder: &mut MirBuilder,
+    plans: &[LoweredRecipe],
+    has_loop_like: bool,
+) -> Result<Vec<LoweredRecipe>, String> {
+    if has_loop_like {
+        Ok(clone_plans_with_fresh_loops(builder, plans)?.plans)
+    } else {
+        Ok(plans.to_vec())
+    }
+}
+
+fn plans_have_loop_like(plans: &[LoweredRecipe]) -> bool {
+    plans.iter().any(plan_has_loop_like)
+}
+
+fn plan_has_loop_like(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Loop(_) => true,
+        CorePlan::Seq(inner) => plans_have_loop_like(inner),
+        CorePlan::If(if_plan) => {
+            plans_have_loop_like(&if_plan.then_plans)
+                || if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_have_loop_like(plans))
+        }
+        CorePlan::BranchN(branch_plan) => {
+            branch_plan
+                .arms
+                .iter()
+                .any(|arm| plans_have_loop_like(&arm.plans))
+                || branch_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_have_loop_like(plans))
+        }
+        CorePlan::Effect(_) | CorePlan::Exit(_) => false,
     }
 }
 
