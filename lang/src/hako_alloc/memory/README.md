@@ -19,6 +19,9 @@ Scope
 - `purge_candidate_policy_box.hako` owns M211 purge candidate policy inventory.
   It keeps the candidate classification route narrow, exact, and explicit
   before any wider purge or decommit policy work opens.
+- `heap_reuse_priority_box.hako` owns M208 heap reuse priority policy. It
+  keeps the active reuse ranking route narrow, exact, and explicit before any
+  wider heap reuse or fresh-page selection work opens.
 - `worker_tls_cache_box.hako`: the MIMAP-TLS-001 internal worker TLS cache-slot
   substrate. It keeps the worker identity, TLS cache-slot read/write, and
   cache-slot clear routes narrow, exact, and explicit before any wider worker
