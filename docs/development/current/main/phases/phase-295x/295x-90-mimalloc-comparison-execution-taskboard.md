@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002:
-  Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility.
+MIMALLOC-COMPARISON-WORKER-TLS-SELECTION-295X-002:
+  Select the allocator worker TLS cache-slot substrate as the next narrow concurrency seam after worker identity selection.
 ```
 
 ## Queue
@@ -48,7 +48,9 @@ MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002:
 | 201 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed | Select the load-set footprint diagnostic for the malloc-large path. |
 | 202 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Run the load-set footprint diagnostic for the malloc-large path. |
 | 203 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002` | Landed | Close the load-set diagnostic and select a smaller default load set for exact-EXE no-output / comparison runs. |
-| 204 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Current | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility. |
+| 204 | `MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Landed | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility. |
+| 205 | `MIMALLOC-COMPARISON-WORKER-IDENTITY-SELECTION-295X-002` | Landed | Select the allocator-internal worker identity substrate as the next narrow concurrency seam after smaller-default load-set evidence. |
+| 206 | `MIMALLOC-COMPARISON-WORKER-TLS-SELECTION-295X-002` | Current | Select the allocator worker TLS cache-slot substrate as the next narrow concurrency seam after worker identity selection. |
 
 ## Full Queue
 
