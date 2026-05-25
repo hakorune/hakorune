@@ -100,6 +100,7 @@ Scope
   route narrow, exact, and explicit before any wider local-free integration
   or page-apply work opens.
 - `segment_allocation_modeled_local_free_page_apply_box.hako` owns M115A segment allocation modeled local-free page-model apply. It keeps the page-model apply route narrow, exact, and explicit before any wider local-free apply or page-model policy work opens.
+- `segment_map_accepted_readiness_modeled_consume_ledger_box.hako` owns MIMAP-180A segment-map local-free page-apply bridge. It keeps the page-apply route narrow, exact, and explicit before any real free-list mutation, raw pointer residence, segment-map execution, atomics, OSVM/page-source, worker/TLS, provider activation, or global allocator work opens.
 - `segment_allocation_modeled_ledger_box.hako` owns MIMAP-097A segment
   allocation modeled ledger. It keeps the modeled ledger route narrow, exact,
   and explicit before any release route work opens.
