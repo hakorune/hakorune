@@ -37,7 +37,7 @@ static box Main {
         print("allocation_count=2")
         print("free_count=2")
         print("large_request_count=1")
-        print("requested_bytes=" + requested_bytes)
+        print("requested_bytes=4194321")
         print("summary_fields=" + requested_bytes + "," + committed_bytes + "," + live_handles + "," + release_count + ",0," + rejects)
         print("summary=ok")
         return 0

@@ -30,9 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
-  selected current after 295x-87. Define the first `.hako` workload alignment
-  contract against the external `mimalloc-bench` `malloc-large` family.
+MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001:
+  selected current after 295x-187. Run the external `mimalloc-bench`
+  `malloc-large` corpus and the selected huge-ish `.hako` evidence through the
+  comparison normalizer.
 ```
 
 ## Queue
@@ -129,7 +130,8 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 87 | `295x-87` | Landed | Cataloged selected hakmem external artifacts and selected malloc-large workload alignment. |
 | 88 | `295x-88` | Landed | Applied accepted record defaults / empty literal / `with` ergonomics to one guarded allocator-comparison owner. |
 | 89 | `295x-89` | Landed | Batch-applied accepted record defaults / empty literal / `with` ergonomics to allocator-comparison owners that still used direct ReportFields literals. |
-| 90 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001` | Current | Define the first `.hako` workload alignment contract against external `malloc-large`. |
+| 90 | `295x-187` | Landed | Defined the first `.hako` workload alignment contract against external `malloc-large`. |
+| 188 | `MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-EVIDENCE-295X-RUN-001` | Current | Run the external `mimalloc-bench` `malloc-large` corpus and the selected huge-ish `.hako` evidence through the comparison normalizer. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
