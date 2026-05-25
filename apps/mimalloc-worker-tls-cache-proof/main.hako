@@ -23,7 +23,7 @@ static box Main {
         if cache.set_count == 2 { shape = shape + 1 }
         if cache.operationCount() == 5 { shape = shape + 1 }
         if cache.identityCallCount() == 5 { shape = shape + 1 }
-        if cache.lastWorkerId() == 0 { shape = shape + 1 }
+        if cache.observedWorkerId() == 0 { shape = shape + 1 }
 
         print("mimalloc-worker-tls-cache-proof")
         print("worker=" + cache.observedWorkerId() + " identity_calls=" + cache.identityCallCount())
