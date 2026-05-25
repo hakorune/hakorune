@@ -87,7 +87,10 @@ MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002:
 | 240 | `MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002` | Landed | Select the next allocator-facing semantic seam after parking same-policy median-only rows. |
 | 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed | Select the remote-free production facade as the next allocator-facing semantic seam. |
 | 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed | Refresh the smallest production-facing remote-free comparison contract. |
-| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Current | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
+| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Landed | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
+| 244 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002` | Current | Fold the semantic closeout into an implementation-first minimum benchmark selection proof instead of a presentation-only mimalloc row. |
+| 245 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002` | Selected | Run the selected exact-EXE-first minimum benchmark pack without widening backend split or native comparison seams. |
+| 246 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Queued | Select the first backend-split comparison seam after the minimum exact-EXE benchmark run lands. |
 
 ## Full Queue
 

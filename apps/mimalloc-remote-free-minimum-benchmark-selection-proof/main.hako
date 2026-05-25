@@ -1,0 +1,198 @@
+// mimalloc-remote-free-minimum-benchmark-selection-proof
+// Purpose: prove the minimum remote-free benchmark pack selection through stable
+// workload-shape contracts before timing/winner rows open.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+box HakoAllocRemoteFreeMinimumBenchmarkSelectionReport {
+    local_cycle_ok: i64 = 0
+    publish_only_ok: i64 = 0
+    collect_only_ok: i64 = 0
+    publish_collect_cycle_ok: i64 = 0
+
+    captureLocalAllocFree() {
+        local alloc = new HakoAllocProductionFacade()
+        local handle = alloc.allocate(16)
+        if handle == null {
+            return 0
+        }
+        if alloc.release(handle) != 1 {
+            return 0
+        }
+        if alloc.outstandingBlocks() != 0 {
+            return 0
+        }
+        me.local_cycle_ok = 1
+        return 1
+    }
+
+    capturePublishOnly(head_cell, block_a, block_b) {
+        local alloc = new HakoAllocProductionFacade()
+        local port = alloc.remotePagePort(17, 32, 2, 2, head_cell)
+        local block0 = alloc.remotePageAcquire(port, 8)
+        local block1 = alloc.remotePageAcquire(port, 16)
+        if block0 < 0 || block1 < 0 {
+            return 0
+        }
+        if alloc.remotePagePublishPort(port, block_a, block0, 0) != 1 {
+            return 0
+        }
+        if alloc.remotePagePublishPort(port, block_b, block1, 0) != 1 {
+            return 0
+        }
+        local snapshot = alloc.remotePagePortSnapshot(port)
+        if snapshot.inbox_push_count != 2 {
+            return 0
+        }
+        if snapshot.inbox_collect_count != 0 {
+            return 0
+        }
+        if snapshot.inbox_pending_count != 2 {
+            return 0
+        }
+        me.publish_only_ok = 1
+        return 1
+    }
+
+    captureCollectOnly(head_cell, block_a, block_b) {
+        local alloc = new HakoAllocProductionFacade()
+        local port = alloc.remotePagePort(17, 32, 2, 2, head_cell)
+        local block0 = alloc.remotePageAcquire(port, 8)
+        local block1 = alloc.remotePageAcquire(port, 16)
+        if block0 < 0 || block1 < 0 {
+            return 0
+        }
+        if alloc.remotePagePublishPort(port, block_a, block0, 0) != 1 {
+            return 0
+        }
+        if alloc.remotePagePublishPort(port, block_b, block1, 0) != 1 {
+            return 0
+        }
+        if alloc.remotePageCollectPendingPort(port) != 2 {
+            return 0
+        }
+        if alloc.remotePageCollectOnePort(port) != 0 {
+            return 0
+        }
+        local snapshot = alloc.remotePagePortSnapshot(port)
+        if snapshot.page_local_free_count != 2 {
+            return 0
+        }
+        if snapshot.inbox_pending_count != 0 {
+            return 0
+        }
+        me.collect_only_ok = 1
+        return 1
+    }
+
+    capturePublishCollectCycle(head_cell, block_a, block_b) {
+        local alloc = new HakoAllocProductionFacade()
+        local report = new HakoAllocRemoteFreePageExerciseReport()
+        report.captureFacadeExercise(alloc, head_cell, block_a, block_b)
+        if report.ok() != 1 {
+            return 0
+        }
+        me.publish_collect_cycle_ok = 1
+        return 1
+    }
+
+    benchmarkPackLine() {
+        return "benchmark_pack=remote-free-minimum-v0"
+    }
+
+    backendScopeLine() {
+        return "backend_scope=exact-exe-first"
+    }
+
+    workloadCountLine() {
+        return "workload_count=4"
+    }
+
+    workload0Line() {
+        return "workload0=local-alloc-free-cycle-v0"
+    }
+
+    workload1Line() {
+        return "workload1=remote-free-publish-only-v0"
+    }
+
+    workload2Line() {
+        return "workload2=remote-free-collect-only-v0"
+    }
+
+    workload3Line() {
+        return "workload3=remote-free-publish-collect-cycle-v0"
+    }
+
+    policyLine() {
+        return "policy=warmup:1,samples:5,summary:min,median,max"
+    }
+
+    stopLine() {
+        return "stop_line=provider:0,replacement:0,winner:0"
+    }
+
+    selectionLine() {
+        return "selection=" + me.local_cycle_ok + "," + me.publish_only_ok + "," + me.collect_only_ok + "," + me.publish_collect_cycle_ok
+    }
+
+    ok() {
+        if me.local_cycle_ok != 1 { return 0 }
+        if me.publish_only_ok != 1 { return 0 }
+        if me.collect_only_ok != 1 { return 0 }
+        if me.publish_collect_cycle_ok != 1 { return 0 }
+        return 1
+    }
+
+    summaryLine() {
+        if me.ok() == 1 {
+            return "summary=ok"
+        }
+        return "summary=fail"
+    }
+}
+
+static box Main {
+    main(args) {
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+
+        if head_cell == 0 || block_a == 0 || block_b == 0 {
+            print("mimalloc-remote-free-minimum-benchmark-selection-proof")
+            print("summary=alloc_failed")
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { externcall "hako_mem_free"(head_cell) }
+            return 1
+        }
+
+        local report = new HakoAllocRemoteFreeMinimumBenchmarkSelectionReport()
+        report.captureLocalAllocFree()
+        report.capturePublishOnly(head_cell, block_a, block_b)
+        report.captureCollectOnly(head_cell, block_a, block_b)
+        report.capturePublishCollectCycle(head_cell, block_a, block_b)
+
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(head_cell)
+
+        print("mimalloc-remote-free-minimum-benchmark-selection-proof")
+        print(report.benchmarkPackLine())
+        print(report.backendScopeLine())
+        print(report.workloadCountLine())
+        print(report.workload0Line())
+        print(report.workload1Line())
+        print(report.workload2Line())
+        print(report.workload3Line())
+        print(report.policyLine())
+        print(report.stopLine())
+        print(report.selectionLine())
+        print(report.summaryLine())
+
+        if report.ok() == 1 {
+            return 0
+        }
+        return 1
+    }
+}

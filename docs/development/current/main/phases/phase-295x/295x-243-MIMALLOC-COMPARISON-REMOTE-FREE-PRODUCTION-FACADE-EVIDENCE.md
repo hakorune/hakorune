@@ -87,8 +87,9 @@ benchmark workloads, repeated medians, or timing parity claims.
 Select:
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002
+MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002
 ```
 
-The next row should normalize the evidence bundle into a presentation contract
-without widening provider activation or replacement seams.
+The semantic closeout now folds directly into an implementation-first benchmark
+selection row so the lane does not create a presentation-only mimalloc row that
+touches no `.hako` implementation.
