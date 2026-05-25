@@ -1,0 +1,59 @@
+---
+Status: Current
+Date: 2026-05-25
+Scope: phase-295x smaller-default-load-set evidence on the abandoned-heap stress path.
+Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002
+Related:
+  - docs/development/current/main/phases/phase-295x/295x-228-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT.md
+  - tools/checks/k2_wide_phase295x_mimalloc_abandoned_heap_stress_nyrt_plugin_loadset_smaller_default_set_evidence_guard.sh
+---
+
+# 295x-229 Abandoned Heap Stress NyRT Plugin Load-Set Smaller Default Set Evidence
+
+## Decision
+
+Close:
+
+```text
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002
+```
+
+Ran repeated comparison samples with the empty default runtime config and
+confirmed it stays materially smaller than explicit root compatibility on the
+abandoned-heap stress path.
+
+## Evidence
+
+Repeated comparison samples with `sample-count=5` and `warmup-count=1`
+showed the smaller default load set staying materially below explicit root
+compatibility on the selected workload:
+
+| workload | empty default median RSS | explicit root median RSS |
+| --- | ---: | ---: |
+| representative-small-block-v0 | 3,588,096 | 9,457,664 |
+
+The repeated runner default is now `empty`, while explicit `root`
+compatibility remains available for comparison runs. The runner reports this
+as `hako_runtime_config_default=empty`.
+
+## Selected Row
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-CLOSEOUT-295X-002
+```
+
+## Stop Line
+
+This row does not broaden provider/DLL or host replacement seams, install
+hooks, change default runtime behavior, compute winner claims, or make RSS
+parity claims unless this card explicitly says so.
+
+## Verification
+
+```bash
+bash tools/checks/k2_wide_phase295x_mimalloc_abandoned_heap_stress_nyrt_plugin_loadset_smaller_default_set_evidence_guard.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```

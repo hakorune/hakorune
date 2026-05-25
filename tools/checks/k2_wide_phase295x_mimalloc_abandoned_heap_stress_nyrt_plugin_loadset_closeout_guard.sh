@@ -18,7 +18,7 @@ echo "[$TAG] checking phase-295x abandoned-heap stress NyRT plugin load-set clos
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$RUNNER" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$RUNNER" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" 'Status: Current' "$CARD" "card must remain current while the closeout row is being exercised"
+guard_expect_in_file "$TAG" 'Status: Landed' "$CARD" "card must remain landed once the closeout row is handed off"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002' "$CARD" "card must identify the closeout blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-PILOT-295X-002' "$CARD" "card must select the smaller-default-load-set pilot"
 guard_expect_in_file "$TAG" 'hako_runtime_config_default=empty' "$CARD" "card must record the repeated-runner default loadset pilot"
@@ -29,7 +29,8 @@ guard_expect_in_file "$TAG" 'root_current' "$CARD" "card must preserve the root_
 guard_expect_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous diagnostic row must be landed before closeout"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002' "$PREV_CARD" "previous row must select this closeout row"
 guard_expect_in_file "$TAG" '| 227 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the diagnostic row as landed"
-guard_expect_in_file "$TAG" '| 228 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the closeout row as current"
+guard_expect_in_file "$TAG" '| 228 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the closeout row landed"
+guard_expect_in_file "$TAG" '| 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the evidence row as current"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 echo "[$TAG] ok"
