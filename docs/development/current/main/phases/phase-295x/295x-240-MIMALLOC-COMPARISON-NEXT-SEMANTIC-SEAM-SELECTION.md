@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: select the next allocator-facing semantic seam after closing process-repeat evidence.
 Related:
