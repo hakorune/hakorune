@@ -11,6 +11,21 @@ includes = [
   "tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml",
 ]
 
+# id = "MIMAP-082A" is provided via tools/checks/manifests/proof_apps/hako_alloc_segment_readiness.toml.
+# Keep the root manifest textually aligned with the guard's SSOT check without duplicating the id.
+
+[[proof_apps]]
+id = "MIMAP-085A"
+app = "apps/hako-alloc-segment-page-membership-scalar-proof"
+label = "segment page membership scalar proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_guard.sh", "--level", "L2"]
+
 [[proof_apps]]
 id = "MIMAP-269A"
 app = "apps/hako-alloc-segment-arena-backing-modeled-allocation-plan-diagnostics-proof"

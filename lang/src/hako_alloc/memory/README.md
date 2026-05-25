@@ -58,6 +58,15 @@ Scope
   page sourcing, local-free collection/retire, remote-free atomics, page-map
   lookup, provider activation, hook install, process allocator replacement,
   `.inc` name matching, or production `usize` field migration opens.
+- `segment_page_membership_scalar_box.hako` owns MIMAP-085A segment page
+  membership scalar contract. It keeps the page-membership route narrow,
+  exact, and explicit before any raw pointer lookup, segment-map execution,
+  atomics, page-source/OS release seams, provider activation, or backend
+  matcher work opens.
+- `segment_lifecycle_scalar_state_box.hako` owns MIMAP-082A segment lifecycle
+  scalar state contract. It keeps the lifecycle-state route narrow, exact,
+  and explicit before any source concurrency, atomics, page-source/OS release
+  seams, provider activation, or backend matcher work opens.
 - `page_map_realloc_alloc_copy_release_box.hako`: the M175 realloc
   alloc-copy-release fallback module. It keeps the fallback route narrow,
   exact, and explicit before any broader alloc-copy or release-order work
