@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-206-MIMALLOC-COMPARISON-WORKER-TLS-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-206-MIMALLOC-COMPARISON-WORKER-TLS-SELECTION.md"
-latest_card_summary = "Closed the worker identity selection row and selected the allocator worker TLS cache-slot substrate as the next narrow concurrency seam."
-current_blocker_token = "MIMALLOC-COMPARISON-WORKER-TLS-SELECTION-295X-002"
+latest_card = "295x-207-MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-207-MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION.md"
+latest_card_summary = "Closed the worker TLS cache-slot selection row and selected the allocator-facing atomic route set as the next narrow concurrency seam."
+current_blocker_token = "MIMALLOC-COMPARISON-ATOMIC-ROUTE-SELECTION-295X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-207 Closed the worker TLS cache-slot selection row and selected the allocator-facing atomic route set as the next narrow concurrency seam.",
   "295x-206 Closed the worker identity selection row and selected the allocator worker TLS cache-slot substrate as the next narrow concurrency seam.",
   "295x-205 Closed the smaller-default load-set evidence row and selected the allocator-internal worker identity substrate as the next narrow concurrency seam.",
   "295x-204 Ran repeated comparison samples with the empty default runtime config and confirmed it stays materially smaller than explicit root compatibility.",
@@ -38,5 +39,4 @@ landed_tail = [
   "295x-198 ran the env-gated NyRT self-RSS checkpoints for the external `malloc-large` path and selected the plugin-host baseline follow-on",
   "295x-197 added env-gated NyRT self-RSS checkpoints for the external `malloc-large` path and selected the run follow-on",
   "295x-196 closed the fixed empty exact-EXE baseline diagnostic for the external `malloc-large` path and selected NyRT RSS checkpoints",
-  "295x-195 diagnosed the fixed empty exact-EXE baseline for the external `malloc-large` path and selected the closeout row",
 ]
