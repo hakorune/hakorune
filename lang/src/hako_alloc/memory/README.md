@@ -16,6 +16,8 @@ Scope
 - `page_map_release_invariant_box.hako`: the M173 pre-realloc release invariant
   observer module. It stays as an observer-only seam for release/realloc
   freeze evidence and does not take over page release execution.
+- `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
+  unreserve adapter.
 
 Syntax/style contract
 - New allocator state boxes should use Unified Members stored fields:
