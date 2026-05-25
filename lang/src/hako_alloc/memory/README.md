@@ -18,6 +18,7 @@ Scope
   freeze evidence and does not take over page release execution.
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
+- `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
 
 Syntax/style contract
 - New allocator state boxes should use Unified Members stored fields:
