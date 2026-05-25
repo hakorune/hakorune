@@ -173,6 +173,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 133 | `295x-133` | Landed | Thin-wrapped the M191 hako alloc stats surface guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 134 | `295x-134` | Landed | Thin-wrapped the M119A segment allocation modeled local-free integration guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 135 | `295x-135` | Landed | Thin-wrapped the M097A segment allocation modeled ledger release guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
+| 136 | `295x-136` | Landed | Thin-wrapped the M115A segment allocation modeled local-free page-model apply guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

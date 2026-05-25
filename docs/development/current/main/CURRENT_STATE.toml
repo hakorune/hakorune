@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-135-M097A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-135-M097A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the M097A segment allocation modeled ledger release guard root into an impl-backed wrapper and kept the memory README owner note in sync."
+latest_card = "295x-136-M115A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-PAGE-MODEL-APPLY-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-136-M115A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-PAGE-MODEL-APPLY-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the M115A segment allocation modeled local-free page-model apply guard root into an impl-backed wrapper and kept the memory README owner note in sync."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-136 thin-wrapped the M115A segment allocation modeled local-free page-model apply guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-135 thin-wrapped the M097A segment allocation modeled ledger release guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-134 thin-wrapped the M119A segment allocation modeled local-free integration guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-133 thin-wrapped the M191 hako alloc stats surface guard root into an impl-backed wrapper and kept the memory README owner note in sync",
@@ -39,5 +40,4 @@ landed_tail = [
   "295x-127 thin-wrapped the MIMAP-130A local-free reuse ledger guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-126 thin-wrapped the MIMAP-034A facade huge unreserve guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-125 thin-wrapped the M176 realloc failure-contract guard root into an impl-backed wrapper and kept the memory README owner note in sync",
-  "295x-124 thin-wrapped the M174 no-move realloc guard root into an impl-backed wrapper and kept the memory README owner note in sync",
 ]
