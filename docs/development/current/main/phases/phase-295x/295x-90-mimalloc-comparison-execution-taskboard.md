@@ -30,9 +30,10 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001:
-  selected current after 295x-195. Observe the fixed `malloc-large` empty
-  exact-EXE baseline into likely next seams.
+MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001:
+  selected current after 295x-196. Add env-gated NyRT self-RSS checkpoints to
+  locate the fixed-cost step without changing runtime behavior when the env is
+  unset.
 ```
 
 ## Queue
@@ -40,7 +41,8 @@ MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001:
 | Order | Row | Status | Boundary |
 | --- | --- | --- | --- |
 | 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Landed | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
-| 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Current | Diagnose the fixed `malloc-large` empty exact-EXE baseline through evidence-output and no-output control pairs. |
+| 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Landed | Diagnose the fixed `malloc-large` empty exact-EXE baseline through evidence-output and no-output control pairs. |
+| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Current | Observe the fixed `malloc-large` empty exact-EXE baseline into likely next seams. |
 
 ## Full Queue
 
