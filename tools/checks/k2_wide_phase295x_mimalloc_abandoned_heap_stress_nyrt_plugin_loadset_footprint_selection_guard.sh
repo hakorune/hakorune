@@ -17,14 +17,15 @@ echo "[$TAG] checking phase-295x abandoned-heap stress NyRT plugin load-set foot
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD" "card must remain current while the load-set selection row is exercised"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after the load-set selection row is exercised"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002' "$CARD" "card must identify current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002' "$CARD" "card must select the diagnostic follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002' "$PREV_CARD" "previous row must select this row"
 guard_expect_in_file "$TAG" 'empty_config' "$CARD" "card must include the empty config case"
 guard_expect_in_file "$TAG" 'root_current' "$CARD" "card must include the root current case"
 guard_expect_in_file "$TAG" '| 225 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002` | Landed |' "$TASKBOARD" "taskboard must retain the plugin-host substage row as landed"
-guard_expect_in_file "$TAG" '| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the plugin load-set selection row as current"
+guard_expect_in_file "$TAG" '| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must retain the plugin load-set selection row as landed"
+guard_expect_in_file "$TAG" '| 227 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the plugin load-set diagnostic row as current"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 echo "[$TAG] ok"

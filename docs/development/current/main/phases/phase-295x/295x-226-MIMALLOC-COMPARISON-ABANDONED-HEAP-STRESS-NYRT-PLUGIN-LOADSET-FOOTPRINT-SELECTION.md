@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-225-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC.md
+  - docs/development/current/main/phases/phase-295x/295x-227-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC.md
   - tools/checks/k2_wide_phase295x_mimalloc_abandoned_heap_stress_nyrt_plugin_loadset_footprint_selection_guard.sh
 ---
 

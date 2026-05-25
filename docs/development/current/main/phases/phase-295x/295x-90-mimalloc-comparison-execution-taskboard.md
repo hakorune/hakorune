@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002:
-  Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic.
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002:
+  Run a generated-config plugin load-set diagnostic for the abandoned-heap stress NyRT exact-EXE path.
 ```
 
 ## Queue
@@ -70,7 +70,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTIO
 | 223 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Landed | Run env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path and classify the fixed RSS step. |
 | 224 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Landed | Select a narrower plugin-host baseline seam after the abandoned-heap stress NyRT RSS checkpoint run. |
 | 225 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002` | Landed | Add the narrow plugin-host substage RSS diagnostic after the abandoned-heap stress NyRT plugin-host baseline selection. |
-| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Current | Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic. |
+| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed | Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic. |
+| 227 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Current | Run a generated-config plugin load-set diagnostic for the abandoned-heap stress NyRT exact-EXE path. |
 
 ## Full Queue
 
@@ -181,7 +182,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTIO
 | 223 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Landed | Run env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path and classify the fixed RSS step. |
 | 224 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Landed | Select a narrower plugin-host baseline seam after the abandoned-heap stress NyRT RSS checkpoint run. |
 | 225 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002` | Landed | Add the narrow plugin-host substage RSS diagnostic after the abandoned-heap stress NyRT plugin-host baseline selection. |
-| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Current | Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic. |
+| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed | Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic. |
+| 227 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Current | Run a generated-config plugin load-set diagnostic for the abandoned-heap stress NyRT exact-EXE path. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
