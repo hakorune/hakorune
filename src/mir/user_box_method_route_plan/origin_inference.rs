@@ -32,19 +32,34 @@ pub(super) fn infer_user_box_method_param_box_origins(
     );
     let typed_plan_fields = typed_object_plan_field_sets(module);
     let mut origins = ParamBoxOriginMap::new();
+    let mut function_def_maps = BTreeMap::<String, ValueDefMap>::new();
+    let mut function_param_index_caches =
+        BTreeMap::<String, HashMap<ValueId, Option<usize>>>::new();
+
+    for function in module.functions.values() {
+        let function_name = function.signature.name.clone();
+        function_def_maps.insert(function_name.clone(), build_value_def_map(function));
+        function_param_index_caches.insert(function_name, HashMap::new());
+    }
 
     for _ in 0..module.functions.len().max(1) {
         let current = origins.clone();
         let mut changed = false;
         for function in module.functions.values() {
-            let def_map = build_value_def_map(function);
-            let mut param_index_cache = HashMap::new();
+            let function_name = function.signature.name.as_str();
+            let Some(def_map) = function_def_maps.get(function_name) else {
+                continue;
+            };
+            let Some(param_index_cache) = function_param_index_caches.get_mut(function_name) else {
+                continue;
+            };
+
             for (param_index, box_name) in
                 infer_param_box_origins_from_field_uses(
                     function,
-                    &def_map,
+                    def_map,
                     &typed_plan_fields,
-                    &mut param_index_cache,
+                    param_index_cache,
                 )
             {
                 if !user_box_names.contains(&box_name) {
@@ -78,7 +93,7 @@ pub(super) fn infer_user_box_method_param_box_origins(
                     };
                     let Some(route_box_name) = user_box_route_receiver_box_name(
                         function,
-                        &def_map,
+                        def_map,
                         &user_box_names,
                         box_name,
                         *certainty,
@@ -101,7 +116,7 @@ pub(super) fn infer_user_box_method_param_box_origins(
                     for (arg_index, arg) in args.iter().enumerate() {
                         let Some(arg_box_name) = user_box_value_box_name(
                             function,
-                            &def_map,
+                            def_map,
                             *arg,
                             &current,
                             field_box_origins,
@@ -125,9 +140,9 @@ pub(super) fn infer_user_box_method_param_box_origins(
                         };
                         let Some(caller_param_index) = value_param_index(
                             function,
-                            &def_map,
+                            def_map,
                             *arg,
-                            &mut param_index_cache,
+                            param_index_cache,
                         )
                         else {
                             continue;

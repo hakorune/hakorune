@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002:
-  Run the selected exact-EXE-first minimum benchmark pack through process-invocation repeat timing without widening backend split or native comparison seams.
+MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-PARAM-ORIGIN-CACHE-IMPLEMENTATION-295X-001:
+  Reuse route-inference param-origin caches across inference waves so long failure-predicate chains stop paying repeated recursive value-origin walks.
 ```
 
 ## Queue
@@ -89,8 +89,11 @@ MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002:
 | 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed | Refresh the smallest production-facing remote-free comparison contract. |
 | 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Landed | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
 | 244 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002` | Landed | Fold the semantic closeout into an implementation-first minimum benchmark selection proof instead of a presentation-only mimalloc row. |
-| 245 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002` | Current | Run the selected exact-EXE-first minimum benchmark pack through process-invocation repeat timing without widening backend split or native comparison seams. |
-| 246 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Queued | Select the first backend-split comparison seam after the minimum exact-EXE benchmark run lands. |
+| 245 | `MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002` | Landed | Run the selected exact-EXE-first minimum benchmark pack through process-invocation repeat timing without widening backend split or native comparison seams. |
+| 246 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-OR-IMPLEMENTATION-295X-001` | Landed | Document and start the compiler-first long-OR fix plan by landing the first branch-context OR lowering slice without adding `.hako` workarounds. |
+| 247 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-PARAM-ORIGIN-CACHE-IMPLEMENTATION-295X-001` | Current | Reuse route-inference param-origin caches across inference waves to reduce repeated recursive origin walks on long-OR-heavy emits. |
+| 248 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001` | Queued | Extend the branch-context fast path contracts explicitly to `&&` and unary `!` after cache reuse lands. |
+| 249 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Queued | Select the first backend-split comparison seam after the long-OR compiler fix slices land. |
 
 ## Full Queue
 
