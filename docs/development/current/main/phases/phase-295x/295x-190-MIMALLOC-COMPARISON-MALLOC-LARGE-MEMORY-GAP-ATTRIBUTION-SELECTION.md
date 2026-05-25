@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: select baseline attribution for the external `malloc-large` evidence family.
 Blocker: MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001
 Related:
   - docs/development/current/main/phases/phase-295x/295x-189-MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-295x/295x-191-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE.md
   - docs/development/current/main/phases/phase-295x/295x-34-MIMALLOC-COMPARISON-MEMORY-GAP-BASELINE.md
   - docs/development/current/main/phases/phase-295x/295x-35-MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL.md
   - tools/checks/k2_wide_phase295x_malloc_large_memory_gap_attribution_selection_guard.sh
@@ -44,6 +45,18 @@ sample_count=5
 canonical_rss_collector=external-time
 winner_claim=0
 ```
+
+## Selected Row
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001
+```
+
+The next row should add empty-baseline evidence for the external
+`malloc-large` alignment family under the repeated measurement policy before
+any winner claim.
 
 ## Stop Line
 

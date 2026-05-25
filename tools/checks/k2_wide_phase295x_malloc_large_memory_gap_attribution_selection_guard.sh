@@ -8,6 +8,7 @@ source tools/checks/lib/guard_common.sh
 
 CARD="docs/development/current/main/phases/phase-295x/295x-190-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION.md"
 PREV_CARD="docs/development/current/main/phases/phase-295x/295x-189-MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT.md"
+NEXT_CARD="docs/development/current/main/phases/phase-295x/295x-191-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE.md"
 SSOT="docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 TASKBOARD="docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -15,9 +16,10 @@ SELF_SCRIPT="tools/checks/k2_wide_phase295x_malloc_large_memory_gap_attribution_
 
 echo "[$TAG] checking phase-295x malloc-large memory gap attribution selection"
 
-guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$SSOT" "$TASKBOARD" "$INDEX" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$NEXT_CARD" "$SSOT" "$TASKBOARD" "$INDEX" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
+guard_expect_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after opening the baseline row"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001' "$CARD" "card must select memory-gap baseline follow-on"
 guard_expect_in_file "$TAG" 'workload=representative-empty-v0' "$CARD" "card must select empty baseline workload"
@@ -30,9 +32,11 @@ guard_expect_in_file "$TAG" 'sample_count=5' "$CARD" "card must keep sample coun
 guard_expect_in_file "$TAG" 'canonical_rss_collector=external-time' "$CARD" "card must keep canonical RSS collector"
 guard_expect_in_file "$TAG" 'winner_claim=0' "$CARD" "card must keep winner claims closed"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001' "$PREV_CARD" "previous row must select this attribution seam"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001' "$NEXT_CARD" "next row must select the baseline seam"
 guard_expect_in_file "$TAG" 'Memory Gap Attribution' "$SSOT" "SSOT must define attribution policy"
 guard_expect_in_file "$TAG" '| 189 | `MIMALLOC-COMPARISON-MALLOC-LARGE-CLOSEOUT-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark closeout landed"
-guard_expect_in_file "$TAG" '| 190 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Current |' "$TASKBOARD" "taskboard must expose the attribution selection row"
+guard_expect_in_file "$TAG" '| 190 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the attribution selection row landed"
+guard_expect_in_file "$TAG" '| 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Current |' "$TASKBOARD" "taskboard must expose the baseline row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 if rg -n 'provider_activation=1|host_replacement=1|hook_installed=1|global_allocator_installed=1|winner_claim=1|LD_PRELOAD|replace_process_allocator|install_hook|process_allocator_replacement=1' "$CARD" >/tmp/"$TAG".forbidden 2>&1; then
