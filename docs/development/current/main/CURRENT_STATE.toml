@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-143-M42-M43-REMOTE-FREE-POLICY-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-143-M42-M43-REMOTE-FREE-POLICY-BATCH.md"
-latest_card_summary = "Thin-wrapped the M42 and M43 remote-free policy and retry-loop guard roots into impl-backed wrappers."
+latest_card = "295x-144-M175-REALLOC-ALLOC-COPY-RELEASE-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-144-M175-REALLOC-ALLOC-COPY-RELEASE-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the M175 realloc alloc-copy-release guard root into an impl-backed wrapper."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-144 thin-wrapped the M175 realloc alloc-copy-release guard root into an impl-backed wrapper",
   "295x-143 thin-wrapped the M42 and M43 remote-free policy and retry-loop guard roots into impl-backed wrappers",
   "295x-142 thin-wrapped the M164A and M168A segment-map modeled consume-ledger released-token recycle and released-span observation guard roots into impl-backed wrappers and kept the memory README owner notes in sync",
   "295x-141 thin-wrapped the M304A and M305A segment arena backing modeled allocation-ledger release/recycle continuation application bridge guard roots into impl-backed wrappers and kept the memory README owner notes in sync",
