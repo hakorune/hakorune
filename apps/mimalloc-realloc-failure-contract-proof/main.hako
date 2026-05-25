@@ -78,7 +78,12 @@ static box Main {
         local release_delta = seam.release_count - release_before
         local unregister_delta = seam.unregister_count - unregister_before
         local live_delta = page_map.live_count - live_before
-        local page0_used_delta = page0.used - page0_used_before
+        local page0_used_delta = 0
+        if page0.used < page0_used_before {
+            page0_used_delta = -1
+        } else if page0.used > page0_used_before {
+            page0_used_delta = page0.used - page0_used_before
+        }
         local page0_local_free_delta = page0.localFreeCount() - page0_local_free_before
         local page1_used_delta = page1.used - page1_used_before
 

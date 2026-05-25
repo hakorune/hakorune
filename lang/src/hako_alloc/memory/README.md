@@ -21,6 +21,9 @@ Scope
   for the explicit release route and keeps the counter fields exact.
 - `page_map_realloc_same_class_box.hako`: the M174 no-move realloc module. It
   owns the same-class path and keeps the exact counters for no-move evidence.
+- `page_map_realloc_failure_contract_box.hako`: the M176 realloc failure-
+  contract diagnostics owner. It freezes zero / oversized reject reporting and
+  delegates same-class and grow handling back to M174 / M175.
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
