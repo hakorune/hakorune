@@ -24,6 +24,11 @@ Scope
 - `page_map_realloc_failure_contract_box.hako`: the M176 realloc failure-
   contract diagnostics owner. It freezes zero / oversized reject reporting and
   delegates same-class and grow handling back to M174 / M175.
+- `object_lifecycle_facade_huge_unreserve_box.hako`: the MIMAP-034A facade
+  huge unreserve owner. It composes MIMAP-029A huge decommit with the MIMAP-
+  033A page-source unreserve adapter, then unreserves the exact decommitted
+  backing range while still stopping before duplicate/stale unreserve
+  diagnostics, recommit, provider activation, and allocator replacement.
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
