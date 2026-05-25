@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x thread-safe hako_mem ABI seam selection on the comparison lane
 Blocker: MIMALLOC-COMPARISON-THREADSAFE-ABI-SELECTION-295X-002
