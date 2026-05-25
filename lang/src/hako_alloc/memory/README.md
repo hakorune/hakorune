@@ -134,7 +134,9 @@ Scope
   remote-free / abandoned-owner policy composition. It keeps the
   same-owner / remote-owner / abandoned-owner decision route narrow, exact,
   and explicit before any wider reclaim, worker/TLS, atomic, or policy
-  expansion opens.
+  expansion opens. The M36 TLS + pointer remote-free composition proof reuses
+  this seam and keeps the mailbox route narrow before any wider remote-free
+  policy or retry-loop work opens.
 - `object_lifecycle_facade_page_source_box.hako` owns MIMAP-021B facade page-source fresh-page attach.
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns MIMAP-265A segment arena backing modeled source accounting diagnostics.
 - `reclaim_scheduler_request_ledger_box.hako` owns MIMAP-068A reclaim scheduler request ledger. It keeps the scheduler request ledger route narrow, exact, and explicit before any thread scheduling, worker spawning, source concurrency, page-source, unreserve, OS release, provider activation, or host allocator swap work opens.
