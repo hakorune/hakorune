@@ -6,6 +6,192 @@
 using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
 
+box HakoAllocRemoteFreePagePortSnapshot {
+    page_used: usize = 0
+    page_local_free_count: usize = 0
+    page_retired: i64 = 0
+    page_local_release_count: usize = 0
+    inbox_init_status: i64 = 0
+    inbox_push_count: i64 = 0
+    inbox_collect_count: i64 = 0
+    inbox_retry_count: i64 = 0
+    inbox_reject_count: i64 = 0
+    inbox_pending_count: i64 = 0
+}
+
+box HakoAllocRemoteFreePageExerciseReport {
+    block0: i64 = -1
+    block1: i64 = -1
+    overflow_block: i64 = -1
+    publish0: i64 = 0
+    publish1: i64 = 0
+    head_is_b: i64 = 0
+    next_b_is_a: i64 = 0
+    next_a_empty: i64 = 0
+    drained: i64 = 0
+    collect_after_drain: i64 = 0
+    page_used: usize = 0
+    page_local_free_count: usize = 0
+    page_retired: i64 = 0
+    page_local_release_count: usize = 0
+    inbox_init_status: i64 = 0
+    inbox_push_count: i64 = 0
+    inbox_collect_count: i64 = 0
+    inbox_retry_count: i64 = 0
+    inbox_reject_count: i64 = 0
+    inbox_pending_count: i64 = 0
+
+    captureBlocks(block0, block1, overflow_block) {
+        me.block0 = block0
+        me.block1 = block1
+        me.overflow_block = overflow_block
+        return 1
+    }
+
+    captureFacadeBlocks(alloc, port) {
+        local block0 = alloc.remotePageAcquire(port, 8)
+        local block1 = alloc.remotePageAcquire(port, 16)
+        local overflow_block = alloc.remotePageAcquire(port, 8)
+        return me.captureBlocks(block0, block1, overflow_block)
+    }
+
+    capturePublish(publish0, publish1) {
+        me.publish0 = publish0
+        me.publish1 = publish1
+        return 1
+    }
+
+    captureFacadePublish(alloc, port, block_a, block_b) {
+        local publish0 = alloc.remotePagePublishPort(port, block_a, me.block0, 0)
+        local publish1 = alloc.remotePagePublishPort(port, block_b, me.block1, 0)
+        return me.capturePublish(publish0, publish1)
+    }
+
+    captureList(head_is_b, next_b_is_a, next_a_empty) {
+        me.head_is_b = head_is_b
+        me.next_b_is_a = next_b_is_a
+        me.next_a_empty = next_a_empty
+        return 1
+    }
+
+    captureObservedPointers(head, next_b, next_a, block_a, block_b) {
+        if head == block_b {
+            me.head_is_b = 1
+        }
+        if next_b == block_a {
+            me.next_b_is_a = 1
+        }
+        if next_a == 0 {
+            me.next_a_empty = 1
+        }
+        return 1
+    }
+
+    captureFacadeObservedPointers(alloc, port, block_a, block_b) {
+        local head = alloc.remotePagePeekPortHead(port)
+        local next_b = alloc.remotePagePeekPortNext(port, block_b)
+        local next_a = alloc.remotePagePeekPortNext(port, block_a)
+        return me.captureObservedPointers(head, next_b, next_a, block_a, block_b)
+    }
+
+    captureCollect(drained, collect_after_drain) {
+        me.drained = drained
+        me.collect_after_drain = collect_after_drain
+        return 1
+    }
+
+    captureFacadeCollect(alloc, port) {
+        local drained = alloc.remotePageCollectPendingPort(port)
+        local collect_after_drain = alloc.remotePageCollectOnePort(port)
+        return me.captureCollect(drained, collect_after_drain)
+    }
+
+    captureSnapshot(snapshot) {
+        me.page_used = snapshot.page_used
+        me.page_local_free_count = snapshot.page_local_free_count
+        me.page_retired = snapshot.page_retired
+        me.page_local_release_count = snapshot.page_local_release_count
+        me.inbox_init_status = snapshot.inbox_init_status
+        me.inbox_push_count = snapshot.inbox_push_count
+        me.inbox_collect_count = snapshot.inbox_collect_count
+        me.inbox_retry_count = snapshot.inbox_retry_count
+        me.inbox_reject_count = snapshot.inbox_reject_count
+        me.inbox_pending_count = snapshot.inbox_pending_count
+        return 1
+    }
+
+    captureFacadeSnapshot(alloc, port) {
+        local snapshot = alloc.remotePagePortSnapshot(port)
+        return me.captureSnapshot(snapshot)
+    }
+
+    captureFacadeExercise(alloc, head_cell, block_a, block_b) {
+        local port = alloc.remotePagePort(17, 32, 2, 2, head_cell)
+        me.captureFacadeBlocks(alloc, port)
+        me.captureFacadePublish(alloc, port, block_a, block_b)
+        me.captureFacadeObservedPointers(alloc, port, block_a, block_b)
+        me.captureFacadeCollect(alloc, port)
+        return me.captureFacadeSnapshot(alloc, port)
+    }
+
+    blocksLine() {
+        return "blocks=" + me.block0 + "," + me.block1 + "," + me.overflow_block
+    }
+
+    publishLine() {
+        return "publish=" + me.publish0 + "," + me.publish1
+    }
+
+    listLine() {
+        return "list=" + me.head_is_b + "," + me.next_b_is_a + "," + me.next_a_empty
+    }
+
+    collectLine() {
+        return "collect=" + me.drained + "," + me.collect_after_drain
+    }
+
+    pageLine() {
+        return "page=" + me.page_used + "," + me.page_local_free_count + "," + me.page_retired + "," + me.page_local_release_count
+    }
+
+    inboxLine() {
+        return "inbox=" + me.inbox_init_status + "," + me.inbox_push_count + "," + me.inbox_collect_count + "," + me.inbox_retry_count + "," + me.inbox_reject_count + "," + me.inbox_pending_count
+    }
+
+    summaryLine() {
+        if me.ok() == 1 {
+            return "summary=ok"
+        }
+        return "summary=fail"
+    }
+
+    listShape() {
+        return me.head_is_b + me.next_b_is_a + me.next_a_empty
+    }
+
+    ok() {
+        if me.block0 != 1 { return 0 }
+        if me.block1 != 0 { return 0 }
+        if me.overflow_block != -1 { return 0 }
+        if me.publish0 != 1 { return 0 }
+        if me.publish1 != 1 { return 0 }
+        if me.drained != 2 { return 0 }
+        if me.collect_after_drain != 0 { return 0 }
+        if me.listShape() != 3 { return 0 }
+        if me.page_used != 0 { return 0 }
+        if me.page_local_free_count != 2 { return 0 }
+        if me.page_retired != 1 { return 0 }
+        if me.page_local_release_count != 2 { return 0 }
+        if me.inbox_init_status != 0 { return 0 }
+        if me.inbox_push_count != 2 { return 0 }
+        if me.inbox_collect_count != 2 { return 0 }
+        if me.inbox_retry_count != 0 { return 0 }
+        if me.inbox_reject_count != 1 { return 0 }
+        if me.inbox_pending_count != 0 { return 0 }
+        return 1
+    }
+}
+
 box HakoAllocRemoteFreePageInbox {
     page: HakoAllocPageModel
     head_cell: i64
@@ -64,11 +250,76 @@ box HakoAllocRemoteFreePageInbox {
         return 0
     }
 
+    collectPending() {
+        if me.pending_top == 0 {
+            return 0
+        }
+
+        me.pending_top = me.pending_top - 1
+        local block_id = me.pending_block_ids.get(me.pending_top)
+        if me.page.releaseLocal(block_id) {
+            me.remote_collect_count = me.remote_collect_count + 1
+            return 1 + me.collectPending()
+        }
+
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+
     peekHead() {
         return HakoAllocRemoteFreePolicy.peekHead(me.head_cell)
     }
 
     peekNext(block_ptr) {
         return HakoAllocRemoteFreePolicy.peekNext(block_ptr)
+    }
+}
+
+box HakoAllocRemoteFreePagePort {
+    page: HakoAllocPageModel
+    inbox: HakoAllocRemoteFreePageInbox
+
+    birth(page_id, block_size, capacity, reserved, head_cell) {
+        me.page = new HakoAllocPageModel(page_id, block_size, capacity, reserved)
+        me.inbox = new HakoAllocRemoteFreePageInbox(me.page, head_cell)
+    }
+
+    acquire(requested_size) {
+        return me.page.acquire(requested_size)
+    }
+
+    publish(block_ptr, block_id, interferer_ptr) {
+        return me.inbox.publish(block_ptr, block_id, interferer_ptr)
+    }
+
+    collectOne() {
+        return me.inbox.collectOne()
+    }
+
+    collectPending() {
+        return me.inbox.collectPending()
+    }
+
+    peekHead() {
+        return me.inbox.peekHead()
+    }
+
+    peekNext(block_ptr) {
+        return me.inbox.peekNext(block_ptr)
+    }
+
+    snapshot() {
+        local snapshot = new HakoAllocRemoteFreePagePortSnapshot()
+        snapshot.page_used = me.page.used
+        snapshot.page_local_free_count = me.page.localFreeCount()
+        snapshot.page_retired = me.page.retired
+        snapshot.page_local_release_count = me.page.local_free_count
+        snapshot.inbox_init_status = me.inbox.init_status
+        snapshot.inbox_push_count = me.inbox.remote_push_count
+        snapshot.inbox_collect_count = me.inbox.remote_collect_count
+        snapshot.inbox_retry_count = me.inbox.retry_count
+        snapshot.inbox_reject_count = me.inbox.reject_count
+        snapshot.inbox_pending_count = me.inbox.pending_top
+        return snapshot
     }
 }
