@@ -42,6 +42,7 @@ Scope
 - `segment_arena_backing_modeled_allocation_ledger_diagnostic_box.hako` owns MIMAP-277A segment arena backing modeled allocation ledger diagnostics.
 - `segment_arena_backing_modeled_allocation_ledger_release_apply_box.hako` owns MIMAP-288A segment arena backing modeled allocation ledger release apply.
 - `segment_arena_backing_modeled_allocation_ledger_release_apply_diagnostic_box.hako` owns MIMAP-289A segment arena backing modeled allocation ledger release apply diagnostics.
+- `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box.hako` owns MIMAP-292A segment arena backing modeled allocation ledger release-applied recycle. It keeps the release-applied recycle route narrow, exact, and explicit before any closeout pack opens.
 - `segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_diagnostic_box.hako` owns MIMAP-301A segment arena backing modeled allocation ledger release/recycle lifecycle continuation bridge diagnostics.
 - `segment_arena_backing_requirement_matrix_box.hako` owns MIMAP-240A segment arena backing scalar requirement matrix.
 - `segment_arena_backing_modeled_allocation_ledger_release_intent_box.hako` owns MIMAP-284A segment arena backing modeled allocation ledger release intent.
