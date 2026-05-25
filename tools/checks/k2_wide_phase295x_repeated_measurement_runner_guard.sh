@@ -24,7 +24,7 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$RUNNER" "$HAKO_RUNNER" "$C_RUNN
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001' "$CARD" "card must select pack run follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-RUNNER-295X-001' "$PREV_CARD" "previous row must select this runner"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REPEATED-MEASUREMENT-PACK-RUN-295X-001' "$TASKBOARD" "taskboard must expose pack run follow-on"
+guard_expect_fixed_in_file "$TAG" '| 30 | `295x-30` | Landed |' "$TASKBOARD" "taskboard must retain the pack run row as landed"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 guard_expect_in_file "$TAG" 'mimalloc-comparison-repeated-measurement-v0' "$RUNNER" "runner must publish repeated measurement contract"
 guard_expect_in_file "$TAG" 'canonical_rss_collector=external-time' "$RUNNER" "runner must use external-time RSS collector"
@@ -37,13 +37,14 @@ guard_expect_in_file "$TAG" 'free_order_id=even-odd-release-v0' "$SMALL_APP" "sm
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_repeated_runner.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 out="$tmp_dir/repeated.out"
+library_path="$(guard_find_mimalloc_library "$TAG")"
 
 python3 "$RUNNER" \
   --out "$out" \
   --workload representative-small-block-v0 \
   --sample-count 5 \
   --warmup-count 1 \
-  --allow-ldconfig-discovery
+  --c-library "$library_path"
 
 rg -F -q 'mimalloc_repeated_measurement_runner=1' "$out"
 rg -F -q 'output_contract=mimalloc-comparison-repeated-measurement-v0' "$out"
@@ -54,6 +55,7 @@ rg -F -q 'workload_count=1' "$out"
 rg -F -q 'workloads=representative-small-block-v0' "$out"
 rg -F -q 'summary_statistic=min,median,max' "$out"
 rg -F -q 'canonical_rss_collector=external-time' "$out"
+rg -F -q "c_library_path=$library_path" "$out"
 rg -F -q 'workload_0_operation_family=small-block' "$out"
 rg -F -q 'winner_claim=0' "$out"
 rg -F -q 'summary=ok' "$out"

@@ -33,6 +33,7 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_runner_loadset_evidence.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 out="$tmp_dir/repeated.out"
+library_path="$(guard_find_mimalloc_library "$TAG")"
 
 python3 "$RUNNER" \
   --out "$out" \
@@ -40,7 +41,7 @@ python3 "$RUNNER" \
   --warmup-count 0 \
   --hako-runtime-config empty \
   --workload representative-small-block-v0 \
-  --allow-ldconfig-discovery >/dev/null
+  --c-library "$library_path" >/dev/null
 
 rg -F -q 'output_contract=mimalloc-comparison-repeated-measurement-v0' "$out"
 rg -F -q 'hako_runtime_config_profile=empty' "$out"
@@ -49,6 +50,7 @@ rg -F -q 'hako_plugin_load_policy=eager_selected' "$out"
 rg -F -q 'hako_selected_library_count=0' "$out"
 rg -F -q 'hako_missing_library_count=0' "$out"
 rg -F -q 'hako_loadset_preflight_ok=1' "$out"
+rg -F -q "c_library_path=$library_path" "$out"
 rg -F -q 'winner_claim=0' "$out"
 rg -F -q 'summary=ok' "$out"
 

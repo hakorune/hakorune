@@ -17,6 +17,21 @@ guard_require_command() {
     fi
 }
 
+guard_find_mimalloc_library() {
+    local tag="$1"
+    guard_require_command "$tag" ldconfig
+
+    local path
+    path="$(ldconfig -p 2>/dev/null | awk '/libmimalloc\.so\.2[[:space:]]/ { print $NF; exit }')"
+    if [[ -z "$path" ]]; then
+        guard_fail "$tag" "libmimalloc.so.2 not found; pass an explicit library path"
+    fi
+    if [[ ! -f "$path" ]]; then
+        guard_fail "$tag" "libmimalloc.so.2 path does not exist: $path"
+    fi
+    printf '%s\n' "$path"
+}
+
 guard_require_files() {
     local tag="$1"
     shift

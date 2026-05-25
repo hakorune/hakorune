@@ -34,8 +34,9 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_hako_empty_footprint.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 out="$tmp_dir/footprint.out"
+library_path="$(guard_find_mimalloc_library "$TAG")"
 
-python3 "$SCRIPT" --out "$out" --sample-count 5 --warmup-count 1 --allow-ldconfig-discovery
+python3 "$SCRIPT" --out "$out" --sample-count 5 --warmup-count 1 --c-library "$library_path"
 
 rg -F -q 'mimalloc_hako_empty_exe_footprint=1' "$out"
 rg -F -q 'output_contract=mimalloc-comparison-hako-empty-exe-footprint-diagnostic-v0' "$out"
@@ -44,6 +45,7 @@ rg -F -q 'diagnostic_workload=representative-empty-noio-v0' "$out"
 rg -F -q 'static_footprint_evidence=1' "$out"
 rg -F -q 'static_footprint_is_rss_claim=0' "$out"
 rg -F -q 'baseline_shrink_action=0' "$out"
+rg -F -q "c_library_path=$library_path" "$out"
 rg -F -q 'winner_claim=0' "$out"
 rg -F -q 'summary=ok' "$out"
 

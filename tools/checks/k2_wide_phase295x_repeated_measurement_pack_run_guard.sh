@@ -28,8 +28,9 @@ guard_expect_in_file "$TAG" 'winner_claim=0' "$RUNNER" "runner must keep winner 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_repeated_pack.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 out="$tmp_dir/repeated-pack.out"
+library_path="$(guard_find_mimalloc_library "$TAG")"
 
-python3 "$RUNNER" --out "$out" --sample-count 5 --warmup-count 1 --allow-ldconfig-discovery
+python3 "$RUNNER" --out "$out" --sample-count 5 --warmup-count 1 --c-library "$library_path"
 
 rg -F -q 'mimalloc_repeated_measurement_runner=1' "$out"
 rg -F -q 'output_contract=mimalloc-comparison-repeated-measurement-v0' "$out"
@@ -39,6 +40,7 @@ rg -F -q 'sample_count=5' "$out"
 rg -F -q 'workload_count=4' "$out"
 rg -F -q 'workloads=representative-small-block-v0,representative-realloc-aligned-v0,representative-mixed-small-v0,representative-huge-ish-v0' "$out"
 rg -F -q 'canonical_rss_collector=external-time' "$out"
+rg -F -q "c_library_path=$library_path" "$out"
 rg -F -q 'workload_0_operation_family=small-block' "$out"
 rg -F -q 'workload_1_operation_family=realloc-aligned' "$out"
 rg -F -q 'workload_2_operation_family=mixed-small' "$out"
