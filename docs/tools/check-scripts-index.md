@@ -229,6 +229,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/hakmem_hakozuna_compare_log_adapter.py` | phase-295x hakozuna_compare log adapter。`hakozuna_compare_*.log` から throughput/RSS/elapsed の run-level evidence と min/median/max summary を key-value 化する。 |
 | `tools/checks/k2_wide_phase295x_hakmem_external_corpus_catalog_guard.sh` | 295x-87 の hakmem external corpus catalog を固定し、代表 `benchres.csv` / `hakozuna_compare` / `malloc-large` secondary artifacts と次 workload alignment target を検証する。 |
 | `tools/checks/k2_wide_phase295x_malloc_large_workload_contract_guard.sh` | 295x-187 の `malloc-large` workload contract を固定し、選択済み huge-ish `.hako` evidence / next evidence row linkage / cataloged external helper support を検証する。 |
+| `tools/checks/k2_wide_phase295x_malloc_large_evidence_run_guard.sh` | 295x-188 の `malloc-large` evidence run を固定し、外部 corpus benchres / benchres adapter / selected huge-ish `.hako` evidence / comparison normalizer の連結を検証する。 |
+| `tools/checks/k2_wide_phase295x_malloc_large_closeout_guard.sh` | 295x-189 の `malloc-large` closeout を固定し、evidence run を閉じて次 workload seam selection へ進むことを検証する。 |
 | `tools/allocator/mimalloc_repeated_measurement_runner.py` | phase-295x repeated measurement runner。既存 `.hako` / C evidence runner を sample/warmup policy で呼び、external-time RSS の min/median/max evidence を出す。 |
 | `tools/allocator/mimalloc_repeated_measurement_presentation.py` | phase-295x repeated measurement presentation formatter。repeated measurement evidence を presentation-only report に整形し、winner claim を閉じたまま RSS median delta を表示する。 |
 | `tools/allocator/mimalloc_memory_gap_incremental.py` | phase-295x memory gap attribution formatter。empty baseline repeated evidence と selected workload pack から baseline-subtracted RSS decomposition を出す。 |
