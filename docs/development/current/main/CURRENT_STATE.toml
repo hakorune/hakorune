@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-153-MIMAP-273A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-DIAGNOSTICS-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-153-MIMAP-273A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the MIMAP-273A segment arena backing modeled allocation apply diagnostics guard root into an impl-backed wrapper."
+latest_card = "295x-154-MIMAP-260A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-BRIDGE-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-154-MIMAP-260A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-BRIDGE-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the MIMAP-260A segment arena backing modeled source bridge guard root into an impl-backed wrapper."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-154 thin-wrapped the MIMAP-260A segment arena backing modeled source bridge guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-153 thin-wrapped the MIMAP-273A segment arena backing modeled allocation apply diagnostics guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-152 thin-wrapped the MIMAP-REMOTE-001 remote-free abandoned-owner policy guard root into an impl-backed wrapper and kept the memory README owner note in sync",
   "295x-151 thin-wrapped the MIMAP-153A segment-map lookup guarded readiness composition guard root into an impl-backed wrapper",
