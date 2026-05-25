@@ -1,6 +1,6 @@
 # 293x-687 MIMAP-165A Post Segment Map Modeled Consume Ledger Released Token Recycle Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision

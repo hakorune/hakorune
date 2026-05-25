@@ -130,6 +130,26 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_al
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_diagnostics_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-164A"
+app = "apps/hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-proof"
+label = "segment map modeled consume ledger released-token recycle proof"
+profiles = ["pilot", "hako-alloc-purge"]
+validation_profile = "scalar-mir"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_token_recycle_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_token_recycle_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-168A"
+app = "apps/hako-alloc-segment-map-modeled-consume-ledger-released-span-observation-proof"
+label = "segment map modeled consume ledger released-span observation proof"
+profiles = ["pilot", "hako-alloc-purge"]
+validation_profile = "scalar-mir"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_span_observation_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_span_observation_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-196A"
 app = "apps/hako-alloc-segment-map-local-free-reuse-ledger-release-bridge-proof"
 label = "segment map local-free reuse ledger release bridge proof"

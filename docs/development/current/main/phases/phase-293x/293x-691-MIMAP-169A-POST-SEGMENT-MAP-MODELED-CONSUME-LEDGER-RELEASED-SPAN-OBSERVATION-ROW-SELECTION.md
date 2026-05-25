@@ -1,6 +1,6 @@
 # 293x-691 MIMAP-169A Post Segment Map Modeled Consume Ledger Released Span Observation Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision

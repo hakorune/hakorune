@@ -179,6 +179,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 139 | `295x-139` | Landed | Thin-wrapped the M224A, M228A, and M229A segment-map local-free reuse ledger lifecycle-keyed release guard roots into impl-backed wrappers and kept the memory README owner notes in sync without changing the current mimalloc comparison blocker. |
 | 140 | `295x-140` | Landed | Thin-wrapped the M212A, M220A, and M216A segment-map local-free reuse ledger lifecycle-token guard roots into impl-backed wrappers and kept the memory README owner notes in sync without changing the current mimalloc comparison blocker. |
 | 141 | `295x-141` | Landed | Thin-wrapped the M304A and M305A segment arena backing modeled allocation-ledger release/recycle continuation application bridge guard roots into impl-backed wrappers and kept the memory README owner notes in sync without changing the current mimalloc comparison blocker. |
+| 142 | `295x-142` | Landed | Thin-wrapped the M164A and M168A segment-map modeled consume-ledger released-token recycle and released-span observation guard roots into impl-backed wrappers and kept the memory README owner notes in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 
