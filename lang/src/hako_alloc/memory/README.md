@@ -117,6 +117,7 @@ Scope
 - `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
   unreserve adapter.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
+- `reclaim_owner_transfer_contract_box.hako` owns MIMAP-051A reclaim owner-transfer contract inventory. It keeps the owner-transfer contract route narrow, exact, and explicit before any thread scheduling, atomic claim, remote-free drain, owner adoption, reclaim execution, page-source, unreserve, or OS release work opens.
 - `remote_free_abandoned_owner_policy_box.hako` owns MIMAP-REMOTE-001
   remote-free / abandoned-owner policy composition. It keeps the
   same-owner / remote-owner / abandoned-owner decision route narrow, exact,
