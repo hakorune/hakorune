@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: add process-repeat evidence to the reuse-cycle small port seam.
 Related:
@@ -50,3 +50,14 @@ This row does not compute speed winners, compute RSS winners, require timing
 parity, add body-internal timers, change runtime behavior, make `empty` the
 default runtime config, or open provider/DLL/replacement/hook/global allocator
 seams.
+
+## Selected Next
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002
+```
+
+The next row continues the repeated-measurement `.hako` porting path on the
+realloc/aligned workload family with the same process-repeat evidence policy.
