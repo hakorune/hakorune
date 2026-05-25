@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-PRESENTATION-295X-002:
-  Present the abandoned-heap stress evidence row by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces.
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002:
+  Close the abandoned-heap stress presentation pack and park the lane on a narrow baseline-breakdown selection.
 ```
 
 ## Queue
@@ -61,7 +61,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-PRESENTATION-295X-002:
 | 214 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SELECTION-295X-002` | Landed | Select the abandoned-heap stress contract refresh after the PAR-STRESS closeout. |
 | 215 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002` | Landed | Refresh the abandoned-heap stress contract by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces. |
 | 216 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EVIDENCE-295X-002` | Landed | Run the abandoned-heap stress evidence row by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces. |
-| 217 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-PRESENTATION-295X-002` | Current | Present the abandoned-heap stress evidence row by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces. |
+| 217 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-PRESENTATION-295X-002` | Landed | Present the abandoned-heap stress evidence row by pairing the abandoned-owner policy and abandoned-reclaim inventory proof surfaces. |
+| 218 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002` | Current | Close the abandoned-heap stress presentation pack and park the lane on a narrow baseline-breakdown selection. |
 
 ## Full Queue
 

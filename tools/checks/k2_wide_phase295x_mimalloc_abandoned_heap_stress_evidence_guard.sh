@@ -26,7 +26,8 @@ guard_expect_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous contract ref
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EVIDENCE-295X-002' "$PREV_CARD" "previous row must select this evidence row"
 guard_expect_in_file "$TAG" '| 215 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CONTRACT-REFRESH-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the contract refresh row as landed"
 guard_expect_in_file "$TAG" '| 216 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EVIDENCE-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the evidence row as landed"
-guard_expect_in_file "$TAG" '| 217 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-PRESENTATION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the presentation row as current"
+guard_expect_in_file "$TAG" '| 217 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-PRESENTATION-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the presentation row as landed"
+guard_expect_in_file "$TAG" '| 218 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the closeout row as current"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_abandoned_heap_stress_evidence.XXXXXX)"
