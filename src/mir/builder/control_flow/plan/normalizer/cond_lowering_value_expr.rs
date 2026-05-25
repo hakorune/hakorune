@@ -31,9 +31,15 @@ pub(super) fn lower_cond_value_expr(
 ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
     match expr {
         ASTNode::BinaryOp { operator, .. } => match operator {
-            BinaryOperator::And | BinaryOperator::Or => Err(format!(
-                "{error_prefix}: short-circuit condition must be lowered via CondBlockView"
-            )),
+            // Pure bool expressions can be lowered by value semantics without
+            // violating the source short-circuit contract, because the pure
+            // value gate has already excluded side-effecting operands.
+            BinaryOperator::And | BinaryOperator::Or => {
+                let (value_id, effects) =
+                    loop_body_lowering::lower_bool_expr(builder, phi_bindings, expr, error_prefix)?;
+                debug_log_cond_value_int3(builder, value_id, &effects);
+                Ok((value_id, effects))
+            }
             BinaryOperator::Less
             | BinaryOperator::LessEqual
             | BinaryOperator::Greater
@@ -56,9 +62,12 @@ pub(super) fn lower_cond_value_expr(
         ASTNode::UnaryOp {
             operator: UnaryOperator::Not,
             ..
-        } => Err(format!(
-            "{error_prefix}: short-circuit condition must be lowered via CondBlockView"
-        )),
+        } => {
+            let (value_id, effects) =
+                loop_body_lowering::lower_bool_expr(builder, phi_bindings, expr, error_prefix)?;
+            debug_log_cond_value_int3(builder, value_id, &effects);
+            Ok((value_id, effects))
+        }
         _ => {
             let (value_id, effects) = PlanNormalizer::lower_value_ast(expr, builder, phi_bindings)?;
             debug_log_cond_value_int3(builder, value_id, &effects);
@@ -109,4 +118,66 @@ fn debug_log_cond_value_int3(
         effects.len(),
         const_int3_dsts
     ));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{lower_cond_to_value_impl, lower_cond_value_expr};
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::CompareOp;
+    use std::collections::BTreeMap;
+
+    fn span() -> Span {
+        Span::unknown()
+    }
+
+    fn bool_lit(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: span(),
+        }
+    }
+
+    #[test]
+    fn lower_cond_value_expr_accepts_pure_or_chain() {
+        let expr = ASTNode::BinaryOp {
+            operator: BinaryOperator::Or,
+            left: Box::new(bool_lit(true)),
+            right: Box::new(bool_lit(false)),
+            span: span(),
+        };
+
+        let mut builder = MirBuilder::new();
+        let (_, effects) =
+            lower_cond_value_expr(&mut builder, &BTreeMap::new(), &expr, "test pure or chain")
+                .expect("pure || condition should lower in value context");
+
+        assert!(effects.iter().any(|effect| matches!(effect, CoreEffectPlan::Select { .. })));
+    }
+
+    #[test]
+    fn lower_cond_to_value_impl_accepts_unary_not_tail_expr() {
+        let expr = ASTNode::UnaryOp {
+            operator: UnaryOperator::Not,
+            operand: Box::new(bool_lit(false)),
+            span: span(),
+        };
+        let cond = CondBlockView::from_expr(&expr);
+
+        let mut builder = MirBuilder::new();
+        let (_, effects) =
+            lower_cond_to_value_impl(&mut builder, &BTreeMap::new(), &cond, "test unary not")
+                .expect("pure ! condition should lower through CondBlockView");
+
+        assert!(effects.iter().any(|effect| matches!(
+            effect,
+            CoreEffectPlan::Compare {
+                op: CompareOp::Eq,
+                ..
+            }
+        )));
+    }
 }

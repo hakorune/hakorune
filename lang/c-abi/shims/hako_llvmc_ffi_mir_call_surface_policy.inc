@@ -17,6 +17,7 @@
 
       enum MirCallStringExternSurfaceKind {
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_NONE = 0,
+        HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONSOLE_LOG,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT_HH,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT3_HHH,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_INSERT_HSI,
@@ -61,6 +62,12 @@
 
       auto enum MirCallStringExternSurfaceKind
       classify_mir_call_string_extern_surface(const char* mname) {
+        if (mname &&
+            (!strcmp(mname, "env.console.log") ||
+             !strcmp(mname, "nyash.console.log") ||
+             !strcmp(mname, "nyash.console.println"))) {
+          return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONSOLE_LOG;
+        }
         if (mname && !strcmp(mname, "nyash.string.concat_hh")) {
           return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT_HH;
         }

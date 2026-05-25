@@ -847,9 +847,15 @@
               set_type(dst, T_I1);
             } else {
               if (then_const) snprintf(then_ref, sizeof(then_ref), "%lld", then_cv);
-              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
+              else if (then_ty == T_I1) {
+                EMIT("  %%t%lld_then_i64 = zext i1 %%r%lld to i64\n", dst, then_base);
+                snprintf(then_ref, sizeof(then_ref), "%%t%lld_then_i64", dst);
+              } else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
               if (else_const) snprintf(else_ref, sizeof(else_ref), "%lld", else_cv);
-              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_base);
+              else if (else_ty == T_I1) {
+                EMIT("  %%t%lld_else_i64 = zext i1 %%r%lld to i64\n", dst, else_base);
+                snprintf(else_ref, sizeof(else_ref), "%%t%lld_else_i64", dst);
+              } else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_base);
               EMIT("  %%r%lld = select i1 %s, i64 %s, i64 %s\n",
                    dst,
                    cond_ref,

@@ -41,18 +41,24 @@ fn simplify_function(function: &mut MirFunction) -> usize {
     let mut simplified = 0usize;
 
     loop {
+        let mut changed = false;
+
         function.update_cfg();
-        if let Some((block_id, inst_idx, value)) = find_constant_compare_fold(function) {
+        while let Some((block_id, inst_idx, value)) = find_constant_compare_fold(function) {
             fold_constant_compare(function, block_id, inst_idx, value);
             simplified += 1;
-            continue;
+            changed = true;
+            function.update_cfg();
         }
-        if let Some((block_id, target, edge_args)) = find_constant_branch_fold(function) {
+
+        while let Some((block_id, target, edge_args)) = find_constant_branch_fold(function) {
             fold_constant_branch(function, block_id, target, edge_args);
             simplified += 1;
-            continue;
+            changed = true;
+            function.update_cfg();
         }
-        if let Some((block_id, arm, middle_id, target, rewrite_phi, clear_edge_args)) =
+
+        while let Some((block_id, arm, middle_id, target, rewrite_phi, clear_edge_args)) =
             find_threadable_branch_jump(function)
         {
             thread_branch_arm(
@@ -65,13 +71,18 @@ fn simplify_function(function: &mut MirFunction) -> usize {
                 clear_edge_args,
             );
             simplified += 1;
-            continue;
+            changed = true;
         }
-        let Some((pred_id, middle_id)) = find_single_predecessor_jump_merge(function) else {
+
+        while let Some((pred_id, middle_id)) = find_single_predecessor_jump_merge(function) {
+            merge_single_predecessor_jump_block(function, pred_id, middle_id);
+            simplified += 1;
+            changed = true;
+        }
+
+        if !changed {
             break;
-        };
-        merge_single_predecessor_jump_block(function, pred_id, middle_id);
-        simplified += 1;
+        }
     }
 
     simplified

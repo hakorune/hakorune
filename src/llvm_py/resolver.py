@@ -244,9 +244,21 @@ class Resolver:
         This is the SSOT lookup order for instructions (e.g. select) that can
         consume values produced earlier in the same basic block.
         """
+        def _canonical_i64(val: Optional[ir.Value]) -> Optional[ir.Value]:
+            if val is None:
+                return None
+            try:
+                if isinstance(val.type, ir.IntType) and val.type.width == 1:
+                    return ir.IRBuilder(current_block).zext(
+                        val, self.i64, name=f"same_block_i64_{value_id}"
+                    )
+            except Exception:
+                pass
+            return val
+
         direct = vmap.get(value_id)
         if direct is not None:
-            return direct
+            return _canonical_i64(direct)
 
         try:
             block_id = int(str(current_block.name).replace("bb", ""))
@@ -257,7 +269,7 @@ class Resolver:
             value_id, block_id, preds, block_end_values, vmap, bb_map
         )
         if resolved is not None:
-            return resolved
+            return _canonical_i64(resolved)
         if fallback_zero:
             return ir.Constant(self.i64, 0)
         return None

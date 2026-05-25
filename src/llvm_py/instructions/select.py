@@ -85,6 +85,13 @@ def lower_select(
     then_val = _resolve_vid(then_val_vid, "then_val")
     else_val = _resolve_vid(else_val_vid, "else_val")
 
+    # Compare fast paths may leave branch-local bools as i1 in vmap.
+    # Select values are carried as canonical i64 bools across backend joins.
+    if then_val.type == ir.IntType(1):
+        then_val = builder.zext(then_val, ir.IntType(64), name=f"then_i64_{then_val_vid}")
+    if else_val.type == ir.IntType(1):
+        else_val = builder.zext(else_val, ir.IntType(64), name=f"else_i64_{else_val_vid}")
+
     # Ensure both branches have same type
     if then_val.type != else_val.type:
         # If types differ, cast else_val to then_val's type

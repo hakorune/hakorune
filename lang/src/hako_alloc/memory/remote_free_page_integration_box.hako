@@ -159,10 +159,8 @@ box HakoAllocRemoteFreePageExerciseReport {
     }
 
     summaryLine() {
-        if me.ok() == 1 {
-            return "summary=ok"
-        }
-        return "summary=fail"
+        if me.ok() != 1 { return "summary=fail" }
+        return "summary=ok"
     }
 
     listShape() {
@@ -170,24 +168,12 @@ box HakoAllocRemoteFreePageExerciseReport {
     }
 
     ok() {
-        if me.block0 != 1 { return 0 }
-        if me.block1 != 0 { return 0 }
-        if me.overflow_block != -1 { return 0 }
-        if me.publish0 != 1 { return 0 }
-        if me.publish1 != 1 { return 0 }
-        if me.drained != 2 { return 0 }
-        if me.collect_after_drain != 0 { return 0 }
-        if me.listShape() != 3 { return 0 }
-        if me.page_used != 0 { return 0 }
-        if me.page_local_free_count != 2 { return 0 }
-        if me.page_retired != 1 { return 0 }
-        if me.page_local_release_count != 2 { return 0 }
-        if me.inbox_init_status != 0 { return 0 }
-        if me.inbox_push_count != 2 { return 0 }
-        if me.inbox_collect_count != 2 { return 0 }
-        if me.inbox_retry_count != 0 { return 0 }
-        if me.inbox_reject_count != 1 { return 0 }
-        if me.inbox_pending_count != 0 { return 0 }
+        if me.block0 != 1 || me.block1 != 0 || me.overflow_block != -1 ||
+           me.publish0 != 1 || me.publish1 != 1 ||
+           me.drained != 2 || me.collect_after_drain != 0 || me.listShape() != 3 ||
+           me.page_used != 0 || me.page_local_free_count != 2 || me.page_retired != 1 || me.page_local_release_count != 2 ||
+           me.inbox_init_status != 0 || me.inbox_push_count != 2 || me.inbox_collect_count != 2 ||
+           me.inbox_retry_count != 0 || me.inbox_reject_count != 1 || me.inbox_pending_count != 0 { return 0 }
         return 1
     }
 }

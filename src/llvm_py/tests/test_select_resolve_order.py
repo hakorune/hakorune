@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from resolver import Resolver
+from instructions.select import lower_select
 
 
 class TestSelectResolveOrder(unittest.TestCase):
@@ -37,11 +38,40 @@ class TestSelectResolveOrder(unittest.TestCase):
         )
         self.assertEqual(int(getattr(got, "constant", -1)), 5)
 
+    def test_same_block_i1_is_canonicalized_to_i64(self):
+        vmap = {40: ir.Constant(ir.IntType(1), 1)}
+        got = self.resolver.resolve_same_block_then_snapshot_i64(
+            40, self.bb, {}, {}, vmap, self.bb_map
+        )
+        self.assertEqual(got.type, self.i64)
+
     def test_falls_back_to_zero_when_missing_everywhere(self):
         got = self.resolver.resolve_same_block_then_snapshot_i64(
             30, self.bb, {}, {}, {}, self.bb_map
         )
         self.assertEqual(int(getattr(got, "constant", -1)), 0)
+
+    def test_lower_select_canonicalizes_i1_branch_values_to_i64(self):
+        vmap = {
+            1: ir.Constant(ir.IntType(1), 1),
+            2: ir.Constant(ir.IntType(1), 0),
+            3: ir.Constant(ir.IntType(1), 1),
+        }
+
+        lower_select(
+            ir.IRBuilder(self.bb),
+            self.resolver,
+            1,
+            2,
+            3,
+            4,
+            vmap,
+            {},
+            {},
+            self.bb_map,
+        )
+
+        self.assertEqual(vmap[4].type, self.i64)
 
 
 if __name__ == "__main__":

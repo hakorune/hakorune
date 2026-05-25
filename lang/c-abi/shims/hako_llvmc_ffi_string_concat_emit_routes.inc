@@ -288,6 +288,42 @@
         argc = yyjson_arr_size(args);
         ab[0] = '\0';
 
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONSOLE_LOG) {
+          long long a0 = 0;
+          long long base = 0;
+          long long cv = 0;
+          int a0_is_string = 0;
+          if (argc != 1) return -1;
+          a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+          base = resolve_copy_chain_source_reg(insts, ii + 1, a0);
+          if (!base) base = a0;
+          a0_is_string =
+              get_origin(base) == ORG_STRING ||
+              get_scan_origin(base) == ORG_STRING ||
+              get_origin(a0) == ORG_STRING ||
+              get_scan_origin(a0) == ORG_STRING;
+          if (a0_is_string) {
+            fprintf(
+                f,
+                "  %%extern_console_log_i%zu = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
+                ii,
+                base);
+          } else if (has_const(base, &cv)) {
+            fprintf(
+                f,
+                "  %%extern_console_log_i%zu = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
+                ii,
+                cv);
+          } else {
+            fprintf(
+                f,
+                "  %%extern_console_log_i%zu = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %%r%lld)\n",
+                ii,
+                base);
+          }
+          return 1;
+        }
+
         if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT_HH) {
           if (argc != 2) return -1;
           append_string_concat_arg_ref(

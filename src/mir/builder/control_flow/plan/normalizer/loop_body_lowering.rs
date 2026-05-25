@@ -426,17 +426,26 @@ pub(in crate::mir::builder) fn lower_bool_expr(
                     lower_bool_expr(builder, phi_bindings, left, error_prefix)?;
                 let (rhs, mut rhs_effects) =
                     lower_bool_expr(builder, phi_bindings, right, error_prefix)?;
+                let const_id = builder.alloc_typed(MirType::Bool);
+                lhs_effects.push(CoreEffectPlan::Const {
+                    dst: const_id,
+                    value: ConstValue::Bool(matches!(operator, BinaryOperator::Or)),
+                });
                 let dst = builder.alloc_typed(MirType::Bool);
                 lhs_effects.append(&mut rhs_effects);
-                lhs_effects.push(CoreEffectPlan::BinOp {
+                lhs_effects.push(CoreEffectPlan::Select {
                     dst,
-                    lhs,
-                    op: match operator {
-                        BinaryOperator::And => BinaryOp::And,
-                        BinaryOperator::Or => BinaryOp::Or,
-                        _ => unreachable!(),
+                    cond: lhs,
+                    then_val: if matches!(operator, BinaryOperator::Or) {
+                        const_id
+                    } else {
+                        rhs
                     },
-                    rhs,
+                    else_val: if matches!(operator, BinaryOperator::Or) {
+                        rhs
+                    } else {
+                        const_id
+                    },
                 });
                 debug_log_bool_expr_binop_lit3(builder, &lhs_effects, "and_or");
                 Ok((dst, lhs_effects))

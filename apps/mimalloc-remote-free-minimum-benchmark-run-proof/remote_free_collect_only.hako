@@ -70,9 +70,7 @@ static box Main {
                         ok = 0
                     } else {
                         local snapshot = alloc.remotePagePortSnapshot(port)
-                        if snapshot.page_local_free_count != 2 {
-                            ok = 0
-                        } else if snapshot.inbox_pending_count != 0 {
+                        if snapshot.page_local_free_count != 2 || snapshot.inbox_pending_count != 0 {
                             ok = 0
                         }
                     }

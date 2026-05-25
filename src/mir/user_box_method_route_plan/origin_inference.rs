@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use super::return_shape::{UserBoxFieldReturnHints, UserBoxMethodInferredReturn};
 use super::target_collection::{
@@ -38,8 +38,14 @@ pub(super) fn infer_user_box_method_param_box_origins(
         let mut changed = false;
         for function in module.functions.values() {
             let def_map = build_value_def_map(function);
+            let mut param_index_cache = HashMap::new();
             for (param_index, box_name) in
-                infer_param_box_origins_from_field_uses(function, &def_map, &typed_plan_fields)
+                infer_param_box_origins_from_field_uses(
+                    function,
+                    &def_map,
+                    &typed_plan_fields,
+                    &mut param_index_cache,
+                )
             {
                 if !user_box_names.contains(&box_name) {
                     continue;
@@ -117,7 +123,12 @@ pub(super) fn infer_user_box_method_param_box_origins(
                         else {
                             continue;
                         };
-                        let Some(caller_param_index) = value_param_index(function, &def_map, *arg)
+                        let Some(caller_param_index) = value_param_index(
+                            function,
+                            &def_map,
+                            *arg,
+                            &mut param_index_cache,
+                        )
                         else {
                             continue;
                         };
@@ -162,6 +173,7 @@ fn infer_param_box_origins_from_field_uses(
     function: &MirFunction,
     def_map: &ValueDefMap,
     typed_plan_fields: &BTreeMap<String, BTreeSet<String>>,
+    param_index_cache: &mut HashMap<ValueId, Option<usize>>,
 ) -> Vec<(usize, String)> {
     let mut param_fields = BTreeMap::<usize, BTreeSet<String>>::new();
     for block_id in sorted_block_ids(function) {
@@ -172,7 +184,9 @@ fn infer_param_box_origins_from_field_uses(
             match instruction {
                 MirInstruction::FieldGet { base, field, .. }
                 | MirInstruction::FieldSet { base, field, .. } => {
-                    let Some(param_index) = value_param_index(function, def_map, *base) else {
+                    let Some(param_index) =
+                        value_param_index(function, def_map, *base, param_index_cache)
+                    else {
                         continue;
                     };
                     if !param_accepts_inferred_box_origin(function, param_index) {
@@ -551,22 +565,33 @@ fn value_param_index(
     function: &MirFunction,
     def_map: &ValueDefMap,
     value: ValueId,
+    cache: &mut HashMap<ValueId, Option<usize>>,
 ) -> Option<usize> {
-    let mut visiting = BTreeSet::new();
-    value_param_index_inner(function, def_map, value, &mut visiting)
+    if let Some(cached) = cache.get(&value) {
+        return *cached;
+    }
+    let mut visiting = HashSet::new();
+    let resolved = value_param_index_inner(function, def_map, value, &mut visiting, cache);
+    cache.insert(value, resolved);
+    resolved
 }
 
 fn value_param_index_inner(
     function: &MirFunction,
     def_map: &ValueDefMap,
     value: ValueId,
-    visiting: &mut BTreeSet<ValueId>,
+    visiting: &mut HashSet<ValueId>,
+    cache: &mut HashMap<ValueId, Option<usize>>,
 ) -> Option<usize> {
+    if let Some(cached) = cache.get(&value) {
+        return *cached;
+    }
     if !visiting.insert(value) {
         return None;
     }
     if let Some(index) = function.params.iter().position(|param| *param == value) {
         visiting.remove(&value);
+        cache.insert(value, Some(index));
         return Some(index);
     }
     let result = def_map
@@ -579,13 +604,13 @@ fn value_param_index_inner(
         })
         .and_then(|instruction| match instruction {
             MirInstruction::Copy { src, .. } => {
-                value_param_index_inner(function, def_map, *src, visiting)
+                value_param_index_inner(function, def_map, *src, visiting, cache)
             }
             MirInstruction::Phi { inputs, .. } => {
                 let mut inferred = None;
                 for (_incoming_block, incoming_value) in inputs {
                     let index =
-                        value_param_index_inner(function, def_map, *incoming_value, visiting)?;
+                        value_param_index_inner(function, def_map, *incoming_value, visiting, cache)?;
                     inferred = match inferred {
                         None => Some(index),
                         Some(existing) if existing == index => Some(existing),
@@ -597,6 +622,7 @@ fn value_param_index_inner(
             _ => None,
         });
     visiting.remove(&value);
+    cache.insert(value, result);
     result
 }
 
