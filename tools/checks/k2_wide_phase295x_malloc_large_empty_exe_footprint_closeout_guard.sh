@@ -17,6 +17,7 @@ echo "[$TAG] checking phase-295x malloc-large empty EXE footprint closeout"
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after the NyRT diagnostic handoff"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001' "$CARD" "card must identify the current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001' "$CARD" "card must select the NyRT RSS checkpoint follow-on"
 guard_expect_in_file "$TAG" 'HAKO_NYRT_RSS_CHECKPOINTS=1' "$CARD" "card must name the env-gated diagnostic"
@@ -25,7 +26,8 @@ guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRIN
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous row must be landed"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001' "$TASKBOARD" "taskboard must expose selected follow-on"
 guard_expect_fixed_in_file "$TAG" '| 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark diagnostic landed"
-guard_expect_fixed_in_file "$TAG" '| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Current |' "$TASKBOARD" "taskboard must expose the closeout row"
+guard_expect_fixed_in_file "$TAG" '| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the closeout row landed"
+guard_expect_fixed_in_file "$TAG" '| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Current |' "$TASKBOARD" "taskboard must expose the NyRT diagnostic row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 echo "[$TAG] ok"

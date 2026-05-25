@@ -42,7 +42,8 @@ MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001:
 | --- | --- | --- | --- |
 | 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Landed | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
 | 195 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-001` | Landed | Diagnose the fixed `malloc-large` empty exact-EXE baseline through evidence-output and no-output control pairs. |
-| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Current | Observe the fixed `malloc-large` empty exact-EXE baseline into likely next seams. |
+| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Landed | Observe the fixed `malloc-large` empty exact-EXE baseline into likely next seams. |
+| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Current | Add env-gated NyRT self-RSS checkpoints to locate the fixed-cost step without changing runtime behavior when the env is unset. |
 
 ## Full Queue
 
