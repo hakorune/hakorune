@@ -21,8 +21,9 @@ echo "[$TAG] checking phase-295x malloc-large NyRT RSS checkpoint diagnostic"
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$ENV_DOC" "$SELF_SCRIPT" "$RSS_MOD" "$RUNTIME_RSS" "$ENTRY"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001' "$CARD" "card must identify the current blocker"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-001' "$CARD" "card must select checkpoint run follow-on"
+guard_expect_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after the run seam is opened"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001' "$CARD" "card must identify the diagnostic blocker"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002' "$CARD" "card must select checkpoint run follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001' "$PREV_CARD" "previous row must select this diagnostic"
 guard_expect_in_file "$TAG" 'HAKO_NYRT_RSS_CHECKPOINTS=1' "$CARD" "card must name the env gate"
 guard_expect_in_file "$TAG" 'HAKO_NYRT_RSS_CHECKPOINTS' "$ENV_DOC" "environment reference must document the env gate"
@@ -33,7 +34,8 @@ guard_expect_fixed_in_file "$TAG" 'checkpoint("after_plugin_host")' "$ENTRY" "en
 guard_expect_fixed_in_file "$TAG" 'checkpoint("before_ny_main")' "$ENTRY" "entry must include before_ny_main checkpoint"
 guard_expect_fixed_in_file "$TAG" 'checkpoint("after_ny_main")' "$ENTRY" "entry must include after_ny_main checkpoint"
 guard_expect_in_file "$TAG" '| 196 | `MIMALLOC-COMPARISON-MALLOC-LARGE-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the closeout row landed"
-guard_expect_in_file "$TAG" '| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Current |' "$TASKBOARD" "taskboard must expose the diagnostic row"
+guard_expect_in_file "$TAG" '| 197 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001` | Landed |' "$TASKBOARD" "taskboard must mark the diagnostic row landed"
+guard_expect_in_file "$TAG" '| 198 | `MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the run row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 cargo check -p nyash_kernel

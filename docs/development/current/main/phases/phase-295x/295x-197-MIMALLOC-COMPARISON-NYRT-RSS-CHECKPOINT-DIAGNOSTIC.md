@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: add env-gated NyRT self-RSS checkpoints for the external `malloc-large` path.
 Blocker: MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-DIAGNOSTIC-295X-001
@@ -43,7 +43,7 @@ extra output and does not change runtime behavior.
 Select:
 
 ```text
-MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-001
+MIMALLOC-COMPARISON-NYRT-RSS-CHECKPOINT-RUN-295X-002
 ```
 
 The follow-on should run the empty no-output exact-EXE with
