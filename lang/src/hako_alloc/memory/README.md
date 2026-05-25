@@ -24,6 +24,10 @@ Scope
 - `page_map_realloc_failure_contract_box.hako`: the M176 realloc failure-
   contract diagnostics owner. It freezes zero / oversized reject reporting and
   delegates same-class and grow handling back to M174 / M175.
+- `segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns MIMAP-130A
+  segment allocation modeled local-free reuse ledger. It keeps the local-free
+  reuse ledger route narrow, exact, and explicit before any release-apply or
+  release-applied-recycle bridge work opens.
 - `object_lifecycle_facade_huge_unreserve_box.hako`: the MIMAP-034A facade
   huge unreserve owner. It composes MIMAP-029A huge decommit with the MIMAP-
   033A page-source unreserve adapter, then unreserves the exact decommitted
