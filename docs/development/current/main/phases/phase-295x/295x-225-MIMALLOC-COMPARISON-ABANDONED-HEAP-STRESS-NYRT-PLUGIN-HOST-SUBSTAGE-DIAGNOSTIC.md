@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: add the narrow plugin-host substage RSS diagnostic after the abandoned-heap stress NyRT plugin-host baseline selection.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-224-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-BASELINE-SELECTION.md
+  - docs/development/current/main/phases/phase-295x/295x-226-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION.md
   - tools/checks/k2_wide_phase295x_mimalloc_abandoned_heap_stress_nyrt_plugin_host_substage_diagnostic_guard.sh
 ---
 

@@ -23,7 +23,8 @@ echo "[$TAG] checking phase-295x abandoned-heap stress NyRT plugin host substage
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$ENV_DOC" "$SELF_SCRIPT" "$APP" "$RUNTIME_RSS" "$KERNEL_RSS" "$UNIFIED" "$LOADER"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002' "$CARD" "card must identify current blocker"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after the substage diagnostic row is exercised"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002' "$CARD" "card must identify the substage diagnostic blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002' "$CARD" "card must select loadset follow-on"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002' "$PREV_CARD" "previous row must select this diagnostic"
 guard_expect_in_file "$TAG" 'HAKO_NYRT_RSS_CHECKPOINTS=1' "$ENV_DOC" "environment reference must document the shared env gate"
@@ -33,9 +34,10 @@ guard_expect_fixed_in_file "$TAG" 'checkpoint("plugin_host_after_host_config_par
 guard_expect_fixed_in_file "$TAG" 'checkpoint("plugin_host_after_load_all_plugins")' "$UNIFIED" "unified host must expose load_all completion checkpoint"
 guard_expect_fixed_in_file "$TAG" 'checkpoint("plugin_loader_after_library_loop")' "$LOADER" "v2 loader must expose library loop checkpoint"
 guard_expect_fixed_in_file "$TAG" 'checkpoint("plugin_loader_after_prebirth_singletons")' "$LOADER" "v2 loader must expose prebirth checkpoint"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002' "$TASKBOARD" "taskboard must expose selected follow-on"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002' "$TASKBOARD" "taskboard must expose selected follow-on"
 guard_expect_in_file "$TAG" '| 224 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must retain the baseline-selection row as landed"
-guard_expect_in_file "$TAG" '| 225 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the substage diagnostic row"
+guard_expect_in_file "$TAG" '| 225 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002` | Landed |' "$TASKBOARD" "taskboard must retain the substage diagnostic row as landed"
+guard_expect_in_file "$TAG" '| 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the load-set selection row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase295x_plugin_substage.XXXXXX)"
