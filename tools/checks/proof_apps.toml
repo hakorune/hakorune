@@ -249,6 +249,32 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_integrati
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_integration_bridge_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-042A"
+app = "apps/hako-alloc-osvm-fast-path-purge-route-proof"
+label = "osvm-backed fast-path bounded purge route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "osvm-fast-path"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-043A"
+app = "apps/hako-alloc-osvm-fast-path-reuse-route-proof"
+label = "osvm-backed fast-path recommit/reuse route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "osvm-fast-path"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-196A"
 app = "apps/hako-alloc-segment-map-local-free-reuse-ledger-release-bridge-proof"
 label = "segment map local-free reuse ledger release bridge proof"
