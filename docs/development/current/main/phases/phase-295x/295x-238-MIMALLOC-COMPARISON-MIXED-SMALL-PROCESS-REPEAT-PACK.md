@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: add process-repeat evidence to the mixed-small port seam.
 Related:
@@ -41,7 +41,7 @@ Median repeated evidence:
 
 ```text
 representative-mixed-small-v0: hako=70ms c=60ms
-representative-mixed-small-v0: hako_rss_median=5107712 c_rss_median=3985408
+representative-mixed-small-v0: hako_rss_median=3629056 c_rss_median=3985408
 ```
 
 ## Stop Line
@@ -50,3 +50,15 @@ This row does not compute speed winners, compute RSS winners, require timing
 parity, add body-internal timers, change runtime behavior, make `empty` the
 default runtime config, or open provider/DLL/replacement/hook/global allocator
 seams.
+
+## Selected Next
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002
+```
+
+The next row closes the selected process-repeat evidence pack and parks further
+same-policy median-only rows. Follow-on work must either select an
+allocator-facing semantic seam or a phase carryover boundary.
