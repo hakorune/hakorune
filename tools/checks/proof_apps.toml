@@ -13,6 +13,19 @@ includes = [
 
 # id = "MIMAP-082A" is provided via tools/checks/manifests/proof_apps/hako_alloc_segment_readiness.toml.
 # Keep the root manifest textually aligned with the guard's SSOT check without duplicating the id.
+# id = "MIMAP-064A" is provided via tools/checks/manifests/proof_apps/hako_alloc_reclaim_scheduler.toml.
+# Keep the root manifest textually aligned with the guard's SSOT check without duplicating the id.
+
+[[proof_apps]]
+id = "MIMAP-019A"
+app = "apps/mimalloc-facade-purge-policy-route-proof"
+label = "mimalloc facade purge-policy route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_mimalloc_facade_purge_policy_route_exe_guard.sh"]
 
 [[proof_apps]]
 id = "MIMAP-085A"

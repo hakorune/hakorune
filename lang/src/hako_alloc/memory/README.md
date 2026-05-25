@@ -63,10 +63,17 @@ Scope
   exact, and explicit before any raw pointer lookup, segment-map execution,
   atomics, page-source/OS release seams, provider activation, or backend
   matcher work opens.
+- `object_lifecycle_facade_purge_policy_box.hako` owns MIMAP-019A facade
+  purge-policy route contract. It keeps the route narrow, exact, and explicit
+  before any reclaim scheduler, page-source, or OS release seam opens.
 - `segment_lifecycle_scalar_state_box.hako` owns MIMAP-082A segment lifecycle
   scalar state contract. It keeps the lifecycle-state route narrow, exact,
   and explicit before any source concurrency, atomics, page-source/OS release
   seams, provider activation, or backend matcher work opens.
+- `reclaim_scheduler_request_marker_box.hako` owns MIMAP-064A reclaim
+  scheduler request-marker contract. It keeps the request-marker route narrow,
+  exact, and explicit before any thread, provider, hook, or allocator
+  replacement seam opens.
 - `page_map_realloc_alloc_copy_release_box.hako`: the M175 realloc
   alloc-copy-release fallback module. It keeps the fallback route narrow,
   exact, and explicit before any broader alloc-copy or release-order work
