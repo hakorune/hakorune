@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x plugin-host baseline seam selection after the env-gated NyRT self-RSS checkpoint run on the external `malloc-large` path.
 Blocker: MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002

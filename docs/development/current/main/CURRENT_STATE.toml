@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-199-MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-199-MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION.md"
-latest_card_summary = "Selected the NyRT plugin-host baseline follow-on after the env-gated self-RSS checkpoint run on the external `malloc-large` path."
+latest_card = "295x-200-MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-200-MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC.md"
+latest_card_summary = "Opened the NyRT plugin-host substage diagnostic on the external `malloc-large` path after the baseline selection."
 
-current_blocker_token = "MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-BASELINE-SELECTION-295X-002"
+current_blocker_token = "MIMALLOC-COMPARISON-NYRT-PLUGIN-HOST-SUBSTAGE-DIAGNOSTIC-295X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-200 opened the NyRT plugin-host substage diagnostic on the external `malloc-large` path after the baseline selection",
   "295x-199 selected the NyRT plugin-host baseline follow-on after the env-gated self-RSS checkpoint run on the external `malloc-large` path",
   "295x-198 ran the env-gated NyRT self-RSS checkpoints for the external `malloc-large` path and selected the plugin-host baseline follow-on",
   "295x-197 added env-gated NyRT self-RSS checkpoints for the external `malloc-large` path and selected the run follow-on",
@@ -39,7 +40,6 @@ landed_tail = [
   "295x-191 added empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy",
   "295x-190 selected baseline attribution as the next comparison seam for the external `malloc-large` evidence family",
   "295x-189 closed the external `mimalloc-bench-malloc-large` evidence family and selected baseline attribution as the next comparison seam",
-  "295x-188 ran the external `mimalloc-bench-malloc-large` corpus and the selected huge-ish `.hako` evidence through the comparison normalizer, then parked the closeout row as current",
   "295x-187 locked the first `.hako` workload alignment contract against external `mimalloc-bench` `malloc-large` using the selected huge-ish evidence shape and parked the follow-on evidence run as current",
   "295x-186 thin-wrapped the MIMAP-180A segment-map local-free page-apply bridge guard root into an impl-backed wrapper and kept the memory README owner note in place",
   "295x-185 thin-wrapped the M209 lifecycle stats observer surface guard root into an impl-backed wrapper and kept the memory README owner note in place",

@@ -184,6 +184,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase295x_nyrt_rss_checkpoint_run_guard.sh` | 295x-41 の NyRT RSS checkpoint run を固定し、empty no-output exact-EXE の RSS jump が plugin host init 周辺にあることを検証する。 |
 | `tools/checks/k2_wide_phase295x_nyrt_plugin_host_baseline_selection_guard.sh` | 295x-42 の NyRT plugin-host baseline selection を固定し、plugin-host substage RSS diagnostic follow-on を検証する。 |
 | `tools/checks/k2_wide_phase295x_nyrt_plugin_host_substage_diagnostic_guard.sh` | 295x-43 の NyRT plugin-host substage diagnostic を固定し、config parse / dynamic library loop / singleton prebirth の RSS checkpoint を検証する。 |
+| `tools/checks/k2_wide_phase295x_malloc_large_nyrt_plugin_host_substage_diagnostic_guard.sh` | 295x-200 の NyRT plugin-host substage diagnostic を固定し、external `malloc-large` path の env-gated RSS checkpoints を検証する。 |
 | `tools/checks/k2_wide_phase295x_nyrt_plugin_loadset_footprint_selection_guard.sh` | 295x-44 の NyRT plugin load-set footprint selection を固定し、generated-config load-set diagnostic follow-on を検証する。 |
 | `tools/checks/k2_wide_phase295x_nyrt_plugin_loadset_footprint_diagnostic_guard.sh` | 295x-45 の NyRT plugin load-set footprint diagnostic を固定し、empty / console / core-six / regex / all-existing / root-current load-set RSS を検証する。 |
 | `tools/checks/k2_wide_phase295x_nyrt_plugin_loadset_closeout_guard.sh` | 295x-46 の NyRT plugin load-set closeout を固定し、comparison-runner-only minimal config pilot follow-on を検証する。 |
