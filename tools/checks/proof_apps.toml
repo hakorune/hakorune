@@ -144,6 +144,15 @@ exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_diagnostics_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-289A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-diagnostics-proof"
+label = "segment arena backing modeled allocation ledger release apply diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+validation_profile = "scalar-mir"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_apply_diagnostics_guard.sh"]
+
+[[proof_apps]]
 id = "MIMAP-240A"
 app = "apps/hako-alloc-segment-arena-backing-requirement-matrix-proof"
 label = "segment arena backing scalar requirement matrix proof"
