@@ -18,7 +18,7 @@ echo "[$TAG] checking phase-295x process-repeat pack closeout"
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD" "closeout card must be current"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "closeout card must be landed after semantic selection opens"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002' "$CARD" "closeout blocker must be fixed"
 guard_expect_fixed_in_file "$TAG" 'representative-reuse-cycle-small-v0' "$CARD" "closeout must include reuse-cycle small evidence"
 guard_expect_fixed_in_file "$TAG" 'representative-realloc-aligned-v0' "$CARD" "closeout must include realloc/aligned evidence"
@@ -31,10 +31,10 @@ guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSE
 guard_expect_fixed_in_file "$TAG" '| 236 | `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-PROCESS-REPEAT-PACK-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep reuse-cycle pack landed"
 guard_expect_fixed_in_file "$TAG" '| 237 | `MIMALLOC-COMPARISON-REALLOC-ALIGNED-PROCESS-REPEAT-PACK-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep realloc/aligned pack landed"
 guard_expect_fixed_in_file "$TAG" '| 238 | `MIMALLOC-COMPARISON-MIXED-SMALL-PROCESS-REPEAT-PACK-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep mixed-small pack landed"
-guard_expect_fixed_in_file "$TAG" '| 239 | `MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002` | Current |' "$TASKBOARD" "taskboard must expose closeout row as current"
+guard_expect_fixed_in_file "$TAG" '| 239 | `MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002` | Landed |' "$TASKBOARD" "taskboard must expose closeout row as landed"
 
-guard_expect_fixed_in_file "$TAG" '295x-239-MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT' "$CURRENT_STATE" "current state must point at the closeout card"
-guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002' "$CURRENT_STATE" "current state must expose closeout blocker"
+guard_expect_fixed_in_file "$TAG" '295x-240-MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION' "$CURRENT_STATE" "current state must move to semantic selection card"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002' "$CURRENT_STATE" "current state must expose semantic selection blocker"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list closeout guard"
 
 echo "[$TAG] ok"

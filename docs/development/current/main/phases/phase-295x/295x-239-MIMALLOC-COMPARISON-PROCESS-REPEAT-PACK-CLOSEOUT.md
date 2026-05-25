@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: close the selected process-repeat evidence pack and stop median-only row growth.
 Related:
