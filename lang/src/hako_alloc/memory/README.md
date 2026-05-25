@@ -55,6 +55,9 @@ Scope
   segment allocation modeled local-free reuse ledger. It keeps the local-free
   reuse ledger route narrow, exact, and explicit before any release-apply or
   release-applied-recycle bridge work opens.
+- `segment_allocation_modeled_local_free_reuse_box.hako` owns MIMAP-188A segment-map local-free reuse bridge. It keeps the reuse bridge route narrow, exact, and explicit before any wider bridge work opens.
+- `segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako` owns MIMAP-200A segment-map local-free reuse ledger release apply bridge. It keeps the release apply bridge route narrow, exact, and explicit before any wider bridge work opens.
+- `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns MIMAP-204A segment-map local-free reuse ledger release-applied recycle bridge. It keeps the release-applied recycle bridge route narrow, exact, and explicit before any wider bridge work opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns
   MIMAP-196A segment-map local-free reuse ledger release bridge. It keeps the
   release bridge route narrow, exact, and explicit before any closeout pack
