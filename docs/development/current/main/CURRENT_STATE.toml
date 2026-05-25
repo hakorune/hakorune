@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-120-M289A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-DIAGNOSTICS-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-120-M289A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the M289A release-apply diagnostics guard root into an impl-backed wrapper and kept the memory owner note plus proof manifest entry in sync."
+latest_card = "295x-121-M288A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-121-M288A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the M288A release-apply guard root into an impl-backed wrapper and kept the memory owner note plus proof manifest entry in sync."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-121 thin-wrapped the M288A release-apply guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync",
   "295x-120 thin-wrapped the M289A release-apply diagnostics guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync",
   "295x-119 thin-wrapped the M281A release-candidate diagnostics guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync",
   "295x-118 thin-wrapped the M277A diagnostics guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync",
@@ -39,6 +40,4 @@ landed_tail = [
   "295x-101 thin-wrapped the huge/OSVM comparison slice guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker",
   "295x-100 thin-wrapped the MIMAP-161A release guard root and aligned the release closeout guard to the included proof and guard manifests that actually own the row definitions",
   "295x-99 thin-wrapped the remaining mimalloc facade huge page-source and decommit fail-fast guard roots into impl-backed wrappers while aligning the owner-contract checks to the arena-reclaim family contract",
-  "295x-98 thin-wrapped the remaining segment-map accepted-readiness consume-ledger guard root and aligned the consume-ledger closeout guard to the included proof/guard manifests without changing the current mimalloc comparison blocker",
-  "295x-97 thin-wrapped the remaining hako_alloc local-free reuse ledger release-apply and release-applied-recycle guard roots into impl-backed wrappers",
 ]
