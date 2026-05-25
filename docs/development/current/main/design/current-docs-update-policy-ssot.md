@@ -136,6 +136,24 @@ Only update mirrors if the card changes the active lane, restart order, phase
 status path, or a durable design policy. Do not update mirrors just because the
 blocker token advanced.
 
+## Phase Row Writer Pilot
+
+Use `tools/docs/phase_row.py` for new row boilerplate when a row needs the
+usual card / current-state / short queue / check-index synchronization.
+
+Rules:
+
+- run the helper without `--write` first and inspect the dry-run output;
+- use `--write` only for the narrow row being opened or landed;
+- do not use the helper to regenerate historical phase ledgers;
+- do not treat generated text as evidence that the row is complete;
+- keep bespoke `.sh` guards for rows that execute builds, measurements, or
+  nontrivial validation.
+
+The intent is to move repetitive synchronization into tooling while preserving
+the existing SSOT contract: `CURRENT_STATE.toml` remains the compact current
+pointer, and row cards remain the human-readable decision record.
+
 ## Applied Lane Policy
 
 Allocator provider rows M87 and later follow
