@@ -27,6 +27,10 @@ Scope
   classification route narrow, exact, and explicit before any real execution,
   concurrency, segment lookup, atomics, page-source/OS release seams, or
   backend-visible release work opens.
+- `segment_map_local_free_reuse_ledger_box.hako` owns MIMAP-192A segment-map
+  local-free reuse ledger bridge. It keeps the bridge route narrow, exact, and
+  explicit before any released-token recycle, released-span observation, or
+  closeout-pack work opens.
 - `worker_tls_cache_box.hako`: the MIMAP-TLS-001 internal worker TLS cache-slot
   substrate. It keeps the worker identity, TLS cache-slot read/write, and
   cache-slot clear routes narrow, exact, and explicit before any wider worker
