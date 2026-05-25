@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x speed/stability observation pack on the abandoned-heap stress path.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-PACK-295X-002
@@ -61,7 +61,7 @@ workload_<n>_c_external_elapsed_median_ms
 workload_<n>_c_external_elapsed_max_ms
 ```
 
-On the observed sample, workload_0 rounded to `1 / 1 / 1` ms for both sides.
+On the observed sample, workload_0 rounded to `1ms / 1ms` for both sides.
 
 ## Follow-On
 
