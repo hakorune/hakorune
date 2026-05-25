@@ -35,6 +35,11 @@ Scope
   segment-map lookup guarded readiness composition. It keeps the lookup route
   narrow, exact, and explicit before any real execution, raw pointer lookup,
   atomics, or page-source/OS release seams open.
+- `segment_map_scalar_lookup_boundary_inventory_box.hako` owns MIMAP-151A
+  segment-map scalar lookup boundary inventory. It keeps the scalar lookup
+  boundary route narrow, exact, and explicit before any raw-pointer lookup,
+  segment-map mutation, atomics, OSVM/page-source, worker/TLS, provider, or
+  backend matcher work opens.
 - `object_lifecycle_facade_stats_box.hako` owns MIMAP-018A facade stats
   snapshot. It keeps the stats snapshot route narrow, exact, and explicit
   before any wider policy or backend-visible behavior work opens.

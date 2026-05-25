@@ -191,6 +191,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 151 | `295x-151` | Landed | Thin-wrapped the MIMAP-153A segment-map lookup guarded readiness composition guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 | 171 | `295x-171` | Landed | Thin-wrapped the MIMAP-256A arena-slot inventory and MIMAP-257A arena-slot diagnostics guard roots into impl-backed wrappers and kept the memory README owner notes in sync without changing the current mimalloc comparison blocker. |
 | 172 | `295x-172` | Landed | Thin-wrapped the MIMAP-068A reclaim scheduler request ledger guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
+| 173 | `295x-173` | Landed | Thin-wrapped the MIMAP-151A segment-map scalar lookup boundary inventory guard root into an impl-backed wrapper and kept the memory README owner note in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 
