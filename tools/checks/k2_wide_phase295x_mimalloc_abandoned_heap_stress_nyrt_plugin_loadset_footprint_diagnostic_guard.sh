@@ -19,7 +19,7 @@ echo "[$TAG] checking phase-295x abandoned-heap stress NyRT plugin load-set foot
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$INDEX" "$TOOL" "$APP" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$TOOL"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD" "card must remain current while the diagnostic row is being exercised"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "card must remain landed once the diagnostic row is handed off"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002' "$CARD" "card must identify current blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002' "$CARD" "card must select the closeout follow-on"
 guard_expect_in_file "$TAG" 'tools/allocator/nyrt_plugin_loadset_footprint.py' "$CARD" "card must name the diagnostic tool"
