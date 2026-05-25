@@ -151,7 +151,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 109 | `295x-109` | Landed | Thin-wrapped the MIMAP-265A segment arena backing modeled source accounting diagnostics guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
 | 110 | `295x-110` | Landed | Thin-wrapped the C205b allocator record construction/read lowering guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker. |
 | 111 | `295x-111` | Landed | Thin-wrapped the MIMAP-240A segment arena backing scalar requirement matrix guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
-| 112 | `295x-112` | Landed | Thin-wrapped the MIMAP-240A segment arena backing scalar requirement matrix guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
+| 113 | `295x-113` | Landed | Thin-wrapped the MIMAP-284A segment arena backing modeled allocation ledger release intent guard root into an impl-backed wrapper and kept the memory README owner note plus proof manifest entry in sync without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

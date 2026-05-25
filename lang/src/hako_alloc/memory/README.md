@@ -22,6 +22,7 @@ Scope
 - `object_lifecycle_facade_page_source_box.hako` owns MIMAP-021B facade page-source fresh-page attach.
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns MIMAP-265A segment arena backing modeled source accounting diagnostics.
 - `segment_arena_backing_requirement_matrix_box.hako` owns MIMAP-240A segment arena backing scalar requirement matrix.
+- `segment_arena_backing_modeled_allocation_ledger_release_intent_box.hako` owns MIMAP-284A segment arena backing modeled allocation ledger release intent.
 
 Syntax/style contract
 - New allocator state boxes should use Unified Members stored fields:
