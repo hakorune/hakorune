@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: select the remote-free production facade as the next allocator-facing semantic seam.
 Related:

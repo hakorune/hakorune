@@ -18,7 +18,7 @@ echo "[$TAG] checking remote-free production facade selection"
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD" "remote-free selection card must be current"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "remote-free selection card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002' "$CARD" "remote-free selection blocker must be fixed"
 guard_expect_fixed_in_file "$TAG" 'MIMAP-REMOTE-001 production-facade remote-free policy integration over existing atomic/TLS proofs' "$CARD" "remote-free selection must identify the chosen seam"
 guard_expect_fixed_in_file "$TAG" 'worker identity' "$CARD" "remote-free selection must reference substrate evidence"
@@ -33,10 +33,11 @@ guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous bridge
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002' "$PREV_CARD" "previous card must select this row"
 
 guard_expect_fixed_in_file "$TAG" '| 240 | `MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep the bridge landed"
-guard_expect_fixed_in_file "$TAG" '| 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose remote-free selection as current"
+guard_expect_fixed_in_file "$TAG" '| 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must expose remote-free selection as landed"
+guard_expect_fixed_in_file "$TAG" '| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Current |' "$TASKBOARD" "taskboard must expose remote-free contract refresh as current"
 
-guard_expect_fixed_in_file "$TAG" '295x-241-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION' "$CURRENT_STATE" "current state must point at the remote-free selection card"
-guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002' "$CURRENT_STATE" "current state must expose the remote-free selection blocker"
+guard_expect_fixed_in_file "$TAG" '295x-242-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH' "$CURRENT_STATE" "current state must point at the remote-free contract refresh card"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002' "$CURRENT_STATE" "current state must expose the remote-free contract refresh blocker"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list remote-free selection guard"
 
 echo "[$TAG] ok"

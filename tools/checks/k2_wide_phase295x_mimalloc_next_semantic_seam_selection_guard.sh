@@ -34,10 +34,11 @@ guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECT
 
 guard_expect_fixed_in_file "$TAG" '| 239 | `MIMALLOC-COMPARISON-PROCESS-REPEAT-PACK-CLOSEOUT-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep process-repeat closeout landed"
 guard_expect_fixed_in_file "$TAG" '| 240 | `MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must expose semantic selection bridge as landed"
-guard_expect_fixed_in_file "$TAG" '| 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose remote-free selection current row"
+guard_expect_fixed_in_file "$TAG" '| 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed |' "$TASKBOARD" "taskboard must expose remote-free selection as landed"
+guard_expect_fixed_in_file "$TAG" '| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Current |' "$TASKBOARD" "taskboard must expose remote-free contract refresh current row"
 
-guard_expect_fixed_in_file "$TAG" '295x-241-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION' "$CURRENT_STATE" "current state must move on to the remote-free selection card"
-guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002' "$CURRENT_STATE" "current state must expose the remote-free selection blocker"
+guard_expect_fixed_in_file "$TAG" '295x-242-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH' "$CURRENT_STATE" "current state must move on to the remote-free contract refresh card"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002' "$CURRENT_STATE" "current state must expose the remote-free contract refresh blocker"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list semantic selection guard"
 
 echo "[$TAG] ok"
