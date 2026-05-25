@@ -32,6 +32,10 @@ Scope
   segment allocation modeled local-free reuse ledger. It keeps the local-free
   reuse ledger route narrow, exact, and explicit before any release-apply or
   release-applied-recycle bridge work opens.
+- `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns
+  MIMAP-196A segment-map local-free reuse ledger release bridge. It keeps the
+  release bridge route narrow, exact, and explicit before any closeout pack
+  opens.
 - `object_lifecycle_facade_huge_unreserve_box.hako`: the MIMAP-034A facade
   huge unreserve owner. It composes MIMAP-029A huge decommit with the MIMAP-
   033A page-source unreserve adapter, then unreserves the exact decommitted
