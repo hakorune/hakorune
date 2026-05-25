@@ -1,8 +1,8 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: phase-295x smaller-default-load-set closeout on the abandoned-heap stress path.
-Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LOADSET-SELECTION-295X-002
+Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-PACK-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-229-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE.md
   - tools/checks/k2_wide_phase295x_mimalloc_abandoned_heap_stress_nyrt_plugin_loadset_smaller_default_set_closeout_guard.sh
@@ -40,16 +40,16 @@ as `hako_runtime_config_default=empty`.
 
 ## Diagnostic Summary
 
-The next useful seam is a post-loadset comparison selection. The comparison
-lane should now decide whether to broaden workload shape coverage, revisit the
-remaining fixed-cost attribution, or park this load-set branch.
+The next useful seam is a speed/stability observation pack over the existing
+comparison workloads. The comparison lane should now measure elapsed timing
+alongside the already-fixed RSS evidence before widening anything else.
 
 ## Selected Row
 
 Select:
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-POST-LOADSET-SELECTION-295X-002
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-PACK-295X-002
 ```
 
 ## Stop Line
