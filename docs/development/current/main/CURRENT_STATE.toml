@@ -15,11 +15,11 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-191-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-191-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE.md"
-latest_card_summary = "Added empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy."
+latest_card = "295x-193-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-193-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT.md"
+latest_card_summary = "Closed the external `malloc-large` memory-gap attribution pack and selected baseline breakdown as the next comparison seam."
 
-current_blocker_token = "MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001"
+current_blocker_token = "MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-193 closed the external `malloc-large` memory-gap attribution pack and selected baseline breakdown as the next comparison seam",
+  "295x-192 computed baseline-subtracted RSS evidence for the external `malloc-large` attribution family",
   "295x-191 added empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy",
   "295x-190 selected baseline attribution as the next comparison seam for the external `malloc-large` evidence family",
   "295x-189 closed the external `mimalloc-bench-malloc-large` evidence family and selected baseline attribution as the next comparison seam",

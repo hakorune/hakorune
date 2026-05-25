@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: compute baseline-subtracted RSS evidence for the external `malloc-large` attribution family.
 Blocker: MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001
 Related:
   - docs/development/current/main/phases/phase-295x/295x-191-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE.md
+  - docs/development/current/main/phases/phase-295x/295x-193-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT.md
   - docs/development/current/main/phases/phase-295x/295x-35-MIMALLOC-COMPARISON-MEMORY-GAP-INCREMENTAL.md
   - docs/development/current/main/phases/phase-295x/295x-36-MIMALLOC-COMPARISON-MEMORY-GAP-CLOSEOUT.md
   - tools/checks/k2_wide_phase295x_malloc_large_memory_gap_incremental_guard.sh
