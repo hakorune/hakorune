@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002:
-  Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path.
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-CLOSEOUT-295X-002:
+  Close the abandoned-heap stress smaller-default load-set evidence and select the post-loadset comparison seam.
 ```
 
 ## Queue
@@ -73,7 +73,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SE
 | 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed | Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic. |
 | 227 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Run a generated-config plugin load-set diagnostic for the abandoned-heap stress NyRT exact-EXE path. |
 | 228 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress NyRT plugin load-set diagnostic and select the smaller-default-load-set pilot. |
-| 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Current | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path. |
+| 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Landed | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path. |
+| 230 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-CLOSEOUT-295X-002` | Current | Close the abandoned-heap stress smaller-default load-set evidence and select the post-loadset comparison seam. |
 
 ## Full Queue
 
@@ -187,7 +188,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SE
 | 226 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-SELECTION-295X-002` | Landed | Select a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic. |
 | 227 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Run a generated-config plugin load-set diagnostic for the abandoned-heap stress NyRT exact-EXE path. |
 | 228 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress NyRT plugin load-set diagnostic and select the smaller-default-load-set pilot. |
-| 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Current | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path. |
+| 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Landed | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path. |
+| 230 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-CLOSEOUT-295X-002` | Current | Close the abandoned-heap stress smaller-default load-set evidence and select the post-loadset comparison seam. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
