@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-101-MIMALLOC-COMPARISON-HUGE-OSVM-SLICE-THIN-WRAP-BATCH"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-101-MIMALLOC-COMPARISON-HUGE-OSVM-SLICE-THIN-WRAP-BATCH.md"
-latest_card_summary = "Thin-wrapped the huge/OSVM comparison slice guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker."
+latest_card = "295x-102-MIMALLOC-PRE-REALLOC-RELEASE-INVARIANT-THIN-WRAP-BATCH"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-102-MIMALLOC-PRE-REALLOC-RELEASE-INVARIANT-THIN-WRAP-BATCH.md"
+latest_card_summary = "Thin-wrapped the M173 pre-realloc release invariant guard root into an impl-backed wrapper and added the missing memory README owner note."
 
 current_blocker_token = "MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-102 thin-wrapped the M173 pre-realloc release invariant guard root into an impl-backed wrapper and added the missing memory README owner note",
   "295x-101 thin-wrapped the huge/OSVM comparison slice guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker",
   "295x-100 thin-wrapped the MIMAP-161A release guard root and aligned the release closeout guard to the included proof and guard manifests that actually own the row definitions",
   "295x-99 thin-wrapped the remaining mimalloc facade huge page-source and decommit fail-fast guard roots into impl-backed wrappers while aligning the owner-contract checks to the arena-reclaim family contract",
@@ -40,5 +41,4 @@ landed_tail = [
   "295x-92 thin-wrapped the heaviest remaining mimalloc and hako_alloc guard roots into impl-backed wrappers",
   "295x-91 thin-wrapped allocator-provider guard families into root wrappers and impl entries",
   "295x-89 batch-applied accepted record ergonomics to allocator-comparison owners",
-  "295x-88 applied accepted record ergonomics to one guarded allocator-comparison owner",
 ]

@@ -141,6 +141,7 @@ MIMALLOC-COMPARISON-MIMALLOC-BENCH-MALLOC-LARGE-WORKLOAD-CONTRACT-295X-001:
 | 99 | `295x-99` | Landed | Thin-wrapped the remaining mimalloc facade huge page-source and decommit fail-fast guard roots into impl-backed wrappers while aligning the owner-contract checks to the arena-reclaim family contract. |
 | 100 | `295x-100` | Landed | Thin-wrapped the MIMAP-161A release guard root and aligned the release closeout guard to the included proof and guard manifests without changing the current mimalloc comparison blocker. |
 | 101 | `295x-101` | Landed | Thin-wrapped the huge/OSVM comparison slice guard root into an impl-backed wrapper without changing the current mimalloc comparison blocker. |
+| 102 | `295x-102` | Landed | Thin-wrapped the M173 pre-realloc release invariant guard root into an impl-backed wrapper and added the missing memory README owner note without changing the current mimalloc comparison blocker. |
 
 ## Parked
 

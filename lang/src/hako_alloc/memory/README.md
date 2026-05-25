@@ -13,6 +13,9 @@ Scope
   inventory.
 - `NUMERIC_FIELD_GROUP_LEDGER.md`: detailed exact `usize` field-group
   selection/migration history.
+- `page_map_release_invariant_box.hako`: the M173 pre-realloc release invariant
+  observer module. It stays as an observer-only seam for release/realloc
+  freeze evidence and does not take over page release execution.
 
 Syntax/style contract
 - New allocator state boxes should use Unified Members stored fields:
