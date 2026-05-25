@@ -31,7 +31,7 @@ worker/TLS, or broad exact `usize` field migration.
 
 ```text
 MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002:
-  Select an abandoned-heap-specific high-resolution timing seam before using elapsed-time evidence for speed comparison.
+  Select an abandoned-heap-specific long process-repeat timing pack after the high-res timing seam selection.
 ```
 
 ## Queue
@@ -76,7 +76,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-00
 | 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Landed | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path. |
 | 230 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress smaller-default load-set evidence and select the speed/stability observation pack. |
 | 231 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-PACK-295X-002` | Landed | Add external elapsed-time evidence to the abandoned-heap stress repeated comparison pack before widening anything else. |
-| 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Current | Close the abandoned-heap speed/stability observation pack and select an abandoned-heap-specific high-resolution timing seam. |
+| 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap speed/stability observation pack and select an abandoned-heap-specific high-resolution timing seam. |
+| 233 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002` | Current | Select an abandoned-heap-specific long process-repeat timing pack after the high-res timing seam selection. |
 
 ## Full Queue
 
@@ -193,7 +194,8 @@ MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-00
 | 229 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-EVIDENCE-295X-002` | Landed | Run repeated comparison samples with the empty default runtime config and compare them against explicit root compatibility on the abandoned-heap stress path. |
 | 230 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress smaller-default load-set evidence and select the speed/stability observation pack. |
 | 231 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-PACK-295X-002` | Landed | Add external elapsed-time evidence to the abandoned-heap stress repeated comparison pack before widening anything else. |
-| 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Current | Close the abandoned-heap speed/stability observation pack and select an abandoned-heap-specific high-resolution timing seam. |
+| 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap speed/stability observation pack and select an abandoned-heap-specific high-resolution timing seam. |
+| 233 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002` | Current | Select an abandoned-heap-specific long process-repeat timing pack after the high-res timing seam selection. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

@@ -20,7 +20,7 @@ echo "[$TAG] checking phase-295x abandoned-heap stress speed/stability observati
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$SELF_SCRIPT" "$PACK_GUARD" "$RUNNER"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$PACK_GUARD" "$RUNNER"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD" "card must remain current while the closeout row is being exercised"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "card must be landed after the observation row is exercised"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002' "$CARD" "card must identify closeout blocker"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002' "$CARD" "card must select high-resolution timing seam"
 guard_expect_in_file "$TAG" 'winner_claim=0' "$CARD" "card must keep winner claims closed"
@@ -30,9 +30,10 @@ guard_expect_in_file "$TAG" 'external_elapsed_median_ms' "$PREV_CARD" "previous 
 guard_expect_in_file "$TAG" 'external_elapsed_ms' "$RUNNER" "runner must still expose elapsed evidence"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002' "$TASKBOARD" "taskboard must expose next blocker"
 guard_expect_in_file "$TAG" '| 231 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-PACK-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the observation pack landed"
-guard_expect_in_file "$TAG" '| 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the closeout row as current"
-guard_expect_in_file "$TAG" '232' "$CURRENT_STATE" "current state must point at closeout card"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002' "$CURRENT_STATE" "current state must expose selected next blocker"
+guard_expect_in_file "$TAG" '| 232 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-SPEED-STABILITY-OBSERVATION-CLOSEOUT-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the closeout row landed"
+guard_expect_in_file "$TAG" '| 233 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-HIGH-RES-TIMING-SEAM-SELECTION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the high-res timing seam row as current"
+guard_expect_in_file "$TAG" '233' "$CURRENT_STATE" "current state must point at the selection card"
+guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-PACK-295X-002' "$CURRENT_STATE" "current state must expose the selected next blocker"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 echo "[$TAG] ok"
