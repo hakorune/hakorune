@@ -36,6 +36,15 @@ The selected shrink candidate is:
 MIMALLOC-COMPARISON-NYRT-PLUGIN-LOADSET-SMALLER-DEFAULT-SET-PILOT-295X-002
 ```
 
+Pilot implementation:
+
+```text
+tools/allocator/mimalloc_repeated_measurement_runner.py
+  default hako runtime config: empty
+  explicit root compatibility: preserved
+  report field: hako_runtime_config_default=empty
+```
+
 ## Selected Row
 
 Select:

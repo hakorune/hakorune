@@ -209,7 +209,12 @@ def main() -> int:
     parser.add_argument("--warmup-count", type=int, default=1)
     parser.add_argument("--workload", action="append", choices=sorted(WORKLOAD_APPS))
     parser.add_argument("--allow-ldconfig-discovery", action="store_true")
-    parser.add_argument("--hako-runtime-config", choices=("root", "empty"), default="root")
+    parser.add_argument(
+        "--hako-runtime-config",
+        choices=("root", "empty"),
+        default="empty",
+        help="runtime config profile for .hako exact-EXE samples; default: empty",
+    )
     parser.add_argument("--operation-repeat", type=int, default=1)
     args = parser.parse_args()
 
@@ -241,6 +246,7 @@ def main() -> int:
         "canonical_rss_collector=external-time",
         "internal_rss_evidence=preserved",
         f"hako_runtime_config_profile={args.hako_runtime_config}",
+        "hako_runtime_config_default=empty",
         f"hako_selected_loadset={hako_loadset_plan['selected_loadset']}",
         f"hako_plugin_load_policy={hako_loadset_plan['plugin_load_policy']}",
         f"hako_selected_library_count={hako_loadset_plan['library_count']}",
