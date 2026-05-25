@@ -14,7 +14,9 @@ GRANULARITY="docs/development/current/main/design/mimalloc-allocator-first-task-
 JOINT="docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
+PROOF_MANIFEST_INCLUDE="tools/checks/manifests/proof_apps/hako_alloc_segment_map_release_lifecycle.toml"
 GUARD_MANIFEST="tools/checks/guard_rows.toml"
+GUARD_MANIFEST_INCLUDE="tools/checks/manifests/guard_rows/hako_alloc_closeout.toml"
 CARD_161A="docs/development/current/main/phases/phase-293x/293x-683-MIMAP-161A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-ROUTE.md"
 CARD_162A="docs/development/current/main/phases/phase-293x/293x-684-MIMAP-162A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-CLOSEOUT-PACK.md"
 CARD_163A="docs/development/current/main/phases/phase-293x/293x-685-MIMAP-163A-POST-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-CLOSEOUT-ROW-SELECTION.md"
@@ -39,7 +41,9 @@ guard_require_files \
   "$JOINT" \
   "$INDEX" \
   "$PROOF_MANIFEST" \
+  "$PROOF_MANIFEST_INCLUDE" \
   "$GUARD_MANIFEST" \
+  "$GUARD_MANIFEST_INCLUDE" \
   "$CARD_161A" \
   "$CARD_162A" \
   "$CARD_163A" \
@@ -73,11 +77,11 @@ guard_expect_in_file "$TAG" "MIMAP-162A segment-map modeled consume ledger relea
 guard_expect_in_file "$TAG" "MIMAP-163A post-segment-map-modeled-consume-ledger-release-closeout row selection" "$JOINT" "joint order must name next row"
 guard_expect_in_file "$TAG" "MIMAP-163A" "$TASKBOARD" "taskboard must name selected next row"
 
-guard_expect_in_file "$TAG" "id = \"MIMAP-161A\"" "$PROOF_MANIFEST" "proof manifest must include MIMAP-161A"
-guard_expect_in_file "$TAG" "closeout_pack = \"segment-map-consume-ledger-release\"" "$PROOF_MANIFEST" "proof manifest must assign release closeout pack"
-guard_expect_in_file "$TAG" "exe = \"deferred-to-closeout\"" "$PROOF_MANIFEST" "MIMAP-161A EXE evidence must stay deferred to closeout"
-guard_expect_in_file "$TAG" "id = \"hako-alloc-segment-map-modeled-consume-ledger-release-closeout\"" "$GUARD_MANIFEST" "guard manifest must include MIMAP-162A closeout row"
-guard_expect_in_file "$TAG" "closeout_pack = \"segment-map-consume-ledger-release\"" "$GUARD_MANIFEST" "guard manifest must assign release pack"
+guard_expect_in_file "$TAG" "id = \"MIMAP-161A\"" "$PROOF_MANIFEST_INCLUDE" "proof manifest include must include MIMAP-161A"
+guard_expect_in_file "$TAG" "closeout_pack = \"segment-map-consume-ledger-release\"" "$PROOF_MANIFEST_INCLUDE" "proof manifest include must assign release closeout pack"
+guard_expect_in_file "$TAG" "exe = \"deferred-to-closeout\"" "$PROOF_MANIFEST_INCLUDE" "MIMAP-161A EXE evidence must stay deferred to closeout"
+guard_expect_in_file "$TAG" "id = \"hako-alloc-segment-map-modeled-consume-ledger-release-closeout\"" "$GUARD_MANIFEST_INCLUDE" "guard manifest must include MIMAP-162A closeout row"
+guard_expect_in_file "$TAG" "closeout_pack = \"segment-map-consume-ledger-release\"" "$GUARD_MANIFEST_INCLUDE" "guard manifest must assign release pack"
 guard_expect_in_file "$TAG" "$GUARD_161A" "$INDEX" "check index must list MIMAP-161A guard"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-162A closeout guard"
 
