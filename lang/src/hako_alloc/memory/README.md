@@ -26,6 +26,7 @@ Scope
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns MIMAP-265A segment arena backing modeled source accounting diagnostics.
 - `segment_arena_backing_requirement_matrix_box.hako` owns MIMAP-240A segment arena backing scalar requirement matrix.
 - `segment_arena_backing_modeled_allocation_ledger_release_intent_box.hako` owns MIMAP-284A segment arena backing modeled allocation ledger release intent.
+- `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_diagnostic_box.hako` owns MIMAP-293A segment arena backing modeled allocation-ledger release-applied recycle diagnostics.
 - `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_box.hako` owns MIMAP-296A segment arena backing modeled allocation-ledger release-applied recycle second-release diagnostic.
 
 Syntax/style contract
