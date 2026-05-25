@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: choose an abandoned-heap-specific high-resolution timing seam after the 1ms-floor observation pack.
 Related:
@@ -45,10 +45,15 @@ This is still not allocator-body-only timing. It measures repeated exact-EXE
 process invocations after build, so it includes process/runtime startup and
 evidence-output costs. That cost must stay explicit.
 
+## Follow-On
+
+```text
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-LONG-PROCESS-REPEAT-TIMING-PACK-295X-002
+```
+
 ## Stop Line
 
 This row does not compute speed winners, require timing parity, compute RSS
 winners, change workload semantics, add body-internal timers, change runtime
 behavior, make `empty` the default, or open provider/DLL/replacement/hook/global
 allocator seams.
-
