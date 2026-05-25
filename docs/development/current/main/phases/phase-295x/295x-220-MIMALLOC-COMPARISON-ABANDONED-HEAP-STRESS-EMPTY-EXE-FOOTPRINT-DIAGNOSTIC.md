@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-25
 Scope: diagnose the fixed abandoned-heap stress exact-EXE empty footprint.
 Blocker: MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002
@@ -53,7 +53,7 @@ winner_claim=0
 Select:
 
 ```text
-MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-CLOSEOUT-295X-002
+MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002
 ```
 
 The follow-on should classify the observed baseline into likely next seams:
