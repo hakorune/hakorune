@@ -22,6 +22,11 @@ Scope
 - `heap_reuse_priority_box.hako` owns M208 heap reuse priority policy. It
   keeps the active reuse ranking route narrow, exact, and explicit before any
   wider heap reuse or fresh-page selection work opens.
+- `segment_allocation_blocked_substrate_matrix_box.hako` owns MIMAP-149A
+  segment allocation blocked-substrate matrix. It keeps the blocked-substrate
+  classification route narrow, exact, and explicit before any real execution,
+  concurrency, segment lookup, atomics, page-source/OS release seams, or
+  backend-visible release work opens.
 - `worker_tls_cache_box.hako`: the MIMAP-TLS-001 internal worker TLS cache-slot
   substrate. It keeps the worker identity, TLS cache-slot read/write, and
   cache-slot clear routes narrow, exact, and explicit before any wider worker

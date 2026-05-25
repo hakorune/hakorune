@@ -24,6 +24,18 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-149A"
+app = "apps/hako-alloc-segment-allocation-blocked-substrate-matrix-proof"
+label = "segment allocation blocked-substrate matrix proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"
