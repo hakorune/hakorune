@@ -56,6 +56,9 @@ Scope
   reuse ledger route narrow, exact, and explicit before any release-apply or
   release-applied-recycle bridge work opens.
 - `segment_allocation_modeled_local_free_reuse_box.hako` owns MIMAP-188A segment-map local-free reuse bridge. It keeps the reuse bridge route narrow, exact, and explicit before any wider bridge work opens.
+- `segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_shadow_box.hako` owns MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow. It keeps the shadow route narrow, exact, and explicit before any migration work opens.
+- `segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_box.hako` owns MIMAP-228A segment-map local-free reuse source release-ledger lifecycle-key migration. It keeps the migration route narrow, exact, and explicit before any wider migration work opens.
+- `segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_diagnostic_box.hako` owns MIMAP-229A segment-map local-free reuse source lifecycle-keyed release ledger diagnostics. It keeps the diagnostics route narrow, exact, and explicit before any closeout pack opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako` owns MIMAP-200A segment-map local-free reuse ledger release apply bridge. It keeps the release apply bridge route narrow, exact, and explicit before any wider bridge work opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns MIMAP-204A segment-map local-free reuse ledger release-applied recycle bridge. It keeps the release-applied recycle bridge route narrow, exact, and explicit before any wider bridge work opens.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns
