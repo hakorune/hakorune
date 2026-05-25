@@ -140,11 +140,11 @@ box HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic {
             global_allocator_open_blocked: fields.global_allocator_open_blocked,
             hidden_env_open_blocked: fields.hidden_env_open_blocked,
             closed_seam_blocked: fields.closed_seam_blocked,
-            benchmark_executed: fields.benchmark_executed,
-            process_replacement_executed: fields.process_replacement_executed,
-            hook_installed: fields.hook_installed,
-            backend_matcher_added: fields.backend_matcher_added,
-            global_allocator_installed: fields.global_allocator_installed,
+            benchmark_executed: 0,
+            process_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
             controlled_benchmark_execution_planned: fields.controlled_benchmark_execution_planned,
             diagnostic_count: fields.diagnostic_count,
             ready_count: fields.ready_count,
@@ -162,10 +162,10 @@ box HakoAllocAllocatorComparisonControlledBenchmarkExecutionDiagnostic {
             hidden_env_open_blocked_count: fields.hidden_env_open_blocked_count,
             closed_seam_blocked_count: fields.closed_seam_blocked_count,
             last_reason: fields.last_reason,
-            would_replace_host_allocator: fields.would_replace_host_allocator,
-            would_install_hook: fields.would_install_hook,
-            would_add_backend_matcher: fields.would_add_backend_matcher,
-            would_run_thread: fields.would_run_thread
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
         }
         return result
     }
