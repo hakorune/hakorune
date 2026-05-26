@@ -18,6 +18,7 @@ box HakoAllocMimallocComparisonReuseCycleSmallReport {
     source_ops: i64 = 0
     rejects: i64 = 0
     peak_used: i64 = 0
+    summary_status: StringBox = "fail"
 
     capture(page) {
         me.requested_bytes = page.requested_bytes
@@ -41,7 +42,7 @@ box HakoAllocMimallocComparisonReuseCycleSmallReport {
     pageLine() { return "page=" + me.allocation_count + "," + me.local_free_count + "," + me.peak_used + "," + me.requested_bytes + "," + me.committed_bytes + "," + me.rejects }
     requestedBytesLine() { return "requested_bytes=" + me.requested_bytes }
     summaryFieldsLine() { return "summary_fields=" + me.requested_bytes + "," + me.committed_bytes + "," + me.live_blocks + "," + me.local_free_count + "," + me.source_ops + "," + me.rejects }
-    summaryLine() { return "summary=ok" }
+    summaryLine() { return "summary=" + me.summary_status }
 }
 
 box ProofCheck {
@@ -154,12 +155,14 @@ static box Main {
         proof.expectEq("rejects", page.reject_count, 0)
         proof.expectEq("retired", page.retired, 1)
 
-        print("check=" + proof.ok())
-        if proof.ok() == 1 {
-            print("summary=ok")
+        local ok = proof.ok()
+        print("check=" + ok)
+        if ok == 1 {
+            report.summary_status = "ok"
+            print(report.summaryLine())
             return 0
         }
-        print("summary=fail")
+        print(report.summaryLine())
         return 1
     }
 }
