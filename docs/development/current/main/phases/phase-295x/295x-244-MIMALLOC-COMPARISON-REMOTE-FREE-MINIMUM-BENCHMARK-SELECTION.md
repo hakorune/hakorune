@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: select the smallest remote-free benchmark pack through an implementation-first `.hako` proof surface.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002

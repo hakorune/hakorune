@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: continue the compiler-first long-OR fix by lowering joinless branch-context OR conditions as direct leaf chains.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-OR-LEAF-LOWERING-295X-001

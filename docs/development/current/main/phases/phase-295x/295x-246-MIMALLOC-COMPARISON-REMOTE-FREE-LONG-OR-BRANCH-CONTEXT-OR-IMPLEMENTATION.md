@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: organize a compiler-first long-OR fix plan, then land the first branch-context OR lowering implementation slice.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-OR-IMPLEMENTATION-295X-001

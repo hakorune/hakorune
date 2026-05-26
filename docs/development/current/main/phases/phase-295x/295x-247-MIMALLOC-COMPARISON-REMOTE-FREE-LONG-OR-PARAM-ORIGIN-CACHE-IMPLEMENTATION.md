@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: continue the compiler-first long-OR fix by implementing param-origin cache reuse in route inference.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-PARAM-ORIGIN-CACHE-IMPLEMENTATION-295X-001

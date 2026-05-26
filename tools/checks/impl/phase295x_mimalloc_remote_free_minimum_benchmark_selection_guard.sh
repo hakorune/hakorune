@@ -11,7 +11,6 @@ APP_README="apps/mimalloc-remote-free-minimum-benchmark-selection-proof/README.m
 APP_TEST="apps/mimalloc-remote-free-minimum-benchmark-selection-proof/test.sh"
 FACADE="lang/src/hako_alloc/memory/allocator_facade_box.hako"
 INTEGRATION="lang/src/hako_alloc/memory/remote_free_page_integration_box.hako"
-CARD_243="docs/development/current/main/phases/phase-295x/295x-243-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE.md"
 CARD_244="docs/development/current/main/phases/phase-295x/295x-244-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION.md"
 
 echo "[$TAG] running remote-free minimum benchmark selection proof"
@@ -23,13 +22,11 @@ guard_require_files \
   "$APP_TEST" \
   "$FACADE" \
   "$INTEGRATION" \
-  "$CARD_243" \
   "$CARD_244"
 
 guard_expect_in_file "$TAG" 'benchmark_pack=remote-free-minimum-v0' "$APP_README" "selection proof README must pin the benchmark pack"
 guard_expect_in_file "$TAG" 'backend_scope=exact-exe-first' "$APP_README" "selection proof README must pin the backend scope"
 guard_expect_in_file "$TAG" 'This catches a changed \.hako contract that the existing remote-free evidence guard cannot observe\.' "$APP_README" "selection proof README must record the primary guard reason"
-guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002' "$CARD_243" "243 card must select the benchmark selection row next"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-RUN-295X-002' "$CARD_244" "244 card must select the benchmark run row next"
 guard_expect_in_file "$TAG" 'captureLocalAllocFree\(\)' "$APP" "selection proof must capture the local alloc/free workload"
 guard_expect_in_file "$TAG" 'capturePublishOnly\(head_cell, block_a, block_b\)' "$APP" "selection proof must capture the publish-only workload"

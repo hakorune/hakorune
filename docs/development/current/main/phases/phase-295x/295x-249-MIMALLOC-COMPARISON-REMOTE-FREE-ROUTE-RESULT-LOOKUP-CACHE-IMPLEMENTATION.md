@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: continue long-OR compiler stabilization by reducing route-result lookup overhead in origin inference.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-ROUTE-RESULT-LOOKUP-CACHE-IMPLEMENTATION-295X-001
