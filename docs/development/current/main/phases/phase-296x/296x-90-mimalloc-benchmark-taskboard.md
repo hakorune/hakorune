@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001:
-  Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed.
+MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001:
+  Bind the provider API table while leaving explicit allocator calls and activation closed.
 ```
 
 ## Queue
@@ -54,7 +54,8 @@ MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001:
 | 8 | `MIMALLOC-DLL-LOAD-ONLY-SELECTION-296X-001` | Landed | Select load-only DLL metadata smoke after benchmark contracts are stable. |
 | 9 | `MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT-296X-001` | Landed | Validate provider-package manifest/descriptor/hash metadata before shared-library loading. |
 | 10 | `MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001` | Landed | Load a manifest-selected shared library and stop before export resolution, descriptor reads, provider calls, or allocator entrypoints. |
-| 11 | `MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001` | Current | Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed. |
+| 11 | `MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001` | Landed | Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed. |
+| 12 | `MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001` | Current | Bind the provider API table while leaving explicit allocator calls and activation closed. |
 
 ## Mini-Agent Restart Queue
 
@@ -203,3 +204,25 @@ winner_claim=0
 ```
 
 Do not bind the provider API or call allocator entrypoints.
+
+### Slice 10 - Provider API Bind Smoke
+
+Purpose: bind the provider API table after descriptor-read smoke.
+
+Required stop line:
+
+```text
+dll_mode=provider-api-bind
+shared_library_load_executed=1
+required_export_resolved=1
+descriptor_read_executed=1
+provider_api_bound=1
+provider_call_executed=0
+allocator_entrypoint_called=0
+provider_active=0
+replacement_active=0
+global_allocator=0
+winner_claim=0
+```
+
+Do not call allocator entrypoints or activate the provider.

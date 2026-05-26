@@ -31,8 +31,6 @@ guard_expect_fixed_in_file "$TAG" 'descriptor_read_executed=0' "$RUNTIME_SSOT" "
 guard_expect_fixed_in_file "$TAG" 'hakorune_provider_descriptor_v1' "$ABI_SSOT" "ABI SSOT must name descriptor export"
 guard_expect_fixed_in_file "$TAG" 'hakorune-provider-package-v1' "$ARTIFACT_SSOT" "artifact SSOT must define manifest v1"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-10-MIMALLOC-PROVIDER-SHARED-LIBRARY-LOAD-ONLY-SMOKE"' "$CURRENT_STATE" "current state latest card must advance to load-only smoke"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001"' "$CURRENT_STATE" "current state must expose descriptor-read blocker"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_09" "metadata preflight must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_10" "load-only smoke card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001' "$CARD_10" "load-only card must close historical blocker"

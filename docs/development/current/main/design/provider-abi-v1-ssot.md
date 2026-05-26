@@ -117,6 +117,13 @@ struct HakoProviderDescriptorV1 {
 };
 ```
 
+Descriptor constants:
+
+```text
+magic=0x484B5250
+abi_major=1
+```
+
 ## Contract Hash
 
 `contract_hash` identifies normalized ABI/contract data, not the binary bytes.

@@ -145,9 +145,10 @@ The ladder is:
 1. metadata preflight over manifest / descriptor / hash;
 2. shared-library-load-only smoke with no export resolution;
 3. descriptor-read smoke with descriptor export only;
-4. provider API bind / explicit provider call smoke;
-5. repeated benchmark through explicit provider;
-6. replacement / hook / `#[global_allocator]` only after a separate decision
+4. provider API bind smoke;
+5. explicit provider call smoke;
+6. repeated benchmark through explicit provider;
+7. replacement / hook / `#[global_allocator]` only after a separate decision
    row accepts the risk.
 
 ## Mini-Agent Rules
