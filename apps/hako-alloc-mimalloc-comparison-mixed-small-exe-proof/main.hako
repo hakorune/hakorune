@@ -3,8 +3,70 @@
 
 using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 
+box HakoAllocMimallocComparisonMixedSmallReport {
+    workload_id: StringBox = "representative-mixed-small-v0"
+    operation_family: StringBox = "mixed-small"
+    operation_sequence_id: StringBox = "representative-mixed-small-v0-seq"
+    free_order_id: StringBox = "ascending-release-v0"
+    allocation_count: i64 = 16
+    free_count: i64 = 16
+    requested_bytes: i64 = 0
+    committed_bytes: i64 = 0
+    live_blocks: i64 = 0
+    local_free_count: i64 = 0
+    source_ops: i64 = 0
+    rejects: i64 = 0
+
+    capture(page) {
+        me.requested_bytes = page.requested_bytes
+        me.committed_bytes = page.block_size * page.capacity
+        me.live_blocks = page.used
+        me.local_free_count = page.local_free_count
+        me.source_ops = 0
+        me.rejects = page.reject_count
+        return 1
+    }
+
+    workloadLine() {
+        return "workload=" + me.workload_id
+    }
+
+    operationFamilyLine() {
+        return "operation_family=" + me.operation_family
+    }
+
+    operationSequenceLine() {
+        return "operation_sequence_id=" + me.operation_sequence_id
+    }
+
+    freeOrderLine() {
+        return "free_order_id=" + me.free_order_id
+    }
+
+    allocationCountLine() {
+        return "allocation_count=" + me.allocation_count
+    }
+
+    freeCountLine() {
+        return "free_count=" + me.free_count
+    }
+
+    requestedBytesLine() {
+        return "requested_bytes=" + me.requested_bytes
+    }
+
+    summaryFieldsLine() {
+        return "summary_fields=" + me.requested_bytes + "," + me.committed_bytes + "," + me.live_blocks + "," + me.local_free_count + "," + me.source_ops + "," + me.rejects
+    }
+
+    summaryLine() {
+        return "summary=ok"
+    }
+}
+
 static box Main {
     main(args) {
+        local report = new HakoAllocMimallocComparisonMixedSmallReport()
         local page = new HakoAllocPageModel(0, 768, 16, 16)
 
         local b0 = page.acquire_usize(16)
@@ -41,23 +103,20 @@ static box Main {
         local r14 = page.releaseLocal(14)
         local r15 = page.releaseLocal(15)
 
-        local committed_bytes = page.block_size * page.capacity
-        local live_blocks = page.used
-        local source_ops = 0
-        local rejects = page.reject_count
+        report.capture(page)
 
         print("hako-alloc-mimalloc-comparison-mixed-small-exe-proof")
-        print("workload=representative-mixed-small-v0")
-        print("operation_family=mixed-small")
-        print("operation_sequence_id=representative-mixed-small-v0-seq")
-        print("free_order_id=ascending-release-v0")
+        print(report.workloadLine())
+        print(report.operationFamilyLine())
+        print(report.operationSequenceLine())
+        print(report.freeOrderLine())
         print("blocks=" + b0 + "," + b1 + "," + b2 + "," + b3 + "," + b4 + "," + b5 + "," + b6 + "," + b7 + "," + b8 + "," + b9 + "," + b10 + "," + b11 + "," + b12 + "," + b13 + "," + b14 + "," + b15)
         print("releases=" + r0 + "," + r1 + "," + r2 + "," + r3 + "," + r4 + "," + r5 + "," + r6 + "," + r7 + "," + r8 + "," + r9 + "," + r10 + "," + r11 + "," + r12 + "," + r13 + "," + r14 + "," + r15)
-        print("allocation_count=16")
-        print("free_count=16")
-        print("requested_bytes=" + page.requested_bytes)
-        print("summary_fields=" + page.requested_bytes + "," + committed_bytes + "," + live_blocks + "," + page.local_free_count + "," + source_ops + "," + rejects)
-        print("summary=ok")
+        print(report.allocationCountLine())
+        print(report.freeCountLine())
+        print(report.requestedBytesLine())
+        print(report.summaryFieldsLine())
+        print(report.summaryLine())
         return 0
     }
 }
