@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT-296X-001:
-  Run repeated measurement through explicit provider alloc/free while leaving process replacement closed.
+MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001:
+  Close explicit provider measurement evidence and decide whether to park activation work.
 ```
 
 ## Queue
@@ -58,7 +58,8 @@ MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT-296X-001:
 | 12 | `MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001` | Landed | Bind the provider API table while leaving explicit allocator calls and activation closed. |
 | 13 | `MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001` | Landed | Call only a safe provider no-op while leaving allocator entrypoints and activation closed. |
 | 14 | `MIMALLOC-PROVIDER-ALLOC-FREE-SMOKE-296X-001` | Landed | Call explicit provider alloc/free while leaving process replacement and activation closed. |
-| 15 | `MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT-296X-001` | Current | Run repeated measurement through explicit provider alloc/free while leaving process replacement closed. |
+| 15 | `MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT-296X-001` | Landed | Run repeated measurement through explicit provider alloc/free while leaving process replacement closed. |
+| 16 | `MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001` | Current | Close explicit provider measurement evidence and decide whether to park activation work. |
 
 ## Mini-Agent Restart Queue
 
