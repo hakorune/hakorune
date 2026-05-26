@@ -18,8 +18,6 @@ echo "[$TAG] checking phase-296x provider explicit repeated measurement"
 guard_require_files "$TAG" "$CARD_15" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$TOOL" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$TOOL" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-15-MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001"' "$CURRENT_STATE" "current state must expose closeout blocker"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_15" "repeated measurement card must be landed"
 guard_expect_fixed_in_file "$TAG" 'output_contract=hakorune-provider-explicit-repeated-measurement-v0' "$CARD_15" "card must define contract"
 guard_expect_fixed_in_file "$TAG" 'warmup_count=1' "$CARD_15" "card must define warmup"

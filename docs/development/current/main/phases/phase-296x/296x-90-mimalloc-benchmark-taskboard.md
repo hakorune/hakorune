@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001:
-  Close explicit provider measurement evidence and decide whether to park activation work.
+MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT-296X-001:
+  Define the 3-way hako/C/provider explicit comparison contract with winner claims closed.
 ```
 
 ## Queue
@@ -59,7 +59,8 @@ MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001:
 | 13 | `MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001` | Landed | Call only a safe provider no-op while leaving allocator entrypoints and activation closed. |
 | 14 | `MIMALLOC-PROVIDER-ALLOC-FREE-SMOKE-296X-001` | Landed | Call explicit provider alloc/free while leaving process replacement and activation closed. |
 | 15 | `MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT-296X-001` | Landed | Run repeated measurement through explicit provider alloc/free while leaving process replacement closed. |
-| 16 | `MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001` | Current | Close explicit provider measurement evidence and decide whether to park activation work. |
+| 16 | `MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001` | Landed | Close explicit provider measurement evidence and park activation work. |
+| 17 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT-296X-001` | Current | Define the 3-way hako/C/provider explicit comparison contract with winner claims closed. |
 
 ## Mini-Agent Restart Queue
 
@@ -230,6 +231,42 @@ winner_claim=0
 ```
 
 Do not call allocator entrypoints or activate the provider.
+
+### Slice 12 - Provider Explicit Measurement Closeout
+
+Purpose: close the explicit provider measurement ladder without opening
+activation.
+
+Required stop line:
+
+```text
+provider_activation_lane=parked
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+Selected next:
+
+```text
+MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT-296X-001
+```
+
+### Slice 13 - Provider Explicit Comparison Contract
+
+Purpose: define a 3-way comparison contract for `.hako` exact-EXE, C mimalloc
+explicit runner, and provider package explicit alloc/free evidence.
+
+Required stop line:
+
+```text
+comparison_subjects=hako_exact_exe,c_mimalloc_explicit_runner,provider_package_explicit_alloc_free
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+```
 
 ### Slice 11 - Provider No-op Call Smoke
 
