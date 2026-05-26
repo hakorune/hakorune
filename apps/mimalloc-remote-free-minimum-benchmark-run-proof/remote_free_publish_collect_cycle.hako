@@ -2,6 +2,7 @@
 // Remote-free publish-collect cycle workload proof app for the exact-EXE-first minimum benchmark row.
 
 using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+using selfhost.hako_alloc.memory.remote_free_page_integration_box as RemoteFreeIntegration
 
 box HakoAllocRemoteFreeMinimumBenchmarkRunReport {
     operation_repeat: i64 = 128
@@ -35,40 +36,56 @@ static box Main {
         local report = new HakoAllocRemoteFreeMinimumBenchmarkRunReport()
         local alloc = new HakoAllocProductionFacade()
         local run_report = new HakoAllocRemoteFreePageExerciseReport()
+        local repeat = report.operation_repeat
+        local completed_ops = 0
         local i = 0
         local ok = 1
 
-        loop(i < report.operation_repeat) {
+        // Pre-allocate loop fixtures
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+        local port = alloc.remotePagePort(17, 32, 2, 2, head_cell)
+
+        if head_cell == 0 {
+            ok = 0
+        } else if block_a == 0 {
+            if head_cell != 0 { local free_head = externcall "hako_mem_free"(head_cell) }
+            ok = 0
+        } else if block_b == 0 {
+            if block_a != 0 { local free_a = externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { local free_head2 = externcall "hako_mem_free"(head_cell) }
+            ok = 0
+        }
+
+        loop(i < repeat) {
             if ok == 1 {
-                local head_cell = externcall "hako_mem_alloc"(8)
-                local block_a = externcall "hako_mem_alloc"(24)
-                local block_b = externcall "hako_mem_alloc"(24)
-                if head_cell == 0 {
-                    if block_b != 0 { local free_head_b = externcall "hako_mem_free"(block_b) }
-                    if block_a != 0 { local free_head_a = externcall "hako_mem_free"(block_a) }
-                    ok = 0
-                } else if block_a == 0 {
-                    if block_b != 0 { local free_blocka_b = externcall "hako_mem_free"(block_b) }
-                    local free_blocka_head = externcall "hako_mem_free"(head_cell)
-                    ok = 0
-                } else if block_b == 0 {
-                    local free_blockb_a = externcall "hako_mem_free"(block_a)
-                    local free_blockb_head = externcall "hako_mem_free"(head_cell)
+                if alloc.remotePageExerciseFastWithPort(port, head_cell, block_a, block_b) != 1 {
                     ok = 0
                 } else {
-                    if run_report.captureFacadeExercise(alloc, head_cell, block_a, block_b) != 1 {
-                        ok = 0
-                    }
-                    local free_done_b = externcall "hako_mem_free"(block_b)
-                    local free_done_a = externcall "hako_mem_free"(block_a)
-                    local free_done_head = externcall "hako_mem_free"(head_cell)
-                    if ok == 1 {
-                        report.completed_ops = report.completed_ops + 1
-                    }
+                    completed_ops = completed_ops + 1
                 }
             }
             i = i + 1
         }
+        report.completed_ops = completed_ops
+
+        if ok == 1 {
+            if alloc.remotePageResetPort(port, head_cell) != 1 {
+                ok = 0
+            }
+        }
+
+        if ok == 1 {
+            if alloc.remotePageCaptureExerciseWithPort(port, run_report, block_a, block_b) != 1 {
+                ok = 0
+            }
+        }
+
+        // Cleanup
+        if block_b != 0 { local free_final_b = externcall "hako_mem_free"(block_b) }
+        if block_a != 0 { local free_final_a = externcall "hako_mem_free"(block_a) }
+        if head_cell != 0 { local free_final_head = externcall "hako_mem_free"(head_cell) }
 
         if ok == 1 {
             if run_report.ok() != 1 {

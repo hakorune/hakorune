@@ -116,19 +116,26 @@ build_and_measure() {
       rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePort/5' "$build_log"
       rg -F -q 'symbol=HakoAllocProductionFacade.remotePageAcquire/2' "$build_log"
       rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePublishPort/4' "$build_log"
-      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortSnapshot/1' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortInboxPushCount/1' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortInboxCollectCount/1' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortInboxPendingCount/1' "$build_log"
       ;;
     remote_free_collect_only)
       rg -F -q 'mir_call_hako_mem_alloc_emit' "$build_log"
       rg -F -q 'mir_call_hako_mem_free_emit' "$build_log"
       rg -F -q 'symbol=HakoAllocProductionFacade.remotePageCollectPendingPort/1' "$build_log"
       rg -F -q 'symbol=HakoAllocProductionFacade.remotePageCollectOnePort/1' "$build_log"
-      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortSnapshot/1' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortLocalFreeCount/1' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePagePortInboxPendingCount/1' "$build_log"
       ;;
     remote_free_publish_collect_cycle)
       rg -F -q 'mir_call_hako_mem_alloc_emit' "$build_log"
       rg -F -q 'mir_call_hako_mem_free_emit' "$build_log"
-      rg -F -q 'symbol=HakoAllocRemoteFreePageExerciseReport.captureFacadeExercise/4' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePageExerciseFastWithPort/4' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePageCaptureExerciseWithPort/4' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePageResetPort/2' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePageExerciseStateOk/1' "$build_log"
+      rg -F -q 'symbol=HakoAllocProductionFacade.remotePageAcquire/2' "$build_log"
       rg -F -q 'symbol=HakoAllocRemoteFreePageExerciseReport.ok/0' "$build_log"
       ;;
   esac

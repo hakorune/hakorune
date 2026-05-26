@@ -217,6 +217,17 @@ box HakoAllocRemoteFreePageInbox {
         me.init_status = HakoAllocRemoteFreePolicy.initHead(head_cell)
     }
 
+    reset(head_cell) {
+        me.head_cell = head_cell
+        me.init_status = HakoAllocRemoteFreePolicy.initHead(head_cell)
+        me.pending_top = 0
+        me.remote_push_count = 0
+        me.remote_collect_count = 0
+        me.retry_count = 0
+        me.reject_count = 0
+        return 1
+    }
+
     publish(block_ptr, block_id, interferer_ptr) {
         local page = me.page
         if page == null {
@@ -336,6 +347,46 @@ box HakoAllocRemoteFreePagePort {
         return me.inbox.peekNext(block_ptr)
     }
 
+    pageLocalFreeCount() {
+        return me.page.localFreeCount()
+    }
+
+    pageUsed() {
+        return me.page.used
+    }
+
+    pageRetired() {
+        return me.page.retired
+    }
+
+    pageLocalReleaseCount() {
+        return me.page.local_free_count
+    }
+
+    inboxInitStatus() {
+        return me.inbox.init_status
+    }
+
+    inboxPushCount() {
+        return me.inbox.remote_push_count
+    }
+
+    inboxCollectCount() {
+        return me.inbox.remote_collect_count
+    }
+
+    inboxRetryCount() {
+        return me.inbox.retry_count
+    }
+
+    inboxRejectCount() {
+        return me.inbox.reject_count
+    }
+
+    inboxPendingCount() {
+        return me.inbox.pending_top
+    }
+
     snapshot() {
         local snapshot = new HakoAllocRemoteFreePagePortSnapshot()
         local page = me.page
@@ -351,5 +402,30 @@ box HakoAllocRemoteFreePagePort {
         snapshot.inbox_reject_count = inbox.reject_count
         snapshot.inbox_pending_count = inbox.pending_top
         return snapshot
+    }
+
+    reset(head_cell) {
+        me.page.resetToFresh()
+        return me.inbox.reset(head_cell)
+    }
+
+    exerciseStateOk() {
+        local page = me.page
+        if page.used != 0 || page.localFreeCount() != 2 || page.retired != 1 || page.local_free_count != 2 {
+            return 0
+        }
+
+        local inbox = me.inbox
+        if inbox.init_status != 0 || inbox.remote_push_count != 2 || inbox.remote_collect_count != 2 ||
+           inbox.retry_count != 0 || inbox.reject_count != 1 || inbox.pending_top != 0 {
+            return 0
+        }
+        return 1
+    }
+}
+
+static box HakoAllocRemoteFreePagePortFactory {
+    create(page_id, block_size, capacity, reserved, head_cell) {
+        return new HakoAllocRemoteFreePagePort(page_id, block_size, capacity, reserved, head_cell)
     }
 }

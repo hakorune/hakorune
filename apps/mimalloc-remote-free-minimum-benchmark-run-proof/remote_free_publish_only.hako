@@ -34,10 +34,12 @@ static box Main {
     main(args) {
         local report = new HakoAllocRemoteFreeMinimumBenchmarkRunReport()
         local alloc = new HakoAllocProductionFacade()
+        local repeat = report.operation_repeat
+        local completed_ops = 0
         local i = 0
         local ok = 1
 
-        loop(i < report.operation_repeat) {
+        loop(i < repeat) {
             if ok == 1 {
                 local head_cell = externcall "hako_mem_alloc"(8)
                 local block_a = externcall "hako_mem_alloc"(24)
@@ -67,8 +69,10 @@ static box Main {
                     } else if alloc.remotePagePublishPort(port, block_b, block1, 0) != 1 {
                         ok = 0
                     } else {
-                        local snapshot = alloc.remotePagePortSnapshot(port)
-                        if snapshot.inbox_push_count != 2 || snapshot.inbox_collect_count != 0 || snapshot.inbox_pending_count != 2 {
+                        local inbox_push_count = alloc.remotePagePortInboxPushCount(port)
+                        local inbox_collect_count = alloc.remotePagePortInboxCollectCount(port)
+                        local inbox_pending_count = alloc.remotePagePortInboxPendingCount(port)
+                        if inbox_push_count != 2 || inbox_collect_count != 0 || inbox_pending_count != 2 {
                             ok = 0
                         }
                     }
@@ -76,12 +80,13 @@ static box Main {
                     local free_done_a = externcall "hako_mem_free"(block_a)
                     local free_done_head = externcall "hako_mem_free"(head_cell)
                     if ok == 1 {
-                        report.completed_ops = report.completed_ops + 1
+                        completed_ops = completed_ops + 1
                     }
                 }
             }
             i = i + 1
         }
+        report.completed_ops = completed_ops
 
         if ok != 1 {
             print("mimalloc-remote-free-minimum-benchmark-run-proof")
