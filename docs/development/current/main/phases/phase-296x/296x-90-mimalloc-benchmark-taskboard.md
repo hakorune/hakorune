@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-ADAPTER-PILOT-296X-001:
-  Adapt landed hako/C/provider explicit measurement evidence into the 3-way comparison contract.
+MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001:
+  Close the 3-way comparison adapter and decide the next provider packaging lane.
 ```
 
 ## Queue
@@ -61,7 +61,8 @@ MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-ADAPTER-PILOT-296X-001:
 | 15 | `MIMALLOC-PROVIDER-EXPLICIT-REPEATED-MEASUREMENT-296X-001` | Landed | Run repeated measurement through explicit provider alloc/free while leaving process replacement closed. |
 | 16 | `MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001` | Landed | Close explicit provider measurement evidence and park activation work. |
 | 17 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT-296X-001` | Landed | Define the 3-way hako/C/provider explicit comparison contract with winner claims closed. |
-| 18 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-ADAPTER-PILOT-296X-001` | Current | Adapt landed hako/C/provider explicit measurement evidence into the 3-way comparison contract. |
+| 18 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-ADAPTER-PILOT-296X-001` | Landed | Adapt landed hako/C/provider explicit measurement evidence into the 3-way comparison contract. |
+| 19 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Current | Close the 3-way comparison adapter and decide the next provider packaging lane. |
 
 ## Mini-Agent Restart Queue
 

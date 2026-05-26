@@ -11,16 +11,12 @@ CARD_15="docs/development/current/main/phases/phase-296x/296x-15-MIMALLOC-PROVID
 CARD_17="docs/development/current/main/phases/phase-296x/296x-17-MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT.md"
 TASKBOARD="docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 SELF_SCRIPT="tools/checks/k2_wide_phase296x_mimalloc_provider_explicit_comparison_contract_guard.sh"
 
 echo "[$TAG] checking phase-296x provider explicit comparison contract"
 
-guard_require_files "$TAG" "$CARD_07" "$CARD_15" "$CARD_17" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_07" "$CARD_15" "$CARD_17" "$TASKBOARD" "$INDEX" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
-
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-17-MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-ADAPTER-PILOT-296X-001"' "$CURRENT_STATE" "current state must expose adapter pilot blocker"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_07" "exact-EXE repeated measurement must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_15" "provider explicit repeated measurement must be landed"
