@@ -12,6 +12,90 @@ using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVm
 using selfhost.hako_alloc.memory.osvm_fast_path_purge_route_box as HakoAllocOsVmFastPathPurgeRouteBox
 using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegrationBox
 
+box HakoAllocMimallocComparisonHugeOsVmReport {
+    workload_id: StringBox = "huge-osvm-v1"
+    route_add: i64 = 0
+    small_route_ok: i64 = 0
+    small_route_kind: i64 = 0
+    small_route_ptr: i64 = 0
+    huge_class: i64 = 0
+    huge_route_ok: i64 = 0
+    huge_route_kind: i64 = 0
+    huge_route_count: i64 = 0
+    huge_reject_count: i64 = 0
+    huge_alloc: i64 = 0
+    huge_ptr: i64 = 0
+    huge_page: i64 = 0
+    huge_requested: i64 = 0
+    huge_committed: i64 = 0
+    huge_live_before: i64 = 0
+    huge_release_ok: i64 = 0
+    huge_live_after: i64 = 0
+    huge_unknown_release: i64 = 0
+    osvm_page1: i64 = 0
+    osvm_bytes0: i64 = 0
+    osvm_bytes1: i64 = 0
+    osvm_reserve_count: i64 = 0
+    osvm_commit_count: i64 = 0
+    osvm_decommit_count: i64 = 0
+    osvm_source_reject_count: i64 = 0
+    osvm_cleanup: i64 = 0
+    osvm_base0: i64 = 0
+    osvm_base1: i64 = 0
+    requested_bytes: i64 = 0
+    committed_bytes: i64 = 0
+    live_handles: i64 = 0
+    release_count: i64 = 0
+    source_ops: i64 = 0
+    rejects: i64 = 0
+
+    capture(route_add, small_route_ok, small_route_kind, small_route_ptr, huge_class, huge_route_ok, huge_route_kind, huge_route_count, huge_reject_count, huge_alloc, huge_ptr, huge_page, huge_requested, huge_committed, huge_live_before, huge_release_ok, huge_live_after, huge_unknown_release, osvm_page1, osvm_bytes0, osvm_bytes1, osvm_reserve_count, osvm_commit_count, osvm_decommit_count, osvm_source_reject_count, osvm_cleanup, osvm_base0, osvm_base1, requested_bytes, committed_bytes, live_handles, release_count, source_ops, rejects) {
+        me.route_add = route_add
+        me.small_route_ok = small_route_ok
+        me.small_route_kind = small_route_kind
+        me.small_route_ptr = small_route_ptr
+        me.huge_class = huge_class
+        me.huge_route_ok = huge_route_ok
+        me.huge_route_kind = huge_route_kind
+        me.huge_route_count = huge_route_count
+        me.huge_reject_count = huge_reject_count
+        me.huge_alloc = huge_alloc
+        me.huge_ptr = huge_ptr
+        me.huge_page = huge_page
+        me.huge_requested = huge_requested
+        me.huge_committed = huge_committed
+        me.huge_live_before = huge_live_before
+        me.huge_release_ok = huge_release_ok
+        me.huge_live_after = huge_live_after
+        me.huge_unknown_release = huge_unknown_release
+        me.osvm_page1 = osvm_page1
+        me.osvm_bytes0 = osvm_bytes0
+        me.osvm_bytes1 = osvm_bytes1
+        me.osvm_reserve_count = osvm_reserve_count
+        me.osvm_commit_count = osvm_commit_count
+        me.osvm_decommit_count = osvm_decommit_count
+        me.osvm_source_reject_count = osvm_source_reject_count
+        me.osvm_cleanup = osvm_cleanup
+        me.osvm_base0 = osvm_base0
+        me.osvm_base1 = osvm_base1
+        me.requested_bytes = requested_bytes
+        me.committed_bytes = committed_bytes
+        me.live_handles = live_handles
+        me.release_count = release_count
+        me.source_ops = source_ops
+        me.rejects = rejects
+        return 1
+    }
+
+    workloadLine() { return "workload=huge-osvm-v1" }
+    routeLine() { return "route=" + me.route_add + "," + me.small_route_ok + "," + me.small_route_kind + "," + me.small_route_ptr + "," + me.huge_class + "," + me.huge_route_ok + "," + me.huge_route_kind + "," + me.huge_route_count + "," + me.huge_reject_count }
+    hugeLine() { return "huge=" + me.huge_alloc + "," + me.huge_ptr + "," + me.huge_page + "," + me.huge_requested + "," + me.huge_committed + "," + me.huge_live_before + "," + me.huge_release_ok + "," + me.huge_live_after + "," + me.huge_unknown_release }
+    osvmLine() { return "osvm=" + me.osvm_page1 + "," + me.osvm_bytes0 + "," + me.osvm_bytes1 + "," + me.osvm_reserve_count + "," + me.osvm_commit_count + "," + me.osvm_decommit_count + "," + me.osvm_source_reject_count + "," + me.osvm_cleanup }
+    osvmBasesLine() { return "osvm_bases=" + me.osvm_base0 + "," + me.osvm_base1 }
+    summaryFieldsLine() { return "summary_fields=" + me.requested_bytes + "," + me.committed_bytes + "," + me.live_handles + "," + me.release_count + "," + me.source_ops + "," + me.rejects }
+    summaryLine() { return "summary=ok" }
+}
+
 box ProofCheck {
     name: StringBox = ""
     passed: i64 = 1
@@ -51,6 +135,7 @@ box ProofCheck {
 
 static box Main {
     main(args) {
+        local report = new HakoAllocMimallocComparisonHugeOsVmReport()
         local route_map = new HakoAllocPageMap()
         local route_seam = new HakoAllocPageMapReleaseSeam(route_map)
         local route_page = new HakoAllocPageModel(0, 64, 1, 1)
@@ -96,13 +181,50 @@ static box Main {
         local source_ops = osvm_heap.reserve_count + osvm_heap.commit_count + osvm_heap.decommit_count
         local rejects = router.reject_count + huge_model.reject_count + huge_release.reject_count + osvm_heap.reject_count
 
+        report.capture(
+            route_add,
+            small_route_ok,
+            small_route_kind,
+            small_route_ptr,
+            huge_class,
+            huge_route_ok,
+            huge_route_kind,
+            router.huge_route_count,
+            router.huge_reject_count,
+            huge_alloc,
+            huge_ptr,
+            huge_page,
+            huge_requested,
+            huge_committed,
+            huge_live_before,
+            huge_release_ok,
+            huge_live_after,
+            huge_unknown_release,
+            osvm_page1,
+            osvm_bytes0,
+            osvm_bytes1,
+            osvm_heap.reserve_count,
+            osvm_heap.commit_count,
+            osvm_heap.decommit_count,
+            osvm_heap.source_reject_count,
+            osvm_cleanup,
+            osvm_base0,
+            osvm_base1,
+            requested_bytes,
+            committed_bytes,
+            live_handles,
+            release_count,
+            source_ops,
+            rejects
+        )
+
         print("hako-alloc-mimalloc-comparison-huge-osvm-slice-proof")
-        print("workload=huge-osvm-v1")
-        print("route=" + route_add + "," + small_route_ok + "," + small_route_kind + "," + small_route_ptr + "," + huge_class + "," + huge_route_ok + "," + huge_route_kind + "," + router.huge_route_count + "," + router.huge_reject_count)
-        print("huge=" + huge_alloc + "," + huge_ptr + "," + huge_page + "," + huge_requested + "," + huge_committed + "," + huge_live_before + "," + huge_release_ok + "," + huge_live_after + "," + huge_unknown_release)
-        print("osvm=" + osvm_page1 + "," + osvm_bytes0 + "," + osvm_bytes1 + "," + osvm_heap.reserve_count + "," + osvm_heap.commit_count + "," + osvm_heap.decommit_count + "," + osvm_heap.source_reject_count + "," + osvm_cleanup)
-        print("osvm_bases=" + osvm_base0 + "," + osvm_base1)
-        print("summary_fields=" + requested_bytes + "," + committed_bytes + "," + live_handles + "," + release_count + "," + source_ops + "," + rejects)
+        print(report.workloadLine())
+        print(report.routeLine())
+        print(report.hugeLine())
+        print(report.osvmLine())
+        print(report.osvmBasesLine())
+        print(report.summaryFieldsLine())
 
         local proof = new ProofCheck("huge osvm comparison slice")
         proof.expectEq("route add page", route_add, 1)
