@@ -19,8 +19,6 @@ echo "[$TAG] checking phase-296x DLL metadata preflight"
 guard_require_files "$TAG" "$CARD_08" "$CARD_09" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$SELF_SCRIPT" "$TOOL"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT" "$TOOL"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-09-MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT"' "$CURRENT_STATE" "current state latest card must advance to metadata preflight"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001"' "$CURRENT_STATE" "current state must expose shared-library smoke blocker"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_08" "DLL load-only selection must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_09" "metadata preflight card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT-296X-001' "$CARD_09" "metadata card must identify blocker"
@@ -31,6 +29,7 @@ guard_expect_fixed_in_file "$TAG" 'replacement_active=0' "$CARD_09" "metadata ca
 guard_expect_fixed_in_file "$TAG" 'winner_claim=0' "$CARD_09" "metadata card must keep winner claims closed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001' "$CARD_09" "metadata card must select shared-library smoke next"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT-296X-001' "$TASKBOARD" "taskboard must expose metadata preflight row"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001' "$TASKBOARD" "taskboard must preserve shared-library smoke row"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 
 python3 -m py_compile "$TOOL"

@@ -4,12 +4,28 @@ Decision: accepted
 Date: 2026-05-21
 Scope: future Hakorune provider package / DLL shared-library ABI plan.
 Related:
+  - docs/development/current/main/design/provider-abi-v1-ssot.md
+  - docs/development/current/main/design/provider-package-artifact-ssot.md
+  - docs/development/current/main/design/provider-runtime-load-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - docs/development/current/main/design/hako-alloc-optional-process-allocator-replacement-proposal-ssot.md
   - docs/development/current/main/phases/phase-293x/293x-1073-MIMAP-451A-ALLOCATOR-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-EXECUTION-PILOT.md
 ---
 
 # Hakorune Provider Package ABI v1 (Future SSOT)
+
+## Current Split
+
+This historical future SSOT is retained as a compatibility pointer. The active
+provider-package design is now split by responsibility:
+
+```text
+docs/development/current/main/design/provider-abi-v1-ssot.md
+docs/development/current/main/design/provider-package-artifact-ssot.md
+docs/development/current/main/design/provider-runtime-load-ssot.md
+```
+
+Use those three SSOTs for new Phase-296x rows.
 
 ## Decision
 
@@ -259,4 +275,3 @@ closed:
 MIMAP-451A should continue to build the C mimalloc explicit runner execution
 pilot. It may reference this SSOT only to say that DLL/provider-package
 generation is deliberately parked.
-

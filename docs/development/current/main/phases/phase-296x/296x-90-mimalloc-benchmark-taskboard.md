@@ -4,6 +4,9 @@ Date: 2026-05-27
 Scope: taskboard for phase-296x mimalloc benchmark contract lane.
 Related:
   - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
+  - docs/development/current/main/design/provider-abi-v1-ssot.md
+  - docs/development/current/main/design/provider-package-artifact-ssot.md
+  - docs/development/current/main/design/provider-runtime-load-ssot.md
   - docs/development/current/main/phases/phase-296x/README.md
 ---
 
@@ -32,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001:
-  Load a descriptor-only shared library and stop before provider calls or allocator entrypoints.
+MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001:
+  Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed.
 ```
 
 ## Queue
@@ -50,7 +53,8 @@ MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001:
 | 7 | `MIMALLOC-BENCHMARK-EXACT-EXE-REPEATED-MEASUREMENT-296X-001` | Landed | Run the selected same workload with process-repeat timing and repeated samples. |
 | 8 | `MIMALLOC-DLL-LOAD-ONLY-SELECTION-296X-001` | Landed | Select load-only DLL metadata smoke after benchmark contracts are stable. |
 | 9 | `MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT-296X-001` | Landed | Validate provider-package manifest/descriptor/hash metadata before shared-library loading. |
-| 10 | `MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001` | Current | Load a descriptor-only shared library and stop before provider calls or allocator entrypoints. |
+| 10 | `MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001` | Landed | Load a manifest-selected shared library and stop before export resolution, descriptor reads, provider calls, or allocator entrypoints. |
+| 11 | `MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001` | Current | Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed. |
 
 ## Mini-Agent Restart Queue
 
@@ -157,15 +161,17 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Slice 8 - Shared-Library Smoke
+### Slice 8 - Shared-Library Load-Only Smoke
 
-Purpose: load a descriptor-only shared library after metadata preflight.
+Purpose: load a manifest-selected shared library after metadata preflight.
 
 Required stop line:
 
 ```text
 dll_mode=load-only
 shared_library_load_executed=1
+required_export_resolved=0
+descriptor_read_executed=0
 provider_call_executed=0
 allocator_entrypoint_called=0
 provider_active=0
@@ -174,4 +180,26 @@ global_allocator=0
 winner_claim=0
 ```
 
-Do not call provider exports or allocator entrypoints.
+Do not resolve exports, read descriptors, call provider APIs, or call allocator
+entrypoints.
+
+### Slice 9 - Descriptor-Read Smoke
+
+Purpose: resolve and call only the descriptor export after load-only smoke.
+
+Required stop line:
+
+```text
+dll_mode=descriptor-smoke
+shared_library_load_executed=1
+required_export_resolved=1
+descriptor_read_executed=1
+provider_call_executed=0
+allocator_entrypoint_called=0
+provider_active=0
+replacement_active=0
+global_allocator=0
+winner_claim=0
+```
+
+Do not bind the provider API or call allocator entrypoints.

@@ -6,6 +6,9 @@ Related:
   - docs/development/current/main/phases/phase-296x/README.md
   - docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
   - docs/development/current/main/design/mimalloc-comparison-execution-ssot.md
+  - docs/development/current/main/design/provider-abi-v1-ssot.md
+  - docs/development/current/main/design/provider-package-artifact-ssot.md
+  - docs/development/current/main/design/provider-runtime-load-ssot.md
   - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
 ---
 
@@ -101,9 +104,9 @@ exact-EXE repeated-measurement runner and with the external `hakmem`
 historical adapters. The first adapter rows are historical bridges, not winner
 claims or provider activations.
 
-## DLL Timing
+## Provider Package Timing
 
-DLL/provider work starts only after all of the following are true:
+Provider package load work starts only after all of the following are true:
 
 ```text
 benchmark_result_contract=accepted
@@ -116,7 +119,7 @@ provider_active=0
 replacement_active=0
 ```
 
-The first DLL row must be load-only:
+The first provider package row must be load-only:
 
 ```text
 dll_mode=load-only
@@ -140,10 +143,11 @@ winner_claim=0
 The ladder is:
 
 1. metadata preflight over manifest / descriptor / hash;
-2. load-only descriptor shared-library smoke;
-3. explicit provider call smoke;
-4. repeated benchmark through explicit provider;
-5. replacement / hook / `#[global_allocator]` only after a separate decision
+2. shared-library-load-only smoke with no export resolution;
+3. descriptor-read smoke with descriptor export only;
+4. provider API bind / explicit provider call smoke;
+5. repeated benchmark through explicit provider;
+6. replacement / hook / `#[global_allocator]` only after a separate decision
    row accepts the risk.
 
 ## Mini-Agent Rules

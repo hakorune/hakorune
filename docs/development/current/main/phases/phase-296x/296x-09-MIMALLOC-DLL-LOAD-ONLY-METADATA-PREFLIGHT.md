@@ -4,6 +4,9 @@ Date: 2026-05-27
 Scope: validate provider-package manifest metadata before shared-library loading.
 Blocker: MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT-296X-001
 Related:
+  - docs/development/current/main/design/provider-abi-v1-ssot.md
+  - docs/development/current/main/design/provider-package-artifact-ssot.md
+  - docs/development/current/main/design/provider-runtime-load-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
   - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
   - docs/development/current/main/phases/phase-296x/296x-08-MIMALLOC-DLL-LOAD-ONLY-SELECTION.md
@@ -61,9 +64,9 @@ Select:
 MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001
 ```
 
-The next row may add a descriptor-only shared-library load smoke. It must not
-call allocator entrypoints, activate a provider, replace the process allocator,
-install hooks, or compute benchmark winners.
+The next row may add shared-library-load-only smoke. It must not resolve
+exports, read descriptors, call allocator entrypoints, activate a provider,
+replace the process allocator, install hooks, or compute benchmark winners.
 
 ## Stop Line
 
