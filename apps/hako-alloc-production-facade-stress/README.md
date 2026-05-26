@@ -6,7 +6,9 @@ production allocator facade.
 This app keeps `apps/allocator-stress` as regression coverage and adds a new
 production-facade variant. It validates the same small/medium saturation,
 release, reuse, oversize reject, double-free reject, and deterministic
-accounting shape through `HakoAllocProductionFacade`.
+accounting shape through `HakoAllocProductionFacade`, and includes one
+facade-routed `reallocResult` success probe with realloc success/reject counter
+checks.
 
 It intentionally avoids:
 

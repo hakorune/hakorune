@@ -7,16 +7,21 @@ static box Main {
     main(args) {
         local alloc = new HakoAllocProductionFacade()
 
-        local h1 = alloc.allocate(8)
+        local h1_result = alloc.allocateResult(8)
+        local h1 = h1_result.handle
         local h2 = alloc.allocate(48)
         local h3 = alloc.allocate(80)
 
         local release_h1 = alloc.release(h1)
         local h4 = alloc.allocate(16)
         local release_h3 = alloc.release(h3)
+        local h2_realloc = alloc.realloc(h2, 44)
+        local h4_realloc_result = alloc.reallocResult(h4, 12)
 
         local h1_ok = 0
         if h1 != null { h1_ok = 1 }
+        local h1_result_ok = 0
+        if h1_result.ok == 1 { h1_result_ok = 1 }
         local h2_ok = 0
         if h2 != null { h2_ok = 1 }
         local h3_rejected = 0
@@ -27,14 +32,23 @@ static box Main {
         if h4 != null { h4_ok = 1 }
         local release_h3_rejected = 0
         if release_h3 == 0 { release_h3_rejected = 1 }
+        local h2_realloc_ok = 0
+        if h2_realloc != null { h2_realloc_ok = 1 }
+        local h4_realloc_ok = 0
+        if h4_realloc_result.ok == 1 { h4_realloc_ok = 1 }
+        local h4_live = alloc.isLiveHandle(h4_realloc_result.handle)
+        local realloc_success = alloc.reallocSuccessCount()
+        local realloc_reject = alloc.reallocRejectCount()
 
         print("hako-alloc-production-facade-proof")
         print("allocs=" + alloc.alloc_count + " frees=" + alloc.free_count + " rejects=" + alloc.reject_count)
         print("shape=" + h1_ok + "," + h2_ok + "," + h3_rejected + "," + release_h1_ok + "," + h4_ok + "," + release_h3_rejected)
+        print("realloc=" + h1_result_ok + "," + h2_realloc_ok + "," + h4_realloc_ok + "," + h4_live)
+        print("realloc_counts=" + realloc_success + "," + realloc_reject)
         print("stats=" + alloc.requestedBytes() + "," + alloc.outstandingBlocks() + "," + alloc.smallFreeCount() + "," + alloc.mediumFreeCount())
 
         local shape = h1_ok + h2_ok + h3_rejected + release_h1_ok + h4_ok + release_h3_rejected
-        if alloc.alloc_count == 3 && alloc.free_count == 1 && alloc.reject_count == 2 && shape == 6 && alloc.requestedBytes() == 72 && alloc.outstandingBlocks() == 2 && alloc.smallFreeCount() == 7 && alloc.mediumFreeCount() == 3 {
+        if alloc.alloc_count == 3 && alloc.free_count == 1 && alloc.reject_count == 2 && shape == 6 && h1_result_ok == 1 && h2_realloc_ok == 1 && h4_realloc_ok == 1 && h4_live == 1 && realloc_success == 2 && realloc_reject == 0 && alloc.requestedBytes() == 72 && alloc.outstandingBlocks() == 2 && alloc.smallFreeCount() == 7 && alloc.mediumFreeCount() == 3 {
             print("summary=ok")
             return 0
         }

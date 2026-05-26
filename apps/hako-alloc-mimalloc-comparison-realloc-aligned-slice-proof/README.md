@@ -2,11 +2,10 @@
 
 Row: `294x-57`
 
-This proof app composes the V3 comparison-facing realloc/aligned slice from
-existing owners:
+This proof app composes the V3 comparison-facing realloc/aligned slice with a
+production-facade realloc route plus existing aligned-owner composition:
 
-- `HakoAllocPageMapReallocSameClassPath`
-- `HakoAllocPageMapReallocAllocCopyReleasePath`
+- `HakoAllocProductionFacade` (allocate/reallocResult/isLiveHandle)
 - `HakoAllocPageMapAlignedSmallPath`
 
 It publishes stable comparison fields for requested bytes, modeled copied

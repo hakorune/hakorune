@@ -1,5 +1,5 @@
 // mimalloc-remote-free-minimum-benchmark-run-proof
-// Local alloc/free workload proof app for the exact-EXE-first minimum benchmark row.
+// Local alloc/realloc/free workload proof app for the exact-EXE-first minimum benchmark row.
 
 using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
 
@@ -18,6 +18,14 @@ box HakoAllocRemoteFreeMinimumBenchmarkRunReport {
 
     backendScopeLine() {
         return "backend_scope=exact-exe-first"
+    }
+
+    backendSplitScopeLine() {
+        return "backend_split_scope=remote-free-minimum-v0"
+    }
+
+    backendSplitFamilyLine() {
+        return "backend_split_family=split-observation"
     }
 
     timingRepeatKindLine() {
@@ -74,13 +82,18 @@ static box Main {
                 if handle == null {
                     ok = 0
                 } else {
-                    if alloc.release(handle) != 1 {
+                    local realloc_result = alloc.reallocResult(handle, 24)
+                    if realloc_result.ok != 1 {
                         ok = 0
                     } else {
-                        if alloc.outstandingBlocks() != 0 {
+                        if alloc.release(realloc_result.handle) != 1 {
                             ok = 0
                         } else {
-                            report.completed_ops = report.completed_ops + 1
+                            if alloc.outstandingBlocks() != 0 {
+                                ok = 0
+                            } else {
+                                report.completed_ops = report.completed_ops + 1
+                            }
                         }
                     }
                 }
@@ -100,6 +113,8 @@ static box Main {
         print(report.outputContractLine())
         print(report.benchmarkPackLine())
         print(report.backendScopeLine())
+        print(report.backendSplitScopeLine())
+        print(report.backendSplitFamilyLine())
         print(report.timingRepeatKindLine())
         print(report.operationRepeatLine())
         print(report.warmupCountLine())

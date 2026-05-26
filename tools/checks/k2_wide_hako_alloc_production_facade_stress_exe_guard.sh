@@ -67,6 +67,9 @@ required = {
     "HakoAllocProductionFacadeStress.run/0",
     "HakoAllocProductionFacade.allocate/1",
     "HakoAllocProductionFacade.release/1",
+    "HakoAllocProductionFacade.reallocResult/2",
+    "HakoAllocProductionFacade.reallocSuccessCount/0",
+    "HakoAllocProductionFacade.reallocRejectCount/0",
     "HakoAllocProductionFacade.requestedBytes/0",
     "HakoAllocProductionFacade.outstandingBlocks/0",
     "HakoAllocProductionFacade.smallFreeCount/0",
@@ -93,7 +96,7 @@ facade_fields = {
     field.get("name"): field
     for field in plans["HakoAllocProductionFacade"].get("fields", [])
 }
-for name in ("alloc_count", "free_count", "reject_count"):
+for name in ("alloc_count", "free_count", "reject_count", "realloc_success_count", "realloc_reject_count"):
     field = facade_fields.get(name)
     if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"facade {name} field must be exact usize storage: {field}")
@@ -123,6 +126,9 @@ require_method(main, "HakoAllocProductionFacadeStress", "run")
 for name in (
     "allocate",
     "release",
+    "reallocResult",
+    "reallocSuccessCount",
+    "reallocRejectCount",
     "requestedBytes",
     "outstandingBlocks",
     "smallFreeCount",
@@ -162,6 +168,7 @@ rg -F -q 'hako-alloc-production-facade-stress' "$run_log"
 rg -F -q 'small_allocs=11 frees=3 reused=3 peak=8 free=0' "$run_log"
 rg -F -q 'medium_allocs=6 frees=2 reused=2 peak=4 free=0' "$run_log"
 rg -F -q 'facade=17,5,4' "$run_log"
+rg -F -q 'realloc=1,1,0' "$run_log"
 rg -F -q 'requested_bytes=454' "$run_log"
 rg -F -q 'outstanding=12' "$run_log"
 rg -F -q 'rejects=4' "$run_log"

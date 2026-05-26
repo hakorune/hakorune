@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Root configuration structure
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NyashConfigV2 {
     /// Library definitions (multi-box capable)
     #[serde(default)]
@@ -27,7 +27,7 @@ pub struct NyashConfigV2 {
 }
 
 /// Library definition (simplified)
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LibraryDefinition {
     /// Box types provided by this library
     pub boxes: Vec<String>,
@@ -37,14 +37,14 @@ pub struct LibraryDefinition {
 }
 
 /// Plugin search paths
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct PluginPaths {
     #[serde(default)]
     pub search_paths: Vec<String>,
 }
 
 /// Box type configuration (nested under library)
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct BoxTypeConfig {
     /// Box type ID
     pub type_id: u32,

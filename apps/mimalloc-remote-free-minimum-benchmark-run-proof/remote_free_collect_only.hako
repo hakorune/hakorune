@@ -11,6 +11,8 @@ box HakoAllocRemoteFreeMinimumBenchmarkRunReport {
     outputContractLine() { return "output_contract=mimalloc-comparison-remote-free-minimum-benchmark-run-v0" }
     benchmarkPackLine() { return "benchmark_pack=remote-free-minimum-v0" }
     backendScopeLine() { return "backend_scope=exact-exe-first" }
+    backendSplitScopeLine() { return "backend_split_scope=remote-free-minimum-v0" }
+    backendSplitFamilyLine() { return "backend_split_family=split-observation" }
     timingRepeatKindLine() { return "timing_repeat_kind=process-invocation-v0" }
     operationRepeatLine() { return "operation_repeat=" + me.operation_repeat }
     warmupCountLine() { return "warmup_count=1" }
@@ -97,6 +99,8 @@ static box Main {
         print(report.outputContractLine())
         print(report.benchmarkPackLine())
         print(report.backendScopeLine())
+        print(report.backendSplitScopeLine())
+        print(report.backendSplitFamilyLine())
         print(report.timingRepeatKindLine())
         print(report.operationRepeatLine())
         print(report.warmupCountLine())

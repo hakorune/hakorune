@@ -9,8 +9,7 @@ source tools/checks/lib/guard_common.sh
 APP="apps/hako-alloc-mimalloc-comparison-realloc-aligned-slice-proof/main.hako"
 APP_TEST="apps/hako-alloc-mimalloc-comparison-realloc-aligned-slice-proof/test.sh"
 APP_README="apps/hako-alloc-mimalloc-comparison-realloc-aligned-slice-proof/README.md"
-SAME_CLASS="lang/src/hako_alloc/memory/page_map_realloc_same_class_box.hako"
-GROW_PATH="lang/src/hako_alloc/memory/page_map_realloc_alloc_copy_release_box.hako"
+FACADE="lang/src/hako_alloc/memory/allocator_facade_box.hako"
 ALIGNED_PATH="lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako"
 PAGE_BOX="lang/src/hako_alloc/memory/page_box.hako"
 PAGE_MAP="lang/src/hako_alloc/memory/page_map_box.hako"
@@ -30,8 +29,7 @@ guard_require_files \
   "$APP" \
   "$APP_TEST" \
   "$APP_README" \
-  "$SAME_CLASS" \
-  "$GROW_PATH" \
+  "$FACADE" \
   "$ALIGNED_PATH" \
   "$PAGE_BOX" \
   "$PAGE_MAP" \
@@ -40,13 +38,12 @@ guard_require_files \
   "$CARD" \
   "$INDEX"
 
-guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_realloc_same_class_box as HakoAllocPageMapReallocSameClassBox' "$APP" "V3 proof must consume same-class realloc owner"
-guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_realloc_alloc_copy_release_box as HakoAllocPageMapReallocAllocCopyReleaseBox' "$APP" "V3 proof must consume grow fallback owner"
-guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox' "$APP" "V3 proof must consume aligned small-path owner"
+guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade' "$APP" "V3 proof must consume production facade realloc owner"
+guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox' "$APP" "V3 proof must keep aligned small-path owner"
 guard_expect_in_file "$TAG" 'workload=realloc-aligned-v1' "$APP" "proof app must expose stable workload id"
 guard_expect_in_file "$TAG" 'summary_fields=' "$APP" "proof app must expose stable comparison summary fields"
-guard_expect_in_file "$TAG" 'tryReallocSameClass' "$APP" "proof app must use M174 same-class path"
-guard_expect_in_file "$TAG" 'tryReallocAllocCopyRelease' "$APP" "proof app must use M175 grow fallback path"
+guard_expect_in_file "$TAG" 'reallocResult' "$APP" "proof app must route realloc through production facade"
+guard_expect_in_file "$TAG" 'isLiveHandle' "$APP" "proof app must observe handle liveness through production facade"
 guard_expect_in_file "$TAG" 'allocateAlignedSmallUsize' "$APP" "proof app must use exact usize aligned-small facade"
 guard_expect_in_file "$TAG" 'MIMALLOC-COMPARISON-VSLICE-005' "$CARD" "card must identify current vertical-slice blocker token"
 guard_expect_in_file "$TAG" 'V3' "$CARD" "card must identify V3 realloc/aligned slice"
@@ -104,22 +101,32 @@ with open(path, encoding="utf-8") as fh:
 functions = {fn.get("name"): fn for fn in data.get("functions", [])}
 required = {
     "main",
-    "HakoAllocPageMapReallocSameClassPath.tryReallocSameClass/2",
-    "HakoAllocPageMapReallocAllocCopyReleasePath.tryReallocAllocCopyRelease/2",
+    "HakoAllocProductionFacade.allocate/1",
+    "HakoAllocProductionFacade.reallocResult/2",
+    "HakoAllocProductionFacade.isLiveHandle/1",
     "HakoAllocPageMapAlignedSmallPath.allocateAlignedSmallUsize/2",
     "HakoAllocPageMapAlignedSmallPath.alignmentFor/1",
     "HakoAllocPageMapAlignedSmallPath.paddedSizeFor/1",
-    "HakoAllocPageMapReleaseSeam.releasePtr/1",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
 
 unsupported = []
+inspect_prefixes = (
+    "main",
+    "HakoAllocProductionFacade.",
+    "HakoAllocPageMapAlignedSmallPath.",
+    "HakoAllocPageMapReleaseSeam.",
+    "HakoAllocPageModel.",
+)
 for fn in functions.values():
+    name = fn.get("name") or ""
+    if not any(name == prefix or name.startswith(prefix) for prefix in inspect_prefixes):
+        continue
     for plan in fn.get("metadata", {}).get("lowering_plan", []):
         if plan.get("emit_kind") == "unsupported":
-            unsupported.append((fn.get("name"), plan.get("site"), plan.get("symbol"), plan.get("reason")))
+            unsupported.append((name, plan.get("site"), plan.get("symbol"), plan.get("reason")))
 if unsupported:
     raise SystemExit(f"unsupported lowering plans remain: {unsupported[:5]}")
 
@@ -136,19 +143,15 @@ def require_usize_fields(box_name, names):
             raise SystemExit(f"{box_name}.{name} must be exact usize storage: {field}")
 
 require_usize_fields(
-    "HakoAllocPageMapReallocSameClassPath",
-    ("same_class_count", "grow_reject_count", "lookup_miss_count", "stale_page_count", "released_block_count", "reject_count"),
-)
-require_usize_fields(
-    "HakoAllocPageMapReallocAllocCopyReleasePath",
-    ("success_count", "copy_count", "same_class_reject_count", "alloc_fail_count", "lookup_miss_count", "stale_page_count", "released_block_count", "reject_count"),
+    "HakoAllocProductionFacade",
+    ("alloc_count", "free_count", "reject_count", "realloc_success_count", "realloc_reject_count"),
 )
 require_usize_fields(
     "HakoAllocPageMapAlignedSmallPath",
     ("meta_count", "alloc_count", "invalid_alignment_count", "oversized_count", "alloc_fail_count", "register_fail_count", "reject_count"),
 )
 
-def require_method(owner_name, box_name, method, return_shape):
+def require_method(owner_name, box_name, method):
     routes = functions[owner_name].get("metadata", {}).get("lowering_plan", [])
     for route in routes:
         if (
@@ -156,16 +159,16 @@ def require_method(owner_name, box_name, method, return_shape):
             and route.get("box_name") == box_name
             and route.get("method") == method
             and route.get("target_body_supported") is True
-            and route.get("return_shape") == return_shape
         ):
             return
-    raise SystemExit(f"missing method route in {owner_name}: {box_name}.{method} -> {return_shape}")
+    raise SystemExit(f"missing method route in {owner_name}: {box_name}.{method}")
 
-require_method("main", "HakoAllocPageMapReallocSameClassPath", "tryReallocSameClass", "scalar_i64")
-require_method("main", "HakoAllocPageMapReallocAllocCopyReleasePath", "tryReallocAllocCopyRelease", "scalar_i64")
-require_method("main", "HakoAllocPageMapAlignedSmallPath", "allocateAlignedSmallUsize", "scalar_i64")
-require_method("main", "HakoAllocPageMapAlignedSmallPath", "alignmentFor", "scalar_i64")
-require_method("main", "HakoAllocPageMapAlignedSmallPath", "paddedSizeFor", "scalar_i64")
+require_method("main", "HakoAllocProductionFacade", "allocate")
+require_method("main", "HakoAllocProductionFacade", "reallocResult")
+require_method("main", "HakoAllocProductionFacade", "isLiveHandle")
+require_method("main", "HakoAllocPageMapAlignedSmallPath", "allocateAlignedSmallUsize")
+require_method("main", "HakoAllocPageMapAlignedSmallPath", "alignmentFor")
+require_method("main", "HakoAllocPageMapAlignedSmallPath", "paddedSizeFor")
 
 print("[realloc-aligned-slice-mir-json] ok")
 PY

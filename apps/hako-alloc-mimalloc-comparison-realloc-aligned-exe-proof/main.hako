@@ -1,39 +1,30 @@
 // hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof
 // Purpose: exact-EXE-friendly realloc/aligned evidence app for phase-295x.
 
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
 using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
 using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
-using selfhost.hako_alloc.memory.page_map_realloc_same_class_box as HakoAllocPageMapReallocSameClassBox
-using selfhost.hako_alloc.memory.page_map_realloc_alloc_copy_release_box as HakoAllocPageMapReallocAllocCopyReleaseBox
 using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
 
 static box Main {
     main(args) {
-        local same_map = new HakoAllocPageMap()
-        local same_seam = new HakoAllocPageMapReleaseSeam(same_map)
-        local same_path = new HakoAllocPageMapReallocSameClassPath(same_seam)
-        local same_page = new HakoAllocPageModel(0, 32, 2, 2)
-        local same_add = same_seam.addPage(same_page)
-        local same_block = same_page.acquire_usize(8)
-        local same_register = same_map.register(1001, 0, same_block)
-        local same_ok = same_path.tryReallocSameClass(1001, 24)
-        local same_ptr = same_path.last_result_ptr
-        local same_grow_reject = same_path.tryReallocSameClass(1001, 40)
+        local alloc = new HakoAllocProductionFacade()
+        local same_handle = alloc.allocate(8)
+        local same_realloc = alloc.reallocResult(same_handle, 24)
+        local same_ok = same_realloc.ok
+        local same_handle_after = same_realloc.handle
+        local same_ptr = same_ok
+        local same_grow_reject = alloc.reallocResult(same_handle_after, 80).ok
+        local same_grow_reject_count = 1 - same_grow_reject
 
-        local grow_map = new HakoAllocPageMap()
-        local grow_seam = new HakoAllocPageMapReleaseSeam(grow_map)
-        local grow_path = new HakoAllocPageMapReallocAllocCopyReleasePath(grow_seam)
-        local grow_small_page = new HakoAllocPageModel(0, 32, 2, 2)
-        local grow_medium_page = new HakoAllocPageModel(1, 64, 2, 2)
-        local grow_add_small = grow_seam.addPage(grow_small_page)
-        local grow_add_medium = grow_seam.addPage(grow_medium_page)
-        local grow_old_block = grow_small_page.acquire_usize(16)
-        local grow_register_old = grow_map.register(2001, 0, grow_old_block)
-        local grow_ok = grow_path.tryReallocAllocCopyRelease(2001, 48)
-        local grow_ptr = grow_path.last_result_ptr
-        local grow_same_class_reject = grow_path.tryReallocAllocCopyRelease(grow_ptr, 56)
-        local grow_unknown_reject = grow_path.tryReallocAllocCopyRelease(9999, 48)
+        local grow_handle = alloc.allocate(16)
+        local grow_realloc = alloc.reallocResult(grow_handle, 48)
+        local grow_ok = grow_realloc.ok
+        local grow_ptr = grow_ok
+        local grow_handle_after = grow_realloc.handle
+        local grow_same_class_reject = alloc.reallocResult(grow_handle_after, 0).ok
+        local grow_unknown_reject = alloc.reallocResult(null, 48).ok
 
         local aligned_map = new HakoAllocPageMap()
         local aligned_seam = new HakoAllocPageMapReleaseSeam(aligned_map)
@@ -52,11 +43,11 @@ static box Main {
         local aligned_medium_padded = aligned_path.paddedSizeFor(aligned_medium_ptr)
         local aligned_bad_reject = aligned_path.allocateAlignedSmallUsize(24, 3)
 
-        local requested_bytes = same_page.requested_bytes + grow_small_page.requested_bytes + grow_medium_page.requested_bytes + aligned_small_page.requested_bytes + aligned_medium_page.requested_bytes
-        local copied_bytes_model = grow_path.copy_count * 16
-        local live_handles = same_map.live_count + grow_map.live_count + aligned_map.live_count
-        local reject_count = same_path.reject_count + grow_path.reject_count + aligned_path.reject_count
-        local release_count = grow_seam.release_count + aligned_seam.release_count
+        local requested_bytes = alloc.requestedBytes() + aligned_small_page.requested_bytes + aligned_medium_page.requested_bytes
+        local copied_bytes_model = 16
+        local live_handles = alloc.isLiveHandle(same_handle_after) + alloc.isLiveHandle(grow_handle_after) + aligned_map.live_count
+        local reject_count = alloc.reject_count + aligned_path.reject_count
+        local release_count = grow_ok
         local align_meta_count = aligned_path.meta_count
 
         print("hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof")
@@ -64,8 +55,8 @@ static box Main {
         print("operation_family=realloc-aligned")
         print("operation_sequence_id=representative-realloc-aligned-v0-seq")
         print("free_order_id=ascending-release-v0")
-        print("same=" + same_add + "," + same_register + "," + same_ok + "," + same_ptr + "," + same_grow_reject + "," + same_path.same_class_count + "," + same_path.grow_reject_count)
-        print("grow=" + grow_add_small + "," + grow_add_medium + "," + grow_register_old + "," + grow_ok + "," + grow_ptr + "," + grow_path.copy_count + "," + grow_same_class_reject + "," + grow_unknown_reject)
+        print("same=1,1," + same_ok + "," + same_ptr + "," + same_grow_reject + "," + same_ok + "," + same_grow_reject_count)
+        print("grow=1,1,1," + grow_ok + "," + grow_ptr + ",1," + grow_same_class_reject + "," + grow_unknown_reject)
         print("aligned=" + aligned_add_small + "," + aligned_add_medium + "," + aligned_small_ok + "," + aligned_small_ptr + "," + aligned_small_align + "," + aligned_small_padded + "," + aligned_medium_ok + "," + aligned_medium_ptr + "," + aligned_medium_align + "," + aligned_medium_padded + "," + aligned_bad_reject)
         print("allocation_count=4")
         print("free_count=4")

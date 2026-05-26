@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001:
-  Extend joinless branch-context leaf lowering to `&&` and unary `!` so long boolean chains avoid recursive clone-heavy scaffolding across OR and AND paths.
+MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002:
+  Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads or winner-claim seams.
 ```
 
 ## Queue
@@ -94,8 +94,9 @@ MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-29
 | 247 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-PARAM-ORIGIN-CACHE-IMPLEMENTATION-295X-001` | Landed | Reuse route-inference param-origin caches across inference waves to reduce repeated recursive origin walks on long-OR-heavy emits. |
 | 248 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-OR-LEAF-LOWERING-295X-001` | Landed | Lower joinless branch-context long `||` conditions as direct OR leaf chains to avoid recursive clone-heavy scaffolding. |
 | 249 | `MIMALLOC-COMPARISON-REMOTE-FREE-ROUTE-RESULT-LOOKUP-CACHE-IMPLEMENTATION-295X-001` | Landed | Add per-function route-result lookup caching in origin inference to reduce repeated linear scans during long-OR-heavy emit analysis. |
-| 250 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001` | Current | Extend joinless branch-context leaf lowering to `&&` and unary `!` so long boolean chains avoid recursive clone-heavy scaffolding. |
-| 251 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Queued | Select the first backend-split comparison seam after the long-OR compiler fix slices land. |
+| 250 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001` | Landed | Extend joinless branch-context leaf lowering to `&&` and unary `!` so long boolean chains avoid recursive clone-heavy scaffolding. |
+| 251 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Landed | Select the first backend-split comparison seam after the long-OR compiler fix slices land. |
+| 252 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002` | Current | Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads. |
 
 ## Full Queue
 

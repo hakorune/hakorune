@@ -1,5 +1,6 @@
 use crate::bid::{BidError, BidResult};
 use crate::box_trait::NyashBox;
+use crate::config::nyash_toml_v2::NyashConfigV2;
 use once_cell::sync::Lazy;
 use std::sync::{Arc, RwLock};
 
@@ -42,6 +43,9 @@ impl PluginLoaderV2 {
 impl PluginLoaderV2 {
     pub fn load_config(&mut self, _p: &str) -> BidResult<()> {
         Ok(())
+    }
+    pub fn config_snapshot(&self) -> (Option<NyashConfigV2>, Option<toml::Value>, Option<String>) {
+        (None, None, None)
     }
     pub fn load_all_plugins(&self) -> BidResult<()> {
         Ok(())

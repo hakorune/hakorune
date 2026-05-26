@@ -30,7 +30,28 @@ fn cse_in_function(function: &mut MirFunction) -> usize {
     };
 
     for (_bid, block) in &mut function.blocks {
+        let mut field_get_map: HashMap<(ValueId, String), ValueId> = HashMap::new();
         for inst in &mut block.instructions {
+            if !inst.effects().is_pure() {
+                // Conservative invalidation: side effects may change object fields.
+                field_get_map.clear();
+            }
+
+            if let MirInstruction::FieldGet {
+                dst, base, field, ..
+            } = inst
+            {
+                let key = (*base, field.clone());
+                if let Some(&existing) = field_get_map.get(&key) {
+                    let dst = *dst;
+                    *inst = MirInstruction::Copy { dst, src: existing };
+                    eliminated += 1;
+                    continue;
+                }
+                field_get_map.insert(key, *dst);
+                continue;
+            }
+
             if inst.effects().is_pure() {
                 let key = instruction_key(inst);
                 if let Some(&existing) = expression_map.get(&key) {

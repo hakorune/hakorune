@@ -168,12 +168,34 @@ box HakoAllocRemoteFreePageExerciseReport {
     }
 
     ok() {
-        if me.block0 != 1 || me.block1 != 0 || me.overflow_block != -1 ||
-           me.publish0 != 1 || me.publish1 != 1 ||
-           me.drained != 2 || me.collect_after_drain != 0 || me.listShape() != 3 ||
-           me.page_used != 0 || me.page_local_free_count != 2 || me.page_retired != 1 || me.page_local_release_count != 2 ||
-           me.inbox_init_status != 0 || me.inbox_push_count != 2 || me.inbox_collect_count != 2 ||
-           me.inbox_retry_count != 0 || me.inbox_reject_count != 1 || me.inbox_pending_count != 0 { return 0 }
+        local block0 = me.block0
+        local block1 = me.block1
+        local overflow_block = me.overflow_block
+        local publish0 = me.publish0
+        local publish1 = me.publish1
+        local head_is_b = me.head_is_b
+        local next_b_is_a = me.next_b_is_a
+        local next_a_empty = me.next_a_empty
+        local drained = me.drained
+        local collect_after_drain = me.collect_after_drain
+        local page_used = me.page_used
+        local page_local_free_count = me.page_local_free_count
+        local page_retired = me.page_retired
+        local page_local_release_count = me.page_local_release_count
+        local inbox_init_status = me.inbox_init_status
+        local inbox_push_count = me.inbox_push_count
+        local inbox_collect_count = me.inbox_collect_count
+        local inbox_retry_count = me.inbox_retry_count
+        local inbox_reject_count = me.inbox_reject_count
+        local inbox_pending_count = me.inbox_pending_count
+        local list_shape = head_is_b + next_b_is_a + next_a_empty
+
+        if block0 != 1 || block1 != 0 || overflow_block != -1 ||
+           publish0 != 1 || publish1 != 1 ||
+           drained != 2 || collect_after_drain != 0 || list_shape != 3 ||
+           page_used != 0 || page_local_free_count != 2 || page_retired != 1 || page_local_release_count != 2 ||
+           inbox_init_status != 0 || inbox_push_count != 2 || inbox_collect_count != 2 ||
+           inbox_retry_count != 0 || inbox_reject_count != 1 || inbox_pending_count != 0 { return 0 }
         return 1
     }
 }
@@ -196,7 +218,8 @@ box HakoAllocRemoteFreePageInbox {
     }
 
     publish(block_ptr, block_id, interferer_ptr) {
-        if me.page == null {
+        local page = me.page
+        if page == null {
             me.reject_count = me.reject_count + 1
             return 0
         }
@@ -206,13 +229,15 @@ box HakoAllocRemoteFreePageInbox {
             return 0
         }
 
-        local retries = HakoAllocRemoteFreePolicy.pushRetry(me.head_cell, block_ptr, interferer_ptr)
+        local head_cell = me.head_cell
+        local retries = HakoAllocRemoteFreePolicy.pushRetry(head_cell, block_ptr, interferer_ptr)
         if retries < 0 {
             me.reject_count = me.reject_count + 1
             return 0
         }
 
-        me.pending_block_ids.push(block_id)
+        local pending_block_ids = me.pending_block_ids
+        pending_block_ids.push(block_id)
         me.pending_top = me.pending_top + 1
         me.remote_push_count = me.remote_push_count + 1
         me.retry_count = me.retry_count + retries
@@ -220,36 +245,53 @@ box HakoAllocRemoteFreePageInbox {
     }
 
     collectOne() {
-        if me.pending_top == 0 {
+        local pending = me.pending_top
+        if pending == 0 {
             me.reject_count = me.reject_count + 1
             return 0
         }
 
-        me.pending_top = me.pending_top - 1
-        local block_id = me.pending_block_ids.get(me.pending_top)
+        pending = pending - 1
+        local pending_block_ids = me.pending_block_ids
+        local block_id = pending_block_ids.get(pending)
         if me.page.releaseLocal(block_id) {
+            me.pending_top = pending
             me.remote_collect_count = me.remote_collect_count + 1
             return 1
         }
 
+        me.pending_top = pending
         me.reject_count = me.reject_count + 1
         return 0
     }
 
     collectPending() {
-        if me.pending_top == 0 {
+        local pending = me.pending_top
+        if pending == 0 {
             return 0
         }
 
-        me.pending_top = me.pending_top - 1
-        local block_id = me.pending_block_ids.get(me.pending_top)
-        if me.page.releaseLocal(block_id) {
-            me.remote_collect_count = me.remote_collect_count + 1
-            return 1 + me.collectPending()
+        local page = me.page
+        local pending_block_ids = me.pending_block_ids
+        local remote_collect_count = me.remote_collect_count
+        local drained = 0
+        loop(pending > 0) {
+            pending = pending - 1
+            local block_id = pending_block_ids.get(pending)
+            if page.releaseLocal(block_id) {
+                remote_collect_count = remote_collect_count + 1
+                drained = drained + 1
+            } else {
+                me.pending_top = pending
+                me.remote_collect_count = remote_collect_count
+                me.reject_count = me.reject_count + 1
+                return drained
+            }
         }
 
-        me.reject_count = me.reject_count + 1
-        return 0
+        me.pending_top = 0
+        me.remote_collect_count = remote_collect_count
+        return drained
     }
 
     peekHead() {
@@ -296,16 +338,18 @@ box HakoAllocRemoteFreePagePort {
 
     snapshot() {
         local snapshot = new HakoAllocRemoteFreePagePortSnapshot()
-        snapshot.page_used = me.page.used
-        snapshot.page_local_free_count = me.page.localFreeCount()
-        snapshot.page_retired = me.page.retired
-        snapshot.page_local_release_count = me.page.local_free_count
-        snapshot.inbox_init_status = me.inbox.init_status
-        snapshot.inbox_push_count = me.inbox.remote_push_count
-        snapshot.inbox_collect_count = me.inbox.remote_collect_count
-        snapshot.inbox_retry_count = me.inbox.retry_count
-        snapshot.inbox_reject_count = me.inbox.reject_count
-        snapshot.inbox_pending_count = me.inbox.pending_top
+        local page = me.page
+        local inbox = me.inbox
+        snapshot.page_used = page.used
+        snapshot.page_local_free_count = page.localFreeCount()
+        snapshot.page_retired = page.retired
+        snapshot.page_local_release_count = page.local_free_count
+        snapshot.inbox_init_status = inbox.init_status
+        snapshot.inbox_push_count = inbox.remote_push_count
+        snapshot.inbox_collect_count = inbox.remote_collect_count
+        snapshot.inbox_retry_count = inbox.retry_count
+        snapshot.inbox_reject_count = inbox.reject_count
+        snapshot.inbox_pending_count = inbox.pending_top
         return snapshot
     }
 }

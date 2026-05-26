@@ -136,14 +136,6 @@ impl TypedSlot {
         }
     }
 
-    fn as_legacy_i64(&self) -> Option<i64> {
-        match self.value {
-            TypedSlotValue::I64(value) => Some(value),
-            TypedSlotValue::Handle(value) => Some(value),
-            TypedSlotValue::Signed(_) | TypedSlotValue::Unsigned(_) => None,
-        }
-    }
-
     fn set_legacy_i64(&mut self, value: i64) -> bool {
         if !self.storage.is_legacy_i64_compatible() {
             return false;
@@ -355,11 +347,16 @@ pub extern "C" fn nyash_object_field_get_hii(handle: i64, slot: i64) -> i64 {
         Ok(objects) => objects,
         Err(_) => return 0,
     };
-    objects
-        .get(idx)
-        .and_then(|object| object.fields.get(slot))
-        .and_then(TypedSlot::as_legacy_i64)
-        .unwrap_or(0)
+    let Some(object) = objects.get(idx) else {
+        return 0;
+    };
+    let Some(field) = object.fields.get(slot) else {
+        return 0;
+    };
+    match field.value {
+        TypedSlotValue::I64(value) | TypedSlotValue::Handle(value) => value,
+        TypedSlotValue::Signed(_) | TypedSlotValue::Unsigned(_) => 0,
+    }
 }
 
 #[export_name = "nyash.object.field_set_hii"]
@@ -375,12 +372,13 @@ pub extern "C" fn nyash_object_field_set_hii(handle: i64, slot: i64, value: i64)
         Ok(objects) => objects,
         Err(_) => return,
     };
-    if let Some(field) = objects
-        .get_mut(idx)
-        .and_then(|object| object.fields.get_mut(slot))
-    {
-        let _ = field.set_legacy_i64(value);
-    }
+    let Some(object) = objects.get_mut(idx) else {
+        return;
+    };
+    let Some(field) = object.fields.get_mut(slot) else {
+        return;
+    };
+    let _ = field.set_legacy_i64(value);
 }
 
 #[export_name = "nyash.object.field_storage_hii"]
@@ -414,11 +412,13 @@ pub extern "C" fn nyash_object_field_get_u64_hii(handle: i64, slot: i64) -> u64 
         Ok(objects) => objects,
         Err(_) => return 0,
     };
-    objects
-        .get(idx)
-        .and_then(|object| object.fields.get(slot))
-        .and_then(TypedSlot::as_exact_unsigned_u64)
-        .unwrap_or(0)
+    let Some(object) = objects.get(idx) else {
+        return 0;
+    };
+    let Some(field) = object.fields.get(slot) else {
+        return 0;
+    };
+    field.as_exact_unsigned_u64().unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_u64_hiu"]
@@ -433,10 +433,10 @@ pub extern "C" fn nyash_object_field_set_u64_hiu(handle: i64, slot: i64, value: 
         Ok(objects) => objects,
         Err(_) => return 0,
     };
-    let Some(field) = objects
-        .get_mut(idx)
-        .and_then(|object| object.fields.get_mut(slot))
-    else {
+    let Some(object) = objects.get_mut(idx) else {
+        return 0;
+    };
+    let Some(field) = object.fields.get_mut(slot) else {
         return 0;
     };
     i64::from(field.set_exact_unsigned_u64(value))

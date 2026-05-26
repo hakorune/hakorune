@@ -24,6 +24,8 @@ box HakoAllocProductionFacade {
     alloc_count: usize = 0
     free_count: usize = 0
     reject_count: usize = 0
+    realloc_success_count: usize = 0
+    realloc_reject_count: usize = 0
 
     allocate(size) {
         local handle = me.heap.allocate(size)
@@ -36,6 +38,17 @@ box HakoAllocProductionFacade {
         return handle
     }
 
+    allocateResult(size) {
+        local result = me.heap.allocateResult(size)
+        if result.ok == 1 {
+            me.alloc_count = me.alloc_count + 1
+            return result
+        }
+
+        me.reject_count = me.reject_count + 1
+        return result
+    }
+
     release(handle) {
         if me.heap.release(handle) {
             me.free_count = me.free_count + 1
@@ -44,6 +57,42 @@ box HakoAllocProductionFacade {
 
         me.reject_count = me.reject_count + 1
         return 0
+    }
+
+    isLiveHandle(handle): i64 {
+        return me.heap.isLiveHandle(handle)
+    }
+
+    realloc(handle, requested_size) {
+        local replacement = me.heap.realloc(handle, requested_size)
+        if replacement == null {
+            me.reject_count = me.reject_count + 1
+            me.realloc_reject_count = me.realloc_reject_count + 1
+            return null
+        }
+
+        me.realloc_success_count = me.realloc_success_count + 1
+        return replacement
+    }
+
+    reallocResult(handle, requested_size) {
+        local result = me.heap.reallocResult(handle, requested_size)
+        if result.ok != 1 {
+            me.reject_count = me.reject_count + 1
+            me.realloc_reject_count = me.realloc_reject_count + 1
+            return result
+        }
+
+        me.realloc_success_count = me.realloc_success_count + 1
+        return result
+    }
+
+    reallocSuccessCount() {
+        return me.realloc_success_count
+    }
+
+    reallocRejectCount() {
+        return me.realloc_reject_count
     }
 
     requestedBytes() {

@@ -41,6 +41,7 @@ box HakoAllocProductionFacadeStress {
         medium_handles.push(alloc.allocate(44))
 
         local oversize = alloc.allocate(72)
+        local small_realloc = alloc.reallocResult(small_handles.get(0), 12)
 
         local small_allocs = alloc.smallAllocCount()
         local small_frees = alloc.smallReleaseCount()
@@ -58,16 +59,19 @@ box HakoAllocProductionFacadeStress {
         local rejects = total_rejects
         local requested_bytes = alloc.requestedBytes()
         local outstanding = alloc.outstandingBlocks()
+        local realloc_success = alloc.reallocSuccessCount()
+        local realloc_reject = alloc.reallocRejectCount()
 
         print("hako-alloc-production-facade-stress")
         print("small_allocs=" + small_allocs + " frees=" + small_frees + " reused=" + small_reused + " peak=" + small_peak + " free=" + small_free)
         print("medium_allocs=" + medium_allocs + " frees=" + medium_frees + " reused=" + medium_reused + " peak=" + medium_peak + " free=" + medium_free)
         print("facade=" + total_allocs + "," + total_frees + "," + total_rejects)
+        print("realloc=" + small_realloc.ok + "," + realloc_success + "," + realloc_reject)
         print("requested_bytes=" + requested_bytes)
         print("outstanding=" + outstanding)
         print("rejects=" + rejects)
 
-        if small_allocs == 11 && small_frees == 3 && small_reused == 3 && small_peak == 8 && small_free == 0 && medium_allocs == 6 && medium_frees == 2 && medium_reused == 2 && medium_peak == 4 && medium_free == 0 && total_allocs == 17 && total_frees == 5 && total_rejects == 4 && requested_bytes == 454 && outstanding == 12 && rejects == 4 {
+        if small_allocs == 11 && small_frees == 3 && small_reused == 3 && small_peak == 8 && small_free == 0 && medium_allocs == 6 && medium_frees == 2 && medium_reused == 2 && medium_peak == 4 && medium_free == 0 && total_allocs == 17 && total_frees == 5 && total_rejects == 4 && small_realloc.ok == 1 && realloc_success == 1 && realloc_reject == 0 && requested_bytes == 454 && outstanding == 12 && rejects == 4 {
             print("summary=ok")
             return 0
         }

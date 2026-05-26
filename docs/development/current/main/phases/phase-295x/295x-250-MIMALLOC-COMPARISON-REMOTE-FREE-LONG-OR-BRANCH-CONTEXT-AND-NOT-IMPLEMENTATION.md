@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: continue branch-context leaf lowering by extending joinless long-boolean handling to AND and unary NOT paths.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001

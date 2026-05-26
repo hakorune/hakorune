@@ -5,7 +5,10 @@ boundary.
 
 The app calls `HakoAllocProductionFacade`, which delegates to the existing
 `HakoAllocHeap` page/free-list policy-state row. This fixture proves the public
-facade name and routing seam only.
+facade name and routing seam only. It now also exercises facade-level
+`allocateResult`, `realloc`, `reallocResult`, and `isLiveHandle` entries while
+keeping the existing allocate/release boundary contract, and validates the
+facade realloc success/reject counter surface.
 `release(handle)` returns scalar status `1/0` so the facade stays in the current
 pure-first i64 status lane.
 

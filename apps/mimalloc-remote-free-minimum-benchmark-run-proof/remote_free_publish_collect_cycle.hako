@@ -11,6 +11,8 @@ box HakoAllocRemoteFreeMinimumBenchmarkRunReport {
     outputContractLine() { return "output_contract=mimalloc-comparison-remote-free-minimum-benchmark-run-v0" }
     benchmarkPackLine() { return "benchmark_pack=remote-free-minimum-v0" }
     backendScopeLine() { return "backend_scope=exact-exe-first" }
+    backendSplitScopeLine() { return "backend_split_scope=remote-free-minimum-v0" }
+    backendSplitFamilyLine() { return "backend_split_family=split-observation" }
     timingRepeatKindLine() { return "timing_repeat_kind=process-invocation-v0" }
     operationRepeatLine() { return "operation_repeat=" + me.operation_repeat }
     warmupCountLine() { return "warmup_count=1" }
@@ -56,8 +58,6 @@ static box Main {
                 } else {
                     if run_report.captureFacadeExercise(alloc, head_cell, block_a, block_b) != 1 {
                         ok = 0
-                    } else if run_report.ok() != 1 {
-                        ok = 0
                     }
                     local free_done_b = externcall "hako_mem_free"(block_b)
                     local free_done_a = externcall "hako_mem_free"(block_a)
@@ -68,6 +68,12 @@ static box Main {
                 }
             }
             i = i + 1
+        }
+
+        if ok == 1 {
+            if run_report.ok() != 1 {
+                ok = 0
+            }
         }
 
         if ok != 1 {
@@ -82,6 +88,8 @@ static box Main {
         print(report.outputContractLine())
         print(report.benchmarkPackLine())
         print(report.backendScopeLine())
+        print(report.backendSplitScopeLine())
+        print(report.backendSplitFamilyLine())
         print(report.timingRepeatKindLine())
         print(report.operationRepeatLine())
         print(report.warmupCountLine())

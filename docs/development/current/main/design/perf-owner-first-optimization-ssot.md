@@ -207,6 +207,37 @@ Rule:
 - cycles だけの improvement で keeper にしない
 - whole だけの微小 win でも、meso が壊れたら keeper にしない
 
+## .hako Field-Access Hotpath Recipe
+
+`.hako` 最適化で `field_get_* / field_set_*` が hot symbol 上位に出た時は、
+次の順序で 1 seam ずつ進める。
+
+1. `me.*` を繰り返し読む前に local へ束ねる
+2. loop 内の counter 更新は local 集計し、最後に writeback する
+3. fail-fast return が必要な箇所だけ最小 writeback を残す
+
+受け入れ基準:
+
+- 主要 guard が green を維持する
+- before/after の median で改善方向が確認できる
+- 次の seam は同じ owner family の中で 1 つだけ選ぶ
+
+## Ownership Decision Rule (.hako vs mirbuilder)
+
+remote-free lane の実務判定は、まず source `me.*` と MIR `field_get/set` の
+対応を見る。
+
+- 1:1 に近い場合: owner は `.hako` access shape 側
+- MIR が source より明確に膨れる場合: mirbuilder/lowering 側
+
+2026-05-26 remote-free 判定（current evidence）:
+
+- ownership split: `.hako` 75% / mirbuilder 25%
+- 理由: hot 関数群で source `me.*` と MIR `field_get/set` がほぼ 1:1
+- したがって first action は `.hako` success-path の read/write 圧縮
+- compiler 側は保守的な same-block `FieldGet` CSE を最小 seam で検討
+  （first cut landed: `src/mir/passes/cse.rs`, side-effect で invalidate）
+
 ## Stop-the-Line
 
 同じ owner family で non-keeper が 2 回出たら、code edit を止める。

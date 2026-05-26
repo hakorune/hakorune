@@ -40,6 +40,14 @@ impl PluginLoaderV2 {
         config::load_config(self, config_path)
     }
 
+    pub fn config_snapshot(&self) -> (Option<NyashConfigV2>, Option<toml::Value>, Option<String>) {
+        (
+            self.config.clone(),
+            self.config_toml.clone(),
+            self.config_path.clone(),
+        )
+    }
+
     pub fn load_all_plugins(&self) -> BidResult<()> {
         library::load_all_plugins(self)
     }

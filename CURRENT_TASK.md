@@ -78,6 +78,15 @@ Scope: current lane / next lane / restart order only.
 - keep BoxShape cleanup separate from BoxCount feature rows
 - do not add hot inline lowering without proof/evidence gate
 
+## Current Implementation Focus (phase-295x)
+
+- keep mimalloc comparison rows implementation-first: each row must modify at
+  least one real `.hako` implementation file under `lang/src/hako_alloc/memory/`
+  or `apps/*mimalloc*/*.hako` / `apps/hako-alloc-*/*.hako`
+- immediate slice: migrate realloc paths in
+  `apps/hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof/main.hako`
+  from direct page-map paths to `HakoAllocProductionFacade` realloc entries
+
 ## Current Ordered App Bringup
 
 - latest app card: read `latest_card_path` in
