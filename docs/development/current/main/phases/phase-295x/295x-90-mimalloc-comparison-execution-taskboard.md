@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002:
-  Normalize the remote-free production-facade evidence into a stable presentation contract and return to the existing minimum-benchmark selection seam.
+MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001:
+  The closeout pack is landed and no active current blocker remains on phase-295x.
 ```
 
 ## Legacy Follow-On
@@ -241,7 +241,7 @@ Rules for every slice:
 | 190 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-ATTRIBUTION-SELECTION-295X-001` | Landed | Select baseline attribution for the external `malloc-large` evidence family before any winner claim. |
 | 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Landed | Add empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy. |
 | 192 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001` | Landed | Compute baseline-subtracted RSS evidence for the external `malloc-large` attribution family. |
-| 193 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001` | Current | Close the external `malloc-large` memory-gap attribution pack and choose the next comparison seam. |
+| 193 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001` | Landed | Close the external `malloc-large` memory-gap attribution pack and choose the next comparison seam. |
 | 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Landed | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
 | 219 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-BASELINE-BREAKDOWN-SELECTION-295X-002` | Landed | Select the abandoned-heap stress empty exact-EXE footprint diagnostic `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` after the closeout pack lands. |
 | 220 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Diagnose the fixed abandoned-heap stress exact-EXE empty footprint and select the closeout seam after the baseline-breakdown selection lands. |
