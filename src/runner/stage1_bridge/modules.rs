@@ -179,7 +179,7 @@ fn store_snapshot_cache(signature: u64, lists: &Stage1ModuleEnvLists) {
 
 /// Find the first existing TOML config file (hako.toml preferred)
 fn find_toml_config() -> Option<PathBuf> {
-    for name in ["hako.toml", "hakorune.toml", "nyash.toml"] {
+    for name in ["hako.toml", "nyash.toml"] {
         let path = PathBuf::from(name);
         if path.exists() {
             return Some(path);

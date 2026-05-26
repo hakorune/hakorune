@@ -164,7 +164,7 @@ log_error() {
       | grep -v "^🔌 plugin host initialized" \
       | grep -v "^✅ plugin host fully configured" \
       | grep -v "Failed to load nyash.toml - plugins disabled" \
-      | grep -v "^⚠️ Failed to load plugin config (hakorune.toml/nyash.toml) - plugins disabled" \
+      | grep -v "^⚠️ Failed to load plugin config (hako.toml/nyash.toml) - plugins disabled" \
       | grep -v "^🚀 Nyash VM Backend - Executing file:" \
       | grep -v "^🚀 Hakorune VM Backend - Executing file:" \
       | grep -v "^[[]ControlForm::"

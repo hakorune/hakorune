@@ -9,7 +9,7 @@ ADR: docs/development/adr/adr-001-no-corebox-everything-is-plugin.md
 
 ## 起動シーケンス（標準形）
 1) NyKernel init（GC/Handle/TLV/Extern/PluginRegistry）
-2) nyash.toml 読み込み
+2) hako.toml 読み込み（互換: nyash.toml）
    - `plugins.bootstrap`（静的束）を登録
    - `plugins.dynamic`（.so/.dll）があれば dlopen 登録
 3) Plugin Verify（必須メソッド/TLV/ABI）
@@ -48,6 +48,6 @@ Interop（同一型の異 Provider 混在）
  - VM fallback（MIR interpreter）の役割は「軽量デバッグ実行器」：フロントエンド（Parser/Using/AST→MIR）の健全性をすばやく確認するために維持。機能は最小限に留め、プラグイン/本流VM/LLVM の実装が主となる（本番・性能評価には使用しない）。
 
 関連ドキュメント
-- nyash.toml のスキーマと例: docs/reference/config/nyash-toml.md
+- hako.toml のスキーマと例: docs/reference/config/hako-toml.md
 - using（SSOT/AST/Profiles）: docs/reference/language/using.md
 - RuntimeData dispatch contract (LLVM/AOT): docs/reference/runtime/runtime-data-dispatch.md

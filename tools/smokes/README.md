@@ -1,4 +1,4 @@
-# Hakorune Smoke Tests v2 — Guide (Nyash-compatible)
+# Hakorune Smoke Tests v2 — Guide
 
 Overview
 - Entry: `tools/smokes/v2/run.sh` — unified runner for quick/integration/strict/plugins/archive.
@@ -82,7 +82,7 @@ tools/smokes/v2/run.sh --profile quick
 テストランナーは LLVM 非対応時にヒントを出力します（buildコマンドの案内）。
 
 Notes
-- Using resolution: prefer nyash.toml aliases (SSOT). Some tests may enable `NYASH_ALLOW_USING_FILE=1` internally for convenience.
+- Using resolution: prefer hako.toml aliases (SSOT). `nyash.toml` remains a compatibility fallback. Some tests may enable `NYASH_ALLOW_USING_FILE=1` internally for convenience.
 - Plugin warnings are informational; smokes are designed to pass without dynamic plugins.
 - Harness single-run may take longer due to link+exec; integration profile includes generous timeouts.
  - Binary selection in scripts: always use `$NYASH_BIN` (the runner sets it to `target/release/hakorune` when present, otherwise falls back to `nyash`).
@@ -90,11 +90,11 @@ Notes
 
 Dev Mode (defaults)
 - In v2 smokes, the `quick` profile exports `NYASH_DEV=1` by default.
-  - This enables CLI `--dev`-equivalent defaults inside Nyash:
+  - This enables CLI `--dev`-equivalent defaults inside Hakorune:
     - AST using ON (SSOT + AST prelude merge)
     - Operator Boxes in observe mode (no adoption)
     - Minimal diagnostics; output parity is preserved
-- You can also run manually with `nyash --dev script.hako`.
+- You can also run manually with `hakorune --dev script.hako`.
 
 Common commands
 - Quick suite (auto `NYASH_DEV=1`):

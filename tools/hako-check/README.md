@@ -12,10 +12,10 @@ Usage
   - or set alias explicitly: HAKO_BIN=tools/bin/hako tools/hako-check/hako-check.sh file.hako
 
 Behavior
-- Runs: nyash --backend mir --verify <file>
+- Runs: hakorune --backend mir --verify <file>
 - Exit codes:
   - 0: OK
-  - 2+: Parse/MIR verify failure (nyash returns non‑zero; checker forwards)
+  - 2+: Parse/MIR verify failure (hakorune returns non-zero; checker forwards)
 
 Notes
 - Binary alias

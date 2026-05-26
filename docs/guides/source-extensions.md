@@ -1,17 +1,18 @@
-Source Extensions Policy — .hako と .nyash の等価性（Phase 20.47）
+Source Extensions Policy — .hako を正規、.nyash を互換（Phase 20.47）
 
 Intent
-- 拡張子が異なるだけで、言語は 1 つ（.hako / .nyash は等価）。
+- 言語の正規 surface は `.hako`。
+- `.nyash` は historical/compat fallback としてのみ残す。
 - using は言語中立な“テキスト・プレリュード統合”に一本化してからパーサへ渡す。
 
 Execution Mapping (unified)
-- .hako / .nyash → using のテキスト統合（merge_prelude_text）→ Nyash Parser → MIR → VM 実行。
+- `.hako` / `.nyash` → using のテキスト統合（merge_prelude_text）→ Hakorune Parser → MIR → VM 実行。
 - verify (MIR v1) → hv1 早期経路（NYASH_VERIFY_JSON + HAKO_VERIFY_V1_FORCE_HAKOVM=1）。
 
 Resolver/Include/Normalize
 - Using: 常にテキスト統合。AST プレリュード統合は任意（プロファイルによる）。
-- 拡張子の扱い: .hako を優先、.nyash を次点（両方探索）。
-- using.paths 既定: apps, lib, ., lang/src（nyash.toml/hakorune.toml）。
+- 拡張子の扱い: `.hako` を優先、`.nyash` は互換 fallback（両方探索）。
+- using.paths 既定: apps, lib, ., lang/src（`hako.toml` 優先、`nyash.toml` 互換）。
 - Include: 言語としては非推奨（quick は ERROR）。必要時のみ preinclude スクリプトを使用。
 - Normalize（inline/dev）: CRLF→LF、冗長 `; }` の最小削除、先頭 `local` の互換補助 等。
 
@@ -23,13 +24,13 @@ Fail‑Fast Guards / Profiles
 - Extern（Hako provider）: `HAKO_V1_EXTERN_PROVIDER=1`（開発時ガード）、`HAKO_V1_EXTERN_PROVIDER_C_ABI=1`（任意タグ）。
 
 Why two extensions?
-- 言語は 1 つ。拡張子が異なるだけ（歴史的理由）。解決は等価で、.hako を優先・.nyash を次点で探索する。
+- 言語は 1 つ。`.nyash` は歴史的互換拡張子で、解決は `.hako` を優先・`.nyash` を次点で探索する。
 
 Migration Plan
-- 本ドキュメントの時点で統一完了（Phase 20.47）。以降は代表拡張/ハードニングを Phase 21.x で進める。
+- 正規 surface は `.hako`。`.nyash` は compat を残しつつ、新規コードは `.hako` を使う。
 
 Best Practices (now)
-- パス using ではなく、nyash.toml/hakorune.toml の [modules]/[using.paths]/[aliases]/workspace を活用。
+- パス using ではなく、hako.toml/nyash.toml の [modules]/[using.paths]/[aliases]/workspace を活用。
 - ソース内 include は避ける（必要時は preinclude を使ってテキスト展開）。
 - verify は JSON を env（`NYASH_VERIFY_JSON`）経由で渡し、末尾数値を rc として評価。
 

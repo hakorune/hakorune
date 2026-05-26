@@ -1,6 +1,6 @@
-//! Nyash configuration module
+//! Hakorune configuration module
 //!
-//! Handles nyash.toml parsing and configuration management
+//! Handles hako.toml / nyash.toml parsing and configuration management
 
 pub mod env;
 pub mod nyash_toml_v2;

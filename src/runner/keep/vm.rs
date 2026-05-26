@@ -61,7 +61,7 @@ impl NyashRunner {
                     .unwrap_or(true)
             };
             if need_init {
-                // Let init_bid_plugins resolve hakorune.toml/nyash.toml and configure
+                // Let init_bid_plugins resolve hako.toml/nyash.toml and configure
                 crate::runner_plugin_init::init_bid_plugins();
             }
 

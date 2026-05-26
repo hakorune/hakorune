@@ -1,6 +1,5 @@
-# 🐱 Hakorune Programming Language (formerly Nyash)
-> Note: the project binary and user‑visible brand have been renamed to “Hakorune”.
-> The legacy `nyash` binary is deprecated (use `hakorune`). Config prefers `hako.toml` (fallback: `nyash.toml`). In scripts and docs, prefer `$NYASH_BIN` which points to `target/release/hakorune` when available.
+# 🐱 Hakorune Programming Language
+> Note: the project binary and user-visible brand are Hakorune. The legacy `nyash` binary remains as a compatibility alias. Config prefers `hako.toml` (fallback: `nyash.toml`). In scripts and docs, prefer `$NYASH_BIN`, which points to `target/release/hakorune` when available.
 
 **Small surface, strong boundaries.**
 **A Seriously-Crafted Hobby Language**  
@@ -119,7 +118,7 @@ Dev shortcuts (Operator Boxes & JSON smokes)
 - Details: `docs/guides/operator-boxes.md`
 
 Dev mode and defaults
-- `nyash --dev script.hako` turns on safe development defaults (AST using ON, Operator Boxes observe, diagnostics minimal) while `nyash script.hako` stays production‑like and quiet.
+- `hakorune --dev script.hako` turns on safe development defaults (AST using ON, Operator Boxes observe, diagnostics minimal) while `hakorune script.hako` stays production-like and quiet.
 - You can still use the dev shortcuts for a one‑command setup: `./tools/opbox-json.sh`, `./tools/opbox-quick.sh`.
 - Using guard: duplicate `using` of the same file (or alias rebind to a different file) now errors with a line number hint to avoid ambiguous resolution.
   - Example error: `using: duplicate import of '<canon_path>' at file.hako:12 (previous alias 'X' first seen at line 5)`
@@ -614,7 +613,7 @@ cd nyash
 cargo build --release --features cranelift-jit
 
 # Run your first program
-echo 'print("Hello Nyash!")' > hello.hako
+echo 'print("Hello Hakorune!")' > hello.hako
 $NYASH_BIN hello.hako
 ```
 

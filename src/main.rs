@@ -1,4 +1,4 @@
-// Minimal CLI entry point for Nyash.
+// Minimal CLI entry point for Hakorune.
 // Delegates to the library crate (`nyash_rust`) for all functionality.
 
 use nyash_rust::cli::CliConfig;
@@ -89,7 +89,7 @@ fn main() {
         std::process::exit(rc);
     }
 
-    // Bootstrap env overrides from nyash.toml [env] early (管理棟)
+    // Bootstrap env overrides from hako.toml / nyash.toml [env] early (管理棟)
     env_config::bootstrap_from_toml_env();
     maybe_pin_program_json_from_file_env();
     maybe_pin_phase0_program_json_builder_env();
@@ -97,7 +97,7 @@ fn main() {
     let config = CliConfig::parse();
     // Ensure Ring0 before any deprecation logging path that may call get_global_ring0().
     let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
-    // Deprecation notice when invoked via legacy binary name
+    // Deprecation notice when invoked via the legacy binary name
     if let Ok(exe) = std::env::current_exe() {
         if let Some(name) = exe.file_name().and_then(|s| s.to_str()) {
             if name.eq_ignore_ascii_case("nyash") {

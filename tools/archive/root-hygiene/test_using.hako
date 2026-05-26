@@ -1,4 +1,4 @@
-using selfhost.vm.hv1.dispatch as NyVmDispatcherV1Box
+using selfhost.vm.hv1.dispatch as HakoVmDispatcherV1Box
 static box Main {
   method main(args) {
     print("Hello from using!")

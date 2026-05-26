@@ -48,7 +48,7 @@ Related:
 
 禁止する内部依存（binary-only 達成条件）:
 - `lang/src/**` の `.hako` ファイル読込
-- `hako.toml` / `hakorune.toml` / `nyash.toml` の読込
+- `hako.toml` / `nyash.toml` の読込
 - `*_module.toml` の読込
 
 現状フロー（2026-02-18）:
@@ -91,7 +91,7 @@ Related:
 
 禁止する内部依存（binary-only 達成条件）:
 - `lang/src/**` の `.hako` ファイル読込
-- `hako.toml` / `hakorune.toml` / `nyash.toml` の読込
+- `hako.toml` / `nyash.toml` の読込
 - `*_module.toml` の読込
 
 固定順序（1 blocker = 1 fixture = 1 smoke = 1 commit）:

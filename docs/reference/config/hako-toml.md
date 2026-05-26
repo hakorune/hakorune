@@ -1,10 +1,11 @@
-# nyash.toml — Configuration Reference (Phase 15.5)
+# Hako.toml — Configuration Reference (Phase 15.5)
 
 Status: Proposed（受け口から段階導入。未指定時は現行既定を維持）
 
 ## 目的
 - 依存関係・実行方針の**唯一の真実（SSOT）**。
 - using の解決（AST プレリュード）と、将来の Provider/Type 分離（受け口）を一元管理。
+- `hako.toml` を正規名とし、`nyash.toml` は compat 名として扱う。
 
 ## セクション一覧
 
@@ -54,6 +55,7 @@ factory = "plugin-first"    # plugin-first|compat_plugin_first|static_only
 注意:
 - 本仕様は「受け口」の段階。実行挙動は段階導入（Verify→Lock→実行）。
 - 互換性重視のため、未指定時は現行と同じ既定にフォールバックする。
+- 新規プロジェクトは `hako.toml` を使い、`nyash.toml` は既存プロジェクトの互換名として残す。
 
 ### [plugins.bootstrap] / [plugins.dynamic]（提案）
 静的リンクのブートストラップ束／動的ロード（開発）を明示。

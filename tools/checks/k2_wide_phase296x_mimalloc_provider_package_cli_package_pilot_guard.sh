@@ -47,7 +47,7 @@ guard_expect_fixed_in_file "$TAG" '| 22 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001' "$TASKBOARD" "taskboard must expose CLI package closeout"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list CLI package guard"
 
-cargo build -q --bin nyash
+cargo build -q --bin hakorune
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase296x_provider_package_cli.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -65,7 +65,7 @@ __attribute__((visibility("default"))) const HakoProviderDescriptorV1* hakorune_
 C
 cc -shared -fPIC -o "$so" "$c_src"
 
-HAKO_ALLOW_NYASH=1 target/debug/nyash \
+target/debug/hakorune \
   --provider-package-existing-binary "$so" \
   --provider-package-out-dir "$pkg" \
   --provider-package-artifact-name libhakorune_provider.so \

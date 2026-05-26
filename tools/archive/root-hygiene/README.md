@@ -9,7 +9,7 @@ Moved here:
 - `test_joinir_debug.rs`
 - `test_numeric_core_phi.sh`
 - `test_simple_windows.c`
-- `test_using.nyash`
+- `test_using.hako`
 - `test_len_any`
 - `nyash.toml.backup2`
 - `build.err`

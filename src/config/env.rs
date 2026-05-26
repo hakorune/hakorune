@@ -1,7 +1,7 @@
 //! Global environment configuration aggregator (管理棟)
 //!
 //! Consolidates HAKO_* / NYASH_* environment variables across subsystems and
-//! optionally applies overrides from `nyash.toml`.
+//! optionally applies overrides from `hako.toml` (compat: `nyash.toml`).
 //!
 //! # Global Environment Configuration (管理棟)
 //!
@@ -145,7 +145,7 @@ use std::collections::BTreeMap;
 pub struct NyashEnv {
     // ARCHIVED: JIT-related configuration moved to archive/jit-cranelift/ during Phase 15
     // pub jit: crate::jit::config::JitConfig,
-    /// Arbitrary key-value overrides loaded from nyash.toml [env]
+    /// Arbitrary key-value overrides loaded from hako.toml [env]
     pub overrides: BTreeMap<String, String>,
 }
 
@@ -194,20 +194,20 @@ pub fn set_current(cfg: NyashEnv) {
     let _ = GLOBAL_ENV.set(std::sync::RwLock::new(cfg));
 }
 
-/// Load overrides from nyash.toml `[env]` table and apply them to process env.
+/// Load overrides from hako.toml `[env]` table and apply them to process env.
 ///
 /// Example:
 /// [env]
 /// NYASH_JIT_THRESHOLD = "1"
 /// NYASH_CLI_VERBOSE = "1"
 pub fn bootstrap_from_toml_env() {
-    // Allow disabling nyash.toml env bootstrapping for isolated smokes/CI
+    // Allow disabling hako.toml env bootstrapping for isolated smokes/CI
     if std::env::var("NYASH_SKIP_TOML_ENV").ok().as_deref() == Some("1") {
         return;
     }
-    // Prefer hakorune.toml, fallback to nyash.toml
-    let alt = if std::path::Path::new("hakorune.toml").exists() {
-        "hakorune.toml"
+    // Prefer hako.toml, fallback to nyash.toml
+    let alt = if std::path::Path::new("hako.toml").exists() {
+        "hako.toml"
     } else {
         "nyash.toml"
     };

@@ -185,7 +185,7 @@ _stage1_normalize_rel_path() {
 stage1_find_toml_config() {
     local root="${1:-${NYASH_ROOT:-$(pwd)}}"
     local candidate
-    for candidate in "hako.toml" "hakorune.toml" "nyash.toml"; do
+    for candidate in "hako.toml" "nyash.toml"; do
         if [ -f "$root/$candidate" ]; then
             echo "$root/$candidate"
             return 0

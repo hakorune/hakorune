@@ -92,7 +92,7 @@ fn apply_cached_populate(
 }
 
 fn find_preferred_toml(base: &Path) -> Option<PathBuf> {
-    let candidates = ["hako.toml", "hakorune.toml", "nyash.toml"];
+    let candidates = ["hako.toml", "nyash.toml"];
     for name in candidates.iter() {
         let candidate = base.join(name);
         if candidate.exists() {

@@ -1,6 +1,6 @@
-# Nyash Reference Documentation 📖
+# Hakorune Reference Documentation 📖
 
-このディレクトリには、Nyashプログラミング言語の正式な技術仕様が含まれています。
+このディレクトリには、Hakorune プログラミング言語の正式な技術仕様が含まれています。
 
 ## 📚 サブディレクトリ
 

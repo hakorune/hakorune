@@ -1,7 +1,7 @@
 /*!
  * Runner plugin initialization (extracted from runner.rs)
  *
- * Purpose: Initialize v2 plugin system from nyash.toml and apply config
+ * Purpose: Initialize v2 plugin system from hako.toml (compat: nyash.toml) and apply config
  * Behavior: Quiet by default; use NYASH_CLI_VERBOSE=1 or NYASH_DEBUG_PLUGIN=1 for logs
  */
 
@@ -11,17 +11,17 @@ use crate::runtime::{
 };
 
 fn resolve_plugin_toml() -> String {
-    // Prefer hakorune.toml, fallback to nyash.toml (check CWD, then HAKO_ROOT)
-    let cwd_hako = std::path::Path::new("hakorune.toml");
+    // Prefer hako.toml, fallback to nyash.toml (check CWD, then HAKO_ROOT)
+    let cwd_hako = std::path::Path::new("hako.toml");
     if cwd_hako.exists() {
-        return "hakorune.toml".to_string();
+        return "hako.toml".to_string();
     }
     let cwd_ny = std::path::Path::new("nyash.toml");
     if cwd_ny.exists() {
         return "nyash.toml".to_string();
     }
     if let Some(root) = crate::config::env::hako_root() {
-        let p = std::path::Path::new(&root).join("hakorune.toml");
+        let p = std::path::Path::new(&root).join("hako.toml");
         if p.exists() {
             return p.to_string_lossy().to_string();
         }
@@ -94,7 +94,7 @@ pub fn init_bid_plugins() {
                 if plugin_debug || cli_verbose {
                     get_global_ring0()
                         .log
-                        .info("[using.dylib/autoload] scanning nyash.toml packages …");
+                        .info("[using.dylib/autoload] scanning hako.toml packages …");
                 }
                 let mut using_paths: Vec<String> = Vec::new();
                 let mut pending_modules: std::vec::Vec<(String, String)> = Vec::new();
