@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001:
-  Close the Hakorune CLI provider package entry and decide the next package lane.
+MIMALLOC-PROVIDER-PACKAGE-V0-USAGE-DOCS-296X-001:
+  Document the stable v0 provider package command, output layout, and preflight verification path.
 ```
 
 ## Queue
@@ -66,7 +66,8 @@ MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001:
 | 20 | `MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-PILOT-296X-001` | Landed | Start provider package artifact Phase A by packaging an existing binary with a manifest. |
 | 21 | `MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-CLOSEOUT-296X-001` | Landed | Close existing-binary package helper and decide the next provider packaging lane. |
 | 22 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-PILOT-296X-001` | Landed | Expose existing-binary provider package creation through the Hakorune CLI. |
-| 23 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001` | Current | Close the Hakorune CLI provider package entry and decide the next package lane. |
+| 23 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001` | Landed | Close the Hakorune CLI provider package entry and decide the next package lane. |
+| 24 | `MIMALLOC-PROVIDER-PACKAGE-V0-USAGE-DOCS-296X-001` | Current | Document the stable v0 provider package command, output layout, and preflight verification path. |
 
 ## Mini-Agent Restart Queue
 

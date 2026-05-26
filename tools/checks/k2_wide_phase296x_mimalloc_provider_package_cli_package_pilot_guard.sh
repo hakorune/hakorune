@@ -10,7 +10,6 @@ CARD_21="docs/development/current/main/phases/phase-296x/296x-21-MIMALLOC-PROVID
 CARD_22="docs/development/current/main/phases/phase-296x/296x-22-MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-PILOT.md"
 TASKBOARD="docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 CLI_ARGS="src/cli/args.rs"
 CLI_MOD="src/cli/mod.rs"
 CLI_IMPL="src/cli/provider_package_existing_binary.rs"
@@ -21,11 +20,8 @@ SELF_SCRIPT="tools/checks/k2_wide_phase296x_mimalloc_provider_package_cli_packag
 
 echo "[$TAG] checking phase-296x provider package CLI package pilot"
 
-guard_require_files "$TAG" "$CARD_21" "$CARD_22" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$CLI_ARGS" "$CLI_MOD" "$CLI_IMPL" "$MAIN" "$PREFLIGHT_TOOL" "$PREV_GUARD" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_21" "$CARD_22" "$TASKBOARD" "$INDEX" "$CLI_ARGS" "$CLI_MOD" "$CLI_IMPL" "$MAIN" "$PREFLIGHT_TOOL" "$PREV_GUARD" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$PREFLIGHT_TOOL" "$PREV_GUARD" "$SELF_SCRIPT"
-
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-22-MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-PILOT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001"' "$CURRENT_STATE" "current state must expose CLI package closeout"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_21" "CLI selection closeout must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_22" "CLI package card must be landed"
@@ -48,7 +44,7 @@ guard_expect_fixed_in_file "$TAG" 'provider_call_executed=0' "$CLI_IMPL" "CLI im
 guard_expect_fixed_in_file "$TAG" 'replacement_active=0' "$CLI_IMPL" "CLI impl must keep replacement closed"
 
 guard_expect_fixed_in_file "$TAG" '| 22 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-PILOT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 22 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 23 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001` | Current |' "$TASKBOARD" "taskboard row 23 must be current"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001' "$TASKBOARD" "taskboard must expose CLI package closeout"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list CLI package guard"
 
 cargo build -q --bin nyash
