@@ -7,9 +7,65 @@ using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
 using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
 using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
 
+box HakoAllocMimallocComparisonReallocAlignedReport {
+    workload_id: StringBox = "representative-realloc-aligned-v0"
+    operation_family: StringBox = "realloc-aligned"
+    operation_sequence_id: StringBox = "representative-realloc-aligned-v0-seq"
+    free_order_id: StringBox = "ascending-release-v0"
+    allocation_count: i64 = 4
+    free_count: i64 = 4
+    realloc_count: i64 = 2
+    aligned_alloc_count: i64 = 2
+    alignment_request_count: i64 = 3
+    alignment_ok_count: i64 = 2
+    alignment_reject_count: i64 = 1
+    realloc_same_ptr_count: i64 = 1
+    realloc_moved_count: i64 = 1
+    copied_bytes: i64 = 16
+    requested_bytes: i64 = 0
+    copied_bytes_model: i64 = 16
+    live_handles: i64 = 0
+    rejects: i64 = 0
+    release_count: i64 = 0
+    alignment_meta: i64 = 0
+
+    capture(alloc, aligned_small_page, aligned_medium_page, aligned_path, same_handle_after, grow_handle_after, grow_ok) {
+        me.requested_bytes = alloc.requestedBytes() + aligned_small_page.requested_bytes + aligned_medium_page.requested_bytes
+        me.live_handles = alloc.isLiveHandle(same_handle_after) + alloc.isLiveHandle(grow_handle_after) + aligned_path.page_map.live_count
+        me.rejects = alloc.reject_count + aligned_path.reject_count
+        me.release_count = grow_ok
+        me.alignment_meta = aligned_path.meta_count
+        return 1
+    }
+
+    workloadLine() { return "workload=representative-realloc-aligned-v0" }
+    operationFamilyLine() { return "operation_family=realloc-aligned" }
+    operationSequenceLine() { return "operation_sequence_id=representative-realloc-aligned-v0-seq" }
+    freeOrderLine() { return "free_order_id=ascending-release-v0" }
+    allocationCountLine() { return "allocation_count=" + me.allocation_count }
+    freeCountLine() { return "free_count=" + me.free_count }
+    reallocCountLine() { return "realloc_count=" + me.realloc_count }
+    alignedAllocCountLine() { return "aligned_alloc_count=" + me.aligned_alloc_count }
+    alignmentRequestCountLine() { return "alignment_request_count=" + me.alignment_request_count }
+    alignmentOkCountLine() { return "alignment_ok_count=" + me.alignment_ok_count }
+    alignmentRejectCountLine() { return "alignment_reject_count=" + me.alignment_reject_count }
+    reallocSamePtrCountLine() { return "realloc_same_ptr_count=" + me.realloc_same_ptr_count }
+    reallocMovedCountLine() { return "realloc_moved_count=" + me.realloc_moved_count }
+    copiedBytesLine() { return "copied_bytes=" + me.copied_bytes }
+    requestedBytesLine() { return "requested_bytes=" + me.requested_bytes }
+    copiedBytesModelLine() { return "copied_bytes_model=" + me.copied_bytes_model }
+    liveHandlesLine() { return "live_handles=" + me.live_handles }
+    rejectsLine() { return "rejects=" + me.rejects }
+    releaseCountLine() { return "release_count=" + me.release_count }
+    alignmentMetaLine() { return "alignment_meta=" + me.alignment_meta }
+    summaryFieldsLine() { return "summary_fields=" + me.requested_bytes + "," + me.copied_bytes_model + "," + me.live_handles + "," + me.rejects + "," + me.release_count + "," + me.alignment_meta }
+    summaryLine() { return "summary=ok" }
+}
+
 static box Main {
     main(args) {
         local alloc = new HakoAllocProductionFacade()
+        local report = new HakoAllocMimallocComparisonReallocAlignedReport()
         local same_handle = alloc.allocate(8)
         local same_realloc = alloc.reallocResult(same_handle, 24)
         local same_ok = same_realloc.ok
@@ -43,39 +99,34 @@ static box Main {
         local aligned_medium_padded = aligned_path.paddedSizeFor(aligned_medium_ptr)
         local aligned_bad_reject = aligned_path.allocateAlignedSmallUsize(24, 3)
 
-        local requested_bytes = alloc.requestedBytes() + aligned_small_page.requested_bytes + aligned_medium_page.requested_bytes
-        local copied_bytes_model = 16
-        local live_handles = alloc.isLiveHandle(same_handle_after) + alloc.isLiveHandle(grow_handle_after) + aligned_map.live_count
-        local reject_count = alloc.reject_count + aligned_path.reject_count
-        local release_count = grow_ok
-        local align_meta_count = aligned_path.meta_count
+        report.capture(alloc, aligned_small_page, aligned_medium_page, aligned_path, same_handle_after, grow_handle_after, grow_ok)
 
         print("hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof")
-        print("workload=representative-realloc-aligned-v0")
-        print("operation_family=realloc-aligned")
-        print("operation_sequence_id=representative-realloc-aligned-v0-seq")
-        print("free_order_id=ascending-release-v0")
+        print(report.workloadLine())
+        print(report.operationFamilyLine())
+        print(report.operationSequenceLine())
+        print(report.freeOrderLine())
         print("same=1,1," + same_ok + "," + same_ptr + "," + same_grow_reject + "," + same_ok + "," + same_grow_reject_count)
         print("grow=1,1,1," + grow_ok + "," + grow_ptr + ",1," + grow_same_class_reject + "," + grow_unknown_reject)
         print("aligned=" + aligned_add_small + "," + aligned_add_medium + "," + aligned_small_ok + "," + aligned_small_ptr + "," + aligned_small_align + "," + aligned_small_padded + "," + aligned_medium_ok + "," + aligned_medium_ptr + "," + aligned_medium_align + "," + aligned_medium_padded + "," + aligned_bad_reject)
-        print("allocation_count=4")
-        print("free_count=4")
-        print("realloc_count=2")
-        print("aligned_alloc_count=2")
-        print("alignment_request_count=3")
-        print("alignment_ok_count=2")
-        print("alignment_reject_count=1")
-        print("realloc_same_ptr_count=1")
-        print("realloc_moved_count=1")
-        print("copied_bytes=16")
-        print("requested_bytes=" + requested_bytes)
-        print("copied_bytes_model=" + copied_bytes_model)
-        print("live_handles=" + live_handles)
-        print("rejects=" + reject_count)
-        print("release_count=" + release_count)
-        print("alignment_meta=" + align_meta_count)
-        print("summary_fields=" + requested_bytes + "," + copied_bytes_model + "," + live_handles + "," + reject_count + "," + release_count + "," + align_meta_count)
-        print("summary=ok")
+        print(report.allocationCountLine())
+        print(report.freeCountLine())
+        print(report.reallocCountLine())
+        print(report.alignedAllocCountLine())
+        print(report.alignmentRequestCountLine())
+        print(report.alignmentOkCountLine())
+        print(report.alignmentRejectCountLine())
+        print(report.reallocSamePtrCountLine())
+        print(report.reallocMovedCountLine())
+        print(report.copiedBytesLine())
+        print(report.requestedBytesLine())
+        print(report.copiedBytesModelLine())
+        print(report.liveHandlesLine())
+        print(report.rejectsLine())
+        print(report.releaseCountLine())
+        print(report.alignmentMetaLine())
+        print(report.summaryFieldsLine())
+        print(report.summaryLine())
         return 0
     }
 }

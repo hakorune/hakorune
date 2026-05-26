@@ -34,6 +34,12 @@ MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002:
   Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads or winner-claim seams.
 ```
 
+## Legacy Follow-On
+
+- `MIMALLOC-COMPARISON-REALLOC-ALIGNED-EVIDENCE-295X-RUN-001` runs the
+  C mimalloc and `.hako` realloc/aligned evidence through the normalizer after
+  the exact-EXE acceptance row.
+
 ## Immediate Task Order (docs-first)
 
 1. Lock inline semantics in `inline-plan-ssot.md` with canonical
