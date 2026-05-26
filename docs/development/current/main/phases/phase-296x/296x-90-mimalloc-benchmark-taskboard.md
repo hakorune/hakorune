@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001:
-  Close the 3-way comparison adapter and decide the next provider packaging lane.
+MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-PILOT-296X-001:
+  Start provider package artifact Phase A by packaging an existing binary with a manifest.
 ```
 
 ## Queue
@@ -62,7 +62,8 @@ MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001:
 | 16 | `MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001` | Landed | Close explicit provider measurement evidence and park activation work. |
 | 17 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT-296X-001` | Landed | Define the 3-way hako/C/provider explicit comparison contract with winner claims closed. |
 | 18 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-ADAPTER-PILOT-296X-001` | Landed | Adapt landed hako/C/provider explicit measurement evidence into the 3-way comparison contract. |
-| 19 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Current | Close the 3-way comparison adapter and decide the next provider packaging lane. |
+| 19 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Landed | Close the 3-way comparison adapter and decide the next provider packaging lane. |
+| 20 | `MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-PILOT-296X-001` | Current | Start provider package artifact Phase A by packaging an existing binary with a manifest. |
 
 ## Mini-Agent Restart Queue
 
