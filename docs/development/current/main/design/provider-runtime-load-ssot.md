@@ -125,9 +125,28 @@ replacement_active=0
 
 ## Later Stages
 
-Explicit allocator calls are separate from no-op provider calls. Provider
-activation is separate from explicit provider calls. Process allocator
-replacement, hooks, and global allocator integration are a future lane.
+## Stage 6: Explicit Alloc/Free Smoke
+
+Explicit alloc/free smoke may call provider allocator entrypoints through the
+API table. It is not process allocator replacement.
+
+```text
+dll_mode=provider-alloc-free
+provider_api_bound=1
+provider_call_executed=1
+allocator_entrypoint_called=1
+provider_alloc_executed=1
+provider_free_executed=1
+provider_active=0
+replacement_active=0
+```
+
+## Later Stages
+
+Repeated measurement through explicit provider calls is separate from the first
+alloc/free smoke. Provider activation is separate from explicit provider calls.
+Process allocator replacement, hooks, and global allocator integration are a
+future lane.
 
 ## Fail-Fast Rules
 
