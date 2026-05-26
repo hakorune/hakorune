@@ -19,9 +19,6 @@ echo "[$TAG] checking phase-296x provider explicit measurement closeout"
 guard_require_files "$TAG" "$CARD_15" "$CARD_16" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$PREV_GUARD" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$PREV_GUARD" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-16-MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CONTRACT-296X-001"' "$CURRENT_STATE" "current state must expose comparison contract blocker"
-
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_15" "explicit repeated measurement must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_16" "closeout card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-EXPLICIT-MEASUREMENT-CLOSEOUT-296X-001' "$CARD_16" "closeout card must identify blocker"
