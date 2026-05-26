@@ -26,6 +26,8 @@
   `docs/reference/runtime/plugin-loadsets.md`
 - standalone EXE route vocabulary:
   `docs/reference/runtime/standalone-exe-routes.md`
+- provider package v0 command/output/preflight:
+  `docs/reference/runtime/provider-package-v0.md`
 
 ### boxes-system/
 - ビルトイン Box / Box システムの仕様
