@@ -94,9 +94,37 @@ fn run_provider_package_selected_binary_build(config: &CliConfig) -> Result<(Str
     let build_dir = out_dir.join(".hakorune_provider_build");
     fs::create_dir_all(&build_dir)
         .map_err(|error| format!("[provider-package-build/create-build-dir-failed] {error}"))?;
+    let activation = json!({
+        "provider_call_allowed": config.provider_package_provider_call_allowed,
+        "allocator_replacement_allowed": false,
+        "hook_allowed": false,
+        "global_allocator_allowed": false
+    });
+    let contract = json!({
+        "abi_version": ABI_VERSION,
+        "provider_kind": provider_kind,
+        "capabilities": [
+            "descriptor",
+            "explicit_allocator_api",
+        ],
+        "required_exports": [DESCRIPTOR_EXPORT],
+        "descriptor_schema_version": "hakorune-provider-descriptor-v1",
+        "api_table_schema_version": "hakorune-provider-api-v1",
+        "activation": activation,
+        "memory_ownership_policy": "provider_alloc_provider_free",
+    });
+    let contract_hash = sha256_bytes(
+        serde_json::to_string(&contract)
+            .map_err(|error| format!("[provider-package-build/contract-serialize-failed] {error}"))?
+            .as_bytes(),
+    );
+    let function_table_hash = selected_fixture_function_table_hash(provider_kind)?;
     let source_path = build_dir.join("selected_fixture_provider.c");
-    fs::write(&source_path, selected_fixture_source())
-        .map_err(|error| format!("[provider-package-build/write-source-failed] {error}"))?;
+    fs::write(
+        &source_path,
+        selected_fixture_source(&contract_hash, &function_table_hash),
+    )
+    .map_err(|error| format!("[provider-package-build/write-source-failed] {error}"))?;
 
     build_selected_fixture(&source_path, &artifact_path)?;
 
@@ -105,32 +133,11 @@ fn run_provider_package_selected_binary_build(config: &CliConfig) -> Result<(Str
         .metadata()
         .map_err(|error| format!("[provider-package-build/stat-failed] {error}"))?
         .len();
-    let activation = json!({
-        "provider_call_allowed": config.provider_package_provider_call_allowed,
-        "allocator_replacement_allowed": false,
-        "hook_allowed": false,
-        "global_allocator_allowed": false
-    });
     let required_exports = vec![DESCRIPTOR_EXPORT.to_string()];
     let capabilities = vec![
         "descriptor".to_string(),
         "explicit_allocator_api".to_string(),
     ];
-    let contract = json!({
-        "abi_version": ABI_VERSION,
-        "provider_kind": provider_kind,
-        "capabilities": capabilities,
-        "required_exports": required_exports,
-        "descriptor_schema_version": "hakorune-provider-descriptor-v1",
-        "api_table_schema_version": "hakorune-provider-api-v1",
-        "activation": activation,
-        "memory_ownership_policy": "provider_alloc_provider_free"
-    });
-    let contract_hash = sha256_bytes(
-        serde_json::to_string(&contract)
-            .map_err(|error| format!("[provider-package-build/contract-serialize-failed] {error}"))?
-            .as_bytes(),
-    );
     let manifest = json!({
         "schema_version": SCHEMA_VERSION,
         "package_id": package_id,
@@ -241,7 +248,23 @@ fn default_artifact_name(platform: &str) -> &'static str {
     }
 }
 
-fn selected_fixture_source() -> &'static str {
+fn selected_fixture_function_table_hash(provider_kind: &str) -> Result<String, String> {
+    let contract = json!({
+        "abi_version": ABI_VERSION,
+        "api_table_schema_version": "hakorune-provider-api-v1",
+        "entrypoints": ["ping", "alloc", "free", "owns"],
+        "provider_kind": provider_kind,
+    });
+    Ok(sha256_bytes(
+        serde_json::to_string(&contract)
+            .map_err(|error| {
+                format!("[provider-package-build/function-table-hash-serialize-failed] {error}")
+            })?
+            .as_bytes(),
+    ))
+}
+
+fn selected_fixture_source(contract_hash: &str, function_table_hash: &str) -> String {
     r#"#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -281,12 +304,17 @@ static void* hako_alloc(size_t size, size_t align) {
 static void hako_free(void* ptr) { free(ptr); }
 static int hako_owns(void* ptr) { return ptr != NULL; }
 
+static const HakoProviderApiV1 API = {
+  0x484B5241u, 1, 0, sizeof(HakoProviderApiV1),
+  hako_ping, hako_alloc, hako_free, hako_owns
+};
+
 static const HakoProviderDescriptorV1 DESCRIPTOR = {
   0x484B5250u, 1, 0, sizeof(HakoProviderDescriptorV1),
   "org.hakorune.provider.selected.fixture", "allocator", "0.1.0",
   3u, 1u,
-  "0000000000000000000000000000000000000000000000000000000000000000",
-  "1111111111111111111111111111111111111111111111111111111111111111",
+  "__CONTRACT_HASH__",
+  "__FUNCTION_TABLE_HASH__",
   sizeof(HakoProviderApiV1), 0
 };
 
@@ -296,20 +324,12 @@ const HakoProviderDescriptorV1* hakorune_provider_descriptor_v1(void) {
 }
 
 __attribute__((visibility("default")))
-int hakorune_provider_get_api_v1(const void* host, HakoProviderApiV1* out) {
-  (void)host;
-  if (!out) return -1;
-  out->magic = 0x484B5241u;
-  out->abi_major = 1;
-  out->abi_minor = 0;
-  out->api_table_size = sizeof(HakoProviderApiV1);
-  out->ping = hako_ping;
-  out->alloc = hako_alloc;
-  out->free = hako_free;
-  out->owns = hako_owns;
-  return 0;
+const HakoProviderApiV1* hakorune_provider_get_api_v1(void) {
+  return &API;
 }
 "#
+    .replace("__CONTRACT_HASH__", contract_hash)
+    .replace("__FUNCTION_TABLE_HASH__", function_table_hash)
 }
 
 fn required_string(value: Option<&str>, name: &str) -> Result<String, String> {

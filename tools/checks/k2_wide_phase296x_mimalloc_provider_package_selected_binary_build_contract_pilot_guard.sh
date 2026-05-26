@@ -8,7 +8,6 @@ source tools/checks/lib/guard_common.sh
 
 CARD_27="docs/development/current/main/phases/phase-296x/296x-27-MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT.md"
 TASKBOARD="docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DOC="docs/reference/runtime/provider-package-v0.md"
 INDEX="docs/tools/check-scripts-index.md"
 CLI_ARGS="src/cli/args.rs"
@@ -20,11 +19,8 @@ SELF_SCRIPT="tools/checks/k2_wide_phase296x_mimalloc_provider_package_selected_b
 
 echo "[$TAG] checking phase-296x selected provider binary build/package pilot"
 
-guard_require_files "$TAG" "$CARD_27" "$TASKBOARD" "$CURRENT_STATE" "$DOC" "$INDEX" "$CLI_ARGS" "$CLI_MOD" "$CLI_IMPL" "$MAIN" "$PREFLIGHT_TOOL" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_27" "$TASKBOARD" "$DOC" "$INDEX" "$CLI_ARGS" "$CLI_MOD" "$CLI_IMPL" "$MAIN" "$PREFLIGHT_TOOL" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$PREFLIGHT_TOOL" "$SELF_SCRIPT"
-
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-27-MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001"' "$CURRENT_STATE" "current state must select closeout row"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_27" "pilot card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001' "$CARD_27" "pilot card must identify blocker"
@@ -56,7 +52,7 @@ guard_expect_fixed_in_file "$TAG" 'output_contract=hakorune-provider-package-sel
 guard_expect_fixed_in_file "$TAG" 'hako_shared_library_generation=0' "$DOC" "reference docs must keep hako generation closed"
 
 guard_expect_fixed_in_file "$TAG" '| 27 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 27 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 28 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001` | Current |' "$TASKBOARD" "taskboard row 28 must be current"
+guard_expect_fixed_in_file "$TAG" '| 28 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 28 must be landed"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list selected build guard"
 
 cargo build -q --bin hakorune

@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001:
-  Close the selected provider binary build/package pilot evidence, without opening .hako-to-shared-library generation, activation, or replacement.
+MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001:
+  Select the Phase C .hako-derived provider package build boundary, without opening activation, replacement, hooks, globals, or winner claims.
 ```
 
 ## Queue
@@ -71,7 +71,8 @@ MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001:
 | 25 | `MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT-296X-001` | Landed | Close provider package v0 as functional by collecting CLI package, generated manifest preflight, docs, and gate evidence. |
 | 26 | `MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001` | Landed | Select Phase B as a selected-provider-binary build/package lane, without opening activation or replacement. |
 | 27 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001` | Landed | Define and pilot the smallest selected provider binary build/package contract, without opening .hako-to-shared-library generation, activation, or replacement. |
-| 28 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001` | Current | Close the selected provider binary build/package pilot evidence, without opening .hako-to-shared-library generation, activation, or replacement. |
+| 28 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001` | Landed | Close the selected provider binary build/package pilot evidence, without opening .hako-to-shared-library generation, activation, or replacement. |
+| 29 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001` | Current | Select the Phase C .hako-derived provider package build boundary, without opening activation, replacement, hooks, globals, or winner claims. |
 
 ## Mini-Agent Restart Queue
 
