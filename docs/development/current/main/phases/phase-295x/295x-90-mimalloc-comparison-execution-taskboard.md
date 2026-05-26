@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001:
-  Close the external `malloc-large` memory-gap attribution pack and choose the next comparison seam.
+MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002:
+  Normalize the remote-free production-facade evidence into a stable presentation contract and return to the existing minimum-benchmark selection seam.
 ```
 
 ## Legacy Follow-On
@@ -139,6 +139,7 @@ Rules for every slice:
 | 250 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001` | Landed | Extend joinless branch-context leaf lowering to `&&` and unary `!` so long boolean chains avoid recursive clone-heavy scaffolding. |
 | 251 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Landed | Select the first backend-split comparison seam after the long-OR compiler fix slices land. |
 | 252 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002` | Landed | Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads. |
+| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Current | Normalize the remote-free production-facade evidence into a stable presentation contract and return to the existing minimum-benchmark selection seam. |
 
 ## Full Queue
 
@@ -266,7 +267,7 @@ Rules for every slice:
 | 240 | `MIMALLOC-COMPARISON-NEXT-SEMANTIC-SEAM-SELECTION-295X-002` | Landed | Select the next allocator-facing semantic seam after parking same-policy median-only rows. |
 | 241 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-SELECTION-295X-002` | Landed | Select the remote-free production facade as the next allocator-facing semantic seam. |
 | 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed | Refresh the smallest production-facing remote-free comparison contract. |
-| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Current | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
+| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Landed | Run the bundled remote-free production-facade evidence contract once without widening provider activation or replacement seams. |
 | 91 | `295x-91` | Landed | Thin-wrapped allocator-provider guard families into root wrappers and `tools/checks/impl/` entries without changing the current mimalloc comparison blocker. |
 | 92 | `295x-92` | Landed | Thin-wrapped the heaviest remaining mimalloc / hako_alloc guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |
 | 93 | `295x-93` | Landed | Thin-wrapped the remaining mimalloc facade huge guard roots into impl-backed wrappers without changing the current mimalloc comparison blocker. |

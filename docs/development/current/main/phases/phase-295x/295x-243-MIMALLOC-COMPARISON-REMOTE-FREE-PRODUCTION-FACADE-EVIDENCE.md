@@ -1,6 +1,6 @@
 ---
-Status: Current
-Date: 2026-05-25
+Status: Landed
+Date: 2026-05-27
 Scope: run the smallest production-facing remote-free comparison evidence contract on the comparison lane.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002
 Related:

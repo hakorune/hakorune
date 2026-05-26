@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-26"
+date = "2026-05-27"
 
 active_lane = "phase-295x mimalloc comparison execution"
 active_lane_status = "Phase-294x exact usize comparison-quality slice closed at 294x-270. Phase-295x resumes mimalloc-facing work from explicit comparison evidence and keeps provider/DLL/replacement seams parked."
@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-295x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-comparison-execution-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-comparison-execution-taskboard.md"
 
-latest_card = "295x-243-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE"
-latest_card_path = "docs/development/current/main/phases/phase-295x/295x-243-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE.md"
-latest_card_summary = "Ran the remote-free production-facade evidence contract once without widening provider activation or replacement seams."
-current_blocker_token = "MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002"
+latest_card = "295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION"
+latest_card_path = "docs/development/current/main/phases/phase-295x/295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION.md"
+latest_card_summary = "Normalize the remote-free production-facade evidence into a stable presentation contract without widening provider or replacement seams."
+current_blocker_token = "MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "295x-253 Normalize the remote-free production-facade evidence into a stable presentation contract without widening provider or replacement seams.",
   "295x-252 Refreshed the backend-split comparison contract over the existing remote-free minimum benchmark workload pack.",
   "295x-242 Refreshed the smallest production-facing remote-free comparison contract after selecting the facade seam.",
   "295x-241 Selected the remote-free production facade as the next allocator-facing semantic seam after closing the semantic-selection bridge.",
@@ -38,30 +39,4 @@ landed_tail = [
   "295x-234 Closed the abandoned-heap-specific long process-repeat timing pack after the repeated process evidence escaped the 1ms floor.",
   "295x-235 Selected the reuse-cycle small process-repeat pack after the abandoned-heap post-long-process selection.",
   "295x-233 Selected an abandoned-heap-specific long process-repeat timing pack after the speed/stability observation closeout.",
-  "295x-232 Closed the abandoned-heap stress speed/stability observation pack and selected an abandoned-heap-specific high-resolution timing seam.",
-  "295x-231 Added external elapsed-time evidence to the abandoned-heap stress speed/stability observation pack.",
-  "295x-226 Selected a narrower plugin load-set footprint diagnostic after the abandoned-heap stress NyRT plugin-host substage diagnostic.",
-  "295x-225 Added the narrow plugin-host substage RSS diagnostic after the abandoned-heap stress NyRT plugin-host baseline selection.",
-  "295x-224 Selected a narrower plugin-host baseline seam after the abandoned-heap stress NyRT RSS checkpoint run.",
-  "295x-223 Ran the abandoned-heap stress NyRT self-RSS checkpoints and classified the fixed RSS step after plugin host init.",
-  "295x-222 Added env-gated NyRT self-RSS checkpoints for the abandoned-heap stress path.",
-  "295x-221 Closed the abandoned-heap stress empty exact-EXE footprint diagnostic and parked the lane on runtime RSS checkpoints.",
-  "295x-220 Diagnosed the abandoned-heap stress empty exact-EXE footprint and classified the fixed baseline into a follow-on seam.",
-  "295x-219 Selected the abandoned-heap stress empty exact-EXE footprint diagnostic after the closeout pack landed.",
-  "295x-218 Closed the abandoned-heap stress presentation pack and parked the lane on a narrow baseline-breakdown selection.",
-  "295x-217 Presented the abandoned-heap stress evidence row as one stable comparison contract over the abandoned-owner policy and abandoned-reclaim inventory proof surfaces.",
-  "295x-216 Ran the abandoned-heap stress evidence row and paired the abandoned-owner policy and abandoned-reclaim inventory proof surfaces under one comparison contract.",
-  "295x-215 Closed the abandoned-heap stress contract refresh and selected the abandoned-heap stress evidence seam.",
-  "295x-214 Closed the abandoned-heap stress selection and selected the abandoned-heap stress contract refresh seam.",
-  "295x-213 Closed the native multi-worker substrate stress presentation and selected the abandoned-heap stress selection seam.",
-  "295x-212 Closed the native multi-worker substrate stress presentation row and selected the abandoned-heap stress follow-on seam.",
-  "295x-211 Ran the native multi-worker substrate stress evidence row and recorded the stable worker/TLS/atomic/remote-free count report.",
-  "295x-210 Closed the thread-safe hako_mem ABI selection row and selected the native multi-worker substrate stress as the next narrow concurrency seam.",
-  "295x-209 Closed the production-facade remote-free policy selection row and selected the thread-safe hako_mem ABI boundary as the next narrow concurrency seam.",
-  "295x-208 Closed the allocator-facing atomic route selection row and selected the production-facade remote-free policy integration as the next narrow concurrency seam.",
-  "295x-207 Closed the worker TLS cache-slot selection row and selected the allocator-facing atomic route set as the next narrow concurrency seam.",
-  "295x-206 Closed the worker identity selection row and selected the allocator worker TLS cache-slot substrate as the next narrow concurrency seam.",
-  "295x-205 Closed the smaller-default load-set evidence row and selected the allocator-internal worker identity substrate as the next narrow concurrency seam.",
-  "295x-204 Ran repeated comparison samples with the empty default runtime config and confirmed it stays materially smaller than explicit root compatibility.",
-  "295x-203 Closed the load-set diagnostic and selected a smaller-default-load-set pilot for the no-output exact-EXE path.",
 ]
