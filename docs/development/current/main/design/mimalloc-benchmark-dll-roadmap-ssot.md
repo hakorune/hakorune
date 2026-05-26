@@ -61,16 +61,27 @@ the external path from Hakorune rows.
 
 1. Inventory the external corpus and select the first adapters.
 2. Define the benchmark result contract:
+   - `benchmark_result_contract`
    - `benchmark_profile`
    - `workload_id`
-   - `runner_side`
-   - `source_corpus`
-   - `timing_kind`
-   - `warmup_count`
+   - `allocator_id`
+   - `runner_kind`
+   - `operation_family`
+   - `operation_repeat`
+   - `timing_repeat_kind`
    - `sample_count`
-   - `summary=min,median,max`
-   - `rss_kind`
+   - `warmup_count`
+   - `summary_statistic=min,median,max`
+   - `canonical_rss_collector=external-time`
+   - `internal_rss_evidence=preserved`
    - stop-line fields for provider/replacement/hook/global allocator.
+
+Current row token:
+
+```text
+MIMALLOC-BENCHMARK-RESULT-CONTRACT-296X-001
+```
+
 3. Add adapter rows:
    - `benchres.csv` adapter;
    - `hakozuna_compare` log adapter;
@@ -79,6 +90,11 @@ the external path from Hakorune rows.
 4. Add exact-EXE benchmark harness rows that reuse already-landed workload
    ids before opening native replacement or DLL work.
 5. Only after the above is stable, select DLL/provider load-only work.
+
+The accepted result contract is intentionally compatible with the existing
+exact-EXE repeated-measurement runner and with the external `hakmem`
+historical adapters. The first adapter rows are historical bridges, not winner
+claims or provider activations.
 
 ## DLL Timing
 

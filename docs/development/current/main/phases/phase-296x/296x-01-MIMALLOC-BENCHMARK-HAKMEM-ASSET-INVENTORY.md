@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: inventory external hakmem benchmark assets and select the first adapter row.
 Blocker: MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001
@@ -12,8 +12,14 @@ Related:
 
 ## Decision
 
-Keep this row as an inventory row. It should not parse all logs and should not
-open DLL/provider work.
+Close:
+
+```text
+MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001
+```
+
+This row stays inventory-only. It classifies the external `hakmem` corpus,
+selects the first adapter row, and keeps DLL/provider work closed.
 
 External corpus root:
 
@@ -21,33 +27,68 @@ External corpus root:
 /home/tomoaki/git/hakmem_20260525_extracted/hakmem
 ```
 
-## Inventory Targets
+## Inventory Result
 
-Classify these asset families:
+### Selected adapter family
 
 ```text
-bench_tiny_hot.c
-bench_random_mixed_hakmem
-system_bench_random_mixed
-run_benchmarks.sh
-bench_results/**/benchres.csv
-bench_results/**/hakozuna_compare_*.log
-bench_results/**/large_*.perf
-bench_results/**/large_*.strace
-PERF_INDEX.md
-HAKMEM_ARCHITECTURE_OVERVIEW.md
+MIMALLOC-BENCHMARK-RESULT-CONTRACT-296X-001
 ```
 
-## Expected Output
+### Read-only input paths used
 
-The completed row should record:
+```text
+/home/tomoaki/git/hakmem_20260525_extracted/hakmem/bench_results/mimalloc_bench_full_20260117_064626/benchres.csv
+/home/tomoaki/git/hakmem_20260525_extracted/hakmem/bench_results/hakozuna_compare_20260118_034554/hakozuna_compare_20260118_034554_mimalloc_e165faccc.log
+/home/tomoaki/git/hakmem_20260525_extracted/hakmem/PERF_INDEX.md
+/home/tomoaki/git/hakmem_20260525_extracted/hakmem/HAKMEM_ARCHITECTURE_OVERVIEW.md
+```
 
-- selected first adapter family;
-- rejected or parked artifact families;
-- exact corpus paths used as read-only input;
-- one next row token.
+### Classified families
 
-Recommended first adapter:
+```text
+source:
+  bench_tiny_hot.c
+  bench_random_mixed_hakmem
+  system_bench_random_mixed
+  run_benchmarks.sh
+
+benchres_csv:
+  bench_results/mimalloc_bench_full_20260105_182735/benchres.csv
+  bench_results/mimalloc_bench_full_20260105_182746/benchres.csv
+  bench_results/mimalloc_bench_full_20260105_183446/benchres.csv
+  bench_results/mimalloc_bench_full_20260117_064153/benchres.csv
+  bench_results/mimalloc_bench_full_20260117_064211/benchres.csv
+  bench_results/mimalloc_bench_full_20260117_064626/benchres.csv
+
+hakozuna_compare_log:
+  bench_results/hakozuna_compare_20260105_182355/*.log
+  bench_results/hakozuna_compare_20260105_182514/*.log
+  bench_results/hakozuna_compare_20260105_182646/*.log
+  bench_results/hakozuna_compare_20260118_034554/*.log
+
+perf_strace:
+  bench_results/s51_malloc_large_b40795031_20260105_105541/large_*.perf
+  bench_results/s51_malloc_large_b40795031_20260105_105541/large_*.strace
+  bench_results/s51_malloc_large_b40795031_20260105_110157/large_hz3_s51.strace
+
+historical_report:
+  PERF_INDEX.md
+  HAKMEM_ARCHITECTURE_OVERVIEW.md
+  WORKLOAD_COMPARISON_20251205.md
+  PERF_ANALYSIS_RANDOM_MIXED_VS_TINY_HOT.md
+
+parked_unknown:
+  .git/**
+  .claude/**
+  allocators/*.so
+  so/*.so
+  out/**
+```
+
+## Selected Next
+
+Select:
 
 ```text
 MIMALLOC-BENCHMARK-RESULT-CONTRACT-296X-001
@@ -64,22 +105,9 @@ The result contract should land before writing a `benchres.csv` or
 find /home/tomoaki/git/hakmem_20260525_extracted/hakmem -maxdepth 3 -type f
 ```
 
-2. Group files into:
-
-```text
-source
-binary
-script
-benchres_csv
-hakozuna_compare_log
-perf_strace
-historical_report
-parked_unknown
-```
-
-3. Do not edit the external corpus.
-4. Update this card only.
-5. Add or update one focused guard if the inventory becomes machine-checked.
+2. Do not edit the external corpus.
+3. Update this card only.
+4. Add or update one focused guard if the inventory becomes machine-checked.
 
 ## Stop Line
 

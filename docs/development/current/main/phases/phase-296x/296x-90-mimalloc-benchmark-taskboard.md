@@ -32,8 +32,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001:
-  Classify the external hakmem benchmark corpus and choose the first adapter rows.
+MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001:
+  Close corpus adapter bring-up before load-only DLL/provider selection.
 ```
 
 ## Queue
@@ -41,12 +41,12 @@ MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001:
 | Order | Row | Status | Boundary |
 | --- | --- | --- | --- |
 | 0 | `MIMALLOC-BENCHMARK-LANE-LOCK-296X-001` | Landed | Open the benchmark contract lane and keep DLL/provider/replacement seams closed. |
-| 1 | `MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001` | Current | Inventory the external hakmem corpus and select first adapter rows. |
-| 2 | `MIMALLOC-BENCHMARK-RESULT-CONTRACT-296X-001` | Planned | Define the stable benchmark result vocabulary before parsing external logs. |
-| 3 | `MIMALLOC-BENCHMARK-HAKMEM-BENCHRES-ADAPTER-296X-001` | Planned | Convert selected `benchres.csv` rows to Hakorune benchmark evidence with winner claims closed. |
-| 4 | `MIMALLOC-BENCHMARK-HAKOZUNA-COMPARE-LOG-ADAPTER-296X-001` | Planned | Convert selected `hakozuna_compare` logs to Hakorune benchmark evidence. |
-| 5 | `MIMALLOC-BENCHMARK-EXACT-EXE-HARNESS-PILOT-296X-001` | Planned | Run one already-landed `.hako` workload through a benchmark harness using the accepted result contract. |
-| 6 | `MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001` | Planned | Close corpus adapter bring-up and select the first DLL/provider load-only row. |
+| 1 | `MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001` | Landed | Inventory the external hakmem corpus and select first adapter rows. |
+| 2 | `MIMALLOC-BENCHMARK-RESULT-CONTRACT-296X-001` | Landed | Define the stable benchmark result vocabulary before parsing external logs. |
+| 3 | `MIMALLOC-BENCHMARK-HAKMEM-BENCHRES-ADAPTER-296X-001` | Landed | Convert selected `benchres.csv` rows to Hakorune benchmark evidence with winner claims closed. |
+| 4 | `MIMALLOC-BENCHMARK-HAKOZUNA-COMPARE-LOG-ADAPTER-296X-001` | Landed | Convert selected `hakozuna_compare` logs to Hakorune benchmark evidence. |
+| 5 | `MIMALLOC-BENCHMARK-EXACT-EXE-HARNESS-PILOT-296X-001` | Landed | Run one already-landed `.hako` workload through a benchmark harness using the accepted result contract. |
+| 6 | `MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001` | Current | Close corpus adapter bring-up and select the first DLL/provider load-only row. |
 | 7 | `MIMALLOC-DLL-LOAD-ONLY-SELECTION-296X-001` | Planned | Select load-only DLL metadata smoke after benchmark contracts are stable. |
 
 ## Mini-Agent Restart Queue

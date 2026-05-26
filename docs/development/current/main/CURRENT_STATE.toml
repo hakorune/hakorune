@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-00-MIMALLOC-BENCHMARK-LANE-LOCK"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-00-MIMALLOC-BENCHMARK-LANE-LOCK.md"
-latest_card_summary = "Opened the post-port mimalloc benchmark contract lane and kept DLL/provider/replacement seams closed until benchmark contracts and adapters are stable."
-current_blocker_token = "MIMALLOC-BENCHMARK-HAKMEM-ASSET-INVENTORY-296X-001"
+latest_card = "296x-05-MIMALLOC-BENCHMARK-EXACT-EXE-HARNESS-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-05-MIMALLOC-BENCHMARK-EXACT-EXE-HARNESS-PILOT.md"
+latest_card_summary = "Ran one already-landed .hako workload through the shared repeated measurement harness and selected the external corpus closeout as the next row."
+current_blocker_token = "MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-05 Ran one already-landed .hako workload through the shared repeated measurement harness and selected the external corpus closeout as the next row.",
+  "296x-04 Adapted selected hakozuna_compare logs into the shared benchmark contract and selected the exact-EXE harness pilot as the next row.",
+  "296x-03 Adapted a selected hakmem benchres.csv family into the shared benchmark contract and selected the hakozuna compare log adapter as the next row.",
+  "296x-02 Accepted the shared benchmark result vocabulary before parsing external logs.",
+  "296x-01 Classified the external hakmem corpus, parked unsafe artifacts, and selected the shared benchmark result contract as the next adapter row.",
   "296x-00 Opened the post-port mimalloc benchmark contract lane and kept DLL/provider/replacement seams closed.",
   "295x-253 Normalize the remote-free production-facade evidence into a stable presentation contract and hand off to the malloc-large closeout seam without widening provider or replacement seams.",
   "295x-252 Refreshed the backend-split comparison contract over the existing remote-free minimum benchmark workload pack.",
