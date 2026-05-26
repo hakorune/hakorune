@@ -228,21 +228,21 @@ box HakoAllocProductionFacade {
     }
 
     remotePageCaptureExerciseWithPort(port, report, block_a, block_b) {
-        local block0 = port.acquire(8)
-        local block1 = port.acquire(16)
-        local overflow_block = port.acquire(8)
+        local block0 = me.remotePageAcquire(port, 8)
+        local block1 = me.remotePageAcquire(port, 16)
+        local overflow_block = me.remotePageAcquire(port, 8)
         report.block0 = block0
         report.block1 = block1
         report.overflow_block = overflow_block
 
-        local publish0 = port.publish(block_a, block0, 0)
-        local publish1 = port.publish(block_b, block1, 0)
+        local publish0 = me.remotePagePublishPort(port, block_a, block0, 0)
+        local publish1 = me.remotePagePublishPort(port, block_b, block1, 0)
         report.publish0 = publish0
         report.publish1 = publish1
 
-        local head = port.peekHead()
-        local next_b = port.peekNext(block_b)
-        local next_a = port.peekNext(block_a)
+        local head = me.remotePagePeekPortHead(port)
+        local next_b = me.remotePagePeekPortNext(port, block_b)
+        local next_a = me.remotePagePeekPortNext(port, block_a)
         local head_is_b = 0
         local next_b_is_a = 0
         local next_a_empty = 0
@@ -253,12 +253,12 @@ box HakoAllocProductionFacade {
         report.next_b_is_a = next_b_is_a
         report.next_a_empty = next_a_empty
 
-        local drained = port.collectPending()
-        local collect_after_drain = port.collectOne()
+        local drained = me.remotePageCollectPendingPort(port)
+        local collect_after_drain = me.remotePageCollectOnePort(port)
         report.drained = drained
         report.collect_after_drain = collect_after_drain
 
-        local snapshot = port.snapshot()
+        local snapshot = me.remotePagePortSnapshot(port)
         report.page_used = snapshot.page_used
         report.page_local_free_count = snapshot.page_local_free_count
         report.page_retired = snapshot.page_retired
@@ -273,68 +273,68 @@ box HakoAllocProductionFacade {
     }
 
     remotePageExerciseFastWithPort(port, head_cell, block_a, block_b) {
-        if port.reset(head_cell) != 1 { return 0 }
+        if me.remotePageResetPort(port, head_cell) != 1 { return 0 }
 
-        local block0 = port.acquire(8)
+        local block0 = me.remotePageAcquire(port, 8)
         if block0 != 1 { return 0 }
-        local block1 = port.acquire(16)
+        local block1 = me.remotePageAcquire(port, 16)
         if block1 != 0 { return 0 }
-        local overflow_block = port.acquire(8)
+        local overflow_block = me.remotePageAcquire(port, 8)
         if overflow_block != -1 { return 0 }
 
-        if port.publish(block_a, block0, 0) != 1 { return 0 }
-        if port.publish(block_b, block1, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_a, block0, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_b, block1, 0) != 1 { return 0 }
 
-        local head = port.peekHead()
+        local head = me.remotePagePeekPortHead(port)
         if head != block_b { return 0 }
-        local next_b = port.peekNext(block_b)
+        local next_b = me.remotePagePeekPortNext(port, block_b)
         if next_b != block_a { return 0 }
-        local next_a = port.peekNext(block_a)
+        local next_a = me.remotePagePeekPortNext(port, block_a)
         if next_a != 0 { return 0 }
 
-        local drained = port.collectPending()
+        local drained = me.remotePageCollectPendingPort(port)
         if drained != 2 { return 0 }
-        local collect_after_drain = port.collectOne()
+        local collect_after_drain = me.remotePageCollectOnePort(port)
         if collect_after_drain != 0 { return 0 }
 
-        if port.exerciseStateOk() != 1 {
+        if me.remotePageExerciseStateOk(port) != 1 {
             return 0
         }
         return 1
     }
 
     remotePagePublishOnlyFastWithPort(port, head_cell, block_a, block_b) {
-        if port.reset(head_cell) != 1 { return 0 }
+        if me.remotePageResetPort(port, head_cell) != 1 { return 0 }
 
-        local block0 = port.acquire(8)
+        local block0 = me.remotePageAcquire(port, 8)
         if block0 != 1 { return 0 }
-        local block1 = port.acquire(16)
+        local block1 = me.remotePageAcquire(port, 16)
         if block1 != 0 { return 0 }
 
-        if port.publish(block_a, block0, 0) != 1 { return 0 }
-        if port.publish(block_b, block1, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_a, block0, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_b, block1, 0) != 1 { return 0 }
 
-        if port.inboxPushCount() != 2 { return 0 }
-        if port.inboxCollectCount() != 0 { return 0 }
-        if port.inboxPendingCount() != 2 { return 0 }
+        if me.remotePagePortInboxPushCount(port) != 2 { return 0 }
+        if me.remotePagePortInboxCollectCount(port) != 0 { return 0 }
+        if me.remotePagePortInboxPendingCount(port) != 2 { return 0 }
         return 1
     }
 
     remotePageCollectOnlyFastWithPort(port, head_cell, block_a, block_b) {
-        if port.reset(head_cell) != 1 { return 0 }
+        if me.remotePageResetPort(port, head_cell) != 1 { return 0 }
 
-        local block0 = port.acquire(8)
+        local block0 = me.remotePageAcquire(port, 8)
         if block0 != 1 { return 0 }
-        local block1 = port.acquire(16)
+        local block1 = me.remotePageAcquire(port, 16)
         if block1 != 0 { return 0 }
 
-        if port.publish(block_a, block0, 0) != 1 { return 0 }
-        if port.publish(block_b, block1, 0) != 1 { return 0 }
-        if port.collectPending() != 2 { return 0 }
-        if port.collectOne() != 0 { return 0 }
+        if me.remotePagePublishPort(port, block_a, block0, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_b, block1, 0) != 1 { return 0 }
+        if me.remotePageCollectPendingPort(port) != 2 { return 0 }
+        if me.remotePageCollectOnePort(port) != 0 { return 0 }
 
-        if port.pageLocalFreeCount() != 2 { return 0 }
-        if port.inboxPendingCount() != 0 { return 0 }
+        if me.remotePagePortLocalFreeCount(port) != 2 { return 0 }
+        if me.remotePagePortInboxPendingCount(port) != 0 { return 0 }
         return 1
     }
 

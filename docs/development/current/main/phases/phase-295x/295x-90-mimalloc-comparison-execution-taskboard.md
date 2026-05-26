@@ -30,8 +30,8 @@ worker/TLS, or broad exact `usize` field migration.
 ## Current Blocker
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002:
-  Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads or winner-claim seams.
+MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001:
+  Close the external `malloc-large` memory-gap attribution pack and choose the next comparison seam.
 ```
 
 ## Legacy Follow-On
@@ -138,7 +138,7 @@ Rules for every slice:
 | 249 | `MIMALLOC-COMPARISON-REMOTE-FREE-ROUTE-RESULT-LOOKUP-CACHE-IMPLEMENTATION-295X-001` | Landed | Add per-function route-result lookup caching in origin inference to reduce repeated linear scans during long-OR-heavy emit analysis. |
 | 250 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001` | Landed | Extend joinless branch-context leaf lowering to `&&` and unary `!` so long boolean chains avoid recursive clone-heavy scaffolding. |
 | 251 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Landed | Select the first backend-split comparison seam after the long-OR compiler fix slices land. |
-| 252 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002` | Current | Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads. |
+| 252 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002` | Landed | Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads. |
 
 ## Full Queue
 

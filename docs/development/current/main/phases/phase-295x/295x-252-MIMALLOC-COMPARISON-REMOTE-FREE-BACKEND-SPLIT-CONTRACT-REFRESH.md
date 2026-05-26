@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-26
 Scope: refresh backend-split comparison contract on existing remote-free minimum benchmark workloads.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002
@@ -15,7 +15,7 @@ Related:
 
 ## Decision
 
-Open:
+Close:
 
 ```text
 MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002
@@ -230,3 +230,14 @@ git diff --check
 Do not open provider activation, DLL/shared-library packaging,
 replacement/hooks/global allocator seams, thread/TLS/atomic expansions, or
 native C/mimalloc winner claims.
+
+## Selected Next
+
+Select:
+
+```text
+MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001
+```
+
+The next row should close the external `malloc-large` memory-gap attribution
+pack and choose the next comparison seam.
