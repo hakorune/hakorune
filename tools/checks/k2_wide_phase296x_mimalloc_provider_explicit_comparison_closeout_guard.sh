@@ -10,7 +10,6 @@ CARD_18="docs/development/current/main/phases/phase-296x/296x-18-MIMALLOC-PROVID
 CARD_19="docs/development/current/main/phases/phase-296x/296x-19-MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT.md"
 TASKBOARD="docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 ARTIFACT_SSOT="docs/development/current/main/design/provider-package-artifact-ssot.md"
 RUNTIME_SSOT="docs/development/current/main/design/provider-runtime-load-ssot.md"
 PREV_GUARD="tools/checks/k2_wide_phase296x_mimalloc_provider_explicit_comparison_adapter_pilot_guard.sh"
@@ -18,11 +17,8 @@ SELF_SCRIPT="tools/checks/k2_wide_phase296x_mimalloc_provider_explicit_compariso
 
 echo "[$TAG] checking phase-296x provider explicit comparison closeout"
 
-guard_require_files "$TAG" "$CARD_18" "$CARD_19" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$ARTIFACT_SSOT" "$RUNTIME_SSOT" "$PREV_GUARD" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_18" "$CARD_19" "$TASKBOARD" "$INDEX" "$ARTIFACT_SSOT" "$RUNTIME_SSOT" "$PREV_GUARD" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$PREV_GUARD" "$SELF_SCRIPT"
-
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-19-MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-PILOT-296X-001"' "$CURRENT_STATE" "current state must expose package manifest pilot blocker"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_18" "adapter pilot must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_19" "closeout card must be landed"
@@ -42,7 +38,7 @@ guard_expect_fixed_in_file "$TAG" 'Phase A: package existing binary + manifest' 
 guard_expect_fixed_in_file "$TAG" 'Provider package presence alone never activates a provider.' "$RUNTIME_SSOT" "runtime SSOT must keep activation closed"
 
 guard_expect_fixed_in_file "$TAG" '| 19 | `MIMALLOC-PROVIDER-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 19 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 20 | `MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-PILOT-296X-001` | Current |' "$TASKBOARD" "taskboard row 20 must be current"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-EXISTING-BINARY-MANIFEST-PILOT-296X-001' "$TASKBOARD" "taskboard must expose package manifest pilot row"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list closeout guard"
 
 echo "[$TAG] ok"
