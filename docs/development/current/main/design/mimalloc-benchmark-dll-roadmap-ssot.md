@@ -126,12 +126,24 @@ global_allocator=0
 winner_claim=0
 ```
 
+The first load-only step is metadata preflight, not shared-library loading:
+
+```text
+dll_mode=metadata-preflight
+shared_library_load_executed=0
+provider_active=0
+replacement_active=0
+global_allocator=0
+winner_claim=0
+```
+
 The ladder is:
 
-1. load-only / metadata smoke;
-2. explicit provider call smoke;
-3. repeated benchmark through explicit provider;
-4. replacement / hook / `#[global_allocator]` only after a separate decision
+1. metadata preflight over manifest / descriptor / hash;
+2. load-only descriptor shared-library smoke;
+3. explicit provider call smoke;
+4. repeated benchmark through explicit provider;
+5. replacement / hook / `#[global_allocator]` only after a separate decision
    row accepts the risk.
 
 ## Mini-Agent Rules
