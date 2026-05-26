@@ -108,9 +108,26 @@ replacement_active=0
 
 ## Later Stages
 
-Explicit provider calls are separate from API bind. Provider activation is
-separate from explicit provider calls. Process allocator replacement, hooks,
-and global allocator integration are a future lane.
+## Stage 5: Provider No-op Call Smoke
+
+No-op call smoke may call a safe provider function such as `ping`. It must not
+call allocator entrypoints or activate the provider.
+
+```text
+dll_mode=provider-noop-call
+provider_api_bound=1
+provider_call_executed=1
+provider_noop_call_executed=1
+allocator_entrypoint_called=0
+provider_active=0
+replacement_active=0
+```
+
+## Later Stages
+
+Explicit allocator calls are separate from no-op provider calls. Provider
+activation is separate from explicit provider calls. Process allocator
+replacement, hooks, and global allocator integration are a future lane.
 
 ## Fail-Fast Rules
 

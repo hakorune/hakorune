@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001:
-  Call only a safe provider no-op while leaving allocator entrypoints and activation closed.
+MIMALLOC-PROVIDER-ALLOC-FREE-SMOKE-296X-001:
+  Call explicit provider alloc/free while leaving process replacement and activation closed.
 ```
 
 ## Queue
@@ -56,7 +56,8 @@ MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001:
 | 10 | `MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001` | Landed | Load a manifest-selected shared library and stop before export resolution, descriptor reads, provider calls, or allocator entrypoints. |
 | 11 | `MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001` | Landed | Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed. |
 | 12 | `MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001` | Landed | Bind the provider API table while leaving explicit allocator calls and activation closed. |
-| 13 | `MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001` | Current | Call only a safe provider no-op while leaving allocator entrypoints and activation closed. |
+| 13 | `MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001` | Landed | Call only a safe provider no-op while leaving allocator entrypoints and activation closed. |
+| 14 | `MIMALLOC-PROVIDER-ALLOC-FREE-SMOKE-296X-001` | Current | Call explicit provider alloc/free while leaving process replacement and activation closed. |
 
 ## Mini-Agent Restart Queue
 

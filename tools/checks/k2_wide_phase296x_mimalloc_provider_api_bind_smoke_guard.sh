@@ -27,8 +27,6 @@ guard_expect_fixed_in_file "$TAG" 'dll_mode=provider-api-bind' "$RUNTIME_SSOT" "
 guard_expect_fixed_in_file "$TAG" 'provider_api_bound=1' "$RUNTIME_SSOT" "runtime SSOT must mark API bound"
 guard_expect_fixed_in_file "$TAG" 'provider_call_executed=0' "$RUNTIME_SSOT" "runtime SSOT must keep provider calls closed"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-12-MIMALLOC-PROVIDER-API-BIND-SMOKE"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001"' "$CURRENT_STATE" "current state must expose noop call blocker"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_11" "descriptor-read smoke must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_12" "API bind card must be landed"
 guard_expect_fixed_in_file "$TAG" 'output_contract=hakorune-provider-package-api-bind-smoke-v0' "$CARD_12" "card must define contract"
