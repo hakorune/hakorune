@@ -10,7 +10,7 @@ Stage0 boundary
   New examples should use postfix cleanup/catch.
 
 Summary
-- Nyash adopts a flatter, postfix-first exception style:
+- Hakorune adopts a flatter, postfix-first exception style:
   - There is no `try` statement in the language spec. Use postfix `catch` and `cleanup` instead.
   - `catch` = reserve a handler boundary for the immediately preceding expression/call.
   - `cleanup` = always-run finalization (formerly finally), regardless of success or failure.

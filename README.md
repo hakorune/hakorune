@@ -12,7 +12,7 @@ Design shorthand:
 - **Everything has a boundary.**
 - **No hidden crossings.**
 
-Key boundary tools include `record`, `box`, `sync box`, `co`, `nowait`, `await`, `Channel<T>`, `Result<T,E>`, `brand`, and capability routes. Older Nyash-era documents used “Everything is Box”; the current Hakorune reading is broader: boxes are one important boundary, not the only boundary.
+Key boundary tools include `record`, `box`, `sync box`, `co`, `nowait`, `await`, `Channel<T>`, `Result<T,E>`, `brand`, and capability routes. Older legacy-era documents used “Everything is Box”; the current Hakorune reading is broader: boxes are one important boundary, not the only boundary.
 
 Current development truth:
 - Active lane / blocker / latest card: `docs/development/current/main/CURRENT_STATE.toml`
@@ -48,8 +48,8 @@ Notes
 See also: docs/guides/perf/benchmarks.md
 *[🇯🇵 日本語版はこちら / Japanese Version](README.ja.md)*
 
-[![Selfhost Minimal](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml/badge.svg?branch=selfhosting-dev)](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml)
-[![Core Smoke](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml/badge.svg)](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml)
+[![Selfhost Minimal](https://github.com/hakorune/hakorune/actions/workflows/selfhost-minimal.yml/badge.svg?branch=selfhosting-dev)](https://github.com/hakorune/hakorune/actions/workflows/selfhost-minimal.yml)
+[![Core Smoke](https://github.com/hakorune/hakorune/actions/workflows/smoke.yml/badge.svg)](https://github.com/hakorune/hakorune/actions/workflows/smoke.yml)
 [![Philosophy](https://img.shields.io/badge/Philosophy-Small%20surface%2C%20strong%20boundaries-blue.svg)](#philosophy)
 [![Performance](https://img.shields.io/badge/Performance-13.5x%20Faster-ff6b6b.svg)](#performance)
 [![Backend Roles](https://img.shields.io/badge/Backend-LLVM%20product%20main-orange.svg)](#execution-modes)
@@ -127,7 +127,7 @@ Dev mode and defaults
 Phase‑15 (2025‑09) update
 - Parser newline/TokenCursor 統一は env ゲート下で進行中（`NYASH_PARSER_TOKEN_CURSOR=1`）。
 - if/else の PHI incoming は実際の遷移元（exit）へ修正済み（VM/LLVM パリティ緑）。
-- 自己ホスト準備として Nyash 製 JSON ライブラリと Ny Executor（最小命令）を既定OFFのトグルで追加予定。
+- 自己ホスト準備として legacy Nyash 製 JSON ライブラリと Ny Executor（最小命令）を既定OFFのトグルで追加予定。
 - 推奨トグル: `NYASH_LLVM_USE_HARNESS=1`, `NYASH_PARSER_TOKEN_CURSOR=1`, `NYASH_JSON_PROVIDER=ny`, `NYASH_SELFHOST_EXEC=1`。
 
 Developer quickstart: see `docs/guides/getting-started.md`. Changelog highlights: `CHANGELOG.md`.
@@ -195,7 +195,7 @@ Specs & Constraints
 - Constraints (known/temporary/resolved): `docs/reference/constraints.md`
 - PHI & SSA design: `docs/reference/architecture/phi-and-ssa.md`
 - Testing matrix (spec → tests): `docs/guides/testing-matrix.md`
-- Comparison with other languages: `docs/guides/comparison/nyash-vs-others.md`
+- Comparison with other languages: `docs/guides/comparison/hakorune-vs-others.md`
 
 ## Table of Contents
 - [Self-Hosting (Compat / Proof)](#self-hosting)
@@ -256,7 +256,7 @@ cargo build --release --features cranelift-jit
 <a id="philosophy"></a>
 ### 🎯 **Boundary-First Philosophy**
 
-Hakorune’s current slogan is **Small surface, strong boundaries.** The older Nyash-era phrase “Everything is Box” still explains part of the culture: `box` is the identity/object boundary. The current language surface is broader and more precise:
+Hakorune’s current slogan is **Small surface, strong boundaries.** The older legacy-era phrase “Everything is Box” still explains part of the culture: `box` is the identity/object boundary. The current language surface is broader and more precise:
 
 - `record` is an identity-free value boundary.
 - `box` is an identity and behavior boundary.
@@ -271,7 +271,7 @@ Hakorune’s current slogan is **Small surface, strong boundaries.** The older N
 static box Main {
     main() {
         // Boxes are explicit identity/behavior boundaries.
-        local name = new StringBox("Nyash")
+        local name = new StringBox("Hakorune")
         local count = new IntegerBox(42)
         local data = new MapBox()
         
@@ -403,7 +403,7 @@ The WASM/browser path is experimental and not part of the product mainline or de
 
 ---
 
-## 🧰 One‑Command Build (MVP): `nyash --build`
+## 🧰 One‑Command Build (MVP): `hakorune --build`
 
 Reads `hako.toml` (compat: `nyash.toml`), builds plugins → core → emits AOT object → links an executable in one shot.
 
@@ -526,7 +526,7 @@ box RevolutionaryBox {
 ```
 
 ### Python Integration Breakthrough  
-**The Property System enables revolutionary Python → Nyash transpilation:**
+**The Property System enables revolutionary Python → Hakorune transpilation:**
 
 ```python
 # Python side
@@ -541,18 +541,18 @@ class DataProcessor:
 ```
 
 ```nyash
-// Auto-generated Nyash (1:1 mapping!)
+// Auto-generated Hakorune (1:1 mapping!)
 box DataProcessor {
     computed_result: IntegerBox { me.value * 2 }      // computed
     once expensive_data: ResultBox { heavy_computation() }  // once
 }
 ```
 
-**Result**: Python code runs 10-50x faster as native Nyash binaries!
+**Result**: Python code runs 10-50x faster as native Hakorune binaries!
 
 ### Documentation
 - **[Property System Specification](docs/development/proposals/unified-members.md)** - Complete syntax reference
-- **[Python Integration Guide](docs/private/roadmap2/phases/phase-10.7/)** - Python → Nyash transpilation
+- **[Python Integration Guide](docs/private/roadmap2/phases/phase-10.7/)** - Python → Hakorune transpilation
 - **[Implementation Strategy](docs/private/papers/paper-m-method-postfix-catch/implementation-strategy.md)** - Technical details
 
 ---
@@ -570,12 +570,12 @@ typedef struct {
     void* (*create)(void);      // Box creation function
 } NyrtTypeBox;
 
-// NEW: Nyash ABI itself as a TypeBox! (C implementation, no Rust)
+// NEW: Hakorune ABI itself as a TypeBox! (C implementation, no Rust)
 typedef struct {
     uint32_t abi_tag;           // 'NABI'
     const char* name;           // "NyashABIProvider"
     void* (*create)(void);      // ABI provider creation
-    // ... Nyash operations (call, retain, release)
+    // ... Hakorune operations (call, retain, release)
 } NyashABITypeBox;
 ```
 
@@ -590,7 +590,7 @@ abi = "c"              # Traditional C ABI
 
 [plugins.advanced_map]
 path = "plugins/adv_map.so"
-abi = "nyash"          # Type-safe Nyash ABI
+abi = "nyash"          # Type-safe legacy Nyash ABI
 
 [plugins.hybrid]
 path = "plugins/hybrid.so"
@@ -608,8 +608,8 @@ abi = "unified"        # Both ABIs supported!
 ### Quick Install (Linux/Mac/WSL)
 ```bash
 # Clone and build
-git clone https://github.com/moe-charm/nyash.git
-cd nyash
+git clone https://github.com/hakorune/hakorune.git
+cd hakorune
 cargo build --release --features cranelift-jit
 
 # Run your first program
@@ -622,7 +622,7 @@ $NYASH_BIN hello.hako
 # Cross-compile for Windows
 cargo install cargo-xwin
 cargo xwin build --target x86_64-pc-windows-msvc --release
-# Use target/x86_64-pc-windows-msvc/release/nyash.exe
+# Use target/x86_64-pc-windows-msvc/release/hakorune.exe
 
 # Native EXE (AOT) on Windows (requires Cranelift and MSYS2/WSL toolchain for linking)
 cargo build --release --features cranelift-jit
@@ -656,7 +656,7 @@ powershell -ExecutionPolicy Bypass -File tools\build_aot.ps1 -Input examples\aot
 
 ### Python Integration
 ```nyash
-// Use Python libraries from Nyash!
+// Use Python libraries from Hakorune!
 local py = new PyRuntimeBox()
 local np = py.import("numpy")
 local array = np.getattr("array").call([1, 2, 3])
@@ -672,7 +672,7 @@ loop(true) {
     local request = server.accept()
     local response = new HttpResponseBox()
     response.setStatus(200)
-    response.write("Hello from Nyash!")
+    response.write("Hello from Hakorune!")
     request.respond(response)
 }
 ```
@@ -721,18 +721,18 @@ MIT License - Use freely in your projects!
 
 ## 🎉 **Historical Timeline**
 
-- **August 9, 2025**: First commit - "Hello Nyash!"
+- **August 9, 2025**: First commit - "Hello Hakorune!"
 - **August 13**: JIT planning begins (day 4!)
 - **August 20**: VM achieves 13.5x performance
 - **August 29**: Native EXE compilation achieved!
-- **September 1**: TypeBox ABI unification - C ABI + Nyash ABI seamless integration
-- **September 2**: 🔥 Self-hosting path clear - Nyash ABI in C (no Rust dependency!)
+- **September 1**: TypeBox ABI unification - C ABI + legacy Nyash ABI seamless integration
+- **September 2**: 🔥 Self-hosting path clear - legacy Nyash ABI in C (no Rust dependency!)
 - **September 4**: 🪟 Windows GUI displayed via JIT/native EXE (OS-native window)
 
 *24 days from zero to self-hosting capability - a new record in language development!*
 
 ---
 
-**🚀 Nyash - Where Everything is a Box, and Boxes Compile to Native Code!**
+**🚀 Hakorune - Where Everything is a Box, and Boxes Compile to Native Code!**
 
 *Built with ❤️, 🤖 AI collaboration, and the belief that programming languages can be created at the speed of thought*

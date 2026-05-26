@@ -8,7 +8,7 @@
 - JIT ランタイムは封印（デフォルト無効）。対象バックエンドは Interpreter / VM / Cranelift AOT / LLVM AOT の4つ。
 
 用語
-- ユーザーBox: Nyash で実装した通常のクラス
+- ユーザーBox: Hakorune で実装した通常のクラス
 - プラグインBox: DLL/so 経由の TypeBox（v2 PluginBoxV2）
 - コア埋め込みBox: ランタイム同梱の最小セット（旧: ビルトイン）
 
@@ -17,7 +17,7 @@
    - `cd plugins/nyash-egui-plugin`
    - `cargo build --release --features with-egui`
 
-2) Nyash 本体をビルド（Cranelift AOT ツール込み）
+2) Hakorune 本体をビルド（Cranelift AOT ツール込み）
    - リポジトリ直下へ戻る: `cd ../../`
    - `cargo build --release --features cranelift-jit`
 
@@ -30,7 +30,7 @@
 4) 実行（画面が表示されれば成功）
 
 備考
-- .o 生成時（Nyash 実行）にもウィンドウが開きます。リンクを継続するため、いったんウィンドウを閉じてください。
+- .o 生成時（Hakorune 実行）にもウィンドウが開きます。リンクを継続するため、いったんウィンドウを閉じてください。
 
 WSL で表示されない場合（Wayland→X11 切り替え）
 - 症状: `WaylandError(Connection(NoCompositor))` などで即終了しウィンドウが出ない。
@@ -42,13 +42,13 @@ WSL で表示されない場合（Wayland→X11 切り替え）
   - `export XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir`
   - 実行例: `WINIT_UNIX_BACKEND=wayland ./app_egui`
 - チェック: `echo $XDG_RUNTIME_DIR $WAYLAND_DISPLAY $DISPLAY` が `… wayland-0 :0` のように設定されているか、`ls -ld /mnt/wslg/runtime-dir` でパスが存在するか確認。
-   - 実行はリポジトリ直下（`nyash.toml` と plugins の相対解決に必要）
+   - 実行はリポジトリ直下（`hako.toml` と plugins の相対解決に必要）
    - 任意ログ: `set NYASH_CLI_VERBOSE=1`（PowerShell: `$env:NYASH_CLI_VERBOSE='1'`）
    - 実行: `./app_egui.exe`
 
 トラブルシュート
 - プラグインが見つからない
-  - `nyash.toml` の `[plugin_paths].search_paths` に `plugins/*/target/release` が含まれているか確認
+  - `hako.toml` の `[plugin_paths].search_paths` に `plugins/*/target/release` が含まれているか確認
   - それでも解決しない場合は `nyash_egui_plugin.dll` を EXE と同フォルダへコピーして暫定回避
 - ログで確認（任意）
   - `NYASH_DEBUG_PLUGIN=1` でプラグイン登録/ロードの詳細を出力

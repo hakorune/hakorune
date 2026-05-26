@@ -20,7 +20,7 @@ Recommended Flows
 
 CI Workflows
 - Selfhost Bootstrap (always): `.github/workflows/selfhost-bootstrap.yml`
-  - Builds nyash (`cranelift-jit`) and runs `tools/selfhost/bootstrap_selfhost_smoke.sh`.
+  - Builds hakorune (`cranelift-jit`) and runs `tools/selfhost/bootstrap_selfhost_smoke.sh`.
 - Selfhost EXE‑first（optional）
   - crate 直結（ny-llvmc）で JSON→EXE→実行までを最短経路で確認できるよ。
   - 手順（ローカル）:

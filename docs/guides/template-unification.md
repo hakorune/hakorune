@@ -17,10 +17,9 @@ Authoring
   - During unquote: the `Program`’s statements are spliced into the argument list.
 
 Tooling
-- `nyash --expand --dump-ast file.hako` shows pre/post expansion.
+- `hakorune --expand --dump-ast file.hako` shows pre/post expansion.
 - Macro gate: `NYASH_MACRO_ENABLE=1`.
 
 Compatibility
 - This is a breaking change. Existing “template-only” extension points must adopt the macro engine.
 - Guidance: treat templates as macro sugar; move any custom template processors to macro patterns.
-

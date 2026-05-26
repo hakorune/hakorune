@@ -17,9 +17,9 @@ Profiles
   - trace: OFF
 
 CLI
-- `nyash --profile lite file.hako`
-- `nyash --profile dev file.hako`
-- `nyash --profile ci file.hako`
+- `hakorune --profile lite file.hako`
+- `hakorune --profile dev file.hako`
+- `hakorune --profile ci file.hako`
 
 ENV mapping (non-breaking; can be overridden)
 - lite → `NYASH_MACRO_ENABLE=0`, `NYASH_MACRO_STRICT=0`, `NYASH_MACRO_TRACE=0`
@@ -36,4 +36,3 @@ Deprecated ENV (kept for compatibility for now)
 - `NYASH_MACRO_BOX_NY=1` + `NYASH_MACRO_BOX_NY_PATHS=...` → use `NYASH_MACRO_PATHS`
 - `NYASH_MACRO_BOX_CHILD_RUNNER` → no longer needed
 - `NYASH_MACRO_TOPLEVEL_ALLOW` → default OFF; prefer CLI `--macro-top-level-allow` when necessary
-

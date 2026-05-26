@@ -1,4 +1,4 @@
-# 🐱 Hakorune プログラミング言語（旧 Nyash）
+# 🐱 Hakorune プログラミング言語
 > プロジェクト名と利用者向けバイナリは “Hakorune” に改名済みです。
 > 旧 `nyash` バイナリは互換用に残っていますが非推奨です。設定は `hako.toml` を優先し、`nyash.toml` は互換読み込みです。
 **小さい構文、強い境界。**
@@ -7,8 +7,8 @@
 
 *[🇺🇸 English Version / 英語版はこちら](README.md)*
 
-[![Selfhost Minimal](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml/badge.svg?branch=selfhosting-dev)](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml)
-[![Core Smoke](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml/badge.svg)](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml)
+[![Selfhost Minimal](https://github.com/hakorune/hakorune/actions/workflows/selfhost-minimal.yml/badge.svg?branch=selfhosting-dev)](https://github.com/hakorune/hakorune/actions/workflows/selfhost-minimal.yml)
+[![Core Smoke](https://github.com/hakorune/hakorune/actions/workflows/smoke.yml/badge.svg)](https://github.com/hakorune/hakorune/actions/workflows/smoke.yml)
 [![Philosophy](https://img.shields.io/badge/Philosophy-%E5%B0%8F%E3%81%95%E3%81%84%E6%A7%8B%E6%96%87%2C%20%E5%BC%B7%E3%81%84%E5%A2%83%E7%95%8C-blue.svg)](#philosophy)
 [![Performance](https://img.shields.io/badge/Performance-13.5x%20高速化-ff6b6b.svg)](#performance)
 [![Backend Roles](https://img.shields.io/badge/Backend-LLVM%20product%20main-orange.svg)](#execution-modes)
@@ -23,7 +23,7 @@ Hakorune は、自己ホストを目指す実験的な言語・コンパイラ�
 - **すべては境界。**
 - **隠れた越境を許さない。**
 
-主な境界は `record`、`box`、`sync box`、`co`、`nowait`、`await`、`Channel<T>`、`Result<T,E>`、`brand`、capability route です。Nyash 時代の “Everything is Box” は文化的な根ですが、現在の Hakorune では「box は重要な境界のひとつ」と読み替えます。
+主な境界は `record`、`box`、`sync box`、`co`、`nowait`、`await`、`Channel<T>`、`Result<T,E>`、`brand`、capability route です。旧 Nyash 時代の “Everything is Box” は文化的な根ですが、現在の Hakorune では「box は重要な境界のひとつ」と読み替えます。
 
 現在の開発 SSOT:
 - active lane / blocker / latest card: `docs/development/current/main/CURRENT_STATE.toml`
@@ -73,7 +73,7 @@ ExternCall（env.*）と println 正規化: `docs/reference/runtime/externcall.m
 - 詳細: `docs/guides/operator-boxes.md`
 
 開発モードと既定
-- `nyash --dev script.hako` で開発向け既定（AST using ON / Operator Boxes 観測ON / 診断の最小ON）を一括で有効化できます。`nyash script.hako` は本番相当（静かで安定）。
+- `hakorune --dev script.hako` で開発向け既定（AST using ON / Operator Boxes 観測ON / 診断の最小ON）を一括で有効化できます。`hakorune script.hako` は本番相当（静かで安定）。
 - ワンコマンドの dev ショートカットも引き続き利用できます（`tools/opbox-json.sh` / `tools/opbox-quick.sh`）。
 - using ガード: 同じファイルの重複 import（または alias の再バインド）はエラーになり、行番号付きで通知されます。
   - 例: `using: duplicate import of '<canon_path>' at file.hako:12 (previous alias 'X' first seen at line 5)`
@@ -105,7 +105,7 @@ Phase‑15（2025‑09）アップデート
   - 既定のPHI挙動: Phase‑15 で PHI-ON（MIR14）が標準になったよ。ループ・break/continue・構造化制御の合流で PHI を必ず生成するよ。
   - レガシー互換: `NYASH_MIR_NO_PHI=1`（必要なら `NYASH_VERIFY_ALLOW_NO_PHI=1` も）で PHI-OFF（エッジコピー）に切り替えできるよ。
 - テスト行列（仕様→テスト対応）: `docs/guides/testing-matrix.md`
-- 他言語との比較: `docs/guides/comparison/nyash-vs-others.md`
+- 他言語との比較: `docs/guides/comparison/hakorune-vs-others.md`
 
 プロファイル（クイック）
 - `--profile dev` → マクロON（strict）、PyVM 開発向けの既定を適用（必要に応じて環境で上書き可）
@@ -162,7 +162,7 @@ cargo build --release --features cranelift-jit
 <a id="philosophy"></a>
 ### 🎯 **Boundary-First 哲学**
 
-Hakorune の現在の看板は **小さい構文、強い境界。** です。Nyash 時代の “Everything is Box” は、`box` が identity / behavior の境界であることを強く表す合言葉でした。現在はさらに、境界の種類を分けて扱います。
+Hakorune の現在の看板は **小さい構文、強い境界。** です。旧 Nyash 時代の “Everything is Box” は、`box` が identity / behavior の境界であることを強く表す合言葉でした。現在はさらに、境界の種類を分けて扱います。
 
 - `record`: identity-free な値境界
 - `box`: identity と振る舞いの境界
@@ -177,7 +177,7 @@ Hakorune の現在の看板は **小さい構文、強い境界。** です。Ny
 static box Main {
     main() {
         // Box は明示的な identity / behavior 境界
-        local name = new StringBox("Nyash")
+        local name = new StringBox("Hakorune")
         local count = new IntegerBox(42)
         local data = new MapBox()
         
@@ -359,7 +359,7 @@ $NYASH_BIN --run-task smoke_obj_array
 
 ---
 
-## 🧰 一発ビルド（MVP）: `nyash --build`
+## 🧰 一発ビルド（MVP）: `hakorune --build`
 
 `hako.toml`（互換: `nyash.toml`）を読み、プラグイン → コア → AOT → リンクまでを一発実行する最小ビルド機能です。
 
@@ -476,12 +476,12 @@ C/Rustで独自のBox型を作成してシームレスに統合！
 ### クイックインストール (Linux/Mac/WSL)
 ```bash
 # クローンとビルド
-git clone https://github.com/moe-charm/nyash.git
-cd nyash
+git clone https://github.com/hakorune/hakorune.git
+cd hakorune
 cargo build --release --features cranelift-jit
 
 # 最初のプログラムを実行
-echo 'print("Hello Nyash!")' > hello.hako
+echo 'print("Hello Hakorune!")' > hello.hako
 $NYASH_BIN hello.hako
 ```
 
@@ -490,7 +490,7 @@ $NYASH_BIN hello.hako
 # Windows向けクロスコンパイル
 cargo install cargo-xwin
 cargo xwin build --target x86_64-pc-windows-msvc --release
-# target/x86_64-pc-windows-msvc/release/nyash.exe を使用
+# target/x86_64-pc-windows-msvc/release/hakorune.exe を使用
 
 # WindowsでのネイティブEXE（AOT）ビルド（Cranelift と MSYS2/WSL が必要）
 cargo build --release --features cranelift-jit
@@ -588,7 +588,7 @@ MIT ライセンス - プロジェクトで自由に使用してください！
 
 ## 🎉 **歴史的タイムライン**
 
-- **2025年8月9日**: 最初のコミット - "Hello Nyash!"
+- **2025年8月9日**: 最初のコミット - "Hello Hakorune!"
 - **2025年8月13日**: JIT計画開始（4日目！）
 - **2025年8月20日**: VMが13.5倍性能達成
 - **2025年8月29日**: ネイティブEXEコンパイル実現！
@@ -597,6 +597,6 @@ MIT ライセンス - プロジェクトで自由に使用してください！
 
 ---
 
-**🚀 Nyash - すべてがBoxであり、Boxがネイティブコードにコンパイルされる場所！**
+**🚀 Hakorune - すべてがBoxであり、Boxがネイティブコードにコンパイルされる場所！**
 
 *❤️、🤖 AIコラボレーション、そしてプログラミング言語は思考の速度で作れるという信念で構築*

@@ -1,14 +1,14 @@
 Dev Mode and Defaults (Plan)
 
 Overview
-- Goal: make Nyash simple to run like other languages. Defaults should be obvious; experiments should be opt‑in.
+- Goal: make Hakorune simple to run like other languages. Defaults should be obvious; experiments should be opt‑in.
 - Two modes:
   - Production (default): quiet, stable; only stable features on.
   - Development (`--dev`): safe dev defaults on; experiments enabled in observe mode; helpful diagnostics.
 
 Current
 - Use `--dev` to enable development defaults:
-  - `nyash --dev script.hako`
+  - `hakorune --dev script.hako`
   - Enables AST using + Operator Boxes (observe) by default. Output remains stable.
 - Dev shortcuts remain available:
   - `./tools/opbox-json.sh` – JSON Roundtrip/Nested with Operator Boxes
@@ -19,7 +19,7 @@ Current
 
 Defaults mapping
 - Production (default)
-  - using: ON (SSOT). AST merge only when nyash.toml defines the module (no implicit).
+  - using: ON (SSOT). AST merge only when hako.toml defines the module (no implicit; `nyash.toml` is compat only).
   - Operator Boxes: OFF (no behavior change from legacy).
   - Traces: OFF.
 - Development (`--dev`)
@@ -33,7 +33,7 @@ Flag consolidation (mid‑term)
 - `NYASH_TRACE=all|vm,box,print,if,loop` → expands to legacy trace flags.
 - Old flags remain; new keys take precedence; final resolved state is logged when `NYASH_CLI_VERBOSE=1`.
 
-nyash.toml profiles (long‑term)
+hako.toml profiles (long‑term)
 - Example:
   [profiles.json-dev]
   operator_boxes = ["stringify", "compare", "add"]
@@ -46,9 +46,9 @@ nyash.toml profiles (long‑term)
   verbose = true
 
 Priority
-- CLI `--profile` > explicit env > nyash.toml defaults > built‑in defaults.
+- CLI `--profile` > explicit env > hako.toml defaults > built‑in defaults.
 
 Acceptance
-- `nyash script.hako` runs with stable defaults.
-- `nyash --dev script.hako` enables AST using + Operator Boxes (observe) and passes JSON Roundtrip/Nested.
+- `hakorune script.hako` runs with stable defaults.
+- `hakorune --dev script.hako` enables AST using + Operator Boxes (observe) and passes JSON Roundtrip/Nested.
 - Smokes use `--dev` path when appropriate; profiles remain as a convenience.

@@ -1,7 +1,7 @@
-# Nyash Style Guide (Phase 15)
+# Hakorune Style Guide (Phase 15)
 
 Goals
-- Keep Nyash sources readable and structured. Favor simple, predictable formatting compatible with reversible formatting (nyfmt PoC).
+- Keep Hakorune sources readable and structured. Favor simple, predictable formatting compatible with reversible formatting (nyfmt PoC).
 
 Formatting
 - Indent with 2 spaces (no tabs).
@@ -27,7 +27,7 @@ String concatenation policy
 - Use explicit conversion helpers instead, e.g. `StringHelpers.int_to_str(id)`.
 - Plain string building for messages or JSON emit is allowed to use `+` for clarity (no key/control impact).
 
-Naming (conventions for Nyash code)
+Naming (conventions for Hakorune code)
 - Boxes (types): `PascalCase` (e.g., `ConsoleBox`, `PathBox`).
 - Methods/functions: `lowerCamelCase` (e.g., `length`, `substring`, `lastIndexOf`).
 - Local variables: concise `lowerCamelCase` (e.g., `i`, `sum`, `filePath`).
