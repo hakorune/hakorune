@@ -20,8 +20,8 @@ echo "[$TAG] checking phase-296x provider package v0 usage docs"
 guard_require_files "$TAG" "$DOC" "$CARD_24" "$TASKBOARD" "$INDEX" "$CURRENT_STATE" "$REFERENCE_INDEX" "$CLI_IMPL" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-24-MIMALLOC-PROVIDER-PACKAGE-V0-USAGE-DOCS"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT-296X-001"' "$CURRENT_STATE" "current state must expose functional closeout row"
+guard_expect_fixed_in_file "$TAG" '296x-24 Documented the stable provider package v0 command' "$CURRENT_STATE" "current state must retain usage docs history"
+guard_expect_fixed_in_file "$TAG" '296x-25 Closed provider package v0 as functional' "$CURRENT_STATE" "current state must retain functional closeout history"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Active' "$DOC" "usage docs must be active reference docs"
 guard_expect_fixed_in_file "$TAG" 'target/debug/hakorune' "$DOC" "usage docs must show Hakorune CLI command"
@@ -46,7 +46,7 @@ guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-V0-USAGE-DOCS-296X-
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT-296X-001' "$CARD_24" "card must select functional closeout"
 
 guard_expect_fixed_in_file "$TAG" '| 24 | `MIMALLOC-PROVIDER-PACKAGE-V0-USAGE-DOCS-296X-001` | Landed |' "$TASKBOARD" "taskboard row 24 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 25 | `MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT-296X-001` | Current |' "$TASKBOARD" "taskboard row 25 must be current"
+guard_expect_fixed_in_file "$TAG" '| 25 | `MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT-296X-001` |' "$TASKBOARD" "taskboard must retain row 25"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list usage docs guard"
 guard_expect_fixed_in_file "$TAG" 'OUTPUT_CONTRACT' "$CLI_IMPL" "CLI impl must keep package contract owner"
 
