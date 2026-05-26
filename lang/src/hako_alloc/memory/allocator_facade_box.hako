@@ -303,6 +303,41 @@ box HakoAllocProductionFacade {
         return 1
     }
 
+    remotePagePublishOnlyFastWithPort(port, head_cell, block_a, block_b) {
+        if me.remotePageResetPort(port, head_cell) != 1 { return 0 }
+
+        local block0 = me.remotePageAcquire(port, 8)
+        if block0 != 1 { return 0 }
+        local block1 = me.remotePageAcquire(port, 16)
+        if block1 != 0 { return 0 }
+
+        if me.remotePagePublishPort(port, block_a, block0, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_b, block1, 0) != 1 { return 0 }
+
+        if me.remotePagePortInboxPushCount(port) != 2 { return 0 }
+        if me.remotePagePortInboxCollectCount(port) != 0 { return 0 }
+        if me.remotePagePortInboxPendingCount(port) != 2 { return 0 }
+        return 1
+    }
+
+    remotePageCollectOnlyFastWithPort(port, head_cell, block_a, block_b) {
+        if me.remotePageResetPort(port, head_cell) != 1 { return 0 }
+
+        local block0 = me.remotePageAcquire(port, 8)
+        if block0 != 1 { return 0 }
+        local block1 = me.remotePageAcquire(port, 16)
+        if block1 != 0 { return 0 }
+
+        if me.remotePagePublishPort(port, block_a, block0, 0) != 1 { return 0 }
+        if me.remotePagePublishPort(port, block_b, block1, 0) != 1 { return 0 }
+        if me.remotePageCollectPendingPort(port) != 2 { return 0 }
+        if me.remotePageCollectOnePort(port) != 0 { return 0 }
+
+        if me.remotePagePortLocalFreeCount(port) != 2 { return 0 }
+        if me.remotePagePortInboxPendingCount(port) != 0 { return 0 }
+        return 1
+    }
+
     remotePageAcquire(port, requested_size) {
         return port.acquire(requested_size)
     }

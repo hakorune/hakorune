@@ -248,7 +248,12 @@ box HakoAllocRemoteFreePageInbox {
         }
 
         local pending_block_ids = me.pending_block_ids
-        pending_block_ids.push(block_id)
+        local pending_top = me.pending_top
+        if pending_top < pending_block_ids.length() {
+            pending_block_ids.set(pending_top, block_id)
+        } else {
+            pending_block_ids.push(block_id)
+        }
         me.pending_top = me.pending_top + 1
         me.remote_push_count = me.remote_push_count + 1
         me.retry_count = me.retry_count + retries

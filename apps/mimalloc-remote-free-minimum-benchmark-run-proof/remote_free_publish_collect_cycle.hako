@@ -50,11 +50,20 @@ static box Main {
         if head_cell == 0 {
             ok = 0
         } else if block_a == 0 {
-            if head_cell != 0 { local free_head = externcall "hako_mem_free"(head_cell) }
+            if head_cell != 0 {
+                local free_head = externcall "hako_mem_free"(head_cell)
+                head_cell = 0
+            }
             ok = 0
         } else if block_b == 0 {
-            if block_a != 0 { local free_a = externcall "hako_mem_free"(block_a) }
-            if head_cell != 0 { local free_head2 = externcall "hako_mem_free"(head_cell) }
+            if block_a != 0 {
+                local free_a = externcall "hako_mem_free"(block_a)
+                block_a = 0
+            }
+            if head_cell != 0 {
+                local free_head2 = externcall "hako_mem_free"(head_cell)
+                head_cell = 0
+            }
             ok = 0
         }
 
