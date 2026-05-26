@@ -1,26 +1,65 @@
 // hako-alloc-mimalloc-comparison-empty-exe-proof
 // Purpose: exact-EXE-friendly empty baseline comparison evidence app.
 
+box HakoAllocMimallocComparisonEmptyReport {
+    workload_id: StringBox = "representative-empty-v0"
+    operation_family: StringBox = "empty-baseline"
+    operation_sequence_id: StringBox = "representative-empty-v0-seq"
+    free_order_id: StringBox = "no-release-v0"
+    allocation_count: i64 = 0
+    free_count: i64 = 0
+    realloc_count: i64 = 0
+    aligned_alloc_count: i64 = 0
+    alignment_request_count: i64 = 0
+    alignment_ok_count: i64 = 0
+    alignment_reject_count: i64 = 0
+    large_request_count: i64 = 0
+    realloc_same_ptr_count: i64 = 0
+    realloc_moved_count: i64 = 0
+    copied_bytes: i64 = 0
+    summary_fields: StringBox = "0,0,0,0,0,0"
+
+    workloadLine() { return "workload=representative-empty-v0" }
+    operationFamilyLine() { return "operation_family=empty-baseline" }
+    operationSequenceLine() { return "operation_sequence_id=representative-empty-v0-seq" }
+    freeOrderLine() { return "free_order_id=no-release-v0" }
+    allocationCountLine() { return "allocation_count=0" }
+    freeCountLine() { return "free_count=0" }
+    reallocCountLine() { return "realloc_count=0" }
+    alignedAllocCountLine() { return "aligned_alloc_count=0" }
+    alignmentRequestCountLine() { return "alignment_request_count=0" }
+    alignmentOkCountLine() { return "alignment_ok_count=0" }
+    alignmentRejectCountLine() { return "alignment_reject_count=0" }
+    largeRequestCountLine() { return "large_request_count=0" }
+    reallocSamePtrCountLine() { return "realloc_same_ptr_count=0" }
+    reallocMovedCountLine() { return "realloc_moved_count=0" }
+    copiedBytesLine() { return "copied_bytes=0" }
+    summaryFieldsLine() { return "summary_fields=" + me.summary_fields }
+    summaryLine() { return "summary=ok" }
+}
+
 static box Main {
     main(args) {
+        local report = new HakoAllocMimallocComparisonEmptyReport()
+
         print("hako-alloc-mimalloc-comparison-empty-exe-proof")
-        print("workload=representative-empty-v0")
-        print("operation_family=empty-baseline")
-        print("operation_sequence_id=representative-empty-v0-seq")
-        print("free_order_id=no-release-v0")
-        print("allocation_count=0")
-        print("free_count=0")
-        print("realloc_count=0")
-        print("aligned_alloc_count=0")
-        print("alignment_request_count=0")
-        print("alignment_ok_count=0")
-        print("alignment_reject_count=0")
-        print("large_request_count=0")
-        print("realloc_same_ptr_count=0")
-        print("realloc_moved_count=0")
-        print("copied_bytes=0")
-        print("summary_fields=0,0,0,0,0,0")
-        print("summary=ok")
+        print(report.workloadLine())
+        print(report.operationFamilyLine())
+        print(report.operationSequenceLine())
+        print(report.freeOrderLine())
+        print(report.allocationCountLine())
+        print(report.freeCountLine())
+        print(report.reallocCountLine())
+        print(report.alignedAllocCountLine())
+        print(report.alignmentRequestCountLine())
+        print(report.alignmentOkCountLine())
+        print(report.alignmentRejectCountLine())
+        print(report.largeRequestCountLine())
+        print(report.reallocSamePtrCountLine())
+        print(report.reallocMovedCountLine())
+        print(report.copiedBytesLine())
+        print(report.summaryFieldsLine())
+        print(report.summaryLine())
         return 0
     }
 }
