@@ -45,6 +45,31 @@ MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002:
 4. Open required-inline pilot only for selected same-module scalar leaf helpers
    after proof/evidence guards remain green.
 
+## Mini-Agent Restart Queue
+
+Use the active card's `Mini-Agent Task Slices` section as the detailed SSOT:
+
+```text
+docs/development/current/main/phases/phase-295x/295x-252-MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH.md
+```
+
+Recommended order for small models:
+
+1. Slice 0: verify the current remote-free minimum pack.
+2. Slice 1: improve realloc/aligned facade route readability.
+3. Slice 2: improve mixed-small workload readability.
+4. Slice 3: improve huge/OSVM slice readability.
+
+Rules for every slice:
+
+- one slice = one commit;
+- do not change workload ids, operation families, repeat counts, or output
+  contracts unless the active card explicitly says so;
+- do not open provider activation, native replacement, DLL/shared-library,
+  thread/TLS/atomic expansion, or winner-claim seams;
+- run the slice guard first, then `git diff --check`, then
+  `tools/checks/dev_gate.sh quick` before asking for review.
+
 ## Queue
 
 | Order | Row | Status | Boundary |

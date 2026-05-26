@@ -78,11 +78,114 @@ remote_free_publish_collect_cycle median: 110.6ms -> 60.245ms (-45.5%)
 remote_free_collect_only median: 86.5ms -> 56.109ms (-35.1%)
 ```
 
-Current next small seam:
+Current hot-loop cleanup status:
 
+- remote-free minimum publish-only, collect-only, and publish+collect apps now
+  allocate their pointer fixtures and page port outside the operation loop.
+- loop bodies call facade fast wrappers instead of rebuilding port/page/inbox
+  objects per iteration.
+- `HakoAllocRemoteFreePageInbox.publish` reuses `pending_block_ids` slots when
+  `pending_top` has been reset, so reused ports do not grow the pending array
+  on every iteration.
+
+No further remote-free minimum hot-loop cleanup is selected for this card unless
+a fresh perf sample identifies a new owner.
+
+## Mini-Agent Task Slices
+
+Use this section as the restart checklist for smaller models. Pick exactly one
+slice, keep the edit in the listed files, and commit only after the listed guard
+passes.
+
+### Slice 0 - Verify Current Remote-Free Minimum
+
+Purpose: confirm the current remote-free minimum pack is green before opening a
+new migration seam.
+
+Files to read only:
+
+- `apps/mimalloc-remote-free-minimum-benchmark-run-proof/*.hako`
+- `lang/src/hako_alloc/memory/allocator_facade_box.hako`
 - `lang/src/hako_alloc/memory/remote_free_page_integration_box.hako`
-  - `HakoAllocRemoteFreePageExerciseReport.ok` local cache pass to reduce
-    repeated `field_get_*` traffic during the compound check.
+
+Commands:
+
+```text
+git status -sb
+bash tools/checks/impl/phase295x_mimalloc_remote_free_minimum_benchmark_run_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+Done when: all commands are green and no source change is needed.
+
+### Slice 1 - Realloc/Aligned Facade Route Readability
+
+Purpose: make the realloc/aligned path easier to port and optimize without
+changing workload shape.
+
+Allowed files:
+
+- `apps/hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof/main.hako`
+- `lang/src/hako_alloc/memory/allocator_facade_box.hako`
+- narrow realloc proof files only if the guard requires them
+
+First commands:
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_realloc_grow_exe_guard.sh
+bash tools/checks/k2_wide_mimalloc_facade_realloc_shrink_exe_guard.sh
+bash tools/checks/k2_wide_mimalloc_realloc_alloc_copy_release_guard.sh
+```
+
+Allowed edit: move repeated success-path checks into facade-owned helpers, or
+split long app-local checks into named proof helpers. Do not add a new workload.
+
+Done when: the three commands above pass and the app still prints
+`workload=representative-realloc-aligned-v0`.
+
+### Slice 2 - Mixed-Small Workload Readability
+
+Purpose: prepare the mixed-small comparison app for later body-timing without
+changing operation semantics.
+
+Allowed files:
+
+- `apps/hako-alloc-mimalloc-comparison-mixed-small-exe-proof/main.hako`
+- existing `lang/src/hako_alloc/memory/**` facade/helper owners used by the app
+
+First commands:
+
+```text
+bash tools/checks/k2_wide_phase295x_mixed_size_evidence_run_guard.sh
+```
+
+Allowed edit: separate setup/body/verify/cleanup inside the `.hako` app, or
+route repeated app-local checks through existing facade helpers.
+
+Done when: the guard passes and the app still prints
+`workload=representative-mixed-small-v0`.
+
+### Slice 3 - Huge/OSVM Slice Readability
+
+Purpose: keep the huge/OSVM comparison path readable before deeper porting.
+
+Allowed files:
+
+- `apps/hako-alloc-mimalloc-comparison-huge-osvm-slice-proof/main.hako`
+- existing huge/page-source/page-model owners under `lang/src/hako_alloc/memory/`
+
+First commands:
+
+```text
+bash tools/checks/k2_wide_hako_alloc_mimalloc_comparison_huge_osvm_slice_guard.sh
+```
+
+Allowed edit: reduce duplicated app-local checks or give repeated setup/body
+blocks named helpers. Do not open provider activation, native allocator
+replacement, or winner-claim seams.
+
+Done when: the guard passes and the app still prints `workload=huge-osvm-v1`.
 
 ## Ownership Freeze (2026-05-26)
 
