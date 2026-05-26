@@ -167,6 +167,23 @@ pub fn build_command() -> Command {
                 .value_name("FILE")
                 .help("[Diagnostic] Validate explicit allocator provider proof bundle consumption TOML without consuming proof or activating a provider")
         )
+        .arg(
+            Arg::new("provider-package-existing-binary")
+                .long("provider-package-existing-binary")
+                .value_name("FILE")
+                .help("[Provider package] Package an existing provider shared library with a manifest")
+        )
+        .arg(Arg::new("provider-package-out-dir").long("provider-package-out-dir").value_name("DIR").help("[Provider package] Output package directory"))
+        .arg(Arg::new("provider-package-artifact-name").long("provider-package-artifact-name").value_name("FILE").help("[Provider package] Artifact file name inside the package"))
+        .arg(Arg::new("provider-package-id").long("provider-package-id").value_name("ID").help("[Provider package] Stable package id"))
+        .arg(Arg::new("provider-package-kind").long("provider-package-kind").value_name("KIND").help("[Provider package] Provider kind (default: allocator)"))
+        .arg(Arg::new("provider-package-name").long("provider-package-name").value_name("NAME").help("[Provider package] Provider display/name id"))
+        .arg(Arg::new("provider-package-version").long("provider-package-version").value_name("VERSION").help("[Provider package] Provider version"))
+        .arg(Arg::new("provider-package-target-triple").long("provider-package-target-triple").value_name("TRIPLE").help("[Provider package] Target triple"))
+        .arg(Arg::new("provider-package-platform").long("provider-package-platform").value_name("PLATFORM").help("[Provider package] Target platform"))
+        .arg(Arg::new("provider-package-profile").long("provider-package-profile").value_name("{speed|diagnostic}").help("[Provider package] Package profile"))
+        .arg(Arg::new("provider-package-provider-call-allowed").long("provider-package-provider-call-allowed").help("[Provider package] Allow explicit provider calls in manifest policy").action(clap::ArgAction::SetTrue))
+        .arg(Arg::new("provider-package-force").long("provider-package-force").help("[Provider package] Replace existing package files").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
         .arg(Arg::new("using").long("using").value_name("NAME").help("Add a using directive to current session; repeat").action(clap::ArgAction::Append))
@@ -351,6 +368,33 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         allocator_provider_proof_bundle_consumption: matches
             .get_one::<String>("allocator-provider-proof-bundle-consumption")
             .cloned(),
+        provider_package_existing_binary: matches
+            .get_one::<String>("provider-package-existing-binary")
+            .cloned(),
+        provider_package_out_dir: matches
+            .get_one::<String>("provider-package-out-dir")
+            .cloned(),
+        provider_package_artifact_name: matches
+            .get_one::<String>("provider-package-artifact-name")
+            .cloned(),
+        provider_package_id: matches.get_one::<String>("provider-package-id").cloned(),
+        provider_package_kind: matches.get_one::<String>("provider-package-kind").cloned(),
+        provider_package_name: matches.get_one::<String>("provider-package-name").cloned(),
+        provider_package_version: matches
+            .get_one::<String>("provider-package-version")
+            .cloned(),
+        provider_package_target_triple: matches
+            .get_one::<String>("provider-package-target-triple")
+            .cloned(),
+        provider_package_platform: matches
+            .get_one::<String>("provider-package-platform")
+            .cloned(),
+        provider_package_profile: matches
+            .get_one::<String>("provider-package-profile")
+            .cloned(),
+        provider_package_provider_call_allowed: matches
+            .get_flag("provider-package-provider-call-allowed"),
+        provider_package_force: matches.get_flag("provider-package-force"),
         // Phase 288 P1: REPL mode
         repl: matches.get_flag("repl"),
     };
