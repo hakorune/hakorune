@@ -152,6 +152,47 @@ winner_claim=0
 summary=ok
 ```
 
+## Phase B1 Selected Fixture Build
+
+Phase B1 adds one Hakorune-owned selected build producer:
+
+```bash
+target/debug/hakorune \
+  --provider-package-selected-binary-build-fixture \
+  --provider-package-out-dir dist/hakorune-provider \
+  --provider-package-id org.hakorune.provider.selected.fixture \
+  --provider-package-name selected-fixture-provider \
+  --provider-package-target-triple x86_64-unknown-linux-gnu \
+  --provider-package-platform linux
+```
+
+This command builds the selected fixture provider binary and then emits the
+same package layout:
+
+```text
+output_contract=hakorune-provider-package-selected-binary-build-v0
+package_mode=selected-binary-build-package
+build_mode=selected-fixture
+build_command_executed=1
+hako_shared_library_generation=0
+arbitrary_shell_build_executed=0
+shared_library_load_executed=0
+required_export_resolved=0
+descriptor_read_executed=0
+provider_call_executed=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+summary=ok
+```
+
+The selected fixture build is not full `.hako` to shared-library generation.
+It must not run arbitrary user shell commands or discover provider binaries
+through `PATH`, `LD_LIBRARY_PATH`, the current working directory, or platform
+loader fallback locations.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata

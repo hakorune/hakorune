@@ -165,6 +165,11 @@ fn main() {
     if let Some(exit_code) = nyash_rust::cli::maybe_run_provider_package_existing_binary(&config) {
         std::process::exit(exit_code);
     }
+    if let Some(exit_code) =
+        nyash_rust::cli::maybe_run_provider_package_selected_binary_build(&config)
+    {
+        std::process::exit(exit_code);
+    }
     // Create and run the execution coordinator
     let runner = NyashRunner::new(config);
     runner.run();

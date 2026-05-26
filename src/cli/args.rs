@@ -174,6 +174,13 @@ pub fn build_command() -> Command {
                 .value_name("FILE")
                 .help("[Provider package] Package an existing provider shared library with a manifest")
         )
+        .arg(
+            Arg::new("provider-package-selected-binary-build-fixture")
+                .long("provider-package-selected-binary-build-fixture")
+                .help("[Provider package] Build the selected fixture provider binary, then package it")
+                .action(clap::ArgAction::SetTrue)
+                .conflicts_with("provider-package-existing-binary")
+        )
         .arg(Arg::new("provider-package-out-dir").long("provider-package-out-dir").value_name("DIR").help("[Provider package] Output package directory"))
         .arg(Arg::new("provider-package-artifact-name").long("provider-package-artifact-name").value_name("FILE").help("[Provider package] Artifact file name inside the package"))
         .arg(Arg::new("provider-package-id").long("provider-package-id").value_name("ID").help("[Provider package] Stable package id"))
@@ -372,6 +379,8 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         provider_package_existing_binary: matches
             .get_one::<String>("provider-package-existing-binary")
             .cloned(),
+        provider_package_selected_binary_build_fixture: matches
+            .get_flag("provider-package-selected-binary-build-fixture"),
         provider_package_out_dir: matches
             .get_one::<String>("provider-package-out-dir")
             .cloned(),
