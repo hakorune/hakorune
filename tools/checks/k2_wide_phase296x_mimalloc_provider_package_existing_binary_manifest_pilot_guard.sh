@@ -43,6 +43,8 @@ guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list
 guard_expect_fixed_in_file "$TAG" "$TOOL" "$INDEX" "check index must list package tool"
 
 python3 -m py_compile "$TOOL"
+guard_expect_fixed_in_file "$TAG" 'OUTPUT_CONTRACT = "hakorune-provider-package-existing-binary-manifest-v0"' "$TOOL" "tool must own output contract as a constant"
+guard_expect_fixed_in_file "$TAG" 'f"output_contract={OUTPUT_CONTRACT}"' "$TOOL" "tool report must use output contract constant"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase296x_provider_package.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT

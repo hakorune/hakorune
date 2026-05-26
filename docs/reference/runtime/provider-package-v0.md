@@ -34,6 +34,10 @@ target/debug/hakorune \
   --provider-package-platform linux
 ```
 
+`hakorune` is the current CLI binary name. `nyash` may still exist as a
+legacy-compatible alias in some local builds, but new provider package docs and
+automation should use `hakorune`.
+
 The command emits this stable report contract:
 
 ```text

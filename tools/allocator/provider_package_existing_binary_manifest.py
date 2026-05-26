@@ -14,6 +14,7 @@ from typing import Any
 SCHEMA_VERSION = "hakorune-provider-package-v1"
 ABI_VERSION = "hakorune-provider-abi-v1"
 DESCRIPTOR_EXPORT = "hakorune_provider_descriptor_v1"
+OUTPUT_CONTRACT = "hakorune-provider-package-existing-binary-manifest-v0"
 
 
 def fail(message: str) -> None:
@@ -98,7 +99,7 @@ def build_manifest(args: argparse.Namespace, artifact_name: str, artifact_sha: s
 def emit_report(manifest: dict[str, Any], out_dir: Path, source_binary: Path) -> str:
     artifact = manifest["artifact"]
     lines = [
-        "output_contract=hakorune-provider-package-existing-binary-manifest-v0",
+        f"output_contract={OUTPUT_CONTRACT}",
         "package_mode=existing-binary-manifest",
         f"package_dir={out_dir}",
         f"source_binary={source_binary}",

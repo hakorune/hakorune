@@ -25,6 +25,8 @@ guard_expect_fixed_in_file "$TAG" '296x-25 Closed provider package v0 as functio
 
 guard_expect_fixed_in_file "$TAG" 'Status: Active' "$DOC" "usage docs must be active reference docs"
 guard_expect_fixed_in_file "$TAG" 'target/debug/hakorune' "$DOC" "usage docs must show Hakorune CLI command"
+guard_expect_fixed_in_file "$TAG" '`hakorune` is the current CLI binary name' "$DOC" "usage docs must clarify current binary name"
+guard_expect_fixed_in_file "$TAG" '`nyash` may still exist as a' "$DOC" "usage docs must clarify legacy binary alias"
 guard_expect_fixed_in_file "$TAG" '--provider-package-existing-binary' "$DOC" "usage docs must document package input flag"
 guard_expect_fixed_in_file "$TAG" '--provider-package-out-dir' "$DOC" "usage docs must document output directory flag"
 guard_expect_fixed_in_file "$TAG" 'output_contract=hakorune-provider-package-existing-binary-manifest-v0' "$DOC" "usage docs must document package output contract"
