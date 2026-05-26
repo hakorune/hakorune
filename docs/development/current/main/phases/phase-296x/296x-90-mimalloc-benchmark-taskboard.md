@@ -32,8 +32,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001:
-  Close corpus adapter bring-up before load-only DLL/provider selection.
+MIMALLOC-DLL-LOAD-ONLY-SELECTION-296X-001:
+  Select load-only DLL metadata smoke after benchmark contracts are stable.
 ```
 
 ## Queue
@@ -46,8 +46,9 @@ MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001:
 | 3 | `MIMALLOC-BENCHMARK-HAKMEM-BENCHRES-ADAPTER-296X-001` | Landed | Convert selected `benchres.csv` rows to Hakorune benchmark evidence with winner claims closed. |
 | 4 | `MIMALLOC-BENCHMARK-HAKOZUNA-COMPARE-LOG-ADAPTER-296X-001` | Landed | Convert selected `hakozuna_compare` logs to Hakorune benchmark evidence. |
 | 5 | `MIMALLOC-BENCHMARK-EXACT-EXE-HARNESS-PILOT-296X-001` | Landed | Run one already-landed `.hako` workload through a benchmark harness using the accepted result contract. |
-| 6 | `MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001` | Current | Close corpus adapter bring-up and select the first DLL/provider load-only row. |
-| 7 | `MIMALLOC-DLL-LOAD-ONLY-SELECTION-296X-001` | Planned | Select load-only DLL metadata smoke after benchmark contracts are stable. |
+| 6 | `MIMALLOC-BENCHMARK-EXTERNAL-CORPUS-CLOSEOUT-296X-001` | Landed | Close corpus adapter bring-up and select the first real repeated measurement row. |
+| 7 | `MIMALLOC-BENCHMARK-EXACT-EXE-REPEATED-MEASUREMENT-296X-001` | Landed | Run the selected same workload with process-repeat timing and repeated samples. |
+| 8 | `MIMALLOC-DLL-LOAD-ONLY-SELECTION-296X-001` | Current | Select load-only DLL metadata smoke after benchmark contracts are stable. |
 
 ## Mini-Agent Restart Queue
 
@@ -119,8 +120,23 @@ Allowed files:
 
 Do not open DLL/provider work.
 
-### Slice 5 - DLL Load-Only Selection
+### Slice 5 - Exact-EXE Repeated Measurement
+
+Purpose: run the selected same workload with real repeated measurement policy.
+
+Required policy:
+
+```text
+sample_count=3
+warmup_count=1
+operation_repeat=128
+winner_claim=0
+```
+
+Do not open DLL/provider work.
+
+### Slice 6 - DLL Load-Only Selection
 
 Purpose: only after adapter closeout, select a load-only DLL metadata smoke.
 
-This slice is not eligible until rows 1-6 are landed.
+This slice is not eligible until rows 1-7 are landed.

@@ -89,7 +89,12 @@ MIMALLOC-BENCHMARK-RESULT-CONTRACT-296X-001
      stable.
 4. Add exact-EXE benchmark harness rows that reuse already-landed workload
    ids before opening native replacement or DLL work.
-5. Only after the above is stable, select DLL/provider load-only work.
+5. Run one selected same workload with repeated process timing:
+   - `sample_count=3`
+   - `warmup_count=1`
+   - `operation_repeat=128`
+   - `winner_claim=0`
+6. Only after the above is stable, select DLL/provider load-only work.
 
 The accepted result contract is intentionally compatible with the existing
 exact-EXE repeated-measurement runner and with the external `hakmem`
@@ -105,6 +110,7 @@ benchmark_result_contract=accepted
 hakmem_benchres_adapter=accepted
 hakozuna_compare_adapter=accepted
 exact_exe_benchmark_harness=accepted
+exact_exe_repeated_measurement=accepted
 winner_claim=0
 provider_active=0
 replacement_active=0
