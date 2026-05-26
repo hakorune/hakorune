@@ -17,8 +17,8 @@ taskboard = "docs/development/current/main/phases/phase-295x/295x-90-mimalloc-co
 
 latest_card = "295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION"
 latest_card_path = "docs/development/current/main/phases/phase-295x/295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION.md"
-latest_card_summary = "Normalize the remote-free production-facade evidence into a stable presentation contract without widening provider or replacement seams."
-current_blocker_token = "MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002"
+latest_card_summary = "Normalize the remote-free production-facade evidence into a stable presentation contract and hand off to the malloc-large closeout seam without widening provider or replacement seams."
+current_blocker_token = "MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,7 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "295x-253 Normalize the remote-free production-facade evidence into a stable presentation contract without widening provider or replacement seams.",
+  "295x-253 Normalize the remote-free production-facade evidence into a stable presentation contract and hand off to the malloc-large closeout seam without widening provider or replacement seams.",
   "295x-252 Refreshed the backend-split comparison contract over the existing remote-free minimum benchmark workload pack.",
   "295x-242 Refreshed the smallest production-facing remote-free comparison contract after selecting the facade seam.",
   "295x-241 Selected the remote-free production facade as the next allocator-facing semantic seam after closing the semantic-selection bridge.",

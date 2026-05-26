@@ -242,7 +242,7 @@ Rules for every slice:
 | 191 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-BASELINE-295X-001` | Landed | Add empty-baseline evidence for the external `malloc-large` attribution family under the repeated measurement policy. |
 | 192 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-INCREMENTAL-295X-001` | Landed | Compute baseline-subtracted RSS evidence for the external `malloc-large` attribution family. |
 | 193 | `MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001` | Current | Close the external `malloc-large` memory-gap attribution pack and choose the next comparison seam. |
-| 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Current | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
+| 194 | `MIMALLOC-COMPARISON-MALLOC-LARGE-BASELINE-BREAKDOWN-SELECTION-295X-001` | Landed | Select an empty exact-EXE footprint diagnostic for the external `malloc-large` path. |
 | 219 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-BASELINE-BREAKDOWN-SELECTION-295X-002` | Landed | Select the abandoned-heap stress empty exact-EXE footprint diagnostic `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` after the closeout pack lands. |
 | 220 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-EMPTY-EXE-FOOTPRINT-DIAGNOSTIC-295X-002` | Landed | Diagnose the fixed abandoned-heap stress exact-EXE empty footprint and select the closeout seam after the baseline-breakdown selection lands. |
 | 221 | `MIMALLOC-COMPARISON-ABANDONED-HEAP-STRESS-CLOSEOUT-295X-002` | Landed | Close the abandoned-heap stress empty exact-EXE footprint diagnostic and park the lane on runtime RSS checkpoints. |

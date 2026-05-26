@@ -52,7 +52,7 @@ guard_expect_fixed_in_file "$TAG" '| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PROD
 guard_expect_fixed_in_file "$TAG" '| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose presentation row as current"
 
 guard_expect_fixed_in_file "$TAG" '295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION' "$CURRENT_STATE" "current state must point at the presentation card"
-guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002' "$CURRENT_STATE" "current state must expose the presentation blocker"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001' "$CURRENT_STATE" "current state must expose the malloc-large closeout blocker"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list evidence guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_remote_free_facade_evidence.XXXXXX)"

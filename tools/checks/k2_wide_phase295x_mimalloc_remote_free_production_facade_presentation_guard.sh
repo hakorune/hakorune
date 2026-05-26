@@ -38,7 +38,7 @@ guard_expect_fixed_in_file "$TAG" 'provider_active=0' "$CARD" "presentation card
 guard_expect_fixed_in_file "$TAG" 'replacement_active=0' "$CARD" "presentation card must keep replacement seam closed"
 guard_expect_fixed_in_file "$TAG" 'winner_claim=0' "$CARD" "presentation card must keep winner claim closed"
 guard_expect_fixed_in_file "$TAG" 'counts=6' "$CARD" "presentation card must keep compact component count"
-guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002' "$CARD" "presentation card must return to the minimum-benchmark selection seam"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001' "$CARD" "presentation card must return to the malloc-large closeout seam"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous evidence row must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002' "$PREV_CARD" "previous row must select this presentation row"
@@ -47,7 +47,7 @@ guard_expect_fixed_in_file "$TAG" '| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PROD
 guard_expect_fixed_in_file "$TAG" '| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the presentation row as current"
 
 guard_expect_fixed_in_file "$TAG" '295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION' "$CURRENT_STATE" "current state must point at the presentation card"
-guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002' "$CURRENT_STATE" "current state must expose the presentation blocker"
+guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001' "$CURRENT_STATE" "current state must expose the malloc-large closeout blocker"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list presentation guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_remote_free_facade_presentation.XXXXXX)"

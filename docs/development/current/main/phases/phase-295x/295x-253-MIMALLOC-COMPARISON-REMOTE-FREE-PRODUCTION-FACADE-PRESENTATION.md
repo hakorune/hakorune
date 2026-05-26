@@ -1,7 +1,7 @@
 ---
 Status: Current
 Date: 2026-05-27
-Scope: normalize the remote-free production-facade evidence into a stable presentation contract.
+Scope: normalize the remote-free production-facade evidence into a stable presentation contract and hand off to the malloc-large closeout seam.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002
 Related:
   - docs/development/current/main/phases/phase-295x/295x-243-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE.md
@@ -21,7 +21,8 @@ MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002
 ```
 
 Normalize the remote-free production-facade evidence into a stable presentation
-contract without widening provider or replacement seams.
+contract without widening provider or replacement seams, then hand off to the
+malloc-large closeout seam.
 
 ## Presentation
 
@@ -58,7 +59,7 @@ summary=ok
 Select:
 
 ```text
-MIMALLOC-COMPARISON-REMOTE-FREE-MINIMUM-BENCHMARK-SELECTION-295X-002
+MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001
 ```
 
 ## Stop Line

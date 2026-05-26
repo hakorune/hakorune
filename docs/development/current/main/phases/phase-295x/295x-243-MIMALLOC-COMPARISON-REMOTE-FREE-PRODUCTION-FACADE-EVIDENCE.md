@@ -91,5 +91,5 @@ MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002
 ```
 
 The next row should normalize this evidence into a presentation contract and
-keep the same proof bundle visible before the lane returns to the existing
-minimum-benchmark selection seam.
+keep the same proof bundle visible before the lane returns to the malloc-large
+closeout seam.
