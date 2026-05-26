@@ -11,7 +11,7 @@ METADATA="docs/reference/mir/metadata-facts-ssot.md"
 SUBSTRATE="docs/reference/runtime/substrate-capabilities.md"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
-DEV_GATE="tools/checks/dev_gate.sh"
+DEV_GATE_QUICK_STEPS="tools/checks/lib/dev_gate_quick_steps.sh"
 CLOSEOUT="tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh"
 
 echo "[$TAG] checking MIMAP substrate route inventory"
@@ -38,7 +38,7 @@ require_file "$METADATA"
 require_file "$SUBSTRATE"
 require_file "$TASKBOARD"
 require_file "$INDEX"
-require_file "$DEV_GATE"
+require_file "$DEV_GATE_QUICK_STEPS"
 require_file "$CLOSEOUT"
 
 require_text "$CARD" "Status: landed"
@@ -47,7 +47,7 @@ require_text "$CARD" "backend lowering uses MIR-owned route facts"
 require_text "$BOUNDARY" '`MIMAP-SUBSTRATE-CONC-002` | landed'
 require_text "$TASKBOARD" '| `MIMAP-SUBSTRATE-CONC-002` | landed |'
 require_text "$INDEX" "tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh"
-require_text "$DEV_GATE" "tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh"
+require_text "$DEV_GATE_QUICK_STEPS" "tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh"
 
 symbols=(
   "hako_mem_alloc"
@@ -100,7 +100,6 @@ for guard in "${guards[@]}"; do
   require_file "$guard"
   require_text "$CARD" "$guard"
   require_text "$INDEX" "$guard"
-  require_text "$DEV_GATE" "$guard"
 done
 
 require_text "$CARD" "No new extern route row is introduced by this card."

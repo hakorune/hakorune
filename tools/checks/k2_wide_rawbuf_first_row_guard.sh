@@ -14,7 +14,7 @@ SUBSTRATE_README="lang/src/runtime/substrate/README.md"
 SUBSTRATE_LADDER_DOC="docs/development/current/main/design/substrate-capability-ladder-ssot.md"
 HAKO_ALLOC_DOC="docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md"
 HAKO_ALLOC_README="lang/src/hako_alloc/README.md"
-DEV_GATE="tools/checks/dev_gate.sh"
+DEV_GATE_QUICK_STEPS="tools/checks/lib/dev_gate_quick_steps.sh"
 
 echo "[k2-wide-rawbuf-first-row] running narrow RawBuf first-row acceptance pack"
 run_cargo_test_filter_group "k2-wide-rawbuf-first-row" "vm-hako subset acceptance" \
@@ -93,6 +93,6 @@ rg -F -q 'raw_buf/raw_buf_core_box.hako' "$SUBSTRATE_README"
 rg -F -q '### C2.5. `RawBuf`' "$SUBSTRATE_LADDER_DOC"
 rg -F -q '`RawBuf` policy/state and native-layout-backed buffer ownership' "$HAKO_ALLOC_DOC"
 rg -F -q 'The narrow `RawBufCoreBox` allocation facade lives under' "$HAKO_ALLOC_README"
-rg -F -q 'k2_wide_rawbuf_first_row_guard.sh' "$DEV_GATE"
+rg -F -q 'k2_wide_rawbuf_first_row_guard.sh' "$DEV_GATE_QUICK_STEPS"
 
 echo "[k2-wide-rawbuf-first-row] ok"

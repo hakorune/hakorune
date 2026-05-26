@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-stageb-numeric-literal-suffix-alignment"
 cd "$ROOT_DIR"
-source "$ROOT_DIR/tools/selfhost/lib/stageb_program_json_capture.sh"
+source "$ROOT_DIR/tools/smokes/v2/lib/stageb_helpers.sh"
 
 BIN="${HAKORUNE_BIN:-$ROOT_DIR/target/release/hakorune}"
 if [ ! -x "$BIN" ]; then
@@ -14,24 +14,14 @@ if [ ! -x "$BIN" ]; then
 fi
 
 APP_SRC='box Main { static method main() { return 0usize } }'
-RAW_OUT="/tmp/${TAG}.raw.$$"
-ERR_OUT="/tmp/${TAG}.err.$$"
-trap 'rm -f "$RAW_OUT" "$ERR_OUT"' EXIT
-
-if ! NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
-  NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-  "$BIN" --backend vm "$ROOT_DIR/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$APP_SRC" \
-  >"$RAW_OUT" 2>"$ERR_OUT"; then
+export NYASH_ROOT="$ROOT_DIR"
+export NYASH_BIN="$BIN"
+if ! JSON_PATH="$(stageb_compile_to_json_with_args "$APP_SRC")"; then
   echo "[$TAG] ERROR: Stage-B parser route failed" >&2
-  sed -n '1,120p' "$ERR_OUT" >&2 || true
   exit 1
 fi
-
-if ! PROGRAM_JSON="$(stageb_program_json_extract_from_stdin < "$RAW_OUT")"; then
-  echo "[$TAG] ERROR: failed to extract Program(JSON v0)" >&2
-  sed -n '1,120p' "$RAW_OUT" >&2 || true
-  exit 1
-fi
+trap 'rm -f "$JSON_PATH"' EXIT
+PROGRAM_JSON="$(cat "$JSON_PATH")"
 
 python3 - "$PROGRAM_JSON" <<'PY'
 import json
