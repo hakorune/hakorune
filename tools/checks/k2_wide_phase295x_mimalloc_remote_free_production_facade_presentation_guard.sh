@@ -20,7 +20,7 @@ echo "[$TAG] checking remote-free production facade presentation"
 guard_require_files "$TAG" "$CARD" "$PREV_CARD" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$EVIDENCE_RUNNER" "$PRESENTATION" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$EVIDENCE_RUNNER" "$PRESENTATION" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD" "presentation card must be current"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD" "presentation card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002' "$CARD" "presentation blocker must be fixed"
 guard_expect_fixed_in_file "$TAG" 'output_contract=mimalloc-comparison-remote-free-production-facade-presentation-v0' "$CARD" "presentation card must define the output contract"
 guard_expect_fixed_in_file "$TAG" 'input_contract=mimalloc-comparison-remote-free-production-facade-evidence-v0' "$CARD" "presentation card must consume the evidence contract"
@@ -44,7 +44,7 @@ guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$PREV_CARD" "previous eviden
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002' "$PREV_CARD" "previous row must select this presentation row"
 
 guard_expect_fixed_in_file "$TAG" '| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Landed |' "$TASKBOARD" "taskboard must mark the evidence row as landed"
-guard_expect_fixed_in_file "$TAG" '| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose the presentation row as current"
+guard_expect_fixed_in_file "$TAG" '| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep the presentation row landed"
 
 guard_expect_fixed_in_file "$TAG" '295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION' "$CURRENT_STATE" "current state must point at the presentation card"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001' "$CURRENT_STATE" "current state must expose the malloc-large closeout blocker"

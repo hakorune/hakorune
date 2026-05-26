@@ -139,7 +139,7 @@ Rules for every slice:
 | 250 | `MIMALLOC-COMPARISON-REMOTE-FREE-LONG-OR-BRANCH-CONTEXT-AND-NOT-IMPLEMENTATION-295X-001` | Landed | Extend joinless branch-context leaf lowering to `&&` and unary `!` so long boolean chains avoid recursive clone-heavy scaffolding. |
 | 251 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-SELECTION-295X-002` | Landed | Select the first backend-split comparison seam after the long-OR compiler fix slices land. |
 | 252 | `MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002` | Landed | Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads. |
-| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Current | Normalize the remote-free production-facade evidence into a stable presentation contract and return to the existing minimum-benchmark selection seam. |
+| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Landed | Normalize the remote-free production-facade evidence into a stable presentation contract and return to the existing minimum-benchmark selection seam. |
 
 ## Full Queue
 

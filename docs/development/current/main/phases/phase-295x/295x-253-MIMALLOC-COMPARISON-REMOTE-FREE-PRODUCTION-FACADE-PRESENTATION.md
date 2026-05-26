@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: normalize the remote-free production-facade evidence into a stable presentation contract and hand off to the malloc-large closeout seam.
 Blocker: MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002

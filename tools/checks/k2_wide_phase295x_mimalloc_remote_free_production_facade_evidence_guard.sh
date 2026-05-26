@@ -49,7 +49,7 @@ guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FA
 
 guard_expect_fixed_in_file "$TAG" '| 242 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-CONTRACT-REFRESH-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep contract refresh landed"
 guard_expect_fixed_in_file "$TAG" '| 243 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-EVIDENCE-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep evidence row landed"
-guard_expect_fixed_in_file "$TAG" '| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Current |' "$TASKBOARD" "taskboard must expose presentation row as current"
+guard_expect_fixed_in_file "$TAG" '| 253 | `MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION-295X-002` | Landed |' "$TASKBOARD" "taskboard must keep presentation row landed"
 
 guard_expect_fixed_in_file "$TAG" '295x-253-MIMALLOC-COMPARISON-REMOTE-FREE-PRODUCTION-FACADE-PRESENTATION' "$CURRENT_STATE" "current state must point at the presentation card"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-COMPARISON-MALLOC-LARGE-MEMORY-GAP-CLOSEOUT-295X-001' "$CURRENT_STATE" "current state must expose the malloc-large closeout blocker"
