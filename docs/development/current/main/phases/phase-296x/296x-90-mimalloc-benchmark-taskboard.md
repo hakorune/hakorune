@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001:
-  Bind the provider API table while leaving explicit allocator calls and activation closed.
+MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001:
+  Call only a safe provider no-op while leaving allocator entrypoints and activation closed.
 ```
 
 ## Queue
@@ -55,7 +55,8 @@ MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001:
 | 9 | `MIMALLOC-DLL-LOAD-ONLY-METADATA-PREFLIGHT-296X-001` | Landed | Validate provider-package manifest/descriptor/hash metadata before shared-library loading. |
 | 10 | `MIMALLOC-DLL-LOAD-ONLY-SHARED-LIBRARY-SMOKE-296X-001` | Landed | Load a manifest-selected shared library and stop before export resolution, descriptor reads, provider calls, or allocator entrypoints. |
 | 11 | `MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001` | Landed | Resolve and call only the descriptor export, leaving provider activation and allocator entrypoints closed. |
-| 12 | `MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001` | Current | Bind the provider API table while leaving explicit allocator calls and activation closed. |
+| 12 | `MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001` | Landed | Bind the provider API table while leaving explicit allocator calls and activation closed. |
+| 13 | `MIMALLOC-PROVIDER-NOOP-CALL-SMOKE-296X-001` | Current | Call only a safe provider no-op while leaving allocator entrypoints and activation closed. |
 
 ## Mini-Agent Restart Queue
 
@@ -218,6 +219,26 @@ required_export_resolved=1
 descriptor_read_executed=1
 provider_api_bound=1
 provider_call_executed=0
+allocator_entrypoint_called=0
+provider_active=0
+replacement_active=0
+global_allocator=0
+winner_claim=0
+```
+
+Do not call allocator entrypoints or activate the provider.
+
+### Slice 11 - Provider No-op Call Smoke
+
+Purpose: call only a safe no-op provider function after API bind smoke.
+
+Required stop line:
+
+```text
+dll_mode=provider-noop-call
+provider_api_bound=1
+provider_call_executed=1
+provider_noop_call_executed=1
 allocator_entrypoint_called=0
 provider_active=0
 replacement_active=0

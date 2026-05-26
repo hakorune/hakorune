@@ -88,9 +88,29 @@ no allocator entrypoint calls
 
 ## Later Stages
 
-API bind and explicit provider call are separate from descriptor-read. Provider
-activation is separate from explicit provider calls. Process allocator
-replacement, hooks, and global allocator integration are a future lane.
+## Stage 4: Provider API Bind Smoke
+
+API bind smoke may resolve and call `hakorune_provider_get_api_v1` to obtain
+the API table shape. It must not call `ping`, allocator entrypoints, or any
+other function pointer in the returned table.
+
+```text
+dll_mode=provider-api-bind
+shared_library_load_executed=1
+required_export_resolved=1
+descriptor_read_executed=1
+provider_api_bound=1
+provider_call_executed=0
+allocator_entrypoint_called=0
+provider_active=0
+replacement_active=0
+```
+
+## Later Stages
+
+Explicit provider calls are separate from API bind. Provider activation is
+separate from explicit provider calls. Process allocator replacement, hooks,
+and global allocator integration are a future lane.
 
 ## Fail-Fast Rules
 

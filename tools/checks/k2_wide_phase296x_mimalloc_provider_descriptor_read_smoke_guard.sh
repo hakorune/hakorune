@@ -31,8 +31,6 @@ guard_expect_fixed_in_file "$TAG" 'required_export_resolved=1' "$RUNTIME_SSOT" "
 guard_expect_fixed_in_file "$TAG" 'descriptor_read_executed=1' "$RUNTIME_SSOT" "runtime SSOT must allow descriptor read"
 guard_expect_fixed_in_file "$TAG" 'provider_call_executed=0' "$RUNTIME_SSOT" "runtime SSOT must keep provider calls closed"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-11-MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE"' "$CURRENT_STATE" "current state latest card must advance to descriptor-read smoke"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-API-BIND-SMOKE-296X-001"' "$CURRENT_STATE" "current state must expose API bind blocker"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_10" "load-only smoke must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_11" "descriptor-read card must be landed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-DESCRIPTOR-READ-SMOKE-296X-001' "$CARD_11" "descriptor-read card must identify blocker"

@@ -90,6 +90,32 @@ hakorune_provider_get_api_v1
 
 The load-only smoke must not resolve either symbol.
 
+## Provider API Table Shape
+
+API bind smoke may resolve and call `hakorune_provider_get_api_v1` to obtain
+the table shape. It must not call any function pointer in the returned table.
+
+```c
+struct HakoProviderApiV1 {
+  uint32_t magic;
+  uint16_t abi_major;
+  uint16_t abi_minor;
+  uint32_t api_table_size;
+
+  int (*ping)(void);
+  void* (*alloc)(size_t size, size_t align);
+  void (*free)(void* ptr);
+  int (*owns)(void* ptr);
+};
+```
+
+API constants:
+
+```text
+api_magic=0x484B5241
+api_abi_major=1
+```
+
 ## Binary Descriptor Shape
 
 Descriptor-read smoke reads identity and capability metadata only. It does not
