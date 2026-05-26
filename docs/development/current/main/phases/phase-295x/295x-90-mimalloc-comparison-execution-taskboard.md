@@ -170,7 +170,7 @@ Rules for every slice:
 | 23 | `295x-23` | Landed | Closed the mixed-size workload family. |
 | 24 | `295x-24` | Landed | Selected representative-huge-ish-v0 as the next huge-ish workload family. |
 | 25 | `295x-25` | Landed | Added C runner and `.hako` evidence contract support for representative-huge-ish-v0. |
-| 26 | `295x-26` | Landed | Ran huge-ish same-workload evidence through the normalizer. |
+| 26 | `295x-26` | Landed | Ran `MIMALLOC-COMPARISON-HUGE-ISH-EVIDENCE-295X-RUN-001` through the normalizer. |
 | 27 | `295x-27` | Landed | Closed the huge-ish workload family. |
 | 28 | `295x-28` | Landed | Defined repeated measurement policy before winner claims. |
 | 29 | `295x-29` | Landed | Implemented repeated evidence runner without winner claims. |

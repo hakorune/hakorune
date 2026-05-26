@@ -6,8 +6,46 @@ using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
 using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
 using selfhost.hako_alloc.memory.huge_release_seam_box as HakoAllocHugeReleaseSeamBox
 
+box HakoAllocMimallocComparisonHugeIshReport {
+    workload_id: StringBox = "representative-huge-ish-v0"
+    operation_family: StringBox = "huge-ish"
+    operation_sequence_id: StringBox = "representative-huge-ish-v0-seq"
+    free_order_id: StringBox = "ascending-release-v0"
+    allocation_count: i64 = 2
+    free_count: i64 = 2
+    large_request_count: i64 = 1
+    requested_bytes: i64 = 0
+    committed_bytes: i64 = 0
+    live_handles: i64 = 0
+    release_count: i64 = 0
+    source_ops: i64 = 0
+    rejects: i64 = 0
+
+    capture(requested_bytes, committed_bytes, live_handles, release_count, rejects) {
+        me.requested_bytes = requested_bytes
+        me.committed_bytes = committed_bytes
+        me.live_handles = live_handles
+        me.release_count = release_count
+        me.source_ops = 0
+        me.rejects = rejects
+        return 1
+    }
+
+    workloadLine() { return "workload=representative-huge-ish-v0" }
+    operationFamilyLine() { return "operation_family=huge-ish" }
+    operationSequenceLine() { return "operation_sequence_id=representative-huge-ish-v0-seq" }
+    freeOrderLine() { return "free_order_id=ascending-release-v0" }
+    allocationCountLine() { return "allocation_count=2" }
+    freeCountLine() { return "free_count=2" }
+    largeRequestCountLine() { return "large_request_count=1" }
+    requestedBytesLine() { return "requested_bytes=4194321" }
+    summaryFieldsLine() { return "summary_fields=" + me.requested_bytes + "," + me.committed_bytes + "," + me.live_handles + "," + me.release_count + "," + me.source_ops + "," + me.rejects }
+    summaryLine() { return "summary=ok" }
+}
+
 static box Main {
     main(args) {
+        local report = new HakoAllocMimallocComparisonHugeIshReport()
         local huge_map = new HakoAllocPageMap()
         local huge_model = new HakoAllocHugePageModel(huge_map)
         local huge_release = new HakoAllocHugeReleaseSeam(huge_model)
@@ -27,19 +65,21 @@ static box Main {
         local release_count = huge_release.release_count + small_page.local_free_count
         local rejects = huge_model.reject_count + huge_release.reject_count + small_page.reject_count
 
+        report.capture(requested_bytes, committed_bytes, live_handles, release_count, rejects)
+
         print("hako-alloc-mimalloc-comparison-huge-ish-exe-proof")
-        print("workload=representative-huge-ish-v0")
-        print("operation_family=huge-ish")
-        print("operation_sequence_id=representative-huge-ish-v0-seq")
-        print("free_order_id=ascending-release-v0")
+        print(report.workloadLine())
+        print(report.operationFamilyLine())
+        print(report.operationSequenceLine())
+        print(report.freeOrderLine())
         print("huge=" + huge_alloc + "," + huge_ptr + "," + huge_requested + "," + huge_committed + "," + huge_release_ok)
         print("small=" + small_block + "," + small_release)
-        print("allocation_count=2")
-        print("free_count=2")
-        print("large_request_count=1")
-        print("requested_bytes=4194321")
-        print("summary_fields=" + requested_bytes + "," + committed_bytes + "," + live_handles + "," + release_count + ",0," + rejects)
-        print("summary=ok")
+        print(report.allocationCountLine())
+        print(report.freeCountLine())
+        print(report.largeRequestCountLine())
+        print(report.requestedBytesLine())
+        print(report.summaryFieldsLine())
+        print(report.summaryLine())
         return 0
     }
 }
