@@ -3,6 +3,47 @@
 
 using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 
+box HakoAllocMimallocComparisonReuseCycleSmallReport {
+    workload_id: StringBox = "representative-reuse-cycle-small-v0"
+    operation_family: StringBox = "reuse-cycle-small"
+    operation_sequence_id: StringBox = "representative-reuse-cycle-small-v0-seq"
+    free_order_id: StringBox = "even-odd-release-then-reacquire-v0"
+    allocation_count: i64 = 128
+    free_count: i64 = 128
+    reuse_cycle_count: i64 = 0
+    requested_bytes: i64 = 0
+    committed_bytes: i64 = 0
+    live_blocks: i64 = 0
+    local_free_count: i64 = 0
+    source_ops: i64 = 0
+    rejects: i64 = 0
+    peak_used: i64 = 0
+
+    capture(page) {
+        me.requested_bytes = page.requested_bytes
+        me.committed_bytes = page.block_size * page.capacity
+        me.live_blocks = page.used
+        me.local_free_count = page.local_free_count
+        me.source_ops = 0
+        me.rejects = page.reject_count
+        me.reuse_cycle_count = page.reuse_count
+        me.peak_used = page.peak_used
+        return 1
+    }
+
+    workloadLine() { return "workload=" + me.workload_id }
+    operationFamilyLine() { return "operation_family=" + me.operation_family }
+    operationSequenceLine() { return "operation_sequence_id=" + me.operation_sequence_id }
+    freeOrderLine() { return "free_order_id=" + me.free_order_id }
+    allocationCountLine() { return "allocation_count=" + me.allocation_count }
+    freeCountLine() { return "free_count=" + me.free_count }
+    reuseCycleCountLine() { return "reuse_cycle_count=" + me.reuse_cycle_count }
+    pageLine() { return "page=" + me.allocation_count + "," + me.local_free_count + "," + me.peak_used + "," + me.requested_bytes + "," + me.committed_bytes + "," + me.rejects }
+    requestedBytesLine() { return "requested_bytes=" + me.requested_bytes }
+    summaryFieldsLine() { return "summary_fields=" + me.requested_bytes + "," + me.committed_bytes + "," + me.live_blocks + "," + me.local_free_count + "," + me.source_ops + "," + me.rejects }
+    summaryLine() { return "summary=ok" }
+}
+
 box ProofCheck {
     name: StringBox = ""
     passed: i64 = 1
@@ -71,6 +112,7 @@ static box Main {
     }
 
     main(args) {
+        local report = new HakoAllocMimallocComparisonReuseCycleSmallReport()
         local page = new HakoAllocPageModel(0, 528, 64, 64)
 
         local first_alloc_ok = Main.allocateWave(page)
@@ -84,14 +126,17 @@ static box Main {
         local source_ops = 0
         local rejects = page.reject_count
 
+        report.capture(page)
+
         print("hako-alloc-mimalloc-comparison-reuse-cycle-small-exe-proof")
-        print("workload=representative-reuse-cycle-small-v0")
-        print("operation_family=reuse-cycle-small")
-        print("operation_sequence_id=representative-reuse-cycle-small-v0-seq")
-        print("free_order_id=even-odd-release-then-reacquire-v0")
-        print("reuse_cycle_count=" + page.reuse_count)
-        print("page=" + page.alloc_count + "," + page.local_free_count + "," + page.peak_used + "," + page.requested_bytes + "," + committed_bytes + "," + rejects)
-        print("summary_fields=" + page.requested_bytes + "," + committed_bytes + "," + live_blocks + "," + page.local_free_count + "," + source_ops + "," + rejects)
+        print(report.workloadLine())
+        print(report.operationFamilyLine())
+        print(report.operationSequenceLine())
+        print(report.freeOrderLine())
+        print(report.reuseCycleCountLine())
+        print(report.pageLine())
+        print(report.requestedBytesLine())
+        print(report.summaryFieldsLine())
 
         local proof = new ProofCheck("reuse-cycle small-block comparison")
         proof.expectEq("first alloc ok", first_alloc_ok, 1)

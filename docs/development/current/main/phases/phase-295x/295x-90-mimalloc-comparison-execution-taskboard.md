@@ -225,7 +225,7 @@ Rules for every slice:
 | 78 | `295x-78` | Landed | Selected reuse-cycle small-block as the next narrow `.hako` mimalloc port seam. |
 | 79 | `295x-79` | Landed | Defined C/.hako reuse-cycle small-block workload contract. |
 | 80 | `295x-80` | Landed | Implemented C/.hako evidence for reuse-cycle small-block workload. |
-| 81 | `295x-81` | Landed | Closed reuse-cycle small-block workload evidence and selected the hakmem external benchmark bridge. |
+| 81 | `295x-81` | Landed | Closed `MIMALLOC-COMPARISON-REUSE-CYCLE-SMALL-WORKLOAD-CLOSEOUT-295X-001` and selected the hakmem external benchmark bridge. |
 | 82 | `295x-82` | Landed | Added a target-local bridge for the extracted hakmem mimalloc-bench corpus. |
 | 83 | `295x-83` | Landed | Selected a narrow benchres.csv adapter for hakmem schema alignment. |
 | 84 | `295x-84` | Landed | Added a narrow benchres.csv adapter for the extracted hakmem benchmark corpus. |
