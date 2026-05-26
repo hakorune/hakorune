@@ -67,8 +67,9 @@ Scope: current lane / next lane / restart order only.
   4. keep sentinel-bearing indexes signed
   5. keep BoxShape cleanup separate from BoxCount feature rows
 - parked lanes:
-  - the exact `usize` semantic foundation lane is closed; follow-on mimalloc
-    comparison execution is now the active lane
+  - the exact `usize` semantic foundation lane is closed; the first mimalloc
+    comparison execution pass is landed; benchmark contract work is now the
+    active lane
   - allocator-provider ladder remains parked unless host allocator replacement
     is explicitly reopened
   - record defaults / spread / named args / automatic record-to-box copy remain
@@ -78,21 +79,18 @@ Scope: current lane / next lane / restart order only.
 - keep BoxShape cleanup separate from BoxCount feature rows
 - do not add hot inline lowering without proof/evidence gate
 
-## Current Implementation Focus (phase-295x)
+## Current Implementation Focus (phase-296x)
 
-- keep mimalloc comparison rows implementation-first: each row must modify at
-  least one real `.hako` implementation file under `lang/src/hako_alloc/memory/`
-  or `apps/*mimalloc*/*.hako` / `apps/hako-alloc-*/*.hako`
+- turn the external `hakmem` benchmark corpus into stable Hakorune-side
+  benchmark contracts before opening DLL/provider work
+- current external corpus:
+  `/home/tomoaki/git/hakmem_20260525_extracted/hakmem`
 - docs-first ordered work:
-  1. lock inline boundary vocabulary in
-     `docs/development/current/main/design/inline-plan-ssot.md`
-  2. keep `Inline(required)` as verifier-owned required inline contract
-     (`Contract(no_alloc)` + `Contract(no_safepoint)` required; fail-fast on
-     active required-inline lanes)
-  3. continue `.hako` success-path read/write compression in remote-free hot
-     paths before widening required-inline transforms
-  4. allow required-inline pilot only for selected same-module scalar leaf
-     accessors after proof/evidence gates stay green
+  1. inventory external `hakmem` assets and choose the first adapter row
+  2. define the benchmark result contract before writing parsers
+  3. add `benchres.csv` and `hakozuna_compare` adapters
+  4. run exact-EXE benchmark harness pilots with winner claims closed
+  5. select DLL load-only work only after benchmark contracts are stable
 
 ## Current Ordered App Bringup
 

@@ -4,7 +4,8 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 294x `usize` semantic foundation
+- **Current (ACTIVE)**: Phase 296x mimalloc benchmark contract
+- **Recently Landed**: Phase 295x mimalloc comparison execution
 - **Parent (PAUSED)**: Phase 293x real-app / mimalloc `.hako` bringup
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection (observe-only)
 
@@ -18,6 +19,8 @@
 
 ## Recent Landed
 
+- **Phase 295x（LANDED）**: mimalloc comparison execution and remote-free production-facade presentation
+- **Phase 294x（LANDED）**: exact `usize` semantic foundation for comparison-quality allocator fields
 - **Phase 291x（LANDED）**: CoreBox surface catalog and first legacy cleanup
 - **Phase 290x（LANDED）**: ArrayBox surface catalog
 - **Phase 277x（LANDED）**: optimization lane closeout judgment
