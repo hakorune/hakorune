@@ -83,6 +83,39 @@ Phase B: build selected provider binary
 Phase C: build full .hako-derived provider package
 ```
 
+## Phase B Selection
+
+Phase B is a selected-provider-binary build/package lane. It is not arbitrary
+shell execution and not full `.hako` to shared-library generation.
+
+The accepted Phase B shape is:
+
+```text
+repo-selected provider source or build fixture
+  -> explicit Hakorune-owned build step
+  -> shared-library artifact
+  -> manifest v1 package
+  -> metadata preflight
+```
+
+Phase B build rows must reuse manifest v1 and keep package build no-load:
+
+```text
+package_mode=selected-binary-build-package
+shared_library_load_executed=0
+required_export_resolved=0
+descriptor_read_executed=0
+provider_call_executed=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+Phase C, where `.hako` is compiled into a provider package, remains a later
+decision row.
+
 ## Preflight Requirements
 
 Metadata preflight reads only manifest and filesystem metadata:

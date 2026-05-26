@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-25-MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-25-MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT.md"
-latest_card_summary = "Closed provider package v0 as functional for existing-binary package artifacts with generated manifest preflight and usage docs."
-current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001"
+latest_card = "296x-26-MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-26-MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION.md"
+latest_card_summary = "Selected Phase B as a selected-provider-binary build/package lane while keeping .hako shared-library generation, activation, replacement, hooks, globals, and winner claims closed."
+current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-26 Selected Phase B as a selected-provider-binary build/package lane while keeping .hako shared-library generation, activation, replacement, hooks, globals, and winner claims closed.",
   "296x-25 Closed provider package v0 as functional for existing-binary package artifacts with generated manifest preflight and usage docs.",
   "296x-24 Documented the stable provider package v0 command, output layout, and no-load metadata preflight path.",
   "296x-23 Closed the Hakorune CLI provider package entry and selected stable v0 usage docs.",

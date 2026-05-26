@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001:
-  Decide the next provider package build lane after v0 existing-binary packaging, without opening activation or replacement.
+MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001:
+  Define and pilot the smallest selected provider binary build/package contract, without opening .hako-to-shared-library generation, activation, or replacement.
 ```
 
 ## Queue
@@ -69,7 +69,8 @@ MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001:
 | 23 | `MIMALLOC-PROVIDER-PACKAGE-CLI-PACKAGE-CLOSEOUT-296X-001` | Landed | Close the Hakorune CLI provider package entry and decide the next package lane. |
 | 24 | `MIMALLOC-PROVIDER-PACKAGE-V0-USAGE-DOCS-296X-001` | Landed | Document the stable v0 provider package command, output layout, and preflight verification path. |
 | 25 | `MIMALLOC-PROVIDER-PACKAGE-V0-FUNCTIONAL-CLOSEOUT-296X-001` | Landed | Close provider package v0 as functional by collecting CLI package, generated manifest preflight, docs, and gate evidence. |
-| 26 | `MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001` | Current | Decide the next provider package build lane after v0 existing-binary packaging, without opening activation or replacement. |
+| 26 | `MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001` | Landed | Select Phase B as a selected-provider-binary build/package lane, without opening activation or replacement. |
+| 27 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001` | Current | Define and pilot the smallest selected provider binary build/package contract, without opening .hako-to-shared-library generation, activation, or replacement. |
 
 ## Mini-Agent Restart Queue
 
