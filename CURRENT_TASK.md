@@ -83,9 +83,16 @@ Scope: current lane / next lane / restart order only.
 - keep mimalloc comparison rows implementation-first: each row must modify at
   least one real `.hako` implementation file under `lang/src/hako_alloc/memory/`
   or `apps/*mimalloc*/*.hako` / `apps/hako-alloc-*/*.hako`
-- immediate slice: migrate realloc paths in
-  `apps/hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof/main.hako`
-  from direct page-map paths to `HakoAllocProductionFacade` realloc entries
+- docs-first ordered work:
+  1. lock inline boundary vocabulary in
+     `docs/development/current/main/design/inline-plan-ssot.md`
+  2. keep `Inline(required)` as verifier-owned required inline contract
+     (`Contract(no_alloc)` + `Contract(no_safepoint)` required; fail-fast on
+     active required-inline lanes)
+  3. continue `.hako` success-path read/write compression in remote-free hot
+     paths before widening required-inline transforms
+  4. allow required-inline pilot only for selected same-module scalar leaf
+     accessors after proof/evidence gates stay green
 
 ## Current Ordered App Bringup
 

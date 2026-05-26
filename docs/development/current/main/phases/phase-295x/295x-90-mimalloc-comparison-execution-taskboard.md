@@ -34,6 +34,17 @@ MIMALLOC-COMPARISON-REMOTE-FREE-BACKEND-SPLIT-CONTRACT-REFRESH-295X-002:
   Refresh backend-split comparison contract over the existing remote-free minimum benchmark workload pack without widening workloads or winner-claim seams.
 ```
 
+## Immediate Task Order (docs-first)
+
+1. Lock inline semantics in `inline-plan-ssot.md` with canonical
+   `Inline(prefer|avoid|required)` and required contract boundary.
+2. Keep required-inline in verifier-owned fail-fast mode only; no backend-local
+   inline planning.
+3. Continue `.hako` success-path read/write compression for remote-free hot
+   paths (`lang/src/hako_alloc/memory/**`).
+4. Open required-inline pilot only for selected same-module scalar leaf helpers
+   after proof/evidence guards remain green.
+
 ## Queue
 
 | Order | Row | Status | Boundary |

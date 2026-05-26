@@ -119,6 +119,39 @@ public guarantee. If an always-inline spelling is ever accepted, it remains an
 optimizer hint. Required inline belongs to the canonical `Inline(required)`
 family.
 
+## Allocator Lane Policy Freeze (docs-first)
+
+Canonical semantics:
+
+```text
+Inline(prefer): optimizer hint, unsupported shapes keep_call
+Inline(avoid): optimizer anti-hint, keep_call
+Inline(required): required inline contract (not a stronger hint)
+Contract(no_alloc/no_safepoint): required preconditions for Inline(required)
+backend: consume verified MIR InlinePlan / already-inlined MIR only
+```
+
+Lane behavior:
+
+```text
+required lane inactive:
+  preserve metadata only (no transform)
+required verifier lane active:
+  missing contracts or unsupported shape -> fail_fast
+required transform lane active:
+  verified=false or transform-miss -> fail_fast
+```
+
+Allocator lane activation boundary:
+
+```text
+1. docs-only boundary lock
+2. metadata preserve
+3. verifier-only required-inline checks
+4. MIR transform for selected verified same-module scalar leaf helpers only
+5. backend consumer only (no rune-string planning in backend)
+```
+
 ## MIR Ownership
 
 Backends must not read source rune strings and decide to inline. Source metadata
