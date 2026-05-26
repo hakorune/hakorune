@@ -13,6 +13,7 @@ mod args;
 mod diagnostic_output;
 mod groups;
 mod provider_package_existing_binary;
+mod provider_package_hako_derived_build;
 mod provider_package_selected_binary_build;
 mod utils;
 
@@ -26,6 +27,7 @@ pub use allocator_provider_proof_bundle_consumption::maybe_run_allocator_provide
 pub use allocator_provider_registry_snapshot::maybe_run_allocator_provider_registry_snapshot_diagnostic;
 pub use allocator_provider_selection_decision::maybe_run_allocator_provider_selection_decision_diagnostic;
 pub use provider_package_existing_binary::maybe_run_provider_package_existing_binary;
+pub use provider_package_hako_derived_build::maybe_run_provider_package_hako_derived_build;
 pub use provider_package_selected_binary_build::maybe_run_provider_package_selected_binary_build;
 
 /// Command-line configuration structure
@@ -102,6 +104,7 @@ pub struct CliConfig {
     pub allocator_provider_selection_decision: Option<String>,
     pub allocator_provider_proof_bundle_consumption: Option<String>,
     pub provider_package_selected_binary_build_fixture: bool,
+    pub provider_package_hako_derived_build_fixture: Option<String>,
     pub provider_package_existing_binary: Option<String>,
     pub provider_package_out_dir: Option<String>,
     pub provider_package_artifact_name: Option<String>,
@@ -277,6 +280,7 @@ impl Default for CliConfig {
             allocator_provider_selection_decision: None,
             allocator_provider_proof_bundle_consumption: None,
             provider_package_selected_binary_build_fixture: false,
+            provider_package_hako_derived_build_fixture: None,
             provider_package_existing_binary: None,
             provider_package_out_dir: None,
             provider_package_artifact_name: None,

@@ -193,6 +193,48 @@ It must not run arbitrary user shell commands or discover provider binaries
 through `PATH`, `LD_LIBRARY_PATH`, the current working directory, or platform
 loader fallback locations.
 
+## Phase C0 .hako-Derived Fixture Build
+
+Phase C0 adds the first selected `.hako` source producer:
+
+```bash
+target/debug/hakorune \
+  --provider-package-hako-derived-build-fixture apps/provider-package/hako-derived-allocator-fixture/main.hako \
+  --provider-package-out-dir dist/hakorune-provider \
+  --provider-package-id org.hakorune.provider.hako.fixture \
+  --provider-package-name hako-derived-fixture-provider \
+  --provider-package-target-triple x86_64-unknown-linux-gnu \
+  --provider-package-platform linux
+```
+
+This command verifies the `.hako` source path, emits MIR JSON, records the
+source and MIR JSON hashes in package metadata, then builds a Hakorune-owned
+provider ABI wrapper artifact:
+
+```text
+output_contract=hakorune-provider-package-hako-derived-build-v0
+package_mode=hako-derived-provider-package
+build_mode=hako-derived-selected-fixture
+hako_source_checked=1
+hako_mir_json_emitted=1
+hako_semantic_provider_codegen=0
+shared_library_artifact_generated=1
+shared_library_load_executed=0
+required_export_resolved=0
+descriptor_read_executed=0
+provider_call_executed=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+summary=ok
+```
+
+`hako_semantic_provider_codegen=0` means the package is tied to real `.hako`
+source/MIR evidence, but native provider entrypoint semantics are still supplied
+by the wrapper until a later semantic-codegen row opens.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata
@@ -201,7 +243,7 @@ preflight accepts the generated manifest.
 Still closed in v0:
 
 ```text
-.hako-to-shared-library generation
+arbitrary .hako-to-provider semantic lowering
 shared-library load by the package command
 export resolution by the package command
 descriptor read by the package command

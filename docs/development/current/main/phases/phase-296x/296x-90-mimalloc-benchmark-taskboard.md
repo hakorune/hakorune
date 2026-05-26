@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001:
-  Select the Phase C .hako-derived provider package build boundary, without opening activation, replacement, hooks, globals, or winner claims.
+MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT-296X-001:
+  Close the .hako-derived provider package pilot with descriptor/API-bind evidence, without opening semantic provider codegen, activation, replacement, hooks, globals, or winner claims.
 ```
 
 ## Queue
@@ -72,7 +72,9 @@ MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001:
 | 26 | `MIMALLOC-PROVIDER-PACKAGE-PHASE-B-BUILD-SELECTION-296X-001` | Landed | Select Phase B as a selected-provider-binary build/package lane, without opening activation or replacement. |
 | 27 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CONTRACT-PILOT-296X-001` | Landed | Define and pilot the smallest selected provider binary build/package contract, without opening .hako-to-shared-library generation, activation, or replacement. |
 | 28 | `MIMALLOC-PROVIDER-PACKAGE-SELECTED-BINARY-BUILD-CLOSEOUT-296X-001` | Landed | Close the selected provider binary build/package pilot evidence, without opening .hako-to-shared-library generation, activation, or replacement. |
-| 29 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001` | Current | Select the Phase C .hako-derived provider package build boundary, without opening activation, replacement, hooks, globals, or winner claims. |
+| 29 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001` | Landed | Select the Phase C .hako-derived provider package build boundary, without opening activation, replacement, hooks, globals, or winner claims. |
+| 30 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-MINIMAL-FIXTURE-PILOT-296X-001` | Landed | Add the minimal selected .hako provider fixture package build pilot with source/MIR hashes, without opening activation, replacement, hooks, globals, or winner claims. |
+| 31 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT-296X-001` | Current | Close the .hako-derived provider package pilot with descriptor/API-bind evidence, without opening semantic provider codegen, activation, replacement, hooks, globals, or winner claims. |
 
 ## Mini-Agent Restart Queue
 

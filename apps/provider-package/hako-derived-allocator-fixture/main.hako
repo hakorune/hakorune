@@ -1,0 +1,11 @@
+// hako-derived-allocator-fixture
+// Purpose: selected .hako source fixture for provider package Phase C.
+
+static box Main {
+    main() {
+        print("provider_fixture=allocator")
+        print("provider_package_source=hako-derived-selected-fixture")
+        print("summary=ok")
+        return 0
+    }
+}

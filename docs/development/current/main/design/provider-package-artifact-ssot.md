@@ -113,8 +113,42 @@ global_allocator=0
 winner_claim=0
 ```
 
-Phase C, where `.hako` is compiled into a provider package, remains a later
-decision row.
+## Phase C Selection
+
+Phase C starts as a staged `.hako`-derived provider package lane. The first
+accepted shape is deliberately narrower than arbitrary `.hako` allocator
+semantic lowering:
+
+```text
+selected .hako provider fixture
+  -> source existence + .hako extension preflight
+  -> MIR JSON emission preflight
+  -> source_hash + mir_json_hash included in package contract/build metadata
+  -> Hakorune-owned provider ABI wrapper artifact
+  -> manifest v1 package
+  -> metadata preflight
+```
+
+The accepted Phase C0/C1 vocabulary is:
+
+```text
+package_mode=hako-derived-provider-package
+build_mode=hako-derived-selected-fixture
+hako_source_checked=1
+hako_mir_json_emitted=1
+hako_semantic_provider_codegen=0
+shared_library_load_executed=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+`hako_semantic_provider_codegen=0` is the stop line for the first `.hako`
+package row. It means the package is tied to a real `.hako` source and emitted
+MIR artifact, while native provider entrypoints may still be provided by a
+Hakorune-owned ABI wrapper until a later row opens semantic provider codegen.
 
 ## Preflight Requirements
 
