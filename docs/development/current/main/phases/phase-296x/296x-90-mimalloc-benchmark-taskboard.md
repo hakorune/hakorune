@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001:
-  Decide the next action from refreshed gap taxonomy evidence.
+HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001:
+  Apply one optimization only if refreshed taxonomy selected stable compiler/allocator ownership.
 ```
 
 ## Queue
@@ -94,8 +94,8 @@ HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001:
 | 47 | `HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001` | Landed | Capture the selected owner diagnostic without optimizing or broadening the measurement contract unnecessarily. |
 | 48 | `HAKO-MIMALLOC-PERF-POST-DIAGNOSTIC-DECISION-296X-001` | Landed | Decide whether row 47 diagnostic evidence can enter optimization or needs another taxonomy pass. |
 | 49 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-REFRESH-296X-001` | Landed | Refresh gap taxonomy over measurement hygiene evidence before any optimization work starts. |
-| 50 | `HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001` | Current | Decide the next action from refreshed gap taxonomy evidence. |
-| 51 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
+| 50 | `HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001` | Landed | Decide the next action from refreshed gap taxonomy evidence. |
+| 51 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Current | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
 | 52 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
 | 53 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
 | 54 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
