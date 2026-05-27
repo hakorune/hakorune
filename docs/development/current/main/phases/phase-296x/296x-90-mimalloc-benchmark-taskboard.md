@@ -118,8 +118,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 71 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-EXPLICIT-MEASUREMENT-296X-001` | Landed | Measure the native-fusion provider package explicitly before LD_PRELOAD work. |
 | 72 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Landed | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
 | 73 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Landed | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 74 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001` | Current | Pilot one hakmem benchmark compatibility check with the probe-only LD_PRELOAD shim. |
-| 75 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 74 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001` | Landed | Pilot one hakmem benchmark compatibility check with the probe-only LD_PRELOAD shim. |
+| 75 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Current | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
