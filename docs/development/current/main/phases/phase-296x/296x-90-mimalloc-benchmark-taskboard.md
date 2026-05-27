@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001:
-  Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate.
+MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001:
+  Select the benchmark return row after .hako-derived provider package v0 functional closeout.
 ```
 
 ## Queue
@@ -81,7 +81,8 @@ MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001:
 | 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Landed | Select the smallest honest .hako semantic allocator entrypoint boundary after ping, without opening activation, replacement, hooks, globals, or winner claims. |
 | 36 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001` | Landed | Implement alloc-free-owns-literal-v0 and prove explicit provider alloc/free plus .hako-owned owns policy through smoke evidence. |
 | 37 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001` | Landed | Close alloc-free-owns-literal-v0 with metadata/descriptor/API/noop/alloc-free evidence and select the next semantic allocator boundary. |
-| 38 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001` | Current | Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate. |
+| 38 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001` | Landed | Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate. |
+| 39 | `MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001` | Current | Select the benchmark return row after .hako-derived provider package v0 functional closeout. |
 
 ## Mini-Agent Restart Queue
 
