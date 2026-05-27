@@ -120,8 +120,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 73 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Landed | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
 | 74 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001` | Landed | Pilot one hakmem benchmark compatibility check with the probe-only LD_PRELOAD shim. |
 | 75 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Landed | Park selfhost handoff while the small-block gap remains large and select hako_check perf-surface inventory. |
-| 76 | `HAKO-CHECK-PERF-SURFACE-CONTRACT-296X-001` | Current | Define the observation-only hako_check perf-surface report contract. |
-| 77 | `HAKO-CHECK-PERF-SURFACE-INVENTORY-296X-001` | Planned | Inventory objectLifecycleSmallAlloc/objectLifecycleReleaseBlock perf surfaces and select the first keeper candidate. |
+| 76 | `HAKO-CHECK-PERF-SURFACE-CONTRACT-296X-001` | Landed | Define the observation-only hako_check perf-surface report contract. |
+| 77 | `HAKO-CHECK-PERF-SURFACE-INVENTORY-296X-001` | Current | Inventory objectLifecycleSmallAlloc/objectLifecycleReleaseBlock perf surfaces and select the first keeper candidate. |
 | 78 | `HAKO-MIMALLOC-PERF-RELEASE-KNOWN-PAGE-FAST-PATH-296X-001` | Planned | Add one release known-page fast path keeper without widening replacement or winner claims. |
 | 79 | `HAKO-MIMALLOC-PERF-POST-RELEASE-KEEPER-MEASUREMENT-296X-001` | Planned | Rerun the 8192-repeat in-process small-block measurement after the release keeper. |
 | 80 | `HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION-296X-001` | Planned | Select the next single keeper from hako_check perf-surface evidence. |

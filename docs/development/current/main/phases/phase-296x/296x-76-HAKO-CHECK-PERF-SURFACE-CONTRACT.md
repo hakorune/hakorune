@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: define the observation-only hako_check perf-surface report contract.
 Blocker: HAKO-CHECK-PERF-SURFACE-CONTRACT-296X-001
@@ -46,3 +46,21 @@ summary=ok
 
 The row only defines the report shape and the `hako_check` entry point contract.
 The first inventory over `object_lifecycle_facade_box.hako` is row 77.
+
+## Landed Evidence
+
+```text
+output_contract=hako-check-perf-surface-contract-v0
+tool_surface=hako_check_perf_surface
+observation_only=1
+rewrite_executed=0
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_check_perf_surface_contract_guard.sh
+```

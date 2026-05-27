@@ -78,6 +78,44 @@ Performance / MIR cache
   - cache failure must not silently drop MIR-dependent rules; it must fall back to the existing emit route
   - an `emit-failed` marker is advisory only and must remain key-scoped (source/profile/toolchain changes naturally invalidate it)
 
+Performance Surface Inventory
+- `hako_check perf-surface` is an observation-only surface for allocator hot-path
+  work. It reports method-call density, loop-contained calls, ArrayBox access
+  pressure, linear-search candidates, result-capsule churn, and observer getter
+  calls for selected `.hako` methods.
+- The first stable contract is emitted by:
+
+```bash
+python3 tools/hako_check/perf_surface_contract.py
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-perf-surface-contract-v0
+tool_surface=hako_check_perf_surface
+observation_only=1
+rewrite_executed=0
+target_file
+target_box
+target_method
+method_call_count
+loop_method_call_count
+array_access_count
+linear_search_candidate=0|1
+result_capsule_churn=0|1
+observer_call_count
+hot_path_risk=low|medium|high
+suggested_next
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+- Stop line: this surface never rewrites source, changes MIR, activates a
+  provider, replaces the process allocator, installs hooks, or makes benchmark
+  winner claims.
+
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
 - `NYASH_BOX_FACTORY_POLICY=builtin_first` – prefer builtin/ring‑1 for stability
