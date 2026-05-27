@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-POST-THIRD-KEEPER-TAXONOMY-REFRESH-296X-001:
-  Refresh in-process taxonomy after the third keeper optimization.
+HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001:
+  Inventory missing `.hako` mimalloc port features after the small-model optimization checkpoint.
 ```
 
 ## Queue
@@ -109,8 +109,8 @@ HAKO-MIMALLOC-PERF-POST-THIRD-KEEPER-TAXONOMY-REFRESH-296X-001:
 | 62 | `HAKO-MIMALLOC-PERF-POST-SECOND-KEEPER-TAXONOMY-REFRESH-296X-001` | Landed | Refresh in-process taxonomy after the second keeper optimization. |
 | 63 | `HAKO-MIMALLOC-PERF-POST-SECOND-PHASE-COST-REFRESH-296X-001` | Landed | Refresh phase-cost ablation after the second keeper optimization. |
 | 64 | `HAKO-MIMALLOC-PERF-THIRD-KEEPER-OPTIMIZATION-296X-001` | Landed | Apply one known-active small-cycle `.hako` allocator-model optimization after post-second phase-cost refresh. |
-| 65 | `HAKO-MIMALLOC-PERF-POST-THIRD-KEEPER-TAXONOMY-REFRESH-296X-001` | Current | Refresh in-process taxonomy after the third keeper optimization. |
-| 66 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 65 | `HAKO-MIMALLOC-PERF-POST-THIRD-KEEPER-TAXONOMY-REFRESH-296X-001` | Landed | Refresh in-process taxonomy after the third keeper optimization. |
+| 66 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Current | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
 | 67 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
 | 68 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
 | 69 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
@@ -619,6 +619,15 @@ Do not optimize in this row.
 
 Purpose: list missing `.hako` mimalloc features separately from speed
 optimization.
+
+Required input:
+
+```text
+optimization_checkpoint=small_model_fast_path_plateau
+current_hako_external_elapsed_median_ms=240
+remaining_gap_ms=236
+next_diagnostic=port_feature_gap_inventory
+```
 
 Initial buckets:
 
