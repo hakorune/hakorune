@@ -197,7 +197,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 150 | `POST-KNOWN-LIVE-RELEASE-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR after known-live release measurement before choosing the next keeper. |
 | 151 | `PAGE-ACQUIRE-FAST-PATH-KEEPER-SELECTION-296X-001` | Landed | Select one page-acquire keeper from the remaining page-local ArrayBox surface. |
 | 152 | `SMALL-ALLOC-PAGE-ACQUIRE-USIZE-FAST-PATH-IMPLEMENTATION-296X-001` | Landed | Apply the selected small-alloc acquire_usize fast path keeper. |
-| 153 | `POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT-296X-001` | Current | Measure exact-EXE after the small-alloc acquire_usize fast path keeper. |
+| 153 | `POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after the small-alloc acquire_usize fast path keeper. |
+| 154 | `POST-PAGE-ACQUIRE-USIZE-SOURCE-MIR-REFRESH-296X-001` | Current | Refresh source/MIR after the small-alloc acquire_usize fast path measurement. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x applied the small-alloc acquire_usize page-acquire fast path keeper and selected post-keeper measurement."
+active_lane_status = "Phase-296x measured the small-alloc acquire_usize fast path keeper at 570ms and selected source/MIR refresh."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-152-SMALL-ALLOC-PAGE-ACQUIRE-USIZE-FAST-PATH-IMPLEMENTATION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-152-SMALL-ALLOC-PAGE-ACQUIRE-USIZE-FAST-PATH-IMPLEMENTATION.md"
-latest_card_summary = "Applied the selected small-alloc acquire_usize fast path keeper with lightweight exact-EXE proof and generic page acquire fallback preserved."
-current_blocker_token = "POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT-296X-001"
+latest_card = "296x-153-POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-153-POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT.md"
+latest_card_summary = "Measured the small-alloc acquire_usize fast path keeper through one exact-EXE scout sample at 570ms against the 600ms checkpoint, accepting the keeper."
+current_blocker_token = "POST-PAGE-ACQUIRE-USIZE-SOURCE-MIR-REFRESH-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-153 Measured the small-alloc acquire_usize fast path keeper through one exact-EXE scout sample at 570ms against the 600ms checkpoint, accepting the keeper.",
   "296x-152 Applied the selected small-alloc acquire_usize fast path keeper with lightweight exact-EXE proof and generic page acquire fallback preserved.",
   "296x-151 Selected the small-alloc page acquire_usize fast path keeper, preserving generic page acquire fallback when free_top is zero.",
   "296x-150 Refreshed post known-live release source/MIR shape, confirming page_acquire as the largest remaining page-local ArrayBox surface and selecting page-acquire keeper selection.",
