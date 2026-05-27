@@ -8,6 +8,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/DOCS_LAYOUT.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
+  - docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md
   - docs/tools/check-scripts-index.md
 ---
 
@@ -35,6 +36,15 @@ Read current-state documents first:
 
 Then read `AGENTS.md` for personality, always-on engineering rules, and
 stop-the-line policy.
+
+For optimization work, the durable toolbox entry is:
+
+```text
+docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md
+```
+
+Local `AGENTS.md` may link to that document, but this tracked SSOT is the
+durable pointer because root `AGENTS.md` is ignored by git.
 
 If a fixed phase name, old backend preference, or historical runtime line in
 `AGENTS.md` conflicts with `CURRENT_STATE.toml`, the current-state SSOT wins.

@@ -34,6 +34,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - canonical rough task-order SSOT
 - `design/perf-owner-first-optimization-ssot.md`
   - optimization lane の `front split` / `owner transition` / `keeper-revert stop-line` owner
+- `design/hako-optimization-toolbox-usability-ssot.md`
+  - optimization toolbox entry for `hako_check`, MIR shape adapters, exact-EXE measurement, and row guard surfaces
 - `design/hotline-core-method-contract-ssot.md`
   - zero-cost hot-line keeper gate and CoreMethodContract migration owner
 - `design/current-docs-update-policy-ssot.md`

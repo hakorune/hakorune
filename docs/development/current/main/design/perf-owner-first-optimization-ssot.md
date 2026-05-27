@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/DOCS_LAYOUT.md
+  - docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
   - docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md
@@ -16,6 +17,10 @@ Related:
 ---
 
 # Perf Owner-First Optimization SSOT
+
+Toolbox quick map:
+
+`docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md`
 
 ## Quick Scan
 

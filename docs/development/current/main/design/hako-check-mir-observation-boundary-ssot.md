@@ -5,6 +5,7 @@ Scope: boundary between hako_check source perf-surface and MIR-level method shap
 Related:
   - docs/development/current/main/phases/phase-296x/296x-80-HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION.md
   - docs/development/current/main/phases/phase-296x/296x-81-HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH.md
+  - docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md
   - tools/hako_check/README.md
 ---
 

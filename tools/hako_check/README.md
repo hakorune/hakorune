@@ -4,6 +4,10 @@ This tool lints .hako sources and emits diagnostics.
 
 Quick entry (toolbox index):
 - `docs/tools/README.md`
+- Optimization toolbox SSOT:
+  `docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md`
+- hako_check / MIR boundary SSOT:
+  `docs/development/current/main/design/hako-check-mir-observation-boundary-ssot.md`
 
 Canonical helpers
 - `bash tools/hako_check/run_tests.sh`
@@ -83,6 +87,11 @@ Performance Surface Inventory
   work. It reports method-call density, loop-contained calls, ArrayBox access
   pressure, linear-search candidates, result-capsule churn, and observer getter
   calls for selected `.hako` methods.
+- In optimization rows, read this surface as the source-level radar only. If a
+  candidate looks hot, join it with MIR shape evidence via
+  `tools/allocator/hako_source_mir_shape_join.py` before choosing a keeper.
+- If two source-level keepers in the same owner family are non-keepers, stop the
+  line and switch to MIR shape / lowering-owner diagnostics.
 - The first stable contract is emitted by:
 
 ```bash
