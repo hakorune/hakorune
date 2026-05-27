@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001:
-  Close alloc-free-owns-literal-v0 with metadata/descriptor/API/noop/alloc-free evidence and select the next semantic allocator boundary.
+MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001:
+  Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate.
 ```
 
 ## Queue
@@ -80,7 +80,8 @@ MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001:
 | 34 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001` | Landed | Close the .hako semantic ping pilot with metadata/descriptor/API/noop evidence and select the next semantic entrypoint boundary. |
 | 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Landed | Select the smallest honest .hako semantic allocator entrypoint boundary after ping, without opening activation, replacement, hooks, globals, or winner claims. |
 | 36 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001` | Landed | Implement alloc-free-owns-literal-v0 and prove explicit provider alloc/free plus .hako-owned owns policy through smoke evidence. |
-| 37 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001` | Current | Close alloc-free-owns-literal-v0 with metadata/descriptor/API/noop/alloc-free evidence and select the next semantic allocator boundary. |
+| 37 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001` | Landed | Close alloc-free-owns-literal-v0 with metadata/descriptor/API/noop/alloc-free evidence and select the next semantic allocator boundary. |
+| 38 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001` | Current | Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate. |
 
 ## Mini-Agent Restart Queue
 

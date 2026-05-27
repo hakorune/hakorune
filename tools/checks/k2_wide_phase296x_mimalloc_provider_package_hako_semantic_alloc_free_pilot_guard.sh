@@ -45,10 +45,9 @@ guard_expect_fixed_in_file "$TAG" 'provider_call_executed=0' "$CLI_IMPL" "packag
 guard_expect_fixed_in_file "$TAG" 'ownsAllocated()' "$FIXTURE" "fixture must define ownsAllocated"
 guard_expect_fixed_in_file "$TAG" 'return 1' "$FIXTURE" "fixture ownsAllocated must return selected literal"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-36-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001"' "$CURRENT_STATE" "current state must select alloc/free closeout"
+guard_expect_fixed_in_file "$TAG" '296x-36 Added alloc-free-owns-literal-v0' "$CURRENT_STATE" "current state landed tail must retain row 36"
 guard_expect_fixed_in_file "$TAG" '| 36 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 36 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 37 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001` | Current |' "$TASKBOARD" "taskboard row 37 must be current"
+guard_expect_fixed_in_file "$TAG" '| 37 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 37 must be landed after closeout"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list semantic alloc/free pilot guard"
 
 python3 -m py_compile "$ALLOC_FREE_TOOL"
