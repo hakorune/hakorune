@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x turns external hakmem benchmark assets into stable benchmark contracts before DLL/provider/replacement work opens."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x now advances from the provider-package comparison closeout into `.hako` mimalloc parity baseline work on stable benchmark contracts before DLL/provider/replacement work opens."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-40-MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-40-MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT.md"
-latest_card_summary = "Ran the first .hako-derived provider package explicit comparison pilot through repeated provider measurement and the 3-way hako/C/provider adapter with winner, activation, replacement, hook, and global allocator claims closed."
-current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001"
+latest_card = "296x-44-HAKO-MIMALLOC-PERF-PARITY-BASELINE-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-44-HAKO-MIMALLOC-PERF-PARITY-BASELINE-PACK.md"
+latest_card_summary = "Ran the first .hako mimalloc parity baseline pack on representative-small-block-v0 through repeated hako/C evidence with winner, provider, replacement, hook, and global allocator claims closed."
+current_blocker_token = "HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-44 Ran the first .hako mimalloc parity baseline pack on representative-small-block-v0 through repeated hako/C evidence with winner, provider, replacement, hook, and global allocator claims closed.",
+  "296x-43 Defined the .hako mimalloc parity workload matrix and subject ids for hako exact-EXE, C explicit runner, hakozuna reference, and provider-package evidence.",
+  "296x-42 Selected the .hako mimalloc parity roadmap lane and kept hakozuna as reference-only.",
+  "296x-41 Closed the .hako-derived provider package explicit comparison evidence and returned to the parity lane selection.",
   "296x-40 Ran the first .hako-derived provider package explicit comparison pilot through repeated provider measurement and the 3-way hako/C/provider adapter with winner, activation, replacement, hook, and global allocator claims closed.",
   "296x-39 Selected the provider package explicit comparison pilot to return from .hako-derived package build work to benchmark evidence while keeping activation, replacement, hooks, globals, and winner claims closed.",
   "296x-38 Closed .hako-derived provider package v0 as a functional package artifact with source/MIR hashes, generated shared library, metadata/descriptor/API/noop/alloc-free evidence, and activation/replacement lanes still closed.",

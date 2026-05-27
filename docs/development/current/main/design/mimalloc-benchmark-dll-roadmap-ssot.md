@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/provider-package-artifact-ssot.md
   - docs/development/current/main/design/provider-runtime-load-ssot.md
   - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
+  - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
 ---
 
 # Mimalloc Benchmark / DLL Roadmap
@@ -150,6 +151,27 @@ The ladder is:
 6. repeated benchmark through explicit provider;
 7. replacement / hook / `#[global_allocator]` only after a separate decision
    row accepts the risk.
+
+## Hako Mimalloc Performance Return
+
+After `.hako`-derived provider package evidence exists, return to the benchmark
+surface before opening replacement work. The performance goal is:
+
+```text
+.hako mimalloc port
+  vs C mimalloc explicit runner
+  on the same workload contract
+```
+
+The task order for this return lane is defined in:
+
+```text
+docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
+```
+
+Keep hakozuna as a reference subject only until a separate allocator-product
+decision row opens. The parity lane must not silently become a hakozuna
+selection lane.
 
 ## Mini-Agent Rules
 

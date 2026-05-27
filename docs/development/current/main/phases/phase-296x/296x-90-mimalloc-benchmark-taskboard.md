@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/provider-abi-v1-ssot.md
   - docs/development/current/main/design/provider-package-artifact-ssot.md
   - docs/development/current/main/design/provider-runtime-load-ssot.md
+  - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
   - docs/development/current/main/phases/phase-296x/README.md
 ---
 
@@ -35,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001:
-  Close the .hako-derived provider package explicit comparison evidence and select the next benchmark or activation decision row.
+HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001:
+  Classify benchmark gaps by primary owner before any optimization work starts.
 ```
 
 ## Queue
@@ -84,7 +85,226 @@ MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001:
 | 38 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001` | Landed | Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate. |
 | 39 | `MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001` | Landed | Select the benchmark return row after .hako-derived provider package v0 functional closeout. |
 | 40 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001` | Landed | Run .hako/C repeated measurement plus .hako-derived provider package explicit repeated measurement through the 3-way comparison adapter. |
-| 41 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Current | Close the .hako-derived provider package explicit comparison evidence and select the next benchmark or activation decision row. |
+| 41 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Landed | Close the .hako-derived provider package explicit comparison evidence and select the next benchmark or activation decision row. |
+| 42 | `HAKO-MIMALLOC-PERF-PARITY-ROADMAP-SELECTION-296X-001` | Landed | Select the `.hako` mimalloc performance-parity lane and keep hakozuna as reference-only. |
+| 43 | `HAKO-MIMALLOC-PERF-PARITY-WORKLOAD-MATRIX-296X-001` | Landed | Define the workload matrix and subject ids for `.hako` mimalloc, C mimalloc, hakozuna reference, and provider package evidence. |
+| 44 | `HAKO-MIMALLOC-PERF-PARITY-BASELINE-PACK-296X-001` | Landed | Run baseline repeated measurements for the first parity workload with winner claims closed. |
+| 45 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001` | Current | Classify each measured gap by primary owner before optimization work starts. |
+| 46 | `HAKO-MIMALLOC-PERF-HOT-OWNER-PROBE-296X-001` | Planned | Capture perf/asm evidence for the first dominant gap and select one keeper optimization row. |
+| 47 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization to the selected owner and re-run the parity gate. |
+| 48 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 49 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 50 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 51 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 52 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+
+## Hako Mimalloc Performance Parity Plan
+
+SSOT:
+
+```text
+docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
+```
+
+The next benchmark return work must keep three decisions separate:
+
+```text
+.hako mimalloc parity:
+  make the `.hako` mimalloc port approach C mimalloc under identical workload contracts
+
+hakozuna reference:
+  preserve hakozuna evidence as a comparison subject only
+
+allocator product selection:
+  parked until a separate decision row opens it
+```
+
+Do not turn parity rows into C ABI `malloc` replacement, provider activation,
+global allocator integration, or hakozuna selection.
+
+### Row 42 - Performance Parity Roadmap Selection
+
+Purpose: close the provider-package comparison return and select the `.hako`
+mimalloc performance-parity lane.
+
+Required stop line:
+
+```text
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+hakozuna_selection=0
+```
+
+### Row 43 - Workload Matrix
+
+Purpose: define the exact workload matrix before running more benchmarks.
+
+Required subjects:
+
+```text
+hako_mimalloc_exact_exe
+c_mimalloc_explicit_runner
+hakozuna_reference
+provider_package_hako_mimalloc_explicit
+```
+
+Required workload ladder:
+
+```text
+small_block_alloc_free
+realloc_aligned
+remote_free_publish_collect
+mixed_small
+large_huge_backing
+osvm_page_source
+hakmem_selected_family
+```
+
+### Row 44 - Baseline Pack
+
+Purpose: run the first same-workload baseline pack with the accepted repeated
+measurement policy.
+
+Required fields:
+
+```text
+same_workload=1
+same_operation_count=1
+sample_count=3
+warmup_count=1
+operation_repeat=128
+winner_claim=0
+```
+
+### Row 45 - Gap Taxonomy Adapter
+
+Purpose: classify benchmark gaps before any optimization.
+
+Allowed primary owners:
+
+```text
+allocator_algorithm
+compiler_lowering
+c_abi_memory_bridge
+osvm_page_source
+provider_wrapper
+benchmark_harness
+```
+
+Rows with `gap_owner=unknown` cannot select an optimization.
+
+### Row 46 - Hot Owner Probe
+
+Purpose: use perf/asm evidence to choose the first optimization owner.
+
+Required evidence:
+
+```text
+top_hot_symbol=<symbol>
+hot_owner=<one primary owner>
+front=<exact workload/front>
+reject_seam=<where not to optimize>
+```
+
+### Row 47 - First Keeper Optimization
+
+Purpose: make one optimization for one owner family and prove it with the same
+parity gate.
+
+Do not combine algorithm porting, compiler lowering, and provider wrapper
+cleanup in one row.
+
+### Row 48 - Port Feature Gap Inventory
+
+Purpose: list missing `.hako` mimalloc features separately from speed
+optimization.
+
+Initial buckets:
+
+```text
+size_classes
+local_free_list
+remote_free_delayed_collect
+realloc_aligned
+page_segment_lifecycle
+huge_backing
+abandoned_or_cross_thread
+osvm_purge_decommit
+stats_or_diagnostics
+```
+
+### Row 49 - Real Provider Entrypoint Selection
+
+Purpose: decide which real `.hako` mimalloc API surface should be exposed
+through explicit provider package calls.
+
+Keep replacement parked:
+
+```text
+provider_call_allowed=1
+replacement_active=0
+hook_installed=0
+global_allocator=0
+```
+
+### Row 50 - Hakmem LD_PRELOAD Shim Decision
+
+Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
+existing benchmark scripts.
+
+The bridge is useful only after explicit provider API evidence is stable.
+
+Required decision stop line:
+
+```text
+ld_preload_shim_decision=accepted|parked
+provider_call_evidence_ready=1
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+### Row 51 - Hakmem LD_PRELOAD Shim Smoke
+
+Purpose: build a shim that exposes malloc/free-family symbols for hakmem
+compatibility and smoke-test it separately from normal Hakorune execution.
+
+Required stop line:
+
+```text
+ld_preload_compatible=1
+shared_library_load_executed=1
+malloc_family_symbols_exported=1
+hakmem_script_compatible=probe-only
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+Do not use this row to make Hakorune's own runtime use the shim by default.
+
+### Row 52 - Selfhost Handoff Gate
+
+Purpose: decide whether allocator performance evidence is good enough to move
+attention back toward selfhosting.
+
+Required closeout:
+
+```text
+small_block_parity=accepted
+remote_free_parity=accepted
+mixed_small_parity=accepted
+large_or_page_source_gap_classified=1
+no_unclassified_hot_gap=1
+winner_claim=0
+replacement_active=0
+```
 
 ## Mini-Agent Restart Queue
 
