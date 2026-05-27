@@ -72,6 +72,7 @@ pub(crate) fn check_step_tree_capabilities(
 mod exprs_lambda; // lambda lowering
 mod exprs_peek; // peek expression
 mod exprs_qmark; // ?-propagate
+mod field_facts; // Field/property receiver facts and declared-type helpers
 mod fields; // field access/assignment lowering split
 mod if_form;
 mod indexing; // indexing expression/assignment lowering

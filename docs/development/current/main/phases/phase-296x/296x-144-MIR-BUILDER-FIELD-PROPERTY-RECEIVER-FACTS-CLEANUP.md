@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: unify field/property receiver facts after member-call route planning.
 Blocker: MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP-296X-001
@@ -25,4 +25,23 @@ field_lowering_uses_fact_owner
 property_read_uses_fact_owner
 single_eval_surface_ok
 summary=ok
+```
+
+## Evidence
+
+```text
+output_contract=mir-builder-field-property-receiver-facts-cleanup-v0
+input_contract=mir-builder-member-call-route-plan-pilot-v0
+fact_owner=src/mir/builder/field_facts.rs
+field_lowering_uses_fact_owner=1
+property_read_uses_fact_owner=1
+single_eval_surface_ok=1
+generic_cse_opened=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh
 ```

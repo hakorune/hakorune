@@ -22,12 +22,7 @@ impl super::MirBuilder {
             return Ok(property_value);
         }
 
-        let declared_type = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .and_then(|box_name| self.comp_ctx.declared_field_type_name(box_name, &field))
-            .map(Self::parse_type_name_to_mir);
+        let declared_type = self.declared_field_type_for_value(object_value, &field);
 
         let field_val = if let Some(ref ty) = declared_type {
             self.alloc_typed(ty.clone())
@@ -41,40 +36,7 @@ impl super::MirBuilder {
             declared_type,
         })?;
 
-        // Propagate recorded origin class for this field if any (ValueId-scoped)
-        if let Some(class_name) = self
-            .comp_ctx
-            .field_origin_class
-            .get(&(object_value, field.clone()))
-            .cloned()
-        {
-            self.type_ctx
-                .value_origin_newbox
-                .insert(field_val, class_name);
-        } else if let Some(base_cls) = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned()
-        {
-            // Cross-function heuristic: use class-level field origin mapping
-            if let Some(fcls) = self
-                .comp_ctx
-                .field_origin_by_box
-                .get(&(base_cls.clone(), field.clone()))
-                .cloned()
-            {
-                if super::utils::builder_debug_enabled()
-                    || crate::config::env::builder_debug_enabled()
-                {
-                    super::utils::builder_debug_log(&format!(
-                        "field-origin hit by box-level map: base={} .{} -> {}",
-                        base_cls, field, fcls
-                    ));
-                }
-                self.type_ctx.value_origin_newbox.insert(field_val, fcls);
-            }
-        }
+        self.publish_field_result_origin(field_val, object_value, &field);
 
         // If the loaded field result has a known box origin and its requested
         // field is weak, keep WeakRef (+ optional barrier). This must only
@@ -82,21 +44,19 @@ impl super::MirBuilder {
         // receiver ASTs here would duplicate semantic calls.
         let inferred_class = self.type_ctx.value_origin_newbox.get(&field_val).cloned();
         if let Some(class_name) = inferred_class {
-            if let Some(weak_set) = self.comp_ctx.weak_fields_by_box.get(&class_name) {
-                if weak_set.contains(&field) {
-                    // Phase 285A1: Read weak field returns WeakRef (no auto-upgrade)
-                    // Delegated to WeakFieldValidatorBox
-                    let dst = field_val; // The load result is already our return value
+            if self.is_weak_field_on_result_class(&class_name, &field) {
+                // Phase 285A1: Read weak field returns WeakRef (no auto-upgrade)
+                // Delegated to WeakFieldValidatorBox
+                let dst = field_val; // The load result is already our return value
 
-                    // Phase 285A1: Annotate result as WeakRef type
-                    super::weak_field_validator::WeakFieldValidatorBox::annotate_read_result(
-                        &mut self.type_ctx,
-                        dst,
-                    );
+                // Phase 285A1: Annotate result as WeakRef type
+                super::weak_field_validator::WeakFieldValidatorBox::annotate_read_result(
+                    &mut self.type_ctx,
+                    dst,
+                );
 
-                    let _ = self.emit_barrier_read(dst);
-                    return Ok(dst); // Return WeakRef directly (no auto-upgrade)
-                }
+                let _ = self.emit_barrier_read(dst);
+                return Ok(dst); // Return WeakRef directly (no auto-upgrade)
             }
         }
 
@@ -161,32 +121,18 @@ impl super::MirBuilder {
         let mut value_result = self.build_expression(value)?;
         // LocalSSA: argument in-block (optional safety)
         value_result = self.local_arg(value_result);
-        let declared_type = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .and_then(|box_name| self.comp_ctx.declared_field_type_name(box_name, &field))
-            .map(Self::parse_type_name_to_mir);
+        let declared_type = self.declared_field_type_for_value(object_value, &field);
 
         // Phase 285A1: If field is weak, enforce type contract (3 allowed cases)
         // Delegated to WeakFieldValidatorBox
-        if let Some(class_name) = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned()
-        {
-            if let Some(weak_set) = self.comp_ctx.weak_fields_by_box.get(&class_name) {
-                if weak_set.contains(&field) {
-                    // Phase 285A1: Strict type check (delegated to validator)
-                    let value_type = self.type_ctx.value_types.get(&value_result);
-                    super::weak_field_validator::WeakFieldValidatorBox::validate_assignment(
-                        value_type,
-                        &class_name,
-                        &field,
-                    )?;
-                }
-            }
+        if let Some(class_name) = self.is_weak_field_on_base(object_value, &field) {
+            // Phase 285A1: Strict type check (delegated to validator)
+            let value_type = self.type_ctx.value_types.get(&value_result);
+            super::weak_field_validator::WeakFieldValidatorBox::validate_assignment(
+                value_type,
+                &class_name,
+                &field,
+            )?;
         }
 
         self.emit_instruction(crate::mir::MirInstruction::FieldSet {
@@ -197,17 +143,8 @@ impl super::MirBuilder {
         })?;
 
         // Write barrier if weak field
-        if let Some(class_name) = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned()
-        {
-            if let Some(weak_set) = self.comp_ctx.weak_fields_by_box.get(&class_name) {
-                if weak_set.contains(&field) {
-                    let _ = self.emit_barrier_write(value_result);
-                }
-            }
+        if self.is_weak_field_on_base(object_value, &field).is_some() {
+            let _ = self.emit_barrier_write(value_result);
         }
 
         // Record origin class for this field value if known

@@ -89,6 +89,19 @@ reach into route-specific plan internals. The current boundary SSOT is
 - AST → MIR の基本道
   - `src/mir/builder/stmts.rs`
   - `src/mir/builder/exprs.rs`
+- member call route selection / emission boundary
+  - `src/mir/builder/calls/build.rs`
+  - `src/mir/builder/calls/member_route.rs`
+  - `src/mir/builder/calls/static_resolution.rs`
+  - `src/mir/builder/calls/extern_calls.rs`
+  - `src/mir/builder/calls/receiver_binding.rs`
+- function-call preflight special gates
+  - `src/mir/builder/calls/function_preflight.rs`
+  - `src/mir/builder/calls/special_method_handlers.rs`
+- field/property receiver facts
+  - `src/mir/builder/field_facts.rs`
+  - `src/mir/builder/fields.rs`
+  - `src/mir/builder/property_reads.rs`
 - JoinIR merge（契約検証を含む）
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
   - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
@@ -135,3 +148,6 @@ Prep rule:
 - public surface は `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
 - helper を増やす前に、Context の責務境界を README に書く
 - split は docs-first で seam が固定されてから行う
+- member call は「route selection を 1 回、emit を 1 回」の順に保つ。
+  static receiver / env method / this-me normalization は `calls/*` の classifier
+  helper で決め、`build.rs` から重複判定しない

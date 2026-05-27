@@ -8,18 +8,7 @@ impl super::MirBuilder {
         object_value: ValueId,
         field: &str,
     ) -> Result<Option<ValueId>, String> {
-        let Some(class_name) = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned()
-        else {
-            return Ok(None);
-        };
-        let Some(getter_name) = self
-            .comp_ctx
-            .property_getter_method_name(&class_name, field)
-        else {
+        let Some(getter_name) = self.resolve_property_getter_name(object_value, field) else {
             return Ok(None);
         };
 
