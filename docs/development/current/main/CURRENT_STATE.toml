@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x fixed nested argument single evaluation, then found nested field access duplicate evaluation and selected a fixture row before measurement."
+active_lane_status = "Phase-296x fixed nested argument and nested field single-evaluation correctness, then selected the post-fix exact-EXE measurement refresh."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-129-MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-FIXTURE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-129-MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-FIXTURE.md"
-latest_card_summary = "Proved nested field access duplicate evaluation with NestedFieldSide.make/0 lowering twice, selecting the MIR builder field access owner fix."
-current_blocker_token = "MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-OWNER-FIX-296X-001"
+latest_card = "296x-130-MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-OWNER-FIX"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-130-MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-OWNER-FIX.md"
+latest_card_summary = "Fixed nested field access single evaluation by using already-published field origin facts instead of re-lowering nested object expressions."
+current_blocker_token = "HAKO-MIMALLOC-POST-SINGLE-EVAL-FIXES-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-130 Fixed nested field access single evaluation by using already-published field origin facts instead of re-lowering nested object expressions.",
   "296x-129 Proved nested field access duplicate evaluation with NestedFieldSide.make/0 lowering twice, selecting the MIR builder field access owner fix.",
   "296x-128 Fixed MIR builder nested argument single evaluation by deferring me-call argument lowering until the selected route, reducing the generic fixture count to 1 and facade duplicate failures to 0.",
   "296x-127 Proved generic nested argument duplicate evaluation with NestedArgumentSide.tick/0 lowering twice, selecting the MIR builder owner fix.",

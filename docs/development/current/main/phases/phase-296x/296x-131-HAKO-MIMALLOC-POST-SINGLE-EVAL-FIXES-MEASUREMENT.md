@@ -1,5 +1,5 @@
 ---
-Status: Planned
+Status: Current
 Date: 2026-05-28
 Scope: measure object-lifecycle facade exact-EXE after nested argument and field single-eval fixes.
 Blocker: HAKO-MIMALLOC-POST-SINGLE-EVAL-FIXES-MEASUREMENT-296X-001

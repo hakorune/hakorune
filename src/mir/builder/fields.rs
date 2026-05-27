@@ -15,7 +15,6 @@ impl super::MirBuilder {
             return Ok(record_field_value);
         }
 
-        let object_clone = object.clone();
         let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
 
@@ -77,31 +76,11 @@ impl super::MirBuilder {
             }
         }
 
-        // If base is a known newbox and field is weak, keep WeakRef (+ optional barrier)
-        let mut inferred_class: Option<String> = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)
-            .cloned();
-        if inferred_class.is_none() {
-            if let ASTNode::FieldAccess {
-                object: inner_obj,
-                field: inner_field,
-                ..
-            } = object_clone
-            {
-                if let Ok(base_id) = self.build_expression(*inner_obj.clone()) {
-                    if let Some(cls) = self
-                        .comp_ctx
-                        .field_origin_class
-                        .get(&(base_id, inner_field))
-                        .cloned()
-                    {
-                        inferred_class = Some(cls);
-                    }
-                }
-            }
-        }
+        // If the loaded field result has a known box origin and its requested
+        // field is weak, keep WeakRef (+ optional barrier). This must only
+        // consume already-published origin facts; re-lowering nested field
+        // receiver ASTs here would duplicate semantic calls.
+        let inferred_class = self.type_ctx.value_origin_newbox.get(&field_val).cloned();
         if let Some(class_name) = inferred_class {
             if let Some(weak_set) = self.comp_ctx.weak_fields_by_box.get(&class_name) {
                 if weak_set.contains(&field) {
