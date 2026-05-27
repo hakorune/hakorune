@@ -163,7 +163,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 116 | `HAKO-MIMALLOC-SINGLE-INCOMING-PHI-COPY-ELISION-OWNER-SELECTION-296X-001` | Landed | Select the MIR builder owner for single-incoming phi/copy elision. |
 | 117 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-GUARD-SURFACE-296X-001` | Landed | Define the guard surface for single-pred PHI elision before implementation. |
 | 118 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001` | Landed | Implement guarded single-pred PHI elision and verify exact-EXE shape/measurement. |
-| 119 | `HAKO-MIMALLOC-SMALL-ALLOC-MULTI-RETURN-COPY-PROBE-296X-001` | Current | Classify the remaining multi-return/copy shape after single-pred PHI elision. |
+| 119 | `HAKO-MIMALLOC-SMALL-ALLOC-MULTI-RETURN-COPY-PROBE-296X-001` | Landed | Classify the remaining multi-return/copy shape after single-pred PHI elision. |
+| 120 | `HAKO-MIMALLOC-SMALL-ALLOC-RETURN-BLOCK-LOCAL-SSA-COPY-PROBE-296X-001` | Current | Classify local SSA copy materialization inside objectLifecycleSmallAlloc return blocks. |
 
 ## Hako Mimalloc Performance Parity Plan
 
