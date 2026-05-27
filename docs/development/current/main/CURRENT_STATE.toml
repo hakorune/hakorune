@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x selected select_page_single_page_fast_path as the next single keeper after post-release measurement."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x applied the select_page_single_page_fast_path keeper, so the next step is post-selectPage measurement."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-80-HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-80-HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION.md"
-latest_card_summary = "Selected select_page_single_page_fast_path as the next single .hako mimalloc keeper from hako_check perf-surface evidence, leaving implementation to row 81 and keeping winner/replacement claims closed."
-current_blocker_token = "HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH-296X-001"
+latest_card = "296x-81-HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-81-HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH.md"
+latest_card_summary = "Applied the selectPage single-page fast path keeper in the .hako object lifecycle page queue, proving the facade workload hits the fast path 524288 times with no fallback."
+current_blocker_token = "HAKO-MIMALLOC-PERF-POST-SELECT-PAGE-KEEPER-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-81 Applied the selectPage single-page fast path keeper in the .hako object lifecycle page queue, proving the facade workload hits the fast path 524288 times with no fallback.",
   "296x-80 Selected select_page_single_page_fast_path as the next single .hako mimalloc keeper from hako_check perf-surface evidence, leaving implementation to row 81 and keeping winner/replacement claims closed.",
   "296x-79 Measured the object-lifecycle facade exact-EXE after the release known-page fast path keeper, preserving fast-path count evidence and marking the older page-direct checkpoint as non-comparable.",
   "296x-78 Applied one release known-page fast path keeper in the .hako object lifecycle facade, proving the alloc-then-release route hits the cached page index while the fallback scan remains intact.",

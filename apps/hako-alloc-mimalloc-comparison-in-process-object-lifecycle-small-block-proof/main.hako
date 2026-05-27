@@ -109,6 +109,8 @@ static box Main {
         local free_count = 64 * operation_repeat
         local requested_bytes = 33254 * operation_repeat
         local committed_bytes = 33792 * operation_repeat
+        local select_fast_path_count = alloc.objectLifecycleSinglePageFastPathCount()
+        local select_fallback_count = alloc.objectLifecycleSinglePageFallbackCount()
         local fast_path_count = alloc.objectLifecycleReleaseKnownPageFastPathCount()
         local fallback_count = alloc.objectLifecycleReleaseKnownPageFallbackCount()
 
@@ -123,6 +125,8 @@ static box Main {
         print("free_count=" + free_count)
         print("requested_bytes=" + requested_bytes)
         print("committed_bytes=" + committed_bytes)
+        print("select_page_single_fast_path_count=" + select_fast_path_count)
+        print("select_page_single_fallback_count=" + select_fallback_count)
         print("release_known_page_fast_path_count=" + fast_path_count)
         print("release_known_page_fallback_count=" + fallback_count)
         print("realloc_count=0")
@@ -136,6 +140,8 @@ static box Main {
         proof.expectEq("free count", free_count, 524288)
         proof.expectEq("requested bytes", requested_bytes, 272416768)
         proof.expectEq("committed bytes", committed_bytes, 276824064)
+        proof.expectEq("select page fast path count", select_fast_path_count, 524288)
+        proof.expectEq("select page fallback count", select_fallback_count, 0)
         proof.expectEq("known page fast path count", fast_path_count, 524288)
         proof.expectEq("known page fallback count", fallback_count, 0)
 

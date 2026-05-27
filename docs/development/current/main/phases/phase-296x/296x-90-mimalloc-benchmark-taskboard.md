@@ -125,8 +125,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 78 | `HAKO-MIMALLOC-PERF-RELEASE-KNOWN-PAGE-FAST-PATH-296X-001` | Landed | Add one release known-page fast path keeper without widening replacement or winner claims. |
 | 79 | `HAKO-MIMALLOC-PERF-POST-RELEASE-KEEPER-MEASUREMENT-296X-001` | Landed | Rerun the 8192-repeat in-process small-block measurement after the release keeper. |
 | 80 | `HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION-296X-001` | Landed | Select the next single keeper from hako_check perf-surface evidence. |
-| 81 | `HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH-296X-001` | Current | Implement the selected selectPage single-page fast path keeper. |
-| 82 | `HAKO-MIMALLOC-PERF-POST-SELECT-PAGE-KEEPER-MEASUREMENT-296X-001` | Planned | Rerun the object-lifecycle facade exact-EXE measurement after the selectPage keeper. |
+| 81 | `HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH-296X-001` | Landed | Implement the selected selectPage single-page fast path keeper. |
+| 82 | `HAKO-MIMALLOC-PERF-POST-SELECT-PAGE-KEEPER-MEASUREMENT-296X-001` | Current | Rerun the object-lifecycle facade exact-EXE measurement after the selectPage keeper. |
 | 83 | `HAKO-CHECK-PERF-SURFACE-V1-MINIMAL-296X-001` | Planned | Add loop field/ArrayBox/allocation-like source counts plus confidence to hako_check source perf-surface. |
 | 84 | `HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER-296X-001` | Planned | Compare keeper before/after source reports and measurement evidence without moving hako_check into optimizer responsibility. |
 | 85 | `HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER-296X-001` | Planned | Add a Python MIR method shape adapter for selected MIR JSON methods outside hako_check core. |

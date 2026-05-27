@@ -332,6 +332,14 @@ box HakoAllocObjectLifecycleFacade {
         return me.object_lifecycle_queue.select_count
     }
 
+    objectLifecycleSinglePageFastPathCount() {
+        return me.object_lifecycle_queue.single_page_fast_path_count
+    }
+
+    objectLifecycleSinglePageFallbackCount() {
+        return me.object_lifecycle_queue.single_page_fallback_count
+    }
+
     objectLifecycleReuseSelectCount() {
         return me.object_lifecycle_queue.reuse_select_count
     }

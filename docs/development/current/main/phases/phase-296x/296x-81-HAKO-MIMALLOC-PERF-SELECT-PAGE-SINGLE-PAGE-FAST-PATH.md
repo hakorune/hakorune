@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: implement one selectPage single-page fast path keeper.
 Blocker: HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH-296X-001
@@ -33,6 +33,26 @@ summary=ok
 ## Stop Line
 
 Do not combine this with result-capsule reduction or observer getter reduction.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-perf-select-page-single-page-fast-path-v0
+input_contract=hako-mimalloc-perf-next-keeper-selection-v0
+keeper=select_page_single_page_fast_path
+target_method=objectLifecycleSmallAlloc
+queue_fast_path_method=selectSinglePageFastPath
+proof_expected_select_page_single=524288,0
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_perf_select_page_single_page_fast_path_guard.sh
+```
 
 ## Planned Follow-on Stack
 

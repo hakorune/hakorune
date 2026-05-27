@@ -186,6 +186,8 @@ realloc_same_ptr_count = 0
 realloc_moved_count = 0
 reuse_cycle_count = 0
 copied_bytes = 0
+select_page_single_fast_path_count = 0
+select_page_single_fallback_count = 0
 release_known_page_fast_path_count = 0
 release_known_page_fallback_count = 0
 in_process_operation_repeat = 0
@@ -230,6 +232,10 @@ for line in lines:
         reuse_cycle_count = int(line.split("=", 1)[1])
     if line.startswith("copied_bytes="):
         copied_bytes = int(line.split("=", 1)[1])
+    if line.startswith("select_page_single_fast_path_count="):
+        select_page_single_fast_path_count = int(line.split("=", 1)[1])
+    if line.startswith("select_page_single_fallback_count="):
+        select_page_single_fallback_count = int(line.split("=", 1)[1])
     if line.startswith("release_known_page_fast_path_count="):
         release_known_page_fast_path_count = int(line.split("=", 1)[1])
     if line.startswith("release_known_page_fallback_count="):
@@ -285,6 +291,9 @@ print(f"realloc_same_ptr_count={realloc_same_ptr_count * repeat}")
 print(f"realloc_moved_count={realloc_moved_count * repeat}")
 print(f"reuse_cycle_count={reuse_cycle_count * repeat}")
 print(f"copied_bytes={copied_bytes * repeat}")
+if select_page_single_fast_path_count > 0 or select_page_single_fallback_count > 0:
+    print(f"select_page_single_fast_path_count={select_page_single_fast_path_count * repeat}")
+    print(f"select_page_single_fallback_count={select_page_single_fallback_count * repeat}")
 if release_known_page_fast_path_count > 0 or release_known_page_fallback_count > 0:
     print(f"release_known_page_fast_path_count={release_known_page_fast_path_count * repeat}")
     print(f"release_known_page_fallback_count={release_known_page_fallback_count * repeat}")
