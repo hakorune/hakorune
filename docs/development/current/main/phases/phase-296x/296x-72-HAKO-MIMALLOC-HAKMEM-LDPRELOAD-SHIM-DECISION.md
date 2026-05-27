@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: decide whether to open a hakmem-compatible LD_PRELOAD shim lane.
 Blocker: HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001
@@ -40,6 +40,32 @@ hook_installed=0
 global_allocator=0
 winner_claim=0
 summary=ok
+```
+
+## Evidence
+
+```text
+output_contract=hako-mimalloc-hakmem-ldpreload-shim-decision-v0
+input_contract=hako-mimalloc-provider-package-native-fusion-explicit-measurement-v0
+ld_preload_shim_decision=accepted
+decision_scope=hakmem_compat_probe_only
+decision_reason=provider_explicit_measurement_ready_and_hakmem_existing_scripts_need_malloc_free_symbol_surface
+provider_call_evidence_ready=1
+provider_explicit_measurement_ready=1
+ld_preload_shim_build_allowed=1
+ld_preload_shim_ready=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+next_row=HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001
+summary=ok
+```
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_hakmem_ldpreload_shim_decision_guard.sh
 ```
 
 ## Stop Line
