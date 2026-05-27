@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x added the keeper before/after diff adapter, so the next step is the Python MIR method shape adapter."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x added the Python MIR method shape adapter, so the next step is the source/MIR shape join adapter."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-84-HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-84-HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER.md"
-latest_card_summary = "Added a keeper before/after diff adapter that joins source perf-surface and measurement reports outside hako_check core while keeping MIR shape work for the next row."
-current_blocker_token = "HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER-296X-001"
+latest_card = "296x-85-HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-85-HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER.md"
+latest_card_summary = "Added the first Python MIR method shape adapter outside hako_check core, counting selected-method MIR instructions, calls, fields, PHIs, copies, branches, and returns."
+current_blocker_token = "HAKO-SOURCE-MIR-SHAPE-JOIN-ADAPTER-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-85 Added the first Python MIR method shape adapter outside hako_check core, counting selected-method MIR instructions, calls, fields, PHIs, copies, branches, and returns.",
   "296x-84 Added a keeper before/after diff adapter that joins source perf-surface and measurement reports outside hako_check core while keeping MIR shape work for the next row.",
   "296x-83 Added minimal hako_check perf-surface v1 source counts for loop field, ArrayBox, allocation-like source, suggested_next_kind, and confidence while keeping MIR observation separate.",
   "296x-82 Measured the object-lifecycle facade exact-EXE after the selectPage single-page keeper, preserving select and release fast-path counts while keeping winner and replacement claims closed.",
