@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: classify the in-process hako/C gap before the first optimization.
 Blocker: HAKO-MIMALLOC-PERF-IN-PROCESS-GAP-TAXONOMY-DECISION-296X-001
@@ -31,10 +31,10 @@ winner_claim=0
 
 ```text
 output_contract=hako-mimalloc-in-process-gap-taxonomy-decision-v0
-gap_owner=compiler_lowering|allocator_algorithm|hako_runtime_baseline|benchmark_harness
-gap_confidence=low|medium|high
-next_diagnostic
-next_optimization_allowed=0|1
+gap_owner=allocator_algorithm
+gap_confidence=low
+next_diagnostic=compiler_allocator_owner_split_diagnostic
+next_optimization_allowed=0
 winner_claim=0
 provider_active=0
 replacement_active=0
@@ -43,8 +43,40 @@ global_allocator=0
 summary=ok
 ```
 
-Only `compiler_lowering` or `allocator_algorithm` with medium-or-better
-confidence may open the first keeper optimization row.
+## Evidence
+
+```text
+output_contract=hako-mimalloc-in-process-gap-taxonomy-decision-v0
+input_contract=hako-mimalloc-in-process-operation-repeat-measurement-v0
+workload_id=representative-small-block-v0
+operation_repeat=8192
+process_repeat=3
+hako_external_elapsed_median_ms=330
+c_external_elapsed_median_ms=4
+c_body_elapsed_median_ns=3240447
+external_elapsed_median_gap_ms=326
+gap_owner=allocator_algorithm
+gap_confidence=low
+next_diagnostic=compiler_allocator_owner_split_diagnostic
+next_optimization_allowed=0
+optimization_started=0
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+The process-repeat harness has been excluded. The remaining gap is in the hako
+workload path, but this row does not yet separate compiler lowering cost from
+allocator model/algorithm overhead, so optimization stays closed.
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_perf_in_process_gap_taxonomy_decision_guard.sh
+```
 
 ## Stop Line
 

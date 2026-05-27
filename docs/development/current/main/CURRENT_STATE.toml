@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x has landed the first in-process hako/C measurement pilot, so the next step is in-process gap taxonomy before any optimization."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x classified the first in-process hako/C gap as low-confidence allocator_algorithm, so the next step is compiler/allocator owner split before any optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-55-HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-55-HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-PILOT.md"
-latest_card_summary = "Ran the first in-process operation-repeat hako/C pilot for representative-small-block-v0, measuring 8192 inner repeats with matching operation counts and selecting in-process gap taxonomy while keeping optimization and winner claims closed."
-current_blocker_token = "HAKO-MIMALLOC-PERF-IN-PROCESS-GAP-TAXONOMY-DECISION-296X-001"
+latest_card = "296x-56-HAKO-MIMALLOC-PERF-IN-PROCESS-GAP-TAXONOMY-DECISION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-56-HAKO-MIMALLOC-PERF-IN-PROCESS-GAP-TAXONOMY-DECISION.md"
+latest_card_summary = "Classified the first in-process hako/C gap as low-confidence allocator_algorithm evidence, selected compiler/allocator owner split, and kept optimization, winner, provider, replacement, hook, and global allocator claims closed."
+current_blocker_token = "HAKO-MIMALLOC-PERF-COMPILER-ALLOCATOR-OWNER-SPLIT-DIAGNOSTIC-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-56 Classified the first in-process hako/C gap as low-confidence allocator_algorithm evidence, selected compiler/allocator owner split, and kept optimization, winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-55 Ran the first in-process operation-repeat hako/C pilot for representative-small-block-v0, measuring 8192 inner repeats with matching operation counts and selecting in-process gap taxonomy while keeping optimization and winner claims closed.",
   "296x-54 Defined the in-process operation-repeat measurement contract, separating inner workload repeats from sample process count while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-53 Compared empty and small-block process-repeat scaling, found empty workload growth explains the small-block gap, classified the owner as benchmark_harness, and selected an in-process operation-repeat contract with optimization and winner claims closed.",

@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
 ---
 
-# 296x-57 Hako Mimalloc First Keeper Optimization
+# 296x-58 Hako Mimalloc First Keeper Optimization
 
 ## Purpose
 
