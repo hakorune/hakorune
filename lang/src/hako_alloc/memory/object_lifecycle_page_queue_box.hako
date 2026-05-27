@@ -6,6 +6,7 @@ using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 
 box HakoAllocObjectLifecyclePageQueue {
     pages: ArrayBox = new ArrayBox()
+    first_page: HakoAllocPageModel = null
     page_count: usize = 0
     add_count: usize = 0
     request_count: usize = 0
@@ -31,6 +32,9 @@ box HakoAllocObjectLifecyclePageQueue {
         }
 
         local index = me.page_count
+        if index == 0 {
+            me.first_page = page
+        }
         me.pages.push(page)
         me.page_count = me.page_count + 1
         me.add_count = me.add_count + 1
@@ -65,7 +69,7 @@ box HakoAllocObjectLifecyclePageQueue {
             return null
         }
 
-        local page = me.pages.get(0)
+        local page = me.first_page
         if page == null {
             me.miss_count = me.miss_count + 1
             return null

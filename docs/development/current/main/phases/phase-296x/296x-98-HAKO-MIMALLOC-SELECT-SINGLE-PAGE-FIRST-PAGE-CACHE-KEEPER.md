@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: cache the first page object for the single-page select hot path.
 Blocker: HAKO-MIMALLOC-SELECT-SINGLE-PAGE-FIRST-PAGE-CACHE-KEEPER-296X-001
@@ -40,3 +40,29 @@ summary=ok
 
 Do not change multi-page selection policy, provider activation, replacement,
 hooks, globals, or winner claims in this row.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-select-single-page-first-page-cache-keeper-v0
+input_contract=hako-mimalloc-post-release-direct-cached-page-source-mir-refresh-v0
+keeper=select_single_page_first_page_cache
+keeper_kind=box_count
+target_method=HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0
+first_page_cache_used=1
+removed_single_page_pages_get=1
+proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako
+proof_summary=ok
+select_page_single_fast_path_count=524288
+select_page_single_fallback_count=0
+release_known_page_fast_path_count=524288
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_select_single_page_first_page_cache_keeper_guard.sh
+```
