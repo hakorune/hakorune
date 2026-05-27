@@ -21,7 +21,6 @@ guard_require_files "$TAG" "$CARD_125" "$CARD_126" "$SSOT" "$TASKBOARD" "$CURREN
 guard_require_exec_files "$TAG" "$TOOL" "$SELF_SCRIPT"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_125" "row125 card must be landed"
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_126" "row126 card must be current"
 guard_expect_fixed_in_file "$TAG" 'output_contract=hako-alloc-facade-reason-duplicate-inventory-v0' "$CARD_125" "row125 must record inventory contract"
 guard_expect_fixed_in_file "$TAG" 'method_0=objectLifecycleSmallAlloc' "$CARD_125" "row125 must keep fixed method order"
 guard_expect_fixed_in_file "$TAG" 'method_0_unused_duplicate_reason_call_count=0' "$CARD_125" "small alloc must remain fixed"
@@ -30,10 +29,9 @@ guard_expect_fixed_in_file "$TAG" 'total_unused_duplicate_reason_call_count=20' 
 guard_expect_fixed_in_file "$TAG" 'selected_next=hako_alloc_facade_reason_duplicate_eval_guard' "$CARD_125" "row125 must select guard"
 guard_expect_fixed_in_file "$TAG" 'Nested call arguments must be evaluated exactly once.' "$SSOT" "SSOT must define invariant"
 guard_expect_fixed_in_file "$TAG" 'This SSOT does not authorize generic MIR CSE.' "$SSOT" "SSOT must reject generic CSE"
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-125-HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH"' "$CURRENT_STATE" "current state latest card must advance to row125"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001"' "$CURRENT_STATE" "current state must select row126"
+guard_expect_fixed_in_file "$TAG" '296x-125 Opened nested argument single-evaluation as a correctness lane after facade reason-call inventory found seven remaining duplicate-eval candidates.' "$CURRENT_STATE" "current state landed tail must include row125"
 guard_expect_fixed_in_file "$TAG" '| 125 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH-296X-001` | Landed |' "$TASKBOARD" "taskboard row125 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 126 | `HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001` | Current |' "$TASKBOARD" "taskboard row126 must be current"
+guard_expect_fixed_in_file "$TAG" '| 126 | `HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001` | Landed |' "$TASKBOARD" "taskboard row126 must exist"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 guard_expect_fixed_in_file "$TAG" "$TOOL" "$INDEX" "check index must list this tool"
 

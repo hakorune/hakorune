@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x opened nested argument single-evaluation as a correctness lane after facade reason-call inventory found seven remaining duplicate-eval candidates."
+active_lane_status = "Phase-296x fixed the hako-alloc facade duplicate-eval guard surface and selected a generic nested argument single-eval fixture."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-125-HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-125-HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH.md"
-latest_card_summary = "Opened nested argument single-evaluation as a correctness lane after facade reason-call inventory found seven remaining duplicate-eval candidates."
-current_blocker_token = "HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001"
+latest_card = "296x-126-HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-126-HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD.md"
+latest_card_summary = "Fixed the hako-alloc facade duplicate-eval guard surface with seven known current failing methods and selected a generic nested argument single-eval fixture."
+current_blocker_token = "GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-126 Fixed the hako-alloc facade duplicate-eval guard surface with seven known current failing methods and selected a generic nested argument single-eval fixture.",
   "296x-125 Opened nested argument single-evaluation as a correctness lane after facade reason-call inventory found seven remaining duplicate-eval candidates.",
   "296x-124 Measured the .hako reason-local bind keeper at 610ms median versus the prior 620ms checkpoint, accepting it while keeping winner/replacement claims closed.",
   "296x-123 Landed the .hako reason-local bind keeper, removing duplicate small-alloc failure reason calls while preserving exact-EXE proof counters.",

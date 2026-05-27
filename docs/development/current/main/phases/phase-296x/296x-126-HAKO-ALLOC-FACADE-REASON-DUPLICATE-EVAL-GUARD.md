@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: add a narrow guard for duplicate facade reason-call evaluation before MIR builder changes.
 Blocker: HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001
@@ -37,3 +37,30 @@ summary=ok
 ## Stop Line
 
 Do not change MIR builder lowering in this row.
+
+## Evidence
+
+Report:
+
+```text
+output_contract=hako-alloc-facade-reason-duplicate-eval-guard-v0
+input_contract=hako-alloc-facade-reason-duplicate-inventory-v0
+guard_scope=hako_alloc_object_lifecycle_facade_reason_calls
+small_alloc_fixed=1
+known_current_failure_count=7
+known_current_unused_duplicate_reason_call_count=20
+known_current_failing_methods=objectLifecycleRecordAlignmentRequest,objectLifecycleSmallAllocAligned,objectLifecycleReleaseDirectCachedPage,objectLifecycleReleaseBlock,objectLifecycleReallocGrowFromPage,objectLifecycleReallocShrink,objectLifecycleReallocGrow
+selected_next=generic_nested_argument_single_eval_fixture
+selected_next_kind=mir_correctness_fixture
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_alloc_facade_reason_duplicate_eval_guard.sh
+```
