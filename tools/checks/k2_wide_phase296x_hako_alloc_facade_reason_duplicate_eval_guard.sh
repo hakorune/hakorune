@@ -21,16 +21,14 @@ guard_require_files "$TAG" "$CARD_126" "$CARD_127" "$SSOT" "$TASKBOARD" "$CURREN
 guard_require_exec_files "$TAG" "$TOOL" "$SELF_SCRIPT"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_126" "row126 card must be landed"
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_127" "row127 card must be current"
 guard_expect_fixed_in_file "$TAG" 'output_contract=hako-alloc-facade-reason-duplicate-eval-guard-v0' "$CARD_126" "row126 must record output contract"
 guard_expect_fixed_in_file "$TAG" 'known_current_failure_count=7' "$CARD_126" "row126 must record known failures"
 guard_expect_fixed_in_file "$TAG" 'known_current_unused_duplicate_reason_call_count=20' "$CARD_126" "row126 must record duplicate total"
 guard_expect_fixed_in_file "$TAG" 'selected_next=generic_nested_argument_single_eval_fixture' "$CARD_126" "row126 must select generic fixture"
 guard_expect_fixed_in_file "$TAG" 'Nested call arguments must be evaluated exactly once.' "$SSOT" "SSOT must define invariant"
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-126-HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD"' "$CURRENT_STATE" "current state latest card must advance to row126"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001"' "$CURRENT_STATE" "current state must select row127"
+guard_expect_fixed_in_file "$TAG" '296x-126 Fixed the hako-alloc facade duplicate-eval guard surface with seven known current failing methods and selected a generic nested argument single-eval fixture.' "$CURRENT_STATE" "current state landed tail must include row126"
 guard_expect_fixed_in_file "$TAG" '| 126 | `HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001` | Landed |' "$TASKBOARD" "taskboard row126 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 127 | `GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001` | Current |' "$TASKBOARD" "taskboard row127 must be current"
+guard_expect_fixed_in_file "$TAG" '| 127 | `GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001` | Landed |' "$TASKBOARD" "taskboard row127 must exist"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 guard_expect_fixed_in_file "$TAG" "$TOOL" "$INDEX" "check index must list this tool"
 

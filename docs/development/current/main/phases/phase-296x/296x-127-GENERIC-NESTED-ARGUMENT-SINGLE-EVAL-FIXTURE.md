@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: add a generic MIR correctness fixture for nested argument single evaluation.
 Blocker: GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001
@@ -38,3 +38,26 @@ summary=ok
 ## Stop Line
 
 Do not fix MIR builder lowering in this row.
+
+## Evidence
+
+Report:
+
+```text
+output_contract=generic-nested-argument-single-eval-fixture-v0
+input_contract=hako-alloc-facade-reason-duplicate-eval-guard-v0
+fixture=generic_nested_argument_single_eval
+selected_method=NestedArgumentProbe.run/0
+nested_call_symbol=NestedArgumentSide.tick/0
+expected_nested_call_count=1
+actual_nested_call_count=2
+selected_next=mir_builder_nested_argument_single_eval_owner_fix
+winner_claim=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_generic_nested_argument_single_eval_fixture_guard.sh
+```

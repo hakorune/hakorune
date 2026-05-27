@@ -1,0 +1,33 @@
+// mir-nested-argument-single-eval-proof
+// Purpose: prove nested call argument expressions are semantically lowered once.
+
+static box NestedArgumentSide {
+    tick() {
+        return 7
+    }
+}
+
+box NestedArgumentProbe {
+    wrap(value) {
+        return value
+    }
+
+    run() {
+        return me.wrap(NestedArgumentSide.tick())
+    }
+}
+
+static box Main {
+    main(args) {
+        local probe = new NestedArgumentProbe()
+        local value = probe.run()
+        print("mir-nested-argument-single-eval-proof")
+        print("value=" + value)
+        if value == 7 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

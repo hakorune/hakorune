@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001:
-  Add a generic MIR correctness fixture for nested argument single evaluation.
+MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
+  Fix MIR builder nested argument single-evaluation correctness.
 ```
 
 ## Queue
@@ -171,7 +171,8 @@ GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001:
 | 124 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after the small-alloc .hako reason bind keeper. |
 | 125 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after the accepted .hako reason bind keeper. |
 | 126 | `HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001` | Landed | Add a narrow guard for duplicate facade reason-call evaluation before MIR builder changes. |
-| 127 | `GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001` | Current | Add a generic MIR correctness fixture for nested argument single evaluation. |
+| 127 | `GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001` | Landed | Add a generic MIR correctness fixture for nested argument single evaluation. |
+| 128 | `MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001` | Current | Fix MIR builder nested argument single-evaluation correctness. |
 
 ## Hako Mimalloc Performance Parity Plan
 
