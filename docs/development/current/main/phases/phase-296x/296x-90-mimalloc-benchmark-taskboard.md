@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-GAP-TAXONOMY-REFRESH-296X-001:
-  Refresh gap taxonomy over measurement hygiene evidence before any optimization work starts.
+HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001:
+  Decide the next action from refreshed gap taxonomy evidence.
 ```
 
 ## Queue
@@ -93,13 +93,14 @@ HAKO-MIMALLOC-PERF-GAP-TAXONOMY-REFRESH-296X-001:
 | 46 | `HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION-296X-001` | Landed | Follow row 45: measurement hygiene only for noisy harness evidence, otherwise choose the owner-specific narrow diagnostic. |
 | 47 | `HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001` | Landed | Capture the selected owner diagnostic without optimizing or broadening the measurement contract unnecessarily. |
 | 48 | `HAKO-MIMALLOC-PERF-POST-DIAGNOSTIC-DECISION-296X-001` | Landed | Decide whether row 47 diagnostic evidence can enter optimization or needs another taxonomy pass. |
-| 49 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-REFRESH-296X-001` | Current | Refresh gap taxonomy over measurement hygiene evidence before any optimization work starts. |
-| 50 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
-| 51 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
-| 52 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
-| 53 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 54 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 55 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 49 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-REFRESH-296X-001` | Landed | Refresh gap taxonomy over measurement hygiene evidence before any optimization work starts. |
+| 50 | `HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001` | Current | Decide the next action from refreshed gap taxonomy evidence. |
+| 51 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
+| 52 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 53 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 54 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 55 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 56 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -294,7 +295,13 @@ hook_installed=0
 global_allocator=0
 ```
 
-### Row 50 - First Keeper Optimization
+### Row 50 - Refreshed Taxonomy Decision
+
+Purpose: decide the next action from refreshed gap taxonomy evidence.
+
+Do not optimize in this row.
+
+### Row 51 - First Keeper Optimization
 
 Purpose: make one optimization for one owner family and prove it with the same
 parity gate.
@@ -303,7 +310,7 @@ Only `compiler_lowering` and `allocator_algorithm` may enter this row directly.
 Do not combine algorithm porting, compiler lowering, harness cleanup, and
 provider wrapper cleanup in one row.
 
-### Row 51 - Port Feature Gap Inventory
+### Row 52 - Port Feature Gap Inventory
 
 Purpose: list missing `.hako` mimalloc features separately from speed
 optimization.
@@ -322,7 +329,7 @@ osvm_purge_decommit
 stats_or_diagnostics
 ```
 
-### Row 52 - Real Provider Entrypoint Selection
+### Row 53 - Real Provider Entrypoint Selection
 
 Purpose: decide which real `.hako` mimalloc API surface should be exposed
 through explicit provider package calls.
@@ -336,7 +343,7 @@ hook_installed=0
 global_allocator=0
 ```
 
-### Row 53 - Hakmem LD_PRELOAD Shim Decision
+### Row 54 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -354,7 +361,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 54 - Hakmem LD_PRELOAD Shim Smoke
+### Row 55 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -375,7 +382,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 55 - Selfhost Handoff Gate
+### Row 56 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.
