@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: measure the object-lifecycle facade exact-EXE after the active field fast path keeper.
 Blocker: HAKO-MIMALLOC-POST-ACTIVE-FIELD-FAST-PATH-KEEPER-MEASUREMENT-296X-001
@@ -35,3 +35,42 @@ summary=ok
 
 Do not implement another keeper, open provider activation, replacement, hooks,
 globals, or winner claims in this row.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-post-active-field-fast-path-keeper-measurement-v0
+input_contract=hako-mimalloc-select-single-page-active-field-fast-path-keeper-v0
+measurement_scope=object_lifecycle_facade_exact_exe_after_active_field_fast_path_keeper
+workload_id=representative-object-lifecycle-small-block-v0
+operation_repeat=8192
+sample_count=3
+keeper=select_single_page_active_field_fast_path
+select_page_single_fast_path_count=524288
+select_page_single_fallback_count=0
+release_known_page_fast_path_count=524288
+release_known_page_fallback_count=0
+sample_0_hako_external_elapsed_ms=650
+sample_1_hako_external_elapsed_ms=650
+sample_2_hako_external_elapsed_ms=630
+after_hako_elapsed_median_ms=650
+after_hako_elapsed_min_ms=630
+after_hako_elapsed_max_ms=650
+after_hako_external_rss_median_bytes=3645440
+previous_keeper=select_single_page_first_page_cache
+previous_median_ms=620
+median_delta_ms=30
+keeper_effect=regressed
+next_row=HAKO-MIMALLOC-ROLLBACK-ACTIVE-FIELD-FAST-PATH-KEEPER-296X-001
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_post_active_field_fast_path_keeper_measurement_guard.sh
+```
