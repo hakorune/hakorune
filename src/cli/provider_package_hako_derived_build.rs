@@ -14,6 +14,7 @@ const DESCRIPTOR_EXPORT: &str = "hakorune_provider_descriptor_v1";
 const OUTPUT_CONTRACT: &str = "hakorune-provider-package-hako-derived-build-v0";
 const BUILD_MODE: &str = "hako-derived-selected-fixture";
 const PACKAGE_MODE: &str = "hako-derived-provider-package";
+const OBJECT_LIFECYCLE_MODE: &str = "object-lifecycle-small-alloc-release-v0";
 
 pub fn maybe_run_provider_package_hako_derived_build(config: &CliConfig) -> Option<i32> {
     config
@@ -79,8 +80,9 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     if semantic_codegen != "none"
         && semantic_codegen != "ping-literal-v0"
         && semantic_codegen != "alloc-free-owns-literal-v0"
+        && semantic_codegen != OBJECT_LIFECYCLE_MODE
     {
-        return Err("[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0|alloc-free-owns-literal-v0".to_string());
+        return Err("[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0|alloc-free-owns-literal-v0|object-lifecycle-small-alloc-release-v0".to_string());
     }
 
     let artifact_name = match config.provider_package_artifact_name.as_deref() {
@@ -121,12 +123,15 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     let hako_mir_json_hash = sha256_file(&mir_json_path)?;
     let semantic_ping_value = if semantic_codegen == "ping-literal-v0"
         || semantic_codegen == "alloc-free-owns-literal-v0"
+        || semantic_codegen == OBJECT_LIFECYCLE_MODE
     {
         Some(extract_hako_provider_ping_literal(&mir_json_path)?)
     } else {
         None
     };
-    let semantic_owns_value = if semantic_codegen == "alloc-free-owns-literal-v0" {
+    let semantic_owns_value = if semantic_codegen == "alloc-free-owns-literal-v0"
+        || semantic_codegen == OBJECT_LIFECYCLE_MODE
+    {
         let value = extract_hako_provider_owns_allocated_literal(&mir_json_path)?;
         if value != 0 && value != 1 {
             return Err(
@@ -136,6 +141,12 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         Some(value)
     } else {
         None
+    };
+    let semantic_object_lifecycle_verified = if semantic_codegen == OBJECT_LIFECYCLE_MODE {
+        validate_hako_provider_object_lifecycle_entrypoint(&mir_json_path)?;
+        true
+    } else {
+        false
     };
     let activation = json!({
         "provider_call_allowed": config.provider_package_provider_call_allowed,
@@ -160,6 +171,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         "hako_semantic_provider_codegen": semantic_codegen,
         "hako_provider_ping_value": semantic_ping_value,
         "hako_provider_owns_value": semantic_owns_value,
+        "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
     });
     let contract_hash = sha256_bytes(
         serde_json::to_string(&contract)
@@ -175,6 +187,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         semantic_codegen,
         semantic_ping_value,
         semantic_owns_value,
+        semantic_object_lifecycle_verified,
     )?;
     let source_path = build_dir.join("hako_derived_provider_wrapper.c");
     fs::write(
@@ -222,6 +235,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             "hako_semantic_provider_codegen": semantic_codegen,
             "hako_provider_ping_value": semantic_ping_value,
             "hako_provider_owns_value": semantic_owns_value,
+            "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
             "hako_shared_library_generation": true
         },
         "artifact": {
@@ -258,6 +272,8 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
          hako_provider_ping_value={}\n\
          hako_provider_owns_codegen={}\n\
          hako_provider_owns_value={}\n\
+         hako_provider_object_lifecycle_codegen={}\n\
+         hako_provider_object_lifecycle_entrypoint_verified={}\n\
          shared_library_artifact_generated=1\n\
          arbitrary_shell_build_executed=0\n\
          package_dir={}\n\
@@ -297,6 +313,16 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         semantic_ping_value.unwrap_or(0),
         if semantic_owns_value.is_some() { 1 } else { 0 },
         semantic_owns_value.unwrap_or(0),
+        if semantic_object_lifecycle_verified {
+            1
+        } else {
+            0
+        },
+        if semantic_object_lifecycle_verified {
+            1
+        } else {
+            0
+        },
         out_dir.display(),
         source_path.display(),
         manifest_path.display(),
@@ -352,6 +378,122 @@ fn extract_hako_provider_owns_allocated_literal(mir_json_path: &Path) -> Result<
         "owns",
         "missing-hako-provider-owns-allocated",
     )
+}
+
+fn validate_hako_provider_object_lifecycle_entrypoint(mir_json_path: &Path) -> Result<(), String> {
+    let text = fs::read_to_string(mir_json_path)
+        .map_err(|error| format!("[provider-package-hako-build/read-mir-json-failed] {error}"))?;
+    let data: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|error| format!("[provider-package-hako-build/parse-mir-json-failed] {error}"))?;
+    let functions = data
+        .get("functions")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| "[provider-package-hako-build/mir-json-missing-functions]".to_string())?;
+    require_mir_function(
+        functions,
+        "HakoProvider.objectLifecycleSmallAllocReleaseOk/0",
+    )?;
+    for required in [
+        "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
+        "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
+        "HakoAllocPageModel.acquire/1",
+        "HakoAllocPageModel.releaseLocal/1",
+    ] {
+        require_mir_function(functions, required)?;
+    }
+
+    let provider_fn = find_mir_function(
+        functions,
+        "HakoProvider.objectLifecycleSmallAllocReleaseOk/0",
+    )?;
+    require_mir_method_call(
+        provider_fn,
+        "HakoAllocObjectLifecycleFacade",
+        "objectLifecycleSmallAlloc",
+    )?;
+    require_mir_method_call(
+        provider_fn,
+        "HakoAllocObjectLifecycleFacade",
+        "objectLifecycleReleaseBlock",
+    )?;
+
+    let alloc_fn = find_mir_function(
+        functions,
+        "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
+    )?;
+    require_mir_method_call(alloc_fn, "HakoAllocPageModel", "acquire")?;
+
+    let release_fn = find_mir_function(
+        functions,
+        "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
+    )?;
+    require_mir_method_call(release_fn, "HakoAllocPageModel", "releaseLocal")?;
+    Ok(())
+}
+
+fn require_mir_function<'a>(
+    functions: &'a [serde_json::Value],
+    name: &str,
+) -> Result<&'a serde_json::Value, String> {
+    find_mir_function(functions, name)
+        .map_err(|_| format!("[provider-package-hako-build/missing-mir-function] {name}"))
+}
+
+fn find_mir_function<'a>(
+    functions: &'a [serde_json::Value],
+    name: &str,
+) -> Result<&'a serde_json::Value, String> {
+    functions
+        .iter()
+        .find(|function| function.get("name").and_then(serde_json::Value::as_str) == Some(name))
+        .ok_or_else(|| format!("[provider-package-hako-build/missing-mir-function] {name}"))
+}
+
+fn require_mir_method_call(
+    function: &serde_json::Value,
+    box_name: &str,
+    method_name: &str,
+) -> Result<(), String> {
+    let blocks = function
+        .get("blocks")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| {
+            "[provider-package-hako-build/object-lifecycle-missing-blocks]".to_string()
+        })?;
+    for block in blocks {
+        let Some(instructions) = block
+            .get("instructions")
+            .and_then(serde_json::Value::as_array)
+        else {
+            continue;
+        };
+        for instruction in instructions {
+            if instruction.get("op").and_then(serde_json::Value::as_str) != Some("mir_call") {
+                continue;
+            }
+            let Some(callee) = instruction
+                .get("mir_call")
+                .and_then(|call| call.get("callee"))
+            else {
+                continue;
+            };
+            if callee.get("type").and_then(serde_json::Value::as_str) == Some("Method")
+                && callee.get("box_name").and_then(serde_json::Value::as_str) == Some(box_name)
+                && callee.get("name").and_then(serde_json::Value::as_str) == Some(method_name)
+            {
+                return Ok(());
+            }
+        }
+    }
+    Err(format!(
+        "[provider-package-hako-build/missing-object-lifecycle-call] {}.{} in {}",
+        box_name,
+        method_name,
+        function
+            .get("name")
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or("<unknown>")
+    ))
 }
 
 fn extract_hako_provider_literal(
@@ -448,6 +590,7 @@ fn hako_derived_function_table_hash(
     semantic_codegen: &str,
     semantic_ping_value: Option<i64>,
     semantic_owns_value: Option<i64>,
+    semantic_object_lifecycle_verified: bool,
 ) -> Result<String, String> {
     let contract = json!({
         "abi_version": ABI_VERSION,
@@ -459,6 +602,7 @@ fn hako_derived_function_table_hash(
         "hako_semantic_provider_codegen": semantic_codegen,
         "hako_provider_ping_value": semantic_ping_value,
         "hako_provider_owns_value": semantic_owns_value,
+        "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
     });
     Ok(sha256_bytes(
         serde_json::to_string(&contract)

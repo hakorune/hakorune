@@ -1,0 +1,52 @@
+// hako-derived-mimalloc-real-entrypoint-fixture
+// Purpose: selected real .hako mimalloc entrypoint fixture for provider package native-fusion pilot.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box HakoProvider {
+    ping() {
+        return 7
+    }
+
+    ownsAllocated() {
+        return 1
+    }
+
+    objectLifecycleSmallAllocReleaseOk() {
+        local page = new HakoAllocPageModel(90, 8, 1, 1)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local alloc_ok = alloc.objectLifecycleSmallAlloc(8)
+        local alloc_page = alloc.objectLifecycleAllocPageId()
+        local alloc_block = alloc.objectLifecycleAllocBlockId()
+        local release_ok = alloc.objectLifecycleReleaseBlock(alloc_page, alloc_block)
+        local release_page = alloc.objectLifecycleReleasePageId()
+        local release_block = alloc.objectLifecycleReleaseBlockId()
+        local release_reason = alloc.objectLifecycleReleaseReason()
+
+        local shape = 0
+        if alloc_ok == 1 { shape = shape + 1 }
+        if alloc_page == 90 { shape = shape + 1 }
+        if alloc_block == 0 { shape = shape + 1 }
+        if release_ok == 1 { shape = shape + 1 }
+        if release_page == 90 { shape = shape + 1 }
+        if release_block == 0 { shape = shape + 1 }
+        if release_reason == 0 { shape = shape + 1 }
+
+        if shape == 7 {
+            return 1
+        }
+        return 0
+    }
+}
+
+static box Main {
+    main() {
+        print("provider_fixture=hako-mimalloc-real-entrypoint")
+        print("provider_package_source=hako-derived-selected-object-lifecycle-entrypoint")
+        print("summary=ok")
+        return 0
+    }
+}

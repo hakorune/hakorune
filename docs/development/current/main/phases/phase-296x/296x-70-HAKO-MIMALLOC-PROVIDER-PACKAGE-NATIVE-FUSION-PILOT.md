@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: pilot a hako-derived provider semantic mode for the real `.hako` mimalloc entrypoint.
 Blocker: HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-PILOT-296X-001
@@ -44,6 +44,36 @@ hook_installed=0
 global_allocator=0
 winner_claim=0
 summary=ok
+```
+
+## Evidence
+
+```text
+output_contract=hako-mimalloc-provider-package-native-fusion-pilot-v0
+input_contract=hako-mimalloc-provider-package-native-fusion-selection-v0
+selected_entrypoint=object_lifecycle_small_alloc_release_v0
+hako_semantic_provider_codegen=object-lifecycle-small-alloc-release-v0
+hako_source_path=apps/provider-package/hako-derived-mimalloc-real-entrypoint-fixture/main.hako
+hako_entrypoint_mir_call_chain_verified=1
+provider_package_native_fusion_pilot_executed=1
+provider_call_executed=1
+provider_alloc_executed=1
+provider_free_executed=1
+provider_owns_result=1
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+ld_preload_shim_ready=0
+winner_claim=0
+next_row=HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001
+summary=ok
+```
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_provider_package_native_fusion_pilot_guard.sh
 ```
 
 ## Stop Line
