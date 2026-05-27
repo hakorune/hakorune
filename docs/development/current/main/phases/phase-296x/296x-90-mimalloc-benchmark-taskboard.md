@@ -148,7 +148,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 101 | `HAKO-MIMALLOC-SELECT-SINGLE-PAGE-ACTIVE-FIELD-FAST-PATH-KEEPER-296X-001` | Landed | Add an active-page field fast path inside the single-page select route. |
 | 102 | `HAKO-MIMALLOC-POST-ACTIVE-FIELD-FAST-PATH-KEEPER-MEASUREMENT-296X-001` | Landed | Rerun object-lifecycle facade exact-EXE measurement after the active field fast path keeper. |
 | 103 | `HAKO-MIMALLOC-ROLLBACK-ACTIVE-FIELD-FAST-PATH-KEEPER-296X-001` | Landed | Roll back the regressed active field fast path keeper while preserving the first-page cache keeper. |
-| 104 | `HAKO-MIMALLOC-POST-ROLLBACK-ACTIVE-FIELD-FAST-PATH-MEASUREMENT-296X-001` | Current | Rerun object-lifecycle facade exact-EXE measurement after rolling back the active field fast path. |
+| 104 | `HAKO-MIMALLOC-POST-ROLLBACK-ACTIVE-FIELD-FAST-PATH-MEASUREMENT-296X-001` | Landed | Rerun object-lifecycle facade exact-EXE measurement after rolling back the active field fast path. |
+| 105 | `HAKO-MIMALLOC-POST-ROLLBACK-SOURCE-MIR-REFRESH-296X-001` | Current | Refresh source/MIR observation after the active field fast path rollback. |
 
 ## Hako Mimalloc Performance Parity Plan
 
