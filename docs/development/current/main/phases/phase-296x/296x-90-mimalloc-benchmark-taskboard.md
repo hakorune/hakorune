@@ -185,7 +185,11 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 138 | `STATIC-SCALAR-CALL-LOWERING-IMPLEMENTATION-296X-001` | Landed | Lower verified zero-arg static-scalar calls to constants through the selected route. |
 | 139 | `POST-STATIC-SCALAR-CALL-LOWERING-MEASUREMENT-296X-001` | Landed | Measure object-lifecycle facade exact-EXE after static-scalar call lowering. |
 | 140 | `POST-STATIC-SCALAR-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after static-scalar call lowering measurement. |
-| 141 | `SMALL-ALLOC-CALL-COPY-SHAPE-DEEP-DIVE-296X-001` | Current | Classify remaining objectLifecycleSmallAlloc call/copy materialization after static-scalar lowering. |
+| 141 | `SMALL-ALLOC-CALL-COPY-SHAPE-DEEP-DIVE-296X-001` | Landed | Classify remaining objectLifecycleSmallAlloc call/copy materialization after static-scalar lowering. |
+| 142 | `MIR-BUILDER-MEMBER-CALL-ROUTE-CLASSIFICATION-296X-001` | Current | Freeze the shared member-call owner behind static/env/this-me route selection before another keeper. |
+| 143 | `MIR-BUILDER-MEMBER-CALL-ROUTE-PLAN-PILOT-296X-001` | Planned | Separate member-call route selection from emission without widening behavior or reopening generic CSE. |
+| 144 | `MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP-296X-001` | Planned | Unify field/property receiver facts so nested receiver lowering keeps single-eval boundaries visible. |
+| 145 | `MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT-296X-001` | Planned | Rerun single-eval and MIR verify surfaces after the BoxShape cleanup before returning to keeper selection. |
 
 ## Hako Mimalloc Performance Parity Plan
 

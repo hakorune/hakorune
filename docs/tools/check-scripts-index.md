@@ -225,6 +225,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/hako_mimalloc_small_alloc_duplicate_reason_call_probe.py` | small-alloc duplicate reason call probe。source の reason call 数と MIR return-block duplicate reason call shape を比較する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_small_alloc_hako_reason_bind_probe_guard.sh` | 296x-122 の small-alloc .hako reason bind probe guard。一時的な before/after report で duplicate reason call 除去を固定する。 |
 | `tools/allocator/hako_mimalloc_small_alloc_hako_reason_bind_probe.py` | small-alloc .hako reason bind probe。before/after duplicate reason call report を比較し、keeper 適用可否を分類する。 |
+| `tools/checks/k2_wide_phase296x_small_alloc_call_copy_shape_deep_dive_guard.sh` | 296x-141 の small-alloc call/copy shape deep dive guard。helper copy-family probe の固定値と row142 handoff を検証する。 |
+| `tools/allocator/hako_mimalloc_small_alloc_helper_copy_family_probe.py` | 296x-141 の small-alloc helper copy-family probe。objectLifecycleSmallAlloc MIR の facade result/state/page hot-path helper 周辺の receiver/arg/result/local-SSA copy family を分類する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_small_alloc_hako_reason_bind_keeper_guard.sh` | 296x-123 の small-alloc .hako reason bind keeper guard。source keeper、MIR duplicate removal、exact-EXE semantic counters を固定する。 |
 | `tools/allocator/hako_mimalloc_small_alloc_hako_reason_bind_keeper.py` | small-alloc .hako reason bind keeper validator。shape report と exact-EXE proof report を束ねる。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_post_hako_reason_bind_measurement_guard.sh` | 296x-124 の post .hako reason bind measurement guard。exact-EXE repeated measurement と accepted keeper classification を固定する。 |
