@@ -159,11 +159,11 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                             body.clone(),
                         );
                         if name == "HakoAllocObjectLifecycleFacadeReason" {
-                            builder.comp_ctx.register_static_scalar_method_fact_if_verified(
-                                &func_name,
-                                params,
-                                body,
-                            );
+                            builder
+                                .comp_ctx
+                                .register_static_scalar_method_fact_if_verified(
+                                    &func_name, params, body,
+                                );
                         }
                     }
                 }

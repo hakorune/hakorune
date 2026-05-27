@@ -96,8 +96,12 @@ mod tests {
     #[test]
     fn rejects_methods_with_params() {
         let params = vec!["x".to_string()];
-        assert!(infer_static_scalar_method_fact("Reason.with_arg/1", &params, &[return_integer(1)])
-            .is_none());
+        assert!(infer_static_scalar_method_fact(
+            "Reason.with_arg/1",
+            &params,
+            &[return_integer(1)]
+        )
+        .is_none());
     }
 
     #[test]

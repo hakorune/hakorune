@@ -155,7 +155,9 @@ mod tests {
             lower_cond_value_expr(&mut builder, &BTreeMap::new(), &expr, "test pure or chain")
                 .expect("pure || condition should lower in value context");
 
-        assert!(effects.iter().any(|effect| matches!(effect, CoreEffectPlan::Select { .. })));
+        assert!(effects
+            .iter()
+            .any(|effect| matches!(effect, CoreEffectPlan::Select { .. })));
     }
 
     #[test]

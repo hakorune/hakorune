@@ -369,7 +369,9 @@ fn lower_joinless_or_leaf_chain(
     let mut terms = Vec::new();
     collect_or_terms(expr, &mut terms);
     if terms.is_empty() {
-        return Err("[freeze:contract][cond_or_leaf] OR leaf lowering got empty term list".to_string());
+        return Err(
+            "[freeze:contract][cond_or_leaf] OR leaf lowering got empty term list".to_string(),
+        );
     }
 
     let then_has_loop_like = plans_have_loop_like(&then_plans);
@@ -378,19 +380,20 @@ fn lower_joinless_or_leaf_chain(
 
     for idx in (0..terms.len()).rev() {
         let term = terms[idx];
-        let (cond_id, cond_effects) = lower_cond_value_expr(builder, phi_bindings, term, error_prefix)?;
+        let (cond_id, cond_effects) =
+            lower_cond_value_expr(builder, phi_bindings, term, error_prefix)?;
         debug_log_cond_if_lit3_origin(builder, &cond_effects);
 
         let then_branch = if idx == 0 {
-            root_then
-                .take()
-                .ok_or_else(|| "[freeze:contract][cond_or_leaf] missing root then branch".to_string())?
+            root_then.take().ok_or_else(|| {
+                "[freeze:contract][cond_or_leaf] missing root then branch".to_string()
+            })?
         } else {
             clone_branch_plans_for_shortcircuit(
                 builder,
-                root_then
-                    .as_ref()
-                    .ok_or_else(|| "[freeze:contract][cond_or_leaf] missing then template".to_string())?,
+                root_then.as_ref().ok_or_else(|| {
+                    "[freeze:contract][cond_or_leaf] missing then template".to_string()
+                })?,
                 then_has_loop_like,
             )?
         };
@@ -430,19 +433,20 @@ fn lower_joinless_and_leaf_chain(
 
     for idx in (0..terms.len()).rev() {
         let term = terms[idx];
-        let (cond_id, cond_effects) = lower_cond_value_expr(builder, phi_bindings, term, error_prefix)?;
+        let (cond_id, cond_effects) =
+            lower_cond_value_expr(builder, phi_bindings, term, error_prefix)?;
         debug_log_cond_if_lit3_origin(builder, &cond_effects);
 
         let else_branch = if idx == 0 {
-            root_else
-                .take()
-                .ok_or_else(|| "[freeze:contract][cond_and_leaf] missing root else branch".to_string())?
+            root_else.take().ok_or_else(|| {
+                "[freeze:contract][cond_and_leaf] missing root else branch".to_string()
+            })?
         } else {
             clone_branch_plans_for_shortcircuit(
                 builder,
-                root_else
-                    .as_ref()
-                    .ok_or_else(|| "[freeze:contract][cond_and_leaf] missing else template".to_string())?,
+                root_else.as_ref().ok_or_else(|| {
+                    "[freeze:contract][cond_and_leaf] missing else template".to_string()
+                })?,
                 else_has_loop_like,
             )?
         };
