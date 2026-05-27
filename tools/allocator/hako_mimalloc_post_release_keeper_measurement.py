@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+"""Measure the object-lifecycle small-block EXE after the release keeper."""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+APP = ROOT / "apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako"
+RUNNER = ROOT / "tools/allocator/hako_exe_memory_runner.sh"
+WORKLOAD = "representative-object-lifecycle-small-block-v0"
+
+
+def read_kv(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key] = value
+    return values
+
+
+def require(values: dict[str, str], key: str, expected: str, label: str) -> None:
+    actual = values.get(key)
+    if actual != expected:
+        raise SystemExit(f"{label}: {key} expected {expected!r}, got {actual!r}")
+
+
+def as_int(values: dict[str, str], key: str, label: str) -> int:
+    text = values.get(key)
+    if text is None:
+        raise SystemExit(f"{label}: missing {key}")
+    try:
+        return int(text)
+    except ValueError as exc:
+        raise SystemExit(f"{label}: {key} must be int, got {text!r}") from exc
+
+
+def median(values: list[int]) -> int:
+    ordered = sorted(values)
+    return ordered[len(ordered) // 2]
+
+
+def run_sample(tmp_dir: Path, sample: int) -> dict[str, str]:
+    report = tmp_dir / f"hako-{sample}.out"
+    subprocess.run(
+        [
+            "bash",
+            str(RUNNER),
+            "--app",
+            str(APP),
+            "--workload",
+            WORKLOAD,
+            "--runtime-config",
+            "empty",
+            "--operation-repeat",
+            "1",
+            "--out",
+            str(report),
+        ],
+        cwd=ROOT,
+        stdout=subprocess.DEVNULL,
+        check=True,
+    )
+    values = read_kv(report)
+    require(values, "output_contract", "hako-exe-memory-evidence-v0", f"sample {sample}")
+    require(values, "summary", "ok", f"sample {sample}")
+    require(values, "workload", WORKLOAD, f"sample {sample}")
+    require(values, "in_process_operation_repeat", "8192", f"sample {sample}")
+    require(values, "app_timing_repeat_kind", "in-process-operation-loop-v0", f"sample {sample}")
+    require(values, "release_known_page_fast_path_count", "524288", f"sample {sample}")
+    require(values, "release_known_page_fallback_count", "0", f"sample {sample}")
+    require(values, "provider_activation", "0", f"sample {sample}")
+    require(values, "host_replacement", "0", f"sample {sample}")
+    require(values, "hook_installed", "0", f"sample {sample}")
+    require(values, "global_allocator_installed", "0", f"sample {sample}")
+    return values
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--sample-count", type=int, default=3)
+    args = parser.parse_args()
+
+    if args.sample_count < 1:
+        raise SystemExit("--sample-count must be positive")
+    if not APP.is_file():
+        raise SystemExit(f"missing app: {APP}")
+
+    with tempfile.TemporaryDirectory(prefix="hakorune_post_release_keeper.") as tmp:
+        tmp_dir = Path(tmp)
+        samples = [run_sample(tmp_dir, idx) for idx in range(args.sample_count)]
+
+    elapsed = [as_int(sample, "external_elapsed_ms", f"sample {idx}") for idx, sample in enumerate(samples)]
+    rss = [as_int(sample, "external_peak_rss_bytes", f"sample {idx}") for idx, sample in enumerate(samples)]
+
+    lines = [
+        "output_contract=hako-mimalloc-perf-post-release-keeper-measurement-v0",
+        "input_contract=hako-mimalloc-perf-release-known-page-fast-path-v0",
+        "measurement_scope=object_lifecycle_facade_exact_exe_after_keeper",
+        f"workload_id={WORKLOAD}",
+        "operation_repeat=8192",
+        f"sample_count={args.sample_count}",
+        "keeper=release_known_page_fast_path",
+        "release_known_page_fast_path_count=524288",
+        "release_known_page_fallback_count=0",
+    ]
+    for idx, value in enumerate(elapsed):
+        lines.append(f"sample_{idx}_hako_external_elapsed_ms={value}")
+    lines.extend(
+        [
+            f"after_hako_elapsed_median_ms={median(elapsed)}",
+            f"after_hako_elapsed_min_ms={min(elapsed)}",
+            f"after_hako_elapsed_max_ms={max(elapsed)}",
+            f"after_hako_external_rss_median_bytes={median(rss)}",
+            "previous_checkpoint_hako_elapsed_median_ms=240",
+            "previous_checkpoint_scope=page_direct_small_block_checkpoint",
+            "previous_checkpoint_comparable=0",
+            "winner_claim=0",
+            "replacement_active=0",
+            "hook_installed=0",
+            "global_allocator=0",
+            "summary=ok",
+        ]
+    )
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

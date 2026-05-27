@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x applied the release known-page fast path keeper, so the next step is post-keeper measurement."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x measured the object-lifecycle facade after the release known-page fast path keeper, so the next step is selecting the next single keeper."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-78-HAKO-MIMALLOC-PERF-RELEASE-KNOWN-PAGE-FAST-PATH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-78-HAKO-MIMALLOC-PERF-RELEASE-KNOWN-PAGE-FAST-PATH.md"
-latest_card_summary = "Applied one release known-page fast path keeper in the .hako object lifecycle facade, proving the alloc-then-release route hits the cached page index while the fallback scan remains intact."
-current_blocker_token = "HAKO-MIMALLOC-PERF-POST-RELEASE-KEEPER-MEASUREMENT-296X-001"
+latest_card = "296x-79-HAKO-MIMALLOC-PERF-POST-RELEASE-KEEPER-MEASUREMENT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-79-HAKO-MIMALLOC-PERF-POST-RELEASE-KEEPER-MEASUREMENT.md"
+latest_card_summary = "Measured the object-lifecycle facade exact-EXE after the release known-page fast path keeper, preserving fast-path count evidence and marking the older page-direct checkpoint as non-comparable."
+current_blocker_token = "HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-79 Measured the object-lifecycle facade exact-EXE after the release known-page fast path keeper, preserving fast-path count evidence and marking the older page-direct checkpoint as non-comparable.",
   "296x-78 Applied one release known-page fast path keeper in the .hako object lifecycle facade, proving the alloc-then-release route hits the cached page index while the fallback scan remains intact.",
   "296x-77 Inventoried object lifecycle small-alloc and release hot methods with hako_check perf-surface, selecting release_known_page_fast_path as the next single keeper.",
   "296x-76 Defined the observation-only hako_check perf-surface report contract for allocator hot-path inventory while keeping rewrites, winner claims, and replacement closed.",

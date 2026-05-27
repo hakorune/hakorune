@@ -186,6 +186,8 @@ realloc_same_ptr_count = 0
 realloc_moved_count = 0
 reuse_cycle_count = 0
 copied_bytes = 0
+release_known_page_fast_path_count = 0
+release_known_page_fallback_count = 0
 in_process_operation_repeat = 0
 app_timing_repeat_kind = ""
 
@@ -228,6 +230,10 @@ for line in lines:
         reuse_cycle_count = int(line.split("=", 1)[1])
     if line.startswith("copied_bytes="):
         copied_bytes = int(line.split("=", 1)[1])
+    if line.startswith("release_known_page_fast_path_count="):
+        release_known_page_fast_path_count = int(line.split("=", 1)[1])
+    if line.startswith("release_known_page_fallback_count="):
+        release_known_page_fallback_count = int(line.split("=", 1)[1])
     if line.startswith("page="):
         fields = line.split("=", 1)[1].split(",")
         if fields:
@@ -279,6 +285,9 @@ print(f"realloc_same_ptr_count={realloc_same_ptr_count * repeat}")
 print(f"realloc_moved_count={realloc_moved_count * repeat}")
 print(f"reuse_cycle_count={reuse_cycle_count * repeat}")
 print(f"copied_bytes={copied_bytes * repeat}")
+if release_known_page_fast_path_count > 0 or release_known_page_fallback_count > 0:
+    print(f"release_known_page_fast_path_count={release_known_page_fast_path_count * repeat}")
+    print(f"release_known_page_fallback_count={release_known_page_fallback_count * repeat}")
 print(f"external_elapsed_ms={elapsed_ms}")
 print(f"peak_rss_bytes={peak_rss}")
 print(f"external_peak_rss_bytes={peak_rss}")

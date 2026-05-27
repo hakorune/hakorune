@@ -1,0 +1,150 @@
+// hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof
+// Purpose: repeat the representative small-block workload through HakoAllocObjectLifecycleFacade.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    runOne(page, alloc) {
+        local reset_ok = page.resetToFresh()
+        if reset_ok != 1 {
+            return 0
+        }
+
+        local i = 0
+        local cycle = 0
+        local alloc_ok = 1
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local ok = alloc.objectLifecycleSmallAlloc(requested)
+            if ok != 1 {
+                alloc_ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+
+        local released = 0
+        local release_ok = 1
+        loop(released < 64) {
+            local ok = alloc.objectLifecycleReleaseBlock(0, released)
+            if ok != 1 {
+                release_ok = 0
+            }
+            released += 2
+        }
+        released = 1
+        loop(released < 64) {
+            local ok = alloc.objectLifecycleReleaseBlock(0, released)
+            if ok != 1 {
+                release_ok = 0
+            }
+            released += 2
+        }
+
+        if alloc_ok != 1 {
+            return 0
+        }
+        if release_ok != 1 {
+            return 0
+        }
+        if page.used != 0 {
+            return 0
+        }
+        if page.reject_count != 0 {
+            return 0
+        }
+        if page.retired != 1 {
+            return 0
+        }
+        return 1
+    }
+
+    main(args) {
+        local operation_repeat = 8192
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local repeat = 0
+        local ok = 1
+        loop(repeat < operation_repeat) {
+            local run_ok = Main.runOne(page, alloc)
+            if run_ok != 1 {
+                ok = 0
+            }
+            repeat += 1
+        }
+
+        local allocation_count = 64 * operation_repeat
+        local free_count = 64 * operation_repeat
+        local requested_bytes = 33254 * operation_repeat
+        local committed_bytes = 33792 * operation_repeat
+        local fast_path_count = alloc.objectLifecycleReleaseKnownPageFastPathCount()
+        local fallback_count = alloc.objectLifecycleReleaseKnownPageFallbackCount()
+
+        print("hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof")
+        print("workload=representative-object-lifecycle-small-block-v0")
+        print("operation_family=small-block")
+        print("operation_sequence_id=representative-object-lifecycle-small-block-v0-seq")
+        print("free_order_id=even-odd-release-v0")
+        print("in_process_operation_repeat=" + operation_repeat)
+        print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("allocation_count=" + allocation_count)
+        print("free_count=" + free_count)
+        print("requested_bytes=" + requested_bytes)
+        print("committed_bytes=" + committed_bytes)
+        print("release_known_page_fast_path_count=" + fast_path_count)
+        print("release_known_page_fallback_count=" + fallback_count)
+        print("realloc_count=0")
+        print("aligned_alloc_count=0")
+        print("large_request_count=0")
+        print("reuse_cycle_count=0")
+
+        local proof = new ProofCheck("in-process object-lifecycle small-block comparison")
+        proof.expectEq("run ok", ok, 1)
+        proof.expectEq("allocation count", allocation_count, 524288)
+        proof.expectEq("free count", free_count, 524288)
+        proof.expectEq("requested bytes", requested_bytes, 272416768)
+        proof.expectEq("committed bytes", committed_bytes, 276824064)
+        proof.expectEq("known page fast path count", fast_path_count, 524288)
+        proof.expectEq("known page fallback count", fallback_count, 0)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}
