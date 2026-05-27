@@ -119,7 +119,12 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 72 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Landed | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
 | 73 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Landed | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
 | 74 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001` | Landed | Pilot one hakmem benchmark compatibility check with the probe-only LD_PRELOAD shim. |
-| 75 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Current | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 75 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Current | Park selfhost handoff while the small-block gap remains large and select hako_check perf-surface inventory. |
+| 76 | `HAKO-CHECK-PERF-SURFACE-CONTRACT-296X-001` | Planned | Define the observation-only hako_check perf-surface report contract. |
+| 77 | `HAKO-CHECK-PERF-SURFACE-INVENTORY-296X-001` | Planned | Inventory objectLifecycleSmallAlloc/objectLifecycleReleaseBlock perf surfaces and select the first keeper candidate. |
+| 78 | `HAKO-MIMALLOC-PERF-RELEASE-KNOWN-PAGE-FAST-PATH-296X-001` | Planned | Add one release known-page fast path keeper without widening replacement or winner claims. |
+| 79 | `HAKO-MIMALLOC-PERF-POST-RELEASE-KEEPER-MEASUREMENT-296X-001` | Planned | Rerun the 8192-repeat in-process small-block measurement after the release keeper. |
+| 80 | `HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION-296X-001` | Planned | Select the next single keeper from hako_check perf-surface evidence. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -847,18 +852,85 @@ winner_claim=0
 ### Row 75 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
-attention back toward selfhosting.
+attention back toward selfhosting. Current plan is to park handoff and open a
+hako_check perf-surface diagnostic because the small-block gap remains large.
 
 Required closeout:
 
 ```text
-small_block_parity=accepted
-remote_free_parity=accepted
-mixed_small_parity=accepted
-large_or_page_source_gap_classified=1
-no_unclassified_hot_gap=1
+selfhost_handoff_decision=parked
+park_reason=hako_mimalloc_small_block_gap_still_large
+remaining_allocator_gap_classified=1
+next_diagnostic=hako_check_perf_surface_inventory
 winner_claim=0
 replacement_active=0
+```
+
+### Row 76 - hako_check Perf Surface Contract
+
+Purpose: define an observation-only `hako_check perf-surface` report contract
+before adding another allocator keeper.
+
+Required output:
+
+```text
+output_contract=hako-check-perf-surface-contract-v0
+target_file
+target_box
+target_method
+method_call_count
+loop_method_call_count
+array_access_count
+linear_search_candidate=0|1
+result_capsule_churn=0|1
+observer_call_count
+hot_path_risk=low|medium|high
+suggested_next
+summary=ok
+```
+
+### Row 77 - hako_check Perf Surface Inventory
+
+Purpose: apply the perf-surface contract to
+`lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako`.
+
+Initial target methods:
+
+```text
+objectLifecycleSmallAlloc
+objectLifecycleReleaseBlock
+```
+
+Expected first keeper selection:
+
+```text
+target_method=objectLifecycleReleaseBlock
+linear_search_candidate=1
+suggested_next=release_known_page_fast_path
+```
+
+### Row 78 - Release Known-Page Fast Path Keeper
+
+Purpose: add exactly one `.hako` allocator-model keeper that avoids the hot
+`objectLifecycleKnownPageIndexById` linear lookup when releasing the page just
+allocated.
+
+### Row 79 - Post Release-Keeper Measurement
+
+Purpose: rerun the 8192-repeat in-process small-block measurement and compare
+against the current small-block checkpoint. Winner claims remain closed.
+
+### Row 80 - Next Keeper Selection
+
+Purpose: select one next keeper from hako_check evidence.
+
+Candidate queue:
+
+```text
+selectPage single-page fast path
+result capsule hot-loop update reduction
+observer getter reduction
+ArrayBox get/length call reduction
 ```
 
 ## Mini-Agent Restart Queue
