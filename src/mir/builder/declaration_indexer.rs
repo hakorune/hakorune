@@ -153,11 +153,18 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                         let func_name =
                             format!("{}.{}{}", name, mname, format!("/{}", params.len()));
                         builder.comp_ctx.register_lowered_method_ast(
-                            func_name,
+                            func_name.clone(),
                             params.clone(),
                             param_decls.clone(),
                             body.clone(),
                         );
+                        if name == "HakoAllocObjectLifecycleFacadeReason" {
+                            builder.comp_ctx.register_static_scalar_method_fact_if_verified(
+                                &func_name,
+                                params,
+                                body,
+                            );
+                        }
                     }
                 }
             }

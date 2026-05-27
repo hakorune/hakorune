@@ -180,7 +180,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 133 | `HAKO-MIMALLOC-POST-SINGLE-EVAL-FIXES-MEASUREMENT-296X-001` | Landed | Measure object-lifecycle facade exact-EXE after nested argument, field, and env single-eval fixes. |
 | 134 | `MIR-BUILDER-SINGLE-EVAL-SURFACE-SWEEP-296X-001` | Landed | Add a broader MIR builder single-evaluation surface sweep over field/index/print/typeop/constructor shapes. |
 | 135 | `STATIC-SCALAR-METHOD-FACT-SELECTION-296X-001` | Landed | Select the first verified static-scalar method fact boundary after single-eval correctness fixes. |
-| 136 | `STATIC-SCALAR-METHOD-FACT-INFERENCE-296X-001` | Current | Infer verified static-scalar facts for the selected reason getter family without lowering calls. |
+| 136 | `STATIC-SCALAR-METHOD-FACT-INFERENCE-296X-001` | Landed | Infer verified static-scalar facts for the selected reason getter family without lowering calls. |
+| 137 | `STATIC-SCALAR-CALL-LOWERING-SELECTION-296X-001` | Current | Select the exact call-lowering route and guard surface for verified static-scalar facts. |
 
 ## Hako Mimalloc Performance Parity Plan
 

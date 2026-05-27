@@ -62,6 +62,7 @@ pub(crate) struct ResolvedEnumVariant<'a> {
 }
 
 use super::properties::PropertyRegistry;
+use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use super::type_registry::TypeRegistry;
 use hakorune_mir_builder::BoxCompilationContext;
 
@@ -137,6 +138,13 @@ pub(crate) struct CompilationContext {
     /// rows that must inspect a helper body before emitting a runtime call.
     pub lowered_method_asts: HashMap<String, LoweredMethodAst>,
 
+    /// Verified static scalar method facts keyed by lowered function name.
+    ///
+    /// This is not a generic purity registry. Entries are produced only by the
+    /// narrow body-shape verifier, and row 296x-136 records facts without
+    /// lowering calls to constants.
+    pub static_scalar_method_facts: HashMap<String, StaticScalarMethodFact>,
+
     /// Weak field registry: BoxName -> {weak field names}
     pub weak_fields_by_box: HashMap<String, HashSet<String>>,
 
@@ -202,6 +210,7 @@ impl CompilationContext {
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
             lowered_method_asts: HashMap::new(),
+            static_scalar_method_facts: HashMap::new(),
             weak_fields_by_box: HashMap::new(),
             property_registry: PropertyRegistry::new(),
             field_origin_class: HashMap::new(),
@@ -463,6 +472,29 @@ impl CompilationContext {
 
     pub fn lowered_method_ast(&self, func_name: &str) -> Option<&LoweredMethodAst> {
         self.lowered_method_asts.get(func_name)
+    }
+
+    pub fn register_static_scalar_method_fact_if_verified(
+        &mut self,
+        func_name: &str,
+        params: &[String],
+        body: &[ASTNode],
+    ) -> bool {
+        let Some(fact) = infer_static_scalar_method_fact(func_name, params, body) else {
+            self.static_scalar_method_facts.remove(func_name);
+            return false;
+        };
+        self.static_scalar_method_facts
+            .insert(func_name.to_string(), fact);
+        true
+    }
+
+    pub fn static_scalar_method_fact(&self, func_name: &str) -> Option<&StaticScalarMethodFact> {
+        self.static_scalar_method_facts.get(func_name)
+    }
+
+    pub fn static_scalar_method_fact_count(&self) -> usize {
+        self.static_scalar_method_facts.len()
     }
 
     pub fn declared_field_type_name(&self, box_name: &str, field_name: &str) -> Option<&str> {
