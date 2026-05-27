@@ -284,13 +284,19 @@ impl MirBuilder {
             if env_name != "env" {
                 return None;
             }
+            let iface = env_field.as_str();
+            let m = method;
+            let Some((iface_name, method_name, effects, returns)) =
+                super::extern_calls::get_env_method_spec(iface, m)
+            else {
+                return None;
+            };
+
             // Build arguments once
             let arg_values = match self.build_call_args(arguments) {
                 Ok(values) => values,
                 Err(e) => return Some(Err(e)),
             };
-            let iface = env_field.as_str();
-            let m = method;
             let mut extern_call = |iface_name: &str,
                                    method_name: &str,
                                    effects: EffectMask,
@@ -311,13 +317,7 @@ impl MirBuilder {
                     Ok(crate::mir::builder::emission::constant::emit_void(self)?)
                 }
             };
-            // Use the new module for env method spec
-            if let Some((iface_name, method_name, effects, returns)) =
-                super::extern_calls::get_env_method_spec(iface, m)
-            {
-                return Some(extern_call(&iface_name, &method_name, effects, returns));
-            }
-            return None;
+            return Some(extern_call(&iface_name, &method_name, effects, returns));
         }
         None
     }
