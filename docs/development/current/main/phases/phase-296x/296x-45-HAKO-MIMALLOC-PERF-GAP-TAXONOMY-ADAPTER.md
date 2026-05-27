@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: classify the row 44 scout baseline gap before any optimization work starts.
 Blocker: HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001
@@ -85,7 +85,44 @@ the evidence. Use `hako_runtime_baseline` for fixed exact-EXE/runtime cost.
 Use `compiler_lowering` for generated code shape costs. Use
 `allocator_algorithm` only when the gap scales with allocator operations.
 
-## Expected First Classification
+## Evidence
+
+Implemented:
+
+```text
+tools/allocator/hako_mimalloc_gap_taxonomy_adapter.py
+```
+
+The adapter reads:
+
+```text
+output_contract=mimalloc-comparison-repeated-measurement-v0
+```
+
+and emits:
+
+```text
+output_contract=hako-mimalloc-gap-taxonomy-v0
+```
+
+The row guard verifies both:
+
+```text
+live row 44 baseline report:
+  same workload / sample policy / stop line preserved
+
+synthetic outlier report:
+  outlier_observed=1
+  evidence_quality=noisy
+  gap_owner=benchmark_harness
+  gap_confidence=medium
+  next_diagnostic=measurement_hygiene_refresh
+```
+
+The synthetic report keeps C-side outlier handling stable without requiring
+every guard run to reproduce an operating-system scheduling spike.
+
+## First Classification Policy
 
 Given the row 44 rerun observed a C-side max outlier, the first accepted result
 may be:
@@ -101,15 +138,33 @@ next_diagnostic=measurement_hygiene_refresh
 This is a valid row 45 result. It should select a measurement hygiene row, not
 an optimization row.
 
+## Selected Next
+
+Select:
+
+```text
+HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION-296X-001
+```
+
+The next row should choose measurement hygiene only if row 45 evidence is noisy
+or harness-owned. Otherwise it should select the owner-specific narrow
+diagnostic.
+
 ## Stop Line
 
 Do not change sample policy globally, make `body_elapsed_ns` primary, add CPU
 pinning, activate providers, replace the allocator, install hooks, or claim a
 winner in this row.
 
-## Verification Shape
+## Verification
 
-The guard for this row should prove:
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_perf_gap_taxonomy_adapter_guard.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+The guard proves:
 
 ```text
 same_workload=1

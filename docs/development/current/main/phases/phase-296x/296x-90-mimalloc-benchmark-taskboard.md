@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001:
-  Classify benchmark gaps by primary owner before any optimization work starts.
+HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION-296X-001:
+  Choose the next narrow diagnostic from row 45 gap taxonomy evidence.
 ```
 
 ## Queue
@@ -89,8 +89,8 @@ HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001:
 | 42 | `HAKO-MIMALLOC-PERF-PARITY-ROADMAP-SELECTION-296X-001` | Landed | Select the `.hako` mimalloc performance-parity lane and keep hakozuna as reference-only. |
 | 43 | `HAKO-MIMALLOC-PERF-PARITY-WORKLOAD-MATRIX-296X-001` | Landed | Define the workload matrix and subject ids for `.hako` mimalloc, C mimalloc, hakozuna reference, and provider package evidence. |
 | 44 | `HAKO-MIMALLOC-PERF-PARITY-BASELINE-PACK-296X-001` | Landed | Run baseline repeated measurements for the first parity workload with winner claims closed. |
-| 45 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001` | Current | Classify each measured gap by primary owner, confidence, evidence quality, and next diagnostic before optimization work starts. |
-| 46 | `HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION-296X-001` | Planned | Follow row 45: measurement hygiene only for noisy harness evidence, otherwise choose the owner-specific narrow diagnostic. |
+| 45 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-ADAPTER-296X-001` | Landed | Classify each measured gap by primary owner, confidence, evidence quality, and next diagnostic before optimization work starts. |
+| 46 | `HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION-296X-001` | Current | Follow row 45: measurement hygiene only for noisy harness evidence, otherwise choose the owner-specific narrow diagnostic. |
 | 47 | `HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001` | Planned | Capture the selected owner diagnostic without optimizing or broadening the measurement contract unnecessarily. |
 | 48 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
 | 49 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
