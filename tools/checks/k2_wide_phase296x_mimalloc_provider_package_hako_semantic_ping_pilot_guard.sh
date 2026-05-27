@@ -48,11 +48,10 @@ guard_expect_fixed_in_file "$TAG" 'static box HakoProvider' "$FIXTURE" "fixture 
 guard_expect_fixed_in_file "$TAG" 'ping()' "$FIXTURE" "fixture must define ping"
 guard_expect_fixed_in_file "$TAG" 'return 7' "$FIXTURE" "fixture ping must return selected literal"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-33-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-PILOT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001"' "$CURRENT_STATE" "current state must select ping closeout"
+guard_expect_fixed_in_file "$TAG" '296x-33 Added the first .hako semantic provider-codegen mode' "$CURRENT_STATE" "current state landed tail must retain row 33"
 
 guard_expect_fixed_in_file "$TAG" '| 33 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-PILOT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 33 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 34 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001` | Current |' "$TASKBOARD" "taskboard row 34 must be current"
+guard_expect_fixed_in_file "$TAG" '| 34 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 34 must be landed after closeout"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list semantic ping pilot guard"
 
 python3 -m py_compile "$NOOP_TOOL" "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL"
