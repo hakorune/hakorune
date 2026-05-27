@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-PHASE-COST-ABLATION-296X-001:
-  Split the remaining in-process allocator-model cost into reset, alloc, and release phases.
+HAKO-MIMALLOC-PERF-SECOND-KEEPER-OPTIMIZATION-296X-001:
+  Apply one acquire-side `.hako` allocator-model optimization after phase-cost ablation.
 ```
 
 ## Queue
@@ -104,12 +104,13 @@ HAKO-MIMALLOC-PERF-PHASE-COST-ABLATION-296X-001:
 | 57 | `HAKO-MIMALLOC-PERF-COMPILER-ALLOCATOR-OWNER-SPLIT-DIAGNOSTIC-296X-001` | Landed | Split the first in-process hako workload gap between compiler lowering and allocator algorithm owners before optimization. |
 | 58 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Landed | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
 | 59 | `HAKO-MIMALLOC-PERF-POST-KEEPER-TAXONOMY-REFRESH-296X-001` | Landed | Refresh in-process gap taxonomy after the first keeper optimization. |
-| 60 | `HAKO-MIMALLOC-PERF-PHASE-COST-ABLATION-296X-001` | Current | Split the remaining in-process allocator-model cost into reset, alloc, and release phases before another optimization. |
-| 61 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
-| 62 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
-| 63 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 64 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 65 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 60 | `HAKO-MIMALLOC-PERF-PHASE-COST-ABLATION-296X-001` | Landed | Split the remaining in-process allocator-model cost into reset, alloc, and release phases before another optimization. |
+| 61 | `HAKO-MIMALLOC-PERF-SECOND-KEEPER-OPTIMIZATION-296X-001` | Current | Apply one acquire-side `.hako` allocator-model optimization after phase-cost ablation. |
+| 62 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 63 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 64 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 65 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 66 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -486,7 +487,39 @@ summary=ok
 
 Do not optimize in this row.
 
-### Row 61 - Port Feature Gap Inventory
+### Row 61 - Second Keeper Optimization
+
+Purpose: optimize only the acquire-side allocator-model phase selected by row
+60.
+
+Required input:
+
+```text
+dominant_phase=alloc
+next_optimization_target=acquire_usize_fast_path_and_invariant_hoist
+next_optimization_allowed=1
+winner_claim=0
+```
+
+Required output:
+
+```text
+optimization_kind
+target_phase=alloc
+before_full_elapsed_median_ms=280
+after_full_elapsed_median_ms
+improvement_ms
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Do not mix reset/release/provider/replacement work into this row.
+
+### Row 62 - Port Feature Gap Inventory
 
 Purpose: list missing `.hako` mimalloc features separately from speed
 optimization.
@@ -505,7 +538,7 @@ osvm_purge_decommit
 stats_or_diagnostics
 ```
 
-### Row 62 - Real Provider Entrypoint Selection
+### Row 63 - Real Provider Entrypoint Selection
 
 Purpose: decide which real `.hako` mimalloc API surface should be exposed
 through explicit provider package calls.
@@ -519,7 +552,7 @@ hook_installed=0
 global_allocator=0
 ```
 
-### Row 63 - Hakmem LD_PRELOAD Shim Decision
+### Row 64 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -537,7 +570,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 64 - Hakmem LD_PRELOAD Shim Smoke
+### Row 65 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -558,7 +591,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 65 - Selfhost Handoff Gate
+### Row 66 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.

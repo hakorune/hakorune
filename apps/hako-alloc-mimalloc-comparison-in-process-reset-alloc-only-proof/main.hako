@@ -1,0 +1,115 @@
+// hako-alloc-mimalloc-comparison-in-process-reset-alloc-only-proof
+// Purpose: isolate reset plus acquire cost inside one EXE process.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    runOne(page) {
+        local reset_ok = page.resetToFresh()
+        if reset_ok != 1 {
+            return 0
+        }
+        local i = 0
+        local cycle = 0
+        local alloc_ok = 1
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local block = page.acquire_usize(requested)
+            if block < 0 {
+                alloc_ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+        if alloc_ok != 1 {
+            return 0
+        }
+        if page.used != 64 {
+            return 0
+        }
+        if page.reject_count != 0 {
+            return 0
+        }
+        if page.retired != 0 {
+            return 0
+        }
+        return 1
+    }
+
+    main(args) {
+        local operation_repeat = 8192
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+        local repeat = 0
+        local ok = 1
+        loop(repeat < operation_repeat) {
+            local run_ok = Main.runOne(page)
+            if run_ok != 1 {
+                ok = 0
+            }
+            repeat += 1
+        }
+
+        local allocation_count = 64 * operation_repeat
+        local requested_bytes = 33254 * operation_repeat
+        local committed_bytes = 33792 * operation_repeat
+
+        print("hako-alloc-mimalloc-comparison-in-process-reset-alloc-only-proof")
+        print("workload=representative-small-block-reset-alloc-only-v0")
+        print("operation_family=small-block-phase-ablation")
+        print("operation_sequence_id=representative-small-block-reset-alloc-only-v0-seq")
+        print("free_order_id=none-v0")
+        print("in_process_operation_repeat=" + operation_repeat)
+        print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("allocation_count=" + allocation_count)
+        print("free_count=0")
+        print("requested_bytes=" + requested_bytes)
+        print("committed_bytes=" + committed_bytes)
+        print("realloc_count=0")
+        print("aligned_alloc_count=0")
+        print("large_request_count=0")
+        print("reuse_cycle_count=0")
+
+        local proof = new ProofCheck("in-process reset-alloc-only comparison")
+        proof.expectEq("run ok", ok, 1)
+        proof.expectEq("allocation count", allocation_count, 524288)
+        proof.expectEq("requested bytes", requested_bytes, 272416768)
+        proof.expectEq("committed bytes", committed_bytes, 276824064)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}
