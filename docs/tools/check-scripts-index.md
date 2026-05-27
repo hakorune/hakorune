@@ -232,6 +232,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_post_boxshape_correctness_closeout_guard.sh` | 296x-145 の post-BoxShape correctness closeout guard。build/single-eval/helper-copy probe と row146 handoff を検証する。 |
 | `tools/allocator/post_boxshape_correctness_closeout.py` | 296x-145 の post-BoxShape correctness closeout report を生成し、helper-copy shape が変わっていないことと page-array dynamic weight probe への handoff を出力する。 |
+| `tools/checks/k2_wide_phase296x_page_array_dynamic_weight_probe_guard.sh` | 296x-146 の page-array dynamic weight probe guard。proof workload の page-local ArrayBox get/set 動的重みと row147 handoff を検証する。 |
+| `tools/allocator/page_array_dynamic_weight_probe.py` | 296x-146 の page-array dynamic weight report を生成し、alloc/release/reset の ArrayBox 操作重みを proof app 出力から計算する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_small_alloc_hako_reason_bind_keeper_guard.sh` | 296x-123 の small-alloc .hako reason bind keeper guard。source keeper、MIR duplicate removal、exact-EXE semantic counters を固定する。 |
 | `tools/allocator/hako_mimalloc_small_alloc_hako_reason_bind_keeper.py` | small-alloc .hako reason bind keeper validator。shape report と exact-EXE proof report を束ねる。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_post_hako_reason_bind_measurement_guard.sh` | 296x-124 の post .hako reason bind measurement guard。exact-EXE repeated measurement と accepted keeper classification を固定する。 |
