@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: implement guarded single-pred PHI elision in the selected MIR builder owner.
 Blocker: HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001
@@ -32,3 +32,42 @@ summary=ok
 ## Stop Line
 
 Do not combine this with unrelated `.hako` keeper work.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-single-pred-phi-elision-implementation-v0
+input_contract=hako-mimalloc-single-pred-phi-elision-guard-surface-v0
+selected_owner_file=src/mir/builder/emission/phi.rs
+single_pred_phi_elision_enabled=1
+before_single_incoming_phi_count=61
+after_single_incoming_phi_count=0
+after_phi_count=15
+after_copy_count=99
+after_candidate_source=multi_return_join
+after_hako_elapsed_median_ms=620
+semantic_summary=ok
+measurement_summary=ok
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Additional shape evidence:
+
+```text
+before_mir_instruction_count=247
+after_mir_instruction_count=191
+before_phi_count=76
+after_phi_count=15
+before_copy_count=94
+after_copy_count=99
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_single_pred_phi_elision_implementation_guard.sh
+```

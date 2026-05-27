@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x fixed the guard surface for single-pred PHI elision and opened the guarded implementation row."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x implemented single-pred PHI elision, reducing small-alloc MIR instructions from 247 to 191 while preserving exact-EXE median."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-117-HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-GUARD-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-117-HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-GUARD-SURFACE.md"
-latest_card_summary = "Fixed the guard surface for single-pred PHI elision, including before/after shape metrics and exact-EXE measurement guard."
-current_blocker_token = "HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001"
+latest_card = "296x-118-HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-118-HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION.md"
+latest_card_summary = "Implemented single-pred PHI elision, removing 61 single-incoming PHIs and reducing small-alloc MIR instructions from 247 to 191 while exact-EXE median stayed 620ms."
+current_blocker_token = "HAKO-MIMALLOC-SMALL-ALLOC-MULTI-RETURN-COPY-PROBE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-118 Implemented single-pred PHI elision, removing 61 single-incoming PHIs and reducing small-alloc MIR instructions from 247 to 191 while exact-EXE median stayed 620ms.",
   "296x-117 Fixed the guard surface for single-pred PHI elision, including before/after shape metrics and exact-EXE measurement guard.",
   "296x-116 Selected materialize_vars_single_pred_at_entry as the owner for single-incoming PHI elision, with local SSA copy handling as supporting owner.",
   "296x-115 Classified objectLifecycleSmallAlloc phi/copy bloat as local copy churn with 61 single-incoming phi nodes and 94 copies.",

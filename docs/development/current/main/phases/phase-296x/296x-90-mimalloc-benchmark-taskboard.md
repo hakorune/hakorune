@@ -162,7 +162,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 115 | `HAKO-MIMALLOC-SMALL-ALLOC-PHI-COPY-LOWERING-PROBE-296X-001` | Landed | Classify why objectLifecycleSmallAlloc lowers to high phi/copy counts. |
 | 116 | `HAKO-MIMALLOC-SINGLE-INCOMING-PHI-COPY-ELISION-OWNER-SELECTION-296X-001` | Landed | Select the MIR builder owner for single-incoming phi/copy elision. |
 | 117 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-GUARD-SURFACE-296X-001` | Landed | Define the guard surface for single-pred PHI elision before implementation. |
-| 118 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001` | Current | Implement guarded single-pred PHI elision and verify exact-EXE shape/measurement. |
+| 118 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001` | Landed | Implement guarded single-pred PHI elision and verify exact-EXE shape/measurement. |
+| 119 | `HAKO-MIMALLOC-SMALL-ALLOC-MULTI-RETURN-COPY-PROBE-296X-001` | Current | Classify the remaining multi-return/copy shape after single-pred PHI elision. |
 
 ## Hako Mimalloc Performance Parity Plan
 
