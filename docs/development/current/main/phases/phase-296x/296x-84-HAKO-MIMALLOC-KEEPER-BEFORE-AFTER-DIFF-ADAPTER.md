@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: add keeper before/after diff adapter for source surface and measurement evidence.
 Blocker: HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER-296X-001
@@ -31,3 +31,21 @@ summary=ok
 ## Stop Line
 
 Do not add MIR method shape here. That belongs to row 85.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-keeper-before-after-diff-v0
+keeper_id=select_page_single_page_fast_path
+source_surface_delta_ready=1
+measurement_delta_ready=1
+keeper_effect=accepted|no_effect|regressed|inconclusive
+winner_claim=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_keeper_before_after_diff_adapter_guard.sh
+```

@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x added hako_check perf-surface v1 minimal source observation, so the next step is keeper before/after diff adapter."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x added the keeper before/after diff adapter, so the next step is the Python MIR method shape adapter."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-83-HAKO-CHECK-PERF-SURFACE-V1-MINIMAL"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-83-HAKO-CHECK-PERF-SURFACE-V1-MINIMAL.md"
-latest_card_summary = "Added minimal hako_check perf-surface v1 source counts for loop field, ArrayBox, allocation-like source, suggested_next_kind, and confidence while keeping MIR observation separate."
-current_blocker_token = "HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER-296X-001"
+latest_card = "296x-84-HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-84-HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER.md"
+latest_card_summary = "Added a keeper before/after diff adapter that joins source perf-surface and measurement reports outside hako_check core while keeping MIR shape work for the next row."
+current_blocker_token = "HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-84 Added a keeper before/after diff adapter that joins source perf-surface and measurement reports outside hako_check core while keeping MIR shape work for the next row.",
   "296x-83 Added minimal hako_check perf-surface v1 source counts for loop field, ArrayBox, allocation-like source, suggested_next_kind, and confidence while keeping MIR observation separate.",
   "296x-82 Measured the object-lifecycle facade exact-EXE after the selectPage single-page keeper, preserving select and release fast-path counts while keeping winner and replacement claims closed.",
   "296x-81 Applied the selectPage single-page fast path keeper in the .hako object lifecycle page queue, proving the facade workload hits the fast path 524288 times with no fallback.",
