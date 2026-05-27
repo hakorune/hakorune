@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x landed the acquire-side .hako allocator-model keeper, so the next step is post-second-keeper taxonomy refresh."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x refreshed taxonomy after the acquire-side keeper, so the next step is post-second phase-cost refresh before another optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-61-HAKO-MIMALLOC-PERF-SECOND-KEEPER-OPTIMIZATION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-61-HAKO-MIMALLOC-PERF-SECOND-KEEPER-OPTIMIZATION.md"
-latest_card_summary = "Applied one acquire-side .hako allocator-model keeper by giving acquire_usize a free_top fast path, improving reset+alloc median from 190ms to 170ms and full median from 280ms to 260ms while keeping winner, provider, replacement, hook, and global allocator claims closed."
-current_blocker_token = "HAKO-MIMALLOC-PERF-POST-SECOND-KEEPER-TAXONOMY-REFRESH-296X-001"
+latest_card = "296x-62-HAKO-MIMALLOC-PERF-POST-SECOND-KEEPER-TAXONOMY-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-62-HAKO-MIMALLOC-PERF-POST-SECOND-KEEPER-TAXONOMY-REFRESH.md"
+latest_card_summary = "Refreshed taxonomy after the acquire_usize fast-path keeper, recording current hako median 260ms, C median 4ms, remaining gap 256ms, and selecting post-second phase-cost refresh while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed."
+current_blocker_token = "HAKO-MIMALLOC-PERF-POST-SECOND-PHASE-COST-REFRESH-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-62 Refreshed taxonomy after the acquire_usize fast-path keeper, recording current hako median 260ms, C median 4ms, remaining gap 256ms, and selecting post-second phase-cost refresh while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-61 Applied one acquire-side .hako allocator-model keeper by giving acquire_usize a free_top fast path, improving reset+alloc median from 190ms to 170ms and full median from 280ms to 260ms while keeping winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-60 Split the post-keeper in-process small-block cost into reset 60ms, reset+alloc 190ms, and full 280ms, selecting alloc/acquire as the dominant .hako allocator-model phase while keeping winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-59 Refreshed post-keeper taxonomy after page-model reuse, recording the 330ms to 280ms hako improvement, the remaining 276ms gap, explicit measurement-bias fields, and phase-cost ablation as next diagnostic while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed.",
