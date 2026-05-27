@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""Refresh in-process hako mimalloc taxonomy after a keeper optimization."""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+
+def read_kv(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key] = value
+    return values
+
+
+def require(values: dict[str, str], key: str, expected: str, label: str) -> None:
+    actual = values.get(key)
+    if actual != expected:
+        raise SystemExit(f"{label}: {key} expected {expected!r}, got {actual!r}")
+
+
+def require_int(values: dict[str, str], key: str, label: str) -> int:
+    text = values.get(key)
+    if text is None or text == "":
+        raise SystemExit(f"{label}: missing {key}")
+    try:
+        return int(text)
+    except ValueError as exc:
+        raise SystemExit(f"{label}: {key} must be int, got {text!r}") from exc
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--previous", type=Path, required=True)
+    parser.add_argument("--current", type=Path, required=True)
+    parser.add_argument("--out", type=Path)
+    args = parser.parse_args()
+
+    previous = read_kv(args.previous)
+    current = read_kv(args.current)
+    for label, values in (("previous", previous), ("current", current)):
+        require(values, "output_contract", "hako-mimalloc-in-process-operation-repeat-measurement-v0", label)
+        require(values, "measurement_profile", "hako-mimalloc-in-process-operation-repeat-v0", label)
+        require(values, "timing_repeat_kind", "in-process-operation-loop-v0", label)
+        require(values, "workload_id", "representative-small-block-v0", label)
+        require(values, "operation_repeat", "8192", label)
+        require(values, "process_repeat", "3", label)
+        require(values, "same_workload", "1", label)
+        require(values, "same_operation_count", "1", label)
+        require(values, "process_invocation_repeat", "0", label)
+        require(values, "winner_claim", "0", label)
+        require(values, "provider_active", "0", label)
+        require(values, "replacement_active", "0", label)
+        require(values, "hook_installed", "0", label)
+        require(values, "global_allocator", "0", label)
+        require(values, "summary", "ok", label)
+
+    prev_hako = require_int(previous, "hako_external_elapsed_median_ms", "previous")
+    cur_hako = require_int(current, "hako_external_elapsed_median_ms", "current")
+    cur_c = require_int(current, "c_external_elapsed_median_ms", "current")
+    cur_gap = require_int(current, "external_elapsed_median_gap_ms", "current")
+    if cur_gap != cur_hako - cur_c:
+        raise SystemExit("current: external_elapsed_median_gap_ms mismatch")
+    improvement = prev_hako - cur_hako
+    if improvement < 0:
+        improvement = 0
+
+    next_diagnostic = "phase_cost_ablation_reset_alloc_release"
+    next_optimization_allowed = "0"
+    if improvement > 0 and cur_gap > 0:
+        next_diagnostic = "phase_cost_ablation_reset_alloc_release"
+
+    lines = [
+        "output_contract=hako-mimalloc-post-keeper-taxonomy-refresh-v0",
+        "input_contract=hako-mimalloc-in-process-operation-repeat-measurement-v0",
+        "optimization_kind=page_model_reuse_via_reset_to_fresh",
+        "workload_id=representative-small-block-v0",
+        "measurement_profile=hako-mimalloc-in-process-operation-repeat-v0",
+        "timing_repeat_kind=in-process-operation-loop-v0",
+        "operation_repeat=8192",
+        "process_repeat=3",
+        "hako_compile_build_excluded=1",
+        "c_compile_build_excluded=1",
+        "external_timing_collector_hako=usr_bin_time_elapsed",
+        "external_timing_collector_c=python_perf_counter_subprocess",
+        "external_timing_collectors_same=0",
+        "hako_body_timing_available=0",
+        "c_body_timing_available=1",
+        "body_elapsed_comparable=0",
+        "body_elapsed_primary=0",
+        "hako_work_shape=page_model_acquire_release_reset",
+        "c_work_shape=mi_malloc_memset_mi_free",
+        "payload_write_equivalent=0",
+        "allocator_backend_equivalent=0",
+        "operation_count_equivalent=1",
+        "requested_bytes_equivalent=1",
+        "release_order_equivalent=1",
+        "hako_outer_process_repeat=1",
+        "hako_inner_operation_repeat=8192",
+        "c_outer_process_repeat=1",
+        "c_inner_operation_repeat=8192",
+        "same_workload_semantics=partial",
+        "interpretation_scope=operation-count-parity-only",
+        f"previous_hako_external_elapsed_median_ms={prev_hako}",
+        f"current_hako_external_elapsed_median_ms={cur_hako}",
+        f"current_c_external_elapsed_median_ms={cur_c}",
+        f"improvement_ms={improvement}",
+        f"remaining_gap_ms={cur_gap}",
+        "gap_owner=allocator_algorithm",
+        "gap_confidence=high",
+        f"next_diagnostic={next_diagnostic}",
+        f"next_optimization_allowed={next_optimization_allowed}",
+        "winner_claim=0",
+        "provider_active=0",
+        "replacement_active=0",
+        "hook_installed=0",
+        "global_allocator=0",
+        "summary=ok",
+    ]
+    report = "\n".join(lines) + "\n"
+    if args.out is None:
+        print(report, end="")
+    else:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(report, encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

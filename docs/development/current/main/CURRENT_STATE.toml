@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x landed the first allocator-algorithm keeper optimization, so the next step is post-keeper in-process taxonomy refresh."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x refreshed taxonomy after the first allocator-algorithm keeper optimization, so the next step is phase-cost ablation before another optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-58-HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-58-HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION.md"
-latest_card_summary = "Applied the first single-scope allocator-algorithm keeper optimization by reusing HakoAllocPageModel with resetToFresh, improving in-process hako median from 330ms to 280ms while keeping winner, provider, replacement, hook, and global allocator claims closed."
-current_blocker_token = "HAKO-MIMALLOC-PERF-POST-KEEPER-TAXONOMY-REFRESH-296X-001"
+latest_card = "296x-59-HAKO-MIMALLOC-PERF-POST-KEEPER-TAXONOMY-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-59-HAKO-MIMALLOC-PERF-POST-KEEPER-TAXONOMY-REFRESH.md"
+latest_card_summary = "Refreshed post-keeper taxonomy after page-model reuse, recording the 330ms to 280ms hako improvement, the remaining 276ms gap, explicit measurement-bias fields, and phase-cost ablation as next diagnostic while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed."
+current_blocker_token = "HAKO-MIMALLOC-PERF-PHASE-COST-ABLATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-59 Refreshed post-keeper taxonomy after page-model reuse, recording the 330ms to 280ms hako improvement, the remaining 276ms gap, explicit measurement-bias fields, and phase-cost ablation as next diagnostic while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-58 Applied the first single-scope allocator-algorithm keeper optimization by reusing HakoAllocPageModel with resetToFresh, improving in-process hako median from 330ms to 280ms while keeping winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-57 Split the in-process hako mimalloc gap with loop-shell evidence, selected high-confidence allocator_algorithm ownership, and opened the first single-scope keeper optimization while keeping winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-56 Classified the first in-process hako/C gap as low-confidence allocator_algorithm evidence, selected compiler/allocator owner split, and kept optimization, winner, provider, replacement, hook, and global allocator claims closed.",
