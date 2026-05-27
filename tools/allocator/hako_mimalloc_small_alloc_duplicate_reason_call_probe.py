@@ -144,7 +144,7 @@ def main() -> int:
 
     source_reason_call_count = count_source_reason_calls(args.source, args.source_method)
 
-    if duplicate_unused_reason_call_count == duplicate_reason_call_count and reason_effect_io_count:
+    if duplicate_reason_call_count and duplicate_unused_reason_call_count == duplicate_reason_call_count and reason_effect_io_count:
         next_action = "hako_reason_bind_probe"
         selected_reason = "nested_reason_call_duplicated_with_unused_first_result_and_io_effect"
     elif duplicate_reason_call_count and reason_effect_io_count == 0:
