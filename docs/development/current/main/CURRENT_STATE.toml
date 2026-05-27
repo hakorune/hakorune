@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x proved .hako reason-local binding removes duplicate small-alloc failure reason calls and selected the keeper row."
+active_lane_status = "Phase-296x landed the .hako reason-local bind keeper and selected post-keeper exact-EXE measurement."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-122-HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-122-HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-PROBE.md"
-latest_card_summary = "Proved .hako reason-local binding removes duplicate small-alloc failure reason calls and selected the keeper row."
-current_blocker_token = "HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-KEEPER-296X-001"
+latest_card = "296x-123-HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-KEEPER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-123-HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-KEEPER.md"
+latest_card_summary = "Landed the .hako reason-local bind keeper, removing duplicate small-alloc failure reason calls while preserving exact-EXE proof counters."
+current_blocker_token = "HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-123 Landed the .hako reason-local bind keeper, removing duplicate small-alloc failure reason calls while preserving exact-EXE proof counters.",
   "296x-122 Proved .hako reason-local binding removes duplicate small-alloc failure reason calls and selected the keeper row.",
   "296x-121 Classified duplicate small-alloc failure reason calls as unused nested-call duplicates and selected a .hako reason-bind probe.",
   "296x-120 Classified return-block local SSA copy pressure and selected duplicate reason global calls as the next probe.",
