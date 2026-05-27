@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x confirmed rollback of the inline success result non-keeper and selected post-rollback source/MIR refresh."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x refreshed post-rollback hot owners and selected a small-alloc MIR shape deep dive before another keeper."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-112-HAKO-MIMALLOC-POST-ROLLBACK-INLINE-SUCCESS-RESULT-MEASUREMENT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-112-HAKO-MIMALLOC-POST-ROLLBACK-INLINE-SUCCESS-RESULT-MEASUREMENT.md"
-latest_card_summary = "Measured the inline success result rollback at 620ms median, reproducing the accepted baseline and closing the keeper as a non-keeper."
-current_blocker_token = "HAKO-MIMALLOC-POST-ROLLBACK-INLINE-SUCCESS-SOURCE-MIR-REFRESH-296X-001"
+latest_card = "296x-113-HAKO-MIMALLOC-POST-ROLLBACK-INLINE-SUCCESS-SOURCE-MIR-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-113-HAKO-MIMALLOC-POST-ROLLBACK-INLINE-SUCCESS-SOURCE-MIR-REFRESH.md"
+latest_card_summary = "Refreshed source/MIR rank after two non-keepers, keeping objectLifecycleSmallAlloc as top owner and selecting MIR shape deep dive instead of another keeper."
+current_blocker_token = "HAKO-MIMALLOC-SMALL-ALLOC-MIR-SHAPE-DEEP-DIVE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-113 Refreshed source/MIR rank after two non-keepers, keeping objectLifecycleSmallAlloc as top owner and selecting MIR shape deep dive instead of another keeper.",
   "296x-112 Measured the inline success result rollback at 620ms median, reproducing the accepted baseline and closing the keeper as a non-keeper.",
   "296x-111 Rolled back the regressed small_alloc_inline_success_result_fast_path keeper while preserving the accepted direct select keeper and proof counters.",
   "296x-110 Measured the small_alloc_inline_success_result_fast_path keeper at 630ms median versus the prior 620ms checkpoint, marking it regressed and selecting rollback.",
