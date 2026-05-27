@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x selected the release direct cached-page fast path keeper after post-release source/MIR refresh."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x applied the release direct cached-page fast path keeper and should measure it next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-94-HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-SOURCE-MIR-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-94-HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-SOURCE-MIR-REFRESH.md"
-latest_card_summary = "Refreshed source/MIR observation after the release object cache keeper and selected release_direct_cached_page_fast_path with release fallback inactive evidence."
-current_blocker_token = "HAKO-MIMALLOC-RELEASE-DIRECT-CACHED-PAGE-FAST-PATH-KEEPER-296X-001"
+latest_card = "296x-95-HAKO-MIMALLOC-RELEASE-DIRECT-CACHED-PAGE-FAST-PATH-KEEPER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-95-HAKO-MIMALLOC-RELEASE-DIRECT-CACHED-PAGE-FAST-PATH-KEEPER.md"
+latest_card_summary = "Applied release_direct_cached_page_fast_path, releasing through the cached page object on the hot path while preserving fallback lookup and proof counters."
+current_blocker_token = "HAKO-MIMALLOC-POST-RELEASE-DIRECT-CACHED-PAGE-KEEPER-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-95 Applied release_direct_cached_page_fast_path, releasing through the cached page object on the hot path while preserving fallback lookup and proof counters.",
   "296x-94 Refreshed source/MIR observation after the release object cache keeper and selected release_direct_cached_page_fast_path with release fallback inactive evidence.",
   "296x-93 Measured the release_known_page_object_cache keeper at 670ms median versus the prior 690ms checkpoint while preserving proof counters and closed winner/replacement claims.",
   "296x-92 Applied release_known_page_object_cache, caching the last allocated page object for the release known-page fast path while preserving fallback lookup and proof counters.",
