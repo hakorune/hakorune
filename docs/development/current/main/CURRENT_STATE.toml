@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x refreshed hot-owner rank after the direct select keeper and selected the small-alloc inline success result keeper."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x applied the small-alloc inline success result keeper and selected post-keeper exact-EXE measurement."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-108-HAKO-MIMALLOC-POST-SMALL-ALLOC-DIRECT-SELECT-SOURCE-MIR-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-108-HAKO-MIMALLOC-POST-SMALL-ALLOC-DIRECT-SELECT-SOURCE-MIR-REFRESH.md"
-latest_card_summary = "Refreshed hot-owner rank after the direct select keeper, keeping objectLifecycleSmallAlloc as top active owner and selecting small_alloc_inline_success_result_fast_path next."
-current_blocker_token = "HAKO-MIMALLOC-SMALL-ALLOC-INLINE-SUCCESS-RESULT-FAST-PATH-KEEPER-296X-001"
+latest_card = "296x-109-HAKO-MIMALLOC-SMALL-ALLOC-INLINE-SUCCESS-RESULT-FAST-PATH-KEEPER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-109-HAKO-MIMALLOC-SMALL-ALLOC-INLINE-SUCCESS-RESULT-FAST-PATH-KEEPER.md"
+latest_card_summary = "Applied the small_alloc_inline_success_result_fast_path keeper, inlining hot success result updates while preserving failure helpers and proof counters."
+current_blocker_token = "HAKO-MIMALLOC-POST-INLINE-SUCCESS-RESULT-KEEPER-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-109 Applied the small_alloc_inline_success_result_fast_path keeper, inlining hot success result updates while preserving failure helpers and proof counters.",
   "296x-108 Refreshed hot-owner rank after the direct select keeper, keeping objectLifecycleSmallAlloc as top active owner and selecting small_alloc_inline_success_result_fast_path next.",
   "296x-107 Measured the small_alloc_direct_single_page_select_fast_path keeper at 620ms median versus the prior 640ms checkpoint, accepting it while keeping winner/replacement claims closed.",
   "296x-106 Applied the small_alloc_direct_single_page_select_fast_path keeper, bypassing the selectPage wrapper for the single-page small-alloc hot path while preserving generic fallback and proof counters.",

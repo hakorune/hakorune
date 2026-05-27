@@ -93,8 +93,19 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_acquire_failed())
         }
 
-        me.recordLastAllocPage(selected_index, queue.last_selected_page_id, page)
-        return me.recordSmallAllocSuccess(selected_kind)
+        me.last_alloc_page_index = selected_index
+        me.last_alloc_page_id = queue.last_selected_page_id
+        me.last_alloc_page = page
+        me.alloc_result.last_reason = 0
+        me.alloc_result.last_ok = 1
+        me.alloc_result.success_count = me.alloc_result.success_count + 1
+        if selected_kind == 1 {
+            me.alloc_result.reusable_success_count = me.alloc_result.reusable_success_count + 1
+        }
+        if selected_kind == 2 {
+            me.alloc_result.active_success_count = me.alloc_result.active_success_count + 1
+        }
+        return 1
     }
 
     resetReleaseResult() {
