@@ -115,9 +115,10 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 68 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-PILOT-296X-001` | Landed | Pilot explicit provider-package calls through the selected real `.hako` mimalloc entrypoint. |
 | 69 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-SELECTION-296X-001` | Landed | Select how to fuse the verified `.hako` entrypoint into the native provider-package artifact. |
 | 70 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-PILOT-296X-001` | Landed | Add and prove the first hako-derived provider semantic mode for the selected object-lifecycle entrypoint. |
-| 71 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Current | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 72 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 73 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 71 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-EXPLICIT-MEASUREMENT-296X-001` | Landed | Measure the native-fusion provider package explicitly before LD_PRELOAD work. |
+| 72 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Current | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 73 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 74 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -767,7 +768,25 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 71 - Hakmem LD_PRELOAD Shim Decision
+### Row 71 - Native Fusion Explicit Provider Measurement
+
+Purpose: measure the object-lifecycle native-fusion provider package through
+explicit provider calls before deciding on LD_PRELOAD.
+
+Required stop line:
+
+```text
+output_contract=hako-mimalloc-provider-package-native-fusion-explicit-measurement-v0
+provider_explicit_measurement_ready=1
+ld_preload_decision_ready=1
+provider_call_executed=1
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+### Row 72 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -785,7 +804,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 72 - Hakmem LD_PRELOAD Shim Smoke
+### Row 73 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -806,7 +825,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 73 - Selfhost Handoff Gate
+### Row 74 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.
