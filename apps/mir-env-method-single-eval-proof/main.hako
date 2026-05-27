@@ -1,0 +1,42 @@
+// mir-env-method-single-eval-proof
+// Purpose: prove unsupported env method fallback does not lower arguments twice.
+
+static box EnvArgSide {
+    tick() {
+        return 7
+    }
+}
+
+box EnvFallbackTarget {
+    missing(value) {
+        return value
+    }
+}
+
+box EnvRoot {
+    birth() {
+        me.unknown = new EnvFallbackTarget()
+    }
+}
+
+box EnvMethodProbe {
+    run() {
+        local env = new EnvRoot()
+        return env.unknown.missing(EnvArgSide.tick())
+    }
+}
+
+static box Main {
+    main(args) {
+        local probe = new EnvMethodProbe()
+        local value = probe.run()
+        print("mir-env-method-single-eval-proof")
+        print("value=" + value)
+        if value == 7 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}
