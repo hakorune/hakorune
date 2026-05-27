@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: apply one acquire-side allocator-model optimization after phase-cost ablation.
 Blocker: HAKO-MIMALLOC-PERF-SECOND-KEEPER-OPTIMIZATION-296X-001
@@ -40,6 +40,32 @@ replacement_active=0
 hook_installed=0
 global_allocator=0
 summary=ok
+```
+
+## Evidence
+
+```text
+optimization_kind=acquire_usize_free_top_fast_path
+target_phase=alloc
+before_reset_alloc_only_elapsed_median_ms=190
+after_reset_alloc_only_elapsed_median_ms=170
+before_full_elapsed_median_ms=280
+after_full_elapsed_median_ms=260
+improvement_ms=20
+hako_level_vs_mirbuilder_level=hako_allocator_model_primary
+mirbuilder_owner=secondary_later
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_perf_second_keeper_optimization_guard.sh
 ```
 
 ## Stop Line

@@ -112,7 +112,41 @@ box HakoAllocPageModel {
     }
 
     acquire_usize(requested_size: usize) {
-        return me.acquire(requested_size)
+        if me.retired != 0 {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        if me.decommitted != 0 {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        local block_size = me.block_size
+        if requested_size > block_size {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        local free_top = me.free_top
+        if free_top == 0 {
+            return me.acquire(requested_size)
+        }
+
+        free_top = free_top - 1
+        local block_id = me.free.get(free_top)
+        me.block_used.set(block_id, 1)
+        local used = me.used + 1
+        me.used = used
+        me.alloc_count = me.alloc_count + 1
+        me.requested_bytes = me.requested_bytes + requested_size
+        me.free_top = free_top
+
+        if used > me.peak_used {
+            me.peak_used = used
+        }
+
+        return block_id
     }
 
     releaseLocal(block_id) {
