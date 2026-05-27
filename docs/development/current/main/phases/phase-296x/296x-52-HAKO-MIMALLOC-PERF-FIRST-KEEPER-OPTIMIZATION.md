@@ -1,14 +1,13 @@
 ---
-Status: Current
+Status: Planned
 Date: 2026-05-27
 Scope: apply the first evidence-backed optimization only if refreshed taxonomy allows it.
 Blocker: HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
 Related:
   - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
-  - docs/development/current/main/phases/phase-296x/296x-50-HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION.md
 ---
 
-# 296x-51 Hako Mimalloc First Keeper Optimization
+# 296x-52 Hako Mimalloc First Keeper Optimization
 
 ## Purpose
 

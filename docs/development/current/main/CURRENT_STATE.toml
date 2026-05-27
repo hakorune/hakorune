@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x has a refreshed taxonomy decision gate before the first keeper optimization; optimization remains conditional on stable compiler/allocator ownership."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x has stable but low-confidence hako_runtime_baseline taxonomy, so the next step is owner confidence refresh before any optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
@@ -17,8 +17,8 @@ taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-be
 
 latest_card = "296x-50-HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-50-HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION.md"
-latest_card_summary = "Added the refreshed taxonomy decision gate, selecting first keeper optimization only for stable non-low-confidence compiler or allocator ownership while keeping optimization and winner claims closed."
-current_blocker_token = "HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001"
+latest_card_summary = "Added the refreshed taxonomy decision gate, selecting owner confidence refresh for stable low-confidence hako_runtime_baseline evidence while keeping optimization and winner claims closed."
+current_blocker_token = "HAKO-MIMALLOC-PERF-OWNER-CONFIDENCE-REFRESH-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,7 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "296x-50 Added the refreshed taxonomy decision gate, selecting first keeper optimization only for stable non-low-confidence compiler or allocator ownership while keeping optimization and winner claims closed.",
+  "296x-50 Added the refreshed taxonomy decision gate, selecting owner confidence refresh for stable low-confidence hako_runtime_baseline evidence while keeping optimization and winner claims closed.",
   "296x-49 Refreshed gap taxonomy over sample_count=5 measurement hygiene evidence while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-48 Added the post-diagnostic decision report, keeping optimization closed after measurement hygiene evidence and selecting gap taxonomy refresh.",
   "296x-47 Added the owner narrow diagnostic report for the selected measurement hygiene refresh, preserving build exclusion, secondary body timing, and closed winner/provider/replacement claims.",

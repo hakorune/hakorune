@@ -57,19 +57,19 @@ summary=ok
 ```
 
 Only stable, non-low-confidence `compiler_lowering` or `allocator_algorithm`
-taxonomy may select the first keeper optimization row.
+taxonomy may select the first keeper optimization row. Low-confidence taxonomy
+must select owner confidence refresh instead.
 
 ## Selected Next
 
 Select:
 
 ```text
-HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
+HAKO-MIMALLOC-PERF-OWNER-CONFIDENCE-REFRESH-296X-001
 ```
 
-This selection is conditional: if real refreshed taxonomy is still noisy or
-harness-owned, the decision report must choose `continue_owner_diagnostic`
-instead.
+The actual refreshed taxonomy was stable but low-confidence
+`hako_runtime_baseline`, so optimization remains closed.
 
 ## Verification
 

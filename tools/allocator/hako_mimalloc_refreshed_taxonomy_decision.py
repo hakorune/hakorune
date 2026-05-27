@@ -58,6 +58,9 @@ def main() -> int:
     if can_optimize:
         decision = "enter_first_keeper_optimization"
         selected_next_row = "HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001"
+    elif confidence == "low":
+        decision = "refresh_owner_confidence"
+        selected_next_row = "HAKO-MIMALLOC-PERF-OWNER-CONFIDENCE-REFRESH-296X-001"
     else:
         decision = "continue_owner_diagnostic"
         selected_next_row = "HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001"
