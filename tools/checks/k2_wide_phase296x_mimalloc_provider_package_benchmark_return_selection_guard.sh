@@ -31,10 +31,9 @@ guard_expect_fixed_in_file "$TAG" 'hook_installed=0' "$CARD_39" "selection card 
 guard_expect_fixed_in_file "$TAG" 'global_allocator=0' "$CARD_39" "selection card must keep global allocator closed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001' "$CARD_39" "selection card must select comparison pilot"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-39-MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001"' "$CURRENT_STATE" "current state must select comparison pilot"
+guard_expect_fixed_in_file "$TAG" '296x-39 Selected the provider package explicit comparison pilot' "$CURRENT_STATE" "current state landed tail must retain row 39"
 guard_expect_fixed_in_file "$TAG" '| 39 | `MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001` | Landed |' "$TASKBOARD" "taskboard row 39 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 40 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001` | Current |' "$TASKBOARD" "taskboard row 40 must be current"
+guard_expect_fixed_in_file "$TAG" '| 40 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 40 must be landed after pilot"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list benchmark return selection guard"
 
 python3 -m py_compile "$PROVIDER_MEASURE" "$COMPARISON_ADAPTER"

@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001:
-  Run .hako/C repeated measurement plus .hako-derived provider package explicit repeated measurement through the 3-way comparison adapter.
+MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001:
+  Close the .hako-derived provider package explicit comparison evidence and select the next benchmark or activation decision row.
 ```
 
 ## Queue
@@ -83,7 +83,8 @@ MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001:
 | 37 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-CLOSEOUT-296X-001` | Landed | Close alloc-free-owns-literal-v0 with metadata/descriptor/API/noop/alloc-free evidence and select the next semantic allocator boundary. |
 | 38 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001` | Landed | Close .hako-derived provider package v0 as functional package artifact while keeping native pointer allocation mechanics and activation lanes separate. |
 | 39 | `MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001` | Landed | Select the benchmark return row after .hako-derived provider package v0 functional closeout. |
-| 40 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001` | Current | Run .hako/C repeated measurement plus .hako-derived provider package explicit repeated measurement through the 3-way comparison adapter. |
+| 40 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001` | Landed | Run .hako/C repeated measurement plus .hako-derived provider package explicit repeated measurement through the 3-way comparison adapter. |
+| 41 | `MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-CLOSEOUT-296X-001` | Current | Close the .hako-derived provider package explicit comparison evidence and select the next benchmark or activation decision row. |
 
 ## Mini-Agent Restart Queue
 
