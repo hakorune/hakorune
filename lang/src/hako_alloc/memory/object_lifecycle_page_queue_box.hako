@@ -74,6 +74,14 @@ box HakoAllocObjectLifecyclePageQueue {
             me.miss_count = me.miss_count + 1
             return null
         }
+        if page.decommitted == 0 {
+            if page.retired == 0 {
+                if page.free_top > 0 {
+                    me.single_page_fast_path_count = me.single_page_fast_path_count + 1
+                    return me.acceptSelectedPage(0, page, 2)
+                }
+            }
+        }
         if page.isDecommitted() != 0 {
             me.decommitted_skip_count = me.decommitted_skip_count + 1
             me.miss_count = me.miss_count + 1
