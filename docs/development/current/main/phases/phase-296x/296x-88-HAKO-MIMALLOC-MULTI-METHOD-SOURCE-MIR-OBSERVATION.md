@@ -40,3 +40,69 @@ summary=ok
 
 Do not implement the keeper in this row. Do not migrate MIR observation to
 `.hako`.
+
+## Tool Stop Finding
+
+Multi-method source/MIR observation found a tool gap before the next keeper
+selection.
+
+Observed reports:
+
+```text
+objectLifecycleSmallAlloc:
+  source_loop_array_access_count=0
+  source_loop_field_access_count=0
+  source_loop_method_call_count=0
+  mir_array_access_count=1
+  mir_field_access_count=16
+  mir_call_count=25
+  source_risk_confirmed_in_mir=0
+
+objectLifecycleReleaseBlock:
+  source_loop_array_access_count=0
+  source_loop_field_access_count=0
+  source_loop_method_call_count=0
+  mir_array_access_count=1
+  mir_field_access_count=3
+  mir_call_count=21
+  source_risk_confirmed_in_mir=0
+
+selectPage:
+  source_loop_array_access_count=1
+  source_loop_field_access_count=6
+  source_loop_method_call_count=0
+  mir_array_access_count=1
+  mir_field_access_count=15
+  mir_call_count=9
+  source_risk_confirmed_in_mir=1
+```
+
+Interpretation:
+
+`hako_source_mir_shape_join.py` currently confirms only loop-local source
+risks. That is too narrow for allocator methods that are hot because an outer
+workload loop calls them repeatedly. `objectLifecycleSmallAlloc` and
+`objectLifecycleReleaseBlock` have meaningful MIR call/field/array cost but no
+source-local loop, so the join adapter reports them as unconfirmed.
+
+Next tool improvement before keeper selection:
+
+```text
+output_contract=hako-source-mir-shape-join-v1
+method_hot_context=direct_loop|caller_repeated|unknown
+source_method_call_count
+source_field_get_count
+source_field_set_count
+source_array_access_count
+mir_call_count
+mir_field_access_count
+mir_array_access_count
+source_risk_confirmed_in_mir=0|1
+confirmed_risk_kind=array_access|field_access|method_call|none
+summary=ok
+```
+
+Stop decision:
+
+Do not select the next keeper from row88 until the join adapter can distinguish
+loop-local risk from repeated-method hot context.
