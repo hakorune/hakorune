@@ -40,7 +40,7 @@ static box Main {
         local alloc_ok = 1
         loop(i < 64) {
             local requested = 512 + cycle
-            local block = page.acquire_usize(requested)
+            local block = page.acquireFreshSmall(requested)
             if block < 0 {
                 alloc_ok = 0
             }

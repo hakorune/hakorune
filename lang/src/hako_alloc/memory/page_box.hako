@@ -149,6 +149,35 @@ box HakoAllocPageModel {
         return block_id
     }
 
+    acquireFreshSmall(requested_size: usize) {
+        local block_size = me.block_size
+        if requested_size > block_size {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        local free_top = me.free_top
+        if free_top == 0 {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        free_top = free_top - 1
+        local block_id = me.free.get(free_top)
+        me.block_used.set(block_id, 1)
+        local used = me.used + 1
+        me.used = used
+        me.alloc_count = me.alloc_count + 1
+        me.requested_bytes = me.requested_bytes + requested_size
+        me.free_top = free_top
+
+        if used > me.peak_used {
+            me.peak_used = used
+        }
+
+        return block_id
+    }
+
     releaseLocal(block_id) {
         if block_id < 0 {
             me.reject_count = me.reject_count + 1
@@ -167,6 +196,26 @@ box HakoAllocPageModel {
             return 0
         }
 
+        block_used.set(block_id, 0)
+        local local_free_top = me.local_free_top
+        local local_free = me.local_free
+        local_free.set(local_free_top, block_id)
+        local_free_top = local_free_top + 1
+        me.local_free_top = local_free_top
+        me.local_free_count = me.local_free_count + 1
+        local used = me.used - 1
+        me.used = used
+        if used == 0 {
+            if me.retired == 0 {
+                me.retired = 1
+                me.retire_count = me.retire_count + 1
+            }
+        }
+        return 1
+    }
+
+    releaseLocalKnownLive(block_id) {
+        local block_used = me.block_used
         block_used.set(block_id, 0)
         local local_free_top = me.local_free_top
         local local_free = me.local_free
