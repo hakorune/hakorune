@@ -1,0 +1,41 @@
+// mir-nested-field-single-eval-proof
+// Purpose: prove nested field access base expressions are semantically lowered once.
+
+box NestedFieldLeaf {
+    birth(value) {
+        me.value = value
+    }
+}
+
+box NestedFieldNode {
+    birth(child) {
+        me.child = child
+    }
+}
+
+static box NestedFieldSide {
+    make() {
+        return new NestedFieldNode(new NestedFieldLeaf(7))
+    }
+}
+
+box NestedFieldProbe {
+    run() {
+        return NestedFieldSide.make().child.value
+    }
+}
+
+static box Main {
+    main(args) {
+        local probe = new NestedFieldProbe()
+        local value = probe.run()
+        print("mir-nested-field-single-eval-proof")
+        print("value=" + value)
+        if value == 7 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

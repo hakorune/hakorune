@@ -173,7 +173,9 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 126 | `HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001` | Landed | Add a narrow guard for duplicate facade reason-call evaluation before MIR builder changes. |
 | 127 | `GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001` | Landed | Add a generic MIR correctness fixture for nested argument single evaluation. |
 | 128 | `MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001` | Landed | Fix MIR builder nested argument single-evaluation correctness. |
-| 129 | `HAKO-MIMALLOC-POST-NESTED-ARGUMENT-SINGLE-EVAL-FIX-MEASUREMENT-296X-001` | Current | Measure object-lifecycle facade exact-EXE after the nested argument single-eval fix. |
+| 129 | `MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-FIXTURE-296X-001` | Landed | Add a MIR correctness fixture for nested field access single evaluation. |
+| 130 | `MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-OWNER-FIX-296X-001` | Current | Fix field access lowering so inference does not re-lower nested object expressions. |
+| 131 | `HAKO-MIMALLOC-POST-SINGLE-EVAL-FIXES-MEASUREMENT-296X-001` | Planned | Measure object-lifecycle facade exact-EXE after nested argument and field single-eval fixes. |
 
 ## Hako Mimalloc Performance Parity Plan
 
