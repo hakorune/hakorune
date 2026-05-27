@@ -193,7 +193,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 146 | `PAGE-ARRAY-DYNAMIC-WEIGHT-PROBE-296X-001` | Landed | Measure page-local ArrayBox dynamic weight before selecting compiler helper lowering or page-model keeper work. |
 | 147 | `PAGE-ARRAY-KEEPER-SELECTION-296X-001` | Landed | Select exactly one page-array keeper from dynamic weight evidence before returning to compiler helper lowering. |
 | 148 | `RELEASE-DIRECT-CACHED-PAGE-KNOWN-LIVE-RELEASE-IMPLEMENTATION-296X-001` | Landed | Apply the direct cached-page known-live release keeper while preserving generic release fallback. |
-| 149 | `POST-KNOWN-LIVE-RELEASE-MEASUREMENT-296X-001` | Current | Measure exact-EXE after the direct cached-page known-live release keeper. |
+| 149 | `POST-KNOWN-LIVE-RELEASE-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after the direct cached-page known-live release keeper. |
+| 150 | `POST-KNOWN-LIVE-RELEASE-SOURCE-MIR-REFRESH-296X-001` | Current | Refresh source/MIR after known-live release measurement before choosing the next keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
