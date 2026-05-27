@@ -111,10 +111,11 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 64 | `HAKO-MIMALLOC-PERF-THIRD-KEEPER-OPTIMIZATION-296X-001` | Landed | Apply one known-active small-cycle `.hako` allocator-model optimization after post-second phase-cost refresh. |
 | 65 | `HAKO-MIMALLOC-PERF-POST-THIRD-KEEPER-TAXONOMY-REFRESH-296X-001` | Landed | Refresh in-process taxonomy after the third keeper optimization. |
 | 66 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Landed | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
-| 67 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Current | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
-| 68 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 69 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 70 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 67 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Landed | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 68 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-PILOT-296X-001` | Current | Pilot explicit provider-package calls through the selected real `.hako` mimalloc entrypoint. |
+| 69 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 70 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 71 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -674,13 +675,41 @@ next_port_feature=real_provider_explicit_entrypoint_selection
 Keep replacement parked:
 
 ```text
+output_contract=hako-mimalloc-provider-real-entrypoint-selection-v0
+selected_entrypoint=object_lifecycle_small_alloc_release_v0
+selected_surface_owner=HakoAllocObjectLifecycleFacade
 provider_call_allowed=1
+provider_active=0
 replacement_active=0
 hook_installed=0
 global_allocator=0
+winner_claim=0
 ```
 
-### Row 68 - Hakmem LD_PRELOAD Shim Decision
+### Row 68 - Real Provider Entrypoint Pilot
+
+Purpose: call the selected real `.hako` mimalloc surface through the explicit
+provider package lane before any LD_PRELOAD or replacement work.
+
+Required input:
+
+```text
+selected_entrypoint=object_lifecycle_small_alloc_release_v0
+selected_surface_owner=HakoAllocObjectLifecycleFacade
+provider_call_allowed=1
+```
+
+Required stop line:
+
+```text
+provider_call_executed=1
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+### Row 69 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -698,7 +727,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 69 - Hakmem LD_PRELOAD Shim Smoke
+### Row 70 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -719,7 +748,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 70 - Selfhost Handoff Gate
+### Row 71 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.
