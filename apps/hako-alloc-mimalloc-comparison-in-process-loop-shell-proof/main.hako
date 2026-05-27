@@ -1,0 +1,62 @@
+// hako-alloc-mimalloc-comparison-in-process-loop-shell-proof
+// Purpose: measure the in-process repeat shell without allocator model work.
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local operation_repeat = 8192
+        local i = 0
+        local checksum = 0
+        loop(i < operation_repeat) {
+            checksum += i
+            i += 1
+        }
+
+        print("hako-alloc-mimalloc-comparison-in-process-loop-shell-proof")
+        print("workload=representative-loop-shell-v0")
+        print("operation_family=loop-shell")
+        print("operation_sequence_id=representative-loop-shell-v0-seq")
+        print("free_order_id=no-release-v0")
+        print("in_process_operation_repeat=" + operation_repeat)
+        print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("allocation_count=0")
+        print("free_count=0")
+        print("requested_bytes=0")
+        print("committed_bytes=0")
+
+        local proof = new ProofCheck("in-process loop shell")
+        proof.expectEq("checksum", checksum, 33550336)
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

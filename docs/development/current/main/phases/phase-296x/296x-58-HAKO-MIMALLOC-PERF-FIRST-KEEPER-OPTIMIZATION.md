@@ -1,5 +1,5 @@
 ---
-Status: Planned
+Status: Current
 Date: 2026-05-27
 Scope: apply the first evidence-backed optimization only if in-process diagnostics allow it.
 Blocker: HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
@@ -16,10 +16,11 @@ Apply exactly one optimization only when owner diagnostics select this row.
 ## Required Input
 
 ```text
-decision=enter_first_keeper_optimization
+output_contract=hako-mimalloc-compiler-allocator-owner-split-v0
 selected_next_row=HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
 next_optimization_allowed=1
-gap_owner=compiler_lowering|allocator_algorithm
+selected_gap_owner=allocator_algorithm
+selected_gap_confidence=high
 winner_claim=0
 ```
 

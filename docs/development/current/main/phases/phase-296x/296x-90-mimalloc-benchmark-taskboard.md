@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-COMPILER-ALLOCATOR-OWNER-SPLIT-DIAGNOSTIC-296X-001:
-  Split the first in-process hako workload gap between compiler lowering and allocator algorithm owners before optimization.
+HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001:
+  Apply exactly one allocator-algorithm keeper optimization from high-confidence in-process evidence.
 ```
 
 ## Queue
@@ -101,8 +101,8 @@ HAKO-MIMALLOC-PERF-COMPILER-ALLOCATOR-OWNER-SPLIT-DIAGNOSTIC-296X-001:
 | 54 | `HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT-296X-001` | Landed | Define the in-process operation-repeat measurement contract before optimization. |
 | 55 | `HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-PILOT-296X-001` | Landed | Run the first hako/C in-process operation-repeat pilot before optimization. |
 | 56 | `HAKO-MIMALLOC-PERF-IN-PROCESS-GAP-TAXONOMY-DECISION-296X-001` | Landed | Classify the first in-process hako/C gap before optimization. |
-| 57 | `HAKO-MIMALLOC-PERF-COMPILER-ALLOCATOR-OWNER-SPLIT-DIAGNOSTIC-296X-001` | Current | Split the first in-process hako workload gap between compiler lowering and allocator algorithm owners before optimization. |
-| 58 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
+| 57 | `HAKO-MIMALLOC-PERF-COMPILER-ALLOCATOR-OWNER-SPLIT-DIAGNOSTIC-296X-001` | Landed | Split the first in-process hako workload gap between compiler lowering and allocator algorithm owners before optimization. |
+| 58 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Current | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
 | 59 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
 | 60 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
 | 61 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
@@ -432,6 +432,15 @@ Do not optimize in this row.
 
 Purpose: make one optimization for one owner family and prove it with the same
 parity gate.
+
+Required owner:
+
+```text
+selected_gap_owner=allocator_algorithm
+selected_gap_confidence=high
+next_optimization_allowed=1
+winner_claim=0
+```
 
 Only `compiler_lowering` and `allocator_algorithm` may enter this row directly.
 Do not combine algorithm porting, compiler lowering, harness cleanup, and
