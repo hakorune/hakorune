@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001:
-  Select the smallest honest .hako semantic allocator entrypoint boundary after closing ping semantic codegen.
+MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001:
+  Implement alloc-free-owns-literal-v0 and prove explicit provider alloc/free plus .hako-owned owns policy through smoke evidence.
 ```
 
 ## Queue
@@ -78,7 +78,8 @@ MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001:
 | 32 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001` | Landed | Select the smallest .hako semantic provider-codegen boundary, without opening activation, replacement, hooks, globals, or winner claims. |
 | 33 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-PILOT-296X-001` | Landed | Implement `ping-literal-v0`, mapping `.hako` `HakoProvider.ping/0` literal return into provider `hako_ping()` without opening allocator entrypoints or activation. |
 | 34 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001` | Landed | Close the .hako semantic ping pilot with metadata/descriptor/API/noop evidence and select the next semantic entrypoint boundary. |
-| 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Current | Select the smallest honest .hako semantic allocator entrypoint boundary after ping, without opening activation, replacement, hooks, globals, or winner claims. |
+| 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Landed | Select the smallest honest .hako semantic allocator entrypoint boundary after ping, without opening activation, replacement, hooks, globals, or winner claims. |
+| 36 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001` | Current | Implement alloc-free-owns-literal-v0 and prove explicit provider alloc/free plus .hako-owned owns policy through smoke evidence. |
 
 ## Mini-Agent Restart Queue
 

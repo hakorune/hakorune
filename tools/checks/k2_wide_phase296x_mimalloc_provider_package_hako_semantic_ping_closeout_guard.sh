@@ -37,10 +37,9 @@ guard_expect_fixed_in_file "$TAG" 'replacement_active=0' "$CARD_34" "closeout ca
 guard_expect_fixed_in_file "$TAG" 'winner_claim=0' "$CARD_34" "closeout card must keep winners closed"
 guard_expect_fixed_in_file "$TAG" 'MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001' "$CARD_34" "closeout card must select allocator semantic boundary"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-34-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001"' "$CURRENT_STATE" "current state must select alloc/free semantic selection"
+guard_expect_fixed_in_file "$TAG" '296x-34 Closed the first .hako semantic provider-codegen mode' "$CURRENT_STATE" "current state landed tail must retain row 34"
 guard_expect_fixed_in_file "$TAG" '| 34 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 34 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Current |' "$TASKBOARD" "taskboard row 35 must be current"
+guard_expect_fixed_in_file "$TAG" '| 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Landed |' "$TASKBOARD" "taskboard row 35 must be landed after selection"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list semantic ping closeout guard"
 
 python3 -m py_compile "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL" "$NOOP_TOOL"

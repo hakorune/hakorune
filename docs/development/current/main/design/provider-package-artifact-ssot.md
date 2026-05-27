@@ -177,6 +177,42 @@ It does not open allocator entrypoint semantic codegen. `alloc`, `free`,
 `owns`, `realloc`, aligned allocation, process replacement, hooks, global
 allocator integration, and winner claims remain separate future rows.
 
+## Phase C Semantic Codegen Step 2
+
+The first accepted allocator-entrypoint semantic provider-codegen mode is
+`alloc-free-owns-literal-v0`.
+
+```text
+.hako static box HakoProvider {
+  ping() { return <i64 literal> }
+  ownsAllocated() { return <0|1 literal> }
+}
+  -> MIR JSON functions HakoProvider.ping/0 and HakoProvider.ownsAllocated/0
+  -> generated provider hako_ping() returns the ping literal
+  -> generated provider hako_owns(non_null_ptr) returns the owns literal
+  -> explicit provider alloc/free smoke observes the owns value
+```
+
+This mode may report:
+
+```text
+hako_semantic_provider_codegen=alloc-free-owns-literal-v0
+hako_provider_ping_codegen=1
+hako_provider_ping_value=<i64>
+hako_provider_owns_codegen=1
+hako_provider_owns_value=<0|1>
+provider_alloc_executed=1
+provider_free_executed=1
+provider_owns_result=<same owns literal for non-null pointer>
+allocator_entrypoint_called=1
+```
+
+This mode opens explicit provider allocator entrypoint calls only. Native
+pointer allocation/free mechanics remain owned by the generated provider wrapper
+until a later row explicitly transfers more allocator semantics to `.hako`.
+Provider activation, process replacement, hooks, global allocator integration,
+and winner claims remain closed.
+
 ## Preflight Requirements
 
 Metadata preflight reads only manifest and filesystem metadata:
