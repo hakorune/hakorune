@@ -43,10 +43,9 @@ guard_expect_fixed_in_file "$TAG" 'alloc-free-owns-literal-v0' "$CLI_IMPL" "CLI 
 guard_expect_fixed_in_file "$TAG" 'hako_provider_owns_value' "$CLI_IMPL" "CLI impl must emit owns semantic evidence"
 guard_expect_fixed_in_file "$TAG" 'ownsAllocated()' "$FIXTURE" "fixture must retain ownsAllocated semantic source"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-38-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001"' "$CURRENT_STATE" "current state must select benchmark return"
+guard_expect_fixed_in_file "$TAG" '296x-38 Closed .hako-derived provider package v0 as a functional package artifact' "$CURRENT_STATE" "current state landed tail must retain row 38"
 guard_expect_fixed_in_file "$TAG" '| 38 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 38 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 39 | `MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001` | Current |' "$TASKBOARD" "taskboard row 39 must be current"
+guard_expect_fixed_in_file "$TAG" '| 39 | `MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001` | Landed |' "$TASKBOARD" "taskboard row 39 must be landed after selection"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list functional closeout guard"
 
 python3 -m py_compile "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL" "$NOOP_TOOL" "$ALLOC_FREE_TOOL"

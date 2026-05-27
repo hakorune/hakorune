@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-38-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-38-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-FUNCTIONAL-CLOSEOUT.md"
-latest_card_summary = "Closed .hako-derived provider package v0 as a functional package artifact with source/MIR hashes, generated shared library, metadata/descriptor/API/noop/alloc-free evidence, and activation/replacement lanes still closed."
-current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION-296X-001"
+latest_card = "296x-39-MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-39-MIMALLOC-PROVIDER-PACKAGE-BENCHMARK-RETURN-SELECTION.md"
+latest_card_summary = "Selected the provider package explicit comparison pilot to return from .hako-derived package build work to benchmark evidence while keeping activation, replacement, hooks, globals, and winner claims closed."
+current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-EXPLICIT-COMPARISON-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-39 Selected the provider package explicit comparison pilot to return from .hako-derived package build work to benchmark evidence while keeping activation, replacement, hooks, globals, and winner claims closed.",
   "296x-38 Closed .hako-derived provider package v0 as a functional package artifact with source/MIR hashes, generated shared library, metadata/descriptor/API/noop/alloc-free evidence, and activation/replacement lanes still closed.",
   "296x-37 Closed alloc-free-owns-literal-v0 across metadata, descriptor, API-bind, no-op, and explicit alloc/free evidence while keeping activation, replacement, hooks, globals, and winner claims closed.",
   "296x-36 Added alloc-free-owns-literal-v0, mapping .hako HakoProvider.ownsAllocated/0 into provider owns() and proving the value through explicit alloc/free smoke while keeping activation, replacement, hooks, globals, and winner claims closed.",
