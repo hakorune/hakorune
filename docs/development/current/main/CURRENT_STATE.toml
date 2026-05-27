@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x landed field/property receiver facts cleanup and selected post-BoxShape correctness closeout."
+active_lane_status = "Phase-296x closed post-BoxShape correctness and selected page-array dynamic weight probing."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-144-MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-144-MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP.md"
-latest_card_summary = "Unified field/property receiver fact lookups behind field_facts.rs so field lowering and property reads share one owner while single-eval surface stays green."
-current_blocker_token = "MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT-296X-001"
+latest_card = "296x-145-MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-145-MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT.md"
+latest_card_summary = "Closed post-BoxShape correctness with build and single-eval green, helper-copy shape unchanged at 62, and selected page-array dynamic weight probing."
+current_blocker_token = "PAGE-ARRAY-DYNAMIC-WEIGHT-PROBE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-145 Closed post-BoxShape correctness with build and single-eval green, helper-copy shape unchanged at 62, and selected page-array dynamic weight probing.",
   "296x-144 Unified field/property receiver fact lookups behind field_facts.rs so field lowering and property reads share one owner while single-eval surface stays green.",
   "296x-143 Separated member-call route selection from emission through member_route.rs and function_preflight.rs while keeping single-eval surface and generic CSE closed.",
   "296x-142 Selected member_route.rs as the member-call route and emission owner, with function_preflight/static/env/this-me classifiers separated and generic CSE closed.",

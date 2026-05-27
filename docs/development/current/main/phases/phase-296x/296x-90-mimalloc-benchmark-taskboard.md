@@ -189,7 +189,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 142 | `MIR-BUILDER-MEMBER-CALL-ROUTE-CLASSIFICATION-296X-001` | Landed | Freeze the shared member-call owner behind static/env/this-me route selection before another keeper. |
 | 143 | `MIR-BUILDER-MEMBER-CALL-ROUTE-PLAN-PILOT-296X-001` | Landed | Separate member-call route selection from emission without widening behavior or reopening generic CSE. |
 | 144 | `MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP-296X-001` | Landed | Unify field/property receiver facts so nested receiver lowering keeps single-eval boundaries visible. |
-| 145 | `MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT-296X-001` | Current | Rerun single-eval and MIR verify surfaces after the BoxShape cleanup before returning to keeper selection. |
+| 145 | `MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT-296X-001` | Landed | Rerun single-eval and MIR verify surfaces after the BoxShape cleanup before returning to keeper selection. |
+| 146 | `PAGE-ARRAY-DYNAMIC-WEIGHT-PROBE-296X-001` | Current | Measure page-local ArrayBox dynamic weight before selecting compiler helper lowering or page-model keeper work. |
 
 ## Hako Mimalloc Performance Parity Plan
 
