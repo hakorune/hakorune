@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: refresh phase-cost ablation after the second keeper optimization.
 Blocker: HAKO-MIMALLOC-PERF-POST-SECOND-PHASE-COST-REFRESH-296X-001
@@ -43,6 +43,46 @@ replacement_active=0
 hook_installed=0
 global_allocator=0
 summary=ok
+```
+
+## Evidence
+
+```text
+output_contract=hako-mimalloc-phase-cost-ablation-v0
+measurement_profile=hako-mimalloc-phase-cost-ablation-v0
+timing_repeat_kind=in-process-operation-loop-v0
+operation_repeat=8192
+process_repeat=3
+runtime_config_profile=empty
+external_timing_collector_hako=usr_bin_time_elapsed
+hako_body_timing_available=0
+body_elapsed_primary=0
+phase_cost_method=median_difference_ablation
+release_only_estimated=1
+hako_level_vs_mirbuilder_level=hako_allocator_model_primary
+mirbuilder_owner=secondary_later
+work_shape=page_model_reset_acquire_release
+reset_only_elapsed_median_ms=60
+reset_alloc_only_elapsed_median_ms=170
+full_elapsed_median_ms=250
+alloc_only_estimated_ms=110
+alloc_release_elapsed_median_ms=190
+release_only_elapsed_median_ms=80
+dominant_phase=alloc
+next_optimization_target=acquire_usize_fast_path_and_invariant_hoist
+next_optimization_allowed=1
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_perf_post_second_phase_cost_refresh_guard.sh
 ```
 
 ## Stop Line
