@@ -15,6 +15,10 @@ box HakoAllocObjectLifecycleFacade {
     alignment_result: HakoAllocObjectLifecycleAlignmentResult = new HakoAllocObjectLifecycleAlignmentResult()
     realloc_result: HakoAllocObjectLifecycleReallocResult = new HakoAllocObjectLifecycleReallocResult()
     stats_surface: HakoAllocObjectLifecycleFacadeStatsSurface = new HakoAllocObjectLifecycleFacadeStatsSurface()
+    last_alloc_page_index: i64 = -1
+    last_alloc_page_id: i64 = -1
+    release_known_page_fast_path_count: usize = 0
+    release_known_page_fallback_count: usize = 0
 
     objectLifecycleAddPage(page) {
         return me.object_lifecycle_queue.addPage(page)
@@ -35,6 +39,12 @@ box HakoAllocObjectLifecycleFacade {
 
     recordSmallAllocSuccess(selected_kind) {
         return me.alloc_result.recordSuccess(selected_kind)
+    }
+
+    recordLastAllocPage(index, page_id) {
+        me.last_alloc_page_index = index
+        me.last_alloc_page_id = page_id
+        return 1
     }
 
     objectLifecycleSmallAlloc(size) {
@@ -75,6 +85,7 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_acquire_failed())
         }
 
+        me.recordLastAllocPage(selected_index, me.object_lifecycle_queue.last_selected_page_id)
         return me.recordSmallAllocSuccess(selected_kind)
     }
 
@@ -107,6 +118,26 @@ box HakoAllocObjectLifecycleFacade {
         return -1
     }
 
+    objectLifecycleReleaseKnownPageIndex(page_id) {
+        if page_id == me.last_alloc_page_id {
+            if me.last_alloc_page_index >= 0 {
+                local pages = me.object_lifecycle_queue.pages
+                if me.last_alloc_page_index < pages.length() {
+                    local page = pages.get(me.last_alloc_page_index)
+                    if page != null {
+                        if page.page_id == page_id {
+                            me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
+                            return me.last_alloc_page_index
+                        }
+                    }
+                }
+            }
+        }
+
+        me.release_known_page_fallback_count = me.release_known_page_fallback_count + 1
+        return me.objectLifecycleKnownPageIndexById(page_id)
+    }
+
     objectLifecycleReleaseBlock(page_id, block_id) {
         me.resetReleaseResult()
         me.release_result.recordRequest(page_id, block_id)
@@ -118,7 +149,7 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_bad_block())
         }
 
-        local known_index = me.objectLifecycleKnownPageIndexById(page_id)
+        local known_index = me.objectLifecycleReleaseKnownPageIndex(page_id)
         if known_index >= 0 {
             local pages = me.object_lifecycle_queue.pages
             local page = pages.get(known_index)
@@ -399,6 +430,14 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReleaseFailureCount() {
         return me.release_result.failure_count
+    }
+
+    objectLifecycleReleaseKnownPageFastPathCount() {
+        return me.release_known_page_fast_path_count
+    }
+
+    objectLifecycleReleaseKnownPageFallbackCount() {
+        return me.release_known_page_fallback_count
     }
 
     objectLifecycleAlignmentRequested() {
