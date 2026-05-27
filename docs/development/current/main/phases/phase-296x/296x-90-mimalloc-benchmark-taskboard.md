@@ -133,7 +133,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 86 | `HAKO-SOURCE-MIR-SHAPE-JOIN-ADAPTER-296X-001` | Landed | Join hako_check source perf-surface and MIR method shape evidence for one selected method. |
 | 87 | `HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION-296X-001` | Landed | Decide whether the Python MIR method shape contract is stable enough for a minimal .hako migration. |
 | 88 | `HAKO-MIMALLOC-MULTI-METHOD-SOURCE-MIR-OBSERVATION-296X-001` | Landed | Apply source/MIR observation to multiple object-lifecycle methods and select the next keeper candidate. |
-| 89 | `HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER-296X-001` | Current | Reuse the page returned by selectPage in objectLifecycleSmallAlloc instead of repeating pages.get in the caller-repeated hot method. |
+| 89 | `HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER-296X-001` | Landed | Reuse the page returned by selectPage in objectLifecycleSmallAlloc instead of repeating pages.get in the caller-repeated hot method. |
+| 90 | `HAKO-MIMALLOC-POST-SMALL-ALLOC-RETURN-KEEPER-MEASUREMENT-296X-001` | Current | Rerun object-lifecycle facade exact-EXE measurement after the small-alloc selected-page return keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 

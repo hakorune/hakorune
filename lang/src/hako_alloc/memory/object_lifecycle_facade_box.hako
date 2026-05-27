@@ -51,9 +51,12 @@ box HakoAllocObjectLifecycleFacade {
         me.resetSmallAllocResult()
         me.alloc_result.recordAttempt()
 
-        me.object_lifecycle_queue.selectPage()
+        local page = me.object_lifecycle_queue.selectPage()
         local selected_index = me.object_lifecycle_queue.last_selected_index
         if selected_index < 0 {
+            return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
+        }
+        if page == null {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
 
@@ -64,12 +67,6 @@ box HakoAllocObjectLifecycleFacade {
             if selected_kind != 2 {
                 return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind())
             }
-        }
-
-        local pages = me.object_lifecycle_queue.pages
-        local page = pages.get(selected_index)
-        if page == null {
-            return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
 
         if selected_kind == 1 {

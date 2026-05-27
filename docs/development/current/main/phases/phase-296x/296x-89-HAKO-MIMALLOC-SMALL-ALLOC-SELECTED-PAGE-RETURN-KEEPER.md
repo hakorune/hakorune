@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: apply the selected small-alloc page-return keeper without widening allocator activation or winner claims.
 Blocker: HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER-296X-001
@@ -42,3 +42,30 @@ summary=ok
 
 Do not change release lookup, multi-page selection policy, provider activation,
 process replacement, hooks, globals, or winner claims in this row.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-small-alloc-selected-page-return-keeper-v0
+input_contract=hako-mimalloc-multi-method-source-mir-observation-v0
+keeper=small_alloc_selected_page_return_reuse
+keeper_kind=box_count
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+selected_page_return_reused=1
+removed_repeated_pages_get=1
+proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako
+proof_summary=ok
+select_page_single_fast_path_count=524288
+release_known_page_fast_path_count=524288
+source_array_access_count_after=0
+mir_array_get_call_count_after=0
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_small_alloc_selected_page_return_keeper_guard.sh
+```

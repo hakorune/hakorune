@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x selected the small-alloc selected-page return keeper from multi-method source/MIR observation."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x applied the small-alloc selected-page return keeper and should measure it next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-88-HAKO-MIMALLOC-MULTI-METHOD-SOURCE-MIR-OBSERVATION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-88-HAKO-MIMALLOC-MULTI-METHOD-SOURCE-MIR-OBSERVATION.md"
-latest_card_summary = "Applied v1 source/MIR join observation across object-lifecycle smallAlloc, releaseBlock, and selectPage, selecting small_alloc_selected_page_return_reuse as the next keeper."
-current_blocker_token = "HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER-296X-001"
+latest_card = "296x-89-HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-89-HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER.md"
+latest_card_summary = "Applied small_alloc_selected_page_return_reuse, removing the repeated pages.get from objectLifecycleSmallAlloc while preserving exact-EXE proof counters."
+current_blocker_token = "HAKO-MIMALLOC-POST-SMALL-ALLOC-RETURN-KEEPER-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-89 Applied small_alloc_selected_page_return_reuse, removing the repeated pages.get from objectLifecycleSmallAlloc while preserving exact-EXE proof counters.",
   "296x-88 Applied v1 source/MIR join observation across object-lifecycle smallAlloc, releaseBlock, and selectPage, selecting small_alloc_selected_page_return_reuse as the next keeper.",
   "296x-87 Parked .hako migration of MIR method shape observation because the Python contract needs multi-method use first, selecting multi-method source/MIR observation next.",
   "296x-86 Joined hako_check source perf-surface and MIR method shape reports for selectPage, confirming source array-access risk in lowered MIR while keeping .hako migration for the next row.",
