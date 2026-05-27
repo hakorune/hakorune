@@ -152,6 +152,8 @@ tools/checks/dev_gate.sh quick
 | `tools/mir_check/method_shape_report.py` | MIR method shape report tool。MIR JSON の selected method から instruction/call/field/phi/copy/branch/return counts を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_source_mir_shape_join_adapter_guard.sh` | 296x-86 の source/MIR shape join adapter guard。hako_check source perf-surface と MIR method shape の結合 report を固定する。 |
 | `tools/allocator/hako_source_mir_shape_join.py` | source/MIR shape join adapter。source-level risk が MIR shape count でも確認できるかを分類する。 |
+| `tools/checks/k2_wide_phase296x_hako_mir_method_shape_hako_migration_selection_guard.sh` | 296x-87 の MIR method shape .hako migration selection guard。Python adapter 継続と .hako migration park を固定する。 |
+| `tools/allocator/hako_mir_method_shape_hako_migration_selection.py` | MIR method shape .hako migration selection tool。Python contract が multi-method use 前であることを理由に .hako migration を park する。 |
 | `tools/checks/guard_manifest_inventory_guard.sh` | GUARD-MANIFEST-012 の guard manifest inventory guard。`guard_rows.toml` / `tools/checks/` から manifest-backed row 数、public `k2_wide_*` 数、`impl/` 数、hako_alloc closeout wrapper coverage を棚卸し、closeout wrapper が manifest から外れたら fail-fast する。 |
 | `tools/checks/guard_spec_pilot_guard.sh` | GUARD-MANIFEST-013 の declarative guard spec pilot guard。`guard_spec_runner.py` と `tools/checks/specs/hako_alloc_osvm_fast_path_route_closeout.toml` が1 family の file/contains/forbidden checks を所有し、public wrapper と manifest command が薄いまま保たれることを固定する。 |
 | `tools/checks/allocator_provider_inactive_sentinel_guard.sh` | quick 用の軽量 provider inactive sentinel。selection/proof consumption/rollback/gate/hook/replacement/`.inc` matcher の危険信号だけを共有 forbidden-pattern guard で固定する。 |

@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x joined hako_check source perf-surface and MIR method shape evidence, so the next step is .hako migration selection."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x parked .hako MIR migration for now, so the next step is multi-method source/MIR observation using the Python adapters."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-86-HAKO-SOURCE-MIR-SHAPE-JOIN-ADAPTER"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-86-HAKO-SOURCE-MIR-SHAPE-JOIN-ADAPTER.md"
-latest_card_summary = "Joined hako_check source perf-surface and MIR method shape reports for selectPage, confirming source array-access risk in lowered MIR while keeping .hako migration for the next row."
-current_blocker_token = "HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION-296X-001"
+latest_card = "296x-87-HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-87-HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION.md"
+latest_card_summary = "Parked .hako migration of MIR method shape observation because the Python contract needs multi-method use first, selecting multi-method source/MIR observation next."
+current_blocker_token = "HAKO-MIMALLOC-MULTI-METHOD-SOURCE-MIR-OBSERVATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-87 Parked .hako migration of MIR method shape observation because the Python contract needs multi-method use first, selecting multi-method source/MIR observation next.",
   "296x-86 Joined hako_check source perf-surface and MIR method shape reports for selectPage, confirming source array-access risk in lowered MIR while keeping .hako migration for the next row.",
   "296x-85 Added the first Python MIR method shape adapter outside hako_check core, counting selected-method MIR instructions, calls, fields, PHIs, copies, branches, and returns.",
   "296x-84 Added a keeper before/after diff adapter that joins source perf-surface and measurement reports outside hako_check core while keeping MIR shape work for the next row.",

@@ -131,7 +131,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 84 | `HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER-296X-001` | Landed | Compare keeper before/after source reports and measurement evidence without moving hako_check into optimizer responsibility. |
 | 85 | `HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER-296X-001` | Landed | Add a Python MIR method shape adapter for selected MIR JSON methods outside hako_check core. |
 | 86 | `HAKO-SOURCE-MIR-SHAPE-JOIN-ADAPTER-296X-001` | Landed | Join hako_check source perf-surface and MIR method shape evidence for one selected method. |
-| 87 | `HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION-296X-001` | Current | Decide whether the Python MIR method shape contract is stable enough for a minimal .hako migration. |
+| 87 | `HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION-296X-001` | Landed | Decide whether the Python MIR method shape contract is stable enough for a minimal .hako migration. |
+| 88 | `HAKO-MIMALLOC-MULTI-METHOD-SOURCE-MIR-OBSERVATION-296X-001` | Current | Apply source/MIR observation to multiple object-lifecycle methods and select the next keeper candidate. |
 
 ## Hako Mimalloc Performance Parity Plan
 
