@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x found objectLifecycleSmallAlloc is dominated by phi/copy MIR shape and selected a lowering classification probe."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x classified small-alloc phi/copy bloat as local copy churn and selected MIR-builder owner selection."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-114-HAKO-MIMALLOC-SMALL-ALLOC-MIR-SHAPE-DEEP-DIVE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-114-HAKO-MIMALLOC-SMALL-ALLOC-MIR-SHAPE-DEEP-DIVE.md"
-latest_card_summary = "Deep-dived objectLifecycleSmallAlloc MIR shape and found phi/copy dominates over call and field access counts."
-current_blocker_token = "HAKO-MIMALLOC-SMALL-ALLOC-PHI-COPY-LOWERING-PROBE-296X-001"
+latest_card = "296x-115-HAKO-MIMALLOC-SMALL-ALLOC-PHI-COPY-LOWERING-PROBE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-115-HAKO-MIMALLOC-SMALL-ALLOC-PHI-COPY-LOWERING-PROBE.md"
+latest_card_summary = "Classified objectLifecycleSmallAlloc phi/copy bloat as local copy churn with 61 single-incoming phi nodes and 94 copies."
+current_blocker_token = "HAKO-MIMALLOC-SINGLE-INCOMING-PHI-COPY-ELISION-OWNER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-115 Classified objectLifecycleSmallAlloc phi/copy bloat as local copy churn with 61 single-incoming phi nodes and 94 copies.",
   "296x-114 Deep-dived objectLifecycleSmallAlloc MIR shape and found phi/copy dominates over call and field access counts.",
   "296x-113 Refreshed source/MIR rank after two non-keepers, keeping objectLifecycleSmallAlloc as top owner and selecting MIR shape deep dive instead of another keeper.",
   "296x-112 Measured the inline success result rollback at 620ms median, reproducing the accepted baseline and closing the keeper as a non-keeper.",
