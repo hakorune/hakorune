@@ -54,19 +54,26 @@ box HakoAllocObjectLifecycleFacade {
         me.resetSmallAllocResult()
         me.alloc_result.recordAttempt()
 
-        me.object_lifecycle_queue.selectPage()
-        local selected_index = me.object_lifecycle_queue.last_selected_index
+        local queue = me.object_lifecycle_queue
+        if queue.page_count == 1 {
+            queue.request_count = queue.request_count + 1
+            queue.beginSelection()
+            queue.selectSinglePageFastPath()
+        } else {
+            queue.selectPage()
+        }
+        local selected_index = queue.last_selected_index
         if selected_index < 0 {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
-        local page = me.object_lifecycle_queue.last_selected_page
+        local page = queue.last_selected_page
         if page == null {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
 
-        me.alloc_result.recordSelectedPage(me.object_lifecycle_queue.last_selected_page_id)
+        me.alloc_result.recordSelectedPage(queue.last_selected_page_id)
 
-        local selected_kind = me.object_lifecycle_queue.last_selected_kind
+        local selected_kind = queue.last_selected_kind
         if selected_kind != 1 {
             if selected_kind != 2 {
                 return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind())
@@ -86,7 +93,7 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_acquire_failed())
         }
 
-        me.recordLastAllocPage(selected_index, me.object_lifecycle_queue.last_selected_page_id, page)
+        me.recordLastAllocPage(selected_index, queue.last_selected_page_id, page)
         return me.recordSmallAllocSuccess(selected_kind)
     }
 
