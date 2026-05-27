@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
-  Select the real `.hako` mimalloc explicit provider entrypoint surface after port feature inventory.
+HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001:
+  Classify duplicate reason global calls in objectLifecycleSmallAlloc failure return blocks.
 ```
 
 ## Queue
@@ -164,7 +164,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 117 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-GUARD-SURFACE-296X-001` | Landed | Define the guard surface for single-pred PHI elision before implementation. |
 | 118 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001` | Landed | Implement guarded single-pred PHI elision and verify exact-EXE shape/measurement. |
 | 119 | `HAKO-MIMALLOC-SMALL-ALLOC-MULTI-RETURN-COPY-PROBE-296X-001` | Landed | Classify the remaining multi-return/copy shape after single-pred PHI elision. |
-| 120 | `HAKO-MIMALLOC-SMALL-ALLOC-RETURN-BLOCK-LOCAL-SSA-COPY-PROBE-296X-001` | Current | Classify local SSA copy materialization inside objectLifecycleSmallAlloc return blocks. |
+| 120 | `HAKO-MIMALLOC-SMALL-ALLOC-RETURN-BLOCK-LOCAL-SSA-COPY-PROBE-296X-001` | Landed | Classify local SSA copy materialization inside objectLifecycleSmallAlloc return blocks. |
+| 121 | `HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001` | Current | Classify duplicate reason global calls in objectLifecycleSmallAlloc failure return blocks. |
 
 ## Hako Mimalloc Performance Parity Plan
 
