@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: apply the selected release known-page object cache keeper without changing release semantics.
 Blocker: HAKO-MIMALLOC-RELEASE-KNOWN-PAGE-OBJECT-CACHE-KEEPER-296X-001
@@ -41,3 +41,28 @@ summary=ok
 
 Do not change free ordering, page-map lookup, provider activation, replacement,
 hooks, globals, or winner claims in this row.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-release-known-page-object-cache-keeper-v0
+input_contract=hako-mimalloc-post-small-alloc-cache-source-mir-refresh-v0
+keeper=release_known_page_object_cache
+keeper_kind=box_shape
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2
+release_known_page_object_cache_reused=1
+fallback_pages_get_preserved=1
+proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako
+proof_summary=ok
+select_page_single_fast_path_count=524288
+release_known_page_fast_path_count=524288
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_release_known_page_object_cache_keeper_guard.sh
+```

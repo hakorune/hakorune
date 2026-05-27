@@ -136,7 +136,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 89 | `HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-CACHE-KEEPER-296X-001` | Landed | Cache the page accepted by selectPage in objectLifecycleSmallAlloc instead of repeating pages.get in the caller-repeated hot method. |
 | 90 | `HAKO-MIMALLOC-POST-SMALL-ALLOC-CACHE-KEEPER-MEASUREMENT-296X-001` | Landed | Rerun object-lifecycle facade exact-EXE measurement after the small-alloc selected-page cache keeper. |
 | 91 | `HAKO-MIMALLOC-POST-SMALL-ALLOC-CACHE-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after the small-alloc selected-page cache keeper before selecting another keeper. |
-| 92 | `HAKO-MIMALLOC-RELEASE-KNOWN-PAGE-OBJECT-CACHE-KEEPER-296X-001` | Current | Cache the last allocated page object and reuse it in the known-page release path. |
+| 92 | `HAKO-MIMALLOC-RELEASE-KNOWN-PAGE-OBJECT-CACHE-KEEPER-296X-001` | Landed | Cache the last allocated page object and reuse it in the known-page release path. |
+| 93 | `HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-KEEPER-MEASUREMENT-296X-001` | Current | Rerun object-lifecycle facade exact-EXE measurement after the release known-page object cache keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
