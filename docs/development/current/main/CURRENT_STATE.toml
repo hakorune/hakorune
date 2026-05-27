@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x closed the broader MIR builder single-eval surface sweep with zero failing surfaces and selected static scalar method fact selection."
+active_lane_status = "Phase-296x selected the first narrow static-scalar method fact family for object-lifecycle reason getters and opened fact inference with const lowering still closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-134-MIR-BUILDER-SINGLE-EVAL-SURFACE-SWEEP"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-134-MIR-BUILDER-SINGLE-EVAL-SURFACE-SWEEP.md"
-latest_card_summary = "Closed the broader MIR builder single-eval surface sweep over six surfaces with zero failing surfaces, selecting static scalar method fact selection."
-current_blocker_token = "STATIC-SCALAR-METHOD-FACT-SELECTION-296X-001"
+latest_card = "296x-135-STATIC-SCALAR-METHOD-FACT-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-135-STATIC-SCALAR-METHOD-FACT-SELECTION.md"
+latest_card_summary = "Selected object-lifecycle reason getter zero-arg return-literal methods as the first static-scalar fact family while keeping generic CSE, whole-box pure marking, and const lowering closed."
+current_blocker_token = "STATIC-SCALAR-METHOD-FACT-INFERENCE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-135 Selected object-lifecycle reason getter zero-arg return-literal methods as the first static-scalar fact family while keeping generic CSE, whole-box pure marking, and const lowering closed.",
   "296x-134 Closed the broader MIR builder single-eval surface sweep over six surfaces with zero failing surfaces, selecting static scalar method fact selection.",
   "296x-133 Measured object-lifecycle facade exact-EXE after single-eval fixes at 610ms median, neutral versus the 610ms checkpoint, with winner/replacement claims closed.",
   "296x-132 Fixed unsupported env method fallback single evaluation by checking the env method spec before lowering arguments.",
