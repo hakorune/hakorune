@@ -245,6 +245,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/env_method_single_eval_fixture.py` | env method single-eval fixture tool。selected MIR method の env fallback arg call count を report に正規化する。 |
 | `tools/checks/k2_wide_phase296x_env_method_single_eval_owner_fix_guard.sh` | 296x-132 の env method single-eval owner fix guard。env method spec を確認してから args を lower することを固定する。 |
 | `tools/allocator/env_method_single_eval_owner_fix.py` | env method single-eval owner fix closeout tool。fixture report を row132 contract に正規化する。 |
+| `tools/checks/k2_wide_phase296x_hako_mimalloc_post_single_eval_fixes_measurement_guard.sh` | 296x-133 の post single-eval fixes measurement guard。object-lifecycle facade exact-EXE 測定と winner/replacement closed を固定する。 |
+| `tools/allocator/hako_mimalloc_post_single_eval_fixes_measurement.py` | post single-eval fixes measurement tool。object-lifecycle facade exact-EXE sample を measurement report に正規化する。 |
 | `tools/checks/guard_manifest_inventory_guard.sh` | GUARD-MANIFEST-012 の guard manifest inventory guard。`guard_rows.toml` / `tools/checks/` から manifest-backed row 数、public `k2_wide_*` 数、`impl/` 数、hako_alloc closeout wrapper coverage を棚卸し、closeout wrapper が manifest から外れたら fail-fast する。 |
 | `tools/checks/guard_spec_pilot_guard.sh` | GUARD-MANIFEST-013 の declarative guard spec pilot guard。`guard_spec_runner.py` と `tools/checks/specs/hako_alloc_osvm_fast_path_route_closeout.toml` が1 family の file/contains/forbidden checks を所有し、public wrapper と manifest command が薄いまま保たれることを固定する。 |
 | `tools/checks/allocator_provider_inactive_sentinel_guard.sh` | quick 用の軽量 provider inactive sentinel。selection/proof consumption/rollback/gate/hook/replacement/`.inc` matcher の危険信号だけを共有 forbidden-pattern guard で固定する。 |

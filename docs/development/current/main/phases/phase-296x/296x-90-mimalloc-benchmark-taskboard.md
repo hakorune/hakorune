@@ -177,7 +177,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 130 | `MIR-BUILDER-NESTED-FIELD-SINGLE-EVAL-OWNER-FIX-296X-001` | Landed | Fix field access lowering so inference does not re-lower nested object expressions. |
 | 131 | `MIR-BUILDER-ENV-METHOD-SINGLE-EVAL-FIXTURE-296X-001` | Landed | Add a MIR correctness fixture for env method fallback single evaluation. |
 | 132 | `MIR-BUILDER-ENV-METHOD-SINGLE-EVAL-OWNER-FIX-296X-001` | Landed | Fix env method lowering so unsupported env methods do not lower args before fallback. |
-| 133 | `HAKO-MIMALLOC-POST-SINGLE-EVAL-FIXES-MEASUREMENT-296X-001` | Current | Measure object-lifecycle facade exact-EXE after nested argument, field, and env single-eval fixes. |
+| 133 | `HAKO-MIMALLOC-POST-SINGLE-EVAL-FIXES-MEASUREMENT-296X-001` | Landed | Measure object-lifecycle facade exact-EXE after nested argument, field, and env single-eval fixes. |
+| 134 | `MIR-BUILDER-SINGLE-EVAL-SURFACE-SWEEP-296X-001` | Current | Add a broader MIR builder single-evaluation surface sweep over field/index/print/typeop/constructor shapes. |
 
 ## Hako Mimalloc Performance Parity Plan
 
