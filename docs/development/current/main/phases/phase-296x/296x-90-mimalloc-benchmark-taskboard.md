@@ -191,7 +191,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 144 | `MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP-296X-001` | Landed | Unify field/property receiver facts so nested receiver lowering keeps single-eval boundaries visible. |
 | 145 | `MIR-BUILDER-POST-BOXSHAPE-CORRECTNESS-CLOSEOUT-296X-001` | Landed | Rerun single-eval and MIR verify surfaces after the BoxShape cleanup before returning to keeper selection. |
 | 146 | `PAGE-ARRAY-DYNAMIC-WEIGHT-PROBE-296X-001` | Landed | Measure page-local ArrayBox dynamic weight before selecting compiler helper lowering or page-model keeper work. |
-| 147 | `PAGE-ARRAY-KEEPER-SELECTION-296X-001` | Current | Select exactly one page-array keeper from dynamic weight evidence before returning to compiler helper lowering. |
+| 147 | `PAGE-ARRAY-KEEPER-SELECTION-296X-001` | Landed | Select exactly one page-array keeper from dynamic weight evidence before returning to compiler helper lowering. |
+| 148 | `RELEASE-DIRECT-CACHED-PAGE-KNOWN-LIVE-RELEASE-IMPLEMENTATION-296X-001` | Current | Apply the direct cached-page known-live release keeper while preserving generic release fallback. |
 
 ## Hako Mimalloc Performance Parity Plan
 

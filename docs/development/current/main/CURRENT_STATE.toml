@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x measured page-local ArrayBox dynamic weight and selected page-array keeper selection."
+active_lane_status = "Phase-296x selected the direct cached-page known-live release keeper for implementation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-146-PAGE-ARRAY-DYNAMIC-WEIGHT-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-146-PAGE-ARRAY-DYNAMIC-WEIGHT-PROBE.md"
-latest_card_summary = "Measured page-local ArrayBox dynamic weight at 4,194,304 operations, with alloc+release at 62% and reset/setup at 37%, selecting page-array keeper selection."
-current_blocker_token = "PAGE-ARRAY-KEEPER-SELECTION-296X-001"
+latest_card = "296x-147-PAGE-ARRAY-KEEPER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-147-PAGE-ARRAY-KEEPER-SELECTION.md"
+latest_card_summary = "Selected release_direct_cached_page_known_live_release, targeting one block_used.get removal per direct cached release while preserving generic releaseLocal fallback."
+current_blocker_token = "RELEASE-DIRECT-CACHED-PAGE-KNOWN-LIVE-RELEASE-IMPLEMENTATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-147 Selected release_direct_cached_page_known_live_release, targeting one block_used.get removal per direct cached release while preserving generic releaseLocal fallback.",
   "296x-146 Measured page-local ArrayBox dynamic weight at 4,194,304 operations, with alloc+release at 62% and reset/setup at 37%, selecting page-array keeper selection.",
   "296x-145 Closed post-BoxShape correctness with build and single-eval green, helper-copy shape unchanged at 62, and selected page-array dynamic weight probing.",
   "296x-144 Unified field/property receiver fact lookups behind field_facts.rs so field lowering and property reads share one owner while single-eval surface stays green.",
