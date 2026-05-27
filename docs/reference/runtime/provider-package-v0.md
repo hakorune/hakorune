@@ -261,6 +261,39 @@ provider_noop_call_result=7
 
 Allocator entrypoints remain wrapper-owned until a later semantic-codegen row.
 
+The first allocator-entrypoint semantic-codegen mode is
+`alloc-free-owns-literal-v0`:
+
+```bash
+target/debug/hakorune \
+  --provider-package-hako-derived-build-fixture apps/provider-package/hako-derived-allocator-fixture/main.hako \
+  --provider-package-hako-semantic-codegen alloc-free-owns-literal-v0 \
+  --provider-package-out-dir dist/hakorune-provider \
+  --provider-package-id org.hakorune.provider.hako.fixture \
+  --provider-package-name hako-derived-fixture-provider \
+  --provider-package-target-triple x86_64-unknown-linux-gnu \
+  --provider-package-platform linux \
+  --provider-package-provider-call-allowed
+```
+
+This mode maps `.hako` `HakoProvider.ownsAllocated/0 -> i64 literal 0|1`
+into provider `hako_owns(non_null_ptr)`, then verifies it through explicit
+provider alloc/free smoke:
+
+```text
+hako_semantic_provider_codegen=alloc-free-owns-literal-v0
+hako_provider_owns_codegen=1
+hako_provider_owns_value=1
+provider_alloc_executed=1
+provider_free_executed=1
+provider_owns_result=1
+allocator_entrypoint_called=1
+```
+
+Native pointer allocation/free mechanics still belong to the generated wrapper
+in this mode. Provider activation and process allocator replacement remain
+closed.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata

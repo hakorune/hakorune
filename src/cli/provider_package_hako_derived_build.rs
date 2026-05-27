@@ -76,11 +76,11 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         .provider_package_hako_semantic_codegen
         .as_deref()
         .unwrap_or("none");
-    if semantic_codegen != "none" && semantic_codegen != "ping-literal-v0" {
-        return Err(
-            "[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0"
-                .to_string(),
-        );
+    if semantic_codegen != "none"
+        && semantic_codegen != "ping-literal-v0"
+        && semantic_codegen != "alloc-free-owns-literal-v0"
+    {
+        return Err("[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0|alloc-free-owns-literal-v0".to_string());
     }
 
     let artifact_name = match config.provider_package_artifact_name.as_deref() {
@@ -119,8 +119,21 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
 
     let hako_source_hash = sha256_file(&hako_source)?;
     let hako_mir_json_hash = sha256_file(&mir_json_path)?;
-    let semantic_ping_value = if semantic_codegen == "ping-literal-v0" {
+    let semantic_ping_value = if semantic_codegen == "ping-literal-v0"
+        || semantic_codegen == "alloc-free-owns-literal-v0"
+    {
         Some(extract_hako_provider_ping_literal(&mir_json_path)?)
+    } else {
+        None
+    };
+    let semantic_owns_value = if semantic_codegen == "alloc-free-owns-literal-v0" {
+        let value = extract_hako_provider_owns_allocated_literal(&mir_json_path)?;
+        if value != 0 && value != 1 {
+            return Err(
+                "[provider-package-hako-build/owns-literal-out-of-range] expected 0|1".to_string(),
+            );
+        }
+        Some(value)
     } else {
         None
     };
@@ -146,6 +159,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         "hako_mir_json_hash": hako_mir_json_hash,
         "hako_semantic_provider_codegen": semantic_codegen,
         "hako_provider_ping_value": semantic_ping_value,
+        "hako_provider_owns_value": semantic_owns_value,
     });
     let contract_hash = sha256_bytes(
         serde_json::to_string(&contract)
@@ -160,6 +174,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         &hako_mir_json_hash,
         semantic_codegen,
         semantic_ping_value,
+        semantic_owns_value,
     )?;
     let source_path = build_dir.join("hako_derived_provider_wrapper.c");
     fs::write(
@@ -171,6 +186,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             &contract_hash,
             &function_table_hash,
             semantic_ping_value.unwrap_or(0),
+            semantic_owns_value.unwrap_or(1),
         ),
     )
     .map_err(|error| format!("[provider-package-hako-build/write-source-failed] {error}"))?;
@@ -205,6 +221,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             },
             "hako_semantic_provider_codegen": semantic_codegen,
             "hako_provider_ping_value": semantic_ping_value,
+            "hako_provider_owns_value": semantic_owns_value,
             "hako_shared_library_generation": true
         },
         "artifact": {
@@ -239,6 +256,8 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
          hako_semantic_provider_codegen={}\n\
          hako_provider_ping_codegen={}\n\
          hako_provider_ping_value={}\n\
+         hako_provider_owns_codegen={}\n\
+         hako_provider_owns_value={}\n\
          shared_library_artifact_generated=1\n\
          arbitrary_shell_build_executed=0\n\
          package_dir={}\n\
@@ -276,6 +295,8 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         semantic_codegen_output(semantic_codegen),
         if semantic_ping_value.is_some() { 1 } else { 0 },
         semantic_ping_value.unwrap_or(0),
+        if semantic_owns_value.is_some() { 1 } else { 0 },
+        semantic_owns_value.unwrap_or(0),
         out_dir.display(),
         source_path.display(),
         manifest_path.display(),
@@ -316,6 +337,29 @@ fn emit_mir_json(hako_source: &Path, mir_json_path: &Path) -> Result<(), String>
 }
 
 fn extract_hako_provider_ping_literal(mir_json_path: &Path) -> Result<i64, String> {
+    extract_hako_provider_literal(
+        mir_json_path,
+        "HakoProvider.ping/0",
+        "ping",
+        "missing-hako-provider-ping",
+    )
+}
+
+fn extract_hako_provider_owns_allocated_literal(mir_json_path: &Path) -> Result<i64, String> {
+    extract_hako_provider_literal(
+        mir_json_path,
+        "HakoProvider.ownsAllocated/0",
+        "owns",
+        "missing-hako-provider-owns-allocated",
+    )
+}
+
+fn extract_hako_provider_literal(
+    mir_json_path: &Path,
+    function_name: &str,
+    tag: &str,
+    missing_error: &str,
+) -> Result<i64, String> {
     let text = fs::read_to_string(mir_json_path)
         .map_err(|error| format!("[provider-package-hako-build/read-mir-json-failed] {error}"))?;
     let data: serde_json::Value = serde_json::from_str(&text)
@@ -327,24 +371,21 @@ fn extract_hako_provider_ping_literal(mir_json_path: &Path) -> Result<i64, Strin
     let function = functions
         .iter()
         .find(|function| {
-            function.get("name").and_then(serde_json::Value::as_str) == Some("HakoProvider.ping/0")
+            function.get("name").and_then(serde_json::Value::as_str) == Some(function_name)
         })
-        .ok_or_else(|| {
-            "[provider-package-hako-build/missing-hako-provider-ping] HakoProvider.ping/0"
-                .to_string()
-        })?;
+        .ok_or_else(|| format!("[provider-package-hako-build/{missing_error}] {function_name}"))?;
 
     let mut constants = HashMap::new();
     let mut ret_value = None;
     let blocks = function
         .get("blocks")
         .and_then(serde_json::Value::as_array)
-        .ok_or_else(|| "[provider-package-hako-build/ping-missing-blocks]".to_string())?;
+        .ok_or_else(|| format!("[provider-package-hako-build/{tag}-missing-blocks]"))?;
     for block in blocks {
         let instructions = block
             .get("instructions")
             .and_then(serde_json::Value::as_array)
-            .ok_or_else(|| "[provider-package-hako-build/ping-missing-instructions]".to_string())?;
+            .ok_or_else(|| format!("[provider-package-hako-build/{tag}-missing-instructions]"))?;
         for instruction in instructions {
             match instruction.get("op").and_then(serde_json::Value::as_str) {
                 Some("const") => {
@@ -374,11 +415,11 @@ fn extract_hako_provider_ping_literal(mir_json_path: &Path) -> Result<i64, Strin
         }
     }
     let ret_value =
-        ret_value.ok_or_else(|| "[provider-package-hako-build/ping-missing-ret]".to_string())?;
+        ret_value.ok_or_else(|| format!("[provider-package-hako-build/{tag}-missing-ret]"))?;
     constants
         .get(&ret_value)
         .copied()
-        .ok_or_else(|| "[provider-package-hako-build/ping-ret-not-literal-i64]".to_string())
+        .ok_or_else(|| format!("[provider-package-hako-build/{tag}-ret-not-literal-i64]"))
 }
 
 fn build_hako_derived_wrapper(source_path: &Path, artifact_path: &Path) -> Result<(), String> {
@@ -406,6 +447,7 @@ fn hako_derived_function_table_hash(
     hako_mir_json_hash: &str,
     semantic_codegen: &str,
     semantic_ping_value: Option<i64>,
+    semantic_owns_value: Option<i64>,
 ) -> Result<String, String> {
     let contract = json!({
         "abi_version": ABI_VERSION,
@@ -416,6 +458,7 @@ fn hako_derived_function_table_hash(
         "hako_mir_json_hash": hako_mir_json_hash,
         "hako_semantic_provider_codegen": semantic_codegen,
         "hako_provider_ping_value": semantic_ping_value,
+        "hako_provider_owns_value": semantic_owns_value,
     });
     Ok(sha256_bytes(
         serde_json::to_string(&contract)
@@ -435,6 +478,7 @@ fn hako_derived_wrapper_source(
     contract_hash: &str,
     function_table_hash: &str,
     ping_value: i64,
+    owns_value: i64,
 ) -> String {
     let source = r#"#include <stdint.h>
 #include <stddef.h>
@@ -473,7 +517,12 @@ static void* hako_alloc(size_t size, size_t align) {
   return malloc(size);
 }
 static void hako_free(void* ptr) { free(ptr); }
-static int hako_owns(void* ptr) { return ptr != NULL; }
+static int hako_owns(void* ptr) {
+  if (ptr == NULL) {
+    return 0;
+  }
+  return __OWNS_VALUE__;
+}
 
 static const HakoProviderApiV1 API = {
   0x484B5241u, 1, 0, sizeof(HakoProviderApiV1),
@@ -506,6 +555,7 @@ const HakoProviderApiV1* hakorune_provider_get_api_v1(void) {
         .replace("__CONTRACT_HASH__", contract_hash)
         .replace("__FUNCTION_TABLE_HASH__", function_table_hash)
         .replace("__PING_VALUE__", &ping_value.to_string())
+        .replace("__OWNS_VALUE__", &owns_value.to_string())
 }
 
 fn semantic_codegen_output(mode: &str) -> &str {

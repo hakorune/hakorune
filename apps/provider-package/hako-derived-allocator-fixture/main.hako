@@ -5,6 +5,10 @@ static box HakoProvider {
     ping() {
         return 7
     }
+
+    ownsAllocated() {
+        return 1
+    }
 }
 
 static box Main {

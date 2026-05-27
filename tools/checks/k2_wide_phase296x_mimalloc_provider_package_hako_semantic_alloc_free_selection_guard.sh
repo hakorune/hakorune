@@ -39,10 +39,9 @@ guard_expect_fixed_in_file "$TAG" 'alloc-free-owns-literal-v0' "$SSOT" "artifact
 guard_expect_fixed_in_file "$TAG" 'hako_provider_owns_value=<0|1>' "$SSOT" "artifact SSOT must define owns value evidence"
 guard_expect_fixed_in_file "$TAG" 'provider_owns_result=<same owns literal for non-null pointer>' "$SSOT" "artifact SSOT must define runtime owns evidence"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-35-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001"' "$CURRENT_STATE" "current state must select alloc/free pilot"
+guard_expect_fixed_in_file "$TAG" '296x-35 Selected alloc-free-owns-literal-v0 as the first .hako semantic allocator-entrypoint boundary' "$CURRENT_STATE" "current state landed tail must retain row 35"
 guard_expect_fixed_in_file "$TAG" '| 35 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-SELECTION-296X-001` | Landed |' "$TASKBOARD" "taskboard row 35 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 36 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001` | Current |' "$TASKBOARD" "taskboard row 36 must be current"
+guard_expect_fixed_in_file "$TAG" '| 36 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-ALLOC-FREE-PILOT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 36 must be landed after pilot"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list semantic alloc/free selection guard"
 
 python3 -m py_compile "$ALLOC_FREE_TOOL"
