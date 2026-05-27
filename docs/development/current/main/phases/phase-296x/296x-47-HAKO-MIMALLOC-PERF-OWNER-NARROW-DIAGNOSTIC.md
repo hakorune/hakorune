@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: execute the selected owner-specific diagnostic from row 46.
 Blocker: HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001
@@ -50,3 +50,60 @@ summary=ok
 Do not optimize in this row. If the diagnostic proves the owner is
 `compiler_lowering` or `allocator_algorithm`, the next row may select the first
 keeper optimization.
+
+## Evidence
+
+Implemented:
+
+```text
+tools/allocator/hako_mimalloc_owner_narrow_diagnostic.py
+```
+
+For `measurement_hygiene_refresh`, the guard reruns the repeated measurement
+with:
+
+```text
+sample_count=5
+warmup_count=1
+operation_repeat=128
+```
+
+The diagnostic emits:
+
+```text
+output_contract=hako-mimalloc-owner-narrow-diagnostic-v0
+diagnostic_kind=measurement_hygiene_refresh
+body_elapsed_ns_secondary=1
+build_compile_excluded=1
+sample_count=5
+next_optimization_allowed=0
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Build/compile exclusion is valid for this runner shape because both Hako EXE
+generation and C runner compilation happen before `/usr/bin/time` samples the
+executed process loop.
+
+## Selected Next
+
+Select:
+
+```text
+HAKO-MIMALLOC-PERF-POST-DIAGNOSTIC-DECISION-296X-001
+```
+
+The next row should decide whether row 47 evidence permits the first keeper
+optimization or requires another measurement/gap-taxonomy pass.
+
+## Verification
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_perf_owner_narrow_diagnostic_guard.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```

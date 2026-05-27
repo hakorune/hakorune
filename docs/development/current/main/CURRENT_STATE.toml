@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x now advances from `.hako` mimalloc parity baseline evidence through gap-owner taxonomy into the selected narrow diagnostic before optimization or replacement work opens."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x now advances from `.hako` mimalloc parity baseline evidence through gap-owner taxonomy and measurement hygiene diagnostics before optimization or replacement work opens."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-46-HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-46-HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION.md"
-latest_card_summary = "Added the conditional diagnostic selector that consumes gap taxonomy evidence, keeps winner/provider/replacement claims closed, and selects the owner narrow diagnostic row."
-current_blocker_token = "HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001"
+latest_card = "296x-47-HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-47-HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC.md"
+latest_card_summary = "Added the owner narrow diagnostic report for the selected measurement hygiene refresh, preserving build exclusion, secondary body timing, and closed winner/provider/replacement claims."
+current_blocker_token = "HAKO-MIMALLOC-PERF-POST-DIAGNOSTIC-DECISION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-47 Added the owner narrow diagnostic report for the selected measurement hygiene refresh, preserving build exclusion, secondary body timing, and closed winner/provider/replacement claims.",
   "296x-46 Added the conditional diagnostic selector that consumes gap taxonomy evidence, keeps winner/provider/replacement claims closed, and selects the owner narrow diagnostic row.",
   "296x-45 Added the hako mimalloc gap taxonomy adapter, classifying row 44 scout baseline gaps with outlier, evidence quality, confidence, next diagnostic, and winner/provider/replacement claims closed.",
   "296x-44 Ran the first .hako mimalloc parity baseline pack on representative-small-block-v0 through repeated hako/C evidence with winner, provider, replacement, hook, and global allocator claims closed.",
