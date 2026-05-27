@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: choose the next narrow diagnostic from row 45 gap taxonomy evidence.
 Blocker: HAKO-MIMALLOC-PERF-CONDITIONAL-DIAGNOSTIC-SELECTION-296X-001
@@ -55,3 +55,54 @@ if gap_owner=provider_wrapper:
 
 Do not optimize, claim parity, activate providers, replace the process
 allocator, install hooks, or make `body_elapsed_ns` primary in this row.
+
+## Evidence
+
+Implemented:
+
+```text
+tools/allocator/hako_mimalloc_conditional_diagnostic_selector.py
+```
+
+The selector reads:
+
+```text
+output_contract=hako-mimalloc-gap-taxonomy-v0
+```
+
+and emits:
+
+```text
+output_contract=hako-mimalloc-conditional-diagnostic-selection-v0
+selected_diagnostic=<one diagnostic>
+measurement_hygiene_required=0|1
+next_optimization_allowed=0|1
+selected_next_row=HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001
+body_elapsed_ns_primary=0
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+## Selected Next
+
+Select:
+
+```text
+HAKO-MIMALLOC-PERF-OWNER-NARROW-DIAGNOSTIC-296X-001
+```
+
+The next row should execute only the selected diagnostic. If the selected
+diagnostic is `measurement_hygiene_refresh`, it may increase sample count and
+prove build/compile exclusion; otherwise it should stay owner-specific.
+
+## Verification
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_perf_conditional_diagnostic_selection_guard.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
