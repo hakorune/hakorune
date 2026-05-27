@@ -52,9 +52,11 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleSmallAlloc(size) {
         me.resetSmallAllocResult()
-        me.alloc_result.recordAttempt()
+        local alloc_result = me.alloc_result
+        alloc_result.recordAttempt()
 
         local queue = me.object_lifecycle_queue
+
         if queue.page_count == 1 {
             queue.request_count = queue.request_count + 1
             queue.beginSelection()
@@ -65,41 +67,41 @@ box HakoAllocObjectLifecycleFacade {
         local selected_index = queue.last_selected_index
         if selected_index < 0 {
             local small_no_page_reason_selected = HakoAllocObjectLifecycleFacadeReason.small_no_page()
-            return me.recordSmallAllocFailure(small_no_page_reason_selected)
+            return alloc_result.recordFailure(small_no_page_reason_selected)
         }
         local page = queue.last_selected_page
         if page == null {
             local small_no_page_reason_page = HakoAllocObjectLifecycleFacadeReason.small_no_page()
-            return me.recordSmallAllocFailure(small_no_page_reason_page)
+            return alloc_result.recordFailure(small_no_page_reason_page)
         }
 
-        me.alloc_result.recordSelectedPage(queue.last_selected_page_id)
+        alloc_result.recordSelectedPage(queue.last_selected_page_id)
 
         local selected_kind = queue.last_selected_kind
         if selected_kind != 1 {
             if selected_kind != 2 {
                 local small_bad_selected_kind_reason = HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind()
-                return me.recordSmallAllocFailure(small_bad_selected_kind_reason)
+                return alloc_result.recordFailure(small_bad_selected_kind_reason)
             }
         }
 
         if selected_kind == 1 {
             if page.reuse() == 0 {
                 local small_reuse_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_reuse_failed()
-                return me.recordSmallAllocFailure(small_reuse_failed_reason)
+                return alloc_result.recordFailure(small_reuse_failed_reason)
             }
         }
 
         local block_id = page.acquire_usize(size)
-        me.alloc_result.recordBlock(block_id)
+        alloc_result.recordBlock(block_id)
 
         if block_id < 0 {
             local small_acquire_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_acquire_failed()
-            return me.recordSmallAllocFailure(small_acquire_failed_reason)
+            return alloc_result.recordFailure(small_acquire_failed_reason)
         }
 
         me.recordLastAllocPage(selected_index, queue.last_selected_page_id, page)
-        return me.recordSmallAllocSuccess(selected_kind)
+        return alloc_result.recordSuccess(selected_kind)
     }
 
     resetReleaseResult() {

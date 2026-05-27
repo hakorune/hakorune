@@ -227,6 +227,7 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/hako_mimalloc_small_alloc_hako_reason_bind_probe.py` | small-alloc .hako reason bind probe。before/after duplicate reason call report を比較し、keeper 適用可否を分類する。 |
 | `tools/checks/k2_wide_phase296x_small_alloc_call_copy_shape_deep_dive_guard.sh` | 296x-141 の small-alloc call/copy shape deep dive guard。helper copy-family probe の固定値と row142 handoff を検証する。 |
 | `tools/allocator/hako_mimalloc_small_alloc_helper_copy_family_probe.py` | 296x-141 の small-alloc helper copy-family probe。objectLifecycleSmallAlloc MIR の facade result/state/page hot-path helper 周辺の receiver/arg/result/local-SSA copy family を分類する。 |
+| `tools/checks/k2_wide_phase296x_mir_builder_same_module_helper_call_lowering_seam_guard.sh` | 296x-155 の same-module helper call lowering seam guard。objectLifecycleSmallAlloc の remaining helper setter / page hot-path copy family evidence を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

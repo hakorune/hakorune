@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-153-POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-153-POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT.md"
-latest_card_summary = "Measured the small-alloc acquire_usize fast path keeper through one exact-EXE scout sample at 570ms against the 600ms checkpoint, accepting the keeper."
-current_blocker_token = "POST-PAGE-ACQUIRE-USIZE-SOURCE-MIR-REFRESH-296X-001"
+latest_card = "296x-155-MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-155-MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM.md"
+latest_card_summary = "Lowered the remaining same-module helper-setter calls in objectLifecycleSmallAlloc, leaving helper_call_count at 5 and the exact-EXE median around 550ms."
+current_blocker_token = "MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-155 Lowered the remaining same-module helper-setter calls in objectLifecycleSmallAlloc, leaving helper_call_count at 5 and the exact-EXE median around 550ms.",
   "296x-153 Measured the small-alloc acquire_usize fast path keeper through one exact-EXE scout sample at 570ms against the 600ms checkpoint, accepting the keeper.",
   "296x-152 Applied the selected small-alloc acquire_usize fast path keeper with lightweight exact-EXE proof and generic page acquire fallback preserved.",
   "296x-151 Selected the small-alloc page acquire_usize fast path keeper, preserving generic page acquire fallback when free_top is zero.",

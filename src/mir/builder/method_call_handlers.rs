@@ -39,6 +39,13 @@ impl MeCallPolicyBox {
                 {
                     return Ok(Some(result));
                 }
+                if let Some(result) = builder.try_inline_same_module_helper_setter_call(
+                    &fname,
+                    arguments,
+                    Some(me_id),
+                )? {
+                    return Ok(Some(result));
+                }
             }
 
             if let Some(ref module) = builder.current_module {
@@ -271,6 +278,14 @@ impl MirBuilder {
                     return Ok(result);
                 }
             }
+        }
+
+        if let Some(result) = self.try_inline_same_module_helper_setter_call_from_receiver(
+            object_value,
+            &method,
+            arguments,
+        )? {
+            return Ok(result);
         }
 
         // Build argument values
