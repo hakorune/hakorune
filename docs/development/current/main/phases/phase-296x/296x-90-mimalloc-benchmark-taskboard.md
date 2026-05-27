@@ -172,7 +172,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 125 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after the accepted .hako reason bind keeper. |
 | 126 | `HAKO-ALLOC-FACADE-REASON-DUPLICATE-EVAL-GUARD-296X-001` | Landed | Add a narrow guard for duplicate facade reason-call evaluation before MIR builder changes. |
 | 127 | `GENERIC-NESTED-ARGUMENT-SINGLE-EVAL-FIXTURE-296X-001` | Landed | Add a generic MIR correctness fixture for nested argument single evaluation. |
-| 128 | `MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001` | Current | Fix MIR builder nested argument single-evaluation correctness. |
+| 128 | `MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001` | Landed | Fix MIR builder nested argument single-evaluation correctness. |
+| 129 | `HAKO-MIMALLOC-POST-NESTED-ARGUMENT-SINGLE-EVAL-FIX-MEASUREMENT-296X-001` | Current | Measure object-lifecycle facade exact-EXE after the nested argument single-eval fix. |
 
 ## Hako Mimalloc Performance Parity Plan
 

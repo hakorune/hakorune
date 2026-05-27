@@ -40,13 +40,13 @@ impl MeCallPolicyBox {
                 }
             }
 
-            let arg_values = builder.build_call_args(arguments)?;
             if let Some(ref module) = builder.current_module {
                 if let Some(func) = module.functions.get(&fname) {
+                    let params = func.signature.params.clone();
+                    let arg_values = builder.build_call_args(arguments)?;
                     // Decide whether this lowered function expects an implicit receiver.
                     // Instance methods: params[0] is Box(box_name)
                     // Static methods:   params[0] is non-Box or params.is_empty()
-                    let params = &func.signature.params;
                     let is_instance_method =
                         !params.is_empty() && matches!(params[0], MirType::Box(_));
 
