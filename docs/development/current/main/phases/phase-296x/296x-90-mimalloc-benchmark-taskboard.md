@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT-296X-001:
-  Define the in-process operation-repeat measurement contract before optimization.
+HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-PILOT-296X-001:
+  Run the first hako/C in-process operation-repeat pilot before optimization.
 ```
 
 ## Queue
@@ -98,13 +98,14 @@ HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT-296X-001:
 | 51 | `HAKO-MIMALLOC-PERF-OWNER-CONFIDENCE-REFRESH-296X-001` | Landed | Refresh confidence for stable low-confidence hako_runtime_baseline evidence before optimization. |
 | 52 | `HAKO-MIMALLOC-PERF-RUNTIME-BASELINE-SCALING-DIAGNOSTIC-296X-001` | Landed | Separate fixed runtime/process baseline cost from per-operation hako mimalloc cost before optimization. |
 | 53 | `HAKO-MIMALLOC-PERF-RUNTIME-VS-WORKLOAD-REPEAT-SPLIT-DIAGNOSTIC-296X-001` | Landed | Split process-invocation scaling gap between empty runtime baseline and workload body cost before optimization. |
-| 54 | `HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT-296X-001` | Current | Define the in-process operation-repeat measurement contract before optimization. |
-| 55 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
-| 56 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
-| 57 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
-| 58 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 59 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 60 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 54 | `HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT-296X-001` | Landed | Define the in-process operation-repeat measurement contract before optimization. |
+| 55 | `HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-PILOT-296X-001` | Current | Run the first hako/C in-process operation-repeat pilot before optimization. |
+| 56 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
+| 57 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 58 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 59 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 60 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 61 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -373,7 +374,27 @@ global_allocator=0
 
 Do not optimize in this row.
 
-### Row 55 - First Keeper Optimization
+### Row 55 - In-Process Operation Repeat Pilot
+
+Purpose: run the first measurement that repeats the allocator workload inside
+one process.
+
+Required output:
+
+```text
+output_contract=hako-mimalloc-in-process-operation-repeat-measurement-v0
+timing_repeat_kind=in-process-operation-loop-v0
+process_invocation_repeat=0
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+```
+
+Do not optimize in this row.
+
+### Row 56 - First Keeper Optimization
 
 Purpose: make one optimization for one owner family and prove it with the same
 parity gate.
@@ -382,7 +403,7 @@ Only `compiler_lowering` and `allocator_algorithm` may enter this row directly.
 Do not combine algorithm porting, compiler lowering, harness cleanup, and
 provider wrapper cleanup in one row.
 
-### Row 56 - Port Feature Gap Inventory
+### Row 57 - Port Feature Gap Inventory
 
 Purpose: list missing `.hako` mimalloc features separately from speed
 optimization.
@@ -401,7 +422,7 @@ osvm_purge_decommit
 stats_or_diagnostics
 ```
 
-### Row 57 - Real Provider Entrypoint Selection
+### Row 58 - Real Provider Entrypoint Selection
 
 Purpose: decide which real `.hako` mimalloc API surface should be exposed
 through explicit provider package calls.
@@ -415,7 +436,7 @@ hook_installed=0
 global_allocator=0
 ```
 
-### Row 58 - Hakmem LD_PRELOAD Shim Decision
+### Row 59 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -433,7 +454,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 59 - Hakmem LD_PRELOAD Shim Smoke
+### Row 60 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -454,7 +475,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 60 - Selfhost Handoff Gate
+### Row 61 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.

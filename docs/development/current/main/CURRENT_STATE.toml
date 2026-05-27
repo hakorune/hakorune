@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x has high-confidence benchmark-harness evidence from process-repeat scaling, so the next step is an in-process operation-repeat contract before any optimization."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x has closed the in-process operation-repeat contract, so the next step is the first in-process hako/C measurement pilot before any optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-53-HAKO-MIMALLOC-PERF-RUNTIME-VS-WORKLOAD-REPEAT-SPLIT-DIAGNOSTIC"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-53-HAKO-MIMALLOC-PERF-RUNTIME-VS-WORKLOAD-REPEAT-SPLIT-DIAGNOSTIC.md"
-latest_card_summary = "Compared empty and small-block process-repeat scaling, found empty workload growth explains the small-block gap, classified the owner as benchmark_harness, and selected an in-process operation-repeat contract with optimization and winner claims closed."
-current_blocker_token = "HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT-296X-001"
+latest_card = "296x-54-HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-54-HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-CONTRACT.md"
+latest_card_summary = "Defined the in-process operation-repeat measurement contract, separating inner workload repeats from sample process count while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed."
+current_blocker_token = "HAKO-MIMALLOC-PERF-IN-PROCESS-OPERATION-REPEAT-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-54 Defined the in-process operation-repeat measurement contract, separating inner workload repeats from sample process count while keeping optimization, winner, provider, replacement, hook, and global allocator claims closed.",
   "296x-53 Compared empty and small-block process-repeat scaling, found empty workload growth explains the small-block gap, classified the owner as benchmark_harness, and selected an in-process operation-repeat contract with optimization and winner claims closed.",
   "296x-52 Ran process-invocation repeat-scaling diagnostics for representative-small-block-v0, showing the median gap grows from 10ms at repeat 128 to 750ms at repeat 8192 and selecting runtime-vs-workload repeat split while keeping optimization and winner claims closed.",
   "296x-51 Refreshed stable low-confidence hako_runtime_baseline evidence with an empty-workload runtime baseline probe, raising owner confidence to medium and selecting repeat-scaling runtime diagnostic while keeping optimization and winner claims closed.",
