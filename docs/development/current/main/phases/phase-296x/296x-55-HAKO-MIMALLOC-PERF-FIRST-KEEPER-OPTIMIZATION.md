@@ -1,13 +1,13 @@
 ---
 Status: Planned
 Date: 2026-05-27
-Scope: apply the first evidence-backed optimization only if owner split diagnostics allow it.
+Scope: apply the first evidence-backed optimization only if in-process diagnostics allow it.
 Blocker: HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
 Related:
   - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
 ---
 
-# 296x-54 Hako Mimalloc First Keeper Optimization
+# 296x-55 Hako Mimalloc First Keeper Optimization
 
 ## Purpose
 

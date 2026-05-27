@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: split process-invocation scaling gap between empty runtime baseline and workload body cost.
 Blocker: HAKO-MIMALLOC-PERF-RUNTIME-VS-WORKLOAD-REPEAT-SPLIT-DIAGNOSTIC-296X-001
@@ -31,7 +31,7 @@ winner_claim=0
 
 ## Required Diagnostic
 
-Run the same repeat ladder for `representative-empty-v0` and compare it to the
+Ran the same repeat ladder for `representative-empty-v0` and compared it to the
 small-block ladder:
 
 ```text
@@ -49,9 +49,45 @@ hook_installed=0
 global_allocator=0
 ```
 
-If empty scaling explains most of the small-block gap growth, continue runtime
-baseline diagnostics. If small-block grows beyond empty scaling, then split
-compiler lowering from allocator algorithm in a later row.
+## Evidence
+
+```text
+output_contract=hako-mimalloc-runtime-vs-workload-repeat-split-v0
+empty_workload_id=representative-empty-v0
+small_workload_id=representative-small-block-v0
+repeat_0_operation_repeat=128
+repeat_0_empty_elapsed_gap_ms=10
+repeat_0_small_elapsed_gap_ms=10
+repeat_1_operation_repeat=1024
+repeat_1_empty_elapsed_gap_ms=110
+repeat_1_small_elapsed_gap_ms=120
+repeat_2_operation_repeat=8192
+repeat_2_empty_elapsed_gap_ms=820
+repeat_2_small_elapsed_gap_ms=770
+empty_gap_growth_ms=810
+small_gap_growth_ms=760
+runtime_explains_ratio_pct=106
+selected_gap_owner=benchmark_harness
+selected_gap_confidence=high
+next_diagnostic=in_process_operation_repeat_contract
+next_optimization_allowed=0
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Empty-workload process-repeat growth explains the small-block process-repeat
+growth, so the next row must define an in-process operation-repeat measurement
+contract before compiler/allocator optimization.
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_perf_runtime_vs_workload_repeat_split_guard.sh
+```
 
 ## Stop Line
 
