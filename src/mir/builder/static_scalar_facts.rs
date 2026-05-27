@@ -5,6 +5,7 @@
 //! zero-arg static method returns a literal scalar.
 
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::ValueId;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum StaticScalarValue {
@@ -51,6 +52,20 @@ pub(crate) fn infer_static_scalar_method_fact(
         value,
         proof: "zero_arg_return_literal_only",
     })
+}
+
+pub(crate) fn emit_static_scalar_fact_const(
+    builder: &mut super::MirBuilder,
+    fact: &StaticScalarMethodFact,
+) -> Result<ValueId, String> {
+    match fact.value {
+        StaticScalarValue::I64(value) => {
+            crate::mir::builder::emission::constant::emit_integer(builder, value)
+        }
+        StaticScalarValue::Bool(value) => {
+            crate::mir::builder::emission::constant::emit_bool(builder, value)
+        }
+    }
 }
 
 #[cfg(test)]

@@ -141,6 +141,13 @@ impl MirBuilder {
 
         // Compose lowered function name: BoxName.method/N
         let func_name = format!("{}.{}/{}", box_name, method, arguments.len());
+        if arguments.is_empty() {
+            if let Some(fact) = self.comp_ctx.static_scalar_method_fact(&func_name).cloned() {
+                return crate::mir::builder::static_scalar_facts::emit_static_scalar_fact_const(
+                    self, &fact,
+                );
+            }
+        }
         if let Some(result) = self.try_inline_record_helper_call(&func_name, arguments, None)? {
             return Ok(result);
         }
