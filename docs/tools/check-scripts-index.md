@@ -151,7 +151,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_hako_mir_method_shape_python_adapter_guard.sh` | 296x-85 の Python MIR method shape adapter guard。selected method の MIR JSON shape count を hako_check core 外に固定する。 |
 | `tools/mir_check/method_shape_report.py` | MIR method shape report tool。MIR JSON の selected method から instruction/call/field/phi/copy/branch/return counts を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_source_mir_shape_join_adapter_guard.sh` | 296x-86 の source/MIR shape join adapter guard。hako_check source perf-surface と MIR method shape の結合 report を固定する。 |
-| `tools/allocator/hako_source_mir_shape_join.py` | source/MIR shape join adapter。source-level risk が MIR shape count でも確認できるかを分類する。 |
+| `tools/checks/k2_wide_phase296x_hako_source_mir_shape_join_v1_guard.sh` | 296x-88 の source/MIR shape join v1 guard。loop-local risk と caller-repeated hot context を分けて固定する。 |
+| `tools/allocator/hako_source_mir_shape_join.py` | source/MIR shape join adapter。source-level risk が MIR shape count でも確認できるかを分類し、v1 では method hot context と method-level source counts を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_mir_method_shape_hako_migration_selection_guard.sh` | 296x-87 の MIR method shape .hako migration selection guard。Python adapter 継続と .hako migration park を固定する。 |
 | `tools/allocator/hako_mir_method_shape_hako_migration_selection.py` | MIR method shape .hako migration selection tool。Python contract が multi-method use 前であることを理由に .hako migration を park する。 |
 | `tools/checks/guard_manifest_inventory_guard.sh` | GUARD-MANIFEST-012 の guard manifest inventory guard。`guard_rows.toml` / `tools/checks/` から manifest-backed row 数、public `k2_wide_*` 数、`impl/` 数、hako_alloc closeout wrapper coverage を棚卸し、closeout wrapper が manifest から外れたら fail-fast する。 |

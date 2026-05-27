@@ -106,3 +106,36 @@ Stop decision:
 
 Do not select the next keeper from row88 until the join adapter can distinguish
 loop-local risk from repeated-method hot context.
+
+Tool update:
+
+```text
+tool=tools/allocator/hako_source_mir_shape_join.py
+guard=tools/checks/k2_wide_phase296x_hako_source_mir_shape_join_v1_guard.sh
+default_output_contract=hako-source-mir-shape-join-v1
+method_hot_context_auto=direct_loop|caller_repeated|unknown
+v0_output_available=--contract-version v0
+summary=ok
+```
+
+The next row88 observation pass may use the v1 join output before selecting the
+next keeper. Keep the keeper implementation outside this row.
+
+Verification:
+
+```text
+objectLifecycleSmallAlloc:
+  method_hot_context=caller_repeated
+  source_risk_confirmed_in_mir=1
+  confirmed_risk_kind=array_access
+
+objectLifecycleReleaseBlock:
+  method_hot_context=caller_repeated
+  source_risk_confirmed_in_mir=1
+  confirmed_risk_kind=array_access
+
+selectPage:
+  method_hot_context=direct_loop
+  source_risk_confirmed_in_mir=1
+  confirmed_risk_kind=array_access
+```
