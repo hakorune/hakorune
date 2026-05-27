@@ -138,7 +138,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 91 | `HAKO-MIMALLOC-POST-SMALL-ALLOC-CACHE-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after the small-alloc selected-page cache keeper before selecting another keeper. |
 | 92 | `HAKO-MIMALLOC-RELEASE-KNOWN-PAGE-OBJECT-CACHE-KEEPER-296X-001` | Landed | Cache the last allocated page object and reuse it in the known-page release path. |
 | 93 | `HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-KEEPER-MEASUREMENT-296X-001` | Landed | Rerun object-lifecycle facade exact-EXE measurement after the release known-page object cache keeper. |
-| 94 | `HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-SOURCE-MIR-REFRESH-296X-001` | Current | Refresh source/MIR observation after both selected-page cache keepers landed. |
+| 94 | `HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after both selected-page cache keepers landed. |
+| 95 | `HAKO-MIMALLOC-RELEASE-DIRECT-CACHED-PAGE-FAST-PATH-KEEPER-296X-001` | Current | Release directly through the cached page object on the known-page hot path while preserving fallback lookup. |
 
 ## Hako Mimalloc Performance Parity Plan
 

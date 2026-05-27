@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: refresh source/MIR observation after the release known-page object cache keeper.
 Blocker: HAKO-MIMALLOC-POST-RELEASE-OBJECT-CACHE-SOURCE-MIR-REFRESH-296X-001
@@ -31,3 +31,32 @@ summary=ok
 ## Stop Line
 
 Do not implement another keeper in this refresh row.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-post-release-object-cache-source-mir-refresh-v0
+input_contract=hako-mimalloc-post-release-object-cache-keeper-measurement-v0
+method_count=3
+confirmed_source_mir_risk_count=3
+select_page_single_fallback_count=0
+release_known_page_fast_path_count=524288
+release_known_page_fallback_count=0
+selected_reason=release_cache_hot_path_fallback_inactive
+selected_method=HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2
+selected_source_method=objectLifecycleReleaseBlock
+selected_hot_context=caller_repeated
+selected_risk_kind=array_access
+next_keeper=release_direct_cached_page_fast_path
+next_keeper_kind=box_count
+next_row=HAKO-MIMALLOC-RELEASE-DIRECT-CACHED-PAGE-FAST-PATH-KEEPER-296X-001
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_post_release_object_cache_source_mir_refresh_guard.sh
+```
