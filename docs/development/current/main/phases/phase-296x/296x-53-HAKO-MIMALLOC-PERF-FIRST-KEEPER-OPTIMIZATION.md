@@ -1,22 +1,21 @@
 ---
 Status: Planned
 Date: 2026-05-27
-Scope: apply the first evidence-backed optimization only if refreshed taxonomy allows it.
+Scope: apply the first evidence-backed optimization only if refreshed diagnostics allow it.
 Blocker: HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
 Related:
   - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
 ---
 
-# 296x-52 Hako Mimalloc First Keeper Optimization
+# 296x-53 Hako Mimalloc First Keeper Optimization
 
 ## Purpose
 
-Apply exactly one optimization only when refreshed taxonomy selects this row.
+Apply exactly one optimization only when owner diagnostics select this row.
 
 ## Required Input
 
 ```text
-output_contract=hako-mimalloc-refreshed-taxonomy-decision-v0
 decision=enter_first_keeper_optimization
 selected_next_row=HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001
 next_optimization_allowed=1
