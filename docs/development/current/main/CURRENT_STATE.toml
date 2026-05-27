@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected MIR builder member-call route-plan ownership before implementing the BoxShape pilot."
+active_lane_status = "Phase-296x landed the MIR builder member-call route-plan pilot and selected field/property receiver facts cleanup."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-142-MIR-BUILDER-MEMBER-CALL-ROUTE-CLASSIFICATION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-142-MIR-BUILDER-MEMBER-CALL-ROUTE-CLASSIFICATION.md"
-latest_card_summary = "Selected member_route.rs as the member-call route and emission owner, with function_preflight/static/env/this-me classifiers separated and generic CSE closed."
-current_blocker_token = "MIR-BUILDER-MEMBER-CALL-ROUTE-PLAN-PILOT-296X-001"
+latest_card = "296x-143-MIR-BUILDER-MEMBER-CALL-ROUTE-PLAN-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-143-MIR-BUILDER-MEMBER-CALL-ROUTE-PLAN-PILOT.md"
+latest_card_summary = "Separated member-call route selection from emission through member_route.rs and function_preflight.rs while keeping single-eval surface and generic CSE closed."
+current_blocker_token = "MIR-BUILDER-FIELD-PROPERTY-RECEIVER-FACTS-CLEANUP-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-143 Separated member-call route selection from emission through member_route.rs and function_preflight.rs while keeping single-eval surface and generic CSE closed.",
   "296x-142 Selected member_route.rs as the member-call route and emission owner, with function_preflight/static/env/this-me classifiers separated and generic CSE closed.",
   "296x-141 Classified objectLifecycleSmallAlloc helper copy families, finding facade result helpers dominate receiver/local-SSA copy pressure, and selected same-module helper call lowering via MIR builder member-call route classification.",
   "296x-140 Refreshed source/MIR after static-scalar lowering, finding objectLifecycleSmallAlloc still has 16 calls, 99 copies, and 15 PHIs, and selected call/copy shape deep dive.",

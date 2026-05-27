@@ -6,8 +6,7 @@
 //! - Tail-based fallback (suffix matching with arity)
 //!
 //! Key functions:
-//! - try_build_static_receiver_method_call: Handle BoxName.method(args) syntax
-//! - try_build_static_method_call: Resolve static method calls
+//! - resolve_static_receiver_box_name: classify BoxName.method(args) syntax
 //! - try_static_method_fallback: Find unique static method by name+arity
 //! - try_tail_based_fallback: Experimental suffix-based resolution
 
@@ -16,126 +15,37 @@ use super::CallTarget;
 use crate::ast::ASTNode;
 
 impl MirBuilder {
-    /// Try static receiver method call: BoxName.method(args)
-    ///
-    /// Layer 3 alias split hook:
-    /// - first consult runner-provided imported static-box aliases
-    /// - then fall back to direct static box names
-    /// - if the receiver is a local variable, do not treat it as a static box
-    pub(super) fn try_build_static_receiver_method_call(
-        &mut self,
+    pub(in crate::mir::builder) fn resolve_static_receiver_box_name(
+        &self,
         object: &ASTNode,
-        method: &str,
-        arguments: &[ASTNode],
-    ) -> Result<Option<ValueId>, String> {
+    ) -> Option<String> {
         let ASTNode::Variable { name: obj_name, .. } = object else {
-            return Ok(None);
+            return None;
         };
 
-        if let Some(imported_box_name) = self
-            .comp_ctx
-            .resolve_imported_static_box(obj_name)
-            .map(str::to_string)
-        {
+        if let Some(imported_box_name) = self.comp_ctx.resolve_imported_static_box(obj_name) {
             if crate::config::env::builder_static_call_trace() {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(
-                    "[P287-DEBUG] try_build_static_receiver_method_call: imported alias {} -> {}",
+                    "[P287-DEBUG] resolve_static_receiver_box_name: imported alias {} -> {}",
                     obj_name, imported_box_name
                 ));
             }
-            return self.try_build_static_method_call(&imported_box_name, method, arguments);
+            return Some(imported_box_name.to_string());
         }
 
-        // Phase 287 P4: Fix toString() method resolution bug
-        // Guard: If this is a local variable, don't treat as static box name
         let is_local_var = self.variable_ctx.variable_map.contains_key(obj_name);
-
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[P287-DEBUG] try_build_static_receiver_method_call: obj_name={}, method={}, is_local_var={}", obj_name, method, is_local_var));
             ring0.log.debug(&format!(
-                "[P287-DEBUG] variable_map keys: {:?}",
-                self.variable_ctx.variable_map.keys().collect::<Vec<_>>()
+                "[P287-DEBUG] resolve_static_receiver_box_name: obj_name={}, is_local_var={}",
+                obj_name, is_local_var
             ));
         }
-
         if is_local_var {
-            // This is a variable reference (primitive or box instance), not a static box name
-            // Let it flow through to handle_standard_method_call (line 147 in build_method_call_impl)
-            if crate::config::env::builder_static_call_trace() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0
-                    .log
-                    .debug("[P287-DEBUG] -> Returning None (local var, will use method call)");
-            }
-            return Ok(None);
+            return None;
         }
-
-        // Only treat as static box method call if obj_name is NOT a local variable
-        if crate::config::env::builder_static_call_trace() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug("[P287-DEBUG] -> Calling try_build_static_method_call (not a local var)");
-        }
-        self.try_build_static_method_call(obj_name, method, arguments)
-    }
-
-    /// Try static method call: BoxName.method(args)
-    ///
-    /// Phase 15.5: Treat unknown identifiers in receiver position as static type names
-    fn try_build_static_method_call(
-        &mut self,
-        obj_name: &str,
-        method: &str,
-        arguments: &[ASTNode],
-    ) -> Result<Option<ValueId>, String> {
-        let is_local_var = self.variable_ctx.variable_map.contains_key(obj_name);
-
-        // Debug trace
-        if crate::config::env::builder_static_call_trace() {
-            let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-            trace.stderr_if(
-                &format!(
-                    "[DEBUG] try_build_static_method_call: obj_name={}, method={}",
-                    obj_name, method
-                ),
-                true,
-            );
-            trace.stderr_if(&format!("[DEBUG]   is_local_var={}", is_local_var), true);
-            if is_local_var {
-                trace.stderr_if(
-                    &format!(
-                        "[DEBUG]   variable_map contains '{}' - treating as local variable, will use method call",
-                        obj_name
-                    ),
-                    true,
-                );
-                trace.stderr_if(
-                    &format!(
-                        "[DEBUG]   variable_map keys: {:?}",
-                        self.variable_ctx.variable_map.keys().collect::<Vec<_>>()
-                    ),
-                    true,
-                );
-            } else {
-                trace.stderr_if(
-                    &format!(
-                        "[DEBUG]   '{}' not in variable_map - treating as static box, will use global call",
-                        obj_name
-                    ),
-                    true,
-                );
-            }
-        }
-
-        // Phase 15.5: Treat unknown identifiers in receiver position as static type names
-        if !is_local_var {
-            let result = self.handle_static_method_call(obj_name, method, arguments)?;
-            return Ok(Some(result));
-        }
-        Ok(None)
+        Some(obj_name.clone())
     }
 
     /// Try static method fallback (name+arity)

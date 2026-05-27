@@ -8,6 +8,7 @@
 //!
 //! # Delegation Strategy (実装は専用モジュールへ委譲)
 //! - `debug_method_routing`: Debug tracing（179 lines）
+//! - `function_preflight`: source-level special call gate
 //! - `special_method_handlers`: Special method detection（122 lines）
 //! - `static_resolution`: Static receiver resolution（182 lines）
 //! - `receiver_binding`: Receiver normalization（54 lines）
@@ -20,7 +21,6 @@
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
-use super::special_handlers;
 use super::CallTarget;
 use crate::ast::ASTNode;
 use std::collections::BTreeMap;
@@ -49,48 +49,19 @@ impl MirBuilder {
             ));
         }
 
-        // 0. Phase 285W-Syntax-0.1: Reject weak(...) function call syntax
-        // SSOT: docs/reference/language/lifecycle.md - weak <expr> is the ONLY valid syntax
-        if name == "weak" {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .error("[Phase285W-0.1] Rejecting weak(...) function call");
-            return Err(format!(
-                "Invalid syntax: weak(...). Use unary operator: weak <expr>\n\
-                 Help: Change 'weak(obj)' to 'weak obj' (unary operator, no parentheses)\n\
-                 SSOT: docs/reference/language/lifecycle.md"
-            ));
-        }
-
-        if name == "externcall" {
-            return self.build_explicit_extern_call(args);
-        }
-
-        if self.comp_ctx.is_brand_declared(&name) {
-            return self.build_brand_constructor_call(name, args);
-        }
-
-        // 1. TypeOp wiring: isType(value, "Type"), asType(value, "Type")
-        if let Some(result) = self.try_build_typeop_function(&name, &args)? {
+        if let Some(result) = self.try_handle_function_preflight(&name, &args)? {
             return Ok(result);
         }
 
-        // 2. Math function handling
-        let raw_args = args.clone();
-        if let Some(res) = self.try_handle_math_function(&name, raw_args) {
-            return res;
-        }
-
-        // 3. Build argument values
+        // 1. Build argument values
         let arg_values = self.build_call_args(&args)?;
 
-        // 4. Special-case: global str(x) → x.str() normalization
+        // 2. Special-case: global str(x) → x.str() normalization
         if name == "str" && arg_values.len() == 1 {
             return self.build_str_normalization(arg_values[0]);
         }
 
-        // 5. Determine call route (unified vs legacy)
+        // 3. Determine call route (unified vs legacy)
         let use_unified = super::call_unified::is_unified_call_enabled()
             && (super::super::call_resolution::is_builtin_function(&name)
                 || super::super::call_resolution::is_extern_function(&name));
@@ -158,63 +129,8 @@ impl MirBuilder {
             return Ok(result);
         }
 
-        // ========================================
-        // Section 3: Static Resolution (static_resolution module)
-        // ========================================
-
-        // 1. Static box method call: BoxName.method(args)
-        if let Some(result) =
-            self.try_build_static_receiver_method_call(&object, &method, &arguments)?
-        {
-            return Ok(result);
-        }
-
-        // 2. Handle env.* methods
-        if let Some(res) = self.try_handle_env_method(&object, &method, &arguments) {
-            return res;
-        }
-
-        // ========================================
-        // Section 4: Receiver Normalization (receiver_binding module)
-        // ========================================
-
-        // 3. Phase 269 P1.2: ReceiverNormalizeBox - MethodCall 共通入口 SSOT
-        if let Some(result) =
-            self.try_normalize_this_me_method_call(&object, &method, &arguments)?
-        {
-            return Ok(result);
-        }
-
-        // 4. Build object value
-        let object_value = self.build_expression(object.clone())?;
-
-        // Phase 287 P4: Debug object value after build_expression
-        if crate::config::env::builder_static_call_trace() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[P287-DEBUG] After build_expression: object_value={:?}",
-                object_value
-            ));
-        }
-
-        // Debug trace for receiver (debug_method_routing module)
-        self.trace_receiver_if_enabled(&object, object_value);
-
-        // ========================================
-        // Section 5: TypeOp Detection (special_handlers module)
-        // ========================================
-
-        // 5. Handle TypeOp methods: value.is("Type") / value.as("Type")
-        if let Some(type_name) = special_handlers::is_typeop_method(&method, &arguments) {
-            return self.handle_typeop_method(object_value, &method, &type_name);
-        }
-
-        // ========================================
-        // Section 6: Standard Method Call (fallback)
-        // ========================================
-
-        // 6. Fallback: standard Box/Plugin method call
-        self.handle_standard_method_call(object_value, method, &arguments)
+        let route_plan = self.plan_member_call_route(&object, &method)?;
+        self.emit_member_call_from_plan(route_plan, object, method, arguments)
     }
 
     // Build from expression: from Parent.method(arguments)
@@ -244,7 +160,7 @@ impl MirBuilder {
         Ok(result_id)
     }
 
-    fn build_brand_constructor_call(
+    pub(in crate::mir::builder) fn build_brand_constructor_call(
         &mut self,
         name: String,
         args: Vec<ASTNode>,
@@ -264,63 +180,6 @@ impl MirBuilder {
     // ========================================
     // Private helper methods (small functions)
     // ========================================
-
-    /// Try handle env.* extern methods
-    fn try_handle_env_method(
-        &mut self,
-        object: &ASTNode,
-        method: &str,
-        arguments: &Vec<ASTNode>,
-    ) -> Option<Result<ValueId, String>> {
-        let ASTNode::FieldAccess {
-            object: env_obj,
-            field: env_field,
-            ..
-        } = object
-        else {
-            return None;
-        };
-        if let ASTNode::Variable { name: env_name, .. } = env_obj.as_ref() {
-            if env_name != "env" {
-                return None;
-            }
-            let iface = env_field.as_str();
-            let m = method;
-            let Some((iface_name, method_name, effects, returns)) =
-                super::extern_calls::get_env_method_spec(iface, m)
-            else {
-                return None;
-            };
-
-            // Build arguments once
-            let arg_values = match self.build_call_args(arguments) {
-                Ok(values) => values,
-                Err(e) => return Some(Err(e)),
-            };
-            let mut extern_call = |iface_name: &str,
-                                   method_name: &str,
-                                   effects: EffectMask,
-                                   returns: bool|
-             -> Result<ValueId, String> {
-                let result_id = self.next_value_id();
-                let dst = if returns { Some(result_id) } else { None };
-                self.emit_extern_call_with_effects(
-                    iface_name,
-                    method_name,
-                    arg_values.clone(),
-                    dst,
-                    effects,
-                )?;
-                if returns {
-                    Ok(result_id)
-                } else {
-                    Ok(crate::mir::builder::emission::constant::emit_void(self)?)
-                }
-            };
-            return Some(extern_call(&iface_name, &method_name, effects, returns));
-        }
-        None
-    }
 
     /// Build call arguments from AST
     pub(in crate::mir::builder) fn build_call_args(
@@ -440,7 +299,10 @@ impl MirBuilder {
         Ok(dst)
     }
 
-    fn build_explicit_extern_call(&mut self, args: Vec<ASTNode>) -> Result<ValueId, String> {
+    pub(in crate::mir::builder) fn build_explicit_extern_call(
+        &mut self,
+        args: Vec<ASTNode>,
+    ) -> Result<ValueId, String> {
         if args.is_empty() {
             return Err(
                 "externcall requires a target string literal: externcall \"name\"(...)".to_string(),

@@ -5,7 +5,16 @@
  * Provides bridge to host environment functionality
  */
 
+use crate::ast::ASTNode;
 use crate::mir::{Effect, EffectMask, MirType};
+
+#[derive(Clone, Debug)]
+pub struct EnvMethodSpec {
+    pub iface_name: String,
+    pub method_name: String,
+    pub effects: EffectMask,
+    pub returns: bool,
+}
 
 /// Table-like spec for env.* methods
 /// Returns (iface_name, method_name, effects, returns_value)
@@ -158,6 +167,31 @@ pub fn get_env_method_spec(
         // Unknown
         _ => None,
     }
+}
+
+pub fn resolve_env_method_call(object: &ASTNode, method: &str) -> Option<EnvMethodSpec> {
+    let ASTNode::FieldAccess {
+        object: env_obj,
+        field: env_field,
+        ..
+    } = object
+    else {
+        return None;
+    };
+    let ASTNode::Variable { name: env_name, .. } = env_obj.as_ref() else {
+        return None;
+    };
+    if env_name != "env" {
+        return None;
+    }
+
+    let (iface_name, method_name, effects, returns) = get_env_method_spec(env_field, method)?;
+    Some(EnvMethodSpec {
+        iface_name,
+        method_name,
+        effects,
+        returns,
+    })
 }
 
 /// Conservative return type hints for env.* methods.

@@ -1,65 +1,48 @@
 //! Receiver ('me'/'this') normalization and binding
 //!
 //! Responsibilities:
-//! - Normalize 'this'/'me' in method calls to proper call forms
+//! - Classify 'this'/'me' receivers before member-call emission
 //! - Handle 'this' in static vs instance context
-//! - Handle 'me' with/without module context
+//! - Keep 'me' semantics on the instance lane
 //!
 //! Key functions:
-//! - try_normalize_this_me_method_call: Main entry point for this/me normalization
+//! - classify_this_me_method_call: classify this/me before member-call emission
 //!
 //! Design notes:
 //! - Uses comp_ctx.current_static_box to determine static context
-//! - Uses scope_ctx.current_function for instance method detection
-//! - Falls back to static_resolution for static method calls
+//! - Leaves actual emission to the caller-selected member route
 
-use super::super::{MirBuilder, ValueId};
+use super::super::MirBuilder;
 use crate::ast::ASTNode;
 
+#[derive(Clone, Debug)]
+pub(in crate::mir::builder) enum ReceiverNormalizationPlan {
+    MeCall,
+    StaticThis { box_name: String },
+}
+
 impl MirBuilder {
-    /// Phase 269 P1.2: ReceiverNormalizeBox - MethodCall 共通入口 SSOT
-    ///
-    /// Normalizes this/me method calls to appropriate call forms:
-    /// - Static box context: this.method() → BoxName.method() (compile-time)
-    /// - Instance context: me.method() → instance method call (runtime)
-    pub(super) fn try_normalize_this_me_method_call(
+    pub(in crate::mir::builder) fn classify_this_me_method_call(
         &mut self,
         object: &ASTNode,
-        method: &str,
-        arguments: &[ASTNode],
-    ) -> Result<Option<ValueId>, String> {
+    ) -> Result<Option<ReceiverNormalizationPlan>, String> {
         match object {
-            ASTNode::Me { .. } => {
-                // `me.method(...)` must remain on instance semantics.
-                // Static normalization here would drop receiver and break arity.
-                self.handle_me_method_call(method, arguments)
-            }
+            ASTNode::Me { .. } => Ok(Some(ReceiverNormalizationPlan::MeCall)),
             ASTNode::Variable { name, .. } if name == "me" => {
-                // Some parser paths still surface `me` as an identifier. Keep
-                // receiver normalization as the SSOT so downstream method-call
-                // fallback does not treat same-owner record helpers as runtime
-                // calls.
-                self.handle_me_method_call(method, arguments)
+                Ok(Some(ReceiverNormalizationPlan::MeCall))
             }
             ASTNode::This { .. } => {
-                // Priority 1 for `this`: static box → compile-time static call normalization
                 if let Some(box_name) = self.comp_ctx.current_static_box.clone() {
                     if crate::config::env::builder_trace_normalize() {
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!(
-                            "[trace:normalize] this.{}() → {}.{}() (static call)",
-                            method, box_name, method
+                            "[trace:normalize] this receiver classified as static {}",
+                            box_name
                         ));
                     }
-                    // this.method(args) → current_static_box.method/arity(args)
-                    // Delegate to static_resolution module for static method handling
-                    return Ok(Some(
-                        self.handle_static_method_call(&box_name, method, arguments)?,
-                    ));
+                    return Ok(Some(ReceiverNormalizationPlan::StaticThis { box_name }));
                 }
-
-                // Instance fallback (requires variable_map["me"])
-                self.handle_me_method_call(method, arguments)
+                Ok(Some(ReceiverNormalizationPlan::MeCall))
             }
             _ => Ok(None),
         }

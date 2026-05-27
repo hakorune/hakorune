@@ -4,8 +4,17 @@
 //! - lowering: 関数lowering（static/instance method → MIR function）
 //! - utils: ユーティリティ（resolve/parse/extract）
 //! - emit: Call命令発行（統一Call/Legacy Call） ✅ Phase 2完了
-//! - build: Call構築（function call/method call） ✅ Phase 2完了
+//! - build: Call構築（function call/method call, route selection → emission） ✅ Phase 2完了
 //! - guard: 構造ガード（静的Box/ランタイムBox混線防止） ✅ Phase 25.1d完了
+//!
+//! Member-call SSOT:
+//! - `build.rs` is the orchestration entry; `member_route` owns the route-plan →
+//!   emission handoff
+//! - `static_resolution`, `extern_calls`, `receiver_binding` classify routes
+//! - `member_route` holds the route-plan object and emission-from-plan bridge
+//! - receiver / args should not be re-lowered across route probes
+//! - `function_preflight` owns special source-level call gates before generic
+//!   function-call lowering
 
 // Existing modules (already implemented elsewhere)
 pub mod annotation;
@@ -13,6 +22,7 @@ pub mod call_target;
 pub mod call_unified;
 pub mod extern_calls;
 pub mod function_lowering;
+pub mod function_preflight; // Function-call special gate before arg materialization
 pub mod method_resolution;
 pub mod special_handlers;
 
@@ -25,6 +35,7 @@ pub mod emit; // Phase 2: Call emission
 pub mod guard; // Phase 25.1d: Structural guard (static/runtime box separation)
 pub mod lowering;
 pub mod materializer;
+pub mod member_route; // Member call route plan + emit handoff
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)

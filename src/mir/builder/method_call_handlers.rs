@@ -28,11 +28,12 @@ impl MeCallPolicyBox {
             .current_function
             .as_ref()
             .and_then(|f| f.signature.name.split('.').next().map(|s| s.to_string()));
+        let me_value = super::stmts::variable_stmt::build_me_expression(builder).ok();
 
         if let Some(cls) = enclosing_cls.as_ref() {
             let arity = arguments.len();
             let fname = function_lowering::generate_method_function_name(cls, method, arity);
-            if let Ok(me_id) = super::stmts::variable_stmt::build_me_expression(builder) {
+            if let Some(me_id) = me_value {
                 if let Some(result) =
                     builder.try_inline_record_helper_call(&fname, arguments, Some(me_id))?
                 {
@@ -57,6 +58,12 @@ impl MeCallPolicyBox {
 
                     // Build call_args based on method kind
                     let call_args: Vec<ValueId> = if is_instance_method {
+                        let Some(me_id) = me_value else {
+                            return Err(format!(
+                                "[me-call] missing receiver for instance method {}",
+                                fname
+                            ));
+                        };
                         // Instance method: prepend 'me' receiver
                         if expected_params != provided_instance {
                             if crate::config::env::builder_me_call_arity_strict() {
@@ -71,7 +78,6 @@ impl MeCallPolicyBox {
                                 ));
                             }
                         }
-                        let me_id = super::stmts::variable_stmt::build_me_expression(builder)?;
                         let mut v = Vec::with_capacity(provided_instance);
                         v.push(me_id);
                         v.extend(arg_values.into_iter());
@@ -108,7 +114,7 @@ impl MeCallPolicyBox {
 
             // Fallback 1: if `me` is bound, keep instance semantics.
             // This avoids silently turning `me.method(...)` into a static call.
-            if let Ok(me_id) = super::stmts::variable_stmt::build_me_expression(builder) {
+            if let Some(me_id) = me_value {
                 let dst =
                     builder.handle_standard_method_call(me_id, method.to_string(), arguments)?;
                 return Ok(Some(dst));
