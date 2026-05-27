@@ -113,10 +113,11 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 66 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Landed | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
 | 67 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Landed | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
 | 68 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-PILOT-296X-001` | Landed | Pilot explicit provider-package calls through the selected real `.hako` mimalloc entrypoint. |
-| 69 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-SELECTION-296X-001` | Current | Select how to fuse the verified `.hako` entrypoint into the native provider-package artifact. |
-| 70 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 71 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 72 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 69 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-SELECTION-296X-001` | Landed | Select how to fuse the verified `.hako` entrypoint into the native provider-package artifact. |
+| 70 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-PILOT-296X-001` | Current | Add and prove the first hako-derived provider semantic mode for the selected object-lifecycle entrypoint. |
+| 71 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 72 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 73 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -731,6 +732,7 @@ provider_package_native_fusion_required=1
 Required stop line:
 
 ```text
+native_fusion_strategy=hako_derived_provider_semantic_mode_extension_v0
 provider_package_native_fusion_allowed=1
 replacement_active=0
 hook_installed=0
@@ -738,7 +740,34 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 70 - Hakmem LD_PRELOAD Shim Decision
+### Row 70 - Native Provider Package Fusion Pilot
+
+Purpose: add the selected hako-derived semantic codegen mode and prove
+provider alloc/free smoke with the object-lifecycle entrypoint call-chain
+checked from MIR.
+
+Required input:
+
+```text
+native_fusion_strategy=hako_derived_provider_semantic_mode_extension_v0
+required_codegen_mode=object-lifecycle-small-alloc-release-v0
+required_fixture=apps/provider-package/hako-derived-mimalloc-real-entrypoint-fixture/main.hako
+```
+
+Required stop line:
+
+```text
+hako_semantic_provider_codegen=object-lifecycle-small-alloc-release-v0
+hako_entrypoint_mir_call_chain_verified=1
+provider_alloc_executed=1
+provider_free_executed=1
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+### Row 71 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -756,7 +785,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 71 - Hakmem LD_PRELOAD Shim Smoke
+### Row 72 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -777,7 +806,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 72 - Selfhost Handoff Gate
+### Row 73 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.
