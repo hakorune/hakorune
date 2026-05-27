@@ -183,7 +183,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 136 | `STATIC-SCALAR-METHOD-FACT-INFERENCE-296X-001` | Landed | Infer verified static-scalar facts for the selected reason getter family without lowering calls. |
 | 137 | `STATIC-SCALAR-CALL-LOWERING-SELECTION-296X-001` | Landed | Select the exact call-lowering route and guard surface for verified static-scalar facts. |
 | 138 | `STATIC-SCALAR-CALL-LOWERING-IMPLEMENTATION-296X-001` | Landed | Lower verified zero-arg static-scalar calls to constants through the selected route. |
-| 139 | `POST-STATIC-SCALAR-CALL-LOWERING-MEASUREMENT-296X-001` | Current | Measure object-lifecycle facade exact-EXE after static-scalar call lowering. |
+| 139 | `POST-STATIC-SCALAR-CALL-LOWERING-MEASUREMENT-296X-001` | Landed | Measure object-lifecycle facade exact-EXE after static-scalar call lowering. |
+| 140 | `POST-STATIC-SCALAR-SOURCE-MIR-REFRESH-296X-001` | Current | Refresh source/MIR observation after static-scalar call lowering measurement. |
 
 ## Hako Mimalloc Performance Parity Plan
 
