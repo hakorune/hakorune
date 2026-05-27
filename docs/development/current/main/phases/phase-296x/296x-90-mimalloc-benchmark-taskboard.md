@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001:
-  Inventory missing `.hako` mimalloc port features after the small-model optimization checkpoint.
+HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
+  Select the real `.hako` mimalloc explicit provider entrypoint surface after port feature inventory.
 ```
 
 ## Queue
@@ -110,8 +110,8 @@ HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001:
 | 63 | `HAKO-MIMALLOC-PERF-POST-SECOND-PHASE-COST-REFRESH-296X-001` | Landed | Refresh phase-cost ablation after the second keeper optimization. |
 | 64 | `HAKO-MIMALLOC-PERF-THIRD-KEEPER-OPTIMIZATION-296X-001` | Landed | Apply one known-active small-cycle `.hako` allocator-model optimization after post-second phase-cost refresh. |
 | 65 | `HAKO-MIMALLOC-PERF-POST-THIRD-KEEPER-TAXONOMY-REFRESH-296X-001` | Landed | Refresh in-process taxonomy after the third keeper optimization. |
-| 66 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Current | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
-| 67 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 66 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Landed | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 67 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Current | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
 | 68 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
 | 69 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
 | 70 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
@@ -629,6 +629,19 @@ remaining_gap_ms=236
 next_diagnostic=port_feature_gap_inventory
 ```
 
+Required output:
+
+```text
+output_contract=hako-mimalloc-port-feature-gap-inventory-v0
+small_model_checkpoint_elapsed_median_ms=240
+missing_feature_count=7
+primary_gap_kind=integration_surface_gap
+next_port_feature=real_provider_explicit_entrypoint_selection
+ld_preload_shim_ready=0
+provider_entrypoint_selection_ready=1
+winner_claim=0
+```
+
 Initial buckets:
 
 ```text
@@ -643,10 +656,20 @@ osvm_purge_decommit
 stats_or_diagnostics
 ```
 
+Do not optimize in this row.
+
 ### Row 67 - Real Provider Entrypoint Selection
 
 Purpose: decide which real `.hako` mimalloc API surface should be exposed
 through explicit provider package calls.
+
+Required input:
+
+```text
+output_contract=hako-mimalloc-port-feature-gap-inventory-v0
+primary_gap_kind=integration_surface_gap
+next_port_feature=real_provider_explicit_entrypoint_selection
+```
 
 Keep replacement parked:
 
