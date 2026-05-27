@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: build and smoke-test a hakmem-compatible LD_PRELOAD shim without enabling normal replacement.
 Blocker: HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001
@@ -43,6 +43,32 @@ hook_installed=0
 global_allocator=0
 winner_claim=0
 summary=ok
+```
+
+## Evidence
+
+```text
+output_contract=hako-mimalloc-hakmem-ldpreload-shim-smoke-v0
+input_contract=hako-mimalloc-hakmem-ldpreload-shim-decision-v0
+ld_preload_compatible=1
+shim_kind=malloc_family_probe_only
+shared_library_load_executed=1
+malloc_family_symbols_exported=1
+malloc_family_symbols=malloc,free,calloc,realloc
+hakmem_script_compatible=probe-only
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+next_row=HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001
+summary=ok
+```
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_hakmem_ldpreload_shim_smoke_guard.sh
 ```
 
 ## Stop Line

@@ -117,8 +117,9 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 70 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-PILOT-296X-001` | Landed | Add and prove the first hako-derived provider semantic mode for the selected object-lifecycle entrypoint. |
 | 71 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-NATIVE-FUSION-EXPLICIT-MEASUREMENT-296X-001` | Landed | Measure the native-fusion provider package explicitly before LD_PRELOAD work. |
 | 72 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Landed | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 73 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Current | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 74 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 73 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Landed | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 74 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001` | Current | Pilot one hakmem benchmark compatibility check with the probe-only LD_PRELOAD shim. |
+| 75 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -826,7 +827,24 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 74 - Selfhost Handoff Gate
+### Row 74 - Hakmem LD_PRELOAD Bench Pilot
+
+Purpose: run one probe-only hakmem compatibility sample with `LD_PRELOAD`
+applied to a selected benchmark process.
+
+Required stop line:
+
+```text
+hakmem_script_compatible=probe-only
+ld_preload_env_applied=1
+benchmark_sample_executed=1
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+### Row 75 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.

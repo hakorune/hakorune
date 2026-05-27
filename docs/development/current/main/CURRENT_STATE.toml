@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-27"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x accepted a probe-only hakmem LD_PRELOAD shim lane after provider evidence, so the next step is shim smoke."
+active_lane_status = "Phase-295x landed the first mimalloc comparison pass. Phase-296x smoke-tested a probe-only hakmem LD_PRELOAD shim, so the next step is one hakmem compatibility bench pilot."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-72-HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-72-HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION.md"
-latest_card_summary = "Accepted a probe-only hakmem-compatible LD_PRELOAD shim lane after native-fusion explicit provider measurement, allowing shim smoke while keeping winner, provider activation, process replacement, hook, and global allocator claims closed."
-current_blocker_token = "HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001"
+latest_card = "296x-73-HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-73-HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE.md"
+latest_card_summary = "Built and load-smoked a probe-only hakmem-compatible LD_PRELOAD malloc/free/calloc/realloc shim, keeping Hakorune default replacement, hooks, global allocator, and winner claims closed while selecting one hakmem bench pilot next."
+current_blocker_token = "HAKO-MIMALLOC-HAKMEM-LDPRELOAD-BENCH-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-73 Built and load-smoked a probe-only hakmem-compatible LD_PRELOAD malloc/free/calloc/realloc shim, keeping Hakorune default replacement, hooks, global allocator, and winner claims closed while selecting one hakmem bench pilot next.",
   "296x-72 Accepted a probe-only hakmem-compatible LD_PRELOAD shim lane after native-fusion explicit provider measurement, allowing shim smoke while keeping winner, provider activation, process replacement, hook, and global allocator claims closed.",
   "296x-71 Ran a light explicit repeated measurement for the object-lifecycle native-fusion provider package with operation_repeat=8192, marking LD_PRELOAD decision ready while keeping winner, provider activation, replacement, hook, LD_PRELOAD build, and global allocator claims closed.",
   "296x-70 Added object-lifecycle-small-alloc-release-v0 as a hako-derived provider semantic mode, verifying the selected `.hako` object-lifecycle MIR call chain and explicit provider alloc/free smoke while keeping winner, provider activation, replacement, hook, LD_PRELOAD, and global allocator claims closed.",
