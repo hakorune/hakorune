@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: separate fixed runtime baseline cost from per-operation hako mimalloc cost.
 Blocker: HAKO-MIMALLOC-PERF-RUNTIME-BASELINE-SCALING-DIAGNOSTIC-296X-001
@@ -16,8 +16,8 @@ Row 51 raised the `hako_runtime_baseline` owner confidence to medium by showing
 that an empty workload has the same 10ms median external elapsed gap as the
 small-block workload.
 
-This row must determine whether the gap stays fixed as `operation_repeat`
-increases, or whether per-operation cost starts to dominate.
+This row must determine whether the gap stays fixed as process invocation
+repeat increases, or whether the repeated exact-EXE execution gap grows.
 
 ## Required Input
 
@@ -32,7 +32,7 @@ winner_claim=0
 
 ## Required Diagnostic
 
-Run a small repeat ladder for the same workload family, keeping build/compile
+Ran a small repeat ladder for the same workload family, keeping build/compile
 outside the measured sample and keeping `external_elapsed_ms` primary:
 
 ```text
@@ -48,10 +48,44 @@ hook_installed=0
 global_allocator=0
 ```
 
-If the median gap remains roughly fixed, the next row should treat it as
-runtime/process baseline rather than allocator algorithm cost. If the gap grows
-with repeat count, the next row may return to allocator or compiler owner
-diagnostics.
+## Evidence
+
+```text
+output_contract=hako-mimalloc-runtime-baseline-scaling-diagnostic-v0
+workload_id=representative-small-block-v0
+sample_count=3
+repeat_0_operation_repeat=128
+repeat_0_elapsed_gap_ms=10
+repeat_1_operation_repeat=1024
+repeat_1_elapsed_gap_ms=90
+repeat_2_operation_repeat=8192
+repeat_2_elapsed_gap_ms=750
+gap_growth_ms=740
+per_invocation_gap_growth_us=91
+per_invocation_growth_observed=1
+runtime_baseline_fixed_gap_observed=0
+refreshed_gap_owner=process_invocation_scaling_gap
+refreshed_gap_confidence=medium
+next_diagnostic=runtime_vs_workload_repeat_split_diagnostic
+next_optimization_allowed=0
+winner_claim=0
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+The 10ms low-repeat gap is not just fixed process/runtime baseline. At 8192
+process invocations the median gap grows to 750ms. Because this ladder repeats
+process execution, the next row must compare empty-workload and small-block
+repeat scaling before compiler or allocator optimization starts.
+
+## Guard
+
+```text
+tools/checks/k2_wide_phase296x_hako_mimalloc_perf_runtime_baseline_scaling_diagnostic_guard.sh
+```
 
 ## Stop Line
 

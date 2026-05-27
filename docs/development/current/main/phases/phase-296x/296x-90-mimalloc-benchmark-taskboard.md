@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-PERF-RUNTIME-BASELINE-SCALING-DIAGNOSTIC-296X-001:
-  Separate fixed runtime/process baseline cost from per-operation hako mimalloc cost before optimization.
+HAKO-MIMALLOC-PERF-RUNTIME-VS-WORKLOAD-REPEAT-SPLIT-DIAGNOSTIC-296X-001:
+  Split process-invocation scaling gap between empty runtime baseline and workload body cost before optimization.
 ```
 
 ## Queue
@@ -96,13 +96,14 @@ HAKO-MIMALLOC-PERF-RUNTIME-BASELINE-SCALING-DIAGNOSTIC-296X-001:
 | 49 | `HAKO-MIMALLOC-PERF-GAP-TAXONOMY-REFRESH-296X-001` | Landed | Refresh gap taxonomy over measurement hygiene evidence before any optimization work starts. |
 | 50 | `HAKO-MIMALLOC-PERF-REFRESHED-TAXONOMY-DECISION-296X-001` | Landed | Decide the next action from refreshed gap taxonomy evidence. |
 | 51 | `HAKO-MIMALLOC-PERF-OWNER-CONFIDENCE-REFRESH-296X-001` | Landed | Refresh confidence for stable low-confidence hako_runtime_baseline evidence before optimization. |
-| 52 | `HAKO-MIMALLOC-PERF-RUNTIME-BASELINE-SCALING-DIAGNOSTIC-296X-001` | Current | Separate fixed runtime/process baseline cost from per-operation hako mimalloc cost before optimization. |
-| 53 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
-| 54 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
-| 55 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
-| 56 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
-| 57 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
-| 58 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
+| 52 | `HAKO-MIMALLOC-PERF-RUNTIME-BASELINE-SCALING-DIAGNOSTIC-296X-001` | Landed | Separate fixed runtime/process baseline cost from per-operation hako mimalloc cost before optimization. |
+| 53 | `HAKO-MIMALLOC-PERF-RUNTIME-VS-WORKLOAD-REPEAT-SPLIT-DIAGNOSTIC-296X-001` | Current | Split process-invocation scaling gap between empty runtime baseline and workload body cost before optimization. |
+| 54 | `HAKO-MIMALLOC-PERF-FIRST-KEEPER-OPTIMIZATION-296X-001` | Planned | Apply exactly one evidence-backed optimization only when the owner is compiler_lowering or allocator_algorithm. |
+| 55 | `HAKO-MIMALLOC-PORT-FEATURE-GAP-INVENTORY-296X-001` | Planned | Inventory missing mimalloc port pieces without mixing feature-port work into optimization rows. |
+| 56 | `HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001` | Planned | Select how much of real `.hako` mimalloc should be exposed through provider package explicit API. |
+| 57 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-DECISION-296X-001` | Planned | Decide whether to build a hakmem-compatible malloc/free export shim after explicit provider evidence. |
+| 58 | `HAKO-MIMALLOC-HAKMEM-LDPRELOAD-SHIM-SMOKE-296X-001` | Planned | Build and smoke-test an optional LD_PRELOAD-compatible shim without enabling normal host allocator replacement. |
+| 59 | `HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001` | Planned | Decide whether the `.hako` mimalloc evidence is strong enough to return focus toward selfhosting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
@@ -331,7 +332,26 @@ global_allocator=0
 
 Do not optimize in this row.
 
-### Row 53 - First Keeper Optimization
+### Row 53 - Runtime vs Workload Repeat Split Diagnostic
+
+Purpose: split process-invocation scaling gap between empty runtime baseline
+and workload body cost.
+
+Required evidence:
+
+```text
+per_invocation_growth_observed=1
+empty_workload_id=representative-empty-v0
+small_workload_id=representative-small-block-v0
+selected_gap_owner=compiler_lowering|allocator_algorithm|hako_runtime_baseline
+selected_gap_confidence=low|medium|high
+next_optimization_allowed=0|1
+winner_claim=0
+```
+
+Do not optimize in this row.
+
+### Row 54 - First Keeper Optimization
 
 Purpose: make one optimization for one owner family and prove it with the same
 parity gate.
@@ -340,7 +360,7 @@ Only `compiler_lowering` and `allocator_algorithm` may enter this row directly.
 Do not combine algorithm porting, compiler lowering, harness cleanup, and
 provider wrapper cleanup in one row.
 
-### Row 54 - Port Feature Gap Inventory
+### Row 55 - Port Feature Gap Inventory
 
 Purpose: list missing `.hako` mimalloc features separately from speed
 optimization.
@@ -359,7 +379,7 @@ osvm_purge_decommit
 stats_or_diagnostics
 ```
 
-### Row 55 - Real Provider Entrypoint Selection
+### Row 56 - Real Provider Entrypoint Selection
 
 Purpose: decide which real `.hako` mimalloc API surface should be exposed
 through explicit provider package calls.
@@ -373,7 +393,7 @@ hook_installed=0
 global_allocator=0
 ```
 
-### Row 56 - Hakmem LD_PRELOAD Shim Decision
+### Row 57 - Hakmem LD_PRELOAD Shim Decision
 
 Purpose: decide whether to open an LD_PRELOAD-compatible bridge for hakmem's
 existing benchmark scripts.
@@ -391,7 +411,7 @@ global_allocator=0
 winner_claim=0
 ```
 
-### Row 57 - Hakmem LD_PRELOAD Shim Smoke
+### Row 58 - Hakmem LD_PRELOAD Shim Smoke
 
 Purpose: build a shim that exposes malloc/free-family symbols for hakmem
 compatibility and smoke-test it separately from normal Hakorune execution.
@@ -412,7 +432,7 @@ winner_claim=0
 
 Do not use this row to make Hakorune's own runtime use the shim by default.
 
-### Row 58 - Selfhost Handoff Gate
+### Row 59 - Selfhost Handoff Gate
 
 Purpose: decide whether allocator performance evidence is good enough to move
 attention back toward selfhosting.
