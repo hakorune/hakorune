@@ -127,8 +127,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 80 | `HAKO-MIMALLOC-PERF-NEXT-KEEPER-SELECTION-296X-001` | Landed | Select the next single keeper from hako_check perf-surface evidence. |
 | 81 | `HAKO-MIMALLOC-PERF-SELECT-PAGE-SINGLE-PAGE-FAST-PATH-296X-001` | Landed | Implement the selected selectPage single-page fast path keeper. |
 | 82 | `HAKO-MIMALLOC-PERF-POST-SELECT-PAGE-KEEPER-MEASUREMENT-296X-001` | Landed | Rerun the object-lifecycle facade exact-EXE measurement after the selectPage keeper. |
-| 83 | `HAKO-CHECK-PERF-SURFACE-V1-MINIMAL-296X-001` | Current | Add loop field/ArrayBox/allocation-like source counts plus confidence to hako_check source perf-surface. |
-| 84 | `HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER-296X-001` | Planned | Compare keeper before/after source reports and measurement evidence without moving hako_check into optimizer responsibility. |
+| 83 | `HAKO-CHECK-PERF-SURFACE-V1-MINIMAL-296X-001` | Landed | Add loop field/ArrayBox/allocation-like source counts plus confidence to hako_check source perf-surface. |
+| 84 | `HAKO-MIMALLOC-KEEPER-BEFORE-AFTER-DIFF-ADAPTER-296X-001` | Current | Compare keeper before/after source reports and measurement evidence without moving hako_check into optimizer responsibility. |
 | 85 | `HAKO-MIR-METHOD-SHAPE-PYTHON-ADAPTER-296X-001` | Planned | Add a Python MIR method shape adapter for selected MIR JSON methods outside hako_check core. |
 | 86 | `HAKO-SOURCE-MIR-SHAPE-JOIN-ADAPTER-296X-001` | Planned | Join hako_check source perf-surface and MIR method shape evidence for one selected method. |
 | 87 | `HAKO-MIR-METHOD-SHAPE-HAKO-MIGRATION-SELECTION-296X-001` | Planned | Decide whether the Python MIR method shape contract is stable enough for a minimal .hako migration. |

@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: add minimal source-level hako_check perf-surface v1 fields.
 Blocker: HAKO-CHECK-PERF-SURFACE-V1-MINIMAL-296X-001
@@ -36,3 +36,26 @@ summary=ok
 
 MIR method shape observation remains separate. Keeper diff adapter belongs to
 row 84.
+
+## Landed Evidence
+
+```text
+output_contract=hako-check-perf-surface-v1
+input_contract=hako-check-perf-surface-contract-v0
+loop_field_get_count
+loop_field_set_count
+loop_array_get_count
+loop_array_length_count
+allocation_like_in_loop_count
+suggested_next_kind=box_count|box_shape|mir_diagnostic|none
+confidence=low|medium|high
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_check_perf_surface_v1_minimal_guard.sh
+```

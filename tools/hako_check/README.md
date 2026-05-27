@@ -115,6 +115,21 @@ summary=ok
 - Stop line: this surface never rewrites source, changes MIR, activates a
   provider, replaces the process allocator, installs hooks, or makes benchmark
   winner claims.
+- Minimal v1 source surface is emitted by
+  `python3 tools/hako_check/perf_surface_inventory.py --contract-version v1`.
+  It keeps the same stop line and adds:
+
+```text
+output_contract=hako-check-perf-surface-v1
+loop_field_get_count
+loop_field_set_count
+loop_array_get_count
+loop_array_length_count
+allocation_like_in_loop_count
+suggested_next_kind=box_count|box_shape|mir_diagnostic|none
+confidence=low|medium|high
+summary=ok
+```
 
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
