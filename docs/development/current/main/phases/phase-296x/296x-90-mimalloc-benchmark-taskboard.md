@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001:
-  Classify duplicate reason global calls in objectLifecycleSmallAlloc failure return blocks.
+HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-PROBE-296X-001:
+  Probe whether binding failure reasons once in .hako removes duplicate MIR reason calls.
 ```
 
 ## Queue
@@ -165,7 +165,8 @@ HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001:
 | 118 | `HAKO-MIMALLOC-SINGLE-PRED-PHI-ELISION-IMPLEMENTATION-296X-001` | Landed | Implement guarded single-pred PHI elision and verify exact-EXE shape/measurement. |
 | 119 | `HAKO-MIMALLOC-SMALL-ALLOC-MULTI-RETURN-COPY-PROBE-296X-001` | Landed | Classify the remaining multi-return/copy shape after single-pred PHI elision. |
 | 120 | `HAKO-MIMALLOC-SMALL-ALLOC-RETURN-BLOCK-LOCAL-SSA-COPY-PROBE-296X-001` | Landed | Classify local SSA copy materialization inside objectLifecycleSmallAlloc return blocks. |
-| 121 | `HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001` | Current | Classify duplicate reason global calls in objectLifecycleSmallAlloc failure return blocks. |
+| 121 | `HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001` | Landed | Classify duplicate reason global calls in objectLifecycleSmallAlloc failure return blocks. |
+| 122 | `HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-PROBE-296X-001` | Current | Probe whether binding failure reasons once in .hako removes duplicate MIR reason calls. |
 
 ## Hako Mimalloc Performance Parity Plan
 
