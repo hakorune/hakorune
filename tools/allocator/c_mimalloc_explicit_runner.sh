@@ -9,11 +9,12 @@ WORKLOAD="representative-small-block-v0"
 ALLOC_COUNT="64"
 BLOCK_SIZE="512"
 OPERATION_REPEAT="1"
+IN_PROCESS_REPEAT="1"
 ALLOW_LDCONFIG_DISCOVERY=0
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/c_mimalloc_explicit_runner.sh --out FILE [--library PATH] [--workload ID] [--operation-repeat N] [--allow-ldconfig-discovery]
+usage: tools/allocator/c_mimalloc_explicit_runner.sh --out FILE [--library PATH] [--workload ID] [--operation-repeat N] [--in-process-repeat N] [--allow-ldconfig-discovery]
 
 Runs the MIMAP-451A explicit C mimalloc runner. The preferred path is an
 explicit --library PATH. --allow-ldconfig-discovery is a guard/tool convenience:
@@ -47,6 +48,10 @@ while [ "$#" -gt 0 ]; do
       OPERATION_REPEAT="${2:-}"
       shift 2
       ;;
+    --in-process-repeat)
+      IN_PROCESS_REPEAT="${2:-}"
+      shift 2
+      ;;
     --allow-ldconfig-discovery)
       ALLOW_LDCONFIG_DISCOVERY=1
       shift
@@ -77,6 +82,16 @@ case "$OPERATION_REPEAT" in
 esac
 if [ "$OPERATION_REPEAT" -lt 1 ]; then
   echo "[c-mimalloc-runner] ERROR: --operation-repeat must be >= 1" >&2
+  exit 2
+fi
+case "$IN_PROCESS_REPEAT" in
+  ''|*[!0-9]*)
+    echo "[c-mimalloc-runner] ERROR: --in-process-repeat must be a positive integer" >&2
+    exit 2
+    ;;
+esac
+if [ "$IN_PROCESS_REPEAT" -lt 1 ]; then
+  echo "[c-mimalloc-runner] ERROR: --in-process-repeat must be >= 1" >&2
   exit 2
 fi
 
@@ -118,11 +133,12 @@ set +e
   alloc_count="$5"
   block_size="$6"
   last_out="$7"
+  in_process_repeat="$8"
   while [ "$i" -lt "$repeat" ]; do
-    "$bin" --library "$library_path" --workload "$workload" --alloc-count "$alloc_count" --block-size "$block_size" >"$last_out" || exit "$?"
+    "$bin" --library "$library_path" --workload "$workload" --alloc-count "$alloc_count" --block-size "$block_size" --in-process-repeat "$in_process_repeat" >"$last_out" || exit "$?"
     i=$((i + 1))
   done
-' _ "$OPERATION_REPEAT" "$bin" "$LIBRARY_PATH" "$WORKLOAD" "$ALLOC_COUNT" "$BLOCK_SIZE" "$last_out"
+' _ "$OPERATION_REPEAT" "$bin" "$LIBRARY_PATH" "$WORKLOAD" "$ALLOC_COUNT" "$BLOCK_SIZE" "$last_out" "$IN_PROCESS_REPEAT"
 run_rc="$?"
 set -e
 

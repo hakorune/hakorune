@@ -24,6 +24,7 @@ typedef struct RunnerConfig {
     const char *workload;
     long alloc_count;
     long block_size;
+    long in_process_repeat;
 } RunnerConfig;
 
 typedef struct MimallocApi {
@@ -55,7 +56,7 @@ typedef struct RunnerEvidence {
 } RunnerEvidence;
 
 static void usage(const char *argv0) {
-    fprintf(stderr, "usage: %s --library PATH [--workload ID] [--alloc-count N] [--block-size N]\n", argv0);
+    fprintf(stderr, "usage: %s --library PATH [--workload ID] [--alloc-count N] [--block-size N] [--in-process-repeat N]\n", argv0);
 }
 
 static int parse_long_arg(const char *text, long *out) {
@@ -73,6 +74,7 @@ static int parse_args(int argc, char **argv, RunnerConfig *config) {
     config->workload = "representative-small-block-v0";
     config->alloc_count = 64;
     config->block_size = 512;
+    config->in_process_repeat = 1;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--library") == 0) {
@@ -97,6 +99,12 @@ static int parse_args(int argc, char **argv, RunnerConfig *config) {
         }
         if (strcmp(argv[i], "--block-size") == 0) {
             if (i + 1 >= argc || !parse_long_arg(argv[++i], &config->block_size)) {
+                return 0;
+            }
+            continue;
+        }
+        if (strcmp(argv[i], "--in-process-repeat") == 0) {
+            if (i + 1 >= argc || !parse_long_arg(argv[++i], &config->in_process_repeat)) {
                 return 0;
             }
             continue;
@@ -406,22 +414,27 @@ int main(int argc, char **argv) {
     memset(&evidence, 0, sizeof(evidence));
     int result_code = 0;
     uint64_t body_start_ns = monotonic_ns();
-    if (strcmp(config.workload, "representative-empty-v0") == 0) {
-        result_code = run_empty(&evidence);
-    } else if (strcmp(config.workload, "representative-small-block-v0") == 0) {
-        result_code = run_small_block(&config, &api, &evidence);
-    } else if (strcmp(config.workload, "representative-realloc-aligned-v0") == 0) {
-        result_code = run_realloc_aligned(&api, &evidence);
-    } else if (strcmp(config.workload, "representative-mixed-small-v0") == 0) {
-        result_code = run_mixed_small(&api, &evidence);
-    } else if (strcmp(config.workload, "representative-huge-ish-v0") == 0) {
-        result_code = run_huge_ish(&api, &evidence);
-    } else if (strcmp(config.workload, "representative-reuse-cycle-small-v0") == 0) {
-        result_code = run_reuse_cycle_small(&config, &api, &evidence);
-    } else {
-        fprintf(stderr, "[c-mimalloc-runner] unsupported workload: %s\n", config.workload);
-        dlclose(library);
-        return 2;
+    for (long repeat = 0; repeat < config.in_process_repeat; repeat++) {
+        if (strcmp(config.workload, "representative-empty-v0") == 0) {
+            result_code = run_empty(&evidence);
+        } else if (strcmp(config.workload, "representative-small-block-v0") == 0) {
+            result_code = run_small_block(&config, &api, &evidence);
+        } else if (strcmp(config.workload, "representative-realloc-aligned-v0") == 0) {
+            result_code = run_realloc_aligned(&api, &evidence);
+        } else if (strcmp(config.workload, "representative-mixed-small-v0") == 0) {
+            result_code = run_mixed_small(&api, &evidence);
+        } else if (strcmp(config.workload, "representative-huge-ish-v0") == 0) {
+            result_code = run_huge_ish(&api, &evidence);
+        } else if (strcmp(config.workload, "representative-reuse-cycle-small-v0") == 0) {
+            result_code = run_reuse_cycle_small(&config, &api, &evidence);
+        } else {
+            fprintf(stderr, "[c-mimalloc-runner] unsupported workload: %s\n", config.workload);
+            dlclose(library);
+            return 2;
+        }
+        if (result_code != 0) {
+            break;
+        }
     }
     uint64_t body_end_ns = monotonic_ns();
     if (body_start_ns > 0 && body_end_ns >= body_start_ns) {
@@ -444,6 +457,8 @@ int main(int argc, char **argv) {
     printf("library_path=%s\n", config.library_path);
     printf("result_code=0\n");
     printf("run_count=1\n");
+    printf("in_process_operation_repeat=%ld\n", config.in_process_repeat);
+    printf("timing_repeat_kind=in-process-operation-loop-v0\n");
     printf("allocation_count=%ld\n", evidence.allocation_count);
     printf("free_count=%ld\n", evidence.free_count);
     printf("requested_bytes=%llu\n", (unsigned long long)evidence.requested_bytes);

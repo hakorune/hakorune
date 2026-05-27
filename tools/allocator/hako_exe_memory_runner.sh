@@ -186,6 +186,8 @@ realloc_same_ptr_count = 0
 realloc_moved_count = 0
 reuse_cycle_count = 0
 copied_bytes = 0
+in_process_operation_repeat = 0
+app_timing_repeat_kind = ""
 
 for line in lines:
     if line.startswith("operation_family="):
@@ -194,10 +196,18 @@ for line in lines:
         operation_sequence_id = line.split("=", 1)[1]
     if line.startswith("free_order_id="):
         free_order_id = line.split("=", 1)[1]
+    if line.startswith("in_process_operation_repeat="):
+        in_process_operation_repeat = int(line.split("=", 1)[1])
+    if line.startswith("timing_repeat_kind="):
+        app_timing_repeat_kind = line.split("=", 1)[1]
     if line.startswith("allocation_count="):
         allocation_count = int(line.split("=", 1)[1])
     if line.startswith("free_count="):
         free_count = int(line.split("=", 1)[1])
+    if line.startswith("requested_bytes="):
+        requested_bytes = int(line.split("=", 1)[1])
+    if line.startswith("committed_bytes="):
+        committed_bytes = int(line.split("=", 1)[1])
     if line.startswith("realloc_count="):
         realloc_count = int(line.split("=", 1)[1])
     if line.startswith("aligned_alloc_count="):
@@ -251,6 +261,10 @@ print(f"result_code={rc}")
 print(f"run_count={repeat}")
 print(f"operation_repeat={repeat}")
 print("timing_repeat_kind=process-invocation-v0")
+if in_process_operation_repeat > 0:
+    print(f"in_process_operation_repeat={in_process_operation_repeat}")
+if app_timing_repeat_kind:
+    print(f"app_timing_repeat_kind={app_timing_repeat_kind}")
 print(f"allocation_count={allocation_count * repeat}")
 print(f"free_count={free_count * repeat}")
 print(f"requested_bytes={requested_bytes * repeat}")
