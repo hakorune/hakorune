@@ -1,0 +1,92 @@
+// hako-alloc-mimalloc-comparison-object-lifecycle-known-live-release-smoke
+// Purpose: lightweight semantic smoke for direct cached-page known-live release.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local reset_ok = page.resetToFresh()
+        local ok = 1
+        if reset_ok != 1 {
+            ok = 0
+        }
+
+        local i = 0
+        local cycle = 0
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local alloc_ok = alloc.objectLifecycleSmallAlloc(requested)
+            if alloc_ok != 1 {
+                ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+
+        local released = 0
+        loop(released < 64) {
+            local release_even_ok = alloc.objectLifecycleReleaseBlock(0, released)
+            if release_even_ok != 1 {
+                ok = 0
+            }
+            released += 2
+        }
+        released = 1
+        loop(released < 64) {
+            local release_odd_ok = alloc.objectLifecycleReleaseBlock(0, released)
+            if release_odd_ok != 1 {
+                ok = 0
+            }
+            released += 2
+        }
+
+        local fast_path_count = alloc.objectLifecycleReleaseKnownPageFastPathCount()
+        local fallback_count = alloc.objectLifecycleReleaseKnownPageFallbackCount()
+
+        print("hako-alloc-mimalloc-comparison-object-lifecycle-known-live-release-smoke")
+        print("operation_repeat=1")
+        print("allocation_count=64")
+        print("free_count=64")
+        print("release_known_page_fast_path_count=" + fast_path_count)
+        print("release_known_page_fallback_count=" + fallback_count)
+        print("page_used=" + page.used)
+        print("page_reject_count=" + page.reject_count)
+        print("page_retired=" + page.retired)
+
+        if ok != 1 {
+            print("summary=fail")
+            return 1
+        }
+        if page.used != 0 {
+            print("summary=fail")
+            return 1
+        }
+        if page.reject_count != 0 {
+            print("summary=fail")
+            return 1
+        }
+        if page.retired != 1 {
+            print("summary=fail")
+            return 1
+        }
+        if fast_path_count != 64 {
+            print("summary=fail")
+            return 1
+        }
+        if fallback_count != 0 {
+            print("summary=fail")
+            return 1
+        }
+
+        print("summary=ok")
+        return 0
+    }
+}

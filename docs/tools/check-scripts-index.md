@@ -236,6 +236,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/page_array_dynamic_weight_probe.py` | 296x-146 の page-array dynamic weight report を生成し、alloc/release/reset の ArrayBox 操作重みを proof app 出力から計算する。 |
 | `tools/checks/k2_wide_phase296x_page_array_keeper_selection_guard.sh` | 296x-147 の page-array keeper selection guard。direct cached-page known-live release keeper 選択と generic release fallback preservation を検証する。 |
 | `tools/allocator/page_array_keeper_selection.py` | 296x-147 の page-array keeper selection report を生成し、dynamic weight evidence から release_direct_cached_page_known_live_release を選択する。 |
+| `tools/checks/k2_wide_phase296x_release_direct_cached_page_known_live_release_implementation_guard.sh` | 296x-148 の direct cached-page known-live release implementation guard。軽量 exact-EXE smoke で keeper 適用と generic fallback preservation を検証し、full repeat measurement は実行しない。 |
+| `tools/allocator/release_direct_cached_page_known_live_release_implementation.py` | 296x-148 の direct cached-page known-live release implementation report を生成し、軽量 smoke counters と fallback preservation を出力する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_small_alloc_hako_reason_bind_keeper_guard.sh` | 296x-123 の small-alloc .hako reason bind keeper guard。source keeper、MIR duplicate removal、exact-EXE semantic counters を固定する。 |
 | `tools/allocator/hako_mimalloc_small_alloc_hako_reason_bind_keeper.py` | small-alloc .hako reason bind keeper validator。shape report と exact-EXE proof report を束ねる。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_post_hako_reason_bind_measurement_guard.sh` | 296x-124 の post .hako reason bind measurement guard。exact-EXE repeated measurement と accepted keeper classification を固定する。 |
