@@ -240,6 +240,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/release_direct_cached_page_known_live_release_implementation.py` | 296x-148 の direct cached-page known-live release implementation report を生成し、軽量 smoke counters と fallback preservation を出力する。 |
 | `tools/checks/k2_wide_phase296x_post_known_live_release_measurement_guard.sh` | 296x-149 の post known-live release measurement guard。exact-EXE runner の one-sample scout measurement と row150 handoff を検証する。 |
 | `tools/allocator/post_known_live_release_measurement.py` | 296x-149 の post known-live release measurement report を生成し、known-live release keeper 後の exact-EXE scout measurement を出力する。 |
+| `tools/checks/k2_wide_phase296x_post_known_live_release_source_mir_refresh_guard.sh` | 296x-150 の post known-live release source/MIR refresh guard。known-live release 後の source/MIR shape と row151 handoff を検証する。 |
+| `tools/allocator/post_known_live_release_source_mir_refresh.py` | 296x-150 の post known-live release source/MIR refresh report を生成し、page_acquire を残る page-local ArrayBox owner として選択する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_small_alloc_hako_reason_bind_keeper_guard.sh` | 296x-123 の small-alloc .hako reason bind keeper guard。source keeper、MIR duplicate removal、exact-EXE semantic counters を固定する。 |
 | `tools/allocator/hako_mimalloc_small_alloc_hako_reason_bind_keeper.py` | small-alloc .hako reason bind keeper validator。shape report と exact-EXE proof report を束ねる。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_post_hako_reason_bind_measurement_guard.sh` | 296x-124 の post .hako reason bind measurement guard。exact-EXE repeated measurement と accepted keeper classification を固定する。 |
