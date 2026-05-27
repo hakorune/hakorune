@@ -21,7 +21,6 @@ guard_require_files "$TAG" "$CARD_123" "$CARD_124" "$SOURCE" "$TASKBOARD" "$CURR
 guard_require_exec_files "$TAG" "$TOOL" "$SELF_SCRIPT"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_123" "row123 card must be landed"
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_124" "row124 card must be current"
 guard_expect_fixed_in_file "$TAG" 'local small_no_page_reason_selected = HakoAllocObjectLifecycleFacadeReason.small_no_page()' "$SOURCE" "source must bind selected-index reason"
 guard_expect_fixed_in_file "$TAG" 'local small_no_page_reason_page = HakoAllocObjectLifecycleFacadeReason.small_no_page()' "$SOURCE" "source must bind null-page reason"
 guard_expect_fixed_in_file "$TAG" 'local small_bad_selected_kind_reason = HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind()' "$SOURCE" "source must bind kind reason"
@@ -30,10 +29,9 @@ guard_expect_fixed_in_file "$TAG" 'local small_acquire_failed_reason = HakoAlloc
 guard_expect_fixed_in_file "$TAG" 'output_contract=hako-mimalloc-small-alloc-hako-reason-bind-keeper-v0' "$CARD_123" "row123 must record output contract"
 guard_expect_fixed_in_file "$TAG" 'duplicate_reason_call_count=0' "$CARD_123" "row123 must record duplicate removal"
 guard_expect_fixed_in_file "$TAG" 'semantic_summary=ok' "$CARD_123" "row123 must record semantic proof"
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-123-HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-KEEPER"' "$CURRENT_STATE" "current state latest card must advance to row123"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001"' "$CURRENT_STATE" "current state must select row124"
+guard_expect_fixed_in_file "$TAG" '296x-123 Landed the .hako reason-local bind keeper, removing duplicate small-alloc failure reason calls while preserving exact-EXE proof counters.' "$CURRENT_STATE" "current state landed tail must include row123"
 guard_expect_fixed_in_file "$TAG" '| 123 | `HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-KEEPER-296X-001` | Landed |' "$TASKBOARD" "taskboard row123 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 124 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001` | Current |' "$TASKBOARD" "taskboard row124 must be current"
+guard_expect_fixed_in_file "$TAG" '| 124 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001` | Landed |' "$TASKBOARD" "taskboard row124 must exist"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 guard_expect_fixed_in_file "$TAG" "$TOOL" "$INDEX" "check index must list this tool"
 

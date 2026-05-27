@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001:
-  Measure exact-EXE after the small-alloc .hako reason bind keeper.
+HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH-296X-001:
+  Refresh source/MIR observation after the accepted .hako reason bind keeper.
 ```
 
 ## Queue
@@ -168,7 +168,8 @@ HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001:
 | 121 | `HAKO-MIMALLOC-SMALL-ALLOC-DUPLICATE-REASON-CALL-PROBE-296X-001` | Landed | Classify duplicate reason global calls in objectLifecycleSmallAlloc failure return blocks. |
 | 122 | `HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-PROBE-296X-001` | Landed | Probe whether binding failure reasons once in .hako removes duplicate MIR reason calls. |
 | 123 | `HAKO-MIMALLOC-SMALL-ALLOC-HAKO-REASON-BIND-KEEPER-296X-001` | Landed | Apply the .hako reason-local bind keeper for objectLifecycleSmallAlloc failure returns. |
-| 124 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001` | Current | Measure exact-EXE after the small-alloc .hako reason bind keeper. |
+| 124 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after the small-alloc .hako reason bind keeper. |
+| 125 | `HAKO-MIMALLOC-POST-HAKO-REASON-BIND-SOURCE-MIR-REFRESH-296X-001` | Current | Refresh source/MIR observation after the accepted .hako reason bind keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
