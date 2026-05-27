@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: apply source/MIR observation to multiple object-lifecycle methods and select the next keeper candidate.
 Blocker: HAKO-MIMALLOC-MULTI-METHOD-SOURCE-MIR-OBSERVATION-296X-001
@@ -138,4 +138,29 @@ selectPage:
   method_hot_context=direct_loop
   source_risk_confirmed_in_mir=1
   confirmed_risk_kind=array_access
+```
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-multi-method-source-mir-observation-v0
+input_contract=hako-source-mir-shape-join-v1
+method_count=3
+confirmed_source_mir_risk_count=3
+selected_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+selected_source_method=objectLifecycleSmallAlloc
+selected_hot_context=caller_repeated
+selected_risk_kind=array_access
+next_keeper=small_alloc_selected_page_return_reuse
+next_keeper_kind=box_count
+next_row=HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER-296X-001
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_multi_method_source_mir_observation_guard.sh
 ```
