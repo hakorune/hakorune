@@ -115,6 +115,7 @@ pub struct CliConfig {
     pub provider_package_target_triple: Option<String>,
     pub provider_package_platform: Option<String>,
     pub provider_package_profile: Option<String>,
+    pub provider_package_hako_semantic_codegen: Option<String>,
     pub provider_package_provider_call_allowed: bool,
     pub provider_package_force: bool,
     // Phase 288 P1: REPL mode
@@ -291,6 +292,7 @@ impl Default for CliConfig {
             provider_package_target_triple: None,
             provider_package_platform: None,
             provider_package_profile: None,
+            provider_package_hako_semantic_codegen: None,
             provider_package_provider_call_allowed: false,
             provider_package_force: false,
             // Phase 288 P1: REPL mode

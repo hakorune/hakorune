@@ -198,6 +198,7 @@ pub fn build_command() -> Command {
         .arg(Arg::new("provider-package-target-triple").long("provider-package-target-triple").value_name("TRIPLE").help("[Provider package] Target triple"))
         .arg(Arg::new("provider-package-platform").long("provider-package-platform").value_name("PLATFORM").help("[Provider package] Target platform"))
         .arg(Arg::new("provider-package-profile").long("provider-package-profile").value_name("{speed|diagnostic}").help("[Provider package] Package profile"))
+        .arg(Arg::new("provider-package-hako-semantic-codegen").long("provider-package-hako-semantic-codegen").value_name("MODE").help("[Provider package] .hako semantic provider codegen mode (none|ping-literal-v0)"))
         .arg(Arg::new("provider-package-provider-call-allowed").long("provider-package-provider-call-allowed").help("[Provider package] Allow explicit provider calls in manifest policy").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("provider-package-force").long("provider-package-force").help("[Provider package] Replace existing package files").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
@@ -412,6 +413,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .cloned(),
         provider_package_profile: matches
             .get_one::<String>("provider-package-profile")
+            .cloned(),
+        provider_package_hako_semantic_codegen: matches
+            .get_one::<String>("provider-package-hako-semantic-codegen")
             .cloned(),
         provider_package_provider_call_allowed: matches
             .get_flag("provider-package-provider-call-allowed"),

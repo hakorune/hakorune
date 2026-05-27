@@ -9,7 +9,6 @@ source tools/checks/lib/guard_common.sh
 CARD_30="docs/development/current/main/phases/phase-296x/296x-30-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-MINIMAL-FIXTURE-PILOT.md"
 CARD_31="docs/development/current/main/phases/phase-296x/296x-31-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT.md"
 TASKBOARD="docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 CLI_IMPL="src/cli/provider_package_hako_derived_build.rs"
 FIXTURE="apps/provider-package/hako-derived-allocator-fixture/main.hako"
@@ -20,7 +19,7 @@ SELF_SCRIPT="tools/checks/k2_wide_phase296x_mimalloc_provider_package_hako_deriv
 
 echo "[$TAG] checking phase-296x .hako-derived provider package closeout"
 
-guard_require_files "$TAG" "$CARD_30" "$CARD_31" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$CLI_IMPL" "$FIXTURE" "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_30" "$CARD_31" "$TASKBOARD" "$INDEX" "$CLI_IMPL" "$FIXTURE" "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL" "$SELF_SCRIPT"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_30" "minimal fixture pilot must be landed"
@@ -48,11 +47,8 @@ guard_expect_fixed_in_file "$TAG" 'hako_semantic_provider_codegen' "$CLI_IMPL" "
 guard_expect_fixed_in_file "$TAG" 'provider_call_executed=0' "$CLI_IMPL" "CLI package command must not call provider"
 guard_expect_fixed_in_file "$TAG" 'descriptor_read_executed=0' "$CLI_IMPL" "CLI package command must not read descriptor"
 
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-31-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT"' "$CURRENT_STATE" "current state latest card must advance"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001"' "$CURRENT_STATE" "current state must select semantic codegen selection"
-
 guard_expect_fixed_in_file "$TAG" '| 31 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT-296X-001` | Landed |' "$TASKBOARD" "taskboard row 31 must be landed"
-guard_expect_fixed_in_file "$TAG" '| 32 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001` | Current |' "$TASKBOARD" "taskboard row 32 must be current"
+guard_expect_fixed_in_file "$TAG" '| 32 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001` | Landed |' "$TASKBOARD" "taskboard row 32 must be landed"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list hako-derived closeout guard"
 
 python3 -m py_compile "$METADATA_TOOL" "$DESCRIPTOR_TOOL" "$API_BIND_TOOL"

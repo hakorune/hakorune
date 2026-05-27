@@ -235,6 +235,32 @@ summary=ok
 source/MIR evidence, but native provider entrypoint semantics are still supplied
 by the wrapper until a later semantic-codegen row opens.
 
+The first semantic-codegen mode is `ping-literal-v0`:
+
+```bash
+target/debug/hakorune \
+  --provider-package-hako-derived-build-fixture apps/provider-package/hako-derived-allocator-fixture/main.hako \
+  --provider-package-hako-semantic-codegen ping-literal-v0 \
+  --provider-package-out-dir dist/hakorune-provider \
+  --provider-package-id org.hakorune.provider.hako.fixture \
+  --provider-package-name hako-derived-fixture-provider \
+  --provider-package-target-triple x86_64-unknown-linux-gnu \
+  --provider-package-platform linux \
+  --provider-package-provider-call-allowed
+```
+
+This mode maps only `.hako` `HakoProvider.ping/0 -> i64 literal` into the
+provider `hako_ping()` entrypoint:
+
+```text
+hako_semantic_provider_codegen=ping-literal-v0
+hako_provider_ping_codegen=1
+hako_provider_ping_value=7
+provider_noop_call_result=7
+```
+
+Allocator entrypoints remain wrapper-owned until a later semantic-codegen row.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata

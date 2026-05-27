@@ -15,10 +15,10 @@ phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-31-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-31-MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT.md"
-latest_card_summary = "Closed the .hako-derived provider package pilot with metadata, descriptor, and API-bind evidence while keeping semantic provider codegen, activation, replacement, hooks, globals, and winner claims closed."
-current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001"
+latest_card = "296x-33-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-33-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-PILOT.md"
+latest_card_summary = "Added the first .hako semantic provider-codegen mode, ping-literal-v0, proving HakoProvider.ping/0 literal lowering through provider noop-call smoke while keeping allocator entrypoints, activation, replacement, hooks, globals, and winner claims closed."
+current_blocker_token = "MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-33 Added the first .hako semantic provider-codegen mode, ping-literal-v0, proving HakoProvider.ping/0 literal lowering through provider noop-call smoke while keeping allocator entrypoints, activation, replacement, hooks, globals, and winner claims closed.",
+  "296x-32 Selected ping-literal-v0 as the smallest .hako semantic provider-codegen boundary while keeping allocator entrypoints, activation, replacement, hooks, globals, and winner claims closed.",
   "296x-31 Closed the .hako-derived provider package pilot with metadata, descriptor, and API-bind evidence while keeping semantic provider codegen, activation, replacement, hooks, globals, and winner claims closed.",
   "296x-30 Added the minimal .hako-derived provider package build pilot with selected .hako source/MIR hashes, manifest v1 output, and metadata preflight while keeping semantic provider codegen, activation, replacement, hooks, globals, and winner claims closed.",
   "296x-29 Selected the staged .hako-derived provider package build boundary: selected .hako source plus MIR hash metadata first, with semantic provider codegen, activation, replacement, hooks, globals, and winner claims closed.",

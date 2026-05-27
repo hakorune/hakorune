@@ -150,6 +150,33 @@ package row. It means the package is tied to a real `.hako` source and emitted
 MIR artifact, while native provider entrypoints may still be provided by a
 Hakorune-owned ABI wrapper until a later row opens semantic provider codegen.
 
+## Phase C Semantic Codegen Step 1
+
+The first accepted semantic provider-codegen mode is `ping-literal-v0`.
+
+```text
+.hako static box HakoProvider {
+  ping() { return <i64 literal> }
+}
+  -> MIR JSON function HakoProvider.ping/0
+  -> const i64 return literal extraction
+  -> generated provider hako_ping() returns that literal
+  -> provider noop-call smoke observes the same value
+```
+
+This mode may report:
+
+```text
+hako_semantic_provider_codegen=ping-literal-v0
+hako_provider_ping_codegen=1
+hako_provider_ping_value=<i64>
+provider_noop_call_result=<same i64>
+```
+
+It does not open allocator entrypoint semantic codegen. `alloc`, `free`,
+`owns`, `realloc`, aligned allocation, process replacement, hooks, global
+allocator integration, and winner claims remain separate future rows.
+
 ## Preflight Requirements
 
 Metadata preflight reads only manifest and filesystem metadata:

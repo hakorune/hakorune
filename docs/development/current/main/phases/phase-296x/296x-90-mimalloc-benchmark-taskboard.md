@@ -35,8 +35,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001:
-  Select the smallest .hako semantic provider-codegen boundary, without opening activation, replacement, hooks, globals, or winner claims.
+MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001:
+  Close the .hako semantic ping pilot with metadata/descriptor/API/noop evidence and select the next semantic entrypoint boundary.
 ```
 
 ## Queue
@@ -75,7 +75,9 @@ MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001:
 | 29 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-BUILD-SELECTION-296X-001` | Landed | Select the Phase C .hako-derived provider package build boundary, without opening activation, replacement, hooks, globals, or winner claims. |
 | 30 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-MINIMAL-FIXTURE-PILOT-296X-001` | Landed | Add the minimal selected .hako provider fixture package build pilot with source/MIR hashes, without opening activation, replacement, hooks, globals, or winner claims. |
 | 31 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-DERIVED-CLOSEOUT-296X-001` | Landed | Close the .hako-derived provider package pilot with descriptor/API-bind evidence, without opening semantic provider codegen, activation, replacement, hooks, globals, or winner claims. |
-| 32 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001` | Current | Select the smallest .hako semantic provider-codegen boundary, without opening activation, replacement, hooks, globals, or winner claims. |
+| 32 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-CODEGEN-SELECTION-296X-001` | Landed | Select the smallest .hako semantic provider-codegen boundary, without opening activation, replacement, hooks, globals, or winner claims. |
+| 33 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-PILOT-296X-001` | Landed | Implement `ping-literal-v0`, mapping `.hako` `HakoProvider.ping/0` literal return into provider `hako_ping()` without opening allocator entrypoints or activation. |
+| 34 | `MIMALLOC-PROVIDER-PACKAGE-HAKO-SEMANTIC-PING-CLOSEOUT-296X-001` | Current | Close the .hako semantic ping pilot with metadata/descriptor/API/noop evidence and select the next semantic entrypoint boundary. |
 
 ## Mini-Agent Restart Queue
 
