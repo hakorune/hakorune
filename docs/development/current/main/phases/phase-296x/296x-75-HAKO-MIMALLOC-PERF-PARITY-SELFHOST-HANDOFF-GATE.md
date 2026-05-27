@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: decide whether the mimalloc parity lane can hand focus back toward selfhosting.
 Blocker: HAKO-MIMALLOC-PERF-PARITY-SELFHOST-HANDOFF-GATE-296X-001
@@ -127,3 +127,22 @@ ArrayBox get/length call reduction
 
 Do not claim benchmark winner status in this row. If evidence is insufficient,
 park handoff and select a focused parity diagnostic.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-perf-parity-selfhost-handoff-gate-v0
+selfhost_handoff_decision=parked
+park_reason=hako_mimalloc_small_block_gap_still_large
+remaining_allocator_gap_classified=1
+next_diagnostic=hako_check_perf_surface_inventory
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_perf_parity_selfhost_handoff_gate_guard.sh
+```
