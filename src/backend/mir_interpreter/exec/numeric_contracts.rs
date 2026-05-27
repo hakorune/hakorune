@@ -1,8 +1,9 @@
 use super::super::{MirInterpreter, VMError};
+use crate::backend::VMValue;
 use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::numeric_substrate::{
-    exact_numeric_mir_type_from_declared_name, exact_numeric_value_from_dynamic_integer,
-    ExactNumericConversionError, NumericTarget,
+    exact_numeric_const_from_i128, exact_numeric_mir_type_from_declared_name,
+    exact_numeric_value_from_dynamic_integer, ExactNumericConversionError, NumericTarget,
 };
 use crate::mir::{BasicBlockId, ValueId};
 
@@ -34,26 +35,44 @@ impl MirInterpreter {
         };
 
         let vm_value = self.reg_load(value)?;
-        let integer = vm_value.as_integer().map_err(|_| {
-            self.err_invalid(format!(
-                "[vm/numeric_dynamic_range_type] field={} declared_type={} value={} actual={:?}",
-                field, declared_type_name, value, vm_value
-            ))
-        })?;
-
-        exact_numeric_value_from_dynamic_integer(integer, &ty).map_err(|error| {
-            let range = ty.kind.value_range();
-            let reason = match error {
-                ExactNumericConversionError::NegativeToUnsigned { .. } => {
-                    "negative-to-unsigned"
-                }
-                ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
-            };
-            self.err_invalid(format!(
-                "[vm/numeric_dynamic_range] field={} declared_type={} value={} range={}..={} reason={}",
-                field, declared_type_name, integer, range.min, range.max, reason
-            ))
-        })?;
+        match vm_value {
+            VMValue::Integer(integer) => {
+                exact_numeric_value_from_dynamic_integer(integer, &ty).map_err(|error| {
+                    let range = ty.kind.value_range();
+                    let reason = match error {
+                        ExactNumericConversionError::NegativeToUnsigned { .. } => {
+                            "negative-to-unsigned"
+                        }
+                        ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
+                    };
+                    self.err_invalid(format!(
+                        "[vm/numeric_dynamic_range] field={} declared_type={} value={} range={}..={} reason={}",
+                        field, declared_type_name, integer, range.min, range.max, reason
+                    ))
+                })?;
+            }
+            VMValue::ExactNumeric(exact) if exact.source_name == ty.source_name => {
+                exact_numeric_const_from_i128(exact.value, &ty).map_err(|error| {
+                    let range = ty.kind.value_range();
+                    let reason = match error {
+                        ExactNumericConversionError::NegativeToUnsigned { .. } => {
+                            "negative-to-unsigned"
+                        }
+                        ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
+                    };
+                    self.err_invalid(format!(
+                        "[vm/numeric_dynamic_range] field={} declared_type={} value={} range={}..={} reason={}",
+                        field, declared_type_name, exact.value, range.min, range.max, reason
+                    ))
+                })?;
+            }
+            other => {
+                return Err(self.err_invalid(format!(
+                    "[vm/numeric_dynamic_range_type] field={} declared_type={} value={} actual={:?}",
+                    field, declared_type_name, value, other
+                )));
+            }
+        }
 
         Ok(())
     }
@@ -89,6 +108,7 @@ impl MirInterpreter {
 mod tests {
     use super::*;
     use crate::backend::mir_interpreter::MirInterpreter;
+    use crate::backend::vm_types::ExactNumericRuntimeValue;
     use crate::backend::vm_types::VMValue;
     use crate::mir::function::ExactNumericRuntimeCheckContract;
     use crate::mir::{
@@ -157,6 +177,22 @@ mod tests {
         let mut vm = MirInterpreter::new();
 
         let result = vm.execute_function_with_args(&module, "Main.main/1", &[VMValue::Integer(42)]);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn vm_executes_dynamic_integer_range_contract_for_matching_exact_numeric_success() {
+        let module = module_with_runtime_check_contract("usize");
+        let mut vm = MirInterpreter::new();
+
+        let result = vm.execute_function_with_args(
+            &module,
+            "Main.main/1",
+            &[VMValue::ExactNumeric(ExactNumericRuntimeValue::new(
+                "usize", 42,
+            ))],
+        );
 
         assert!(result.is_ok());
     }
