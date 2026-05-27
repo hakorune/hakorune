@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-27
 Scope: rollback the regressed small-alloc inline success result keeper.
 Blocker: HAKO-MIMALLOC-ROLLBACK-INLINE-SUCCESS-RESULT-KEEPER-296X-001
@@ -41,3 +41,27 @@ summary=ok
 
 Do not add another optimization in the rollback row. Keep accepted prior
 keepers intact.
+
+## Landed Evidence
+
+```text
+output_contract=hako-mimalloc-rollback-inline-success-result-keeper-v0
+input_contract=hako-mimalloc-post-inline-success-result-keeper-measurement-v0
+rolled_back_keeper=small_alloc_inline_success_result_fast_path
+inline_success_result_present=0
+small_alloc_direct_select_preserved=1
+proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako
+proof_summary=ok
+select_page_single_fast_path_count=524288
+select_page_single_fallback_count=0
+release_known_page_fast_path_count=524288
+winner_claim=0
+replacement_active=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_hako_mimalloc_rollback_inline_success_result_keeper_guard.sh
+```

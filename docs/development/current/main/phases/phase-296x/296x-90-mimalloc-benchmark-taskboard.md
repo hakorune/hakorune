@@ -155,7 +155,8 @@ HAKO-MIMALLOC-PROVIDER-PACKAGE-REAL-ENTRYPOINT-SELECTION-296X-001:
 | 108 | `HAKO-MIMALLOC-POST-SMALL-ALLOC-DIRECT-SELECT-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR observation after the small-alloc direct select keeper measurement. |
 | 109 | `HAKO-MIMALLOC-SMALL-ALLOC-INLINE-SUCCESS-RESULT-FAST-PATH-KEEPER-296X-001` | Landed | Inline small-alloc success result updates on the hot success path. |
 | 110 | `HAKO-MIMALLOC-POST-INLINE-SUCCESS-RESULT-KEEPER-MEASUREMENT-296X-001` | Landed | Rerun object-lifecycle facade exact-EXE measurement after the inline success result keeper. |
-| 111 | `HAKO-MIMALLOC-ROLLBACK-INLINE-SUCCESS-RESULT-KEEPER-296X-001` | Current | Roll back the regressed small-alloc inline success result keeper. |
+| 111 | `HAKO-MIMALLOC-ROLLBACK-INLINE-SUCCESS-RESULT-KEEPER-296X-001` | Landed | Roll back the regressed small-alloc inline success result keeper. |
+| 112 | `HAKO-MIMALLOC-POST-ROLLBACK-INLINE-SUCCESS-RESULT-MEASUREMENT-296X-001` | Current | Rerun object-lifecycle facade exact-EXE measurement after rolling back the inline success result keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
