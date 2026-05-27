@@ -275,10 +275,7 @@ mod tests {
 
     #[test]
     fn lowering_inline_required_remains_compat_plan() {
-        let plans = inline_plans_from_runes(
-            "Main.fast/0",
-            &[rune("Lowering", "inline_required")],
-        );
+        let plans = inline_plans_from_runes("Main.fast/0", &[rune("Lowering", "inline_required")]);
         assert_eq!(plans.len(), 1);
         assert_eq!(plans[0].request, InlineRequest::Required);
         assert_eq!(plans[0].fallback, "fail_fast");

@@ -42,8 +42,10 @@ pub(super) fn infer_user_box_method_param_box_origins(
         let function_name = function.signature.name.clone();
         function_def_maps.insert(function_name.clone(), build_value_def_map(function));
         function_block_ids.insert(function_name.clone(), sorted_block_ids(function));
-        function_route_result_lookups
-            .insert(function_name.clone(), build_route_result_box_lookup(function));
+        function_route_result_lookups.insert(
+            function_name.clone(),
+            build_route_result_box_lookup(function),
+        );
         function_param_index_caches.insert(function_name, HashMap::new());
     }
 
@@ -65,15 +67,13 @@ pub(super) fn infer_user_box_method_param_box_origins(
                 continue;
             };
 
-            for (param_index, box_name) in
-                infer_param_box_origins_from_field_uses(
-                    function,
-                    def_map,
-                    block_ids,
-                    &typed_plan_fields,
-                    param_index_cache,
-                )
-            {
+            for (param_index, box_name) in infer_param_box_origins_from_field_uses(
+                function,
+                def_map,
+                block_ids,
+                &typed_plan_fields,
+                param_index_cache,
+            ) {
                 if !user_box_names.contains(&box_name) {
                     continue;
                 }
@@ -152,12 +152,8 @@ pub(super) fn infer_user_box_method_param_box_origins(
                         else {
                             continue;
                         };
-                        let Some(caller_param_index) = value_param_index(
-                            function,
-                            def_map,
-                            *arg,
-                            param_index_cache,
-                        )
+                        let Some(caller_param_index) =
+                            value_param_index(function, def_map, *arg, param_index_cache)
                         else {
                             continue;
                         };
@@ -292,7 +288,8 @@ pub(super) fn infer_user_box_field_box_origins(
         let function_name = function.signature.name.clone();
         function_def_maps.insert(function_name.clone(), build_value_def_map(function));
         function_block_ids.insert(function_name.clone(), sorted_block_ids(function));
-        function_route_result_lookups.insert(function_name, build_route_result_box_lookup(function));
+        function_route_result_lookups
+            .insert(function_name, build_route_result_box_lookup(function));
     }
 
     for _ in 0..module.functions.len().saturating_mul(2).max(1) {
@@ -339,7 +336,8 @@ pub(super) fn infer_user_box_field_box_origins(
                                 continue;
                             };
                             if !user_box_names.contains(&base_box)
-                                || !(user_box_names.contains(&value_box) || value_box == "StringBox")
+                                || !(user_box_names.contains(&value_box)
+                                    || value_box == "StringBox")
                             {
                                 continue;
                             }
@@ -391,7 +389,8 @@ pub(super) fn infer_user_box_field_box_origins(
                                 ) else {
                                     continue;
                                 };
-                                if !(user_box_names.contains(&value_box) || value_box == "StringBox")
+                                if !(user_box_names.contains(&value_box)
+                                    || value_box == "StringBox")
                                 {
                                     continue;
                                 }
@@ -565,7 +564,9 @@ pub(super) fn user_box_value_box_name(
     if let Some(box_name) = value_box_name(function, origin).map(str::to_string) {
         return Some(box_name);
     }
-    if let Some(box_name) = route_result_box_name_cached(route_result_lookup, origin).map(str::to_string) {
+    if let Some(box_name) =
+        route_result_box_name_cached(route_result_lookup, origin).map(str::to_string)
+    {
         return Some(box_name);
     }
     if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
@@ -665,8 +666,13 @@ fn value_param_index_inner(
             MirInstruction::Phi { inputs, .. } => {
                 let mut inferred = None;
                 for (_incoming_block, incoming_value) in inputs {
-                    let index =
-                        value_param_index_inner(function, def_map, *incoming_value, visiting, cache)?;
+                    let index = value_param_index_inner(
+                        function,
+                        def_map,
+                        *incoming_value,
+                        visiting,
+                        cache,
+                    )?;
                     inferred = match inferred {
                         None => Some(index),
                         Some(existing) if existing == index => Some(existing),
@@ -747,16 +753,18 @@ pub(super) fn build_route_result_box_lookup(function: &MirFunction) -> HashMap<V
         }
     }
     for route in &function.metadata.generic_method_routes {
-        if let (Some(value), Some(box_name)) =
-            (route.result_value(), generic_method_route_result_box_name(route))
-        {
+        if let (Some(value), Some(box_name)) = (
+            route.result_value(),
+            generic_method_route_result_box_name(route),
+        ) {
             lookup.entry(value).or_insert_with(|| box_name.to_string());
         }
     }
     for route in &function.metadata.global_call_routes {
-        if let (Some(value), Some(box_name)) =
-            (route.result_value(), global_call_route_result_box_name(route))
-        {
+        if let (Some(value), Some(box_name)) = (
+            route.result_value(),
+            global_call_route_result_box_name(route),
+        ) {
             lookup.entry(value).or_insert_with(|| box_name.to_string());
         }
     }

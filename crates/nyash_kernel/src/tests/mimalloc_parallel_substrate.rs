@@ -37,10 +37,7 @@ fn set_node_payload(node: *mut c_void, payload: usize) {
     }
 }
 
-fn spawn_stress_worker(
-    head: Arc<AtomicUsize>,
-    worker_index: usize,
-) -> std::thread::JoinHandle<()> {
+fn spawn_stress_worker(head: Arc<AtomicUsize>, worker_index: usize) -> std::thread::JoinHandle<()> {
     std::thread::spawn(move || {
         let tls_value = 10_000 + worker_index as i64;
         assert_eq!(hako_worker_current_id_i64(0), 0);
@@ -78,11 +75,7 @@ fn drain_remote_free_stack(head: &AtomicUsize) -> (usize, usize) {
     (drained, payload_sum)
 }
 
-fn emit_stress_report(
-    observed_remote_free_count: i64,
-    drained_nodes: usize,
-    payload_sum: usize,
-) {
+fn emit_stress_report(observed_remote_free_count: i64, drained_nodes: usize, payload_sum: usize) {
     println!("mimalloc_parallel_substrate_stress=1");
     println!("worker_count={WORKER_COUNT}");
     println!("iterations_per_worker={ITERATIONS_PER_WORKER}");
@@ -92,7 +85,10 @@ fn emit_stress_report(
     );
     println!("observed_remote_free_count={observed_remote_free_count}");
     println!("drained_nodes={drained_nodes}");
-    println!("payload_sum_nonzero={}", if payload_sum != 0 { 1 } else { 0 });
+    println!(
+        "payload_sum_nonzero={}",
+        if payload_sum != 0 { 1 } else { 0 }
+    );
     println!("summary=ok");
 }
 
