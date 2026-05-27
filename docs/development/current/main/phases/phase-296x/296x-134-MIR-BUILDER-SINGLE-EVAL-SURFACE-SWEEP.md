@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: add a broader MIR builder single-evaluation surface sweep.
 Blocker: MIR-BUILDER-SINGLE-EVAL-SURFACE-SWEEP-296X-001
@@ -41,3 +41,36 @@ summary=ok
 
 Do not implement new MIR builder fixes in this row unless the sweep finds a
 specific failing surface and opens a dedicated owner-fix row.
+
+## Evidence
+
+Report:
+
+```text
+output_contract=mir-builder-single-eval-surface-sweep-v0
+input_contract=hako-mimalloc-post-single-eval-fixes-measurement-v0
+surface_count=6
+symbol_count=8
+failing_surface_count=0
+failing_surfaces=
+selected_next=static_scalar_method_fact_selection
+winner_claim=0
+summary=ok
+```
+
+Covered surfaces:
+
+```text
+field_assignment
+index_read
+index_write
+print_fallback
+typeop_method
+constructor_arg
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_mir_builder_single_eval_surface_sweep_guard.sh
+```

@@ -1,0 +1,65 @@
+// mir-single-eval-surface-sweep
+// Purpose: keep common MIR builder probe surfaces from re-lowering expressions.
+
+static box SweepFieldBaseSide { make() { return new SweepFieldNode(new SweepFieldLeaf(0)) } }
+static box SweepFieldValueSide { value() { return 7 } }
+box SweepFieldLeaf { birth(value) { me.value = value } }
+box SweepFieldNode { birth(child) { me.child = child } }
+
+static box SweepIndexSide { idx() { return 0 } }
+static box SweepIndexValueSide { value() { return 7 } }
+
+static box SweepPrintSide { value() { return 7 } }
+static box SweepTypeSide { make() { return new SweepTypeProbe() } }
+box SweepTypeProbe { birth() {} }
+static box SweepCtorArgSide { value() { return 7 } }
+box SweepHolder { birth(value) { me.value = value } }
+
+box SingleEvalSurfaceProbe {
+    fieldAssign() {
+        SweepFieldBaseSide.make().child.value = SweepFieldValueSide.value()
+        return 0
+    }
+
+    indexRead() {
+        local a = new ArrayBox()
+        a.push(11)
+        return a[SweepIndexSide.idx()]
+    }
+
+    indexWrite() {
+        local a = new ArrayBox()
+        a.push(0)
+        a[SweepIndexSide.idx()] = SweepIndexValueSide.value()
+        return 0
+    }
+
+    printValue() {
+        print(SweepPrintSide.value())
+        return 0
+    }
+
+    typeOpMethod() {
+        return SweepTypeSide.make().is("SweepTypeProbe")
+    }
+
+    ctorArg() {
+        local holder = new SweepHolder(SweepCtorArgSide.value())
+        return holder.value
+    }
+}
+
+static box Main {
+    main(args) {
+        local p = new SingleEvalSurfaceProbe()
+        p.fieldAssign()
+        p.indexRead()
+        p.indexWrite()
+        p.printValue()
+        p.typeOpMethod()
+        p.ctorArg()
+        print("mir-single-eval-surface-sweep")
+        print("summary=ok")
+        return 0
+    }
+}
