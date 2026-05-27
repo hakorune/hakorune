@@ -7,7 +7,7 @@ import argparse
 from pathlib import Path
 
 
-NEXT_ROW = "HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-RETURN-KEEPER-296X-001"
+NEXT_ROW = "HAKO-MIMALLOC-SMALL-ALLOC-SELECTED-PAGE-CACHE-KEEPER-296X-001"
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -45,7 +45,7 @@ def keeper_for(report: dict[str, str]) -> tuple[str, str]:
         and hot_context == "caller_repeated"
         and risk_kind == "array_access"
     ):
-        return ("small_alloc_selected_page_return_reuse", "box_count")
+        return ("small_alloc_selected_page_cache_reuse", "box_count")
     if (
         method == "objectLifecycleReleaseBlock"
         and hot_context == "caller_repeated"
@@ -59,7 +59,7 @@ def keeper_for(report: dict[str, str]) -> tuple[str, str]:
 
 def score(report: dict[str, str]) -> tuple[int, int, int, int]:
     keeper, keeper_kind = keeper_for(report)
-    if keeper == "small_alloc_selected_page_return_reuse":
+    if keeper == "small_alloc_selected_page_cache_reuse":
         keeper_rank = 30
     elif keeper_kind == "box_count":
         keeper_rank = 20

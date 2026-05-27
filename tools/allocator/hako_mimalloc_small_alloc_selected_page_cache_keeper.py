@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the row89 small-alloc selected-page return keeper."""
+"""Validate the row89 small-alloc selected-page cache keeper."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 FACADE = Path("lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako")
+QUEUE = Path("lang/src/hako_alloc/memory/object_lifecycle_page_queue_box.hako")
 APP = Path("apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako")
 
 
@@ -46,23 +47,30 @@ def main() -> int:
 
     facade_source = FACADE.read_text(encoding="utf-8", errors="replace")
     body = find_method_body(facade_source, "objectLifecycleSmallAlloc")
-    require_text(body, "local page = me.object_lifecycle_queue.selectPage()", "facade")
+    require_text(body, "me.object_lifecycle_queue.selectPage()", "facade")
+    require_text(body, "local page = me.object_lifecycle_queue.last_selected_page", "facade")
     require_text(body, "if page == null", "facade")
     require_text(body, "local selected_index = me.object_lifecycle_queue.last_selected_index", "facade")
+    forbid_text(body, "local page = me.object_lifecycle_queue.selectPage()", "facade")
     forbid_text(body, "local pages = me.object_lifecycle_queue.pages", "facade")
     forbid_text(body, "pages.get(selected_index)", "facade")
+
+    queue_source = QUEUE.read_text(encoding="utf-8", errors="replace")
+    require_text(queue_source, "last_selected_page: HakoAllocPageModel = null", "queue")
+    require_text(queue_source, "me.last_selected_page = null", "queue")
+    require_text(queue_source, "me.last_selected_page = page", "queue")
 
     app_source = APP.read_text(encoding="utf-8", errors="replace")
     require_text(app_source, "select_page_single_fast_path_count=", "proof app")
     require_text(app_source, "release_known_page_fast_path_count=", "proof app")
 
     lines = [
-        "output_contract=hako-mimalloc-small-alloc-selected-page-return-keeper-v0",
+        "output_contract=hako-mimalloc-small-alloc-selected-page-cache-keeper-v0",
         "input_contract=hako-mimalloc-multi-method-source-mir-observation-v0",
-        "keeper=small_alloc_selected_page_return_reuse",
+        "keeper=small_alloc_selected_page_cache_reuse",
         "keeper_kind=box_count",
         "target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
-        "selected_page_return_reused=1",
+        "selected_page_cache_reused=1",
         "removed_repeated_pages_get=1",
         "proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako",
         "winner_claim=0",
