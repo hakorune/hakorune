@@ -281,7 +281,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 233 | `POST-FACADE-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH-296X-001` | Landed | Refresh exact-slot callsite attribution after the selected facade fusion keeper. |
 | 234 | `POST-FACADE-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Landed | Choose residual facade exact-slot field inventory as the next narrow diagnostic. |
 | 235 | `OBJECT-LIFECYCLE-FACADE-RESIDUAL-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Landed | Inventory residual facade exact-slot field traffic after selected facade fusion. |
-| 236 | `OBJECT-LIFECYCLE-FACADE-RESIDUAL-FIELD-OWNER-SELECTION-296X-001` | Planned | Decide whether residual facade has another narrow keeper or should yield to the next family. |
+| 236 | `OBJECT-LIFECYCLE-FACADE-RESIDUAL-FIELD-OWNER-SELECTION-296X-001` | Landed | Decide that residual facade should yield to page queue exact-slot field inventory. |
+| 237 | `PAGE-QUEUE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Planned | Inventory page queue exact-slot field traffic before selecting a keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
