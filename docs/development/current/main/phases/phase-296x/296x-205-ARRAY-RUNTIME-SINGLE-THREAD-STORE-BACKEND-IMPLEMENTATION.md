@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: implement the ArrayBox helper-side single-thread exact backend selected by row204.
 Blocker: ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-IMPLEMENTATION-296X-001

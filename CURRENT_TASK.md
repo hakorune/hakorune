@@ -81,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row205 is implementing the helper-side single-thread exact ArrayBox slot
-  backend behind `HAKO_ARRAY_SLOT_STORE`
+- row206 is measuring the helper-side single-thread exact ArrayBox slot backend
+  keeper effect behind `HAKO_ARRAY_SLOT_STORE`
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
   diagnostic is `array_runtime_single_thread_store_backend_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
