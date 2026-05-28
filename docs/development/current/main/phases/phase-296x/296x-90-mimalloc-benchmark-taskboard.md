@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-POST-RESULT-CAPSULE-RESET-BATCHING-OWNER-REFRESH-296X-001:
-  Refresh exact-slot ownership after accepting the result capsule reset batching
-  keeper before selecting another implementation row.
+WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
+  Select the next exact-slot owner after result capsule reset batching, with
+  page queue immediate retry still blocked.
 ```
 
 ## Queue
@@ -305,7 +305,8 @@ POST-RESULT-CAPSULE-RESET-BATCHING-OWNER-REFRESH-296X-001:
 | 257 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-GUARD-SURFACE-296X-001` | Landed | Freeze result capsule reset field-batching helper symbols, slot constants, and proof surface before implementation. |
 | 258 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-IMPLEMENTATION-296X-001` | Landed | Implement the selected result capsule reset field-batching helper and same-module lowering. |
 | 259 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-MEASUREMENT-296X-001` | Landed | Measure the result capsule reset field-batching implementation and accept the small keeper win. |
-| 260 | `POST-RESULT-CAPSULE-RESET-BATCHING-OWNER-REFRESH-296X-001` | Planned | Refresh exact-slot ownership after accepting the result capsule reset batching keeper. |
+| 260 | `POST-RESULT-CAPSULE-RESET-BATCHING-OWNER-REFRESH-296X-001` | Landed | Refresh exact-slot ownership after accepting the result capsule reset batching keeper. |
+| 261 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001` | Planned | Select the next exact-slot owner after result capsule reset batching, with page queue immediate retry still blocked. |
 
 ## Hako Mimalloc Performance Parity Plan
 
