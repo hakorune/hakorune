@@ -234,6 +234,28 @@ pub(crate) fn exact_slot_set_u64(handle: i64, slot: usize, value: u64) -> bool {
     })
 }
 
+pub(crate) fn exact_slot_rmw_add_u64(handle: i64, slot: usize, delta: i64) -> Option<i64> {
+    let idx = handle_to_index(handle)?;
+    let delta = u128::try_from(delta).ok()?;
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return None;
+        };
+        let field = objects.get_mut(idx)?.fields.get_mut(slot)?;
+        if !exact_u64_storage_supported(field.storage) {
+            return None;
+        }
+        let TypedSlotValue::Unsigned(value) = field.value else {
+            return None;
+        };
+        let next = value.checked_add(delta)?;
+        u64::try_from(next).ok()?;
+        let next_i64 = i64::try_from(next).ok()?;
+        field.value = TypedSlotValue::Unsigned(next);
+        Some(next_i64)
+    })
+}
+
 pub(crate) fn exact_slot_get_handle(handle: i64, slot: usize) -> Option<i64> {
     let idx = handle_to_index(handle)?;
     SINGLE_THREAD_OBJECTS.with(|objects| {

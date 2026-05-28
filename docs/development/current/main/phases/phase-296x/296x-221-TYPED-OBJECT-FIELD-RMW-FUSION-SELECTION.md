@@ -17,7 +17,9 @@ direct-op under the current opaque handle / Rust TLS Vec storage ABI.
 
 This row does not implement the fused helper. It proves the selected method has
 same-block `field_get -> binop + -> field_set` patterns where two exact-slot
-helpers can be replaced by one runtime-owned fused helper.
+helpers can be replaced by one runtime-owned fused helper. The selected pattern
+also requires the loaded field value to have no extra direct uses outside the
+selected binop.
 
 ## Evidence
 
@@ -27,12 +29,12 @@ input_contract=mir-typed-field-direct-op-selected-method-feasibility-v0
 workload_id=representative-object-lifecycle-small-block-v0
 selected_method=HakoAllocPageModel.acquire_usize/1
 selected_owner=typed_object_exact_slot_rmw_fusion
-rmw_candidate_count=6
-rmw_candidate_usize_count=6
+rmw_candidate_count=5
+rmw_candidate_usize_count=5
 rmw_candidate_u64_count=0
-planned_erased_get_set_helper_calls=12
-planned_added_fused_helper_calls=6
-planned_net_helper_call_delta=6
+planned_erased_get_set_helper_calls=10
+planned_added_fused_helper_calls=5
+planned_net_helper_call_delta=5
 planned_net_helper_call_delta_positive=1
 runtime_storage_owner_preserved=1
 helper_free_direct_op_rejected=1
@@ -45,11 +47,9 @@ candidate_1_field=HakoAllocPageModel.reject_count
 candidate_2_block=41
 candidate_2_field=HakoAllocPageModel.reject_count
 candidate_3_block=45
-candidate_3_field=HakoAllocPageModel.used
+candidate_3_field=HakoAllocPageModel.alloc_count
 candidate_4_block=45
-candidate_4_field=HakoAllocPageModel.alloc_count
-candidate_5_block=45
-candidate_5_field=HakoAllocPageModel.requested_bytes
+candidate_4_field=HakoAllocPageModel.requested_bytes
 selected_next=typed_object_field_rmw_fusion_keeper
 by_name_special_case=0
 winner_claim=0

@@ -427,6 +427,18 @@ pub extern "C" fn nyash_object_exact_slot_set_u64_hiu(handle: i64, slot: i64, va
     i64::from(typed_object_store::exact_slot_set_u64(handle, slot, value))
 }
 
+#[export_name = "nyash.object.exact_slot_rmw_add_u64_hiii"]
+pub extern "C" fn nyash_object_exact_slot_rmw_add_u64_hiii(
+    handle: i64,
+    slot: i64,
+    delta: i64,
+) -> i64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return -1;
+    };
+    typed_object_store::exact_slot_rmw_add_u64(handle, slot, delta).unwrap_or(-1)
+}
+
 #[export_name = "nyash.object.exact_slot_get_handle_hii"]
 pub extern "C" fn nyash_object_exact_slot_get_handle_hii(handle: i64, slot: i64) -> i64 {
     let Some(slot) = exact_slot_index(slot) else {

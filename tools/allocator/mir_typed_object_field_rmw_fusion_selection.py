@@ -74,6 +74,26 @@ def same_receiver_field(
     return get_box, get_field
 
 
+def reg_use_count(instructions: list[dict[str, Any]], reg: int) -> int:
+    count = 0
+    for inst in instructions:
+        op = inst.get("op")
+        if op == "binop":
+            count += int(resolve_reg(inst.get("lhs"), {}) == reg)
+            count += int(resolve_reg(inst.get("rhs"), {}) == reg)
+        elif op == "copy":
+            count += int(resolve_reg(inst.get("src"), {}) == reg)
+        elif op == "compare":
+            count += int(resolve_reg(inst.get("lhs"), {}) == reg)
+            count += int(resolve_reg(inst.get("rhs"), {}) == reg)
+        elif op == "field_set":
+            count += int(resolve_reg(inst.get("value"), {}) == reg)
+        elif op in {"branch", "ret"}:
+            count += int(resolve_reg(inst.get("cond"), {}) == reg)
+            count += int(resolve_reg(inst.get("value"), {}) == reg)
+    return count
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mir-json", type=Path, required=True)
@@ -113,6 +133,9 @@ def main() -> int:
                     continue
                 binop_index, binop_inst, get_dst, get_side = binops_by_dst[value]
                 get_index, get_inst = gets_by_dst[get_dst]
+                if reg_use_count(instructions, get_dst) != 1:
+                    counts["rejected_get_result_has_extra_uses_count"] += 1
+                    continue
                 receiver_field = same_receiver_field(get_inst, inst, value_types, copies)
                 if receiver_field is None:
                     counts["rejected_receiver_or_field_mismatch_count"] += 1

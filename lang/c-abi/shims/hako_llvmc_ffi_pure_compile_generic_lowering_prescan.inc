@@ -681,6 +681,7 @@
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_i64_hii\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_u64_hiu\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_u64_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_rmw_add_u64_hiii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_handle_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_handle_hii\"(i64, i64)\n");
         fprintf(f, "declare void @llvm.trap()\n");
