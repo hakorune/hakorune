@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-RESULT-CAPSULE-RESET-FIELD-BATCHING-GUARD-SURFACE-296X-001:
-  Freeze the result capsule reset field-batching helper symbols, slot constants,
-  and proof surface before implementation.
+RESULT-CAPSULE-RESET-FIELD-BATCHING-IMPLEMENTATION-296X-001:
+  Implement the selected result capsule reset field-batching helper and same-module
+  lowering while preserving proof output.
 ```
 
 ## Queue
@@ -302,7 +302,8 @@ RESULT-CAPSULE-RESET-FIELD-BATCHING-GUARD-SURFACE-296X-001:
 | 254 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECEIVER-FORWARDING-296X-001` | Landed | Select the next exact-slot owner after receiver forwarding, with page queue immediate retry still blocked. |
 | 255 | `RESULT-CAPSULE-IR-SHAPE-DIFF-INVENTORY-296X-001` | Landed | Inventory alloc/release result capsule exact-slot traffic and escape shape before another keeper. |
 | 256 | `RESULT-CAPSULE-OWNER-SELECTION-296X-001` | Landed | Select result capsule reset field batching as the next narrow owner. |
-| 257 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-GUARD-SURFACE-296X-001` | Planned | Freeze result capsule reset field-batching helper symbols, slot constants, and proof surface before implementation. |
+| 257 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-GUARD-SURFACE-296X-001` | Landed | Freeze result capsule reset field-batching helper symbols, slot constants, and proof surface before implementation. |
+| 258 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-IMPLEMENTATION-296X-001` | Planned | Implement the selected result capsule reset field-batching helper and same-module lowering. |
 
 ## Hako Mimalloc Performance Parity Plan
 
