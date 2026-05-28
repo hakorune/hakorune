@@ -288,7 +288,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 240 | `SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER-296X-001` | Landed | Implement the selected page queue same-block get/set fusion keeper. |
 | 241 | `SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-MEASUREMENT-296X-001` | Landed | Measure the selected page queue get/set fusion keeper as a non-keeper. |
 | 242 | `ROLLBACK-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-296X-001` | Landed | Roll back the selected page queue get/set fusion non-keeper. |
-| 243 | `POST-PAGE-QUEUE-ROLLBACK-OWNER-REFRESH-296X-001` | Planned | Refresh the hot owner after rolling back the page queue non-keeper. |
+| 243 | `POST-PAGE-QUEUE-ROLLBACK-OWNER-REFRESH-296X-001` | Landed | Refresh the hot owner after rolling back the page queue non-keeper. |
+| 244 | `WEIGHTED-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH-296X-001` | Planned | Attribute exact-slot callsites with weighted hot-candidate and IR-shape evidence before another keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
