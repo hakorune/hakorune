@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: attribute receiver materialization copies after row182 shifted the dominant owner.
 Blocker: RECEIVER-MATERIALIZATION-ATTRIBUTION-PROBE-296X-001

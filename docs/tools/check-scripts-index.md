@@ -269,6 +269,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_field_get_direct_consumer_forwarding_candidate_probe_guard.sh` | 296x-181 の field_get direct-consumer forwarding candidate probe guard。実際に forward できそうな expression copy chain を数える。 |
 | `tools/checks/k2_wide_phase296x_field_get_direct_consumer_forwarding_keeper_guard.sh` | 296x-182 の field_get direct-consumer forwarding keeper guard。同一 block の FieldGet → Arg/CompareOperand copy を狭く削る。 |
 | `tools/checks/k2_wide_phase296x_receiver_materialization_attribution_probe_guard.sh` | 296x-183 の receiver materialization attribution probe guard。receiver copy chain を family / unique copy / duplicate attribution に分解する。 |
+| `tools/checks/k2_wide_phase296x_receiver_pin_chain_policy_selection_guard.sh` | 296x-184 の receiver pin chain policy selection guard。same-receiver cache ではなく pin-chain narrowing を選ぶ。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

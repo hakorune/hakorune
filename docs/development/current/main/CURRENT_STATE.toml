@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x landed narrow FieldGet direct-consumer forwarding and is attributing receiver materialization copies before the next keeper."
+active_lane_status = "Phase-296x attributed receiver materialization copies and is selecting receiver pin-chain narrowing before the next keeper."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-183-RECEIVER-MATERIALIZATION-ATTRIBUTION-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-183-RECEIVER-MATERIALIZATION-ATTRIBUTION-PROBE.md"
-latest_card_summary = "Attribute receiver materialization copies after row182 shifted the dominant owner."
-current_blocker_token = "RECEIVER-MATERIALIZATION-ATTRIBUTION-PROBE-296X-001"
+latest_card = "296x-184-RECEIVER-PIN-CHAIN-POLICY-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-184-RECEIVER-PIN-CHAIN-POLICY-SELECTION.md"
+latest_card_summary = "Select receiver pin-chain narrowing over same-receiver callsite cache."
+current_blocker_token = "RECEIVER-PIN-CHAIN-POLICY-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-183 Attributed receiver materialization as 27 callsite copies / 24 unique copies, with only 3 duplicate attributions, selecting pin-chain policy selection next.",
   "296x-182 Landed narrow same-block FieldGet direct-consumer forwarding, reducing objectLifecycleSmallAlloc copies from 88 to 70 and expression materialization copies from 24 to 9.",
   "296x-181 Counted 11 concrete field_get direct-consumer forwarding candidates and selected MIR builder expression materialization forwarding as the next optimization owner.",
   "296x-180 Selected field_get direct-consumer value forwarding as the next chain policy, rejecting broad LocalSSA copy coalescing.",

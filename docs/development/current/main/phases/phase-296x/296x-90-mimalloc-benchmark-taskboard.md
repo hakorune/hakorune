@@ -228,7 +228,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 180 | `FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-296X-001` | Landed | Select the field-get expression copy-chain policy before optimization. |
 | 181 | `FIELD-GET-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-296X-001` | Landed | Count field_get direct-consumer forwarding candidates before optimization. |
 | 182 | `FIELD-GET-DIRECT-CONSUMER-FORWARDING-KEEPER-DESIGN-296X-001` | Landed | Implement narrow same-block FieldGet direct-consumer forwarding in LocalSSA. |
-| 183 | `RECEIVER-MATERIALIZATION-ATTRIBUTION-PROBE-296X-001` | Current | Attribute receiver materialization copies after row182 shifted the dominant owner. |
+| 183 | `RECEIVER-MATERIALIZATION-ATTRIBUTION-PROBE-296X-001` | Landed | Attribute receiver materialization copies after row182 shifted the dominant owner. |
+| 184 | `RECEIVER-PIN-CHAIN-POLICY-SELECTION-296X-001` | Current | Select receiver pin-chain narrowing over same-receiver callsite cache. |
 
 ## Hako Mimalloc Performance Parity Plan
 
