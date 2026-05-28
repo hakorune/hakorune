@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected page queue exact-slot field inventory after residual facade positive-net surface stayed small."
+active_lane_status = "Phase-296x inventoried page queue exact-slot field traffic; page queue owner selection is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-236-OBJECT-LIFECYCLE-FACADE-RESIDUAL-FIELD-OWNER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-236-OBJECT-LIFECYCLE-FACADE-RESIDUAL-FIELD-OWNER-SELECTION.md"
-latest_card_summary = "Selected page queue exact-slot field inventory next because residual facade positive-net candidates stayed at 4 after the selected facade fusion."
-current_blocker_token = "PAGE-QUEUE-EXACT-SLOT-FIELD-INVENTORY-296X-001"
+latest_card = "296x-237-PAGE-QUEUE-EXACT-SLOT-FIELD-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-237-PAGE-QUEUE-EXACT-SLOT-FIELD-INVENTORY.md"
+latest_card_summary = "Inventoried page queue exact-slot traffic: 35 field ops across 3 methods, receiver state dominates at 34 ops, and positive-net candidates rise to 16."
+current_blocker_token = "PAGE-QUEUE-FIELD-OWNER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-237 Inventoried page queue exact-slot traffic: 35 field ops across 3 methods, receiver state dominates at 34 ops, and positive-net candidates rise to 16.",
   "296x-236 Selected page queue exact-slot field inventory next because residual facade positive-net candidates stayed at 4 after the selected facade fusion.",
   "296x-235 Inventoried residual facade exact-slot traffic: 30 field ops across 5 methods, facade receiver state still largest at 16 ops, and positive-net candidates remain 4.",
   "296x-234 Selected residual facade exact-slot field inventory next: object_lifecycle_facade remains dominant at 17.36%, but repeat selected-facade fusion and generic residence stay closed.",
