@@ -307,7 +307,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 259 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-MEASUREMENT-296X-001` | Landed | Measure the result capsule reset field-batching implementation and accept the small keeper win. |
 | 260 | `POST-RESULT-CAPSULE-RESET-BATCHING-OWNER-REFRESH-296X-001` | Landed | Refresh exact-slot ownership after accepting the result capsule reset batching keeper. |
 | 261 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001` | Landed | Select the next exact-slot owner after result capsule reset batching, with page queue immediate retry still blocked. |
-| 262 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET-296X-001` | Planned | Refresh page-model hotpath IR shape after result capsule reset batching before another keeper implementation. |
+| 262 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET-296X-001` | Landed | Refresh page-model hotpath IR shape after result capsule reset batching before another keeper implementation. |
+| 263 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001` | Planned | Select the next page-model shape owner without repeating the prior receiver-forwarding no-material path. |
 
 ## Hako Mimalloc Performance Parity Plan
 

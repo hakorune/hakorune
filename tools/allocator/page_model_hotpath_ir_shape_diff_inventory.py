@@ -92,8 +92,18 @@ def main() -> int:
     args = parser.parse_args()
 
     owner = read_kv(args.owner_selection_report)
-    require(owner, "output_contract", "weighted-exact-slot-owner-selection-v0")
-    require(owner, "selected_owner", "page_model_hotpath_ir_shape_diff_inventory")
+    output_contract = owner.get("output_contract")
+    if output_contract not in {
+        "weighted-exact-slot-owner-selection-v0",
+        "weighted-exact-slot-owner-selection-after-result-capsule-reset-v0",
+    }:
+        raise SystemExit(f"unsupported owner selection contract: {output_contract!r}")
+    selected_owner = owner.get("selected_owner")
+    if selected_owner not in {
+        "page_model_hotpath_ir_shape_diff_inventory",
+        "page_model_hotpath_ir_shape_diff_refresh",
+    }:
+        raise SystemExit(f"unsupported selected owner: {selected_owner!r}")
     require(owner, "summary", "ok")
 
     page_model_callers = parse_page_model_callers(args.perf_report)
@@ -123,7 +133,7 @@ def main() -> int:
 
     lines = [
         "output_contract=page-model-hotpath-ir-shape-diff-inventory-v0",
-        "input_contract=weighted-exact-slot-owner-selection-v0",
+        f"input_contract={output_contract}",
         "workload_id=representative-object-lifecycle-small-block-v0",
         "target_family=page_model_hotpath",
         f"target_family_pct={owner.get('top_unblocked_family_pct', '0.00')}",

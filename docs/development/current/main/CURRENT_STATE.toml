@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected page-model hotpath IR-shape refresh after result capsule reset batching; implementation remains closed."
+active_lane_status = "Phase-296x refreshed page-model hotpath IR shape after result capsule reset batching; shape-owner selection is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-261-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-261-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET.md"
-latest_card_summary = "Selected page_model_hotpath as the next exact-slot owner, but only as a fresh IR-shape refresh because prior page-model receiver forwarding had no material body-time effect."
-current_blocker_token = "PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET-296X-001"
+latest_card = "296x-262-PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-262-PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET.md"
+latest_card_summary = "Refreshed page-model hotpath IR shape after result capsule reset batching: acquire_usize remains top at 9.05% with copy_materialization shape, but row252 no-material retry remains blocked."
+current_blocker_token = "PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-262 Refreshed page-model hotpath IR shape after result capsule reset batching: acquire_usize remains top at 9.05% with copy_materialization shape, but row252 no-material retry remains blocked.",
   "296x-261 Selected page_model_hotpath as the next exact-slot owner, but only as a fresh IR-shape refresh because prior page-model receiver forwarding had no material body-time effect.",
   "296x-260 Refreshed exact-slot ownership after result capsule reset batching: exact-slot get/set remains 52.67%, page_model_hotpath is dominant at 16.81%, weighted owner selection is next.",
   "296x-259 Measured result capsule reset field batching as an accepted small keeper: body median 113ms floor to 110ms candidate, winner/replacement lanes closed.",
