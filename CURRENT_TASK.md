@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row216 measured exact-lane typed-object slot direct helpers as no-effect
-  against the SingleThreadExact floor
+- row217 refreshed perf ownership after exact-slot helper no-effect evidence
+  and selected MIR typed-field direct-op net inventory
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is post exact-slot helper perf owner refresh
+  diagnostic is typed-field direct-op net helper-call inventory
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

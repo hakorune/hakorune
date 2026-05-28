@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001:
-  Refresh the hot owner after exact-slot helper measurement found no material
-  body-time improvement.
+MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
+  Count whether hot typed-field helper calls can be erased with positive net
+  helper-call delta before any typed-field direct-op transform.
 ```
 
 ## Queue
@@ -262,7 +262,8 @@ POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001:
 | 214 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION-296X-001` | Landed | Select the narrow exact-lane typed-object field helper seam before implementation. |
 | 215 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001` | Landed | Add separate exact-slot helper symbols and lower eligible exact-EXE field access to them. |
 | 216 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001` | Landed | Measure the exact-lane helper implementation and decide keeper / next-owner refresh. |
-| 217 | `POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001` | Planned | Refresh perf owner after exact-slot helper no-effect evidence. |
+| 217 | `POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001` | Landed | Refresh perf owner after exact-slot helper no-effect evidence. |
+| 218 | `MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001` | Planned | Count positive net helper-call delta for typed-field direct-op candidates before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
