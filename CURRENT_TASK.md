@@ -81,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row204 is defining the ArrayBox runtime single-thread store backend boundary
-  before implementation
+- row205 is implementing the helper-side single-thread exact ArrayBox slot
+  backend behind `HAKO_ARRAY_SLOT_STORE`
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
   diagnostic is `array_runtime_single_thread_store_backend_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
@@ -94,7 +94,8 @@ Scope: current lane / next lane / restart order only.
 - docs-first ordered work:
   1. inspect the field/Array runtime lowering boundary behind the selected
      perf hot symbols
-  2. choose one narrow keeper family before editing compiler/runtime code
+  2. keep the ArrayBox backend seam on helper-side runtime code, not public
+     ArrayBox storage or MIR lowering
   3. use exact-EXE body timing only after structural evidence improves
   4. keep DLL/provider/replacement work parked until benchmark contracts and
      parity owner evidence are stable

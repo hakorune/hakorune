@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: define the ArrayBox runtime single-thread store backend boundary before implementation.
 Blocker: ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT-296X-001
@@ -27,6 +27,7 @@ selected_diagnostic_backend=SingleThreadExactArrayStore
 selection_env=HAKO_ARRAY_SLOT_STORE
 exported_array_helper_abi=unchanged
 visible_arraybox_semantics=unchanged
+default_visible_arraybox_semantics=unchanged
 optimization_open=0
 winner_claim=0
 replacement_active=0

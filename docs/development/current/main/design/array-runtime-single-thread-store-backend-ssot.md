@@ -28,6 +28,7 @@ selection_env=HAKO_ARRAY_SLOT_STORE
 allowed_values=safe_rwlock|single_thread_exact
 exported_array_helper_abi=unchanged
 visible_arraybox_semantics=unchanged
+default_visible_arraybox_semantics=unchanged
 optimization_open=0
 winner_claim=0
 replacement_active=0
@@ -78,6 +79,7 @@ HAKO_ARRAY_SLOT_STORE=single_thread_exact:
   allowed only in exact-EXE diagnostic/perf rows
   no cross-thread guarantee
   no silent fallback after backend selection
+  numeric i64 helper path only
 
 unknown value:
   fail-fast
@@ -90,6 +92,9 @@ hako_alloc_by_name_array_special_case:
   rejected
 
 changing public ArrayBox semantics:
+  rejected
+
+using single_thread_exact as public ArrayBox storage replacement:
   rejected
 
 provider activation / allocator replacement / hooks / globals:

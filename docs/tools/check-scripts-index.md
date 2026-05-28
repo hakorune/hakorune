@@ -295,6 +295,7 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/array_runtime_slot_helper_cost_probe.py` | 296x-203 の ArrayBox runtime slot helper cost probe。sidecar Rust microprobe で valid handle / cache / write lock / inline store / full facade cost を分ける。 |
 | `tools/checks/k2_wide_phase296x_array_runtime_slot_helper_cost_probe_guard.sh` | 296x-203 の ArrayBox runtime slot helper cost probe guard。array storage write lock を次 subowner として固定する。 |
 | `tools/checks/k2_wide_phase296x_array_runtime_single_thread_store_backend_ssot_guard.sh` | 296x-204 の ArrayBox runtime single-thread store backend SSOT guard。SafeRwLock default / SingleThreadExact diagnostic / fail-fast env boundary を固定する。 |
+| `tools/checks/k2_wide_phase296x_array_runtime_single_thread_store_backend_implementation_guard.sh` | 296x-205 の ArrayBox runtime single-thread store backend implementation guard。helper-side backend seam、safe/single-thread proof smoke、invalid env fail-fast を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

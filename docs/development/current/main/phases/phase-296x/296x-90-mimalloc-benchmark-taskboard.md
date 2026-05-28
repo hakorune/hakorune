@@ -249,7 +249,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 201 | `LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001` | Landed | Refresh the large owner after typed-field residence selected-method plans have zero net helper-call erasure. |
 | 202 | `ARRAY-RUNTIME-SLOT-HELPER-SELECTION-296X-001` | Landed | Select the ArrayBox runtime slot helper diagnostic boundary before any keeper implementation. |
 | 203 | `ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE-296X-001` | Landed | Split ArrayBox runtime slot helper cost before keeper implementation. |
-| 204 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT-296X-001` | Current | Define the ArrayBox runtime single-thread store backend boundary before implementation. |
+| 204 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT-296X-001` | Landed | Define the ArrayBox runtime single-thread store backend boundary before implementation. |
+| 205 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-IMPLEMENTATION-296X-001` | Current | Implement the helper-side single-thread exact ArrayBox slot backend. |
 
 ## Hako Mimalloc Performance Parity Plan
 
