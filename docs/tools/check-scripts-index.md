@@ -273,6 +273,9 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_narrowing_keeper_guard.sh` | 296x-185 の receiver pin chain narrowing keeper guard。同一 block Copy 定義の receiver を再 copy しない。 |
 | `tools/checks/k2_wide_phase296x_field_array_runtime_lowering_boundary_probe_guard.sh` | 296x-187 の field/Array runtime lowering boundary probe guard。typed-object field helper lowering を次の keeper family に選ぶ。 |
 | `tools/allocator/hako_mimalloc_field_array_runtime_boundary_probe.py` | 296x-187 の field/Array runtime boundary probe。hot methods の FieldGet/FieldSet と ArrayBox calls を動的重みに換算し、perf report がある場合は helper pct を結合する。 |
+| `tools/checks/k2_wide_phase296x_typed_object_helper_lock_cost_probe_guard.sh` | 296x-189 の typed-object helper lock cost probe guard。lock/global slab cost を測り、runtime single-thread fast lane を次 row に選ぶ。 |
+| `tools/allocator/typed_object_helper_lock_cost_probe.py` | 296x-189 の typed-object helper lock cost probe。sidecar Rust microprobe を一時コンパイルし、Mutex<Vec<TypedSlotObject>> 型の lock/read/write/slot/enum cost を contract 化する。 |
+| `tools/checks/k2_wide_phase296x_typed_object_storage_backend_ssot_guard.sh` | 296x-190 の typed-object storage backend SSOT guard。SafeMutexStore default / SingleThreadExactStore exact-EXE fast lane / exported ABI unchanged を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

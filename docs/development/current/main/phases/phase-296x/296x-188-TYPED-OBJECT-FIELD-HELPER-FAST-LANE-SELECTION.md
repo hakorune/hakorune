@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the first typed-object field helper fast-lane probe after row187.
 Blocker: TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION-296X-001

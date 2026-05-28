@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected typed-object helper lock-cost probing before runtime or MIR scalar-residence changes."
+active_lane_status = "Phase-296x is defining typed-object SafeMutexStore and SingleThreadExactStore boundaries before runtime fast-lane implementation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-188-TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-188-TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION.md"
-latest_card_summary = "Select typed-object helper lock-cost probe before changing runtime or compiler behavior."
-current_blocker_token = "TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION-296X-001"
+latest_card = "296x-190-TYPED-OBJECT-STORAGE-BACKEND-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-190-TYPED-OBJECT-STORAGE-BACKEND-SSOT.md"
+latest_card_summary = "Define SafeMutexStore and SingleThreadExactStore boundaries before runtime fast-lane implementation."
+current_blocker_token = "TYPED-OBJECT-STORAGE-BACKEND-SSOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-189 Quantified typed-object helper lock/global-slab cost and selected runtime single-thread fast lane as the next implementation family.",
+  "296x-188 Selected typed-object helper lock-cost probing before runtime fast-lane or MIR scalar-residence changes.",
   "296x-187 Classified field/Array runtime lowering and selected typed-object field helper lowering as the first fast-lane family.",
   "296x-186 Selected typed-object field access plus ArrayBox runtime helpers as the large object-lifecycle owner from direct perf evidence.",
   "296x-185 Reduced receiver LocalSSA copy pressure with receiver pin-chain narrowing, but body timing remained hundreds of milliseconds, forcing a large-owner reality check.",

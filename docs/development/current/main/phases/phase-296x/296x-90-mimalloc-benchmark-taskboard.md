@@ -233,7 +233,9 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 185 | `RECEIVER-PIN-CHAIN-NARROWING-KEEPER-296X-001` | Landed | Narrow receiver LocalSSA by reusing same-block Copy defs for receiver operands. |
 | 186 | `OBJECT-LIFECYCLE-LARGE-OWNER-REALITY-CHECK-296X-001` | Landed | Stop copy-only optimization and select typed-object field access plus ArrayBox runtime helper cost as the next large owner. |
 | 187 | `FIELD-ARRAY-RUNTIME-LOWERING-BOUNDARY-PROBE-296X-001` | Landed | Classify field/Array runtime lowering and select typed-object field helper fast lane as the next keeper family. |
-| 188 | `TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION-296X-001` | Current | Select typed-object helper lock-cost probe before changing runtime or compiler behavior. |
+| 188 | `TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION-296X-001` | Landed | Select typed-object helper lock-cost probe before changing runtime or compiler behavior. |
+| 189 | `TYPED-OBJECT-HELPER-LOCK-COST-PROBE-296X-001` | Landed | Quantify typed-object helper lock/global-slab cost before runtime fast-lane work. |
+| 190 | `TYPED-OBJECT-STORAGE-BACKEND-SSOT-296X-001` | Current | Define SafeMutexStore and SingleThreadExactStore boundaries before runtime fast-lane implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row188 selected typed-object helper lock-cost probing before runtime or MIR
-  scalar-residence changes
+- row190 is defining typed-object SafeMutexStore and SingleThreadExactStore
+  boundaries before runtime fast-lane implementation
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `typed_object_helper_lock_cost_probe`
+  diagnostic is `typed_object_storage_backend_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus
