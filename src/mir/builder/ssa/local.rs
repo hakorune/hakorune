@@ -17,6 +17,11 @@ impl LocalKind {
     fn can_forward_same_block_field_get_to_consumer(self) -> bool {
         matches!(self, LocalKind::Arg | LocalKind::CompareOperand)
     }
+
+    #[inline]
+    fn can_forward_same_block_copy_to_receiver(self) -> bool {
+        matches!(self, LocalKind::Recv)
+    }
 }
 
 impl LocalKind {
@@ -271,6 +276,18 @@ fn ensure_inner(
             // `%field -> copy -> compare/binop` chains. Keep this deliberately
             // narrow: no cross-block forwarding and no arbitrary copy
             // coalescing.
+            builder.local_ssa_map.insert(key, v);
+            return Ok(v);
+        }
+
+        if kind.can_forward_same_block_copy_to_receiver()
+            && def_block == Some(bb)
+            && matches!(def_inst, Some(MirInstruction::Copy { .. }))
+        {
+            // Receiver materialization often already has a same-block pin/copy
+            // immediately before Call emission. Reusing that Copy keeps the
+            // receiver block-local without adding another `copy copy` layer.
+            // Keep this limited to receiver operands and same-block Copy defs.
             builder.local_ssa_map.insert(key, v);
             return Ok(v);
         }

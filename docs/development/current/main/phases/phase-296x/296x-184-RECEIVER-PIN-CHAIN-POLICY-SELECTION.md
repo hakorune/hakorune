@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the receiver pin-chain policy before another MIR optimization.
 Blocker: RECEIVER-PIN-CHAIN-POLICY-SELECTION-296X-001
