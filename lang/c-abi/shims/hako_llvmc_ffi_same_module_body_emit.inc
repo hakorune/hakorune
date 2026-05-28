@@ -446,9 +446,20 @@
                bid == 45;
       }
 
+      auto int same_module_function_name_is_selected_facade_get_set_fusion_target(
+          const char* name) {
+        if (!name) return 0;
+        return !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2") ||
+               !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseKnownPageIndex/1") ||
+               !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1") ||
+               !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAllocAligned/2");
+      }
+
       auto int same_module_function_is_selected_typed_field_rmw_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name && !strcmp(name, "HakoAllocPageModel.acquire_usize/1");
+        return name &&
+               (!strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
+                same_module_function_name_is_selected_facade_get_set_fusion_target(name));
       }
 
       auto int same_module_function_instruction_is_array_method(
@@ -831,17 +842,17 @@
              bid,
              ii,
              plan->binop_dst);
-        EMIT("  br i1 %%typed_field_rmw_ok_%lld_%zu, label %%typed_field_rmw_continue_%lld_%zu, label %%typed_field_rmw_trap_%lld_%zu\n",
+        EMIT("  br i1 %%typed_field_rmw_ok_%lld_%zu, label %%exact_status_continue_%lld_%zu, label %%exact_status_trap_%lld_%zu\n",
              bid,
              ii,
              bid,
              ii,
              bid,
              ii);
-        EMIT("typed_field_rmw_trap_%lld_%zu:\n", bid, ii);
+        EMIT("exact_status_trap_%lld_%zu:\n", bid, ii);
         EMIT("  call void @llvm.trap()\n");
         EMIT("  unreachable\n");
-        EMIT("typed_field_rmw_continue_%lld_%zu:\n", bid, ii);
+        EMIT("exact_status_continue_%lld_%zu:\n", bid, ii);
         set_type(plan->binop_dst, T_I64);
         return 1;
       }
