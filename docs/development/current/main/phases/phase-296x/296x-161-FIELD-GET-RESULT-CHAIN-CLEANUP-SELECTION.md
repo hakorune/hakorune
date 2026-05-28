@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the narrow MIR builder owner for field_get result-chain cleanup.
 Blocker: FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION-296X-001

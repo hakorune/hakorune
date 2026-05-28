@@ -60,10 +60,7 @@ impl super::MirBuilder {
             }
         }
 
-        // Correctness-first: slotify field values so they have block-local defs
-        // and participate in PHI merges when reused across branches.
-        let pinned = self.pin_to_slot(field_val, "@field")?;
-        Ok(pinned)
+        Ok(field_val)
     }
 
     /// Build field assignment: object.field = value
