@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x rejected helper-free typed-field direct-op under the current storage ABI; next is typed-object RMW/fusion selection."
+active_lane_status = "Phase-296x selected typed-object field RMW fusion after rejecting helper-free direct-op; next is the selected-method keeper."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-220-MIR-TYPED-FIELD-DIRECT-OP-SELECTED-METHOD-KEEPER"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-220-MIR-TYPED-FIELD-DIRECT-OP-SELECTED-METHOD-KEEPER.md"
-latest_card_summary = "Rejected helper-free typed-field direct-op under the current opaque handle / Rust TLS Vec storage ABI and selected typed-object RMW/fusion selection next."
-current_blocker_token = "TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION-296X-001"
+latest_card = "296x-221-TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-221-TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION.md"
+latest_card_summary = "Selected typed-object exact-slot RMW fusion with 6 same-block usize candidates and net helper-call delta 6 while preserving runtime storage ownership."
+current_blocker_token = "TYPED-OBJECT-FIELD-RMW-FUSION-KEEPER-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-221 Selected typed-object exact-slot RMW fusion with 6 same-block usize candidates and net helper-call delta 6 while preserving runtime storage ownership.",
   "296x-220 Rejected helper-free typed-field direct-op under the current opaque handle / Rust TLS Vec storage ABI and selected typed-object RMW/fusion selection next.",
   "296x-219 Froze the selected acquire_usize/1 typed-field direct-op guard surface with 21 helper-free candidates and transforms still closed.",
   "296x-218 Inventoried typed-field direct-op candidates and found projected positive net exact-helper erasure with transforms still closed.",

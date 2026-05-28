@@ -322,6 +322,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/mir_typed_field_direct_op_guard_surface.py` | 296x-219 の MIR typed-field direct-op guard surface tool。選択メソッドの対象 field op / projected helper symbol / unsigned set guard を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_typed_field_direct_op_guard_surface_guard.sh` | 296x-219 の MIR typed-field direct-op guard surface guard。`acquire_usize/1` の 21 候補と implementation-open=0 を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_typed_field_direct_op_selected_method_feasibility_guard.sh` | 296x-220 の typed-field direct-op selected-method feasibility guard。helper-free direct-op が current storage ABI では不可であることを固定する。 |
+| `tools/allocator/mir_typed_object_field_rmw_fusion_selection.py` | 296x-221 の typed-object field RMW fusion selection tool。`acquire_usize/1` の same-block field_get/add/field_set 候補を数える。 |
+| `tools/checks/k2_wide_phase296x_typed_object_field_rmw_fusion_selection_guard.sh` | 296x-221 の typed-object field RMW fusion selection guard。6 個の usize RMW 候補と net helper-call delta 6 を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

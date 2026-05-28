@@ -266,7 +266,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 218 | `MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001` | Landed | Count positive net helper-call delta for typed-field direct-op candidates before implementation. |
 | 219 | `MIR-TYPED-FIELD-DIRECT-OP-GUARD-SURFACE-296X-001` | Landed | Freeze the selected typed-field direct-op guard surface before implementation. |
 | 220 | `MIR-TYPED-FIELD-DIRECT-OP-SELECTED-METHOD-KEEPER-296X-001` | Rejected | Reject helper-free typed-field direct-op under the current opaque handle / Rust TLS Vec storage ABI. |
-| 221 | `TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION-296X-001` | Planned | Select a helper-reduction seam that keeps typed-object storage ownership inside Rust runtime code. |
+| 221 | `TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION-296X-001` | Landed | Select a helper-reduction seam that keeps typed-object storage ownership inside Rust runtime code. |
+| 222 | `TYPED-OBJECT-FIELD-RMW-FUSION-KEEPER-296X-001` | Planned | Implement the selected-method typed-object exact-slot RMW fusion keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
