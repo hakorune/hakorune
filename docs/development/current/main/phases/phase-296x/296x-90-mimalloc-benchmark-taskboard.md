@@ -298,7 +298,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 250 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-GUARD-SURFACE-296X-001` | Landed | Freeze the selected-method receiver block-entry copy forwarding guard surface before implementation. |
 | 251 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-IMPLEMENTATION-296X-001` | Landed | Implement selected-method-only receiver block-entry copy forwarding and preserve semantic proof. |
 | 252 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-MEASUREMENT-296X-001` | Landed | Measure the selected-method receiver block-entry copy forwarding keeper before accepting or rolling back. |
-| 253 | `POST-RECEIVER-FORWARDING-OWNER-REFRESH-296X-001` | Planned | Refresh perf ownership after the receiver forwarding no-material-effect measurement. |
+| 253 | `POST-RECEIVER-FORWARDING-OWNER-REFRESH-296X-001` | Landed | Refresh perf ownership after the receiver forwarding no-material-effect measurement. |
+| 254 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECEIVER-FORWARDING-296X-001` | Planned | Select the next exact-slot owner after receiver forwarding, with page queue immediate retry still blocked. |
 
 ## Hako Mimalloc Performance Parity Plan
 
