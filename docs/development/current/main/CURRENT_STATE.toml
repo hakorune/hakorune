@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x inventoried typed-field direct-op net helper-call delta; next is guard surface selection."
+active_lane_status = "Phase-296x froze the selected typed-field direct-op guard surface; next is selected-method keeper implementation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-218-MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-218-MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY.md"
-latest_card_summary = "Inventoried typed-field direct-op candidates and found projected positive net exact-helper erasure with transforms still closed."
-current_blocker_token = "MIR-TYPED-FIELD-DIRECT-OP-GUARD-SURFACE-296X-001"
+latest_card = "296x-219-MIR-TYPED-FIELD-DIRECT-OP-GUARD-SURFACE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-219-MIR-TYPED-FIELD-DIRECT-OP-GUARD-SURFACE.md"
+latest_card_summary = "Froze the selected acquire_usize/1 typed-field direct-op guard surface with 21 helper-free candidates and transforms still closed."
+current_blocker_token = "MIR-TYPED-FIELD-DIRECT-OP-SELECTED-METHOD-KEEPER-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-219 Froze the selected acquire_usize/1 typed-field direct-op guard surface with 21 helper-free candidates and transforms still closed.",
   "296x-218 Inventoried typed-field direct-op candidates and found projected positive net exact-helper erasure with transforms still closed.",
   "296x-217 Refreshed perf ownership after exact-slot helper no-effect evidence and selected MIR typed-field direct-op net inventory.",
   "296x-216 Measured exact-lane typed-object slot direct helpers against the SingleThreadExact floor and found no material body-time improvement.",
