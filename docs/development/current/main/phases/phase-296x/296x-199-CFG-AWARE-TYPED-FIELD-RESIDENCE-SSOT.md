@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: define CFG-aware typed-field residence ownership before any transform.
 Blocker: CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT-296X-001

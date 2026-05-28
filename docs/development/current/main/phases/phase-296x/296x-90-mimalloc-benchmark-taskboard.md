@@ -244,7 +244,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 196 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001` | Landed | Reject the block-local selected-method typed-field residence implementation as a non-keeper. |
 | 197 | `MIR-TYPED-FIELD-RESIDENCE-ERASURE-FEASIBILITY-296X-001` | Landed | Count net helper-call erasure before another typed-field residence implementation. |
 | 198 | `CFG-RESIDENCE-OR-RUNTIME-OWNER-SELECTION-296X-001` | Landed | Select CFG-aware typed-field residence design after block-local residence proves non-feasible. |
-| 199 | `CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT-296X-001` | Current | Define CFG-aware typed-field residence ownership before any transform. |
+| 199 | `CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT-296X-001` | Landed | Define CFG-aware typed-field residence ownership before any transform. |
+| 200 | `CFG-AWARE-TYPED-FIELD-RESIDENCE-PLAN-INVENTORY-296X-001` | Current | Inventory CFG-aware typed-field residence net helper-call delta before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
