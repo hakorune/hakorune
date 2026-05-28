@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001:
-  Measure the exact-lane typed-object slot direct helper implementation and
-  decide keeper / next-owner refresh.
+POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001:
+  Refresh the hot owner after exact-slot helper measurement found no material
+  body-time improvement.
 ```
 
 ## Queue
@@ -261,7 +261,8 @@ TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001:
 | 213 | `TYPED-OBJECT-FIELD-HELPER-SUBOWNER-REFRESH-296X-001` | Landed | Split typed-object field helper cost after Array direct-op fusion before selecting another keeper. |
 | 214 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION-296X-001` | Landed | Select the narrow exact-lane typed-object field helper seam before implementation. |
 | 215 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001` | Landed | Add separate exact-slot helper symbols and lower eligible exact-EXE field access to them. |
-| 216 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001` | Planned | Measure the exact-lane helper implementation and decide keeper / next-owner refresh. |
+| 216 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001` | Landed | Measure the exact-lane helper implementation and decide keeper / next-owner refresh. |
+| 217 | `POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001` | Planned | Refresh perf owner after exact-slot helper no-effect evidence. |
 
 ## Hako Mimalloc Performance Parity Plan
 
