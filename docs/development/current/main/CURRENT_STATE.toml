@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x refreshed owner after page queue rollback; weighted exact-slot callsite attribution is next."
+active_lane_status = "Phase-296x weighted exact-slot attribution found page_queue still hottest but blocked for immediate retry; owner selection is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-243-POST-PAGE-QUEUE-ROLLBACK-OWNER-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-243-POST-PAGE-QUEUE-ROLLBACK-OWNER-REFRESH.md"
-latest_card_summary = "Refreshed owner after page queue rollback: exact-slot get/set remains largest at 54.29%, but next attribution must use weighted hot-candidate and IR-shape evidence."
-current_blocker_token = "WEIGHTED-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH-296X-001"
+latest_card = "296x-244-WEIGHTED-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-244-WEIGHTED-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH.md"
+latest_card_summary = "Weighted exact-slot attribution shows page_queue_helpers remains hottest at 16.45%, but it is the recent non-keeper, so immediate retry is closed and IR-shape-diff owner selection is next."
+current_blocker_token = "WEIGHTED-EXACT-SLOT-OWNER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-244 Weighted exact-slot attribution shows page_queue_helpers remains hottest at 16.45%, but it is the recent non-keeper, so immediate retry is closed and IR-shape-diff owner selection is next.",
   "296x-243 Refreshed owner after page queue rollback: exact-slot get/set remains largest at 54.29%, but next attribution must use weighted hot-candidate and IR-shape evidence.",
   "296x-242 Rolled back the page queue same-block get/set non-keeper while preserving facade/page-model typed-field RMW fusion.",
   "296x-241 Measured page queue same-block get/set fusion as a non-keeper: body median worsened from 114ms to 119ms, so rollback is next.",
