@@ -14,6 +14,13 @@ pub enum LocalKind {
 
 impl LocalKind {
     #[inline]
+    fn can_forward_same_block_field_get_to_consumer(self) -> bool {
+        matches!(self, LocalKind::Arg | LocalKind::CompareOperand)
+    }
+}
+
+impl LocalKind {
+    #[inline]
     fn tag(self) -> u8 {
         match self {
             LocalKind::Recv => 0,
@@ -254,6 +261,19 @@ fn ensure_inner(
             Some(MirInstruction::Select { .. }) => false,
             _ => true,
         };
+
+        if kind.can_forward_same_block_field_get_to_consumer()
+            && def_block == Some(bb)
+            && matches!(def_inst, Some(MirInstruction::FieldGet { .. }))
+        {
+            // Same-block FieldGet is already a local definition. For direct
+            // expression consumers, adding another LocalSSA copy only builds
+            // `%field -> copy -> compare/binop` chains. Keep this deliberately
+            // narrow: no cross-block forwarding and no arbitrary copy
+            // coalescing.
+            builder.local_ssa_map.insert(key, v);
+            return Ok(v);
+        }
 
         if forbid_non_pure && non_rematerializable {
             let fn_name = builder

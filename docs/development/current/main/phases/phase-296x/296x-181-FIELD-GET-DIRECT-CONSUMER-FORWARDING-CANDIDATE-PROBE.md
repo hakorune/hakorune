@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: count field_get direct-consumer forwarding candidates before optimization.
 Blocker: FIELD-GET-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-296X-001
