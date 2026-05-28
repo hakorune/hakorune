@@ -246,7 +246,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 198 | `CFG-RESIDENCE-OR-RUNTIME-OWNER-SELECTION-296X-001` | Landed | Select CFG-aware typed-field residence design after block-local residence proves non-feasible. |
 | 199 | `CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT-296X-001` | Landed | Define CFG-aware typed-field residence ownership before any transform. |
 | 200 | `CFG-AWARE-TYPED-FIELD-RESIDENCE-PLAN-INVENTORY-296X-001` | Landed | Inventory CFG-aware typed-field residence net helper-call delta before implementation. |
-| 201 | `LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001` | Current | Refresh the large owner after typed-field residence selected-method plans have zero net helper-call erasure. |
+| 201 | `LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001` | Landed | Refresh the large owner after typed-field residence selected-method plans have zero net helper-call erasure. |
+| 202 | `ARRAY-RUNTIME-SLOT-HELPER-SELECTION-296X-001` | Current | Select the ArrayBox runtime slot helper diagnostic boundary before any keeper implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 

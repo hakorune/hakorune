@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: refresh the large owner after typed-field residence selected-method plans have zero net helper-call erasure.
 Blocker: LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001

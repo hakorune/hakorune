@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x is refreshing the large owner after typed-field residence selected-method plans have zero net helper-call erasure."
+active_lane_status = "Phase-296x is selecting the ArrayBox runtime slot helper diagnostic boundary before any keeper implementation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-201-LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-201-LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET.md"
-latest_card_summary = "Refresh the large owner after typed-field residence selected-method plans have zero net helper-call erasure."
-current_blocker_token = "LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001"
+latest_card = "296x-202-ARRAY-RUNTIME-SLOT-HELPER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-202-ARRAY-RUNTIME-SLOT-HELPER-SELECTION.md"
+latest_card_summary = "Select the ArrayBox runtime slot helper diagnostic boundary before any keeper implementation."
+current_blocker_token = "ARRAY-RUNTIME-SLOT-HELPER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-201 Refreshed the large owner after residence zero net: single-thread exact perf shifted to ArrayBox runtime slot helpers at about 89.49% of samples.",
   "296x-200 Inventoried the CFG-aware typed-field residence plan for HakoAllocPageModel.acquire_usize/1 and found net_helper_call_delta=0, rejecting implementation for that selected method.",
   "296x-199 Defined CFG-aware typed-field residence ownership, requiring positive net_helper_call_delta before any transform.",
   "296x-198 Selected CFG-aware typed-field residence design as the next owner after block-local residence proved net_helper_call_delta=0.",
