@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the field-get expression copy-chain policy before optimization.
 Blocker: FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-296X-001

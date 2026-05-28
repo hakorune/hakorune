@@ -225,7 +225,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 177 | `LOCAL-SSA-DYNAMIC-WEIGHT-PROBE-296X-001` | Landed | Estimate dynamic workload weight for the selected local-SSA MIR owner before optimization. |
 | 178 | `LOCAL-SSA-COPY-KIND-POLICY-SELECTION-296X-001` | Landed | Select expression materialization copy policy as the next local-SSA diagnostic while rejecting same-block field-get reuse retry. |
 | 179 | `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-296X-001` | Landed | Classify expression-materialization copy origins before reopening optimization. |
-| 180 | `FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-296X-001` | Current | Select the field-get expression copy-chain policy before optimization. |
+| 180 | `FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-296X-001` | Landed | Select the field-get expression copy-chain policy before optimization. |
+| 181 | `FIELD-GET-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-296X-001` | Current | Count field_get direct-consumer forwarding candidates before optimization. |
 
 ## Hako Mimalloc Performance Parity Plan
 

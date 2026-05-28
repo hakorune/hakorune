@@ -266,6 +266,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_local_ssa_copy_kind_policy_selection_guard.sh` | 296x-178 の local SSA copy kind policy selection guard。expression materialization copy policy を選び、same-block field-get reuse の再試行を閉じる。 |
 | `tools/checks/k2_wide_phase296x_expression_materialization_copy_origin_probe_guard.sh` | 296x-179 の expression materialization copy origin probe guard。field_get 起点の expression copy chain を次診断へ固定する。 |
 | `tools/checks/k2_wide_phase296x_field_get_expression_copy_chain_policy_selection_guard.sh` | 296x-180 の field_get expression copy chain policy selection guard。field_get direct-consumer forwarding 候補へ絞る。 |
+| `tools/checks/k2_wide_phase296x_field_get_direct_consumer_forwarding_candidate_probe_guard.sh` | 296x-181 の field_get direct-consumer forwarding candidate probe guard。実際に forward できそうな expression copy chain を数える。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
