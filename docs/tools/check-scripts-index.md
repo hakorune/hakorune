@@ -361,6 +361,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_weighted_exact_slot_owner_selection_guard.sh` | 296x-245 の weighted exact-slot owner selection guard。page model hotpath IR-shape-diff inventory への handoff と rejected owners を固定する。 |
 | `tools/allocator/page_model_hotpath_ir_shape_diff_inventory.py` | 296x-246 の page-model hotpath IR-shape-diff inventory tool。perf callgraph と MIR JSON を結合し、page_model の hot method shape owner を棚卸する。 |
 | `tools/checks/k2_wide_phase296x_page_model_hotpath_ir_shape_diff_inventory_guard.sh` | 296x-246 の page-model hotpath IR-shape-diff inventory guard。`acquire_usize/1` の current MIR shape と optimization closed handoff を固定する。 |
+| `tools/allocator/page_model_hotpath_shape_owner_selection.py` | 296x-247 の page-model hotpath shape owner selection tool。`acquire_usize/1` の copy materialization probe を次診断として選ぶ。 |
+| `tools/checks/k2_wide_phase296x_page_model_hotpath_shape_owner_selection_guard.sh` | 296x-247 の page-model hotpath shape owner selection guard。RMW/direct-op/page-queue retry を閉じたまま copy-materialization probe へ進む判断を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
