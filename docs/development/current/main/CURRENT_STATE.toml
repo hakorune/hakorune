@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x measured field_get-only LocalSSA same-block reuse at 570ms median versus the 550ms checkpoint and selected rollback."
+active_lane_status = "Phase-296x rolled back the field_get-only LocalSSA same-block reuse non-keeper and restored the post-row162 MIR baseline."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-168-POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-168-POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT.md"
-latest_card_summary = "Measured field_get-only LocalSSA same-block reuse at 570ms median versus the 550ms checkpoint and selected rollback as a performance non-keeper."
-current_blocker_token = "POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT-296X-001"
+latest_card = "296x-169-ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-169-ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE.md"
+latest_card_summary = "Rolled back the field_get-only LocalSSA same-block reuse non-keeper and restored objectLifecycleSmallAlloc to 180 MIR instructions and 88 copies."
+current_blocker_token = "ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-169 Rolled back the field_get-only LocalSSA same-block reuse non-keeper and restored objectLifecycleSmallAlloc to 180 MIR instructions and 88 copies.",
   "296x-168 Measured field_get-only LocalSSA same-block reuse at 570ms median versus the 550ms checkpoint and selected rollback as a performance non-keeper.",
   "296x-167 Implemented field_get-only LocalSSA same-block reuse, reducing objectLifecycleSmallAlloc from 180 to 160 MIR instructions and 88 to 68 copies while preserving proof and exact-EXE compile output.",
   "296x-166 Selected LocalSSA same-block reuse in ensure_inner as the narrow compiler owner, preserving cross-block and non-dominating copy boundaries.",

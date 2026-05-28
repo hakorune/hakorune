@@ -213,7 +213,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 165 | `FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE-296X-001` | Landed | Classify remaining field_get result-chain copy consumers and select LocalSSA same-block reuse probing. |
 | 166 | `LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION-296X-001` | Landed | Select LocalSSA same-block reuse in ensure_inner as the narrow compiler owner. |
 | 167 | `LOCAL-SSA-SAME-BLOCK-REUSE-IMPLEMENTATION-296X-001` | Landed | Implement field_get-only LocalSSA same-block value reuse and preserve object-lifecycle semantic proof. |
-| 168 | `POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT-296X-001` | Current | Measure exact-EXE after field_get-only LocalSSA same-block reuse and select rollback after regression. |
+| 168 | `POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after field_get-only LocalSSA same-block reuse and select rollback after regression. |
+| 169 | `ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE-296X-001` | Current | Roll back the LocalSSA same-block field_get reuse non-keeper and restore the post-row162 baseline. |
 
 ## Hako Mimalloc Performance Parity Plan
 

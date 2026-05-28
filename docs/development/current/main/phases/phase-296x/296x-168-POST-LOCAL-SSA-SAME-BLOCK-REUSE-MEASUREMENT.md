@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: measure exact-EXE timing after LocalSSA same-block field_get reuse.
 Blocker: POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT-296X-001
