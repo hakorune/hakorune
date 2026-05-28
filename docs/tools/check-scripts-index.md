@@ -333,6 +333,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_callsite_attribution_guard.sh` | 296x-225 の typed-object exact-slot callsite attribution guard。dominant family と owner-selection handoff を固定する。 |
 | `tools/allocator/typed_object_exact_slot_callsite_owner_selection.py` | 296x-226 の typed-object exact-slot callsite owner selection tool。callsite attribution から次の narrow diagnostic owner を1つ選ぶ。 |
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_callsite_owner_selection_guard.sh` | 296x-226 の typed-object exact-slot callsite owner selection guard。facade exact-slot field inventory handoff と rejected owners を固定する。 |
+| `tools/allocator/object_lifecycle_facade_exact_slot_field_inventory.py` | 296x-227 の object-lifecycle facade exact-slot field inventory tool。perf callgraph と MIR JSON から facade field traffic を receiver family / pattern 別に棚卸する。 |
+| `tools/checks/k2_wide_phase296x_object_lifecycle_facade_exact_slot_field_inventory_guard.sh` | 296x-227 の object-lifecycle facade exact-slot field inventory guard。facade receiver-state dominance と field-owner selection handoff を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

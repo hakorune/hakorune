@@ -272,7 +272,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 224 | `POST-RMW-FUSION-OWNER-REFRESH-296X-001` | Landed | Refresh the current hot owner after typed-object RMW fusion and select exact-slot callsite attribution. |
 | 225 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION-296X-001` | Landed | Attribute remaining exact-slot get/set helper cost by callsite and method family before another keeper. |
 | 226 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Landed | Choose facade exact-slot field inventory as the next narrow diagnostic owner. |
-| 227 | `OBJECT-LIFECYCLE-FACADE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Planned | Inventory facade exact-slot fields/capsules before selecting a keeper. |
+| 227 | `OBJECT-LIFECYCLE-FACADE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Landed | Inventory facade exact-slot fields/capsules before selecting a keeper. |
+| 228 | `OBJECT-LIFECYCLE-FACADE-FIELD-OWNER-SELECTION-296X-001` | Planned | Select one facade field owner from inventory before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
