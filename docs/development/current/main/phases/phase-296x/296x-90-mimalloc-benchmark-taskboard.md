@@ -210,7 +210,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 162 | `FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001` | Landed | Apply field_get result-chain cleanup in MirBuilder::build_field_access and preserve semantic proof before timing measurement. |
 | 163 | `POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001` | Landed | Measure exact-EXE timing after the field_get result-chain cleanup and select post-keeper owner refresh. |
 | 164 | `POST-FIELD-GET-CLEANUP-OWNER-REFRESH-296X-001` | Landed | Refresh post-keeper MIR copy ownership and select the field_get result-chain follow-on probe. |
-| 165 | `FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE-296X-001` | Current | Classify remaining field_get result-chain copy consumers and select LocalSSA same-block reuse probing. |
+| 165 | `FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE-296X-001` | Landed | Classify remaining field_get result-chain copy consumers and select LocalSSA same-block reuse probing. |
+| 166 | `LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION-296X-001` | Current | Select LocalSSA same-block reuse in ensure_inner as the narrow compiler owner. |
 
 ## Hako Mimalloc Performance Parity Plan
 

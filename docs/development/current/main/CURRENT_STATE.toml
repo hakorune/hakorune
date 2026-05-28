@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x classified remaining field_get result-chain copy consumers and selected LocalSSA same-block field_get reuse probing."
+active_lane_status = "Phase-296x selected LocalSSA same-block reuse in ensure_inner as the narrow compiler owner for remaining field_get copy chains."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-165-FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-165-FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE.md"
-latest_card_summary = "Classified remaining field_get result-chain copies by consumer, finding all have same-block field_get origins and selecting LocalSSA same-block reuse probing."
-current_blocker_token = "FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE-296X-001"
+latest_card = "296x-166-LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-166-LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION.md"
+latest_card_summary = "Selected LocalSSA same-block reuse in ensure_inner as the narrow compiler owner, preserving cross-block and non-dominating copy boundaries."
+current_blocker_token = "LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-166 Selected LocalSSA same-block reuse in ensure_inner as the narrow compiler owner, preserving cross-block and non-dominating copy boundaries.",
   "296x-165 Classified remaining field_get result-chain copies by consumer, finding all have same-block field_get origins and selecting LocalSSA same-block reuse probing.",
   "296x-164 Refreshed post-field_get cleanup MIR copy ownership, finding 23 remaining field_get result-chain expression copies and selecting a follow-on probe.",
   "296x-163 Measured the field_get result-chain cleanup at 550ms median versus the 560ms checkpoint, keeping winner and replacement claims closed.",

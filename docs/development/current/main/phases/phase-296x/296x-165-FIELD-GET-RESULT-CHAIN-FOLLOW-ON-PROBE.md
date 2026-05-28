@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: classify remaining field_get result-chain copy consumers.
 Blocker: FIELD-GET-RESULT-CHAIN-FOLLOW-ON-PROBE-296X-001
