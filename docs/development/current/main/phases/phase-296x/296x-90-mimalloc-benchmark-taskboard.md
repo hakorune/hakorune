@@ -295,7 +295,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 247 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-296X-001` | Landed | Select the next page-model shape owner from IR-shape inventory. |
 | 248 | `PAGE-MODEL-ACQUIRE-USIZE-COPY-MATERIALIZATION-PROBE-296X-001` | Landed | Attribute copy materialization origins inside `HakoAllocPageModel.acquire_usize/1`. |
 | 249 | `PAGE-MODEL-ACQUIRE-USIZE-BLOCK-ENTRY-RECEIVER-COPY-POLICY-SELECTION-296X-001` | Landed | Decide whether a narrow block-entry receiver copy policy is safe for `acquire_usize/1`. |
-| 250 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-GUARD-SURFACE-296X-001` | Planned | Freeze the selected-method receiver block-entry copy forwarding guard surface before implementation. |
+| 250 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-GUARD-SURFACE-296X-001` | Landed | Freeze the selected-method receiver block-entry copy forwarding guard surface before implementation. |
+| 251 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-IMPLEMENTATION-296X-001` | Planned | Implement selected-method-only receiver block-entry copy forwarding and preserve semantic proof. |
 
 ## Hako Mimalloc Performance Parity Plan
 
