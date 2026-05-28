@@ -6,6 +6,8 @@
 use std::collections::BTreeMap;
 use std::sync::{Mutex, OnceLock};
 
+use super::typed_object_store;
+
 const MAX_TYPED_OBJECT_FIELDS: i64 = 4096;
 
 const STORAGE_I64: i64 = 1;
@@ -21,7 +23,7 @@ const STORAGE_U32: i64 = 10;
 const STORAGE_U64: i64 = 11;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum TypedSlotStorage {
+pub(crate) enum TypedSlotStorage {
     I64,
     Handle,
     ISize,
@@ -53,7 +55,7 @@ impl TypedSlotStorage {
         }
     }
 
-    fn tag(self) -> i64 {
+    pub(crate) fn tag(self) -> i64 {
         match self {
             Self::I64 => STORAGE_I64,
             Self::Handle => STORAGE_HANDLE,
@@ -104,7 +106,7 @@ impl TypedSlotStorage {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum TypedSlotValue {
+pub(crate) enum TypedSlotValue {
     I64(i64),
     Handle(i64),
     Signed(i128),
@@ -123,20 +125,20 @@ impl TypedSlotValue {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct TypedSlot {
-    storage: TypedSlotStorage,
-    value: TypedSlotValue,
+pub(crate) struct TypedSlot {
+    pub(crate) storage: TypedSlotStorage,
+    pub(crate) value: TypedSlotValue,
 }
 
 impl TypedSlot {
-    fn new(storage: TypedSlotStorage) -> Self {
+    pub(crate) fn new(storage: TypedSlotStorage) -> Self {
         Self {
             storage,
             value: TypedSlotValue::default_for(storage),
         }
     }
 
-    fn set_legacy_i64(&mut self, value: i64) -> bool {
+    pub(crate) fn set_legacy_i64(&mut self, value: i64) -> bool {
         if !self.storage.is_legacy_i64_compatible() {
             return false;
         }
@@ -147,7 +149,7 @@ impl TypedSlot {
         true
     }
 
-    fn as_exact_unsigned_u64(&self) -> Option<u64> {
+    pub(crate) fn as_exact_unsigned_u64(&self) -> Option<u64> {
         self.storage.unsigned_max()?;
         let TypedSlotValue::Unsigned(value) = self.value else {
             return None;
@@ -155,7 +157,7 @@ impl TypedSlot {
         u64::try_from(value).ok()
     }
 
-    fn set_exact_unsigned_u64(&mut self, value: u64) -> bool {
+    pub(crate) fn set_exact_unsigned_u64(&mut self, value: u64) -> bool {
         let Some(max) = self.storage.unsigned_max() else {
             return false;
         };
@@ -167,7 +169,7 @@ impl TypedSlot {
         true
     }
 
-    fn as_exact_signed_i64(&self) -> Option<i64> {
+    pub(crate) fn as_exact_signed_i64(&self) -> Option<i64> {
         self.storage.signed_range()?;
         match self.value {
             TypedSlotValue::I64(value) | TypedSlotValue::Handle(value) => Some(value),
@@ -176,7 +178,7 @@ impl TypedSlot {
         }
     }
 
-    fn set_exact_signed_i64(&mut self, value: i64) -> bool {
+    pub(crate) fn set_exact_signed_i64(&mut self, value: i64) -> bool {
         let Some((min, max)) = self.storage.signed_range() else {
             return false;
         };
@@ -198,24 +200,19 @@ struct TypedSlotLayout {
 }
 
 #[derive(Debug, Clone)]
-struct TypedSlotObject {
+pub(crate) struct TypedSlotObject {
     #[allow(dead_code)]
-    type_id: i64,
-    fields: Vec<TypedSlot>,
+    pub(crate) type_id: i64,
+    pub(crate) fields: Vec<TypedSlot>,
 }
 
 static TYPED_OBJECT_LAYOUTS: OnceLock<Mutex<BTreeMap<i64, TypedSlotLayout>>> = OnceLock::new();
-static TYPED_OBJECTS: OnceLock<Mutex<Vec<TypedSlotObject>>> = OnceLock::new();
 
 fn typed_layouts() -> &'static Mutex<BTreeMap<i64, TypedSlotLayout>> {
     TYPED_OBJECT_LAYOUTS.get_or_init(|| Mutex::new(BTreeMap::new()))
 }
 
-fn typed_objects() -> &'static Mutex<Vec<TypedSlotObject>> {
-    TYPED_OBJECTS.get_or_init(|| Mutex::new(Vec::new()))
-}
-
-fn handle_to_index(handle: i64) -> Option<usize> {
+pub(crate) fn handle_to_index(handle: i64) -> Option<usize> {
     if handle >= 0 {
         return None;
     }
@@ -230,7 +227,7 @@ fn normalize_field_count(field_count: i64) -> Option<usize> {
     usize::try_from(field_count).ok()
 }
 
-fn normalize_slot(slot: i64) -> Option<usize> {
+pub(crate) fn normalize_slot(slot: i64) -> Option<usize> {
     if slot < 0 || slot >= MAX_TYPED_OBJECT_FIELDS {
         return None;
     }
@@ -321,12 +318,7 @@ pub extern "C" fn nyash_object_new_typed_hi(type_id: i64, field_count: i64) -> i
         .into_iter()
         .map(TypedSlot::new)
         .collect();
-    let mut objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    objects.push(TypedSlotObject { type_id, fields });
-    -(objects.len() as i64)
+    typed_object_store::new_typed_object(TypedSlotObject { type_id, fields }).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.new_typed_h"]
@@ -339,24 +331,8 @@ pub extern "C" fn nyash_object_field_get_hii(handle: i64, slot: i64) -> i64 {
     if slot < 0 {
         return 0;
     }
-    let Some(idx) = handle_to_index(handle) else {
-        return 0;
-    };
     let slot = slot as usize;
-    let objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    let Some(object) = objects.get(idx) else {
-        return 0;
-    };
-    let Some(field) = object.fields.get(slot) else {
-        return 0;
-    };
-    match field.value {
-        TypedSlotValue::I64(value) | TypedSlotValue::Handle(value) => value,
-        TypedSlotValue::Signed(_) | TypedSlotValue::Unsigned(_) => 0,
-    }
+    typed_object_store::get_legacy_i64(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_hii"]
@@ -364,122 +340,52 @@ pub extern "C" fn nyash_object_field_set_hii(handle: i64, slot: i64, value: i64)
     if slot < 0 {
         return;
     }
-    let Some(idx) = handle_to_index(handle) else {
-        return;
-    };
     let slot = slot as usize;
-    let mut objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return,
-    };
-    let Some(object) = objects.get_mut(idx) else {
-        return;
-    };
-    let Some(field) = object.fields.get_mut(slot) else {
-        return;
-    };
-    let _ = field.set_legacy_i64(value);
+    let _ = typed_object_store::set_legacy_i64(handle, slot, value);
 }
 
 #[export_name = "nyash.object.field_storage_hii"]
 pub extern "C" fn nyash_object_field_storage_hii(handle: i64, slot: i64) -> i64 {
-    let Some(idx) = handle_to_index(handle) else {
-        return 0;
-    };
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    let objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    objects
-        .get(idx)
-        .and_then(|object| object.fields.get(slot))
-        .map(|field| field.storage.tag())
-        .unwrap_or(0)
+    typed_object_store::field_storage_tag(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_get_u64_hii"]
 pub extern "C" fn nyash_object_field_get_u64_hii(handle: i64, slot: i64) -> u64 {
-    let Some(idx) = handle_to_index(handle) else {
-        return 0;
-    };
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    let objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    let Some(object) = objects.get(idx) else {
-        return 0;
-    };
-    let Some(field) = object.fields.get(slot) else {
-        return 0;
-    };
-    field.as_exact_unsigned_u64().unwrap_or(0)
+    typed_object_store::get_exact_unsigned_u64(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_u64_hiu"]
 pub extern "C" fn nyash_object_field_set_u64_hiu(handle: i64, slot: i64, value: u64) -> i64 {
-    let Some(idx) = handle_to_index(handle) else {
-        return 0;
-    };
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    let mut objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    let Some(object) = objects.get_mut(idx) else {
-        return 0;
-    };
-    let Some(field) = object.fields.get_mut(slot) else {
-        return 0;
-    };
-    i64::from(field.set_exact_unsigned_u64(value))
+    i64::from(typed_object_store::set_exact_unsigned_u64(
+        handle, slot, value,
+    ))
 }
 
 #[export_name = "nyash.object.field_get_i64_hii"]
 pub extern "C" fn nyash_object_field_get_i64_hii(handle: i64, slot: i64) -> i64 {
-    let Some(idx) = handle_to_index(handle) else {
-        return 0;
-    };
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    let objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    objects
-        .get(idx)
-        .and_then(|object| object.fields.get(slot))
-        .and_then(TypedSlot::as_exact_signed_i64)
-        .unwrap_or(0)
+    typed_object_store::get_exact_signed_i64(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_i64_hii"]
 pub extern "C" fn nyash_object_field_set_i64_hii(handle: i64, slot: i64, value: i64) -> i64 {
-    let Some(idx) = handle_to_index(handle) else {
-        return 0;
-    };
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    let mut objects = match typed_objects().lock() {
-        Ok(objects) => objects,
-        Err(_) => return 0,
-    };
-    let Some(field) = objects
-        .get_mut(idx)
-        .and_then(|object| object.fields.get_mut(slot))
-    else {
-        return 0;
-    };
-    i64::from(field.set_exact_signed_i64(value))
+    i64::from(typed_object_store::set_exact_signed_i64(
+        handle, slot, value,
+    ))
 }
 
 #[cfg(test)]

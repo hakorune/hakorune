@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row190 is defining typed-object SafeMutexStore and SingleThreadExactStore
-  boundaries before runtime fast-lane implementation
+- row193 is defining the MIR typed-field residence SSOT after row192 accepted
+  the runtime single-thread fast lane keeper
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `typed_object_storage_backend_ssot`
+  diagnostic is `mir_typed_field_residence_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

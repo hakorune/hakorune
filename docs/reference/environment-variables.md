@@ -180,12 +180,14 @@ direct-v0 bridge policy:
 | `NYASH_SCHED_POLL_BUDGET=1` | `1` | Any | 1回の poll で実行するタスク数の上限 |
 | `NYASH_SCHED_POLL_IN_SAFEPOINT=1` | `1` | Any | `safepoint_and_poll()` で `sched.poll()` を呼ぶかを制御（`0` で無効、許容値以外は fail-fast） |
 | `NYASH_HOST_HANDLE_ALLOC_POLICY=lifo\|none\|off\|no-reuse` | `lifo` | Any | host handle 再利用 policy。`lifo` は現行挙動、`none/off/no-reuse` は drop 後の handle 再利用を無効化（fresh 発番のみ）。 |
+| `HAKO_TYPED_OBJECT_STORE={safe_mutex\|single_thread_exact}` | `safe_mutex` | NyRT exact-EXE / diagnostic | typed-object exported helper storage backend。`safe_mutex` は既定の `Mutex<Vec<TypedSlotObject>>`、`single_thread_exact` は Phase-296x の exact-EXE/perf 診断専用 fast lane。無効値は fail-fast。 |
 
 補足:
 - `NYASH_SCHED_POLL_IN_SAFEPOINT` は `NYASH_GC_MODE` とは独立。
 - `NYASH_GC_MODE=off` でも既定では poll は有効のまま（実行進行を維持）。
 - `NYASH_SCHED_POLL_IN_SAFEPOINT=0` は perf/診断向けの明示トグル。
 - 許容値: `0|1|off|on|false|true`（それ以外は `[freeze:contract][sched/poll_in_safepoint]`）。
+- `HAKO_TYPED_OBJECT_STORE=single_thread_exact` は exact-EXE/perf 診断の明示ゲート。通常ランナーや threaded runtime の既定挙動を変える用途には使わない。
 
 ---
 

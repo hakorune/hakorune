@@ -235,7 +235,10 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 187 | `FIELD-ARRAY-RUNTIME-LOWERING-BOUNDARY-PROBE-296X-001` | Landed | Classify field/Array runtime lowering and select typed-object field helper fast lane as the next keeper family. |
 | 188 | `TYPED-OBJECT-FIELD-HELPER-FAST-LANE-SELECTION-296X-001` | Landed | Select typed-object helper lock-cost probe before changing runtime or compiler behavior. |
 | 189 | `TYPED-OBJECT-HELPER-LOCK-COST-PROBE-296X-001` | Landed | Quantify typed-object helper lock/global-slab cost before runtime fast-lane work. |
-| 190 | `TYPED-OBJECT-STORAGE-BACKEND-SSOT-296X-001` | Current | Define SafeMutexStore and SingleThreadExactStore boundaries before runtime fast-lane implementation. |
+| 190 | `TYPED-OBJECT-STORAGE-BACKEND-SSOT-296X-001` | Landed | Define SafeMutexStore and SingleThreadExactStore boundaries before runtime fast-lane implementation. |
+| 191 | `TYPED-OBJECT-RUNTIME-SINGLE-THREAD-FAST-LANE-296X-001` | Landed | Implement SingleThreadExactStore behind unchanged typed-object helper ABI. |
+| 192 | `TYPED-OBJECT-RUNTIME-FAST-LANE-KEEPER-MEASUREMENT-296X-001` | Landed | Measure SafeMutexStore versus SingleThreadExactStore on the object-lifecycle exact-EXE workload. |
+| 193 | `MIR-TYPED-FIELD-RESIDENCE-SSOT-296X-001` | Current | Define the MIR typed-field residence contract after the runtime fast-lane keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 

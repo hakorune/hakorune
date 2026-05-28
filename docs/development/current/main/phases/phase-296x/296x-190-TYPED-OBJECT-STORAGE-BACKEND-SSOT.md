@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: define typed-object storage backend boundaries before single-thread fast-lane implementation.
 Blocker: TYPED-OBJECT-STORAGE-BACKEND-SSOT-296X-001
