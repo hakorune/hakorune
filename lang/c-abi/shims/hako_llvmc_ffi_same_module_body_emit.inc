@@ -551,10 +551,22 @@
             ARR_LEN(selected_facade_get_set_fusion_targets));
       }
 
+      auto int same_module_function_name_is_selected_page_model_rmw_fusion_target(
+          const char* name) {
+        static const char* const selected_page_model_rmw_fusion_targets[] = {
+            "HakoAllocPageModel.acquire_usize/1",
+            "HakoAllocPageModel.releaseLocalKnownLive/1",
+        };
+        return same_module_function_name_is_in_list(
+            name,
+            selected_page_model_rmw_fusion_targets,
+            ARR_LEN(selected_page_model_rmw_fusion_targets));
+      }
+
       auto int same_module_function_is_selected_typed_field_rmw_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
+               (same_module_function_name_is_selected_page_model_rmw_fusion_target(name) ||
                 same_module_function_name_is_selected_facade_get_set_fusion_target(name));
       }
 

@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x froze releaseLocalKnownLive single-use RMW guard surface; implementation is next."
+active_lane_status = "Phase-296x implemented releaseLocalKnownLive single-use RMW fusion; measurement is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-266-PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-GUARD-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-266-PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-GUARD-SURFACE.md"
-latest_card_summary = "Froze releaseLocalKnownLive single-use RMW guard surface for local_free_count slot 11 and retire_count slot 17, reusing the existing u64 RMW helper with planned net helper delta 2."
-current_blocker_token = "PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-IMPLEMENTATION-296X-001"
+latest_card = "296x-267-PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-IMPLEMENTATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-267-PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-IMPLEMENTATION.md"
+latest_card_summary = "Implemented releaseLocalKnownLive single-use RMW fusion by extending the page-model RMW target list and reusing the existing exact_slot_rmw_add_u64 helper; proof summary remains ok."
+current_blocker_token = "PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-267 Implemented releaseLocalKnownLive single-use RMW fusion by extending the page-model RMW target list and reusing the existing exact_slot_rmw_add_u64 helper; proof summary remains ok.",
   "296x-266 Froze releaseLocalKnownLive single-use RMW guard surface for local_free_count slot 11 and retire_count slot 17, reusing the existing u64 RMW helper with planned net helper delta 2.",
   "296x-265 Selected releaseLocalKnownLive single-use RMW guard surface from 2 positive-net candidates while keeping multi-use RMW and Array bridge implementation closed.",
   "296x-264 Probed releaseLocalKnownLive field/copy traffic: 12 field ops, 13 copies, 4 same-block RMW candidates, and 2 Array bridge field gets; owner selection is next.",
