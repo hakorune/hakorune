@@ -351,6 +351,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_page_queue_exact_slot_field_inventory_guard.sh` | 296x-237 の page queue exact-slot field inventory guard。page queue の positive-net field surface を固定する。 |
 | `tools/checks/k2_wide_phase296x_page_queue_field_owner_selection_guard.sh` | 296x-238 の page queue field owner selection guard。page queue same-block get/set fusion の選択を固定する。 |
 | `tools/checks/k2_wide_phase296x_selected_page_queue_same_block_get_set_guard_surface_guard.sh` | 296x-239 の selected page queue same-block get/set guard surface guard。実装前の fusible usize 候補を固定する。 |
+| `tools/checks/k2_wide_phase296x_selected_page_queue_same_block_get_set_keeper_guard.sh` | 296x-240 の selected page queue same-block get/set keeper guard。C ABI same-module typed-field RMW fusion の page queue 対象追加を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

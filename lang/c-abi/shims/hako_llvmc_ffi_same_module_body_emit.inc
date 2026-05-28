@@ -446,6 +446,17 @@
                bid == 45;
       }
 
+      auto int same_module_function_name_is_in_list(
+          const char* name,
+          const char* const* names,
+          size_t names_n) {
+        if (!(name && names)) return 0;
+        for (size_t i = 0; i < names_n; i++) {
+          if (!strcmp(name, names[i])) return 1;
+        }
+        return 0;
+      }
+
       auto int same_module_function_name_is_selected_facade_get_set_fusion_target(
           const char* name) {
         static const char* const selected_facade_get_set_fusion_targets[] = {
@@ -454,18 +465,32 @@
             "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
             "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAllocAligned/2",
         };
-        if (!name) return 0;
-        for (size_t i = 0; i < ARR_LEN(selected_facade_get_set_fusion_targets); i++) {
-          if (!strcmp(name, selected_facade_get_set_fusion_targets[i])) return 1;
-        }
-        return 0;
+        return same_module_function_name_is_in_list(
+            name,
+            selected_facade_get_set_fusion_targets,
+            ARR_LEN(selected_facade_get_set_fusion_targets));
+      }
+
+      auto int same_module_function_name_is_selected_page_queue_get_set_fusion_target(
+          const char* name) {
+        static const char* const selected_page_queue_get_set_fusion_targets[] = {
+            "HakoAllocObjectLifecyclePageQueue.acceptSelectedPage/3",
+            "HakoAllocObjectLifecyclePageQueue.addPage/1",
+            "HakoAllocObjectLifecyclePageQueue.selectPage/0",
+            "HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0",
+        };
+        return same_module_function_name_is_in_list(
+            name,
+            selected_page_queue_get_set_fusion_targets,
+            ARR_LEN(selected_page_queue_get_set_fusion_targets));
       }
 
       auto int same_module_function_is_selected_typed_field_rmw_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
                (!strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
-                same_module_function_name_is_selected_facade_get_set_fusion_target(name));
+                same_module_function_name_is_selected_facade_get_set_fusion_target(name) ||
+                same_module_function_name_is_selected_page_queue_get_set_fusion_target(name));
       }
 
       auto int same_module_function_instruction_is_array_method(
@@ -974,7 +999,7 @@
           }
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];
           struct SameModuleArraySlotDirectOpPlan array_direct_plan;
-          struct SameModuleTypedFieldRmwFusionPlan typed_field_rmw_plans[16];
+          struct SameModuleTypedFieldRmwFusionPlan typed_field_rmw_plans[32];
           size_t typed_field_rmw_plans_n = 0;
           memset(skip_inst, 0, sizeof(skip_inst));
           memset(typed_field_rmw_plans, 0, sizeof(typed_field_rmw_plans));

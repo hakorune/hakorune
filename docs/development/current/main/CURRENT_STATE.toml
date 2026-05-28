@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x froze page queue same-block get/set fusion guard surface; implementation is next."
+active_lane_status = "Phase-296x implemented page queue same-block get/set fusion; measurement is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-239-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-GUARD-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-239-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-GUARD-SURFACE.md"
-latest_card_summary = "Froze page queue same-block get/set fusion at 21 usize candidates with planned net helper-call delta 21."
-current_blocker_token = "SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER-296X-001"
+latest_card = "296x-240-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-240-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER.md"
+latest_card_summary = "Implemented page queue same-block get/set fusion by extending C ABI same-module typed-field RMW fusion to 21 usize candidates."
+current_blocker_token = "SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-240 Implemented page queue same-block get/set fusion by extending C ABI same-module typed-field RMW fusion to 21 usize candidates.",
   "296x-239 Froze page queue same-block get/set fusion at 21 usize candidates with planned net helper-call delta 21.",
   "296x-238 Selected page queue same-block get/set fusion with planned net helper-call delta 12 while keeping generic typed-field residence closed.",
   "296x-237 Inventoried page queue exact-slot traffic: 35 field ops across 3 methods, receiver state dominates at 34 ops, and positive-net candidates rise to 16.",
