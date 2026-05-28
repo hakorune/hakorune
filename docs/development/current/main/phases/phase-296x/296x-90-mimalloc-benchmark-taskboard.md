@@ -291,7 +291,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 243 | `POST-PAGE-QUEUE-ROLLBACK-OWNER-REFRESH-296X-001` | Landed | Refresh the hot owner after rolling back the page queue non-keeper. |
 | 244 | `WEIGHTED-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH-296X-001` | Landed | Attribute exact-slot callsites with weighted hot-candidate and IR-shape evidence before another keeper. |
 | 245 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-296X-001` | Landed | Select the next exact-slot owner with recent non-keeper and IR-shape-diff gates. |
-| 246 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-INVENTORY-296X-001` | Planned | Inspect page-model hotpath IR shape before another keeper implementation. |
+| 246 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-INVENTORY-296X-001` | Landed | Inspect page-model hotpath IR shape before another keeper implementation. |
+| 247 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-296X-001` | Planned | Select the next page-model shape owner from IR-shape inventory. |
 
 ## Hako Mimalloc Performance Parity Plan
 
