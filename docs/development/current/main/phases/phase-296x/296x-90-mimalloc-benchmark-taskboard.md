@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001:
-  Select the expression materialization sub-owner before opening a narrow
-  MIR-builder optimization row.
+FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION-296X-001:
+  Select the narrow MIR builder owner for field_get result-chain cleanup
+  before editing compiler code.
 ```
 
 ## Queue
@@ -205,7 +205,8 @@ EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001:
 | 157 | `CALLSITE-COPY-ATTRIBUTION-DIFF-HARNESS-296X-001` | Landed | Compare before/after callsite copy attribution reports before running exact-EXE measurements for another candidate. |
 | 158 | `CALLSITE-COPY-OWNER-SELECTION-296X-001` | Landed | Select local SSA copy materialization as the next medium-confidence owner before opening another optimization row. |
 | 159 | `LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001` | Landed | Classify local-like copy positions after selecting local SSA copy materialization. |
-| 160 | `EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001` | Current | Select field_get result-chain cleanup as the expression materialization sub-owner. |
+| 160 | `EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001` | Landed | Select field_get result-chain cleanup as the expression materialization sub-owner. |
+| 161 | `FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION-296X-001` | Current | Select MirBuilder::build_field_access pin_to_slot cleanup as the narrow field_get result-chain owner. |
 
 ## Hako Mimalloc Performance Parity Plan
 

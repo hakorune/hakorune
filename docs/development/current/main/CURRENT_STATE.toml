@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected field_get result-chain cleanup as the expression materialization sub-owner while keeping optimization closed until a narrow MIR builder owner is chosen."
+active_lane_status = "Phase-296x selected MirBuilder::build_field_access pin_to_slot cleanup as the field_get result-chain owner; optimization remains closed until the implementation row."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-160-EXPRESSION-MATERIALIZATION-OWNER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-160-EXPRESSION-MATERIALIZATION-OWNER-SELECTION.md"
-latest_card_summary = "Selected field_get result-chain cleanup as the expression materialization owner, with 28 of 29 expression materialization copies attributed to field_get result chains."
-current_blocker_token = "EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001"
+latest_card = "296x-161-FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-161-FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION.md"
+latest_card_summary = "Selected MirBuilder::build_field_access pin_to_slot cleanup as the narrow field_get result-chain owner while rejecting CoreEffectPlan::FieldGet for this row."
+current_blocker_token = "FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-161 Selected MirBuilder::build_field_access pin_to_slot cleanup as the narrow field_get result-chain owner while rejecting CoreEffectPlan::FieldGet for this row.",
   "296x-160 Selected field_get result-chain cleanup as the expression materialization owner, with 28 of 29 expression materialization copies attributed to field_get result chains.",
   "296x-159 Classified local-like copy positions, finding expression materialization dominant at 29 copies while return-block movement is zero.",
   "296x-158 Selected local SSA copy materialization as the next medium-confidence owner from callsite attribution, with local_ssa_block_position_probe as the next diagnostic.",

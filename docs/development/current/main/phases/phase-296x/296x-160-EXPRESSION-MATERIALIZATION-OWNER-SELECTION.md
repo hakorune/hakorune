@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the expression materialization sub-owner after local SSA position probing.
 Blocker: EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001
