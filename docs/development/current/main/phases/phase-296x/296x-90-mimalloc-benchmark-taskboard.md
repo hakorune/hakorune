@@ -284,7 +284,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 236 | `OBJECT-LIFECYCLE-FACADE-RESIDUAL-FIELD-OWNER-SELECTION-296X-001` | Landed | Decide that residual facade should yield to page queue exact-slot field inventory. |
 | 237 | `PAGE-QUEUE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Landed | Inventory page queue exact-slot field traffic before selecting a keeper. |
 | 238 | `PAGE-QUEUE-FIELD-OWNER-SELECTION-296X-001` | Landed | Select page queue same-block get/set fusion from the positive-net inventory. |
-| 239 | `SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-GUARD-SURFACE-296X-001` | Planned | Freeze the page queue same-block get/set fusion guard surface before implementation. |
+| 239 | `SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-GUARD-SURFACE-296X-001` | Landed | Freeze the page queue same-block get/set fusion guard surface before implementation. |
+| 240 | `SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER-296X-001` | Planned | Implement the selected page queue same-block get/set fusion keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
