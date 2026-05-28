@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001:
-  Apply the selected field_get result-chain cleanup and preserve semantic proof
-  before exact-EXE timing measurement.
+POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
+  Measure exact-EXE timing after the field_get result-chain cleanup and select
+  post-keeper owner refresh.
 ```
 
 ## Queue
@@ -207,7 +207,8 @@ FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001:
 | 159 | `LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001` | Landed | Classify local-like copy positions after selecting local SSA copy materialization. |
 | 160 | `EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001` | Landed | Select field_get result-chain cleanup as the expression materialization sub-owner. |
 | 161 | `FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION-296X-001` | Landed | Select MirBuilder::build_field_access pin_to_slot cleanup as the narrow field_get result-chain owner. |
-| 162 | `FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001` | Current | Apply field_get result-chain cleanup in MirBuilder::build_field_access and preserve semantic proof before timing measurement. |
+| 162 | `FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001` | Landed | Apply field_get result-chain cleanup in MirBuilder::build_field_access and preserve semantic proof before timing measurement. |
+| 163 | `POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001` | Current | Measure exact-EXE timing after the field_get result-chain cleanup and select post-keeper owner refresh. |
 
 ## Hako Mimalloc Performance Parity Plan
 

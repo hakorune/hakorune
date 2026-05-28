@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: implement the narrow field_get result-chain cleanup in MirBuilder::build_field_access.
 Blocker: FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001
