@@ -257,7 +257,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 209 | `MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE-296X-001` | Landed | Freeze the block-local get/set pattern before selecting the implementation owner. |
 | 210 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION-296X-001` | Landed | Choose the implementation owner for erasing the selected get/set helper pair. |
 | 211 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-KEEPER-296X-001` | Landed | Fuse the selected same-block get/copy/set pair into one direct-slot runtime op. |
-| 212 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT-296X-001` | Planned | Measure the fused direct-slot keeper against the row206 ArrayBox runtime floor. |
+| 212 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT-296X-001` | Landed | Measure the fused direct-slot keeper against the row206 ArrayBox runtime floor. |
+| 213 | `TYPED-OBJECT-FIELD-HELPER-SUBOWNER-REFRESH-296X-001` | Planned | Split typed-object field helper cost after Array direct-op fusion before selecting another keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 

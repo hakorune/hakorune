@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x landed the selected-method ArraySlot fused direct-op keeper; next is keeper measurement against the ArrayBox runtime floor."
+active_lane_status = "Phase-296x measured the selected-method ArraySlot fused direct-op keeper and selected typed-object field helper subowner refresh next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-211-SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-KEEPER"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-211-SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-KEEPER.md"
-latest_card_summary = "Fused the selected acquire_usize/1 same-block ArrayBox get/copy/set pair into one C-ABI same-module direct-slot helper while preserving default and single-thread proof output."
-current_blocker_token = "SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT-296X-001"
+latest_card = "296x-212-SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-212-SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT.md"
+latest_card_summary = "Measured the fused Array direct-op keeper at 123ms single-thread body median and refreshed perf ownership: typed-object field helpers are now primary, with Array backend hash secondary."
+current_blocker_token = "TYPED-OBJECT-FIELD-HELPER-SUBOWNER-REFRESH-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-212 Measured the fused Array direct-op keeper at 123ms single-thread body median and refreshed perf ownership: typed-object field helpers are now primary, with Array backend hash secondary.",
   "296x-211 Fused the selected acquire_usize/1 same-block ArrayBox get/copy/set pair into one C-ABI same-module direct-slot helper and proved default/single-thread exact-EXE output stays ok.",
   "296x-210 Selected C-ABI same-module Array slot direct-op fusion as the implementation owner, rejecting individual get/set lowering, generic residence, and source rewrite.",
   "296x-209 Fixed the selected-method ArraySlotResidence guard surface: acquire_usize/1 has one same-block ArrayBox get/set pair and the set consumes the get result through copy carriers.",

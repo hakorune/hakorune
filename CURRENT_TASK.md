@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row211 landed the selected-method ArraySlot direct-op keeper through the
-  C-ABI same-module exact-EXE route
+- row212 measured the selected-method ArraySlot direct-op keeper and refreshed
+  the post-fusion owner surface
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is selected-method ArraySlot direct-op keeper measurement
+  diagnostic is typed-object field helper subowner refresh
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus
