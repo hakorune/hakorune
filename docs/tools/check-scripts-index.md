@@ -260,6 +260,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_object_lifecycle_exact_c_runner_first_pattern_guard.sh` | 296x-172 の object-lifecycle exact C runner guard。C mimalloc explicit runner が object-lifecycle workload identity/counters/body timing を出せることを固定する。 |
 | `tools/checks/k2_wide_phase296x_object_lifecycle_hako_body_timing_first_pattern_guard.sh` | 296x-173 の object-lifecycle .hako body timing guard。exact-EXE app が body_elapsed_ns を出し runner が転送することを固定する。 |
 | `tools/checks/k2_wide_phase296x_object_lifecycle_body_timing_pair_adapter_guard.sh` | 296x-174 の object-lifecycle body timing pair adapter guard。Hako exact-EXE と C mimalloc の body_elapsed_ns を同一 workload surface に結合する。 |
+| `tools/checks/k2_wide_phase296x_object_lifecycle_body_timing_gap_taxonomy_guard.sh` | 296x-175 の object-lifecycle body timing gap taxonomy guard。結合済み body_elapsed_ns gap を次の owner 診断へ分類する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

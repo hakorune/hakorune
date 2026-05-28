@@ -219,7 +219,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 171 | `OBJECT-LIFECYCLE-BODY-TIMING-AND-EXACT-C-PAIR-CONTRACT-296X-001` | Landed | Define the exact C object-lifecycle pair and comparable body timing contract before reopening optimization. |
 | 172 | `OBJECT-LIFECYCLE-EXACT-C-RUNNER-FIRST-PATTERN-296X-001` | Landed | Add the missing C mimalloc explicit object-lifecycle exact pair with body timing. |
 | 173 | `OBJECT-LIFECYCLE-HAKO-BODY-TIMING-FIRST-PATTERN-296X-001` | Landed | Expose .hako exact-EXE object-lifecycle body timing through the existing env.now_ms seam. |
-| 174 | `OBJECT-LIFECYCLE-BODY-TIMING-PAIR-ADAPTER-296X-001` | Current | Join Hako exact-EXE and C mimalloc body timing evidence before reopening optimization. |
+| 174 | `OBJECT-LIFECYCLE-BODY-TIMING-PAIR-ADAPTER-296X-001` | Landed | Join Hako exact-EXE and C mimalloc body timing evidence before reopening optimization. |
+| 175 | `OBJECT-LIFECYCLE-BODY-TIMING-GAP-TAXONOMY-296X-001` | Current | Classify the Hako/C body timing gap before selecting the next MIR/body owner diagnostic. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: join Hako exact-EXE and C mimalloc object-lifecycle body timing evidence.
 Blocker: OBJECT-LIFECYCLE-BODY-TIMING-PAIR-ADAPTER-296X-001
