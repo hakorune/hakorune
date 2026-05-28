@@ -448,11 +448,17 @@
 
       auto int same_module_function_name_is_selected_facade_get_set_fusion_target(
           const char* name) {
+        static const char* const selected_facade_get_set_fusion_targets[] = {
+            "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2",
+            "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseKnownPageIndex/1",
+            "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
+            "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAllocAligned/2",
+        };
         if (!name) return 0;
-        return !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2") ||
-               !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseKnownPageIndex/1") ||
-               !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1") ||
-               !strcmp(name, "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAllocAligned/2");
+        for (size_t i = 0; i < ARR_LEN(selected_facade_get_set_fusion_targets); i++) {
+          if (!strcmp(name, selected_facade_get_set_fusion_targets[i])) return 1;
+        }
+        return 0;
       }
 
       auto int same_module_function_is_selected_typed_field_rmw_target(void) {
