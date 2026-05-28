@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: classify expression-materialization copy origins before reopening optimization.
 Blocker: EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-296X-001

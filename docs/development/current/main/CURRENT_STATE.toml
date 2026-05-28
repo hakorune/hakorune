@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x stopped optimization after rollback, selected expression-materialization copy policy, and is classifying expression copy origins before optimization."
+active_lane_status = "Phase-296x stopped optimization after rollback, confirmed field_get-origin expression copy chains, and is selecting the direct-consumer forwarding policy before optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-179-EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-179-EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE.md"
-latest_card_summary = "Classify expression-materialization copy origins before reopening optimization."
-current_blocker_token = "EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-296X-001"
+latest_card = "296x-180-FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-180-FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION.md"
+latest_card_summary = "Select the field-get expression copy-chain policy before optimization."
+current_blocker_token = "FIELD-GET-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-179 Classified expression-materialization copies as field_get-origin value chains, with compare sinks dominant and optimization still closed.",
   "296x-178 Selected expression materialization copy policy as the next local-SSA diagnostic while rejecting same-block field-get reuse retry.",
   "296x-177 Estimated local SSA dynamic weight at 19,922,944 ops for objectLifecycleSmallAlloc, keeping optimization closed and selecting copy-kind policy selection.",
   "296x-176 Selected local SSA copy materialization as the next MIR body owner from body-gap taxonomy and current callsite-copy attribution, while rejecting retry of the recent same-block field-get non-keeper.",
