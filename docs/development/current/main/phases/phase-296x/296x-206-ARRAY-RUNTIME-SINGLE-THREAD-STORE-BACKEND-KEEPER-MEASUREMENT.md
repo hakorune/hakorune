@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: measure SafeRwLock versus SingleThreadExact on the object-lifecycle exact-EXE workload.
 Blocker: ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-KEEPER-MEASUREMENT-296X-001
