@@ -31,6 +31,14 @@ def require(values: dict[str, str], key: str, expected: str) -> None:
         raise SystemExit(f"{key} expected {expected!r}, got {actual!r}")
 
 
+def require_any(values: dict[str, str], key: str, expected: set[str]) -> str:
+    actual = values.get(key)
+    if actual not in expected:
+        choices = ", ".join(sorted(expected))
+        raise SystemExit(f"{key} expected one of {{{choices}}}, got {actual!r}")
+    return actual
+
+
 def box_type_name(value_type: Any) -> str:
     if isinstance(value_type, dict):
         return str(value_type.get("box_type", "unknown"))
@@ -91,9 +99,24 @@ def main() -> int:
     args = parser.parse_args()
 
     owner = read_kv(args.owner_selection_report)
-    require(owner, "output_contract", "typed-object-exact-slot-callsite-owner-selection-v0")
-    require(owner, "selected_owner", "object_lifecycle_facade_exact_slot_field_inventory")
+    owner_contract = require_any(
+        owner,
+        "output_contract",
+        {
+            "typed-object-exact-slot-callsite-owner-selection-v0",
+            "post-facade-exact-slot-callsite-owner-selection-v0",
+        },
+    )
+    selected_owner = require_any(
+        owner,
+        "selected_owner",
+        {
+            "object_lifecycle_facade_exact_slot_field_inventory",
+            "object_lifecycle_facade_residual_exact_slot_field_inventory",
+        },
+    )
     require(owner, "summary", "ok")
+    residual_mode = selected_owner == "object_lifecycle_facade_residual_exact_slot_field_inventory"
 
     facade_callers = parse_facade_callers(args.perf_report)
     if not facade_callers:
@@ -156,8 +179,13 @@ def main() -> int:
         selected_next = "post_facade_inventory_owner_refresh"
 
     lines = [
-        "output_contract=object-lifecycle-facade-exact-slot-field-inventory-v0",
-        "input_contract=typed-object-exact-slot-callsite-owner-selection-v0",
+        "output_contract="
+        + (
+            "object-lifecycle-facade-residual-exact-slot-field-inventory-v0"
+            if residual_mode
+            else "object-lifecycle-facade-exact-slot-field-inventory-v0"
+        ),
+        f"input_contract={owner_contract}",
         "workload_id=representative-object-lifecycle-small-block-v0",
         "target_family=object_lifecycle_facade",
         f"target_family_pct={owner.get('dominant_family_pct', '18.52')}",
