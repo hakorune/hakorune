@@ -81,16 +81,23 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- turn the external `hakmem` benchmark corpus into stable Hakorune-side
-  benchmark contracts before opening DLL/provider work
+- row188 selected typed-object helper lock-cost probing before runtime or MIR
+  scalar-residence changes
+- current blocker token is read from `CURRENT_STATE.toml`; the active next
+  diagnostic is `typed_object_helper_lock_cost_probe`
+- keep allocator-provider activation, host allocator replacement, hooks,
+  globals, and winner claims closed
+- historical corpus focus remains: turn the external `hakmem` benchmark corpus
+  into stable Hakorune-side benchmark contracts before opening DLL/provider work
 - current external corpus:
   `/home/tomoaki/git/hakmem_20260525_extracted/hakmem`
 - docs-first ordered work:
-  1. inventory external `hakmem` assets and choose the first adapter row
-  2. define the benchmark result contract before writing parsers
-  3. add `benchres.csv` and `hakozuna_compare` adapters
-  4. run exact-EXE benchmark harness pilots with winner claims closed
-  5. select DLL load-only work only after benchmark contracts are stable
+  1. inspect the field/Array runtime lowering boundary behind the selected
+     perf hot symbols
+  2. choose one narrow keeper family before editing compiler/runtime code
+  3. use exact-EXE body timing only after structural evidence improves
+  4. keep DLL/provider/replacement work parked until benchmark contracts and
+     parity owner evidence are stable
 
 ## Current Ordered App Bringup
 
