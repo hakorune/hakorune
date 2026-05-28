@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x is inventorying MIR typed-field residence candidates before opening any transform."
+active_lane_status = "Phase-296x is building a selected-method MIR typed-field residence plan for HakoAllocPageModel.acquire_usize/1."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-194-MIR-TYPED-FIELD-RESIDENCE-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-194-MIR-TYPED-FIELD-RESIDENCE-INVENTORY.md"
-latest_card_summary = "Inventory MIR typed-field residence candidates before any transform."
-current_blocker_token = "MIR-TYPED-FIELD-RESIDENCE-INVENTORY-296X-001"
+latest_card = "296x-195-MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-195-MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN.md"
+latest_card_summary = "Build a selected-method field residence plan for HakoAllocPageModel.acquire_usize/1."
+current_blocker_token = "MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-194 Inventoried MIR typed-field residence candidates and selected HakoAllocPageModel.acquire_usize/1 by dynamic scalar field-helper erasure weight.",
   "296x-193 Defined MIR typed-field residence as the next design owner, with transforms still closed and typed-object helper ABI retained as fallback.",
   "296x-192 Measured SingleThreadExactStore against SafeMutexStore on object-lifecycle exact-EXE, reducing body time from about 582ms to 236ms in the scout sample while keeping winner/replacement lanes closed.",
   "296x-191 Implemented SingleThreadExactStore behind the unchanged typed-object helper ABI, with SafeMutexStore as default and invalid backend fail-fast.",

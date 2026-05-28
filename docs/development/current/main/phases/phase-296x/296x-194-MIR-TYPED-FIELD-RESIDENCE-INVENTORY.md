@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: inventory MIR typed-field residence candidates before any transform.
 Blocker: MIR-TYPED-FIELD-RESIDENCE-INVENTORY-296X-001

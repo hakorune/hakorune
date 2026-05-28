@@ -282,6 +282,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_mir_typed_field_residence_ssot_guard.sh` | 296x-193 の MIR typed-field residence SSOT guard。transform closed / helper ABI fallback / by-name special case prohibited を固定する。 |
 | `tools/allocator/mir_typed_field_residence_inventory.py` | 296x-194 の MIR typed-field residence inventory。hot methods の scalar FieldGet/FieldSet 候補と barrier を数える。 |
 | `tools/checks/k2_wide_phase296x_mir_typed_field_residence_inventory_guard.sh` | 296x-194 の MIR typed-field residence inventory guard。transform closed のまま selected method と helper-erasure surface を固定する。 |
+| `tools/allocator/mir_typed_field_residence_selected_method_plan.py` | 296x-195 の MIR typed-field residence selected-method plan。`HakoAllocPageModel.acquire_usize/1` の scalar field read/writeback 候補を列挙する。 |
+| `tools/checks/k2_wide_phase296x_mir_typed_field_residence_selected_method_plan_guard.sh` | 296x-195 の MIR typed-field residence selected-method plan guard。transform closed のまま read/writeback plan を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
