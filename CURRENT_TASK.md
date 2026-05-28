@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row200 is inventorying CFG-aware typed-field residence net helper-call delta
-  before implementation
+- row201 is refreshing the large owner after typed-field residence
+  selected-method plans have zero net helper-call erasure
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `cfg_aware_typed_field_residence_plan_inventory`
+  diagnostic is `large_owner_refresh_after_residence_zero_net`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

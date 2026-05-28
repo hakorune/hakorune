@@ -290,6 +290,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_cfg_aware_typed_field_residence_ssot_guard.sh` | 296x-199 の CFG-aware typed-field residence SSOT guard。PHI/dirty/writeback/barrier/fallback の設計境界を固定する。 |
 | `tools/allocator/cfg_aware_typed_field_residence_plan.py` | 296x-200 の CFG-aware typed-field residence plan inventory。選択メソッドで helper load/writeback を差し引いた net helper-call delta を数える。 |
 | `tools/checks/k2_wide_phase296x_cfg_aware_typed_field_residence_plan_inventory_guard.sh` | 296x-200 の CFG-aware typed-field residence plan inventory guard。`acquire_usize/1` の CFG-aware plan が net helper-call delta 0 であることを固定する。 |
+| `tools/checks/k2_wide_phase296x_large_owner_refresh_after_residence_zero_net_guard.sh` | 296x-201 の large owner refresh guard。single-thread exact 後の perf scout で ArrayBox runtime slot helper を次 owner に選ぶ。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

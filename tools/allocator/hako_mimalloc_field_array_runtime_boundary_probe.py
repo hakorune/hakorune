@@ -168,7 +168,12 @@ def main() -> int:
         selected, secondary = secondary, selected
     print(f"selected_boundary={selected}")
     print(f"secondary_boundary={secondary}")
-    print("next_diagnostic=typed_object_field_helper_fast_lane_selection")
+    next_diagnostic = (
+        "array_runtime_slot_helper_selection"
+        if selected == "array_runtime_slot_helper_lowering"
+        else "typed_object_field_helper_fast_lane_selection"
+    )
+    print(f"next_diagnostic={next_diagnostic}")
     print("optimization_open=0")
     print("winner_claim=0")
     print("replacement_active=0")

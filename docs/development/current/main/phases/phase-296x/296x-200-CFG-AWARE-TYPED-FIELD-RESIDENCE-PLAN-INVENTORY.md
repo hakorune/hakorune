@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: inventory CFG-aware typed-field residence net helper-call delta before implementation.
 Blocker: CFG-AWARE-TYPED-FIELD-RESIDENCE-PLAN-INVENTORY-296X-001
