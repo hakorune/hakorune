@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the LocalSSA same-block reuse implementation owner.
 Blocker: LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION-296X-001

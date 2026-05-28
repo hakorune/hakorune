@@ -255,6 +255,11 @@ fn ensure_inner(
             _ => true,
         };
 
+        if def_block == Some(bb) && matches!(def_inst, Some(MirInstruction::FieldGet { .. })) {
+            builder.local_ssa_map.insert(key, v);
+            return Ok(v);
+        }
+
         if forbid_non_pure && non_rematerializable {
             let fn_name = builder
                 .scope_ctx
