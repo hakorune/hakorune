@@ -263,7 +263,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 215 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001` | Landed | Add separate exact-slot helper symbols and lower eligible exact-EXE field access to them. |
 | 216 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001` | Landed | Measure the exact-lane helper implementation and decide keeper / next-owner refresh. |
 | 217 | `POST-EXACT-SLOT-DIRECT-HELPER-OWNER-REFRESH-296X-001` | Landed | Refresh perf owner after exact-slot helper no-effect evidence. |
-| 218 | `MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001` | Planned | Count positive net helper-call delta for typed-field direct-op candidates before implementation. |
+| 218 | `MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001` | Landed | Count positive net helper-call delta for typed-field direct-op candidates before implementation. |
+| 219 | `MIR-TYPED-FIELD-DIRECT-OP-GUARD-SURFACE-296X-001` | Planned | Freeze the selected typed-field direct-op guard surface before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
