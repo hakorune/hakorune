@@ -268,7 +268,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 220 | `MIR-TYPED-FIELD-DIRECT-OP-SELECTED-METHOD-KEEPER-296X-001` | Rejected | Reject helper-free typed-field direct-op under the current opaque handle / Rust TLS Vec storage ABI. |
 | 221 | `TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION-296X-001` | Landed | Select a helper-reduction seam that keeps typed-object storage ownership inside Rust runtime code. |
 | 222 | `TYPED-OBJECT-FIELD-RMW-FUSION-KEEPER-296X-001` | Landed | Implement the selected-method typed-object exact-slot RMW fusion keeper. |
-| 223 | `TYPED-OBJECT-FIELD-RMW-FUSION-MEASUREMENT-296X-001` | Planned | Measure the selected-method RMW fusion keeper and refresh the next hot owner. |
+| 223 | `TYPED-OBJECT-FIELD-RMW-FUSION-MEASUREMENT-296X-001` | Landed | Measure the selected-method RMW fusion keeper and accept the small body-time win. |
+| 224 | `POST-RMW-FUSION-OWNER-REFRESH-296X-001` | Planned | Refresh the current hot owner after typed-object RMW fusion before another optimization. |
 
 ## Hako Mimalloc Performance Parity Plan
 

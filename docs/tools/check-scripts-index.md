@@ -325,6 +325,8 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/mir_typed_object_field_rmw_fusion_selection.py` | 296x-221 の typed-object field RMW fusion selection tool。`acquire_usize/1` の same-block field_get/add/field_set 候補を数える。 |
 | `tools/checks/k2_wide_phase296x_typed_object_field_rmw_fusion_selection_guard.sh` | 296x-221 の typed-object field RMW fusion selection guard。5 個の usize RMW 候補と net helper-call delta 5 を固定する。 |
 | `tools/checks/k2_wide_phase296x_typed_object_field_rmw_fusion_keeper_guard.sh` | 296x-222 の typed-object field RMW fusion keeper guard。fused runtime symbol export、exact-EXE emission、semantic smoke を固定する。 |
+| `tools/allocator/typed_object_field_rmw_fusion_measurement.py` | 296x-223 の typed-object field RMW fusion measurement tool。既存 exact-slot pair measurement を RMW fusion keeper contract に正規化する。 |
+| `tools/checks/k2_wide_phase296x_typed_object_field_rmw_fusion_measurement_guard.sh` | 296x-223 の typed-object field RMW fusion measurement guard。body-time keeper acceptance と closed winner/replacement seams を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
