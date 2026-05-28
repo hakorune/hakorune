@@ -216,7 +216,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 168 | `POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after field_get-only LocalSSA same-block reuse and select rollback after regression. |
 | 169 | `ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE-296X-001` | Landed | Roll back the LocalSSA same-block field_get reuse non-keeper and restore the post-row162 baseline. |
 | 170 | `POST-ROLLBACK-GAP-TAXONOMY-REFRESH-296X-001` | Landed | Stop optimization and classify the next owner as measurement contract gap: exact C object-lifecycle pair plus Hako body timing needed. |
-| 171 | `OBJECT-LIFECYCLE-BODY-TIMING-AND-EXACT-C-PAIR-CONTRACT-296X-001` | Current | Define the exact C object-lifecycle pair and comparable body timing contract before reopening optimization. |
+| 171 | `OBJECT-LIFECYCLE-BODY-TIMING-AND-EXACT-C-PAIR-CONTRACT-296X-001` | Landed | Define the exact C object-lifecycle pair and comparable body timing contract before reopening optimization. |
+| 172 | `OBJECT-LIFECYCLE-EXACT-C-RUNNER-FIRST-PATTERN-296X-001` | Current | Add the missing C mimalloc explicit object-lifecycle exact pair with body timing. |
 
 ## Hako Mimalloc Performance Parity Plan
 

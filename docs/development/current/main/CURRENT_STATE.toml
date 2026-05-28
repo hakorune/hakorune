@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x stopped optimization after rollback and fixed the measurement contract required before more keeper work: exact C object-lifecycle pair plus comparable Hako/C body timing."
+active_lane_status = "Phase-296x stopped optimization after rollback and added the C side of the measurement contract: exact object-lifecycle pair with C body timing; Hako body timing remains next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-171-OBJECT-LIFECYCLE-BODY-TIMING-AND-EXACT-C-PAIR-CONTRACT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-171-OBJECT-LIFECYCLE-BODY-TIMING-AND-EXACT-C-PAIR-CONTRACT.md"
-latest_card_summary = "Defined the required exact C object-lifecycle pair and comparable Hako/C body timing contract before optimization can reopen."
-current_blocker_token = "OBJECT-LIFECYCLE-BODY-TIMING-AND-EXACT-C-PAIR-CONTRACT-296X-001"
+latest_card = "296x-172-OBJECT-LIFECYCLE-EXACT-C-RUNNER-FIRST-PATTERN"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-172-OBJECT-LIFECYCLE-EXACT-C-RUNNER-FIRST-PATTERN.md"
+latest_card_summary = "Added the missing C mimalloc explicit object-lifecycle exact pair with matching workload identity, counters, and C body timing."
+current_blocker_token = "OBJECT-LIFECYCLE-EXACT-C-RUNNER-FIRST-PATTERN-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-172 Added the C mimalloc explicit object-lifecycle exact pair with matching workload identity, counters, and body_elapsed_ns.",
   "296x-171 Defined the object-lifecycle body timing and exact C pair contract, requiring comparable Hako/C body_elapsed_ns before more optimization.",
   "296x-170 Classified the post-rollback gap as a measurement contract gap: exact C object-lifecycle pair and Hako body timing are required before more optimization.",
   "296x-169 Rolled back the field_get-only LocalSSA same-block reuse non-keeper and restored objectLifecycleSmallAlloc to 180 MIR instructions and 88 copies.",

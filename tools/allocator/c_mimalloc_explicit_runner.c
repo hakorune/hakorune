@@ -134,15 +134,21 @@ static uint64_t monotonic_ns(void) {
     return ((uint64_t)ts.tv_sec * 1000000000ULL) + (uint64_t)ts.tv_nsec;
 }
 
-static int run_small_block(const RunnerConfig *config, const MimallocApi *api, RunnerEvidence *evidence) {
+static int run_small_block_with_metadata(
+    const RunnerConfig *config,
+    const MimallocApi *api,
+    RunnerEvidence *evidence,
+    const char *workload,
+    const char *operation_sequence_id
+) {
     void **blocks = (void **)calloc((size_t)config->alloc_count, sizeof(void *));
     if (blocks == NULL) {
         return 5;
     }
 
-    evidence->workload = "representative-small-block-v0";
+    evidence->workload = workload;
     evidence->operation_family = "small-block";
-    evidence->operation_sequence_id = "representative-small-block-v0-seq";
+    evidence->operation_sequence_id = operation_sequence_id;
     evidence->free_order_id = "even-odd-release-v0";
 
     for (long i = 0; i < config->alloc_count; i++) {
@@ -175,6 +181,26 @@ static int run_small_block(const RunnerConfig *config, const MimallocApi *api, R
 
     free(blocks);
     return 0;
+}
+
+static int run_small_block(const RunnerConfig *config, const MimallocApi *api, RunnerEvidence *evidence) {
+    return run_small_block_with_metadata(
+        config,
+        api,
+        evidence,
+        "representative-small-block-v0",
+        "representative-small-block-v0-seq"
+    );
+}
+
+static int run_object_lifecycle_small_block(const RunnerConfig *config, const MimallocApi *api, RunnerEvidence *evidence) {
+    return run_small_block_with_metadata(
+        config,
+        api,
+        evidence,
+        "representative-object-lifecycle-small-block-v0",
+        "representative-object-lifecycle-small-block-v0-seq"
+    );
 }
 
 static int run_empty(RunnerEvidence *evidence) {
@@ -419,6 +445,8 @@ int main(int argc, char **argv) {
             result_code = run_empty(&evidence);
         } else if (strcmp(config.workload, "representative-small-block-v0") == 0) {
             result_code = run_small_block(&config, &api, &evidence);
+        } else if (strcmp(config.workload, "representative-object-lifecycle-small-block-v0") == 0) {
+            result_code = run_object_lifecycle_small_block(&config, &api, &evidence);
         } else if (strcmp(config.workload, "representative-realloc-aligned-v0") == 0) {
             result_code = run_realloc_aligned(&api, &evidence);
         } else if (strcmp(config.workload, "representative-mixed-small-v0") == 0) {
