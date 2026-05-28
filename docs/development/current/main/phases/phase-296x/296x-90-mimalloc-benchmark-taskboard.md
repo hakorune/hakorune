@@ -259,7 +259,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 211 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-KEEPER-296X-001` | Landed | Fuse the selected same-block get/copy/set pair into one direct-slot runtime op. |
 | 212 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT-296X-001` | Landed | Measure the fused direct-slot keeper against the row206 ArrayBox runtime floor. |
 | 213 | `TYPED-OBJECT-FIELD-HELPER-SUBOWNER-REFRESH-296X-001` | Landed | Split typed-object field helper cost after Array direct-op fusion before selecting another keeper. |
-| 214 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION-296X-001` | Planned | Select the narrow exact-lane typed-object field helper seam before implementation. |
+| 214 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION-296X-001` | Landed | Select the narrow exact-lane typed-object field helper seam before implementation. |
+| 215 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001` | Planned | Add separate exact-slot helper symbols and lower eligible exact-EXE field access to them. |
 
 ## Hako Mimalloc Performance Parity Plan
 
