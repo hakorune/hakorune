@@ -214,7 +214,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 166 | `LOCAL-SSA-SAME-BLOCK-REUSE-SELECTION-296X-001` | Landed | Select LocalSSA same-block reuse in ensure_inner as the narrow compiler owner. |
 | 167 | `LOCAL-SSA-SAME-BLOCK-REUSE-IMPLEMENTATION-296X-001` | Landed | Implement field_get-only LocalSSA same-block value reuse and preserve object-lifecycle semantic proof. |
 | 168 | `POST-LOCAL-SSA-SAME-BLOCK-REUSE-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after field_get-only LocalSSA same-block reuse and select rollback after regression. |
-| 169 | `ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE-296X-001` | Current | Roll back the LocalSSA same-block field_get reuse non-keeper and restore the post-row162 baseline. |
+| 169 | `ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE-296X-001` | Landed | Roll back the LocalSSA same-block field_get reuse non-keeper and restore the post-row162 baseline. |
+| 170 | `POST-ROLLBACK-GAP-TAXONOMY-REFRESH-296X-001` | Current | Stop optimization and classify the next owner as measurement contract gap: exact C object-lifecycle pair plus Hako body timing needed. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: roll back the LocalSSA same-block field_get reuse non-keeper.
 Blocker: ROLLBACK-LOCAL-SSA-SAME-BLOCK-REUSE-296X-001
