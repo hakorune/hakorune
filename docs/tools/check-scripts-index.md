@@ -342,6 +342,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_selected_facade_same_block_get_set_keeper_guard.sh` | 296x-230 の selected facade same-block get/set keeper guard。既存 exact-slot RMW fused helper を facade 4メソッドへ限定拡張し、exact-EXE semantic smoke を固定する。 |
 | `tools/allocator/selected_facade_same_block_get_set_measurement.py` | 296x-231 の selected facade same-block get/set measurement adapter。exact-EXE body timing を single_thread_exact floor と比較する。 |
 | `tools/checks/k2_wide_phase296x_selected_facade_same_block_get_set_measurement_guard.sh` | 296x-231 の selected facade same-block get/set measurement guard。sample_count=3 のカード値と cheap sample smoke を固定する。 |
+| `tools/allocator/post_selected_facade_get_set_owner_refresh.py` | 296x-232 の post selected facade get/set owner refresh adapter。perf top から exact-slot / array / hako method owner を再分類する。 |
+| `tools/checks/k2_wide_phase296x_post_selected_facade_get_set_owner_refresh_guard.sh` | 296x-232 の post selected facade get/set owner refresh guard。exact-slot get/set helpers がまだ primary owner であることを固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

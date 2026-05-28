@@ -277,7 +277,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 229 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-GUARD-SURFACE-296X-001` | Landed | Freeze the selected facade same-block get/set fusion guard surface before implementation. |
 | 230 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-KEEPER-296X-001` | Landed | Implement the selected facade same-block get/set fusion keeper. |
 | 231 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-MEASUREMENT-296X-001` | Landed | Measure the selected facade get/set fusion keeper. |
-| 232 | `POST-SELECTED-FACADE-GET-SET-OWNER-REFRESH-296X-001` | Planned | Refresh the current hot owner after the selected facade get/set fusion keeper. |
+| 232 | `POST-SELECTED-FACADE-GET-SET-OWNER-REFRESH-296X-001` | Landed | Refresh the current hot owner after the selected facade get/set fusion keeper. |
+| 233 | `POST-FACADE-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH-296X-001` | Planned | Refresh exact-slot callsite attribution after the selected facade fusion keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
