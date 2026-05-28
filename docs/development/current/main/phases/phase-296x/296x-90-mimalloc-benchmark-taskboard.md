@@ -253,8 +253,9 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 205 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-IMPLEMENTATION-296X-001` | Landed | Implement the helper-side single-thread exact ArrayBox slot backend. |
 | 206 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-KEEPER-MEASUREMENT-296X-001` | Landed | Measure SafeRwLock versus SingleThreadExact on the object-lifecycle exact-EXE workload and decide keeper/revert. |
 | 207 | `MIR-ARRAY-SLOT-RESIDENCE-SSOT-296X-001` | Landed | Define ArraySlotResidencePlan / DirectSlotOp as the C-parity target after the runtime helper floor is known. |
-| 208 | `MIR-ARRAY-SLOT-RESIDENCE-INVENTORY-296X-001` | Current | Count erased ArrayBox get/set helper calls, added guards/writebacks, barriers, and net helper-call delta before any transform. |
-| 209 | `MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001` | Planned | Apply a selected-method ArraySlotResidence keeper only if inventory shows positive net helper-call delta. |
+| 208 | `MIR-ARRAY-SLOT-RESIDENCE-INVENTORY-296X-001` | Landed | Count erased ArrayBox get/set helper calls, added guards/writebacks, barriers, and net helper-call delta before any transform. |
+| 209 | `MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE-296X-001` | Current | Freeze the block-local get/set pattern before selecting the implementation owner. |
+| 210 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION-296X-001` | Planned | Choose the implementation owner for erasing the selected get/set helper pair. |
 
 ## Hako Mimalloc Performance Parity Plan
 

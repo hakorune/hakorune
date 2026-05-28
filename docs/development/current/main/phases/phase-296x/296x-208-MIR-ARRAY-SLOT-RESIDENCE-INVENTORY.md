@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: inventory MIR ArraySlotResidence helper-call erasure before any transform.
 Blocker: MIR-ARRAY-SLOT-RESIDENCE-INVENTORY-296X-001
