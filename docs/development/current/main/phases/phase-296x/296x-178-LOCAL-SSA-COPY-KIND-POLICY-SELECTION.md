@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the local-SSA copy kind policy before another MIR optimization.
 Blocker: LOCAL-SSA-COPY-KIND-POLICY-SELECTION-296X-001
