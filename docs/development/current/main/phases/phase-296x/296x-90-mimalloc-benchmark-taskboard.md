@@ -313,7 +313,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 265 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-OWNER-SELECTION-296X-001` | Landed | Select one owner from releaseLocalKnownLive field/copy traffic evidence. |
 | 266 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-GUARD-SURFACE-296X-001` | Landed | Freeze the releaseLocalKnownLive single-use RMW candidate surface before implementation. |
 | 267 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-IMPLEMENTATION-296X-001` | Landed | Implement the selected releaseLocalKnownLive single-use RMW fusion only for local_free_count and retire_count. |
-| 268 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-MEASUREMENT-296X-001` | Planned | Measure the selected releaseLocalKnownLive single-use RMW implementation before accepting or rolling back. |
+| 268 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-MEASUREMENT-296X-001` | Landed | Measure the selected releaseLocalKnownLive single-use RMW implementation before accepting or rolling back. |
+| 269 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-ROLLBACK-296X-001` | Planned | Roll back the no-effect releaseLocalKnownLive single-use RMW implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
