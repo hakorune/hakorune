@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: compare before/after callsite copy attribution reports before running exact-EXE.
 Blocker: CALLSITE-COPY-ATTRIBUTION-DIFF-HARNESS-296X-001

@@ -232,6 +232,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_object_lifecycle_small_hotpath_callsite_copy_attribution_guard.sh` | 296x-156 の objectLifecycleSmallAlloc callsite copy attribution guard。row156 current pointer と callsite attribution evidence を固定する。 |
 | `tools/allocator/mir_callsite_copy_attribution_diff.py` | 296x-157 の MIR callsite copy attribution diff adapter。row156 attribution report の before/after delta と structural_effect を出す。 |
 | `tools/checks/k2_wide_phase296x_callsite_copy_attribution_diff_harness_guard.sh` | 296x-157 の callsite copy attribution diff harness guard。self-smoke diff で no_effect baseline と current pointer を固定する。 |
+| `tools/allocator/mir_callsite_copy_owner_selection.py` | 296x-158 の callsite copy owner selection adapter。row156 attribution と row157 diff から次 owner と next_diagnostic を1つ選ぶ。 |
+| `tools/checks/k2_wide_phase296x_callsite_copy_owner_selection_guard.sh` | 296x-158 の callsite copy owner selection guard。local_ssa_copy_materialization selection と current pointer を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
