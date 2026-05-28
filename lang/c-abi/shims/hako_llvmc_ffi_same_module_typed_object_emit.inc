@@ -84,6 +84,7 @@
           long long bid,
           size_t ii) {
         long long box_reg = read_int(ins, "box");
+        long long box_ref_reg = box_reg;
         long long value_reg = read_int(ins, "value");
         const char* field = read_str(ins, "field");
         int typed_plan_index = -1;
@@ -93,6 +94,7 @@
         long long value_const = 0;
         int value_is_const = has_const(value_base, &value_const);
         char ab[256];
+        get_receiver_forward_alias_src(box_reg, &box_ref_reg);
         if (!(box_reg && value_reg)) return 0;
         if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
         if (!typed_object_plan_field_runtime_slot_with_storage(
@@ -101,7 +103,7 @@
                 &slot,
                 &storage)) return 0;
         ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), box_reg, 1);
+        append_i64_arg_ref(ab, sizeof(ab), box_ref_reg, 1);
         {
           size_t used = strlen(ab);
           if (used >= sizeof(ab)) return 0;
@@ -177,11 +179,13 @@
       auto int same_module_function_emit_typed_object_field_get(yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
         long long box_reg = read_int(ins, "box");
+        long long box_ref_reg = box_reg;
         const char* field = read_str(ins, "field");
         int typed_plan_index = -1;
         long long slot = -1;
         const char* storage = NULL;
         char ab[256];
+        get_receiver_forward_alias_src(box_reg, &box_ref_reg);
         if (!(dst && box_reg)) return 0;
         if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
         if (!typed_object_plan_field_runtime_slot_with_storage(
@@ -190,7 +194,7 @@
                 &slot,
                 &storage)) return 0;
         ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), box_reg, 1);
+        append_i64_arg_ref(ab, sizeof(ab), box_ref_reg, 1);
         {
           size_t used = strlen(ab);
           if (used >= sizeof(ab)) return 0;

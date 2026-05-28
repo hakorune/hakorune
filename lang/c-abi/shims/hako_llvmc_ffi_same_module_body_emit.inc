@@ -50,6 +50,79 @@
         return 1;
       }
 
+      auto int same_module_function_is_selected_receiver_block_entry_copy_forwarding_target(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        return name && !strcmp(name, "HakoAllocPageModel.acquire_usize/1");
+      }
+
+      auto int same_module_function_copy_dst_has_same_block_receiver_sink(
+          long long dst,
+          size_t ii,
+          yyjson_val* insts,
+          size_t ilen) {
+        if (!(dst && insts)) return 0;
+        for (size_t si = ii + 1; si < ilen; si++) {
+          yyjson_val* use = yyjson_arr_get(insts, si);
+          const char* op = read_str(use, "op");
+          if (!op) continue;
+          if ((!strcmp(op, "field_get") || !strcmp(op, "field_set")) &&
+              read_int(use, "box") == dst) {
+            return 1;
+          }
+          if (!strcmp(op, "mir_call")) {
+            yyjson_val* cal = yyjson_obj_get(use, "mir_call");
+            yyjson_val* callee = cal ? yyjson_obj_get(cal, "callee") : NULL;
+            yyjson_val* args = cal ? yyjson_obj_get(cal, "args") : NULL;
+            if (callee && read_int(callee, "receiver") == dst) return 0;
+            if (args && yyjson_is_arr(args)) {
+              for (size_t ai = 0; ai < yyjson_arr_size(args); ai++) {
+                yyjson_val* arg = yyjson_arr_get(args, ai);
+                if (arg && yyjson_is_int(arg) && (long long)yyjson_get_sint(arg) == dst) {
+                  return 0;
+                }
+              }
+            }
+          }
+        }
+        return 0;
+      }
+
+      auto int same_module_function_should_forward_selected_receiver_copy(
+          yyjson_val* ins,
+          size_t ii,
+          yyjson_val* insts,
+          size_t ilen) {
+        long long dst = read_int(ins, "dst");
+        long long src = read_int(ins, "src");
+        if (!same_module_function_is_selected_receiver_block_entry_copy_forwarding_target()) {
+          return 0;
+        }
+        if (!(dst && src == 0)) return 0;
+        if (ii > 2) return 0;
+        return same_module_function_copy_dst_has_same_block_receiver_sink(
+            dst,
+            ii,
+            insts,
+            ilen);
+      }
+
+      auto int same_module_function_emit_selected_receiver_forwarding_copy(
+          long long dst,
+          long long src) {
+        int src_ty = get_type(src);
+        int src_org = get_origin(src);
+        int src_scan = get_scan_origin(src);
+        int typed_plan_index = -1;
+        set_receiver_forward_alias(dst, src);
+        if (src_ty != T_NONE) set_type(dst, src_ty);
+        if (src_org != ORG_NONE) set_origin(dst, src_org);
+        if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
+        if (get_typed_object_binding(src, &typed_plan_index)) {
+          set_typed_object_binding(dst, typed_plan_index);
+        }
+        return 1;
+      }
+
       auto int same_module_function_emit_unop(yyjson_val* ins) {
         const char* kind = read_str(ins, "op_kind");
         long long dst = read_int(ins, "dst");
@@ -842,9 +915,12 @@
           long long bid,
           size_t ii) {
         char ab[256];
+        long long box_ref_reg = 0;
         if (!(plan && plan->active)) return 0;
+        box_ref_reg = plan->box_reg;
+        get_receiver_forward_alias_src(plan->box_reg, &box_ref_reg);
         ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), plan->box_reg, 1);
+        append_i64_arg_ref(ab, sizeof(ab), box_ref_reg, 1);
         {
           size_t used = strlen(ab);
           if (used >= sizeof(ab)) return 0;
@@ -878,7 +954,9 @@
           size_t fn_index,
           long long bid,
           size_t ii,
-          yyjson_val* ins) {
+          yyjson_val* ins,
+          yyjson_val* insts,
+          size_t ilen) {
         const char* op = read_str(ins, "op");
         if (!op) return 0;
         if (!strcmp(op, "phi")) return 1;
@@ -891,6 +969,15 @@
               ins);
         }
         if (!strcmp(op, "copy")) {
+          if (same_module_function_should_forward_selected_receiver_copy(
+                  ins,
+                  ii,
+                  insts,
+                  ilen)) {
+            return same_module_function_emit_selected_receiver_forwarding_copy(
+                read_int(ins, "dst"),
+                read_int(ins, "src"));
+          }
           return same_module_function_emit_copy(
               read_int(ins, "dst"),
               read_int(ins, "src"));
@@ -1031,7 +1118,9 @@
                     fn_index,
                     block.id,
                     ii,
-                    ins)) {
+                    ins,
+                    block.instructions,
+                    block.instruction_count)) {
               same_module_function_record_body_failure(block.id, ii, ins);
               return 0;
             }

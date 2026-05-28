@@ -572,6 +572,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct GenericPureRegMarker { long long reg; };
       struct GenericPureTypeBinding { long long reg; int ty; };
       struct GenericPureCopyAlias { long long reg; long long src; };
+      struct GenericPureReceiverForwardAlias { long long reg; long long src; };
       struct GenericPureOriginBinding { long long reg; int kind; };
       struct GenericPureTypedObjectBinding { long long reg; int plan_index; };
       struct GenericPureVariantBinding {
@@ -595,6 +596,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         GENERIC_PURE_REG_MARKER_CAP = GENERIC_PURE_STRING_CONST_CAP,
         GENERIC_PURE_TYPE_BINDING_CAP = 8192,
         GENERIC_PURE_COPY_ALIAS_CAP = 2048,
+        GENERIC_PURE_RECEIVER_FORWARD_ALIAS_CAP = 256,
         GENERIC_PURE_ORIGIN_BINDING_CAP = 2048,
         GENERIC_PURE_TYPED_OBJECT_BINDING_CAP = 2048,
         GENERIC_PURE_VARIANT_BINDING_CAP = 2048,
@@ -618,6 +620,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         size_t types_n;
         struct GenericPureCopyAlias copy_alias[GENERIC_PURE_COPY_ALIAS_CAP];
         size_t copy_alias_n;
+        struct GenericPureReceiverForwardAlias receiver_forward_alias[GENERIC_PURE_RECEIVER_FORWARD_ALIAS_CAP];
+        size_t receiver_forward_alias_n;
         struct GenericPureOriginBinding scan_origin[GENERIC_PURE_ORIGIN_BINDING_CAP];
         size_t scan_origin_n;
         struct GenericPureOriginBinding origin[GENERIC_PURE_ORIGIN_BINDING_CAP];
@@ -662,6 +666,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define types_n lowering_state.types_n
       #define copy_alias lowering_state.copy_alias
       #define copy_alias_n lowering_state.copy_alias_n
+      #define receiver_forward_alias lowering_state.receiver_forward_alias
+      #define receiver_forward_alias_n lowering_state.receiver_forward_alias_n
       #define scan_origin lowering_state.scan_origin
       #define scan_origin_n lowering_state.scan_origin_n
       #define origin lowering_state.origin
@@ -844,6 +850,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #undef types_n
       #undef copy_alias
       #undef copy_alias_n
+      #undef receiver_forward_alias
+      #undef receiver_forward_alias_n
       #undef scan_origin
       #undef scan_origin_n
       #undef origin

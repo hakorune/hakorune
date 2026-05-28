@@ -1,5 +1,7 @@
       auto long long get_copy_alias_src(long long r){ for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r) return copy_alias[i].src; } return 0; }
       auto void set_copy_alias(long long r,long long src){ if(!r || !src) return; for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r){ copy_alias[i].src=src; return; } } if(copy_alias_n<ARR_LEN(copy_alias)){ copy_alias[copy_alias_n].reg=r; copy_alias[copy_alias_n].src=src; copy_alias_n++; } else { note_generic_capacity_overflow("generic_copy_alias_inventory_full"); } }
+      auto int get_receiver_forward_alias_src(long long r, long long* out_src){ for(size_t i=0;i<receiver_forward_alias_n;i++){ if(receiver_forward_alias[i].reg==r){ if(out_src) *out_src=receiver_forward_alias[i].src; return 1; } } return 0; }
+      auto void set_receiver_forward_alias(long long r,long long src){ if(!r) return; for(size_t i=0;i<receiver_forward_alias_n;i++){ if(receiver_forward_alias[i].reg==r){ receiver_forward_alias[i].src=src; return; } } if(receiver_forward_alias_n<ARR_LEN(receiver_forward_alias)){ receiver_forward_alias[receiver_forward_alias_n].reg=r; receiver_forward_alias[receiver_forward_alias_n].src=src; receiver_forward_alias_n++; } else { note_generic_capacity_overflow("generic_receiver_forward_alias_inventory_full"); } }
       auto long long resolve_copy_source_reg(long long r){
         long long cur = r;
         for(int depth=0; depth<64 && cur; depth++){
