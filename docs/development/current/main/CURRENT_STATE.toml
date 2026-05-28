@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x is selecting the next owner after block-local typed-field residence proved non-feasible."
+active_lane_status = "Phase-296x is defining CFG-aware typed-field residence ownership before any transform."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-198-CFG-RESIDENCE-OR-RUNTIME-OWNER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-198-CFG-RESIDENCE-OR-RUNTIME-OWNER-SELECTION.md"
-latest_card_summary = "Select CFG-aware typed-field residence design after block-local residence proves non-feasible."
-current_blocker_token = "CFG-RESIDENCE-OR-RUNTIME-OWNER-SELECTION-296X-001"
+latest_card = "296x-199-CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-199-CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT.md"
+latest_card_summary = "Define CFG-aware typed-field residence ownership before any transform."
+current_blocker_token = "CFG-AWARE-TYPED-FIELD-RESIDENCE-SSOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-198 Selected CFG-aware typed-field residence design as the next owner after block-local residence proved net_helper_call_delta=0.",
   "296x-197 Counted typed-field residence net helper-call erasure for HakoAllocPageModel.acquire_usize/1 and rejected a second block-local attempt because net_helper_call_delta=0.",
   "296x-196 Rejected block-local selected-method typed-field residence as a non-keeper: it moved field_set helpers to resident writebacks without erasing helper calls.",
   "296x-195 Built the selected-method MIR typed-field residence plan for HakoAllocPageModel.acquire_usize/1: 9 scalar fields, 6 writeback fields, 3 readonly fields, and 2 handle fields rejected.",

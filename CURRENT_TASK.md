@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row198 is selecting CFG-aware typed-field residence design after block-local
-  residence proved non-feasible
+- row199 is defining CFG-aware typed-field residence ownership before any
+  transform
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `cfg_residence_or_runtime_owner_selection`
+  diagnostic is `cfg_aware_typed_field_residence_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

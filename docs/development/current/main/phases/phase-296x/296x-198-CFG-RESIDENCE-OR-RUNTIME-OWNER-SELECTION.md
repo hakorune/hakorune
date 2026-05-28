@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the next owner after block-local typed-field residence proved non-feasible.
 Blocker: CFG-RESIDENCE-OR-RUNTIME-OWNER-SELECTION-296X-001
