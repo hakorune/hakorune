@@ -37,6 +37,14 @@ require_line "$DOC" "field_family.page_queue_receiver_state_count=34"
 require_line "$DOC" "field_family.page_model_bridge_count=1"
 require_line "$DOC" "pattern.positive_net_cache_candidate_count=16"
 require_line "$DOC" "selected_next=page_queue_field_owner_selection"
+require_line "$DOC" "candidate_shape_owner=page_queue_same_block_get_set_surface"
+require_line "$DOC" "candidate_shape_scope=page_queue_receiver_state"
+require_line "$DOC" "candidate_shape_not_source_rewrite=1"
+require_line "$DOC" "candidate_shape_not_generic_residence=1"
+require_line "$DOC" "method.acceptSelectedPage.same_block_get_set_surface=dominant"
+require_line "$DOC" "method.beginSelection.same_block_get_set_surface=present"
+require_line "$DOC" "method.selectSinglePageFastPath.same_block_get_set_surface=large_but_low_perf_pct"
+require_line "$DOC" "guard_fixture_role=representative_shape_not_full_mir_snapshot"
 require_line "$DOC" "optimization_open=0"
 require_line "$DOC" "summary=ok"
 
@@ -72,6 +80,9 @@ cat >"$PERF" <<'REPORT'
                |--2.79%--HakoAllocObjectLifecyclePageQueue.acceptSelectedPage/3
 REPORT
 
+# This synthetic MIR is a representative shape fixture, not a full post-fusion
+# MIR snapshot. It keeps the row contract focused on the page queue family split
+# and same-block/repeated-get counters that drive row238 selection.
 cat >"$MIR" <<'JSON'
 {
   "functions": [

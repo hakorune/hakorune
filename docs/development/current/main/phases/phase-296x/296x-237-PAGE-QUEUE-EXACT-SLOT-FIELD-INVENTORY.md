@@ -73,6 +73,27 @@ Page queue has a much larger local field traffic surface than residual facade:
 16 positive-net candidates versus 4. The next row should choose a page
 queue-specific keeper rather than returning to generic typed-field residence.
 
+## Candidate Shape Notes
+
+```text
+candidate_shape_owner=page_queue_same_block_get_set_surface
+candidate_shape_scope=page_queue_receiver_state
+candidate_shape_not_source_rewrite=1
+candidate_shape_not_generic_residence=1
+method.acceptSelectedPage.same_block_get_set_surface=dominant
+method.acceptSelectedPage.perf_pct=10.44
+method.beginSelection.same_block_get_set_surface=present
+method.beginSelection.perf_pct=2.06
+method.selectSinglePageFastPath.same_block_get_set_surface=large_but_low_perf_pct
+method.selectSinglePageFastPath.perf_pct=0.69
+guard_fixture_role=representative_shape_not_full_mir_snapshot
+```
+
+The guard fixture is intentionally representative: it fixes the page queue
+same-block/repeated-get counters and method family split, not the complete
+post-fusion MIR body. Row239 should use the real MIR shape again before
+implementation.
+
 ## Guard
 
 ```bash
