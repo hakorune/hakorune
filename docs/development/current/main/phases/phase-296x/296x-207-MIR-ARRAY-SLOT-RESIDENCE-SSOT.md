@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: define ArraySlotResidencePlan / DirectSlotOp after the Array runtime backend floor measurement.
 Blocker: MIR-ARRAY-SLOT-RESIDENCE-SSOT-296X-001

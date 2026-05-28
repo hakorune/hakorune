@@ -81,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row207 is defining MIR ArraySlotResidence / DirectSlotOp after the Array
-  runtime backend floor measurement
+- row208 is inventorying MIR ArraySlotResidence helper-call erasure before any
+  transform
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
   diagnostic is `array_runtime_single_thread_store_backend_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
