@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row202 is selecting the ArrayBox runtime slot helper diagnostic boundary
-  before any keeper implementation
+- row203 is splitting ArrayBox runtime slot helper cost before keeper
+  implementation
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `array_runtime_slot_helper_selection`
+  diagnostic is `array_runtime_slot_helper_cost_probe`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

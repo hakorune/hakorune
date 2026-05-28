@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the ArrayBox runtime slot helper diagnostic boundary before any keeper implementation.
 Blocker: ARRAY-RUNTIME-SLOT-HELPER-SELECTION-296X-001

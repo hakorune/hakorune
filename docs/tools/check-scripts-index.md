@@ -292,6 +292,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_cfg_aware_typed_field_residence_plan_inventory_guard.sh` | 296x-200 の CFG-aware typed-field residence plan inventory guard。`acquire_usize/1` の CFG-aware plan が net helper-call delta 0 であることを固定する。 |
 | `tools/checks/k2_wide_phase296x_large_owner_refresh_after_residence_zero_net_guard.sh` | 296x-201 の large owner refresh guard。single-thread exact 後の perf scout で ArrayBox runtime slot helper を次 owner に選ぶ。 |
 | `tools/checks/k2_wide_phase296x_array_runtime_slot_helper_selection_guard.sh` | 296x-202 の ArrayBox runtime slot helper selection guard。`array_runtime_set_idx_i64` hot path と次の cost probe contract を固定する。 |
+| `tools/allocator/array_runtime_slot_helper_cost_probe.py` | 296x-203 の ArrayBox runtime slot helper cost probe。sidecar Rust microprobe で valid handle / cache / write lock / inline store / full facade cost を分ける。 |
+| `tools/checks/k2_wide_phase296x_array_runtime_slot_helper_cost_probe_guard.sh` | 296x-203 の ArrayBox runtime slot helper cost probe guard。array storage write lock を次 subowner として固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
