@@ -82,6 +82,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_ENV_SET:
             needs->env_set = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_ENV_NOW_MS:
+            needs->env_now_ms = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_CAS_I64:
             needs->hako_atomic_slot_cas_i64 = 1;
             break;

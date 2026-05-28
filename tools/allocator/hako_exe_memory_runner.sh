@@ -192,6 +192,11 @@ release_known_page_fast_path_count = 0
 release_known_page_fallback_count = 0
 in_process_operation_repeat = 0
 app_timing_repeat_kind = ""
+hako_body_timing_available = 0
+body_timing_repeat_kind = ""
+body_timing_scope = ""
+body_timing_is_process_timing = ""
+body_elapsed_ns = 0
 
 for line in lines:
     if line.startswith("operation_family="):
@@ -204,6 +209,16 @@ for line in lines:
         in_process_operation_repeat = int(line.split("=", 1)[1])
     if line.startswith("timing_repeat_kind="):
         app_timing_repeat_kind = line.split("=", 1)[1]
+    if line.startswith("hako_body_timing_available="):
+        hako_body_timing_available = int(line.split("=", 1)[1])
+    if line.startswith("body_timing_repeat_kind="):
+        body_timing_repeat_kind = line.split("=", 1)[1]
+    if line.startswith("body_timing_scope="):
+        body_timing_scope = line.split("=", 1)[1]
+    if line.startswith("body_timing_is_process_timing="):
+        body_timing_is_process_timing = line.split("=", 1)[1]
+    if line.startswith("body_elapsed_ns="):
+        body_elapsed_ns = int(line.split("=", 1)[1])
     if line.startswith("allocation_count="):
         allocation_count = int(line.split("=", 1)[1])
     if line.startswith("free_count="):
@@ -277,6 +292,15 @@ if in_process_operation_repeat > 0:
     print(f"in_process_operation_repeat={in_process_operation_repeat}")
 if app_timing_repeat_kind:
     print(f"app_timing_repeat_kind={app_timing_repeat_kind}")
+print(f"hako_body_timing_available={hako_body_timing_available}")
+if body_timing_repeat_kind:
+    print(f"body_timing_repeat_kind={body_timing_repeat_kind}")
+if body_timing_scope:
+    print(f"body_timing_scope={body_timing_scope}")
+if body_timing_is_process_timing:
+    print(f"body_timing_is_process_timing={body_timing_is_process_timing}")
+if hako_body_timing_available == 1:
+    print(f"body_elapsed_ns={body_elapsed_ns}")
 print(f"allocation_count={allocation_count * repeat}")
 print(f"free_count={free_count * repeat}")
 print(f"requested_bytes={requested_bytes * repeat}")

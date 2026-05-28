@@ -33,6 +33,7 @@
         int any_handle_live;
         int env_get;
         int env_set;
+        int env_now_ms;
         int hako_atomic_slot_cas_i64;
         int hako_atomic_slot_fetch_add_i64;
         int hako_atomic_slot_load_i64;
@@ -83,6 +84,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_ANY_HANDLE_LIVE,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
+        HAKO_LLVMC_MIR_CALL_NEED_ENV_NOW_MS,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_CAS_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_FETCH_ADD_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_LOAD_I64,

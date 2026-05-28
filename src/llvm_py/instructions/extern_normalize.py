@@ -40,6 +40,8 @@ def normalize_extern_name(name: Optional[str]) -> str:
             return "nyash.env.get"
         if n == "env.set":
             return "nyash.env.set"
+        if n == "env.now_ms":
+            return "nyash.env.now_ms"
     except Exception:
         # Fallthrough to original if anything odd happens
         pass

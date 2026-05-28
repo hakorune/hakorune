@@ -707,6 +707,8 @@
         fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
       if (needs.env_set || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.env.set\"(i64, i64)\n");
+      if (needs.env_now_ms || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.env.now_ms\"()\n");
       if (needs.hako_mem_alloc || module_has_planned_same_module_function_definition())
         fprintf(f, "declare ptr @\"hako_mem_alloc\"(i64)\n");
       if (needs.hako_mem_free || module_has_planned_same_module_function_definition())

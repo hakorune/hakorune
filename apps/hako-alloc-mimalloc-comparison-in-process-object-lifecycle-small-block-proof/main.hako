@@ -97,6 +97,7 @@ static box Main {
 
         local repeat = 0
         local ok = 1
+        local body_start_ms = env.now_ms()
         loop(repeat < operation_repeat) {
             local run_ok = Main.runOne(page, alloc)
             if run_ok != 1 {
@@ -104,6 +105,12 @@ static box Main {
             }
             repeat += 1
         }
+        local body_end_ms = env.now_ms()
+        local body_elapsed_ms = body_end_ms - body_start_ms
+        if body_elapsed_ms < 0 {
+            body_elapsed_ms = 0
+        }
+        local body_elapsed_ns = body_elapsed_ms * 1000000
 
         local allocation_count = 64 * operation_repeat
         local free_count = 64 * operation_repeat
@@ -121,6 +128,11 @@ static box Main {
         print("free_order_id=even-odd-release-v0")
         print("in_process_operation_repeat=" + operation_repeat)
         print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("hako_body_timing_available=1")
+        print("body_timing_repeat_kind=workload-body-env-now-ms-v0")
+        print("body_timing_scope=allocator-workload-body")
+        print("body_timing_is_process_timing=0")
+        print("body_elapsed_ns=" + body_elapsed_ns)
         print("allocation_count=" + allocation_count)
         print("free_count=" + free_count)
         print("requested_bytes=" + requested_bytes)

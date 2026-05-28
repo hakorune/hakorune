@@ -64,6 +64,15 @@ pub extern "C" fn nyash_env_set(key_handle: i64, value_handle: i64) -> i64 {
     1
 }
 
+// nyash.env.now_ms() -> i64 milliseconds since UNIX epoch.
+#[export_name = "nyash.env.now_ms"]
+pub extern "C" fn nyash_env_now_ms() -> i64 {
+    match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+        Ok(duration) => duration.as_millis() as i64,
+        Err(_) => 0,
+    }
+}
+
 // Legacy aliases for builders that still reference env.get/env.set directly.
 #[export_name = "env.get"]
 pub extern "C" fn env_get_legacy_alias(key_handle: i64) -> i64 {
@@ -73,6 +82,11 @@ pub extern "C" fn env_get_legacy_alias(key_handle: i64) -> i64 {
 #[export_name = "env.set"]
 pub extern "C" fn env_set_legacy_alias(key_handle: i64, value_handle: i64) -> i64 {
     nyash_env_set(key_handle, value_handle)
+}
+
+#[export_name = "env.now_ms"]
+pub extern "C" fn env_now_ms_legacy_alias() -> i64 {
+    nyash_env_now_ms()
 }
 
 // Build ArrayBox from process argv (excluding program name)

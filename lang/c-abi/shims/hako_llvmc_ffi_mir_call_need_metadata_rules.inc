@@ -435,6 +435,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
           },
           {
+            "extern.env.now_ms",
+            "EnvNowMs",
+            "extern.env.now_ms",
+            "nyash.env.now_ms",
+            HAKO_LLVMC_MIR_CALL_NEED_ENV_NOW_MS,
+          },
+          {
             "extern.any.handle_live",
             "AnyHandleLive",
             "extern.any.handle_live",

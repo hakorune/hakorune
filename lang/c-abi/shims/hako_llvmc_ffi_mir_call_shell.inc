@@ -450,6 +450,18 @@
            0,
            "mir_call_extern_emit",
            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+          {"extern.env.now_ms",
+           "EnvNowMs",
+           "extern.env.now_ms",
+           "nyash.env.now_ms",
+           "scalar_i64",
+           "runtime_i64",
+           0,
+           0,
+           0,
+           0,
+           "mir_call_env_now_ms_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
           {"extern.any.handle_live",
            "AnyHandleLive",
            "extern.any.handle_live",
@@ -892,7 +904,7 @@
           if (!(arg && yyjson_is_num(arg))) return -1;
           actual_args[ai] = (long long)yyjson_get_sint(arg);
         }
-        if (actual_args[0] != key_value) {
+        if (argc > 0 && actual_args[0] != key_value) {
           return -1;
         }
         if (rule->read_value_value) {

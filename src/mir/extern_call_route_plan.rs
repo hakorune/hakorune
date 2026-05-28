@@ -13,6 +13,7 @@ use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 pub enum ExternCallRouteKind {
     EnvGet,
     EnvSet,
+    EnvNowMs,
     AnyHandleLive,
     ArraySlotAppendAny,
     ArraySlotLenI64,
@@ -140,6 +141,20 @@ static EXTERN_CALL_ROUTE_SPECS: &[ExternCallRouteSpec] = &[
         value_demand: "runtime_i64",
         effect_tags: &["write.env"],
         accepts_void_result: true,
+    },
+    ExternCallRouteSpec {
+        kind: ExternCallRouteKind::EnvNowMs,
+        route_id: "extern.env.now_ms",
+        core_op: "EnvNowMs",
+        symbol: "nyash.env.now_ms",
+        aliases: &["env.now_ms"],
+        arity: 0,
+        value_arg_index: None,
+        proof: EXTERN_REGISTRY_PROOF,
+        return_shape: "scalar_i64",
+        value_demand: "runtime_i64",
+        effect_tags: &["read.time"],
+        accepts_void_result: false,
     },
     ExternCallRouteSpec {
         kind: ExternCallRouteKind::AnyHandleLive,
@@ -688,7 +703,8 @@ impl ExternCallRoute {
 }
 
 pub fn normalize_extern_symbol(name: &str) -> &str {
-    name.strip_suffix("/1")
+    name.strip_suffix("/0")
+        .or_else(|| name.strip_suffix("/1"))
         .or_else(|| name.strip_suffix("/2"))
         .or_else(|| name.strip_suffix("/3"))
         .or_else(|| name.strip_suffix("/4"))
@@ -746,9 +762,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             if dst.is_none() && !kind.accepts_void_result() {
                 continue;
             }
-            let Some(key_value) = args.first().copied() else {
-                continue;
-            };
+            let key_value = args.first().copied().unwrap_or(ValueId::INVALID);
             let value_value = kind
                 .value_arg_index()
                 .and_then(|index| args.get(index).copied());

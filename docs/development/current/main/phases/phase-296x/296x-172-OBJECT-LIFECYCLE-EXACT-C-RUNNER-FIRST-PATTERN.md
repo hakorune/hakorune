@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: add the missing C mimalloc explicit object-lifecycle exact pair.
 Blocker: OBJECT-LIFECYCLE-EXACT-C-RUNNER-FIRST-PATTERN-296X-001

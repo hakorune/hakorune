@@ -86,6 +86,7 @@ def lower_externcall(
         "env.future.spawn_instance": (i64, [i64, i64, i64, i64]),
         "nyash.env.get": (i64, [i64]),
         "nyash.env.set": (i64, [i64, i64]),
+        "nyash.env.now_ms": (i64, []),
         # Console (string pointer expected)
         # Many call sites pass handles or pointers; we coerce below.
     }
