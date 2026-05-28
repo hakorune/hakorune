@@ -273,7 +273,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 225 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION-296X-001` | Landed | Attribute remaining exact-slot get/set helper cost by callsite and method family before another keeper. |
 | 226 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Landed | Choose facade exact-slot field inventory as the next narrow diagnostic owner. |
 | 227 | `OBJECT-LIFECYCLE-FACADE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Landed | Inventory facade exact-slot fields/capsules before selecting a keeper. |
-| 228 | `OBJECT-LIFECYCLE-FACADE-FIELD-OWNER-SELECTION-296X-001` | Planned | Select one facade field owner from inventory before implementation. |
+| 228 | `OBJECT-LIFECYCLE-FACADE-FIELD-OWNER-SELECTION-296X-001` | Landed | Select selected-facade same-block get/set fusion as the next narrow owner. |
+| 229 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-GUARD-SURFACE-296X-001` | Planned | Freeze the selected facade same-block get/set fusion guard surface before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
