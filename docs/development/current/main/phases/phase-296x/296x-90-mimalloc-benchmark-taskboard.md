@@ -269,7 +269,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 221 | `TYPED-OBJECT-FIELD-RMW-FUSION-SELECTION-296X-001` | Landed | Select a helper-reduction seam that keeps typed-object storage ownership inside Rust runtime code. |
 | 222 | `TYPED-OBJECT-FIELD-RMW-FUSION-KEEPER-296X-001` | Landed | Implement the selected-method typed-object exact-slot RMW fusion keeper. |
 | 223 | `TYPED-OBJECT-FIELD-RMW-FUSION-MEASUREMENT-296X-001` | Landed | Measure the selected-method RMW fusion keeper and accept the small body-time win. |
-| 224 | `POST-RMW-FUSION-OWNER-REFRESH-296X-001` | Planned | Refresh the current hot owner after typed-object RMW fusion before another optimization. |
+| 224 | `POST-RMW-FUSION-OWNER-REFRESH-296X-001` | Landed | Refresh the current hot owner after typed-object RMW fusion and select exact-slot callsite attribution. |
+| 225 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION-296X-001` | Planned | Attribute remaining exact-slot get/set helper cost by callsite and method family before another keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 

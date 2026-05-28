@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x measured the selected typed-object field RMW fusion keeper; next is post-fusion owner refresh."
+active_lane_status = "Phase-296x refreshed perf ownership after typed-object field RMW fusion; next is exact-slot callsite attribution."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-223-TYPED-OBJECT-FIELD-RMW-FUSION-MEASUREMENT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-223-TYPED-OBJECT-FIELD-RMW-FUSION-MEASUREMENT.md"
-latest_card_summary = "Measured the selected-method typed-object exact-slot RMW fusion keeper at 116ms body median versus the 119ms single-thread exact floor."
-current_blocker_token = "POST-RMW-FUSION-OWNER-REFRESH-296X-001"
+latest_card = "296x-224-POST-RMW-FUSION-OWNER-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-224-POST-RMW-FUSION-OWNER-REFRESH.md"
+latest_card_summary = "Refreshed perf ownership after RMW fusion: exact-slot get/set helpers remain primary at 59.97%, with exact-slot callsite attribution selected next."
+current_blocker_token = "TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-224 Refreshed perf ownership after RMW fusion: exact-slot get/set helpers remain primary at 59.97%, fused RMW is only 2.30%, and exact-slot callsite attribution is next.",
   "296x-223 Measured the selected-method typed-object exact-slot RMW fusion keeper at 116ms body median versus the 119ms single-thread exact floor, accepting the small keeper win while keeping winner/replacement lanes closed.",
   "296x-222 Implemented selected-method typed-object exact-slot RMW fusion with 5 fused helper sites while preserving runtime storage ownership.",
   "296x-221 Selected typed-object exact-slot RMW fusion with 5 same-block usize candidates and net helper-call delta 5 while preserving runtime storage ownership.",
