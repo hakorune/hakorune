@@ -42,8 +42,41 @@ def main() -> int:
     require(values, "ir_shape_diff_inventory_only", "1")
     selected_method = require_key(values, "selected_method")
     shape_owner = require_key(values, "selected_method_shape_owner")
+    prior_no_material_row = values.get("selected_method_prior_no_material_effect_row")
+    selected_owner_method = selected_method
+    extra_lines: list[str] = []
 
-    if shape_owner == "copy_materialization":
+    if shape_owner == "copy_materialization" and prior_no_material_row:
+        fallback_method = values.get("method_1_symbol", "none")
+        if fallback_method != "none":
+            selected_owner = "page_model_release_known_live_field_traffic_probe"
+            next_diagnostic = selected_owner
+            selected_reason = "prior_acquire_copy_materialization_no_material_effect_select_next_page_model_method"
+            selected_owner_method = fallback_method
+            extra_lines.extend(
+                [
+                    f"selected_method_prior_no_material_effect_row={prior_no_material_row}",
+                    f"selected_owner_method_pct={values.get('method_1_pct', '0.00')}",
+                    f"selected_owner_method_field_get_count={values.get('method_1_field_get_count', '0')}",
+                    f"selected_owner_method_field_set_count={values.get('method_1_field_set_count', '0')}",
+                    f"selected_owner_method_copy_count={values.get('method_1_copy_count', '0')}",
+                    f"selected_owner_method_call_count={values.get('method_1_call_count', '0')}",
+                    "rejected_owner_3=page_model_acquire_usize_copy_materialization_retry",
+                    "rejected_reason_3=prior_receiver_forwarding_no_material_effect_requires_different_page_model_owner",
+                ]
+            )
+        else:
+            selected_owner = "page_model_owner_refresh"
+            next_diagnostic = selected_owner
+            selected_reason = "prior_acquire_copy_materialization_no_material_effect_without_alternate_page_model_method"
+            extra_lines.extend(
+                [
+                    f"selected_method_prior_no_material_effect_row={prior_no_material_row}",
+                    "rejected_owner_3=page_model_acquire_usize_copy_materialization_retry",
+                    "rejected_reason_3=prior_receiver_forwarding_no_material_effect_requires_different_page_model_owner",
+                ]
+            )
+    elif shape_owner == "copy_materialization":
         selected_owner = "page_model_acquire_usize_copy_materialization_probe"
         next_diagnostic = selected_owner
         selected_reason = "selected_method_shape_owner_copy_materialization"
@@ -63,6 +96,7 @@ def main() -> int:
         f"selected_method_field_op_count={require_key(values, 'selected_method_field_op_count')}",
         f"selected_method_call_count={require_key(values, 'selected_method_call_count')}",
         f"selected_owner={selected_owner}",
+        f"selected_owner_method={selected_owner_method}",
         f"selected_reason={selected_reason}",
         f"next_diagnostic={next_diagnostic}",
         "rejected_owner=page_model_same_block_rmw_retry",
@@ -71,6 +105,7 @@ def main() -> int:
         "rejected_reason_1=direct_op_previous_rejected",
         "rejected_owner_2=page_queue_retry",
         "rejected_reason_2=page_queue_recent_nonkeeper_retry_closed",
+        *extra_lines,
         "implementation_open=0",
         "optimization_open=0",
         "winner_claim=0",
