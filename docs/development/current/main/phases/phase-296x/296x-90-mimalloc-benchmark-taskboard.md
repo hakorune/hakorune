@@ -274,7 +274,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 226 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Landed | Choose facade exact-slot field inventory as the next narrow diagnostic owner. |
 | 227 | `OBJECT-LIFECYCLE-FACADE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Landed | Inventory facade exact-slot fields/capsules before selecting a keeper. |
 | 228 | `OBJECT-LIFECYCLE-FACADE-FIELD-OWNER-SELECTION-296X-001` | Landed | Select selected-facade same-block get/set fusion as the next narrow owner. |
-| 229 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-GUARD-SURFACE-296X-001` | Planned | Freeze the selected facade same-block get/set fusion guard surface before implementation. |
+| 229 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-GUARD-SURFACE-296X-001` | Landed | Freeze the selected facade same-block get/set fusion guard surface before implementation. |
+| 230 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-KEEPER-296X-001` | Planned | Implement the selected facade same-block get/set fusion keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
