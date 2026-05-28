@@ -306,7 +306,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 258 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-IMPLEMENTATION-296X-001` | Landed | Implement the selected result capsule reset field-batching helper and same-module lowering. |
 | 259 | `RESULT-CAPSULE-RESET-FIELD-BATCHING-MEASUREMENT-296X-001` | Landed | Measure the result capsule reset field-batching implementation and accept the small keeper win. |
 | 260 | `POST-RESULT-CAPSULE-RESET-BATCHING-OWNER-REFRESH-296X-001` | Landed | Refresh exact-slot ownership after accepting the result capsule reset batching keeper. |
-| 261 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001` | Planned | Select the next exact-slot owner after result capsule reset batching, with page queue immediate retry still blocked. |
+| 261 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001` | Landed | Select the next exact-slot owner after result capsule reset batching, with page queue immediate retry still blocked. |
+| 262 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET-296X-001` | Planned | Refresh page-model hotpath IR shape after result capsule reset batching before another keeper implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
