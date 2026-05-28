@@ -297,7 +297,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 249 | `PAGE-MODEL-ACQUIRE-USIZE-BLOCK-ENTRY-RECEIVER-COPY-POLICY-SELECTION-296X-001` | Landed | Decide whether a narrow block-entry receiver copy policy is safe for `acquire_usize/1`. |
 | 250 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-GUARD-SURFACE-296X-001` | Landed | Freeze the selected-method receiver block-entry copy forwarding guard surface before implementation. |
 | 251 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-IMPLEMENTATION-296X-001` | Landed | Implement selected-method-only receiver block-entry copy forwarding and preserve semantic proof. |
-| 252 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-MEASUREMENT-296X-001` | Planned | Measure the selected-method receiver block-entry copy forwarding keeper before accepting or rolling back. |
+| 252 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-MEASUREMENT-296X-001` | Landed | Measure the selected-method receiver block-entry copy forwarding keeper before accepting or rolling back. |
+| 253 | `POST-RECEIVER-FORWARDING-OWNER-REFRESH-296X-001` | Planned | Refresh perf ownership after the receiver forwarding no-material-effect measurement. |
 
 ## Hako Mimalloc Performance Parity Plan
 
