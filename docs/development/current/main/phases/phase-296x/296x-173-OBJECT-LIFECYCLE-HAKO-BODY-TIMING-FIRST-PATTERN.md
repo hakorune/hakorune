@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: expose body timing from the .hako exact-EXE object-lifecycle workload.
 Blocker: OBJECT-LIFECYCLE-HAKO-BODY-TIMING-FIRST-PATTERN-296X-001
