@@ -678,6 +678,7 @@
         fprintf(f, "declare i64 @\"nyash.object.field_set_i64_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_get_i64_hii\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_i64_hii\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_set4_i64_hiiiii\"(i64, i64, i64, i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_i64_hii\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_u64_hiu\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_u64_hii\"(i64, i64)\n");

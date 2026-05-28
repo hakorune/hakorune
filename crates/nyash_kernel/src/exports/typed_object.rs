@@ -411,6 +411,23 @@ pub extern "C" fn nyash_object_exact_slot_set_i64_hii(handle: i64, slot: i64, va
     i64::from(typed_object_store::exact_slot_set_i64(handle, slot, value))
 }
 
+#[export_name = "nyash.object.exact_slot_set4_i64_hiiiii"]
+pub extern "C" fn nyash_object_exact_slot_set4_i64_hiiiii(
+    handle: i64,
+    start_slot: i64,
+    value0: i64,
+    value1: i64,
+    value2: i64,
+    value3: i64,
+) -> i64 {
+    let Some(start_slot) = exact_slot_index(start_slot) else {
+        return 0;
+    };
+    i64::from(typed_object_store::exact_slot_set4_i64(
+        handle, start_slot, value0, value1, value2, value3,
+    ))
+}
+
 #[export_name = "nyash.object.exact_slot_get_u64_hii"]
 pub extern "C" fn nyash_object_exact_slot_get_u64_hii(handle: i64, slot: i64) -> u64 {
     let Some(slot) = exact_slot_index(slot) else {

@@ -512,6 +512,13 @@
         long long delta_reg;
       };
 
+      struct SameModuleResultCapsuleResetBatchPlan {
+        int active;
+        size_t first_set_index;
+        size_t set_indices[4];
+        long long box_reg;
+      };
+
       auto int same_module_function_is_selected_array_direct_op_target(long long bid) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
@@ -549,6 +556,18 @@
         return name &&
                (!strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
                 same_module_function_name_is_selected_facade_get_set_fusion_target(name));
+      }
+
+      auto int same_module_function_is_selected_result_capsule_reset_batch_target(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        static const char* const selected_result_capsule_reset_targets[] = {
+            "HakoAllocObjectLifecycleAllocResult.reset/0",
+            "HakoAllocObjectLifecycleReleaseResult.reset/0",
+        };
+        return same_module_function_name_is_in_list(
+            name,
+            selected_result_capsule_reset_targets,
+            ARR_LEN(selected_result_capsule_reset_targets));
       }
 
       auto int same_module_function_instruction_is_array_method(
@@ -765,6 +784,91 @@
         return 1;
       }
 
+      auto int same_module_function_typed_field_slot_i64(
+          long long box_reg,
+          const char* field,
+          long long* slot_out) {
+        int typed_plan_index = -1;
+        long long slot = -1;
+        const char* storage = NULL;
+        if (!typed_object_exact_slot_helper_enabled()) return 0;
+        if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
+        if (!typed_object_plan_field_runtime_slot_with_storage(
+                typed_plan_index,
+                field,
+                &slot,
+                &storage)) return 0;
+        if (!typed_object_storage_is_exact_slot_i64(storage)) return 0;
+        if (slot_out) *slot_out = slot;
+        return 1;
+      }
+
+      auto int same_module_function_match_result_capsule_reset_batch_plan(
+          yyjson_val* insts,
+          size_t ilen,
+          unsigned char* skip_inst,
+          struct SameModuleResultCapsuleResetBatchPlan* plan) {
+        static const char* const expected_fields[4] = {
+            "last_page_id",
+            "last_block_id",
+            "last_reason",
+            "last_ok",
+        };
+        static const long long expected_slots[4] = {0, 1, 2, 3};
+        static const long long expected_values[4] = {-1, -1, 0, 0};
+        size_t search_from = 0;
+        long long box_reg = 0;
+        if (!(insts && skip_inst && plan)) return 0;
+        memset(plan, 0, sizeof(*plan));
+        if (!same_module_function_is_selected_result_capsule_reset_batch_target()) return 0;
+        for (size_t k = 0; k < 4; k++) {
+          int found = 0;
+          for (size_t ii = search_from; ii < ilen; ii++) {
+            yyjson_val* ins = yyjson_arr_get(insts, ii);
+            const char* field = NULL;
+            long long set_box = 0;
+            long long slot = -1;
+            long long value_reg = 0;
+            long long value_base = 0;
+            long long value_const = 0;
+            if (!same_module_function_instruction_is_field_access(
+                    ins,
+                    "field_set",
+                    &set_box,
+                    &field)) {
+              continue;
+            }
+            if (!(field && !strcmp(field, expected_fields[k]))) continue;
+            if (k == 0) {
+              box_reg = set_box;
+            } else if (resolve_copy_source_reg(set_box) != resolve_copy_source_reg(box_reg)) {
+              return 0;
+            }
+            if (!same_module_function_typed_field_slot_i64(set_box, field, &slot)) return 0;
+            if (slot != expected_slots[k]) return 0;
+            value_reg = read_int(ins, "value");
+            value_base = resolve_copy_source_reg(value_reg);
+            if (!has_const(value_base, &value_const)) return 0;
+            if (value_const != expected_values[k]) return 0;
+            plan->set_indices[k] = ii;
+            search_from = ii + 1;
+            found = 1;
+            break;
+          }
+          if (!found) {
+            memset(plan, 0, sizeof(*plan));
+            return 0;
+          }
+        }
+        plan->active = 1;
+        plan->first_set_index = plan->set_indices[0];
+        plan->box_reg = box_reg;
+        for (size_t k = 1; k < 4; k++) {
+          skip_inst[plan->set_indices[k]] = 1;
+        }
+        return 1;
+      }
+
       auto int same_module_function_register_direct_use_count(
           yyjson_val* insts,
           size_t ilen,
@@ -949,6 +1053,31 @@
         return 1;
       }
 
+      auto int same_module_function_emit_result_capsule_reset_batch(
+          const struct SameModuleResultCapsuleResetBatchPlan* plan,
+          long long bid,
+          size_t ii) {
+        char ab[256];
+        char status_name[96];
+        long long box_ref_reg = 0;
+        if (!(plan && plan->active)) return 0;
+        box_ref_reg = plan->box_reg;
+        get_receiver_forward_alias_src(plan->box_reg, &box_ref_reg);
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), box_ref_reg, 1);
+        {
+          size_t used = strlen(ab);
+          if (used >= sizeof(ab)) return 0;
+          snprintf(ab + used, sizeof(ab) - used, ", i64 0, i64 -1, i64 -1, i64 0, i64 0");
+        }
+        snprintf(status_name, sizeof(status_name), "result_capsule_reset_batch_%lld_%zu", bid, ii);
+        EMIT("  %%%s = call i64 @\"nyash.object.exact_slot_set4_i64_hiiiii\"(%s)\n",
+             status_name,
+             ab);
+        same_module_function_emit_exact_status_trap(status_name, bid, ii);
+        return 1;
+      }
+
       auto int same_module_function_emit_instruction(
           FILE* f,
           size_t fn_index,
@@ -1071,9 +1200,11 @@
           }
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];
           struct SameModuleArraySlotDirectOpPlan array_direct_plan;
+          struct SameModuleResultCapsuleResetBatchPlan result_capsule_reset_batch_plan;
           struct SameModuleTypedFieldRmwFusionPlan typed_field_rmw_plans[16];
           size_t typed_field_rmw_plans_n = 0;
           memset(skip_inst, 0, sizeof(skip_inst));
+          memset(&result_capsule_reset_batch_plan, 0, sizeof(result_capsule_reset_batch_plan));
           memset(typed_field_rmw_plans, 0, sizeof(typed_field_rmw_plans));
           same_module_function_match_array_slot_direct_op_plan(
               block.id,
@@ -1081,6 +1212,11 @@
               block.instruction_count,
               skip_inst,
               &array_direct_plan);
+          same_module_function_match_result_capsule_reset_batch_plan(
+              block.instructions,
+              block.instruction_count,
+              skip_inst,
+              &result_capsule_reset_batch_plan);
           typed_field_rmw_plans_n =
               same_module_function_match_typed_field_rmw_fusion_plans(
                   block.instructions,
@@ -1098,6 +1234,17 @@
             if (skip_inst[ii]) continue;
             if (array_direct_plan.active && ii == array_direct_plan.set_index) {
               if (!same_module_function_emit_array_slot_direct_op(&array_direct_plan)) {
+                same_module_function_record_body_failure(block.id, ii, ins);
+                return 0;
+              }
+              continue;
+            }
+            if (result_capsule_reset_batch_plan.active &&
+                ii == result_capsule_reset_batch_plan.first_set_index) {
+              if (!same_module_function_emit_result_capsule_reset_batch(
+                      &result_capsule_reset_batch_plan,
+                      block.id,
+                      ii)) {
                 same_module_function_record_body_failure(block.id, ii, ins);
                 return 0;
               }

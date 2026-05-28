@@ -197,6 +197,44 @@ pub(crate) fn exact_slot_set_i64(handle: i64, slot: usize, value: i64) -> bool {
     })
 }
 
+pub(crate) fn exact_slot_set4_i64(
+    handle: i64,
+    start_slot: usize,
+    value0: i64,
+    value1: i64,
+    value2: i64,
+    value3: i64,
+) -> bool {
+    let Some(idx) = handle_to_index(handle) else {
+        return false;
+    };
+    let Some(end_slot) = start_slot.checked_add(4) else {
+        return false;
+    };
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return false;
+        };
+        let Some(object) = objects.get_mut(idx) else {
+            return false;
+        };
+        if end_slot > object.fields.len() {
+            return false;
+        }
+        if object.fields[start_slot..end_slot]
+            .iter()
+            .any(|field| field.storage != TypedSlotStorage::I64)
+        {
+            return false;
+        }
+        object.fields[start_slot].value = TypedSlotValue::I64(value0);
+        object.fields[start_slot + 1].value = TypedSlotValue::I64(value1);
+        object.fields[start_slot + 2].value = TypedSlotValue::I64(value2);
+        object.fields[start_slot + 3].value = TypedSlotValue::I64(value3);
+        true
+    })
+}
+
 pub(crate) fn exact_slot_get_u64(handle: i64, slot: usize) -> Option<u64> {
     let idx = handle_to_index(handle)?;
     SINGLE_THREAD_OBJECTS.with(|objects| {
