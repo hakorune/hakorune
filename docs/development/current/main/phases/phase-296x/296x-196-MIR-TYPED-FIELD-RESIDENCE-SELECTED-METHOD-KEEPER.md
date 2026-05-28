@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: implement the first selected-method MIR typed-field residence keeper.
 Blocker: MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001
@@ -11,9 +11,10 @@ Related:
 
 ## Purpose
 
-Implement the first narrow MIR typed-field residence keeper for
+Attempt the first narrow MIR typed-field residence keeper for
 `HakoAllocPageModel.acquire_usize/1`, using row195's plan as the only input.
-This row must stay selected-method only.
+This row stayed selected-method only and rejected the block-local
+implementation shape before landing code.
 
 ## Implementation Boundary
 
@@ -56,4 +57,35 @@ replacement_active=0
 hook_installed=0
 global_allocator=0
 summary=ok
+```
+
+## Outcome
+
+```text
+output_contract=mir-typed-field-residence-selected-method-attempt-v0
+selected_method=HakoAllocPageModel.acquire_usize/1
+attempted_shape=block_local_residence_with_block_end_writeback
+semantic_summary=ok
+ir_observation=field_set_helpers_moved_to_resident_field_set_writebacks
+erased_helper_call_count=0
+body_measurement_sample_ns=245000000
+keeper_effect=no_effect
+implementation_landed=0
+rollback_required=0
+next_diagnostic=mir_typed_field_residence_erasure_feasibility
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Interpretation:
+
+```text
+The selected-method block-local residence shape did not erase helper calls. It
+only delayed scalar field_set helpers into block-end resident writebacks. Since
+`acquire_usize/1` has no duplicate scalar field get or repeated scalar field set
+inside a block, this is not a keeper. Row197 must count net helper-call erasure
+before any second residence implementation attempt.
 ```

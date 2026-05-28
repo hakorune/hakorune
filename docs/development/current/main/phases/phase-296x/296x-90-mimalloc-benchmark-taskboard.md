@@ -241,7 +241,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 193 | `MIR-TYPED-FIELD-RESIDENCE-SSOT-296X-001` | Landed | Define the MIR typed-field residence contract after the runtime fast-lane keeper. |
 | 194 | `MIR-TYPED-FIELD-RESIDENCE-INVENTORY-296X-001` | Landed | Inventory MIR typed-field residence candidates before any transform. |
 | 195 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN-296X-001` | Landed | Build a selected-method field residence plan for HakoAllocPageModel.acquire_usize/1. |
-| 196 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001` | Current | Implement the first selected-method MIR typed-field residence keeper. |
+| 196 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001` | Landed | Reject the block-local selected-method typed-field residence implementation as a non-keeper. |
+| 197 | `MIR-TYPED-FIELD-RESIDENCE-ERASURE-FEASIBILITY-296X-001` | Current | Count net helper-call erasure before another typed-field residence implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
