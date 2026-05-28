@@ -329,6 +329,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_typed_object_field_rmw_fusion_measurement_guard.sh` | 296x-223 の typed-object field RMW fusion measurement guard。body-time keeper acceptance と closed winner/replacement seams を固定する。 |
 | `tools/allocator/typed_object_post_rmw_fusion_owner_refresh.py` | 296x-224 の post RMW fusion owner refresh tool。perf top から exact-slot get/set、fused RMW、Array/hash、Hako method owner を分類する。 |
 | `tools/checks/k2_wide_phase296x_post_rmw_fusion_owner_refresh_guard.sh` | 296x-224 の post RMW fusion owner refresh guard。exact-slot callsite attribution を次 diagnostic に固定する。 |
+| `tools/allocator/typed_object_exact_slot_callsite_attribution.py` | 296x-225 の typed-object exact-slot callsite attribution tool。perf callgraph から exact-slot get/set helper cost を caller family に分類する。 |
+| `tools/checks/k2_wide_phase296x_typed_object_exact_slot_callsite_attribution_guard.sh` | 296x-225 の typed-object exact-slot callsite attribution guard。dominant family と owner-selection handoff を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
