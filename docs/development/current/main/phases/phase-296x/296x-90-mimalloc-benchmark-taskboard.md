@@ -293,7 +293,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 245 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-296X-001` | Landed | Select the next exact-slot owner with recent non-keeper and IR-shape-diff gates. |
 | 246 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-INVENTORY-296X-001` | Landed | Inspect page-model hotpath IR shape before another keeper implementation. |
 | 247 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-296X-001` | Landed | Select the next page-model shape owner from IR-shape inventory. |
-| 248 | `PAGE-MODEL-ACQUIRE-USIZE-COPY-MATERIALIZATION-PROBE-296X-001` | Planned | Attribute copy materialization origins inside `HakoAllocPageModel.acquire_usize/1`. |
+| 248 | `PAGE-MODEL-ACQUIRE-USIZE-COPY-MATERIALIZATION-PROBE-296X-001` | Landed | Attribute copy materialization origins inside `HakoAllocPageModel.acquire_usize/1`. |
+| 249 | `PAGE-MODEL-ACQUIRE-USIZE-BLOCK-ENTRY-RECEIVER-COPY-POLICY-SELECTION-296X-001` | Planned | Decide whether a narrow block-entry receiver copy policy is safe for `acquire_usize/1`. |
 
 ## Hako Mimalloc Performance Parity Plan
 
