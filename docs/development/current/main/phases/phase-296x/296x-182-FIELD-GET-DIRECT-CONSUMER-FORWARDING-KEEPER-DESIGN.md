@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: design a narrow MIR builder keeper for same-block field_get direct-consumer forwarding.
 Blocker: FIELD-GET-DIRECT-CONSUMER-FORWARDING-KEEPER-DESIGN-296X-001
