@@ -93,3 +93,36 @@ Guard:
 ```bash
 bash tools/checks/k2_wide_phase296x_array_runtime_single_thread_store_backend_implementation_guard.sh
 ```
+
+## Planned Follow-Up
+
+```text
+row206:
+  array_runtime_single_thread_store_backend_keeper_measurement
+
+Goal:
+  measure SafeRwLock versus SingleThreadExact with the same object-lifecycle
+  exact-EXE workload, then decide keeper/revert without opening winner,
+  replacement, hook, or global allocator claims.
+
+row207:
+  mir_array_slot_residence_ssot
+
+Goal:
+  define ArraySlotResidencePlan / DirectSlotOp as the C-parity target. The
+  runtime backend is the floor measurement, not the final form.
+
+row208:
+  mir_array_slot_residence_inventory
+
+Goal:
+  require positive net helper-call delta before any MIR transform:
+  erased_get_set_helper_calls - added_guard_or_writeback_helper_calls > 0.
+
+row209:
+  mir_array_slot_residence_selected_method_keeper
+
+Goal:
+  transform one selected hot method only if row208 proves positive net
+  helper-call evidence and semantic barriers are explicit.
+```

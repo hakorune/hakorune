@@ -251,6 +251,10 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 203 | `ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE-296X-001` | Landed | Split ArrayBox runtime slot helper cost before keeper implementation. |
 | 204 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT-296X-001` | Landed | Define the ArrayBox runtime single-thread store backend boundary before implementation. |
 | 205 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-IMPLEMENTATION-296X-001` | Current | Implement the helper-side single-thread exact ArrayBox slot backend. |
+| 206 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-KEEPER-MEASUREMENT-296X-001` | Planned | Measure SafeRwLock versus SingleThreadExact on the object-lifecycle exact-EXE workload and decide keeper/revert. |
+| 207 | `MIR-ARRAY-SLOT-RESIDENCE-SSOT-296X-001` | Planned | Define ArraySlotResidencePlan / DirectSlotOp as the C-parity target after the runtime helper floor is known. |
+| 208 | `MIR-ARRAY-SLOT-RESIDENCE-INVENTORY-296X-001` | Planned | Count erased ArrayBox get/set helper calls, added guards/writebacks, barriers, and net helper-call delta before any transform. |
+| 209 | `MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001` | Planned | Apply a selected-method ArraySlotResidence keeper only if inventory shows positive net helper-call delta. |
 
 ## Hako Mimalloc Performance Parity Plan
 
