@@ -345,6 +345,7 @@ tools/checks/dev_gate.sh quick
 | `tools/allocator/post_selected_facade_get_set_owner_refresh.py` | 296x-232 の post selected facade get/set owner refresh adapter。perf top から exact-slot / array / hako method owner を再分類する。 |
 | `tools/checks/k2_wide_phase296x_post_selected_facade_get_set_owner_refresh_guard.sh` | 296x-232 の post selected facade get/set owner refresh guard。exact-slot get/set helpers がまだ primary owner であることを固定する。 |
 | `tools/checks/k2_wide_phase296x_post_facade_exact_slot_callsite_attribution_refresh_guard.sh` | 296x-233 の post facade exact-slot callsite attribution refresh guard。dwarf callgraph 由来の caller family attribution を固定する。 |
+| `tools/checks/k2_wide_phase296x_post_facade_exact_slot_callsite_owner_selection_guard.sh` | 296x-234 の post facade exact-slot callsite owner selection guard。residual facade inventory を次診断として固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

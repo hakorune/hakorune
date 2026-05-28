@@ -279,7 +279,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 231 | `SELECTED-FACADE-SAME-BLOCK-GET-SET-MEASUREMENT-296X-001` | Landed | Measure the selected facade get/set fusion keeper. |
 | 232 | `POST-SELECTED-FACADE-GET-SET-OWNER-REFRESH-296X-001` | Landed | Refresh the current hot owner after the selected facade get/set fusion keeper. |
 | 233 | `POST-FACADE-EXACT-SLOT-CALLSITE-ATTRIBUTION-REFRESH-296X-001` | Landed | Refresh exact-slot callsite attribution after the selected facade fusion keeper. |
-| 234 | `POST-FACADE-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Planned | Choose the next narrow owner from refreshed exact-slot callsite attribution. |
+| 234 | `POST-FACADE-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Landed | Choose residual facade exact-slot field inventory as the next narrow diagnostic. |
+| 235 | `OBJECT-LIFECYCLE-FACADE-RESIDUAL-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Planned | Inventory residual facade exact-slot field traffic after selected facade fusion. |
 
 ## Hako Mimalloc Performance Parity Plan
 
