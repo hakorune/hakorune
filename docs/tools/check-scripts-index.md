@@ -329,7 +329,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_typed_object_field_rmw_fusion_measurement_guard.sh` | 296x-223 の typed-object field RMW fusion measurement guard。body-time keeper acceptance と closed winner/replacement seams を固定する。 |
 | `tools/allocator/typed_object_post_rmw_fusion_owner_refresh.py` | 296x-224 の post RMW fusion owner refresh tool。perf top から exact-slot get/set、fused RMW、Array/hash、Hako method owner を分類する。 |
 | `tools/checks/k2_wide_phase296x_post_rmw_fusion_owner_refresh_guard.sh` | 296x-224 の post RMW fusion owner refresh guard。exact-slot callsite attribution を次 diagnostic に固定する。 |
-| `tools/allocator/typed_object_exact_slot_callsite_attribution.py` | 296x-225 の typed-object exact-slot callsite attribution tool。perf callgraph から exact-slot get/set helper cost を caller family に分類する。 |
+| `tools/allocator/typed_object_exact_slot_callsite_attribution.py` | 296x-225/233 の typed-object exact-slot callsite attribution tool。`perf record --call-graph dwarf,4096` の caller rows から exact-slot get/set helper cost を caller family に分類する。 |
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_callsite_attribution_guard.sh` | 296x-225 の typed-object exact-slot callsite attribution guard。dominant family と owner-selection handoff を固定する。 |
 | `tools/allocator/typed_object_exact_slot_callsite_owner_selection.py` | 296x-226 の typed-object exact-slot callsite owner selection tool。callsite attribution から次の narrow diagnostic owner を1つ選ぶ。 |
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_callsite_owner_selection_guard.sh` | 296x-226 の typed-object exact-slot callsite owner selection guard。facade exact-slot field inventory handoff と rejected owners を固定する。 |

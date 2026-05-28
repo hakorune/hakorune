@@ -71,11 +71,21 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--perf-report", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--input-contract",
+        default="typed-object-post-rmw-fusion-owner-refresh-v0",
+        help="contract id of the owner-refresh report that produced this attribution",
+    )
     args = parser.parse_args()
 
     exact_get_set_pct, by_helper, by_family, callsites = parse(args.perf_report)
     if exact_get_set_pct <= 0:
         raise SystemExit("no exact-slot get/set helper samples found")
+    if not callsites:
+        raise SystemExit(
+            "no exact-slot caller rows found; capture perf with call graph data "
+            "(for example: perf record --call-graph dwarf,4096)"
+        )
 
     top_family, top_family_pct = max(by_family.items(), key=lambda item: item[1])
     top_callsite_pct, top_callsite, top_callsite_helper = max(callsites, key=lambda item: item[0])
@@ -91,8 +101,10 @@ def main() -> int:
 
     lines = [
         "output_contract=typed-object-exact-slot-callsite-attribution-v0",
-        "input_contract=typed-object-post-rmw-fusion-owner-refresh-v0",
+        f"input_contract={args.input_contract}",
         "workload_id=representative-object-lifecycle-small-block-v0",
+        "attribution_source=perf_callgraph",
+        "callgraph_attribution_available=1",
         f"exact_slot_get_set_pct={exact_get_set_pct:.2f}",
         f"attributed_callsite_count={len(callsites)}",
         f"top_callsite_pct={top_callsite_pct:.2f}",
