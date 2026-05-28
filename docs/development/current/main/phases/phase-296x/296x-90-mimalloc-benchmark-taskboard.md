@@ -255,8 +255,9 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 207 | `MIR-ARRAY-SLOT-RESIDENCE-SSOT-296X-001` | Landed | Define ArraySlotResidencePlan / DirectSlotOp as the C-parity target after the runtime helper floor is known. |
 | 208 | `MIR-ARRAY-SLOT-RESIDENCE-INVENTORY-296X-001` | Landed | Count erased ArrayBox get/set helper calls, added guards/writebacks, barriers, and net helper-call delta before any transform. |
 | 209 | `MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE-296X-001` | Landed | Freeze the block-local get/set pattern before selecting the implementation owner. |
-| 210 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION-296X-001` | Current | Choose the implementation owner for erasing the selected get/set helper pair. |
-| 211 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-KEEPER-296X-001` | Planned | Fuse the selected same-block get/copy/set pair into one direct-slot runtime op. |
+| 210 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION-296X-001` | Landed | Choose the implementation owner for erasing the selected get/set helper pair. |
+| 211 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-KEEPER-296X-001` | Landed | Fuse the selected same-block get/copy/set pair into one direct-slot runtime op. |
+| 212 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT-296X-001` | Planned | Measure the fused direct-slot keeper against the row206 ArrayBox runtime floor. |
 
 ## Hako Mimalloc Performance Parity Plan
 

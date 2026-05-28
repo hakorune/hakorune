@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: choose the implementation owner for the selected-method ArraySlot direct op keeper.
 Blocker: SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION-296X-001
@@ -29,9 +29,9 @@ output_contract=selected-method-array-slot-direct-op-owner-selection-v0
 input_contract=mir-array-slot-residence-selected-method-guard-surface-v0
 selected_method=HakoAllocPageModel.acquire_usize/1
 selected_block=45
-selected_owner=llvm_block_lower_array_slot_direct_op_fusion
-implementation_owner_file=src/llvm_py/builders/block_lower.py
-helper_owner_file=src/llvm_py/instructions/array_slot_direct_op.py
+selected_owner=c_abi_same_module_array_slot_direct_op_fusion
+implementation_owner_file=lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc
+declaration_owner_file=lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc
 runtime_export_owner=crates/nyash_kernel/src/plugin/array_direct_slot_op.rs
 runtime_mod_owner=crates/nyash_kernel/src/plugin/mod.rs
 selected_reason=same_block_get_copy_set_pattern_requires_block_sequence_owner

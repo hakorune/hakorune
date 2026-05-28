@@ -663,6 +663,8 @@
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_slot_load || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_load_store_i64_hihi\"(i64, i64, i64, i64)\n");
       if (needs.typed_object ||
           module_has_planned_same_module_function_definition() ||
           typed_object_plan_count() > 0) {

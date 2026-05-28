@@ -3,6 +3,7 @@
 
 pub mod array;
 mod array_compat;
+mod array_direct_slot_op;
 mod array_guard;
 mod array_handle_cache;
 mod array_runtime_aliases;
