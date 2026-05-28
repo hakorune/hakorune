@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: build a selected-method field residence plan for HakoAllocPageModel.acquire_usize/1.
 Blocker: MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN-296X-001

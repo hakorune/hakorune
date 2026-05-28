@@ -240,7 +240,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 192 | `TYPED-OBJECT-RUNTIME-FAST-LANE-KEEPER-MEASUREMENT-296X-001` | Landed | Measure SafeMutexStore versus SingleThreadExactStore on the object-lifecycle exact-EXE workload. |
 | 193 | `MIR-TYPED-FIELD-RESIDENCE-SSOT-296X-001` | Landed | Define the MIR typed-field residence contract after the runtime fast-lane keeper. |
 | 194 | `MIR-TYPED-FIELD-RESIDENCE-INVENTORY-296X-001` | Landed | Inventory MIR typed-field residence candidates before any transform. |
-| 195 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN-296X-001` | Current | Build a selected-method field residence plan for HakoAllocPageModel.acquire_usize/1. |
+| 195 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-PLAN-296X-001` | Landed | Build a selected-method field residence plan for HakoAllocPageModel.acquire_usize/1. |
+| 196 | `MIR-TYPED-FIELD-RESIDENCE-SELECTED-METHOD-KEEPER-296X-001` | Current | Implement the first selected-method MIR typed-field residence keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row195 is building a selected-method MIR typed-field residence plan for
-  `HakoAllocPageModel.acquire_usize/1`
+- row196 is implementing the first selected-method MIR typed-field residence
+  keeper for `HakoAllocPageModel.acquire_usize/1`
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `mir_typed_field_residence_selected_method_plan`
+  diagnostic is `mir_typed_field_residence_selected_method_keeper`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus
