@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: define the MIR typed-field residence contract after the runtime storage fast lane keeper.
 Blocker: MIR-TYPED-FIELD-RESIDENCE-SSOT-296X-001
