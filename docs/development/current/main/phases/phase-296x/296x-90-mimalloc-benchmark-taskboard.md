@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
-  Measure exact-EXE timing after the field_get result-chain cleanup and select
-  post-keeper owner refresh.
+TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001:
+  Measure the exact-lane typed-object slot direct helper implementation and
+  decide keeper / next-owner refresh.
 ```
 
 ## Queue
@@ -260,7 +260,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 212 | `SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-MEASUREMENT-296X-001` | Landed | Measure the fused direct-slot keeper against the row206 ArrayBox runtime floor. |
 | 213 | `TYPED-OBJECT-FIELD-HELPER-SUBOWNER-REFRESH-296X-001` | Landed | Split typed-object field helper cost after Array direct-op fusion before selecting another keeper. |
 | 214 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION-296X-001` | Landed | Select the narrow exact-lane typed-object field helper seam before implementation. |
-| 215 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001` | Planned | Add separate exact-slot helper symbols and lower eligible exact-EXE field access to them. |
+| 215 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001` | Landed | Add separate exact-slot helper symbols and lower eligible exact-EXE field access to them. |
+| 216 | `TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001` | Planned | Measure the exact-lane helper implementation and decide keeper / next-owner refresh. |
 
 ## Hako Mimalloc Performance Parity Plan
 

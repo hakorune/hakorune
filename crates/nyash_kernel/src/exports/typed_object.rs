@@ -388,6 +388,67 @@ pub extern "C" fn nyash_object_field_set_i64_hii(handle: i64, slot: i64, value: 
     ))
 }
 
+fn exact_slot_index(slot: i64) -> Option<usize> {
+    if slot < 0 {
+        return None;
+    }
+    usize::try_from(slot).ok()
+}
+
+#[export_name = "nyash.object.exact_slot_get_i64_hii"]
+pub extern "C" fn nyash_object_exact_slot_get_i64_hii(handle: i64, slot: i64) -> i64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return 0;
+    };
+    typed_object_store::exact_slot_get_i64(handle, slot).unwrap_or(0)
+}
+
+#[export_name = "nyash.object.exact_slot_set_i64_hii"]
+pub extern "C" fn nyash_object_exact_slot_set_i64_hii(handle: i64, slot: i64, value: i64) -> i64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return 0;
+    };
+    i64::from(typed_object_store::exact_slot_set_i64(handle, slot, value))
+}
+
+#[export_name = "nyash.object.exact_slot_get_u64_hii"]
+pub extern "C" fn nyash_object_exact_slot_get_u64_hii(handle: i64, slot: i64) -> u64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return 0;
+    };
+    typed_object_store::exact_slot_get_u64(handle, slot).unwrap_or(0)
+}
+
+#[export_name = "nyash.object.exact_slot_set_u64_hiu"]
+pub extern "C" fn nyash_object_exact_slot_set_u64_hiu(handle: i64, slot: i64, value: u64) -> i64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return 0;
+    };
+    i64::from(typed_object_store::exact_slot_set_u64(handle, slot, value))
+}
+
+#[export_name = "nyash.object.exact_slot_get_handle_hii"]
+pub extern "C" fn nyash_object_exact_slot_get_handle_hii(handle: i64, slot: i64) -> i64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return 0;
+    };
+    typed_object_store::exact_slot_get_handle(handle, slot).unwrap_or(0)
+}
+
+#[export_name = "nyash.object.exact_slot_set_handle_hii"]
+pub extern "C" fn nyash_object_exact_slot_set_handle_hii(
+    handle: i64,
+    slot: i64,
+    value: i64,
+) -> i64 {
+    let Some(slot) = exact_slot_index(slot) else {
+        return 0;
+    };
+    i64::from(typed_object_store::exact_slot_set_handle(
+        handle, slot, value,
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

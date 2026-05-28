@@ -93,6 +93,26 @@
                typed_object_storage_is_signed_exact(storage);
       }
 
+      auto int typed_object_exact_slot_helper_enabled(void) {
+        const char* store = getenv("HAKO_TYPED_OBJECT_STORE");
+        const char* helper = getenv("HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER");
+        return store && helper &&
+               !strcmp(store, "single_thread_exact") &&
+               !strcmp(helper, "1");
+      }
+
+      auto int typed_object_storage_is_exact_slot_i64(const char* storage) {
+        return storage && !strcmp(storage, "i64");
+      }
+
+      auto int typed_object_storage_is_exact_slot_u64(const char* storage) {
+        return storage && (!strcmp(storage, "u64") || !strcmp(storage, "usize"));
+      }
+
+      auto int typed_object_storage_is_exact_slot_handle(const char* storage) {
+        return typed_object_storage_is_handle(storage);
+      }
+
       auto int typed_object_plan_field_runtime_slot_with_storage(
           int plan_index,
           const char* field_name,

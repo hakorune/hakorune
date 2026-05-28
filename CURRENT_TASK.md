@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row214 selected the exact-lane typed-object slot direct helper seam before
-  implementation
+- row215 implemented exact-lane typed-object slot direct helpers before
+  measurement / keeper refresh
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is exact-lane typed-object slot helper implementation
+  diagnostic is exact-lane typed-object slot helper measurement
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

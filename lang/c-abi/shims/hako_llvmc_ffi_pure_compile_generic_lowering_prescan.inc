@@ -677,6 +677,12 @@
         fprintf(f, "declare i64 @\"nyash.object.field_get_u64_hii\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_set_i64_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_get_i64_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_i64_hii\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_i64_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_u64_hiu\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_u64_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_handle_hii\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_handle_hii\"(i64, i64)\n");
         fprintf(f, "declare void @llvm.trap()\n");
       }
       if (needs.string_const_box || module_has_planned_same_module_function_definition())

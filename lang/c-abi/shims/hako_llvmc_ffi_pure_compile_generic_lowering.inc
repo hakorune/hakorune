@@ -543,13 +543,31 @@
               long long box_base = resolve_copy_source_reg(box_reg);
               int exact_unsigned = typed_object_storage_is_unsigned_exact(field_slot.storage);
               int exact_signed = typed_object_storage_is_signed_exact(field_slot.storage);
-              const char* set_symbol = exact_unsigned
-                  ? "nyash.object.field_set_u64_hiu"
-                  : (exact_signed
-                         ? "nyash.object.field_set_i64_hii"
-                         : "nyash.object.field_set_hii");
+              int exact_slot_u64 =
+                  typed_object_exact_slot_helper_enabled() &&
+                  typed_object_storage_is_exact_slot_u64(field_slot.storage);
+              int exact_slot_i64 =
+                  typed_object_exact_slot_helper_enabled() &&
+                  typed_object_storage_is_exact_slot_i64(field_slot.storage);
+              int exact_slot_handle =
+                  typed_object_exact_slot_helper_enabled() &&
+                  typed_object_storage_is_exact_slot_handle(field_slot.storage);
+              int status_returning_set =
+                  exact_unsigned || exact_signed || exact_slot_u64 || exact_slot_i64 ||
+                  exact_slot_handle;
+              const char* set_symbol = exact_slot_u64
+                  ? "nyash.object.exact_slot_set_u64_hiu"
+                  : (exact_slot_i64
+                         ? "nyash.object.exact_slot_set_i64_hii"
+                         : (exact_slot_handle
+                                ? "nyash.object.exact_slot_set_handle_hii"
+                                : (exact_unsigned
+                                       ? "nyash.object.field_set_u64_hiu"
+                                       : (exact_signed
+                                              ? "nyash.object.field_set_i64_hii"
+                                              : "nyash.object.field_set_hii"))));
               char status_name[96];
-              if (exact_unsigned) {
+              if (exact_unsigned || exact_slot_u64) {
                 if (has_const(value_base, &value_const)) {
                   if (value_const < 0) {
                     note_pure_unsupported_shape(
@@ -580,7 +598,7 @@
                 }
               }
               if (has_const(value_base, &value_const)) {
-                if (exact_unsigned || exact_signed) {
+                if (status_returning_set) {
                   snprintf(status_name, sizeof(status_name), "exact_field_set_%lld_%zu", bid, ii);
                   EMIT("  %%%s = call i64 @\"%s\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
                        status_name,
@@ -596,7 +614,7 @@
                        value_const);
                 }
               } else {
-                if (exact_unsigned || exact_signed) {
+                if (status_returning_set) {
                   snprintf(status_name, sizeof(status_name), "exact_field_set_%lld_%zu", bid, ii);
                   EMIT("  %%%s = call i64 @\"%s\"(i64 %%r%lld, i64 %lld, i64 %%r%lld)\n",
                        status_name,
@@ -612,7 +630,7 @@
                        value_base);
                 }
               }
-              if (exact_unsigned || exact_signed) {
+              if (status_returning_set) {
                 EMIT("  %%exact_status_ok_%lld_%zu = icmp ne i64 %%%s, 0\n",
                      bid,
                      ii,
@@ -652,11 +670,21 @@
                     field,
                     &field_slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
-              const char* get_symbol = typed_object_storage_is_unsigned_exact(field_slot.storage)
-                  ? "nyash.object.field_get_u64_hii"
-                  : (typed_object_storage_is_signed_exact(field_slot.storage)
-                         ? "nyash.object.field_get_i64_hii"
-                         : "nyash.object.field_get_hii");
+              const char* get_symbol =
+                  (typed_object_exact_slot_helper_enabled() &&
+                   typed_object_storage_is_exact_slot_u64(field_slot.storage))
+                      ? "nyash.object.exact_slot_get_u64_hii"
+                      : ((typed_object_exact_slot_helper_enabled() &&
+                          typed_object_storage_is_exact_slot_i64(field_slot.storage))
+                             ? "nyash.object.exact_slot_get_i64_hii"
+                             : ((typed_object_exact_slot_helper_enabled() &&
+                                 typed_object_storage_is_exact_slot_handle(field_slot.storage))
+                                    ? "nyash.object.exact_slot_get_handle_hii"
+                                    : (typed_object_storage_is_unsigned_exact(field_slot.storage)
+                                           ? "nyash.object.field_get_u64_hii"
+                                           : (typed_object_storage_is_signed_exact(field_slot.storage)
+                                                  ? "nyash.object.field_get_i64_hii"
+                                                  : "nyash.object.field_get_hii"))));
               EMIT("  %%r%lld = call i64 @\"%s\"(i64 %%r%lld, i64 %lld)\n",
                    dst,
                    get_symbol,

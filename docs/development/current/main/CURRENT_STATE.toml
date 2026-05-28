@@ -6,19 +6,19 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-28"
+date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected the exact-lane typed-object slot direct helper seam; next is implementation behind separate symbols."
+active_lane_status = "Phase-296x implemented exact-lane typed-object slot direct helpers; next is measurement / keeper refresh."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-214-TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-214-TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-SELECTION.md"
-latest_card_summary = "Selected separate exact-lane typed-object slot helper symbols for i64/u64/handle while keeping default field helper ABI unchanged and generic residence rejected."
-current_blocker_token = "TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION-296X-001"
+latest_card = "296x-215-TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-215-TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-IMPLEMENTATION.md"
+latest_card_summary = "Implemented separate exact-lane typed-object slot helper symbols and lowered eligible exact-EXE field access to them while keeping default helper emission at zero."
+current_blocker_token = "TYPED-OBJECT-EXACT-SLOT-DIRECT-HELPER-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-215 Implemented separate exact-lane typed-object slot helper symbols and lowered eligible exact-EXE field access to them while keeping default helper emission at zero.",
   "296x-214 Selected separate exact-lane typed-object slot helper symbols for i64/u64/handle while keeping default field helper ABI unchanged and generic residence rejected.",
   "296x-213 Classified typed-object field helper cost after Array fusion: field helpers remain primary, branch/validation-heavy helper shape dominates, and exact-lane typed-object slot helper selection is next.",
   "296x-212 Measured the fused Array direct-op keeper at 123ms single-thread body median and refreshed perf ownership: typed-object field helpers are now primary, with Array backend hash secondary.",

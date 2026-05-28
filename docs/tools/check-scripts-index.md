@@ -312,6 +312,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_typed_object_field_helper_subowner_refresh_guard.sh` | 296x-213 の typed-object field helper subowner refresh guard。次 owner を exact-lane typed-object slot helper selection に固定する。 |
 | `tools/allocator/typed_object_exact_slot_direct_helper_selection.py` | 296x-214 の typed-object exact slot direct helper selection tool。別 symbol、exact lane gate、direct-compatible storage、rejected owners を固定する。 |
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_direct_helper_selection_guard.sh` | 296x-214 の typed-object exact slot direct helper selection guard。row215 implementation boundary を docs-first で固定する。 |
+| `tools/checks/k2_wide_phase296x_typed_object_exact_slot_direct_helper_implementation_guard.sh` | 296x-215 の typed-object exact slot direct helper implementation guard。runtime exports、gate ON/OFF emission、semantic smoke を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |

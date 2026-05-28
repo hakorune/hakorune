@@ -6,7 +6,7 @@
 use std::cell::RefCell;
 use std::sync::{Mutex, OnceLock};
 
-use super::typed_object::{handle_to_index, TypedSlotObject};
+use super::typed_object::{handle_to_index, TypedSlotObject, TypedSlotStorage, TypedSlotValue};
 
 const TYPED_OBJECT_STORE_ENV: &str = "HAKO_TYPED_OBJECT_STORE";
 
@@ -153,4 +153,120 @@ pub(crate) fn set_exact_signed_i64(handle: i64, slot: usize, value: i64) -> bool
             .is_some_and(|field| field.set_exact_signed_i64(value))
     })
     .unwrap_or(false)
+}
+
+fn exact_u64_storage_supported(storage: TypedSlotStorage) -> bool {
+    matches!(storage, TypedSlotStorage::U64)
+        || (cfg!(target_pointer_width = "64") && matches!(storage, TypedSlotStorage::USize))
+}
+
+pub(crate) fn exact_slot_get_i64(handle: i64, slot: usize) -> Option<i64> {
+    let idx = handle_to_index(handle)?;
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let objects = objects.try_borrow().ok()?;
+        let field = objects.get(idx)?.fields.get(slot)?;
+        if field.storage != TypedSlotStorage::I64 {
+            return None;
+        }
+        match field.value {
+            TypedSlotValue::I64(value) => Some(value),
+            _ => None,
+        }
+    })
+}
+
+pub(crate) fn exact_slot_set_i64(handle: i64, slot: usize, value: i64) -> bool {
+    let Some(idx) = handle_to_index(handle) else {
+        return false;
+    };
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return false;
+        };
+        let Some(field) = objects
+            .get_mut(idx)
+            .and_then(|object| object.fields.get_mut(slot))
+        else {
+            return false;
+        };
+        if field.storage != TypedSlotStorage::I64 {
+            return false;
+        }
+        field.value = TypedSlotValue::I64(value);
+        true
+    })
+}
+
+pub(crate) fn exact_slot_get_u64(handle: i64, slot: usize) -> Option<u64> {
+    let idx = handle_to_index(handle)?;
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let objects = objects.try_borrow().ok()?;
+        let field = objects.get(idx)?.fields.get(slot)?;
+        if !exact_u64_storage_supported(field.storage) {
+            return None;
+        }
+        let TypedSlotValue::Unsigned(value) = field.value else {
+            return None;
+        };
+        u64::try_from(value).ok()
+    })
+}
+
+pub(crate) fn exact_slot_set_u64(handle: i64, slot: usize, value: u64) -> bool {
+    let Some(idx) = handle_to_index(handle) else {
+        return false;
+    };
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return false;
+        };
+        let Some(field) = objects
+            .get_mut(idx)
+            .and_then(|object| object.fields.get_mut(slot))
+        else {
+            return false;
+        };
+        if !exact_u64_storage_supported(field.storage) {
+            return false;
+        }
+        field.value = TypedSlotValue::Unsigned(value as u128);
+        true
+    })
+}
+
+pub(crate) fn exact_slot_get_handle(handle: i64, slot: usize) -> Option<i64> {
+    let idx = handle_to_index(handle)?;
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let objects = objects.try_borrow().ok()?;
+        let field = objects.get(idx)?.fields.get(slot)?;
+        if field.storage != TypedSlotStorage::Handle {
+            return None;
+        }
+        match field.value {
+            TypedSlotValue::Handle(value) => Some(value),
+            _ => None,
+        }
+    })
+}
+
+pub(crate) fn exact_slot_set_handle(handle: i64, slot: usize, value: i64) -> bool {
+    let Some(idx) = handle_to_index(handle) else {
+        return false;
+    };
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return false;
+        };
+        let Some(field) = objects
+            .get_mut(idx)
+            .and_then(|object| object.fields.get_mut(slot))
+        else {
+            return false;
+        };
+        if field.storage != TypedSlotStorage::Handle {
+            return false;
+        }
+        field.value = TypedSlotValue::Handle(value);
+        true
+    })
 }

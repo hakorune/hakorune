@@ -108,6 +108,43 @@
           snprintf(ab + used, sizeof(ab) - used, ", i64 %lld", slot);
         }
         append_i64_arg_ref(ab, sizeof(ab), value_reg, 0);
+        if (typed_object_exact_slot_helper_enabled() &&
+            typed_object_storage_is_exact_slot_u64(storage)) {
+          char status_name[96];
+          if (value_is_const && value_const < 0) return 0;
+          if (!value_is_const) {
+            same_module_function_emit_unsigned_nonnegative_trap(
+                value_base,
+                bid,
+                ii);
+          }
+          snprintf(status_name, sizeof(status_name), "exact_slot_set_u64_%lld_%zu", bid, ii);
+          EMIT("  %%%s = call i64 @\"nyash.object.exact_slot_set_u64_hiu\"(%s)\n",
+               status_name,
+               ab);
+          same_module_function_emit_exact_status_trap(status_name, bid, ii);
+          return 1;
+        }
+        if (typed_object_exact_slot_helper_enabled() &&
+            typed_object_storage_is_exact_slot_i64(storage)) {
+          char status_name[96];
+          snprintf(status_name, sizeof(status_name), "exact_slot_set_i64_%lld_%zu", bid, ii);
+          EMIT("  %%%s = call i64 @\"nyash.object.exact_slot_set_i64_hii\"(%s)\n",
+               status_name,
+               ab);
+          same_module_function_emit_exact_status_trap(status_name, bid, ii);
+          return 1;
+        }
+        if (typed_object_exact_slot_helper_enabled() &&
+            typed_object_storage_is_exact_slot_handle(storage)) {
+          char status_name[96];
+          snprintf(status_name, sizeof(status_name), "exact_slot_set_handle_%lld_%zu", bid, ii);
+          EMIT("  %%%s = call i64 @\"nyash.object.exact_slot_set_handle_hii\"(%s)\n",
+               status_name,
+               ab);
+          same_module_function_emit_exact_status_trap(status_name, bid, ii);
+          return 1;
+        }
         if (typed_object_storage_is_unsigned_exact(storage)) {
           char status_name[96];
           if (value_is_const && value_const < 0) return 0;
@@ -159,7 +196,16 @@
           if (used >= sizeof(ab)) return 0;
           snprintf(ab + used, sizeof(ab) - used, ", i64 %lld", slot);
         }
-        if (typed_object_storage_is_unsigned_exact(storage)) {
+        if (typed_object_exact_slot_helper_enabled() &&
+            typed_object_storage_is_exact_slot_u64(storage)) {
+          EMIT("  %%r%lld = call i64 @\"nyash.object.exact_slot_get_u64_hii\"(%s)\n", dst, ab);
+        } else if (typed_object_exact_slot_helper_enabled() &&
+                   typed_object_storage_is_exact_slot_i64(storage)) {
+          EMIT("  %%r%lld = call i64 @\"nyash.object.exact_slot_get_i64_hii\"(%s)\n", dst, ab);
+        } else if (typed_object_exact_slot_helper_enabled() &&
+                   typed_object_storage_is_exact_slot_handle(storage)) {
+          EMIT("  %%r%lld = call i64 @\"nyash.object.exact_slot_get_handle_hii\"(%s)\n", dst, ab);
+        } else if (typed_object_storage_is_unsigned_exact(storage)) {
           EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_u64_hii\"(%s)\n", dst, ab);
         } else if (typed_object_storage_is_signed_exact(storage)) {
           EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_i64_hii\"(%s)\n", dst, ab);

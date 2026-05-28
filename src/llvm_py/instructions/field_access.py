@@ -1,5 +1,7 @@
 from typing import Any, Dict, Optional
 import hashlib
+import os
+import sys
 
 import llvmlite.ir as ir
 
@@ -28,6 +30,20 @@ def _declare(module: ir.Module, name: str, ret, args):
             return f
     fnty = ir.FunctionType(ret, args)
     return ir.Function(module, fnty, name=name)
+
+
+def _exact_slot_helper_enabled() -> bool:
+    return (
+        os.environ.get("HAKO_TYPED_OBJECT_STORE") == "single_thread_exact"
+        and os.environ.get("HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER") == "1"
+    )
+
+
+def _is_exact_slot_u64_storage(storage: Any) -> bool:
+    normalized = str(storage).strip().lower() if isinstance(storage, str) else None
+    return normalized == "u64" or (
+        normalized == "usize" and sys.maxsize > 2**32
+    )
 
 
 def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, value: ir.Value) -> ir.Value:
@@ -515,6 +531,27 @@ def _lower_exact_object_field_get(
     )
     recv_h = _ensure_handle(builder, module, recv_val)
     slot_val = ir.Constant(i64, slot)
+    if _exact_slot_helper_enabled() and _is_exact_slot_u64_storage(storage):
+        callee = _declare(module, "nyash.object.exact_slot_get_u64_hii", i64, [i64, i64])
+        result = builder.call(callee, [recv_h, slot_val], name="exact_slot_get_u64")
+        if dst_vid is not None:
+            vmap[int(dst_vid)] = result
+            _mark_integer_immediate(resolver, int(dst_vid))
+        return result
+    if _exact_slot_helper_enabled() and storage == "i64":
+        callee = _declare(module, "nyash.object.exact_slot_get_i64_hii", i64, [i64, i64])
+        result = builder.call(callee, [recv_h, slot_val], name="exact_slot_get_i64")
+        if dst_vid is not None:
+            vmap[int(dst_vid)] = result
+            _mark_integer_immediate(resolver, int(dst_vid))
+        return result
+    if _exact_slot_helper_enabled() and is_handle_storage(storage):
+        callee = _declare(module, "nyash.object.exact_slot_get_handle_hii", i64, [i64, i64])
+        result = builder.call(callee, [recv_h, slot_val], name="exact_slot_get_h")
+        if dst_vid is not None:
+            vmap[int(dst_vid)] = result
+            mark_as_handle(resolver, int(dst_vid))
+        return result
     if is_unsigned_storage(storage):
         callee = _declare(module, "nyash.object.field_get_u64_hii", i64, [i64, i64])
         result = builder.call(callee, [recv_h, slot_val], name="exact_field_get_u64")
@@ -577,6 +614,21 @@ def _lower_exact_object_field_set(
     value_val = _canonical_i64(builder, value_val, name_hint="exact_field_set_final")
     slot_val = ir.Constant(i64, slot)
 
+    if _exact_slot_helper_enabled() and _is_exact_slot_u64_storage(storage):
+        callee = _declare(module, "nyash.object.exact_slot_set_u64_hiu", i64, [i64, i64, i64])
+        status = builder.call(callee, [recv_h, slot_val, value_val], name="exact_slot_set_u64")
+        _trap_if_status_zero(builder, status, name_hint="exact_slot_set_u64")
+        return status
+    if _exact_slot_helper_enabled() and storage == "i64":
+        callee = _declare(module, "nyash.object.exact_slot_set_i64_hii", i64, [i64, i64, i64])
+        status = builder.call(callee, [recv_h, slot_val, value_val], name="exact_slot_set_i64")
+        _trap_if_status_zero(builder, status, name_hint="exact_slot_set_i64")
+        return status
+    if _exact_slot_helper_enabled() and is_handle_storage(storage):
+        callee = _declare(module, "nyash.object.exact_slot_set_handle_hii", i64, [i64, i64, i64])
+        status = builder.call(callee, [recv_h, slot_val, value_val], name="exact_slot_set_h")
+        _trap_if_status_zero(builder, status, name_hint="exact_slot_set_h")
+        return status
     if is_unsigned_storage(storage):
         callee = _declare(module, "nyash.object.field_set_u64_hiu", i64, [i64, i64, i64])
         status = builder.call(callee, [recv_h, slot_val, value_val], name="exact_field_set_u64")
