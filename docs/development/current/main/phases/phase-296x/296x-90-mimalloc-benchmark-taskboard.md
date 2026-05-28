@@ -310,7 +310,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 262 | `PAGE-MODEL-HOTPATH-IR-SHAPE-DIFF-REFRESH-AFTER-RESULT-CAPSULE-RESET-296X-001` | Landed | Refresh page-model hotpath IR shape after result capsule reset batching before another keeper implementation. |
 | 263 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001` | Landed | Select the next page-model shape owner without repeating the prior receiver-forwarding no-material path. |
 | 264 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-FIELD-TRAFFIC-PROBE-296X-001` | Landed | Inspect releaseLocalKnownLive field/copy traffic before any page-model implementation. |
-| 265 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-OWNER-SELECTION-296X-001` | Planned | Select one owner from releaseLocalKnownLive field/copy traffic evidence. |
+| 265 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-OWNER-SELECTION-296X-001` | Landed | Select one owner from releaseLocalKnownLive field/copy traffic evidence. |
+| 266 | `PAGE-MODEL-RELEASE-KNOWN-LIVE-SINGLE-USE-RMW-GUARD-SURFACE-296X-001` | Planned | Freeze the releaseLocalKnownLive single-use RMW candidate surface before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
