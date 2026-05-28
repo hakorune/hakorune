@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: estimate dynamic workload weight for the selected local-SSA MIR owner.
 Blocker: LOCAL-SSA-DYNAMIC-WEIGHT-PROBE-296X-001

@@ -222,7 +222,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 174 | `OBJECT-LIFECYCLE-BODY-TIMING-PAIR-ADAPTER-296X-001` | Landed | Join Hako exact-EXE and C mimalloc body timing evidence before reopening optimization. |
 | 175 | `OBJECT-LIFECYCLE-BODY-TIMING-GAP-TAXONOMY-296X-001` | Landed | Classify the Hako/C body timing gap before selecting the next MIR/body owner diagnostic. |
 | 176 | `OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION-296X-001` | Landed | Select the next MIR body owner from body-gap taxonomy and current attribution evidence. |
-| 177 | `LOCAL-SSA-DYNAMIC-WEIGHT-PROBE-296X-001` | Current | Estimate dynamic workload weight for the selected local-SSA MIR owner before optimization. |
+| 177 | `LOCAL-SSA-DYNAMIC-WEIGHT-PROBE-296X-001` | Landed | Estimate dynamic workload weight for the selected local-SSA MIR owner before optimization. |
+| 178 | `LOCAL-SSA-COPY-KIND-POLICY-SELECTION-296X-001` | Current | Select expression materialization copy policy as the next local-SSA diagnostic while rejecting same-block field-get reuse retry. |
 
 ## Hako Mimalloc Performance Parity Plan
 
