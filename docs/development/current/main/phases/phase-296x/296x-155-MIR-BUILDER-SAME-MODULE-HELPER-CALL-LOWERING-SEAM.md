@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: lower the remaining same-module helper setter calls without reopening the nested-call wrapper path.
 Blocker: MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM-296X-001

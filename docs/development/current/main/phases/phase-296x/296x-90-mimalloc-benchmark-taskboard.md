@@ -36,8 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
-  Fix MIR builder nested argument single-evaluation correctness.
+OBJECT-LIFECYCLE-SMALL-HOTPATH-CALLSITE-COPY-ATTRIBUTION-296X-001:
+  Attribute objectLifecycleSmallAlloc MIR copy pressure to callsite owners
+  before selecting another optimization row.
 ```
 
 ## Queue
@@ -199,7 +200,8 @@ MIR-BUILDER-NESTED-ARGUMENT-SINGLE-EVAL-OWNER-FIX-296X-001:
 | 152 | `SMALL-ALLOC-PAGE-ACQUIRE-USIZE-FAST-PATH-IMPLEMENTATION-296X-001` | Landed | Apply the selected small-alloc acquire_usize fast path keeper. |
 | 153 | `POST-PAGE-ACQUIRE-USIZE-FAST-PATH-MEASUREMENT-296X-001` | Landed | Measure exact-EXE after the small-alloc acquire_usize fast path keeper. |
 | 154 | `POST-PAGE-ACQUIRE-USIZE-SOURCE-MIR-REFRESH-296X-001` | Landed | Refresh source/MIR after the small-alloc acquire_usize fast path measurement. |
-| 155 | `MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM-296X-001` | Current | Lower the remaining same-module helper setter calls without reopening the nested-call wrapper path. |
+| 155 | `MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM-296X-001` | Landed | Lower the remaining same-module helper setter calls without reopening the nested-call wrapper path. |
+| 156 | `OBJECT-LIFECYCLE-SMALL-HOTPATH-CALLSITE-COPY-ATTRIBUTION-296X-001` | Current | Attribute objectLifecycleSmallAlloc MIR copy pressure to callsite receiver/arg/result/local-SSA/phi-edge owners before another keeper row. |
 
 ## Hako Mimalloc Performance Parity Plan
 
