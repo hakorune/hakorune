@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: refresh the objectLifecycleSmallAlloc copy-owner surface after field_get cleanup.
 Blocker: POST-FIELD-GET-CLEANUP-OWNER-REFRESH-296X-001
