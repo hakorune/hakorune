@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: classify the Hako/C object-lifecycle body timing gap before reopening optimization.
 Blocker: OBJECT-LIFECYCLE-BODY-TIMING-GAP-TAXONOMY-296X-001
