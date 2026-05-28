@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: fix the selected-method ArraySlotResidence guard surface before implementation.
 Blocker: MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE-296X-001

@@ -81,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row209 is freezing the selected-method ArraySlotResidence guard surface before
-  owner selection
+- row210 is selecting the block-lower owner for the selected-method ArraySlot
+  direct-op keeper
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
   diagnostic is `array_runtime_single_thread_store_backend_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,

@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x is freezing the selected-method ArraySlotResidence guard surface before owner selection."
+active_lane_status = "Phase-296x is selecting the block-lower owner for the selected-method ArraySlot direct-op keeper."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-209-MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-209-MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE.md"
-latest_card_summary = "Freeze the acquire_usize/1 same-block ArrayBox get/set pattern and require owner selection before implementation."
-current_blocker_token = "MIR-ARRAY-SLOT-RESIDENCE-SELECTED-METHOD-GUARD-SURFACE-296X-001"
+latest_card = "296x-210-SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-210-SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION.md"
+latest_card_summary = "Select block-lower Array slot direct-op fusion over individual boxcall lowering or generic residence transform."
+current_blocker_token = "SELECTED-METHOD-ARRAY-SLOT-DIRECT-OP-OWNER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-210 Selected block-lower Array slot direct-op fusion as the implementation owner, rejecting individual get/set lowering, generic residence, and source rewrite.",
   "296x-209 Fixed the selected-method ArraySlotResidence guard surface: acquire_usize/1 has one same-block ArrayBox get/set pair and the set consumes the get result through copy carriers.",
   "296x-208 Inventoried MIR ArraySlotResidence for HakoAllocPageModel.acquire_usize/1, finding get=1 set=1 and net_helper_call_delta=1 with transforms still closed.",
   "296x-207 Defined MIR ArraySlotResidence / DirectSlotOp as the C-parity target after the Array runtime backend floor measurement, with transforms closed and positive net helper-call delta required.",
