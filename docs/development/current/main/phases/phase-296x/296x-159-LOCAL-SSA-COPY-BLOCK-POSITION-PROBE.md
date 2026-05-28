@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: classify local-like copy positions after selecting local SSA copy materialization.
 Blocker: LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001

@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001:
-  Classify local-like copy positions after selecting local SSA copy
-  materialization.
+EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001:
+  Select the expression materialization sub-owner before opening a narrow
+  MIR-builder optimization row.
 ```
 
 ## Queue
@@ -204,7 +204,8 @@ LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001:
 | 156 | `OBJECT-LIFECYCLE-SMALL-HOTPATH-CALLSITE-COPY-ATTRIBUTION-296X-001` | Landed | Attribute objectLifecycleSmallAlloc MIR copy pressure to callsite receiver/arg/result/local-SSA/phi-edge owners before another keeper row. |
 | 157 | `CALLSITE-COPY-ATTRIBUTION-DIFF-HARNESS-296X-001` | Landed | Compare before/after callsite copy attribution reports before running exact-EXE measurements for another candidate. |
 | 158 | `CALLSITE-COPY-OWNER-SELECTION-296X-001` | Landed | Select local SSA copy materialization as the next medium-confidence owner before opening another optimization row. |
-| 159 | `LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001` | Current | Classify local-like copy positions after selecting local SSA copy materialization. |
+| 159 | `LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001` | Landed | Classify local-like copy positions after selecting local SSA copy materialization. |
+| 160 | `EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001` | Current | Select field_get result-chain cleanup as the expression materialization sub-owner. |
 
 ## Hako Mimalloc Performance Parity Plan
 
