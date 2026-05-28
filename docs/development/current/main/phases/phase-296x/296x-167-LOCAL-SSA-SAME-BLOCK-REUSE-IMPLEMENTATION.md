@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: implement LocalSSA same-block value reuse.
 Blocker: LOCAL-SSA-SAME-BLOCK-REUSE-IMPLEMENTATION-296X-001
