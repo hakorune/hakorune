@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: split ArrayBox runtime slot helper cost before keeper implementation.
 Blocker: ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE-296X-001

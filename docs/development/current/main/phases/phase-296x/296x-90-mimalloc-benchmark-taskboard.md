@@ -248,7 +248,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 200 | `CFG-AWARE-TYPED-FIELD-RESIDENCE-PLAN-INVENTORY-296X-001` | Landed | Inventory CFG-aware typed-field residence net helper-call delta before implementation. |
 | 201 | `LARGE-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001` | Landed | Refresh the large owner after typed-field residence selected-method plans have zero net helper-call erasure. |
 | 202 | `ARRAY-RUNTIME-SLOT-HELPER-SELECTION-296X-001` | Landed | Select the ArrayBox runtime slot helper diagnostic boundary before any keeper implementation. |
-| 203 | `ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE-296X-001` | Current | Split ArrayBox runtime slot helper cost before keeper implementation. |
+| 203 | `ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE-296X-001` | Landed | Split ArrayBox runtime slot helper cost before keeper implementation. |
+| 204 | `ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT-296X-001` | Current | Define the ArrayBox runtime single-thread store backend boundary before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 

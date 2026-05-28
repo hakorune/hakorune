@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x is splitting ArrayBox runtime slot helper cost before keeper implementation."
+active_lane_status = "Phase-296x is defining the ArrayBox runtime single-thread store backend boundary before implementation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-203-ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-203-ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE.md"
-latest_card_summary = "Split ArrayBox runtime slot helper cost before keeper implementation."
-current_blocker_token = "ARRAY-RUNTIME-SLOT-HELPER-COST-PROBE-296X-001"
+latest_card = "296x-204-ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-204-ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT.md"
+latest_card_summary = "Define the ArrayBox runtime single-thread store backend boundary before implementation."
+current_blocker_token = "ARRAY-RUNTIME-SINGLE-THREAD-STORE-BACKEND-SSOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-203 Split ArrayBox runtime slot helper cost and selected array_storage_write_lock as the dominant subowner with single_thread_array_store_backend next.",
   "296x-202 Selected ArrayBox runtime slot helper cost probing for the array_runtime_set_idx_i64 hot path before any keeper implementation.",
   "296x-201 Refreshed the large owner after residence zero net: single-thread exact perf shifted to ArrayBox runtime slot helpers at about 89.49% of samples.",
   "296x-200 Inventoried the CFG-aware typed-field residence plan for HakoAllocPageModel.acquire_usize/1 and found net_helper_call_delta=0, rejecting implementation for that selected method.",

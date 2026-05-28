@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row203 is splitting ArrayBox runtime slot helper cost before keeper
-  implementation
+- row204 is defining the ArrayBox runtime single-thread store backend boundary
+  before implementation
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `array_runtime_slot_helper_cost_probe`
+  diagnostic is `array_runtime_single_thread_store_backend_ssot`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus
