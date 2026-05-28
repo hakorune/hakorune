@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x implemented page queue same-block get/set fusion; measurement is next."
+active_lane_status = "Phase-296x measured page queue same-block get/set fusion as a non-keeper; rollback is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-240-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-240-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-KEEPER.md"
-latest_card_summary = "Implemented page queue same-block get/set fusion by extending C ABI same-module typed-field RMW fusion to 21 usize candidates."
-current_blocker_token = "SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-MEASUREMENT-296X-001"
+latest_card = "296x-241-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-MEASUREMENT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-241-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-MEASUREMENT.md"
+latest_card_summary = "Measured page queue same-block get/set fusion as a non-keeper: body median worsened from 114ms to 119ms, so rollback is next."
+current_blocker_token = "ROLLBACK-SELECTED-PAGE-QUEUE-SAME-BLOCK-GET-SET-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-241 Measured page queue same-block get/set fusion as a non-keeper: body median worsened from 114ms to 119ms, so rollback is next.",
   "296x-240 Implemented page queue same-block get/set fusion by extending C ABI same-module typed-field RMW fusion to 21 usize candidates.",
   "296x-239 Froze page queue same-block get/set fusion at 21 usize candidates with planned net helper-call delta 21.",
   "296x-238 Selected page queue same-block get/set fusion with planned net helper-call delta 12 while keeping generic typed-field residence closed.",
