@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: measure exact-EXE timing after the field_get result-chain cleanup.
 Blocker: POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001

@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x measured the field_get result-chain cleanup at 550ms median versus the 560ms checkpoint and selected post-keeper owner refresh."
+active_lane_status = "Phase-296x refreshed post-field_get cleanup MIR copy ownership and selected the field_get result-chain follow-on probe."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-163-POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-163-POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT.md"
-latest_card_summary = "Measured the field_get result-chain cleanup at 550ms median versus the 560ms checkpoint, keeping winner and replacement claims closed."
-current_blocker_token = "POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001"
+latest_card = "296x-164-POST-FIELD-GET-CLEANUP-OWNER-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-164-POST-FIELD-GET-CLEANUP-OWNER-REFRESH.md"
+latest_card_summary = "Refreshed post-field_get cleanup MIR copy ownership, finding 23 remaining field_get result-chain expression copies and selecting a follow-on probe."
+current_blocker_token = "POST-FIELD-GET-CLEANUP-OWNER-REFRESH-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-164 Refreshed post-field_get cleanup MIR copy ownership, finding 23 remaining field_get result-chain expression copies and selecting a follow-on probe.",
   "296x-163 Measured the field_get result-chain cleanup at 550ms median versus the 560ms checkpoint, keeping winner and replacement claims closed.",
   "296x-162 Removed unconditional field-result pinning in MirBuilder::build_field_access, reducing objectLifecycleSmallAlloc copy count by 10 and field_get result chains by 5 while preserving proof output.",
   "296x-161 Selected MirBuilder::build_field_access pin_to_slot cleanup as the narrow field_get result-chain owner while rejecting CoreEffectPlan::FieldGet for this row.",

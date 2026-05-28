@@ -208,7 +208,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 160 | `EXPRESSION-MATERIALIZATION-OWNER-SELECTION-296X-001` | Landed | Select field_get result-chain cleanup as the expression materialization sub-owner. |
 | 161 | `FIELD-GET-RESULT-CHAIN-CLEANUP-SELECTION-296X-001` | Landed | Select MirBuilder::build_field_access pin_to_slot cleanup as the narrow field_get result-chain owner. |
 | 162 | `FIELD-GET-RESULT-CHAIN-CLEANUP-IMPLEMENTATION-296X-001` | Landed | Apply field_get result-chain cleanup in MirBuilder::build_field_access and preserve semantic proof before timing measurement. |
-| 163 | `POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001` | Current | Measure exact-EXE timing after the field_get result-chain cleanup and select post-keeper owner refresh. |
+| 163 | `POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001` | Landed | Measure exact-EXE timing after the field_get result-chain cleanup and select post-keeper owner refresh. |
+| 164 | `POST-FIELD-GET-CLEANUP-OWNER-REFRESH-296X-001` | Current | Refresh post-keeper MIR copy ownership and select the field_get result-chain follow-on probe. |
 
 ## Hako Mimalloc Performance Parity Plan
 

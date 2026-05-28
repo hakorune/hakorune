@@ -243,6 +243,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_field_get_result_chain_cleanup_implementation_guard.sh` | 296x-162 の field_get result-chain cleanup implementation guard。fields.rs 実装、MIR shape 改善、object-lifecycle proof summary を固定する。 |
 | `tools/allocator/hako_mimalloc_post_field_get_cleanup_measurement.py` | 296x-163 の post field_get cleanup exact-EXE measurement adapter。object-lifecycle workload を repeated sample で測る。 |
 | `tools/checks/k2_wide_phase296x_post_field_get_result_chain_cleanup_measurement_guard.sh` | 296x-163 の post field_get cleanup measurement guard。測定 contract、閉じた winner/replacement seams、current pointer を固定する。 |
+| `tools/allocator/mir_post_field_get_cleanup_owner_refresh.py` | 296x-164 の post field_get cleanup owner refresh adapter。field_get cleanup 後の copy/callsite/position owner surface を再採取し次 diagnostic owner を選択する。 |
+| `tools/checks/k2_wide_phase296x_post_field_get_cleanup_owner_refresh_guard.sh` | 296x-164 の post field_get cleanup owner refresh guard。field_get result-chain follow-on probe selection と current pointer を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
