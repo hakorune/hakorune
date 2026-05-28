@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: count net helper-call erasure before another typed-field residence implementation.
 Blocker: MIR-TYPED-FIELD-RESIDENCE-ERASURE-FEASIBILITY-296X-001

@@ -81,10 +81,10 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row197 is measuring typed-field residence net helper-call erasure before
-  another implementation attempt
+- row198 is selecting CFG-aware typed-field residence design after block-local
+  residence proved non-feasible
 - current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is `mir_typed_field_residence_erasure_feasibility`
+  diagnostic is `cfg_residence_or_runtime_owner_selection`
 - keep allocator-provider activation, host allocator replacement, hooks,
   globals, and winner claims closed
 - historical corpus focus remains: turn the external `hakmem` benchmark corpus

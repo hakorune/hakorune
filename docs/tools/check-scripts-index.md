@@ -286,6 +286,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_mir_typed_field_residence_selected_method_plan_guard.sh` | 296x-195 の MIR typed-field residence selected-method plan guard。transform closed のまま read/writeback plan を固定する。 |
 | `tools/allocator/mir_typed_field_residence_erasure_feasibility.py` | 296x-197 の MIR typed-field residence erasure feasibility report。選択メソッドの block-local residence が実際に helper call を消せるかを数える。 |
 | `tools/checks/k2_wide_phase296x_mir_typed_field_residence_erasure_feasibility_guard.sh` | 296x-197 の MIR typed-field residence erasure feasibility guard。`acquire_usize/1` の block-local residence が net helper-call delta 0 であることを固定する。 |
+| `tools/checks/k2_wide_phase296x_cfg_residence_or_runtime_owner_selection_guard.sh` | 296x-198 の owner selection guard。block-local retry を閉じ、CFG-aware typed-field residence design を次 owner として固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
