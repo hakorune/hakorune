@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x probed acquire_usize copy materialization and selected block-entry receiver copy policy selection next."
+active_lane_status = "Phase-296x selected a selected-method receiver block-entry copy forwarding guard surface next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-248-PAGE-MODEL-ACQUIRE-USIZE-COPY-MATERIALIZATION-PROBE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-248-PAGE-MODEL-ACQUIRE-USIZE-COPY-MATERIALIZATION-PROBE.md"
-latest_card_summary = "Probed acquire_usize copy materialization: block-entry copies dominate at 13, with 9 receiver-param copies, so block-entry receiver copy policy selection is next."
-current_blocker_token = "PAGE-MODEL-ACQUIRE-USIZE-BLOCK-ENTRY-RECEIVER-COPY-POLICY-SELECTION-296X-001"
+latest_card = "296x-249-PAGE-MODEL-ACQUIRE-USIZE-BLOCK-ENTRY-RECEIVER-COPY-POLICY-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-249-PAGE-MODEL-ACQUIRE-USIZE-BLOCK-ENTRY-RECEIVER-COPY-POLICY-SELECTION.md"
+latest_card_summary = "Selected selected-method receiver block-entry copy forwarding guard surface, with broad LocalSSA and cross-block rewrites closed."
+current_blocker_token = "SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-GUARD-SURFACE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-249 Selected selected-method receiver block-entry copy forwarding guard surface, with broad LocalSSA and cross-block rewrites closed.",
   "296x-248 Probed acquire_usize copy materialization: block-entry copies dominate at 13, with 9 receiver-param copies, so block-entry receiver copy policy selection is next.",
   "296x-247 Selected acquire_usize copy-materialization probing next, rejecting immediate RMW retry, direct-op retry, and page-queue retry.",
   "296x-246 Inventoried page-model hotpath MIR shape: acquire_usize/1 is the top method at 8.52%, with 21 field ops and 31 copies, so shape-owner selection is next.",
