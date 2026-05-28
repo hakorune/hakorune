@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected local SSA copy materialization as the next owner and is keeping optimization closed until block-position evidence is available."
+active_lane_status = "Phase-296x is classifying local-like copy positions after selecting local SSA copy materialization, keeping optimization closed until expression materialization ownership is clear."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-158-CALLSITE-COPY-OWNER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-158-CALLSITE-COPY-OWNER-SELECTION.md"
-latest_card_summary = "Selected local SSA copy materialization as the next medium-confidence owner from callsite attribution, with local_ssa_block_position_probe as the next diagnostic."
-current_blocker_token = "CALLSITE-COPY-OWNER-SELECTION-296X-001"
+latest_card = "296x-159-LOCAL-SSA-COPY-BLOCK-POSITION-PROBE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-159-LOCAL-SSA-COPY-BLOCK-POSITION-PROBE.md"
+latest_card_summary = "Classified local-like copy positions, finding expression materialization dominant at 29 copies while return-block movement is zero."
+current_blocker_token = "LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-159 Classified local-like copy positions, finding expression materialization dominant at 29 copies while return-block movement is zero.",
   "296x-158 Selected local SSA copy materialization as the next medium-confidence owner from callsite attribution, with local_ssa_block_position_probe as the next diagnostic.",
   "296x-157 Added a before/after diff adapter for callsite-copy attribution reports so candidate patches can be structurally screened before exact-EXE measurement.",
   "296x-156 Added callsite-level MIR copy attribution for objectLifecycleSmallAlloc, finding local SSA copy materialization dominant and acquire_usize as the strongest single attributed callsite.",

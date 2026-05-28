@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select one next owner from callsite-copy attribution evidence.
 Blocker: CALLSITE-COPY-OWNER-SELECTION-296X-001

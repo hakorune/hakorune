@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-CALLSITE-COPY-OWNER-SELECTION-296X-001:
-  Select one next owner from callsite-copy attribution evidence before opening
-  another optimization row.
+LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001:
+  Classify local-like copy positions after selecting local SSA copy
+  materialization.
 ```
 
 ## Queue
@@ -203,7 +203,8 @@ CALLSITE-COPY-OWNER-SELECTION-296X-001:
 | 155 | `MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM-296X-001` | Landed | Lower the remaining same-module helper setter calls without reopening the nested-call wrapper path. |
 | 156 | `OBJECT-LIFECYCLE-SMALL-HOTPATH-CALLSITE-COPY-ATTRIBUTION-296X-001` | Landed | Attribute objectLifecycleSmallAlloc MIR copy pressure to callsite receiver/arg/result/local-SSA/phi-edge owners before another keeper row. |
 | 157 | `CALLSITE-COPY-ATTRIBUTION-DIFF-HARNESS-296X-001` | Landed | Compare before/after callsite copy attribution reports before running exact-EXE measurements for another candidate. |
-| 158 | `CALLSITE-COPY-OWNER-SELECTION-296X-001` | Current | Select local SSA copy materialization as the next medium-confidence owner before opening another optimization row. |
+| 158 | `CALLSITE-COPY-OWNER-SELECTION-296X-001` | Landed | Select local SSA copy materialization as the next medium-confidence owner before opening another optimization row. |
+| 159 | `LOCAL-SSA-COPY-BLOCK-POSITION-PROBE-296X-001` | Current | Classify local-like copy positions after selecting local SSA copy materialization. |
 
 ## Hako Mimalloc Performance Parity Plan
 
