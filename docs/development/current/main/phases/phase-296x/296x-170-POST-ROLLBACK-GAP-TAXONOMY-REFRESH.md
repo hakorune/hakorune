@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: refresh gap taxonomy after the LocalSSA same-block reuse rollback.
 Blocker: POST-ROLLBACK-GAP-TAXONOMY-REFRESH-296X-001

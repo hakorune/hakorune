@@ -255,6 +255,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_phase296x_rollback_local_ssa_same_block_reuse_guard.sh` | 296x-169 の rollback LocalSSA same-block reuse guard。non-keeper rule の撤去、baseline shape 復帰、exact-EXE smoke を固定する。 |
 | `tools/allocator/hako_mimalloc_post_rollback_gap_taxonomy_refresh.py` | 296x-170 の post rollback gap taxonomy refresh adapter。non-keeper後に exact C pair / body timing 不足を measurement contract gap として分類する。 |
 | `tools/checks/k2_wide_phase296x_post_rollback_gap_taxonomy_refresh_guard.sh` | 296x-170 の post rollback gap taxonomy refresh guard。optimization closed と次 diagnostic selection、current pointer を固定する。 |
+| `tools/allocator/hako_mimalloc_object_lifecycle_body_timing_and_exact_c_pair_contract.py` | 296x-171 の object-lifecycle body timing / exact C pair contract adapter。body_elapsed_ns 比較と exact C subject を optimization 再開前の必須契約に固定する。 |
+| `tools/checks/k2_wide_phase296x_object_lifecycle_body_timing_and_exact_c_pair_contract_guard.sh` | 296x-171 の object-lifecycle body timing / exact C pair contract guard。row170 landed、row171 current、closed winner/provider/replacement seams を固定する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_classification_guard.sh` | 296x-142 の member-call route classification guard。route/emission/preflight/classifier owner と row143 handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_member_call_route_plan_pilot_guard.sh` | 296x-143 の member-call route plan pilot guard。member_route/function_preflight の配線と single-eval surface smoke を検証する。 |
 | `tools/checks/k2_wide_phase296x_mir_builder_field_property_receiver_facts_cleanup_guard.sh` | 296x-144 の field/property receiver facts cleanup guard。field_facts owner と fields/property_reads の利用を検証する。 |
