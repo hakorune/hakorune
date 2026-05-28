@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x attributed remaining exact-slot helper cost by callsite; next is narrow owner selection."
+active_lane_status = "Phase-296x selected object-lifecycle facade exact-slot field inventory as the next narrow diagnostic owner."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-225-TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-225-TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION.md"
-latest_card_summary = "Attributed exact-slot get/set helper cost across 30 callsites; object_lifecycle_facade is the largest family at 18.52%, with owner selection next."
-current_blocker_token = "TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001"
+latest_card = "296x-226-TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-226-TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION.md"
+latest_card_summary = "Selected object-lifecycle facade exact-slot field inventory as the next diagnostic owner, rejecting immediate page-model retry and generic typed-field residence."
+current_blocker_token = "OBJECT-LIFECYCLE-FACADE-EXACT-SLOT-FIELD-INVENTORY-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-226 Selected object-lifecycle facade exact-slot field inventory as the next diagnostic owner, rejecting immediate page-model retry and generic typed-field residence.",
   "296x-225 Attributed exact-slot get/set helper cost across 30 callsites; object_lifecycle_facade is the largest family at 18.52%, page_model_hotpath is 14.72%, and owner selection is next.",
   "296x-224 Refreshed perf ownership after RMW fusion: exact-slot get/set helpers remain primary at 59.97%, fused RMW is only 2.30%, and exact-slot callsite attribution is next.",
   "296x-223 Measured the selected-method typed-object exact-slot RMW fusion keeper at 116ms body median versus the 119ms single-thread exact floor, accepting the small keeper win while keeping winner/replacement lanes closed.",

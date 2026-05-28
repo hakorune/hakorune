@@ -271,7 +271,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 223 | `TYPED-OBJECT-FIELD-RMW-FUSION-MEASUREMENT-296X-001` | Landed | Measure the selected-method RMW fusion keeper and accept the small body-time win. |
 | 224 | `POST-RMW-FUSION-OWNER-REFRESH-296X-001` | Landed | Refresh the current hot owner after typed-object RMW fusion and select exact-slot callsite attribution. |
 | 225 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-ATTRIBUTION-296X-001` | Landed | Attribute remaining exact-slot get/set helper cost by callsite and method family before another keeper. |
-| 226 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Planned | Choose one narrow owner from exact-slot callsite attribution before implementation. |
+| 226 | `TYPED-OBJECT-EXACT-SLOT-CALLSITE-OWNER-SELECTION-296X-001` | Landed | Choose facade exact-slot field inventory as the next narrow diagnostic owner. |
+| 227 | `OBJECT-LIFECYCLE-FACADE-EXACT-SLOT-FIELD-INVENTORY-296X-001` | Planned | Inventory facade exact-slot fields/capsules before selecting a keeper. |
 
 ## Hako Mimalloc Performance Parity Plan
 
