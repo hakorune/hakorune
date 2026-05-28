@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-28
 Scope: select the next MIR body owner after the Hako/C body timing gap taxonomy.
 Blocker: OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION-296X-001

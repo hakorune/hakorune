@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-28"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x stopped optimization after rollback, classified the Hako/C body gap as compiler_lowering, and is selecting the next MIR body owner diagnostic."
+active_lane_status = "Phase-296x stopped optimization after rollback, selected local SSA copy materialization as the next MIR body owner, and is estimating dynamic workload weight before optimization."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-176-OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-176-OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION.md"
-latest_card_summary = "Select the next MIR body owner from body-gap taxonomy and current callsite-copy attribution."
-current_blocker_token = "OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION-296X-001"
+latest_card = "296x-177-LOCAL-SSA-DYNAMIC-WEIGHT-PROBE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-177-LOCAL-SSA-DYNAMIC-WEIGHT-PROBE.md"
+latest_card_summary = "Estimate dynamic workload weight for the selected local-SSA MIR owner before optimization."
+current_blocker_token = "LOCAL-SSA-DYNAMIC-WEIGHT-PROBE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-176 Selected local SSA copy materialization as the next MIR body owner from body-gap taxonomy and current callsite-copy attribution, while rejecting retry of the recent same-block field-get non-keeper.",
   "296x-175 Classified the joined Hako/C object-lifecycle body timing gap as compiler_lowering with medium confidence and optimization still closed.",
   "296x-174 Joined Hako exact-EXE and C mimalloc object-lifecycle body timing reports into one comparison surface, with optimization still closed.",
   "296x-173 Exposed .hako exact-EXE object-lifecycle body timing through env.now_ms and forwarded body_elapsed_ns through the memory runner.",

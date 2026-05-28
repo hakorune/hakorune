@@ -221,7 +221,8 @@ POST-FIELD-GET-RESULT-CHAIN-CLEANUP-MEASUREMENT-296X-001:
 | 173 | `OBJECT-LIFECYCLE-HAKO-BODY-TIMING-FIRST-PATTERN-296X-001` | Landed | Expose .hako exact-EXE object-lifecycle body timing through the existing env.now_ms seam. |
 | 174 | `OBJECT-LIFECYCLE-BODY-TIMING-PAIR-ADAPTER-296X-001` | Landed | Join Hako exact-EXE and C mimalloc body timing evidence before reopening optimization. |
 | 175 | `OBJECT-LIFECYCLE-BODY-TIMING-GAP-TAXONOMY-296X-001` | Landed | Classify the Hako/C body timing gap before selecting the next MIR/body owner diagnostic. |
-| 176 | `OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION-296X-001` | Current | Select the next MIR body owner from body-gap taxonomy and current attribution evidence. |
+| 176 | `OBJECT-LIFECYCLE-MIR-BODY-OWNER-SELECTION-296X-001` | Landed | Select the next MIR body owner from body-gap taxonomy and current attribution evidence. |
+| 177 | `LOCAL-SSA-DYNAMIC-WEIGHT-PROBE-296X-001` | Current | Estimate dynamic workload weight for the selected local-SSA MIR owner before optimization. |
 
 ## Hako Mimalloc Performance Parity Plan
 
