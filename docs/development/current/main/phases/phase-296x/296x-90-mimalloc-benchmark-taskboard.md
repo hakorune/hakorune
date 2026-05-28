@@ -300,7 +300,8 @@ MIR-TYPED-FIELD-DIRECT-OP-NET-INVENTORY-296X-001:
 | 252 | `SELECTED-METHOD-RECEIVER-BLOCK-ENTRY-COPY-FORWARDING-MEASUREMENT-296X-001` | Landed | Measure the selected-method receiver block-entry copy forwarding keeper before accepting or rolling back. |
 | 253 | `POST-RECEIVER-FORWARDING-OWNER-REFRESH-296X-001` | Landed | Refresh perf ownership after the receiver forwarding no-material-effect measurement. |
 | 254 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECEIVER-FORWARDING-296X-001` | Landed | Select the next exact-slot owner after receiver forwarding, with page queue immediate retry still blocked. |
-| 255 | `RESULT-CAPSULE-IR-SHAPE-DIFF-INVENTORY-296X-001` | Planned | Inventory alloc/release result capsule exact-slot traffic and escape shape before another keeper. |
+| 255 | `RESULT-CAPSULE-IR-SHAPE-DIFF-INVENTORY-296X-001` | Landed | Inventory alloc/release result capsule exact-slot traffic and escape shape before another keeper. |
+| 256 | `RESULT-CAPSULE-OWNER-SELECTION-296X-001` | Planned | Select one result capsule owner before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
