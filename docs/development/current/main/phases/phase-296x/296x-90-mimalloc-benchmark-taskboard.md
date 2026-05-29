@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-REPRESENTATION-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001:
-  Refresh representation owners after the selected-method ResidentScalar pilot
-  closed as zero-net.
+TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001:
+  Check whether current typed-object storage can support DirectSlotLease
+  without a pinned storage rewrite.
 ```
 
 ## Queue
@@ -350,7 +350,8 @@ REPRESENTATION-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001:
 | 302 | `TYPED-OBJECT-RESIDENT-SCALAR-SELECTED-METHOD-PLAN-296X-001` | Landed | Build the selected-method ResidentScalar plan and prove positive net helper delta before implementation. |
 | 303 | `TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001` | Landed | Select the narrow implementation owner for the selected-method ResidentScalar plan. |
 | 304 | `TYPED-OBJECT-RESIDENT-SCALAR-FEASIBILITY-CLOSEOUT-296X-001` | Landed | Close the selected-method ResidentScalar pilot as zero-net after helper load/writeback feasibility. |
-| 305 | `REPRESENTATION-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001` | Planned | Refresh representation owners after the selected-method ResidentScalar pilot closed as zero-net. |
+| 305 | `REPRESENTATION-DIRECT-STORAGE-SUBSTRATE-SSOT-296X-001` | Landed | Define the NativeDirect storage substrate after helper-backed ResidentScalar closes zero-net. |
+| 306 | `TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001` | Planned | Check whether current typed-object storage can support DirectSlotLease without a pinned storage rewrite. |
 
 ## Hako Mimalloc Performance Parity Plan
 
