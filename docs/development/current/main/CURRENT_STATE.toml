@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected HakoAllocPageModel.acquire_usize/1 for DirectSlotLease plan inventory; lowering remains closed."
+active_lane_status = "Phase-296x inventoried HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta as positive; lowering guard surface is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-315-DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-315-DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION.md"
-latest_card_summary = "Selected HakoAllocPageModel.acquire_usize/1 for DirectSlotLease plan inventory before any LLVM lowering change."
-current_blocker_token = "DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY-296X-001"
+latest_card = "296x-316-DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-316-DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY.md"
+latest_card_summary = "Inventoried HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta as positive before opening lowering."
+current_blocker_token = "DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-316 Inventoried HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta as positive before opening lowering.",
   "296x-315 Selected HakoAllocPageModel.acquire_usize/1 for DirectSlotLease plan inventory before any LLVM lowering change.",
   "296x-314 Implemented a runtime-internal DirectSlotLease token pilot for i64, u64, and handle slots in the pinned typed-object arena.",
   "296x-313 Defined the first DirectSlotLease guard surface, preserving hako_alloc semantic ownership and keeping LLVM NativeDirect lowering closed.",
