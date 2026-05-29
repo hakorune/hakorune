@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001:
-  Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle.
+DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001:
+  Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle.
 ```
 
 ## Queue
@@ -374,7 +374,8 @@ DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001:
 | 327 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001` | Landed | Select the first materialization bridge for direct_slot_exact before helper routing or lowering. |
 | 328 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-SNAPSHOT-PILOT-296X-001` | Landed | Implement explicit DirectSlotObjectV0 to TypedSlot snapshot materialization without helper routing or lowering. |
 | 329 | `DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001` | Landed | Select whether existing helper fallback may route through explicit DirectSlot snapshots. |
-| 330 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001` | Planned | Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle. |
+| 330 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001` | Landed | Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle. |
+| 331 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001` | Planned | Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle. |
 
 ## Hako Mimalloc Performance Parity Plan
 
