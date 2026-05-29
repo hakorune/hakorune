@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x reframed recordSuccess capsule work as a representation contract problem; capsule value-result SSOT is next."
+active_lane_status = "Phase-296x defined capsule value-result contract; plan inventory is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-277-RESULT-CAPSULE-RECORD-SUCCESS-REPRESENTATION-GUARD-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-277-RESULT-CAPSULE-RECORD-SUCCESS-REPRESENTATION-GUARD-SURFACE.md"
-latest_card_summary = "Reframed recordSuccess from helper fusion to representation guard, selecting capsule value-result contract SSOT before implementation."
-current_blocker_token = "CAPSULE-VALUE-RESULT-CONTRACT-SSOT-296X-001"
+latest_card = "296x-278-CAPSULE-VALUE-RESULT-CONTRACT-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-278-CAPSULE-VALUE-RESULT-CONTRACT-SSOT.md"
+latest_card_summary = "Defined CapsuleValueResultPlan contract preserving public capsule objects while allowing hot updates as ValueAggregateDelta with explicit materialization."
+current_blocker_token = "CAPSULE-VALUE-RESULT-PLAN-INVENTORY-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-278 Defined CapsuleValueResultPlan contract preserving public capsule objects while allowing hot updates as ValueAggregateDelta with explicit materialization.",
   "296x-277 Reframed recordSuccess from helper fusion to representation guard, selecting capsule value-result contract SSOT before implementation.",
   "296x-276 Selected branch-aware recordSuccess capsule shape guard surface, rejecting reset batching repeat because it already landed in row259.",
   "296x-275 Inventoried alloc/release result capsule IR shape: 57 combined field ops, 36 copies, zero internal calls, with result capsule owner selection next.",
