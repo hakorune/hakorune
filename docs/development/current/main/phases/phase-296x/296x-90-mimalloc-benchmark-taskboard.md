@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001:
-  Implement the stable DirectSlotCellV0 storage substrate without opening LLVM lowering.
+DIRECT-SLOT-HANDLE-RESOLUTION-CONTRACT-296X-001:
+  Define how a DirectSlot handle resolves to a compiler-consumable cell address.
 ```
 
 ## Queue
@@ -365,7 +365,8 @@ DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001:
 | 318 | `DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001` | Landed | Close the lowering pilot as not implementable until a helper-free addressable slot bridge exists. |
 | 319 | `DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001` | Landed | Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering. |
 | 320 | `DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001` | Landed | Select the minimum stable direct-slot cell layout and storage owner before implementation. |
-| 321 | `DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001` | Planned | Implement the stable DirectSlotCellV0 storage substrate without opening LLVM lowering. |
+| 321 | `DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001` | Landed | Implement the stable DirectSlotCellV0 storage substrate without opening LLVM lowering. |
+| 322 | `DIRECT-SLOT-HANDLE-RESOLUTION-CONTRACT-296X-001` | Planned | Define how a DirectSlot handle resolves to a compiler-consumable cell address. |
 
 ## Hako Mimalloc Performance Parity Plan
 

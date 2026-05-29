@@ -9,6 +9,17 @@ use super::typed_object::{TypedSlot, TypedSlotObject, TypedSlotStorage, TypedSlo
 
 const INDEX_BITS: u32 = 31;
 const INDEX_MASK: i64 = (1_i64 << INDEX_BITS) - 1;
+const DIRECT_SLOT_TAG_I64: u32 = 1;
+const DIRECT_SLOT_TAG_U64: u32 = 2;
+const DIRECT_SLOT_TAG_HANDLE: u32 = 3;
+
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct DirectSlotCellV0 {
+    storage_tag: u32,
+    flags: u32,
+    payload: u64,
+}
 
 #[derive(Debug)]
 struct PinnedTypedSlotObject {
@@ -16,6 +27,7 @@ struct PinnedTypedSlotObject {
     type_id: i64,
     generation: u32,
     fields: Box<[TypedSlot]>,
+    direct_cells: Box<[DirectSlotCellV0]>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -51,10 +63,16 @@ impl PinnedTypedObjectArena {
     pub(crate) fn insert(&mut self, object: TypedSlotObject) -> Option<i64> {
         let generation = 1;
         let index = self.objects.len();
+        let direct_cells = object
+            .fields
+            .iter()
+            .map(DirectSlotCellV0::from_typed_slot)
+            .collect();
         self.objects.push(Some(Box::new(PinnedTypedSlotObject {
             type_id: object.type_id,
             generation,
             fields: object.fields.into_boxed_slice(),
+            direct_cells,
         })));
         encode_handle(PinnedTypedObjectRef { index, generation })
     }
@@ -125,19 +143,43 @@ impl PinnedTypedObjectArena {
         })
     }
 
+    pub(crate) fn get_direct_cell(&self, handle: i64, slot: usize) -> Option<&DirectSlotCellV0> {
+        let object_ref = self.validate(handle)?;
+        self.objects
+            .get(object_ref.index)?
+            .as_ref()?
+            .direct_cells
+            .get(slot)
+    }
+
+    pub(crate) fn get_direct_cell_mut(
+        &mut self,
+        handle: i64,
+        slot: usize,
+    ) -> Option<&mut DirectSlotCellV0> {
+        let object_ref = self.validate(handle)?;
+        self.objects
+            .get_mut(object_ref.index)?
+            .as_mut()?
+            .direct_cells
+            .get_mut(slot)
+    }
+
     pub(crate) fn read_i64(&self, token: DirectSlotLeaseToken) -> Option<i64> {
         if token.storage != DirectSlotLeaseStorage::I64 {
             return None;
         }
-        let field = self.field_by_token(token)?;
-        match field.value {
-            TypedSlotValue::I64(value) => Some(value),
-            _ => None,
-        }
+        self.cell_by_token(token)?.read_i64()
     }
 
     pub(crate) fn write_i64(&mut self, token: DirectSlotLeaseToken, value: i64) -> bool {
         if token.storage != DirectSlotLeaseStorage::I64 {
+            return false;
+        }
+        let Some(cell) = self.cell_by_token_mut(token) else {
+            return false;
+        };
+        if !cell.write_i64(value) {
             return false;
         }
         let Some(field) = self.field_by_token_mut(token) else {
@@ -154,15 +196,17 @@ impl PinnedTypedObjectArena {
         if token.storage != DirectSlotLeaseStorage::U64 {
             return None;
         }
-        let field = self.field_by_token(token)?;
-        let TypedSlotValue::Unsigned(value) = field.value else {
-            return None;
-        };
-        u64::try_from(value).ok()
+        self.cell_by_token(token)?.read_u64()
     }
 
     pub(crate) fn write_u64(&mut self, token: DirectSlotLeaseToken, value: u64) -> bool {
         if token.storage != DirectSlotLeaseStorage::U64 {
+            return false;
+        }
+        let Some(cell) = self.cell_by_token_mut(token) else {
+            return false;
+        };
+        if !cell.write_u64(value) {
             return false;
         }
         let Some(field) = self.field_by_token_mut(token) else {
@@ -179,15 +223,17 @@ impl PinnedTypedObjectArena {
         if token.storage != DirectSlotLeaseStorage::Handle {
             return None;
         }
-        let field = self.field_by_token(token)?;
-        match field.value {
-            TypedSlotValue::Handle(value) => Some(value),
-            _ => None,
-        }
+        self.cell_by_token(token)?.read_handle()
     }
 
     pub(crate) fn write_handle(&mut self, token: DirectSlotLeaseToken, value: i64) -> bool {
         if token.storage != DirectSlotLeaseStorage::Handle {
+            return false;
+        }
+        let Some(cell) = self.cell_by_token_mut(token) else {
+            return false;
+        };
+        if !cell.write_handle(value) {
             return false;
         }
         let Some(field) = self.field_by_token_mut(token) else {
@@ -200,16 +246,28 @@ impl PinnedTypedObjectArena {
         true
     }
 
-    fn field_by_token(&self, token: DirectSlotLeaseToken) -> Option<&TypedSlot> {
+    fn cell_by_token(&self, token: DirectSlotLeaseToken) -> Option<&DirectSlotCellV0> {
         let object = self.objects.get(token.object_ref.index)?.as_ref()?;
         if object.generation != token.object_ref.generation {
             return None;
         }
-        let field = object.fields.get(token.slot)?;
-        if !lease_storage_matches(field.storage, token.storage) {
+        let cell = object.direct_cells.get(token.slot)?;
+        if !cell.storage_matches(token.storage) {
             return None;
         }
-        Some(field)
+        Some(cell)
+    }
+
+    fn cell_by_token_mut(&mut self, token: DirectSlotLeaseToken) -> Option<&mut DirectSlotCellV0> {
+        let object = self.objects.get_mut(token.object_ref.index)?.as_mut()?;
+        if object.generation != token.object_ref.generation {
+            return None;
+        }
+        let cell = object.direct_cells.get_mut(token.slot)?;
+        if !cell.storage_matches(token.storage) {
+            return None;
+        }
+        Some(cell)
     }
 
     fn field_by_token_mut(&mut self, token: DirectSlotLeaseToken) -> Option<&mut TypedSlot> {
@@ -238,6 +296,92 @@ fn lease_storage_matches(storage: TypedSlotStorage, lease_storage: DirectSlotLea
             | (TypedSlotStorage::U64, DirectSlotLeaseStorage::U64)
             | (TypedSlotStorage::Handle, DirectSlotLeaseStorage::Handle)
     )
+}
+
+impl DirectSlotCellV0 {
+    fn from_typed_slot(slot: &TypedSlot) -> Self {
+        match (slot.storage, &slot.value) {
+            (TypedSlotStorage::I64, TypedSlotValue::I64(value)) => Self::from_i64(*value),
+            (TypedSlotStorage::U64, TypedSlotValue::Unsigned(value)) => {
+                Self::from_u64(u64::try_from(*value).unwrap_or(0))
+            }
+            (TypedSlotStorage::Handle, TypedSlotValue::Handle(value)) => Self::from_handle(*value),
+            _ => Self {
+                storage_tag: 0,
+                flags: 0,
+                payload: 0,
+            },
+        }
+    }
+
+    fn from_i64(value: i64) -> Self {
+        Self {
+            storage_tag: DIRECT_SLOT_TAG_I64,
+            flags: 0,
+            payload: value as u64,
+        }
+    }
+
+    fn from_u64(value: u64) -> Self {
+        Self {
+            storage_tag: DIRECT_SLOT_TAG_U64,
+            flags: 0,
+            payload: value,
+        }
+    }
+
+    fn from_handle(value: i64) -> Self {
+        Self {
+            storage_tag: DIRECT_SLOT_TAG_HANDLE,
+            flags: 0,
+            payload: value as u64,
+        }
+    }
+
+    fn storage_matches(&self, lease_storage: DirectSlotLeaseStorage) -> bool {
+        matches!(
+            (self.storage_tag, lease_storage),
+            (DIRECT_SLOT_TAG_I64, DirectSlotLeaseStorage::I64)
+                | (DIRECT_SLOT_TAG_U64, DirectSlotLeaseStorage::U64)
+                | (DIRECT_SLOT_TAG_HANDLE, DirectSlotLeaseStorage::Handle)
+        )
+    }
+
+    fn read_i64(&self) -> Option<i64> {
+        (self.storage_tag == DIRECT_SLOT_TAG_I64).then_some(self.payload as i64)
+    }
+
+    fn write_i64(&mut self, value: i64) -> bool {
+        if self.storage_tag != DIRECT_SLOT_TAG_I64 {
+            return false;
+        }
+        self.payload = value as u64;
+        true
+    }
+
+    fn read_u64(&self) -> Option<u64> {
+        (self.storage_tag == DIRECT_SLOT_TAG_U64).then_some(self.payload)
+    }
+
+    fn write_u64(&mut self, value: u64) -> bool {
+        if self.storage_tag != DIRECT_SLOT_TAG_U64 {
+            return false;
+        }
+        self.payload = value;
+        true
+    }
+
+    fn read_handle(&self) -> Option<i64> {
+        (self.storage_tag == DIRECT_SLOT_TAG_HANDLE).then_some(self.payload as i64)
+    }
+
+    fn write_handle(&mut self, value: i64) -> bool {
+        if self.storage_tag != DIRECT_SLOT_TAG_HANDLE {
+            return false;
+        }
+        self.payload = value as u64;
+        true
+    }
 }
 
 fn encode_handle(object_ref: PinnedTypedObjectRef) -> Option<i64> {
@@ -364,5 +508,41 @@ mod tests {
             .unwrap();
         assert_eq!(arena.read_u64(token), None);
         assert!(!arena.write_u64(token, 7));
+    }
+
+    #[test]
+    fn direct_slot_cell_v0_layout_is_stable() {
+        assert_eq!(std::mem::size_of::<DirectSlotCellV0>(), 16);
+        assert_eq!(std::mem::align_of::<DirectSlotCellV0>(), 8);
+    }
+
+    #[test]
+    fn direct_slot_cells_preserve_tagged_payloads() {
+        let mut arena = PinnedTypedObjectArena::new();
+        let handle = arena
+            .insert(object_with_fields(&[
+                TypedSlotStorage::I64,
+                TypedSlotStorage::U64,
+                TypedSlotStorage::Handle,
+            ]))
+            .unwrap();
+
+        let i64_cell = arena.get_direct_cell(handle, 0).unwrap();
+        assert_eq!(i64_cell.storage_tag, DIRECT_SLOT_TAG_I64);
+        assert_eq!(i64_cell.read_i64(), Some(0));
+
+        let u64_cell = arena.get_direct_cell(handle, 1).unwrap();
+        assert_eq!(u64_cell.storage_tag, DIRECT_SLOT_TAG_U64);
+        assert_eq!(u64_cell.read_u64(), Some(0));
+
+        let handle_cell = arena.get_direct_cell(handle, 2).unwrap();
+        assert_eq!(handle_cell.storage_tag, DIRECT_SLOT_TAG_HANDLE);
+        assert_eq!(handle_cell.read_handle(), Some(0));
+
+        assert!(arena.get_direct_cell_mut(handle, 0).unwrap().write_i64(-13));
+        assert_eq!(
+            arena.get_direct_cell(handle, 0).unwrap().read_i64(),
+            Some(-13)
+        );
     }
 }
