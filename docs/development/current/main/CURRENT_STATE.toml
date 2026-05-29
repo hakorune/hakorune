@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x found current typed-object Vec storage cannot support DirectSlotLease; pinned arena SSOT is next."
+active_lane_status = "Phase-296x defined the pinned typed-object arena contract; first storage-only pinned arena pilot is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-306-TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-306-TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY.md"
-latest_card_summary = "Confirmed current typed-object Vec/RefCell storage cannot support DirectSlotLease without a pinned typed-object arena."
-current_blocker_token = "PINNED-TYPED-OBJECT-ARENA-SSOT-296X-001"
+latest_card = "296x-307-PINNED-TYPED-OBJECT-ARENA-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-307-PINNED-TYPED-OBJECT-ARENA-SSOT.md"
+latest_card_summary = "Defined the pinned typed-object arena contract with generation validation, stable slot requirements, and storage-only pilot boundary."
+current_blocker_token = "PINNED-TYPED-OBJECT-ARENA-STORAGE-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-307 Defined the pinned typed-object arena contract with generation validation, stable slot requirements, no raw Vec pointer exposure, and a storage-only pilot boundary.",
   "296x-306 Confirmed current typed-object Vec/RefCell storage cannot support DirectSlotLease without a pinned typed-object arena.",
   "296x-305 Defined the NativeDirect storage substrate with AddressableSlot, DirectSlotLease, MaterializedLocalStruct, and no raw runtime Vec pointer exposure.",
   "296x-304 Closed the selected typed-object ResidentScalar pilot before code changes because required helper loads and writebacks make the selected method zero-net.",
