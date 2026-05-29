@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001:
-  Implement only the selected-method DirectSlotLease lowering pilot if the bridge can stay helper-free.
+DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001:
+  Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering.
 ```
 
 ## Queue
@@ -362,7 +362,8 @@ DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001:
 | 315 | `DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001` | Landed | Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change. |
 | 316 | `DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY-296X-001` | Landed | Inventory HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta before lowering. |
 | 317 | `DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define lowering guard surface for the selected DirectSlotLease method before codegen changes. |
-| 318 | `DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001` | Planned | Implement only the selected-method DirectSlotLease lowering pilot if the bridge can stay helper-free. |
+| 318 | `DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001` | Landed | Close the lowering pilot as not implementable until a helper-free addressable slot bridge exists. |
+| 319 | `DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001` | Planned | Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering. |
 
 ## Hako Mimalloc Performance Parity Plan
 
