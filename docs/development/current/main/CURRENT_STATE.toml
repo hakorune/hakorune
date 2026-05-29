@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x refreshed owner evidence after recordSuccess helper fusion; weighted selection is next."
+active_lane_status = "Phase-296x selected facade exact-slot IR shape inventory as the next unblocked owner."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-284-POST-RECORD-SUCCESS-HELPER-FUSION-OWNER-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-284-POST-RECORD-SUCCESS-HELPER-FUSION-OWNER-REFRESH.md"
-latest_card_summary = "Refreshed perf callgraph after recordSuccess fusion: page_queue is dominant but blocked by prior no-effect evidence, so weighted owner selection is next."
-current_blocker_token = "WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
+latest_card = "296x-285-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-285-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
+latest_card_summary = "Selected object_lifecycle_facade IR shape inventory as the top unblocked owner because page_queue is dominant but blocked by prior no-effect evidence."
+current_blocker_token = "FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-285 Selected object_lifecycle_facade IR shape inventory as the top unblocked owner because page_queue is dominant but blocked by prior no-effect evidence.",
   "296x-284 Refreshed perf callgraph after recordSuccess fusion: page_queue is dominant but blocked by prior no-effect evidence, so weighted owner selection is next.",
   "296x-283 Measured recordSuccess helper fusion at 103ms median body time against row259 110ms floor, accepting it as a keeper and selecting owner refresh next.",
   "296x-282 Implemented two recordSuccess exact-slot runtime helpers and same-module lowering with default emission closed and semantic proof ok.",
