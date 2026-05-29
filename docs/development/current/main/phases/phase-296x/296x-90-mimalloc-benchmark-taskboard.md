@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
-  Select the next exact-slot owner after result capsule reset batching, with
-  page queue immediate retry still blocked.
+FACADE-FIELD-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
+  Select whether the post-recordSuccess facade inventory supports another
+  small facade keeper or should yield to owner refresh.
 ```
 
 ## Queue
@@ -331,7 +331,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 283 | `RECORD-SUCCESS-HELPER-FUSION-MEASUREMENT-296X-001` | Landed | Measure recordSuccess helper fusion and accept it as a keeper before weighted owner refresh. |
 | 284 | `POST-RECORD-SUCCESS-HELPER-FUSION-OWNER-REFRESH-296X-001` | Landed | Refresh weighted owner evidence after recordSuccess helper fusion. |
 | 285 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Select the next unblocked exact-slot owner after recordSuccess helper fusion. |
-| 286 | `FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Inventory facade exact-slot IR shape before another implementation row. |
+| 286 | `FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory facade exact-slot IR shape before another implementation row. |
+| 287 | `FACADE-FIELD-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Decide whether the narrow facade positive-net surface is worth another implementation or should yield to owner refresh. |
 
 ## Hako Mimalloc Performance Parity Plan
 

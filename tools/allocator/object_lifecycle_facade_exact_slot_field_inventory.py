@@ -119,6 +119,18 @@ def main() -> int:
     )
     require(owner, "summary", "ok")
     residual_mode = selected_owner == "object_lifecycle_facade_residual_exact_slot_field_inventory"
+    selected_family = owner.get("selected_family")
+    dominant_owner_family = owner.get("dominant_family")
+    top_unblocked_family = owner.get("top_unblocked_family")
+    if (
+        selected_family == "object_lifecycle_facade"
+        and dominant_owner_family != selected_family
+        and top_unblocked_family == selected_family
+        and owner.get("top_unblocked_family_pct")
+    ):
+        target_family_pct = owner["top_unblocked_family_pct"]
+    else:
+        target_family_pct = owner.get("dominant_family_pct", "18.52")
 
     facade_callers = parse_facade_callers(args.perf_report)
     if not facade_callers:
@@ -190,7 +202,7 @@ def main() -> int:
         f"input_contract={owner_contract}",
         "workload_id=representative-object-lifecycle-small-block-v0",
         "target_family=object_lifecycle_facade",
-        f"target_family_pct={owner.get('dominant_family_pct', '18.52')}",
+        f"target_family_pct={target_family_pct}",
         f"facade_method_count={len(facade_callers)}",
         f"facade_exact_slot_get_count={op_counts['field_get']}",
         f"facade_exact_slot_set_count={op_counts['field_set']}",
