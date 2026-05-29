@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001:
-  Define the first DirectSlotLease guard surface now that pinned exact-slot fallback works.
+DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001:
+  Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed.
 ```
 
 ## Queue
@@ -357,7 +357,8 @@ DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001:
 | 310 | `PINNED-TYPED-OBJECT-ARENA-BACKEND-PILOT-296X-001` | Landed | Connect pinned_arena_exact as an explicit typed-object runtime backend for generic helper smokes only. |
 | 311 | `PINNED-TYPED-OBJECT-ARENA-NEXT-LEASE-BOUNDARY-SELECTION-296X-001` | Landed | Decide whether to extend pinned_arena_exact to exact-slot helpers or plan DirectSlotLease guard surface. |
 | 312 | `PINNED-TYPED-OBJECT-ARENA-EXACT-SLOT-HELPER-PILOT-296X-001` | Landed | Route existing exact-slot helper fallback through pinned_arena_exact before DirectSlotLease planning. |
-| 313 | `DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001` | Planned | Define the first DirectSlotLease guard surface now that pinned exact-slot fallback works. |
+| 313 | `DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001` | Landed | Define the first DirectSlotLease guard surface now that pinned exact-slot fallback works. |
+| 314 | `DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001` | Planned | Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed. |
 
 ## Hako Mimalloc Performance Parity Plan
 

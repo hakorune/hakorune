@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x routed exact-slot helper fallback through pinned_arena_exact; DirectSlotLease guard surface is next."
+active_lane_status = "Phase-296x defined the first DirectSlotLease guard surface; runtime token pilot is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-312-PINNED-TYPED-OBJECT-ARENA-EXACT-SLOT-HELPER-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-312-PINNED-TYPED-OBJECT-ARENA-EXACT-SLOT-HELPER-PILOT.md"
-latest_card_summary = "Routed existing exact-slot helper fallback through pinned_arena_exact, keeping DirectSlotLease and LLVM lowering closed."
-current_blocker_token = "DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001"
+latest_card = "296x-313-DIRECT-SLOT-LEASE-GUARD-SURFACE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-313-DIRECT-SLOT-LEASE-GUARD-SURFACE.md"
+latest_card_summary = "Defined the first DirectSlotLease guard surface, preserving hako_alloc semantic ownership and keeping LLVM NativeDirect lowering closed."
+current_blocker_token = "DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-313 Defined the first DirectSlotLease guard surface, preserving hako_alloc semantic ownership and keeping LLVM NativeDirect lowering closed.",
   "296x-312 Routed existing exact-slot helper fallback through pinned_arena_exact, keeping DirectSlotLease and LLVM lowering closed.",
   "296x-311 Selected pinned_arena_exact exact-slot helper compatibility before DirectSlotLease planning so fallback/materialization can work with pinned storage.",
   "296x-310 Connected pinned_arena_exact as an explicit typed-object runtime backend for generic helper smokes, with invalid backend fail-fast and direct lowering closed.",
