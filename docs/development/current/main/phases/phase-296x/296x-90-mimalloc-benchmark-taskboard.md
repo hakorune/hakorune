@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001:
-  Select whether existing helper fallback may route through explicit DirectSlot snapshots.
+DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001:
+  Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle.
 ```
 
 ## Queue
@@ -373,7 +373,8 @@ DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001:
 | 326 | `DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-PILOT-296X-001` | Landed | Add the direct_slot_exact backend selection point without routing helpers or lowering. |
 | 327 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001` | Landed | Select the first materialization bridge for direct_slot_exact before helper routing or lowering. |
 | 328 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-SNAPSHOT-PILOT-296X-001` | Landed | Implement explicit DirectSlotObjectV0 to TypedSlot snapshot materialization without helper routing or lowering. |
-| 329 | `DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001` | Planned | Select whether existing helper fallback may route through explicit DirectSlot snapshots. |
+| 329 | `DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001` | Landed | Select whether existing helper fallback may route through explicit DirectSlot snapshots. |
+| 330 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001` | Planned | Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle. |
 
 ## Hako Mimalloc Performance Parity Plan
 
