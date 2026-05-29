@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-30"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x DirectArray family storage substrate roadmap is current; scoped helper backend retirement implementation is next."
+active_lane_status = "Phase-296x DirectArray family storage substrate roadmap is current; DirectI64 ArrayRepr producer contract is current and producer implementation is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-373-ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-373-ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT.md"
-latest_card_summary = "Froze ArrayBox as public semantics/materialization/fallback owner and DirectArrayI64 as exact i64 NativeDirect hot storage before retirement implementation."
-current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-IMPLEMENTATION-296X-001"
+latest_card = "296x-382-DIRECTI64-ARRAYREPR-FACT-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-382-DIRECTI64-ARRAYREPR-FACT-INVENTORY.md"
+latest_card_summary = "Landed the DirectI64 ArrayRepr fact inventory and opened the explicit producer contract row next."
+current_blocker_token = "DIRECTI64-ARRAYREPR-PRODUCER-CONTRACT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,13 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-382 Landed the DirectI64 ArrayRepr fact inventory and opened the explicit producer contract row next.",
+  "296x-380 Froze the DirectArray family extension gate and opened a next-order taskboard before adding any new DirectArray member.",
+  "296x-379 Aligned .hako ArrayCore ownership with the DirectArray family / ArrayBox split and opened the DirectArray family extension gate next.",
+  "296x-378 Wrote the ArrayRepr bridge SSOT, kept ArrayBox public facade and DirectArray family substrate split, and opened .hako ArrayCore owner alignment next.",
+  "296x-377 Refreshed the post-retirement perf owner, confirmed DirectArray dominance, and opened the ArrayRepr design row instead of reopening helper micro-optimization.",
+  "296x-376 Smoked the scoped retirement slice with public ArrayBox birth, DirectArray birth, materialization snapshot, and selected-method direct lowering while leaving broader cache retirement deferred.",
+  "296x-375 Retired only the scoped single_thread_exact_array_helper_backend surface behind DirectArrayI64 while leaving public ArrayBox semantics, handle-entry cache, and public helper fast lanes deferred.",
   "296x-373 Froze ArrayBox as public semantics/materialization/fallback owner and DirectArrayI64 as exact i64 NativeDirect hot storage before retirement implementation.",
   "296x-372 Selected single_thread_exact_array_helper_backend as the first legacy retirement target, with ArrayBox public semantics / DirectArray split SSOT required before implementation.",
   "296x-371 Perf owner refresh confirmed DirectArray dominance and opened legacy helper/cache retirement selection toward single_thread_exact_array_helper_backend.",

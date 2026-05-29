@@ -83,16 +83,34 @@ Scope: current lane / next lane / restart order only.
 
 - row374 freezes the DirectArray family storage substrate roadmap and the
   ArrayBox / DirectArray split SSOT
-- the current blocker token now points at the scoped retirement implementation
-  boundary for `single_thread_exact_array_helper_backend`
+- row375 retires only the scoped `single_thread_exact_array_helper_backend`
+  surface and is now landed behind DirectArrayI64
+- row376 smokes the scoped retirement slice and is now landed
+- row377 refreshes the post-retirement perf owner and is now landed
+- row378 writes the ArrayRepr bridge SSOT and is now landed
+- row379 aligns the `.hako ArrayCore` owner split and is now landed
+- row380 freezes the DirectArray family extension gate and is now landed
+- row381 freezes the next-order taskboard and is now landed
+- row382 inventories the DirectI64 ArrayRepr fact path and is now landed
+- row383 defines the explicit DirectI64 ArrayRepr producer contract and is
+  current
+- the current blocker token now points at the explicit DirectI64 ArrayRepr
+  producer contract, so the lane can route existing `DirectI64` through
+  `ArrayRepr` before the producer implementation row
 - keep `nyash.array.birth_h` public ArrayBox semantics, handle-entry cache
-  retirement, and public helper fast lanes deferred until the scoped slice is
-  proven
+  retirement, and public helper fast lanes deferred until the ArrayCore split
+  note is written and smoked
 - docs-first ordered work:
   1. keep the DirectArray family contract locked as the authority row
-  2. define the scoped retirement boundary for the exact-array helper backend
-  3. retire only the scoped backend surface before touching broader cache code
-  4. smoke before perf refresh
+  2. keep the scoped retirement boundary narrow
+  3. smoke the retired slice before touching broader cache code
+  4. refresh perf after smoke is green, then write the ArrayRepr bridge,
+     ArrayCore alignment note, DirectArray extension gate, next-order
+     taskboard, DirectI64 ArrayRepr fact inventory, and producer contract
+     in order
+  5. next implementation series continues with the producer implementation,
+     then the lowerer consumer rebase, then the materialization smoke
+     refresh, then the post-rebase perf owner refresh
 
 ## Current Ordered App Bringup
 

@@ -87,7 +87,8 @@ def direct_array_scaffolding_available() -> tuple[int, int, int]:
     )
     route_closed = int(
         "DirectArrayI64Exact" in backend_text
-        and "direct_array_i64_helper_route_closed" in backend_text
+        and "direct_array_i64_exact_store_i64" in backend_text
+        and "direct_array_i64_exact_load_encoded_i64" in backend_text
     )
     contiguous_i64 = int(
         "direct_array_i64_buffer_data_offset" in direct_text

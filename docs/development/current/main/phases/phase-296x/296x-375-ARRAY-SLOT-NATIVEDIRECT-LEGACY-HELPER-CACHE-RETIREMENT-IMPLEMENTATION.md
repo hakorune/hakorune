@@ -1,11 +1,12 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: define the scoped implementation boundary for retiring only single_thread_exact_array_helper_backend after the DirectArray family split SSOT landed.
 Blocker: ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-IMPLEMENTATION-296X-001
 Related:
   - docs/development/current/main/phases/phase-296x/296x-374-DIRECTARRAY-FAMILY-STORAGE-SUBSTRATE-ROADMAP.md
   - docs/development/current/main/phases/phase-296x/296x-373-ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT.md
+  - docs/development/current/main/phases/phase-296x/296x-376-ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SEMANTIC-SMOKE.md
   - crates/nyash_kernel/src/plugin/array_slot_backend.rs
   - crates/nyash_kernel/src/plugin/array_direct_i64_buffer.rs
   - tools/checks/k2_wide_phase296x_array_slot_nativedirect_legacy_helper_cache_retirement_implementation_guard.sh
@@ -62,7 +63,8 @@ The implementation boundary is intentionally narrow:
 - DirectArray helper route remains fail-fast until the scoped implementation row
   replaces it
 
-This row is a guard surface, not the code change itself.
+This row is the scoped retirement slice. The next row performs the semantic
+smoke before perf owner refresh.
 
 ## Guard
 
