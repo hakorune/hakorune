@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001:
-  Close helper fallback materialization scaffolding and select the next DirectSlot lowering readiness row.
+DIRECT-SLOT-NATIVEDIRECT-LOWERING-READINESS-INVENTORY-296X-001:
+  Inventory whether HakoAllocPageModel.acquire_usize/1 can use DirectSlot NativeDirect lowering with positive net helper delta.
 ```
 
 ## Queue
@@ -376,7 +376,8 @@ DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001:
 | 329 | `DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001` | Landed | Select whether existing helper fallback may route through explicit DirectSlot snapshots. |
 | 330 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001` | Landed | Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle. |
 | 331 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001` | Landed | Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle. |
-| 332 | `DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001` | Planned | Close helper fallback materialization scaffolding and select the next DirectSlot lowering readiness row. |
+| 332 | `DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001` | Landed | Close helper fallback materialization scaffolding and select the next DirectSlot lowering readiness row. |
+| 333 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-READINESS-INVENTORY-296X-001` | Planned | Inventory whether HakoAllocPageModel.acquire_usize/1 can use DirectSlot NativeDirect lowering with positive net helper delta. |
 
 ## Hako Mimalloc Performance Parity Plan
 
