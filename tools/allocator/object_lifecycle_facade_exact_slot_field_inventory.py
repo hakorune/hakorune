@@ -105,6 +105,7 @@ def main() -> int:
         {
             "typed-object-exact-slot-callsite-owner-selection-v0",
             "post-facade-exact-slot-callsite-owner-selection-v0",
+            "weighted-exact-slot-owner-selection-v0",
         },
     )
     selected_owner = require_any(
@@ -113,6 +114,7 @@ def main() -> int:
         {
             "object_lifecycle_facade_exact_slot_field_inventory",
             "object_lifecycle_facade_residual_exact_slot_field_inventory",
+            "facade_exact_slot_ir_shape_diff_inventory",
         },
     )
     require(owner, "summary", "ok")
