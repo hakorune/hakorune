@@ -14,6 +14,7 @@ const INDEX_MASK: i64 = (1_i64 << INDEX_BITS) - 1;
 const DIRECT_SLOT_TAG_I64: u32 = 1;
 const DIRECT_SLOT_TAG_U64: u32 = 2;
 const DIRECT_SLOT_TAG_HANDLE: u32 = 3;
+const DIRECT_SLOT_TAG_USIZE: u32 = 4;
 const DIRECT_SLOT_HANDLE_TAG: usize = 1;
 
 #[repr(C)]
@@ -321,7 +322,7 @@ impl PinnedTypedObjectArena {
         let Some(field) = self.field_by_token_mut(token) else {
             return false;
         };
-        if field.storage != TypedSlotStorage::U64 {
+        if !direct_u64_storage_supported(field.storage) {
             return false;
         }
         field.value = TypedSlotValue::Unsigned(value as u128);
@@ -399,12 +400,20 @@ impl PinnedTypedObjectArena {
 }
 
 fn lease_storage_matches(storage: TypedSlotStorage, lease_storage: DirectSlotLeaseStorage) -> bool {
-    matches!(
-        (storage, lease_storage),
-        (TypedSlotStorage::I64, DirectSlotLeaseStorage::I64)
-            | (TypedSlotStorage::U64, DirectSlotLeaseStorage::U64)
-            | (TypedSlotStorage::Handle, DirectSlotLeaseStorage::Handle)
-    )
+    match (storage, lease_storage) {
+        (TypedSlotStorage::I64, DirectSlotLeaseStorage::I64) => true,
+        (TypedSlotStorage::U64, DirectSlotLeaseStorage::U64) => true,
+        (TypedSlotStorage::USize, DirectSlotLeaseStorage::U64) => {
+            cfg!(target_pointer_width = "64")
+        }
+        (TypedSlotStorage::Handle, DirectSlotLeaseStorage::Handle) => true,
+        _ => false,
+    }
+}
+
+fn direct_u64_storage_supported(storage: TypedSlotStorage) -> bool {
+    matches!(storage, TypedSlotStorage::U64)
+        || (cfg!(target_pointer_width = "64") && matches!(storage, TypedSlotStorage::USize))
 }
 
 impl DirectSlotCellV0 {
@@ -413,6 +422,15 @@ impl DirectSlotCellV0 {
             (TypedSlotStorage::I64, TypedSlotValue::I64(value)) => Self::from_i64(*value),
             (TypedSlotStorage::U64, TypedSlotValue::Unsigned(value)) => {
                 Self::from_u64(u64::try_from(*value).unwrap_or(0))
+            }
+            (TypedSlotStorage::USize, TypedSlotValue::Unsigned(value))
+                if cfg!(target_pointer_width = "64") =>
+            {
+                u64::try_from(*value).map(Self::from_usize).unwrap_or(Self {
+                    storage_tag: 0,
+                    flags: 0,
+                    payload: 0,
+                })
             }
             (TypedSlotStorage::Handle, TypedSlotValue::Handle(value)) => Self::from_handle(*value),
             _ => Self {
@@ -431,6 +449,10 @@ impl DirectSlotCellV0 {
             }),
             DIRECT_SLOT_TAG_U64 => Some(TypedSlot {
                 storage: TypedSlotStorage::U64,
+                value: TypedSlotValue::Unsigned(self.payload as u128),
+            }),
+            DIRECT_SLOT_TAG_USIZE => Some(TypedSlot {
+                storage: TypedSlotStorage::USize,
                 value: TypedSlotValue::Unsigned(self.payload as u128),
             }),
             DIRECT_SLOT_TAG_HANDLE => Some(TypedSlot {
@@ -457,6 +479,14 @@ impl DirectSlotCellV0 {
         }
     }
 
+    fn from_usize(value: u64) -> Self {
+        Self {
+            storage_tag: DIRECT_SLOT_TAG_USIZE,
+            flags: 0,
+            payload: value,
+        }
+    }
+
     fn from_handle(value: i64) -> Self {
         Self {
             storage_tag: DIRECT_SLOT_TAG_HANDLE,
@@ -466,12 +496,15 @@ impl DirectSlotCellV0 {
     }
 
     fn storage_matches(&self, lease_storage: DirectSlotLeaseStorage) -> bool {
-        matches!(
-            (self.storage_tag, lease_storage),
-            (DIRECT_SLOT_TAG_I64, DirectSlotLeaseStorage::I64)
-                | (DIRECT_SLOT_TAG_U64, DirectSlotLeaseStorage::U64)
-                | (DIRECT_SLOT_TAG_HANDLE, DirectSlotLeaseStorage::Handle)
-        )
+        match (self.storage_tag, lease_storage) {
+            (DIRECT_SLOT_TAG_I64, DirectSlotLeaseStorage::I64) => true,
+            (DIRECT_SLOT_TAG_U64, DirectSlotLeaseStorage::U64) => true,
+            (DIRECT_SLOT_TAG_USIZE, DirectSlotLeaseStorage::U64) => {
+                cfg!(target_pointer_width = "64")
+            }
+            (DIRECT_SLOT_TAG_HANDLE, DirectSlotLeaseStorage::Handle) => true,
+            _ => false,
+        }
     }
 
     fn read_i64(&self) -> Option<i64> {
@@ -487,15 +520,20 @@ impl DirectSlotCellV0 {
     }
 
     fn read_u64(&self) -> Option<u64> {
-        (self.storage_tag == DIRECT_SLOT_TAG_U64).then_some(self.payload)
+        self.u64_payload_tag().then_some(self.payload)
     }
 
     fn write_u64(&mut self, value: u64) -> bool {
-        if self.storage_tag != DIRECT_SLOT_TAG_U64 {
+        if !self.u64_payload_tag() {
             return false;
         }
         self.payload = value;
         true
+    }
+
+    fn u64_payload_tag(&self) -> bool {
+        self.storage_tag == DIRECT_SLOT_TAG_U64
+            || (cfg!(target_pointer_width = "64") && self.storage_tag == DIRECT_SLOT_TAG_USIZE)
     }
 
     fn read_handle(&self) -> Option<i64> {
@@ -652,6 +690,7 @@ mod tests {
                 TypedSlotStorage::I64,
                 TypedSlotStorage::U64,
                 TypedSlotStorage::Handle,
+                TypedSlotStorage::USize,
             ]))
             .unwrap();
 
@@ -664,6 +703,9 @@ mod tests {
         let handle_token = arena
             .lease_slot(handle, 2, DirectSlotLeaseStorage::Handle)
             .unwrap();
+        let usize_token = arena
+            .lease_slot(handle, 3, DirectSlotLeaseStorage::U64)
+            .unwrap();
 
         assert!(arena.write_i64(i64_token, 11));
         assert_eq!(arena.read_i64(i64_token), Some(11));
@@ -671,6 +713,11 @@ mod tests {
         assert_eq!(arena.read_u64(u64_token), Some(22));
         assert!(arena.write_handle(handle_token, -9));
         assert_eq!(arena.read_handle(handle_token), Some(-9));
+        assert!(arena.write_u64(usize_token, 33));
+        assert_eq!(arena.read_u64(usize_token), Some(33));
+        let usize_field = arena.get_field(handle, 3).unwrap();
+        assert_eq!(usize_field.storage, TypedSlotStorage::USize);
+        assert_eq!(usize_field.value, TypedSlotValue::Unsigned(33));
     }
 
     #[test]
@@ -702,6 +749,7 @@ mod tests {
                 TypedSlotStorage::I64,
                 TypedSlotStorage::U64,
                 TypedSlotStorage::Handle,
+                TypedSlotStorage::USize,
             ]))
             .unwrap();
 
@@ -717,11 +765,26 @@ mod tests {
         assert_eq!(handle_cell.storage_tag, DIRECT_SLOT_TAG_HANDLE);
         assert_eq!(handle_cell.read_handle(), Some(0));
 
+        let usize_cell = arena.get_direct_cell(handle, 3).unwrap();
+        assert_eq!(usize_cell.storage_tag, DIRECT_SLOT_TAG_USIZE);
+        assert_eq!(usize_cell.read_u64(), Some(0));
+
         assert!(arena.get_direct_cell_mut(handle, 0).unwrap().write_i64(-13));
         assert_eq!(
             arena.get_direct_cell(handle, 0).unwrap().read_i64(),
             Some(-13)
         );
+    }
+
+    #[test]
+    fn direct_slot_object_snapshot_preserves_usize_storage() {
+        let cells = [DirectSlotCellV0::from_usize(42)];
+        let object = DirectSlotObjectV0Box::new(99, 1, &cells).unwrap();
+        let snapshot = object.materialize_typed_object_snapshot().unwrap();
+
+        assert_eq!(snapshot.fields.len(), 1);
+        assert_eq!(snapshot.fields[0].storage, TypedSlotStorage::USize);
+        assert_eq!(snapshot.fields[0].value, TypedSlotValue::Unsigned(42));
     }
 
     #[test]
