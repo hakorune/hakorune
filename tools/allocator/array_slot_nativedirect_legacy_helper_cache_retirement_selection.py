@@ -56,9 +56,9 @@ def classify(rows: list[tuple[str, float]]) -> dict[str, str]:
     dominates = direct_total >= legacy_total and direct_total >= hako_method
 
     if dominates:
-        selected_boundary = "array_slot_nativedirect_legacy_helper_cache_retirement_implementation"
-        next_diagnostic = "array_slot_nativedirect_legacy_helper_cache_retirement_implementation"
-        selected_next = "array_slot_nativedirect_legacy_helper_cache_retirement_implementation"
+        selected_boundary = "arraybox_public_semantics_and_directarray_split_ssot"
+        next_diagnostic = "arraybox_public_semantics_and_directarray_split_ssot"
+        selected_next = "arraybox_public_semantics_and_directarray_split_ssot"
         selected_candidate = "single_thread_exact_array_helper_backend"
         selected_reason = "direct_array_path_dominates_legacy_helper_cache_after_semantic_smoke"
         retirement_open = "1"

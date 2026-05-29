@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: select the first legacy helper/cache retirement target after DirectArray dominance was confirmed by row371.
 Blocker: ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SELECTION-296X-001
@@ -40,9 +40,9 @@ direct_array_dominates_legacy_helper_cache=0|1
 legacy_helper_cache_retirement_open=0|1
 selected_retirement_candidate=single_thread_exact_array_helper_backend|array_slot_handle_entry_cache|array_slot_public_helper_fast_lane
 selected_retirement_reason=direct_array_path_dominates_legacy_helper_cache_after_semantic_smoke
-selected_boundary=array_slot_nativedirect_legacy_helper_cache_retirement_implementation
-next_diagnostic=array_slot_nativedirect_legacy_helper_cache_retirement_implementation
-selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_implementation
+selected_boundary=arraybox_public_semantics_and_directarray_split_ssot
+next_diagnostic=arraybox_public_semantics_and_directarray_split_ssot
+selected_next=arraybox_public_semantics_and_directarray_split_ssot
 legacy_retirement_candidate_0=single_thread_exact_array_helper_backend
 legacy_retirement_candidate_1=array_slot_handle_entry_cache
 legacy_retirement_candidate_2=array_slot_public_helper_fast_lane
@@ -58,8 +58,9 @@ summary=ok
 ## Decision
 
 DirectArray dominance opens the legacy retirement lane, and the first target is
-the exact-array helper backend. The handle-entry cache and public helper fast
-lane remain deferred until follow-up rows prove they are still redundant.
+the exact-array helper backend. Before implementation, the next row freezes the
+ArrayBox public-semantics versus DirectArray hot-storage split so the retirement
+does not accidentally remove public ArrayBox behavior.
 
 ## Guard
 

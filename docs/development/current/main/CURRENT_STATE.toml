@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-30"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x perf owner refresh landed; legacy helper/cache retirement selection is next."
+active_lane_status = "Phase-296x legacy helper/cache retirement selection landed; ArrayBox public semantics and DirectArray split SSOT is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-371-ARRAY-SLOT-NATIVEDIRECT-POST-SEMANTIC-PERF-OWNER-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-371-ARRAY-SLOT-NATIVEDIRECT-POST-SEMANTIC-PERF-OWNER-REFRESH.md"
-latest_card_summary = "Perf owner refresh confirmed DirectArray dominance and opened legacy helper/cache retirement selection toward single_thread_exact_array_helper_backend."
-current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SELECTION-296X-001"
+latest_card = "296x-372-ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-372-ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SELECTION.md"
+latest_card_summary = "Selected single_thread_exact_array_helper_backend as the first legacy retirement target, with ArrayBox public semantics / DirectArray split SSOT required before implementation."
+current_blocker_token = "ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-372 Selected single_thread_exact_array_helper_backend as the first legacy retirement target, with ArrayBox public semantics / DirectArray split SSOT required before implementation.",
   "296x-371 Perf owner refresh confirmed DirectArray dominance and opened legacy helper/cache retirement selection toward single_thread_exact_array_helper_backend.",
   "296x-370 Smoked selected-method ArraySlot NativeDirect lowering plus DirectArrayI64 runtime substrate, keeping legacy helper/cache retirement deferred until perf owner refresh.",
   "296x-369 Implemented selected-method ArraySlot NativeDirect get/set lowering for DirectArrayI64 origin facts while preserving public ArrayBox helper paths and deferring legacy retirement.",
