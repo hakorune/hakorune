@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -25,14 +26,16 @@ class _ResolverStub:
         self.thin_entry_selections = []
 
     def resolve_i64(self, value_id, current_block, preds, block_end_values, vmap, bb_map):
+        if value_id in vmap:
+            return vmap[value_id]
         return ir.Constant(ir.IntType(64), int(value_id))
 
 
 class TestTypedUserBoxFieldAccess(unittest.TestCase):
-    def _make_builder(self):
+    def _make_builder(self, name="main"):
         mod = ir.Module(name="typed_user_box_field_access")
         i64 = ir.IntType(64)
-        fn = ir.Function(mod, ir.FunctionType(i64, []), name="main")
+        fn = ir.Function(mod, ir.FunctionType(i64, []), name=name)
         bb = fn.append_basic_block("bb1")
         return mod, ir.IRBuilder(bb), bb, i64
 
@@ -61,6 +64,60 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
                 ],
             }
         ]
+
+    def _exact_page_model_plan(self):
+        return [
+            {
+                "box_name": "HakoAllocPageModel",
+                "type_id": 294019301,
+                "layout_kind": "typed_object_v0",
+                "field_count": 4,
+                "fields": [
+                    {
+                        "name": "free_top",
+                        "slot": 0,
+                        "declared_type": "usize",
+                        "storage": "usize",
+                        "weak": False,
+                    },
+                    {
+                        "name": "used",
+                        "slot": 1,
+                        "declared_type": "u64",
+                        "storage": "u64",
+                        "weak": False,
+                    },
+                    {
+                        "name": "next",
+                        "slot": 2,
+                        "declared_type": "handle",
+                        "storage": "handle",
+                        "weak": False,
+                    },
+                    {
+                        "name": "signed_count",
+                        "slot": 3,
+                        "declared_type": "i64",
+                        "storage": "i64",
+                        "weak": False,
+                    },
+                ],
+            }
+        ]
+
+    def _with_env(self, key, value, fn):
+        old_value = os.environ.get(key)
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+        try:
+            return fn()
+        finally:
+            if old_value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = old_value
 
     def test_newbox_uses_exact_typed_object_helper_for_exact_storage_plan(self):
         mod, builder, _bb, i64 = self._make_builder()
@@ -192,6 +249,110 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         self.assertIn('call i64 @"nyash.object.field_set_i64_hii"', ir_txt, msg=ir_txt)
         self.assertIn("unreachable", ir_txt, msg=ir_txt)
         self.assertNotIn("nyash.instance.set_i64_field_h", ir_txt, msg=ir_txt)
+
+    def test_direct_slot_nativedirect_selected_method_get_loads_payload(self):
+        def run():
+            mod, builder, bb, i64 = self._make_builder(
+                name="HakoAllocPageModel.acquire_usize/1"
+            )
+            resolver = _ResolverStub()
+            resolver.value_types[1] = make_box_handle_fact("HakoAllocPageModel")
+            resolver.typed_object_plans = self._exact_page_model_plan()
+            vmap = {1: ir.Constant(i64, 101)}
+
+            lower_field_get(
+                builder,
+                mod,
+                1,
+                "free_top",
+                2,
+                "usize",
+                [],
+                vmap,
+                resolver,
+                preds={},
+                block_end_values={},
+                bb_map={1: bb},
+            )
+
+            ir_txt = str(mod)
+            self.assertIn("direct_slot_object_base", ir_txt, msg=ir_txt)
+            self.assertIn("direct_slot_payload_addr", ir_txt, msg=ir_txt)
+            self.assertIn("direct_slot_payload_ptr", ir_txt, msg=ir_txt)
+            self.assertIn("load i64", ir_txt, msg=ir_txt)
+            self.assertNotIn("nyash.object.field_get", ir_txt, msg=ir_txt)
+            self.assertNotIn("nyash.object.exact_slot_get", ir_txt, msg=ir_txt)
+            self.assertEqual(resolver.value_types[2], "i64")
+
+        self._with_env("HAKO_TYPED_OBJECT_STORE", "direct_slot_exact", run)
+
+    def test_direct_slot_nativedirect_selected_method_set_stores_payload(self):
+        def run():
+            mod, builder, bb, i64 = self._make_builder(
+                name="HakoAllocPageModel.acquire_usize/1"
+            )
+            resolver = _ResolverStub()
+            resolver.value_types[1] = make_box_handle_fact("HakoAllocPageModel")
+            resolver.value_types[2] = "i64"
+            resolver.typed_object_plans = self._exact_page_model_plan()
+            vmap = {
+                1: ir.Constant(i64, 101),
+                2: ir.Constant(i64, 64),
+            }
+
+            lower_field_set(
+                builder,
+                mod,
+                1,
+                "free_top",
+                2,
+                "usize",
+                [],
+                vmap,
+                resolver,
+                preds={},
+                block_end_values={},
+                bb_map={1: bb},
+            )
+
+            ir_txt = str(mod)
+            self.assertIn("direct_slot_object_base", ir_txt, msg=ir_txt)
+            self.assertIn("direct_slot_payload_addr", ir_txt, msg=ir_txt)
+            self.assertIn("store i64 64", ir_txt, msg=ir_txt)
+            self.assertNotIn("nyash.object.field_set", ir_txt, msg=ir_txt)
+            self.assertNotIn("nyash.object.exact_slot_set", ir_txt, msg=ir_txt)
+            self.assertNotIn("unreachable", ir_txt, msg=ir_txt)
+
+        self._with_env("HAKO_TYPED_OBJECT_STORE", "direct_slot_exact", run)
+
+    def test_direct_slot_nativedirect_keeps_non_selected_method_on_helper_path(self):
+        def run():
+            mod, builder, bb, i64 = self._make_builder(name="main")
+            resolver = _ResolverStub()
+            resolver.value_types[1] = make_box_handle_fact("HakoAllocPageModel")
+            resolver.typed_object_plans = self._exact_page_model_plan()
+            vmap = {1: ir.Constant(i64, 101)}
+
+            lower_field_get(
+                builder,
+                mod,
+                1,
+                "free_top",
+                2,
+                "usize",
+                [],
+                vmap,
+                resolver,
+                preds={},
+                block_end_values={},
+                bb_map={1: bb},
+            )
+
+            ir_txt = str(mod)
+            self.assertIn('call i64 @"nyash.object.field_get_u64_hii"', ir_txt, msg=ir_txt)
+            self.assertNotIn("direct_slot_payload_ptr", ir_txt, msg=ir_txt)
+
+        self._with_env("HAKO_TYPED_OBJECT_STORE", "direct_slot_exact", run)
 
     def test_ny_main_registers_exact_typed_object_layout_before_main_call(self):
         mod = ir.Module(name="typed_object_exact_entry")

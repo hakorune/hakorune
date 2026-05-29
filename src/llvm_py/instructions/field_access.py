@@ -23,6 +23,11 @@ from type_facts import is_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
 from utils.values import resolve_i64_strict
 
+DIRECT_SLOT_NATIVEDIRECT_SELECTED_METHOD = "HakoAllocPageModel.acquire_usize/1"
+DIRECT_SLOT_OBJECT_HEADER_BYTES = 24
+DIRECT_SLOT_CELL_BYTES = 16
+DIRECT_SLOT_CELL_PAYLOAD_OFFSET_BYTES = 8
+
 
 def _declare(module: ir.Module, name: str, ret, args):
     for f in module.functions:
@@ -44,6 +49,103 @@ def _is_exact_slot_u64_storage(storage: Any) -> bool:
     return normalized == "u64" or (
         normalized == "usize" and sys.maxsize > 2**32
     )
+
+
+def _current_function_name(builder: ir.IRBuilder) -> Optional[str]:
+    block = getattr(builder, "block", None)
+    function = getattr(block, "function", None)
+    name = getattr(function, "name", None)
+    return str(name) if name is not None else None
+
+
+def _direct_slot_nativedirect_selected(builder: ir.IRBuilder) -> bool:
+    return (
+        os.environ.get("HAKO_TYPED_OBJECT_STORE") == "direct_slot_exact"
+        and _current_function_name(builder) == DIRECT_SLOT_NATIVEDIRECT_SELECTED_METHOD
+    )
+
+
+def _direct_slot_nativedirect_storage_supported(storage: Any) -> bool:
+    return (
+        _is_exact_slot_u64_storage(storage)
+        or storage == "i64"
+        or is_handle_storage(storage)
+    )
+
+
+def _direct_slot_payload_ptr(
+    builder: ir.IRBuilder,
+    recv_h: ir.Value,
+    slot: int,
+) -> ir.Value:
+    i64 = ir.IntType(64)
+    if slot < 0:
+        raise RuntimeError("[direct-slot/nativedirect] negative field slot")
+    object_base = builder.and_(
+        recv_h,
+        ir.Constant(i64, -2),
+        name="direct_slot_object_base",
+    )
+    payload_offset = (
+        DIRECT_SLOT_OBJECT_HEADER_BYTES
+        + slot * DIRECT_SLOT_CELL_BYTES
+        + DIRECT_SLOT_CELL_PAYLOAD_OFFSET_BYTES
+    )
+    payload_addr = builder.add(
+        object_base,
+        ir.Constant(i64, payload_offset),
+        name="direct_slot_payload_addr",
+    )
+    return builder.inttoptr(
+        payload_addr,
+        i64.as_pointer(),
+        name="direct_slot_payload_ptr",
+    )
+
+
+def _lower_direct_slot_nativedirect_get(
+    builder: ir.IRBuilder,
+    recv_h: ir.Value,
+    slot: int,
+    storage: Any,
+    dst_vid: Optional[int],
+    vmap: Dict[int, Any],
+    resolver,
+) -> Optional[ir.Value]:
+    if not _direct_slot_nativedirect_selected(builder):
+        return None
+    if not _direct_slot_nativedirect_storage_supported(storage):
+        raise RuntimeError(
+            f"[direct-slot/nativedirect] unsupported storage in selected method: {storage}"
+        )
+    ptr = _direct_slot_payload_ptr(builder, recv_h, slot)
+    result = builder.load(ptr, name="direct_slot_payload_load")
+    if dst_vid is not None:
+        vmap[int(dst_vid)] = result
+        if is_handle_storage(storage):
+            mark_as_handle(resolver, int(dst_vid))
+        else:
+            _mark_integer_immediate(resolver, int(dst_vid))
+    return result
+
+
+def _lower_direct_slot_nativedirect_set(
+    builder: ir.IRBuilder,
+    recv_h: ir.Value,
+    slot: int,
+    storage: Any,
+    value_val: ir.Value,
+) -> Optional[ir.Value]:
+    if not _direct_slot_nativedirect_selected(builder):
+        return None
+    if not _direct_slot_nativedirect_storage_supported(storage):
+        raise RuntimeError(
+            f"[direct-slot/nativedirect] unsupported storage in selected method: {storage}"
+        )
+    i64 = ir.IntType(64)
+    ptr = _direct_slot_payload_ptr(builder, recv_h, slot)
+    builder.store(value_val, ptr)
+    return ir.Constant(i64, 1)
 
 
 def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, value: ir.Value) -> ir.Value:
@@ -531,6 +633,17 @@ def _lower_exact_object_field_get(
     )
     recv_h = _ensure_handle(builder, module, recv_val)
     slot_val = ir.Constant(i64, slot)
+    direct_result = _lower_direct_slot_nativedirect_get(
+        builder,
+        recv_h,
+        slot,
+        storage,
+        dst_vid,
+        vmap,
+        resolver,
+    )
+    if direct_result is not None:
+        return direct_result
     if _exact_slot_helper_enabled() and _is_exact_slot_u64_storage(storage):
         callee = _declare(module, "nyash.object.exact_slot_get_u64_hii", i64, [i64, i64])
         result = builder.call(callee, [recv_h, slot_val], name="exact_slot_get_u64")
@@ -613,6 +726,15 @@ def _lower_exact_object_field_set(
     )
     value_val = _canonical_i64(builder, value_val, name_hint="exact_field_set_final")
     slot_val = ir.Constant(i64, slot)
+    direct_status = _lower_direct_slot_nativedirect_set(
+        builder,
+        recv_h,
+        slot,
+        storage,
+        value_val,
+    )
+    if direct_status is not None:
+        return direct_status
 
     if _exact_slot_helper_enabled() and _is_exact_slot_u64_storage(storage):
         callee = _declare(module, "nyash.object.exact_slot_set_u64_hiu", i64, [i64, i64, i64])
