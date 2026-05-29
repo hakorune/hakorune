@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-REPRESENTATION-CANDIDATE-INVENTORY-296X-001:
-  Compare typed-object, result-capsule, and ArraySlot representation candidates
-  with one shared positive-net inventory contract.
+FIRST-REPRESENTATION-PILOT-SELECTION-296X-001:
+  Select the first representation/direct-lowering pilot from the normalized
+  typed-object, result-capsule, and ArraySlot inventory.
 ```
 
 ## Queue
@@ -344,7 +344,8 @@ REPRESENTATION-CANDIDATE-INVENTORY-296X-001:
 | 296 | `ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Decide whether alloc-result has a new positive-net owner or close micro-helper hunting. |
 | 297 | `MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001` | Landed | Close small exact-slot helper hunting and select representation/direct lowering as the next design lane. |
 | 298 | `REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001` | Landed | Define the representation/direct-lowering contract for C-like hot object field access. |
-| 299 | `REPRESENTATION-CANDIDATE-INVENTORY-296X-001` | Planned | Compare typed-object, result-capsule, and ArraySlot representation candidates with one shared positive-net inventory contract. |
+| 299 | `REPRESENTATION-CANDIDATE-INVENTORY-296X-001` | Landed | Compare typed-object, result-capsule, and ArraySlot representation candidates with one shared positive-net inventory contract. |
+| 300 | `FIRST-REPRESENTATION-PILOT-SELECTION-296X-001` | Planned | Select the first representation/direct-lowering pilot from positive-net, hotness, and implementation-risk evidence. |
 
 ## Hako Mimalloc Performance Parity Plan
 
