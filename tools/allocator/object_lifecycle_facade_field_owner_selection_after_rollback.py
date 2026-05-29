@@ -44,6 +44,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inventory-report", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--context",
+        choices=[
+            "after-release-known-live-rollback",
+            "after-record-success-helper-fusion",
+        ],
+        default="after-release-known-live-rollback",
+    )
     args = parser.parse_args()
 
     values = read_kv(args.inventory_report)
@@ -60,10 +68,17 @@ def main() -> int:
     repeated_get = int_key(values, "pattern.same_receiver_repeated_get_count")
     positive = int_key(values, "pattern.positive_net_cache_candidate_count")
 
+    if args.context == "after-record-success-helper-fusion":
+        output_contract = "facade-field-owner-selection-after-record-success-helper-fusion-v0"
+        refresh_diagnostic = "post_facade_inventory_owner_refresh_after_record_success_helper_fusion"
+    else:
+        output_contract = "facade-field-owner-selection-after-release-known-live-rollback-v0"
+        refresh_diagnostic = "post_facade_inventory_owner_refresh_after_release_known_live_rollback"
+
     if positive <= 4:
         selected_owner = "post_facade_inventory_owner_refresh"
         selected_reason = "selected_facade_fusion_already_landed_and_positive_net_surface_still_4"
-        next_diagnostic = "post_facade_inventory_owner_refresh_after_release_known_live_rollback"
+        next_diagnostic = refresh_diagnostic
         rejected_owner = "repeat_selected_facade_same_block_get_set_fusion"
         rejected_reason = "same_block_get_set_candidate_count_3_already_exercised_by_row231_keeper"
     else:
@@ -74,7 +89,7 @@ def main() -> int:
         rejected_reason = "facade_positive_net_surface_still_large"
 
     lines = [
-        "output_contract=facade-field-owner-selection-after-release-known-live-rollback-v0",
+        f"output_contract={output_contract}",
         "input_contract=object-lifecycle-facade-exact-slot-field-inventory-v0",
         "workload_id=representative-object-lifecycle-small-block-v0",
         f"dominant_field_family={dominant}",
