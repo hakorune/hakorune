@@ -9,8 +9,11 @@
 use std::alloc::{alloc, dealloc, handle_alloc_error, Layout};
 use std::mem;
 use std::ptr::{self, NonNull};
+use std::sync::Arc;
 
+use nyash_rust::box_trait::NyashBox;
 use nyash_rust::boxes::array::ArrayBox;
+use nyash_rust::runtime::host_handles;
 
 pub(crate) const DIRECT_ARRAY_I64_KIND_V0: u32 = 1;
 pub(crate) const DIRECT_ARRAY_ELEMENT_TAG_I64: u32 = 1;
@@ -114,6 +117,11 @@ impl DirectArrayI64BufferV0Box {
             }
         }
         Some(snapshot)
+    }
+
+    pub(crate) fn materialize_public_arraybox_snapshot_handle(&self) -> Option<i64> {
+        let snapshot: Arc<dyn NyashBox> = Arc::new(self.materialize_public_arraybox_snapshot()?);
+        Some(host_handles::to_handle_arc(snapshot) as i64)
     }
 
     fn header_is_supported(&self) -> bool {
@@ -233,5 +241,26 @@ mod tests {
         assert_eq!(snapshot.slot_load_i64_raw(0), Some(11));
         assert_eq!(snapshot.slot_load_i64_raw(1), Some(22));
         assert_eq!(snapshot.slot_load_i64_raw(2), None);
+    }
+
+    #[test]
+    fn direct_array_i64_buffer_v0_materializes_public_arraybox_host_handle() {
+        let mut buffer = DirectArrayI64BufferV0Box::new(1, 2).expect("buffer");
+        assert!(buffer.store(0, 7));
+        assert!(buffer.store(1, 8));
+
+        let handle = buffer
+            .materialize_public_arraybox_snapshot_handle()
+            .expect("snapshot handle");
+        assert!(handle > 0);
+        let source = host_handles::get(handle as u64).expect("host handle source");
+        let snapshot = source
+            .as_ref()
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("ArrayBox snapshot");
+        assert_eq!(snapshot.len(), 2);
+        assert_eq!(snapshot.slot_load_i64_raw(0), Some(7));
+        assert_eq!(snapshot.slot_load_i64_raw(1), Some(8));
     }
 }
