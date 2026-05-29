@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-MATERIALIZATION-FALLBACK-SYNC-SSOT-296X-001:
-  Define DirectSlot primary storage, fallback view, and materialization sync before lowering.
+DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-SELECTION-296X-001:
+  Select how DirectSlotObjectV0 connects to the typed-object backend without opening lowering.
 ```
 
 ## Queue
@@ -368,7 +368,8 @@ DIRECT-SLOT-MATERIALIZATION-FALLBACK-SYNC-SSOT-296X-001:
 | 321 | `DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001` | Landed | Implement the stable DirectSlotCellV0 storage substrate without opening LLVM lowering. |
 | 322 | `DIRECT-SLOT-HANDLE-RESOLUTION-CONTRACT-296X-001` | Landed | Define how a DirectSlot handle resolves to a compiler-consumable cell address. |
 | 323 | `DIRECT-SLOT-OBJECT-LAYOUT-PILOT-296X-001` | Landed | Implement a stable DirectSlotObjectV0 layout pilot without opening LLVM lowering. |
-| 324 | `DIRECT-SLOT-MATERIALIZATION-FALLBACK-SYNC-SSOT-296X-001` | Planned | Define DirectSlot primary storage, fallback view, and materialization sync before lowering. |
+| 324 | `DIRECT-SLOT-MATERIALIZATION-FALLBACK-SYNC-SSOT-296X-001` | Landed | Define DirectSlot primary storage, fallback view, and materialization sync before lowering. |
+| 325 | `DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-SELECTION-296X-001` | Planned | Select how DirectSlotObjectV0 connects to the typed-object backend without opening lowering. |
 
 ## Hako Mimalloc Performance Parity Plan
 
