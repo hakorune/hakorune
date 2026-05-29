@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001:
-  Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed.
+DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001:
+  Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change.
 ```
 
 ## Queue
@@ -358,7 +358,8 @@ DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001:
 | 311 | `PINNED-TYPED-OBJECT-ARENA-NEXT-LEASE-BOUNDARY-SELECTION-296X-001` | Landed | Decide whether to extend pinned_arena_exact to exact-slot helpers or plan DirectSlotLease guard surface. |
 | 312 | `PINNED-TYPED-OBJECT-ARENA-EXACT-SLOT-HELPER-PILOT-296X-001` | Landed | Route existing exact-slot helper fallback through pinned_arena_exact before DirectSlotLease planning. |
 | 313 | `DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001` | Landed | Define the first DirectSlotLease guard surface now that pinned exact-slot fallback works. |
-| 314 | `DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001` | Planned | Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed. |
+| 314 | `DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001` | Landed | Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed. |
+| 315 | `DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001` | Planned | Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change. |
 
 ## Hako Mimalloc Performance Parity Plan
 

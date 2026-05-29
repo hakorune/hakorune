@@ -5,7 +5,7 @@
 //! lowering. The purpose is to provide a stable object/slot substrate that can
 //! later back lease-based NativeDirect plans.
 
-use super::typed_object::{TypedSlot, TypedSlotObject};
+use super::typed_object::{TypedSlot, TypedSlotObject, TypedSlotStorage, TypedSlotValue};
 
 const INDEX_BITS: u32 = 31;
 const INDEX_MASK: i64 = (1_i64 << INDEX_BITS) - 1;
@@ -22,6 +22,20 @@ struct PinnedTypedSlotObject {
 pub(crate) struct PinnedTypedObjectRef {
     index: usize,
     generation: u32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DirectSlotLeaseStorage {
+    I64,
+    U64,
+    Handle,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct DirectSlotLeaseToken {
+    object_ref: PinnedTypedObjectRef,
+    slot: usize,
+    storage: DirectSlotLeaseStorage,
 }
 
 #[derive(Debug, Default)]
@@ -88,11 +102,142 @@ impl PinnedTypedObjectArena {
             .map(|object| object.fields.as_mut())
     }
 
+    pub(crate) fn lease_slot(
+        &self,
+        handle: i64,
+        slot: usize,
+        storage: DirectSlotLeaseStorage,
+    ) -> Option<DirectSlotLeaseToken> {
+        let object_ref = self.validate(handle)?;
+        let field = self
+            .objects
+            .get(object_ref.index)?
+            .as_ref()?
+            .fields
+            .get(slot)?;
+        if !lease_storage_matches(field.storage, storage) {
+            return None;
+        }
+        Some(DirectSlotLeaseToken {
+            object_ref,
+            slot,
+            storage,
+        })
+    }
+
+    pub(crate) fn read_i64(&self, token: DirectSlotLeaseToken) -> Option<i64> {
+        if token.storage != DirectSlotLeaseStorage::I64 {
+            return None;
+        }
+        let field = self.field_by_token(token)?;
+        match field.value {
+            TypedSlotValue::I64(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn write_i64(&mut self, token: DirectSlotLeaseToken, value: i64) -> bool {
+        if token.storage != DirectSlotLeaseStorage::I64 {
+            return false;
+        }
+        let Some(field) = self.field_by_token_mut(token) else {
+            return false;
+        };
+        if field.storage != TypedSlotStorage::I64 {
+            return false;
+        }
+        field.value = TypedSlotValue::I64(value);
+        true
+    }
+
+    pub(crate) fn read_u64(&self, token: DirectSlotLeaseToken) -> Option<u64> {
+        if token.storage != DirectSlotLeaseStorage::U64 {
+            return None;
+        }
+        let field = self.field_by_token(token)?;
+        let TypedSlotValue::Unsigned(value) = field.value else {
+            return None;
+        };
+        u64::try_from(value).ok()
+    }
+
+    pub(crate) fn write_u64(&mut self, token: DirectSlotLeaseToken, value: u64) -> bool {
+        if token.storage != DirectSlotLeaseStorage::U64 {
+            return false;
+        }
+        let Some(field) = self.field_by_token_mut(token) else {
+            return false;
+        };
+        if field.storage != TypedSlotStorage::U64 {
+            return false;
+        }
+        field.value = TypedSlotValue::Unsigned(value as u128);
+        true
+    }
+
+    pub(crate) fn read_handle(&self, token: DirectSlotLeaseToken) -> Option<i64> {
+        if token.storage != DirectSlotLeaseStorage::Handle {
+            return None;
+        }
+        let field = self.field_by_token(token)?;
+        match field.value {
+            TypedSlotValue::Handle(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn write_handle(&mut self, token: DirectSlotLeaseToken, value: i64) -> bool {
+        if token.storage != DirectSlotLeaseStorage::Handle {
+            return false;
+        }
+        let Some(field) = self.field_by_token_mut(token) else {
+            return false;
+        };
+        if field.storage != TypedSlotStorage::Handle {
+            return false;
+        }
+        field.value = TypedSlotValue::Handle(value);
+        true
+    }
+
+    fn field_by_token(&self, token: DirectSlotLeaseToken) -> Option<&TypedSlot> {
+        let object = self.objects.get(token.object_ref.index)?.as_ref()?;
+        if object.generation != token.object_ref.generation {
+            return None;
+        }
+        let field = object.fields.get(token.slot)?;
+        if !lease_storage_matches(field.storage, token.storage) {
+            return None;
+        }
+        Some(field)
+    }
+
+    fn field_by_token_mut(&mut self, token: DirectSlotLeaseToken) -> Option<&mut TypedSlot> {
+        let object = self.objects.get_mut(token.object_ref.index)?.as_mut()?;
+        if object.generation != token.object_ref.generation {
+            return None;
+        }
+        let field = object.fields.get_mut(token.slot)?;
+        if !lease_storage_matches(field.storage, token.storage) {
+            return None;
+        }
+        Some(field)
+    }
+
     #[cfg(test)]
     fn field_address_token(&self, handle: i64, slot: usize) -> Option<usize> {
         self.get_field(handle, slot)
             .map(|field| field as *const TypedSlot as usize)
     }
+}
+
+fn lease_storage_matches(storage: TypedSlotStorage, lease_storage: DirectSlotLeaseStorage) -> bool {
+    matches!(
+        (storage, lease_storage),
+        (TypedSlotStorage::I64, DirectSlotLeaseStorage::I64)
+            | (TypedSlotStorage::U64, DirectSlotLeaseStorage::U64)
+            | (TypedSlotStorage::Handle, DirectSlotLeaseStorage::Handle)
+    )
 }
 
 fn encode_handle(object_ref: PinnedTypedObjectRef) -> Option<i64> {
@@ -129,15 +274,16 @@ fn decode_handle(handle: i64) -> Option<PinnedTypedObjectRef> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::exports::typed_object::{TypedSlotStorage, TypedSlotValue};
 
-    fn object_with_i64_fields(field_count: usize) -> TypedSlotObject {
+    fn object_with_fields(fields: &[TypedSlotStorage]) -> TypedSlotObject {
         TypedSlotObject {
             type_id: 7,
-            fields: (0..field_count)
-                .map(|_| TypedSlot::new(TypedSlotStorage::I64))
-                .collect(),
+            fields: fields.iter().copied().map(TypedSlot::new).collect(),
         }
+    }
+
+    fn object_with_i64_fields(field_count: usize) -> TypedSlotObject {
+        object_with_fields(&vec![TypedSlotStorage::I64; field_count])
     }
 
     #[test]
@@ -174,5 +320,49 @@ mod tests {
             arena.get_field(handle, 0).unwrap().value,
             TypedSlotValue::I64(42)
         );
+    }
+
+    #[test]
+    fn direct_slot_lease_token_reads_and_writes_supported_storage() {
+        let mut arena = PinnedTypedObjectArena::new();
+        let handle = arena
+            .insert(object_with_fields(&[
+                TypedSlotStorage::I64,
+                TypedSlotStorage::U64,
+                TypedSlotStorage::Handle,
+            ]))
+            .unwrap();
+
+        let i64_token = arena
+            .lease_slot(handle, 0, DirectSlotLeaseStorage::I64)
+            .unwrap();
+        let u64_token = arena
+            .lease_slot(handle, 1, DirectSlotLeaseStorage::U64)
+            .unwrap();
+        let handle_token = arena
+            .lease_slot(handle, 2, DirectSlotLeaseStorage::Handle)
+            .unwrap();
+
+        assert!(arena.write_i64(i64_token, 11));
+        assert_eq!(arena.read_i64(i64_token), Some(11));
+        assert!(arena.write_u64(u64_token, 22));
+        assert_eq!(arena.read_u64(u64_token), Some(22));
+        assert!(arena.write_handle(handle_token, -9));
+        assert_eq!(arena.read_handle(handle_token), Some(-9));
+    }
+
+    #[test]
+    fn direct_slot_lease_rejects_wrong_storage_class() {
+        let mut arena = PinnedTypedObjectArena::new();
+        let handle = arena.insert(object_with_i64_fields(1)).unwrap();
+
+        assert!(arena
+            .lease_slot(handle, 0, DirectSlotLeaseStorage::U64)
+            .is_none());
+        let token = arena
+            .lease_slot(handle, 0, DirectSlotLeaseStorage::I64)
+            .unwrap();
+        assert_eq!(arena.read_u64(token), None);
+        assert!(!arena.write_u64(token, 7));
     }
 }
