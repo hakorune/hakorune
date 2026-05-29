@@ -96,12 +96,14 @@ def main() -> int:
     if output_contract not in {
         "weighted-exact-slot-owner-selection-v0",
         "weighted-exact-slot-owner-selection-after-result-capsule-reset-v0",
+        "post-facade-inventory-owner-refresh-after-record-success-helper-fusion-v0",
     }:
         raise SystemExit(f"unsupported owner selection contract: {output_contract!r}")
     selected_owner = owner.get("selected_owner")
     if selected_owner not in {
         "page_model_hotpath_ir_shape_diff_inventory",
         "page_model_hotpath_ir_shape_diff_refresh",
+        "page_model_hotpath_ir_shape_inventory_after_record_success_helper_fusion",
     }:
         raise SystemExit(f"unsupported selected owner: {selected_owner!r}")
     require(owner, "summary", "ok")
@@ -129,14 +131,24 @@ def main() -> int:
     selected_method, selected_pct, selected_ops = method_rows[0]
     field_ops = totals["field_get"] + totals["field_set"]
     selected_field_ops = selected_ops["field_get"] + selected_ops["field_set"]
-    selected_owner = dominant_shape_owner(selected_ops)
+    selected_shape_owner = dominant_shape_owner(selected_ops)
+    target_family_pct = (
+        owner.get("top_unblocked_family_pct")
+        or owner.get("selected_family_pct")
+        or owner.get("dominant_family_pct")
+        or "0.00"
+    )
+    if selected_owner == "page_model_hotpath_ir_shape_inventory_after_record_success_helper_fusion":
+        selected_next = "page_model_hotpath_shape_owner_selection_after_record_success_helper_fusion"
+    else:
+        selected_next = "page_model_hotpath_shape_owner_selection"
 
     lines = [
         "output_contract=page-model-hotpath-ir-shape-diff-inventory-v0",
         f"input_contract={output_contract}",
         "workload_id=representative-object-lifecycle-small-block-v0",
         "target_family=page_model_hotpath",
-        f"target_family_pct={owner.get('top_unblocked_family_pct', '0.00')}",
+        f"target_family_pct={target_family_pct}",
         f"page_model_method_count={len(method_rows)}",
         f"missing_page_model_method_count={len(missing_methods)}",
         f"page_model_exact_slot_perf_pct={sum(page_model_callers.values()):.2f}",
@@ -154,7 +166,7 @@ def main() -> int:
         f"selected_method_copy_count={selected_ops['copy']}",
         f"selected_method_call_count={selected_ops['mir_call']}",
         f"selected_method_phi_count={selected_ops['phi']}",
-        f"selected_method_shape_owner={selected_owner}",
+        f"selected_method_shape_owner={selected_shape_owner}",
         "recent_selected_method_rmw_keeper_already_applied=1",
         "direct_op_previous_rejected=1",
         "page_queue_recent_nonkeeper_retry_closed=1",
@@ -176,7 +188,7 @@ def main() -> int:
         lines.append(f"missing_method_{idx}={method}")
     lines.extend(
         [
-            "selected_next=page_model_hotpath_shape_owner_selection",
+            f"selected_next={selected_next}",
             "summary=ok",
         ]
     )
