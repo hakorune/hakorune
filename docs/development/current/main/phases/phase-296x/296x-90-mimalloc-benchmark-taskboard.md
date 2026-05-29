@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001:
-  Select the narrow implementation owner for the selected-method ResidentScalar
-  plan without opening a generic residence rewrite.
+TYPED-OBJECT-RESIDENT-SCALAR-LOWERING-PILOT-296X-001:
+  Implement the selected-method typed-object ResidentScalar lowering pilot
+  behind the exact-slot diagnostic lane.
 ```
 
 ## Queue
@@ -348,7 +348,8 @@ TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001:
 | 300 | `FIRST-REPRESENTATION-PILOT-SELECTION-296X-001` | Landed | Select the first representation/direct-lowering pilot from positive-net, hotness, and implementation-risk evidence. |
 | 301 | `TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001` | Landed | Freeze the selected typed-object ResidentScalar region, barriers, and materialization policy before implementation. |
 | 302 | `TYPED-OBJECT-RESIDENT-SCALAR-SELECTED-METHOD-PLAN-296X-001` | Landed | Build the selected-method ResidentScalar plan and prove positive net helper delta before implementation. |
-| 303 | `TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001` | Planned | Select the narrow implementation owner for the selected-method ResidentScalar plan. |
+| 303 | `TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001` | Landed | Select the narrow implementation owner for the selected-method ResidentScalar plan. |
+| 304 | `TYPED-OBJECT-RESIDENT-SCALAR-LOWERING-PILOT-296X-001` | Planned | Implement the selected-method typed-object ResidentScalar lowering pilot behind the exact-slot diagnostic lane. |
 
 ## Hako Mimalloc Performance Parity Plan
 
