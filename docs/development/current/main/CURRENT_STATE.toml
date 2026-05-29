@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x implemented the selected-method DirectSlot NativeDirect lowering pilot for HakoAllocPageModel.acquire_usize/1."
+active_lane_status = "Phase-296x diagnosed that the selected-method DirectSlot NativeDirect lowering must be implemented in the ny-llvmc boundary route before exact-EXE measurement can pass."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-338-DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-338-DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT.md"
-latest_card_summary = "Implemented selected-method DirectSlot NativeDirect payload load/store lowering for HakoAllocPageModel.acquire_usize/1."
-current_blocker_token = "DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-MEASUREMENT-296X-001"
+latest_card = "296x-339-DIRECT-SLOT-NATIVEDIRECT-LOWERING-DAILY-OWNER-GAP-DIAGNOSTIC"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-339-DIRECT-SLOT-NATIVEDIRECT-LOWERING-DAILY-OWNER-GAP-DIAGNOSTIC.md"
+latest_card_summary = "Diagnosed that row338 landed in the llvmlite keep lane while exact-EXE uses the ny-llvmc boundary route, selecting boundary-route NativeDirect lowering next."
+current_blocker_token = "BOUNDARY-ROUTE-DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-339 Diagnosed that row338 landed in the llvmlite keep lane while exact-EXE uses the ny-llvmc boundary route, selecting boundary-route NativeDirect lowering next.",
   "296x-338 Implemented selected-method DirectSlot NativeDirect payload load/store lowering for HakoAllocPageModel.acquire_usize/1.",
   "296x-337 Implemented DirectSlotCellV0 USize storage compatibility while keeping LLVM lowering closed.",
   "296x-336 Selected a dedicated DirectSlotCellV0 USize storage tag before opening selected-method NativeDirect lowering.",
