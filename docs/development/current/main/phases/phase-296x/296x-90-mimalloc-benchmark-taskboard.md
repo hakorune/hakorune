@@ -322,7 +322,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 274 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select alloc-result capsule IR-shape inventory after excluding facade repeat and recent page-model retry. |
 | 275 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Inventory alloc/release result capsule IR shape before any implementation. |
 | 276 | `RESULT-CAPSULE-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select recordSuccess shape guard surface instead of repeating reset batching. |
-| 277 | `RESULT-CAPSULE-RECORD-SUCCESS-SHAPE-GUARD-SURFACE-296X-001` | Planned | Freeze branch-aware recordSuccess capsule guard surface before implementation. |
+| 277 | `RESULT-CAPSULE-RECORD-SUCCESS-REPRESENTATION-GUARD-SURFACE-296X-001` | Landed | Reframe recordSuccess as a representation decision and select capsule value-result contract SSOT before implementation. |
+| 278 | `CAPSULE-VALUE-RESULT-CONTRACT-SSOT-296X-001` | Planned | Define capsule ValueAggregate/materialization/writeback contract before recordSuccess implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
