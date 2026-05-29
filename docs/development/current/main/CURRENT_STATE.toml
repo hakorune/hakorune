@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x rejected repeating the already-landed facade same-block fusion after recordSuccess helper fusion; owner refresh is next."
+active_lane_status = "Phase-296x refreshed owners after excluding repeated facade and page-queue retry; page-model hotpath IR shape inventory is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-287-FACADE-FIELD-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-287-FACADE-FIELD-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
-latest_card_summary = "Rejected repeating the selected facade same-block fusion because the positive-net facade surface remains 4 after recordSuccess helper fusion; owner refresh is next."
-current_blocker_token = "POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
+latest_card = "296x-288-POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-288-POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
+latest_card_summary = "Selected page_model_hotpath IR shape inventory after excluding the already-exercised facade surface and recent page-queue no-effect family."
+current_blocker_token = "PAGE-MODEL-HOTPATH-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-288 Selected page_model_hotpath IR shape inventory after excluding the already-exercised facade surface and recent page-queue no-effect family.",
   "296x-287 Rejected repeating the selected facade same-block fusion because the positive-net facade surface remains 4 after recordSuccess helper fusion; owner refresh is next.",
   "296x-286 Inventoried facade exact-slot traffic after recordSuccess helper fusion: receiver state still dominates with 14 ops, page queue bridge has 8, alloc result capsule has 4, and positive-net candidates remain 4.",
   "296x-285 Selected object_lifecycle_facade IR shape inventory as the top unblocked owner because page_queue is dominant but blocked by prior no-effect evidence.",

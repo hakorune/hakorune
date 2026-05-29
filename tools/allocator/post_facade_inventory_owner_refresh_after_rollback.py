@@ -28,13 +28,34 @@ def main() -> int:
     parser.add_argument("--owner-refresh-report", type=Path, required=True)
     parser.add_argument("--facade-selection-report", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--context",
+        choices=[
+            "after-release-known-live-rollback",
+            "after-record-success-helper-fusion",
+        ],
+        default="after-release-known-live-rollback",
+    )
     args = parser.parse_args()
 
     refresh = read_kv(args.owner_refresh_report)
     selection = read_kv(args.facade_selection_report)
-    require(refresh, "output_contract", "post-release-known-live-rmw-rollback-owner-refresh-v0")
+    if args.context == "after-record-success-helper-fusion":
+        refresh_contract = "post-record-success-helper-fusion-owner-refresh-v0"
+        selection_contract = "facade-field-owner-selection-after-record-success-helper-fusion-v0"
+        output_contract = "post-facade-inventory-owner-refresh-after-record-success-helper-fusion-v0"
+        suffix = "after_record_success_helper_fusion"
+        selected_reason = "top_unblocked_family_after_facade_small_surface_and_recent_page_queue_nonkeeper"
+    else:
+        refresh_contract = "post-release-known-live-rmw-rollback-owner-refresh-v0"
+        selection_contract = "facade-field-owner-selection-after-release-known-live-rollback-v0"
+        output_contract = "post-facade-inventory-owner-refresh-after-release-known-live-rollback-v0"
+        suffix = "after_release_known_live_rollback"
+        selected_reason = "top_unblocked_family_after_facade_small_surface_and_recent_page_model_nonkeeper"
+
+    require(refresh, "output_contract", refresh_contract)
     require(refresh, "summary", "ok")
-    require(selection, "output_contract", "facade-field-owner-selection-after-release-known-live-rollback-v0")
+    require(selection, "output_contract", selection_contract)
     require(selection, "selected_owner", "post_facade_inventory_owner_refresh")
     require(selection, "summary", "ok")
 
@@ -62,16 +83,12 @@ def main() -> int:
     if not selected_family:
         raise SystemExit("no unblocked family found")
 
-    if selected_family == "alloc_result_capsule":
-        selected_owner = "alloc_result_capsule_ir_shape_inventory_after_release_known_live_rollback"
-        next_diagnostic = selected_owner
-    else:
-        selected_owner = f"{selected_family}_ir_shape_inventory_after_release_known_live_rollback"
-        next_diagnostic = selected_owner
+    selected_owner = f"{selected_family}_ir_shape_inventory_{suffix}"
+    next_diagnostic = selected_owner
 
     lines = [
-        "output_contract=post-facade-inventory-owner-refresh-after-release-known-live-rollback-v0",
-        "input_contract=facade-field-owner-selection-after-release-known-live-rollback-v0",
+        f"output_contract={output_contract}",
+        f"input_contract={selection_contract}",
         "workload_id=representative-object-lifecycle-small-block-v0",
         f"source_exact_slot_get_set_pct={refresh.get('exact_slot_get_set_pct', 'unknown')}",
         "excluded_family_0=object_lifecycle_facade",
@@ -81,7 +98,7 @@ def main() -> int:
         f"selected_family={selected_family}",
         f"selected_family_pct={selected_pct}",
         f"selected_owner={selected_owner}",
-        "selected_reason=top_unblocked_family_after_facade_small_surface_and_recent_page_model_nonkeeper",
+        f"selected_reason={selected_reason}",
         f"next_diagnostic={next_diagnostic}",
         "weighted_hot_candidate_score_required=1",
         "ir_shape_diff_required_before_next_keeper=1",

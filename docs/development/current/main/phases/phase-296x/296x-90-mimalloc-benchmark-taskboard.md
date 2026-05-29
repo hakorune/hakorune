@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
-  Refresh exact-slot ownership after excluding the already-exercised facade
-  same-block fusion surface.
+PAGE-MODEL-HOTPATH-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
+  Inventory the page-model hotpath IR shape before another page-model
+  implementation attempt.
 ```
 
 ## Queue
@@ -333,7 +333,8 @@ POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
 | 285 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Select the next unblocked exact-slot owner after recordSuccess helper fusion. |
 | 286 | `FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory facade exact-slot IR shape before another implementation row. |
 | 287 | `FACADE-FIELD-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Decide whether the narrow facade positive-net surface is worth another implementation or should yield to owner refresh. |
-| 288 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Refresh exact-slot ownership after excluding repeated facade same-block fusion. |
+| 288 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding repeated facade same-block fusion. |
+| 289 | `PAGE-MODEL-HOTPATH-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Inventory page-model hotpath IR shape before another implementation attempt. |
 
 ## Hako Mimalloc Performance Parity Plan
 
