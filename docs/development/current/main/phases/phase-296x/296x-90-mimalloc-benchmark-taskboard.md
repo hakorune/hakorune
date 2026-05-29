@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001:
-  Define lowering guard surface for the selected DirectSlotLease method before codegen changes.
+DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001:
+  Implement only the selected-method DirectSlotLease lowering pilot if the bridge can stay helper-free.
 ```
 
 ## Queue
@@ -361,7 +361,8 @@ DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001:
 | 314 | `DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001` | Landed | Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed. |
 | 315 | `DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001` | Landed | Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change. |
 | 316 | `DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY-296X-001` | Landed | Inventory HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta before lowering. |
-| 317 | `DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001` | Planned | Define lowering guard surface for the selected DirectSlotLease method before codegen changes. |
+| 317 | `DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define lowering guard surface for the selected DirectSlotLease method before codegen changes. |
+| 318 | `DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001` | Planned | Implement only the selected-method DirectSlotLease lowering pilot if the bridge can stay helper-free. |
 
 ## Hako Mimalloc Performance Parity Plan
 
