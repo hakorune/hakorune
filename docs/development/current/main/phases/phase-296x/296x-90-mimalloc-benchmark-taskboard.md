@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-TYPED-OBJECT-RESIDENT-SCALAR-LOWERING-PILOT-296X-001:
-  Implement the selected-method typed-object ResidentScalar lowering pilot
-  behind the exact-slot diagnostic lane.
+REPRESENTATION-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001:
+  Refresh representation owners after the selected-method ResidentScalar pilot
+  closed as zero-net.
 ```
 
 ## Queue
@@ -349,7 +349,8 @@ TYPED-OBJECT-RESIDENT-SCALAR-LOWERING-PILOT-296X-001:
 | 301 | `TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001` | Landed | Freeze the selected typed-object ResidentScalar region, barriers, and materialization policy before implementation. |
 | 302 | `TYPED-OBJECT-RESIDENT-SCALAR-SELECTED-METHOD-PLAN-296X-001` | Landed | Build the selected-method ResidentScalar plan and prove positive net helper delta before implementation. |
 | 303 | `TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001` | Landed | Select the narrow implementation owner for the selected-method ResidentScalar plan. |
-| 304 | `TYPED-OBJECT-RESIDENT-SCALAR-LOWERING-PILOT-296X-001` | Planned | Implement the selected-method typed-object ResidentScalar lowering pilot behind the exact-slot diagnostic lane. |
+| 304 | `TYPED-OBJECT-RESIDENT-SCALAR-FEASIBILITY-CLOSEOUT-296X-001` | Landed | Close the selected-method ResidentScalar pilot as zero-net after helper load/writeback feasibility. |
+| 305 | `REPRESENTATION-OWNER-REFRESH-AFTER-RESIDENCE-ZERO-NET-296X-001` | Planned | Refresh representation owners after the selected-method ResidentScalar pilot closed as zero-net. |
 
 ## Hako Mimalloc Performance Parity Plan
 
