@@ -36,9 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-RELEASE-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
-  Select one release-result capsule owner without repeating recordSuccess
-  helper fusion.
+POST-RELEASE-RESULT-CAPSULE-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
+  Refresh exact-slot ownership after excluding release-result capsule repeat.
 ```
 
 ## Queue
@@ -338,7 +337,8 @@ RELEASE-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-0
 | 290 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Choose the page-model shape owner without repeating prior no-material receiver forwarding. |
 | 291 | `POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding already-exercised page-model subowners. |
 | 292 | `RELEASE-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory release-result capsule IR shape before any implementation. |
-| 293 | `RELEASE-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Select one release-result capsule owner without repeating recordSuccess helper fusion. |
+| 293 | `RELEASE-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Select one release-result capsule owner without repeating recordSuccess helper fusion. |
+| 294 | `POST-RELEASE-RESULT-CAPSULE-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Refresh exact-slot ownership after excluding release-result capsule repeat. |
 
 ## Hako Mimalloc Performance Parity Plan
 
