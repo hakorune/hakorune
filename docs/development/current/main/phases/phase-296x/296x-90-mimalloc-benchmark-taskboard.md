@@ -36,8 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001:
-  Freeze the typed-object ResidentScalar guard surface before any transform.
+TYPED-OBJECT-RESIDENT-SCALAR-SELECTED-METHOD-PLAN-296X-001:
+  Build an explicit selected-method ResidentScalar plan for
+  HakoAllocPageModel.acquire_usize/1 before any transform.
 ```
 
 ## Queue
@@ -345,7 +346,8 @@ TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001:
 | 298 | `REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001` | Landed | Define the representation/direct-lowering contract for C-like hot object field access. |
 | 299 | `REPRESENTATION-CANDIDATE-INVENTORY-296X-001` | Landed | Compare typed-object, result-capsule, and ArraySlot representation candidates with one shared positive-net inventory contract. |
 | 300 | `FIRST-REPRESENTATION-PILOT-SELECTION-296X-001` | Landed | Select the first representation/direct-lowering pilot from positive-net, hotness, and implementation-risk evidence. |
-| 301 | `TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001` | Planned | Freeze the selected typed-object ResidentScalar region, barriers, and materialization policy before implementation. |
+| 301 | `TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001` | Landed | Freeze the selected typed-object ResidentScalar region, barriers, and materialization policy before implementation. |
+| 302 | `TYPED-OBJECT-RESIDENT-SCALAR-SELECTED-METHOD-PLAN-296X-001` | Planned | Build the selected-method ResidentScalar plan and prove positive net helper delta before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
