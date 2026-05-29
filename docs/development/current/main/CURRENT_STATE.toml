@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x implemented DirectSlotCellV0 storage in the pinned arena; handle resolution contract is next."
+active_lane_status = "Phase-296x defined DirectSlot handle resolution as tagged stable object pointer; object layout pilot is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-321-DIRECT-SLOT-CELL-STORAGE-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-321-DIRECT-SLOT-CELL-STORAGE-PILOT.md"
-latest_card_summary = "Implemented DirectSlotCellV0 stable tag/flags/payload storage in the pinned typed-object arena while keeping lowering closed."
-current_blocker_token = "DIRECT-SLOT-HANDLE-RESOLUTION-CONTRACT-296X-001"
+latest_card = "296x-322-DIRECT-SLOT-HANDLE-RESOLUTION-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-322-DIRECT-SLOT-HANDLE-RESOLUTION-CONTRACT.md"
+latest_card_summary = "Defined DirectSlot handle resolution as tagged stable object pointer while keeping LLVM lowering closed."
+current_blocker_token = "DIRECT-SLOT-OBJECT-LAYOUT-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-322 Defined DirectSlot handle resolution as tagged stable object pointer while keeping LLVM lowering closed.",
   "296x-321 Implemented DirectSlotCellV0 stable tag/flags/payload storage in the pinned typed-object arena while keeping lowering closed.",
   "296x-320 Selected DirectSlotCellV0 as the stable tag/flags/payload storage layout while keeping lowering closed.",
   "296x-319 Defined the helper-free addressable slot bridge as stable direct-slot cell storage, keeping lowering closed.",
