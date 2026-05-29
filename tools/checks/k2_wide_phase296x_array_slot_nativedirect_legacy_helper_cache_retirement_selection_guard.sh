@@ -2,36 +2,37 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="k2-wide-phase296x-array-slot-nativedirect-post-semantic-perf-owner-refresh"
+TAG="k2-wide-phase296x-array-slot-nativedirect-legacy-helper-cache-retirement-selection"
 cd "$ROOT_DIR"
 source tools/checks/lib/guard_common.sh
 
-CARD_370="docs/development/current/main/phases/phase-296x/296x-370-ARRAY-SLOT-NATIVEDIRECT-SELECTED-METHOD-SEMANTIC-SMOKE.md"
 CARD_371="docs/development/current/main/phases/phase-296x/296x-371-ARRAY-SLOT-NATIVEDIRECT-POST-SEMANTIC-PERF-OWNER-REFRESH.md"
+CARD_372="docs/development/current/main/phases/phase-296x/296x-372-ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SELECTION.md"
 STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
-TOOL="tools/allocator/array_slot_nativedirect_post_semantic_perf_owner_refresh.py"
-SELF_SCRIPT="tools/checks/k2_wide_phase296x_array_slot_nativedirect_post_semantic_perf_owner_refresh_guard.sh"
+TOOL="tools/allocator/array_slot_nativedirect_legacy_helper_cache_retirement_selection.py"
+SELF_SCRIPT="tools/checks/k2_wide_phase296x_array_slot_nativedirect_legacy_helper_cache_retirement_selection_guard.sh"
 
-echo "[$TAG] checking ArraySlot NativeDirect post-semantic perf owner refresh"
+echo "[$TAG] checking ArraySlot NativeDirect legacy helper/cache retirement selection"
 
-guard_require_files "$TAG" "$CARD_370" "$CARD_371" "$STATE" "$INDEX" "$TOOL" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_371" "$CARD_372" "$STATE" "$INDEX" "$TOOL" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$TOOL" "$SELF_SCRIPT"
 
-guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_370" "semantic smoke card must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_371" "perf owner refresh card must be landed"
-guard_expect_fixed_in_file "$TAG" 'output_contract=array-slot-nativedirect-post-semantic-perf-owner-refresh-v0' "$CARD_371" "row371 must define output contract"
-guard_expect_fixed_in_file "$TAG" 'input_contract=array-slot-nativedirect-selected-method-semantic-smoke-v0' "$CARD_371" "row371 must consume semantic smoke output"
-guard_expect_fixed_in_file "$TAG" 'selected_boundary=array_slot_nativedirect_legacy_helper_cache_retirement_selection' "$CARD_371" "row371 must open the retirement selection when DirectArray dominates"
-guard_expect_fixed_in_file "$TAG" 'legacy_helper_cache_retirement_open=0|1' "$CARD_371" "row371 must expose retirement open flag"
-guard_expect_fixed_in_file "$TAG" 'selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_selection' "$CARD_371" "row371 must point at the retirement selection"
-guard_expect_fixed_in_file "$TAG" 'selected_next=array_slot_nativedirect_post_semantic_perf_owner_refresh' "$CARD_370" "row370 must point to the perf owner refresh"
+guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_372" "retirement selection card must be current"
+guard_expect_fixed_in_file "$TAG" 'output_contract=array-slot-nativedirect-legacy-helper-cache-retirement-selection-v0' "$CARD_372" "row372 must define output contract"
+guard_expect_fixed_in_file "$TAG" 'input_contract=array-slot-nativedirect-post-semantic-perf-owner-refresh-v0' "$CARD_372" "row372 must consume perf owner refresh output"
+guard_expect_fixed_in_file "$TAG" 'selected_boundary=array_slot_nativedirect_legacy_helper_cache_retirement_implementation' "$CARD_372" "row372 must point to the retirement implementation"
+guard_expect_fixed_in_file "$TAG" 'selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_implementation' "$CARD_372" "row372 must point to the retirement implementation"
+guard_expect_fixed_in_file "$TAG" 'legacy_helper_cache_retirement_open=0|1' "$CARD_372" "row372 must expose retirement open flag"
+guard_expect_fixed_in_file "$TAG" 'selected_retirement_candidate=single_thread_exact_array_helper_backend|array_slot_handle_entry_cache|array_slot_public_helper_fast_lane' "$CARD_372" "row372 must choose a retirement candidate"
+guard_expect_fixed_in_file "$TAG" 'selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_selection' "$CARD_371" "row371 must point to the retirement selection"
 guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-SELECTION-296X-001"' "$STATE" "current state must point to the retirement selection row"
 guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-371-ARRAY-SLOT-NATIVEDIRECT-POST-SEMANTIC-PERF-OWNER-REFRESH"' "$STATE" "current state must land row371"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 guard_expect_fixed_in_file "$TAG" "$TOOL" "$INDEX" "check index must list this tool"
 
-tmp_dir="$(mktemp -d /tmp/hakorune_phase296x_array_nativedirect_owner_refresh.XXXXXX)"
+tmp_dir="$(mktemp -d /tmp/hakorune_phase296x_array_nativedirect_retirement_selection.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
 perf_report="$tmp_dir/perf.report"
 report="$tmp_dir/report.out"
@@ -51,8 +52,8 @@ REPORT
 
 python3 "$TOOL" --perf-report "$perf_report" --out "$report" >/dev/null
 
-guard_expect_fixed_in_file "$TAG" 'output_contract=array-slot-nativedirect-post-semantic-perf-owner-refresh-v0' "$report" "tool must emit output contract"
-guard_expect_fixed_in_file "$TAG" 'input_contract=array-slot-nativedirect-selected-method-semantic-smoke-v0' "$report" "tool must record smoke input contract"
+guard_expect_fixed_in_file "$TAG" 'output_contract=array-slot-nativedirect-legacy-helper-cache-retirement-selection-v0' "$report" "tool must emit output contract"
+guard_expect_fixed_in_file "$TAG" 'input_contract=array-slot-nativedirect-post-semantic-perf-owner-refresh-v0' "$report" "tool must record perf refresh input contract"
 guard_expect_fixed_in_file "$TAG" 'workload_id=representative-object-lifecycle-small-block-v0' "$report" "tool must preserve workload id"
 guard_expect_fixed_in_file "$TAG" 'selected_method=HakoAllocPageModel.acquire_usize/1' "$report" "tool must preserve selected method"
 guard_expect_fixed_in_file "$TAG" 'direct_array_backend_store_pct=38.21' "$report" "tool must report direct store pct"
@@ -62,10 +63,11 @@ guard_expect_fixed_in_file "$TAG" 'direct_array_backend_total_pct=66.45' "$repor
 guard_expect_fixed_in_file "$TAG" 'legacy_helper_cache_total_pct=9.32' "$report" "tool must report legacy helper/cache pct"
 guard_expect_fixed_in_file "$TAG" 'direct_array_dominates_legacy_helper_cache=1' "$report" "tool must report direct dominance"
 guard_expect_fixed_in_file "$TAG" 'legacy_helper_cache_retirement_open=1' "$report" "tool must open legacy retirement selection"
-guard_expect_fixed_in_file "$TAG" 'selected_boundary=array_slot_nativedirect_legacy_helper_cache_retirement_selection' "$report" "tool must select retirement boundary"
-guard_expect_fixed_in_file "$TAG" 'next_diagnostic=array_slot_nativedirect_legacy_helper_cache_retirement_selection' "$report" "tool must select retirement next diagnostic"
-guard_expect_fixed_in_file "$TAG" 'selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_selection' "$report" "tool must emit retirement next row"
-guard_expect_fixed_in_file "$TAG" 'selected_reason=direct_array_path_dominates_legacy_helper_cache_after_semantic_smoke' "$report" "tool must explain selection"
+guard_expect_fixed_in_file "$TAG" 'selected_retirement_candidate=single_thread_exact_array_helper_backend' "$report" "tool must choose the exact-array helper backend first"
+guard_expect_fixed_in_file "$TAG" 'selected_retirement_reason=direct_array_path_dominates_legacy_helper_cache_after_semantic_smoke' "$report" "tool must explain the selection"
+guard_expect_fixed_in_file "$TAG" 'selected_boundary=array_slot_nativedirect_legacy_helper_cache_retirement_implementation' "$report" "tool must point to the retirement implementation"
+guard_expect_fixed_in_file "$TAG" 'next_diagnostic=array_slot_nativedirect_legacy_helper_cache_retirement_implementation' "$report" "tool must point to the retirement implementation"
+guard_expect_fixed_in_file "$TAG" 'selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_implementation' "$report" "tool must emit the retirement implementation row"
 guard_expect_fixed_in_file "$TAG" 'legacy_retirement_candidate_0=single_thread_exact_array_helper_backend' "$report" "tool must keep legacy candidate list"
 guard_expect_fixed_in_file "$TAG" 'legacy_retirement_now=0' "$report" "tool must not delete legacy code in this row"
 guard_expect_fixed_in_file "$TAG" 'optimization_open=0' "$report" "tool must keep optimization closed"

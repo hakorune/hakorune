@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: refresh the perf owner after selected-method ArraySlot NativeDirect semantic smoke and decide whether legacy helper/cache retirement can open.
 Blocker: ARRAY-SLOT-NATIVEDIRECT-POST-SEMANTIC-PERF-OWNER-REFRESH-296X-001
@@ -61,8 +61,9 @@ summary=ok
 ## Decision
 
 The selected-method DirectArray smoke is not enough by itself; this row keeps
-the retirement decision explicit. When DirectArray store/load dominates the
-legacy helper/cache surface, the next row may open helper/cache retirement.
+the retirement decision explicit. The perf refresh confirmed DirectArray
+dominance over the legacy helper/cache surface, so the next row opens legacy
+helper/cache retirement selection.
 
 Do not delete the legacy helper/cache paths in this row.
 
