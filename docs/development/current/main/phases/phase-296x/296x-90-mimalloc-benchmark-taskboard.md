@@ -36,9 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001:
-  Check whether current typed-object storage can support DirectSlotLease
-  without a pinned storage rewrite.
+PINNED-TYPED-OBJECT-ARENA-SSOT-296X-001:
+  Define the pinned typed-object arena required before DirectSlotLease.
 ```
 
 ## Queue
@@ -351,7 +350,8 @@ TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001:
 | 303 | `TYPED-OBJECT-RESIDENT-SCALAR-IMPLEMENTATION-OWNER-SELECTION-296X-001` | Landed | Select the narrow implementation owner for the selected-method ResidentScalar plan. |
 | 304 | `TYPED-OBJECT-RESIDENT-SCALAR-FEASIBILITY-CLOSEOUT-296X-001` | Landed | Close the selected-method ResidentScalar pilot as zero-net after helper load/writeback feasibility. |
 | 305 | `REPRESENTATION-DIRECT-STORAGE-SUBSTRATE-SSOT-296X-001` | Landed | Define the NativeDirect storage substrate after helper-backed ResidentScalar closes zero-net. |
-| 306 | `TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001` | Planned | Check whether current typed-object storage can support DirectSlotLease without a pinned storage rewrite. |
+| 306 | `TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001` | Landed | Check whether current typed-object storage can support DirectSlotLease without a pinned storage rewrite. |
+| 307 | `PINNED-TYPED-OBJECT-ARENA-SSOT-296X-001` | Planned | Define the pinned typed-object arena required before DirectSlotLease. |
 
 ## Hako Mimalloc Performance Parity Plan
 
