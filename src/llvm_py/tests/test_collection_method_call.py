@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import unittest
+import os
 
 import llvmlite.ir as ir
 
@@ -15,9 +16,13 @@ class _DummyResolver:
 
 
 def _new_builder():
+    return _new_builder_named("main")
+
+
+def _new_builder_named(name):
     i64 = ir.IntType(64)
     module = ir.Module(name="test_collection_method_call")
-    fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+    fn = ir.Function(module, ir.FunctionType(i64, []), name=name)
     bb = fn.append_basic_block("entry")
     builder = ir.IRBuilder(bb)
     return i64, module, builder
@@ -32,6 +37,20 @@ def _declare(module, name, ret, args):
 
 
 class TestCollectionMethodCall(unittest.TestCase):
+    def _with_array_backend(self, value, fn):
+        old = os.environ.get("HAKO_ARRAY_SLOT_STORE")
+        if value is None:
+            os.environ.pop("HAKO_ARRAY_SLOT_STORE", None)
+        else:
+            os.environ["HAKO_ARRAY_SLOT_STORE"] = value
+        try:
+            fn()
+        finally:
+            if old is None:
+                os.environ.pop("HAKO_ARRAY_SLOT_STORE", None)
+            else:
+                os.environ["HAKO_ARRAY_SLOT_STORE"] = old
+
     def test_non_runtime_data_get_falls_back_to_map_raw_kernel(self):
         i64, module, builder = _new_builder()
 
@@ -126,6 +145,88 @@ class TestCollectionMethodCall(unittest.TestCase):
         self.assertIn("nyash.array.slot_store_hii", ir_text)
         self.assertNotIn("nyash.map.slot_store_hhh", ir_text)
         self.assertNotIn("nyash.runtime_data.set_hhh", ir_text)
+
+    def test_direct_array_selected_method_get_lowers_to_direct_load(self):
+        def run():
+            i64, module, builder = _new_builder_named("HakoAllocPageModel.acquire_usize/1")
+            resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+            resolver.direct_array_i64_ids = {1}
+
+            result = lower_collection_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="ArrayBox",
+                method_name="get",
+                recv_h=ir.Constant(i64, 0x1003),
+                arg_ids=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                resolver=resolver,
+                receiver_vid=1,
+            )
+            builder.ret(result)
+
+            ir_text = str(module)
+            self.assertIn("direct_array_i64_base", ir_text)
+            self.assertIn("direct_array_i64_get_ptr", ir_text)
+            self.assertIn("direct_array_i64_get_result", ir_text)
+            self.assertNotIn("nyash.array.slot_load_hi", ir_text)
+            self.assertNotIn("nyash.runtime_data.get_hh", ir_text)
+
+        self._with_array_backend("direct_array_i64_exact", run)
+
+    def test_direct_array_selected_method_set_lowers_to_direct_store(self):
+        def run():
+            i64, module, builder = _new_builder_named("HakoAllocPageModel.acquire_usize/1")
+            resolver = _DummyResolver(value_types={2: "i64", 3: "i64"}, integerish_ids={2, 3})
+            resolver.direct_array_i64_ids = {1}
+
+            result = lower_collection_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="ArrayBox",
+                method_name="set",
+                recv_h=ir.Constant(i64, 0x1003),
+                arg_ids=[2, 3],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                resolver=resolver,
+                receiver_vid=1,
+            )
+            builder.ret(result)
+
+            ir_text = str(module)
+            self.assertIn("direct_array_i64_base", ir_text)
+            self.assertIn("direct_array_i64_set_ptr", ir_text)
+            self.assertIn("direct_array_i64_next_len", ir_text)
+            self.assertIn("direct_array_i64_set_result", ir_text)
+            self.assertNotIn("nyash.array.slot_store_hii", ir_text)
+            self.assertNotIn("nyash.runtime_data.set_hhh", ir_text)
+
+        self._with_array_backend("direct_array_i64_exact", run)
+
+    def test_direct_array_non_origin_receiver_keeps_helper_path(self):
+        def run():
+            i64, module, builder = _new_builder_named("HakoAllocPageModel.acquire_usize/1")
+            resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+            resolver.direct_array_i64_ids = {99}
+
+            result = lower_collection_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="ArrayBox",
+                method_name="get",
+                recv_h=ir.Constant(i64, 0x1003),
+                arg_ids=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                resolver=resolver,
+                receiver_vid=1,
+            )
+            builder.ret(result)
+
+            ir_text = str(module)
+            self.assertIn("nyash.array.slot_load_hi", ir_text)
+            self.assertNotIn("direct_array_i64_get_ptr", ir_text)
+
+        self._with_array_backend("direct_array_i64_exact", run)
 
     def test_arraybox_set_with_non_i64_key_keeps_runtime_data_facade(self):
         i64, module, builder = _new_builder()
