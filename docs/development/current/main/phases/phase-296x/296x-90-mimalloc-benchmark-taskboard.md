@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001:
-  Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering.
+DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001:
+  Select the minimum stable direct-slot cell layout and storage owner before implementation.
 ```
 
 ## Queue
@@ -363,7 +363,8 @@ DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001:
 | 316 | `DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY-296X-001` | Landed | Inventory HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta before lowering. |
 | 317 | `DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define lowering guard surface for the selected DirectSlotLease method before codegen changes. |
 | 318 | `DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001` | Landed | Close the lowering pilot as not implementable until a helper-free addressable slot bridge exists. |
-| 319 | `DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001` | Planned | Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering. |
+| 319 | `DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001` | Landed | Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering. |
+| 320 | `DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001` | Planned | Select the minimum stable direct-slot cell layout and storage owner before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
