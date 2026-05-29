@@ -36,8 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
-  Inventory alloc-result capsule as the last unblocked small exact-slot family.
+ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
+  Decide whether alloc-result has a new positive-net owner or close
+  micro-helper hunting.
 ```
 
 ## Queue
@@ -339,7 +340,8 @@ ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-
 | 292 | `RELEASE-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory release-result capsule IR shape before any implementation. |
 | 293 | `RELEASE-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Select one release-result capsule owner without repeating recordSuccess helper fusion. |
 | 294 | `POST-RELEASE-RESULT-CAPSULE-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding release-result capsule repeat. |
-| 295 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Inventory alloc-result capsule as the last unblocked small exact-slot family. |
+| 295 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory alloc-result capsule as the last unblocked small exact-slot family. |
+| 296 | `ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Decide whether alloc-result has a new positive-net owner or close micro-helper hunting. |
 
 ## Hako Mimalloc Performance Parity Plan
 
