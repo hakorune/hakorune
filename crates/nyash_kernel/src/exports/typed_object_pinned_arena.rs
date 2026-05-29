@@ -6,12 +6,15 @@
 //! later back lease-based NativeDirect plans.
 
 use super::typed_object::{TypedSlot, TypedSlotObject, TypedSlotStorage, TypedSlotValue};
+use std::alloc::{alloc, dealloc, handle_alloc_error, Layout};
+use std::ptr::{self, NonNull};
 
 const INDEX_BITS: u32 = 31;
 const INDEX_MASK: i64 = (1_i64 << INDEX_BITS) - 1;
 const DIRECT_SLOT_TAG_I64: u32 = 1;
 const DIRECT_SLOT_TAG_U64: u32 = 2;
 const DIRECT_SLOT_TAG_HANDLE: u32 = 3;
+const DIRECT_SLOT_HANDLE_TAG: usize = 1;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -21,6 +24,23 @@ pub(crate) struct DirectSlotCellV0 {
     payload: u64,
 }
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct DirectSlotObjectV0 {
+    type_id: i64,
+    generation: u32,
+    field_count: u32,
+    flags: u32,
+    reserved: u32,
+}
+
+#[derive(Debug)]
+pub(crate) struct DirectSlotObjectV0Box {
+    ptr: NonNull<DirectSlotObjectV0>,
+    layout: Layout,
+    field_count: usize,
+}
+
 #[derive(Debug)]
 struct PinnedTypedSlotObject {
     #[allow(dead_code)]
@@ -28,6 +48,66 @@ struct PinnedTypedSlotObject {
     generation: u32,
     fields: Box<[TypedSlot]>,
     direct_cells: Box<[DirectSlotCellV0]>,
+}
+
+impl DirectSlotObjectV0Box {
+    pub(crate) fn new(type_id: i64, generation: u32, cells: &[DirectSlotCellV0]) -> Option<Self> {
+        if generation == 0 {
+            return None;
+        }
+        let field_count = u32::try_from(cells.len()).ok()?;
+        let layout = direct_slot_object_layout(cells.len())?;
+        let raw = unsafe { alloc(layout) };
+        let Some(ptr) = NonNull::new(raw.cast::<DirectSlotObjectV0>()) else {
+            handle_alloc_error(layout);
+        };
+        unsafe {
+            ptr::write(
+                ptr.as_ptr(),
+                DirectSlotObjectV0 {
+                    type_id,
+                    generation,
+                    field_count,
+                    flags: 0,
+                    reserved: 0,
+                },
+            );
+            let cells_ptr = direct_slot_object_cells_mut_ptr(ptr.as_ptr());
+            ptr::copy_nonoverlapping(cells.as_ptr(), cells_ptr, cells.len());
+        }
+        Some(Self {
+            ptr,
+            layout,
+            field_count: cells.len(),
+        })
+    }
+
+    pub(crate) fn as_ptr(&self) -> *const DirectSlotObjectV0 {
+        self.ptr.as_ptr()
+    }
+
+    pub(crate) fn handle(&self) -> Option<i64> {
+        encode_direct_slot_object_handle(self.ptr)
+    }
+
+    pub(crate) fn from_handle(handle: i64) -> Option<NonNull<DirectSlotObjectV0>> {
+        decode_direct_slot_object_handle(handle)
+    }
+
+    pub(crate) fn cell_ptr(&self, slot: usize) -> Option<*const DirectSlotCellV0> {
+        if slot >= self.field_count {
+            return None;
+        }
+        Some(unsafe { direct_slot_object_cells_ptr(self.ptr.as_ptr()).add(slot) })
+    }
+}
+
+impl Drop for DirectSlotObjectV0Box {
+    fn drop(&mut self) {
+        unsafe {
+            dealloc(self.ptr.as_ptr().cast::<u8>(), self.layout);
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -384,6 +464,57 @@ impl DirectSlotCellV0 {
     }
 }
 
+fn direct_slot_object_layout(field_count: usize) -> Option<Layout> {
+    let header = Layout::new::<DirectSlotObjectV0>();
+    let cells = Layout::array::<DirectSlotCellV0>(field_count).ok()?;
+    let (layout, _) = header.extend(cells).ok()?;
+    Some(layout.pad_to_align())
+}
+
+fn direct_slot_object_field_offset() -> usize {
+    let header = Layout::new::<DirectSlotObjectV0>();
+    let cells = Layout::new::<DirectSlotCellV0>();
+    let (_, offset) = header
+        .extend(cells)
+        .expect("DirectSlotObjectV0 + DirectSlotCellV0 layout must be valid");
+    offset
+}
+
+unsafe fn direct_slot_object_cells_ptr(
+    object: *const DirectSlotObjectV0,
+) -> *const DirectSlotCellV0 {
+    object
+        .cast::<u8>()
+        .add(direct_slot_object_field_offset())
+        .cast::<DirectSlotCellV0>()
+}
+
+unsafe fn direct_slot_object_cells_mut_ptr(
+    object: *mut DirectSlotObjectV0,
+) -> *mut DirectSlotCellV0 {
+    object
+        .cast::<u8>()
+        .add(direct_slot_object_field_offset())
+        .cast::<DirectSlotCellV0>()
+}
+
+fn encode_direct_slot_object_handle(object: NonNull<DirectSlotObjectV0>) -> Option<i64> {
+    let ptr = object.as_ptr() as usize;
+    if ptr & DIRECT_SLOT_HANDLE_TAG != 0 {
+        return None;
+    }
+    i64::try_from(ptr | DIRECT_SLOT_HANDLE_TAG).ok()
+}
+
+fn decode_direct_slot_object_handle(handle: i64) -> Option<NonNull<DirectSlotObjectV0>> {
+    let payload = usize::try_from(handle).ok()?;
+    if payload & DIRECT_SLOT_HANDLE_TAG != DIRECT_SLOT_HANDLE_TAG {
+        return None;
+    }
+    let ptr = (payload & !DIRECT_SLOT_HANDLE_TAG) as *mut DirectSlotObjectV0;
+    NonNull::new(ptr)
+}
+
 fn encode_handle(object_ref: PinnedTypedObjectRef) -> Option<i64> {
     if object_ref.generation == 0 {
         return None;
@@ -544,5 +675,39 @@ mod tests {
             arena.get_direct_cell(handle, 0).unwrap().read_i64(),
             Some(-13)
         );
+    }
+
+    #[test]
+    fn direct_slot_object_v0_header_and_field_offsets_are_stable() {
+        assert_eq!(std::mem::size_of::<DirectSlotObjectV0>(), 24);
+        assert_eq!(std::mem::align_of::<DirectSlotObjectV0>(), 8);
+        assert_eq!(direct_slot_object_field_offset(), 24);
+
+        let cells = [
+            DirectSlotCellV0::from_i64(1),
+            DirectSlotCellV0::from_u64(2),
+            DirectSlotCellV0::from_handle(-3),
+        ];
+        let object = DirectSlotObjectV0Box::new(99, 1, &cells).unwrap();
+        let base = object.as_ptr() as usize;
+        let first = object.cell_ptr(0).unwrap() as usize;
+        let second = object.cell_ptr(1).unwrap() as usize;
+        let third = object.cell_ptr(2).unwrap() as usize;
+
+        assert_eq!(first, base + direct_slot_object_field_offset());
+        assert_eq!(second - first, std::mem::size_of::<DirectSlotCellV0>());
+        assert_eq!(third - second, std::mem::size_of::<DirectSlotCellV0>());
+        assert!(object.cell_ptr(3).is_none());
+    }
+
+    #[test]
+    fn direct_slot_object_handle_roundtrips_stable_pointer() {
+        let cells = [DirectSlotCellV0::from_i64(7)];
+        let object = DirectSlotObjectV0Box::new(99, 1, &cells).unwrap();
+        let handle = object.handle().unwrap();
+        let decoded = DirectSlotObjectV0Box::from_handle(handle).unwrap();
+
+        assert_eq!(decoded.as_ptr(), object.as_ptr() as *mut DirectSlotObjectV0);
+        assert!(DirectSlotObjectV0Box::from_handle(handle & !1).is_none());
     }
 }
