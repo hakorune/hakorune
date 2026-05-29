@@ -42,6 +42,13 @@ arraybox_long_term_performance_substrate=0
 directarray_family_members_planned=i64|bool|f64|handle|boxed_optional_later
 array_repr_layer_planned=1
 array_repr_variants=DirectI64|DirectBool|DirectF64|DirectHandle|PublicArrayBoxFallback
+stage0_array_seed=rust_keep
+stage0_rust_array_seed_is_semantics_owner=0
+array_semantics_owner=hako_ring1_array_core
+array_storage_substrate=directarray_family
+public_materialized_view=arraybox
+rust_private_layout_as_semantic_truth=0
+rust_private_layout_as_llvm_abi=0
 nyash_array_birth_h_public_until_array_repr_promotion=1
 nyash_array_direct_i64_birth_h_first_pilot=1
 public_handle_reinterpret_as_direct=0
@@ -78,6 +85,10 @@ summary=ok
    public facade/materialization contract is proven.
 6. Extend the DirectArray family only with explicit storage members and no
    silent fallback.
+7. Keep stage0 Rust ArraySeed as a bootstrap/recovery keep until a separate
+   cutover proves it can be retired.
+8. Move visible collection semantics toward `.hako` ring1 ArrayCore, not into
+   DirectArray or Rust private substrate.
 
 ## Non-Goals
 
@@ -86,12 +97,40 @@ summary=ok
 - Do not expose ArrayBox plugin internals as LLVM ABI.
 - Do not make both ArrayBox helper storage and DirectArray storage primary.
 - Do not retire handle-entry cache or public helper fast lanes in this row.
+- Do not read stage0 Rust ArraySeed as the final collection owner.
+- Do not expose Rust `Vec`, `RefCell`, ArrayBox storage enum, or diagnostic
+  cache layout as semantic truth or LLVM ABI.
 
 ## Decision
 
 The user-facing model remains ArrayBox. The compiler performance model moves
 toward DirectArray family. `DirectArrayI64BufferV0` is the first member and the
 current allocator hot-path target.
+
+## Stage / Owner Split
+
+Stage0 keeps a Rust ArraySeed for bootstrap, buildability, and recovery. This
+does not make Rust ArrayBox the final collection owner.
+
+The long-term owner split is:
+
+```text
+stage0_array_seed=rust_keep
+array_semantics_owner=hako_ring1_array_core
+array_storage_substrate=directarray_family
+public_materialized_view=arraybox
+```
+
+Meaning:
+
+- Stage0 Rust ArraySeed may stay as a bootstrap/recovery keep.
+- `.hako` ring1 ArrayCore owns user-visible collection semantics.
+- DirectArray family owns raw storage / NativeDirect performance substrate.
+- ArrayBox remains the public materialized facade and compatibility view.
+
+Rust reliance at stage0 is not a failure. It is a bootstrap/substrate keep. The
+forbidden shape is leaking Rust private collection layout as the semantic or
+LLVM ABI truth.
 
 ## Guard
 
