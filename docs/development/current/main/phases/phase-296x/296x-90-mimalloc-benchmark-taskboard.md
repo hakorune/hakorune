@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001:
-  Select the minimum stable direct-slot cell layout and storage owner before implementation.
+DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001:
+  Implement the stable DirectSlotCellV0 storage substrate without opening LLVM lowering.
 ```
 
 ## Queue
@@ -364,7 +364,8 @@ DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001:
 | 317 | `DIRECT-SLOT-LEASE-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define lowering guard surface for the selected DirectSlotLease method before codegen changes. |
 | 318 | `DIRECT-SLOT-LEASE-LOWERING-PILOT-296X-001` | Landed | Close the lowering pilot as not implementable until a helper-free addressable slot bridge exists. |
 | 319 | `DIRECT-SLOT-LEASE-ADDRESSABLE-SLOT-BRIDGE-SSOT-296X-001` | Landed | Define the helper-free addressable slot bridge before retrying DirectSlotLease lowering. |
-| 320 | `DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001` | Planned | Select the minimum stable direct-slot cell layout and storage owner before implementation. |
+| 320 | `DIRECT-SLOT-CELL-STORAGE-LAYOUT-SELECTION-296X-001` | Landed | Select the minimum stable direct-slot cell layout and storage owner before implementation. |
+| 321 | `DIRECT-SLOT-CELL-STORAGE-PILOT-296X-001` | Planned | Implement the stable DirectSlotCellV0 storage substrate without opening LLVM lowering. |
 
 ## Hako Mimalloc Performance Parity Plan
 
