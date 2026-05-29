@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-PINNED-TYPED-OBJECT-ARENA-BACKEND-SELECTION-296X-001:
-  Select how the storage-only pinned arena connects to typed-object backend selection while keeping direct lowering closed.
+PINNED-TYPED-OBJECT-ARENA-BACKEND-PILOT-296X-001:
+  Connect pinned_arena_exact as an explicit typed-object runtime backend for generic helper smokes only.
 ```
 
 ## Queue
@@ -353,7 +353,8 @@ PINNED-TYPED-OBJECT-ARENA-BACKEND-SELECTION-296X-001:
 | 306 | `TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001` | Landed | Check whether current typed-object storage can support DirectSlotLease without a pinned storage rewrite. |
 | 307 | `PINNED-TYPED-OBJECT-ARENA-SSOT-296X-001` | Landed | Define the pinned typed-object arena required before DirectSlotLease. |
 | 308 | `PINNED-TYPED-OBJECT-ARENA-STORAGE-PILOT-296X-001` | Landed | Implement the first storage-only pinned typed-object arena pilot while keeping direct lowering closed. |
-| 309 | `PINNED-TYPED-OBJECT-ARENA-BACKEND-SELECTION-296X-001` | Planned | Select how the storage-only pinned arena connects to typed-object backend selection while keeping direct lowering closed. |
+| 309 | `PINNED-TYPED-OBJECT-ARENA-BACKEND-SELECTION-296X-001` | Landed | Select how the storage-only pinned arena connects to typed-object backend selection while keeping direct lowering closed. |
+| 310 | `PINNED-TYPED-OBJECT-ARENA-BACKEND-PILOT-296X-001` | Planned | Connect pinned_arena_exact as an explicit typed-object runtime backend for generic helper smokes only. |
 
 ## Hako Mimalloc Performance Parity Plan
 
