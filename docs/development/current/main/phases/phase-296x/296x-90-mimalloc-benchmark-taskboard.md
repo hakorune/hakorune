@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001:
-  Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change.
+DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY-296X-001:
+  Inventory HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta before lowering.
 ```
 
 ## Queue
@@ -359,7 +359,8 @@ DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001:
 | 312 | `PINNED-TYPED-OBJECT-ARENA-EXACT-SLOT-HELPER-PILOT-296X-001` | Landed | Route existing exact-slot helper fallback through pinned_arena_exact before DirectSlotLease planning. |
 | 313 | `DIRECT-SLOT-LEASE-GUARD-SURFACE-296X-001` | Landed | Define the first DirectSlotLease guard surface now that pinned exact-slot fallback works. |
 | 314 | `DIRECT-SLOT-LEASE-RUNTIME-TOKEN-PILOT-296X-001` | Landed | Implement a runtime-internal DirectSlotLease token pilot while keeping LLVM lowering closed. |
-| 315 | `DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001` | Planned | Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change. |
+| 315 | `DIRECT-SLOT-LEASE-COMPILER-PLAN-INVENTORY-SELECTION-296X-001` | Landed | Select compiler-side DirectSlotLease plan inventory before any LLVM lowering change. |
+| 316 | `DIRECT-SLOT-LEASE-SELECTED-METHOD-INVENTORY-296X-001` | Planned | Inventory HakoAllocPageModel.acquire_usize/1 DirectSlotLease helper-delta before lowering. |
 
 ## Hako Mimalloc Performance Parity Plan
 
