@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x inventoried alloc-result capsule as the last small exact-slot family; owner selection should close micro-helper lane unless a new positive-net shape appears."
+active_lane_status = "Phase-296x closed the small exact-slot micro-helper owner search; representation/direct-lowering selection is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-295-ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-295-ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
-latest_card_summary = "Inventoried alloc-result capsule as the last small exact-slot family: 31 field ops, zero calls, reset and recordSuccess repeats already closed."
-current_blocker_token = "ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
+latest_card = "296x-296-ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-296-ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
+latest_card_summary = "Closed the small exact-slot micro-helper owner search because the last alloc-result family only has closed reset/recordSuccess or setup-shaped birth; representation/direct-lowering selection is next."
+current_blocker_token = "MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-296 Closed the small exact-slot micro-helper owner search because the last alloc-result family only has closed reset/recordSuccess or setup-shaped birth; representation/direct-lowering selection is next.",
   "296x-295 Inventoried alloc-result capsule as the last small exact-slot family: 31 field ops, zero calls, reset and recordSuccess repeats already closed.",
   "296x-294 Selected alloc-result capsule as the last unblocked row284 family after excluding page-queue, facade, page-model, and release-result repeats; micro-helper stop-line is near.",
   "296x-293 Rejected release-result capsule repeat because recordSuccess helper fusion already landed and remaining birth shape is setup-like; owner refresh is next.",

@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
-  Decide whether alloc-result has a new positive-net owner or close
-  micro-helper hunting.
+MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001:
+  Close small exact-slot helper hunting and select representation/direct
+  lowering as the next design lane.
 ```
 
 ## Queue
@@ -341,7 +341,8 @@ ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001
 | 293 | `RELEASE-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Select one release-result capsule owner without repeating recordSuccess helper fusion. |
 | 294 | `POST-RELEASE-RESULT-CAPSULE-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding release-result capsule repeat. |
 | 295 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory alloc-result capsule as the last unblocked small exact-slot family. |
-| 296 | `ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Decide whether alloc-result has a new positive-net owner or close micro-helper hunting. |
+| 296 | `ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Decide whether alloc-result has a new positive-net owner or close micro-helper hunting. |
+| 297 | `MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001` | Planned | Close small exact-slot helper hunting and select representation/direct lowering as the next design lane. |
 
 ## Hako Mimalloc Performance Parity Plan
 

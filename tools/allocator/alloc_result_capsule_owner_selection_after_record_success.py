@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Select alloc-result capsule owner after reset and recordSuccess are closed."""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+
+def read_kv(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key] = value
+    return values
+
+
+def require(values: dict[str, str], key: str, expected: str) -> None:
+    actual = values.get(key)
+    if actual != expected:
+        raise SystemExit(f"{key} expected {expected!r}, got {actual!r}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--inventory-report", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+
+    values = read_kv(args.inventory_report)
+    require(values, "output_contract", "alloc-result-capsule-ir-shape-inventory-after-record-success-helper-fusion-v0")
+    require(values, "reset_batching_landed", "1")
+    require(values, "record_success_repeat_closed", "1")
+    require(values, "remaining_family_is_small", "1")
+    require(values, "summary", "ok")
+
+    lines = [
+        "output_contract=alloc-result-capsule-owner-selection-after-record-success-helper-fusion-v0",
+        "input_contract=alloc-result-capsule-ir-shape-inventory-after-record-success-helper-fusion-v0",
+        "workload_id=representative-object-lifecycle-small-block-v0",
+        f"alloc_result_field_op_count={values.get('alloc_result_field_op_count', '0')}",
+        f"top_alloc_method={values.get('top_alloc_method', 'none')}",
+        f"top_alloc_method_field_op_count={values.get('top_alloc_method_field_op_count', '0')}",
+        f"top_alloc_hot_method={values.get('top_alloc_hot_method', 'none')}",
+        f"top_alloc_hot_method_field_op_count={values.get('top_alloc_hot_method_field_op_count', '0')}",
+        "reset_batching_landed=1",
+        "record_success_helper_fusion_landed=1",
+        "record_success_repeat_closed=1",
+        "remaining_family_is_small=1",
+        "selected_owner=micro_helper_lane_closeout_and_representation_direct_lowering_selection",
+        "selected_reason=last_small_family_has_only_closed_reset_recordSuccess_or_setup_shaped_birth",
+        "next_diagnostic=micro_helper_lane_closeout_and_representation_direct_lowering_selection",
+        "rejected_owner=alloc_result_reset_batching_repeat",
+        "rejected_reason=result_capsule_reset_batching_already_landed_in_row259",
+        "rejected_owner_1=alloc_result_record_success_helper_fusion_repeat",
+        "rejected_reason_1=record_success_helper_fusion_already_landed_in_row282",
+        "rejected_owner_2=alloc_result_birth_batching",
+        "rejected_reason_2=birth_is_setup_shaped_not_current_hot_capsule_callsite",
+        "rejected_owner_3=generic_capsule_flattening",
+        "rejected_reason_3=too_broad_without_representation_contract_selection",
+        "micro_helper_lane_has_remaining_small_keeper=0",
+        "representation_direct_lowering_required=1",
+        "implementation_open=0",
+        "optimization_open=0",
+        "winner_claim=0",
+        "replacement_active=0",
+        "hook_installed=0",
+        "global_allocator=0",
+        "summary=ok",
+    ]
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("\n".join(lines))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
