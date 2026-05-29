@@ -6,7 +6,9 @@
 use std::cell::RefCell;
 use std::sync::{Mutex, OnceLock};
 
-use super::typed_object::{handle_to_index, TypedSlotObject, TypedSlotStorage, TypedSlotValue};
+use super::typed_object::{
+    handle_to_index, TypedSlot, TypedSlotObject, TypedSlotStorage, TypedSlotValue,
+};
 
 const TYPED_OBJECT_STORE_ENV: &str = "HAKO_TYPED_OBJECT_STORE";
 
@@ -160,6 +162,31 @@ fn exact_u64_storage_supported(storage: TypedSlotStorage) -> bool {
         || (cfg!(target_pointer_width = "64") && matches!(storage, TypedSlotStorage::USize))
 }
 
+fn exact_set_i64_field(field: &mut TypedSlot, value: i64) -> bool {
+    if field.storage != TypedSlotStorage::I64 {
+        return false;
+    }
+    field.value = TypedSlotValue::I64(value);
+    true
+}
+
+fn exact_increment_u64_field(field: &mut TypedSlot) -> bool {
+    if !exact_u64_storage_supported(field.storage) {
+        return false;
+    }
+    let TypedSlotValue::Unsigned(value) = field.value else {
+        return false;
+    };
+    let Some(next) = value.checked_add(1) else {
+        return false;
+    };
+    if u64::try_from(next).is_err() {
+        return false;
+    }
+    field.value = TypedSlotValue::Unsigned(next);
+    true
+}
+
 pub(crate) fn exact_slot_get_i64(handle: i64, slot: usize) -> Option<i64> {
     let idx = handle_to_index(handle)?;
     SINGLE_THREAD_OBJECTS.with(|objects| {
@@ -232,6 +259,81 @@ pub(crate) fn exact_slot_set4_i64(
         object.fields[start_slot + 2].value = TypedSlotValue::I64(value2);
         object.fields[start_slot + 3].value = TypedSlotValue::I64(value3);
         true
+    })
+}
+
+pub(crate) fn exact_slot_record_alloc_success(handle: i64, selected_kind: i64) -> bool {
+    const LAST_REASON: usize = 2;
+    const LAST_OK: usize = 3;
+    const SUCCESS_COUNT: usize = 5;
+    const REUSABLE_SUCCESS_COUNT: usize = 7;
+    const ACTIVE_SUCCESS_COUNT: usize = 8;
+
+    let Some(idx) = handle_to_index(handle) else {
+        return false;
+    };
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return false;
+        };
+        let Some(object) = objects.get_mut(idx) else {
+            return false;
+        };
+        if object.fields.len() <= ACTIVE_SUCCESS_COUNT {
+            return false;
+        }
+        if !exact_set_i64_field(&mut object.fields[LAST_REASON], 0) {
+            return false;
+        }
+        if !exact_set_i64_field(&mut object.fields[LAST_OK], 1) {
+            return false;
+        }
+        if !exact_increment_u64_field(&mut object.fields[SUCCESS_COUNT]) {
+            return false;
+        }
+        if selected_kind == 1 {
+            return exact_increment_u64_field(&mut object.fields[REUSABLE_SUCCESS_COUNT]);
+        }
+        if selected_kind == 2 {
+            return exact_increment_u64_field(&mut object.fields[ACTIVE_SUCCESS_COUNT]);
+        }
+        true
+    })
+}
+
+pub(crate) fn exact_slot_record_release_success(handle: i64, page_id: i64, block_id: i64) -> bool {
+    const LAST_PAGE_ID: usize = 0;
+    const LAST_BLOCK_ID: usize = 1;
+    const LAST_REASON: usize = 2;
+    const LAST_OK: usize = 3;
+    const SUCCESS_COUNT: usize = 4;
+
+    let Some(idx) = handle_to_index(handle) else {
+        return false;
+    };
+    SINGLE_THREAD_OBJECTS.with(|objects| {
+        let Ok(mut objects) = objects.try_borrow_mut() else {
+            return false;
+        };
+        let Some(object) = objects.get_mut(idx) else {
+            return false;
+        };
+        if object.fields.len() <= SUCCESS_COUNT {
+            return false;
+        }
+        if !exact_set_i64_field(&mut object.fields[LAST_PAGE_ID], page_id) {
+            return false;
+        }
+        if !exact_set_i64_field(&mut object.fields[LAST_BLOCK_ID], block_id) {
+            return false;
+        }
+        if !exact_set_i64_field(&mut object.fields[LAST_REASON], 0) {
+            return false;
+        }
+        if !exact_set_i64_field(&mut object.fields[LAST_OK], 1) {
+            return false;
+        }
+        exact_increment_u64_field(&mut object.fields[SUCCESS_COUNT])
     })
 }
 

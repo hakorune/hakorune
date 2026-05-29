@@ -428,6 +428,28 @@ pub extern "C" fn nyash_object_exact_slot_set4_i64_hiiiii(
     ))
 }
 
+#[export_name = "nyash.object.exact_slot_record_alloc_success_hii"]
+pub extern "C" fn nyash_object_exact_slot_record_alloc_success_hii(
+    handle: i64,
+    selected_kind: i64,
+) -> i64 {
+    i64::from(typed_object_store::exact_slot_record_alloc_success(
+        handle,
+        selected_kind,
+    ))
+}
+
+#[export_name = "nyash.object.exact_slot_record_release_success_hiii"]
+pub extern "C" fn nyash_object_exact_slot_record_release_success_hiii(
+    handle: i64,
+    page_id: i64,
+    block_id: i64,
+) -> i64 {
+    i64::from(typed_object_store::exact_slot_record_release_success(
+        handle, page_id, block_id,
+    ))
+}
+
 #[export_name = "nyash.object.exact_slot_get_u64_hii"]
 pub extern "C" fn nyash_object_exact_slot_get_u64_hii(handle: i64, slot: i64) -> u64 {
     let Some(slot) = exact_slot_index(slot) else {

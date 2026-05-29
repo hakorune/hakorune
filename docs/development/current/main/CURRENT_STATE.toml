@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x froze recordSuccess helper-fusion guard surface; implementation is next."
+active_lane_status = "Phase-296x implemented recordSuccess helper fusion; measurement is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-281-RECORD-SUCCESS-HELPER-FUSION-GUARD-SURFACE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-281-RECORD-SUCCESS-HELPER-FUSION-GUARD-SURFACE.md"
-latest_card_summary = "Froze recordSuccess helper-fusion guard surface with two runtime helpers and planned net helper delta 12 after ValueAggregate rejection."
-current_blocker_token = "RECORD-SUCCESS-HELPER-FUSION-IMPLEMENTATION-296X-001"
+latest_card = "296x-282-RECORD-SUCCESS-HELPER-FUSION-IMPLEMENTATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-282-RECORD-SUCCESS-HELPER-FUSION-IMPLEMENTATION.md"
+latest_card_summary = "Implemented two recordSuccess exact-slot runtime helpers and same-module lowering with default emission closed and semantic proof ok."
+current_blocker_token = "RECORD-SUCCESS-HELPER-FUSION-MEASUREMENT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-282 Implemented two recordSuccess exact-slot runtime helpers and same-module lowering with default emission closed and semantic proof ok.",
   "296x-281 Froze recordSuccess helper-fusion guard surface with two runtime helpers and planned net helper delta 12 after ValueAggregate rejection.",
   "296x-280 Inventoried recordSuccess caller regions and rejected ValueAggregate for this surface because public method returns force materialization, selecting helper-fusion guard surface next.",
   "296x-279 Inventoried method-local recordSuccess ValueAggregate plan and found net zero due required materialization, selecting caller-region inventory next.",

@@ -327,7 +327,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 279 | `CAPSULE-VALUE-RESULT-PLAN-INVENTORY-296X-001` | Landed | Inventory method-local recordSuccess ValueAggregate plan and select caller-region inventory because method-local net is zero. |
 | 280 | `CAPSULE-VALUE-RESULT-CALLER-REGION-INVENTORY-296X-001` | Landed | Inventory caller regions and reject ValueAggregate implementation for this surface because public returns force materialization. |
 | 281 | `RECORD-SUCCESS-HELPER-FUSION-GUARD-SURFACE-296X-001` | Landed | Freeze recordSuccess helper-fusion guard surface after ValueAggregate was rejected for this shape. |
-| 282 | `RECORD-SUCCESS-HELPER-FUSION-IMPLEMENTATION-296X-001` | Planned | Implement the two selected recordSuccess exact-slot runtime helpers and same-module lowering. |
+| 282 | `RECORD-SUCCESS-HELPER-FUSION-IMPLEMENTATION-296X-001` | Landed | Implement the two selected recordSuccess exact-slot runtime helpers and same-module lowering. |
+| 283 | `RECORD-SUCCESS-HELPER-FUSION-MEASUREMENT-296X-001` | Planned | Measure recordSuccess helper fusion and refresh weighted owner evidence. |
 
 ## Hako Mimalloc Performance Parity Plan
 

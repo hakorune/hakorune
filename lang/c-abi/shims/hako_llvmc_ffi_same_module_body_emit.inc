@@ -570,6 +570,18 @@
             ARR_LEN(selected_result_capsule_reset_targets));
       }
 
+      auto int same_module_function_selected_record_success_helper_kind(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        if (!typed_object_exact_slot_helper_enabled()) return 0;
+        if (name && !strcmp(name, "HakoAllocObjectLifecycleAllocResult.recordSuccess/1")) {
+          return 1;
+        }
+        if (name && !strcmp(name, "HakoAllocObjectLifecycleReleaseResult.recordSuccess/2")) {
+          return 2;
+        }
+        return 0;
+      }
+
       auto int same_module_function_instruction_is_array_method(
           yyjson_val* ins,
           const char* expected_method,
@@ -1078,6 +1090,34 @@
         return 1;
       }
 
+      auto int same_module_function_emit_record_success_helper_body(void) {
+        int helper_kind = same_module_function_selected_record_success_helper_kind();
+        struct GenericPureBlockView entry;
+        char ab[256];
+        char status_name[96];
+        if (!helper_kind) return 0;
+        if (!read_generic_pure_block_view(0, &entry)) return -1;
+        emit_block_label(entry.id);
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), 0, 1);
+        append_i64_arg_ref(ab, sizeof(ab), 1, 0);
+        if (helper_kind == 1) {
+          snprintf(status_name, sizeof(status_name), "record_alloc_success_%lld", entry.id);
+          EMIT("  %%%s = call i64 @\"nyash.object.exact_slot_record_alloc_success_hii\"(%s)\n",
+               status_name,
+               ab);
+        } else {
+          append_i64_arg_ref(ab, sizeof(ab), 2, 0);
+          snprintf(status_name, sizeof(status_name), "record_release_success_%lld", entry.id);
+          EMIT("  %%%s = call i64 @\"nyash.object.exact_slot_record_release_success_hiii\"(%s)\n",
+               status_name,
+               ab);
+        }
+        same_module_function_emit_exact_status_trap(status_name, entry.id, 0);
+        EMIT("  ret i64 1\n");
+        return 1;
+      }
+
       auto int same_module_function_emit_instruction(
           FILE* f,
           size_t fn_index,
@@ -1188,6 +1228,10 @@
         same_module_function_body_failed_bid = -1;
         same_module_function_body_failed_ii = 0;
         same_module_function_body_failed_op = NULL;
+        {
+          int record_success_rc = same_module_function_emit_record_success_helper_body();
+          if (record_success_rc != 0) return record_success_rc == 1;
+        }
         for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
           struct GenericPureBlockView block;
           if (!read_generic_pure_block_view(bi, &block)) return 0;
