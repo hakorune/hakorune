@@ -2,14 +2,16 @@
 //!
 //! The default backend preserves the existing ArrayBox `RwLock<ArrayStorage>`
 //! behavior. The single-thread backend is an exact-EXE perf lane for numeric
-//! i64 slot helpers only; unsupported storage shapes fail fast instead of
-//! silently falling back.
+//! i64 slot helpers only. The direct-array backend is the direct-storage
+//! bridge for the selected exact i64 lane. Unsupported storage shapes fail
+//! fast instead of silently falling back.
 
 use std::cell::RefCell;
 use std::sync::OnceLock;
 
 #[cfg(test)]
 use super::array_direct_i64_buffer::DirectArrayI64BufferV0Box;
+use super::array_direct_i64_buffer::{direct_array_i64_load_i64, direct_array_i64_store_i64};
 use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::{array_get_index_encoded_i64, with_array_box};
 
@@ -129,11 +131,22 @@ fn single_thread_load_encoded_i64(handle: i64, idx: i64) -> i64 {
     })
 }
 
-fn direct_array_i64_helper_route_closed() -> ! {
-    panic!(
-        "[freeze:contract][array-slot-store/direct-array-i64-exact] \
-         helper route closed until bootstrap/materialization bridge is implemented"
-    )
+fn direct_array_i64_exact_store_i64(handle: i64, idx: i64, value_i64: i64) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    if direct_array_i64_store_i64(handle, idx, value_i64) {
+        1
+    } else {
+        0
+    }
+}
+
+fn direct_array_i64_exact_load_encoded_i64(handle: i64, idx: i64) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    direct_array_i64_load_i64(handle, idx).unwrap_or(0)
 }
 
 #[inline(always)]
@@ -141,7 +154,9 @@ pub(super) fn store_i64(handle: i64, idx: i64, value_i64: i64) -> i64 {
     match selected_backend() {
         ArraySlotBackend::SafeRwLock => safe_store_i64(handle, idx, value_i64),
         ArraySlotBackend::SingleThreadExact => single_thread_store_i64(handle, idx, value_i64),
-        ArraySlotBackend::DirectArrayI64Exact => direct_array_i64_helper_route_closed(),
+        ArraySlotBackend::DirectArrayI64Exact => {
+            direct_array_i64_exact_store_i64(handle, idx, value_i64)
+        }
     }
 }
 
@@ -150,7 +165,7 @@ pub(super) fn load_encoded_i64(handle: i64, idx: i64) -> i64 {
     match selected_backend() {
         ArraySlotBackend::SafeRwLock => safe_load_encoded_i64(handle, idx),
         ArraySlotBackend::SingleThreadExact => single_thread_load_encoded_i64(handle, idx),
-        ArraySlotBackend::DirectArrayI64Exact => direct_array_i64_helper_route_closed(),
+        ArraySlotBackend::DirectArrayI64Exact => direct_array_i64_exact_load_encoded_i64(handle, idx),
     }
 }
 
@@ -168,12 +183,14 @@ mod tests {
 
         DIRECT_ARRAY_I64_BUFFERS.with(|buffers| {
             let mut buffers = buffers.borrow_mut();
-            let mut buffer = DirectArrayI64BufferV0Box::new(1, 2).expect("buffer");
-            assert!(buffer.store(0, 41));
-            assert!(buffer.store(1, 42));
-            assert!(!buffer.store(2, 43));
-            assert_eq!(buffer.load(0), Some(41));
-            assert_eq!(buffer.load(1), Some(42));
+            let buffer = DirectArrayI64BufferV0Box::new(1, 2).expect("buffer");
+            let handle = buffer.handle().expect("handle");
+            assert_eq!(store_i64(handle, 0, 41), 1);
+            assert_eq!(store_i64(handle, 1, 42), 1);
+            assert_eq!(store_i64(handle, 2, 43), 0);
+            assert_eq!(load_encoded_i64(handle, 0), 41);
+            assert_eq!(load_encoded_i64(handle, 1), 42);
+            assert_eq!(load_encoded_i64(handle, 2), 0);
             buffers.push(buffer);
             assert_eq!(buffers.len(), 1);
         });

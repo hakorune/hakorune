@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-05-30"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x ArrayBox/DirectArray split SSOT landed; DirectArray family storage substrate roadmap is next."
+active_lane_status = "Phase-296x DirectArray family storage substrate roadmap is current; scoped helper backend retirement implementation is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
@@ -18,7 +18,7 @@ taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-be
 latest_card = "296x-373-ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-373-ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT.md"
 latest_card_summary = "Froze ArrayBox as public semantics/materialization/fallback owner and DirectArrayI64 as exact i64 NativeDirect hot storage before retirement implementation."
-current_blocker_token = "DIRECTARRAY-FAMILY-STORAGE-SUBSTRATE-ROADMAP-296X-001"
+current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-IMPLEMENTATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

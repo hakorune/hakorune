@@ -81,24 +81,18 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Implementation Focus (phase-296x)
 
-- row217 refreshed perf ownership after exact-slot helper no-effect evidence
-  and selected MIR typed-field direct-op net inventory
-- current blocker token is read from `CURRENT_STATE.toml`; the active next
-  diagnostic is typed-field direct-op net helper-call inventory
-- keep allocator-provider activation, host allocator replacement, hooks,
-  globals, and winner claims closed
-- historical corpus focus remains: turn the external `hakmem` benchmark corpus
-  into stable Hakorune-side benchmark contracts before opening DLL/provider work
-- current external corpus:
-  `/home/tomoaki/git/hakmem_20260525_extracted/hakmem`
+- row374 freezes the DirectArray family storage substrate roadmap and the
+  ArrayBox / DirectArray split SSOT
+- the current blocker token now points at the scoped retirement implementation
+  boundary for `single_thread_exact_array_helper_backend`
+- keep `nyash.array.birth_h` public ArrayBox semantics, handle-entry cache
+  retirement, and public helper fast lanes deferred until the scoped slice is
+  proven
 - docs-first ordered work:
-  1. inspect the field/Array runtime lowering boundary behind the selected
-     perf hot symbols
-  2. keep the ArrayBox backend seam on helper-side runtime code, not public
-     ArrayBox storage or MIR lowering
-  3. use exact-EXE body timing only after structural evidence improves
-  4. keep DLL/provider/replacement work parked until benchmark contracts and
-     parity owner evidence are stable
+  1. keep the DirectArray family contract locked as the authority row
+  2. define the scoped retirement boundary for the exact-array helper backend
+  3. retire only the scoped backend surface before touching broader cache code
+  4. smoke before perf refresh
 
 ## Current Ordered App Bringup
 
