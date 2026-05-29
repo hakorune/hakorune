@@ -90,6 +90,196 @@ summary=ok
 8. Move visible collection semantics toward `.hako` ring1 ArrayCore, not into
    DirectArray or Rust private substrate.
 
+## Mini Task Board
+
+These tasks are intentionally small so a lightweight agent can pick up one row
+without re-designing the lane. Each task should land with its own row card and
+guard.
+
+### DA-FAM-001: Contract Lock
+
+Purpose: keep this roadmap as the current authority before implementation.
+
+Input:
+- this row
+- row373 split SSOT
+
+Output:
+- row guard remains green
+- no code changes
+
+Acceptance:
+- `long_term_primary_storage=directarray_family`
+- `array_semantics_owner=hako_ring1_array_core`
+- `stage0_array_seed=rust_keep`
+- `selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_implementation`
+
+Forbidden:
+- no helper deletion
+- no lowering change
+- no `nyash.array.birth_h` behavior change
+
+### DA-FAM-002: Scoped Helper Backend Retirement Guard
+
+Purpose: define the implementation guard for retiring only the obsolete
+`single_thread_exact_array_helper_backend` surface.
+
+Input:
+- row374
+- `crates/nyash_kernel/src/plugin/array_slot_backend.rs`
+- `crates/nyash_kernel/src/plugin/array_direct_i64_buffer.rs`
+
+Output:
+- `296x-375-ARRAY-SLOT-NATIVEDIRECT-LEGACY-HELPER-CACHE-RETIREMENT-IMPLEMENTATION.md`
+- guard script for implementation boundary
+
+Acceptance:
+- implementation scope is only `single_thread_exact_array_helper_backend`
+- handle-entry cache retirement remains deferred
+- public helper fast lane retirement remains deferred
+- DirectArray helper route still fail-fast unless the selected implementation
+  explicitly replaces the scoped path
+
+Forbidden:
+- no ArrayBox public behavior deletion
+- no handle-entry cache deletion
+- no public helper ABI removal
+
+### DA-FAM-003: Implementation Slice
+
+Purpose: remove or close the obsolete exact-array helper backend route that the
+DirectArray selected-method path has replaced.
+
+Input:
+- DA-FAM-002 guard
+- current DirectArray selected-method tests
+
+Output:
+- code change limited to the selected helper backend route
+- updated guard
+- existing DirectArray and ArrayBox tests green
+
+Acceptance:
+- `nyash.array.birth_h` still produces public ArrayBox
+- `nyash.array.direct_i64.birth_h` still produces DirectArrayI64
+- public ArrayBox materialization still works
+- selected DirectArray path still uses direct storage
+- no silent fallback from selected DirectArray plan
+
+Forbidden:
+- no `ArrayRepr` implementation
+- no `.hako ArrayCore` migration
+- no bool/f64/handle DirectArray member
+
+### DA-FAM-004: Post-Retirement Semantic Smoke
+
+Purpose: prove the implementation did not break public ArrayBox or DirectArray.
+
+Input:
+- DA-FAM-003 implementation
+
+Output:
+- semantic smoke row
+- smoke guard
+
+Acceptance:
+- public ArrayBox birth smoke ok
+- DirectArray birth smoke ok
+- DirectArray materialization snapshot smoke ok
+- selected-method DirectArray lowering smoke ok
+- current proof app summary remains ok
+
+Forbidden:
+- no perf claim
+- no winner claim
+- no provider/replacement/hook/global allocator lane
+
+### DA-FAM-005: Post-Retirement Perf Owner Refresh
+
+Purpose: reclassify hot ownership after the scoped helper retirement.
+
+Input:
+- DA-FAM-004 semantic smoke
+- perf report
+
+Output:
+- owner refresh adapter or report
+- next owner selection
+
+Acceptance:
+- reports DirectArray backend pct
+- reports legacy Array helper/cache pct
+- reports ArrayBox/public helper pct
+- selects exactly one next owner
+
+Forbidden:
+- no optimization implementation in this row
+- no broad source rewrite
+
+### DA-FAM-006: ArrayRepr Design Row
+
+Purpose: design the future bridge from public ArrayBox facade to DirectArray
+family without exposing plugin internals as ABI.
+
+Input:
+- row374
+- post-retirement owner refresh
+
+Output:
+- `ArrayRepr` SSOT
+
+Acceptance:
+- variants include `DirectI64` and `PublicArrayBoxFallback`
+- `ArrayBox` remains public facade
+- `DirectArray family` remains storage substrate
+- materialization route is explicit
+
+Forbidden:
+- no implementation
+- no `nyash.array.birth_h` behavior change
+
+### DA-FAM-007: .hako ArrayCore Owner Alignment
+
+Purpose: align this lane with the existing `.hako` ring1 collection semantics
+owner docs.
+
+Input:
+- `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+- `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
+- row374
+
+Output:
+- a small cross-reference row or design note
+
+Acceptance:
+- `.hako ArrayCore` is visible semantics owner
+- Rust stage0 ArraySeed remains bootstrap keep
+- DirectArray family remains substrate
+
+Forbidden:
+- no collection semantic migration in this row
+- no Rust/private layout exposure
+
+### DA-FAM-008: DirectArray Family Extension Gate
+
+Purpose: define when a new DirectArray member may be added.
+
+Input:
+- row374
+
+Output:
+- extension gate row
+
+Acceptance:
+- new member requires explicit storage contract
+- no silent fallback
+- materialization route required
+- public ArrayBox facade preserved
+
+Forbidden:
+- no new member implementation in the gate row
+- no mixed storage shortcut
+
 ## Non-Goals
 
 - Do not replace all public ArrayBox behavior with DirectArrayI64.
