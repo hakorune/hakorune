@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x added direct_slot_exact storage-only backend connection; materialization policy selection is next."
+active_lane_status = "Phase-296x selected explicit DirectSlotObjectV0 to TypedSlot snapshot materialization; snapshot pilot is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-326-DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-326-DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-PILOT.md"
-latest_card_summary = "Added direct_slot_exact backend selection and DirectSlotObjectV0 allocation smoke while keeping helper routing and lowering closed."
-current_blocker_token = "DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001"
+latest_card = "296x-327-DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-327-DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION.md"
+latest_card_summary = "Selected explicit DirectSlotObjectV0 to TypedSlot snapshot materialization while keeping helper routing and lowering closed."
+current_blocker_token = "DIRECT-SLOT-BACKEND-MATERIALIZATION-SNAPSHOT-PILOT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-327 Selected explicit DirectSlotObjectV0 to TypedSlot snapshot materialization while keeping helper routing and lowering closed.",
   "296x-326 Added direct_slot_exact backend selection and DirectSlotObjectV0 allocation smoke while keeping helper routing and lowering closed.",
   "296x-325 Selected direct_slot_exact as the DirectSlotObjectV0 backend connection point while keeping helper routing and lowering closed.",
   "296x-324 Defined DirectSlotCellV0 as primary DirectSlot storage and TypedSlot as fallback/materialization view while keeping lowering closed.",

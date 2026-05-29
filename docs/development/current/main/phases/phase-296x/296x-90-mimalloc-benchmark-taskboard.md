@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001:
-  Select the first materialization bridge for direct_slot_exact before helper routing or lowering.
+DIRECT-SLOT-BACKEND-MATERIALIZATION-SNAPSHOT-PILOT-296X-001:
+  Implement explicit DirectSlotObjectV0 to TypedSlot snapshot materialization without helper routing or lowering.
 ```
 
 ## Queue
@@ -371,7 +371,8 @@ DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001:
 | 324 | `DIRECT-SLOT-MATERIALIZATION-FALLBACK-SYNC-SSOT-296X-001` | Landed | Define DirectSlot primary storage, fallback view, and materialization sync before lowering. |
 | 325 | `DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-SELECTION-296X-001` | Landed | Select how DirectSlotObjectV0 connects to the typed-object backend without opening lowering. |
 | 326 | `DIRECT-SLOT-OBJECT-BACKEND-CONNECTION-PILOT-296X-001` | Landed | Add the direct_slot_exact backend selection point without routing helpers or lowering. |
-| 327 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001` | Planned | Select the first materialization bridge for direct_slot_exact before helper routing or lowering. |
+| 327 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-POLICY-SELECTION-296X-001` | Landed | Select the first materialization bridge for direct_slot_exact before helper routing or lowering. |
+| 328 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-SNAPSHOT-PILOT-296X-001` | Planned | Implement explicit DirectSlotObjectV0 to TypedSlot snapshot materialization without helper routing or lowering. |
 
 ## Hako Mimalloc Performance Parity Plan
 
