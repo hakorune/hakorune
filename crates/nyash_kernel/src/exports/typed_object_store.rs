@@ -103,6 +103,38 @@ fn with_field_mut<R>(handle: i64, slot: usize, f: impl FnOnce(&mut TypedSlot) ->
     }
 }
 
+fn with_exact_fields<R>(handle: i64, f: impl FnOnce(&[TypedSlot]) -> R) -> Option<R> {
+    match selected_backend() {
+        TypedObjectStoreBackend::SafeMutex => None,
+        TypedObjectStoreBackend::SingleThreadExact => SINGLE_THREAD_OBJECTS.with(|objects| {
+            let objects = objects.try_borrow().ok()?;
+            let idx = handle_to_index(handle)?;
+            let object = objects.get(idx)?;
+            Some(f(&object.fields))
+        }),
+        TypedObjectStoreBackend::PinnedArenaExact => PINNED_ARENA_OBJECTS.with(|objects| {
+            let objects = objects.try_borrow().ok()?;
+            objects.get_fields(handle).map(f)
+        }),
+    }
+}
+
+fn with_exact_fields_mut<R>(handle: i64, f: impl FnOnce(&mut [TypedSlot]) -> R) -> Option<R> {
+    match selected_backend() {
+        TypedObjectStoreBackend::SafeMutex => None,
+        TypedObjectStoreBackend::SingleThreadExact => SINGLE_THREAD_OBJECTS.with(|objects| {
+            let mut objects = objects.try_borrow_mut().ok()?;
+            let idx = handle_to_index(handle)?;
+            let object = objects.get_mut(idx)?;
+            Some(f(&mut object.fields))
+        }),
+        TypedObjectStoreBackend::PinnedArenaExact => PINNED_ARENA_OBJECTS.with(|objects| {
+            let mut objects = objects.try_borrow_mut().ok()?;
+            objects.get_fields_mut(handle).map(f)
+        }),
+    }
+}
+
 pub(crate) fn new_typed_object(object: TypedSlotObject) -> Option<i64> {
     match selected_backend() {
         TypedObjectStoreBackend::PinnedArenaExact => {
@@ -179,10 +211,8 @@ fn exact_increment_u64_field(field: &mut TypedSlot) -> bool {
 }
 
 pub(crate) fn exact_slot_get_i64(handle: i64, slot: usize) -> Option<i64> {
-    let idx = handle_to_index(handle)?;
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let objects = objects.try_borrow().ok()?;
-        let field = objects.get(idx)?.fields.get(slot)?;
+    with_exact_fields(handle, |fields| {
+        let field = fields.get(slot)?;
         if field.storage != TypedSlotStorage::I64 {
             return None;
         }
@@ -190,21 +220,12 @@ pub(crate) fn exact_slot_get_i64(handle: i64, slot: usize) -> Option<i64> {
             TypedSlotValue::I64(value) => Some(value),
             _ => None,
         }
-    })
+    })?
 }
 
 pub(crate) fn exact_slot_set_i64(handle: i64, slot: usize, value: i64) -> bool {
-    let Some(idx) = handle_to_index(handle) else {
-        return false;
-    };
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return false;
-        };
-        let Some(field) = objects
-            .get_mut(idx)
-            .and_then(|object| object.fields.get_mut(slot))
-        else {
+    with_exact_fields_mut(handle, |fields| {
+        let Some(field) = fields.get_mut(slot) else {
             return false;
         };
         if field.storage != TypedSlotStorage::I64 {
@@ -213,6 +234,7 @@ pub(crate) fn exact_slot_set_i64(handle: i64, slot: usize, value: i64) -> bool {
         field.value = TypedSlotValue::I64(value);
         true
     })
+    .unwrap_or(false)
 }
 
 pub(crate) fn exact_slot_set4_i64(
@@ -223,34 +245,26 @@ pub(crate) fn exact_slot_set4_i64(
     value2: i64,
     value3: i64,
 ) -> bool {
-    let Some(idx) = handle_to_index(handle) else {
-        return false;
-    };
     let Some(end_slot) = start_slot.checked_add(4) else {
         return false;
     };
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return false;
-        };
-        let Some(object) = objects.get_mut(idx) else {
-            return false;
-        };
-        if end_slot > object.fields.len() {
+    with_exact_fields_mut(handle, |fields| {
+        if end_slot > fields.len() {
             return false;
         }
-        if object.fields[start_slot..end_slot]
+        if fields[start_slot..end_slot]
             .iter()
             .any(|field| field.storage != TypedSlotStorage::I64)
         {
             return false;
         }
-        object.fields[start_slot].value = TypedSlotValue::I64(value0);
-        object.fields[start_slot + 1].value = TypedSlotValue::I64(value1);
-        object.fields[start_slot + 2].value = TypedSlotValue::I64(value2);
-        object.fields[start_slot + 3].value = TypedSlotValue::I64(value3);
+        fields[start_slot].value = TypedSlotValue::I64(value0);
+        fields[start_slot + 1].value = TypedSlotValue::I64(value1);
+        fields[start_slot + 2].value = TypedSlotValue::I64(value2);
+        fields[start_slot + 3].value = TypedSlotValue::I64(value3);
         true
     })
+    .unwrap_or(false)
 }
 
 pub(crate) fn exact_slot_record_alloc_success(handle: i64, selected_kind: i64) -> bool {
@@ -260,36 +274,28 @@ pub(crate) fn exact_slot_record_alloc_success(handle: i64, selected_kind: i64) -
     const REUSABLE_SUCCESS_COUNT: usize = 7;
     const ACTIVE_SUCCESS_COUNT: usize = 8;
 
-    let Some(idx) = handle_to_index(handle) else {
-        return false;
-    };
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return false;
-        };
-        let Some(object) = objects.get_mut(idx) else {
-            return false;
-        };
-        if object.fields.len() <= ACTIVE_SUCCESS_COUNT {
+    with_exact_fields_mut(handle, |fields| {
+        if fields.len() <= ACTIVE_SUCCESS_COUNT {
             return false;
         }
-        if !exact_set_i64_field(&mut object.fields[LAST_REASON], 0) {
+        if !exact_set_i64_field(&mut fields[LAST_REASON], 0) {
             return false;
         }
-        if !exact_set_i64_field(&mut object.fields[LAST_OK], 1) {
+        if !exact_set_i64_field(&mut fields[LAST_OK], 1) {
             return false;
         }
-        if !exact_increment_u64_field(&mut object.fields[SUCCESS_COUNT]) {
+        if !exact_increment_u64_field(&mut fields[SUCCESS_COUNT]) {
             return false;
         }
         if selected_kind == 1 {
-            return exact_increment_u64_field(&mut object.fields[REUSABLE_SUCCESS_COUNT]);
+            return exact_increment_u64_field(&mut fields[REUSABLE_SUCCESS_COUNT]);
         }
         if selected_kind == 2 {
-            return exact_increment_u64_field(&mut object.fields[ACTIVE_SUCCESS_COUNT]);
+            return exact_increment_u64_field(&mut fields[ACTIVE_SUCCESS_COUNT]);
         }
         true
     })
+    .unwrap_or(false)
 }
 
 pub(crate) fn exact_slot_record_release_success(handle: i64, page_id: i64, block_id: i64) -> bool {
@@ -299,40 +305,30 @@ pub(crate) fn exact_slot_record_release_success(handle: i64, page_id: i64, block
     const LAST_OK: usize = 3;
     const SUCCESS_COUNT: usize = 4;
 
-    let Some(idx) = handle_to_index(handle) else {
-        return false;
-    };
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return false;
-        };
-        let Some(object) = objects.get_mut(idx) else {
-            return false;
-        };
-        if object.fields.len() <= SUCCESS_COUNT {
+    with_exact_fields_mut(handle, |fields| {
+        if fields.len() <= SUCCESS_COUNT {
             return false;
         }
-        if !exact_set_i64_field(&mut object.fields[LAST_PAGE_ID], page_id) {
+        if !exact_set_i64_field(&mut fields[LAST_PAGE_ID], page_id) {
             return false;
         }
-        if !exact_set_i64_field(&mut object.fields[LAST_BLOCK_ID], block_id) {
+        if !exact_set_i64_field(&mut fields[LAST_BLOCK_ID], block_id) {
             return false;
         }
-        if !exact_set_i64_field(&mut object.fields[LAST_REASON], 0) {
+        if !exact_set_i64_field(&mut fields[LAST_REASON], 0) {
             return false;
         }
-        if !exact_set_i64_field(&mut object.fields[LAST_OK], 1) {
+        if !exact_set_i64_field(&mut fields[LAST_OK], 1) {
             return false;
         }
-        exact_increment_u64_field(&mut object.fields[SUCCESS_COUNT])
+        exact_increment_u64_field(&mut fields[SUCCESS_COUNT])
     })
+    .unwrap_or(false)
 }
 
 pub(crate) fn exact_slot_get_u64(handle: i64, slot: usize) -> Option<u64> {
-    let idx = handle_to_index(handle)?;
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let objects = objects.try_borrow().ok()?;
-        let field = objects.get(idx)?.fields.get(slot)?;
+    with_exact_fields(handle, |fields| {
+        let field = fields.get(slot)?;
         if !exact_u64_storage_supported(field.storage) {
             return None;
         }
@@ -340,21 +336,12 @@ pub(crate) fn exact_slot_get_u64(handle: i64, slot: usize) -> Option<u64> {
             return None;
         };
         u64::try_from(value).ok()
-    })
+    })?
 }
 
 pub(crate) fn exact_slot_set_u64(handle: i64, slot: usize, value: u64) -> bool {
-    let Some(idx) = handle_to_index(handle) else {
-        return false;
-    };
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return false;
-        };
-        let Some(field) = objects
-            .get_mut(idx)
-            .and_then(|object| object.fields.get_mut(slot))
-        else {
+    with_exact_fields_mut(handle, |fields| {
+        let Some(field) = fields.get_mut(slot) else {
             return false;
         };
         if !exact_u64_storage_supported(field.storage) {
@@ -363,16 +350,13 @@ pub(crate) fn exact_slot_set_u64(handle: i64, slot: usize, value: u64) -> bool {
         field.value = TypedSlotValue::Unsigned(value as u128);
         true
     })
+    .unwrap_or(false)
 }
 
 pub(crate) fn exact_slot_rmw_add_u64(handle: i64, slot: usize, delta: i64) -> Option<i64> {
-    let idx = handle_to_index(handle)?;
     let delta = u128::try_from(delta).ok()?;
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return None;
-        };
-        let field = objects.get_mut(idx)?.fields.get_mut(slot)?;
+    with_exact_fields_mut(handle, |fields| {
+        let field = fields.get_mut(slot)?;
         if !exact_u64_storage_supported(field.storage) {
             return None;
         }
@@ -384,14 +368,12 @@ pub(crate) fn exact_slot_rmw_add_u64(handle: i64, slot: usize, delta: i64) -> Op
         let next_i64 = i64::try_from(next).ok()?;
         field.value = TypedSlotValue::Unsigned(next);
         Some(next_i64)
-    })
+    })?
 }
 
 pub(crate) fn exact_slot_get_handle(handle: i64, slot: usize) -> Option<i64> {
-    let idx = handle_to_index(handle)?;
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let objects = objects.try_borrow().ok()?;
-        let field = objects.get(idx)?.fields.get(slot)?;
+    with_exact_fields(handle, |fields| {
+        let field = fields.get(slot)?;
         if field.storage != TypedSlotStorage::Handle {
             return None;
         }
@@ -399,21 +381,12 @@ pub(crate) fn exact_slot_get_handle(handle: i64, slot: usize) -> Option<i64> {
             TypedSlotValue::Handle(value) => Some(value),
             _ => None,
         }
-    })
+    })?
 }
 
 pub(crate) fn exact_slot_set_handle(handle: i64, slot: usize, value: i64) -> bool {
-    let Some(idx) = handle_to_index(handle) else {
-        return false;
-    };
-    SINGLE_THREAD_OBJECTS.with(|objects| {
-        let Ok(mut objects) = objects.try_borrow_mut() else {
-            return false;
-        };
-        let Some(field) = objects
-            .get_mut(idx)
-            .and_then(|object| object.fields.get_mut(slot))
-        else {
+    with_exact_fields_mut(handle, |fields| {
+        let Some(field) = fields.get_mut(slot) else {
             return false;
         };
         if field.storage != TypedSlotStorage::Handle {
@@ -422,4 +395,5 @@ pub(crate) fn exact_slot_set_handle(handle: i64, slot: usize, value: i64) -> boo
         field.value = TypedSlotValue::Handle(value);
         true
     })
+    .unwrap_or(false)
 }

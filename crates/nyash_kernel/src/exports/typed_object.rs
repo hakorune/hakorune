@@ -586,6 +586,38 @@ mod tests {
     }
 
     #[test]
+    fn pinned_arena_exact_slot_helpers_roundtrip_when_selected() {
+        if std::env::var("HAKO_TYPED_OBJECT_STORE").ok().as_deref() != Some("pinned_arena_exact") {
+            return;
+        }
+
+        let type_id = 294_019_201;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 3), 1);
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 0, STORAGE_I64),
+            1
+        );
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 1, STORAGE_U64),
+            1
+        );
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 2, STORAGE_HANDLE),
+            1
+        );
+        let object = nyash_object_new_typed_hi(type_id, 3);
+        assert!(object < 0);
+
+        assert_eq!(nyash_object_exact_slot_set_i64_hii(object, 0, 11), 1);
+        assert_eq!(nyash_object_exact_slot_get_i64_hii(object, 0), 11);
+        assert_eq!(nyash_object_exact_slot_set_u64_hiu(object, 1, 20), 1);
+        assert_eq!(nyash_object_exact_slot_rmw_add_u64_hiii(object, 1, 3), 23);
+        assert_eq!(nyash_object_exact_slot_get_u64_hii(object, 1), 23);
+        assert_eq!(nyash_object_exact_slot_set_handle_hii(object, 2, -9), 1);
+        assert_eq!(nyash_object_exact_slot_get_handle_hii(object, 2), -9);
+    }
+
+    #[test]
     fn exact_unsigned_abi_rejects_legacy_i64_slots() {
         let object = nyash_object_new_typed_hi(294_019_102, 1);
         assert!(object < 0);

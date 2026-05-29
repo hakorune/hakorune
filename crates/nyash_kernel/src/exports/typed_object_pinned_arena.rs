@@ -72,6 +72,22 @@ impl PinnedTypedObjectArena {
             .get_mut(slot)
     }
 
+    pub(crate) fn get_fields(&self, handle: i64) -> Option<&[TypedSlot]> {
+        let object_ref = self.validate(handle)?;
+        self.objects
+            .get(object_ref.index)?
+            .as_ref()
+            .map(|object| object.fields.as_ref())
+    }
+
+    pub(crate) fn get_fields_mut(&mut self, handle: i64) -> Option<&mut [TypedSlot]> {
+        let object_ref = self.validate(handle)?;
+        self.objects
+            .get_mut(object_ref.index)?
+            .as_mut()
+            .map(|object| object.fields.as_mut())
+    }
+
     #[cfg(test)]
     fn field_address_token(&self, handle: i64, slot: usize) -> Option<usize> {
         self.get_field(handle, slot)
