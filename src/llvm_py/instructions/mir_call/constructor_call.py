@@ -10,6 +10,24 @@ from llvmlite import ir
 import os
 from .arg_resolver import make_call_arg_resolver
 
+DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
+PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
+
+
+def _direct_array_i64_constructor_enabled() -> bool:
+    return os.environ.get("HAKO_ARRAY_SLOT_STORE") == "direct_array_i64_exact"
+
+
+def _mark_direct_array_i64_origin(resolver, dst_vid) -> None:
+    if resolver is None or dst_vid is None:
+        return
+    try:
+        if not hasattr(resolver, "direct_array_i64_ids"):
+            resolver.direct_array_i64_ids = set()
+        resolver.direct_array_i64_ids.add(int(dst_vid))
+    except Exception:
+        pass
+
 
 def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resolver, owner):
     """
@@ -67,9 +85,17 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
             result = builder.call(callee, [], name="unified_str_empty")
 
     elif box_type == "ArrayBox":
-        # Align with kernel export (birth_h)
-        callee = _declare("nyash.array.birth_h", i64, [])
+        # Default construction remains public ArrayBox. The DirectArray symbol
+        # is exact-lane only and produces a distinct direct-buffer handle kind.
+        direct_array_birth = _direct_array_i64_constructor_enabled()
+        callee = _declare(
+            DIRECT_ARRAY_I64_BIRTH_SYMBOL if direct_array_birth else PUBLIC_ARRAY_BIRTH_SYMBOL,
+            i64,
+            [],
+        )
         result = builder.call(callee, [], name="unified_arr_new")
+        if direct_array_birth:
+            _mark_direct_array_i64_origin(resolver, dst_vid)
 
     elif box_type == "MapBox":
         # Align with kernel export (birth_h)

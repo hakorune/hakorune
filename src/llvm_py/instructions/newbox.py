@@ -11,6 +11,14 @@ from instructions.typed_object_exact import exact_object_plan_for_box
 from instructions.user_box_local import build_local_user_box_aggregate_for_newbox
 from utils.resolver_helpers import mark_as_handle
 
+DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
+PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
+
+
+def _direct_array_i64_constructor_enabled() -> bool:
+    return os.environ.get("HAKO_ARRAY_SLOT_STORE") == "direct_array_i64_exact"
+
+
 def lower_newbox(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -38,6 +46,16 @@ def lower_newbox(
     def _mark_box_handle():
         try:
             mark_as_handle(resolver, dst_vid, box_type)
+        except Exception:
+            pass
+
+    def _mark_direct_array_i64_origin():
+        if resolver is None:
+            return
+        try:
+            if not hasattr(resolver, "direct_array_i64_ids"):
+                resolver.direct_array_i64_ids = set()
+            resolver.direct_array_i64_ids.add(int(dst_vid))
         except Exception:
             pass
 
@@ -152,7 +170,12 @@ def lower_newbox(
 
     # Core fast paths
     if box_type in ("ArrayBox", "MapBox"):
-        birth_name = "nyash.array.birth_h" if box_type == "ArrayBox" else "nyash.map.birth_h"
+        direct_array_birth = box_type == "ArrayBox" and _direct_array_i64_constructor_enabled()
+        birth_name = (
+            DIRECT_ARRAY_I64_BIRTH_SYMBOL
+            if direct_array_birth
+            else PUBLIC_ARRAY_BIRTH_SYMBOL if box_type == "ArrayBox" else "nyash.map.birth_h"
+        )
         birth = None
         for f in module.functions:
             if f.name == birth_name:
@@ -163,6 +186,8 @@ def lower_newbox(
         handle = builder.call(birth, [], name=f"birth_{box_type}")
         vmap[dst_vid] = handle
         _mark_box_handle()
+        if direct_array_birth:
+            _mark_direct_array_i64_origin()
         return
     # Prefer variadic shim: nyash.env.box.new_i64x(type_name, argc, a1, a2, a3, a4)
     new_i64x = None
