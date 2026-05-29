@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-PINNED-TYPED-OBJECT-ARENA-STORAGE-PILOT-296X-001:
-  Implement the first storage-only pinned typed-object arena pilot while keeping direct lowering closed.
+PINNED-TYPED-OBJECT-ARENA-BACKEND-SELECTION-296X-001:
+  Select how the storage-only pinned arena connects to typed-object backend selection while keeping direct lowering closed.
 ```
 
 ## Queue
@@ -352,7 +352,8 @@ PINNED-TYPED-OBJECT-ARENA-STORAGE-PILOT-296X-001:
 | 305 | `REPRESENTATION-DIRECT-STORAGE-SUBSTRATE-SSOT-296X-001` | Landed | Define the NativeDirect storage substrate after helper-backed ResidentScalar closes zero-net. |
 | 306 | `TYPED-OBJECT-DIRECT-SLOT-LEASE-FEASIBILITY-296X-001` | Landed | Check whether current typed-object storage can support DirectSlotLease without a pinned storage rewrite. |
 | 307 | `PINNED-TYPED-OBJECT-ARENA-SSOT-296X-001` | Landed | Define the pinned typed-object arena required before DirectSlotLease. |
-| 308 | `PINNED-TYPED-OBJECT-ARENA-STORAGE-PILOT-296X-001` | Planned | Implement the first storage-only pinned typed-object arena pilot while keeping direct lowering closed. |
+| 308 | `PINNED-TYPED-OBJECT-ARENA-STORAGE-PILOT-296X-001` | Landed | Implement the first storage-only pinned typed-object arena pilot while keeping direct lowering closed. |
+| 309 | `PINNED-TYPED-OBJECT-ARENA-BACKEND-SELECTION-296X-001` | Planned | Select how the storage-only pinned arena connects to typed-object backend selection while keeping direct lowering closed. |
 
 ## Hako Mimalloc Performance Parity Plan
 

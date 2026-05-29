@@ -25,6 +25,7 @@ pub(crate) mod string_trace;
 pub(crate) mod string_view;
 pub(crate) mod tls;
 pub(crate) mod typed_object;
+pub(crate) mod typed_object_pinned_arena;
 pub(crate) mod typed_object_store;
 pub(crate) mod user_box;
 pub(crate) mod worker;
