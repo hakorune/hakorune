@@ -8,6 +8,8 @@
 use std::cell::RefCell;
 use std::sync::OnceLock;
 
+#[cfg(test)]
+use super::array_direct_i64_buffer::DirectArrayI64BufferV0Box;
 use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::{array_get_index_encoded_i64, with_array_box};
 
@@ -17,12 +19,15 @@ const ARRAY_SLOT_STORE_ENV: &str = "HAKO_ARRAY_SLOT_STORE";
 enum ArraySlotBackend {
     SafeRwLock,
     SingleThreadExact,
+    DirectArrayI64Exact,
 }
 
 static BACKEND: OnceLock<ArraySlotBackend> = OnceLock::new();
 
 thread_local! {
     static SINGLE_THREAD_I64_SLOTS: RefCell<Vec<ArraySlotCacheEntry>> = const { RefCell::new(Vec::new()) };
+    #[cfg(test)]
+    static DIRECT_ARRAY_I64_BUFFERS: RefCell<Vec<DirectArrayI64BufferV0Box>> = const { RefCell::new(Vec::new()) };
 }
 
 #[derive(Debug)]
@@ -36,6 +41,7 @@ fn selected_backend() -> ArraySlotBackend {
         || match std::env::var(ARRAY_SLOT_STORE_ENV).ok().as_deref() {
             None | Some("") | Some("safe_rwlock") => ArraySlotBackend::SafeRwLock,
             Some("single_thread_exact") => ArraySlotBackend::SingleThreadExact,
+            Some("direct_array_i64_exact") => ArraySlotBackend::DirectArrayI64Exact,
             Some(value) => panic!(
             "[freeze:contract][array-slot-store/backend] unsupported {ARRAY_SLOT_STORE_ENV}={value}"
         ),
@@ -123,11 +129,19 @@ fn single_thread_load_encoded_i64(handle: i64, idx: i64) -> i64 {
     })
 }
 
+fn direct_array_i64_helper_route_closed() -> ! {
+    panic!(
+        "[freeze:contract][array-slot-store/direct-array-i64-exact] \
+         helper route closed until bootstrap/materialization bridge is implemented"
+    )
+}
+
 #[inline(always)]
 pub(super) fn store_i64(handle: i64, idx: i64, value_i64: i64) -> i64 {
     match selected_backend() {
         ArraySlotBackend::SafeRwLock => safe_store_i64(handle, idx, value_i64),
         ArraySlotBackend::SingleThreadExact => single_thread_store_i64(handle, idx, value_i64),
+        ArraySlotBackend::DirectArrayI64Exact => direct_array_i64_helper_route_closed(),
     }
 }
 
@@ -136,5 +150,32 @@ pub(super) fn load_encoded_i64(handle: i64, idx: i64) -> i64 {
     match selected_backend() {
         ArraySlotBackend::SafeRwLock => safe_load_encoded_i64(handle, idx),
         ArraySlotBackend::SingleThreadExact => single_thread_load_encoded_i64(handle, idx),
+        ArraySlotBackend::DirectArrayI64Exact => direct_array_i64_helper_route_closed(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn direct_array_i64_exact_backend_allocates_storage_without_helper_route() {
+        if std::env::var(ARRAY_SLOT_STORE_ENV).ok().as_deref() != Some("direct_array_i64_exact") {
+            eprintln!("skip: set HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact");
+            return;
+        }
+        assert_eq!(selected_backend(), ArraySlotBackend::DirectArrayI64Exact);
+
+        DIRECT_ARRAY_I64_BUFFERS.with(|buffers| {
+            let mut buffers = buffers.borrow_mut();
+            let mut buffer = DirectArrayI64BufferV0Box::new(1, 2).expect("buffer");
+            assert!(buffer.store(0, 41));
+            assert!(buffer.store(1, 42));
+            assert!(!buffer.store(2, 43));
+            assert_eq!(buffer.load(0), Some(41));
+            assert_eq!(buffer.load(1), Some(42));
+            buffers.push(buffer);
+            assert_eq!(buffers.len(), 1);
+        });
     }
 }
