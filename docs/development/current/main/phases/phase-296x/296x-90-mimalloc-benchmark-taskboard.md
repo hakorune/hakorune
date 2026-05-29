@@ -36,9 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
-  Refresh exact-slot ownership after excluding already-exercised page-model
-  acquire and release subowners.
+RELEASE-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001:
+  Inventory release-result capsule IR shape before any implementation.
 ```
 
 ## Queue
@@ -336,7 +335,8 @@ POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-00
 | 288 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding repeated facade same-block fusion. |
 | 289 | `PAGE-MODEL-HOTPATH-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory page-model hotpath IR shape before another implementation attempt. |
 | 290 | `PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Choose the page-model shape owner without repeating prior no-material receiver forwarding. |
-| 291 | `POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Refresh exact-slot ownership after excluding already-exercised page-model subowners. |
+| 291 | `POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding already-exercised page-model subowners. |
+| 292 | `RELEASE-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Inventory release-result capsule IR shape before any implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 

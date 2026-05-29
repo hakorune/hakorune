@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x rejected page-model retry because both acquire_usize copy forwarding and releaseKnownLive RMW already have no-effect evidence; owner refresh is next."
+active_lane_status = "Phase-296x refreshed owners after excluding page-queue, facade, and page-model repeats; release-result capsule IR shape inventory is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-290-PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-290-PAGE-MODEL-HOTPATH-SHAPE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
-latest_card_summary = "Rejected page-model retry because acquire_usize copy forwarding and releaseKnownLive RMW both have prior no-effect evidence; owner refresh is next."
-current_blocker_token = "POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
+latest_card = "296x-291-POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-291-POST-PAGE-MODEL-HOTPATH-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION.md"
+latest_card_summary = "Selected release_result_capsule IR shape inventory after excluding page-queue, facade, and page-model repeats."
+current_blocker_token = "RELEASE-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-291 Selected release_result_capsule IR shape inventory after excluding page-queue, facade, and page-model repeats.",
   "296x-290 Rejected page-model retry because acquire_usize copy forwarding and releaseKnownLive RMW both have prior no-effect evidence; owner refresh is next.",
   "296x-289 Inventoried page-model hotpath IR shape after recordSuccess helper fusion: acquire_usize remains top at 6.31% with copy_materialization shape.",
   "296x-288 Selected page_model_hotpath IR shape inventory after excluding the already-exercised facade surface and recent page-queue no-effect family.",
