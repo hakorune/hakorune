@@ -321,7 +321,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 273 | `FACADE-FIELD-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select owner refresh instead of repeating the already-landed facade same-block fusion. |
 | 274 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select alloc-result capsule IR-shape inventory after excluding facade repeat and recent page-model retry. |
 | 275 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Inventory alloc/release result capsule IR shape before any implementation. |
-| 276 | `RESULT-CAPSULE-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Planned | Select one capsule owner from row275 current IR shape. |
+| 276 | `RESULT-CAPSULE-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select recordSuccess shape guard surface instead of repeating reset batching. |
+| 277 | `RESULT-CAPSULE-RECORD-SUCCESS-SHAPE-GUARD-SURFACE-296X-001` | Planned | Freeze branch-aware recordSuccess capsule guard surface before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
