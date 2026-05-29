@@ -318,7 +318,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 270 | `POST-RELEASE-KNOWN-LIVE-RMW-ROLLBACK-OWNER-REFRESH-296X-001` | Landed | Refresh hot ownership after rolling back the no-effect releaseLocalKnownLive RMW implementation. |
 | 271 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select the next exact-slot owner after releaseKnownLive rollback, with page-model immediate retry blocked. |
 | 272 | `FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Inventory residual facade exact-slot traffic after releaseKnownLive rollback before any implementation. |
-| 273 | `FACADE-FIELD-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Planned | Select the next facade owner from row272 inventory, or stop if the positive-net surface is too small. |
+| 273 | `FACADE-FIELD-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select owner refresh instead of repeating the already-landed facade same-block fusion. |
+| 274 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Planned | Refresh exact-slot ownership after excluding the already-exercised facade surface. |
 
 ## Hako Mimalloc Performance Parity Plan
 
