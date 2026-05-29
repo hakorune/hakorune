@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001:
-  Define the representation/direct-lowering contract for C-like hot object
-  field access.
+REPRESENTATION-CANDIDATE-INVENTORY-296X-001:
+  Compare typed-object, result-capsule, and ArraySlot representation candidates
+  with one shared positive-net inventory contract.
 ```
 
 ## Queue
@@ -343,7 +343,8 @@ REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001:
 | 295 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory alloc-result capsule as the last unblocked small exact-slot family. |
 | 296 | `ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Decide whether alloc-result has a new positive-net owner or close micro-helper hunting. |
 | 297 | `MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001` | Landed | Close small exact-slot helper hunting and select representation/direct lowering as the next design lane. |
-| 298 | `REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001` | Planned | Define the representation/direct-lowering contract for C-like hot object field access. |
+| 298 | `REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001` | Landed | Define the representation/direct-lowering contract for C-like hot object field access. |
+| 299 | `REPRESENTATION-CANDIDATE-INVENTORY-296X-001` | Planned | Compare typed-object, result-capsule, and ArraySlot representation candidates with one shared positive-net inventory contract. |
 
 ## Hako Mimalloc Performance Parity Plan
 
