@@ -228,6 +228,38 @@ fn with_direct_slot_materialized_view_mut<R>(
     })
 }
 
+fn with_direct_slot_object<R>(
+    handle: i64,
+    f: impl FnOnce(&DirectSlotObjectV0Box) -> R,
+) -> Option<R> {
+    if selected_backend() != TypedObjectStoreBackend::DirectSlotExact {
+        return None;
+    }
+    DIRECT_SLOT_OBJECTS.with(|objects| {
+        let objects = objects.try_borrow().ok()?;
+        let object = objects
+            .iter()
+            .find(|object| object.matches_handle(handle))?;
+        Some(f(object))
+    })
+}
+
+fn with_direct_slot_object_mut<R>(
+    handle: i64,
+    f: impl FnOnce(&mut DirectSlotObjectV0Box) -> R,
+) -> Option<R> {
+    if selected_backend() != TypedObjectStoreBackend::DirectSlotExact {
+        return None;
+    }
+    DIRECT_SLOT_OBJECTS.with(|objects| {
+        let mut objects = objects.try_borrow_mut().ok()?;
+        let object = objects
+            .iter_mut()
+            .find(|object| object.matches_handle(handle))?;
+        Some(f(object))
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -250,9 +282,13 @@ mod tests {
 
         assert_eq!(handle & 1, 1);
         assert!(DirectSlotObjectV0Box::from_handle(handle).is_some());
-        assert!(get_legacy_i64(handle, 0).is_none());
-        assert!(!set_legacy_i64(handle, 0, 1));
-        assert!(exact_slot_get_i64(handle, 0).is_none());
+        assert_eq!(get_legacy_i64(handle, 0), Some(0));
+        assert!(set_legacy_i64(handle, 0, 1));
+        assert_eq!(exact_slot_get_i64(handle, 0), Some(1));
+        assert!(set_exact_unsigned_u64(handle, 1, 2));
+        assert_eq!(get_exact_unsigned_u64(handle, 1), Some(2));
+        assert!(exact_slot_set_handle(handle, 2, -5));
+        assert_eq!(exact_slot_get_handle(handle, 2), Some(-5));
     }
 
     #[test]
@@ -287,7 +323,7 @@ mod tests {
         assert_eq!(snapshot.fields[1].value, TypedSlotValue::Unsigned(11));
         assert_eq!(snapshot.fields[2].value, TypedSlotValue::Handle(-3));
         assert!(materialize_direct_slot_snapshot(-1).is_none());
-        assert!(get_legacy_i64(handle, 0).is_none());
+        assert_eq!(get_legacy_i64(handle, 0), Some(-7));
     }
 
     #[test]
@@ -315,7 +351,7 @@ mod tests {
         };
         let direct_handle = new_typed_object(object).unwrap();
         assert!(direct_handle > 0);
-        assert!(get_legacy_i64(direct_handle, 0).is_none());
+        assert_eq!(get_legacy_i64(direct_handle, 0), Some(-9));
 
         let view_handle = materialize_direct_slot_view_handle(direct_handle).unwrap();
         assert!(view_handle < 0);
@@ -328,9 +364,43 @@ mod tests {
         let direct_snapshot = materialize_direct_slot_snapshot(direct_handle).unwrap();
         assert_eq!(direct_snapshot.fields[0].value, TypedSlotValue::I64(-9));
     }
+
+    #[test]
+    fn direct_slot_exact_positive_handle_helpers_update_primary_cells() {
+        if std::env::var(TYPED_OBJECT_STORE_ENV).ok().as_deref() != Some("direct_slot_exact") {
+            eprintln!("skip: set HAKO_TYPED_OBJECT_STORE=direct_slot_exact");
+            return;
+        }
+        let object = TypedSlotObject {
+            type_id: 41,
+            fields: vec![
+                TypedSlot::new(TypedSlotStorage::I64),
+                TypedSlot::new(TypedSlotStorage::USize),
+                TypedSlot::new(TypedSlotStorage::Handle),
+            ],
+        };
+        let handle = new_typed_object(object).unwrap();
+
+        assert!(set_legacy_i64(handle, 0, -11));
+        assert!(set_exact_unsigned_u64(handle, 1, 29));
+        assert!(exact_slot_set_handle(handle, 2, -17));
+        assert_eq!(get_legacy_i64(handle, 0), Some(-11));
+        assert_eq!(get_exact_unsigned_u64(handle, 1), Some(29));
+        assert_eq!(exact_slot_get_handle(handle, 2), Some(-17));
+
+        let snapshot = materialize_direct_slot_snapshot(handle).unwrap();
+        assert_eq!(snapshot.fields[0].value, TypedSlotValue::I64(-11));
+        assert_eq!(snapshot.fields[1].value, TypedSlotValue::Unsigned(29));
+        assert_eq!(snapshot.fields[2].value, TypedSlotValue::Handle(-17));
+    }
 }
 
 pub(crate) fn get_legacy_i64(handle: i64, slot: usize) -> Option<i64> {
+    if let Some(value) =
+        with_direct_slot_object(handle, |object| object.get_legacy_i64(slot)).flatten()
+    {
+        return Some(value);
+    }
     with_field(handle, slot, |field| match field.value {
         super::typed_object::TypedSlotValue::I64(value)
         | super::typed_object::TypedSlotValue::Handle(value) => Some(value),
@@ -340,26 +410,56 @@ pub(crate) fn get_legacy_i64(handle: i64, slot: usize) -> Option<i64> {
 }
 
 pub(crate) fn set_legacy_i64(handle: i64, slot: usize, value: i64) -> bool {
+    if let Some(ok) =
+        with_direct_slot_object_mut(handle, |object| object.set_legacy_i64(slot, value))
+    {
+        return ok;
+    }
     with_field_mut(handle, slot, |field| field.set_legacy_i64(value)).unwrap_or(false)
 }
 
 pub(crate) fn field_storage_tag(handle: i64, slot: usize) -> Option<i64> {
+    if let Some(tag) =
+        with_direct_slot_object(handle, |object| object.field_storage_tag(slot)).flatten()
+    {
+        return Some(tag);
+    }
     with_field(handle, slot, |field| field.storage.tag())
 }
 
 pub(crate) fn get_exact_unsigned_u64(handle: i64, slot: usize) -> Option<u64> {
+    if let Some(value) =
+        with_direct_slot_object(handle, |object| object.get_exact_unsigned_u64(slot)).flatten()
+    {
+        return Some(value);
+    }
     with_field(handle, slot, |field| field.as_exact_unsigned_u64())?
 }
 
 pub(crate) fn set_exact_unsigned_u64(handle: i64, slot: usize, value: u64) -> bool {
+    if let Some(ok) =
+        with_direct_slot_object_mut(handle, |object| object.set_exact_unsigned_u64(slot, value))
+    {
+        return ok;
+    }
     with_field_mut(handle, slot, |field| field.set_exact_unsigned_u64(value)).unwrap_or(false)
 }
 
 pub(crate) fn get_exact_signed_i64(handle: i64, slot: usize) -> Option<i64> {
+    if let Some(value) =
+        with_direct_slot_object(handle, |object| object.get_exact_signed_i64(slot)).flatten()
+    {
+        return Some(value);
+    }
     with_field(handle, slot, |field| field.as_exact_signed_i64())?
 }
 
 pub(crate) fn set_exact_signed_i64(handle: i64, slot: usize, value: i64) -> bool {
+    if let Some(ok) =
+        with_direct_slot_object_mut(handle, |object| object.set_exact_signed_i64(slot, value))
+    {
+        return ok;
+    }
     with_field_mut(handle, slot, |field| field.set_exact_signed_i64(value)).unwrap_or(false)
 }
 
@@ -394,6 +494,11 @@ fn exact_increment_u64_field(field: &mut TypedSlot) -> bool {
 }
 
 pub(crate) fn exact_slot_get_i64(handle: i64, slot: usize) -> Option<i64> {
+    if let Some(value) =
+        with_direct_slot_object(handle, |object| object.exact_slot_get_i64(slot)).flatten()
+    {
+        return Some(value);
+    }
     with_exact_fields(handle, |fields| {
         let field = fields.get(slot)?;
         if field.storage != TypedSlotStorage::I64 {
@@ -407,6 +512,11 @@ pub(crate) fn exact_slot_get_i64(handle: i64, slot: usize) -> Option<i64> {
 }
 
 pub(crate) fn exact_slot_set_i64(handle: i64, slot: usize, value: i64) -> bool {
+    if let Some(ok) =
+        with_direct_slot_object_mut(handle, |object| object.exact_slot_set_i64(slot, value))
+    {
+        return ok;
+    }
     with_exact_fields_mut(handle, |fields| {
         let Some(field) = fields.get_mut(slot) else {
             return false;
@@ -428,6 +538,11 @@ pub(crate) fn exact_slot_set4_i64(
     value2: i64,
     value3: i64,
 ) -> bool {
+    if let Some(ok) = with_direct_slot_object_mut(handle, |object| {
+        object.exact_slot_set4_i64(start_slot, value0, value1, value2, value3)
+    }) {
+        return ok;
+    }
     let Some(end_slot) = start_slot.checked_add(4) else {
         return false;
     };
@@ -451,6 +566,11 @@ pub(crate) fn exact_slot_set4_i64(
 }
 
 pub(crate) fn exact_slot_record_alloc_success(handle: i64, selected_kind: i64) -> bool {
+    if let Some(ok) = with_direct_slot_object_mut(handle, |object| {
+        object.exact_slot_record_alloc_success(selected_kind)
+    }) {
+        return ok;
+    }
     const LAST_REASON: usize = 2;
     const LAST_OK: usize = 3;
     const SUCCESS_COUNT: usize = 5;
@@ -482,6 +602,11 @@ pub(crate) fn exact_slot_record_alloc_success(handle: i64, selected_kind: i64) -
 }
 
 pub(crate) fn exact_slot_record_release_success(handle: i64, page_id: i64, block_id: i64) -> bool {
+    if let Some(ok) = with_direct_slot_object_mut(handle, |object| {
+        object.exact_slot_record_release_success(page_id, block_id)
+    }) {
+        return ok;
+    }
     const LAST_PAGE_ID: usize = 0;
     const LAST_BLOCK_ID: usize = 1;
     const LAST_REASON: usize = 2;
@@ -510,6 +635,11 @@ pub(crate) fn exact_slot_record_release_success(handle: i64, page_id: i64, block
 }
 
 pub(crate) fn exact_slot_get_u64(handle: i64, slot: usize) -> Option<u64> {
+    if let Some(value) =
+        with_direct_slot_object(handle, |object| object.exact_slot_get_u64(slot)).flatten()
+    {
+        return Some(value);
+    }
     with_exact_fields(handle, |fields| {
         let field = fields.get(slot)?;
         if !exact_u64_storage_supported(field.storage) {
@@ -523,6 +653,11 @@ pub(crate) fn exact_slot_get_u64(handle: i64, slot: usize) -> Option<u64> {
 }
 
 pub(crate) fn exact_slot_set_u64(handle: i64, slot: usize, value: u64) -> bool {
+    if let Some(ok) =
+        with_direct_slot_object_mut(handle, |object| object.exact_slot_set_u64(slot, value))
+    {
+        return ok;
+    }
     with_exact_fields_mut(handle, |fields| {
         let Some(field) = fields.get_mut(slot) else {
             return false;
@@ -538,6 +673,14 @@ pub(crate) fn exact_slot_set_u64(handle: i64, slot: usize, value: u64) -> bool {
 
 pub(crate) fn exact_slot_rmw_add_u64(handle: i64, slot: usize, delta: i64) -> Option<i64> {
     let delta = u128::try_from(delta).ok()?;
+    if let Some(value) = with_direct_slot_object_mut(handle, |object| {
+        let delta = u64::try_from(delta).ok()?;
+        object.exact_slot_rmw_add_u64(slot, delta)
+    })
+    .flatten()
+    {
+        return Some(value);
+    }
     with_exact_fields_mut(handle, |fields| {
         let field = fields.get_mut(slot)?;
         if !exact_u64_storage_supported(field.storage) {
@@ -555,6 +698,11 @@ pub(crate) fn exact_slot_rmw_add_u64(handle: i64, slot: usize, delta: i64) -> Op
 }
 
 pub(crate) fn exact_slot_get_handle(handle: i64, slot: usize) -> Option<i64> {
+    if let Some(value) =
+        with_direct_slot_object(handle, |object| object.exact_slot_get_handle(slot)).flatten()
+    {
+        return Some(value);
+    }
     with_exact_fields(handle, |fields| {
         let field = fields.get(slot)?;
         if field.storage != TypedSlotStorage::Handle {
@@ -568,6 +716,11 @@ pub(crate) fn exact_slot_get_handle(handle: i64, slot: usize) -> Option<i64> {
 }
 
 pub(crate) fn exact_slot_set_handle(handle: i64, slot: usize, value: i64) -> bool {
+    if let Some(ok) =
+        with_direct_slot_object_mut(handle, |object| object.exact_slot_set_handle(slot, value))
+    {
+        return ok;
+    }
     with_exact_fields_mut(handle, |fields| {
         let Some(field) = fields.get_mut(slot) else {
             return false;

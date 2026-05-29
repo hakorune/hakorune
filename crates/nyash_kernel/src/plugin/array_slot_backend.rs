@@ -6,7 +6,6 @@
 //! silently falling back.
 
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::sync::OnceLock;
 
 use super::array_guard::valid_handle_idx;
@@ -23,7 +22,13 @@ enum ArraySlotBackend {
 static BACKEND: OnceLock<ArraySlotBackend> = OnceLock::new();
 
 thread_local! {
-    static SINGLE_THREAD_I64_SLOTS: RefCell<HashMap<i64, Vec<i64>>> = RefCell::new(HashMap::new());
+    static SINGLE_THREAD_I64_SLOTS: RefCell<Vec<ArraySlotCacheEntry>> = const { RefCell::new(Vec::new()) };
+}
+
+#[derive(Debug)]
+struct ArraySlotCacheEntry {
+    handle: i64,
+    values: Vec<i64>,
 }
 
 fn selected_backend() -> ArraySlotBackend {
@@ -81,10 +86,13 @@ fn initialize_exact_i64_slots(handle: i64) -> Vec<i64> {
 fn single_thread_slots_mut<R>(handle: i64, f: impl FnOnce(&mut Vec<i64>) -> R) -> R {
     SINGLE_THREAD_I64_SLOTS.with(|slots| {
         let mut slots = slots.borrow_mut();
-        let values = slots
-            .entry(handle)
-            .or_insert_with(|| initialize_exact_i64_slots(handle));
-        f(values)
+        if let Some(index) = slots.iter().position(|entry| entry.handle == handle) {
+            return f(&mut slots[index].values);
+        }
+        let values = initialize_exact_i64_slots(handle);
+        slots.push(ArraySlotCacheEntry { handle, values });
+        let index = slots.len() - 1;
+        f(&mut slots[index].values)
     })
 }
 

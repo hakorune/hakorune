@@ -5,6 +5,55 @@
        * MIR-owned TypedObjectPlan bindings only. It must not infer layout or
        * slots from raw declaration names.
        */
+      enum {
+        SAME_MODULE_DIRECT_SLOT_OBJECT_HEADER_BYTES = 24,
+        SAME_MODULE_DIRECT_SLOT_CELL_BYTES = 16,
+        SAME_MODULE_DIRECT_SLOT_CELL_PAYLOAD_OFFSET_BYTES = 8
+      };
+
+      auto int same_module_function_direct_slot_nativedirect_backend_enabled(void) {
+        const char* store = getenv("HAKO_TYPED_OBJECT_STORE");
+        return store && !strcmp(store, "direct_slot_exact");
+      }
+
+      auto int same_module_function_direct_slot_nativedirect_storage_supported(
+          const char* storage) {
+        return typed_object_storage_is_exact_slot_i64(storage) ||
+               typed_object_storage_is_exact_slot_u64(storage) ||
+               typed_object_storage_is_exact_slot_handle(storage);
+      }
+
+      auto void same_module_function_emit_direct_slot_payload_ptr(
+          long long box_ref_reg,
+          long long slot,
+          const char* ptr_name,
+          long long bid,
+          size_t ii) {
+        char receiver_ref[96];
+        long long payload_offset =
+            SAME_MODULE_DIRECT_SLOT_OBJECT_HEADER_BYTES +
+            slot * SAME_MODULE_DIRECT_SLOT_CELL_BYTES +
+            SAME_MODULE_DIRECT_SLOT_CELL_PAYLOAD_OFFSET_BYTES;
+        same_module_function_format_i64_ref(
+            receiver_ref,
+            sizeof(receiver_ref),
+            box_ref_reg);
+        EMIT("  %%direct_slot_base_%lld_%zu = and i64 %s, -2\n",
+             bid,
+             ii,
+             receiver_ref);
+        EMIT("  %%direct_slot_payload_addr_%lld_%zu = add i64 %%direct_slot_base_%lld_%zu, %lld\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             payload_offset);
+        EMIT("  %%%s = inttoptr i64 %%direct_slot_payload_addr_%lld_%zu to ptr\n",
+             ptr_name,
+             bid,
+             ii);
+      }
+
       auto int same_module_function_emit_newbox(yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
         const char* tname = read_str(ins, "type");
@@ -102,6 +151,36 @@
                 field,
                 &slot,
                 &storage)) return 0;
+        if (same_module_function_direct_slot_nativedirect_backend_enabled() &&
+            same_module_function_direct_slot_nativedirect_storage_supported(storage)) {
+          char ptr_name[96];
+          char value_ref[96];
+          if (typed_object_storage_is_exact_slot_u64(storage)) {
+            if (value_is_const && value_const < 0) return 0;
+            if (!value_is_const) {
+              same_module_function_emit_unsigned_nonnegative_trap(
+                  value_base,
+                  bid,
+                  ii);
+            }
+          }
+          snprintf(ptr_name, sizeof(ptr_name), "direct_slot_payload_ptr_%lld_%zu", bid, ii);
+          same_module_function_emit_direct_slot_payload_ptr(
+              box_ref_reg,
+              slot,
+              ptr_name,
+              bid,
+              ii);
+          same_module_function_format_i64_ref(
+              value_ref,
+              sizeof(value_ref),
+              value_reg);
+          EMIT("  store i64 %s, ptr %%%s\n", value_ref, ptr_name);
+          EMIT("  br label %%exact_status_continue_%lld_%zu\n", bid, ii);
+          EMIT("exact_status_continue_%lld_%zu:\n", bid, ii);
+          note_exact_status_continue_label(bid, ii);
+          return 1;
+        }
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), box_ref_reg, 1);
         {
@@ -176,7 +255,10 @@
         return 1;
       }
 
-      auto int same_module_function_emit_typed_object_field_get(yyjson_val* ins) {
+      auto int same_module_function_emit_typed_object_field_get(
+          yyjson_val* ins,
+          long long bid,
+          size_t ii) {
         long long dst = read_int(ins, "dst");
         long long box_reg = read_int(ins, "box");
         long long box_ref_reg = box_reg;
@@ -193,6 +275,22 @@
                 field,
                 &slot,
                 &storage)) return 0;
+        if (same_module_function_direct_slot_nativedirect_backend_enabled() &&
+            same_module_function_direct_slot_nativedirect_storage_supported(storage)) {
+          char ptr_name[96];
+          snprintf(ptr_name, sizeof(ptr_name), "direct_slot_payload_ptr_%lld_%zu", bid, ii);
+          same_module_function_emit_direct_slot_payload_ptr(
+              box_ref_reg,
+              slot,
+              ptr_name,
+              bid,
+              ii);
+          EMIT("  %%r%lld = load i64, ptr %%%s\n", dst, ptr_name);
+          if (!same_module_function_publish_reg_metadata(dst)) {
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), box_ref_reg, 1);
         {

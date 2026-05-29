@@ -117,6 +117,185 @@ impl DirectSlotObjectV0Box {
         Some(unsafe { direct_slot_object_cells_ptr(self.ptr.as_ptr()).add(slot) })
     }
 
+    fn cell(&self, slot: usize) -> Option<&DirectSlotCellV0> {
+        let ptr = self.cell_ptr(slot)?;
+        Some(unsafe { &*ptr })
+    }
+
+    fn cell_mut(&mut self, slot: usize) -> Option<&mut DirectSlotCellV0> {
+        if slot >= self.field_count {
+            return None;
+        }
+        let ptr = unsafe { direct_slot_object_cells_mut_ptr(self.ptr.as_ptr()).add(slot) };
+        Some(unsafe { &mut *ptr })
+    }
+
+    pub(crate) fn field_storage_tag(&self, slot: usize) -> Option<i64> {
+        Some(self.cell(slot)?.to_typed_slot()?.storage.tag())
+    }
+
+    pub(crate) fn get_legacy_i64(&self, slot: usize) -> Option<i64> {
+        match self.cell(slot)?.storage_tag {
+            DIRECT_SLOT_TAG_I64 | DIRECT_SLOT_TAG_HANDLE => Some(self.cell(slot)?.payload as i64),
+            DIRECT_SLOT_TAG_U64 | DIRECT_SLOT_TAG_USIZE => Some(0),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn set_legacy_i64(&mut self, slot: usize, value: i64) -> bool {
+        let Some(cell) = self.cell_mut(slot) else {
+            return false;
+        };
+        match cell.storage_tag {
+            DIRECT_SLOT_TAG_I64 => cell.write_i64(value),
+            DIRECT_SLOT_TAG_HANDLE => cell.write_handle(value),
+            _ => false,
+        }
+    }
+
+    pub(crate) fn get_exact_unsigned_u64(&self, slot: usize) -> Option<u64> {
+        self.cell(slot)?.read_u64()
+    }
+
+    pub(crate) fn set_exact_unsigned_u64(&mut self, slot: usize, value: u64) -> bool {
+        self.cell_mut(slot)
+            .map(|cell| cell.write_u64(value))
+            .unwrap_or(false)
+    }
+
+    pub(crate) fn get_exact_signed_i64(&self, slot: usize) -> Option<i64> {
+        self.cell(slot)?.read_i64()
+    }
+
+    pub(crate) fn set_exact_signed_i64(&mut self, slot: usize, value: i64) -> bool {
+        self.cell_mut(slot)
+            .map(|cell| cell.write_i64(value))
+            .unwrap_or(false)
+    }
+
+    pub(crate) fn exact_slot_get_i64(&self, slot: usize) -> Option<i64> {
+        self.get_exact_signed_i64(slot)
+    }
+
+    pub(crate) fn exact_slot_set_i64(&mut self, slot: usize, value: i64) -> bool {
+        self.set_exact_signed_i64(slot, value)
+    }
+
+    pub(crate) fn exact_slot_set4_i64(
+        &mut self,
+        start_slot: usize,
+        value0: i64,
+        value1: i64,
+        value2: i64,
+        value3: i64,
+    ) -> bool {
+        let Some(end_slot) = start_slot.checked_add(4) else {
+            return false;
+        };
+        if end_slot > self.field_count {
+            return false;
+        }
+        for slot in start_slot..end_slot {
+            if self
+                .cell(slot)
+                .and_then(DirectSlotCellV0::read_i64)
+                .is_none()
+            {
+                return false;
+            }
+        }
+        self.exact_slot_set_i64(start_slot, value0)
+            && self.exact_slot_set_i64(start_slot + 1, value1)
+            && self.exact_slot_set_i64(start_slot + 2, value2)
+            && self.exact_slot_set_i64(start_slot + 3, value3)
+    }
+
+    pub(crate) fn exact_slot_get_u64(&self, slot: usize) -> Option<u64> {
+        self.get_exact_unsigned_u64(slot)
+    }
+
+    pub(crate) fn exact_slot_set_u64(&mut self, slot: usize, value: u64) -> bool {
+        self.set_exact_unsigned_u64(slot, value)
+    }
+
+    pub(crate) fn exact_slot_rmw_add_u64(&mut self, slot: usize, delta: u64) -> Option<i64> {
+        let value = self.exact_slot_get_u64(slot)?;
+        let next = value.checked_add(delta)?;
+        let next_i64 = i64::try_from(next).ok()?;
+        self.exact_slot_set_u64(slot, next).then_some(next_i64)
+    }
+
+    pub(crate) fn exact_slot_get_handle(&self, slot: usize) -> Option<i64> {
+        self.cell(slot)?.read_handle()
+    }
+
+    pub(crate) fn exact_slot_set_handle(&mut self, slot: usize, value: i64) -> bool {
+        self.cell_mut(slot)
+            .map(|cell| cell.write_handle(value))
+            .unwrap_or(false)
+    }
+
+    pub(crate) fn exact_slot_record_alloc_success(&mut self, selected_kind: i64) -> bool {
+        const LAST_REASON: usize = 2;
+        const LAST_OK: usize = 3;
+        const SUCCESS_COUNT: usize = 5;
+        const REUSABLE_SUCCESS_COUNT: usize = 7;
+        const ACTIVE_SUCCESS_COUNT: usize = 8;
+
+        if self.field_count <= ACTIVE_SUCCESS_COUNT {
+            return false;
+        }
+        if !self.exact_slot_set_i64(LAST_REASON, 0) {
+            return false;
+        }
+        if !self.exact_slot_set_i64(LAST_OK, 1) {
+            return false;
+        }
+        if self.exact_slot_rmw_add_u64(SUCCESS_COUNT, 1).is_none() {
+            return false;
+        }
+        if selected_kind == 1 {
+            return self
+                .exact_slot_rmw_add_u64(REUSABLE_SUCCESS_COUNT, 1)
+                .is_some();
+        }
+        if selected_kind == 2 {
+            return self
+                .exact_slot_rmw_add_u64(ACTIVE_SUCCESS_COUNT, 1)
+                .is_some();
+        }
+        true
+    }
+
+    pub(crate) fn exact_slot_record_release_success(
+        &mut self,
+        page_id: i64,
+        block_id: i64,
+    ) -> bool {
+        const LAST_PAGE_ID: usize = 0;
+        const LAST_BLOCK_ID: usize = 1;
+        const LAST_REASON: usize = 2;
+        const LAST_OK: usize = 3;
+        const SUCCESS_COUNT: usize = 4;
+
+        if self.field_count <= SUCCESS_COUNT {
+            return false;
+        }
+        if !self.exact_slot_set_i64(LAST_PAGE_ID, page_id) {
+            return false;
+        }
+        if !self.exact_slot_set_i64(LAST_BLOCK_ID, block_id) {
+            return false;
+        }
+        if !self.exact_slot_set_i64(LAST_REASON, 0) {
+            return false;
+        }
+        if !self.exact_slot_set_i64(LAST_OK, 1) {
+            return false;
+        }
+        self.exact_slot_rmw_add_u64(SUCCESS_COUNT, 1).is_some()
+    }
+
     pub(crate) fn materialize_typed_object_snapshot(&self) -> Option<TypedSlotObject> {
         let header = unsafe { self.ptr.as_ref() };
         let cells = unsafe { direct_slot_object_cells_ptr(self.ptr.as_ptr()) };
