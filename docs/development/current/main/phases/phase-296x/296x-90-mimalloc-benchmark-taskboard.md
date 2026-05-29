@@ -325,7 +325,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 277 | `RESULT-CAPSULE-RECORD-SUCCESS-REPRESENTATION-GUARD-SURFACE-296X-001` | Landed | Reframe recordSuccess as a representation decision and select capsule value-result contract SSOT before implementation. |
 | 278 | `CAPSULE-VALUE-RESULT-CONTRACT-SSOT-296X-001` | Landed | Define capsule ValueAggregate/materialization/writeback contract before recordSuccess implementation. |
 | 279 | `CAPSULE-VALUE-RESULT-PLAN-INVENTORY-296X-001` | Landed | Inventory method-local recordSuccess ValueAggregate plan and select caller-region inventory because method-local net is zero. |
-| 280 | `CAPSULE-VALUE-RESULT-CALLER-REGION-INVENTORY-296X-001` | Planned | Inventory caller regions to see whether recordSuccess value deltas can materialize later at known observer boundaries. |
+| 280 | `CAPSULE-VALUE-RESULT-CALLER-REGION-INVENTORY-296X-001` | Landed | Inventory caller regions and reject ValueAggregate implementation for this surface because public returns force materialization. |
+| 281 | `RECORD-SUCCESS-HELPER-FUSION-GUARD-SURFACE-296X-001` | Planned | Freeze recordSuccess helper-fusion guard surface after ValueAggregate was rejected for this shape. |
 
 ## Hako Mimalloc Performance Parity Plan
 
