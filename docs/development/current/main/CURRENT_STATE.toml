@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x removed supported typed-object helper calls with fact-driven DirectSlot NativeDirect lowering, landed an Array single-thread handle cache, and selected ArraySlot NativeDirect guard surface next."
+active_lane_status = "Phase-296x fixed DirectArrayI64BufferV0 materialization/fallback sync policy; backend connection selection is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-347-POST-ARRAY-HANDLE-CACHE-OWNER-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-347-POST-ARRAY-HANDLE-CACHE-OWNER-REFRESH.md"
-latest_card_summary = "Refreshed ownership after Array handle-cache keeper: hash lookup is gone and Array slot helper boundary remains dominant, selecting ArraySlot NativeDirect guard surface next."
-current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-GUARD-SURFACE-296X-001"
+latest_card = "296x-351-DIRECT-ARRAY-I64-MATERIALIZATION-SYNC-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-351-DIRECT-ARRAY-I64-MATERIALIZATION-SYNC-SSOT.md"
+latest_card_summary = "Defined DirectArrayI64BufferV0 sync policy: DirectArray is primary only in selected NativeDirect regions, public ArrayBox is the materialized view, and dual truth is forbidden."
+current_blocker_token = "DIRECT-ARRAY-I64-BACKEND-CONNECTION-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-351 Defined DirectArrayI64BufferV0 sync policy: DirectArray is primary only in selected NativeDirect regions, public ArrayBox is the materialized view, and dual truth is forbidden.",
+  "296x-350 Implemented storage-only DirectArrayI64BufferV0 with stable header/data offsets and i64 store/load smoke while keeping ArrayBox and LLVM lowering unchanged.",
+  "296x-349 Selected DirectArrayI64BufferV0 as a repr(C) header plus trailing i64 slice layout, keeping public ArrayBox semantics and LLVM lowering closed.",
+  "296x-348 Defined ArraySlot NativeDirect guard surface: public ArrayBox remains runtime-owned, hot exact i64 slots move toward DirectArrayI64BufferV0, and lowering stays closed.",
   "296x-347 Refreshed ownership after Array handle-cache keeper: hash lookup is gone and Array slot helper boundary remains dominant, selecting ArraySlot NativeDirect guard surface next.",
   "296x-346 Replaced the diagnostic Array single-thread exact backend HashMap lookup with a small handle-entry cache, preserving exact-EXE semantics.",
   "296x-345 Refreshed ownership after supported-storage DirectSlot lowering: Array single-thread exact HashMap lookup dominated, selecting handle cache next.",
