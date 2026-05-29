@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x refreshed ownership after releaseKnownLive RMW rollback; weighted exact-slot owner selection is next."
+active_lane_status = "Phase-296x selected residual facade exact-slot inventory after releaseKnownLive rollback; implementation remains closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-270-POST-RELEASE-KNOWN-LIVE-RMW-ROLLBACK-OWNER-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-270-POST-RELEASE-KNOWN-LIVE-RMW-ROLLBACK-OWNER-REFRESH.md"
-latest_card_summary = "Refreshed ownership after releaseKnownLive RMW rollback: exact-slot get/set remains 49.64%, object_lifecycle_facade is dominant at 15.68%, weighted owner selection is next."
-current_blocker_token = "WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001"
+latest_card = "296x-271-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-271-WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK.md"
+latest_card_summary = "Selected object_lifecycle_facade as the next exact-slot owner and chose facade exact-slot IR-shape inventory, keeping page-model immediate retry blocked."
+current_blocker_token = "FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-271 Selected object_lifecycle_facade as the next exact-slot owner and chose facade exact-slot IR-shape inventory, keeping page-model immediate retry blocked.",
   "296x-270 Refreshed ownership after releaseKnownLive RMW rollback: exact-slot get/set remains 49.64%, object_lifecycle_facade is dominant at 15.68%, weighted owner selection is next.",
   "296x-269 Rolled back the no-effect releaseLocalKnownLive RMW target-list addition while preserving semantic proof and selecting owner refresh next.",
   "296x-268 Measured releaseLocalKnownLive single-use RMW as no-effect: floor 111ms, candidate 113ms, keeper=0, rollback is next.",
