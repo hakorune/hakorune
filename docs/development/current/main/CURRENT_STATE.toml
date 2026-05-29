@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-30"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x closed DirectArray helper fallback scaffolding and selected ArraySlot NativeDirect lowering readiness inventory; inventory is next."
+active_lane_status = "Phase-296x inventoried ArraySlot NativeDirect lowering readiness for HakoAllocPageModel.acquire_usize/1; guard surface is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-358-DIRECT-ARRAY-I64-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-358-DIRECT-ARRAY-I64-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION.md"
-latest_card_summary = "Closed DirectArray helper fallback scaffolding and selected ArraySlot NativeDirect lowering readiness inventory while keeping LLVM lowering closed."
-current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-LOWERING-READINESS-INVENTORY-296X-001"
+latest_card = "296x-359-ARRAY-SLOT-NATIVEDIRECT-LOWERING-READINESS-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-359-ARRAY-SLOT-NATIVEDIRECT-LOWERING-READINESS-INVENTORY.md"
+latest_card_summary = "Inventoried ArraySlot NativeDirect lowering readiness for HakoAllocPageModel.acquire_usize/1 with planned net helper delta positive and LLVM lowering still closed."
+current_blocker_token = "ARRAY-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-359 Inventoried ArraySlot NativeDirect lowering readiness for HakoAllocPageModel.acquire_usize/1 with planned net helper delta positive and LLVM lowering still closed.",
   "296x-358 Closed DirectArray helper fallback scaffolding and selected ArraySlot NativeDirect lowering readiness inventory while keeping LLVM lowering closed.",
   "296x-357 Implemented explicit DirectArray materialized public ArrayBox host handles while keeping DirectArray backend objects non-public and helper routes closed.",
   "296x-356 Selected separate public ArrayBox host handles for DirectArray materialized views while keeping DirectArray backend objects non-public.",
