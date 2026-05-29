@@ -329,7 +329,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 281 | `RECORD-SUCCESS-HELPER-FUSION-GUARD-SURFACE-296X-001` | Landed | Freeze recordSuccess helper-fusion guard surface after ValueAggregate was rejected for this shape. |
 | 282 | `RECORD-SUCCESS-HELPER-FUSION-IMPLEMENTATION-296X-001` | Landed | Implement the two selected recordSuccess exact-slot runtime helpers and same-module lowering. |
 | 283 | `RECORD-SUCCESS-HELPER-FUSION-MEASUREMENT-296X-001` | Landed | Measure recordSuccess helper fusion and accept it as a keeper before weighted owner refresh. |
-| 284 | `POST-RECORD-SUCCESS-HELPER-FUSION-OWNER-REFRESH-296X-001` | Planned | Refresh weighted owner evidence after recordSuccess helper fusion. |
+| 284 | `POST-RECORD-SUCCESS-HELPER-FUSION-OWNER-REFRESH-296X-001` | Landed | Refresh weighted owner evidence after recordSuccess helper fusion. |
+| 285 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Planned | Select the next unblocked exact-slot owner after recordSuccess helper fusion. |
 
 ## Hako Mimalloc Performance Parity Plan
 
