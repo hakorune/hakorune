@@ -10,6 +10,8 @@ use std::alloc::{alloc, dealloc, handle_alloc_error, Layout};
 use std::mem;
 use std::ptr::{self, NonNull};
 
+use nyash_rust::boxes::array::ArrayBox;
+
 pub(crate) const DIRECT_ARRAY_I64_KIND_V0: u32 = 1;
 pub(crate) const DIRECT_ARRAY_ELEMENT_TAG_I64: u32 = 1;
 
@@ -99,6 +101,26 @@ impl DirectArrayI64BufferV0Box {
             }
         }
         true
+    }
+
+    pub(crate) fn materialize_public_arraybox_snapshot(&self) -> Option<ArrayBox> {
+        if !self.header_is_supported() || self.len() > self.capacity() {
+            return None;
+        }
+        let snapshot = ArrayBox::new();
+        for index in 0..self.len() {
+            if !snapshot.slot_store_i64_raw(index as i64, self.load(index)?) {
+                return None;
+            }
+        }
+        Some(snapshot)
+    }
+
+    fn header_is_supported(&self) -> bool {
+        let header = unsafe { &*self.ptr.as_ptr() };
+        header.kind == DIRECT_ARRAY_I64_KIND_V0
+            && header.generation != 0
+            && header.element_tag == DIRECT_ARRAY_ELEMENT_TAG_I64
     }
 }
 
@@ -196,5 +218,20 @@ mod tests {
         let base = buffer.as_ptr().cast::<u8>() as usize;
         let data = buffer.data_ptr().cast::<u8>() as usize;
         assert_eq!(data - base, 32);
+    }
+
+    #[test]
+    fn direct_array_i64_buffer_v0_materializes_public_arraybox_snapshot() {
+        let mut buffer = DirectArrayI64BufferV0Box::new(1, 3).expect("buffer");
+        assert!(buffer.store(0, 11));
+        assert!(buffer.store(1, 22));
+
+        let snapshot = buffer
+            .materialize_public_arraybox_snapshot()
+            .expect("snapshot");
+        assert_eq!(snapshot.len(), 2);
+        assert_eq!(snapshot.slot_load_i64_raw(0), Some(11));
+        assert_eq!(snapshot.slot_load_i64_raw(1), Some(22));
+        assert_eq!(snapshot.slot_load_i64_raw(2), None);
     }
 }

@@ -6,19 +6,19 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-29"
+date = "2026-05-30"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected explicit DirectArrayI64BufferV0 to public ArrayBox snapshot materialization before helper routing or lowering; snapshot pilot is next."
+active_lane_status = "Phase-296x implemented explicit DirectArrayI64BufferV0 to public ArrayBox snapshot materialization while keeping helper routes and lowering closed; materialized view handle policy is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-354-DIRECT-ARRAY-I64-BOOTSTRAP-MATERIALIZATION-POLICY-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-354-DIRECT-ARRAY-I64-BOOTSTRAP-MATERIALIZATION-POLICY-SELECTION.md"
-latest_card_summary = "Selected explicit DirectArrayI64BufferV0 to public ArrayBox snapshot materialization while keeping helper routes and LLVM lowering closed."
-current_blocker_token = "DIRECT-ARRAY-I64-MATERIALIZATION-SNAPSHOT-PILOT-296X-001"
+latest_card = "296x-355-DIRECT-ARRAY-I64-MATERIALIZATION-SNAPSHOT-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-355-DIRECT-ARRAY-I64-MATERIALIZATION-SNAPSHOT-PILOT.md"
+latest_card_summary = "Implemented explicit DirectArrayI64BufferV0 to public ArrayBox snapshot materialization while keeping helper routes and LLVM lowering closed."
+current_blocker_token = "DIRECT-ARRAY-I64-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-355 Implemented explicit DirectArrayI64BufferV0 to public ArrayBox snapshot materialization while keeping helper routes and LLVM lowering closed.",
   "296x-354 Selected explicit DirectArrayI64BufferV0 to public ArrayBox snapshot materialization while keeping helper routes and LLVM lowering closed.",
   "296x-353 Added direct_array_i64_exact backend selection and isolated DirectArrayI64BufferV0 storage smoke while keeping existing helper routes fail-fast closed.",
   "296x-352 Selected direct_array_i64_exact as the DirectArrayI64BufferV0 backend connection point while keeping existing helper routes and LLVM lowering closed.",
