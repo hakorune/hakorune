@@ -164,6 +164,19 @@ pub(crate) fn new_typed_object(object: TypedSlotObject) -> Option<i64> {
     }
 }
 
+pub(crate) fn materialize_direct_slot_snapshot(handle: i64) -> Option<TypedSlotObject> {
+    match selected_backend() {
+        TypedObjectStoreBackend::DirectSlotExact => DIRECT_SLOT_OBJECTS.with(|objects| {
+            let objects = objects.try_borrow().ok()?;
+            let object = objects
+                .iter()
+                .find(|object| object.matches_handle(handle))?;
+            object.materialize_typed_object_snapshot()
+        }),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -189,6 +202,41 @@ mod tests {
         assert!(get_legacy_i64(handle, 0).is_none());
         assert!(!set_legacy_i64(handle, 0, 1));
         assert!(exact_slot_get_i64(handle, 0).is_none());
+    }
+
+    #[test]
+    fn direct_slot_exact_materializes_typed_slot_snapshot_explicitly() {
+        if std::env::var(TYPED_OBJECT_STORE_ENV).ok().as_deref() != Some("direct_slot_exact") {
+            eprintln!("skip: set HAKO_TYPED_OBJECT_STORE=direct_slot_exact");
+            return;
+        }
+        let object = TypedSlotObject {
+            type_id: 23,
+            fields: vec![
+                TypedSlot {
+                    storage: TypedSlotStorage::I64,
+                    value: TypedSlotValue::I64(-7),
+                },
+                TypedSlot {
+                    storage: TypedSlotStorage::U64,
+                    value: TypedSlotValue::Unsigned(11),
+                },
+                TypedSlot {
+                    storage: TypedSlotStorage::Handle,
+                    value: TypedSlotValue::Handle(-3),
+                },
+            ],
+        };
+        let handle = new_typed_object(object).unwrap();
+
+        let snapshot = materialize_direct_slot_snapshot(handle).unwrap();
+        assert_eq!(snapshot.type_id, 23);
+        assert_eq!(snapshot.fields.len(), 3);
+        assert_eq!(snapshot.fields[0].value, TypedSlotValue::I64(-7));
+        assert_eq!(snapshot.fields[1].value, TypedSlotValue::Unsigned(11));
+        assert_eq!(snapshot.fields[2].value, TypedSlotValue::Handle(-3));
+        assert!(materialize_direct_slot_snapshot(-1).is_none());
+        assert!(get_legacy_i64(handle, 0).is_none());
     }
 }
 

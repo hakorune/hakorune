@@ -103,11 +103,31 @@ impl DirectSlotObjectV0Box {
         decode_direct_slot_object_handle(handle)
     }
 
+    pub(crate) fn matches_handle(&self, handle: i64) -> bool {
+        Self::from_handle(handle)
+            .map(|ptr| ptr.as_ptr() == self.ptr.as_ptr())
+            .unwrap_or(false)
+    }
+
     pub(crate) fn cell_ptr(&self, slot: usize) -> Option<*const DirectSlotCellV0> {
         if slot >= self.field_count {
             return None;
         }
         Some(unsafe { direct_slot_object_cells_ptr(self.ptr.as_ptr()).add(slot) })
+    }
+
+    pub(crate) fn materialize_typed_object_snapshot(&self) -> Option<TypedSlotObject> {
+        let header = unsafe { self.ptr.as_ref() };
+        let cells = unsafe { direct_slot_object_cells_ptr(self.ptr.as_ptr()) };
+        let mut fields = Vec::with_capacity(self.field_count);
+        for slot in 0..self.field_count {
+            let cell = unsafe { *cells.add(slot) };
+            fields.push(cell.to_typed_slot()?);
+        }
+        Some(TypedSlotObject {
+            type_id: header.type_id,
+            fields,
+        })
     }
 }
 
@@ -400,6 +420,24 @@ impl DirectSlotCellV0 {
                 flags: 0,
                 payload: 0,
             },
+        }
+    }
+
+    fn to_typed_slot(self) -> Option<TypedSlot> {
+        match self.storage_tag {
+            DIRECT_SLOT_TAG_I64 => Some(TypedSlot {
+                storage: TypedSlotStorage::I64,
+                value: TypedSlotValue::I64(self.payload as i64),
+            }),
+            DIRECT_SLOT_TAG_U64 => Some(TypedSlot {
+                storage: TypedSlotStorage::U64,
+                value: TypedSlotValue::Unsigned(self.payload as u128),
+            }),
+            DIRECT_SLOT_TAG_HANDLE => Some(TypedSlot {
+                storage: TypedSlotStorage::Handle,
+                value: TypedSlotValue::Handle(self.payload as i64),
+            }),
+            _ => None,
         }
     }
 
