@@ -34,6 +34,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inventory-report", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--context",
+        choices=[
+            "after-result-capsule-reset",
+            "after-record-success-helper-fusion",
+        ],
+        default="after-result-capsule-reset",
+    )
     args = parser.parse_args()
 
     values = read_kv(args.inventory_report)
@@ -43,12 +51,33 @@ def main() -> int:
     selected_method = require_key(values, "selected_method")
     shape_owner = require_key(values, "selected_method_shape_owner")
     prior_no_material_row = values.get("selected_method_prior_no_material_effect_row")
+    fallback_no_effect_row = values.get("method_1_prior_no_effect_row")
     selected_owner_method = selected_method
     extra_lines: list[str] = []
+    if args.context == "after-record-success-helper-fusion":
+        owner_refresh = "post_page_model_hotpath_owner_refresh_after_record_success_helper_fusion"
+    else:
+        owner_refresh = "page_model_owner_refresh"
 
     if shape_owner == "copy_materialization" and prior_no_material_row:
         fallback_method = values.get("method_1_symbol", "none")
-        if fallback_method != "none":
+        if fallback_method != "none" and fallback_no_effect_row:
+            selected_owner = owner_refresh
+            next_diagnostic = selected_owner
+            selected_reason = "prior_acquire_copy_and_release_known_live_no_effect_select_owner_refresh"
+            selected_owner_method = "none"
+            extra_lines.extend(
+                [
+                    f"selected_method_prior_no_material_effect_row={prior_no_material_row}",
+                    f"fallback_method={fallback_method}",
+                    f"fallback_method_prior_no_effect_row={fallback_no_effect_row}",
+                    "rejected_owner_3=page_model_acquire_usize_copy_materialization_retry",
+                    "rejected_reason_3=prior_receiver_forwarding_no_material_effect_requires_different_page_model_owner",
+                    "rejected_owner_4=page_model_release_known_live_field_traffic_probe",
+                    "rejected_reason_4=prior_release_known_live_rmw_no_effect_requires_owner_refresh",
+                ]
+            )
+        elif fallback_method != "none":
             selected_owner = "page_model_release_known_live_field_traffic_probe"
             next_diagnostic = selected_owner
             selected_reason = "prior_acquire_copy_materialization_no_material_effect_select_next_page_model_method"
