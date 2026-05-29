@@ -9,7 +9,7 @@ use std::sync::{Mutex, OnceLock};
 use super::typed_object::{
     handle_to_index, TypedSlot, TypedSlotObject, TypedSlotStorage, TypedSlotValue,
 };
-use super::typed_object_pinned_arena::PinnedTypedObjectArena;
+use super::typed_object_pinned_arena::{DirectSlotObjectV0Box, PinnedTypedObjectArena};
 
 const TYPED_OBJECT_STORE_ENV: &str = "HAKO_TYPED_OBJECT_STORE";
 
@@ -18,6 +18,7 @@ enum TypedObjectStoreBackend {
     SafeMutex,
     SingleThreadExact,
     PinnedArenaExact,
+    DirectSlotExact,
 }
 
 static BACKEND: OnceLock<TypedObjectStoreBackend> = OnceLock::new();
@@ -26,6 +27,7 @@ static SAFE_MUTEX_OBJECTS: OnceLock<Mutex<Vec<TypedSlotObject>>> = OnceLock::new
 thread_local! {
     static SINGLE_THREAD_OBJECTS: RefCell<Vec<TypedSlotObject>> = const { RefCell::new(Vec::new()) };
     static PINNED_ARENA_OBJECTS: RefCell<PinnedTypedObjectArena> = RefCell::new(PinnedTypedObjectArena::new());
+    static DIRECT_SLOT_OBJECTS: RefCell<Vec<DirectSlotObjectV0Box>> = const { RefCell::new(Vec::new()) };
 }
 
 fn selected_backend() -> TypedObjectStoreBackend {
@@ -33,6 +35,7 @@ fn selected_backend() -> TypedObjectStoreBackend {
         None | Some("") | Some("safe_mutex") => TypedObjectStoreBackend::SafeMutex,
         Some("single_thread_exact") => TypedObjectStoreBackend::SingleThreadExact,
         Some("pinned_arena_exact") => TypedObjectStoreBackend::PinnedArenaExact,
+        Some("direct_slot_exact") => TypedObjectStoreBackend::DirectSlotExact,
         Some(value) => panic!(
             "[freeze:contract][typed-object-store/backend] unsupported {TYPED_OBJECT_STORE_ENV}={value}"
         ),
@@ -51,7 +54,9 @@ fn with_objects<R>(f: impl FnOnce(&Vec<TypedSlotObject>) -> R) -> Option<R> {
         }
         TypedObjectStoreBackend::SingleThreadExact => SINGLE_THREAD_OBJECTS
             .with(|objects| objects.try_borrow().ok().map(|objects| f(&objects))),
-        TypedObjectStoreBackend::PinnedArenaExact => None,
+        TypedObjectStoreBackend::PinnedArenaExact | TypedObjectStoreBackend::DirectSlotExact => {
+            None
+        }
     }
 }
 
@@ -67,7 +72,9 @@ fn with_objects_mut<R>(f: impl FnOnce(&mut Vec<TypedSlotObject>) -> R) -> Option
                 .ok()
                 .map(|mut objects| f(&mut objects))
         }),
-        TypedObjectStoreBackend::PinnedArenaExact => None,
+        TypedObjectStoreBackend::PinnedArenaExact | TypedObjectStoreBackend::DirectSlotExact => {
+            None
+        }
     }
 }
 
@@ -77,6 +84,7 @@ fn with_field<R>(handle: i64, slot: usize, f: impl FnOnce(&TypedSlot) -> R) -> O
             let objects = objects.try_borrow().ok()?;
             objects.get_field(handle, slot).map(f)
         }),
+        TypedObjectStoreBackend::DirectSlotExact => None,
         _ => {
             let idx = handle_to_index(handle)?;
             with_objects(|objects| {
@@ -93,6 +101,7 @@ fn with_field_mut<R>(handle: i64, slot: usize, f: impl FnOnce(&mut TypedSlot) ->
             let mut objects = objects.try_borrow_mut().ok()?;
             objects.get_field_mut(handle, slot).map(f)
         }),
+        TypedObjectStoreBackend::DirectSlotExact => None,
         _ => {
             let idx = handle_to_index(handle)?;
             with_objects_mut(|objects| {
@@ -116,6 +125,7 @@ fn with_exact_fields<R>(handle: i64, f: impl FnOnce(&[TypedSlot]) -> R) -> Optio
             let objects = objects.try_borrow().ok()?;
             objects.get_fields(handle).map(f)
         }),
+        TypedObjectStoreBackend::DirectSlotExact => None,
     }
 }
 
@@ -132,6 +142,7 @@ fn with_exact_fields_mut<R>(handle: i64, f: impl FnOnce(&mut [TypedSlot]) -> R) 
             let mut objects = objects.try_borrow_mut().ok()?;
             objects.get_fields_mut(handle).map(f)
         }),
+        TypedObjectStoreBackend::DirectSlotExact => None,
     }
 }
 
@@ -140,10 +151,44 @@ pub(crate) fn new_typed_object(object: TypedSlotObject) -> Option<i64> {
         TypedObjectStoreBackend::PinnedArenaExact => {
             PINNED_ARENA_OBJECTS.with(|objects| objects.try_borrow_mut().ok()?.insert(object))
         }
+        TypedObjectStoreBackend::DirectSlotExact => DIRECT_SLOT_OBJECTS.with(|objects| {
+            let object = DirectSlotObjectV0Box::from_typed_object(object)?;
+            let handle = object.handle()?;
+            objects.try_borrow_mut().ok()?.push(object);
+            Some(handle)
+        }),
         _ => with_objects_mut(|objects| {
             objects.push(object);
             -(objects.len() as i64)
         }),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn direct_slot_exact_new_object_returns_tagged_pointer_handle() {
+        if std::env::var(TYPED_OBJECT_STORE_ENV).ok().as_deref() != Some("direct_slot_exact") {
+            eprintln!("skip: set HAKO_TYPED_OBJECT_STORE=direct_slot_exact");
+            return;
+        }
+        let object = TypedSlotObject {
+            type_id: 17,
+            fields: vec![
+                TypedSlot::new(TypedSlotStorage::I64),
+                TypedSlot::new(TypedSlotStorage::U64),
+                TypedSlot::new(TypedSlotStorage::Handle),
+            ],
+        };
+        let handle = new_typed_object(object).unwrap();
+
+        assert_eq!(handle & 1, 1);
+        assert!(DirectSlotObjectV0Box::from_handle(handle).is_some());
+        assert!(get_legacy_i64(handle, 0).is_none());
+        assert!(!set_legacy_i64(handle, 0, 1));
+        assert!(exact_slot_get_i64(handle, 0).is_none());
     }
 }
 

@@ -51,6 +51,15 @@ struct PinnedTypedSlotObject {
 }
 
 impl DirectSlotObjectV0Box {
+    pub(crate) fn from_typed_object(object: TypedSlotObject) -> Option<Self> {
+        let cells = object
+            .fields
+            .iter()
+            .map(DirectSlotCellV0::from_typed_slot)
+            .collect::<Vec<_>>();
+        Self::new(object.type_id, 1, &cells)
+    }
+
     pub(crate) fn new(type_id: i64, generation: u32, cells: &[DirectSlotCellV0]) -> Option<Self> {
         if generation == 0 {
             return None;
@@ -379,7 +388,7 @@ fn lease_storage_matches(storage: TypedSlotStorage, lease_storage: DirectSlotLea
 }
 
 impl DirectSlotCellV0 {
-    fn from_typed_slot(slot: &TypedSlot) -> Self {
+    pub(crate) fn from_typed_slot(slot: &TypedSlot) -> Self {
         match (slot.storage, &slot.value) {
             (TypedSlotStorage::I64, TypedSlotValue::I64(value)) => Self::from_i64(*value),
             (TypedSlotStorage::U64, TypedSlotValue::Unsigned(value)) => {
