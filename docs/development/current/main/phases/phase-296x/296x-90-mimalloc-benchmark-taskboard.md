@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001:
-  Close small exact-slot helper hunting and select representation/direct
-  lowering as the next design lane.
+REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001:
+  Define the representation/direct-lowering contract for C-like hot object
+  field access.
 ```
 
 ## Queue
@@ -342,7 +342,8 @@ MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001
 | 294 | `POST-RELEASE-RESULT-CAPSULE-OWNER-REFRESH-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Refresh exact-slot ownership after excluding release-result capsule repeat. |
 | 295 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Inventory alloc-result capsule as the last unblocked small exact-slot family. |
 | 296 | `ALLOC-RESULT-CAPSULE-OWNER-SELECTION-AFTER-RECORD-SUCCESS-HELPER-FUSION-296X-001` | Landed | Decide whether alloc-result has a new positive-net owner or close micro-helper hunting. |
-| 297 | `MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001` | Planned | Close small exact-slot helper hunting and select representation/direct lowering as the next design lane. |
+| 297 | `MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001` | Landed | Close small exact-slot helper hunting and select representation/direct lowering as the next design lane. |
+| 298 | `REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001` | Planned | Define the representation/direct-lowering contract for C-like hot object field access. |
 
 ## Hako Mimalloc Performance Parity Plan
 
