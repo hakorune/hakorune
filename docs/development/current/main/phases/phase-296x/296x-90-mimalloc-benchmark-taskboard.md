@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001:
-  Define the selected-method DirectSlot NativeDirect lowering guard surface before implementation.
+DIRECT-SLOT-NATIVEDIRECT-LOWERING-OWNER-SELECTION-296X-001:
+  Select the narrow owner for selected-method DirectSlot NativeDirect lowering implementation.
 ```
 
 ## Queue
@@ -378,7 +378,8 @@ DIRECT-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001:
 | 331 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001` | Landed | Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle. |
 | 332 | `DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001` | Landed | Close helper fallback materialization scaffolding and select the next DirectSlot lowering readiness row. |
 | 333 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-READINESS-INVENTORY-296X-001` | Landed | Inventory whether HakoAllocPageModel.acquire_usize/1 can use DirectSlot NativeDirect lowering with positive net helper delta. |
-| 334 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001` | Planned | Define the selected-method DirectSlot NativeDirect lowering guard surface before implementation. |
+| 334 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define the selected-method DirectSlot NativeDirect lowering guard surface before implementation. |
+| 335 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-OWNER-SELECTION-296X-001` | Planned | Select the narrow owner for selected-method DirectSlot NativeDirect lowering implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
