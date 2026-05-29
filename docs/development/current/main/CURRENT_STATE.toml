@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-29"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x selected separate negative materialized view handles for explicit DirectSlot snapshots; view handle pilot is next."
+active_lane_status = "Phase-296x implemented explicit DirectSlot materialized view handles; next is DirectSlot helper fallback closeout / lowering readiness selection."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-330-DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-330-DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION.md"
-latest_card_summary = "Selected separate negative materialized view handles for explicit DirectSlot snapshots while keeping direct handles and lowering closed."
-current_blocker_token = "DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001"
+latest_card = "296x-331-DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-331-DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT.md"
+latest_card_summary = "Implemented explicit DirectSlot materialized view handles while keeping positive direct handles and LLVM lowering closed."
+current_blocker_token = "DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-331 Implemented explicit DirectSlot materialized view handles while keeping positive direct handles and LLVM lowering closed.",
   "296x-330 Selected separate negative materialized view handles for explicit DirectSlot snapshots while keeping direct handles and lowering closed.",
   "296x-329 Rejected per-helper snapshot fallback routing and selected explicit materialized view handle policy.",
   "296x-328 Implemented explicit DirectSlotObjectV0 to TypedSlot snapshot materialization while keeping helper routing and lowering closed.",

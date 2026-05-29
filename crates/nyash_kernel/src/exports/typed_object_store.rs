@@ -28,6 +28,7 @@ thread_local! {
     static SINGLE_THREAD_OBJECTS: RefCell<Vec<TypedSlotObject>> = const { RefCell::new(Vec::new()) };
     static PINNED_ARENA_OBJECTS: RefCell<PinnedTypedObjectArena> = RefCell::new(PinnedTypedObjectArena::new());
     static DIRECT_SLOT_OBJECTS: RefCell<Vec<DirectSlotObjectV0Box>> = const { RefCell::new(Vec::new()) };
+    static DIRECT_SLOT_MATERIALIZED_VIEWS: RefCell<Vec<TypedSlotObject>> = const { RefCell::new(Vec::new()) };
 }
 
 fn selected_backend() -> TypedObjectStoreBackend {
@@ -84,7 +85,12 @@ fn with_field<R>(handle: i64, slot: usize, f: impl FnOnce(&TypedSlot) -> R) -> O
             let objects = objects.try_borrow().ok()?;
             objects.get_field(handle, slot).map(f)
         }),
-        TypedObjectStoreBackend::DirectSlotExact => None,
+        TypedObjectStoreBackend::DirectSlotExact => {
+            with_direct_slot_materialized_view(handle, |object| {
+                let field = object.fields.get(slot)?;
+                Some(f(field))
+            })
+        }
         _ => {
             let idx = handle_to_index(handle)?;
             with_objects(|objects| {
@@ -101,7 +107,12 @@ fn with_field_mut<R>(handle: i64, slot: usize, f: impl FnOnce(&mut TypedSlot) ->
             let mut objects = objects.try_borrow_mut().ok()?;
             objects.get_field_mut(handle, slot).map(f)
         }),
-        TypedObjectStoreBackend::DirectSlotExact => None,
+        TypedObjectStoreBackend::DirectSlotExact => {
+            with_direct_slot_materialized_view_mut(handle, |object| {
+                let field = object.fields.get_mut(slot)?;
+                Some(f(field))
+            })
+        }
         _ => {
             let idx = handle_to_index(handle)?;
             with_objects_mut(|objects| {
@@ -125,7 +136,9 @@ fn with_exact_fields<R>(handle: i64, f: impl FnOnce(&[TypedSlot]) -> R) -> Optio
             let objects = objects.try_borrow().ok()?;
             objects.get_fields(handle).map(f)
         }),
-        TypedObjectStoreBackend::DirectSlotExact => None,
+        TypedObjectStoreBackend::DirectSlotExact => {
+            with_direct_slot_materialized_view(handle, |object| Some(f(&object.fields)))
+        }
     }
 }
 
@@ -142,7 +155,9 @@ fn with_exact_fields_mut<R>(handle: i64, f: impl FnOnce(&mut [TypedSlot]) -> R) 
             let mut objects = objects.try_borrow_mut().ok()?;
             objects.get_fields_mut(handle).map(f)
         }),
-        TypedObjectStoreBackend::DirectSlotExact => None,
+        TypedObjectStoreBackend::DirectSlotExact => {
+            with_direct_slot_materialized_view_mut(handle, |object| Some(f(&mut object.fields)))
+        }
     }
 }
 
@@ -175,6 +190,42 @@ pub(crate) fn materialize_direct_slot_snapshot(handle: i64) -> Option<TypedSlotO
         }),
         _ => None,
     }
+}
+
+pub(crate) fn materialize_direct_slot_view_handle(handle: i64) -> Option<i64> {
+    match selected_backend() {
+        TypedObjectStoreBackend::DirectSlotExact => {
+            let snapshot = materialize_direct_slot_snapshot(handle)?;
+            DIRECT_SLOT_MATERIALIZED_VIEWS.with(|objects| {
+                let mut objects = objects.try_borrow_mut().ok()?;
+                objects.push(snapshot);
+                Some(-(objects.len() as i64))
+            })
+        }
+        _ => None,
+    }
+}
+
+fn with_direct_slot_materialized_view<R>(
+    handle: i64,
+    f: impl FnOnce(&TypedSlotObject) -> Option<R>,
+) -> Option<R> {
+    let idx = handle_to_index(handle)?;
+    DIRECT_SLOT_MATERIALIZED_VIEWS.with(|objects| {
+        let objects = objects.try_borrow().ok()?;
+        f(objects.get(idx)?)
+    })
+}
+
+fn with_direct_slot_materialized_view_mut<R>(
+    handle: i64,
+    f: impl FnOnce(&mut TypedSlotObject) -> Option<R>,
+) -> Option<R> {
+    let idx = handle_to_index(handle)?;
+    DIRECT_SLOT_MATERIALIZED_VIEWS.with(|objects| {
+        let mut objects = objects.try_borrow_mut().ok()?;
+        f(objects.get_mut(idx)?)
+    })
 }
 
 #[cfg(test)]
@@ -237,6 +288,45 @@ mod tests {
         assert_eq!(snapshot.fields[2].value, TypedSlotValue::Handle(-3));
         assert!(materialize_direct_slot_snapshot(-1).is_none());
         assert!(get_legacy_i64(handle, 0).is_none());
+    }
+
+    #[test]
+    fn direct_slot_exact_materialized_view_handle_routes_existing_helpers() {
+        if std::env::var(TYPED_OBJECT_STORE_ENV).ok().as_deref() != Some("direct_slot_exact") {
+            eprintln!("skip: set HAKO_TYPED_OBJECT_STORE=direct_slot_exact");
+            return;
+        }
+        let object = TypedSlotObject {
+            type_id: 31,
+            fields: vec![
+                TypedSlot {
+                    storage: TypedSlotStorage::I64,
+                    value: TypedSlotValue::I64(-9),
+                },
+                TypedSlot {
+                    storage: TypedSlotStorage::U64,
+                    value: TypedSlotValue::Unsigned(99),
+                },
+                TypedSlot {
+                    storage: TypedSlotStorage::Handle,
+                    value: TypedSlotValue::Handle(-5),
+                },
+            ],
+        };
+        let direct_handle = new_typed_object(object).unwrap();
+        assert!(direct_handle > 0);
+        assert!(get_legacy_i64(direct_handle, 0).is_none());
+
+        let view_handle = materialize_direct_slot_view_handle(direct_handle).unwrap();
+        assert!(view_handle < 0);
+        assert_eq!(get_legacy_i64(view_handle, 0), Some(-9));
+        assert_eq!(get_exact_unsigned_u64(view_handle, 1), Some(99));
+        assert_eq!(get_legacy_i64(view_handle, 2), Some(-5));
+        assert!(set_legacy_i64(view_handle, 0, 13));
+        assert_eq!(get_legacy_i64(view_handle, 0), Some(13));
+
+        let direct_snapshot = materialize_direct_slot_snapshot(direct_handle).unwrap();
+        assert_eq!(direct_snapshot.fields[0].value, TypedSlotValue::I64(-9));
     }
 }
 

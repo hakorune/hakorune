@@ -36,8 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001:
-  Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle.
+DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001:
+  Close helper fallback materialization scaffolding and select the next DirectSlot lowering readiness row.
 ```
 
 ## Queue
@@ -375,7 +375,8 @@ DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001:
 | 328 | `DIRECT-SLOT-BACKEND-MATERIALIZATION-SNAPSHOT-PILOT-296X-001` | Landed | Implement explicit DirectSlotObjectV0 to TypedSlot snapshot materialization without helper routing or lowering. |
 | 329 | `DIRECT-SLOT-BACKEND-HELPER-FALLBACK-ROUTING-SELECTION-296X-001` | Landed | Select whether existing helper fallback may route through explicit DirectSlot snapshots. |
 | 330 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-POLICY-SELECTION-296X-001` | Landed | Select how explicit DirectSlot materialization creates a separate helper-compatible TypedSlot view handle. |
-| 331 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001` | Planned | Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle. |
+| 331 | `DIRECT-SLOT-MATERIALIZED-VIEW-HANDLE-PILOT-296X-001` | Landed | Implement explicit DirectSlot materialization into a separate helper-compatible negative TypedSlot view handle. |
+| 332 | `DIRECT-SLOT-HELPER-FALLBACK-CLOSEOUT-AND-LOWERING-READINESS-SELECTION-296X-001` | Planned | Close helper fallback materialization scaffolding and select the next DirectSlot lowering readiness row. |
 
 ## Hako Mimalloc Performance Parity Plan
 
