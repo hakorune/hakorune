@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: freeze the responsibility split between public ArrayBox semantics and DirectArrayI64 NativeDirect hot storage before legacy helper/cache retirement implementation.
 Blocker: ARRAYBOX-PUBLIC-SEMANTICS-AND-DIRECTARRAY-SPLIT-SSOT-296X-001
@@ -39,9 +39,9 @@ silent_fallback_allowed=0
 legacy_retirement_scope=single_thread_exact_array_helper_backend
 handle_entry_cache_retirement_deferred=1
 public_helper_fast_lane_retirement_deferred=1
-selected_boundary=array_slot_nativedirect_legacy_helper_cache_retirement_implementation
-next_diagnostic=array_slot_nativedirect_legacy_helper_cache_retirement_implementation
-selected_next=array_slot_nativedirect_legacy_helper_cache_retirement_implementation
+selected_boundary=directarray_family_storage_substrate_roadmap
+next_diagnostic=directarray_family_storage_substrate_roadmap
+selected_next=directarray_family_storage_substrate_roadmap
 optimization_open=0
 winner_claim=0
 replacement_active=0
@@ -80,9 +80,9 @@ DirectArrayI64BufferV0 owns:
 
 ## Decision
 
-The next implementation may retire the exact-array helper backend only inside
-the DirectArray NativeDirect lane. ArrayBox remains as the public semantic object
-and materialization/fallback owner.
+The next row fixes the long-term direction: DirectArray family becomes the
+array storage substrate, and ArrayBox becomes the public facade/materialized
+view. Implementation remains closed until that task order is fixed.
 
 ## Guard
 
