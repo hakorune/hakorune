@@ -319,7 +319,8 @@ WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RESULT-CAPSULE-RESET-296X-001:
 | 271 | `WEIGHTED-EXACT-SLOT-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select the next exact-slot owner after releaseKnownLive rollback, with page-model immediate retry blocked. |
 | 272 | `FACADE-EXACT-SLOT-IR-SHAPE-DIFF-INVENTORY-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Inventory residual facade exact-slot traffic after releaseKnownLive rollback before any implementation. |
 | 273 | `FACADE-FIELD-OWNER-SELECTION-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select owner refresh instead of repeating the already-landed facade same-block fusion. |
-| 274 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Planned | Refresh exact-slot ownership after excluding the already-exercised facade surface. |
+| 274 | `POST-FACADE-INVENTORY-OWNER-REFRESH-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Landed | Select alloc-result capsule IR-shape inventory after excluding facade repeat and recent page-model retry. |
+| 275 | `ALLOC-RESULT-CAPSULE-IR-SHAPE-INVENTORY-AFTER-RELEASE-KNOWN-LIVE-ROLLBACK-296X-001` | Planned | Inventory alloc-result capsule IR shape before any implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
