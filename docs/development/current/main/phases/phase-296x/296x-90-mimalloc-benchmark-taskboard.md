@@ -36,9 +36,8 @@ winner claims.
 ## Current Blocker
 
 ```text
-FIRST-REPRESENTATION-PILOT-SELECTION-296X-001:
-  Select the first representation/direct-lowering pilot from the normalized
-  typed-object, result-capsule, and ArraySlot inventory.
+TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001:
+  Freeze the typed-object ResidentScalar guard surface before any transform.
 ```
 
 ## Queue
@@ -345,7 +344,8 @@ FIRST-REPRESENTATION-PILOT-SELECTION-296X-001:
 | 297 | `MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION-296X-001` | Landed | Close small exact-slot helper hunting and select representation/direct lowering as the next design lane. |
 | 298 | `REPRESENTATION-DIRECT-LOWERING-SSOT-296X-001` | Landed | Define the representation/direct-lowering contract for C-like hot object field access. |
 | 299 | `REPRESENTATION-CANDIDATE-INVENTORY-296X-001` | Landed | Compare typed-object, result-capsule, and ArraySlot representation candidates with one shared positive-net inventory contract. |
-| 300 | `FIRST-REPRESENTATION-PILOT-SELECTION-296X-001` | Planned | Select the first representation/direct-lowering pilot from positive-net, hotness, and implementation-risk evidence. |
+| 300 | `FIRST-REPRESENTATION-PILOT-SELECTION-296X-001` | Landed | Select the first representation/direct-lowering pilot from positive-net, hotness, and implementation-risk evidence. |
+| 301 | `TYPED-OBJECT-RESIDENT-SCALAR-GUARD-SURFACE-296X-001` | Planned | Freeze the selected typed-object ResidentScalar region, barriers, and materialization policy before implementation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
