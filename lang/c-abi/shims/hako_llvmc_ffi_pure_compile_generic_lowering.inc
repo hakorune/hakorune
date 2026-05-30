@@ -456,13 +456,16 @@
             enum GenericPureTypedObjectNewPlanStatus typed_new_status =
                 GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_MISSING;
             if (tname && strcmp(tname, "ArrayBox") == 0) {
+              const char* birth_symbol = hako_llvmc_direct_array_i64_exact_enabled()
+                                             ? "nyash.array.direct_i64.birth_h"
+                                             : "nyash.array.birth_h";
               if (dst) {
-                EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
+                EMIT("  %%r%lld = call i64 @\"%s\"()\n", dst, birth_symbol);
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_ARRAY_BIRTH);
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);
               } else {
-                EMIT("  call i64 @\"nyash.array.birth_h\"()\n");
+                EMIT("  call i64 @\"%s\"()\n", birth_symbol);
               }
               continue;
             }

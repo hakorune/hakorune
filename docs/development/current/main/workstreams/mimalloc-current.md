@@ -103,6 +103,21 @@ message.
   - output: compare default/safe measurement with the intended DirectSlot /
     DirectArray exact front before choosing the next implementation owner
   - no implementation; this corrects the active measurement front
+- [x] MIM-016: direct exact baseline lock
+  - output: treat `direct_slot_exact` + `direct_array_i64_exact` as the
+    mimalloc parity optimization baseline; keep default/safe as compatibility
+    reference only
+  - no implementation
+- [x] MIM-017: DirectArray i64 exact store boundary cut
+  - output: remove the selected `array_runtime_set_idx_i64` call boundary for
+    active direct exact `HakoAllocPageModel` i64 ArraySet store regions
+  - do not widen generic ArraySet, public ArrayBox ABI, mixed storage, plugin
+    typed ABI, or default/safe behavior
+- [ ] MIM-018: post-store-boundary perf owner refresh
+  - output: reread the direct exact perf top after `nyash.array.set_hii` calls
+    are removed from the object-lifecycle small-block EXE
+  - choose the next owner from current evidence; do not reopen Array helper
+    micro-lanes without positive direct-exact evidence
 
 ## Decision Log
 
@@ -157,6 +172,19 @@ message.
   524288 alloc/free count, and the remaining gap to C is about 5.68x
   instructions / 4.26x cycles. Treat the direct exact front as the next owner
   baseline.
+- 2026-05-31: MIM-016 locks the measurement split. `direct exact` is the .hako
+  mimalloc parity optimization baseline. `default/safe` remains the public /
+  fallback compatibility reference and is excluded from parity owner selection
+  unless a later explicit public-front lane selects it.
+- 2026-05-31: MIM-017 selected and landed a narrow DirectArray i64 exact store
+  boundary cut for proven `HakoAllocPageModel` direct exact store sites.
+  `nyash.array.set_hii` callsites disappear from the object-lifecycle
+  small-block EXE. The direct exact measurement moved from 369.63M
+  instructions / 78.49M cycles / 13ms body to 269.35M instructions / 58.17M
+  cycles / 9ms body. C mimalloc at the same 524288 alloc/free count is 65.10M
+  instructions / 18.09M cycles / 3.46ms body, leaving about 4.14x
+  instructions / 3.22x cycles / 2.60x body. Source shape, default/safe
+  ArrayBox, generic ArraySet, and public ABI remain unchanged.
 
 ## MIM-001 Source-Shape Inventory
 
@@ -587,6 +615,66 @@ default_safe_front_owner=legacy_helpers
 direct_exact_front_owner=hako_source_shape_and_array_runtime_set_idx_i64
 next_task=consult_design_on_direct_front_baseline_and_next_owner
 new_row_required=0
+```
+
+## MIM-017 DirectArray I64 Exact Store Boundary Cut
+
+Scope:
+
+```text
+front=direct_exact
+typed_object_store=direct_slot_exact
+array_slot_store=direct_array_i64_exact
+selected_owner=array_runtime_set_idx_i64_call_boundary
+public_arraybox_abi_changed=0
+generic_array_set_changed=0
+default_safe_behavior_changed=0
+```
+
+Implementation:
+
+```text
+direct_array_birth_symbol=nyash.array.direct_i64.birth_h
+same_module_direct_store_sites=HakoAllocPageModel.*
+legacy_array_set_symbol_call_count_after=0
+```
+
+Verification:
+
+```text
+python_collection_method_tests=ok
+direct_exact_exe_summary=ok
+allocation_count=524288
+free_count=524288
+hako_body_elapsed_ns=9000000
+hako_instructions=269353327
+hako_cycles=58165812
+c_body_elapsed_ns=3460932
+c_instructions=65099033
+c_cycles=18088685
+instruction_ratio_hako_over_c=4.14
+cycle_ratio_hako_over_c=3.22
+body_elapsed_ratio_hako_over_c=2.60
+```
+
+Post-cut perf top:
+
+```text
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2=14.35%
+HakoAllocObjectLifecycleAllocResult.recordSuccess/1=10.58%
+HakoAllocPageModel.releaseLocalKnownLive/1=10.09%
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=7.64%
+HakoAllocObjectLifecyclePageQueue.selectPage/0=7.63%
+HakoAllocPageModel.freeCount/0=6.57%
+nyash_kernel::plugin::array_runtime_facade::array_runtime_get_idx=3.80%
+```
+
+Interpretation:
+
+```text
+array_set_boundary_cut=keeper
+array_set_micro_lane_reopen=0
+next_task=MIM-018 post-store-boundary perf owner refresh
 ```
 
 ## Parking Lot

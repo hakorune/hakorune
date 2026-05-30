@@ -616,6 +616,8 @@
       fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
       if (needs.arr_birth || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
+      if (needs.arr_birth || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.array.direct_i64.birth_h\"()\n");
       if (needs.arr_push || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (needs.arr_len || module_has_planned_same_module_function_definition())

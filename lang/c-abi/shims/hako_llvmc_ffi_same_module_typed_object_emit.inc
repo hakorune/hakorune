@@ -59,9 +59,12 @@
         const char* tname = read_str(ins, "type");
         int typed_plan_index = -1;
         if (tname && !strcmp(tname, "ArrayBox")) {
+          const char* array_store = getenv("HAKO_ARRAY_SLOT_STORE");
           same_module_function_emit_i64_birth_call(
               dst,
-              "nyash.array.birth_h",
+              array_store && !strcmp(array_store, "direct_array_i64_exact")
+                  ? "nyash.array.direct_i64.birth_h"
+                  : "nyash.array.birth_h",
               ORG_ARRAY_BIRTH);
           return 1;
         }

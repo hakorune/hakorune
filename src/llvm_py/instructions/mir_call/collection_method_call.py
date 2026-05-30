@@ -16,7 +16,14 @@ from .runtime_data_dispatch import (
 )
 from utils.resolver_helpers import is_arrayrepr_direct_i64
 
-DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHOD = "HakoAllocPageModel.acquire_usize/1"
+DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHODS = {
+    "HakoAllocPageModel.acquire/1",
+    "HakoAllocPageModel.acquireFreshSmall/1",
+    "HakoAllocPageModel.acquire_usize/1",
+    "HakoAllocPageModel.reactivate/0",
+    "HakoAllocPageModel.releaseLocal/1",
+    "HakoAllocPageModel.releaseLocalKnownLive/1",
+}
 DIRECT_ARRAY_HANDLE_TAG_MASK = -4
 DIRECT_ARRAY_HEADER_LEN_OFFSET_BYTES = 16
 DIRECT_ARRAY_HEADER_CAPACITY_OFFSET_BYTES = 24
@@ -42,7 +49,7 @@ def _current_function_name(builder: ir.IRBuilder) -> Optional[str]:
 def _direct_array_nativedirect_selected(builder, resolver, receiver_vid) -> bool:
     if os.environ.get("HAKO_ARRAY_SLOT_STORE") != "direct_array_i64_exact":
         return False
-    if _current_function_name(builder) != DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHOD:
+    if _current_function_name(builder) not in DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHODS:
         return False
     if resolver is None or receiver_vid is None:
         return False
