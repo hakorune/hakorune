@@ -76,6 +76,11 @@ message.
 - [x] MIM-009: cleanup / Ghost Task commit
   - output: commit message records small refactors, guard wording, or pointer
     fixes; no `CURRENT_STATE.toml` progress log
+- [x] MIM-010: page selection delegation cleanup
+  - output: `objectLifecycleSmallAlloc` delegates selection to
+    `queue.selectPage()` and keeps the owner surface inside the existing
+    page-queue seam
+  - no fast-path reopen
 
 ## Decision Log
 
@@ -96,6 +101,11 @@ message.
   durable row from this cleanup.
 - 2026-05-31: MIM-009 closed as a Ghost Task commit. Keep the source-shape
   cleanup recorded here and avoid spawning a new row or dedicated guard for it.
+- 2026-05-31: MIM-010 closed as a page-queue delegation cleanup. The small-alloc
+  entry now hands page selection back to `queue.selectPage()` instead of
+  branching on page count in the facade. Helper-call count dropped, and the
+  remaining helper family is still page-hotpath owned; do not treat this as a
+  perf keeper.
 
 ## MIM-001 Source-Shape Inventory
 

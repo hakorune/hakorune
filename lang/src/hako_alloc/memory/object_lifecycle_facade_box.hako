@@ -57,13 +57,7 @@ box HakoAllocObjectLifecycleFacade {
 
         local queue = me.object_lifecycle_queue
 
-        if queue.page_count == 1 {
-            queue.request_count = queue.request_count + 1
-            queue.beginSelection()
-            queue.selectSinglePageFastPath()
-        } else {
-            queue.selectPage()
-        }
+        queue.selectPage()
         local selected_index = queue.last_selected_index
         if selected_index < 0 {
             local small_no_page_reason_selected = HakoAllocObjectLifecycleFacadeReason.small_no_page()
@@ -74,7 +68,6 @@ box HakoAllocObjectLifecycleFacade {
             local small_no_page_reason_page = HakoAllocObjectLifecycleFacadeReason.small_no_page()
             return alloc_result.recordFailure(small_no_page_reason_page)
         }
-
         alloc_result.recordSelectedPage(queue.last_selected_page_id)
 
         local selected_kind = queue.last_selected_kind
