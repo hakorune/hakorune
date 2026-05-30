@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: refresh the post-retirement perf owner after the scoped retirement smoke and decide whether the lane can move to ArrayRepr design.
 Blocker: COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH-296X-001

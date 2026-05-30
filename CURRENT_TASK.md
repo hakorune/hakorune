@@ -127,8 +127,9 @@ Scope: current lane / next lane / restart order only.
     surface before the selected-method pilot; row406 is landed and implements
     the first selected-method direct-array lane pilot; row407 is landed and
     smokes the selected-method direct-array lane; row408 is landed, row409 is
-    landed, row410 is landed, row411 is landed, and row412 is current as the
-    post-retirement perf owner refresh
+    landed, row410 is landed, row411 is landed, row412 is landed, and row413 is
+    current as the post-DirectArray remaining direct-path surface check before
+    returning to mimalloc source-level optimization
 - keep `nyash.array.birth_h` public ArrayBox semantics, handle-entry cache
   retirement, and public helper fast lanes deferred until the ArrayCore split
   note is written and smoked
@@ -145,8 +146,9 @@ Scope: current lane / next lane / restart order only.
      runtime surface classifier row is landed, the direct-array lane guard
      surface row is landed, the selected-method pilot row is landed, the
      semantic smoke row is landed, the post-semantic perf owner refresh row is
-     landed, and the legacy helper/cache retirement semantic smoke row is
-     current
+     landed, the legacy helper/cache retirement semantic smoke row is landed,
+     the post-retirement perf owner refresh row is landed, and the remaining
+     direct-path surface check is current
      before any implementation opens
 
 ## Current Ordered App Bringup

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+TAG="k2-wide-phase296x-post-directarray-remaining-direct-path-surface-check"
+cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+
+CARD_412="docs/development/current/main/phases/phase-296x/296x-412-COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH.md"
+CARD_413="docs/development/current/main/phases/phase-296x/296x-413-POST-DIRECTARRAY-REMAINING-DIRECT-PATH-SURFACE-CHECK.md"
+STATE="docs/development/current/main/CURRENT_STATE.toml"
+INDEX="docs/tools/check-scripts-index.md"
+SELF_SCRIPT="tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surface_check_guard.sh"
+
+echo "[$TAG] checking post-DirectArray remaining direct-path surface closeout"
+
+guard_require_files "$TAG" "$CARD_412" "$CARD_413" "$STATE" "$INDEX" "$SELF_SCRIPT"
+guard_require_exec_files "$TAG" "$SELF_SCRIPT"
+
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_412" "row412 perf owner refresh must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_413" "row413 remaining direct-path surface check must be current"
+guard_expect_fixed_in_file "$TAG" 'output_contract=post-directarray-remaining-direct-path-surface-check-v0' "$CARD_413" "row413 must define output contract"
+guard_expect_fixed_in_file "$TAG" 'input_contract=collection-method-direct-array-lane-post-retirement-perf-owner-refresh-v0' "$CARD_413" "row413 must consume row412"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_0=typed_object_legacy_field_helper' "$CARD_413" "row413 must check typed-object legacy helper surface"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_1=runtime_databox_consumer_surface' "$CARD_413" "row413 must check RuntimeDataBox consumer surface"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_2=object_lifecycle_facade' "$CARD_413" "row413 must check object lifecycle facade"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_3=public_arraybox_runtime_surface' "$CARD_413" "row413 must check public ArrayBox runtime surface"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_4=directarray_optional_member' "$CARD_413" "row413 must check DirectArray optional member"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_5=result_capsule_value_aggregate' "$CARD_413" "row413 must check result capsule ValueAggregate"
+guard_expect_fixed_in_file "$TAG" 'checked_surface_6=page_model_page_queue' "$CARD_413" "row413 must check page model/page queue"
+guard_expect_fixed_in_file "$TAG" 'new_fast_path_open=0' "$CARD_413" "row413 must keep new fast paths closed"
+guard_expect_fixed_in_file "$TAG" 'new_fast_path_owner=none' "$CARD_413" "row413 must not select a new fast-path owner"
+guard_expect_fixed_in_file "$TAG" 'return_to_mimalloc_optimization=1' "$CARD_413" "row413 must return to mimalloc optimization"
+guard_expect_fixed_in_file "$TAG" 'selected_next=mimalloc_source_level_owner_refresh' "$CARD_413" "row413 must select mimalloc source-level owner refresh"
+guard_expect_fixed_in_file "$TAG" 'open_new_fast_path_only_if_positive_net_helper_delta=1' "$CARD_413" "row413 must require positive net helper delta for any new fast path"
+guard_expect_fixed_in_file "$TAG" 'open_new_fast_path_only_if_perf_owner_pct_above_threshold=1' "$CARD_413" "row413 must require perf-owner evidence"
+guard_expect_fixed_in_file "$TAG" 'open_new_fast_path_only_if_selected_callsite_or_family=1' "$CARD_413" "row413 must require selected callsite/family evidence"
+guard_expect_fixed_in_file "$TAG" 'open_new_fast_path_only_if_no_recent_nonkeeper=1' "$CARD_413" "row413 must reject recent non-keeper repeats"
+guard_expect_fixed_in_file "$TAG" 'open_new_fast_path_only_if_no_silent_fallback=1' "$CARD_413" "row413 must forbid silent fallback"
+guard_expect_fixed_in_file "$TAG" 'optimization_open=0' "$CARD_413" "row413 must keep optimization closed"
+guard_expect_fixed_in_file "$TAG" 'winner_claim=0' "$CARD_413" "row413 must keep winner claims closed"
+guard_expect_fixed_in_file "$TAG" 'replacement_active=0' "$CARD_413" "row413 must keep replacement closed"
+guard_expect_fixed_in_file "$TAG" 'hook_installed=0' "$CARD_413" "row413 must keep hooks closed"
+guard_expect_fixed_in_file "$TAG" 'global_allocator=0' "$CARD_413" "row413 must keep global allocator closed"
+guard_expect_fixed_in_file "$TAG" 'summary=ok' "$CARD_413" "row413 must end ok"
+guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "POST-DIRECTARRAY-REMAINING-DIRECT-PATH-SURFACE-CHECK-296X-001"' "$STATE" "current state must point to row413"
+guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-412-COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH"' "$STATE" "current state must land row412"
+guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
+
+echo "[$TAG] ok"
