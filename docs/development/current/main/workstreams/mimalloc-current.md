@@ -99,6 +99,10 @@ message.
     explicit C mimalloc runner at the same 524288 alloc/free count
   - no implementation; use this to choose the next owner before more source
     edits
+- [x] MIM-015: direct-front A/B measurement
+  - output: compare default/safe measurement with the intended DirectSlot /
+    DirectArray exact front before choosing the next implementation owner
+  - no implementation; this corrects the active measurement front
 
 ## Decision Log
 
@@ -145,6 +149,14 @@ message.
   mimalloc runner for the same 524288 alloc/free count. perf owner is no longer
   a narrow source-shape cleanup by itself: legacy typed-object field helpers
   dominate, with Array safe store/load as the secondary owner.
+- 2026-05-31: MIM-015 showed that MIM-014 used the default/safe front, not the
+  intended DirectSlot / DirectArray exact front. With
+  `HAKO_TYPED_OBJECT_STORE=direct_slot_exact` and
+  `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact`, legacy `field_*` and
+  `exact_slot_*` symbols disappear from the EXE, body time is 13ms for the same
+  524288 alloc/free count, and the remaining gap to C is about 5.68x
+  instructions / 4.26x cycles. Treat the direct exact front as the next owner
+  baseline.
 
 ## MIM-001 Source-Shape Inventory
 
@@ -503,6 +515,78 @@ secondary_owner=public_arraybox_safe_store_load_surface
 source_shape_cleanup_remaining=not_primary_without_new_owner_evidence
 new_fast_path_open=0
 next_task=classify_why_legacy_field_helpers_remain_hot_before_more_source_edits
+```
+
+### MIM-015 Evidence
+
+Default/safe front from MIM-014:
+
+```text
+hako_default_body_elapsed_ns=539000000,536000000,540000000
+hako_default_instructions=6947442686
+hako_default_cycles=2973686467
+primary_owner=legacy_typed_object_field_helper_surface
+secondary_owner=public_arraybox_safe_store_load_surface
+```
+
+Direct exact front:
+
+```text
+env.HAKO_TYPED_OBJECT_STORE=direct_slot_exact
+env.HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact
+sample_count=3
+hako_direct_body_elapsed_ns=13000000,13000000,13000000
+hako_direct_allocation_count=524288
+hako_direct_free_count=524288
+hako_direct_select_page_single_fast_path_count=524288
+hako_direct_release_known_page_fast_path_count=524288
+summary=ok
+```
+
+Direct exact `perf stat`:
+
+```text
+hako_direct_instructions=369629325
+hako_direct_cycles=78489843
+hako_direct_body_elapsed_ns=13000000
+c_instructions=65099825
+c_cycles=18404351
+c_body_elapsed_ns=3589438
+instruction_ratio_hako_direct_over_c=5.68
+cycle_ratio_hako_direct_over_c=4.26
+body_elapsed_ratio_hako_direct_over_c=3.62
+```
+
+Direct exact `perf report --no-children --sort=symbol,dso` top symbols:
+
+```text
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=22.06%
+nyash_kernel::plugin::array_runtime_facade::array_runtime_set_idx_i64=19.96%
+HakoAllocObjectLifecyclePageQueue.selectPage/0=17.16%
+HakoAllocPageModel.acquireFreshSmall/1=8.72%
+HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0=6.01%
+Main.runOne/2=5.00%
+HakoAllocPageModel.releaseLocalKnownLive/1=4.31%
+HakoAllocPageModel.isRetired/0=2.85%
+HakoAllocObjectLifecycleReleaseResult.recordSuccess/2=2.82%
+HakoAllocObjectLifecyclePageQueue.acceptSelectedPage/3=2.16%
+```
+
+Symbol check on the direct exact EXE:
+
+```text
+legacy_field_symbol_count=0
+exact_slot_symbol_count=0
+```
+
+Interpretation:
+
+```text
+measurement_front_correction=required
+default_safe_front_owner=legacy_helpers
+direct_exact_front_owner=hako_source_shape_and_array_runtime_set_idx_i64
+next_task=consult_design_on_direct_front_baseline_and_next_owner
+new_row_required=0
 ```
 
 ## Parking Lot
