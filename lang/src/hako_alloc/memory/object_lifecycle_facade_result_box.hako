@@ -29,6 +29,15 @@ box HakoAllocObjectLifecycleAllocResult {
         return 1
     }
 
+    resetAttempt() {
+        me.last_page_id = -1
+        me.last_block_id = -1
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 0
+        me.attempt_count = me.attempt_count + 1
+        return 1
+    }
+
     recordSelectedPage(page_id) {
         me.last_page_id = page_id
         return 1

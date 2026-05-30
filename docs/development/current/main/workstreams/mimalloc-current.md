@@ -85,6 +85,10 @@ message.
   - output: `objectLifecycleSmallAlloc` calls `page.acquireFreshSmall(size)`
     after `queue.selectPage()` has selected an available page
   - no new page helper, Array lane, RuntimeDataBox lane, or direct-path reopen
+- [x] MIM-012: alloc result reset-attempt capsule cleanup
+  - output: `HakoAllocObjectLifecycleAllocResult.resetAttempt()` owns the
+    reset-plus-attempt state transition used by `objectLifecycleSmallAlloc`
+  - no new helper lane, Array lane, RuntimeDataBox lane, or direct-path reopen
 
 ## Decision Log
 
@@ -116,6 +120,11 @@ message.
   `page.acquire_usize(size)`. This keeps the page-model owner boundary intact
   while avoiding the extra generic acquire fallback shape in the selected hot
   region.
+- 2026-05-31: MIM-012 closed as a source-shape keeper inside the result
+  capsule boundary. `resetAttempt()` combines the hot reset-plus-attempt
+  transition without inlining result fields into the facade. This keeps capsule
+  ownership intact while removing one public method call from the selected
+  small-alloc region.
 
 ## MIM-001 Source-Shape Inventory
 
@@ -322,6 +331,50 @@ dominant_callee_family=page_hotpath_helpers
 dominant_copy_owner=local_ssa_copy_materialization
 top_callsite_callee=acquireFreshSmall
 top_callsite_attributed_copy_count=8
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+```
+
+### MIM-012 Evidence
+
+Baseline before the source edit is the MIM-011 selected-page acquire route:
+
+```text
+sample_count=3
+body_elapsed_ns=544000000,544000000,546000000
+external_elapsed_ms=550,540,550
+summary=ok
+```
+
+After adding `HakoAllocObjectLifecycleAllocResult.resetAttempt()` and using it
+from `objectLifecycleSmallAlloc`:
+
+```text
+sample_count=3
+body_elapsed_ns=540000000,538000000,538000000
+allocation_count=524288
+free_count=524288
+select_page_single_fast_path_count=524288
+release_known_page_fast_path_count=524288
+summary=ok
+```
+
+MIR shape after the source edit:
+
+```text
+instruction_count=133
+call_count=10
+copy_count=61
+phi_count=14
+helper_call_count=3
+helper_copy_count=13
+dominant_callee_family=page_hotpath_helpers
+dominant_copy_owner=local_ssa_copy_materialization
+top_callsite_callee=acquireFreshSmall
+top_callsite_attributed_copy_count=8
+facade_result_helpers_call_count=0
 winner_claim=0
 replacement_active=0
 hook_installed=0
