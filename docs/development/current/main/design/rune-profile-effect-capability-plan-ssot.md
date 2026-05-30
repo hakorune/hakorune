@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Decision: accepted design order, implementation rows reserved
+Decision: source surface minimized; Profile parked/reserved
 Date: 2026-05-09
 Scope: @rune Profile, EffectPlan, CapabilityPlan, and mimalloc-grade feature ordering.
 Related:
@@ -16,8 +16,18 @@ Related:
 
 ## Decision
 
-`@rune Profile(...)` is useful, but it must not become a new semantic truth
-source.
+`@rune Profile(...)` is reserved, not part of the active v0 source surface.
+The active source surface should stay small:
+
+```text
+@rune Inline(prefer)
+@rune Inline(avoid)
+@rune Inline(required)
+```
+
+Profile may become useful later as a named bundle over lower-level facts, but
+it must not become a new semantic truth source and must not be required for
+simple inlining.
 
 The accepted order is:
 
@@ -29,8 +39,9 @@ source rune metadata / capability calls
 -> backend emits the already-decided facts
 ```
 
-Profile is sugar over lower-level facts. Backends must not read a profile name,
-infer allocator semantics from it, or branch on it in `.inc` / ll_emit.
+If Profile is ever enabled, it is sugar over lower-level facts. Backends must
+not read a profile name, infer allocator semantics from it, or branch on it in
+`.inc` / ll_emit.
 
 ## Layering
 
@@ -53,7 +64,7 @@ facts, and verifiers. Do not add a broad C-style unsafe language shelf.
 
 ## Rune Profile Rule
 
-Live M12c source shape:
+Deferred source shape:
 
 ```hako
 @rune Profile(allocator.fast)
@@ -62,8 +73,9 @@ method alloc_small(size: usize) -> Ptr<u8> {
 }
 ```
 
-Profile expansion is allowed only because the target primitive facts already
-exist as MIR-owned plan rows.
+Profile expansion is allowed only after the target primitive facts already
+exist as MIR-owned plan rows and repeated source boilerplate proves a real
+need.
 
 M12c expansion target:
 
@@ -78,9 +90,61 @@ Profile(allocator.fast)
 ```
 
 The profile string is not a backend contract. The expanded and verified MIR
-facts are the contract.
+facts would be the contract.
 
-Live profile names are:
+Deferred Profile use:
+
+```hako
+@rune Profile(allocator.fast)
+sizeToClass(size) {
+  ...
+}
+```
+
+This is not the active v0 path. It is a possible future surface for allocator
+hot policy helpers only if explicit lower-level annotations become too noisy.
+It is not required for small leaf helpers whose shape can be verified directly.
+
+Small receiver-local reset helpers should use the lighter spelling:
+
+```hako
+@rune Inline(required)
+beginSelection() {
+  me.last_selected_index = -1
+  me.last_selected_page_id = -1
+  me.last_selected_kind = 0
+  me.last_selected_page = null
+}
+```
+
+The required-inline verifier may infer `no_alloc` and `no_safepoint` from a
+narrow receiver-fieldset leaf shape. `Inline(required)` is still only a proof
+request: if the verifier cannot prove the shape, it must fail fast.
+
+If `allocator.fast` is ever enabled, it must be read as a registry expansion
+for larger bundles, not as a backend-visible magic name:
+
+```text
+Profile(allocator.fast)
+-> InlinePlan request=required
+-> EffectPlan no_alloc
+-> EffectPlan no_safepoint
+-> verifier shape=allocator_fast_leaf
+-> fallback=fail_fast
+```
+
+`allocator.fast` does not mean `pure` or `readonly`. Receiver-local field
+mutation is allowed only when the verifier accepts a narrow allocator fast leaf
+shape. The first intended mutation shape is receiver-local scalar/null
+`FieldSet`, with no nested call, no allocation, no safepoint, no branch/loop,
+and no dynamic dispatch.
+
+`@rune Inline(required)` by itself does not grant `no_alloc` or
+`no_safepoint`. It asks the verifier to prove a supported leaf shape.
+`Profile` expansion may provide explicit contracts before verifier acceptance
+when a named bundle is useful.
+
+Reserved profile names are:
 
 ```text
 allocator.fast
@@ -90,8 +154,9 @@ intrinsic.leaf
 raw.layout
 ```
 
-Parser acceptance and expansion are live-narrow only for those reserved names.
-Backend behavior is still not implied by the profile string.
+Parser acceptance and expansion are not part of the active v0 surface. These
+names are reserved only to avoid accidental semantic drift. Backend behavior is
+still not implied by the profile string.
 
 ## Plan Ownership
 
@@ -128,17 +193,18 @@ no_cache_write
 summary used to decide whether rune contracts and profile expansions are
 eligible for strict lowering.
 
-M12c live surface:
+Active v0 surface:
 
 ```text
 Contract(no_alloc)       -> EffectRequirement::NoAlloc
 Contract(no_safepoint)   -> EffectRequirement::NoSafepoint
-Profile(allocator.fast)  -> no_alloc + no_safepoint
-Profile(substrate.leaf)  -> no_alloc + no_safepoint
-Profile(intrinsic.leaf)  -> no_alloc + no_safepoint
 -> MIR metadata.effect_plans
 -> rune contract verifier consumes EffectPlan
 ```
+
+Profile-to-EffectPlan expansion is deferred. Small required-inline leaf helpers
+should rely on verifier shape inference instead of source-level effect
+boilerplate when the body shape is narrow enough.
 
 `Contract(pure)` and `Contract(readonly)` are not live `EffectPlan`
 requirements yet.
@@ -163,7 +229,7 @@ hako.intrin
 Capability use must be checked structurally. Backends must not infer capability
 rights from method names, file names, or profile names.
 
-M12c live surface:
+Deferred Profile-to-CapabilityPlan surface:
 
 ```text
 Profile(allocator.fast) -> CapabilityPlan allow=[hako.mem,hako.ptr,hako.tls]
@@ -173,7 +239,8 @@ Profile(raw.layout)     -> CapabilityPlan allow=[hako.ptr]
 ```
 
 There is no `@rune Capability(...)` syntax. CapabilityPlan rows produced from
-profiles are metadata only; capability verifier/backend use remains future.
+profiles are metadata only; profile expansion and capability verifier/backend
+use remain future.
 
 ### LayoutPlan
 
@@ -248,14 +315,7 @@ Immediate order after M11d:
    Prove a raw page/free-list fixture using explicit capability calls and
    existing contracts.
 
-2. M12b Profile registry docs [live-docs]
-   Reserve profile names and expansion targets in one registry.
-
-3. M12c Profile expansion to facts [live-narrow]
-   Expand Profile(...) to primitive rune/Plan facts. Backend still reads only
-   facts, not profile names.
-
-4. M13 allocator fast-path EXE proof [live-narrow]
+2. M13 allocator fast-path EXE proof [live-narrow]
    Use verified inline/effect/capability facts to prove a scalar fast path in
    pure-first EXE without backend profile-name handling.
 ```
@@ -263,6 +323,8 @@ Immediate order after M11d:
 Deferred rows:
 
 ```text
+M12b Profile registry docs, if repeated boilerplate proves demand
+M12c Profile expansion to facts, after registry docs and primitive facts
 M14 raw layout source syntax / repr(C) struct
 M15 logical shift and wrapping/checked arithmetic
 M16 TLS slot + atomic load/store/CAS/fetch_add
@@ -276,7 +338,9 @@ M23 PerfContract / asm gate
 ```
 
 The deferred order may be split further by later cards. It must not be used to
-skip the immediate verifier and plan-boundary rows.
+skip the immediate verifier and plan-boundary rows. Profile rows are especially
+deferred: do not introduce them until explicit `Inline` / `Contract` source
+spelling has become real, repeated user-facing noise.
 
 ## Do Not Implement First
 
@@ -314,14 +378,14 @@ Forbidden backend behavior:
 
 ## Current Reading
 
-`M12 mimalloc raw-page proof`, `M12b Profile registry docs`, and `M12c Profile
-expansion to facts` are live-narrow/live-docs as above. The registry SSOT is:
+`M12 mimalloc raw-page proof` remains the narrow proof row. Profile registry
+docs and Profile expansion are parked. The reserved registry note is:
 
 ```text
 docs/reference/mir/rune-profile-registry.md
 ```
 
-`M13 allocator fast-path EXE proof` is live-narrow. Profile already expands
-over existing facts and must not become a backend-readable semantic string.
-The next widening must be a separate raw-substrate EXE row rather than a broad
-allocator special case.
+`M13 allocator fast-path EXE proof` is live-narrow. It should consume explicit
+InlinePlan / EffectPlan / verifier facts, not `Profile(...)`. The next widening
+must be a separate raw-substrate EXE row rather than a broad allocator special
+case.

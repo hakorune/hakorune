@@ -114,6 +114,52 @@ and `Contract(...)` facts, but Profile is not an InlinePlan truth source. The
 MIR facts produced by expansion are the only facts the optimizer and backend
 may consume.
 
+Required receiver leaf shape:
+
+```text
+@rune Inline(required)
+-> InlinePlan request=required
+-> verifier shape=receiver_fieldset_leaf
+-> proof_source=leaf_shape_inference
+-> inferred_no_alloc=1
+-> inferred_no_safepoint=1
+-> fallback=fail_fast
+```
+
+This is the preferred source spelling for small leaf helpers such as
+receiver-local reset methods. `Inline(required)` is a proof request, not a
+safety grant: the verifier must inspect the body and accept only a narrow leaf
+shape before transform.
+
+The first accepted leaf shape is `receiver_fieldset_leaf`:
+
+```text
+allowed:
+  Const
+  Copy
+  receiver-local FieldSet scalar/null
+  Return
+
+forbidden:
+  Call
+  NewBox
+  Array/Map op
+  String op
+  Publish/freeze
+  Branch/Loop
+  Dynamic dispatch
+  Cross-module call
+```
+
+When that shape is accepted, `no_alloc` and `no_safepoint` are inferred from
+the body shape. They are not silently granted by the source rune.
+
+`@rune Profile(...)` is parked for v0. If repeated explicit annotations become
+real user-facing noise later, a profile may be reintroduced as a named bundle
+that expands to primitive MIR facts. The profile name itself must still never
+be backend-active. Backends and `.inc` shims must consume only already-verified
+MIR shape or already-inlined MIR.
+
 `Hint(always_inline)` is also not `inline_required`; do not introduce it as a
 public guarantee. If an always-inline spelling is ever accepted, it remains an
 optimizer hint. Required inline belongs to the canonical `Inline(required)`

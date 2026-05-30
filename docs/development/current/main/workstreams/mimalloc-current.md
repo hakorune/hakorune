@@ -130,6 +130,13 @@ message.
   - output: fold `beginSelection()` into `selectPage()` so the selected queue
     entry owns its hot reset/write path
   - no generic queue rewrite, no public behavior change
+- [ ] MIM-022: required inline receiver-leaf parity proof
+  - output: restore the `beginSelection()` call in source and use
+    `@rune Inline(required)` to reach the MIM-021 manual-inline instruction
+    shape through a verified receiver-fieldset leaf inline
+  - no source `Contract(no_alloc)` / `Contract(no_safepoint)` requirement for
+    this narrow leaf shape; verifier infers those facts from the body
+  - no silent fallback, no source hand-expansion as the final shape
 
 ## Decision Log
 
@@ -212,6 +219,15 @@ message.
   `beginSelection()`. Exact EXE remains `summary=ok`; instructions moved from
   about 256.24M to 254.15M. Keep the public `beginSelection()` method for
   non-hot callers and source readability.
+- 2026-05-31: MIM-022 is selected as a language-optimization cleanup before
+  adding more source hand-expansions. The target source shape is
+  `@rune Inline(required) beginSelection()` plus a normal
+  `me.beginSelection()` call inside `selectPage()`. For this narrow receiver
+  reset helper, `Inline(required)` is enough: the verifier must accept a
+  receiver-local scalar/null `FieldSet` leaf and infer `no_alloc` /
+  `no_safepoint` from the body shape. `Profile(...)` is parked for v0 and
+  should not be introduced unless explicit inline/contract annotations become
+  repeated user-facing noise.
 
 ## MIM-001 Source-Shape Inventory
 
