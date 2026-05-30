@@ -1,6 +1,7 @@
 // Minimal NyRT static shim library (libnyrt.a)
 // Exposes C ABI entry points used by AOT/JIT-emitted objects.
 
+mod backend_env;
 mod encode;
 mod entry;
 mod exports;

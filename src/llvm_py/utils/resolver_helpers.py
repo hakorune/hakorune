@@ -141,6 +141,57 @@ def mark_as_handle(resolver, vid: int, box_type: Optional[str] = None) -> bool:
     return safe_set_type_tag(resolver, vid, tag)
 
 
+def _arrayrepr_fact_store(resolver):
+    """Return the mutable arrayrepr fact store, creating it when needed."""
+    try:
+        if resolver is None:
+            return None
+        facts = getattr(resolver, "arrayrepr_facts", None)
+        if isinstance(facts, dict):
+            return facts
+        facts = {}
+        setattr(resolver, "arrayrepr_facts", facts)
+        return facts
+    except Exception:
+        return None
+
+
+def record_arrayrepr_fact(resolver, vid: int, fact: str) -> bool:
+    """Record an explicit ArrayRepr fact for one value id."""
+    try:
+        if not fact:
+            return False
+        facts = _arrayrepr_fact_store(resolver)
+        if facts is None:
+            return False
+        facts[int(vid)] = fact
+        return True
+    except Exception:
+        return False
+
+
+def mark_arrayrepr_direct_i64(resolver, vid: int) -> bool:
+    """Mark a value as carrying the explicit ArrayRepr::DirectI64 fact."""
+    return record_arrayrepr_fact(resolver, vid, "ArrayRepr::DirectI64")
+
+
+def get_arrayrepr_fact(resolver, vid: int) -> Optional[str]:
+    """Fetch the recorded ArrayRepr fact for a value id."""
+    try:
+        facts = _arrayrepr_fact_store(resolver)
+        if facts is None:
+            return None
+        fact = facts.get(int(vid))
+        return str(fact) if fact is not None else None
+    except Exception:
+        return None
+
+
+def is_arrayrepr_direct_i64(resolver, vid: int) -> bool:
+    """Check whether a value carries the explicit ArrayRepr::DirectI64 fact."""
+    return get_arrayrepr_fact(resolver, vid) == "ArrayRepr::DirectI64"
+
+
 def is_stringish_legacy(resolver, vid: int) -> bool:
     """Legacy is_stringish check (via resolver.is_stringish or value_types)
 

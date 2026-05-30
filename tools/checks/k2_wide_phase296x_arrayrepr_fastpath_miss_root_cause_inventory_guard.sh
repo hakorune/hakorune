@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+TAG="k2-wide-phase296x-arrayrepr-fastpath-miss-root-cause-inventory"
+cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+
+CARD_389="docs/development/current/main/phases/phase-296x/296x-389-TYPED-OBJECT-LEGACY-FIELD-HELPER-OWNER-INVENTORY.md"
+CARD_390="docs/development/current/main/phases/phase-296x/296x-390-ARRAYREPR-FASTPATH-MISS-ROOT-CAUSE-INVENTORY.md"
+CARD_391="docs/development/current/main/phases/phase-296x/296x-391-PUBLIC-ARRAYBOX-RUNTIME-SURFACE-CLASSIFIER-REFRESH.md"
+STATE="docs/development/current/main/CURRENT_STATE.toml"
+INDEX="docs/tools/check-scripts-index.md"
+SELF_SCRIPT="tools/checks/k2_wide_phase296x_arrayrepr_fastpath_miss_root_cause_inventory_guard.sh"
+
+echo "[$TAG] checking ArrayRepr fastpath miss root cause inventory"
+
+guard_require_files "$TAG" "$CARD_389" "$CARD_390" "$CARD_391" "$STATE" "$INDEX" "$SELF_SCRIPT"
+guard_require_exec_files "$TAG" "$SELF_SCRIPT"
+
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_389" "row389 typed-object legacy helper inventory must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_390" "row390 fastpath miss inventory must be landed"
+guard_expect_fixed_in_file "$TAG" 'output_contract=arrayrepr-fastpath-miss-root-cause-inventory-v0' "$CARD_390" "row390 must define the output contract"
+guard_expect_fixed_in_file "$TAG" 'input_contract=typed-object-legacy-field-helper-owner-inventory-v0' "$CARD_390" "row390 must consume row389"
+guard_expect_fixed_in_file "$TAG" 'arrayrepr_producer_route_count=2' "$CARD_390" "row390 must record producer routes"
+guard_expect_fixed_in_file "$TAG" 'arrayrepr_consumer_route_count=1' "$CARD_390" "row390 must record consumer routes"
+guard_expect_fixed_in_file "$TAG" 'arrayrepr_carrier_route_count=1' "$CARD_390" "row390 must record carrier routes"
+guard_expect_fixed_in_file "$TAG" 'public_arraybox_runtime_surface=present_but_underclassified_by_row387' "$CARD_390" "row390 must keep the public ArrayBox runtime surface visible"
+guard_expect_fixed_in_file "$TAG" 'selected_next=public_arraybox_runtime_surface_classifier_refresh' "$CARD_390" "row390 must point to the public ArrayBox runtime surface classifier refresh"
+guard_expect_fixed_in_file "$TAG" 'selected_reason=producer_consumer_carrier_split_still_leaves_public_arraybox_runtime_surface_underclassified' "$CARD_390" "row390 must explain why classifier refresh is next"
+guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_391" "row391 public ArrayBox classifier refresh must be current"
+guard_expect_fixed_in_file "$TAG" 'output_contract=public-arraybox-runtime-surface-classifier-refresh-v0' "$CARD_391" "row391 must define the output contract"
+guard_expect_fixed_in_file "$TAG" 'input_contract=arrayrepr-fastpath-miss-root-cause-inventory-v0' "$CARD_391" "row391 must consume row390"
+guard_expect_fixed_in_file "$TAG" 'public_arraybox_runtime_surface=present_but_underclassified_by_row387' "$CARD_391" "row391 must keep the public ArrayBox runtime surface visible"
+guard_expect_fixed_in_file "$TAG" 'array_slot_backend_safe_pct=21.30' "$CARD_391" "row391 must keep the safe backend split visible"
+guard_expect_fixed_in_file "$TAG" 'array_handle_cache_pct=0.91' "$CARD_391" "row391 must keep the handle-cache split visible"
+guard_expect_fixed_in_file "$TAG" 'arraybox_runtime_total_pct=22.21' "$CARD_391" "row391 must keep the combined public ArrayBox runtime surface visible"
+guard_expect_fixed_in_file "$TAG" 'selected_next=symbol_presence_probe' "$CARD_391" "row391 must point to symbol presence probe"
+guard_expect_fixed_in_file "$TAG" 'selected_reason=source_surface_is_known_but_symbol_presence_is_still_needed_to_pin_the_public_arraybox_runtime_surface_boundary' "$CARD_391" "row391 must explain why symbol presence probe is next"
+guard_expect_fixed_in_file "$TAG" 'implementation_open=0' "$CARD_391" "row391 must keep implementation closed"
+guard_expect_fixed_in_file "$TAG" 'optimization_open=0' "$CARD_391" "row391 must keep optimization closed"
+guard_expect_fixed_in_file "$TAG" 'winner_claim=0' "$CARD_391" "row391 must keep winner claims closed"
+guard_expect_fixed_in_file "$TAG" 'replacement_active=0' "$CARD_391" "row391 must keep replacement closed"
+guard_expect_fixed_in_file "$TAG" 'hook_installed=0' "$CARD_391" "row391 must keep hooks closed"
+guard_expect_fixed_in_file "$TAG" 'global_allocator=0' "$CARD_391" "row391 must keep global allocator closed"
+guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "PUBLIC-ARRAYBOX-RUNTIME-SURFACE-CLASSIFIER-REFRESH-296X-001"' "$STATE" "current state must point to row391"
+guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-390-ARRAYREPR-FASTPATH-MISS-ROOT-CAUSE-INVENTORY"' "$STATE" "current state must keep row390 as the latest landed card"
+guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
+
+echo "[$TAG] ok"

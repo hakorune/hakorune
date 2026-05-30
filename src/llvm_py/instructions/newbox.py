@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Any
 from instructions.string_fast import can_reuse_literal_string_handle
 from instructions.typed_object_exact import exact_object_plan_for_box
 from instructions.user_box_local import build_local_user_box_aggregate_for_newbox
-from utils.resolver_helpers import mark_as_handle
+from utils.resolver_helpers import mark_arrayrepr_direct_i64, mark_as_handle
 
 DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
 PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
@@ -56,6 +56,7 @@ def lower_newbox(
             if not hasattr(resolver, "direct_array_i64_ids"):
                 resolver.direct_array_i64_ids = set()
             resolver.direct_array_i64_ids.add(int(dst_vid))
+            mark_arrayrepr_direct_i64(resolver, int(dst_vid))
         except Exception:
             pass
 

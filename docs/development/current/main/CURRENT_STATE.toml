@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-05-30"
 
 active_lane = "phase-296x mimalloc benchmark contract"
-active_lane_status = "Phase-296x DirectArray family storage substrate roadmap is current; DirectI64 ArrayRepr producer contract is current and producer implementation is next."
+active_lane_status = "Phase-296x DirectArray family storage substrate roadmap is current; DirectI64 ArrayRepr post-rebase perf owner refresh, legacy helper/cache owner selection, typed-object legacy field helper inventory, ArrayRepr fastpath miss root-cause inventory, public ArrayBox runtime surface classifier refresh, symbol presence probe, typed-object legacy field helper callsite inventory, RuntimeDataBox field dispatch root-cause inventory, RuntimeDataBox field route inventory, RuntimeDataBox route policy inventory, RuntimeDataBox route policy contract, RuntimeDataBox route policy implementation, and RuntimeDataBox route policy keeper measurement are landed; the RuntimeDataBox route-policy owner refresh, consumer callsite attribution refresh, collection-method surface owner selection, and collection-method route order inventory are landed; the collection-method direct-array lane owner selection is landed; the collection-method direct-array lane guard surface is landed; the collection-method direct-array lane selected-method pilot is landed; the collection-method direct-array lane semantic smoke is landed; the collection-method direct-array lane post-semantic perf owner refresh is landed; the collection-method direct-array lane legacy helper/cache retirement selection is landed; the collection-method direct-array lane legacy helper/cache retirement implementation is landed; the collection-method direct-array lane legacy helper/cache retirement semantic smoke is landed; and the collection-method direct-array lane post-retirement perf owner refresh is current."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 
-latest_card = "296x-382-DIRECTI64-ARRAYREPR-FACT-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-382-DIRECTI64-ARRAYREPR-FACT-INVENTORY.md"
-latest_card_summary = "Landed the DirectI64 ArrayRepr fact inventory and opened the explicit producer contract row next."
-current_blocker_token = "DIRECTI64-ARRAYREPR-PRODUCER-CONTRACT-296X-001"
+latest_card = "296x-411-COLLECTION-METHOD-DIRECT-ARRAY-LANE-LEGACY-HELPER-CACHE-RETIREMENT-SEMANTIC-SMOKE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-411-COLLECTION-METHOD-DIRECT-ARRAY-LANE-LEGACY-HELPER-CACHE-RETIREMENT-SEMANTIC-SMOKE.md"
+latest_card_summary = "Landed the collection-method direct-array lane legacy helper/cache retirement semantic smoke: the scoped retirement slice stayed narrow, and the post-retirement perf owner refresh row opened next."
+current_blocker_token = "COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -27,6 +27,34 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "296x-411 Landed the Collection Method direct-array lane legacy helper/cache retirement semantic smoke: the scoped retirement slice stayed narrow, and the post-retirement perf owner refresh row opened next.",
+  "296x-410 Landed the Collection Method direct-array lane legacy helper/cache retirement implementation boundary: the scoped retirement target stays narrow, and the semantic smoke is current.",
+  "296x-409 Landed the Collection Method direct-array lane legacy helper/cache retirement selection: the direct-array path remains exact-only, and the retirement implementation boundary opened next.",
+  "296x-408 Landed the Collection Method direct-array lane post-semantic perf owner refresh: the direct-array path remains exact-only, and the legacy helper/cache retirement selection opened next.",
+  "296x-407 Landed the Collection Method direct-array lane semantic smoke: the Python lowering and Rust substrate smoke are fixed, and the post-semantic perf owner refresh row opened next.",
+  "296x-406 Landed the Collection Method direct-array lane selected-method pilot: the exact-only direct-array lane is pinned and the semantic smoke row opened next.",
+  "296x-405 Landed the Collection Method direct-array lane guard surface: the exact-only direct-array lane can now authorize one selected-method pilot without reopening compatibility surfaces.",
+  "296x-404 Landed the Collection Method direct-array lane owner selection: the exact-only direct-array lane is pinned and the guard surface row opened next.",
+  "296x-402 Landed the collection-method surface owner selection: collection_method_call.py remains the highest-leverage remaining consumer surface, and the collection-method route order inventory opened next.",
+  "296x-401 Landed the RuntimeDataBox consumer callsite attribution refresh: collection_method_call.py is the highest-leverage remaining consumer surface, and the collection-method surface owner selection opened next.",
+  "296x-400 Landed the RuntimeDataBox route policy owner refresh: the remaining consumer surface was split into file-by-file inventories and the consumer callsite attribution refresh opened next.",
+  "296x-399 Landed the RuntimeDataBox route policy keeper measurement: the extracted policy source stayed stable, the dispatch layer stayed thin, and the route-policy owner refresh opened next.",
+  "296x-398 Landed the RuntimeDataBox route policy implementation: the env-backed policy source was extracted into a dedicated module and the keeper measurement opened next.",
+  "296x-397 Landed the RuntimeDataBox route policy contract: the env-backed policy and array hint predicates were frozen into a shared contract, and the RuntimeDataBox route policy implementation opened next.",
+  "296x-396 Landed the RuntimeDataBox route policy inventory: the env-backed policy and array hint predicates were pinned file by file, and the RuntimeDataBox route policy contract opened next.",
+  "296x-395 Landed the RuntimeDataBox field route inventory: the route map, route sink, and route-policy boundary were pinned file by file, and RuntimeDataBox route policy inventory opened next.",
+  "296x-394 Landed the RuntimeDataBox field dispatch root-cause inventory: the field sink, runtime_data_dispatch map ABI, and direct-array distinction were pinned file by file, and RuntimeDataBox field route inventory opened next.",
+  "296x-393 Landed the typed-object legacy field helper callsite inventory: newbox.py, constructor_call.py, collection_method_call.py, resolver_helpers.py, and field_access.py were attributed file by file, and RuntimeDataBox field dispatch root-cause inventory opened next.",
+  "296x-392 Landed the symbol presence probe: the emitted libnyash_kernel.a symbol table confirmed the public ArrayBox birth symbol, the DirectArray birth symbol, and the legacy helper / exact-slot exports, and the typed-object legacy field helper callsite inventory opened next.",
+  "296x-391 Landed the public ArrayBox runtime surface classifier refresh: array.rs / array_compat.rs / array_handle_cache.rs / array_slot_backend.rs were source-classified and the symbol presence probe opened next.",
+  "296x-390 Landed the ArrayRepr fastpath miss root-cause inventory: producer, consumer, carrier, and public ArrayBox runtime surface were split, and public ArrayBox runtime surface classifier refresh opened next.",
+  "296x-389 Landed the typed-object legacy field helper inventory: route inventories split the file-by-file producer, consumer, carrier, and public ArrayBox runtime surfaces, then opened arrayrepr fastpath miss root cause inventory next.",
+  "296x-387 Landed the DirectI64 ArrayRepr post-rebase perf owner refresh: DirectArray backend total was 0.00%, legacy helper/cache was 76.34%, so optional next member selection stayed closed and legacy helper/cache owner selection opened.",
+  "296x-388 Landed the legacy helper/cache owner selection after ArrayRepr rebase: real evidence split typed-object legacy field helpers from public ArrayBox runtime cost and opened typed-object legacy field helper inventory next.",
+  "296x-386 Landed the DirectI64 ArrayRepr materialization smoke refresh and opened the post-rebase perf owner refresh row next.",
+  "296x-385 Landed the DirectI64 ArrayRepr lowering consumer rebase and opened the materialization smoke refresh row next.",
+  "296x-384 Landed the DirectI64 ArrayRepr producer implementation and opened the lowering consumer rebase row next.",
+  "296x-383 Landed the DirectI64 ArrayRepr producer contract and opened the producer implementation row next.",
   "296x-382 Landed the DirectI64 ArrayRepr fact inventory and opened the explicit producer contract row next.",
   "296x-380 Froze the DirectArray family extension gate and opened a next-order taskboard before adding any new DirectArray member.",
   "296x-379 Aligned .hako ArrayCore ownership with the DirectArray family / ArrayBox split and opened the DirectArray family extension gate next.",

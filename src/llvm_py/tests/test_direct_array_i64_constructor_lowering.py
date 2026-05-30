@@ -54,6 +54,7 @@ class TestDirectArrayI64ConstructorLowering(unittest.TestCase):
             self.assertIn("nyash.array.birth_h", ir_txt)
             self.assertNotIn("nyash.array.direct_i64.birth_h", ir_txt)
             self.assertFalse(hasattr(resolver, "direct_array_i64_ids"))
+            self.assertFalse(hasattr(resolver, "arrayrepr_facts"))
 
         self._with_env(None, run)
 
@@ -67,6 +68,7 @@ class TestDirectArrayI64ConstructorLowering(unittest.TestCase):
             self.assertIn("nyash.array.direct_i64.birth_h", ir_txt)
             self.assertNotIn("declare i64 @\"nyash.array.birth_h\"()", ir_txt)
             self.assertEqual(resolver.direct_array_i64_ids, {7})
+            self.assertEqual(resolver.arrayrepr_facts, {7: "ArrayRepr::DirectI64"})
 
         self._with_env("direct_array_i64_exact", run)
 
@@ -89,6 +91,7 @@ class TestDirectArrayI64ConstructorLowering(unittest.TestCase):
             self.assertIn("nyash.array.direct_i64.birth_h", ir_txt)
             self.assertNotIn("declare i64 @\"nyash.array.birth_h\"()", ir_txt)
             self.assertEqual(resolver.direct_array_i64_ids, {9})
+            self.assertEqual(resolver.arrayrepr_facts, {9: "ArrayRepr::DirectI64"})
 
         self._with_env("direct_array_i64_exact", run)
 

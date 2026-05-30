@@ -8,6 +8,7 @@ Supports built-in boxes (StringBox, ArrayBox, etc.) and plugin boxes.
 from typing import Dict, Any, Optional
 from llvmlite import ir
 import os
+from utils.resolver_helpers import mark_arrayrepr_direct_i64
 from .arg_resolver import make_call_arg_resolver
 
 DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
@@ -25,6 +26,7 @@ def _mark_direct_array_i64_origin(resolver, dst_vid) -> None:
         if not hasattr(resolver, "direct_array_i64_ids"):
             resolver.direct_array_i64_ids = set()
         resolver.direct_array_i64_ids.add(int(dst_vid))
+        mark_arrayrepr_direct_i64(resolver, int(dst_vid))
     except Exception:
         pass
 

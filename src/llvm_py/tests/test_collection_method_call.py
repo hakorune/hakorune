@@ -150,7 +150,7 @@ class TestCollectionMethodCall(unittest.TestCase):
         def run():
             i64, module, builder = _new_builder_named("HakoAllocPageModel.acquire_usize/1")
             resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
-            resolver.direct_array_i64_ids = {1}
+            resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
 
             result = lower_collection_method_call(
                 builder=builder,
@@ -178,7 +178,7 @@ class TestCollectionMethodCall(unittest.TestCase):
         def run():
             i64, module, builder = _new_builder_named("HakoAllocPageModel.acquire_usize/1")
             resolver = _DummyResolver(value_types={2: "i64", 3: "i64"}, integerish_ids={2, 3})
-            resolver.direct_array_i64_ids = {1}
+            resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
 
             result = lower_collection_method_call(
                 builder=builder,

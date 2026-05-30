@@ -6,14 +6,15 @@ to avoid drift between method_call and mir_call_legacy lowerers.
 Array receiver specialized routing (AS-03/03b/03c) is selected here as well.
 """
 
-import os
-from functools import lru_cache
-
 from llvmlite import ir
 from .auto_specialize import (
     prefer_runtime_data_array_i64_key_i64_value_route,
     prefer_runtime_data_array_i64_key_route,
     prefer_runtime_data_array_route,
+)
+from .runtime_data_route_policy import (
+    prefer_array_mono_route_default as _prefer_array_mono_route_default,
+    reset_runtime_data_array_route_policy_cache_for_tests as _reset_runtime_data_array_route_policy_cache_for_tests,
 )
 
 
@@ -49,36 +50,6 @@ _RUNTIME_DATA_FIELD_METHODS = {
     "getField": ("nyash.map.slot_load_hh", "unified_runtime_data_getField", 1),
     "setField": ("nyash.map.slot_store_hhh", "unified_runtime_data_setField", 2),
 }
-
-
-@lru_cache(maxsize=1)
-def _runtime_data_array_route_policy():
-    """
-    RuntimeDataBox array-route policy SSOT.
-
-    - default (`array_mono`): allow current array-specialized route
-      (`push -> slot_append_hh`, integer-key `get/set -> slot_load_hi/slot_store_hih|slot_store_hii`,
-      `has -> runtime_data.has_hh`)
-    - `runtime_data_only`: force `nyash.runtime_data.*` even when array hints match
-    """
-    raw = str(os.getenv("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", "array_mono") or "array_mono")
-    policy = raw.strip().lower()
-    if policy in ("array_mono", "array", "default"):
-        return "array_mono"
-    if policy in ("runtime_data_only", "runtime_data"):
-        return "runtime_data_only"
-    raise RuntimeError(
-        "unsupported NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY="
-        f"{raw!r} (expected: array_mono|runtime_data_only)"
-    )
-
-
-def _prefer_array_mono_route_default():
-    return _runtime_data_array_route_policy() == "array_mono"
-
-
-def _reset_runtime_data_array_route_policy_cache_for_tests():
-    _runtime_data_array_route_policy.cache_clear()
 
 
 def _select_array_collection_call_spec(*, method_name, resolver=None, arg_vids=None):

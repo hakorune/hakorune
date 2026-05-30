@@ -92,11 +92,43 @@ Scope: current lane / next lane / restart order only.
 - row380 freezes the DirectArray family extension gate and is now landed
 - row381 freezes the next-order taskboard and is now landed
 - row382 inventories the DirectI64 ArrayRepr fact path and is now landed
-- row383 defines the explicit DirectI64 ArrayRepr producer contract and is
-  current
-- the current blocker token now points at the explicit DirectI64 ArrayRepr
-  producer contract, so the lane can route existing `DirectI64` through
-  `ArrayRepr` before the producer implementation row
+- row383 defines the explicit DirectI64 ArrayRepr producer contract and is now
+  landed
+- row384 implements the explicit DirectI64 ArrayRepr producer fact and is now
+  landed
+- row385 rebases the selected-method consumer to explicit
+  `ArrayRepr::DirectI64` facts and is now landed
+- row386 smokes the rebased DirectI64 ArrayRepr path and is now landed
+- row387 refreshes the post-rebase perf owner and is now landed; real evidence
+  showed `direct_array_backend_total_pct=0.00` and
+  `legacy_helper_cache_total_pct=76.34`, so optional DirectArray next-member
+  selection stays closed
+  - row388 is landed and splits the legacy helper/cache surface before any new
+    fast path implementation; row389 is landed and inventories the typed-object
+    legacy field helper surface one file at a time so mini5.4 can pick up a
+    single route task; row390 is landed and isolates the arrayrepr fastpath
+    miss root cause; row391 is landed and refreshes the public ArrayBox runtime
+    surface classifier; row392 is landed and probes the emitted symbol table;
+    row393 is landed and inventories the typed-object legacy field helper
+    callsites one file at a time; row394 is landed and inventories the
+    RuntimeDataBox field dispatch root cause; row395 is landed and inventories
+    the RuntimeDataBox field route boundary; row396 is landed and inventories
+    the RuntimeDataBox route policy; row397 is landed and freezes the
+    RuntimeDataBox route-policy contract; row398 is landed and extracts the
+    route-policy source module; row399 is landed and measures the keeper
+    stability of the extracted policy source module; row400 is landed and
+    refreshes the remaining RuntimeDataBox consumer callsite surface before any
+    new policy change; row401 is landed and pins collection_method_call.py as
+    the highest-leverage remaining consumer surface; row402 is landed and
+    selects the next durable consumer owner; row403 is landed and inventories
+    the shared collection route order before any implementation; row404 is
+    landed and selects the next exact-only direct-array lane owner before any
+    implementation; row405 is landed and freezes the direct-array lane guard
+    surface before the selected-method pilot; row406 is landed and implements
+    the first selected-method direct-array lane pilot; row407 is landed and
+    smokes the selected-method direct-array lane; row408 is landed, row409 is
+    landed, row410 is landed, row411 is landed, and row412 is current as the
+    post-retirement perf owner refresh
 - keep `nyash.array.birth_h` public ArrayBox semantics, handle-entry cache
   retirement, and public helper fast lanes deferred until the ArrayCore split
   note is written and smoked
@@ -106,11 +138,16 @@ Scope: current lane / next lane / restart order only.
   3. smoke the retired slice before touching broader cache code
   4. refresh perf after smoke is green, then write the ArrayRepr bridge,
      ArrayCore alignment note, DirectArray extension gate, next-order
-     taskboard, DirectI64 ArrayRepr fact inventory, and producer contract
-     in order
-  5. next implementation series continues with the producer implementation,
-     then the lowerer consumer rebase, then the materialization smoke
-     refresh, then the post-rebase perf owner refresh
+     taskboard, DirectI64 ArrayRepr fact inventory, producer contract, and
+     producer implementation in order
+  5. the typed-object legacy field helper inventory row is landed, the
+     arrayrepr fastpath miss root-cause row is landed, the public ArrayBox
+     runtime surface classifier row is landed, the direct-array lane guard
+     surface row is landed, the selected-method pilot row is landed, the
+     semantic smoke row is landed, the post-semantic perf owner refresh row is
+     landed, and the legacy helper/cache retirement semantic smoke row is
+     current
+     before any implementation opens
 
 ## Current Ordered App Bringup
 

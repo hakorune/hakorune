@@ -14,6 +14,7 @@ from .runtime_data_dispatch import (
     lower_runtime_data_method_call,
     select_array_collection_call_spec,
 )
+from utils.resolver_helpers import is_arrayrepr_direct_i64
 
 DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHOD = "HakoAllocPageModel.acquire_usize/1"
 DIRECT_ARRAY_HANDLE_TAG_MASK = -4
@@ -45,10 +46,8 @@ def _direct_array_nativedirect_selected(builder, resolver, receiver_vid) -> bool
         return False
     if resolver is None or receiver_vid is None:
         return False
-    if not hasattr(resolver, "direct_array_i64_ids"):
-        return False
     try:
-        return int(receiver_vid) in resolver.direct_array_i64_ids
+        return is_arrayrepr_direct_i64(resolver, int(receiver_vid))
     except Exception:
         return False
 

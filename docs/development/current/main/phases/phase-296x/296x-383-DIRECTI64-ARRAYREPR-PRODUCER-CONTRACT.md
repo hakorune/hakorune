@@ -1,8 +1,8 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: define the stable fact shape that says a value has `ArrayRepr::DirectI64`.
-Blocker: DIRECTI64-ARRAYREPR-PRODUCER-CONTRACT-296X-001
+Blocker: DIRECTI64-ARRAYREPR-PRODUCER-IMPLEMENTATION-296X-001
 Related:
   - docs/development/current/main/phases/phase-296x/296x-382-DIRECTI64-ARRAYREPR-FACT-INVENTORY.md
   - docs/development/current/main/phases/phase-296x/296x-381-DIRECTARRAY-FAMILY-NEXT-ORDER-TASKBOARD.md
@@ -74,6 +74,9 @@ the fact from helper names.
 - no helper-name inference in the lowerer
 - no public handle reinterpretation
 - no new `DirectArray` member
+
+The row is now landed because the explicit fact contract is fixed. The next
+current row is the producer implementation.
 
 ## Guard
 

@@ -5,12 +5,14 @@ import unittest
 import llvmlite.ir as ir
 
 from src.llvm_py.instructions.mir_call.runtime_data_dispatch import (
-    _prefer_array_mono_route_default,
-    _reset_runtime_data_array_route_policy_cache_for_tests,
     lower_runtime_data_field_call,
     lower_runtime_data_method_call,
     select_array_collection_call_spec,
     select_runtime_data_call_spec,
+)
+from src.llvm_py.instructions.mir_call.runtime_data_route_policy import (
+    prefer_array_mono_route_default as _prefer_array_mono_route_default,
+    reset_runtime_data_array_route_policy_cache_for_tests as _reset_runtime_data_array_route_policy_cache_for_tests,
 )
 
 

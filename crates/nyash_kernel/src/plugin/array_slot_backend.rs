@@ -9,6 +9,8 @@
 use std::cell::RefCell;
 use std::sync::OnceLock;
 
+use crate::backend_env::{cached_env_choice, panic_unsupported_env_value};
+
 #[cfg(test)]
 use super::array_direct_i64_buffer::DirectArrayI64BufferV0Box;
 use super::array_direct_i64_buffer::{direct_array_i64_load_i64, direct_array_i64_store_i64};
@@ -39,16 +41,14 @@ struct ArraySlotCacheEntry {
 }
 
 fn selected_backend() -> ArraySlotBackend {
-    *BACKEND.get_or_init(
-        || match std::env::var(ARRAY_SLOT_STORE_ENV).ok().as_deref() {
-            None | Some("") | Some("safe_rwlock") => ArraySlotBackend::SafeRwLock,
-            Some("single_thread_exact") => ArraySlotBackend::SingleThreadExact,
-            Some("direct_array_i64_exact") => ArraySlotBackend::DirectArrayI64Exact,
-            Some(value) => panic!(
-            "[freeze:contract][array-slot-store/backend] unsupported {ARRAY_SLOT_STORE_ENV}={value}"
-        ),
-        },
-    )
+    cached_env_choice(&BACKEND, ARRAY_SLOT_STORE_ENV, |value| match value {
+        None | Some("") | Some("safe_rwlock") => ArraySlotBackend::SafeRwLock,
+        Some("single_thread_exact") => ArraySlotBackend::SingleThreadExact,
+        Some("direct_array_i64_exact") => ArraySlotBackend::DirectArrayI64Exact,
+        Some(value) => {
+            panic_unsupported_env_value("array-slot-store/backend", ARRAY_SLOT_STORE_ENV, value)
+        }
+    })
 }
 
 fn safe_store_i64(handle: i64, idx: i64, value_i64: i64) -> i64 {
@@ -165,7 +165,9 @@ pub(super) fn load_encoded_i64(handle: i64, idx: i64) -> i64 {
     match selected_backend() {
         ArraySlotBackend::SafeRwLock => safe_load_encoded_i64(handle, idx),
         ArraySlotBackend::SingleThreadExact => single_thread_load_encoded_i64(handle, idx),
-        ArraySlotBackend::DirectArrayI64Exact => direct_array_i64_exact_load_encoded_i64(handle, idx),
+        ArraySlotBackend::DirectArrayI64Exact => {
+            direct_array_i64_exact_load_encoded_i64(handle, idx)
+        }
     }
 }
 

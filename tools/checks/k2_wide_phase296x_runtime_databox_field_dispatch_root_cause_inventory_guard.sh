@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+TAG="k2-wide-phase296x-runtime-databox-field-dispatch-root-cause-inventory"
+cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+
+CARD_393="docs/development/current/main/phases/phase-296x/296x-393-TYPED-OBJECT-LEGACY-FIELD-HELPER-CALLSITE-INVENTORY.md"
+CARD_394="docs/development/current/main/phases/phase-296x/296x-394-RUNTIME-DATABOX-FIELD-DISPATCH-ROOT-CAUSE-INVENTORY.md"
+CARD_395="docs/development/current/main/phases/phase-296x/296x-395-RUNTIME-DATA-DISPATCH-FIELD-ROUTE-INVENTORY.md"
+CARD_396="docs/development/current/main/phases/phase-296x/296x-396-RUNTIME-DATA-DISPATCH-ROUTE-POLICY-INVENTORY.md"
+CARD_397="docs/development/current/main/phases/phase-296x/296x-397-RUNTIME-DATA-DISPATCH-ROUTE-POLICY-CONTRACT.md"
+CARD_398="docs/development/current/main/phases/phase-296x/296x-398-RUNTIME-DATA-DISPATCH-ROUTE-POLICY-IMPLEMENTATION.md"
+CARD_399="docs/development/current/main/phases/phase-296x/296x-399-RUNTIME-DATA-DISPATCH-ROUTE-POLICY-KEEPER-MEASUREMENT.md"
+CARD_400="docs/development/current/main/phases/phase-296x/296x-400-RUNTIME-DATA-DISPATCH-ROUTE-POLICY-OWNER-REFRESH.md"
+STATE="docs/development/current/main/CURRENT_STATE.toml"
+INDEX="docs/tools/check-scripts-index.md"
+SELF_SCRIPT="tools/checks/k2_wide_phase296x_runtime_databox_field_dispatch_root_cause_inventory_guard.sh"
+
+echo "[$TAG] checking RuntimeDataBox field dispatch root-cause inventory"
+
+guard_require_files "$TAG" "$CARD_393" "$CARD_394" "$CARD_395" "$CARD_396" "$CARD_397" "$CARD_398" "$CARD_399" "$CARD_400" "$STATE" "$INDEX" "$SELF_SCRIPT"
+guard_require_exec_files "$TAG" "$SELF_SCRIPT"
+
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_393" "row393 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_394" "row394 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_395" "row395 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_396" "row396 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_397" "row397 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_398" "row398 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_399" "row399 must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_400" "row400 must be current"
+guard_expect_fixed_in_file "$TAG" 'output_contract=runtime-databox-field-dispatch-root-cause-inventory-v0' "$CARD_394" "row394 must define output contract"
+guard_expect_fixed_in_file "$TAG" 'input_contract=typed-object-legacy-field-helper-callsite-inventory-v0' "$CARD_394" "row394 must consume row393"
+guard_expect_fixed_in_file "$TAG" 'field_access_sink_present=1' "$CARD_394" "row394 must keep the field access sink visible"
+guard_expect_fixed_in_file "$TAG" 'runtime_data_dispatch_map_abi_present=1' "$CARD_394" "row394 must keep the dispatch map visible"
+guard_expect_fixed_in_file "$TAG" 'runtime_databox_field_get_sink=RuntimeDataBox.getField' "$CARD_394" "row394 must pin RuntimeDataBox.getField"
+guard_expect_fixed_in_file "$TAG" 'runtime_databox_field_set_sink=RuntimeDataBox.setField' "$CARD_394" "row394 must pin RuntimeDataBox.setField"
+guard_expect_fixed_in_file "$TAG" 'runtime_databox_field_dispatch_is_not_direct_array=1' "$CARD_394" "row394 must keep DirectArray distinct"
+guard_expect_fixed_in_file "$TAG" 'selected_next=runtime_data_dispatch_field_route_inventory' "$CARD_394" "row394 must point to the next route inventory"
+guard_expect_fixed_in_file "$TAG" 'selected_reason=field_access_falls_back_to_runtime_databox_map_abi_and_the_dispatch_surface_still_needs_route_attribution' "$CARD_394" "row394 must explain why the next owner opens"
+guard_expect_fixed_in_file "$TAG" 'RDI-001: Field Access Sink Inventory' "$CARD_394" "row394 must split the sink inventory"
+guard_expect_fixed_in_file "$TAG" 'RDI-002: Runtime Data Dispatch Inventory' "$CARD_394" "row394 must split the dispatch inventory"
+guard_expect_fixed_in_file "$TAG" 'RDI-003: Route Boundary Note' "$CARD_394" "row394 must keep the route boundary note"
+guard_expect_fixed_in_file "$TAG" 'RDI-004: Guard And Index' "$CARD_394" "row394 must keep the guard/index task"
+guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-399-RUNTIME-DATA-DISPATCH-ROUTE-POLICY-KEEPER-MEASUREMENT"' "$STATE" "current state must keep row399 as the latest landed card"
+guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "RUNTIME-DATA-DISPATCH-ROUTE-POLICY-OWNER-REFRESH-296X-001"' "$STATE" "current state must point to row400"
+guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
+
+echo "[$TAG] ok"
