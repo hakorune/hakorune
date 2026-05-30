@@ -126,6 +126,10 @@ message.
 - [ ] MIM-020: post-single-page-inline owner refresh
   - output: reread the direct exact perf top and choose one next source-level
     owner from current evidence
+- [x] MIM-021: inline queue selection reset
+  - output: fold `beginSelection()` into `selectPage()` so the selected queue
+    entry owns its hot reset/write path
+  - no generic queue rewrite, no public behavior change
 
 ## Decision Log
 
@@ -203,6 +207,11 @@ message.
   still reports `summary=ok`; instructions moved from about 269.35M to
   256.24M and cycles from about 58.4M to 53.0M. Public queue semantics and the
   generic multi-page path remain unchanged.
+- 2026-05-31: MIM-021 landed as a small structural keeper. `selectPage()` now
+  performs the hot selection reset directly instead of calling
+  `beginSelection()`. Exact EXE remains `summary=ok`; instructions moved from
+  about 256.24M to 254.15M. Keep the public `beginSelection()` method for
+  non-hot callers and source readability.
 
 ## MIM-001 Source-Shape Inventory
 

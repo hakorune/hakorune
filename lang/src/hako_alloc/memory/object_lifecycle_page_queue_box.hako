@@ -100,7 +100,10 @@ box HakoAllocObjectLifecyclePageQueue {
 
     selectPage() {
         me.request_count = me.request_count + 1
-        me.beginSelection()
+        me.last_selected_index = -1
+        me.last_selected_page_id = -1
+        me.last_selected_kind = 0
+        me.last_selected_page = null
 
         if me.page_count == 1 {
             local page = me.first_page
