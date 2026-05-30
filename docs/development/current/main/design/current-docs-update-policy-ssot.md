@@ -39,6 +39,15 @@ clear current-state owner.
 `docs/development/current/main/CURRENT_STATE.toml` is the machine-readable SSOT
 for the current lane, blocker, phase pointers, and latest card pointer.
 
+Current work is constrained to three buckets:
+
+1. mimalloc migration and optimization
+2. Array / representation fast paths only when selected by mimalloc perf evidence
+3. docs and shell hygiene
+
+These buckets are the work taxonomy. Do not open a new active lane outside
+them without updating this policy and `CURRENT_STATE.toml`.
+
 Per-card mandatory docs updates are limited to:
 
 1. `CURRENT_STATE.toml`
@@ -60,6 +69,104 @@ Update those mirrors only when one of these changes:
 Changing only `current_blocker_token`, `latest_card`, `latest_card_path`, or
 `landed_tail` is a `CURRENT_STATE.toml` update. Thin mirrors should point to
 those fields by name instead of repeating the concrete row token.
+
+## Row and Guard Growth Policy
+
+The previous phase-296x cadence produced too many docs-only rows and per-row
+shell guards. New work should avoid making a row for every observation.
+
+Rules:
+
+- one active working card per bucket; use sections inside that card for
+  inventory, selection, smoke, and closeout notes;
+- do not create a new numbered row for a small inventory or a single source
+  scan unless it changes implementation scope or durable policy;
+- docs-only rows are allowed for durable policy, but not as a repeating
+  thinking log;
+- after one docs-only decision, the next step must be code, perf evidence,
+  guard consolidation, or explicit closeout;
+- do not create a dedicated `.sh` guard for every row;
+- prefer one reusable lane guard per bucket:
+  - mimalloc: source/perf/current-owner guard
+  - array/fastpath: representation fastpath guard
+  - docs-sh hygiene: docs/index/current-state guard
+- add a new shell guard only when it will be reused or when it validates real
+  code/perf behavior that cannot be covered by an existing lane guard;
+- historical row guards remain callable for traceability, but new current work
+  should not keep extending the per-row guard list;
+- `docs/tools/check-scripts-index.md` should document stable public entries,
+  not every one-off diagnostic probe;
+- no fast path lane opens unless current mimalloc perf evidence names a
+  concrete owner family and a positive-net implementation path.
+
+Immediate cleanup policy for phase-296x:
+
+- keep rows through the current card as history;
+- stop adding numbered rows for inventory-only steps;
+- slim `CURRENT_STATE.toml` to the last few landed cards;
+- fold future notes into the active mimalloc working card or a single
+  investigation note when needed;
+- classify old per-row guards as legacy traceability unless they are part of a
+  reusable bucket guard.
+
+## Workstream Card / Ghost Task Policy
+
+Docs-first means contract-first, not row-first.
+
+Use one active Workstream Card for day-to-day work in a bucket. A workstream
+card may cover several days or a week. It owns the current goal, hypothesis,
+checklist, short evidence, decisions, and parking lot for that bucket.
+
+Allowed active workstream examples:
+
+- `docs/development/current/main/workstreams/mimalloc-current.md`
+- `docs/development/current/main/workstreams/array-fastpath-current.md`
+- `docs/development/current/main/workstreams/docs-sh-hygiene-current.md`
+
+Use the Workstream Card for:
+
+- inventory notes
+- owner selection notes
+- smoke notes
+- small closeout notes
+- nonkeeper notes
+- parking-lot items
+
+Do not create a new row/card/guard by default.
+
+Create a numbered row only when at least one of these is true:
+
+- active lane changes
+- implementation boundary changes
+- keeper / nonkeeper decision must be durable
+- a new contract, ABI, verifier, or measurement policy is introduced
+- an external reviewer or future implementer will need the decision as a stable
+  historical anchor
+- the decision cannot be represented by direct SSOT edit plus Workstream Card
+  note
+
+Ghost Tasks do not update `CURRENT_STATE.toml` and do not get a new row. Record
+them in the commit message and, when useful, as one checklist item in the active
+Workstream Card.
+
+Ghost Task examples:
+
+- grep / source inventory
+- file-by-file checks
+- small refactors
+- guard wording changes
+- stale pointer fixes
+- existing guard condition additions
+- typo / link fixes
+- nonkeeper experiments that are immediately reverted
+
+Use SSOT Direct Edit when the design truth changes. Edit the owning
+`design/*.md` directly and put the reason in the commit message. Do not create
+a transfer chain of investigation note -> row -> SSOT unless the decision needs
+that historical anchor.
+
+`CURRENT_STATE.toml` remains a pointer file. It may name the active workstream,
+but it must not become the daily progress log.
 
 ## Current State Shape
 

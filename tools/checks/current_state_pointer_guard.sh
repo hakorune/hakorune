@@ -53,6 +53,7 @@ active_phase="$(require_scalar active_phase)"
 phase_status="$(require_scalar phase_status)"
 method_anchor="$(require_scalar method_anchor)"
 taskboard="$(require_scalar taskboard)"
+latest_workstream_card="$(toml_scalar latest_workstream_card)"
 blocker_token="$(require_scalar current_blocker_token)"
 latest_card="$(require_scalar latest_card)"
 latest_card_path="$(require_scalar latest_card_path)"
@@ -78,6 +79,9 @@ require_repo_file "$active_phase" "active_phase"
 require_repo_file "$phase_status" "phase_status"
 require_repo_file "$method_anchor" "method_anchor"
 require_repo_file "$taskboard" "taskboard"
+if [[ -n "$latest_workstream_card" ]]; then
+  require_repo_file "$latest_workstream_card" "latest_workstream_card"
+fi
 require_repo_file "$latest_card_path" "latest_card_path"
 require_repo_file "$current_update_policy" "current_update_policy"
 

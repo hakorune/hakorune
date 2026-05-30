@@ -28,6 +28,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - one-screen summary + links only
 - `15-Workstream-Map.md`
   - one-screen lane order mirror
+- `workstreams/*.md`
+  - active multi-day work cards
+  - inventory / selection / smoke / parking-lot notes live here instead of
+    becoming one numbered row per observation
 - `05-Restart-Quick-Resume.md`
   - fastest reboot path only
 - `design/kernel-implementation-phase-plan-ssot.md`
@@ -70,6 +74,12 @@ Rule:
   - the active card
   - `CURRENT_STATE.toml` latest-card fields
   - code/test docs only when their contract changes
+- current execution work stays in three buckets:
+  - mimalloc migration and optimization
+  - Array / representation fast paths only when selected by mimalloc perf evidence
+  - docs and shell hygiene
+- do not add a new phase row or one-off `.sh` for every inventory note; use the
+  active working card and reusable lane guards first.
 - update `AGENTS.md`, `CURRENT_TASK.md`, `10-Now.md`,
   `05-Restart-Quick-Resume.md`, phase README, taskboards, or ledgers only when
   lane / blocker / restart order / phase status / durable policy changes.
@@ -122,6 +132,17 @@ Rule:
 - 原則: 調査ログを SSOT にしない（参照元を明記して“歴史化”できる形にする）。
 - よく参照する調査ログ:
   - Phase 259: block-parameterized CFG / ABI/contract 相談パケット: `docs/development/current/main/investigations/phase-259-block-parameterized-cfg-consult.md`
+
+### `docs/development/current/main/workstreams/`（active work cards）
+
+数日〜1週間の作業単位を置く。row/card を毎回増やさず、current work
+の checklist / short evidence / decisions / parking lot を 1 枚に集約する。
+
+- Workstream Card は current work の作業台であって、長期 SSOT ではない。
+- 設計の正解が変わる場合は `design/*.md` を直接更新する。
+- 小さい棚卸しや guard 文言修正は Ghost Task として commit message に残す。
+- 新しい numbered row は lane 変更、実装境界変更、durable keeper/nonkeeper、
+  新 contract / ABI / verifier / measurement policy の時だけ作る。
 
 ### `docs/development/current/main/phases/`（Phaseログ）
 

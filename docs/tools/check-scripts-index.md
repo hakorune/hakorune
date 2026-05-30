@@ -10,6 +10,34 @@ cd /home/tomoaki/git/hakorune-selfhost
 tools/checks/dev_gate.sh quick
 ```
 
+## Current Guard Growth Rule
+
+Do not add a dedicated shell guard for every inventory or selection row.
+Current work is grouped into three buckets:
+
+- mimalloc migration and optimization
+- Array / representation fast paths only when selected by mimalloc perf evidence
+- docs and shell hygiene
+
+Prefer reusable bucket guards and `current_state_pointer_guard.sh`. Historical
+per-row guards remain listed for traceability, but rows 388-413 in phase-296x
+are legacy DirectArray / RuntimeDataBox / helper-cache closeout evidence unless
+that exact old slice is explicitly reopened.
+
+`CURRENT_STATE.toml` may point at `latest_workstream_card`; daily progress
+should land there instead of opening row-specific guards.
+
+Active phase-296x daily set:
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surface_check_guard.sh
+bash tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh
+```
+
+Avoid `k2_wide_phase296x_symbol_presence_probe_guard.sh` in daily loops; it
+performs a release build and should stay a targeted archaeology/probe guard.
+
 ## Core Gates
 
 | Script | Purpose |
@@ -1502,7 +1530,6 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_phase296x_typed_object_legacy_field_helper_callsite_inventory_guard.sh` | 296x-393 の typed-object legacy field helper callsite inventory。newbox / constructor / collection / resolver / field_access の producer, consumer, carrier, miss point を file-by-file に attribution し、RuntimeDataBox field dispatch root-cause inventory へ渡す。 |
 | `tools/checks/k2_wide_phase296x_runtime_databox_field_dispatch_root_cause_inventory_guard.sh` | 296x-394 の RuntimeDataBox field dispatch root-cause inventory。field_access の RuntimeDataBox sink と runtime_data_dispatch の map ABI を split し、次の route inventory へ渡す。 |
 | `tools/checks/k2_wide_phase296x_runtime_data_dispatch_field_route_inventory_guard.sh` | 296x-395 の Runtime Data Dispatch field route inventory。`select_runtime_data_call_spec` / `lower_runtime_data_field_call` の route policy surface を pin し、次の policy inventory へ渡す。 |
-| `tools/checks/k2_wide_phase296x_runtime_data_dispatch_route_policy_inventory_guard.sh` | 296x-396 の Runtime Data Dispatch route policy inventory。`NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY` と array hint predicates を pin し、次の contract row へ渡す。 |
 | `tools/checks/k2_wide_phase296x_runtime_data_dispatch_route_policy_inventory_guard.sh` | 296x-396 の Runtime Data Dispatch route policy inventory。`NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY` と `prefer_runtime_data_array_route` 系の policy surface を pin し、次の contract row へ渡す。 |
 | `tools/checks/k2_wide_phase296x_runtime_data_dispatch_route_policy_contract_guard.sh` | 296x-397 の Runtime Data Dispatch route policy contract。env policy と array hint predicates の共有契約を pin し、implementation row へ渡す。 |
 | `tools/checks/k2_wide_phase296x_runtime_data_dispatch_route_policy_implementation_guard.sh` | 296x-398 の Runtime Data Dispatch route policy implementation。env-backed policy source module を分離し、dispatch を thin consumer に保つことを検証する。 |
@@ -1523,5 +1550,6 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_phase296x_collection_method_direct_array_lane_legacy_helper_cache_retirement_semantic_smoke_guard.sh` | 296x-411 の Collection Method direct-array lane legacy helper/cache retirement semantic smoke。public ArrayBox birth / DirectArray birth / materialization snapshot / selected-method direct lowering を smoke し、post-retirement perf owner refresh へ渡す。 |
 | `tools/checks/k2_wide_phase296x_collection_method_direct_array_lane_post_retirement_perf_owner_refresh_guard.sh` | 296x-412 の Collection Method direct-array lane post-retirement perf owner refresh。DirectArray dominance と ArrayRepr design row への handoff を固定する。 |
 | `tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surface_check_guard.sh` | 296x-413 の post-DirectArray remaining direct-path surface check。追加 fast path 候補を typed-object / RuntimeDataBox / facade / public ArrayBox / DirectArray optional / result capsule / page model に分けて閉じ、mimalloc source-level owner refresh へ戻す。 |
+| `tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh` | 296x-414 の mimalloc source-level owner refresh / 415 handoff。DirectArray lane を閉じた後の source-level owner を refresh し、object_lifecycle_facade を保持したまま次の選定 row へ渡す。 |
 | `tools/checks/k2_wide_hako_alloc_allocator_comparison_c_mimalloc_result_presentation_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_extension_follow_on_closeout_guard.sh` | MIMAP-542A の C mimalloc result presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on closeout を固定し、MIMAP-540A presentation extension follow-on extension follow-on extension follow-on extension follow-on extension follow-on pilot guard を再実行して deeper follow-on pack が次の extension row へ渡せることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_comparison_vertical_slice_workload_pack_guard.sh` | 294x-53 の mimalloc comparison vertical-slice workload pack を固定し、small reuse / mixed small / realloc / aligned-small / huge OSVM の比較対象を選びつつ provider activation / hook / global allocator / backend matcher / worker-TLS / atomic bitmap を開かないことを検証する。 |

@@ -1,10 +1,11 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-05-30
 Scope: close the remaining direct-path fast-path surface check before returning to mimalloc source-level optimization.
 Blocker: POST-DIRECTARRAY-REMAINING-DIRECT-PATH-SURFACE-CHECK-296X-001
 Related:
   - docs/development/current/main/phases/phase-296x/296x-412-COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH.md
+  - docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md
   - docs/development/current/main/phases/phase-296x/296x-378-ARRAY-REPR-DESIGN-ROW.md
   - docs/development/current/main/design/array-repr-ssot.md
   - docs/development/current/main/design/representation-direct-lowering-ssot.md

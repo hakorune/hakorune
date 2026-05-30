@@ -9,6 +9,7 @@ source tools/checks/lib/guard_common.sh
 CARD_411="docs/development/current/main/phases/phase-296x/296x-411-COLLECTION-METHOD-DIRECT-ARRAY-LANE-LEGACY-HELPER-CACHE-RETIREMENT-SEMANTIC-SMOKE.md"
 CARD_412="docs/development/current/main/phases/phase-296x/296x-412-COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH.md"
 CARD_413="docs/development/current/main/phases/phase-296x/296x-413-POST-DIRECTARRAY-REMAINING-DIRECT-PATH-SURFACE-CHECK.md"
+CARD_414="docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md"
 STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 TOOL="tools/allocator/collection_method_call_direct_array_lane_post_retirement_perf_owner_refresh.py"
@@ -16,19 +17,21 @@ SELF_SCRIPT="tools/checks/k2_wide_phase296x_collection_method_direct_array_lane_
 
 echo "[$TAG] checking collection-method direct-array lane post-retirement perf owner refresh"
 
-guard_require_files "$TAG" "$CARD_411" "$CARD_412" "$CARD_413" "$STATE" "$INDEX" "$TOOL" "$SELF_SCRIPT"
+guard_require_files "$TAG" "$CARD_411" "$CARD_412" "$CARD_413" "$CARD_414" "$STATE" "$INDEX" "$TOOL" "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$TOOL" "$SELF_SCRIPT"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_411" "row411 smoke must be landed"
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_412" "row412 perf owner refresh must be landed"
-guard_expect_fixed_in_file "$TAG" 'Status: Current' "$CARD_413" "row413 remaining direct-path surface check must be current"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_413" "row413 remaining direct-path surface check must be landed"
+guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_414" "row414 source-level owner refresh must be current"
 guard_expect_fixed_in_file "$TAG" 'output_contract=collection-method-direct-array-lane-post-retirement-perf-owner-refresh-v0' "$CARD_412" "row412 must define output contract"
 guard_expect_fixed_in_file "$TAG" 'input_contract=collection-method-direct-array-lane-legacy-helper-cache-retirement-semantic-smoke-v0' "$CARD_412" "row412 must consume row411"
 guard_expect_fixed_in_file "$TAG" 'selected_next=array_repr_design_row' "$CARD_412" "row412 must point to the ArrayRepr design row"
 guard_expect_fixed_in_file "$TAG" 'array_repr_design_open=1' "$CARD_412" "row412 must open the ArrayRepr design row"
 guard_expect_fixed_in_file "$TAG" 'selected_next=mimalloc_source_level_owner_refresh' "$CARD_413" "row413 must point to mimalloc source-level owner refresh"
-guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "POST-DIRECTARRAY-REMAINING-DIRECT-PATH-SURFACE-CHECK-296X-001"' "$STATE" "current state must point to row413"
-guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-412-COLLECTION-METHOD-DIRECT-ARRAY-LANE-POST-RETIREMENT-PERF-OWNER-REFRESH"' "$STATE" "current state must land row412"
+guard_expect_fixed_in_file "$TAG" 'selected_next=mimalloc_source_level_owner_selection' "$CARD_414" "row414 must point to the source-level owner selection row"
+guard_expect_fixed_in_file "$TAG" 'current_blocker_token = "MIMALLOC-SOURCE-LEVEL-OWNER-SELECTION-296X-001"' "$STATE" "current state must point to row415"
+guard_expect_fixed_in_file "$TAG" 'latest_card = "296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH"' "$STATE" "current state must land row414"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 
 tmp_dir="$(mktemp -d /tmp/hakorune_phase296x_collection_method_direct_array_lane_post_retirement_perf_owner_refresh.XXXXXX)"
