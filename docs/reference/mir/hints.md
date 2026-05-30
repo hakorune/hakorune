@@ -67,8 +67,10 @@ Current live verifier row:
   requests:
   - `Inline(prefer)` maps to `request=prefer`, `fallback=keep_call`.
   - `Inline(avoid)` maps to `request=avoid`, `fallback=keep_call`.
-  - `Inline(required)` maps to `request=required`, `fallback=fail_fast`, and
-    requires `Contract(no_alloc)` plus `Contract(no_safepoint)`.
+  - `Inline(required)` maps to `request=required`, `fallback=fail_fast`.
+    The verifier accepts only supported required leaf shapes and may infer
+    `no_alloc` / `no_safepoint` from that shape. Explicit contracts remain
+    available but are not required for the small receiver-fieldset leaf row.
 - `Hint(inline)` remains a compat alias for advisory inline preference and may
   trigger the narrow M11c-soft-leaf MIR optimizer row:
   best-effort same-module pure leaf inline. Unsupported shapes keep the call.
@@ -83,7 +85,6 @@ Fail-fast diagnostics use the stable tags:
 ```text
 [freeze:contract][rune/no_alloc]
 [freeze:contract][rune/no_safepoint]
-[inline-plan/missing-contract]
 [inline-plan/body-too-large]
 [inline-plan/recursive-cycle]
 [inline-plan/dynamic-dispatch]
@@ -109,8 +110,6 @@ Substrate-only required inline flow:
 
 ```text
 @rune Inline(required)
-@rune Contract(no_alloc)
-@rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
 -> verifier accepts or fail-fast rejects
 -> accepted plans carry verified=true

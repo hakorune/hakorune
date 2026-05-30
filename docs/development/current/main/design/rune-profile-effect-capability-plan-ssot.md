@@ -135,8 +135,8 @@ Profile(allocator.fast)
 
 `allocator.fast` does not mean `pure` or `readonly`. Receiver-local field
 mutation is allowed only when the verifier accepts a narrow allocator fast leaf
-shape. The first intended mutation shape is receiver-local scalar/null
-`FieldSet`, with no nested call, no allocation, no safepoint, no branch/loop,
+shape. The first intended mutation shape is receiver-local `FieldSet` on one
+stable base, with no nested call, no allocation, no safepoint, no branch/loop,
 and no dynamic dispatch.
 
 `@rune Inline(required)` by itself does not grant `no_alloc` or

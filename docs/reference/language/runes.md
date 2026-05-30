@@ -76,15 +76,17 @@ Use `Inline(...)` for inline policy:
 @rune Inline(required)  // fail fast unless verifier accepts the required shape
 ```
 
-`Inline(required)` is not just an optimization hint. It requires both:
+`Inline(required)` is not just an optimization hint. It records:
 
-```hako
-@rune Contract(no_alloc)
-@rune Contract(no_safepoint)
+```text
+request=required
+fallback=fail_fast
 ```
 
-and the narrow leaf-inline verifier shape. If those checks fail, the compiler
-must fail fast instead of silently keeping the call.
+and a narrow leaf-inline verifier shape. For supported small leaf bodies, the
+verifier may infer `no_alloc` / `no_safepoint` from the MIR shape instead of
+requiring source-visible `Contract(...)` rows. If verification fails, the
+compiler must fail fast instead of silently keeping the call.
 
 ## Contracts
 
@@ -103,15 +105,16 @@ Duplicate identical contract rows are rejected.
 
 ## Profiles
 
-Profiles are convenience bundles:
+Profiles are reserved convenience bundles:
 
 ```hako
 @rune Profile(allocator.fast)
 ```
 
-The profile name is not a backend contract. It expands to primitive MIR facts
-such as `InlinePlan`, `EffectPlan`, and `CapabilityPlan`, and consumers must
-read those facts. Backend route selection must not read profile names directly.
+The profile name is not a backend contract. v0 keeps source code on explicit
+primitive runes such as `Inline(required)`; profile expansion is parked unless a
+future row needs a repeated bundle. Backend route selection must not read
+profile names directly.
 
 Reserved profile names are documented in:
 

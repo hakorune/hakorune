@@ -545,7 +545,7 @@ names, helper names, or app shape.
 | Row | Verifier owner | Contract |
 | --- | --- | --- |
 | `effect_plans` | `src/mir/verification/rune_contracts.rs` | `effect_plans` are the obligation source for live `Contract(no_alloc/no_safepoint)` checks. Raw `runes` are transport/provenance after refresh, not the verifier source of truth. |
-| `inline_plans` | `src/mir/verification/inline_required.rs` | Required inline is contract-active only for `request=required`; accepted plans must have `verified=true`, required `no_alloc` / `no_safepoint`, supported narrow leaf shape, and `fallback=fail_fast`. Advisory `prefer/avoid/hot/cold` rows stay metadata/optimizer hints. |
+| `inline_plans` | `src/mir/verification/inline_required.rs` | Required inline is contract-active only for `request=required`; accepted plans must have `verified=true`, supported narrow leaf shape, and `fallback=fail_fast`. The verifier may infer `no_alloc` / `no_safepoint` from supported required leaf shapes. Advisory `prefer/avoid/hot/cold` rows stay metadata/optimizer hints. |
 | `string_kernel_plans` | `src/mir/verification/string_kernel.rs` | Direct-kernel string plans must carry verifier-visible borrow, publication, carrier, text-consumer, and stable-view provenance facts before emitters trust them. `StringKernelPlanVerifierOwner::LoweringDirectKernelEntry` owns the current lane. |
 | `exact_numeric_runtime_check_contracts` | `src/mir/exact_numeric_field_contracts.rs` plus `src/mir/exact_numeric_backend_capability.rs` | Dynamic `Integer` to exact numeric field assignments become runtime range-check obligations. Backend use must pass `enforce_exact_numeric_backend_supported`; unsupported backends fail fast instead of silently lowering. |
 
@@ -596,18 +596,17 @@ Current request mapping:
 - `Inline(prefer)` -> `request = "prefer"`, `source = "rune_inline"`
 - `Inline(avoid)` -> `request = "avoid"`, `source = "rune_inline"`
 - `Inline(required)` -> `request = "required"`,
-  `requires = ["no_alloc", "no_safepoint"]`, `fallback = "fail_fast"`,
-  `source = "rune_inline_required"`; `verified` is true only after
-  required-inline verification accepts the required contracts and narrow leaf
-  shape
+  `requires = []`, `fallback = "fail_fast"`, `source = "rune_inline_required"`;
+  `verified` is true only after required-inline verification accepts the
+  supported narrow leaf shape
 - compat `Hint(inline)` -> `request = "prefer"`
 - compat `Hint(noinline)` -> `request = "avoid"`
 - `Hint(hot)` -> `request = "none"`, `hotness = "hot"`
 - `Hint(cold)` -> `request = "none"`, `hotness = "cold"`
 - compat `Lowering(inline_required)` -> `request = "required"`,
-  `requires = ["no_alloc", "no_safepoint"]`, `fallback = "fail_fast"`,
-  `source = "rune_lowering"`; `verified` is true only after
-  M11c-required-verify accepts the required contracts and narrow leaf shape
+  `requires = []`, `fallback = "fail_fast"`, `source = "rune_lowering"`;
+  `verified` is true only after M11c-required-verify accepts the supported
+  narrow leaf shape
 
 Soft inline is accepted only for one-block same-module `Callee::Global` bodies
 with no nested call/control and a narrow pure instruction vocabulary. Failed

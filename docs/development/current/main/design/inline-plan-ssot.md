@@ -71,7 +71,7 @@ M11c-required-vocab live surface:
 ```text
 @rune Inline(required)
 -> MIR InlinePlan request=required
--> requires=["no_alloc", "no_safepoint"]
+-> requires=[]
 -> verified=false
 -> fallback=fail_fast
 -> source=rune_inline_required
@@ -86,15 +86,13 @@ M11c-required-verify live surface:
 
 ```text
 @rune Inline(required)
-@rune Contract(no_alloc)
-@rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
--> verifier checks required contracts and narrow leaf-inline shape
+-> verifier checks narrow leaf-inline shape
 -> verified=true only when accepted
--> fail-fast diagnostics on missing contracts or unsupported shapes
+-> fail-fast diagnostics on unsupported shapes
 ```
 
-The first verifier row accepts only the same narrow leaf body shape used by
+The pure required leaf row accepts the same narrow body shape used by
 M11c-soft-leaf:
 
 ```text
@@ -105,6 +103,12 @@ Const / UnaryOp / BinOp / Compare / StaticDataLoad / Copy / Select / TypeOp
 no nested Call
 no dynamic dispatch
 no recursive cycle
+```
+
+The receiver-fieldset required leaf row has a separate small budget:
+
+```text
+instruction_count <= 12
 ```
 
 `Hint(inline)` is not `Inline(required)`.
@@ -137,7 +141,7 @@ The first accepted leaf shape is `receiver_fieldset_leaf`:
 allowed:
   Const
   Copy
-  receiver-local FieldSet scalar/null
+  receiver-local FieldSet on one stable base
   Return
 
 forbidden:
@@ -245,7 +249,7 @@ Required inline rows may use:
   "request": "required",
   "reason": "allocator_fast_path",
   "max_ir": 48,
-  "requires": ["no_alloc", "no_safepoint"],
+  "requires": [],
   "verified": true,
   "fallback": "fail_fast"
 }
@@ -328,7 +332,7 @@ M11c-required-vocab live schema:
       "request": "required",
       "hotness": null,
       "max_ir": null,
-      "requires": ["no_alloc", "no_safepoint"],
+      "requires": [],
       "verified": false,
       "fallback": "fail_fast",
       "source": "rune_lowering"
@@ -395,9 +399,10 @@ considered.
 ## Required Inline Verifier Conditions
 
 `Lowering(inline_required)` vocabulary is accepted by M11c-required-vocab.
-M11c-required-verify now fail-fast rejects required-inline plans that lack
-`Contract(no_alloc)` / `Contract(no_safepoint)` or do not satisfy the narrow
-leaf-inline shape.
+M11c-required-verify now fail-fast rejects required-inline plans that do not
+satisfy the supported narrow leaf-inline shape. Supported receiver-fieldset
+leaf bodies infer `no_alloc` / `no_safepoint` from MIR shape; source-visible
+`Contract(...)` rows are not required for that row.
 
 Minimum required checks:
 
@@ -407,8 +412,8 @@ Minimum required checks:
 - unsupported dynamic dispatch is absent
 - unsupported call is absent, unless it is intrinsic-routed or itself verified
   inline
-- `Contract(no_alloc)` is present and verified when required by the row
-- `Contract(no_safepoint)` is present and verified when required by the row
+- `no_alloc` / `no_safepoint` are either inferred from the accepted leaf shape
+  or provided by a future row's explicit verifier-backed contract
 - capability access stays within the row's allowed modules
 
 ## Backend Boundary

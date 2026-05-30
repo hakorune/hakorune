@@ -182,11 +182,8 @@ static box Main {
     assert_eq!(plan.request.as_str(), "required");
     assert_eq!(plan.hotness, None);
     assert_eq!(plan.max_ir, None);
-    assert_eq!(
-        plan.requires,
-        vec!["no_alloc".to_string(), "no_safepoint".to_string()]
-    );
-    assert!(!plan.verified);
+    assert!(plan.requires.is_empty());
+    assert!(plan.verified);
     assert_eq!(plan.fallback, "fail_fast");
     assert_eq!(plan.source, "rune_lowering");
 }
@@ -224,11 +221,8 @@ static box Main {
     assert_eq!(plan.request.as_str(), "required");
     assert_eq!(plan.hotness, None);
     assert_eq!(plan.max_ir, None);
-    assert_eq!(
-        plan.requires,
-        vec!["no_alloc".to_string(), "no_safepoint".to_string()]
-    );
-    assert!(!plan.verified);
+    assert!(plan.requires.is_empty());
+    assert!(plan.verified);
     assert_eq!(plan.fallback, "fail_fast");
     assert_eq!(plan.source, "rune_inline_required");
 }

@@ -102,8 +102,8 @@ Declaration metadata
 - Canonical inline metadata:
   - `@rune Inline(prefer)` — best-effort inline request.
   - `@rune Inline(avoid)` — avoid soft inline.
-  - `@rune Inline(required)` — fail-fast required inline; pair with
-    `@rune Contract(no_alloc)` and `@rune Contract(no_safepoint)`.
+  - `@rune Inline(required)` — fail-fast required inline; the MIR verifier must
+    accept the supported required leaf shape before the optimizer consumes it.
 - `@rune Hint(hot)` / `@rune Hint(cold)` remain advisory tuning metadata.
 - Compat spellings such as `@hint(inline)` and
   `@rune Lowering(inline_required)` are accepted during migration but are not

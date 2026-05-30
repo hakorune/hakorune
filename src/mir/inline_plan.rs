@@ -1,5 +1,5 @@
 use crate::ast::RuneAttr;
-use crate::mir::inline_leaf::{check_leaf_inline_shape, InlineLeafViolation};
+use crate::mir::inline_leaf::{check_required_inline_shape, InlineLeafViolation};
 use crate::mir::{BasicBlockId, MirFunction};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -77,18 +77,12 @@ impl InlinePlan {
             "required" => (InlineRequest::Required, "fail_fast", "rune_inline_required"),
             _ => return None,
         };
-        let requires = if request == InlineRequest::Required {
-            vec!["no_alloc".to_string(), "no_safepoint".to_string()]
-        } else {
-            Vec::new()
-        };
-
         Some(Self {
             function: function.to_string(),
             request,
             hotness: None,
             max_ir: None,
-            requires,
+            requires: Vec::new(),
             verified: false,
             fallback: fallback.to_string(),
             source: source.to_string(),
@@ -105,7 +99,7 @@ impl InlinePlan {
             request: InlineRequest::Required,
             hotness: None,
             max_ir: None,
-            requires: vec!["no_alloc".to_string(), "no_safepoint".to_string()],
+            requires: Vec::new(),
             verified: false,
             fallback: "fail_fast".to_string(),
             source: "rune_lowering".to_string(),
@@ -206,7 +200,7 @@ pub fn required_inline_plan_violations(
         }
     }
     violations.extend(
-        check_leaf_inline_shape(function, plan.max_ir)
+        check_required_inline_shape(function, plan.max_ir)
             .into_iter()
             .map(RequiredInlineViolation::from_leaf_violation),
     );
@@ -265,10 +259,7 @@ mod tests {
         let plans = inline_plans_from_runes("Main.fast/0", &[rune("Inline", "required")]);
         assert_eq!(plans.len(), 1);
         assert_eq!(plans[0].request, InlineRequest::Required);
-        assert_eq!(
-            plans[0].requires,
-            vec!["no_alloc".to_string(), "no_safepoint".to_string()]
-        );
+        assert!(plans[0].requires.is_empty());
         assert_eq!(plans[0].fallback, "fail_fast");
         assert_eq!(plans[0].source, "rune_inline_required");
     }

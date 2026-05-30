@@ -751,9 +751,11 @@ Strict allocator/substrate rows may later reserve:
 `Inline(required)` is live vocabulary now and requires Rust parser / `.hako`
 parser parity because it widens rune metadata. Compat
 `Lowering(inline_required)` remains accepted during the migration window.
-Required plans are marked `verified=true` only after `Contract(no_alloc)`,
-`Contract(no_safepoint)`, and the narrow leaf-inline shape pass. Backends must
-not infer required inline from this row or from symbol names.
+Required plans are marked `verified=true` only after the supported narrow
+leaf-inline shape pass. Supported small leaf bodies may infer `no_alloc` /
+`no_safepoint` from MIR shape; explicit contracts are reserved for rows that
+need additional source-visible obligations. Backends must not infer required
+inline from this row or from symbol names.
 
 ## Effect / Capability Planning
 
@@ -826,8 +828,10 @@ apps/allocator-fast-path-exe-proof/
 
 Accepted shape:
 
-- `@rune Profile(allocator.fast)` expands to `InlinePlan`, `EffectPlan`, and
-  `CapabilityPlan` facts.
+- Historical fixture note: `@rune Profile(allocator.fast)` expanded to
+  `InlinePlan`, `EffectPlan`, and `CapabilityPlan` facts. Current v0 source
+  surface prefers explicit `@rune Inline(required)` for small allocator leaf
+  helpers, with profiles parked unless a repeated bundle is justified.
 - The required InlinePlan is verified after optimizer cleanup has exposed the
   narrow leaf body.
 - The MIR optimizer expands same-module scalar leaf helper calls before
@@ -1127,8 +1131,9 @@ Current surface:
 
 - `@rune Inline(required)` has a verifier check.
 - `@rune Lowering(inline_required)` remains a compat spelling.
-- Required inline acceptance needs both `@rune Contract(no_alloc)` and
-  `@rune Contract(no_safepoint)`.
+- Required inline acceptance needs a supported narrow leaf shape; source-visible
+  `Contract(no_alloc)` / `Contract(no_safepoint)` are not required for the
+  small receiver-fieldset leaf row.
 - Accepted plans are marked `verified=true` in MIR `inline_plans`.
 
 Owner modules:

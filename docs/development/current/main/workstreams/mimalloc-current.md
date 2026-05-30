@@ -224,7 +224,7 @@ message.
   `@rune Inline(required) beginSelection()` plus a normal
   `me.beginSelection()` call inside `selectPage()`. For this narrow receiver
   reset helper, `Inline(required)` is enough: the verifier must accept a
-  receiver-local scalar/null `FieldSet` leaf and infer `no_alloc` /
+  receiver-local `FieldSet` leaf on one stable base and infer `no_alloc` /
   `no_safepoint` from the body shape. `Profile(...)` is parked for v0 and
   should not be introduced unless explicit inline/contract annotations become
   repeated user-facing noise.

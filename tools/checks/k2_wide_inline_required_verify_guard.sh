@@ -9,14 +9,18 @@ source tools/checks/lib/cargo_test_filter_group.sh
 echo "[$TAG] running M11c-required-verify guard"
 
 run_cargo_test_filter_group "$TAG" "required inline verifier acceptance" \
-  required_inline_verifies_leaf_with_required_contracts \
-  required_inline_rejects_missing_contracts \
+  required_inline_verifies_leaf_by_shape_inference \
+  required_inline_verifies_receiver_fieldset_leaf_by_shape_inference \
+  required_inline_verifies_implicit_receiver_fieldset_leaf_by_shape_inference \
+  required_inline_rejects_non_receiver_fieldset_leaf \
   mir_verifier_runs_required_inline_check \
   required_inline_rejects_nested_call \
   mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata
 
 rg -F -q 'pub(crate) mod inline_leaf' src/mir/mod.rs
 rg -F -q 'check_leaf_inline_shape' src/mir/inline_leaf.rs
+rg -F -q 'check_required_inline_shape' src/mir/inline_leaf.rs
+rg -F -q 'DEFAULT_REQUIRED_LEAF_INLINE_MAX_INSTRUCTIONS' src/mir/inline_leaf.rs
 rg -F -q 'check_required_inline_plans' src/mir/verification/inline_required.rs
 rg -F -q 'verify_required_inline_plans' src/mir/verification.rs
 rg -F -q 'VerificationError::InlinePlanViolation' src/mir/verification_types.rs

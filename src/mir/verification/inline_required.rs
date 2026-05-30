@@ -39,6 +39,28 @@ mod tests {
 
     fn function_with_runes(runes: Vec<RuneAttr>, instructions: Vec<MirInstruction>) -> MirFunction {
         let signature = FunctionSignature {
+            name: "Main.fast/1".to_string(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function.metadata.runes = runes;
+        let block = function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block");
+        for instruction in instructions {
+            block.add_instruction(instruction);
+        }
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut function);
+        function
+    }
+
+    fn no_param_function_with_runes(
+        runes: Vec<RuneAttr>,
+        instructions: Vec<MirInstruction>,
+    ) -> MirFunction {
+        let signature = FunctionSignature {
             name: "Main.fast/0".to_string(),
             params: vec![],
             return_type: MirType::Integer,
@@ -63,12 +85,8 @@ mod tests {
         }
     }
 
-    fn required_contract_runes() -> Vec<RuneAttr> {
-        vec![
-            rune("Lowering", "inline_required"),
-            rune("Contract", "no_alloc"),
-            rune("Contract", "no_safepoint"),
-        ]
+    fn required_inline_runes() -> Vec<RuneAttr> {
+        vec![rune("Inline", "required")]
     }
 
     fn error_text(function: &MirFunction) -> String {
@@ -81,9 +99,9 @@ mod tests {
     }
 
     #[test]
-    fn required_inline_verifies_leaf_with_required_contracts() {
+    fn required_inline_verifies_leaf_by_shape_inference() {
         let function = function_with_runes(
-            required_contract_runes(),
+            required_inline_runes(),
             vec![
                 MirInstruction::Const {
                     dst: ValueId::new(1),
@@ -95,28 +113,106 @@ mod tests {
             ],
         );
 
-        assert!(check_required_inline_plans(&function).is_ok());
+        assert!(
+            check_required_inline_plans(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
         assert_eq!(function.metadata.inline_plans.len(), 1);
         assert!(function.metadata.inline_plans[0].verified);
     }
 
     #[test]
-    fn required_inline_rejects_missing_contracts() {
+    fn required_inline_verifies_receiver_fieldset_leaf_by_shape_inference() {
         let function = function_with_runes(
-            vec![rune("Lowering", "inline_required")],
-            vec![MirInstruction::Return { value: None }],
+            required_inline_runes(),
+            vec![
+                MirInstruction::Const {
+                    dst: ValueId::new(1),
+                    value: ConstValue::Integer(-1),
+                },
+                MirInstruction::FieldSet {
+                    base: ValueId::new(0),
+                    field: "last_selected_index".to_string(),
+                    value: ValueId::new(1),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::Return { value: None },
+            ],
+        );
+
+        assert!(
+            check_required_inline_plans(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
+        assert_eq!(function.metadata.inline_plans.len(), 1);
+        assert!(function.metadata.inline_plans[0].verified);
+    }
+
+    #[test]
+    fn required_inline_verifies_implicit_receiver_fieldset_leaf_by_shape_inference() {
+        let function = no_param_function_with_runes(
+            required_inline_runes(),
+            vec![
+                MirInstruction::Const {
+                    dst: ValueId::new(1),
+                    value: ConstValue::Integer(-1),
+                },
+                MirInstruction::FieldSet {
+                    base: ValueId::INVALID,
+                    field: "last_selected_index".to_string(),
+                    value: ValueId::new(1),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::Return { value: None },
+            ],
+        );
+
+        assert!(
+            check_required_inline_plans(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
+        assert_eq!(function.metadata.inline_plans.len(), 1);
+        assert!(function.metadata.inline_plans[0].verified);
+    }
+
+    #[test]
+    fn required_inline_rejects_non_receiver_fieldset_leaf() {
+        let function = function_with_runes(
+            required_inline_runes(),
+            vec![
+                MirInstruction::Const {
+                    dst: ValueId::new(1),
+                    value: ConstValue::Integer(-1),
+                },
+                MirInstruction::FieldSet {
+                    base: ValueId::new(2),
+                    field: "last_selected_index".to_string(),
+                    value: ValueId::new(1),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::Return { value: None },
+            ],
         );
 
         let text = error_text(&function);
-        assert!(text.contains("[inline-plan/missing-contract]"));
+        assert!(text.contains("[inline-plan/required-not-verified]"));
         assert!(!function.metadata.inline_plans[0].verified);
     }
 
     #[test]
     fn mir_verifier_runs_required_inline_check() {
         let function = function_with_runes(
-            vec![rune("Lowering", "inline_required")],
-            vec![MirInstruction::Return { value: None }],
+            required_inline_runes(),
+            vec![MirInstruction::Call {
+                dst: None,
+                func: ValueId::new(1),
+                callee: Some(Callee::Global("Main.helper/0".to_string())),
+                args: vec![],
+                effects: EffectMask::PURE,
+            }],
         );
 
         let errors = crate::mir::verification::MirVerifier::new()
@@ -126,14 +222,14 @@ mod tests {
         assert!(errors.iter().any(|error| matches!(
             error,
             VerificationError::InlinePlanViolation { tag, .. }
-                if tag == "missing-contract"
+                if tag == "unsupported-call"
         )));
     }
 
     #[test]
     fn required_inline_rejects_nested_call() {
         let function = function_with_runes(
-            required_contract_runes(),
+            required_inline_runes(),
             vec![MirInstruction::Call {
                 dst: None,
                 func: ValueId::new(1),

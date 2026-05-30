@@ -28,11 +28,11 @@ selection, hook activation, or process allocator replacement.
 
 | Profile | Status | Future primitive expansion target | Notes |
 | --- | --- | --- | --- |
-| `allocator.fast` | live-narrow | `Hint(hot)`, `Inline(required)` equivalent, `Contract(no_alloc)`, `Contract(no_safepoint)`, future `Contract(no_panic)`, `CapabilityPlan allow=[hako.mem,hako.ptr,hako.tls]` | Strict allocator fast path. Verified required inline is consumed by the MIR optimizer for narrow scalar same-module leaf helpers; capability allowance remains metadata only. |
-| `allocator.slow` | live-narrow | `Hint(cold)`, `Hint(noinline)`, `CapabilityPlan allow=[hako.mem,hako.osvm,hako.gc]` | Slow path may allocate and may safepoint, so it does not expand to `no_alloc` or `no_safepoint`. |
-| `substrate.leaf` | live-narrow | `Inline(prefer)`, `Inline(required)` equivalent, `Contract(no_alloc)`, `Contract(no_safepoint)`, `CapabilityPlan allow=[hako.mem,hako.buf,hako.ptr]` | Small substrate helper leaf. Backend still sees only verified MIR facts. |
-| `intrinsic.leaf` | live-narrow | `Inline(prefer)` equivalent, `Contract(no_alloc)`, `Contract(no_safepoint)`, future `IntrinsicCandidate(...)` | Intrinsic selection remains registry/verifier owned, not symbol-name inferred. |
-| `raw.layout` | live-narrow | future `LayoutPlan repr_c_v0`, future `Contract(no_alloc)`, `CapabilityPlan allow=[hako.ptr]` | Raw layout truth stays in MIR layout facts. No source `struct` / `repr(C)` is accepted by this registry. |
+| `allocator.fast` | parked | `Hint(hot)`, `Inline(required)` equivalent, future `Contract(no_alloc)`, future `Contract(no_safepoint)`, future `Contract(no_panic)`, `CapabilityPlan allow=[hako.mem,hako.ptr,hako.tls]` | Parked source bundle. v0 allocator leaf helpers use explicit `Inline(required)`; backend still sees only verified MIR facts. |
+| `allocator.slow` | parked | `Hint(cold)`, `Hint(noinline)`, `CapabilityPlan allow=[hako.mem,hako.osvm,hako.gc]` | Slow path may allocate and may safepoint; no active source profile expansion is required in v0. |
+| `substrate.leaf` | parked | `Inline(prefer)`, `Inline(required)` equivalent, future `Contract(no_alloc)`, future `Contract(no_safepoint)`, `CapabilityPlan allow=[hako.mem,hako.buf,hako.ptr]` | Small substrate helper bundle remains reserved until repeated explicit annotations justify it. |
+| `intrinsic.leaf` | parked | `Inline(prefer)` equivalent, future `Contract(no_alloc)`, future `Contract(no_safepoint)`, future `IntrinsicCandidate(...)` | Intrinsic selection remains registry/verifier owned, not symbol-name inferred. |
+| `raw.layout` | parked | future `LayoutPlan repr_c_v0`, future `Contract(no_alloc)`, `CapabilityPlan allow=[hako.ptr]` | Raw layout truth stays in MIR layout facts. No source `struct` / `repr(C)` is accepted by this registry. |
 
 ## Current Live Surface
 
@@ -42,7 +42,7 @@ The live primitive facts in this registry's target vocabulary are:
 - `Inline(prefer/avoid/required)` equivalents to `InlinePlan`
 - compat `Lowering(inline_required)` to `InlinePlan request=required`
 - `Contract(no_alloc/no_safepoint)` to `EffectPlan`
-- Profile-derived `CapabilityPlan allow=[...]` metadata emission
+- Profile-derived `CapabilityPlan allow=[...]` metadata emission remains parked
 - MIR `repr_c_v0` raw-layout vocabulary
 
 The following remain disabled:

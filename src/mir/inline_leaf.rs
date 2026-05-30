@@ -1,7 +1,8 @@
 use crate::mir::contracts::backend_core_ops::instruction_tag;
-use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
+use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, ValueId};
 
 pub const DEFAULT_LEAF_INLINE_MAX_INSTRUCTIONS: usize = 8;
+pub const DEFAULT_REQUIRED_LEAF_INLINE_MAX_INSTRUCTIONS: usize = 12;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InlineLeafViolation {
@@ -61,6 +62,16 @@ pub fn is_supported_leaf_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Select { .. }
             | MirInstruction::TypeOp { .. }
     ) && inst.effects().is_pure()
+}
+
+pub fn is_supported_required_leaf_instruction(
+    _function: &MirFunction,
+    inst: &MirInstruction,
+) -> bool {
+    match inst {
+        MirInstruction::FieldSet { .. } => true,
+        _ => is_supported_leaf_instruction(inst),
+    }
 }
 
 pub fn check_leaf_inline_shape(
@@ -136,6 +147,138 @@ pub fn check_leaf_inline_shape(
     }
 
     violations
+}
+
+pub fn check_required_inline_shape(
+    function: &MirFunction,
+    max_ir: Option<u32>,
+) -> Vec<InlineLeafViolation> {
+    check_leaf_inline_shape_with(function, max_ir, true)
+}
+
+fn check_leaf_inline_shape_with(
+    function: &MirFunction,
+    max_ir: Option<u32>,
+    allow_receiver_fieldset_leaf: bool,
+) -> Vec<InlineLeafViolation> {
+    let mut violations = Vec::new();
+    if function.blocks.len() != 1 {
+        violations.push(InlineLeafViolation::function(
+            "required-not-verified",
+            function,
+            format!("expected one block, got {}", function.blocks.len()),
+        ));
+        return violations;
+    }
+
+    let Some(block) = function.blocks.get(&function.entry_block) else {
+        violations.push(InlineLeafViolation::function(
+            "required-not-verified",
+            function,
+            format!("missing entry block {}", function.entry_block),
+        ));
+        return violations;
+    };
+
+    if block.return_env.is_some() || block.return_env_layout.is_some() {
+        violations.push(InlineLeafViolation::function(
+            "required-not-verified",
+            function,
+            "return environment metadata is unsupported for leaf inline",
+        ));
+    }
+
+    let budget = max_ir
+        .map(|v| v as usize)
+        .unwrap_or(if allow_receiver_fieldset_leaf {
+            DEFAULT_REQUIRED_LEAF_INLINE_MAX_INSTRUCTIONS
+        } else {
+            DEFAULT_LEAF_INLINE_MAX_INSTRUCTIONS
+        });
+    if block.instructions.len() > budget {
+        violations.push(InlineLeafViolation::function(
+            "body-too-large",
+            function,
+            format!(
+                "instruction_count={} budget={}",
+                block.instructions.len(),
+                budget
+            ),
+        ));
+    }
+
+    match &block.terminator {
+        Some(MirInstruction::Return { .. }) => {}
+        Some(inst) => violations.push(InlineLeafViolation::instruction(
+            "required-not-verified",
+            function,
+            block.id,
+            block.instructions.len(),
+            inst,
+            "terminator must be Return",
+        )),
+        None => violations.push(InlineLeafViolation::function(
+            "required-not-verified",
+            function,
+            "missing Return terminator",
+        )),
+    }
+
+    let explicit_receiver = if function_declared_arity(&function.signature.name) == Some(0) {
+        None
+    } else {
+        function.params.first().copied()
+    };
+    let mut receiver = None;
+    for (idx, inst) in block.instructions.iter().enumerate() {
+        if allow_receiver_fieldset_leaf
+            && is_supported_receiver_fieldset_leaf_instruction(
+                inst,
+                explicit_receiver,
+                &mut receiver,
+            )
+        {
+            continue;
+        }
+
+        if is_supported_leaf_instruction(inst) {
+            continue;
+        }
+
+        violations.push(classify_unsupported_instruction(
+            function, block.id, idx, inst,
+        ));
+    }
+
+    violations
+}
+
+fn function_declared_arity(name: &str) -> Option<usize> {
+    name.rsplit_once('/')?.1.parse().ok()
+}
+
+fn is_supported_receiver_fieldset_leaf_instruction(
+    inst: &MirInstruction,
+    explicit_receiver: Option<ValueId>,
+    receiver: &mut Option<ValueId>,
+) -> bool {
+    let MirInstruction::FieldSet { base, .. } = inst else {
+        return false;
+    };
+    match receiver {
+        Some(receiver) => *receiver == *base,
+        None => {
+            if *base != ValueId::INVALID {
+                if let Some(explicit_receiver) = explicit_receiver {
+                    if *base != explicit_receiver {
+                        return false;
+                    }
+                }
+            }
+            *receiver = Some(*base);
+            true
+        }
+    }
 }
 
 fn classify_unsupported_instruction(

@@ -17,7 +17,7 @@ rg -F -q 'InlineRequest::Prefer' src/mir/passes/inline_soft_leaf.rs
 rg -F -q 'DEFAULT_LEAF_INLINE_MAX_INSTRUCTIONS' src/mir/inline_leaf.rs
 rg -F -q 'is_supported_leaf_instruction' src/mir/inline_leaf.rs
 rg -F -q 'crate::mir::inline_leaf::DEFAULT_LEAF_INLINE_MAX_INSTRUCTIONS' src/mir/passes/inline_soft_leaf.rs
-rg -F -q 'crate::mir::inline_leaf::is_supported_leaf_instruction' src/mir/passes/inline_soft_leaf.rs
+rg -F -q 'crate::mir::inline_leaf::check_leaf_inline_shape' src/mir/passes/inline_soft_leaf.rs
 rg -F -q 'passes::inline_soft_leaf::apply' src/mir/optimizer/core.rs
 rg -F -q 'M11c-soft-leaf' docs/development/current/main/design/inline-plan-ssot.md
 rg -F -q '`M11c-soft-leaf` is live for narrow best-effort MIR inline.' docs/development/current/main/phases/phase-293x/293x-048-M11C-SOFT-LEAF-INLINE.md
