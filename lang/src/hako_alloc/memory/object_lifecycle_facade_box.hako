@@ -85,7 +85,7 @@ box HakoAllocObjectLifecycleFacade {
             }
         }
 
-        local block_id = page.acquire_usize(size)
+        local block_id = page.acquireFreshSmall(size)
         alloc_result.recordBlock(block_id)
 
         if block_id < 0 {

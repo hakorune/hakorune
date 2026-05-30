@@ -81,6 +81,10 @@ message.
     `queue.selectPage()` and keeps the owner surface inside the existing
     page-queue seam
   - no fast-path reopen
+- [x] MIM-011: selected page acquire route cleanup
+  - output: `objectLifecycleSmallAlloc` calls `page.acquireFreshSmall(size)`
+    after `queue.selectPage()` has selected an available page
+  - no new page helper, Array lane, RuntimeDataBox lane, or direct-path reopen
 
 ## Decision Log
 
@@ -106,12 +110,18 @@ message.
   branching on page count in the facade. Helper-call count dropped, and the
   remaining helper family is still page-hotpath owned; do not treat this as a
   perf keeper.
+- 2026-05-31: MIM-011 closed as a narrow source-shape keeper. After the page
+  queue has selected an available page, `objectLifecycleSmallAlloc` now uses
+  `page.acquireFreshSmall(size)` instead of the more generic
+  `page.acquire_usize(size)`. This keeps the page-model owner boundary intact
+  while avoiding the extra generic acquire fallback shape in the selected hot
+  region.
 
 ## MIM-001 Source-Shape Inventory
 
 | Surface | Method(s) | Shape | Candidate read |
 | --- | --- | --- | --- |
-| small allocation | `objectLifecycleSmallAlloc` | resets and updates `alloc_result`, selects queue page, calls `page.acquire_usize`, records last page cache | primary owner candidate; most direct allocation path |
+| small allocation | `objectLifecycleSmallAlloc` | resets and updates `alloc_result`, selects queue page, calls `page.acquireFreshSmall`, records last page cache | primary owner candidate; most direct allocation path |
 | last-page cache write | `recordLastAllocPage` | writes `last_alloc_page_index`, `last_alloc_page_id`, `last_alloc_page` after successful small alloc | candidate only as part of small allocation, not standalone |
 | cached release | `objectLifecycleReleaseDirectCachedPage`, `objectLifecycleReleaseBlock` | checks last allocated page fields, calls `page.releaseLocalKnownLive`, falls back to known-page lookup | secondary owner candidate; already source-shaped for fast path |
 | known-page lookup | `objectLifecycleKnownPageIndexById`, `objectLifecycleReleaseKnownPageIndex` | scans `object_lifecycle_queue.pages` when cache misses | fallback surface; optimize only with current perf evidence |
@@ -275,6 +285,48 @@ next_task=MIM-008_or_MIM-009_cleanup_then_resume_owner_selection
   `bash tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surface_check_guard.sh`
 - Current pointer guard:
   `bash tools/checks/current_state_pointer_guard.sh`
+
+### MIM-011 Evidence
+
+Current baseline before the source edit:
+
+```text
+sample_count=3
+body_elapsed_ns=555000000,555000000,557000000
+external_elapsed_ms=560,550,560
+summary=ok
+```
+
+After switching the selected page acquire route to `acquireFreshSmall`:
+
+```text
+sample_count=3
+body_elapsed_ns=544000000,544000000,546000000
+external_elapsed_ms=550,540,550
+allocation_count=524288
+free_count=524288
+select_page_single_fast_path_count=524288
+release_known_page_fast_path_count=524288
+summary=ok
+```
+
+MIR shape after the source edit:
+
+```text
+instruction_count=139
+call_count=10
+copy_count=63
+helper_call_count=3
+page_hotpath_helpers_call_count=3
+dominant_callee_family=page_hotpath_helpers
+dominant_copy_owner=local_ssa_copy_materialization
+top_callsite_callee=acquireFreshSmall
+top_callsite_attributed_copy_count=8
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+```
 
 ## Parking Lot
 

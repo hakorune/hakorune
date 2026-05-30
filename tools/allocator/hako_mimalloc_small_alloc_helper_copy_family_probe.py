@@ -28,6 +28,7 @@ PAGE_HOTPATH_HELPERS = {
     "selectSinglePageFastPath",
     "selectPage",
     "acquire",
+    "acquireFreshSmall",
     "reuse",
 }
 
