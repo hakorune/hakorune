@@ -94,6 +94,11 @@ message.
     `resetAttempt()` sentinel and publishes `last_block_id` only after a
     successful block acquisition
   - no new helper lane, Array lane, RuntimeDataBox lane, or direct-path reopen
+- [x] MIM-014: current C gap and perf owner refresh
+  - output: compare current hako object-lifecycle small-block EXE with the
+    explicit C mimalloc runner at the same 524288 alloc/free count
+  - no implementation; use this to choose the next owner before more source
+    edits
 
 ## Decision Log
 
@@ -135,6 +140,11 @@ message.
   `recordBlock(block_id)` runs only after `block_id >= 0`. This removes the
   redundant failed-acquire block publication without changing public failure
   observation.
+- 2026-05-31: MIM-014 refreshed the gap against C. Current hako remains about
+  107x higher in instructions and 162x higher in cycles than the explicit C
+  mimalloc runner for the same 524288 alloc/free count. perf owner is no longer
+  a narrow source-shape cleanup by itself: legacy typed-object field helpers
+  dominate, with Array safe store/load as the secondary owner.
 
 ## MIM-001 Source-Shape Inventory
 
@@ -431,6 +441,68 @@ winner_claim=0
 replacement_active=0
 hook_installed=0
 global_allocator=0
+```
+
+### MIM-014 Evidence
+
+Current exact-EXE timing after MIM-013:
+
+```text
+sample_count=3
+hako_body_elapsed_ns=539000000,536000000,540000000
+hako_allocation_count=524288
+hako_free_count=524288
+hako_select_page_single_fast_path_count=524288
+hako_release_known_page_fast_path_count=524288
+summary=ok
+```
+
+Explicit C mimalloc runner, using `--in-process-repeat 8192` to match the same
+524288 alloc/free count:
+
+```text
+sample_count=3
+c_body_elapsed_ns=3946035,3245566,3830324
+c_allocation_count=524288
+c_free_count=524288
+summary=ok
+```
+
+One-sample `perf stat` instruction/cycle comparison:
+
+```text
+c_instructions=65099825
+c_cycles=18404351
+c_body_elapsed_ns=3589438
+hako_instructions=6947442686
+hako_cycles=2973686467
+hako_body_elapsed_ns=539000000
+instruction_ratio_hako_over_c=106.72
+cycle_ratio_hako_over_c=161.58
+body_elapsed_ratio_hako_over_c=150.16
+```
+
+Current hako `perf report --no-children --sort=symbol,dso` top symbols:
+
+```text
+nyash.object.field_set_hii=25.46%
+nyash.object.field_get_u64_hii=21.51%
+nyash.object.field_get_hii=19.68%
+nyash_kernel::plugin::array_slot_backend::safe_store_i64=12.95%
+nyash.object.field_set_u64_hiu=12.91%
+nyash_kernel::plugin::array_slot_backend::safe_store_i64::closure=4.64%
+nyash_kernel::plugin::array_slot_backend::safe_load_encoded_i64=1.63%
+array_handle_cache_get_index_encoded_i64_closure=0.93%
+```
+
+Interpretation:
+
+```text
+primary_owner=legacy_typed_object_field_helper_surface
+secondary_owner=public_arraybox_safe_store_load_surface
+source_shape_cleanup_remaining=not_primary_without_new_owner_evidence
+new_fast_path_open=0
+next_task=classify_why_legacy_field_helpers_remain_hot_before_more_source_edits
 ```
 
 ## Parking Lot
