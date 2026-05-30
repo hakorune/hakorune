@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/phases/phase-296x/296x-378-ARRAY-REPR-DESIGN-ROW.md
   - docs/development/current/main/phases/phase-296x/296x-377-ARRAY-SLOT-NATIVEDIRECT-POST-RETIREMENT-PERF-OWNER-REFRESH.md
   - docs/development/current/main/phases/phase-296x/296x-374-DIRECTARRAY-FAMILY-STORAGE-SUBSTRATE-ROADMAP.md
+  - docs/development/current/main/design/array-lane-extension-roadmap-ssot.md
   - docs/development/current/main/design/representation-direct-lowering-ssot.md
   - docs/development/current/main/design/representation-direct-storage-substrate-ssot.md
 ---
@@ -103,3 +104,8 @@ It is intentionally narrow:
 - `DirectI64` is the first exact-storage bridge
 - `PublicArrayBoxFallback` preserves public semantics
 - future variants may be added later, but not by widening this row
+
+Future Array lane expansion is governed by
+`docs/development/current/main/design/array-lane-extension-roadmap-ssot.md`.
+Do not add `ArrayRepr` variants or `ArrayStorage` variants directly from this
+row.
