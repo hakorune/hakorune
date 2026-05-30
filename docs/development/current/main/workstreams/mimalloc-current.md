@@ -89,6 +89,11 @@ message.
   - output: `HakoAllocObjectLifecycleAllocResult.resetAttempt()` owns the
     reset-plus-attempt state transition used by `objectLifecycleSmallAlloc`
   - no new helper lane, Array lane, RuntimeDataBox lane, or direct-path reopen
+- [x] MIM-013: defer alloc result block publication until acquire success
+  - output: `objectLifecycleSmallAlloc` keeps the failure path on the
+    `resetAttempt()` sentinel and publishes `last_block_id` only after a
+    successful block acquisition
+  - no new helper lane, Array lane, RuntimeDataBox lane, or direct-path reopen
 
 ## Decision Log
 
@@ -125,6 +130,11 @@ message.
   transition without inlining result fields into the facade. This keeps capsule
   ownership intact while removing one public method call from the selected
   small-alloc region.
+- 2026-05-31: MIM-013 closed as a source-shape keeper. The acquire failure path
+  now relies on the existing `resetAttempt()` `last_block_id=-1` sentinel, and
+  `recordBlock(block_id)` runs only after `block_id >= 0`. This removes the
+  redundant failed-acquire block publication without changing public failure
+  observation.
 
 ## MIM-001 Source-Shape Inventory
 
@@ -374,6 +384,48 @@ dominant_callee_family=page_hotpath_helpers
 dominant_copy_owner=local_ssa_copy_materialization
 top_callsite_callee=acquireFreshSmall
 top_callsite_attributed_copy_count=8
+facade_result_helpers_call_count=0
+winner_claim=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+```
+
+### MIM-013 Evidence
+
+Baseline before the source edit is the MIM-012 reset-attempt capsule cleanup:
+
+```text
+sample_count=3
+body_elapsed_ns=540000000,538000000,538000000
+summary=ok
+```
+
+After deferring `recordBlock(block_id)` until after `block_id >= 0`:
+
+```text
+sample_count=3
+body_elapsed_ns=543000000,536000000,536000000
+allocation_count=524288
+free_count=524288
+select_page_single_fast_path_count=524288
+release_known_page_fast_path_count=524288
+summary=ok
+```
+
+MIR shape after the source edit:
+
+```text
+instruction_count=132
+call_count=10
+copy_count=60
+phi_count=14
+helper_call_count=3
+helper_copy_count=11
+dominant_callee_family=page_hotpath_helpers
+dominant_copy_owner=local_ssa_copy_materialization
+top_callsite_callee=acquireFreshSmall
+top_callsite_attributed_copy_count=6
 facade_result_helpers_call_count=0
 winner_claim=0
 replacement_active=0

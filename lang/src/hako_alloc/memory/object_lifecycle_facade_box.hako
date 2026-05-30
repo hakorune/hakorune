@@ -85,13 +85,12 @@ box HakoAllocObjectLifecycleFacade {
         }
 
         local block_id = page.acquireFreshSmall(size)
-        alloc_result.recordBlock(block_id)
-
         if block_id < 0 {
             local small_acquire_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_acquire_failed()
             return alloc_result.recordFailure(small_acquire_failed_reason)
         }
 
+        alloc_result.recordBlock(block_id)
         me.recordLastAllocPage(selected_index, queue.last_selected_page_id, page)
         return alloc_result.recordSuccess(selected_kind)
     }
