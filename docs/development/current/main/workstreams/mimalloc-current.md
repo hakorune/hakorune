@@ -113,11 +113,19 @@ message.
     active direct exact `HakoAllocPageModel` i64 ArraySet store regions
   - do not widen generic ArraySet, public ArrayBox ABI, mixed storage, plugin
     typed ABI, or default/safe behavior
-- [ ] MIM-018: post-store-boundary perf owner refresh
+- [x] MIM-018: post-store-boundary perf owner refresh
   - output: reread the direct exact perf top after `nyash.array.set_hii` calls
     are removed from the object-lifecycle small-block EXE
   - choose the next owner from current evidence; do not reopen Array helper
     micro-lanes without positive direct-exact evidence
+- [x] MIM-019: inline single-page queue selection
+  - output: keep `selectPage()` as the public queue entry while folding the
+    `page_count == 1` path into that method
+  - no generic queue rewrite, no Array helper lane, no provider/replacement
+    activation
+- [ ] MIM-020: post-single-page-inline owner refresh
+  - output: reread the direct exact perf top and choose one next source-level
+    owner from current evidence
 
 ## Decision Log
 
@@ -185,6 +193,16 @@ message.
   instructions / 18.09M cycles / 3.46ms body, leaving about 4.14x
   instructions / 3.22x cycles / 2.60x body. Source shape, default/safe
   ArrayBox, generic ArraySet, and public ABI remain unchanged.
+- 2026-05-31: MIM-018 refreshed the post-store-boundary owner. With ArraySet
+  calls gone, the hottest direct exact surface moved to the page queue /
+  facade source shape: `selectPage/0`, `releaseLocalKnownLive/1`,
+  `selectSinglePageFastPath/0`, and facade small/release methods.
+- 2026-05-31: MIM-019 landed as a source-shape keeper. The single-page branch
+  is now handled directly in `selectPage()` instead of calling
+  `selectSinglePageFastPath()` and then `acceptSelectedPage()`. The exact EXE
+  still reports `summary=ok`; instructions moved from about 269.35M to
+  256.24M and cycles from about 58.4M to 53.0M. Public queue semantics and the
+  generic multi-page path remain unchanged.
 
 ## MIM-001 Source-Shape Inventory
 

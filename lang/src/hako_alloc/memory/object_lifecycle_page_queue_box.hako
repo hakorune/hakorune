@@ -103,7 +103,45 @@ box HakoAllocObjectLifecyclePageQueue {
         me.beginSelection()
 
         if me.page_count == 1 {
-            return me.selectSinglePageFastPath()
+            local page = me.first_page
+            if page == null {
+                me.miss_count = me.miss_count + 1
+                return null
+            }
+            if page.isDecommitted() != 0 {
+                me.decommitted_skip_count = me.decommitted_skip_count + 1
+                me.miss_count = me.miss_count + 1
+                return null
+            }
+            if page.isRetired() != 0 {
+                if page.canReuse() != 0 {
+                    me.last_selected_index = 0
+                    me.last_selected_page_id = page.page_id
+                    me.last_selected_kind = 1
+                    me.last_selected_page = page
+                    me.select_count = me.select_count + 1
+                    me.reuse_select_count = me.reuse_select_count + 1
+                    me.single_page_fast_path_count = me.single_page_fast_path_count + 1
+                    return page
+                }
+                me.retired_skip_count = me.retired_skip_count + 1
+                me.miss_count = me.miss_count + 1
+                return null
+            }
+            if page.freeCount() > 0 {
+                me.last_selected_index = 0
+                me.last_selected_page_id = page.page_id
+                me.last_selected_kind = 2
+                me.last_selected_page = page
+                me.select_count = me.select_count + 1
+                me.active_select_count = me.active_select_count + 1
+                me.single_page_fast_path_count = me.single_page_fast_path_count + 1
+                return page
+            }
+
+            me.unavailable_skip_count = me.unavailable_skip_count + 1
+            me.miss_count = me.miss_count + 1
+            return null
         }
 
         me.single_page_fallback_count = me.single_page_fallback_count + 1
