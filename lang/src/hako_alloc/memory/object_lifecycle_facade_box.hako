@@ -51,8 +51,8 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     objectLifecycleSmallAlloc(size) {
-        me.resetSmallAllocResult()
         local alloc_result = me.alloc_result
+        alloc_result.reset()
         alloc_result.recordAttempt()
 
         local queue = me.object_lifecycle_queue
