@@ -123,9 +123,11 @@ message.
     `page_count == 1` path into that method
   - no generic queue rewrite, no Array helper lane, no provider/replacement
     activation
-- [ ] MIM-020: post-single-page-inline owner refresh
+- [x] MIM-020: post-single-page-inline owner refresh
   - output: reread the direct exact perf top and choose one next source-level
     owner from current evidence
+  - result: `object_lifecycle_facade` remains the source-level owner surface;
+    no new fast path reopened
 - [x] MIM-021: inline queue selection reset
   - output: fold `beginSelection()` into `selectPage()` so the selected queue
     entry owns its hot reset/write path
@@ -232,6 +234,11 @@ message.
   verifier now accepts a single-object field-set body shape, and the mimalloc
   source keeps `beginSelection()` as the readable public entry while the hot
   path stays inline-expanded through the MIR proof lane.
+- 2026-05-31: MIM-020 refresh reran the post-selectPage keeper measurement
+  (median 550ms across three samples) and rechecked the facade source shape.
+  `object_lifecycle_facade` remains the source-level owner surface; the
+  immediate leaf candidates are already source-inline or still reject as
+  composite/call-heavy, so no new fast path is justified from this refresh.
 
 ## MIM-001 Source-Shape Inventory
 
