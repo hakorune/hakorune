@@ -112,11 +112,6 @@ Current accepted allocator-relevant rows include:
 @rune Inline(required)
 @rune Hint(hot)
 @rune Hint(cold)
-@rune Profile(allocator.fast)
-@rune Profile(allocator.slow)
-@rune Profile(substrate.leaf)
-@rune Profile(intrinsic.leaf)
-@rune Profile(raw.layout)
 ```
 
 Current rules:
@@ -131,8 +126,8 @@ Current rules:
 - `Hint(hot|cold)` remains advisory tuning metadata;
 - verified required inline may be consumed by the MIR optimizer for narrow
   same-module leaf bodies;
-- `Profile(...)` is authoring sugar only and expands to primitive MIR plan
-  facts;
+- `Profile(...)` names are reserved in the MIR profile registry, but new source
+  should prefer primitive runes and explicit contracts;
 - backend route selection must not read profile names.
 
 `@rune Capability(...)` is not accepted parser surface yet.

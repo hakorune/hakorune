@@ -32,8 +32,6 @@ static box FastMath {
 ```hako
 static box AllocLeaf {
     @rune Inline(required)
-    @rune Contract(no_alloc)
-    @rune Contract(no_safepoint)
     fastPath(size: i64): i64 {
         return size + 16
     }
@@ -59,12 +57,13 @@ should show `@rune`, not the legacy annotation aliases.
 | `Hint(...)` | `hot`, `cold` | Advisory tuning metadata. |
 | `Contract(...)` | `pure`, `readonly`, `no_alloc`, `no_safepoint` | Verifier-backed or reserved contract metadata. |
 | `IntrinsicCandidate("...")` | non-empty string | Candidate intrinsic replacement identity. |
-| `Profile(...)` | reserved names such as `allocator.fast` | Authoring sugar that expands to primitive MIR facts. |
+| `Profile(...)` | reserved names such as `allocator.fast` | Reserved/compat bundle names. New source should prefer primitive runes. |
 | ABI/export rows | `FfiSafe`, `Symbol("...")`, `CallConv("c")`, `ReturnsOwned`, `FreeWith("...")` | ABI-facing metadata where supported by the target declaration. |
 
 `@rune Capability(...)` is not accepted parser surface yet. Capability facts
-currently come from reserved profiles and metadata-only `uses ...` rows where
-the relevant design card explicitly owns them.
+currently come from metadata-only `uses ...` rows where the relevant design card
+explicitly owns them. Profile-derived capability bundles are parked unless a
+future row reopens them.
 
 ## Inline Requests
 
@@ -142,6 +141,11 @@ New code should use:
 @rune Inline(required)
 @rune Hint(hot)
 @rune Hint(cold)
+```
+
+Use explicit contracts only when a row needs a source-visible obligation:
+
+```hako
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 ```

@@ -77,8 +77,8 @@ The current live surface is intentionally narrow.
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
-| inline planning | canonical `@rune Inline(prefer/avoid/required)` rows preserve MIR InlinePlan metadata; compat `@rune Hint(inline/noinline)` and `@rune Lowering(inline_required)` map to equivalent inline requests during migration; `Hint(hot/cold)` remains advisory tuning metadata; `Inline(prefer)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; verified required inline is consumed by the MIR optimizer for the M13 scalar allocator-fast EXE proof |
-| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions and from metadata-only `uses osvm` / `uses atomic` / `uses rawbuf` / `uses random` / `uses alloc_reclaim` as canonical `hako.*` ids; `@rune Capability(...)` is not live parser surface |
+| inline planning | canonical `@rune Inline(prefer/avoid/required)` rows preserve MIR InlinePlan metadata; compat `@rune Hint(inline/noinline)` and `@rune Lowering(inline_required)` map to equivalent inline requests during migration; `Hint(hot/cold)` remains advisory tuning metadata; `Inline(prefer)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for supported leaf bodies, including small receiver-fieldset leaves that infer `no_alloc` / `no_safepoint` from MIR shape; verified required inline is consumed by the MIR optimizer before backend emission |
+| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)`. Profile names are reserved/compat registry entries; current source should prefer primitive runes. `CapabilityPlan` is emitted from metadata-only `uses osvm` / `uses atomic` / `uses rawbuf` / `uses random` / `uses alloc_reclaim` as canonical `hako.*` ids; `@rune Capability(...)` is not live parser surface |
 
 ## Pure-First / EXE Proof Chain
 
@@ -769,12 +769,12 @@ Decision: M11d is live as a MIR metadata boundary.
 ```
 
 `metadata.capability_plans` is also emitted. It remains empty for plain
-`Contract(...)` runes and is populated by reserved `Profile(...)` expansions in
-M12c. `RANDOM-CAP-001` also lets source `uses random` produce a metadata-only
-plan with `allow=[hako.random]` and `source=source_uses`. `MIMAP-052B` lets
-source `uses alloc_reclaim` produce a metadata-only reclaim execution intent
-marker with `allow=[hako.alloc.reclaim]`; execution remains unsupported until a
-later row. `Capability(...)` is not parser surface yet.
+`Contract(...)` runes. `RANDOM-CAP-001` lets source `uses random` produce a
+metadata-only plan with `allow=[hako.random]` and `source=source_uses`.
+`MIMAP-052B` lets source `uses alloc_reclaim` produce a metadata-only reclaim
+execution intent marker with `allow=[hako.alloc.reclaim]`; execution remains
+unsupported until a later row. Profile-derived capability bundles are parked
+unless a future row reopens them. `Capability(...)` is not parser surface yet.
 
 Backends and `.inc` must not consume `effect_plans` or `capability_plans`.
 After a declaration's rune metadata changes, callers must use
@@ -783,10 +783,10 @@ families by hand.
 
 ## Rune Profile / Plan Ordering
 
-Decision: `@rune Profile(...)` is live-narrow as an authoring shortcut for the
-reserved names below. It is not a backend contract.
+Decision: `@rune Profile(...)` is a reserved compatibility registry, not the
+preferred v0 source surface. It is not a backend contract.
 
-The required future flow is:
+If a later row reopens profile expansion, the flow must be:
 
 ```text
 @rune Profile(...)
@@ -796,7 +796,7 @@ The required future flow is:
 -> backend emits the result
 ```
 
-Live reserved profile names:
+Reserved profile names:
 
 - `allocator.fast`
 - `allocator.slow`
@@ -806,11 +806,11 @@ Live reserved profile names:
 
 Profile registry SSOT: `docs/reference/mir/rune-profile-registry.md`.
 
-Current task order:
+Historical task order:
 
 1. mimalloc raw-page proof using explicit facts
 2. Profile registry docs [live-docs]
-3. Profile expansion to primitive facts [live-narrow]
+3. Profile expansion to primitive facts [historical/parked]
 4. allocator fast-path EXE proof [live-narrow]
 
 Backends must not branch on profile names. `.inc` / ll_emit must continue to

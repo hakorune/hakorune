@@ -38,8 +38,6 @@ Canonical declaration metadata uses `@rune`:
 ```hako
 @rune Inline(prefer)
 @rune Inline(required)
-@rune Contract(no_alloc)
-@rune Contract(no_safepoint)
 @rune IntrinsicCandidate("StringBox.length/0")
 ```
 
@@ -57,10 +55,11 @@ Current live verifier row:
 - `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
   verifier rows land.
 - No contract is currently exported for backend optimization use.
-- `metadata.capability_plans` exists and is populated only by reserved
-  `Profile(...)` expansions; capability verifier/backend use remains future.
+- `metadata.capability_plans` exists for future capability rows; capability
+  verifier/backend use remains future.
 - `Profile(allocator.fast|allocator.slow|substrate.leaf|intrinsic.leaf|raw.layout)`
-  is accepted as authoring sugar and expands to primitive MIR plan facts.
+  names are reserved compatibility/profile-registry entries. New source should
+  use primitive runes such as `Inline(required)` instead of profile bundles.
 - `Hint(inline/noinline/hot/cold)` is preserved into MIR-owned
   `metadata.inline_plans` as compat advisory inline/profile spelling.
 - `Inline(prefer/avoid/required)` is the canonical source surface for inline
@@ -77,8 +76,7 @@ Current live verifier row:
 - `Lowering(inline_required)` remains accepted as a compat spelling for
   `Inline(required)`. It is preserved as `request=required` and
   `fallback=fail_fast`; M11c-required-verify sets `verified=true` only when
-  required contracts and the narrow leaf-inline shape pass. It is still not
-  backend-active.
+  the supported narrow leaf-inline shape passes. It is still not backend-active.
 
 Fail-fast diagnostics use the stable tags:
 

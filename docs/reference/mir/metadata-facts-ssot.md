@@ -380,8 +380,8 @@ Contract:
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
 | `inline_plans` | array | InlinePlan rows derived from declaration-local canonical `Inline(prefer/avoid/required)`, compat `Hint(inline/noinline/hot/cold)`, and compat `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
-| `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes and reserved `Profile(...)` expansions; consumed by the MIR verifier, not by backends |
-| `capability_plans` | array | CapabilityPlan rows derived from reserved `Profile(...)` expansions; metadata only until capability verification lands |
+| `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes; consumed by the MIR verifier, not by backends |
+| `capability_plans` | array | CapabilityPlan rows derived from metadata-only `uses ...` declarations; profile-derived bundles remain parked unless a later row reopens them |
 | `generic_method_routes` | array | MIR-owned method route facts; backend shims consume these instead of reclassifying method strings |
 | `extern_call_routes` | array | MIR-owned route facts for accepted `externcall` sites; pure-first reads these rows instead of classifying helper names locally |
 | `global_call_routes` | array | MIR-owned global-call route / unsupported route facts |
@@ -615,9 +615,9 @@ live-narrow, but backend-required lowering remains reserved.
 
 ## EffectPlan / CapabilityPlan Metadata
 
-M11d added MIR-owned effect/capability boundaries. M12c adds reserved
-`Profile(...)` parser acceptance and expands profiles into those existing
-metadata boundaries without adding backend use.
+M11d added MIR-owned effect/capability boundaries. Profile names remain reserved
+registry entries, but current v0 source should prefer primitive runes and
+metadata-only `uses ...` declarations instead of profile bundles.
 
 ```text
 @rune Contract(no_alloc)
@@ -632,16 +632,9 @@ metadata boundaries without adding backend use.
    ]
 -> metadata.capability_plans = []
 
-@rune Profile(allocator.fast)
--> metadata.inline_plans = [
-     { request: "none", hotness: "hot", source: "rune_profile:allocator.fast" },
-     { request: "required", source: "rune_profile:allocator.fast" }
-   ]
--> metadata.effect_plans = [
-     { requires: ["no_alloc", "no_safepoint"], source: "rune_profile" }
-   ]
+uses random
 -> metadata.capability_plans = [
-     { allow: ["hako.mem", "hako.ptr", "hako.tls"], source: "rune_profile" }
+     { allow: ["hako.random"], source: "source_uses" }
    ]
 ```
 

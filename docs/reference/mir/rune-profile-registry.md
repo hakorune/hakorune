@@ -1,13 +1,13 @@
 # Rune Profile Registry
 
-Status: M13 live-narrow allocator fast-path EXE proof.
+Status: reserved compatibility registry.
 
-`@rune Profile(...)` is accepted for the reserved profile names in this file.
-The profile name is authoring sugar only: parsers validate it here, MIR plan
-builders expand it into primitive facts, and backends never consume profile
-names.
+`@rune Profile(...)` names are reserved here so historical proof apps and future
+rows have one registry. New source should prefer primitive runes such as
+`Inline(required)`, `Hint(hot)`, and explicit `Contract(...)` rows when a row
+requires source-visible obligations. Profile names are never backend contracts.
 
-Profile expansion order:
+If a later row reopens profile expansion, the order must be:
 
 ```text
 Profile(name)
