@@ -1741,8 +1741,19 @@ selection_source=fn_metadata.direct_array_access_plans
 cfg_shape=branchless
 store_semantics=append_or_overwrite
 required_loop_facts=start_const_zero,index_phi_matches_route_key,step_one,end_exclusive,index_read_only
+required_extent_fact_v0=constant_upper_bound_within_direct_array_i64_default_capacity
+dynamic_extent_bounds=checked_until_direct_array_extent_fact
 lowering=len_preserving_branchless_store
 legacy_by_name_allowlist_changed=0
+```
+
+Phase 3a follow-up:
+
+```text
+next_fact_view=RangeIndexFact
+next_extent_fact=DirectArrayExtentFact
+resetToFresh_source_shape=while_style_counting_loop
+resetToFresh_requires=counting_loop_to_range_index_fact_plus_extent_fact
 ```
 
 Phase 2 verification:

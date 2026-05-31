@@ -10,6 +10,8 @@
 use crate::mir::function::LoopRangeFact;
 use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
 
+const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayAccessOp {
     Load,
@@ -322,6 +324,7 @@ fn loop_range_proves_branchless_append_or_overwrite_store(
     function.metadata.loop_range_facts.iter().any(|fact| {
         loop_range_fact_is_sequential_zero_based_body(fact, block_id, index_value)
             && value_is_integer_const(function, fact.start_value, 0)
+            && direct_array_extent_v0_proves_upper_bound(function, fact.end_value)
     })
 }
 
@@ -340,15 +343,28 @@ fn loop_range_fact_is_sequential_zero_based_body(
 }
 
 fn value_is_integer_const(function: &MirFunction, value_id: ValueId, expected: i64) -> bool {
-    function.blocks.values().any(|block| {
-        block.instructions.iter().any(|instruction| {
-            matches!(
-                instruction,
-                MirInstruction::Const {
-                    dst,
-                    value: ConstValue::Integer(actual),
-                } if *dst == value_id && *actual == expected
-            )
+    integer_const_value(function, value_id)
+        .map(|actual| actual == expected)
+        .unwrap_or(false)
+}
+
+fn direct_array_extent_v0_proves_upper_bound(function: &MirFunction, end_value: ValueId) -> bool {
+    // Until DirectArrayExtentFact exists, v0 only accepts constant loop upper
+    // bounds that fit the DirectArrayI64 birth capacity used by the exact
+    // front. Dynamic `capacity` bounds stay on the checked path.
+    integer_const_value(function, end_value)
+        .map(|upper| (0..=DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0).contains(&upper))
+        .unwrap_or(false)
+}
+
+fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64> {
+    function.blocks.values().find_map(|block| {
+        block.instructions.iter().find_map(|instruction| match instruction {
+            MirInstruction::Const {
+                dst,
+                value: ConstValue::Integer(actual),
+            } if *dst == value_id => Some(*actual),
+            _ => None,
         })
     })
 }
@@ -500,6 +516,10 @@ mod tests {
             dst: ValueId::new(10),
             value: ConstValue::Integer(0),
         });
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(11),
+            value: ConstValue::Integer(3),
+        });
         let body = function.blocks.get_mut(&body_bb).expect("body");
         body.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![4, 3]));
         function.metadata.loop_range_facts.push(LoopRangeFact {
@@ -542,5 +562,50 @@ mod tests {
             store.store_semantics(),
             DirectArrayStoreSemantics::AppendOrOverwrite
         );
+    }
+
+    #[test]
+    fn refresh_keeps_loop_range_store_checked_without_extent_proof() {
+        let mut function = make_function();
+        let body_bb = BasicBlockId::new(1);
+        function.add_block(BasicBlock::new(body_bb));
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        let body = function.blocks.get_mut(&body_bb).expect("body");
+        body.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![4, 3]));
+        function.metadata.loop_range_facts.push(LoopRangeFact {
+            index_name: "i".to_string(),
+            start_value: ValueId::new(10),
+            end_value: ValueId::new(11),
+            index_phi: ValueId::new(4),
+            preheader_bb: BasicBlockId::new(0),
+            header_bb: BasicBlockId::new(2),
+            body_bb,
+            step_bb: BasicBlockId::new(3),
+            exit_bb: BasicBlockId::new(4),
+            step: 1,
+            end_exclusive: true,
+            index_read_only: true,
+            body_local_writes_supported: true,
+            loop_carried_writes_supported: false,
+            body_writes_supported: false,
+        });
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
+        let store = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(store.bounds_policy(), DirectArrayBoundsPolicy::Checked);
+        assert_eq!(store.proof_kind(), DirectArrayProofKind::ExactFrontContract);
+        assert_eq!(store.cfg_shape(), DirectArrayCfgShape::CheckedBranching);
     }
 }
