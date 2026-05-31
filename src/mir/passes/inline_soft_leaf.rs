@@ -109,9 +109,7 @@ fn leaf_inline_body(
         return None;
     }
     if allow_receiver_fieldset_leaf
-        && !block.instructions.iter().all(|inst| {
-            crate::mir::inline_leaf::is_supported_required_leaf_instruction(function, inst)
-        })
+        && !crate::mir::inline_leaf::check_required_inline_shape(function, None).is_empty()
     {
         return None;
     }
@@ -360,6 +358,24 @@ fn remap_leaf_instruction(
                 base,
                 field: field.clone(),
                 value: map(*value, value_map)?,
+                declared_type: declared_type.clone(),
+            })
+        }
+        MirInstruction::FieldGet {
+            dst,
+            base,
+            field,
+            declared_type,
+        } if body.allow_receiver_fieldset_leaf => {
+            let base = if *base == ValueId::INVALID {
+                ValueId::INVALID
+            } else {
+                map(*base, value_map)?
+            };
+            Some(MirInstruction::FieldGet {
+                dst: alloc_dst(*dst, value_map, mapped_dsts)?,
+                base,
+                field: field.clone(),
                 declared_type: declared_type.clone(),
             })
         }

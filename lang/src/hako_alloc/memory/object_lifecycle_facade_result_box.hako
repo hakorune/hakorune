@@ -29,6 +29,7 @@ box HakoAllocObjectLifecycleAllocResult {
         return 1
     }
 
+    @rune Inline(required)
     resetAttempt() {
         me.last_page_id = -1
         me.last_block_id = -1

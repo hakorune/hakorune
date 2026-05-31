@@ -2,7 +2,7 @@ use crate::mir::contracts::backend_core_ops::instruction_tag;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, ValueId};
 
 pub const DEFAULT_LEAF_INLINE_MAX_INSTRUCTIONS: usize = 8;
-pub const DEFAULT_REQUIRED_LEAF_INLINE_MAX_INSTRUCTIONS: usize = 12;
+pub const DEFAULT_REQUIRED_LEAF_INLINE_MAX_INSTRUCTIONS: usize = 16;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InlineLeafViolation {
@@ -62,16 +62,6 @@ pub fn is_supported_leaf_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Select { .. }
             | MirInstruction::TypeOp { .. }
     ) && inst.effects().is_pure()
-}
-
-pub fn is_supported_required_leaf_instruction(
-    _function: &MirFunction,
-    inst: &MirInstruction,
-) -> bool {
-    match inst {
-        MirInstruction::FieldSet { .. } => true,
-        _ => is_supported_leaf_instruction(inst),
-    }
 }
 
 pub fn check_leaf_inline_shape(
@@ -227,7 +217,7 @@ fn check_leaf_inline_shape_with(
     let mut fieldset_base = None;
     for (idx, inst) in block.instructions.iter().enumerate() {
         if allow_receiver_fieldset_leaf
-            && is_supported_single_base_fieldset_leaf_instruction(inst, &mut fieldset_base)
+            && is_supported_single_base_field_access_leaf_instruction(inst, &mut fieldset_base)
         {
             continue;
         }
@@ -244,17 +234,18 @@ fn check_leaf_inline_shape_with(
     violations
 }
 
-fn is_supported_single_base_fieldset_leaf_instruction(
+fn is_supported_single_base_field_access_leaf_instruction(
     inst: &MirInstruction,
     fieldset_base: &mut Option<ValueId>,
 ) -> bool {
-    let MirInstruction::FieldSet { base, .. } = inst else {
-        return false;
+    let base = match inst {
+        MirInstruction::FieldGet { base, .. } | MirInstruction::FieldSet { base, .. } => *base,
+        _ => return false,
     };
     match fieldset_base {
-        Some(fieldset_base) => *fieldset_base == *base,
+        Some(fieldset_base) => *fieldset_base == base,
         None => {
-            *fieldset_base = Some(*base);
+            *fieldset_base = Some(base);
             true
         }
     }

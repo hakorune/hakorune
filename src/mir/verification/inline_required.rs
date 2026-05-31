@@ -33,7 +33,7 @@ mod tests {
     use super::*;
     use crate::ast::RuneAttr;
     use crate::mir::{
-        BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
         MirInstruction, MirType, ValueId,
     };
 
@@ -194,6 +194,48 @@ mod tests {
                     declared_type: Some(MirType::Integer),
                 },
                 MirInstruction::Return { value: None },
+            ],
+        );
+
+        assert!(
+            check_required_inline_plans(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
+        assert_eq!(function.metadata.inline_plans.len(), 1);
+        assert!(function.metadata.inline_plans[0].verified);
+    }
+
+    #[test]
+    fn required_inline_verifies_same_base_fieldget_increment_fieldset_leaf() {
+        let function = function_with_runes(
+            required_inline_runes(),
+            vec![
+                MirInstruction::FieldGet {
+                    dst: ValueId::new(1),
+                    base: ValueId::new(0),
+                    field: "attempt_count".to_string(),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::Const {
+                    dst: ValueId::new(2),
+                    value: ConstValue::Integer(1),
+                },
+                MirInstruction::BinOp {
+                    dst: ValueId::new(3),
+                    op: BinaryOp::Add,
+                    lhs: ValueId::new(1),
+                    rhs: ValueId::new(2),
+                },
+                MirInstruction::FieldSet {
+                    base: ValueId::new(0),
+                    field: "attempt_count".to_string(),
+                    value: ValueId::new(3),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::Return {
+                    value: Some(ValueId::new(2)),
+                },
             ],
         );
 

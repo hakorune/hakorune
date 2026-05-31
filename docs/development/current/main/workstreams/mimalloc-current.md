@@ -211,6 +211,17 @@ message.
   - promote only through typed `direct_state_plans` / field-decl facts, not by
     adding more by-name callsite branches
   - selected pilot may not remain open-ended after this item
+- [x] MIM-035: required-inline fieldget leaf extension and resetAttempt
+  - output: extend verified `@rune Inline(required)` leaf inline to
+    same-receiver FieldGet/FieldSet increment leaves
+  - annotate `HakoAllocObjectLifecycleAllocResult.resetAttempt/0`
+  - no Profile, no direct-state emitter branch, no source hand-expansion
+- [ ] MIM-036: post-resetAttempt owner refresh
+  - output: reread direct exact perf owner and select next source/MIR owner
+  - current likely candidates are `selectPage/0`, `Main.runOne/2`,
+    `objectLifecycleSmallAlloc/1`, `resetToFresh/0`, and
+    `objectLifecycleReleaseBlock/2`
+  - do not reopen DirectState or Array fast paths without new owner evidence
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -640,8 +651,83 @@ but it is closed as a bounded selected pilot. Future work must not extend it by
 adding another by-name branch. If DirectState method lowering reopens, it must
 start from a fresh owner selection and a fact-driven substrate plan.
 
+### MIM-035: required-inline fieldget leaf extension and resetAttempt
+
+Completed.
+
+`AllocResult.resetAttempt/0` became the next visible result-capsule owner after
+MIM-032a. It was already a single-block primitive receiver leaf, but it performs
+one counter increment:
+
+```text
+attempt_count = attempt_count + 1
+```
+
+The required-inline verifier therefore needed one narrow vocabulary extension:
+same-receiver `FieldGet` / scalar op / `FieldSet`, with the same single-base
+guard already used for receiver field-set leaves.
+
+Implementation:
+
+```text
+source_annotation_added=HakoAllocObjectLifecycleAllocResult.resetAttempt/0:@rune Inline(required)
+compiler_change=required_inline_same_base_fieldget_fieldset_leaf
+method_call_count_after.HakoAllocObjectLifecycleAllocResult.resetAttempt/0=0
+method_call_count_after.HakoAllocObjectLifecycleReleaseResult.recordRequest/2=0
+new_profile_surface=0
+new_direct_state_emitter_branch=0
+source_hand_expansion=0
+```
+
+Validation:
+
+```text
+cargo_test_inline_required=ok
+cargo_test_inline_soft_leaf=ok
+cargo_build_hakorune=ok
+cargo_build_release_hakorune=ok
+semantic_smoke=representative-object-lifecycle-small-block-v0 direct exact EXE
+body_elapsed_ns=7000000
+allocation_count=524288
+free_count=524288
+summary=ok
+```
+
+Perf reread:
+
+```text
+hako_direct_instructions=228907410
+hako_direct_cycles=41469062
+body_elapsed_ns=7000000
+```
+
+Low-sample owner reread:
+
+```text
+HakoAllocObjectLifecyclePageQueue.selectPage/0=27.81%
+Main.runOne/2=15.74%
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=15.28%
+HakoAllocPageModel.resetToFresh/0=13.60%
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2=13.27%
+```
+
+Interpretation:
+
+```text
+resetAttempt_call_boundary_cut=keeper
+direct_state_reopen=0
+next_task=MIM-036 post-resetAttempt owner refresh
+```
+
 ## Decision Log
 
+- 2026-05-31: MIM-035 extended required-inline leaf verification to the narrow
+  same-receiver FieldGet/FieldSet increment shape and annotated
+  `AllocResult.resetAttempt/0`. This removed that method-call boundary without
+  adding Profile syntax, direct-state branches, or source hand-expansion. The
+  representative direct exact EXE stayed green, body timing reached 7ms, and
+  perf ownership moved toward `selectPage/0`, `Main.runOne/2`,
+  `objectLifecycleSmallAlloc/1`, `resetToFresh/0`, and release block.
 - 2026-05-31: MIM-034 closed the selected direct-state pilot. The MIM-029
   `AllocResult.recordSuccess/1` branch remains as a bounded selected pilot
   because it is a structural keeper, but it is not promoted and cannot be
