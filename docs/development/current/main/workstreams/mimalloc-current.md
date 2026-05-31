@@ -311,6 +311,19 @@ message.
     `137198567`; `body_elapsed_ns` stayed at `4000000`
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-047: release result local reuse
+  - output: keep `release_result` in a local inside
+    `objectLifecycleReleaseBlock/2` and use it for the hot known-page success
+    publication
+  - reason: the hot release facade already resets and records the same capsule
+    at method entry; rereading it through the facade after
+    `releaseLocalKnownLive` is unnecessary source traffic
+  - result: direct exact instructions improved from `137198567` to
+    `134052875`; next owner refresh still selects
+    `objectLifecycleReleaseBlock/2` first, followed by `acquireFreshSmall/1`,
+    `Main.runOne/2`, and `selectPage/0`
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
