@@ -47,7 +47,7 @@ direct storage routes.
   - prepare `region_id` / `view_id` as metadata only if it keeps code simpler
   - no Span, Bytes, LayoutSpan, or source syntax
 
-- [ ] LANG-DM-003: proof fact normalization
+- [x] LANG-DM-003: proof fact normalization
   - output: current DirectArray proof consumers can read stable fact names:
     `RangeIndexFact`, `DirectArrayExtentFact`, `RegionStabilityFact`
   - do not widen the accepted loop forms unless the fixture/smoke is included
@@ -92,3 +92,8 @@ direct storage routes.
   `element_type`, and Rust JSON / Python / C shim consumers all validate the
   proof carrier. `region_id` / `view_id` remain deferred metadata until
   LANG-DM-003 decides the fact vocabulary.
+- 2026-06-01: LANG-DM-003 normalized the DirectArray proof vocabulary into
+  `RangeIndexFact` + `DirectArrayExtentFact` + `RegionStabilityFact`.
+  Unchecked DirectArray planning now requires the extent fact to reference a
+  matching stability fact, and MIR JSON emits all three fact families for later
+  Span work.

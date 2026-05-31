@@ -135,6 +135,16 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "receiver_value": fact.receiver_value.as_u32(),
                 "lower_bound_value": fact.lower_bound_value.as_u32(),
                 "proof_kind": fact.proof_kind.as_str(),
+                "region_stability_fact_id": fact.region_stability_fact_id,
+                "stable_in_region": fact.stable_in_region,
+            })
+        }).collect::<Vec<_>>(),
+        "region_stability_facts": metadata.region_stability_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "region_value": fact.region_value.as_u32(),
+                "scope_bb": fact.scope_bb.as_u32(),
+                "proof_kind": fact.proof_kind.as_str(),
                 "stable_in_region": fact.stable_in_region,
             })
         }).collect::<Vec<_>>(),

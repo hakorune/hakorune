@@ -12,8 +12,6 @@ use crate::mir::{
     BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
 };
 
-const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayAccessOp {
     Load,
@@ -649,10 +647,25 @@ fn direct_array_extent_v0_proves_upper_bound(
             resolve_value_origin(function, &def_map, fact.receiver_value) == receiver_origin
                 && resolve_value_origin(function, &def_map, fact.lower_bound_value) == end_origin
                 && fact.stable_in_region
+                && direct_array_region_stability_v0_proves(
+                    function,
+                    fact.region_stability_fact_id,
+                    receiver_origin,
+                )
         })
-        || integer_const_value(function, end_origin)
-            .map(|upper| (0..=DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0).contains(&upper))
-            .unwrap_or(false)
+}
+
+fn direct_array_region_stability_v0_proves(
+    function: &MirFunction,
+    fact_id: u32,
+    receiver_origin: ValueId,
+) -> bool {
+    let def_map = build_value_def_map(function);
+    function.metadata.region_stability_facts.iter().any(|fact| {
+        fact.fact_id == fact_id
+            && fact.stable_in_region
+            && resolve_value_origin(function, &def_map, fact.region_value) == receiver_origin
+    })
 }
 
 fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64> {
@@ -857,11 +870,22 @@ mod tests {
             &mut function,
         );
         refresh_function_range_index_facts(&mut function);
+        function
+            .metadata
+            .region_stability_facts
+            .push(crate::mir::function::RegionStabilityFact {
+                fact_id: 0,
+                region_value: ValueId::new(2),
+                scope_bb: body_bb,
+                proof_kind: crate::mir::function::RegionStabilityProofKind::ProducerInvariant,
+                stable_in_region: true,
+            });
         function.metadata.direct_array_extent_facts.push(
             crate::mir::function::DirectArrayExtentFact {
                 receiver_value: ValueId::new(2),
                 lower_bound_value: ValueId::new(11),
                 proof_kind: DirectArrayExtentProofKind::ProducerInvariant,
+                region_stability_fact_id: 0,
                 stable_in_region: true,
             },
         );

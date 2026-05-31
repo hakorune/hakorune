@@ -169,6 +169,32 @@ impl DirectArrayExtentProofKind {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RegionStabilityProofKind {
+    ProducerInvariant,
+}
+
+impl RegionStabilityProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::ProducerInvariant => "producer_invariant",
+        }
+    }
+}
+
+/// Region stability proof for a memory-like receiver value.
+///
+/// Extent facts prove that a receiver is large enough; this fact proves that
+/// the receiver's storage base stays stable for the planned access region.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RegionStabilityFact {
+    pub fact_id: u32,
+    pub region_value: ValueId,
+    pub scope_bb: BasicBlockId,
+    pub proof_kind: RegionStabilityProofKind,
+    pub stable_in_region: bool,
+}
+
 /// Lower-bound extent proof for a DirectArray receiver value.
 ///
 /// This is intentionally separate from `RangeIndexFact`: range facts prove the
@@ -180,6 +206,7 @@ pub struct DirectArrayExtentFact {
     pub receiver_value: ValueId,
     pub lower_bound_value: ValueId,
     pub proof_kind: DirectArrayExtentProofKind,
+    pub region_stability_fact_id: u32,
     pub stable_in_region: bool,
 }
 
@@ -253,6 +280,9 @@ pub struct FunctionMetadata {
 
     /// DirectArray receiver extent facts consumed with `RangeIndexFact`.
     pub direct_array_extent_facts: Vec<DirectArrayExtentFact>,
+
+    /// Region stability facts consumed with range/extent proofs.
+    pub region_stability_facts: Vec<RegionStabilityFact>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

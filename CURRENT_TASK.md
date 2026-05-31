@@ -119,9 +119,8 @@ Recommended order:
      `proof_ids`, and consumers validate the proof carrier
    - region/view vocabulary remains metadata-only/deferred
 3. `LANG-DM-003` proof fact normalization
-   - `RangeIndexFact`
-   - `DirectArrayExtentFact`
-   - `RegionStabilityFact`
+   - status: done; DirectArray unchecked planning now reads
+     `RangeIndexFact` + `DirectArrayExtentFact` + `RegionStabilityFact`
 4. `LANG-DM-004` Span no-escape SSOT
 5. `LANG-DM-005` SpanI64 / SpanMutI64 minimal pilot
 6. `LANG-DM-006` `direct {}` contract

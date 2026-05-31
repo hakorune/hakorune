@@ -3,6 +3,7 @@ use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::function::{
     CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, LoopRangeFact,
+    RegionStabilityFact, RegionStabilityProofKind,
 };
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
@@ -128,11 +129,22 @@ fn build_mir_json_root_emits_direct_array_extent_facts() {
     let mut function = make_function("main", true);
     function
         .metadata
+        .region_stability_facts
+        .push(RegionStabilityFact {
+            fact_id: 0,
+            region_value: ValueId::new(2),
+            scope_bb: BasicBlockId::new(1),
+            proof_kind: RegionStabilityProofKind::ProducerInvariant,
+            stable_in_region: true,
+        });
+    function
+        .metadata
         .direct_array_extent_facts
         .push(DirectArrayExtentFact {
             receiver_value: ValueId::new(2),
             lower_bound_value: ValueId::new(11),
             proof_kind: DirectArrayExtentProofKind::ProducerInvariant,
+            region_stability_fact_id: 0,
             stable_in_region: true,
         });
 
@@ -147,7 +159,18 @@ fn build_mir_json_root_emits_direct_array_extent_facts() {
     assert_eq!(facts[0]["receiver_value"], 2);
     assert_eq!(facts[0]["lower_bound_value"], 11);
     assert_eq!(facts[0]["proof_kind"], "producer_invariant");
+    assert_eq!(facts[0]["region_stability_fact_id"], 0);
     assert_eq!(facts[0]["stable_in_region"], true);
+
+    let stability_facts = root["functions"][0]["metadata"]["region_stability_facts"]
+        .as_array()
+        .expect("region_stability_facts");
+    assert_eq!(stability_facts.len(), 1);
+    assert_eq!(stability_facts[0]["fact_id"], 0);
+    assert_eq!(stability_facts[0]["region_value"], 2);
+    assert_eq!(stability_facts[0]["scope_bb"], 1);
+    assert_eq!(stability_facts[0]["proof_kind"], "producer_invariant");
+    assert_eq!(stability_facts[0]["stable_in_region"], true);
 }
 
 #[test]

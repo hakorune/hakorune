@@ -6,9 +6,14 @@
  * the actual loop access site, without naming `.hako` methods.
  */
 
-use crate::mir::function::{DirectArrayExtentFact, DirectArrayExtentProofKind};
+use crate::mir::function::{
+    DirectArrayExtentFact, DirectArrayExtentProofKind, RegionStabilityFact,
+    RegionStabilityProofKind,
+};
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
+
+const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct FieldGetOrigin {
@@ -20,6 +25,7 @@ struct FieldGetOrigin {
 pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
     let mut facts = Vec::new();
+    let mut stability_facts = Vec::new();
 
     for route in &function.metadata.generic_method_routes {
         if route.receiver_origin_box() != Some("ArrayBox") {
@@ -43,6 +49,28 @@ pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
             if range.body_bb != route.block() {
                 continue;
             }
+            if integer_const_value(function, &def_map, range.upper_exclusive_value)
+                .map(|upper| (0..=DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0).contains(&upper))
+                .unwrap_or(false)
+            {
+                let stability_fact_id = ensure_region_stability_fact(
+                    &mut stability_facts,
+                    route.receiver_value(),
+                    range.body_bb,
+                    RegionStabilityProofKind::ProducerInvariant,
+                );
+                let fact = DirectArrayExtentFact {
+                    receiver_value: route.receiver_value(),
+                    lower_bound_value: range.upper_exclusive_value,
+                    proof_kind: DirectArrayExtentProofKind::DefaultCapacity,
+                    region_stability_fact_id: stability_fact_id,
+                    stable_in_region: true,
+                };
+                if !facts.contains(&fact) {
+                    facts.push(fact);
+                }
+                continue;
+            }
             let Some(upper_field) =
                 field_get_origin(function, &def_map, range.upper_exclusive_value)
             else {
@@ -63,10 +91,17 @@ pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
                 continue;
             }
 
+            let stability_fact_id = ensure_region_stability_fact(
+                &mut stability_facts,
+                route.receiver_value(),
+                range.body_bb,
+                RegionStabilityProofKind::ProducerInvariant,
+            );
             let fact = DirectArrayExtentFact {
                 receiver_value: route.receiver_value(),
                 lower_bound_value: range.upper_exclusive_value,
                 proof_kind: DirectArrayExtentProofKind::ProducerInvariant,
+                region_stability_fact_id: stability_fact_id,
                 stable_in_region: true,
             };
             if !facts.contains(&fact) {
@@ -76,6 +111,52 @@ pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
     }
 
     function.metadata.direct_array_extent_facts = facts;
+    function.metadata.region_stability_facts = stability_facts;
+}
+
+fn ensure_region_stability_fact(
+    facts: &mut Vec<RegionStabilityFact>,
+    region_value: ValueId,
+    scope_bb: BasicBlockId,
+    proof_kind: RegionStabilityProofKind,
+) -> u32 {
+    if let Some(existing) = facts.iter().find(|fact| {
+        fact.region_value == region_value
+            && fact.scope_bb == scope_bb
+            && fact.proof_kind == proof_kind
+            && fact.stable_in_region
+    }) {
+        return existing.fact_id;
+    }
+    let fact_id = facts.len() as u32;
+    facts.push(RegionStabilityFact {
+        fact_id,
+        region_value,
+        scope_bb,
+        proof_kind,
+        stable_in_region: true,
+    });
+    fact_id
+}
+
+fn integer_const_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value_id: ValueId,
+) -> Option<i64> {
+    let origin = resolve_value_origin(function, def_map, value_id);
+    function.blocks.values().find_map(|block| {
+        block
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(actual),
+                } if resolve_value_origin(function, def_map, *dst) == origin => Some(*actual),
+                _ => None,
+            })
+    })
 }
 
 fn field_get_origin(
@@ -153,7 +234,9 @@ mod tests {
     use crate::mir::direct_array_access_plan::{
         refresh_function_direct_array_access_plans, DirectArrayBoundsPolicy, DirectArrayProofKind,
     };
-    use crate::mir::function::{CountingLoopFact, RangeIndexFactOriginKind};
+    use crate::mir::function::{
+        CountingLoopFact, RangeIndexFactOriginKind, RegionStabilityProofKind,
+    };
     use crate::mir::generic_method_route_plan::refresh_function_generic_method_routes;
     use crate::mir::range_index_fact::refresh_function_range_index_facts;
     use crate::mir::{
@@ -244,7 +327,18 @@ mod tests {
             fact.proof_kind,
             DirectArrayExtentProofKind::ProducerInvariant
         );
+        assert_eq!(fact.region_stability_fact_id, 0);
         assert!(fact.stable_in_region);
+        assert_eq!(function.metadata.region_stability_facts.len(), 1);
+        let stability = &function.metadata.region_stability_facts[0];
+        assert_eq!(stability.fact_id, 0);
+        assert_eq!(stability.region_value, ValueId::new(10));
+        assert_eq!(stability.scope_bb, BasicBlockId::new(1));
+        assert_eq!(
+            stability.proof_kind,
+            RegionStabilityProofKind::ProducerInvariant
+        );
+        assert!(stability.stable_in_region);
 
         refresh_function_direct_array_access_plans(&mut function);
         assert_eq!(function.metadata.direct_array_access_plans.len(), 1);

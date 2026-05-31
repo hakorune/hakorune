@@ -23,7 +23,7 @@ pub use types::{
     HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
     LoopRangeFact, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
     ModuleMetadata, ModuleStats, RangeIndexFact, RangeIndexFactOriginKind, RecordDecl,
-    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
-    SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    RecordLayoutFieldPlan, RecordLayoutPlan, RegionStabilityFact, RegionStabilityProofKind,
+    SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan,
+    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };

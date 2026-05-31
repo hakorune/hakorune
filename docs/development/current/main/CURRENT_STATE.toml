@@ -19,7 +19,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/direct-memor
 latest_card = "296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md"
 latest_card_summary = "Landed the mimalloc source-level owner refresh: object_lifecycle_facade remains the top source-level owner surface, and the mimalloc source-level owner selection opened next."
-current_blocker_token = "LANG-DM-003-PROOF-FACT-NORMALIZATION"
+current_blocker_token = "LANG-DM-004-SPAN-NO-ESCAPE-SSOT"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

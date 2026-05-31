@@ -108,6 +108,19 @@ Proof:
   bounds / alignment / alias / lifetime / stability / initialization facts
 ```
 
+For current DirectArray lowering, the stable proof vocabulary is:
+
+```text
+RangeIndexFact:
+  index interval, such as i in 0..capacity
+
+DirectArrayExtentFact:
+  receiver extent covers that interval
+
+RegionStabilityFact:
+  receiver storage is stable across the planned access region
+```
+
 Terminology:
 
 ```text
