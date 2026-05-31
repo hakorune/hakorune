@@ -53,6 +53,7 @@ box HakoAllocObjectLifecycleAllocResult {
 
     recordFailure(reason) {
         me.last_reason = reason
+        me.last_ok = 0
         me.failure_count = me.failure_count + 1
         return 0
     }
@@ -113,6 +114,7 @@ box HakoAllocObjectLifecycleReleaseResult {
 
     recordFailure(reason) {
         me.last_reason = reason
+        me.last_ok = 0
         me.failure_count = me.failure_count + 1
         return 0
     }

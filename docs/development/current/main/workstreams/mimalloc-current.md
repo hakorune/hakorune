@@ -324,6 +324,17 @@ message.
     `Main.runOne/2`, and `selectPage/0`
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-048: result failure owns `last_ok=0`
+  - output: make object-lifecycle result `recordFailure()` paths clear
+    `last_ok`, then remove the release-path entry `reset()` before
+    `recordRequest(page_id, block_id)`
+  - reason: success and failure now each own the final ok state; the entry
+    reset was writing fields that the hot request/success path immediately
+    overwrote
+  - result: direct exact instructions improved from `134052875` to
+    `133004248`; `body_elapsed_ns` measured `5000000` in the single smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
