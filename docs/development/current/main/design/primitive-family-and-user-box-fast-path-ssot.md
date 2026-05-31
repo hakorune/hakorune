@@ -212,6 +212,77 @@ The names-only `fields` list stays only as:
 
 Do not treat `fields` as the typed design truth again.
 
+### 4.6 Direct state representation stays internal
+
+Do not add a new `.hako` surface for box-private direct state in this wave.
+
+Source authors keep writing ordinary box field declarations:
+
+```hako
+box Core {
+    current_page: i64
+    selected_kind: i64
+    page_free_head: DirectArrayI64
+}
+```
+
+The compiler may derive an internal direct-state representation from:
+
+```text
+field_decls
+storage-class facts
+escape / observer / materialization facts
+selected owner policy
+```
+
+Naming:
+
+```text
+concept/docs:
+  Direct State Layout v0
+
+MIR/code fact:
+  StateRepr::Direct
+
+report/evidence key:
+  state_repr=direct_v0
+```
+
+This is not a `record`, `slots`, or `layout` source feature.
+
+`record` remains the identity-free, builder-local value-carrier lane. It may
+look struct-like in source, but current record contracts explicitly forbid
+runtime record objects, backend record lowering, record-to-box storage, and
+record value escape.
+
+`StateRepr::Direct` is different:
+
+```text
+record:
+  identity-free local value carrier
+  field reads / same-owner helper argument scalarization
+  no runtime object, no backend route
+
+StateRepr::Direct:
+  box-private mutable state representation
+  receiver identity remains a box identity
+  selected fields may lower to direct offset load/store
+  fallback / materialization / debug boundaries stay explicit
+```
+
+Initial eligibility is deliberately narrow:
+
+- selected fields are declared in `field_decls`;
+- selected fields have supported primitive storage classes;
+- the receiver / owner region is proven and same-object;
+- observer, escape, and materialization boundaries are known;
+- public box identity is not erased;
+- unsupported shapes do not silently fall back after a direct plan is selected.
+
+The first allocator pilot should prefer an all-primitive selected field group
+or a small primitive-only core box. Do not make the entire facade direct when it
+also owns handle, queue, result, or public observer fields.
+
 ### 5. Text world, object world, and handle world stay split
 
 Do not fuse these worlds when generalizing beyond string.

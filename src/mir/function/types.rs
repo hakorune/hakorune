@@ -556,6 +556,35 @@ pub struct TypedObjectPlan {
     pub fields: Vec<TypedObjectFieldPlan>,
 }
 
+/// Metadata-only direct-state candidate for a user box.
+///
+/// This is deliberately not a backend layout contract. It records the
+/// field-declaration authority and primitive-field surface that a later guard
+/// may select for NativeDirect lowering.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DirectStateFieldPlan {
+    pub name: String,
+    pub slot: u32,
+    pub declared_type_name: Option<String>,
+    pub storage: TypedObjectFieldStorage,
+}
+
+/// MIR-owned candidate row for direct mutable state representation.
+///
+/// `state_repr` is the stable report key (`direct_v0`), while implementation
+/// details such as object layout and lowering stay closed until a later guard.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DirectStatePlan {
+    pub box_name: String,
+    pub state_repr: String,
+    pub field_decl_authority: bool,
+    pub selected_field_count: u32,
+    pub unsupported_field_count: u32,
+    pub materialization_boundary_known: bool,
+    pub positive_net_expected: bool,
+    pub fields: Vec<DirectStateFieldPlan>,
+}
+
 /// Backend-readable slot layout for one field in an identity-free record.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RecordLayoutFieldPlan {
@@ -816,6 +845,9 @@ pub struct ModuleMetadata {
 
     /// Backend-readable typed object layouts derived from user box field metadata.
     pub typed_object_plans: Vec<TypedObjectPlan>,
+
+    /// Metadata-only direct-state candidates derived from user box field metadata.
+    pub direct_state_plans: Vec<DirectStatePlan>,
 
     /// Backend-readable record layouts derived from record declaration metadata.
     pub record_layout_plans: Vec<RecordLayoutPlan>,

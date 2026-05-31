@@ -139,14 +139,191 @@ message.
   - no source `Contract(no_alloc)` / `Contract(no_safepoint)` requirement for
     this narrow leaf shape; verifier infers those facts from the body
   - no silent fallback, no source hand-expansion as the final shape
-- [ ] MIM-023: composite hot-cluster source inventory
+- [x] MIM-023: composite hot-cluster source inventory
   - output: short source-shape note for `objectLifecycleSmallAlloc` and
     `objectLifecycleReleaseBlock`
   - keep the lane source-level only; no new helper, Array, or direct-path
     reopening
+- [x] MIM-024: `StateRepr::Direct` candidate inventory
+  - output: table of primitive field groups reached by the MIM-023 hot
+    clusters
+  - classify each group as `all_primitive`, `mixed_handle`, `public_observer`,
+    or `escape_unknown`
+  - no source syntax, no new `record`/`slots`/`layout` surface
+- [x] MIM-025: direct-state feasibility report
+  - output: one selected candidate or explicit no-candidate result
+  - required report keys: `state_repr=direct_v0`, `field_decl_authority=1`,
+    `selected_field_count`, `unsupported_field_count`,
+    `materialization_boundary_known`, `positive_net_expected`
+  - stop if no positive-net candidate is found
+- [x] MIM-026: primitive core source-shape plan
+  - output: decide whether a small primitive-only core box is needed, or
+    whether an existing field group is enough
+  - use only existing `.hako` box fields, `DirectArrayI64`, and
+    `@rune Inline(required)`
+  - no public facade semantics change
+- [x] MIM-027: MIR metadata-only `StateRepr::Direct` producer
+  - output: derive direct-state candidate metadata from `field_decls` and
+    storage-class facts
+  - no backend lowering, no runtime layout change, no helper ABI change
+- [ ] MIM-028: selected direct-state lowering guard surface
+  - output: one method/field group with proven same-object receiver,
+    known materialization boundary, and positive helper/call reduction
+  - selected-plan silent fallback is a row failure
+- [ ] MIM-029: narrow direct-state lowering implementation
+  - output: direct offset load/store only for the MIM-028 selected group
+  - no generic user-box flattening, no public ABI widening, no provider or
+    allocator replacement activation
+- [ ] MIM-030: post-direct-state owner refresh
+  - output: compare direct exact front against the previous baseline and
+    choose the next owner from current evidence
+  - this is measurement / selection, not the fast-path implementation itself;
+    direct-state fast-path calculation belongs to MIM-029 after MIM-028
+    selects one proven group
+  - return to source-level mimalloc work if direct-state does not produce a
+    structural keeper
+
+## MIM-023..MIM-027 Source-Shape And Metadata Notes
+
+### MIM-023: composite hot-cluster source inventory
+
+`objectLifecycleSmallAlloc` and `objectLifecycleReleaseBlock` are still the
+two composite hot clusters in the current owner surface.
+
+`objectLifecycleSmallAlloc` shape:
+
+```text
+resetAttempt -> queue.selectPage -> selected_index / selected_kind checks
+-> optional page.reuse() -> page.acquireFreshSmall(size)
+-> alloc_result.recordBlock(block_id)
+-> recordLastAllocPage(index, page_id, page)
+-> alloc_result.recordSuccess(selected_kind)
+```
+
+`objectLifecycleReleaseBlock` shape:
+
+```text
+resetReleaseResult -> release_result.recordRequest(page_id, block_id)
+-> page/block validation
+-> objectLifecycleReleaseDirectCachedPage
+-> objectLifecycleReleaseKnownPageIndex
+-> pages.get(known_index) fallback
+-> page.releaseLocal(block_id)
+-> release_result.recordSuccess / recordFailure
+```
+
+The hot path still mixes primitive counters, cached page handles, page lookup,
+and observer/result capsules. That means the cluster is source-shaped but not
+yet a full direct-state box.
+
+### MIM-024: primitive group inventory
+
+Primitive-only groups reached by the hot clusters:
+
+| Group | Classification | Evidence |
+| --- | --- | --- |
+| `alloc_result` scalar fields | `all_primitive` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, and count fields are scalar state only |
+| `release_result` scalar fields | `all_primitive` | `last_page_id`, `last_block_id`, `last_reason`, `last_ok`, and count fields are scalar state only |
+| `alignment_result` scalar fields | `all_primitive` | `last_requested`, `last_normalized`, `last_reason`, `last_supported` are scalar state only |
+| `realloc_result` scalar fields | `all_primitive` | request / new-page / new-block / status / requested-size are scalar state only |
+| `last_alloc_page_index`, `last_alloc_page_id`, `release_known_page_fast_path_count`, `release_known_page_fallback_count` | `all_primitive` | facade-level primitive counters and cache indices |
+| `last_alloc_page`, `release_known_page`, `object_lifecycle_queue.pages`, `first_page` | `mixed_handle` | cached page objects and collection storage stay in object/handle world |
+| `stats_surface` / observer readback methods | `public_observer` | read-only surface over the result capsules |
+| page lookup fallback / `page.releaseLocal*` / `page.acquireFreshSmall` | `escape_unknown` | direct page-object behavior is outside a direct-state box boundary |
+
+### MIM-025: direct-state feasibility report
+
+The candidate family is **not** the whole facade. The direct-state candidate is
+the existing scalar capsule family plus the primitive cache counters, not a new
+`.hako` surface:
+
+```text
+StateRepr::Direct candidate family:
+  alloc_result
+  release_result
+  alignment_result
+  realloc_result
+  selected primitive facade counters
+```
+
+Feasibility summary:
+
+```text
+state_repr=direct_v0
+field_decl_authority=1
+selected_field_count=positive
+unsupported_field_count=nonzero on the composite facade
+materialization_boundary_known=1
+positive_net_expected=only for the scalar capsule family
+```
+
+The current facade as a whole is still mixed-handle / public-observer heavy, so
+it is not a direct-state owner by itself.
+
+### MIM-026: primitive core source-shape plan
+
+No new primitive-only core box is needed yet.
+
+The existing scalar capsules already provide the narrow primitive core, and the
+facade counters stay as ordinary box fields. Keep the source surface as-is:
+
+- ordinary typed box fields
+- `DirectArrayI64`
+- `@rune Inline(required)`
+
+Do not add `record`, `slots`, or `layout` syntax for this lane.
+
+### MIM-027: MIR metadata-only producer
+
+The producer is implemented as a metadata-only module plan:
+
+```text
+metadata_owner=src/mir/direct_state_plan.rs
+module_metadata_field=direct_state_plans
+json_export=direct_state_plans
+state_repr=direct_v0
+field_decl_authority=1
+```
+
+Inputs are `field_decls` and declared storage-class facts. Unsupported fields
+are counted, not silently accepted. No new syntax, runtime layout, helper ABI,
+backend lowering, provider activation, or allocator replacement is opened.
+
+### MIM-028: selected direct-state guard surface
+
+Pending.
+
+The only plausible guard surface from the source audit is the scalar capsule
+family.
+
+The current composite facade does not justify a broader guard surface yet, so no
+direct-state lowering guard is opened for the whole owner surface.
+
+### MIM-029: narrow direct-state lowering implementation
+
+Not opened in this pass.
+
+The current source evidence is enough to narrow the candidate family, but not to
+land a broader direct-offset implementation for the full facade.
+
+### MIM-030: post-direct-state owner refresh
+
+Pending.
+
+This is not the direct-state fast path itself. MIM-030 runs only after MIM-029
+has installed a selected direct-state fast path, then rereads the direct exact
+front and picks the next owner from measured evidence.
+
+Until MIM-028 selects one proven positive-net field group, `object_lifecycle_facade`
+remains the active owner surface and the lane stays on source-level mimalloc work.
 
 ## Decision Log
 
+- 2026-05-31: MIM-023..MIM-026 closed as the source-shape direct-state audit.
+  MIM-027 adds a real metadata-only `StateRepr::Direct` producer
+  (`direct_state_plans`) derived from typed `field_decls`. The composite facade
+  remains mixed-handle / public-observer heavy, so MIM-028..MIM-030 stay open
+  until current perf evidence selects one positive-net direct-state group.
 - 2026-05-31: Rows 388-413 are historical DirectArray / RuntimeDataBox /
   helper-cache closeout evidence. Row414 returned the lane to mimalloc
   source-level work. Row415 keeps `object_lifecycle_facade` as the active owner
@@ -249,6 +426,11 @@ message.
   `objectLifecycleReleaseBlock`. Leaf capsules such as `recordSelectedPage`
   and `recordBlock` are already source-inline; the next diagnostic boundary is
   source inventory of those composite hot clusters, not a new fast path.
+- 2026-05-31: Direct state work stays internal for v0. The source surface is
+  ordinary typed box fields, `DirectArrayI64`, and `@rune Inline(required)`.
+  The design/report name is `StateRepr::Direct` / `state_repr=direct_v0`,
+  derived from `field_decls` plus storage-class and boundary facts. Do not add
+  `record`, `slots`, or `layout` syntax for this lane.
 
 ## MIM-001 Source-Shape Inventory
 

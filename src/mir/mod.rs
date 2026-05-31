@@ -40,6 +40,7 @@ pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
 pub(crate) mod declared_type_storage; // shared declared type-name -> storage classification
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
+pub mod direct_state_plan; // metadata-only direct mutable-state candidate plans
 pub mod effect;
 pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)

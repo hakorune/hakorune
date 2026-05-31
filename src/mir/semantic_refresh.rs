@@ -24,6 +24,7 @@ use super::{
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
+    direct_state_plan::refresh_module_direct_state_plans,
     exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts,
     exact_numeric_value_facts::refresh_module_exact_numeric_value_facts,
     exact_seed_backend_route::{
@@ -129,6 +130,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);
     refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);
     refresh_module_typed_object_plans(module);
+    refresh_module_direct_state_plans(module);
     refresh_module_typed_object_field_value_types(module);
     let module_metadata = module.metadata.clone();
     for function in module.functions.values_mut() {

@@ -136,6 +136,33 @@ pub(super) fn collect_typed_object_plan_values(
         .collect()
 }
 
+pub(super) fn collect_direct_state_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .direct_state_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "box_name": plan.box_name,
+                "state_repr": plan.state_repr,
+                "field_decl_authority": plan.field_decl_authority,
+                "selected_field_count": plan.selected_field_count,
+                "unsupported_field_count": plan.unsupported_field_count,
+                "materialization_boundary_known": plan.materialization_boundary_known,
+                "positive_net_expected": plan.positive_net_expected,
+                "fields": plan.fields.iter().map(|field| json!({
+                    "name": field.name,
+                    "slot": field.slot,
+                    "declared_type": field.declared_type_name,
+                    "storage": field.storage.as_str(),
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_record_layout_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

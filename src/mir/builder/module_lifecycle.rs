@@ -523,6 +523,7 @@ impl super::MirBuilder {
         crate::mir::hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(&mut module);
         crate::mir::hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(&mut module);
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
+        crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
 
         Ok(module)
     }

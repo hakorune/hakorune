@@ -17,11 +17,11 @@ mod tests;
 pub use types::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
-    FunctionMetadata, FunctionSignature, FunctionStats, HakoAllocAlignedSmallPackedStorePilotPlan,
-    HakoAllocHugePagePackedStorePilotPlan, LoopRangeFact, MirEnumDecl, MirEnumVariantDecl,
-    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl,
-    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
-    SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    ClosureBodyId, DirectStateFieldPlan, DirectStatePlan, ExactNumericRuntimeCheckContract,
+    ExactNumericRuntimeCheckContractKind, FunctionMetadata, FunctionSignature, FunctionStats,
+    HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
+    LoopRangeFact, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
+    ModuleMetadata, ModuleStats, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
+    SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan,
+    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };
