@@ -1,13 +1,10 @@
 #include "hako_llvmc_ffi_generic_method_match.inc"
 #include "hako_llvmc_ffi_map_lookup_fusion_metadata.inc"
 #include "hako_llvmc_ffi_generic_method_has_policy.inc"
-#include "hako_llvmc_ffi_generic_method_get_policy.inc"
 #include "hako_llvmc_ffi_generic_method_get_window.inc"
 #include "hako_llvmc_ffi_generic_method_len_policy.inc"
 #include "hako_llvmc_ffi_generic_method_push_policy.inc"
 #include "hako_llvmc_ffi_generic_method_substring_policy.inc"
-
-#include "hako_llvmc_ffi_generic_method_get_lowering.inc"
 
       auto void hako_llvmc_format_i64_operand(char* out, size_t out_cap, long long reg) {
         long long cv = 0;
@@ -32,10 +29,59 @@
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
+      auto int hako_llvmc_is_selected_direct_array_i64_get_target(void) {
+        return hako_llvmc_is_selected_direct_array_i64_store_target();
+      }
+
       auto int hako_llvmc_is_selected_direct_array_i64_unchecked_store_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name && !strcmp(name, "HakoAllocPageModel.resetToFresh/0");
       }
+
+      auto int hako_llvmc_emit_direct_array_i64_get(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          long long key) {
+        char recv_ref[64];
+        char key_ref[64];
+        if (!dst) return 0;
+        if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
+        if (!hako_llvmc_is_selected_direct_array_i64_get_target()) return 0;
+
+        hako_llvmc_format_i64_operand(recv_ref, sizeof(recv_ref), recv);
+        hako_llvmc_format_i64_operand(key_ref, sizeof(key_ref), key);
+
+        fprintf(f, "  %%direct_array_i64_get_base_%lld_%zu = and i64 %s, -4\n", bid, ii, recv_ref);
+        fprintf(f, "  %%direct_array_i64_get_len_addr_%lld_%zu = add i64 %%direct_array_i64_get_base_%lld_%zu, 16\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_len_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_get_len_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_len_%lld_%zu = load i64, ptr %%direct_array_i64_get_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_nonneg_%lld_%zu = icmp sge i64 %s, 0\n", bid, ii, key_ref);
+        fprintf(f, "  %%direct_array_i64_get_in_len_%lld_%zu = icmp ult i64 %s, %%direct_array_i64_get_len_%lld_%zu\n", bid, ii, key_ref, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_can_load_%lld_%zu = and i1 %%direct_array_i64_get_nonneg_%lld_%zu, %%direct_array_i64_get_in_len_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
+        fprintf(f, "  br i1 %%direct_array_i64_get_can_load_%lld_%zu, label %%direct_array_i64_get_load_%lld_%zu, label %%direct_array_i64_get_oob_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
+
+        fprintf(f, "direct_array_i64_get_load_%lld_%zu:\n", bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_byte_index_%lld_%zu = mul i64 %s, 8\n", bid, ii, key_ref);
+        fprintf(f, "  %%direct_array_i64_get_data_base_%lld_%zu = add i64 %%direct_array_i64_get_base_%lld_%zu, 32\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_value_addr_%lld_%zu = add i64 %%direct_array_i64_get_data_base_%lld_%zu, %%direct_array_i64_get_byte_index_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_get_value_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_get_value_%lld_%zu = load i64, ptr %%direct_array_i64_get_value_ptr_%lld_%zu\n", bid, ii, bid, ii);
+        fprintf(f, "  br label %%direct_array_i64_get_done_%lld_%zu\n", bid, ii);
+
+        fprintf(f, "direct_array_i64_get_oob_%lld_%zu:\n", bid, ii);
+        fprintf(f, "  br label %%direct_array_i64_get_done_%lld_%zu\n", bid, ii);
+
+        fprintf(f, "direct_array_i64_get_done_%lld_%zu:\n", bid, ii);
+        fprintf(f, "  %%r%lld = phi i64 [ %%direct_array_i64_get_value_%lld_%zu, %%direct_array_i64_get_load_%lld_%zu ], [ 0, %%direct_array_i64_get_oob_%lld_%zu ]\n", dst, bid, ii, bid, ii, bid, ii);
+        set_type(dst, T_I64);
+        return 1;
+      }
+
+#include "hako_llvmc_ffi_generic_method_get_policy.inc"
+#include "hako_llvmc_ffi_generic_method_get_lowering.inc"
 
       auto int hako_llvmc_emit_direct_array_i64_store_unchecked(
           FILE* f,

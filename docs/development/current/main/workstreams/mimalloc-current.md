@@ -228,7 +228,7 @@ message.
     parked as source-level release-shape work
   - do not hand-expand the helper in `.hako` as the final shape
   - do not reopen DirectState, Array, RuntimeDataBox, or helper micro-lanes
-- [ ] MIM-038: DirectArray i64 exact get boundary cut
+- [x] MIM-038: DirectArray i64 exact get boundary cut
   - output: remove the current direct exact `array_runtime_get_idx` call
     boundary only where current mimalloc perf evidence selects it
   - keep public ArrayBox, mixed storage, plugin typed ABI, and default/safe
@@ -883,6 +883,14 @@ next_task=MIM-038
 
 ## Decision Log
 
+- 2026-05-31: MIM-038 cut the selected DirectArray i64 exact get boundary in
+  the C shim direct exact path. The hot `HakoAllocPageModel.acquireFreshSmall/1`
+  site now lowers `ArrayBox.get` over a proven DirectArrayI64 handle to direct
+  buffer load instead of calling `nyash.array.get_hi` /
+  `nyash.array.slot_load_hi`. The representative direct exact EXE stayed green,
+  disasm shows the helper call removed, and instruction count moved from
+  212.7M to 184.9M. Public ArrayBox/default-safe behavior, mixed storage,
+  plugin typed ABI, and source syntax are unchanged.
 - 2026-05-31: MIM-037 narrowed the release-side owner to the result-capsule
   success path instead of opening a branch inliner. `ReleaseResult.reset/0` and
   `ReleaseResult.recordSuccess/2` now use explicit `@rune Inline(required)`,

@@ -455,7 +455,10 @@
                   (plan && plan->runtime_array_string)
                       ? HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF
                       : HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_HANDLE;
-              hako_llvmc_emit_array_slot_load(f, dst, ab, demand);
+              if (!(demand == HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_HANDLE &&
+                    hako_llvmc_emit_direct_array_i64_get(f, bid, ii, dst, recv, a0))) {
+                hako_llvmc_emit_array_slot_load(f, dst, ab, demand);
+              }
             } else {
               hako_llvmc_emit_array_slot_load(
                   f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_HANDLE);
