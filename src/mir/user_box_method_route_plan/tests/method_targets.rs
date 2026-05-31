@@ -288,7 +288,9 @@ fn refresh_module_user_box_method_routes_recovers_route_result_through_nested_ph
 
     refresh_module_user_box_method_routes(&mut module);
 
-    let caller = module.get_function("Caller.run/1").expect("caller function");
+    let caller = module
+        .get_function("Caller.run/1")
+        .expect("caller function");
     let acquire_route = caller
         .metadata
         .user_box_method_routes

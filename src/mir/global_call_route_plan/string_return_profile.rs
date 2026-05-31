@@ -36,7 +36,6 @@ pub(super) struct GenericStringReturnProfileCache {
     profiles: BTreeMap<String, GenericStringReturnProfile>,
 }
 
-
 include!("string_return_profile_cache.inc");
 include!("string_return_profile_analysis.inc");
 include!("string_return_profile_query.inc");

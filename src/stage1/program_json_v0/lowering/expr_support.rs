@@ -1,11 +1,7 @@
-use crate::ast::{
-    ASTNode, BinaryOperator, FieldDecl, LiteralValue, UnaryOperator,
-};
-use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
-use super::{
-    expression_to_json_v0, ProgramJsonV0LocalTypes, ProgramJsonV0LoweringContext,
-};
 use super::super::record_payload::enum_variant_payload_type_name;
+use super::{expression_to_json_v0, ProgramJsonV0LocalTypes, ProgramJsonV0LoweringContext};
+use crate::ast::{ASTNode, BinaryOperator, FieldDecl, LiteralValue, UnaryOperator};
+use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
 use std::collections::BTreeSet;
 
 pub(super) fn record_type_name_for_expr<'a>(

@@ -6,21 +6,21 @@ use crate::ast::{
 use crate::semantics::option_contract::requires_non_nullish_payload;
 use std::collections::{BTreeMap, BTreeSet};
 
-#[path = "lowering/typed_array.rs"]
-mod typed_array;
 #[path = "lowering/expr_support.rs"]
 mod expr_support;
+#[path = "lowering/typed_array.rs"]
+mod typed_array;
 
-use self::typed_array::{
-    array_literal_to_json_v0, array_type_element_type, validate_array_element_type_supported,
-    validate_typed_array_method_contract, validate_typed_array_method_value,
-};
 use self::expr_support::{
     ast_expr_is_statically_nullish, binary_expr_to_json_v0, brand_construct_to_json_v0,
     brand_static_method_to_json_v0, enum_ctor_to_json_v0, enum_match_expr_to_json_v0,
-    expressions_to_json_v0, literal_to_json_v0, match_label_from_literal,
-    record_field_decl, record_type_name_for_expr, static_path_from_expr, unary_expr_to_json_v0,
+    expressions_to_json_v0, literal_to_json_v0, match_label_from_literal, record_field_decl,
+    record_type_name_for_expr, static_path_from_expr, unary_expr_to_json_v0,
     validate_record_literal_fields, validate_record_update_fields,
+};
+use self::typed_array::{
+    array_literal_to_json_v0, array_type_element_type, validate_array_element_type_supported,
+    validate_typed_array_method_contract, validate_typed_array_method_value,
 };
 
 #[cfg(test)]

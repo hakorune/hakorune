@@ -730,10 +730,16 @@ fn route_flow_value_box_name(
         .map(str::to_string)
         .or_else(|| {
             let (block_id, instruction_index) = def_map.get(&origin).copied()?;
-            let instruction = function.blocks.get(&block_id)?.instructions.get(instruction_index)?;
+            let instruction = function
+                .blocks
+                .get(&block_id)?
+                .instructions
+                .get(instruction_index)?;
             match instruction {
                 MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
-                MirInstruction::Phi { inputs, type_hint, .. } => type_hint
+                MirInstruction::Phi {
+                    inputs, type_hint, ..
+                } => type_hint
                     .as_ref()
                     .and_then(box_name_from_type)
                     .map(str::to_string)
