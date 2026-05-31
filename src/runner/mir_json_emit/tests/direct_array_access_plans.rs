@@ -1,7 +1,10 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::{BasicBlockId, Callee, EffectMask, MirInstruction, MirModule, ValueId};
+use crate::mir::function::LoopRangeFact;
+use crate::mir::{
+    BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
+};
 
 fn method_call(
     dst: Option<u32>,
@@ -23,6 +26,57 @@ fn method_call(
         args: args.into_iter().map(ValueId::new).collect(),
         effects: EffectMask::PURE,
     }
+}
+
+#[test]
+fn build_mir_json_root_emits_range_index_facts() {
+    let mut function = make_function("main", true);
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(10),
+        value: ConstValue::Integer(0),
+    });
+    function.metadata.loop_range_facts.push(LoopRangeFact {
+        index_name: "i".to_string(),
+        start_value: ValueId::new(10),
+        end_value: ValueId::new(11),
+        index_phi: ValueId::new(4),
+        preheader_bb: BasicBlockId::new(0),
+        header_bb: BasicBlockId::new(2),
+        body_bb: BasicBlockId::new(1),
+        step_bb: BasicBlockId::new(3),
+        exit_bb: BasicBlockId::new(4),
+        step: 1,
+        end_exclusive: true,
+        index_read_only: true,
+        body_local_writes_supported: true,
+        loop_carried_writes_supported: false,
+        body_writes_supported: false,
+    });
+    crate::mir::range_index_fact::refresh_function_range_index_facts(&mut function);
+
+    let mut module = MirModule::new("json_range_index_fact_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let facts = root["functions"][0]["metadata"]["range_index_facts"]
+        .as_array()
+        .expect("range_index_facts");
+    assert_eq!(facts.len(), 1);
+    let fact = &facts[0];
+    assert_eq!(fact["fact_id"], 0);
+    assert_eq!(fact["origin_kind"], "range_loop");
+    assert_eq!(fact["index_value"], 4);
+    assert_eq!(fact["lower_value"], 10);
+    assert_eq!(fact["upper_exclusive_value"], 11);
+    assert_eq!(fact["body_bb"], 1);
+    assert_eq!(fact["step"], 1);
+    assert_eq!(fact["end_exclusive"], true);
+    assert_eq!(fact["index_body_read_only"], true);
+    assert_eq!(fact["loop_carried_writes_supported"], false);
 }
 
 #[test]

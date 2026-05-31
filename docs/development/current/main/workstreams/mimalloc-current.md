@@ -1688,7 +1688,7 @@ Phase plan:
 ```text
 phase_1=DirectArrayAccessPlanV0 checked metadata
 phase_2=lowerer consumes checked DirectArrayAccessPlanV0
-phase_3=proved_unchecked loop_range and stack_top_pop proofs
+phase_3=proved_unchecked range_index and stack_top_pop proofs
 phase_4=caller_precondition proof for releaseLocalKnownLive
 phase_5=remove C shim by-name unchecked allowlist
 ```
@@ -1727,8 +1727,8 @@ Phase 3 guardrail:
 
 ```text
 proved_unchecked_cfg_shape=branchless
-loop_range_store_semantics=append_or_overwrite
-loop_range_store_requires_sequential_zero_based_index=1
+range_index_store_semantics=append_or_overwrite
+range_index_store_requires_sequential_zero_based_index=1
 capacity_only_store_proof_allowed=0
 append_or_overwrite_unchecked_requires_len_max_update=1
 ```
@@ -1736,11 +1736,11 @@ append_or_overwrite_unchecked_requires_len_max_update=1
 Phase 3a implementation:
 
 ```text
-proof_kind=loop_range
+proof_kind=range_index
 selection_source=fn_metadata.direct_array_access_plans
 cfg_shape=branchless
 store_semantics=append_or_overwrite
-required_loop_facts=start_const_zero,index_phi_matches_route_key,step_one,end_exclusive,index_read_only
+required_range_index_facts=lower_const_zero,index_value_matches_route_key,step_one,end_exclusive,index_body_read_only
 required_extent_fact_v0=constant_upper_bound_within_direct_array_i64_default_capacity
 dynamic_extent_bounds=checked_until_direct_array_extent_fact
 lowering=len_preserving_branchless_store
@@ -1750,7 +1750,7 @@ legacy_by_name_allowlist_changed=0
 Phase 3a follow-up:
 
 ```text
-next_fact_view=RangeIndexFact
+range_index_fact_view=implemented_from_loop_range_fact
 next_extent_fact=DirectArrayExtentFact
 resetToFresh_source_shape=while_style_counting_loop
 resetToFresh_requires=counting_loop_to_range_index_fact_plus_extent_fact
@@ -1768,7 +1768,7 @@ direct_array_access_plan_function_count=8
 direct_array_access_plan_site_count=13
 dev_gate_quick=ok
 excluded_reason=checked_direct_array_lowering_splits_blocks_and_successor_phi_requires_proved_unchecked_or_cfg_rewrite
-next_phase=proved_unchecked_loop_range_and_stack_top_pop_proofs
+next_phase=proved_unchecked_range_index_and_stack_top_pop_proofs
 ```
 
 ## Parking Lot

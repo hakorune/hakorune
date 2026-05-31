@@ -21,7 +21,8 @@ pub use types::{
     ExactNumericRuntimeCheckContractKind, FunctionMetadata, FunctionSignature, FunctionStats,
     HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
     LoopRangeFact, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
-    ModuleMetadata, ModuleStats, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
-    SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan,
-    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    ModuleMetadata, ModuleStats, RangeIndexFact, RangeIndexFactOriginKind, RecordDecl,
+    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
+    SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };

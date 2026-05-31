@@ -69,14 +69,14 @@
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
-      auto int hako_llvmc_is_selected_direct_array_i64_loop_range_store_target(
+      auto int hako_llvmc_is_selected_direct_array_i64_range_index_store_target(
           long long bid,
           size_t ii,
           long long recv,
           long long key,
           long long value,
           long long dst) {
-        return lowering_plan_direct_array_access_site_matches_proved_unchecked_loop_range_store_i64(
+        return lowering_plan_direct_array_access_site_matches_proved_unchecked_range_index_store_i64(
             bid,
             ii,
             "direct_array_i64_store",
@@ -87,7 +87,7 @@
             1);
       }
 
-      auto int hako_llvmc_emit_direct_array_i64_store_loop_range(
+      auto int hako_llvmc_emit_direct_array_i64_store_range_index(
           FILE* f,
           long long bid,
           size_t ii,
@@ -99,7 +99,7 @@
         char key_ref[64];
         char value_ref[64];
         if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
-        if (!hako_llvmc_is_selected_direct_array_i64_loop_range_store_target(
+        if (!hako_llvmc_is_selected_direct_array_i64_range_index_store_target(
                 bid, ii, recv, key, value, dst)) return 0;
         if (!(value && is_plain_i64_value(value))) return 0;
 
@@ -107,19 +107,19 @@
         hako_llvmc_format_i64_operand(key_ref, sizeof(key_ref), key);
         hako_llvmc_format_i64_operand(value_ref, sizeof(value_ref), value);
 
-        fprintf(f, "  %%direct_array_i64_loop_base_%lld_%zu = and i64 %s, -4\n", bid, ii, recv_ref);
-        fprintf(f, "  %%direct_array_i64_loop_len_addr_%lld_%zu = add i64 %%direct_array_i64_loop_base_%lld_%zu, 16\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_len_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_loop_len_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_len_%lld_%zu = load i64, ptr %%direct_array_i64_loop_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_byte_index_%lld_%zu = mul i64 %s, 8\n", bid, ii, key_ref);
-        fprintf(f, "  %%direct_array_i64_loop_data_base_%lld_%zu = add i64 %%direct_array_i64_loop_base_%lld_%zu, 32\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_value_addr_%lld_%zu = add i64 %%direct_array_i64_loop_data_base_%lld_%zu, %%direct_array_i64_loop_byte_index_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_loop_value_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
-        fprintf(f, "  store i64 %s, ptr %%direct_array_i64_loop_value_ptr_%lld_%zu\n", value_ref, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_index_plus_one_%lld_%zu = add i64 %s, 1\n", bid, ii, key_ref);
-        fprintf(f, "  %%direct_array_i64_loop_len_grows_%lld_%zu = icmp ult i64 %%direct_array_i64_loop_len_%lld_%zu, %%direct_array_i64_loop_index_plus_one_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_loop_next_len_%lld_%zu = select i1 %%direct_array_i64_loop_len_grows_%lld_%zu, i64 %%direct_array_i64_loop_index_plus_one_%lld_%zu, i64 %%direct_array_i64_loop_len_%lld_%zu\n", bid, ii, bid, ii, bid, ii, bid, ii);
-        fprintf(f, "  store i64 %%direct_array_i64_loop_next_len_%lld_%zu, ptr %%direct_array_i64_loop_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_base_%lld_%zu = and i64 %s, -4\n", bid, ii, recv_ref);
+        fprintf(f, "  %%direct_array_i64_range_index_len_addr_%lld_%zu = add i64 %%direct_array_i64_range_index_base_%lld_%zu, 16\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_len_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_range_index_len_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_len_%lld_%zu = load i64, ptr %%direct_array_i64_range_index_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_byte_index_%lld_%zu = mul i64 %s, 8\n", bid, ii, key_ref);
+        fprintf(f, "  %%direct_array_i64_range_index_data_base_%lld_%zu = add i64 %%direct_array_i64_range_index_base_%lld_%zu, 32\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_value_addr_%lld_%zu = add i64 %%direct_array_i64_range_index_data_base_%lld_%zu, %%direct_array_i64_range_index_byte_index_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_range_index_value_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
+        fprintf(f, "  store i64 %s, ptr %%direct_array_i64_range_index_value_ptr_%lld_%zu\n", value_ref, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_index_plus_one_%lld_%zu = add i64 %s, 1\n", bid, ii, key_ref);
+        fprintf(f, "  %%direct_array_i64_range_index_len_grows_%lld_%zu = icmp ult i64 %%direct_array_i64_range_index_len_%lld_%zu, %%direct_array_i64_range_index_index_plus_one_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_range_index_next_len_%lld_%zu = select i1 %%direct_array_i64_range_index_len_grows_%lld_%zu, i64 %%direct_array_i64_range_index_index_plus_one_%lld_%zu, i64 %%direct_array_i64_range_index_len_%lld_%zu\n", bid, ii, bid, ii, bid, ii, bid, ii);
+        fprintf(f, "  store i64 %%direct_array_i64_range_index_next_len_%lld_%zu, ptr %%direct_array_i64_range_index_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
         if (dst) {
           fprintf(f, "  %%r%lld = add i64 1, 0\n", dst);
           set_type(dst, T_I64);
@@ -862,7 +862,7 @@
                 }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64:
-                if (!(hako_llvmc_emit_direct_array_i64_store_loop_range(
+                if (!(hako_llvmc_emit_direct_array_i64_store_range_index(
                           f,
                           bid,
                           ii,

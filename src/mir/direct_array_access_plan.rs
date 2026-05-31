@@ -7,7 +7,6 @@
  * from `generic_method_routes`, and later lowering slices may consume it.
  */
 
-use crate::mir::function::LoopRangeFact;
 use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
 
 const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
@@ -45,7 +44,7 @@ impl DirectArrayBoundsPolicy {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayProofKind {
     ExactFrontContract,
-    LoopRange,
+    RangeIndex,
     StackTopPop,
     CallerPrecondition,
 }
@@ -54,7 +53,7 @@ impl DirectArrayProofKind {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::ExactFrontContract => "exact_front_contract",
-            Self::LoopRange => "loop_range",
+            Self::RangeIndex => "range_index",
             Self::StackTopPop => "stack_top_pop",
             Self::CallerPrecondition => "caller_precondition",
         }
@@ -163,7 +162,7 @@ impl DirectArrayAccessPlan {
         }
     }
 
-    fn proved_unchecked_loop_range_store(
+    fn proved_unchecked_range_index_store(
         block: BasicBlockId,
         instruction_index: usize,
         receiver_value: ValueId,
@@ -183,10 +182,10 @@ impl DirectArrayAccessPlan {
             element_type: "i64",
             route: "direct_array_i64_store",
             bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
-            proof_kind: DirectArrayProofKind::LoopRange,
+            proof_kind: DirectArrayProofKind::RangeIndex,
             fallback_policy: DirectArrayFallbackPolicy::FailFast,
             cfg_shape: DirectArrayCfgShape::Branchless,
-            // LoopRange v0 proves a sequential 0..end fill. The branchless
+            // RangeIndex v0 proves a sequential 0..end fill. The branchless
             // lowerer preserves Array.set append-or-overwrite semantics by
             // updating len to max(len, index + 1), so this is not the legacy
             // raw overwrite-only unchecked store.
@@ -285,12 +284,12 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
                 else {
                     continue;
                 };
-                if loop_range_proves_branchless_append_or_overwrite_store(
+                if range_index_proves_branchless_append_or_overwrite_store(
                     function,
                     route.block(),
                     index_value,
                 ) {
-                    plans.push(DirectArrayAccessPlan::proved_unchecked_loop_range_store(
+                    plans.push(DirectArrayAccessPlan::proved_unchecked_range_index_store(
                         route.block(),
                         route.instruction_index(),
                         route.receiver_value(),
@@ -316,30 +315,21 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
     function.metadata.direct_array_access_plans = plans;
 }
 
-fn loop_range_proves_branchless_append_or_overwrite_store(
+fn range_index_proves_branchless_append_or_overwrite_store(
     function: &MirFunction,
     block_id: BasicBlockId,
     index_value: ValueId,
 ) -> bool {
-    function.metadata.loop_range_facts.iter().any(|fact| {
-        loop_range_fact_is_sequential_zero_based_body(fact, block_id, index_value)
-            && value_is_integer_const(function, fact.start_value, 0)
-            && direct_array_extent_v0_proves_upper_bound(function, fact.end_value)
+    function.metadata.range_index_facts.iter().any(|fact| {
+        fact.body_bb == block_id
+            && fact.index_value == index_value
+            && fact.step == 1
+            && fact.end_exclusive
+            && fact.index_body_read_only
+            && !fact.loop_carried_writes_supported
+            && value_is_integer_const(function, fact.lower_value, 0)
+            && direct_array_extent_v0_proves_upper_bound(function, fact.upper_exclusive_value)
     })
-}
-
-fn loop_range_fact_is_sequential_zero_based_body(
-    fact: &LoopRangeFact,
-    block_id: BasicBlockId,
-    index_value: ValueId,
-) -> bool {
-    fact.body_bb == block_id
-        && fact.index_phi == index_value
-        && fact.step == 1
-        && fact.end_exclusive
-        && fact.index_read_only
-        && fact.body_local_writes_supported
-        && !fact.loop_carried_writes_supported
 }
 
 fn value_is_integer_const(function: &MirFunction, value_id: ValueId, expected: i64) -> bool {
@@ -359,13 +349,16 @@ fn direct_array_extent_v0_proves_upper_bound(function: &MirFunction, end_value: 
 
 fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64> {
     function.blocks.values().find_map(|block| {
-        block.instructions.iter().find_map(|instruction| match instruction {
-            MirInstruction::Const {
-                dst,
-                value: ConstValue::Integer(actual),
-            } if *dst == value_id => Some(*actual),
-            _ => None,
-        })
+        block
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(actual),
+                } if *dst == value_id => Some(*actual),
+                _ => None,
+            })
     })
 }
 
@@ -412,6 +405,8 @@ fn call_arg(
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::function::LoopRangeFact;
+    use crate::mir::range_index_fact::refresh_function_range_index_facts;
     use crate::mir::{
         BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
         MirInstruction, MirType,
@@ -468,6 +463,7 @@ mod tests {
         crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
             &mut function,
         );
+        refresh_function_range_index_facts(&mut function);
         refresh_function_direct_array_access_plans(&mut function);
 
         assert_eq!(function.metadata.direct_array_access_plans.len(), 2);
@@ -504,7 +500,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_records_loop_range_store_as_branchless_proved_unchecked_plan() {
+    fn refresh_records_range_index_store_as_branchless_proved_unchecked_plan() {
         let mut function = make_function();
         let body_bb = BasicBlockId::new(1);
         function.add_block(BasicBlock::new(body_bb));
@@ -543,6 +539,7 @@ mod tests {
         crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
             &mut function,
         );
+        refresh_function_range_index_facts(&mut function);
         refresh_function_direct_array_access_plans(&mut function);
 
         assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
@@ -555,7 +552,7 @@ mod tests {
             store.bounds_policy(),
             DirectArrayBoundsPolicy::ProvedUnchecked
         );
-        assert_eq!(store.proof_kind(), DirectArrayProofKind::LoopRange);
+        assert_eq!(store.proof_kind(), DirectArrayProofKind::RangeIndex);
         assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
         assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
         assert_eq!(
@@ -565,7 +562,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_keeps_loop_range_store_checked_without_extent_proof() {
+    fn refresh_keeps_range_index_store_checked_without_extent_proof() {
         let mut function = make_function();
         let body_bb = BasicBlockId::new(1);
         function.add_block(BasicBlock::new(body_bb));
@@ -600,6 +597,7 @@ mod tests {
         crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
             &mut function,
         );
+        refresh_function_range_index_facts(&mut function);
         refresh_function_direct_array_access_plans(&mut function);
 
         assert_eq!(function.metadata.direct_array_access_plans.len(), 1);

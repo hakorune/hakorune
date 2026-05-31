@@ -103,6 +103,40 @@ pub struct LoopRangeFact {
     pub body_writes_supported: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RangeIndexFactOriginKind {
+    RangeLoop,
+    CountingLoop,
+}
+
+impl RangeIndexFactOriginKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::RangeLoop => "range_loop",
+            Self::CountingLoop => "counting_loop",
+        }
+    }
+}
+
+/// Canonical range-index view consumed by fast-path planners.
+///
+/// Producers such as `LoopRangeFact` and future counting-loop/induction
+/// recognizers may feed this view.  Consumers must depend on this canonical
+/// shape, not on source syntax or producer-specific fact types.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RangeIndexFact {
+    pub fact_id: u32,
+    pub origin_kind: RangeIndexFactOriginKind,
+    pub index_value: ValueId,
+    pub lower_value: ValueId,
+    pub upper_exclusive_value: ValueId,
+    pub body_bb: BasicBlockId,
+    pub step: i64,
+    pub end_exclusive: bool,
+    pub index_body_read_only: bool,
+    pub loop_carried_writes_supported: bool,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {
@@ -161,6 +195,11 @@ pub struct FunctionMetadata {
     /// Stage1 LoopRange facts derived by the executable range-loop route.
     /// This metadata owns the index/bound/step contract for later verifier rows.
     pub loop_range_facts: Vec<LoopRangeFact>,
+
+    /// Canonical range-index facts derived from loop producer facts.
+    /// Consumers such as DirectArrayAccessPlan use this view instead of
+    /// branching on source loop syntax.
+    pub range_index_facts: Vec<RangeIndexFact>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

@@ -99,6 +99,20 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "body_writes_supported": fact.body_writes_supported,
             })
         }).collect::<Vec<_>>(),
+        "range_index_facts": metadata.range_index_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "origin_kind": fact.origin_kind.as_str(),
+                "index_value": fact.index_value.as_u32(),
+                "lower_value": fact.lower_value.as_u32(),
+                "upper_exclusive_value": fact.upper_exclusive_value.as_u32(),
+                "body_bb": fact.body_bb.as_u32(),
+                "step": fact.step,
+                "end_exclusive": fact.end_exclusive,
+                "index_body_read_only": fact.index_body_read_only,
+                "loop_carried_writes_supported": fact.loop_carried_writes_supported,
+            })
+        }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

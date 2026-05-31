@@ -39,6 +39,7 @@ use super::{
     hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
+    range_index_fact::refresh_function_range_index_facts,
     record_layout_plan::refresh_module_record_layout_plans,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
@@ -95,6 +96,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_string_kernel_plans(function);
     refresh_function_string_direct_set_window_routes(function);
     refresh_function_generic_method_routes(function);
+    refresh_function_range_index_facts(function);
     refresh_function_direct_array_access_plans(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);

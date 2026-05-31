@@ -290,7 +290,7 @@
                  !strcmp(view->store_semantics, "not_store")));
       }
 
-      auto int lowering_plan_direct_array_access_view_is_proved_unchecked_loop_range_store_i64(
+      auto int lowering_plan_direct_array_access_view_is_proved_unchecked_range_index_store_i64(
           const struct LoweringPlanDirectArrayAccessView* view,
           const char* route) {
         return view &&
@@ -301,7 +301,7 @@
                view->bounds_policy &&
                !strcmp(view->bounds_policy, "proved_unchecked") &&
                view->proof_kind &&
-               !strcmp(view->proof_kind, "loop_range") &&
+               !strcmp(view->proof_kind, "range_index") &&
                view->fallback_policy &&
                !strcmp(view->fallback_policy, "fail_fast") &&
                view->cfg_shape &&
@@ -331,7 +331,7 @@
         return 1;
       }
 
-      auto int lowering_plan_direct_array_access_site_matches_proved_unchecked_loop_range_store_i64(
+      auto int lowering_plan_direct_array_access_site_matches_proved_unchecked_range_index_store_i64(
           long long bid,
           size_t ii,
           const char* route,
@@ -343,7 +343,7 @@
         struct LoweringPlanDirectArrayAccessView view;
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
-        if (!lowering_plan_direct_array_access_view_is_proved_unchecked_loop_range_store_i64(&view, route)) return 0;
+        if (!lowering_plan_direct_array_access_view_is_proved_unchecked_range_index_store_i64(&view, route)) return 0;
         if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
         if (!view.has_value_value || view.value_value != value_value) return 0;
         if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;

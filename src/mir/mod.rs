@@ -71,6 +71,7 @@ pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
+pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
 pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
 pub mod ssot; // Shared helpers (SSOT) for instruction lowering
