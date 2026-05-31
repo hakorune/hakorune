@@ -10,6 +10,13 @@ struct LeafInlineBody {
     allow_receiver_fieldset_leaf: bool,
 }
 
+#[derive(Debug, Clone)]
+struct InlineCall {
+    callee_name: String,
+    dst: Option<ValueId>,
+    args: Vec<ValueId>,
+}
+
 /// Apply inline plans for narrow same-module leaf functions.
 ///
 /// Advisory `Hint(inline)` remains best-effort. Verified required inline plans
@@ -142,10 +149,12 @@ fn inline_calls_in_function(
                 .get(idx)
                 .copied()
                 .unwrap_or_else(crate::ast::Span::unknown);
-            if let Some((callee_name, dst, args)) = inlineable_call(inst) {
-                if callee_name != function_name {
-                    if let Some(body) = candidates.get(callee_name) {
-                        if let Some(expanded) = expand_leaf_call(function, body, *dst, args) {
+            if let Some(call) = inlineable_call(inst) {
+                if call.callee_name != function_name {
+                    if let Some(body) = candidates.get(&call.callee_name) {
+                        if let Some(expanded) =
+                            expand_leaf_call(function, body, call.dst, &call.args)
+                        {
                             let expanded_len = expanded.len();
                             next_instructions.extend(expanded);
                             next_spans.extend(std::iter::repeat(span).take(expanded_len));
@@ -172,17 +181,40 @@ fn inline_calls_in_function(
     rewrites
 }
 
-fn inlineable_call(inst: &MirInstruction) -> Option<(&str, &Option<ValueId>, &[ValueId])> {
+fn inlineable_call(inst: &MirInstruction) -> Option<InlineCall> {
     let MirInstruction::Call {
         dst,
-        callee: Some(Callee::Global(name)),
+        callee: Some(callee),
         args,
         ..
     } = inst
     else {
         return None;
     };
-    Some((name.as_str(), dst, args.as_slice()))
+    match callee {
+        Callee::Global(name) => Some(InlineCall {
+            callee_name: name.clone(),
+            dst: *dst,
+            args: args.clone(),
+        }),
+        Callee::Method {
+            box_name,
+            method,
+            receiver: Some(receiver),
+            certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+        } => {
+            let mut call_args = Vec::with_capacity(args.len() + 1);
+            call_args.push(*receiver);
+            call_args.extend(args.iter().copied());
+            Some(InlineCall {
+                callee_name: format!("{}.{}/{}", box_name, method, args.len()),
+                dst: *dst,
+                args: call_args,
+            })
+        }
+        _ => None,
+    }
 }
 
 fn expand_leaf_call(
@@ -589,6 +621,38 @@ mod tests {
         function
     }
 
+    fn make_main_calling_method_reset() -> MirFunction {
+        let signature = FunctionSignature {
+            name: "Main.main/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::WRITE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let receiver = function.next_value_id();
+        let mut entry = BasicBlock::new(BasicBlockId(0));
+        entry.add_instruction(MirInstruction::Const {
+            dst: receiver,
+            value: ConstValue::Null,
+        });
+        entry.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Main".to_string(),
+                method: "reset".to_string(),
+                receiver: Some(receiver),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: vec![],
+            effects: EffectMask::WRITE,
+        });
+        entry.add_instruction(MirInstruction::Return { value: None });
+        function.blocks.insert(BasicBlockId(0), entry);
+        function
+    }
+
     #[test]
     fn inline_soft_leaf_rewrites_verified_required_receiver_fieldset_call() {
         let mut module = MirModule::new("inline_required_receiver_fieldset_test".to_string());
@@ -599,6 +663,37 @@ mod tests {
         ) && plan.verified));
         module.add_function(callee);
         module.add_function(make_main_calling_reset());
+
+        assert_eq!(apply(&mut module), 1);
+
+        let main = module.get_function("Main.main/0").expect("main function");
+        let entry = main.entry_block();
+        assert!(!entry
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        assert!(entry.instructions.iter().any(|inst| matches!(
+            inst,
+            MirInstruction::FieldSet {
+                base: ValueId(1),
+                field,
+                ..
+            } if field == "last_selected_index"
+        )));
+    }
+
+    #[test]
+    fn inline_soft_leaf_rewrites_verified_required_user_method_call() {
+        let mut module =
+            MirModule::new("inline_required_user_method_receiver_fieldset_test".to_string());
+        let mut callee = make_reset_inline_function();
+        callee.signature.name = "Main.reset/0".to_string();
+        assert!(callee.metadata.inline_plans.iter().any(|plan| matches!(
+            plan.request,
+            crate::mir::inline_plan::InlineRequest::Required
+        ) && plan.verified));
+        module.add_function(callee);
+        module.add_function(make_main_calling_method_reset());
 
         assert_eq!(apply(&mut module), 1);
 

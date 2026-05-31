@@ -188,12 +188,17 @@ message.
   - classify the path as `delete`, `keep_as_selected_pilot`, or
     `promote_to_substrate`
   - no implementation and no new fast path
-- [ ] MIM-032: direct-state same-family candidate inventory
+- [x] MIM-032: direct-state same-family candidate inventory
   - output: check whether the same result-capsule family has another
     measured positive-net candidate
   - candidates are limited to all-primitive, typed-field-decl backed methods
     with known materialization boundaries
   - no generic user-box flattening and no source syntax change
+- [x] MIM-032a: required-inline user-method consumer
+  - output: let verified `@rune Inline(required)` leaf methods inline from
+    known user-defined `Callee::Method` calls, not only `Callee::Global`
+  - no new source annotation, no Profile, no direct-state emitter branch
+  - semantic smoke must keep the representative small-block workload green
 - [ ] MIM-033: DirectState method-lowering substrate selection
   - output: select whether to extract MIM-029 into a fact-driven
     DirectStateMethodLowering substrate
@@ -498,7 +503,7 @@ next_task=MIM-031 direct-state special-case residue audit
 
 ### MIM-031..MIM-034: direct-state pilot residue closeout
 
-MIM-031 completed. MIM-032..MIM-034 remain pending.
+MIM-031, MIM-032, and MIM-032a completed. MIM-033..MIM-034 remain pending.
 
 These items exist to prevent the MIM-029 selected callsite lowering from
 becoming permanent hardcode. MIM-031 audits the exact selectors and slot
@@ -534,8 +539,54 @@ inspect `HakoAllocObjectLifecycleReleaseResult` because the post-MIM-029 owner
 reread moved heat to the release side, but it must not add another by-name
 emitter branch. Any second keeper has to feed MIM-033's substrate decision.
 
+MIM-032 inventory result:
+
+```text
+candidate_family=HakoAllocObjectLifecycleReleaseResult
+direct_state_plan_available=1
+field_decl_authority=1
+selected_field_count=6
+unsupported_field_count=0
+materialization_boundary_known=1
+positive_net_expected=1
+hot_method_candidate=recordRequest/2
+hot_method_source_annotation=@rune Inline(required)
+hardcode_extension_allowed=0
+selected_implementation=MIM-032a-required-inline-user-method-consumer
+reason=recordRequest_already_has_required_inline_contract;consume_existing_contract_before_adding_direct_state_method_lowering
+```
+
+MIM-032a implementation:
+
+```text
+implemented_file=src/mir/passes/inline_soft_leaf.rs
+previous_inline_call_consumer=Callee::Global_only
+new_inline_call_consumer=Callee::Global_or_known_user_defined_Callee::Method
+method_target_symbol=box_name.method/source_arg_count
+method_inline_args=receiver_plus_explicit_args
+new_source_surface=0
+new_profile_surface=0
+new_direct_state_emitter_branch=0
+unit_test=cargo test -q inline_soft_leaf --lib
+semantic_smoke=representative-object-lifecycle-small-block-v0 direct exact EXE
+release_record_request_method_call_count=0
+summary=ok
+```
+
+This is not a DirectState substrate promotion. It is a generic consumer fix for
+the existing required-inline contract. MIM-033 still decides whether the
+MIM-029 direct-state selected pilot has earned extraction into a fact-driven
+method-lowering substrate.
+
 ## Decision Log
 
+- 2026-05-31: MIM-032 found a same-family release-side candidate, but the
+  cleanest first fix was not another direct-state branch. `recordRequest/2`
+  already carried `@rune Inline(required)`, while the soft-leaf pass only
+  consumed `Callee::Global`. MIM-032a now consumes known user-defined
+  `Callee::Method` calls too, mapping receiver plus explicit args into the leaf
+  body. The representative direct exact EXE stayed green and the
+  `ReleaseResult.recordRequest/2` MIR method-call count is now 0.
 - 2026-05-31: MIM-030 accepted MIM-029 as a structural keeper on the direct
   exact front: body samples moved from the prior 13ms band to 8/9/8ms and a
   single perf stat reread moved from 369M to 236M instructions. The next heat
