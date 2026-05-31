@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/reference/language/low-level-capabilities.md
   - docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md
+  - docs/development/current/main/design/span-no-escape-ssot.md
   - docs/development/current/main/workstreams/mimalloc-current.md
 ---
 
@@ -54,7 +55,7 @@ direct storage routes.
 
 ### Next Slice
 
-- [ ] LANG-DM-004: Span no-escape SSOT
+- [x] LANG-DM-004: Span no-escape SSOT
   - output: exact rules for `SpanI64` / `SpanMutI64`
   - no return, field store, capture, publish, provider boundary crossing, or
     owner resize/free inside the span lifetime
@@ -97,3 +98,7 @@ direct storage routes.
   Unchecked DirectArray planning now requires the extent fact to reference a
   matching stability fact, and MIR JSON emits all three fact families for later
   Span work.
+- 2026-06-01: LANG-DM-004 accepted
+  `docs/development/current/main/design/span-no-escape-ssot.md`. Span v0 is a
+  no-escape `SpanI64` / `SpanMutI64` view over `DirectArrayI64`; it is not
+  pointer syntax, not unsafe memory, and not unchecked by itself.

@@ -148,6 +148,11 @@ Planned order:
 6. add `unsafe memory` / `Bytes` later, with `NativePtr` still opaque;
 7. add `LayoutSpan` and bulk memory pattern recognition after Span/Bytes.
 
+Span v0 is defined by
+`docs/development/current/main/design/span-no-escape-ssot.md`: `SpanI64` and
+`SpanMutI64` are no-escape views over `DirectArrayI64`, not pointer syntax and
+not unsafe memory.
+
 ### Numeric Type Names
 
 These integer type names are accepted as annotation text and classified by MIR

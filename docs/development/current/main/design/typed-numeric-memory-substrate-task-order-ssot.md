@@ -114,6 +114,7 @@ LANG-DM-004:
   Span no-escape SSOT and minimal verifier
   - SpanI64 / SpanMutI64 first
   - no return / field store / capture / provider boundary crossing
+  - SSOT: docs/development/current/main/design/span-no-escape-ssot.md
 
 LANG-DM-005:
   SpanI64 / SpanMutI64 pilot over DirectArrayI64

@@ -122,6 +122,8 @@ Recommended order:
    - status: done; DirectArray unchecked planning now reads
      `RangeIndexFact` + `DirectArrayExtentFact` + `RegionStabilityFact`
 4. `LANG-DM-004` Span no-escape SSOT
+   - status: done; accepted in
+     `docs/development/current/main/design/span-no-escape-ssot.md`
 5. `LANG-DM-005` SpanI64 / SpanMutI64 minimal pilot
 6. `LANG-DM-006` `direct {}` contract
 7. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
