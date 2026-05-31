@@ -12,6 +12,7 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
+    direct_array_access_plan::DirectArrayAccessPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
     exact_numeric_value_facts::{
         ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
@@ -253,6 +254,11 @@ pub struct FunctionMetadata {
     /// These own narrow method-surface policy decisions in MIR so backend
     /// shims can emit selected helpers without reclassifying method strings.
     pub generic_method_routes: Vec<GenericMethodRoute>,
+
+    /// Metadata-only DirectArray access plans derived from Array get/set
+    /// method routes.  The first slice records checked DirectArrayI64
+    /// candidates only; unchecked proofs and backend consumption land later.
+    pub direct_array_access_plans: Vec<DirectArrayAccessPlan>,
 
     /// Backend-consumable extern call route plans.
     /// These own narrow extern surface policy decisions in MIR so backend

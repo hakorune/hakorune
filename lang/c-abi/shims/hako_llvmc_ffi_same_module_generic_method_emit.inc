@@ -111,16 +111,20 @@
         return value && !strcmp(value, "direct_array_i64_exact");
       }
 
-      auto int same_module_function_direct_array_i64_receiver_selected(
-          long long recv) {
-        if (!recv) return 0;
-        return get_origin(recv) == ORG_ARRAY_BIRTH ||
-               get_scan_origin(recv) == ORG_ARRAY_BIRTH;
-      }
-
       auto int same_module_function_is_selected_direct_array_i64_get_target(
-          long long recv) {
-        return same_module_function_direct_array_i64_receiver_selected(recv);
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key) {
+        return lowering_plan_direct_array_access_site_matches_checked_i64(
+            bid,
+            ii,
+            "load",
+            "direct_array_i64_load",
+            recv,
+            key,
+            0,
+            0);
       }
 
       auto int same_module_function_is_selected_direct_array_i64_unchecked_get_target(void) {
@@ -205,7 +209,7 @@
         (void)f;
         if (!dst) return 0;
         if (!same_module_function_direct_array_i64_exact_get_enabled()) return 0;
-        if (!same_module_function_is_selected_direct_array_i64_get_target(recv)) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_get_target(bid, ii, recv, key)) return 0;
         if (!same_module_function_method_view_is_direct_array_i64_get(method_view)) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
@@ -356,8 +360,20 @@
       }
 
       auto int same_module_function_is_selected_direct_array_i64_store_target(
-          long long recv) {
-        return same_module_function_direct_array_i64_receiver_selected(recv);
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key,
+          long long value) {
+        return lowering_plan_direct_array_access_site_matches_checked_i64(
+            bid,
+            ii,
+            "store",
+            "direct_array_i64_store",
+            recv,
+            key,
+            value,
+            1);
       }
 
       auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(void) {
@@ -436,7 +452,7 @@
         char value_ref[64];
         (void)f;
         if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
-        if (!same_module_function_is_selected_direct_array_i64_store_target(recv)) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_store_target(bid, ii, recv, key, value)) return 0;
         if (!(value && is_plain_i64_value(value))) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);

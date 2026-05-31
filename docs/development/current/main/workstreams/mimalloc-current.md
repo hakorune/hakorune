@@ -1646,6 +1646,70 @@ array_set_micro_lane_reopen=0
 next_task=MIM-018 post-store-boundary perf owner refresh
 ```
 
+## MIM-018 DirectArray FastPathPlan Phase Split
+
+Decision:
+
+```text
+source_surface_changed=0
+direct_block_syntax_open=0
+profile_syntax_open=0
+fastpath_owner=mir_metadata
+c_shim_method_name_owner=temporary_bridge_only
+```
+
+Phase plan:
+
+```text
+phase_1=DirectArrayAccessPlanV0 checked metadata
+phase_2=lowerer consumes checked DirectArrayAccessPlanV0
+phase_3=proved_unchecked loop_range and stack_top_pop proofs
+phase_4=caller_precondition proof for releaseLocalKnownLive
+phase_5=remove C shim by-name unchecked allowlist
+```
+
+Phase 1 implementation:
+
+```text
+metadata=direct_array_access_plans
+derived_from=generic_method_routes
+op=load|store
+array_kind=DirectArrayI64
+element_type=i64
+bounds_policy=checked
+proof_kind=exact_front_contract
+fallback_policy=allow_checked
+checked_plan_cfg_safety=successor_phi_safe
+checked_plan_successor_phi_site_excluded=1
+lowering_changed=0
+unchecked_changed=0
+```
+
+Phase 2 implementation:
+
+```text
+consumer=llvm_c_shim_checked_direct_array_get_set
+selection_source=fn_metadata.direct_array_access_plans
+receiver_origin_rescan_removed_for_checked_path=1
+unchecked_by_name_allowlist_changed=0
+lowering_behavior_expected_same=1
+```
+
+Phase 2 verification:
+
+```text
+rust_unit_direct_array_access_plan=ok
+rust_unit_direct_array_access_plans_json=ok
+cargo_check=ok
+c_shim_build=ok
+representative_direct_exact_exe_smoke=ok
+direct_array_access_plan_function_count=8
+direct_array_access_plan_site_count=13
+dev_gate_quick=ok
+excluded_reason=checked_direct_array_lowering_splits_blocks_and_successor_phi_requires_proved_unchecked_or_cfg_rewrite
+next_phase=proved_unchecked_loop_range_and_stack_top_pop_proofs
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

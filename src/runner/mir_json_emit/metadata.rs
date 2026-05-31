@@ -240,6 +240,24 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "effects": route.effect_tags(),
             })
         }).collect::<Vec<_>>(),
+        "direct_array_access_plans": metadata.direct_array_access_plans.iter().map(|plan| {
+            json!({
+                "route_id": "direct_array.access",
+                "block": plan.block().as_u32(),
+                "instruction_index": plan.instruction_index(),
+                "op": plan.op().as_str(),
+                "receiver_value": plan.receiver_value().as_u32(),
+                "index_value": plan.index_value().as_u32(),
+                "value_value": plan.value_value().map(|value| value.as_u32()),
+                "result_value": plan.result_value().map(|value| value.as_u32()),
+                "array_kind": plan.array_kind(),
+                "element_type": plan.element_type(),
+                "route": plan.route(),
+                "bounds_policy": plan.bounds_policy().as_str(),
+                "proof_kind": plan.proof_kind().as_str(),
+                "fallback_policy": plan.fallback_policy().as_str(),
+            })
+        }).collect::<Vec<_>>(),
         "array_rmw_window_routes": metadata.array_rmw_window_routes.iter().map(|route| {
             json!({
                 "route_id": "array.rmw_add1.window",

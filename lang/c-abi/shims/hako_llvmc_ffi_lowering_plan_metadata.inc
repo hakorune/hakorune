@@ -104,6 +104,24 @@
         enum LoweringPlanTierMetadata tier;
       };
 
+      struct LoweringPlanDirectArrayAccessView {
+        yyjson_val* entry;
+        const char* route_id;
+        const char* op;
+        const char* array_kind;
+        const char* element_type;
+        const char* route;
+        const char* bounds_policy;
+        const char* proof_kind;
+        const char* fallback_policy;
+        long long receiver_value;
+        long long index_value;
+        long long value_value;
+        long long result_value;
+        int has_value_value;
+        int has_result_value;
+      };
+
       auto int lowering_plan_read_i64_field(
           yyjson_val* obj,
           const char* key,
@@ -172,6 +190,109 @@
           }
         }
         return NULL;
+      }
+
+      auto yyjson_val* find_direct_array_access_plan_for_site(long long bid, size_t ii) {
+        yyjson_val* entries = NULL;
+        size_t pi = 0;
+        if (!fn_metadata) return NULL;
+        entries = yyjson_obj_get(fn_metadata, "direct_array_access_plans");
+        if (!(entries && yyjson_is_arr(entries))) {
+          return NULL;
+        }
+        for (pi = 0; pi < yyjson_arr_size(entries); pi++) {
+          yyjson_val* entry = yyjson_arr_get(entries, pi);
+          long long block = 0;
+          long long inst = 0;
+          if (!lowering_plan_read_i64_field(entry, "block", &block) ||
+              !lowering_plan_read_i64_field(entry, "instruction_index", &inst)) {
+            continue;
+          }
+          if (block == bid && (size_t)inst == ii) {
+            return entry;
+          }
+        }
+        return NULL;
+      }
+
+      auto int read_lowering_plan_direct_array_access_view(
+          yyjson_val* entry,
+          struct LoweringPlanDirectArrayAccessView* out) {
+        long long receiver_value = 0;
+        long long index_value = 0;
+        long long value_value = 0;
+        long long result_value = 0;
+        if (!(entry && out)) return 0;
+        memset(out, 0, sizeof(*out));
+        out->entry = entry;
+        out->route_id = read_str(entry, "route_id");
+        out->op = read_str(entry, "op");
+        out->array_kind = read_str(entry, "array_kind");
+        out->element_type = read_str(entry, "element_type");
+        out->route = read_str(entry, "route");
+        out->bounds_policy = read_str(entry, "bounds_policy");
+        out->proof_kind = read_str(entry, "proof_kind");
+        out->fallback_policy = read_str(entry, "fallback_policy");
+        if (!lowering_plan_read_i64_field(entry, "receiver_value", &receiver_value) ||
+            !lowering_plan_read_i64_field(entry, "index_value", &index_value)) {
+          return 0;
+        }
+        out->receiver_value = receiver_value;
+        out->index_value = index_value;
+        if (lowering_plan_read_i64_field(entry, "value_value", &value_value)) {
+          out->value_value = value_value;
+          out->has_value_value = 1;
+        }
+        if (lowering_plan_read_i64_field(entry, "result_value", &result_value)) {
+          out->result_value = result_value;
+          out->has_result_value = 1;
+        }
+        return out->route_id &&
+               !strcmp(out->route_id, "direct_array.access") &&
+               out->op &&
+               out->array_kind &&
+               !strcmp(out->array_kind, "DirectArrayI64") &&
+               out->element_type &&
+               !strcmp(out->element_type, "i64") &&
+               out->route &&
+               out->bounds_policy &&
+               out->proof_kind &&
+               out->fallback_policy;
+      }
+
+      auto int lowering_plan_direct_array_access_view_is_checked_i64(
+          const struct LoweringPlanDirectArrayAccessView* view,
+          const char* op,
+          const char* route) {
+        return view &&
+               view->op &&
+               !strcmp(view->op, op) &&
+               view->route &&
+               !strcmp(view->route, route) &&
+               view->bounds_policy &&
+               !strcmp(view->bounds_policy, "checked") &&
+               view->proof_kind &&
+               !strcmp(view->proof_kind, "exact_front_contract") &&
+               view->fallback_policy &&
+               !strcmp(view->fallback_policy, "allow_checked");
+      }
+
+      auto int lowering_plan_direct_array_access_site_matches_checked_i64(
+          long long bid,
+          size_t ii,
+          const char* op,
+          const char* route,
+          long long receiver_value,
+          long long index_value,
+          long long value_value,
+          int require_value) {
+        struct LoweringPlanDirectArrayAccessView view;
+        yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
+        if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
+        if (!lowering_plan_direct_array_access_view_is_checked_i64(&view, op, route)) return 0;
+        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
+        if (require_value && (!view.has_value_value || view.value_value != value_value)) return 0;
+        return 1;
       }
 
       auto int lowering_plan_entry_is_contract_manifest(yyjson_val* entry) {
