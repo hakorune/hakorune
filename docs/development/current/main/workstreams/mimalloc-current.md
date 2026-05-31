@@ -359,6 +359,17 @@ message.
     `129858558`; `body_elapsed_ns` measured `5000000` in the single smoke
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-051: page selection miss state delayed to failure shape
+  - output: remove hot-path `beginSelection()` from `selectPage/0`; failed
+    selection paths now publish sentinel state and increment `miss_count`
+    through `recordSelectionMiss()`
+  - reason: the representative direct exact path always selects the single
+    active page and overwrites the selected fields, so entry reset writes were
+    redundant on the hot path
+  - result: direct exact instructions improved from `129858558` to
+    `127761175`; `body_elapsed_ns` measured `4000000` in the single smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 

@@ -50,20 +50,26 @@ box HakoAllocObjectLifecyclePageQueue {
         return 1
     }
 
+    recordSelectionMiss() {
+        me.last_selected_index = -1
+        me.last_selected_page_id = -1
+        me.last_selected_kind = 0
+        me.last_selected_page = null
+        me.miss_count = me.miss_count + 1
+        return null
+    }
+
     selectPage(): HakoAllocPageModel {
         me.request_count = me.request_count + 1
-        me.beginSelection()
 
         if me.page_count == 1 {
             local page = me.first_page
             if page == null {
-                me.miss_count = me.miss_count + 1
-                return null
+                return me.recordSelectionMiss()
             }
             if page.isDecommitted() != 0 {
                 me.decommitted_skip_count = me.decommitted_skip_count + 1
-                me.miss_count = me.miss_count + 1
-                return null
+                return me.recordSelectionMiss()
             }
             if page.isRetired() != 0 {
                 if page.canReuse() != 0 {
@@ -77,8 +83,7 @@ box HakoAllocObjectLifecyclePageQueue {
                     return page
                 }
                 me.retired_skip_count = me.retired_skip_count + 1
-                me.miss_count = me.miss_count + 1
-                return null
+                return me.recordSelectionMiss()
             }
             if page.freeCount() > 0 {
                 me.last_selected_index = 0
@@ -92,8 +97,7 @@ box HakoAllocObjectLifecyclePageQueue {
             }
 
             me.unavailable_skip_count = me.unavailable_skip_count + 1
-            me.miss_count = me.miss_count + 1
-            return null
+            return me.recordSelectionMiss()
         }
 
         me.single_page_fallback_count = me.single_page_fallback_count + 1
@@ -142,8 +146,7 @@ box HakoAllocObjectLifecyclePageQueue {
         }
 
         if selected == null {
-            me.miss_count = me.miss_count + 1
-            return null
+            return me.recordSelectionMiss()
         }
 
         return selected
