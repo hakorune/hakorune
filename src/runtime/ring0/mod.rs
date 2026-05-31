@@ -103,9 +103,7 @@ pub static GLOBAL_RING0: OnceLock<Arc<Ring0Context>> = OnceLock::new();
 
 /// グローバル Ring0Context を初期化
 pub fn init_global_ring0(ctx: Ring0Context) {
-    GLOBAL_RING0
-        .set(Arc::new(ctx))
-        .expect("[Phase 88] Ring0Context already initialized");
+    let _ = GLOBAL_RING0.set(Arc::new(ctx));
 }
 
 /// グローバル Ring0Context を初期化済みで返す
