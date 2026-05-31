@@ -310,10 +310,12 @@ box HakoAllocPageModel {
         return 1
     }
 
+    @rune Inline(required)
     isRetired() {
         return me.retired
     }
 
+    @rune Inline(required)
     isDecommitted() {
         return me.decommitted
     }
@@ -370,6 +372,7 @@ box HakoAllocPageModel {
         return 1
     }
 
+    @rune Inline(required)
     freeCount() {
         return me.free_top
     }

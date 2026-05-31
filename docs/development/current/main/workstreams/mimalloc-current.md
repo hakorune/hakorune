@@ -216,12 +216,18 @@ message.
     same-receiver FieldGet/FieldSet increment leaves
   - annotate `HakoAllocObjectLifecycleAllocResult.resetAttempt/0`
   - no Profile, no direct-state emitter branch, no source hand-expansion
-- [ ] MIM-036: post-resetAttempt owner refresh
+- [x] MIM-036: post-resetAttempt owner refresh
   - output: reread direct exact perf owner and select next source/MIR owner
   - current likely candidates are `selectPage/0`, `Main.runOne/2`,
     `objectLifecycleSmallAlloc/1`, `resetToFresh/0`, and
     `objectLifecycleReleaseBlock/2`
   - do not reopen DirectState or Array fast paths without new owner evidence
+- [ ] MIM-037: release-side structured inline feasibility
+  - output: decide whether the hot `objectLifecycleReleaseDirectCachedPage/2`
+    boundary should be handled by a structured required-inline extension or
+    parked as source-level release-shape work
+  - do not hand-expand the helper in `.hako` as the final shape
+  - do not reopen DirectState, Array, RuntimeDataBox, or helper micro-lanes
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -719,8 +725,87 @@ direct_state_reopen=0
 next_task=MIM-036 post-resetAttempt owner refresh
 ```
 
+## MIM-036 Post-resetAttempt Owner Refresh
+
+Source/MIR reread:
+
+```text
+front=direct_exact
+target=representative-object-lifecycle-small-block-v0
+selected_slice=HakoAllocPageModel read-only page-state accessors used by HakoAllocObjectLifecyclePageQueue.selectPage/0
+source_annotations_added=
+  HakoAllocPageModel.isRetired/0:@rune Inline(required)
+  HakoAllocPageModel.isDecommitted/0:@rune Inline(required)
+  HakoAllocPageModel.freeCount/0:@rune Inline(required)
+profile_added=0
+new_syntax=0
+source_hand_expansion=0
+```
+
+Structural result:
+
+```text
+selectPage_single_page_path_method_calls_erased=3
+remaining_HakoAllocPageModel_accessor_calls=multi_page_fallback_loop_only
+direct_state_reopen=0
+array_fast_path_reopen=0
+```
+
+Validation:
+
+```text
+cargo_test_inline_required=ok
+cargo_test_inline_soft_leaf=ok
+cargo_build_hakorune=ok
+cargo_build_release_hakorune=ok
+semantic_smoke=representative-object-lifecycle-small-block-v0 direct exact EXE
+allocation_count=524288
+free_count=524288
+summary=ok
+```
+
+Perf reread:
+
+```text
+previous_hako_direct_instructions=228907410
+candidate_hako_direct_instructions=221043533
+instruction_delta=-7863877
+instruction_delta_pct=-3.43
+candidate_body_elapsed_ns=11000000
+candidate_cycles=56648756
+```
+
+Low-sample owner reread:
+
+```text
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=30.21%
+HakoAllocPageModel.releaseLocalKnownLive/1=19.06%
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2=16.41%
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2=9.92%
+HakoAllocPageModel.acquireFreshSmall/1=9.26%
+HakoAllocObjectLifecyclePageQueue.selectPage/0=8.24%
+HakoAllocPageModel.resetToFresh/0=6.54%
+```
+
+Interpretation:
+
+```text
+keeper=structural_instruction_keeper
+selectPage_owner_reduced=1
+next_owner=release_side_structured_inline_feasibility
+next_task=MIM-037
+```
+
 ## Decision Log
 
+- 2026-05-31: MIM-036 annotated the three read-only `HakoAllocPageModel`
+  accessors used by the `selectPage/0` single-page hot path with
+  `@rune Inline(required)`. This removed three hot-path method-call boundaries
+  without Profile syntax or source hand-expansion. The representative direct
+  exact EXE stayed green and instruction count moved from 228.9M to 221.0M.
+  The next owner shifted to release-side structured helper boundaries:
+  `releaseLocalKnownLive/1`, `objectLifecycleReleaseBlock/2`, and
+  `objectLifecycleReleaseDirectCachedPage/2`.
 - 2026-05-31: MIM-035 extended required-inline leaf verification to the narrow
   same-receiver FieldGet/FieldSet increment shape and annotated
   `AllocResult.resetAttempt/0`. This removed that method-call boundary without
