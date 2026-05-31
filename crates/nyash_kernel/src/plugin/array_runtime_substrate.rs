@@ -1,4 +1,5 @@
 use super::array_compat::nyash_array_length_h;
+use super::array_direct_i64_buffer::direct_array_i64_push_i64;
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_string_slot::{
@@ -19,6 +20,13 @@ fn with_runtime_handle_or_zero(handle: i64, f: impl FnOnce() -> i64) -> i64 {
 }
 
 pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
+    // DirectArrayI64 handles are exact-lane storage, not public ArrayBox
+    // handles. Their producer/lowering route passes raw i64 values; decoding
+    // through the public value codec can mistake small positive integers for
+    // unrelated host handles already present in the process.
+    if let Some(new_len) = direct_array_i64_push_i64(handle, val_any) {
+        return new_len;
+    }
     with_runtime_handle_or_zero(handle, || array_slot_append_any(handle, val_any))
 }
 

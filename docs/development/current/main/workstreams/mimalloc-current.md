@@ -1777,6 +1777,16 @@ excluded_reason=checked_direct_array_lowering_splits_blocks_and_successor_phi_re
 next_phase=proved_unchecked_range_index_and_stack_top_pop_proofs
 ```
 
+Smoke repair follow-up:
+
+```text
+exact_numeric_runtime_check_json=implemented
+exact_numeric_runtime_check_ny_llvmc_exe=nyrt_assert_helper_no_cfg_split
+direct_array_i64_push_transport=implemented_for_seedFreeBlocks_push_i64
+representative_direct_exact_exe_smoke=ok
+summary_fields=33254,33792,0,64,0,0
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

@@ -265,6 +265,29 @@ pub(crate) fn direct_array_i64_load_i64(handle: i64, index: i64) -> Option<i64> 
     Some(unsafe { *direct_array_i64_buffer_data_ptr(ptr).add(index) })
 }
 
+pub(crate) fn direct_array_i64_push_i64(handle: i64, value: i64) -> Option<i64> {
+    if handle <= 0 {
+        return None;
+    }
+    let ptr = DirectArrayI64BufferV0Box::from_handle(handle)?.as_ptr();
+    if !direct_array_i64_header_is_supported(ptr) {
+        return None;
+    }
+
+    let header = unsafe { &*ptr };
+    let len = header.len as usize;
+    let capacity = header.capacity as usize;
+    if len >= capacity {
+        return None;
+    }
+
+    unsafe {
+        *direct_array_i64_buffer_data_mut_ptr(ptr).add(len) = value;
+        (*ptr).len = (len + 1) as u64;
+    }
+    i64::try_from(len + 1).ok()
+}
+
 pub(crate) fn direct_array_i64_birth_handle_with_capacity(capacity: usize) -> Option<i64> {
     DIRECT_ARRAY_I64_OBJECTS.with(|objects| {
         let mut objects = objects.borrow_mut();
@@ -310,6 +333,17 @@ mod tests {
         assert_eq!(buffer.load(1), Some(20));
         assert_eq!(buffer.load(2), Some(30));
         assert_eq!(buffer.load(3), None);
+    }
+
+    #[test]
+    fn direct_array_i64_push_appends_raw_i64_values() {
+        let handle = direct_array_i64_birth_handle_with_capacity(2).expect("handle");
+        assert_eq!(direct_array_i64_push_i64(handle, 7), Some(1));
+        assert_eq!(direct_array_i64_push_i64(handle, 8), Some(2));
+        assert_eq!(direct_array_i64_push_i64(handle, 9), None);
+        assert_eq!(direct_array_i64_load_i64(handle, 0), Some(7));
+        assert_eq!(direct_array_i64_load_i64(handle, 1), Some(8));
+        assert_eq!(direct_array_i64_load_i64(handle, 2), None);
     }
 
     #[test]
