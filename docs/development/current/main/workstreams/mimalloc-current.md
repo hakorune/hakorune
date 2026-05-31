@@ -474,6 +474,8 @@ Recommended order when this becomes active:
 
 2. Strengthen existing DirectArray planning first.
    - add `proof_ids` to `DirectArrayAccessPlanV0`
+   - make the plan carry `element_type` before adding more DirectArray
+     storage kinds
    - add region/view vocabulary only as metadata, not source syntax
    - preserve `direct != unchecked`
 
@@ -507,6 +509,37 @@ Recommended order when this becomes active:
 
 This parking lot intentionally does not update `docs/reference/**`: no source
 syntax, public ABI, or language-level unsafe memory contract is accepted here.
+
+DirectArray family order:
+
+```text
+active_now:
+  DirectArrayI64
+
+before_new_storage_kinds:
+  DirectArrayAccessPlanV0.element_type
+
+next_if_mimalloc_or_current_perf_selects:
+  DirectArrayBool
+  DirectArrayUsize_or_U64
+
+later:
+  TextLane
+  DirectArrayHandle
+  ValueLane
+
+deferred:
+  record_or_union_inline_layout
+```
+
+Rules:
+
+- `DirectArrayI64` remains i64-only.
+- Do not turn DirectArray into a public mixed ArrayBox replacement.
+- Do not add a new DirectArray kind without current perf evidence or an active
+  array/value-lane task.
+- Sentinel-bearing ids/indexes stay signed; non-negative counts/sizes may move
+  to `usize`/`u64` only through an explicit storage-kind task.
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
