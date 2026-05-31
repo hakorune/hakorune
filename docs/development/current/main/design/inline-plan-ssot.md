@@ -118,30 +118,30 @@ and `Contract(...)` facts, but Profile is not an InlinePlan truth source. The
 MIR facts produced by expansion are the only facts the optimizer and backend
 may consume.
 
-Required receiver leaf shape:
+Required field-set leaf shape:
 
 ```text
 @rune Inline(required)
 -> InlinePlan request=required
--> verifier shape=receiver_fieldset_leaf
+-> verifier shape=single_object_fieldset_leaf
 -> proof_source=leaf_shape_inference
 -> inferred_no_alloc=1
 -> inferred_no_safepoint=1
 -> fallback=fail_fast
 ```
 
-This is the preferred source spelling for small leaf helpers such as
-receiver-local reset methods. `Inline(required)` is a proof request, not a
-safety grant: the verifier must inspect the body and accept only a narrow leaf
-shape before transform.
+This is the preferred source spelling for small leaf helpers such as receiver
+reset methods and small result capsule setters. `Inline(required)` is a proof
+request, not a safety grant: the verifier must inspect the body and accept only
+a narrow leaf shape before transform.
 
-The first accepted leaf shape is `receiver_fieldset_leaf`:
+The first accepted field-set leaf shape is `single_object_fieldset_leaf`:
 
 ```text
 allowed:
   Const
   Copy
-  receiver-local FieldSet on one stable base
+  FieldSet on one stable base
   Return
 
 forbidden:

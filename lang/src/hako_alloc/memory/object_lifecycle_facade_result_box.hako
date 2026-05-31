@@ -38,11 +38,13 @@ box HakoAllocObjectLifecycleAllocResult {
         return 1
     }
 
+    @rune Inline(required)
     recordSelectedPage(page_id) {
         me.last_page_id = page_id
         return 1
     }
 
+    @rune Inline(required)
     recordBlock(block_id) {
         me.last_block_id = block_id
         return 1
@@ -100,6 +102,7 @@ box HakoAllocObjectLifecycleReleaseResult {
         return 1
     }
 
+    @rune Inline(required)
     recordRequest(page_id, block_id) {
         me.last_page_id = page_id
         me.last_block_id = block_id

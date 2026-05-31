@@ -179,7 +179,7 @@ mod tests {
     }
 
     #[test]
-    fn required_inline_rejects_non_receiver_fieldset_leaf() {
+    fn required_inline_verifies_single_base_fieldset_leaf_by_shape_inference() {
         let function = function_with_runes(
             required_inline_runes(),
             vec![
@@ -190,6 +190,40 @@ mod tests {
                 MirInstruction::FieldSet {
                     base: ValueId::new(2),
                     field: "last_selected_index".to_string(),
+                    value: ValueId::new(1),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::Return { value: None },
+            ],
+        );
+
+        assert!(
+            check_required_inline_plans(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
+        assert_eq!(function.metadata.inline_plans.len(), 1);
+        assert!(function.metadata.inline_plans[0].verified);
+    }
+
+    #[test]
+    fn required_inline_rejects_mixed_fieldset_bases() {
+        let function = function_with_runes(
+            required_inline_runes(),
+            vec![
+                MirInstruction::Const {
+                    dst: ValueId::new(1),
+                    value: ConstValue::Integer(-1),
+                },
+                MirInstruction::FieldSet {
+                    base: ValueId::new(2),
+                    field: "last_selected_index".to_string(),
+                    value: ValueId::new(1),
+                    declared_type: Some(MirType::Integer),
+                },
+                MirInstruction::FieldSet {
+                    base: ValueId::new(3),
+                    field: "other".to_string(),
                     value: ValueId::new(1),
                     declared_type: Some(MirType::Integer),
                 },

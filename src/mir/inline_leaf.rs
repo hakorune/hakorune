@@ -224,19 +224,10 @@ fn check_leaf_inline_shape_with(
         )),
     }
 
-    let explicit_receiver = if function_declared_arity(&function.signature.name) == Some(0) {
-        None
-    } else {
-        function.params.first().copied()
-    };
-    let mut receiver = None;
+    let mut fieldset_base = None;
     for (idx, inst) in block.instructions.iter().enumerate() {
         if allow_receiver_fieldset_leaf
-            && is_supported_receiver_fieldset_leaf_instruction(
-                inst,
-                explicit_receiver,
-                &mut receiver,
-            )
+            && is_supported_single_base_fieldset_leaf_instruction(inst, &mut fieldset_base)
         {
             continue;
         }
@@ -253,29 +244,17 @@ fn check_leaf_inline_shape_with(
     violations
 }
 
-fn function_declared_arity(name: &str) -> Option<usize> {
-    name.rsplit_once('/')?.1.parse().ok()
-}
-
-fn is_supported_receiver_fieldset_leaf_instruction(
+fn is_supported_single_base_fieldset_leaf_instruction(
     inst: &MirInstruction,
-    explicit_receiver: Option<ValueId>,
-    receiver: &mut Option<ValueId>,
+    fieldset_base: &mut Option<ValueId>,
 ) -> bool {
     let MirInstruction::FieldSet { base, .. } = inst else {
         return false;
     };
-    match receiver {
-        Some(receiver) => *receiver == *base,
+    match fieldset_base {
+        Some(fieldset_base) => *fieldset_base == *base,
         None => {
-            if *base != ValueId::INVALID {
-                if let Some(explicit_receiver) = explicit_receiver {
-                    if *base != explicit_receiver {
-                        return false;
-                    }
-                }
-            }
-            *receiver = Some(*base);
+            *fieldset_base = Some(*base);
             true
         }
     }

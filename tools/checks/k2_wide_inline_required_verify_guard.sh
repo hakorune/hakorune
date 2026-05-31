@@ -12,7 +12,8 @@ run_cargo_test_filter_group "$TAG" "required inline verifier acceptance" \
   required_inline_verifies_leaf_by_shape_inference \
   required_inline_verifies_receiver_fieldset_leaf_by_shape_inference \
   required_inline_verifies_implicit_receiver_fieldset_leaf_by_shape_inference \
-  required_inline_rejects_non_receiver_fieldset_leaf \
+  required_inline_verifies_single_base_fieldset_leaf_by_shape_inference \
+  required_inline_rejects_mixed_fieldset_bases \
   mir_verifier_runs_required_inline_check \
   required_inline_rejects_nested_call \
   mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata

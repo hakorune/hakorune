@@ -43,6 +43,7 @@ box HakoAllocObjectLifecycleFacade {
         return me.alloc_result.recordSuccess(selected_kind)
     }
 
+    @rune Inline(required)
     recordLastAllocPage(index, page_id, page) {
         me.last_alloc_page_index = index
         me.last_alloc_page_id = page_id
