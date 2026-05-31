@@ -195,6 +195,54 @@ pub struct RegionStabilityFact {
     pub stable_in_region: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpanBorrowMutability {
+    Read,
+    Write,
+}
+
+impl SpanBorrowMutability {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Read => "read",
+            Self::Write => "write",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpanElementType {
+    I64,
+}
+
+impl SpanElementType {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::I64 => "i64",
+        }
+    }
+}
+
+/// No-escape borrow fact for a future Span view.
+///
+/// This is metadata-only until the Span access planner lands. The fact records
+/// the lifetime and storage contract that access plans must consume instead of
+/// deriving Span legality from source spelling.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SpanBorrowFact {
+    pub span_id: u32,
+    pub region_value: ValueId,
+    pub owner_value: ValueId,
+    pub mutability: SpanBorrowMutability,
+    pub element_type: SpanElementType,
+    pub start_value: ValueId,
+    pub length_value: ValueId,
+    pub scope_bb: BasicBlockId,
+    pub no_escape: bool,
+    pub owner_stable: bool,
+    pub region_stability_fact_id: u32,
+}
+
 /// Lower-bound extent proof for a DirectArray receiver value.
 ///
 /// This is intentionally separate from `RangeIndexFact`: range facts prove the
@@ -283,6 +331,9 @@ pub struct FunctionMetadata {
 
     /// Region stability facts consumed with range/extent proofs.
     pub region_stability_facts: Vec<RegionStabilityFact>,
+
+    /// No-escape Span borrow facts over stable regions.
+    pub span_borrow_facts: Vec<SpanBorrowFact>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

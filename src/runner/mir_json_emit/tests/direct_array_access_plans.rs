@@ -3,7 +3,8 @@ use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::function::{
     CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, LoopRangeFact,
-    RegionStabilityFact, RegionStabilityProofKind,
+    RegionStabilityFact, RegionStabilityProofKind, SpanBorrowFact, SpanBorrowMutability,
+    SpanElementType,
 };
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
@@ -230,4 +231,43 @@ fn build_mir_json_root_emits_direct_array_access_plans() {
     );
     assert_eq!(store["cfg_shape"], "checked_branching");
     assert_eq!(store["store_semantics"], "append_or_overwrite");
+}
+
+#[test]
+fn build_mir_json_root_emits_span_borrow_facts() {
+    let mut function = make_function("main", true);
+    function.metadata.span_borrow_facts.push(SpanBorrowFact {
+        span_id: 0,
+        region_value: ValueId::new(2),
+        owner_value: ValueId::new(2),
+        mutability: SpanBorrowMutability::Write,
+        element_type: SpanElementType::I64,
+        start_value: ValueId::new(10),
+        length_value: ValueId::new(11),
+        scope_bb: BasicBlockId::new(1),
+        no_escape: true,
+        owner_stable: true,
+        region_stability_fact_id: 0,
+    });
+
+    let mut module = MirModule::new("json_span_borrow_fact_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let facts = root["functions"][0]["metadata"]["span_borrow_facts"]
+        .as_array()
+        .expect("span_borrow_facts");
+    assert_eq!(facts.len(), 1);
+    let fact = &facts[0];
+    assert_eq!(fact["span_id"], 0);
+    assert_eq!(fact["region_value"], 2);
+    assert_eq!(fact["owner_value"], 2);
+    assert_eq!(fact["mutability"], "write");
+    assert_eq!(fact["element_type"], "i64");
+    assert_eq!(fact["start_value"], 10);
+    assert_eq!(fact["length_value"], 11);
+    assert_eq!(fact["scope_bb"], 1);
+    assert_eq!(fact["no_escape"], true);
+    assert_eq!(fact["owner_stable"], true);
+    assert_eq!(fact["region_stability_fact_id"], 0);
 }

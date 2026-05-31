@@ -24,6 +24,7 @@ pub use types::{
     LoopRangeFact, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
     ModuleMetadata, ModuleStats, RangeIndexFact, RangeIndexFactOriginKind, RecordDecl,
     RecordLayoutFieldPlan, RecordLayoutPlan, RegionStabilityFact, RegionStabilityProofKind,
-    SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan,
-    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, SpanBorrowFact,
+    SpanBorrowMutability, SpanElementType, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };

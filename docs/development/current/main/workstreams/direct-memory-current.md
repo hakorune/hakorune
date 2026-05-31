@@ -64,6 +64,8 @@ direct storage routes.
   - output: borrow only from `DirectArrayI64`
   - access plans reuse DirectArray proof vocabulary
   - no NativePtr / Bytes yet
+  - current slice: metadata-only `SpanBorrowFact` carrier lands first; access
+    planning remains the next implementation slice
 
 - [ ] LANG-DM-006: `direct {}` contract
   - output: direct block requires `FastPathPlan`
@@ -102,3 +104,7 @@ direct storage routes.
   `docs/development/current/main/design/span-no-escape-ssot.md`. Span v0 is a
   no-escape `SpanI64` / `SpanMutI64` view over `DirectArrayI64`; it is not
   pointer syntax, not unsafe memory, and not unchecked by itself.
+- 2026-06-01: LANG-DM-005 started with the metadata carrier slice:
+  `SpanBorrowFact` records no-escape borrow shape over a stable region without
+  adding source syntax or lowering behavior yet. Next slice should select the
+  first read/write Span access plan.
