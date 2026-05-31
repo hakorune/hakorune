@@ -389,9 +389,14 @@
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_checked_i64(&view, op, route)) return 0;
-        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
-        if (require_value && (!view.has_value_value || view.value_value != value_value)) return 0;
-        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
+        if (resolve_copy_source_reg(view.receiver_value) != resolve_copy_source_reg(receiver_value) ||
+            resolve_copy_source_reg(view.index_value) != resolve_copy_source_reg(index_value)) return 0;
+        if (require_value &&
+            (!view.has_value_value ||
+             resolve_copy_source_reg(view.value_value) != resolve_copy_source_reg(value_value))) return 0;
+        if (require_result &&
+            (!view.has_result_value ||
+             resolve_copy_source_reg(view.result_value) != resolve_copy_source_reg(result_value))) return 0;
         return 1;
       }
 
@@ -408,10 +413,26 @@
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_proved_unchecked_range_index_store_i64(&view, route)) return 0;
-        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
-        if (!view.has_value_value || view.value_value != value_value) return 0;
-        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
+        if (resolve_copy_source_reg(view.receiver_value) != resolve_copy_source_reg(receiver_value) ||
+            resolve_copy_source_reg(view.index_value) != resolve_copy_source_reg(index_value)) return 0;
+        if (!view.has_value_value ||
+            resolve_copy_source_reg(view.value_value) != resolve_copy_source_reg(value_value)) return 0;
+        if (require_result &&
+            (!view.has_result_value ||
+             resolve_copy_source_reg(view.result_value) != resolve_copy_source_reg(result_value))) return 0;
         return 1;
+      }
+
+      auto int lowering_plan_direct_array_access_site_has_proved_unchecked_range_index_store_i64(
+          long long bid,
+          size_t ii,
+          const char* route) {
+        struct LoweringPlanDirectArrayAccessView view;
+        yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
+        if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
+        return lowering_plan_direct_array_access_view_is_proved_unchecked_range_index_store_i64(
+            &view,
+            route);
       }
 
       auto int lowering_plan_direct_array_access_site_matches_proved_unchecked_stack_top_pop_load_i64(
@@ -426,8 +447,11 @@
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_proved_unchecked_stack_top_pop_i64(&view, "load", route)) return 0;
-        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
-        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
+        if (resolve_copy_source_reg(view.receiver_value) != resolve_copy_source_reg(receiver_value) ||
+            resolve_copy_source_reg(view.index_value) != resolve_copy_source_reg(index_value)) return 0;
+        if (require_result &&
+            (!view.has_result_value ||
+             resolve_copy_source_reg(view.result_value) != resolve_copy_source_reg(result_value))) return 0;
         return 1;
       }
 
@@ -444,9 +468,13 @@
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_proved_unchecked_stack_top_pop_i64(&view, "store", route)) return 0;
-        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
-        if (!view.has_value_value || view.value_value != value_value) return 0;
-        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
+        if (resolve_copy_source_reg(view.receiver_value) != resolve_copy_source_reg(receiver_value) ||
+            resolve_copy_source_reg(view.index_value) != resolve_copy_source_reg(index_value)) return 0;
+        if (!view.has_value_value ||
+            resolve_copy_source_reg(view.value_value) != resolve_copy_source_reg(value_value)) return 0;
+        if (require_result &&
+            (!view.has_result_value ||
+             resolve_copy_source_reg(view.result_value) != resolve_copy_source_reg(result_value))) return 0;
         return 1;
       }
 
@@ -463,9 +491,13 @@
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_proved_unchecked_caller_precondition_store_i64(&view, route)) return 0;
-        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
-        if (!view.has_value_value || view.value_value != value_value) return 0;
-        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
+        if (resolve_copy_source_reg(view.receiver_value) != resolve_copy_source_reg(receiver_value) ||
+            resolve_copy_source_reg(view.index_value) != resolve_copy_source_reg(index_value)) return 0;
+        if (!view.has_value_value ||
+            resolve_copy_source_reg(view.value_value) != resolve_copy_source_reg(value_value)) return 0;
+        if (require_result &&
+            (!view.has_result_value ||
+             resolve_copy_source_reg(view.result_value) != resolve_copy_source_reg(result_value))) return 0;
         return 1;
       }
 

@@ -20,7 +20,7 @@
             value,
             1,
             dst,
-            1);
+            dst ? 1 : 0);
       }
 
       auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(
@@ -38,7 +38,7 @@
                 key,
                 value,
                 dst,
-                1)) {
+                dst ? 1 : 0)) {
           return 1;
         }
         return lowering_plan_direct_array_access_site_matches_proved_unchecked_caller_precondition_store_i64(
@@ -49,7 +49,7 @@
             key,
             value,
             dst,
-            1);
+            dst ? 1 : 0);
       }
 
       auto int same_module_function_is_selected_direct_array_i64_range_index_store_target(
@@ -59,15 +59,14 @@
           long long key,
           long long value,
           long long dst) {
-        return lowering_plan_direct_array_access_site_matches_proved_unchecked_range_index_store_i64(
+        (void)recv;
+        (void)key;
+        (void)value;
+        (void)dst;
+        return lowering_plan_direct_array_access_site_has_proved_unchecked_range_index_store_i64(
             bid,
             ii,
-            "direct_array_i64_store",
-            recv,
-            key,
-            value,
-            dst,
-            1);
+            "direct_array_i64_store");
       }
 
       auto int same_module_function_emit_direct_array_i64_store_range_index_mir_call(
@@ -85,7 +84,6 @@
         if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
         if (!same_module_function_is_selected_direct_array_i64_range_index_store_target(
                 bid, ii, recv, key, value, dst)) return 0;
-        if (!(value && is_plain_i64_value(value))) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
         same_module_function_format_i64_ref(key_ref, sizeof(key_ref), key);
@@ -182,7 +180,6 @@
         if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
         if (!same_module_function_is_selected_direct_array_i64_unchecked_store_target(
                 bid, ii, recv, key, value, dst)) return 0;
-        if (!(value && is_plain_i64_value(value))) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
         same_module_function_format_i64_ref(key_ref, sizeof(key_ref), key);
@@ -238,7 +235,6 @@
         (void)f;
         if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
         if (!same_module_function_is_selected_direct_array_i64_store_target(bid, ii, recv, key, value, dst)) return 0;
-        if (!(value && is_plain_i64_value(value))) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
         same_module_function_format_i64_ref(key_ref, sizeof(key_ref), key);
@@ -463,8 +459,7 @@
                   : (value_is_string_handle
                          ? HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_TEXT_PUBLIC
                          : HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_HANDLE);
-          if (!(value_is_i64 &&
-                (same_module_function_emit_direct_array_i64_store_range_index_mir_call(
+          if (!(same_module_function_emit_direct_array_i64_store_range_index_mir_call(
                      f,
                      bid,
                      ii,
@@ -487,7 +482,7 @@
                     dst,
                     recv,
                     key,
-                    value)))) {
+                    value))) {
             hako_llvmc_emit_array_slot_store(f, dst, ab, demand);
           }
         } else {

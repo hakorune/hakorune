@@ -2221,6 +2221,47 @@ next_owner_candidate=page_body_direct_state_or_copy_cleanup
 summary=ok
 ```
 
+MIM-055 post-direct-memory owner refresh / DirectArray plan consumer:
+
+```text
+front=direct_exact
+typed_object_store=direct_slot_exact
+array_slot_store=direct_array_i64_exact
+baseline_before_hako_body_elapsed_ns=7000000
+baseline_before_c_body_elapsed_ns=3375038
+baseline_before_body_elapsed_ratio=2.074
+perf_owner_before=array_runtime_set_idx_i64
+perf_owner_before_pct=22.74
+
+root_cause=DirectArrayAccessPlan existed for resetToFresh loop stores but same-module/generic consumers still fell through to nyash.array.slot_store_hii
+selected_fix=consume proved_unchecked range_index DirectArrayAccessPlan as site authority
+method_name_special_case_added=0
+source_public_api_changed=0
+direct_block_syntax_added=0
+
+structural_check=ok
+resetToFresh_loop_store_sites=3
+resetToFresh_slot_store_hii_before=3
+resetToFresh_slot_store_hii_after=0
+resetToFresh_direct_array_i64_range_index_after=3
+remaining_slot_store_hii_calls=1
+
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=4000000
+c_body_elapsed_ns=3317189
+body_elapsed_ratio=1.206
+performance_keeper=accepted
+
+post_fix_perf_top_0=HakoAllocObjectLifecyclePageQueue.selectPage/0
+post_fix_perf_top_0_pct=35.62
+post_fix_perf_top_1=HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2
+post_fix_perf_top_1_pct=23.36
+post_fix_perf_top_2=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+post_fix_perf_top_2_pct=19.16
+next_owner_candidate=selectPage_body_directness_or_queue_state_shape
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

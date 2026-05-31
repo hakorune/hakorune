@@ -87,9 +87,9 @@ Scope: current lane / next lane / restart order only.
   3. Array / representation fast paths only when selected by mimalloc perf
      evidence or by the active direct-memory substrate workstream
   4. docs and shell hygiene
-- Mimalloc source-level optimization is paused after MIM-054. The next active
-  work is to make direct memory tasks readable and reusable before returning to
-  allocator source optimization.
+- Mimalloc direct-exact optimization is active again after the direct-memory
+  substrate wave. MIM-055 consumed resetToFresh DirectArray range-index plans;
+  the next owner is read from `CURRENT_STATE.toml`.
 - Day-to-day work lives in `latest_workstream_card` from `CURRENT_STATE.toml`.
   Do not create numbered rows for inventory-only progress.
 - Do not open another Array / helper / RuntimeDataBox fast path unless the
@@ -103,7 +103,9 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Direct Memory Task Order
 
-Read `docs/development/current/main/workstreams/direct-memory-current.md` first.
+This wave is complete. For current work, read
+`docs/development/current/main/CURRENT_STATE.toml` and the
+`latest_workstream_card` it points to first.
 
 Recommended order:
 
