@@ -249,6 +249,15 @@ message.
     non-trap paths; failure remains represented by the cached-page guard before
     the call
   - no new compiler feature, no source hand-expansion, no Array lane widening
+- [x] MIM-041: acquireFreshSmall direct-array invariant lowering
+  - output: use unchecked DirectArrayI64 load/store lowering for the selected
+    `HakoAllocPageModel.acquireFreshSmall/1` exact path
+  - reason: the method checks `free_top > 0` before reading `free[free_top-1]`,
+    and the returned block id is a page-owned block slot for `block_used`
+  - result: direct exact instructions improved from `174380714` to `152851912`;
+    `body_elapsed_ns` moved from `6000000` to `5000000`
+  - keep default/safe behavior, public ArrayBox, mixed storage, plugin typed
+    ABI, and source syntax unchanged
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 

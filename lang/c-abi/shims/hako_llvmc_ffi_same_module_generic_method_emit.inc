@@ -122,6 +122,11 @@
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
+      auto int same_module_function_is_selected_direct_array_i64_unchecked_get_target(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        return name && !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1");
+      }
+
       auto int same_module_function_method_view_is_direct_array_i64_get(
           const struct LoweringPlanGenericMethodView* method_view) {
         return method_view &&
@@ -132,6 +137,58 @@
                method_view->symbol &&
                !strcmp(method_view->symbol, "nyash.array.slot_load_hi") &&
                method_view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI;
+      }
+
+      auto int same_module_function_emit_direct_array_i64_get_unchecked_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          const struct LoweringPlanGenericMethodView* method_view,
+          long long dst,
+          long long recv,
+          long long key) {
+        char recv_ref[64];
+        char key_ref[64];
+        (void)f;
+        if (!dst) return 0;
+        if (!same_module_function_direct_array_i64_exact_get_enabled()) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_unchecked_get_target()) return 0;
+        if (!same_module_function_method_view_is_direct_array_i64_get(method_view)) return 0;
+
+        same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
+        same_module_function_format_i64_ref(key_ref, sizeof(key_ref), key);
+
+        EMIT("  %%direct_array_i64_unchecked_get_base_%lld_%zu = and i64 %s, -4\n",
+             bid,
+             ii,
+             recv_ref);
+        EMIT("  %%direct_array_i64_unchecked_get_byte_index_%lld_%zu = mul i64 %s, 8\n",
+             bid,
+             ii,
+             key_ref);
+        EMIT("  %%direct_array_i64_unchecked_get_data_base_%lld_%zu = add i64 %%direct_array_i64_unchecked_get_base_%lld_%zu, 32\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_unchecked_get_value_addr_%lld_%zu = add i64 %%direct_array_i64_unchecked_get_data_base_%lld_%zu, %%direct_array_i64_unchecked_get_byte_index_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_unchecked_get_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_unchecked_get_value_addr_%lld_%zu to ptr\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%r%lld = load i64, ptr %%direct_array_i64_unchecked_get_value_ptr_%lld_%zu\n",
+             dst,
+             bid,
+             ii);
+        set_type(dst, T_I64);
+        return 1;
       }
 
       auto int same_module_function_emit_direct_array_i64_get_mir_call(
@@ -265,8 +322,10 @@
                                                    : "nyash.runtime_data.get_hh");
         if (!same_module_function_read_get_key_value(args, recv, &key)) return 0;
         if (route.is_array_load &&
-            same_module_function_emit_direct_array_i64_get_mir_call(
-                f, bid, ii, method_view, dst, recv, key)) {
+            (same_module_function_emit_direct_array_i64_get_unchecked_mir_call(
+                 f, bid, ii, method_view, dst, recv, key) ||
+             same_module_function_emit_direct_array_i64_get_mir_call(
+                 f, bid, ii, method_view, dst, recv, key))) {
           return 1;
         }
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
@@ -309,7 +368,8 @@
       auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
-               (!strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
+               (!strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
+                !strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
@@ -337,21 +397,6 @@
              bid,
              ii,
              recv_ref);
-        EMIT("  %%direct_array_i64_unchecked_len_addr_%lld_%zu = add i64 %%direct_array_i64_unchecked_base_%lld_%zu, 16\n",
-             bid,
-             ii,
-             bid,
-             ii);
-        EMIT("  %%direct_array_i64_unchecked_len_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_unchecked_len_addr_%lld_%zu to ptr\n",
-             bid,
-             ii,
-             bid,
-             ii);
-        EMIT("  %%direct_array_i64_unchecked_len_%lld_%zu = load i64, ptr %%direct_array_i64_unchecked_len_ptr_%lld_%zu\n",
-             bid,
-             ii,
-             bid,
-             ii);
         EMIT("  %%direct_array_i64_unchecked_byte_index_%lld_%zu = mul i64 %s, 8\n",
              bid,
              ii,
@@ -375,31 +420,6 @@
              ii);
         EMIT("  store i64 %s, ptr %%direct_array_i64_unchecked_value_ptr_%lld_%zu\n",
              value_ref,
-             bid,
-             ii);
-        EMIT("  %%direct_array_i64_unchecked_is_append_%lld_%zu = icmp eq i64 %s, %%direct_array_i64_unchecked_len_%lld_%zu\n",
-             bid,
-             ii,
-             key_ref,
-             bid,
-             ii);
-        EMIT("  %%direct_array_i64_unchecked_len_plus_one_%lld_%zu = add i64 %%direct_array_i64_unchecked_len_%lld_%zu, 1\n",
-             bid,
-             ii,
-             bid,
-             ii);
-        EMIT("  %%direct_array_i64_unchecked_next_len_%lld_%zu = select i1 %%direct_array_i64_unchecked_is_append_%lld_%zu, i64 %%direct_array_i64_unchecked_len_plus_one_%lld_%zu, i64 %%direct_array_i64_unchecked_len_%lld_%zu\n",
-             bid,
-             ii,
-             bid,
-             ii,
-             bid,
-             ii,
-             bid,
-             ii);
-        EMIT("  store i64 %%direct_array_i64_unchecked_next_len_%lld_%zu, ptr %%direct_array_i64_unchecked_len_ptr_%lld_%zu\n",
-             bid,
-             ii,
              bid,
              ii);
         if (dst) {

@@ -33,11 +33,43 @@
         return hako_llvmc_is_selected_direct_array_i64_store_target();
       }
 
+      auto int hako_llvmc_is_selected_direct_array_i64_unchecked_get_target(void) {
+        const char* name = fn0 ? read_str(fn0, "name") : NULL;
+        return name && !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1");
+      }
+
       auto int hako_llvmc_is_selected_direct_array_i64_unchecked_store_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
-               (!strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
+               (!strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
+                !strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
+      }
+
+      auto int hako_llvmc_emit_direct_array_i64_get_unchecked(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          long long key) {
+        char recv_ref[64];
+        char key_ref[64];
+        if (!dst) return 0;
+        if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
+        if (!hako_llvmc_is_selected_direct_array_i64_unchecked_get_target()) return 0;
+
+        hako_llvmc_format_i64_operand(recv_ref, sizeof(recv_ref), recv);
+        hako_llvmc_format_i64_operand(key_ref, sizeof(key_ref), key);
+
+        fprintf(f, "  %%direct_array_i64_unchecked_get_base_%lld_%zu = and i64 %s, -4\n", bid, ii, recv_ref);
+        fprintf(f, "  %%direct_array_i64_unchecked_get_byte_index_%lld_%zu = mul i64 %s, 8\n", bid, ii, key_ref);
+        fprintf(f, "  %%direct_array_i64_unchecked_get_data_base_%lld_%zu = add i64 %%direct_array_i64_unchecked_get_base_%lld_%zu, 32\n", bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_unchecked_get_value_addr_%lld_%zu = add i64 %%direct_array_i64_unchecked_get_data_base_%lld_%zu, %%direct_array_i64_unchecked_get_byte_index_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
+        fprintf(f, "  %%direct_array_i64_unchecked_get_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_unchecked_get_value_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
+        fprintf(f, "  %%r%lld = load i64, ptr %%direct_array_i64_unchecked_get_value_ptr_%lld_%zu\n", dst, bid, ii);
+        set_type(dst, T_I64);
+        return 1;
       }
 
       auto int hako_llvmc_emit_direct_array_i64_get(
@@ -105,18 +137,11 @@
         hako_llvmc_format_i64_operand(value_ref, sizeof(value_ref), value);
 
         fprintf(f, "  %%direct_array_i64_unchecked_base_%lld_%zu = and i64 %s, -4\n", bid, ii, recv_ref);
-        fprintf(f, "  %%direct_array_i64_unchecked_len_addr_%lld_%zu = add i64 %%direct_array_i64_unchecked_base_%lld_%zu, 16\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_unchecked_len_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_unchecked_len_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_unchecked_len_%lld_%zu = load i64, ptr %%direct_array_i64_unchecked_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
         fprintf(f, "  %%direct_array_i64_unchecked_byte_index_%lld_%zu = mul i64 %s, 8\n", bid, ii, key_ref);
         fprintf(f, "  %%direct_array_i64_unchecked_data_base_%lld_%zu = add i64 %%direct_array_i64_unchecked_base_%lld_%zu, 32\n", bid, ii, bid, ii);
         fprintf(f, "  %%direct_array_i64_unchecked_value_addr_%lld_%zu = add i64 %%direct_array_i64_unchecked_data_base_%lld_%zu, %%direct_array_i64_unchecked_byte_index_%lld_%zu\n", bid, ii, bid, ii, bid, ii);
         fprintf(f, "  %%direct_array_i64_unchecked_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_unchecked_value_addr_%lld_%zu to ptr\n", bid, ii, bid, ii);
         fprintf(f, "  store i64 %s, ptr %%direct_array_i64_unchecked_value_ptr_%lld_%zu\n", value_ref, bid, ii);
-        fprintf(f, "  %%direct_array_i64_unchecked_is_append_%lld_%zu = icmp eq i64 %s, %%direct_array_i64_unchecked_len_%lld_%zu\n", bid, ii, key_ref, bid, ii);
-        fprintf(f, "  %%direct_array_i64_unchecked_len_plus_one_%lld_%zu = add i64 %%direct_array_i64_unchecked_len_%lld_%zu, 1\n", bid, ii, bid, ii);
-        fprintf(f, "  %%direct_array_i64_unchecked_next_len_%lld_%zu = select i1 %%direct_array_i64_unchecked_is_append_%lld_%zu, i64 %%direct_array_i64_unchecked_len_plus_one_%lld_%zu, i64 %%direct_array_i64_unchecked_len_%lld_%zu\n", bid, ii, bid, ii, bid, ii, bid, ii);
-        fprintf(f, "  store i64 %%direct_array_i64_unchecked_next_len_%lld_%zu, ptr %%direct_array_i64_unchecked_len_ptr_%lld_%zu\n", bid, ii, bid, ii);
         if (dst) {
           fprintf(f, "  %%r%lld = add i64 1, 0\n", dst);
           set_type(dst, T_I64);
