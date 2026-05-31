@@ -128,6 +128,8 @@ Recommended order:
    - status: done; metadata carriers and fact-only Span access planner landed
      for one read and one mutable write fixture
 6. `LANG-DM-006A` Direct FastPath Required Diagnostic Contract
+   - status: done; `RequiredFastPathRegion` / `FastPathObligation` metadata and
+     refresh landed, with missing FastPathPlan reported as `DM006001`
    - no `direct {}` source syntax in v0
    - define `RequiredFastPathRegion` / `FastPathObligation`
    - checked direct routes are allowed; generic helper / boxed fallback /

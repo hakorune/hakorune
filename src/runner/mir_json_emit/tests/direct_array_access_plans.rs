@@ -2,9 +2,9 @@ use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::function::{
-    CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, LoopRangeFact,
-    RegionStabilityFact, RegionStabilityProofKind, SpanAccessOp, SpanAccessPlan, SpanBorrowFact,
-    SpanBorrowMutability, SpanElementType,
+    CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, FastPathObligation,
+    LoopRangeFact, RegionStabilityFact, RegionStabilityProofKind, RequiredFastPathRegion,
+    SpanAccessOp, SpanAccessPlan, SpanBorrowFact, SpanBorrowMutability, SpanElementType,
 };
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
@@ -278,6 +278,8 @@ fn build_mir_json_root_emits_span_borrow_facts() {
 fn build_mir_json_root_emits_span_access_plans() {
     let mut function = make_function("main", true);
     function.metadata.span_access_plans.push(SpanAccessPlan {
+        block: BasicBlockId::new(1),
+        instruction_index: 2,
         span_id: 0,
         op: SpanAccessOp::Store,
         index_value: ValueId::new(4),
@@ -300,6 +302,8 @@ fn build_mir_json_root_emits_span_access_plans() {
     assert_eq!(plans.len(), 1);
     let plan = &plans[0];
     assert_eq!(plan["span_id"], 0);
+    assert_eq!(plan["block"], 1);
+    assert_eq!(plan["instruction_index"], 2);
     assert_eq!(plan["op"], "store");
     assert_eq!(plan["index_value"], 4);
     assert_eq!(plan["value_value"], 5);
@@ -312,4 +316,62 @@ fn build_mir_json_root_emits_span_access_plans() {
         serde_json::json!(["range_index", "direct_array_extent", "region_stability"])
     );
     assert_eq!(plan["fallback_policy"], "fail_fast");
+}
+
+#[test]
+fn build_mir_json_root_emits_required_fastpath_diagnostics() {
+    let mut function = make_function("main", true);
+    function
+        .metadata
+        .required_fastpath_regions
+        .push(RequiredFastPathRegion {
+            region_id: 0,
+            source_kind: "diagnostic_mode",
+            relevant_access_policy: "direct_memory",
+            route_requirement: "fastpath_plan_required",
+            bounds_requirement: "checked_allowed",
+            fallback_policy: "fail_fast",
+        });
+    function
+        .metadata
+        .fastpath_obligations
+        .push(FastPathObligation {
+            obligation_id: 0,
+            region_id: 0,
+            block: BasicBlockId::new(1),
+            instruction_index: 2,
+            access_kind: "direct_array_i64",
+            op: "store",
+            expected: "FastPathPlanRequired",
+            actual_plan_kind: None,
+            actual_route: None,
+            bounds_policy: None,
+            proof_ids: vec![],
+            status: "failed",
+            failure_code: Some("DM006001"),
+            failure_reason: Some("missing_fastpath_plan"),
+        });
+
+    let mut module = MirModule::new("json_fastpath_diagnostic_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let regions = root["functions"][0]["metadata"]["required_fastpath_regions"]
+        .as_array()
+        .expect("required_fastpath_regions");
+    assert_eq!(regions.len(), 1);
+    assert_eq!(regions[0]["source_kind"], "diagnostic_mode");
+    assert_eq!(regions[0]["route_requirement"], "fastpath_plan_required");
+
+    let obligations = root["functions"][0]["metadata"]["fastpath_obligations"]
+        .as_array()
+        .expect("fastpath_obligations");
+    assert_eq!(obligations.len(), 1);
+    let obligation = &obligations[0];
+    assert_eq!(obligation["access_kind"], "direct_array_i64");
+    assert_eq!(obligation["op"], "store");
+    assert_eq!(obligation["expected"], "FastPathPlanRequired");
+    assert_eq!(obligation["status"], "failed");
+    assert_eq!(obligation["failure_code"], "DM006001");
+    assert_eq!(obligation["failure_reason"], "missing_fastpath_plan");
 }

@@ -30,6 +30,8 @@ pub fn refresh_function_span_access_plans(function: &mut MirFunction) {
         match route.route_kind_tag() {
             "array_slot_load_any" => {
                 plans.push(SpanAccessPlan {
+                    block: route.block(),
+                    instruction_index: route.instruction_index(),
                     span_id: span.span_id,
                     op: SpanAccessOp::Load,
                     index_value,
@@ -52,6 +54,8 @@ pub fn refresh_function_span_access_plans(function: &mut MirFunction) {
                     continue;
                 };
                 plans.push(SpanAccessPlan {
+                    block: route.block(),
+                    instruction_index: route.instruction_index(),
                     span_id: span.span_id,
                     op: SpanAccessOp::Store,
                     index_value,

@@ -33,6 +33,7 @@ use super::{
         refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
     },
     extern_call_route_plan::refresh_function_extern_call_routes,
+    fastpath_required_diagnostic::refresh_function_fastpath_obligations,
     function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
     global_call_route_plan::refresh_function_global_call_routes,
@@ -102,6 +103,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_direct_array_extent_facts(function);
     refresh_function_direct_array_access_plans(function);
     refresh_function_span_access_plans(function);
+    refresh_function_fastpath_obligations(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);

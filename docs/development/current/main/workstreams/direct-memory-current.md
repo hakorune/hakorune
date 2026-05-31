@@ -73,12 +73,14 @@ direct storage routes.
     one read and one mutable write fixture; source syntax and lowering remain
     closed
 
-- [ ] LANG-DM-006A: Direct FastPath Required Diagnostic Contract
+- [x] LANG-DM-006A: Direct FastPath Required Diagnostic Contract
   - output: `RequiredFastPathRegion` / `FastPathObligation` diagnostic contract
   - no `direct {}` source syntax in v0
   - direct is a route contract, not unsafe memory and not unchecked
   - checked direct routes are allowed; generic helper / boxed fallback /
     dynamic route are rejected when the obligation is required
+  - landed: metadata/json contract and source-syntax-free obligation refresh
+    from existing DirectArray/Span plans; missing plan reports `DM006001`
 
 - [ ] LANG-DM-006B: future `direct {}` syntax parking lot
   - output: direct block remains a thin future syntax over
@@ -134,3 +136,7 @@ direct storage routes.
   The active next slice is `LANG-DM-006A`: a diagnostic/report contract for
   required FastPath regions. Future `direct {}` may only become syntax sugar
   over that contract.
+- 2026-06-01: LANG-DM-006A landed the metadata and refresh path for
+  `RequiredFastPathRegion` / `FastPathObligation`. Existing DirectArray and
+  Span plans satisfy obligations; missing plans fail with `DM006001`. No
+  parser, source syntax, or lowering contract was opened.

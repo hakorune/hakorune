@@ -166,6 +166,8 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         }).collect::<Vec<_>>(),
         "span_access_plans": metadata.span_access_plans.iter().map(|plan| {
             json!({
+                "block": plan.block.as_u32(),
+                "instruction_index": plan.instruction_index,
                 "span_id": plan.span_id,
                 "op": plan.op.as_str(),
                 "index_value": plan.index_value.as_u32(),
@@ -176,6 +178,34 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "bounds_policy": plan.bounds_policy,
                 "proof_ids": plan.proof_ids,
                 "fallback_policy": plan.fallback_policy,
+            })
+        }).collect::<Vec<_>>(),
+        "required_fastpath_regions": metadata.required_fastpath_regions.iter().map(|region| {
+            json!({
+                "region_id": region.region_id,
+                "source_kind": region.source_kind,
+                "relevant_access_policy": region.relevant_access_policy,
+                "route_requirement": region.route_requirement,
+                "bounds_requirement": region.bounds_requirement,
+                "fallback_policy": region.fallback_policy,
+            })
+        }).collect::<Vec<_>>(),
+        "fastpath_obligations": metadata.fastpath_obligations.iter().map(|obligation| {
+            json!({
+                "obligation_id": obligation.obligation_id,
+                "region_id": obligation.region_id,
+                "block": obligation.block.as_u32(),
+                "instruction_index": obligation.instruction_index,
+                "access_kind": obligation.access_kind,
+                "op": obligation.op,
+                "expected": obligation.expected,
+                "actual_plan_kind": obligation.actual_plan_kind,
+                "actual_route": obligation.actual_route,
+                "bounds_policy": obligation.bounds_policy,
+                "proof_ids": obligation.proof_ids,
+                "status": obligation.status,
+                "failure_code": obligation.failure_code,
+                "failure_reason": obligation.failure_reason,
             })
         }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {

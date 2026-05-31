@@ -265,6 +265,8 @@ impl SpanAccessOp {
 /// range/extent/stability proof vocabulary used by DirectArray.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SpanAccessPlan {
+    pub block: BasicBlockId,
+    pub instruction_index: usize,
     pub span_id: u32,
     pub op: SpanAccessOp,
     pub index_value: ValueId,
@@ -275,6 +277,34 @@ pub struct SpanAccessPlan {
     pub bounds_policy: &'static str,
     pub proof_ids: Vec<&'static str>,
     pub fallback_policy: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RequiredFastPathRegion {
+    pub region_id: u32,
+    pub source_kind: &'static str,
+    pub relevant_access_policy: &'static str,
+    pub route_requirement: &'static str,
+    pub bounds_requirement: &'static str,
+    pub fallback_policy: &'static str,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastPathObligation {
+    pub obligation_id: u32,
+    pub region_id: u32,
+    pub block: BasicBlockId,
+    pub instruction_index: usize,
+    pub access_kind: &'static str,
+    pub op: &'static str,
+    pub expected: &'static str,
+    pub actual_plan_kind: Option<&'static str>,
+    pub actual_route: Option<&'static str>,
+    pub bounds_policy: Option<&'static str>,
+    pub proof_ids: Vec<&'static str>,
+    pub status: &'static str,
+    pub failure_code: Option<&'static str>,
+    pub failure_reason: Option<&'static str>,
 }
 
 /// Lower-bound extent proof for a DirectArray receiver value.
@@ -371,6 +401,12 @@ pub struct FunctionMetadata {
 
     /// Metadata-only Span access plans over no-escape Span borrows.
     pub span_access_plans: Vec<SpanAccessPlan>,
+
+    /// Required fast-path diagnostic regions.
+    pub required_fastpath_regions: Vec<RequiredFastPathRegion>,
+
+    /// Per-site obligations derived from required fast-path regions.
+    pub fastpath_obligations: Vec<FastPathObligation>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,
