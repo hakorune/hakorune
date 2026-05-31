@@ -392,6 +392,18 @@ message.
     `126713126`; `body_elapsed_ns` measured `4000000` in the single smoke
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-054: cached release page-id recheck removed from hot success
+  - output: trust the `last_alloc_page_id` + `last_alloc_page` identity cache
+    on the first cached known-page release success path
+  - reason: `recordLastAllocPage()` records the page id together with the page
+    handle after allocation, and `HakoAllocPageModel.page_id` is fixed by
+    `birth()`
+  - result: direct exact instructions improved from `126712645` to
+    `124615619`; `body_elapsed_ns` measured `4000000` in the representative
+    smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change; fallback release still
+    revalidates the cached page id
 
 ### Next Cleanup TODO
 
@@ -1201,6 +1213,14 @@ next_task=MIM-038
 
 ## Decision Log
 
+- 2026-06-01: MIM-054 removed the duplicate `cached_page.page_id == page_id`
+  check from the first cached known-page release success path. The hot path has
+  already matched `page_id == me.last_alloc_page_id`, and the cached handle and
+  id are recorded together by `recordLastAllocPage()` after allocation;
+  `HakoAllocPageModel.page_id` is fixed by `birth()`. Fallback release keeps
+  the defensive id check. Representative direct exact smoke and the known-live
+  release smoke stayed green, and instruction count moved from 126.7M to
+  124.6M.
 - 2026-05-31: MIM-044 added generic nested-phi receiver origin acceptance for
   user-box route results. The `resetToFresh/0` fast guard introduces an extra
   guard-return control shape, which made the selected page flow through nested

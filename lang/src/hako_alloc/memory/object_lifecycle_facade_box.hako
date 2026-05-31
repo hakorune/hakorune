@@ -137,11 +137,11 @@ box HakoAllocObjectLifecycleFacade {
             if me.last_alloc_page_index >= 0 {
                 local cached_page = me.last_alloc_page
                 if cached_page != null {
-                    if cached_page.page_id == page_id {
-                        me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
-                        cached_page.releaseLocalKnownLive(block_id)
-                        return release_result.recordSuccess(page_id, block_id)
-                    }
+                    // last_alloc_page_id is recorded with this page handle after
+                    // allocation; PageModel.page_id is fixed by birth().
+                    me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
+                    cached_page.releaseLocalKnownLive(block_id)
+                    return release_result.recordSuccess(page_id, block_id)
                 }
             }
         }
