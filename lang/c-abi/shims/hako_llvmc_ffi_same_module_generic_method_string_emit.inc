@@ -124,9 +124,20 @@
             1);
       }
 
-      auto int same_module_function_is_selected_direct_array_i64_unchecked_get_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name && !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1");
+      auto int same_module_function_is_selected_direct_array_i64_unchecked_get_target(
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key,
+          long long dst) {
+        return lowering_plan_direct_array_access_site_matches_proved_unchecked_stack_top_pop_load_i64(
+            bid,
+            ii,
+            "direct_array_i64_load",
+            recv,
+            key,
+            dst,
+            1);
       }
 
       auto int same_module_function_method_view_is_direct_array_i64_get(
@@ -154,7 +165,8 @@
         (void)f;
         if (!dst) return 0;
         if (!same_module_function_direct_array_i64_exact_get_enabled()) return 0;
-        if (!same_module_function_is_selected_direct_array_i64_unchecked_get_target()) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_unchecked_get_target(
+                bid, ii, recv, key, dst)) return 0;
         if (!same_module_function_method_view_is_direct_array_i64_get(method_view)) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);

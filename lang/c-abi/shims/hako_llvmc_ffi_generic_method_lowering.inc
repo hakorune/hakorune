@@ -57,16 +57,45 @@
             1);
       }
 
-      auto int hako_llvmc_is_selected_direct_array_i64_unchecked_get_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name && !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1");
+      auto int hako_llvmc_is_selected_direct_array_i64_unchecked_get_target(
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key,
+          long long dst) {
+        return lowering_plan_direct_array_access_site_matches_proved_unchecked_stack_top_pop_load_i64(
+            bid,
+            ii,
+            "direct_array_i64_load",
+            recv,
+            key,
+            dst,
+            1);
       }
 
-      auto int hako_llvmc_is_selected_direct_array_i64_unchecked_store_target(void) {
+      auto int hako_llvmc_is_selected_direct_array_i64_unchecked_store_target(
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key,
+          long long value,
+          long long dst) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
+        if (lowering_plan_direct_array_access_site_matches_proved_unchecked_stack_top_pop_store_i64(
+                bid,
+                ii,
+                "direct_array_i64_store",
+                recv,
+                key,
+                value,
+                dst,
+                1)) {
+          return 1;
+        }
+        // Temporary bridge for Phase 3b: releaseKnownLive still needs the
+        // caller_precondition proof before the remaining by-name edge can be
+        // removed.
+        return name && !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1");
       }
 
       auto int hako_llvmc_is_selected_direct_array_i64_range_index_store_target(
@@ -138,7 +167,8 @@
         char key_ref[64];
         if (!dst) return 0;
         if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
-        if (!hako_llvmc_is_selected_direct_array_i64_unchecked_get_target()) return 0;
+        if (!hako_llvmc_is_selected_direct_array_i64_unchecked_get_target(
+                bid, ii, recv, key, dst)) return 0;
 
         hako_llvmc_format_i64_operand(recv_ref, sizeof(recv_ref), recv);
         hako_llvmc_format_i64_operand(key_ref, sizeof(key_ref), key);
@@ -210,7 +240,8 @@
         char key_ref[64];
         char value_ref[64];
         if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
-        if (!hako_llvmc_is_selected_direct_array_i64_unchecked_store_target()) return 0;
+        if (!hako_llvmc_is_selected_direct_array_i64_unchecked_store_target(
+                bid, ii, recv, key, value, dst)) return 0;
         if (!(value && is_plain_i64_value(value))) return 0;
 
         hako_llvmc_format_i64_operand(recv_ref, sizeof(recv_ref), recv);

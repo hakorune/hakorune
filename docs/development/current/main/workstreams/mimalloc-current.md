@@ -1799,6 +1799,25 @@ remaining_c_shim_targets=acquireFreshSmall_get_store,releaseLocalKnownLive_store
 next_phase=stack_top_pop_and_caller_precondition_proofs_before_c_shim_bridge_removal
 ```
 
+C shim stack_top_pop proof migration:
+
+```text
+proof_kind=stack_top_pop
+producer=direct_array_access_plan
+covered_methods=HakoAllocPageModel.acquireFreshSmall/1,HakoAllocPageModel.acquire_usize/1
+metadata_reread=ok
+load_plans_proved_unchecked_stack_top_pop=2
+store_plans_proved_unchecked_stack_top_pop=2
+c_shim_unchecked_get_by_name_removed=1
+c_shim_acquire_unchecked_store_by_name_removed=1
+temporary_release_by_name_bridge_remaining=1
+remaining_c_shim_target=HakoAllocPageModel.releaseLocalKnownLive/1
+rust_unit_direct_array_access_plan=ok
+cargo_check=ok
+representative_direct_exact_exe_smoke=ok
+next_phase=caller_precondition_proof_for_releaseLocalKnownLive
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

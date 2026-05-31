@@ -7,8 +7,10 @@
  * from `generic_method_routes`, and later lowering slices may consume it.
  */
 
-use crate::mir::value_origin::{build_value_def_map, resolve_value_origin};
-use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
+use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::{
+    BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
+};
 
 const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
 
@@ -194,6 +196,59 @@ impl DirectArrayAccessPlan {
         }
     }
 
+    fn proved_unchecked_stack_top_pop_load(
+        block: BasicBlockId,
+        instruction_index: usize,
+        receiver_value: ValueId,
+        index_value: ValueId,
+        result_value: Option<ValueId>,
+    ) -> Self {
+        Self {
+            block,
+            instruction_index,
+            op: DirectArrayAccessOp::Load,
+            receiver_value,
+            index_value,
+            value_value: None,
+            result_value,
+            array_kind: "DirectArrayI64",
+            element_type: "i64",
+            route: "direct_array_i64_load",
+            bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
+            proof_kind: DirectArrayProofKind::StackTopPop,
+            fallback_policy: DirectArrayFallbackPolicy::FailFast,
+            cfg_shape: DirectArrayCfgShape::Branchless,
+            store_semantics: DirectArrayStoreSemantics::NotStore,
+        }
+    }
+
+    fn proved_unchecked_stack_top_pop_store(
+        block: BasicBlockId,
+        instruction_index: usize,
+        receiver_value: ValueId,
+        index_value: ValueId,
+        value_value: ValueId,
+        result_value: Option<ValueId>,
+    ) -> Self {
+        Self {
+            block,
+            instruction_index,
+            op: DirectArrayAccessOp::Store,
+            receiver_value,
+            index_value,
+            value_value: Some(value_value),
+            result_value,
+            array_kind: "DirectArrayI64",
+            element_type: "i64",
+            route: "direct_array_i64_store",
+            bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
+            proof_kind: DirectArrayProofKind::StackTopPop,
+            fallback_policy: DirectArrayFallbackPolicy::FailFast,
+            cfg_shape: DirectArrayCfgShape::Branchless,
+            store_semantics: DirectArrayStoreSemantics::OverwriteExisting,
+        }
+    }
+
     pub fn block(&self) -> BasicBlockId {
         self.block
     }
@@ -257,6 +312,8 @@ impl DirectArrayAccessPlan {
 
 pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
     let mut plans = Vec::new();
+    let def_map = build_value_def_map(function);
+    let mut stack_top_pop_values = Vec::new();
     for route in &function.metadata.generic_method_routes {
         if route.receiver_origin_box() != Some("ArrayBox") {
             continue;
@@ -266,18 +323,34 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
         };
         match route.route_kind_tag() {
             "array_slot_load_any" => {
-                if !checked_direct_array_lowering_site_is_cfg_safe(function, route.block()) {
+                if stack_top_pop_proves_branchless_load(function, route.block(), index_value) {
+                    plans.push(DirectArrayAccessPlan::proved_unchecked_stack_top_pop_load(
+                        route.block(),
+                        route.instruction_index(),
+                        route.receiver_value(),
+                        index_value,
+                        route.result_value(),
+                    ));
+                    if let Some(result_value) = route.result_value() {
+                        stack_top_pop_values.push(resolve_value_origin(
+                            function,
+                            &def_map,
+                            result_value,
+                        ));
+                    }
+                } else if !checked_direct_array_lowering_site_is_cfg_safe(function, route.block()) {
                     continue;
+                } else {
+                    plans.push(DirectArrayAccessPlan::checked(
+                        route.block(),
+                        route.instruction_index(),
+                        DirectArrayAccessOp::Load,
+                        route.receiver_value(),
+                        index_value,
+                        None,
+                        route.result_value(),
+                    ));
                 }
-                plans.push(DirectArrayAccessPlan::checked(
-                    route.block(),
-                    route.instruction_index(),
-                    DirectArrayAccessOp::Load,
-                    route.receiver_value(),
-                    index_value,
-                    None,
-                    route.result_value(),
-                ));
             }
             "array_store_any" => {
                 let Some(value_value) =
@@ -292,6 +365,18 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
                     index_value,
                 ) {
                     plans.push(DirectArrayAccessPlan::proved_unchecked_range_index_store(
+                        route.block(),
+                        route.instruction_index(),
+                        route.receiver_value(),
+                        index_value,
+                        value_value,
+                        route.result_value(),
+                    ));
+                } else if stack_top_pop_values
+                    .iter()
+                    .any(|origin| *origin == resolve_value_origin(function, &def_map, index_value))
+                {
+                    plans.push(DirectArrayAccessPlan::proved_unchecked_stack_top_pop_store(
                         route.block(),
                         route.instruction_index(),
                         route.receiver_value(),
@@ -315,6 +400,90 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
         }
     }
     function.metadata.direct_array_access_plans = plans;
+}
+
+fn stack_top_pop_proves_branchless_load(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    index_value: ValueId,
+) -> bool {
+    let def_map = build_value_def_map(function);
+    let Some(stack_top_value) = binop_sub_one_lhs(function, index_value) else {
+        return false;
+    };
+    predecessor_branch_proves_nonzero_on_edge(function, &def_map, block_id, stack_top_value)
+}
+
+fn binop_sub_one_lhs(function: &MirFunction, value_id: ValueId) -> Option<ValueId> {
+    let def_map = build_value_def_map(function);
+    let origin = resolve_value_origin(function, &def_map, value_id);
+    function.blocks.values().find_map(|block| {
+        block
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::BinOp {
+                    dst,
+                    op: BinaryOp::Sub,
+                    lhs,
+                    rhs,
+                } if resolve_value_origin(function, &def_map, *dst) == origin
+                    && value_is_integer_const(function, *rhs, 1) =>
+                {
+                    Some(*lhs)
+                }
+                _ => None,
+            })
+    })
+}
+
+fn predecessor_branch_proves_nonzero_on_edge(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    target_block: BasicBlockId,
+    value: ValueId,
+) -> bool {
+    let value_origin = resolve_value_origin(function, def_map, value);
+    function.blocks.values().any(|pred| {
+        let Some(MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            ..
+        }) = &pred.terminator
+        else {
+            return false;
+        };
+        let Some((op, lhs, rhs)) = compare_def(function, *condition) else {
+            return false;
+        };
+        let lhs_matches = resolve_value_origin(function, def_map, lhs) == value_origin
+            && value_is_integer_const(function, rhs, 0);
+        let rhs_matches = resolve_value_origin(function, def_map, rhs) == value_origin
+            && value_is_integer_const(function, lhs, 0);
+        if !(lhs_matches || rhs_matches) {
+            return false;
+        }
+        match op {
+            CompareOp::Eq => *else_bb == target_block,
+            CompareOp::Ne => *then_bb == target_block,
+            _ => false,
+        }
+    })
+}
+
+fn compare_def(function: &MirFunction, value_id: ValueId) -> Option<(CompareOp, ValueId, ValueId)> {
+    function.blocks.values().find_map(|block| {
+        block
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Compare { dst, op, lhs, rhs } if *dst == value_id => {
+                    Some((*op, *lhs, *rhs))
+                }
+                _ => None,
+            })
+    })
 }
 
 fn range_index_proves_branchless_append_or_overwrite_store(
@@ -632,5 +801,82 @@ mod tests {
         assert_eq!(store.bounds_policy(), DirectArrayBoundsPolicy::Checked);
         assert_eq!(store.proof_kind(), DirectArrayProofKind::ExactFrontContract);
         assert_eq!(store.cfg_shape(), DirectArrayCfgShape::CheckedBranching);
+    }
+
+    #[test]
+    fn refresh_records_stack_top_pop_load_and_store_as_branchless_proved_unchecked_plans() {
+        let mut function = make_function();
+        let body_bb = BasicBlockId::new(1);
+        let reject_bb = BasicBlockId::new(2);
+        function.add_block(BasicBlock::new(body_bb));
+        function.add_block(BasicBlock::new(reject_bb));
+
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        entry.add_instruction(MirInstruction::Compare {
+            dst: ValueId::new(11),
+            op: CompareOp::Eq,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(10),
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(11),
+            then_bb: reject_bb,
+            else_bb: body_bb,
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+
+        let body = function.blocks.get_mut(&body_bb).expect("body");
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(12),
+            value: ConstValue::Integer(1),
+        });
+        body.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(13),
+            op: BinaryOp::Sub,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(12),
+        });
+        body.add_instruction(method_call(Some(14), "ArrayBox", "get", 3, vec![13]));
+        body.add_instruction(method_call(Some(15), "ArrayBox", "set", 4, vec![14, 5]));
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 2);
+        let load = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(load.op(), DirectArrayAccessOp::Load);
+        assert_eq!(
+            load.bounds_policy(),
+            DirectArrayBoundsPolicy::ProvedUnchecked
+        );
+        assert_eq!(load.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(load.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
+        assert_eq!(load.cfg_shape(), DirectArrayCfgShape::Branchless);
+        assert_eq!(load.store_semantics(), DirectArrayStoreSemantics::NotStore);
+
+        let store = &function.metadata.direct_array_access_plans[1];
+        assert_eq!(store.op(), DirectArrayAccessOp::Store);
+        assert_eq!(
+            store.bounds_policy(),
+            DirectArrayBoundsPolicy::ProvedUnchecked
+        );
+        assert_eq!(store.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
+        assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
+        assert_eq!(
+            store.store_semantics(),
+            DirectArrayStoreSemantics::OverwriteExisting
+        );
     }
 }

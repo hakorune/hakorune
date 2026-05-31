@@ -23,11 +23,28 @@
             1);
       }
 
-      auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(void) {
+      auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key,
+          long long value,
+          long long dst) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
+        if (lowering_plan_direct_array_access_site_matches_proved_unchecked_stack_top_pop_store_i64(
+                bid,
+                ii,
+                "direct_array_i64_store",
+                recv,
+                key,
+                value,
+                dst,
+                1)) {
+          return 1;
+        }
+        // Temporary bridge until caller_precondition plans cover
+        // releaseLocalKnownLive stores.
+        return name && !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1");
       }
 
       auto int same_module_function_is_selected_direct_array_i64_range_index_store_target(
@@ -158,7 +175,8 @@
         char value_ref[64];
         (void)f;
         if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
-        if (!same_module_function_is_selected_direct_array_i64_unchecked_store_target()) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_unchecked_store_target(
+                bid, ii, recv, key, value, dst)) return 0;
         if (!(value && is_plain_i64_value(value))) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
