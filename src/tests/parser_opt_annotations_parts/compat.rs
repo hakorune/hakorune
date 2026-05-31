@@ -1,14 +1,13 @@
 use super::*;
 
 #[test]
-fn tokenizer_rejects_annotation_prefix_when_feature_off() {
+fn tokenizer_accepts_rune_prefix_by_default() {
     with_features(None, || {
-        let mut t = NyashTokenizer::new("@hint(inline)");
-        let err = t.tokenize().expect_err("tokenize should fail");
-        match err {
-            TokenizeError::UnexpectedCharacter { char, .. } => assert_eq!(char, '@'),
-            _ => panic!("unexpected tokenize error: {err}"),
-        }
+        let mut t = NyashTokenizer::new("@rune Inline(required)");
+        let tokens = t.tokenize().expect("tokenize canonical rune");
+        assert!(tokens
+            .iter()
+            .any(|token| matches!(token.token_type, crate::tokenizer::TokenType::AT)));
     });
 }
 

@@ -45,7 +45,7 @@ Note:
 | metadata carrier | declaration-local `attrs.runes` on AST, mirrored to direct MIR |
 | first backend consumer | `ny-llvmc` selected-entry only |
 | `llvmlite` | compat/noop keep; safe ignore only |
-| feature gate | `NYASH_FEATURES=rune` |
+| feature gate | default-on parser surface; historical `NYASH_FEATURES=rune` is compatibility-only |
 
 ## 2. Surface
 
@@ -104,8 +104,8 @@ The following remain explicitly deferred:
 
 ## 4. Feature Gate
 
-- canonical gate/docs surface: `NYASH_FEATURES=rune`
-- default: OFF
+- canonical docs surface: `@rune` is parsed by default
+- default: ON
 - no new `NYASH_RUNE_*` env vars in v0
 - current parser-front-door truth after Rune v1 unification:
   - `NYASH_FEATURES=opt-annotations` remains a compat alias gate for the unified metadata parser path during the compat window
@@ -119,7 +119,7 @@ The following remain explicitly deferred:
 | Area | Status | Current truth |
 | --- | --- | --- |
 | docs/task lock | landed | syntax / carrier / backend scope are docs-locked |
-| Rust parser | landed | `@rune` behind `NYASH_FEATURES=rune`; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
+| Rust parser | landed | `@rune` is default-on parser surface; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
 | `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement; root-entry carrier path fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values |
 | Rust AST/direct MIR carrier | landed | declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR |
 | `.hako` source-route keep | partly landed | root-entry attrs now survive via a real `Main.main` declaration def in `defs[]`; compiler/mirbuilder carries a generic function-rune map from `defs[].attrs.runes`; still not a claim of broad declaration-local MIR parity |

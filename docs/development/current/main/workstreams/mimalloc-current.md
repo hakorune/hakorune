@@ -297,7 +297,7 @@ MIR JSON proof:
 
 ```text
 emit_route=direct
-env.NYASH_FEATURES=rune
+env.NYASH_FEATURES=not_required
 env.HAKO_TYPED_OBJECT_STORE=direct_slot_exact
 env.HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact
 direct_state_plan_count=9
@@ -377,6 +377,9 @@ remains the active owner surface and the lane stays on source-level mimalloc wor
 
 ## Decision Log
 
+- 2026-05-31: `@rune` parser surface is now default-on. Historical
+  `NYASH_FEATURES=rune` usage remains compatible, but mimalloc proof apps and
+  direct-state diagnostics should no longer require it in their commands.
 - 2026-05-31: MIM-023..MIM-026 closed as the source-shape direct-state audit.
   MIM-027 adds a real metadata-only `StateRepr::Direct` producer
   (`direct_state_plans`) derived from typed `field_decls`. MIM-028 selects the

@@ -38,14 +38,10 @@ static box AllocLeaf {
 }
 ```
 
-The parser gate for current rune metadata is:
-
-```bash
-NYASH_FEATURES=rune
-```
-
-Some bootstrap tools enable this gate for allocator proof apps. New examples
-should show `@rune`, not the legacy annotation aliases.
+Rune metadata is standard parser surface. Historical scripts may still set
+`NYASH_FEATURES=rune`, but that flag is now a compatibility no-op rather than a
+required gate. New examples should show `@rune`, not the legacy annotation
+aliases.
 
 ## Canonical Families
 

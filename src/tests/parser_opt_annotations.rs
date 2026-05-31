@@ -3,7 +3,7 @@ use crate::parser::NyashParser;
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
 use crate::tests::helpers::env::with_env_vars;
 use crate::tests::helpers::parser::find_method_body;
-use crate::tokenizer::{NyashTokenizer, TokenizeError};
+use crate::tokenizer::NyashTokenizer;
 
 #[path = "parser_opt_annotations_parts/compat.rs"]
 mod compat;

@@ -29,10 +29,6 @@ fn feature_stage3_enabled() -> bool {
     feature_enabled(["stage3", "parserstage3"])
 }
 
-fn feature_rune_enabled() -> bool {
-    feature_enabled(["rune"])
-}
-
 fn feature_enabled<const N: usize>(targets: [&str; N]) -> bool {
     if let Some(list) = nyash_features_list() {
         for item in list {
@@ -61,12 +57,12 @@ pub fn parser_opt_annotations_enabled() -> bool {
 
 /// Parser gate for Rune v0 contract annotations.
 ///
-/// Enabled when NYASH_FEATURES includes one of:
-/// - rune
+/// Rune declaration metadata is standard parser surface.
 ///
-/// Default: OFF.
+/// `NYASH_FEATURES=rune` remains a compatibility no-op for older scripts that
+/// still spell the rollout gate explicitly.
 pub fn parser_rune_enabled() -> bool {
-    feature_rune_enabled()
+    true
 }
 
 /// Unified parser gate for declaration metadata annotations during the compat window.

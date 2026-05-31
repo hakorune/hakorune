@@ -40,7 +40,7 @@ Related:
 | internal carrier | declaration-local `attrs.runes` only |
 | Program(JSON v0) | no widen |
 | direct MIR | existing declaration-local rune metadata pathを再利用 |
-| canonical gate | `NYASH_FEATURES=rune` |
+| canonical gate | default-on parser surface; `NYASH_FEATURES=rune` remains a compatibility no-op |
 | compat gate | `NYASH_FEATURES=opt-annotations` also enables the unified metadata parser path during the compat window |
 | statement-position legacy aliases | parse/noop compat keep |
 | statement-position canonical optimization runes | fail-fast (`declaration required`) |
@@ -101,7 +101,7 @@ Both routes normalize to:
 
 The old split-gate reading is superseded for parser/front-door behavior.
 
-- `NYASH_FEATURES=rune` is the canonical gate and is the only gate shown in new docs/examples
+- `@rune` is default-on parser surface; historical `NYASH_FEATURES=rune` scripts remain valid but no longer required
 - `NYASH_FEATURES=opt-annotations` remains as a compat alias gate during the migration window
 - while the compat window is open, either gate enables the same unified metadata parser path
 - this does not mean optimization metadata is backend-active; it remains parse/noop until verifier/registry/backend slices are explicitly promoted
