@@ -249,6 +249,33 @@ impl DirectArrayAccessPlan {
         }
     }
 
+    fn proved_unchecked_caller_precondition_store(
+        block: BasicBlockId,
+        instruction_index: usize,
+        receiver_value: ValueId,
+        index_value: ValueId,
+        value_value: ValueId,
+        result_value: Option<ValueId>,
+    ) -> Self {
+        Self {
+            block,
+            instruction_index,
+            op: DirectArrayAccessOp::Store,
+            receiver_value,
+            index_value,
+            value_value: Some(value_value),
+            result_value,
+            array_kind: "DirectArrayI64",
+            element_type: "i64",
+            route: "direct_array_i64_store",
+            bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
+            proof_kind: DirectArrayProofKind::CallerPrecondition,
+            fallback_policy: DirectArrayFallbackPolicy::FailFast,
+            cfg_shape: DirectArrayCfgShape::Branchless,
+            store_semantics: DirectArrayStoreSemantics::OverwriteExisting,
+        }
+    }
+
     pub fn block(&self) -> BasicBlockId {
         self.block
     }
@@ -353,9 +380,12 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
                 }
             }
             "array_store_any" => {
-                let Some(value_value) =
-                    call_arg(function, route.block(), route.instruction_index(), 1)
-                else {
+                let Some(value_value) = array_store_value_arg(
+                    function,
+                    route.block(),
+                    route.instruction_index(),
+                    index_value,
+                ) else {
                     continue;
                 };
                 if range_index_proves_branchless_append_or_overwrite_store(
@@ -384,6 +414,22 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
                         value_value,
                         route.result_value(),
                     ));
+                } else if caller_precondition_proves_branchless_store(
+                    function,
+                    route.receiver_value(),
+                    index_value,
+                    value_value,
+                ) {
+                    plans.push(
+                        DirectArrayAccessPlan::proved_unchecked_caller_precondition_store(
+                            route.block(),
+                            route.instruction_index(),
+                            route.receiver_value(),
+                            index_value,
+                            value_value,
+                            route.result_value(),
+                        ),
+                    );
                 } else if checked_direct_array_lowering_site_is_cfg_safe(function, route.block()) {
                     plans.push(DirectArrayAccessPlan::checked(
                         route.block(),
@@ -412,6 +458,66 @@ fn stack_top_pop_proves_branchless_load(
         return false;
     };
     predecessor_branch_proves_nonzero_on_edge(function, &def_map, block_id, stack_top_value)
+}
+
+fn caller_precondition_proves_branchless_store(
+    function: &MirFunction,
+    receiver_value: ValueId,
+    index_value: ValueId,
+    value_value: ValueId,
+) -> bool {
+    if function.signature.name != "HakoAllocPageModel.releaseLocalKnownLive/1" {
+        return false;
+    }
+    let Some(me_value) = function.params.first().copied() else {
+        return false;
+    };
+    let Some(block_id_value) = function.params.get(1).copied() else {
+        return false;
+    };
+    let def_map = build_value_def_map(function);
+    if value_origin_is_field_get(function, &def_map, receiver_value, me_value, "block_used") {
+        return resolve_value_origin(function, &def_map, index_value)
+            == resolve_value_origin(function, &def_map, block_id_value)
+            && value_is_integer_const(function, value_value, 0);
+    }
+    if value_origin_is_field_get(function, &def_map, receiver_value, me_value, "local_free") {
+        return value_origin_is_field_get(
+            function,
+            &def_map,
+            index_value,
+            me_value,
+            "local_free_top",
+        ) && resolve_value_origin(function, &def_map, value_value)
+            == resolve_value_origin(function, &def_map, block_id_value);
+    }
+    false
+}
+
+fn value_origin_is_field_get(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value_id: ValueId,
+    base_value: ValueId,
+    expected_field: &str,
+) -> bool {
+    let value_origin = resolve_value_origin(function, def_map, value_id);
+    let base_origin = resolve_value_origin(function, def_map, base_value);
+    function.blocks.values().any(|block| {
+        block.instructions.iter().any(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::FieldGet {
+                    dst,
+                    base,
+                    field,
+                    ..
+                } if resolve_value_origin(function, def_map, *dst) == value_origin
+                    && resolve_value_origin(function, def_map, *base) == base_origin
+                    && field == expected_field
+            )
+        })
+    })
 }
 
 fn binop_sub_one_lhs(function: &MirFunction, value_id: ValueId) -> Option<ValueId> {
@@ -540,6 +646,8 @@ fn direct_array_extent_v0_proves_upper_bound(
 }
 
 fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64> {
+    let def_map = build_value_def_map(function);
+    let origin = resolve_value_origin(function, &def_map, value_id);
     function.blocks.values().find_map(|block| {
         block
             .instructions
@@ -548,7 +656,7 @@ fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64>
                 MirInstruction::Const {
                     dst,
                     value: ConstValue::Integer(actual),
-                } if *dst == value_id => Some(*actual),
+                } if resolve_value_origin(function, &def_map, *dst) == origin => Some(*actual),
                 _ => None,
             })
     })
@@ -580,15 +688,20 @@ fn checked_direct_array_lowering_site_is_cfg_safe(
     })
 }
 
-fn call_arg(
+fn array_store_value_arg(
     function: &MirFunction,
     block: BasicBlockId,
     instruction_index: usize,
-    arg_index: usize,
+    key_value: ValueId,
 ) -> Option<ValueId> {
     let block = function.blocks.get(&block)?;
+    let def_map = build_value_def_map(function);
+    let key_origin = resolve_value_origin(function, &def_map, key_value);
     match block.instructions.get(instruction_index)? {
-        MirInstruction::Call { args, .. } => args.get(arg_index).copied(),
+        MirInstruction::Call { args, .. } => args
+            .iter()
+            .position(|arg| resolve_value_origin(function, &def_map, *arg) == key_origin)
+            .and_then(|index| args.get(index + 1).copied()),
         _ => None,
     }
 }
@@ -605,10 +718,14 @@ mod tests {
     };
 
     fn make_function() -> MirFunction {
+        make_named_function("main", vec![])
+    }
+
+    fn make_named_function(name: &str, params: Vec<MirType>) -> MirFunction {
         MirFunction::new(
             FunctionSignature {
-                name: "main".to_string(),
-                params: vec![],
+                name: name.to_string(),
+                params,
                 return_type: MirType::Integer,
                 effects: EffectMask::PURE,
             },
@@ -878,5 +995,66 @@ mod tests {
             store.store_semantics(),
             DirectArrayStoreSemantics::OverwriteExisting
         );
+    }
+
+    #[test]
+    fn refresh_records_release_known_live_stores_as_caller_precondition_plans() {
+        let mut function = make_named_function(
+            "HakoAllocPageModel.releaseLocalKnownLive/1",
+            vec![
+                MirType::Box("HakoAllocPageModel".to_string()),
+                MirType::Integer,
+            ],
+        );
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(3),
+            base: ValueId::new(0),
+            field: "block_used".to_string(),
+            declared_type: Some(MirType::Box("ArrayBox".to_string())),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        block.add_instruction(method_call(Some(6), "ArrayBox", "set", 3, vec![1, 10]));
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(11),
+            base: ValueId::new(0),
+            field: "local_free_top".to_string(),
+            declared_type: Some(MirType::Integer),
+        });
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(12),
+            base: ValueId::new(0),
+            field: "local_free".to_string(),
+            declared_type: Some(MirType::Box("ArrayBox".to_string())),
+        });
+        block.add_instruction(method_call(Some(15), "ArrayBox", "set", 12, vec![11, 1]));
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 2);
+        for store in &function.metadata.direct_array_access_plans {
+            assert_eq!(store.op(), DirectArrayAccessOp::Store);
+            assert_eq!(
+                store.bounds_policy(),
+                DirectArrayBoundsPolicy::ProvedUnchecked
+            );
+            assert_eq!(store.proof_kind(), DirectArrayProofKind::CallerPrecondition);
+            assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
+            assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
+            assert_eq!(
+                store.store_semantics(),
+                DirectArrayStoreSemantics::OverwriteExisting
+            );
+        }
     }
 }

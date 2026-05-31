@@ -1818,6 +1818,24 @@ representative_direct_exact_exe_smoke=ok
 next_phase=caller_precondition_proof_for_releaseLocalKnownLive
 ```
 
+C shim caller_precondition proof migration:
+
+```text
+proof_kind=caller_precondition
+producer=direct_array_access_plan
+covered_method=HakoAllocPageModel.releaseLocalKnownLive/1
+covered_surface=block_used[block_id]=0,local_free[local_free_top]=block_id
+metadata_reread=ok
+store_plans_proved_unchecked_caller_precondition=2
+c_shim_by_name_unchecked_bridge_removed=1
+c_shim_unchecked_target_selection_source=fn_metadata.direct_array_access_plans
+remaining_c_shim_by_name_unchecked_bridge=0
+rust_unit_direct_array_access_plan=ok
+cargo_check=ok
+representative_direct_exact_exe_smoke=ok
+next_phase=perf_reread_and_next_owner_selection
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

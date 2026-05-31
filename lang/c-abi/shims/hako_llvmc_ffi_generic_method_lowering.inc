@@ -80,7 +80,6 @@
           long long key,
           long long value,
           long long dst) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
         if (lowering_plan_direct_array_access_site_matches_proved_unchecked_stack_top_pop_store_i64(
                 bid,
                 ii,
@@ -92,10 +91,15 @@
                 1)) {
           return 1;
         }
-        // Temporary bridge for Phase 3b: releaseKnownLive still needs the
-        // caller_precondition proof before the remaining by-name edge can be
-        // removed.
-        return name && !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1");
+        return lowering_plan_direct_array_access_site_matches_proved_unchecked_caller_precondition_store_i64(
+            bid,
+            ii,
+            "direct_array_i64_store",
+            recv,
+            key,
+            value,
+            dst,
+            1);
       }
 
       auto int hako_llvmc_is_selected_direct_array_i64_range_index_store_target(

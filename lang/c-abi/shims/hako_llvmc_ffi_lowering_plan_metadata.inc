@@ -334,6 +334,26 @@
                  !strcmp(view->store_semantics, "not_store")));
       }
 
+      auto int lowering_plan_direct_array_access_view_is_proved_unchecked_caller_precondition_store_i64(
+          const struct LoweringPlanDirectArrayAccessView* view,
+          const char* route) {
+        return view &&
+               view->op &&
+               !strcmp(view->op, "store") &&
+               view->route &&
+               !strcmp(view->route, route) &&
+               view->bounds_policy &&
+               !strcmp(view->bounds_policy, "proved_unchecked") &&
+               view->proof_kind &&
+               !strcmp(view->proof_kind, "caller_precondition") &&
+               view->fallback_policy &&
+               !strcmp(view->fallback_policy, "fail_fast") &&
+               view->cfg_shape &&
+               !strcmp(view->cfg_shape, "branchless") &&
+               view->store_semantics &&
+               !strcmp(view->store_semantics, "overwrite_existing");
+      }
+
       auto int lowering_plan_direct_array_access_site_matches_checked_i64(
           long long bid,
           size_t ii,
@@ -404,6 +424,25 @@
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_proved_unchecked_stack_top_pop_i64(&view, "store", route)) return 0;
+        if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
+        if (!view.has_value_value || view.value_value != value_value) return 0;
+        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
+        return 1;
+      }
+
+      auto int lowering_plan_direct_array_access_site_matches_proved_unchecked_caller_precondition_store_i64(
+          long long bid,
+          size_t ii,
+          const char* route,
+          long long receiver_value,
+          long long index_value,
+          long long value_value,
+          long long result_value,
+          int require_result) {
+        struct LoweringPlanDirectArrayAccessView view;
+        yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
+        if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
+        if (!lowering_plan_direct_array_access_view_is_proved_unchecked_caller_precondition_store_i64(&view, route)) return 0;
         if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
         if (!view.has_value_value || view.value_value != value_value) return 0;
         if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
