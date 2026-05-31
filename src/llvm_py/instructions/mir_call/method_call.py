@@ -259,6 +259,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             resolve_arg=_resolve_arg,
             resolver=resolver,
             receiver_vid=receiver,
+            dst_vid=dst_vid,
         )
         if method == "get" and dst_vid is not None:
             try:

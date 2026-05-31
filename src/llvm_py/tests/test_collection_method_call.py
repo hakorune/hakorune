@@ -13,6 +13,9 @@ class _DummyResolver:
     def __init__(self, value_types=None, integerish_ids=None):
         self.value_types = value_types or {}
         self.integerish_ids = set(integerish_ids or [])
+        self.direct_array_access_plans_by_site = {}
+        self.current_block_id = 0
+        self.current_instruction_index = 0
 
 
 def _new_builder():
@@ -34,6 +37,36 @@ def _declare(module, name, ret, args):
             return f
     fnty = ir.FunctionType(ret, args)
     return ir.Function(module, fnty, name=name)
+
+
+def _seed_direct_array_plan(
+    resolver,
+    *,
+    op,
+    receiver_value=1,
+    index_value=2,
+    value_value=None,
+    result_value=9,
+    bounds_policy="checked",
+    cfg_shape="checked_branching",
+    fallback_policy="allow_checked",
+):
+    plan = {
+        "op": op,
+        "receiver_value": receiver_value,
+        "index_value": index_value,
+        "value_value": value_value,
+        "result_value": result_value,
+        "array_kind": "DirectArrayI64",
+        "element_type": "i64",
+        "route": f"direct_array_i64_{'load' if op == 'load' else 'store'}",
+        "bounds_policy": bounds_policy,
+        "proof_kind": "range_index" if bounds_policy == "proved_unchecked" else "exact_front_contract",
+        "fallback_policy": fallback_policy,
+        "cfg_shape": cfg_shape,
+        "store_semantics": "append_or_overwrite" if op == "store" else "not_store",
+    }
+    resolver.direct_array_access_plans_by_site[(resolver.current_block_id, resolver.current_instruction_index)] = [plan]
 
 
 class TestCollectionMethodCall(unittest.TestCase):
@@ -148,9 +181,10 @@ class TestCollectionMethodCall(unittest.TestCase):
 
     def test_direct_array_selected_method_get_lowers_to_direct_load(self):
         def run():
-            i64, module, builder = _new_builder_named("HakoAllocPageModel.acquireFreshSmall/1")
+            i64, module, builder = _new_builder_named("SomeUserMethod/0")
             resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
             resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
+            _seed_direct_array_plan(resolver, op="load")
 
             result = lower_collection_method_call(
                 builder=builder,
@@ -162,6 +196,7 @@ class TestCollectionMethodCall(unittest.TestCase):
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 resolver=resolver,
                 receiver_vid=1,
+                dst_vid=9,
             )
             builder.ret(result)
 
@@ -176,9 +211,10 @@ class TestCollectionMethodCall(unittest.TestCase):
 
     def test_direct_array_selected_method_set_lowers_to_direct_store(self):
         def run():
-            i64, module, builder = _new_builder_named("HakoAllocPageModel.acquireFreshSmall/1")
+            i64, module, builder = _new_builder_named("SomeUserMethod/0")
             resolver = _DummyResolver(value_types={2: "i64", 3: "i64"}, integerish_ids={2, 3})
             resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
+            _seed_direct_array_plan(resolver, op="store", value_value=3)
 
             result = lower_collection_method_call(
                 builder=builder,
@@ -190,6 +226,7 @@ class TestCollectionMethodCall(unittest.TestCase):
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 resolver=resolver,
                 receiver_vid=1,
+                dst_vid=9,
             )
             builder.ret(result)
 
@@ -203,11 +240,19 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         self._with_array_backend("direct_array_i64_exact", run)
 
-    def test_direct_array_release_known_live_lowers_set_to_direct_store(self):
+    def test_direct_array_proved_unchecked_set_lowers_to_branchless_direct_store(self):
         def run():
-            i64, module, builder = _new_builder_named("HakoAllocPageModel.releaseLocalKnownLive/1")
+            i64, module, builder = _new_builder_named("SomeUserMethod/0")
             resolver = _DummyResolver(value_types={2: "i64", 3: "i64"}, integerish_ids={2, 3})
             resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
+            _seed_direct_array_plan(
+                resolver,
+                op="store",
+                value_value=3,
+                bounds_policy="proved_unchecked",
+                cfg_shape="branchless",
+                fallback_policy="fail_fast",
+            )
 
             result = lower_collection_method_call(
                 builder=builder,
@@ -219,11 +264,14 @@ class TestCollectionMethodCall(unittest.TestCase):
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 resolver=resolver,
                 receiver_vid=1,
+                dst_vid=9,
             )
             builder.ret(result)
 
             ir_text = str(module)
-            self.assertIn("direct_array_i64_set_ptr", ir_text)
+            self.assertIn("direct_array_i64_set_unchecked_ptr", ir_text)
+            self.assertIn("direct_array_i64_set_unchecked_next_len", ir_text)
+            self.assertNotIn("direct_array_i64_set_can_store", ir_text)
             self.assertNotIn("nyash.array.slot_store_hii", ir_text)
 
         self._with_array_backend("direct_array_i64_exact", run)
@@ -233,6 +281,7 @@ class TestCollectionMethodCall(unittest.TestCase):
             i64, module, builder = _new_builder_named("HakoAllocPageModel.acquireFreshSmall/1")
             resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
             resolver.direct_array_i64_ids = {99}
+            _seed_direct_array_plan(resolver, op="load")
 
             result = lower_collection_method_call(
                 builder=builder,
@@ -244,6 +293,33 @@ class TestCollectionMethodCall(unittest.TestCase):
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 resolver=resolver,
                 receiver_vid=1,
+                dst_vid=9,
+            )
+            builder.ret(result)
+
+            ir_text = str(module)
+            self.assertIn("nyash.array.slot_load_hi", ir_text)
+            self.assertNotIn("direct_array_i64_get_ptr", ir_text)
+
+        self._with_array_backend("direct_array_i64_exact", run)
+
+    def test_direct_array_method_name_without_plan_keeps_helper_path(self):
+        def run():
+            i64, module, builder = _new_builder_named("HakoAllocPageModel.acquireFreshSmall/1")
+            resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+            resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
+
+            result = lower_collection_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="ArrayBox",
+                method_name="get",
+                recv_h=ir.Constant(i64, 0x1003),
+                arg_ids=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                resolver=resolver,
+                receiver_vid=1,
+                dst_vid=9,
             )
             builder.ret(result)
 

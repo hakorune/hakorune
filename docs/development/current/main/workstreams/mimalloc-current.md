@@ -1787,6 +1787,18 @@ representative_direct_exact_exe_smoke=ok
 summary_fields=33254,33792,0,64,0,0
 ```
 
+Python LLVM metadata-consumer cleanup:
+
+```text
+selection_source=fn_metadata.direct_array_access_plans
+python_lowerer_method_name_allowlist_removed=1
+proved_unchecked_range_index_branchless_store_consumer=implemented
+representative_direct_exact_exe_smoke=ok
+c_shim_by_name_unchecked_bridge_still_remaining=1
+remaining_c_shim_targets=acquireFreshSmall_get_store,releaseLocalKnownLive_store
+next_phase=stack_top_pop_and_caller_precondition_proofs_before_c_shim_bridge_removal
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

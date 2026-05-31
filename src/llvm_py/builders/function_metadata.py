@@ -253,6 +253,44 @@ def _load_exact_numeric_route_metadata(builder, func_data: Dict[str, Any]) -> No
     )
 
 
+def _load_direct_array_access_plan_metadata(builder, func_data: Dict[str, Any]) -> None:
+    metadata = func_data.get("metadata", {}) if isinstance(func_data, dict) else {}
+    rows = metadata.get("direct_array_access_plans", []) if isinstance(metadata, dict) else []
+    by_site: Dict[tuple[int, int], List[Dict[str, Any]]] = {}
+    if not isinstance(rows, list):
+        builder.resolver.direct_array_access_plans_by_site = {}
+        return
+
+    int_keys = (
+        "block",
+        "instruction_index",
+        "receiver_value",
+        "index_value",
+        "value_value",
+        "result_value",
+    )
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        normalized = dict(row)
+        try:
+            block = int(normalized.get("block"))
+            instruction_index = int(normalized.get("instruction_index"))
+        except (TypeError, ValueError):
+            continue
+        for key in int_keys:
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            try:
+                normalized[key] = int(value)
+            except (TypeError, ValueError):
+                pass
+        by_site.setdefault((block, instruction_index), []).append(normalized)
+    builder.resolver.direct_array_access_plans_by_site = by_site
+
+
 def _seed_resolver_fact_sets(
     builder,
     context: FunctionLowerContext,

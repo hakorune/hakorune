@@ -330,11 +330,16 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         # Split into body and terminator ops
         body_ops: List[Dict[str, Any]] = []
         term_ops: List[Dict[str, Any]] = []
-        for inst in insts:
+        for original_instruction_index, inst in enumerate(insts):
             try:
                 opx = inst.get('op')
             except Exception:
                 opx = None
+            try:
+                inst["__block_id"] = bid
+                inst["__instruction_index"] = original_instruction_index
+            except Exception:
+                pass
             if opx in ("ret","jump","branch"):
                 term_ops.append(inst)
             elif opx == "phi":
@@ -383,6 +388,11 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             except Exception:
                 pass
             ib.position_at_end(bb)
+            try:
+                builder.resolver.current_block_id = bid
+                builder.resolver.current_instruction_index = int(inst.get("__instruction_index", i_idx))
+            except Exception:
+                pass
             if inst.get('op') == 'copy':
                 src_i = inst.get('src')
                 skip_now = False
@@ -646,6 +656,11 @@ def lower_terminators(builder, func: ir.Function):
                 except Exception:
                     pass
                 ib.position_at_end(bb)
+                try:
+                    builder.resolver.current_block_id = bid
+                    builder.resolver.current_instruction_index = int(inst.get("__instruction_index", -1))
+                except Exception:
+                    pass
                 builder.lower_instruction(ib, inst, func)
         finally:
             # Phase 131-12-P1 P0-3: Restore previous _current_vmap state (prevent side effects)

@@ -6,7 +6,7 @@ This module owns the common `get/push/set/has/clear` route order shared by
 """
 
 import os
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from llvmlite import ir
 
@@ -16,14 +16,6 @@ from .runtime_data_dispatch import (
 )
 from utils.resolver_helpers import is_arrayrepr_direct_i64
 
-DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHODS = {
-    "HakoAllocPageModel.acquire/1",
-    "HakoAllocPageModel.acquireFreshSmall/1",
-    "HakoAllocPageModel.acquire_usize/1",
-    "HakoAllocPageModel.reactivate/0",
-    "HakoAllocPageModel.releaseLocal/1",
-    "HakoAllocPageModel.releaseLocalKnownLive/1",
-}
 DIRECT_ARRAY_HANDLE_TAG_MASK = -4
 DIRECT_ARRAY_HEADER_LEN_OFFSET_BYTES = 16
 DIRECT_ARRAY_HEADER_CAPACITY_OFFSET_BYTES = 24
@@ -39,24 +31,58 @@ def _resolve_or_zero(
     return resolve_arg(arg_ids[index]) or zero
 
 
-def _current_function_name(builder: ir.IRBuilder) -> Optional[str]:
-    block = getattr(builder, "block", None)
-    function = getattr(block, "function", None)
-    name = getattr(function, "name", None)
-    return str(name) if name is not None else None
-
-
-def _direct_array_nativedirect_selected(builder, resolver, receiver_vid) -> bool:
+def _current_direct_array_access_plan(
+    *,
+    resolver,
+    method_name: str,
+    receiver_vid,
+    arg_ids: List[int],
+    dst_vid=None,
+) -> Optional[Dict[str, Any]]:
     if os.environ.get("HAKO_ARRAY_SLOT_STORE") != "direct_array_i64_exact":
-        return False
-    if _current_function_name(builder) not in DIRECT_ARRAY_NATIVEDIRECT_SELECTED_METHODS:
-        return False
+        return None
     if resolver is None or receiver_vid is None:
-        return False
+        return None
     try:
-        return is_arrayrepr_direct_i64(resolver, int(receiver_vid))
+        block_id = int(getattr(resolver, "current_block_id"))
+        instruction_index = int(getattr(resolver, "current_instruction_index"))
+    except (TypeError, ValueError):
+        return None
+    plans_by_site = getattr(resolver, "direct_array_access_plans_by_site", None)
+    if not isinstance(plans_by_site, dict):
+        return None
+    plans = plans_by_site.get((block_id, instruction_index), [])
+    expected_op = "load" if method_name == "get" else "store" if method_name == "set" else None
+    if expected_op is None:
+        return None
+    try:
+        receiver_vid = int(receiver_vid)
     except Exception:
-        return False
+        return None
+
+    for plan in plans:
+        if not isinstance(plan, dict):
+            continue
+        if plan.get("op") != expected_op:
+            continue
+        if plan.get("array_kind") != "DirectArrayI64":
+            continue
+        if plan.get("element_type") != "i64":
+            continue
+        if plan.get("receiver_value") != receiver_vid:
+            continue
+        if not arg_ids or plan.get("index_value") != int(arg_ids[0]):
+            continue
+        if method_name == "set":
+            if len(arg_ids) < 2 or plan.get("value_value") != int(arg_ids[1]):
+                continue
+        result_value = plan.get("result_value")
+        if result_value is not None and dst_vid is not None and result_value != int(dst_vid):
+            continue
+        if not is_arrayrepr_direct_i64(resolver, receiver_vid):
+            continue
+        return plan
+    return None
 
 
 def _direct_array_base(builder: ir.IRBuilder, recv_h):
@@ -231,6 +257,45 @@ def _lower_direct_array_i64_set(builder: ir.IRBuilder, recv_h, index, value):
     return result
 
 
+def _lower_direct_array_i64_set_proved_unchecked(builder: ir.IRBuilder, recv_h, index, value):
+    i64 = ir.IntType(64)
+    one = ir.Constant(i64, 1)
+    base = _direct_array_base(builder, recv_h)
+    len_ptr = _direct_array_i64_header_ptr(
+        builder,
+        base,
+        DIRECT_ARRAY_HEADER_LEN_OFFSET_BYTES,
+        "direct_array_i64_len_ptr",
+    )
+    len_value = builder.load(len_ptr, name="direct_array_i64_len")
+    element_ptr = _direct_array_i64_element_ptr(
+        builder,
+        base,
+        index,
+        "direct_array_i64_set_unchecked_ptr",
+    )
+    builder.store(value, element_ptr)
+    is_append = builder.icmp_unsigned(
+        "==",
+        index,
+        len_value,
+        name="direct_array_i64_set_unchecked_is_append",
+    )
+    incremented_len = builder.add(
+        len_value,
+        one,
+        name="direct_array_i64_set_unchecked_len_plus_one",
+    )
+    next_len = builder.select(
+        is_append,
+        incremented_len,
+        len_value,
+        name="direct_array_i64_set_unchecked_next_len",
+    )
+    builder.store(next_len, len_ptr)
+    return one
+
+
 def _lower_direct_array_nativedirect_call(
     *,
     builder: ir.IRBuilder,
@@ -240,8 +305,16 @@ def _lower_direct_array_nativedirect_call(
     resolve_arg: Callable[[int], Optional[ir.Value]],
     resolver=None,
     receiver_vid=None,
+    dst_vid=None,
 ):
-    if not _direct_array_nativedirect_selected(builder, resolver, receiver_vid):
+    plan = _current_direct_array_access_plan(
+        resolver=resolver,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+        dst_vid=dst_vid,
+    )
+    if plan is None:
         return None
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
@@ -255,6 +328,12 @@ def _lower_direct_array_nativedirect_call(
             return recv_h
         index = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         value = _resolve_or_zero(resolve_arg, arg_ids, 1, zero)
+        if (
+            plan.get("bounds_policy") == "proved_unchecked"
+            and plan.get("cfg_shape") == "branchless"
+            and plan.get("fallback_policy") == "fail_fast"
+        ):
+            return _lower_direct_array_i64_set_proved_unchecked(builder, recv_h, index, value)
         return _lower_direct_array_i64_set(builder, recv_h, index, value)
     return None
 
@@ -310,6 +389,7 @@ def _lower_array_collection_method_call(
     resolve_arg: Callable[[int], Optional[ir.Value]],
     resolver=None,
     receiver_vid=None,
+    dst_vid=None,
 ):
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
@@ -330,6 +410,7 @@ def _lower_array_collection_method_call(
         resolve_arg=resolve_arg,
         resolver=resolver,
         receiver_vid=receiver_vid,
+        dst_vid=dst_vid,
     )
     if direct_result is not None:
         return direct_result
@@ -431,6 +512,7 @@ def lower_collection_method_call(
     resolve_arg: Callable[[int], Optional[ir.Value]],
     resolver=None,
     receiver_vid=None,
+    dst_vid=None,
     prefer_array_mono_route=None,
 ):
     runtime_result = lower_runtime_data_method_call(
@@ -458,6 +540,7 @@ def lower_collection_method_call(
             resolve_arg=resolve_arg,
             resolver=resolver,
             receiver_vid=receiver_vid,
+            dst_vid=dst_vid,
         )
 
     return _lower_map_collection_method_call(
