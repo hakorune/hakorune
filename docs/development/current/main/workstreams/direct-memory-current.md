@@ -60,7 +60,7 @@ direct storage routes.
   - no return, field store, capture, publish, provider boundary crossing, or
     owner resize/free inside the span lifetime
 
-- [ ] LANG-DM-005: SpanI64 / SpanMutI64 minimal pilot
+- [x] LANG-DM-005: SpanI64 / SpanMutI64 minimal pilot
   - output: borrow only from `DirectArrayI64`
   - access plans reuse DirectArray proof vocabulary
   - no NativePtr / Bytes yet
@@ -68,6 +68,10 @@ direct storage routes.
     planning remains the next implementation slice
   - current slice: metadata-only `SpanAccessPlan` carrier lands next; planner
     and lowering remain closed until fixture selection
+  - landed: fact-only `SpanAccessPlan` planner consumes `SpanBorrowFact`,
+    `RangeIndexFact`, `DirectArrayExtentFact`, and `RegionStabilityFact` for
+    one read and one mutable write fixture; source syntax and lowering remain
+    closed
 
 - [ ] LANG-DM-006: `direct {}` contract
   - output: direct block requires `FastPathPlan`
@@ -114,3 +118,7 @@ direct storage routes.
   The plan reuses the DirectArray proof vocabulary (`range_index`,
   `direct_array_extent`, `region_stability`) and keeps Span planner/lowering
   closed for the next selected fixture.
+- 2026-06-01: LANG-DM-005 landed the minimal fact-only Span planner. It creates
+  `SpanAccessPlan` rows only when a no-escape Span borrow, range index, direct
+  array extent, and region stability proof all line up. No source syntax or
+  lowering was opened.

@@ -238,6 +238,7 @@ fn build_mir_json_root_emits_span_borrow_facts() {
     let mut function = make_function("main", true);
     function.metadata.span_borrow_facts.push(SpanBorrowFact {
         span_id: 0,
+        span_value: ValueId::new(2),
         region_value: ValueId::new(2),
         owner_value: ValueId::new(2),
         mutability: SpanBorrowMutability::Write,
@@ -260,6 +261,7 @@ fn build_mir_json_root_emits_span_borrow_facts() {
     assert_eq!(facts.len(), 1);
     let fact = &facts[0];
     assert_eq!(fact["span_id"], 0);
+    assert_eq!(fact["span_value"], 2);
     assert_eq!(fact["region_value"], 2);
     assert_eq!(fact["owner_value"], 2);
     assert_eq!(fact["mutability"], "write");

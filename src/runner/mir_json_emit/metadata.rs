@@ -151,6 +151,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         "span_borrow_facts": metadata.span_borrow_facts.iter().map(|fact| {
             json!({
                 "span_id": fact.span_id,
+                "span_value": fact.span_value.as_u32(),
                 "region_value": fact.region_value.as_u32(),
                 "owner_value": fact.owner_value.as_u32(),
                 "mutability": fact.mutability.as_str(),

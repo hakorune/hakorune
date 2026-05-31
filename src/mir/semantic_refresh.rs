@@ -54,6 +54,7 @@ use super::{
     rune_plan_refresh::refresh_function_rune_plans,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
+    span_access_plan::refresh_function_span_access_plans,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
@@ -100,6 +101,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_range_index_facts(function);
     refresh_function_direct_array_extent_facts(function);
     refresh_function_direct_array_access_plans(function);
+    refresh_function_span_access_plans(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);

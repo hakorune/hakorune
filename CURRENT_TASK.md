@@ -125,12 +125,14 @@ Recommended order:
    - status: done; accepted in
      `docs/development/current/main/design/span-no-escape-ssot.md`
 5. `LANG-DM-005` SpanI64 / SpanMutI64 minimal pilot
+   - status: done; metadata carriers and fact-only Span access planner landed
+     for one read and one mutable write fixture
 6. `LANG-DM-006` `direct {}` contract
 7. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
    the DirectArray/Span proof system is stable.
 
-Return to mimalloc optimization after LANG-DM-001..003 unless the Span SSOT
-becomes the clear next blocker.
+Return to mimalloc optimization after the `direct {}` contract is either locked
+or explicitly parked by the direct-memory workstream.
 
 ## Current Ordered App Bringup
 

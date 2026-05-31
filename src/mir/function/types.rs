@@ -231,6 +231,7 @@ impl SpanElementType {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SpanBorrowFact {
     pub span_id: u32,
+    pub span_value: ValueId,
     pub region_value: ValueId,
     pub owner_value: ValueId,
     pub mutability: SpanBorrowMutability,
