@@ -1,7 +1,7 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::function::LoopRangeFact;
+use crate::mir::function::{CountingLoopFact, LoopRangeFact};
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
 };
@@ -77,6 +77,48 @@ fn build_mir_json_root_emits_range_index_facts() {
     assert_eq!(fact["end_exclusive"], true);
     assert_eq!(fact["index_body_read_only"], true);
     assert_eq!(fact["loop_carried_writes_supported"], false);
+}
+
+#[test]
+fn build_mir_json_root_emits_counting_loop_facts() {
+    let mut function = make_function("main", true);
+    function
+        .metadata
+        .counting_loop_facts
+        .push(CountingLoopFact {
+            index_name: "i".to_string(),
+            lower_value: ValueId::new(10),
+            upper_exclusive_value: ValueId::new(11),
+            index_value: ValueId::new(4),
+            preheader_bb: BasicBlockId::new(0),
+            header_bb: BasicBlockId::new(2),
+            body_bb: BasicBlockId::new(1),
+            latch_bb: BasicBlockId::new(3),
+            exit_bb: BasicBlockId::new(4),
+            step: 1,
+            end_exclusive: true,
+            index_body_read_only: true,
+            loop_carried_writes_supported: false,
+        });
+    crate::mir::range_index_fact::refresh_function_range_index_facts(&mut function);
+
+    let mut module = MirModule::new("json_counting_loop_fact_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let producer_facts = root["functions"][0]["metadata"]["counting_loop_facts"]
+        .as_array()
+        .expect("counting_loop_facts");
+    assert_eq!(producer_facts.len(), 1);
+    assert_eq!(producer_facts[0]["index_name"], "i");
+    assert_eq!(producer_facts[0]["lower_value"], 10);
+    assert_eq!(producer_facts[0]["upper_exclusive_value"], 11);
+
+    let range_facts = root["functions"][0]["metadata"]["range_index_facts"]
+        .as_array()
+        .expect("range_index_facts");
+    assert_eq!(range_facts.len(), 1);
+    assert_eq!(range_facts[0]["origin_kind"], "counting_loop");
 }
 
 #[test]

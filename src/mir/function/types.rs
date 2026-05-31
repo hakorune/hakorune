@@ -103,6 +103,23 @@ pub struct LoopRangeFact {
     pub body_writes_supported: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CountingLoopFact {
+    pub index_name: String,
+    pub lower_value: ValueId,
+    pub upper_exclusive_value: ValueId,
+    pub index_value: ValueId,
+    pub preheader_bb: BasicBlockId,
+    pub header_bb: BasicBlockId,
+    pub body_bb: BasicBlockId,
+    pub latch_bb: BasicBlockId,
+    pub exit_bb: BasicBlockId,
+    pub step: i64,
+    pub end_exclusive: bool,
+    pub index_body_read_only: bool,
+    pub loop_carried_writes_supported: bool,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RangeIndexFactOriginKind {
     RangeLoop,
@@ -195,6 +212,10 @@ pub struct FunctionMetadata {
     /// Stage1 LoopRange facts derived by the executable range-loop route.
     /// This metadata owns the index/bound/step contract for later verifier rows.
     pub loop_range_facts: Vec<LoopRangeFact>,
+
+    /// While-style counting loop facts derived by the JSON v0 LoopForm route.
+    /// These are producer facts only; fast-path consumers use `range_index_facts`.
+    pub counting_loop_facts: Vec<CountingLoopFact>,
 
     /// Canonical range-index facts derived from loop producer facts.
     /// Consumers such as DirectArrayAccessPlan use this view instead of

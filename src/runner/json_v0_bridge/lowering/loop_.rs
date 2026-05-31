@@ -26,8 +26,9 @@ use super::{lower_stmt_list_with_vars, new_block, BridgeEnv, LoopContext};
 use crate::ast::Span;
 use crate::config::env;
 use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
+use crate::mir::function::CountingLoopFact;
 use crate::mir::phi_core::loopform::{LoopFormBuilder, LoopFormOps};
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, CompareOp, MirFunction, MirInstruction, ValueId};
 use crate::runtime::get_global_ring0;
 use std::collections::BTreeMap;
 
@@ -276,6 +277,7 @@ pub(super) fn lower_loop_stmt(
 
     // 1) preheader スナップショット（Env_in(loop)）
     let base_vars = vars.clone();
+    let counting_loop_candidate = detect_counting_loop_candidate(cond, body);
 
     // DEBUG: Log preheader snapshot
     if env::env_bool("NYASH_LOOPFORM_DEBUG") {
@@ -313,6 +315,29 @@ pub(super) fn lower_loop_stmt(
 
     // 3) ループ条件を header ブロックで評価し、body/exit へ分岐
     let (cval, cend) = super::expr::lower_expr_with_vars(env, ops.f, header_bb, cond, ops.vars)?;
+    let counting_loop_fact = counting_loop_candidate.and_then(|candidate| {
+        let index_value = ops.vars.get(&candidate.index_name).copied()?;
+        let lower_value = base_vars.get(&candidate.index_name).copied()?;
+        let (lhs, upper_exclusive_value) = compare_lt_operands_for_value(ops.f, cval)?;
+        if lhs != index_value {
+            return None;
+        }
+        Some(CountingLoopFact {
+            index_name: candidate.index_name,
+            lower_value,
+            upper_exclusive_value,
+            index_value,
+            preheader_bb,
+            header_bb,
+            body_bb,
+            latch_bb,
+            exit_bb,
+            step: candidate.step,
+            end_exclusive: true,
+            index_body_read_only: true,
+            loop_carried_writes_supported: false,
+        })
+    });
     // Record a snapshot at the actual condition-end block (cend).
     // Short-circuit lowering (&&/||) can create intermediate blocks; exit PHIs must be
     // able to observe variable availability at cend deterministically.
@@ -506,5 +531,171 @@ pub(super) fn lower_loop_stmt(
     // Phase 69-2: inspector 引数削除（merge_exit_with_classification 内部で構築）
     loopform.build_exit_phis(&mut ops, exit_bb, cend, &exit_snaps)?;
 
+    if let Some(fact) = counting_loop_fact {
+        ops.f.metadata.counting_loop_facts.push(fact);
+    }
+
     Ok(exit_bb)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct CountingLoopCandidate {
+    index_name: String,
+    step: i64,
+}
+
+fn detect_counting_loop_candidate(cond: &ExprV0, body: &[StmtV0]) -> Option<CountingLoopCandidate> {
+    let index_name = counting_loop_condition_index_name(cond)?;
+    let (last, prefix) = body.split_last()?;
+    if !stmt_is_index_increment(last, &index_name, 1) {
+        return None;
+    }
+    if !counting_loop_prefix_is_supported(prefix, &index_name) {
+        return None;
+    }
+    Some(CountingLoopCandidate {
+        index_name,
+        step: 1,
+    })
+}
+
+fn counting_loop_condition_index_name(cond: &ExprV0) -> Option<String> {
+    match cond {
+        ExprV0::Compare { op, lhs, .. } | ExprV0::Binary { op, lhs, .. } if op == "<" => {
+            if let ExprV0::Var { name } = lhs.as_ref() {
+                Some(name.clone())
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }
+}
+
+fn stmt_is_index_increment(stmt: &StmtV0, index_name: &str, expected_step: i64) -> bool {
+    let StmtV0::Local { name, expr } = stmt else {
+        return false;
+    };
+    if name != index_name {
+        return false;
+    }
+    let ExprV0::Binary { op, lhs, rhs } = expr else {
+        return false;
+    };
+    let ExprV0::Var { name: lhs_name } = lhs.as_ref() else {
+        return false;
+    };
+    if lhs_name != index_name {
+        return false;
+    }
+    let ExprV0::Int { value } = rhs.as_ref() else {
+        return false;
+    };
+    let Some(raw_step) = value.as_i64() else {
+        return false;
+    };
+    let step = match op.as_str() {
+        "+" => raw_step,
+        "-" => -raw_step,
+        _ => return false,
+    };
+    step == expected_step
+}
+
+fn counting_loop_prefix_is_supported(stmts: &[StmtV0], index_name: &str) -> bool {
+    stmts
+        .iter()
+        .all(|stmt| counting_loop_stmt_prefix_is_supported(stmt, index_name))
+}
+
+fn counting_loop_stmt_prefix_is_supported(stmt: &StmtV0, index_name: &str) -> bool {
+    match stmt {
+        StmtV0::Local { name, .. } if name == index_name => false,
+        StmtV0::If { then, r#else, .. } => {
+            counting_loop_prefix_is_supported(then, index_name)
+                && r#else
+                    .as_ref()
+                    .map(|body| counting_loop_prefix_is_supported(body, index_name))
+                    .unwrap_or(true)
+        }
+        StmtV0::Break
+        | StmtV0::Continue
+        | StmtV0::Loop { .. }
+        | StmtV0::LoopRange { .. }
+        | StmtV0::TaskScope { .. }
+        | StmtV0::Throw { .. }
+        | StmtV0::Try { .. }
+        | StmtV0::FiniReg { .. } => false,
+        _ => true,
+    }
+}
+
+fn compare_lt_operands_for_value(f: &MirFunction, value_id: ValueId) -> Option<(ValueId, ValueId)> {
+    f.blocks.values().find_map(|block| {
+        block
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Compare { dst, op, lhs, rhs }
+                    if *dst == value_id && *op == CompareOp::Lt =>
+                {
+                    Some((*lhs, *rhs))
+                }
+                _ => None,
+            })
+    })
+}
+
+#[cfg(test)]
+mod counting_loop_tests {
+    use super::*;
+
+    fn var(name: &str) -> ExprV0 {
+        ExprV0::Var {
+            name: name.to_string(),
+        }
+    }
+
+    fn int(value: i64) -> ExprV0 {
+        ExprV0::Int {
+            value: serde_json::json!(value),
+        }
+    }
+
+    fn increment_i() -> StmtV0 {
+        StmtV0::Local {
+            name: "i".to_string(),
+            expr: ExprV0::Binary {
+                op: "+".to_string(),
+                lhs: Box::new(var("i")),
+                rhs: Box::new(int(1)),
+            },
+        }
+    }
+
+    #[test]
+    fn detects_simple_counting_loop_candidate() {
+        let cond = ExprV0::Compare {
+            op: "<".to_string(),
+            lhs: Box::new(var("i")),
+            rhs: Box::new(var("capacity")),
+        };
+        let body = vec![StmtV0::Expr { expr: var("work") }, increment_i()];
+
+        let candidate = detect_counting_loop_candidate(&cond, &body).expect("candidate");
+        assert_eq!(candidate.index_name, "i");
+        assert_eq!(candidate.step, 1);
+    }
+
+    #[test]
+    fn rejects_increment_before_access_shape() {
+        let cond = ExprV0::Compare {
+            op: "<".to_string(),
+            lhs: Box::new(var("i")),
+            rhs: Box::new(var("capacity")),
+        };
+        let body = vec![increment_i(), StmtV0::Expr { expr: var("work") }];
+
+        assert!(detect_counting_loop_candidate(&cond, &body).is_none());
+    }
 }

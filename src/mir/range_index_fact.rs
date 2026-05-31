@@ -25,13 +25,27 @@ pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
             loop_carried_writes_supported: source.loop_carried_writes_supported,
         });
     }
+    for source in &function.metadata.counting_loop_facts {
+        facts.push(RangeIndexFact {
+            fact_id: facts.len() as u32,
+            origin_kind: RangeIndexFactOriginKind::CountingLoop,
+            index_value: source.index_value,
+            lower_value: source.lower_value,
+            upper_exclusive_value: source.upper_exclusive_value,
+            body_bb: source.body_bb,
+            step: source.step,
+            end_exclusive: source.end_exclusive,
+            index_body_read_only: source.index_body_read_only,
+            loop_carried_writes_supported: source.loop_carried_writes_supported,
+        });
+    }
     function.metadata.range_index_facts = facts;
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::function::LoopRangeFact;
+    use crate::mir::function::{CountingLoopFact, LoopRangeFact};
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirType, ValueId,
@@ -84,6 +98,44 @@ mod tests {
         let fact = &function.metadata.range_index_facts[0];
         assert_eq!(fact.fact_id, 0);
         assert_eq!(fact.origin_kind, RangeIndexFactOriginKind::RangeLoop);
+        assert_eq!(fact.index_value, ValueId::new(4));
+        assert_eq!(fact.lower_value, ValueId::new(10));
+        assert_eq!(fact.upper_exclusive_value, ValueId::new(11));
+        assert_eq!(fact.body_bb, BasicBlockId::new(1));
+        assert_eq!(fact.step, 1);
+        assert!(fact.end_exclusive);
+        assert!(fact.index_body_read_only);
+        assert!(!fact.loop_carried_writes_supported);
+    }
+
+    #[test]
+    fn refresh_maps_counting_loop_fact_to_range_index_fact() {
+        let mut function = make_function();
+        function
+            .metadata
+            .counting_loop_facts
+            .push(CountingLoopFact {
+                index_name: "i".to_string(),
+                lower_value: ValueId::new(10),
+                upper_exclusive_value: ValueId::new(11),
+                index_value: ValueId::new(4),
+                preheader_bb: BasicBlockId::new(0),
+                header_bb: BasicBlockId::new(2),
+                body_bb: BasicBlockId::new(1),
+                latch_bb: BasicBlockId::new(3),
+                exit_bb: BasicBlockId::new(4),
+                step: 1,
+                end_exclusive: true,
+                index_body_read_only: true,
+                loop_carried_writes_supported: false,
+            });
+
+        refresh_function_range_index_facts(&mut function);
+
+        assert_eq!(function.metadata.range_index_facts.len(), 1);
+        let fact = &function.metadata.range_index_facts[0];
+        assert_eq!(fact.fact_id, 0);
+        assert_eq!(fact.origin_kind, RangeIndexFactOriginKind::CountingLoop);
         assert_eq!(fact.index_value, ValueId::new(4));
         assert_eq!(fact.lower_value, ValueId::new(10));
         assert_eq!(fact.upper_exclusive_value, ValueId::new(11));

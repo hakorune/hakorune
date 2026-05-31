@@ -1751,9 +1751,10 @@ Phase 3a follow-up:
 
 ```text
 range_index_fact_view=implemented_from_loop_range_fact
+counting_loop_fact_producer=implemented_for_strict_tail_increment_shape
 next_extent_fact=DirectArrayExtentFact
 resetToFresh_source_shape=while_style_counting_loop
-resetToFresh_requires=counting_loop_to_range_index_fact_plus_extent_fact
+resetToFresh_requires=direct_array_extent_fact
 ```
 
 Phase 2 verification:
