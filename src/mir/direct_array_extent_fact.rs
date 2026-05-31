@@ -86,20 +86,31 @@ fn field_get_origin(
     let origin = resolve_value_origin(function, def_map, value);
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
-    let MirInstruction::FieldGet {
-        base,
-        field,
-        declared_type,
-        ..
-    } = block.instructions.get(instruction_index)?
-    else {
-        return None;
-    };
-    Some(FieldGetOrigin {
-        base_origin: resolve_value_origin(function, def_map, *base),
-        field: field.clone(),
-        declared_type: declared_type.clone(),
-    })
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::FieldGet {
+            base,
+            field,
+            declared_type,
+            ..
+        } => Some(FieldGetOrigin {
+            base_origin: resolve_value_origin(function, def_map, *base),
+            field: field.clone(),
+            declared_type: declared_type.clone(),
+        }),
+        MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
+            let mut merged = None;
+            for (_, input) in inputs {
+                let next = field_get_origin(function, def_map, *input)?;
+                merged = match merged {
+                    None => Some(next),
+                    Some(existing) if existing == next => Some(existing),
+                    _ => return None,
+                };
+            }
+            merged
+        }
+        _ => None,
+    }
 }
 
 fn is_arraybox_field(field: &FieldGetOrigin) -> bool {

@@ -7,6 +7,7 @@
  * from `generic_method_routes`, and later lowering slices may consume it.
  */
 
+use crate::mir::value_origin::{build_value_def_map, resolve_value_origin};
 use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
 
 const DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0: i64 = 64;
@@ -322,9 +323,12 @@ fn range_index_proves_branchless_append_or_overwrite_store(
     receiver_value: ValueId,
     index_value: ValueId,
 ) -> bool {
+    let def_map = build_value_def_map(function);
+    let index_origin = resolve_value_origin(function, &def_map, index_value);
+    let receiver_origin = resolve_value_origin(function, &def_map, receiver_value);
     function.metadata.range_index_facts.iter().any(|fact| {
         fact.body_bb == block_id
-            && fact.index_value == index_value
+            && resolve_value_origin(function, &def_map, fact.index_value) == index_origin
             && fact.step == 1
             && fact.end_exclusive
             && fact.index_body_read_only
@@ -332,7 +336,7 @@ fn range_index_proves_branchless_append_or_overwrite_store(
             && value_is_integer_const(function, fact.lower_value, 0)
             && direct_array_extent_v0_proves_upper_bound(
                 function,
-                receiver_value,
+                receiver_origin,
                 fact.upper_exclusive_value,
             )
     })
@@ -349,16 +353,19 @@ fn direct_array_extent_v0_proves_upper_bound(
     receiver_value: ValueId,
     end_value: ValueId,
 ) -> bool {
+    let def_map = build_value_def_map(function);
+    let receiver_origin = resolve_value_origin(function, &def_map, receiver_value);
+    let end_origin = resolve_value_origin(function, &def_map, end_value);
     function
         .metadata
         .direct_array_extent_facts
         .iter()
         .any(|fact| {
-            fact.receiver_value == receiver_value
-                && fact.lower_bound_value == end_value
+            resolve_value_origin(function, &def_map, fact.receiver_value) == receiver_origin
+                && resolve_value_origin(function, &def_map, fact.lower_bound_value) == end_origin
                 && fact.stable_in_region
         })
-        || integer_const_value(function, end_value)
+        || integer_const_value(function, end_origin)
             .map(|upper| (0..=DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0).contains(&upper))
             .unwrap_or(false)
 }
