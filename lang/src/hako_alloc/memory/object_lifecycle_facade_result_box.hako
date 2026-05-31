@@ -119,6 +119,15 @@ box HakoAllocObjectLifecycleReleaseResult {
         return 0
     }
 
+    recordFailureRequest(page_id, block_id, reason) {
+        me.last_page_id = page_id
+        me.last_block_id = block_id
+        me.last_reason = reason
+        me.last_ok = 0
+        me.failure_count = me.failure_count + 1
+        return 0
+    }
+
     @rune Inline(required)
     recordSuccess(page_id, block_id) {
         me.last_page_id = page_id

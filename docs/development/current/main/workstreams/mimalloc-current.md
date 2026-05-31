@@ -335,6 +335,18 @@ message.
     `133004248`; `body_elapsed_ns` measured `5000000` in the single smoke
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-049: release request write delayed to failure path
+  - output: remove hot-path `release_result.recordRequest(page_id, block_id)`
+    from `objectLifecycleReleaseBlock/2`; failure paths now use
+    `recordFailureRequest(page_id, block_id, reason)` to preserve observer
+    state
+  - reason: hot success already writes the same page/block through
+    `recordSuccess(page_id, block_id)`, so entry request writes were redundant
+    on the measured direct exact path
+  - result: direct exact instructions improved from `133004248` to
+    `131955824`; `body_elapsed_ns` measured `4000000` in the single smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
