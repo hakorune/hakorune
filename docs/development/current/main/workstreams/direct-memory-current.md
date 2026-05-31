@@ -42,7 +42,7 @@ direct storage routes.
     `direct` / `unsafe memory` / `unchecked` are distinct
   - no code unless a reference mismatch is discovered
 
-- [ ] LANG-DM-002: DirectArrayAccessPlan cleanup
+- [x] LANG-DM-002: DirectArrayAccessPlan cleanup
   - output: plan schema carries `element_type` and `proof_ids`
   - prepare `region_id` / `view_id` as metadata only if it keeps code simpler
   - no Span, Bytes, LayoutSpan, or source syntax
@@ -87,3 +87,8 @@ direct storage routes.
   `docs/reference/language/low-level-capabilities.md`. Next active task is
   LANG-DM-002: make `DirectArrayAccessPlan` carry the element/proof shape that
   later Span/Bytes work can reuse.
+- 2026-06-01: LANG-DM-002 is implemented without widening `.hako` syntax.
+  `DirectArrayAccessPlan` now carries `proof_ids` beside the existing
+  `element_type`, and Rust JSON / Python / C shim consumers all validate the
+  proof carrier. `region_id` / `view_id` remain deferred metadata until
+  LANG-DM-003 decides the fact vocabulary.

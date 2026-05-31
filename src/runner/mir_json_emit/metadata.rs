@@ -294,6 +294,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "route": plan.route(),
                 "bounds_policy": plan.bounds_policy().as_str(),
                 "proof_kind": plan.proof_kind().as_str(),
+                "proof_ids": plan.proof_ids(),
                 "fallback_policy": plan.fallback_policy().as_str(),
                 "cfg_shape": plan.cfg_shape().as_str(),
                 "store_semantics": plan.store_semantics().as_str(),

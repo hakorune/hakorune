@@ -69,6 +69,10 @@ def _current_direct_array_access_plan(
             continue
         if plan.get("element_type") != "i64":
             continue
+        proof_ids = plan.get("proof_ids")
+        proof_kind = plan.get("proof_kind")
+        if isinstance(proof_ids, list) and proof_kind not in proof_ids:
+            continue
         if plan.get("receiver_value") != receiver_vid:
             continue
         if not arg_ids or plan.get("index_value") != int(arg_ids[0]):

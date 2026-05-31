@@ -115,9 +115,9 @@ Recommended order:
    - status: done; reference policy is in
      `docs/reference/language/low-level-capabilities.md`
 2. `LANG-DM-002` DirectArrayAccessPlan cleanup
-   - add/carry `element_type`
-   - add/carry `proof_ids`
-   - keep region/view vocabulary metadata-only
+   - status: done; `DirectArrayAccessPlan` carries `element_type` and
+     `proof_ids`, and consumers validate the proof carrier
+   - region/view vocabulary remains metadata-only/deferred
 3. `LANG-DM-003` proof fact normalization
    - `RangeIndexFact`
    - `DirectArrayExtentFact`

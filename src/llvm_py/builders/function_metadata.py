@@ -287,6 +287,15 @@ def _load_direct_array_access_plan_metadata(builder, func_data: Dict[str, Any]) 
                 normalized[key] = int(value)
             except (TypeError, ValueError):
                 pass
+        proof_ids = normalized.get("proof_ids")
+        if isinstance(proof_ids, list):
+            normalized["proof_ids"] = [
+                item for item in proof_ids if isinstance(item, str) and item
+            ]
+        elif isinstance(normalized.get("proof_kind"), str):
+            normalized["proof_ids"] = [normalized["proof_kind"]]
+        else:
+            normalized["proof_ids"] = []
         by_site.setdefault((block, instruction_index), []).append(normalized)
     builder.resolver.direct_array_access_plans_by_site = by_site
 

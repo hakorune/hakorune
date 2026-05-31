@@ -62,6 +62,7 @@ def _seed_direct_array_plan(
         "route": f"direct_array_i64_{'load' if op == 'load' else 'store'}",
         "bounds_policy": bounds_policy,
         "proof_kind": "range_index" if bounds_policy == "proved_unchecked" else "exact_front_contract",
+        "proof_ids": ["range_index"] if bounds_policy == "proved_unchecked" else ["exact_front_contract"],
         "fallback_policy": fallback_policy,
         "cfg_shape": cfg_shape,
         "store_semantics": "append_or_overwrite" if op == "store" else "not_store",

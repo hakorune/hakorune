@@ -113,6 +113,7 @@
         const char* route;
         const char* bounds_policy;
         const char* proof_kind;
+        yyjson_val* proof_ids;
         const char* fallback_policy;
         const char* cfg_shape;
         const char* store_semantics;
@@ -234,6 +235,7 @@
         out->route = read_str(entry, "route");
         out->bounds_policy = read_str(entry, "bounds_policy");
         out->proof_kind = read_str(entry, "proof_kind");
+        out->proof_ids = yyjson_obj_get(entry, "proof_ids");
         out->fallback_policy = read_str(entry, "fallback_policy");
         out->cfg_shape = read_str(entry, "cfg_shape");
         out->store_semantics = read_str(entry, "store_semantics");
@@ -261,9 +263,23 @@
                out->route &&
                out->bounds_policy &&
                out->proof_kind &&
+               out->proof_ids &&
+               yyjson_is_arr(out->proof_ids) &&
                out->fallback_policy &&
                out->cfg_shape &&
                out->store_semantics;
+      }
+
+      auto int lowering_plan_direct_array_access_view_has_proof_id(
+          const struct LoweringPlanDirectArrayAccessView* view,
+          const char* proof_id) {
+        size_t pi = 0;
+        if (!(view && view->proof_ids && yyjson_is_arr(view->proof_ids) && proof_id)) return 0;
+        for (pi = 0; pi < yyjson_arr_size(view->proof_ids); pi++) {
+          const char* actual = yyjson_get_str(yyjson_arr_get(view->proof_ids, pi));
+          if (actual && !strcmp(actual, proof_id)) return 1;
+        }
+        return 0;
       }
 
       auto int lowering_plan_direct_array_access_view_is_checked_i64(
@@ -279,6 +295,7 @@
                !strcmp(view->bounds_policy, "checked") &&
                view->proof_kind &&
                !strcmp(view->proof_kind, "exact_front_contract") &&
+               lowering_plan_direct_array_access_view_has_proof_id(view, "exact_front_contract") &&
                view->fallback_policy &&
                !strcmp(view->fallback_policy, "allow_checked") &&
                view->cfg_shape &&
@@ -302,6 +319,7 @@
                !strcmp(view->bounds_policy, "proved_unchecked") &&
                view->proof_kind &&
                !strcmp(view->proof_kind, "range_index") &&
+               lowering_plan_direct_array_access_view_has_proof_id(view, "range_index") &&
                view->fallback_policy &&
                !strcmp(view->fallback_policy, "fail_fast") &&
                view->cfg_shape &&
@@ -323,6 +341,7 @@
                !strcmp(view->bounds_policy, "proved_unchecked") &&
                view->proof_kind &&
                !strcmp(view->proof_kind, "stack_top_pop") &&
+               lowering_plan_direct_array_access_view_has_proof_id(view, "stack_top_pop") &&
                view->fallback_policy &&
                !strcmp(view->fallback_policy, "fail_fast") &&
                view->cfg_shape &&
@@ -346,6 +365,7 @@
                !strcmp(view->bounds_policy, "proved_unchecked") &&
                view->proof_kind &&
                !strcmp(view->proof_kind, "caller_precondition") &&
+               lowering_plan_direct_array_access_view_has_proof_id(view, "caller_precondition") &&
                view->fallback_policy &&
                !strcmp(view->fallback_policy, "fail_fast") &&
                view->cfg_shape &&

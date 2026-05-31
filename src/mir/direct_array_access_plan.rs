@@ -124,6 +124,7 @@ pub struct DirectArrayAccessPlan {
     route: &'static str,
     bounds_policy: DirectArrayBoundsPolicy,
     proof_kind: DirectArrayProofKind,
+    proof_ids: Vec<&'static str>,
     fallback_policy: DirectArrayFallbackPolicy,
     cfg_shape: DirectArrayCfgShape,
     store_semantics: DirectArrayStoreSemantics,
@@ -156,6 +157,7 @@ impl DirectArrayAccessPlan {
             route,
             bounds_policy: DirectArrayBoundsPolicy::Checked,
             proof_kind: DirectArrayProofKind::ExactFrontContract,
+            proof_ids: vec![DirectArrayProofKind::ExactFrontContract.as_str()],
             fallback_policy: DirectArrayFallbackPolicy::AllowChecked,
             cfg_shape: DirectArrayCfgShape::CheckedBranching,
             store_semantics: match op {
@@ -186,6 +188,7 @@ impl DirectArrayAccessPlan {
             route: "direct_array_i64_store",
             bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
             proof_kind: DirectArrayProofKind::RangeIndex,
+            proof_ids: vec![DirectArrayProofKind::RangeIndex.as_str()],
             fallback_policy: DirectArrayFallbackPolicy::FailFast,
             cfg_shape: DirectArrayCfgShape::Branchless,
             // RangeIndex v0 proves a sequential 0..end fill. The branchless
@@ -216,6 +219,7 @@ impl DirectArrayAccessPlan {
             route: "direct_array_i64_load",
             bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
             proof_kind: DirectArrayProofKind::StackTopPop,
+            proof_ids: vec![DirectArrayProofKind::StackTopPop.as_str()],
             fallback_policy: DirectArrayFallbackPolicy::FailFast,
             cfg_shape: DirectArrayCfgShape::Branchless,
             store_semantics: DirectArrayStoreSemantics::NotStore,
@@ -243,6 +247,7 @@ impl DirectArrayAccessPlan {
             route: "direct_array_i64_store",
             bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
             proof_kind: DirectArrayProofKind::StackTopPop,
+            proof_ids: vec![DirectArrayProofKind::StackTopPop.as_str()],
             fallback_policy: DirectArrayFallbackPolicy::FailFast,
             cfg_shape: DirectArrayCfgShape::Branchless,
             store_semantics: DirectArrayStoreSemantics::OverwriteExisting,
@@ -270,6 +275,7 @@ impl DirectArrayAccessPlan {
             route: "direct_array_i64_store",
             bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
             proof_kind: DirectArrayProofKind::CallerPrecondition,
+            proof_ids: vec![DirectArrayProofKind::CallerPrecondition.as_str()],
             fallback_policy: DirectArrayFallbackPolicy::FailFast,
             cfg_shape: DirectArrayCfgShape::Branchless,
             store_semantics: DirectArrayStoreSemantics::OverwriteExisting,
@@ -322,6 +328,10 @@ impl DirectArrayAccessPlan {
 
     pub fn proof_kind(&self) -> DirectArrayProofKind {
         self.proof_kind
+    }
+
+    pub fn proof_ids(&self) -> &[&'static str] {
+        &self.proof_ids
     }
 
     pub fn fallback_policy(&self) -> DirectArrayFallbackPolicy {
@@ -786,6 +796,7 @@ mod tests {
         assert_eq!(load.result_value(), Some(ValueId::new(5)));
         assert_eq!(load.bounds_policy(), DirectArrayBoundsPolicy::Checked);
         assert_eq!(load.proof_kind(), DirectArrayProofKind::ExactFrontContract);
+        assert_eq!(load.proof_ids(), &["exact_front_contract"]);
         assert_eq!(
             load.fallback_policy(),
             DirectArrayFallbackPolicy::AllowChecked
@@ -801,6 +812,7 @@ mod tests {
         assert_eq!(store.value_value(), Some(ValueId::new(3)));
         assert_eq!(store.result_value(), Some(ValueId::new(6)));
         assert_eq!(store.route(), "direct_array_i64_store");
+        assert_eq!(store.proof_ids(), &["exact_front_contract"]);
         assert_eq!(store.cfg_shape(), DirectArrayCfgShape::CheckedBranching);
         assert_eq!(
             store.store_semantics(),
@@ -866,6 +878,7 @@ mod tests {
             DirectArrayBoundsPolicy::ProvedUnchecked
         );
         assert_eq!(store.proof_kind(), DirectArrayProofKind::RangeIndex);
+        assert_eq!(store.proof_ids(), &["range_index"]);
         assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
         assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
         assert_eq!(
@@ -978,6 +991,7 @@ mod tests {
             DirectArrayBoundsPolicy::ProvedUnchecked
         );
         assert_eq!(load.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(load.proof_ids(), &["stack_top_pop"]);
         assert_eq!(load.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
         assert_eq!(load.cfg_shape(), DirectArrayCfgShape::Branchless);
         assert_eq!(load.store_semantics(), DirectArrayStoreSemantics::NotStore);
@@ -989,6 +1003,7 @@ mod tests {
             DirectArrayBoundsPolicy::ProvedUnchecked
         );
         assert_eq!(store.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(store.proof_ids(), &["stack_top_pop"]);
         assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
         assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
         assert_eq!(
@@ -1049,6 +1064,7 @@ mod tests {
                 DirectArrayBoundsPolicy::ProvedUnchecked
             );
             assert_eq!(store.proof_kind(), DirectArrayProofKind::CallerPrecondition);
+            assert_eq!(store.proof_ids(), &["caller_precondition"]);
             assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
             assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
             assert_eq!(
