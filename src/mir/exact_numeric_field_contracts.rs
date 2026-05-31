@@ -151,11 +151,18 @@ pub(crate) fn enforce_exact_numeric_runtime_checks_supported(
     if contracts == 0 {
         return Ok(());
     }
+    if backend_supports_exact_numeric_runtime_checks(backend) {
+        return Ok(());
+    }
 
     Err(format!(
-        "{} backend={} contracts={} require=vm-dynamic-integer-range-check-lowering",
+        "{} backend={} contracts={} require=exact-numeric-dynamic-integer-range-check-lowering",
         EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG, backend, contracts
     ))
+}
+
+fn backend_supports_exact_numeric_runtime_checks(backend: &str) -> bool {
+    matches!(backend, "ny-llvmc-exe")
 }
 
 fn exact_numeric_field_decls(
@@ -607,5 +614,16 @@ mod tests {
         assert!(err.contains(EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG));
         assert!(err.contains("backend=wasm"));
         assert!(err.contains("contracts=1"));
+    }
+
+    #[test]
+    fn backend_guard_accepts_ny_llvmc_exe_runtime_check_lowering() {
+        let mut module = module_with_numeric_field("usize", field_set_param_value_function());
+        assert_eq!(
+            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
+            1
+        );
+
+        assert!(enforce_exact_numeric_runtime_checks_supported(&module, "ny-llvmc-exe").is_ok());
     }
 }

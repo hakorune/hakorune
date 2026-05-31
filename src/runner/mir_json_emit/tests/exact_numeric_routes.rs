@@ -3,7 +3,10 @@ use super::make_function;
 use crate::mir::exact_numeric_value_facts::{
     ExactNumericBinaryOpRouteFact, ExactNumericCompareRouteFact, ExactNumericShiftRouteFact,
 };
-use crate::mir::{BasicBlockId, BinaryOp, CompareOp, MirModule, ValueId};
+use crate::mir::function::{
+    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
+};
+use crate::mir::{BasicBlockId, BinaryOp, CompareOp, MirInstruction, MirModule, ValueId};
 
 #[test]
 fn mir_json_exact_numeric_routes_emit_operation_facts() {
@@ -68,4 +71,46 @@ fn mir_json_exact_numeric_routes_emit_operation_facts() {
     assert_eq!(shift_route["operation"], ">>");
     assert_eq!(shift_route["dst"], 32);
     assert_eq!(shift_route["declared_type"], "usize");
+}
+
+#[test]
+fn mir_json_exact_numeric_runtime_check_marks_field_set_instruction() {
+    let mut function = make_function("main", true);
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::FieldSet {
+            base: ValueId::new(10),
+            field: "capacity".to_string(),
+            value: ValueId::new(20),
+            declared_type: None,
+        });
+    function
+        .metadata
+        .exact_numeric_runtime_check_contracts
+        .push(ExactNumericRuntimeCheckContract {
+            block: BasicBlockId::new(0),
+            instruction_index: 0,
+            field: "capacity".to_string(),
+            value: ValueId::new(20),
+            declared_type_name: "usize".to_string(),
+            kind: ExactNumericRuntimeCheckContractKind::DynamicIntegerRange,
+        });
+
+    let mut module = MirModule::new("json_exact_numeric_runtime_check_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let inst = &root["functions"][0]["blocks"][0]["instructions"][0];
+    assert_eq!(inst["op"], "field_set");
+    assert_eq!(
+        inst["exact_numeric_runtime_check"]["kind"],
+        "dynamic_integer_range"
+    );
+    assert_eq!(
+        inst["exact_numeric_runtime_check"]["declared_type"],
+        "usize"
+    );
 }

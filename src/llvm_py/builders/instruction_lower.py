@@ -132,6 +132,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             ctx.preds,
             ctx.block_end_values,
             ctx.bb_map,
+            exact_numeric_runtime_check=inst.get("exact_numeric_runtime_check"),
         )
 
     elif op == "branch":

@@ -388,6 +388,26 @@ pub extern "C" fn nyash_object_field_set_i64_hii(handle: i64, slot: i64, value: 
     ))
 }
 
+#[export_name = "nyash.exact_numeric.assert_i64_min_ii"]
+pub extern "C" fn nyash_exact_numeric_assert_i64_min_ii(value: i64, min_value: i64) -> i64 {
+    if value < min_value {
+        std::process::abort();
+    }
+    1
+}
+
+#[export_name = "nyash.exact_numeric.assert_i64_range_iii"]
+pub extern "C" fn nyash_exact_numeric_assert_i64_range_iii(
+    value: i64,
+    min_value: i64,
+    max_value: i64,
+) -> i64 {
+    if value < min_value || value > max_value {
+        std::process::abort();
+    }
+    1
+}
+
 fn exact_slot_index(slot: i64) -> Option<usize> {
     if slot < 0 {
         return None;
@@ -684,5 +704,13 @@ mod tests {
         assert_eq!(nyash_object_field_get_i64_hii(object, 0), 0);
         assert_eq!(nyash_object_field_set_u64_hiu(object, 0, u64::MAX), 1);
         assert_eq!(nyash_object_field_get_u64_hii(object, 0), u64::MAX);
+    }
+
+    #[test]
+    fn exact_numeric_runtime_assert_helpers_accept_in_range_values() {
+        assert_eq!(nyash_exact_numeric_assert_i64_min_ii(0, 0), 1);
+        assert_eq!(nyash_exact_numeric_assert_i64_min_ii(42, 0), 1);
+        assert_eq!(nyash_exact_numeric_assert_i64_range_iii(-5, -5, 5), 1);
+        assert_eq!(nyash_exact_numeric_assert_i64_range_iii(5, -5, 5), 1);
     }
 }

@@ -38,6 +38,7 @@ pub(crate) fn emit_field_set(
     field: &str,
     value: &ValueId,
     declared_type: &Option<MirType>,
+    exact_numeric_runtime_check: Option<&str>,
 ) -> serde_json::Value {
     let mut obj = json!({
         "op": "field_set",
@@ -48,6 +49,12 @@ pub(crate) fn emit_field_set(
     let declared_type_json = emit_declared_type_json(declared_type);
     if !declared_type_json.is_null() {
         obj["declared_type"] = declared_type_json;
+    }
+    if let Some(declared_type_name) = exact_numeric_runtime_check {
+        obj["exact_numeric_runtime_check"] = json!({
+            "kind": "dynamic_integer_range",
+            "declared_type": declared_type_name,
+        });
     }
     obj
 }

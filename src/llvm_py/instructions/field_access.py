@@ -55,10 +55,90 @@ from instructions.user_box_local import (
     lower_local_user_box_field_get,
     lower_local_user_box_field_set,
 )
-from instructions.typeop import _emit_trap
 from type_facts import is_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
 from utils.values import resolve_i64_strict
+
+_EXACT_NUMERIC_RUNTIME_RANGES = {
+    "i8": (-128, 127),
+    "i16": (-(1 << 15), (1 << 15) - 1),
+    "i32": (-(1 << 31), (1 << 31) - 1),
+    "i64": (-(1 << 63), (1 << 63) - 1),
+    "isize": (-(1 << 63), (1 << 63) - 1),
+    "u8": (0, (1 << 8) - 1),
+    "u16": (0, (1 << 16) - 1),
+    "u32": (0, (1 << 32) - 1),
+    "u64": (0, None),
+    "usize": (0, None),
+}
+
+
+def _emit_exact_numeric_runtime_range_check(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    value_vid: Optional[int],
+    runtime_check: Any,
+    vmap: Dict[int, Any],
+    resolver,
+    preds,
+    block_end_values,
+    bb_map,
+) -> None:
+    if not isinstance(runtime_check, dict):
+        return
+    if runtime_check.get("kind") != "dynamic_integer_range":
+        return
+    declared_type = runtime_check.get("declared_type")
+    if not isinstance(declared_type, str):
+        raise RuntimeError("[exact-numeric/runtime-check] missing declared_type")
+    range_key = declared_type.strip().lower()
+    if range_key not in _EXACT_NUMERIC_RUNTIME_RANGES:
+        raise RuntimeError(
+            f"[exact-numeric/runtime-check] unsupported declared_type={declared_type}"
+        )
+    if not isinstance(value_vid, int):
+        raise RuntimeError("[exact-numeric/runtime-check] missing value id")
+
+    i64 = ir.IntType(64)
+    value_val = _resolve_receiver(
+        builder, value_vid, vmap, resolver, preds, block_end_values, bb_map
+    )
+    value_val = unbox_primitive_handle_if_needed(
+        builder,
+        _canonical_i64(builder, value_val, name_hint="exact_runtime_range_value"),
+        resolver_value_type(resolver, int(value_vid)),
+        name_hint=f"exact_runtime_range_{value_vid}",
+    )
+    value_val = _canonical_i64(builder, value_val, name_hint="exact_runtime_range_final")
+
+    min_value, max_value = _EXACT_NUMERIC_RUNTIME_RANGES[range_key]
+    if min_value == -(1 << 63) and (max_value is None or max_value == (1 << 63) - 1):
+        return
+    if max_value is None or max_value == (1 << 63) - 1:
+        callee = _declare(
+            module,
+            "nyash.exact_numeric.assert_i64_min_ii",
+            i64,
+            [i64, i64],
+        )
+        builder.call(callee, [value_val, ir.Constant(i64, int(min_value))])
+        return
+
+    callee = _declare(
+        module,
+        "nyash.exact_numeric.assert_i64_range_iii",
+        i64,
+        [i64, i64, i64],
+    )
+    builder.call(
+        callee,
+        [
+            value_val,
+            ir.Constant(i64, int(min_value)),
+            ir.Constant(i64, int(max_value)),
+        ],
+    )
+
 
 def lower_field_get(
     builder: ir.IRBuilder,
@@ -204,7 +284,19 @@ def lower_field_set(
     preds,
     block_end_values,
     bb_map,
+    exact_numeric_runtime_check: Any = None,
 ) -> ir.Value:
+    _emit_exact_numeric_runtime_range_check(
+        builder,
+        module,
+        value_vid,
+        exact_numeric_runtime_check,
+        vmap,
+        resolver,
+        preds,
+        block_end_values,
+        bb_map,
+    )
     if lower_local_user_box_field_set(
         builder,
         box_vid,

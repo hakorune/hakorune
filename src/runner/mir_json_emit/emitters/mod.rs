@@ -6,6 +6,7 @@ mod phi;
 mod sum;
 mod weak;
 
+use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::MirInstruction as I;
 
 pub(crate) fn emit_phi_instructions(
@@ -28,11 +29,11 @@ pub(crate) fn emit_non_phi_instructions(
     block: &crate::mir::BasicBlock,
     insts: &mut Vec<serde_json::Value>,
 ) -> Result<(), String> {
-    for inst in &block.instructions {
+    for (instruction_index, inst) in block.instructions.iter().enumerate() {
         if let I::Phi { .. } = inst {
             continue;
         }
-        let value = emit_instruction(func, inst)?;
+        let value = emit_instruction(func, block.id, instruction_index, inst)?;
         insts.push(value);
     }
     Ok(())
@@ -49,6 +50,8 @@ pub(crate) fn emit_terminator(
 
 fn emit_instruction(
     func: &crate::mir::MirFunction,
+    block: crate::mir::BasicBlockId,
+    instruction_index: usize,
     inst: &crate::mir::MirInstruction,
 ) -> Result<serde_json::Value, String> {
     if let Some(code) = crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(inst) {
@@ -114,7 +117,13 @@ fn emit_instruction(
             field,
             value,
             declared_type,
-        } => Ok(fields::emit_field_set(base, field, value, declared_type)),
+        } => Ok(fields::emit_field_set(
+            base,
+            field,
+            value,
+            declared_type,
+            exact_numeric_runtime_check_for_field_set(func, block, instruction_index, field, value),
+        )),
         I::VariantMake {
             dst,
             enum_name,
@@ -191,4 +200,24 @@ fn emit_instruction(
         I::ReleaseStrong { values } => Ok(weak::emit_release_strong(values)),
         _ => unreachable!("pre-checked by backend_core_ops allowlist"),
     }
+}
+
+fn exact_numeric_runtime_check_for_field_set<'a>(
+    func: &'a crate::mir::MirFunction,
+    block: crate::mir::BasicBlockId,
+    instruction_index: usize,
+    field: &str,
+    value: &crate::mir::ValueId,
+) -> Option<&'a str> {
+    func.metadata
+        .exact_numeric_runtime_check_contracts
+        .iter()
+        .find(|contract| {
+            contract.kind == ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+                && contract.block == block
+                && contract.instruction_index == instruction_index
+                && contract.field == field
+                && contract.value == *value
+        })
+        .map(|contract| contract.declared_type_name.as_str())
 }
