@@ -513,6 +513,10 @@ syntax, public ABI, or language-level unsafe memory contract is accepted here.
 DirectArray family order:
 
 ```text
+source_visible_v0:
+  Array
+  DirectArrayI64
+
 active_now:
   DirectArrayI64
 
@@ -534,7 +538,15 @@ deferred:
 
 Rules:
 
+- User-facing classification is two-tier: `Array` and the `DirectArray`
+  family.
+- `DirectArray` is not a standalone untyped source type in v0.
 - `DirectArrayI64` remains i64-only.
+- Direct storage element type must be explicit in the v0 source type.
+- Do not infer an untyped `DirectArray` into i64 storage from observed writes.
+- `DirectArrayI64` is not a subtype of `Array`.
+- Do not add implicit `Array` <-> `DirectArrayI64` conversion; materialization
+  or copy must be explicit if needed.
 - Do not turn DirectArray into a public mixed ArrayBox replacement.
 - Do not add a new DirectArray kind without current perf evidence or an active
   array/value-lane task.
