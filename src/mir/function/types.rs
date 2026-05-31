@@ -154,6 +154,35 @@ pub struct RangeIndexFact {
     pub loop_carried_writes_supported: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DirectArrayExtentProofKind {
+    DefaultCapacity,
+    ProducerInvariant,
+}
+
+impl DirectArrayExtentProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::DefaultCapacity => "default_capacity",
+            Self::ProducerInvariant => "producer_invariant",
+        }
+    }
+}
+
+/// Lower-bound extent proof for a DirectArray receiver value.
+///
+/// This is intentionally separate from `RangeIndexFact`: range facts prove the
+/// index interval, while extent facts prove that a specific receiver can cover
+/// that interval.  DirectArray consumers must require both for unchecked
+/// lowering.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DirectArrayExtentFact {
+    pub receiver_value: ValueId,
+    pub lower_bound_value: ValueId,
+    pub proof_kind: DirectArrayExtentProofKind,
+    pub stable_in_region: bool,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {
@@ -221,6 +250,9 @@ pub struct FunctionMetadata {
     /// Consumers such as DirectArrayAccessPlan use this view instead of
     /// branching on source loop syntax.
     pub range_index_facts: Vec<RangeIndexFact>,
+
+    /// DirectArray receiver extent facts consumed with `RangeIndexFact`.
+    pub direct_array_extent_facts: Vec<DirectArrayExtentFact>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

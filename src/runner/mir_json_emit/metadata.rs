@@ -130,6 +130,14 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "loop_carried_writes_supported": fact.loop_carried_writes_supported,
             })
         }).collect::<Vec<_>>(),
+        "direct_array_extent_facts": metadata.direct_array_extent_facts.iter().map(|fact| {
+            json!({
+                "receiver_value": fact.receiver_value.as_u32(),
+                "lower_bound_value": fact.lower_bound_value.as_u32(),
+                "proof_kind": fact.proof_kind.as_str(),
+                "stable_in_region": fact.stable_in_region,
+            })
+        }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

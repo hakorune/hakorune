@@ -1,7 +1,9 @@
 use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::function::{CountingLoopFact, LoopRangeFact};
+use crate::mir::function::{
+    CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, LoopRangeFact,
+};
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
 };
@@ -119,6 +121,33 @@ fn build_mir_json_root_emits_counting_loop_facts() {
         .expect("range_index_facts");
     assert_eq!(range_facts.len(), 1);
     assert_eq!(range_facts[0]["origin_kind"], "counting_loop");
+}
+
+#[test]
+fn build_mir_json_root_emits_direct_array_extent_facts() {
+    let mut function = make_function("main", true);
+    function
+        .metadata
+        .direct_array_extent_facts
+        .push(DirectArrayExtentFact {
+            receiver_value: ValueId::new(2),
+            lower_bound_value: ValueId::new(11),
+            proof_kind: DirectArrayExtentProofKind::ProducerInvariant,
+            stable_in_region: true,
+        });
+
+    let mut module = MirModule::new("json_direct_array_extent_fact_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let facts = root["functions"][0]["metadata"]["direct_array_extent_facts"]
+        .as_array()
+        .expect("direct_array_extent_facts");
+    assert_eq!(facts.len(), 1);
+    assert_eq!(facts[0]["receiver_value"], 2);
+    assert_eq!(facts[0]["lower_bound_value"], 11);
+    assert_eq!(facts[0]["proof_kind"], "producer_invariant");
+    assert_eq!(facts[0]["stable_in_region"], true);
 }
 
 #[test]

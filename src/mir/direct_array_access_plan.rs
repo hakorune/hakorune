@@ -287,6 +287,7 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
                 if range_index_proves_branchless_append_or_overwrite_store(
                     function,
                     route.block(),
+                    route.receiver_value(),
                     index_value,
                 ) {
                     plans.push(DirectArrayAccessPlan::proved_unchecked_range_index_store(
@@ -318,6 +319,7 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
 fn range_index_proves_branchless_append_or_overwrite_store(
     function: &MirFunction,
     block_id: BasicBlockId,
+    receiver_value: ValueId,
     index_value: ValueId,
 ) -> bool {
     function.metadata.range_index_facts.iter().any(|fact| {
@@ -328,7 +330,11 @@ fn range_index_proves_branchless_append_or_overwrite_store(
             && fact.index_body_read_only
             && !fact.loop_carried_writes_supported
             && value_is_integer_const(function, fact.lower_value, 0)
-            && direct_array_extent_v0_proves_upper_bound(function, fact.upper_exclusive_value)
+            && direct_array_extent_v0_proves_upper_bound(
+                function,
+                receiver_value,
+                fact.upper_exclusive_value,
+            )
     })
 }
 
@@ -338,13 +344,23 @@ fn value_is_integer_const(function: &MirFunction, value_id: ValueId, expected: i
         .unwrap_or(false)
 }
 
-fn direct_array_extent_v0_proves_upper_bound(function: &MirFunction, end_value: ValueId) -> bool {
-    // Until DirectArrayExtentFact exists, v0 only accepts constant loop upper
-    // bounds that fit the DirectArrayI64 birth capacity used by the exact
-    // front. Dynamic `capacity` bounds stay on the checked path.
-    integer_const_value(function, end_value)
-        .map(|upper| (0..=DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0).contains(&upper))
-        .unwrap_or(false)
+fn direct_array_extent_v0_proves_upper_bound(
+    function: &MirFunction,
+    receiver_value: ValueId,
+    end_value: ValueId,
+) -> bool {
+    function
+        .metadata
+        .direct_array_extent_facts
+        .iter()
+        .any(|fact| {
+            fact.receiver_value == receiver_value
+                && fact.lower_bound_value == end_value
+                && fact.stable_in_region
+        })
+        || integer_const_value(function, end_value)
+            .map(|upper| (0..=DIRECT_ARRAY_I64_DEFAULT_CAPACITY_V0).contains(&upper))
+            .unwrap_or(false)
 }
 
 fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64> {
@@ -405,7 +421,7 @@ fn call_arg(
 mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-    use crate::mir::function::LoopRangeFact;
+    use crate::mir::function::{DirectArrayExtentProofKind, LoopRangeFact};
     use crate::mir::range_index_fact::refresh_function_range_index_facts;
     use crate::mir::{
         BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
@@ -512,10 +528,6 @@ mod tests {
             dst: ValueId::new(10),
             value: ConstValue::Integer(0),
         });
-        entry.add_instruction(MirInstruction::Const {
-            dst: ValueId::new(11),
-            value: ConstValue::Integer(3),
-        });
         let body = function.blocks.get_mut(&body_bb).expect("body");
         body.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![4, 3]));
         function.metadata.loop_range_facts.push(LoopRangeFact {
@@ -540,6 +552,14 @@ mod tests {
             &mut function,
         );
         refresh_function_range_index_facts(&mut function);
+        function.metadata.direct_array_extent_facts.push(
+            crate::mir::function::DirectArrayExtentFact {
+                receiver_value: ValueId::new(2),
+                lower_bound_value: ValueId::new(11),
+                proof_kind: DirectArrayExtentProofKind::ProducerInvariant,
+                stable_in_region: true,
+            },
+        );
         refresh_function_direct_array_access_plans(&mut function);
 
         assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
