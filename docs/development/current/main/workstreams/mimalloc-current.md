@@ -1874,6 +1874,27 @@ post_cleanup_top_symbols=objectLifecycleReleaseBlock,objectLifecycleSmallAlloc,a
 next_phase=post_source_shape_reread_and_next_owner_selection
 ```
 
+Page queue residue cleanup:
+
+```text
+selected_change=collapse_single_use_acceptSelectedPage_into_selectPage
+selected_residue=delete_dead_selectSinglePageFastPath
+reason=thin_queue_wrapper_and_dead_fastpath_residue
+source_public_api_changed=0
+compiler_fastpath_changed=0
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=4000000
+hako_instructions=139294874
+hako_cycles=25535067
+instruction_delta_vs_post_release_cleanup=-524508
+cycle_delta_vs_post_release_cleanup=-329735
+instruction_keeper=accepted
+cycle_keeper=accepted
+post_cleanup_top_symbols=objectLifecycleSmallAlloc,objectLifecycleReleaseBlock,acquireFreshSmall,releaseLocalKnownLive,selectPage
+next_owner_candidate=objectLifecycleSmallAlloc_source_shape
+next_reason=release and queue thin wrappers are gone; remaining hot owner is the small alloc body itself
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

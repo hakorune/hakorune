@@ -39,10 +39,6 @@ box HakoAllocObjectLifecycleFacade {
         return me.alloc_result.recordFailure(reason)
     }
 
-    recordSmallAllocSuccess(selected_kind) {
-        return me.alloc_result.recordSuccess(selected_kind)
-    }
-
     @rune Inline(required)
     recordLastAllocPage(index, page_id, page) {
         me.last_alloc_page_index = index
@@ -125,27 +121,6 @@ box HakoAllocObjectLifecycleFacade {
         return -1
     }
 
-    objectLifecycleReleaseKnownPageIndex(page_id) {
-        me.release_known_page = null
-        if page_id == me.last_alloc_page_id {
-            if me.last_alloc_page_index >= 0 {
-                if me.last_alloc_page_index < me.object_lifecycle_queue.page_count {
-                    local page = me.last_alloc_page
-                    if page != null {
-                        if page.page_id == page_id {
-                            me.release_known_page = page
-                            me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
-                            return me.last_alloc_page_index
-                        }
-                    }
-                }
-            }
-        }
-
-        me.release_known_page_fallback_count = me.release_known_page_fallback_count + 1
-        return me.objectLifecycleKnownPageIndexById(page_id)
-    }
-
     objectLifecycleReleaseBlock(page_id, block_id) {
         me.release_result.reset()
         me.release_result.recordRequest(page_id, block_id)
@@ -171,7 +146,26 @@ box HakoAllocObjectLifecycleFacade {
             }
         }
 
-        local known_index = me.objectLifecycleReleaseKnownPageIndex(page_id)
+        me.release_known_page = null
+        local known_index = -1
+        if page_id == me.last_alloc_page_id {
+            if me.last_alloc_page_index >= 0 {
+                if me.last_alloc_page_index < me.object_lifecycle_queue.page_count {
+                    local cached_page = me.last_alloc_page
+                    if cached_page != null {
+                        if cached_page.page_id == page_id {
+                            me.release_known_page = cached_page
+                            me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
+                            known_index = me.last_alloc_page_index
+                        }
+                    }
+                }
+            }
+        }
+        if known_index < 0 {
+            me.release_known_page_fallback_count = me.release_known_page_fallback_count + 1
+            known_index = me.objectLifecycleKnownPageIndexById(page_id)
+        }
         if known_index >= 0 {
             local page = me.release_known_page
             if page == null {
