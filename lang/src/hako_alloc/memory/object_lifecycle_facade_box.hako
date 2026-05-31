@@ -67,17 +67,15 @@ box HakoAllocObjectLifecycleFacade {
         alloc_result.recordSelectedPage(selected_page_id)
 
         local selected_kind = queue.last_selected_kind
-        if selected_kind != 1 {
-            if selected_kind != 2 {
+        if selected_kind != 2 {
+            if selected_kind == 1 {
+                if page.reuse() == 0 {
+                    local small_reuse_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_reuse_failed()
+                    return alloc_result.recordFailure(small_reuse_failed_reason)
+                }
+            } else {
                 local small_bad_selected_kind_reason = HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind()
                 return alloc_result.recordFailure(small_bad_selected_kind_reason)
-            }
-        }
-
-        if selected_kind == 1 {
-            if page.reuse() == 0 {
-                local small_reuse_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_reuse_failed()
-                return alloc_result.recordFailure(small_reuse_failed_reason)
             }
         }
 

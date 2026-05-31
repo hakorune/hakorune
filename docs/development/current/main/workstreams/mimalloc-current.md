@@ -289,6 +289,28 @@ message.
     from `151803725` to `147028291`
   - no source syntax change, no Profile, no by-name shim selector, no
     public ArrayBox/default-safe behavior change, no new row/guard/script
+- [x] MIM-045: same-block copy-forwarding probe
+  - output: tested a narrow MIR same-block copy forwarding pass against the
+    representative direct exact front
+  - structural observation: local copy counts dropped in hot page methods, but
+    the pass interfered with same-module lowering metadata / route carriers
+    and stopped the EXE build with `unsupported pure shape`
+  - decision: nonkeeper for the current pipeline; do not add a global
+    copy-delete/forward pass until route metadata is refreshed or rewritten as
+    value-attached facts
+  - next: return to owner-first perf selection rather than expanding this into
+    a metadata-aware rewrite pass inside the mimalloc lane
+- [x] MIM-046: small-alloc selected-kind fast branch
+  - output: reorder `objectLifecycleSmallAlloc/1` so the current direct exact
+    fresh-page kind (`selected_kind == 2`) is the first accepted branch, while
+    the reuse path (`selected_kind == 1`) and bad-kind failure remain intact
+  - reason: representative direct exact evidence shows the fresh-page path is
+    the active small-alloc path; avoid sending it through the reuse-kind check
+    first
+  - result: direct exact instructions improved from `139295542` to
+    `137198567`; `body_elapsed_ns` stayed at `4000000`
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
