@@ -7,7 +7,8 @@
  * from `generic_method_routes`, and later lowering slices may consume it.
  */
 
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use crate::mir::function::LoopRangeFact;
+use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayAccessOp {
@@ -125,7 +126,7 @@ pub struct DirectArrayAccessPlan {
 }
 
 impl DirectArrayAccessPlan {
-    fn new(
+    fn checked(
         block: BasicBlockId,
         instruction_index: usize,
         op: DirectArrayAccessOp,
@@ -157,6 +158,37 @@ impl DirectArrayAccessPlan {
                 DirectArrayAccessOp::Load => DirectArrayStoreSemantics::NotStore,
                 DirectArrayAccessOp::Store => DirectArrayStoreSemantics::AppendOrOverwrite,
             },
+        }
+    }
+
+    fn proved_unchecked_loop_range_store(
+        block: BasicBlockId,
+        instruction_index: usize,
+        receiver_value: ValueId,
+        index_value: ValueId,
+        value_value: ValueId,
+        result_value: Option<ValueId>,
+    ) -> Self {
+        Self {
+            block,
+            instruction_index,
+            op: DirectArrayAccessOp::Store,
+            receiver_value,
+            index_value,
+            value_value: Some(value_value),
+            result_value,
+            array_kind: "DirectArrayI64",
+            element_type: "i64",
+            route: "direct_array_i64_store",
+            bounds_policy: DirectArrayBoundsPolicy::ProvedUnchecked,
+            proof_kind: DirectArrayProofKind::LoopRange,
+            fallback_policy: DirectArrayFallbackPolicy::FailFast,
+            cfg_shape: DirectArrayCfgShape::Branchless,
+            // LoopRange v0 proves a sequential 0..end fill. The branchless
+            // lowerer preserves Array.set append-or-overwrite semantics by
+            // updating len to max(len, index + 1), so this is not the legacy
+            // raw overwrite-only unchecked store.
+            store_semantics: DirectArrayStoreSemantics::AppendOrOverwrite,
         }
     }
 
@@ -227,42 +259,98 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
         if route.receiver_origin_box() != Some("ArrayBox") {
             continue;
         }
-        if !checked_direct_array_lowering_site_is_cfg_safe(function, route.block()) {
-            continue;
-        }
         let Some(index_value) = route.key_value() else {
             continue;
         };
         match route.route_kind_tag() {
-            "array_slot_load_any" => plans.push(DirectArrayAccessPlan::new(
-                route.block(),
-                route.instruction_index(),
-                DirectArrayAccessOp::Load,
-                route.receiver_value(),
-                index_value,
-                None,
-                route.result_value(),
-            )),
+            "array_slot_load_any" => {
+                if !checked_direct_array_lowering_site_is_cfg_safe(function, route.block()) {
+                    continue;
+                }
+                plans.push(DirectArrayAccessPlan::checked(
+                    route.block(),
+                    route.instruction_index(),
+                    DirectArrayAccessOp::Load,
+                    route.receiver_value(),
+                    index_value,
+                    None,
+                    route.result_value(),
+                ));
+            }
             "array_store_any" => {
                 let Some(value_value) =
                     call_arg(function, route.block(), route.instruction_index(), 1)
                 else {
                     continue;
                 };
-                plans.push(DirectArrayAccessPlan::new(
+                if loop_range_proves_branchless_append_or_overwrite_store(
+                    function,
                     route.block(),
-                    route.instruction_index(),
-                    DirectArrayAccessOp::Store,
-                    route.receiver_value(),
                     index_value,
-                    Some(value_value),
-                    route.result_value(),
-                ));
+                ) {
+                    plans.push(DirectArrayAccessPlan::proved_unchecked_loop_range_store(
+                        route.block(),
+                        route.instruction_index(),
+                        route.receiver_value(),
+                        index_value,
+                        value_value,
+                        route.result_value(),
+                    ));
+                } else if checked_direct_array_lowering_site_is_cfg_safe(function, route.block()) {
+                    plans.push(DirectArrayAccessPlan::checked(
+                        route.block(),
+                        route.instruction_index(),
+                        DirectArrayAccessOp::Store,
+                        route.receiver_value(),
+                        index_value,
+                        Some(value_value),
+                        route.result_value(),
+                    ));
+                }
             }
             _ => {}
         }
     }
     function.metadata.direct_array_access_plans = plans;
+}
+
+fn loop_range_proves_branchless_append_or_overwrite_store(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    index_value: ValueId,
+) -> bool {
+    function.metadata.loop_range_facts.iter().any(|fact| {
+        loop_range_fact_is_sequential_zero_based_body(fact, block_id, index_value)
+            && value_is_integer_const(function, fact.start_value, 0)
+    })
+}
+
+fn loop_range_fact_is_sequential_zero_based_body(
+    fact: &LoopRangeFact,
+    block_id: BasicBlockId,
+    index_value: ValueId,
+) -> bool {
+    fact.body_bb == block_id
+        && fact.index_phi == index_value
+        && fact.step == 1
+        && fact.end_exclusive
+        && fact.index_read_only
+        && fact.body_local_writes_supported
+        && !fact.loop_carried_writes_supported
+}
+
+fn value_is_integer_const(function: &MirFunction, value_id: ValueId, expected: i64) -> bool {
+    function.blocks.values().any(|block| {
+        block.instructions.iter().any(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(actual),
+                } if *dst == value_id && *actual == expected
+            )
+        })
+    })
 }
 
 fn checked_direct_array_lowering_site_is_cfg_safe(
@@ -309,7 +397,7 @@ mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::{
-        BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
         MirInstruction, MirType,
     };
 
@@ -393,6 +481,63 @@ mod tests {
         assert_eq!(store.result_value(), Some(ValueId::new(6)));
         assert_eq!(store.route(), "direct_array_i64_store");
         assert_eq!(store.cfg_shape(), DirectArrayCfgShape::CheckedBranching);
+        assert_eq!(
+            store.store_semantics(),
+            DirectArrayStoreSemantics::AppendOrOverwrite
+        );
+    }
+
+    #[test]
+    fn refresh_records_loop_range_store_as_branchless_proved_unchecked_plan() {
+        let mut function = make_function();
+        let body_bb = BasicBlockId::new(1);
+        function.add_block(BasicBlock::new(body_bb));
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        let body = function.blocks.get_mut(&body_bb).expect("body");
+        body.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![4, 3]));
+        function.metadata.loop_range_facts.push(LoopRangeFact {
+            index_name: "i".to_string(),
+            start_value: ValueId::new(10),
+            end_value: ValueId::new(11),
+            index_phi: ValueId::new(4),
+            preheader_bb: BasicBlockId::new(0),
+            header_bb: BasicBlockId::new(2),
+            body_bb,
+            step_bb: BasicBlockId::new(3),
+            exit_bb: BasicBlockId::new(4),
+            step: 1,
+            end_exclusive: true,
+            index_read_only: true,
+            body_local_writes_supported: true,
+            loop_carried_writes_supported: false,
+            body_writes_supported: false,
+        });
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
+        let store = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(store.op(), DirectArrayAccessOp::Store);
+        assert_eq!(store.block(), body_bb);
+        assert_eq!(store.instruction_index(), 0);
+        assert_eq!(store.index_value(), ValueId::new(4));
+        assert_eq!(
+            store.bounds_policy(),
+            DirectArrayBoundsPolicy::ProvedUnchecked
+        );
+        assert_eq!(store.proof_kind(), DirectArrayProofKind::LoopRange);
+        assert_eq!(store.fallback_policy(), DirectArrayFallbackPolicy::FailFast);
+        assert_eq!(store.cfg_shape(), DirectArrayCfgShape::Branchless);
         assert_eq!(
             store.store_semantics(),
             DirectArrayStoreSemantics::AppendOrOverwrite

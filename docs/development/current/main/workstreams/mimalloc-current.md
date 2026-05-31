@@ -1727,10 +1727,22 @@ Phase 3 guardrail:
 
 ```text
 proved_unchecked_cfg_shape=branchless
-loop_range_store_semantics=overwrite_existing
-loop_range_store_requires_index_lt_len=1
+loop_range_store_semantics=append_or_overwrite
+loop_range_store_requires_sequential_zero_based_index=1
 capacity_only_store_proof_allowed=0
-append_or_overwrite_unchecked_requires_len_update=1
+append_or_overwrite_unchecked_requires_len_max_update=1
+```
+
+Phase 3a implementation:
+
+```text
+proof_kind=loop_range
+selection_source=fn_metadata.direct_array_access_plans
+cfg_shape=branchless
+store_semantics=append_or_overwrite
+required_loop_facts=start_const_zero,index_phi_matches_route_key,step_one,end_exclusive,index_read_only
+lowering=len_preserving_branchless_store
+legacy_by_name_allowlist_changed=0
 ```
 
 Phase 2 verification:

@@ -30,6 +30,121 @@
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
+      auto int same_module_function_is_selected_direct_array_i64_loop_range_store_target(
+          long long bid,
+          size_t ii,
+          long long recv,
+          long long key,
+          long long value,
+          long long dst) {
+        return lowering_plan_direct_array_access_site_matches_proved_unchecked_loop_range_store_i64(
+            bid,
+            ii,
+            "direct_array_i64_store",
+            recv,
+            key,
+            value,
+            dst,
+            1);
+      }
+
+      auto int same_module_function_emit_direct_array_i64_store_loop_range_mir_call(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          long long recv,
+          long long key,
+          long long value) {
+        char recv_ref[64];
+        char key_ref[64];
+        char value_ref[64];
+        (void)f;
+        if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_loop_range_store_target(
+                bid, ii, recv, key, value, dst)) return 0;
+        if (!(value && is_plain_i64_value(value))) return 0;
+
+        same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
+        same_module_function_format_i64_ref(key_ref, sizeof(key_ref), key);
+        same_module_function_format_i64_ref(value_ref, sizeof(value_ref), value);
+
+        EMIT("  %%direct_array_i64_loop_base_%lld_%zu = and i64 %s, -4\n",
+             bid,
+             ii,
+             recv_ref);
+        EMIT("  %%direct_array_i64_loop_len_addr_%lld_%zu = add i64 %%direct_array_i64_loop_base_%lld_%zu, 16\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_len_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_loop_len_addr_%lld_%zu to ptr\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_len_%lld_%zu = load i64, ptr %%direct_array_i64_loop_len_ptr_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_byte_index_%lld_%zu = mul i64 %s, 8\n",
+             bid,
+             ii,
+             key_ref);
+        EMIT("  %%direct_array_i64_loop_data_base_%lld_%zu = add i64 %%direct_array_i64_loop_base_%lld_%zu, 32\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_value_addr_%lld_%zu = add i64 %%direct_array_i64_loop_data_base_%lld_%zu, %%direct_array_i64_loop_byte_index_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_value_ptr_%lld_%zu = inttoptr i64 %%direct_array_i64_loop_value_addr_%lld_%zu to ptr\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  store i64 %s, ptr %%direct_array_i64_loop_value_ptr_%lld_%zu\n",
+             value_ref,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_index_plus_one_%lld_%zu = add i64 %s, 1\n",
+             bid,
+             ii,
+             key_ref);
+        EMIT("  %%direct_array_i64_loop_len_grows_%lld_%zu = icmp ult i64 %%direct_array_i64_loop_len_%lld_%zu, %%direct_array_i64_loop_index_plus_one_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  %%direct_array_i64_loop_next_len_%lld_%zu = select i1 %%direct_array_i64_loop_len_grows_%lld_%zu, i64 %%direct_array_i64_loop_index_plus_one_%lld_%zu, i64 %%direct_array_i64_loop_len_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("  store i64 %%direct_array_i64_loop_next_len_%lld_%zu, ptr %%direct_array_i64_loop_len_ptr_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii);
+        if (dst) {
+          EMIT("  %%r%lld = add i64 1, 0\n", dst);
+          set_type(dst, T_I64);
+        }
+        return 1;
+      }
+
       auto int same_module_function_emit_direct_array_i64_store_unchecked_mir_call(
           FILE* f,
           long long bid,
@@ -326,7 +441,15 @@
                          ? HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_TEXT_PUBLIC
                          : HAKO_LLVMC_ARRAY_SLOT_DEMAND_STORE_HANDLE);
           if (!(value_is_i64 &&
-                (same_module_function_emit_direct_array_i64_store_unchecked_mir_call(
+                (same_module_function_emit_direct_array_i64_store_loop_range_mir_call(
+                     f,
+                     bid,
+                     ii,
+                     dst,
+                     recv,
+                     key,
+                     value) ||
+                 same_module_function_emit_direct_array_i64_store_unchecked_mir_call(
                      f,
                      bid,
                      ii,
