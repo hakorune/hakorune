@@ -160,6 +160,147 @@ fn refresh_module_user_box_method_routes_accepts_string_handle_method_target() {
 }
 
 #[test]
+fn refresh_module_user_box_method_routes_recovers_route_result_through_nested_phi_receiver() {
+    let mut module = MirModule::new("user_box_nested_phi_receiver_route_test".to_string());
+    module
+        .metadata
+        .user_box_decls
+        .insert("Queue".to_string(), vec![]);
+    module
+        .metadata
+        .user_box_decls
+        .insert("Page".to_string(), vec![]);
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Queue".to_string(),
+        type_id: 21,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Page".to_string(),
+        type_id: 22,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+
+    let mut pick = MirFunction::new(
+        FunctionSignature {
+            name: "Queue.pick/0".to_string(),
+            params: vec![MirType::Box("Queue".to_string())],
+            return_type: MirType::Box("Page".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    pick.params = vec![ValueId::new(0)];
+    let mut pick_block = BasicBlock::new(BasicBlockId::new(0));
+    pick_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "Page".to_string(),
+        args: vec![],
+    });
+    pick_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    pick.add_block(pick_block);
+
+    let mut acquire = MirFunction::new(
+        FunctionSignature {
+            name: "Page.acquireFreshSmall/1".to_string(),
+            params: vec![MirType::Box("Page".to_string()), MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    acquire.params = vec![ValueId::new(0), ValueId::new(1)];
+    let mut acquire_block = BasicBlock::new(BasicBlockId::new(0));
+    acquire_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(7),
+    });
+    acquire_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    acquire.add_block(acquire_block);
+
+    let mut caller = MirFunction::new(
+        FunctionSignature {
+            name: "Caller.run/1".to_string(),
+            params: vec![MirType::Box("Queue".to_string())],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    caller.params = vec![ValueId::new(0)];
+    let mut block = BasicBlock::new(BasicBlockId::new(0));
+    block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(10)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "Queue".to_string(),
+            method: "pick".to_string(),
+            receiver: Some(ValueId::new(0)),
+            certainty: TypeCertainty::Known,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+        }),
+        args: vec![],
+        effects: EffectMask::PURE,
+    });
+    block.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(11),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(10))],
+        type_hint: None,
+    });
+    block.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(12),
+        inputs: vec![(BasicBlockId::new(0), ValueId::new(11))],
+        type_hint: None,
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(13),
+        value: ConstValue::Integer(64),
+    });
+    block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(14)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "RuntimeDataBox".to_string(),
+            method: "acquireFreshSmall".to_string(),
+            receiver: Some(ValueId::new(12)),
+            certainty: TypeCertainty::Union,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+        }),
+        args: vec![ValueId::new(13)],
+        effects: EffectMask::PURE,
+    });
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(14)),
+    });
+    caller.add_block(block);
+
+    module.add_function(pick);
+    module.add_function(acquire);
+    module.add_function(caller);
+
+    refresh_module_user_box_method_routes(&mut module);
+
+    let caller = module.get_function("Caller.run/1").expect("caller function");
+    let acquire_route = caller
+        .metadata
+        .user_box_method_routes
+        .iter()
+        .find(|route| route.method() == "acquireFreshSmall")
+        .expect("nested phi receiver should recover Page route");
+    assert_eq!(acquire_route.box_name(), "Page");
+    assert_eq!(acquire_route.reason(), None);
+    assert_eq!(acquire_route.return_shape(), Some("scalar_i64"));
+}
+
+#[test]
 fn refresh_module_user_box_method_routes_recovers_receiver_box_from_param_origin() {
     let mut module = MirModule::new("user_box_param_receiver_route_test".to_string());
     module

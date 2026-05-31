@@ -265,6 +265,30 @@ message.
     the queue selection boundary
   - result: direct exact instructions improved from `152851912` to `151803609`
   - no source hand-expansion, no new compiler feature, no Array lane widening
+- [x] MIM-043: DirectArray receiver-fact selection cleanup
+  - output: remove the `resetToFresh/0` by-name unchecked DirectArray store
+    selector and replace checked DirectArray get/store selection with
+    receiver-origin facts
+  - reason: `resetToFresh/0` should not be a permanent C-shim special case;
+    direct checked Array lowering is valid for proven Array birth/direct-array
+    receivers independent of method name
+  - result: representative direct exact EXE stayed green and instruction count
+    remained stable at `151803725`
+  - no source fast-path branch, no public ArrayBox/default-safe behavior change,
+    no new row/guard/script
+- [x] MIM-044: nested route-result phi receiver acceptance
+  - output: preserve user-box route-result box origins through nested phi
+    receivers so guard-return source shapes do not collapse downstream
+    same-module method routes
+  - reason: the `resetToFresh/0` early guard made the selected page flow pass
+    through nested phis before `page.acquireFreshSmall(size)`; this is a
+    generic origin-flow acceptance issue, not a `resetToFresh` or mimalloc
+    by-name special case
+  - result: `Main.runOne/2 -> objectLifecycleSmallAlloc/1` returned to
+    `direct_function_call`; representative direct exact instructions improved
+    from `151803725` to `147028291`
+  - no source syntax change, no Profile, no by-name shim selector, no
+    public ArrayBox/default-safe behavior change, no new row/guard/script
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -914,6 +938,22 @@ next_task=MIM-038
 
 ## Decision Log
 
+- 2026-05-31: MIM-044 added generic nested-phi receiver origin acceptance for
+  user-box route results. The `resetToFresh/0` fast guard introduces an extra
+  guard-return control shape, which made the selected page flow through nested
+  phis before `page.acquireFreshSmall(size)`. The fix preserves the
+  `HakoAllocPageModel` origin through that phi chain instead of adding a
+  reset-specific or mimalloc-specific route. The representative direct exact
+  EXE stayed green, `objectLifecycleSmallAlloc/1` returned to
+  `direct_function_call`, and instruction count moved from 151.8M to 147.0M.
+- 2026-05-31: MIM-043 removed `HakoAllocPageModel.resetToFresh/0` from the
+  unchecked DirectArray store selector and replaced the checked DirectArray
+  get/store method-name allowlists with receiver-origin fact checks in both
+  pure generic lowering and same-module body emission. This keeps
+  `resetToFresh/0` on the normal checked DirectArray path without adding a new
+  source fast-path branch or another reset-specific C-shim route. The
+  representative direct exact EXE stayed green and instruction count stayed
+  stable at 151.8M.
 - 2026-05-31: MIM-039 extended the existing unchecked DirectArray i64 store
   lane from `resetToFresh/0` to the proven known-live release method
   `HakoAllocPageModel.releaseLocalKnownLive/1`. This removes public ArrayBox

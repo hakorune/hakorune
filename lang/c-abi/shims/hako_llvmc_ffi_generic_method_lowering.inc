@@ -18,19 +18,18 @@
         return value && !strcmp(value, "direct_array_i64_exact");
       }
 
-      auto int hako_llvmc_is_selected_direct_array_i64_store_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquire/1") ||
-                !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
-                !strcmp(name, "HakoAllocPageModel.reactivate/0") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocal/1") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
+      auto int hako_llvmc_direct_array_i64_receiver_selected(long long recv) {
+        if (!recv) return 0;
+        return get_origin(recv) == ORG_ARRAY_BIRTH ||
+               get_scan_origin(recv) == ORG_ARRAY_BIRTH;
       }
 
-      auto int hako_llvmc_is_selected_direct_array_i64_get_target(void) {
-        return hako_llvmc_is_selected_direct_array_i64_store_target();
+      auto int hako_llvmc_is_selected_direct_array_i64_store_target(long long recv) {
+        return hako_llvmc_direct_array_i64_receiver_selected(recv);
+      }
+
+      auto int hako_llvmc_is_selected_direct_array_i64_get_target(long long recv) {
+        return hako_llvmc_direct_array_i64_receiver_selected(recv);
       }
 
       auto int hako_llvmc_is_selected_direct_array_i64_unchecked_get_target(void) {
@@ -42,7 +41,6 @@
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
                (!strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
@@ -83,7 +81,7 @@
         char key_ref[64];
         if (!dst) return 0;
         if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
-        if (!hako_llvmc_is_selected_direct_array_i64_get_target()) return 0;
+        if (!hako_llvmc_is_selected_direct_array_i64_get_target(recv)) return 0;
 
         hako_llvmc_format_i64_operand(recv_ref, sizeof(recv_ref), recv);
         hako_llvmc_format_i64_operand(key_ref, sizeof(key_ref), key);
@@ -161,7 +159,7 @@
         char key_ref[64];
         char value_ref[64];
         if (!hako_llvmc_direct_array_i64_exact_enabled()) return 0;
-        if (!hako_llvmc_is_selected_direct_array_i64_store_target()) return 0;
+        if (!hako_llvmc_is_selected_direct_array_i64_store_target(recv)) return 0;
         if (!(value && is_plain_i64_value(value))) return 0;
 
         hako_llvmc_format_i64_operand(recv_ref, sizeof(recv_ref), recv);

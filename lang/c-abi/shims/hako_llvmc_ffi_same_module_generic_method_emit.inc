@@ -111,15 +111,16 @@
         return value && !strcmp(value, "direct_array_i64_exact");
       }
 
-      auto int same_module_function_is_selected_direct_array_i64_get_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquire/1") ||
-                !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
-                !strcmp(name, "HakoAllocPageModel.reactivate/0") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocal/1") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
+      auto int same_module_function_direct_array_i64_receiver_selected(
+          long long recv) {
+        if (!recv) return 0;
+        return get_origin(recv) == ORG_ARRAY_BIRTH ||
+               get_scan_origin(recv) == ORG_ARRAY_BIRTH;
+      }
+
+      auto int same_module_function_is_selected_direct_array_i64_get_target(
+          long long recv) {
+        return same_module_function_direct_array_i64_receiver_selected(recv);
       }
 
       auto int same_module_function_is_selected_direct_array_i64_unchecked_get_target(void) {
@@ -204,7 +205,7 @@
         (void)f;
         if (!dst) return 0;
         if (!same_module_function_direct_array_i64_exact_get_enabled()) return 0;
-        if (!same_module_function_is_selected_direct_array_i64_get_target()) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_get_target(recv)) return 0;
         if (!same_module_function_method_view_is_direct_array_i64_get(method_view)) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);
@@ -354,22 +355,15 @@
         return value && !strcmp(value, "direct_array_i64_exact");
       }
 
-      auto int same_module_function_is_selected_direct_array_i64_store_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquire/1") ||
-                !strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
-                !strcmp(name, "HakoAllocPageModel.reactivate/0") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocal/1") ||
-                !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
+      auto int same_module_function_is_selected_direct_array_i64_store_target(
+          long long recv) {
+        return same_module_function_direct_array_i64_receiver_selected(recv);
       }
 
       auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         return name &&
                (!strcmp(name, "HakoAllocPageModel.acquireFreshSmall/1") ||
-                !strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
                 !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
@@ -442,7 +436,7 @@
         char value_ref[64];
         (void)f;
         if (!same_module_function_direct_array_i64_exact_enabled()) return 0;
-        if (!same_module_function_is_selected_direct_array_i64_store_target()) return 0;
+        if (!same_module_function_is_selected_direct_array_i64_store_target(recv)) return 0;
         if (!(value && is_plain_i64_value(value))) return 0;
 
         same_module_function_format_i64_ref(recv_ref, sizeof(recv_ref), recv);

@@ -696,10 +696,14 @@ fn phi_input_box_name(
 ) -> Option<String> {
     let mut inferred = None;
     for (_, input) in inputs {
-        let origin = resolve_value_origin(function, def_map, *input);
-        let box_name = value_box_name(function, origin)
-            .or_else(|| route_result_box_name_cached(route_result_lookup, origin))?
-            .to_string();
+        let mut visiting = BTreeSet::new();
+        let box_name = route_flow_value_box_name(
+            function,
+            def_map,
+            route_result_lookup,
+            *input,
+            &mut visiting,
+        )?;
         inferred = match inferred {
             None => Some(box_name),
             Some(existing) if existing == box_name => Some(existing),
@@ -707,6 +711,56 @@ fn phi_input_box_name(
         };
     }
     inferred
+}
+
+fn route_flow_value_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    route_result_lookup: &HashMap<ValueId, String>,
+    value: ValueId,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<String> {
+    let origin = resolve_value_origin(function, def_map, value);
+    if !visiting.insert(origin) {
+        return None;
+    }
+
+    let result = value_box_name(function, origin)
+        .or_else(|| route_result_box_name_cached(route_result_lookup, origin))
+        .map(str::to_string)
+        .or_else(|| {
+            let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+            let instruction = function.blocks.get(&block_id)?.instructions.get(instruction_index)?;
+            match instruction {
+                MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+                MirInstruction::Phi { inputs, type_hint, .. } => type_hint
+                    .as_ref()
+                    .and_then(box_name_from_type)
+                    .map(str::to_string)
+                    .or_else(|| {
+                        let mut inferred = None;
+                        for (_, input) in inputs {
+                            let box_name = route_flow_value_box_name(
+                                function,
+                                def_map,
+                                route_result_lookup,
+                                *input,
+                                visiting,
+                            )?;
+                            inferred = match inferred {
+                                None => Some(box_name),
+                                Some(existing) if existing == box_name => Some(existing),
+                                _ => return None,
+                            };
+                        }
+                        inferred
+                    }),
+                _ => None,
+            }
+        });
+
+    visiting.remove(&origin);
+    result
 }
 
 pub(super) fn route_result_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {

@@ -390,6 +390,29 @@ box HakoAllocPageModel {
         local local_free = me.local_free
         local block_used = me.block_used
         local capacity = me.capacity
+        if me.used == 0 {
+            if me.local_free_top == capacity {
+                me.free_top = capacity
+                me.local_free_top = 0
+                me.alloc_count = 0
+                me.local_free_count = 0
+                me.local_free_collect_count = 0
+                me.local_free_collected_blocks = 0
+                me.reject_count = 0
+                me.retired = 0
+                me.decommitted = 0
+                me.retire_count = 0
+                me.decommit_count = 0
+                me.recommit_count = 0
+                me.reuse_count = 0
+                me.lifecycle_reject_count = 0
+                me.reactivate_count = 0
+                me.reactivate_reject_count = 0
+                me.peak_used = 0
+                me.requested_bytes = 0
+                return 1
+            }
+        }
         local i = 0
         loop(i < capacity) {
             free.set(i, i)
