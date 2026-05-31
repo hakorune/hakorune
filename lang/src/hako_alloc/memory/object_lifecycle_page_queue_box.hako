@@ -50,7 +50,7 @@ box HakoAllocObjectLifecyclePageQueue {
         return 1
     }
 
-    selectPage() {
+    selectPage(): HakoAllocPageModel {
         me.request_count = me.request_count + 1
         me.beginSelection()
 

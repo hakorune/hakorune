@@ -1895,6 +1895,46 @@ next_owner_candidate=objectLifecycleSmallAlloc_source_shape
 next_reason=release and queue thin wrappers are gone; remaining hot owner is the small alloc body itself
 ```
 
+Inline required reread for small-alloc tail:
+
+```text
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+candidate_tail=recordLastAllocPage/3
+source_manual_inline=0
+reason=recordLastAllocPage already carries @rune Inline(required)
+optimized_mir_recordLastAllocPage_call_present=0
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=4000000
+hako_instructions=139296109
+hako_cycles=25636139
+perf_top_symbol_0=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+perf_top_symbol_0_pct=47.43
+decision=no_source_manual_inline
+next_owner_candidate=objectLifecycleSmallAlloc_body_or_page_method_boundary
+summary=ok
+```
+
+SelectPage return type recovery:
+
+```text
+selected_change=annotate_HakoAllocObjectLifecyclePageQueue.selectPage_return_type
+source_change=selectPage(): HakoAllocPageModel
+reason=objectLifecycleSmallAlloc_page_receiver_was_RuntimeDataBox_union
+small_alloc_page_reuse_callee_before=RuntimeDataBox.reuse
+small_alloc_page_acquire_callee_before=RuntimeDataBox.acquireFreshSmall
+small_alloc_page_reuse_callee_after=HakoAllocPageModel.reuse
+small_alloc_page_acquire_callee_after=HakoAllocPageModel.acquireFreshSmall
+manual_inline=0
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=5000000
+hako_instructions=139295829
+hako_cycles=25492114
+structural_keeper=accepted
+performance_keeper=neutral
+next_owner_candidate=page_method_boundary_or_page_body_directness
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
