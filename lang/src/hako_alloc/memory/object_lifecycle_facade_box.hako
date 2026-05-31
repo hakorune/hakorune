@@ -154,10 +154,8 @@ box HakoAllocObjectLifecycleFacade {
                     if page.page_id == page_id {
                         me.release_known_page = page
                         me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
-                        if page.releaseLocalKnownLive(block_id) == 1 {
-                            return me.release_result.recordSuccess(page_id, block_id)
-                        }
-                        return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_page_reject())
+                        page.releaseLocalKnownLive(block_id)
+                        return me.release_result.recordSuccess(page_id, block_id)
                     }
                 }
             }

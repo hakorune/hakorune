@@ -242,6 +242,13 @@ message.
     bounds/capacity semantics on its two internal i64 stores
   - keep default/safe behavior, public ArrayBox, mixed storage, plugin typed
     ABI, and source syntax unchanged
+- [x] MIM-040: known-live release result branch cleanup
+  - output: remove the redundant `release_ok != 1` branch after
+    `page.releaseLocalKnownLive(block_id)` in the cached-page release path
+  - reason: the known-live release method currently returns `1` on all
+    non-trap paths; failure remains represented by the cached-page guard before
+    the call
+  - no new compiler feature, no source hand-expansion, no Array lane widening
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -898,6 +905,13 @@ next_task=MIM-038
   default/safe behavior. The representative direct exact EXE stayed green,
   disasm shows the checked store branches removed, and instruction count moved
   from 184.9M to 178.6M.
+- 2026-05-31: MIM-040 cleaned the cached-page release source shape by removing
+  the redundant failure branch after `releaseLocalKnownLive/1`. That method is
+  the proven known-live release path and returns `1` on all non-trap paths, so
+  the cached-page guard remains the failure boundary. The representative direct
+  exact EXE stayed green, the `recordReleaseFailure` call disappeared from
+  `objectLifecycleReleaseDirectCachedPage/2`, and instruction count moved from
+  178.6M to 174.4M.
 - 2026-05-31: MIM-038 cut the selected DirectArray i64 exact get boundary in
   the C shim direct exact path. The hot `HakoAllocPageModel.acquireFreshSmall/1`
   site now lowers `ArrayBox.get` over a proven DirectArrayI64 handle to direct
