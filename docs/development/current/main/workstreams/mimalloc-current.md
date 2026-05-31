@@ -170,7 +170,7 @@ message.
   - output: one method/field group with proven same-object receiver,
     known materialization boundary, and positive helper/call reduction
   - selected-plan silent fallback is a row failure
-- [ ] MIM-029: narrow direct-state lowering implementation
+- [x] MIM-029: narrow direct-state lowering implementation
   - output: direct offset load/store only for the MIM-028 selected group
   - no generic user-box flattening, no public ABI widening, no provider or
     allocator replacement activation
@@ -359,10 +359,46 @@ direct-state lowering.
 
 ### MIM-029: narrow direct-state lowering implementation
 
-Not opened in this pass.
+Landed for the MIM-028 selected callsite only.
 
-The current source evidence is enough to narrow the candidate family, but not to
-land a broader direct-offset implementation for the full facade.
+Implementation boundary:
+
+```text
+implemented_owner=ny_llvmc_same_module_method_call_emit
+implemented_owner_file=lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc
+selected_callsite=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1:b588.i13
+selected_method=HakoAllocObjectLifecycleAllocResult.recordSuccess/1
+selected_backend=direct_slot_exact
+source_surface_changed=0
+public_abi_changed=0
+generic_user_box_flattening=0
+```
+
+Structural proof:
+
+```text
+record_success_direct_call_count=0
+direct_state_alloc_label_count=36
+direct_state_fields=last_reason,last_ok,success_count,reusable_success_count,active_success_count
+semantic_smoke_summary=ok
+result_code=0
+allocation_count=524288
+free_count=524288
+```
+
+The lowering consumes the existing typed-object plan and DirectSlot V0 layout.
+It verifies the expected field slots/storage before emitting direct stores/RMWs:
+
+```text
+last_reason: i64 slot 2
+last_ok: i64 slot 3
+success_count: usize/u64 slot 5
+reusable_success_count: usize/u64 slot 7
+active_success_count: usize/u64 slot 8
+```
+
+The direct path is enabled only for `HAKO_TYPED_OBJECT_STORE=direct_slot_exact`.
+Default/safe and generic user-box method calls keep the existing route.
 
 ### MIM-030: post-direct-state owner refresh
 
@@ -380,6 +416,13 @@ remains the active owner surface and the lane stays on source-level mimalloc wor
 - 2026-05-31: `@rune` parser surface is now default-on. Historical
   `NYASH_FEATURES=rune` usage remains compatible, but mimalloc proof apps and
   direct-state diagnostics should no longer require it in their commands.
+- 2026-05-31: MIM-029 landed the first narrow direct-state lowering. The
+  selected `alloc_result.recordSuccess(selected_kind)` callsite in
+  `objectLifecycleSmallAlloc` now emits DirectSlot offset stores/RMWs directly
+  in the caller when the direct exact front is active. This removes the selected
+  same-module `recordSuccess/1` call boundary without changing source, public
+  ABI, default/safe behavior, provider activation, allocator replacement, hooks,
+  or global allocator state. MIM-030 is the next measurement/owner refresh.
 - 2026-05-31: MIM-023..MIM-026 closed as the source-shape direct-state audit.
   MIM-027 adds a real metadata-only `StateRepr::Direct` producer
   (`direct_state_plans`) derived from typed `field_decls`. MIM-028 selects the
