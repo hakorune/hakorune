@@ -1935,6 +1935,23 @@ next_owner_candidate=page_method_boundary_or_page_body_directness
 summary=ok
 ```
 
+Page method return type cleanup:
+
+```text
+selected_change=annotate_hot_page_method_return_types
+methods=acquireFreshSmall:i64,reuse:i64,releaseLocalKnownLive:i64
+reason=make_page_method_contract_explicit_after_selectPage_return_type_recovery
+mir_call_result_dst_type_changed=0
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=4000000
+hako_instructions=139295615
+hako_cycles=25246959
+performance_keeper=neutral
+source_contract_keeper=accepted
+next_owner_candidate=page_body_direct_state_or_copy_cleanup
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

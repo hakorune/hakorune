@@ -149,7 +149,7 @@ box HakoAllocPageModel {
         return block_id
     }
 
-    acquireFreshSmall(requested_size: usize) {
+    acquireFreshSmall(requested_size: usize): i64 {
         local block_size = me.block_size
         if requested_size > block_size {
             me.reject_count = me.reject_count + 1
@@ -214,7 +214,7 @@ box HakoAllocPageModel {
         return 1
     }
 
-    releaseLocalKnownLive(block_id) {
+    releaseLocalKnownLive(block_id): i64 {
         local block_used = me.block_used
         block_used.set(block_id, 0)
         local local_free_top = me.local_free_top
@@ -340,7 +340,7 @@ box HakoAllocPageModel {
         return 1
     }
 
-    reuse() {
+    reuse(): i64 {
         if me.canReuse() == 0 {
             me.lifecycle_reject_count = me.lifecycle_reject_count + 1
             return 0
