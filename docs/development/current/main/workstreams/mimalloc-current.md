@@ -130,10 +130,10 @@ message.
   - output: fold `beginSelection()` into `selectPage()` so the selected queue
     entry owns its hot reset/write path
   - no generic queue rewrite, no public behavior change
-- [ ] MIM-022: required inline receiver-leaf parity proof
+- [x] MIM-022: required inline receiver-leaf parity proof
   - output: restore the `beginSelection()` call in source and use
     `@rune Inline(required)` to reach the MIM-021 manual-inline instruction
-    shape through a verified receiver-fieldset leaf inline
+    shape through a verified single-object field-set leaf inline
   - no source `Contract(no_alloc)` / `Contract(no_safepoint)` requirement for
     this narrow leaf shape; verifier infers those facts from the body
   - no silent fallback, no source hand-expansion as the final shape
@@ -228,6 +228,10 @@ message.
   `no_safepoint` from the body shape. `Profile(...)` is parked for v0 and
   should not be introduced unless explicit inline/contract annotations become
   repeated user-facing noise.
+- 2026-05-31: MIM-022 landed as a verified source-shape proof. The leaf
+  verifier now accepts a single-object field-set body shape, and the mimalloc
+  source keeps `beginSelection()` as the readable public entry while the hot
+  path stays inline-expanded through the MIR proof lane.
 
 ## MIM-001 Source-Shape Inventory
 
