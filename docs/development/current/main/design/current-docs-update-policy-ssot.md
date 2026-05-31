@@ -39,11 +39,14 @@ clear current-state owner.
 `docs/development/current/main/CURRENT_STATE.toml` is the machine-readable SSOT
 for the current lane, blocker, phase pointers, and latest card pointer.
 
-Current work is constrained to three buckets:
+Current work is constrained to four buckets:
 
 1. mimalloc migration and optimization
-2. Array / representation fast paths only when selected by mimalloc perf evidence
-3. docs and shell hygiene
+2. direct memory / DirectArray language substrate when it reduces allocator
+   workaround pressure or clarifies future fast-path ownership
+3. Array / representation fast paths only when selected by mimalloc perf
+   evidence or by the active direct-memory substrate workstream
+4. docs and shell hygiene
 
 These buckets are the work taxonomy. Do not open a new active lane outside
 them without updating this policy and `CURRENT_STATE.toml`.
@@ -120,6 +123,7 @@ checklist, short evidence, decisions, and parking lot for that bucket.
 Allowed active workstream examples:
 
 - `docs/development/current/main/workstreams/mimalloc-current.md`
+- `docs/development/current/main/workstreams/direct-memory-current.md`
 - `docs/development/current/main/workstreams/array-fastpath-current.md`
 - `docs/development/current/main/workstreams/docs-sh-hygiene-current.md`
 

@@ -83,6 +83,68 @@ Until then, use explicit helpers or keep the row scalar/model-only.
 
 ## Task Order
 
+## Current Direct-Memory Substrate Pivot
+
+Mimalloc source-level optimization may pause after the current keeper batch
+when the next allocator step would otherwise require another local workaround.
+In that case, open the direct-memory language substrate in this order:
+
+```text
+LANG-DM-001:
+  reference policy lock
+  - no RawPtr source type
+  - no pointer operators
+  - NativePtr remains opaque
+  - direct / unsafe memory / unchecked are distinct terms
+
+LANG-DM-002:
+  DirectArrayAccessPlan cleanup
+  - carry element_type
+  - carry proof_ids
+  - prepare region_id / view_id as metadata only
+  - no new source syntax
+
+LANG-DM-003:
+  proof fact normalization
+  - RangeIndexFact
+  - DirectArrayExtentFact
+  - RegionStabilityFact
+
+LANG-DM-004:
+  Span no-escape SSOT and minimal verifier
+  - SpanI64 / SpanMutI64 first
+  - no return / field store / capture / provider boundary crossing
+
+LANG-DM-005:
+  SpanI64 / SpanMutI64 pilot over DirectArrayI64
+  - access plans consume the same proof vocabulary as DirectArray
+
+LANG-DM-006:
+  direct{} contract
+  - fast-route requirement only
+  - not unsafe
+  - not unchecked
+
+LANG-DM-007:
+  unsafe memory / Bytes parked design
+  - NativePtr stays opaque
+  - byte access uses bounded Bytes views
+
+LANG-DM-008:
+  LayoutSpan / bulk memory pattern parking lot
+  - no source API until Span/Bytes are proven
+```
+
+The active direct-memory workstream may implement LANG-DM-001..003 before
+returning to mimalloc. LANG-DM-004+ should remain split into small slices and
+must not widen public ArrayBox semantics.
+
+Reference owner:
+
+```text
+docs/reference/language/low-level-capabilities.md
+```
+
 ## Near-Term Current Order
 
 Use this order when deciding whether to keep pushing mimalloc rows or switch to

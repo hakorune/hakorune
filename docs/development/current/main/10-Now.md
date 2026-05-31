@@ -28,6 +28,8 @@ Related:
 
 - continue the active phase from `current_blocker_token`, `phase_status`, and
   `latest_card_path` in `CURRENT_STATE.toml`
+- current day-to-day tasks live in `latest_workstream_card` from
+  `CURRENT_STATE.toml`
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 
 ## Rules

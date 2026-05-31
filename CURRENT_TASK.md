@@ -79,26 +79,57 @@ Scope: current lane / next lane / restart order only.
 - keep BoxShape cleanup separate from BoxCount feature rows
 - do not add hot inline lowering without proof/evidence gate
 
-## Current Implementation Focus (phase-296x)
+## Current Implementation Focus
 
-- Current priority is constrained to three buckets:
-  1. mimalloc migration and optimization
-  2. Array / representation fast paths only when current mimalloc perf evidence
-     selects them
-  3. docs and shell hygiene
-- row413 closed the remaining direct-path fastpath search; row414 refreshed the
-  mimalloc source-level owner; row415 is current and keeps
-  `object_lifecycle_facade` as the next mimalloc source-level target.
-- Day-to-day work lives in `latest_workstream_card` from `CURRENT_STATE.toml`;
-  do not create numbered rows for inventory-only progress.
+- Current priority is constrained to four buckets:
+  1. direct memory / DirectArray language substrate
+  2. mimalloc migration and optimization
+  3. Array / representation fast paths only when selected by mimalloc perf
+     evidence or by the active direct-memory substrate workstream
+  4. docs and shell hygiene
+- Mimalloc source-level optimization is paused after MIM-054. The next active
+  work is to make direct memory tasks readable and reusable before returning to
+  allocator source optimization.
+- Day-to-day work lives in `latest_workstream_card` from `CURRENT_STATE.toml`.
+  Do not create numbered rows for inventory-only progress.
 - Do not open another Array / helper / RuntimeDataBox fast path unless the
-  active mimalloc perf pass provides concrete owner-family evidence and a
-  positive-net implementation path.
+  active workstream provides concrete owner-family evidence and a positive-net
+  implementation path.
 - Do not add new inventory-only rows or one-off row guards. Fold small
-  inventories into the active mimalloc working card or a single investigation
-  note, and use reusable lane guards.
+  inventories into the active workstream card or a single investigation note,
+  and use reusable lane guards.
 - Detailed DirectArray / RuntimeDataBox / typed-object history lives in the
   phase cards and `CURRENT_STATE.toml` landed tail, not in this root pointer.
+
+## Current Direct Memory Task Order
+
+Read `docs/development/current/main/workstreams/direct-memory-current.md` first.
+
+Recommended order:
+
+1. `LANG-DM-001` reference policy lock
+   - no `RawPtr<T>`
+   - no pointer operators
+   - `NativePtr` remains opaque
+   - `direct` / `unsafe memory` / `unchecked` stay separate
+   - status: done; reference policy is in
+     `docs/reference/language/low-level-capabilities.md`
+2. `LANG-DM-002` DirectArrayAccessPlan cleanup
+   - add/carry `element_type`
+   - add/carry `proof_ids`
+   - keep region/view vocabulary metadata-only
+3. `LANG-DM-003` proof fact normalization
+   - `RangeIndexFact`
+   - `DirectArrayExtentFact`
+   - `RegionStabilityFact`
+4. `LANG-DM-004` Span no-escape SSOT
+5. `LANG-DM-005` SpanI64 / SpanMutI64 minimal pilot
+6. `LANG-DM-006` `direct {}` contract
+7. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
+   the DirectArray/Span proof system is stable.
+
+Return to mimalloc optimization after LANG-DM-001..003 unless the Span SSOT
+becomes the clear next blocker.
 
 ## Current Ordered App Bringup
 

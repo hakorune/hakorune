@@ -60,6 +60,81 @@ full language profile table here; it drifts quickly as Stage1 rows land.
 
 ## Current Language Surface
 
+### Direct Memory Vocabulary
+
+Current direction is view-based direct memory, not C-style pointer exposure.
+
+Accepted source-visible split for v0:
+
+```text
+Array:
+  public/general array semantics
+
+DirectArrayI64:
+  exact i64 direct-storage family member for verified internal hot paths
+```
+
+`DirectArray` is a family name in docs, not a standalone untyped v0 source
+type. `DirectArrayI64` is not a subtype of `Array`, and implicit conversion in
+either direction is not accepted. Materialization or copy must be explicit when
+needed.
+
+The following are not accepted source features:
+
+```text
+RawPtr<T>
+NativePtr dereference
+NativePtr indexing
+NativePtr pointer arithmetic
+& / * / -> pointer operators
+```
+
+`NativePtr` remains opaque. Future native memory access must create a bounded
+view first.
+
+Internal representation work should use these layers:
+
+```text
+MemoryRegion:
+  owned or borrowed storage region
+
+MemoryView:
+  typed way to see that region
+
+MemoryAccessPlan:
+  selected load/store route for one access site
+
+Proof:
+  bounds / alignment / alias / lifetime / stability / initialization facts
+```
+
+Terminology:
+
+```text
+direct:
+  fast-route contract; generic fallback is disallowed when requested
+
+unsafe memory:
+  permission to create a view over external/native memory
+
+unchecked:
+  proof result that removes a check, usually bounds
+```
+
+Do not merge these meanings. `direct` is not unsafe, `unsafe memory` does not
+guarantee a fast route, and `unchecked` must come from proof.
+
+Planned order:
+
+1. keep current `Array` / `DirectArrayI64` source shape;
+2. strengthen `DirectArrayAccessPlanV0` with `element_type` and `proof_ids`;
+3. normalize `RangeIndexFact`, `DirectArrayExtentFact`, and
+   `RegionStabilityFact`;
+4. add `SpanI64` / `SpanMutI64` as no-escape views over DirectArray storage;
+5. add `direct {}` only as a fast-route requirement;
+6. add `unsafe memory` / `Bytes` later, with `NativePtr` still opaque;
+7. add `LayoutSpan` and bulk memory pattern recognition after Span/Bytes.
+
 ### Numeric Type Names
 
 These integer type names are accepted as annotation text and classified by MIR
