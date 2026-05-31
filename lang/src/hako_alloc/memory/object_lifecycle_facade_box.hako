@@ -146,24 +146,6 @@ box HakoAllocObjectLifecycleFacade {
         return me.objectLifecycleKnownPageIndexById(page_id)
     }
 
-    objectLifecycleReleaseDirectCachedPage(page_id, block_id) {
-        if page_id == me.last_alloc_page_id {
-            if me.last_alloc_page_index >= 0 {
-                local page = me.last_alloc_page
-                if page != null {
-                    if page.page_id == page_id {
-                        me.release_known_page = page
-                        me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
-                        page.releaseLocalKnownLive(block_id)
-                        return me.release_result.recordSuccess(page_id, block_id)
-                    }
-                }
-            }
-        }
-
-        return -1
-    }
-
     objectLifecycleReleaseBlock(page_id, block_id) {
         me.release_result.reset()
         me.release_result.recordRequest(page_id, block_id)
@@ -175,9 +157,18 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_bad_block())
         }
 
-        local direct_release = me.objectLifecycleReleaseDirectCachedPage(page_id, block_id)
-        if direct_release >= 0 {
-            return direct_release
+        if page_id == me.last_alloc_page_id {
+            if me.last_alloc_page_index >= 0 {
+                local cached_page = me.last_alloc_page
+                if cached_page != null {
+                    if cached_page.page_id == page_id {
+                        me.release_known_page = cached_page
+                        me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
+                        cached_page.releaseLocalKnownLive(block_id)
+                        return me.release_result.recordSuccess(page_id, block_id)
+                    }
+                }
+            }
         }
 
         local known_index = me.objectLifecycleReleaseKnownPageIndex(page_id)

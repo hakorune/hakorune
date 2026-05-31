@@ -1836,6 +1836,44 @@ representative_direct_exact_exe_smoke=ok
 next_phase=perf_reread_and_next_owner_selection
 ```
 
+Post fastpath perf reread:
+
+```text
+front=direct_exact
+hako_body_elapsed_ns=5000000
+c_body_elapsed_ns=3583434
+body_elapsed_ratio_hako_over_c=1.395
+hako_instructions=147159262
+hako_cycles=26847820
+c_instructions=65099839
+c_cycles=18507393
+instruction_ratio_hako_over_c=2.26
+cycle_ratio_hako_over_c=1.45
+legacy_field_helper_symbols_hot=0
+array_runtime_set_idx_i64_hot=0
+selected_next_owner=objectLifecycleReleaseBlock_source_shape
+selected_reason=direct_array_and_direct_state_fastpath_surfaces_are_no_longer_top_owner
+```
+
+Release direct cached source-shape cleanup:
+
+```text
+selected_change=collapse_single_use_objectLifecycleReleaseDirectCachedPage_into_objectLifecycleReleaseBlock
+reason=single_use_hot_helper_boundary;direct_cached_release_is_the_common_release_path
+source_public_api_changed=0
+compiler_fastpath_changed=0
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=5000000
+hako_instructions=139819482
+hako_cycles=25869327
+instruction_delta_vs_post_fastpath=-7339780
+cycle_delta_vs_post_fastpath=-978493
+instruction_keeper=accepted
+cycle_keeper=accepted
+post_cleanup_top_symbols=objectLifecycleReleaseBlock,objectLifecycleSmallAlloc,acquireFreshSmall,releaseLocalKnownLive,selectPage
+next_phase=post_source_shape_reread_and_next_owner_selection
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
