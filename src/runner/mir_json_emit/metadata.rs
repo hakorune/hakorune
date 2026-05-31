@@ -256,6 +256,8 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "bounds_policy": plan.bounds_policy().as_str(),
                 "proof_kind": plan.proof_kind().as_str(),
                 "fallback_policy": plan.fallback_policy().as_str(),
+                "cfg_shape": plan.cfg_shape().as_str(),
+                "store_semantics": plan.store_semantics().as_str(),
             })
         }).collect::<Vec<_>>(),
         "array_rmw_window_routes": metadata.array_rmw_window_routes.iter().map(|route| {

@@ -114,6 +114,8 @@
         const char* bounds_policy;
         const char* proof_kind;
         const char* fallback_policy;
+        const char* cfg_shape;
+        const char* store_semantics;
         long long receiver_value;
         long long index_value;
         long long value_value;
@@ -233,6 +235,8 @@
         out->bounds_policy = read_str(entry, "bounds_policy");
         out->proof_kind = read_str(entry, "proof_kind");
         out->fallback_policy = read_str(entry, "fallback_policy");
+        out->cfg_shape = read_str(entry, "cfg_shape");
+        out->store_semantics = read_str(entry, "store_semantics");
         if (!lowering_plan_read_i64_field(entry, "receiver_value", &receiver_value) ||
             !lowering_plan_read_i64_field(entry, "index_value", &index_value)) {
           return 0;
@@ -257,7 +261,9 @@
                out->route &&
                out->bounds_policy &&
                out->proof_kind &&
-               out->fallback_policy;
+               out->fallback_policy &&
+               out->cfg_shape &&
+               out->store_semantics;
       }
 
       auto int lowering_plan_direct_array_access_view_is_checked_i64(
@@ -274,7 +280,14 @@
                view->proof_kind &&
                !strcmp(view->proof_kind, "exact_front_contract") &&
                view->fallback_policy &&
-               !strcmp(view->fallback_policy, "allow_checked");
+               !strcmp(view->fallback_policy, "allow_checked") &&
+               view->cfg_shape &&
+               !strcmp(view->cfg_shape, "checked_branching") &&
+               view->store_semantics &&
+               ((!strcmp(op, "store") &&
+                 !strcmp(view->store_semantics, "append_or_overwrite")) ||
+                (!strcmp(op, "load") &&
+                 !strcmp(view->store_semantics, "not_store")));
       }
 
       auto int lowering_plan_direct_array_access_site_matches_checked_i64(
@@ -285,13 +298,16 @@
           long long receiver_value,
           long long index_value,
           long long value_value,
-          int require_value) {
+          int require_value,
+          long long result_value,
+          int require_result) {
         struct LoweringPlanDirectArrayAccessView view;
         yyjson_val* entry = find_direct_array_access_plan_for_site(bid, ii);
         if (!read_lowering_plan_direct_array_access_view(entry, &view)) return 0;
         if (!lowering_plan_direct_array_access_view_is_checked_i64(&view, op, route)) return 0;
         if (view.receiver_value != receiver_value || view.index_value != index_value) return 0;
         if (require_value && (!view.has_value_value || view.value_value != value_value)) return 0;
+        if (require_result && (!view.has_result_value || view.result_value != result_value)) return 0;
         return 1;
       }
 

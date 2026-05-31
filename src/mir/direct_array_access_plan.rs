@@ -73,6 +73,38 @@ impl DirectArrayFallbackPolicy {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DirectArrayCfgShape {
+    CheckedBranching,
+    Branchless,
+}
+
+impl DirectArrayCfgShape {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::CheckedBranching => "checked_branching",
+            Self::Branchless => "branchless",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DirectArrayStoreSemantics {
+    NotStore,
+    AppendOrOverwrite,
+    OverwriteExisting,
+}
+
+impl DirectArrayStoreSemantics {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::NotStore => "not_store",
+            Self::AppendOrOverwrite => "append_or_overwrite",
+            Self::OverwriteExisting => "overwrite_existing",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DirectArrayAccessPlan {
     block: BasicBlockId,
@@ -88,6 +120,8 @@ pub struct DirectArrayAccessPlan {
     bounds_policy: DirectArrayBoundsPolicy,
     proof_kind: DirectArrayProofKind,
     fallback_policy: DirectArrayFallbackPolicy,
+    cfg_shape: DirectArrayCfgShape,
+    store_semantics: DirectArrayStoreSemantics,
 }
 
 impl DirectArrayAccessPlan {
@@ -118,6 +152,11 @@ impl DirectArrayAccessPlan {
             bounds_policy: DirectArrayBoundsPolicy::Checked,
             proof_kind: DirectArrayProofKind::ExactFrontContract,
             fallback_policy: DirectArrayFallbackPolicy::AllowChecked,
+            cfg_shape: DirectArrayCfgShape::CheckedBranching,
+            store_semantics: match op {
+                DirectArrayAccessOp::Load => DirectArrayStoreSemantics::NotStore,
+                DirectArrayAccessOp::Store => DirectArrayStoreSemantics::AppendOrOverwrite,
+            },
         }
     }
 
@@ -171,6 +210,14 @@ impl DirectArrayAccessPlan {
 
     pub fn fallback_policy(&self) -> DirectArrayFallbackPolicy {
         self.fallback_policy
+    }
+
+    pub fn cfg_shape(&self) -> DirectArrayCfgShape {
+        self.cfg_shape
+    }
+
+    pub fn store_semantics(&self) -> DirectArrayStoreSemantics {
+        self.store_semantics
     }
 }
 
@@ -334,6 +381,8 @@ mod tests {
             load.fallback_policy(),
             DirectArrayFallbackPolicy::AllowChecked
         );
+        assert_eq!(load.cfg_shape(), DirectArrayCfgShape::CheckedBranching);
+        assert_eq!(load.store_semantics(), DirectArrayStoreSemantics::NotStore);
 
         let store = &function.metadata.direct_array_access_plans[1];
         assert_eq!(store.op(), DirectArrayAccessOp::Store);
@@ -343,5 +392,10 @@ mod tests {
         assert_eq!(store.value_value(), Some(ValueId::new(3)));
         assert_eq!(store.result_value(), Some(ValueId::new(6)));
         assert_eq!(store.route(), "direct_array_i64_store");
+        assert_eq!(store.cfg_shape(), DirectArrayCfgShape::CheckedBranching);
+        assert_eq!(
+            store.store_semantics(),
+            DirectArrayStoreSemantics::AppendOrOverwrite
+        );
     }
 }

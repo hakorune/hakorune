@@ -290,6 +290,31 @@ message.
   - no source syntax change, no Profile, no by-name shim selector, no
     public ArrayBox/default-safe behavior change, no new row/guard/script
 
+### Next Cleanup TODO
+
+Use these as Ghost Tasks inside this workstream. Do not create numbered rows
+unless one of them changes a durable contract or implementation boundary.
+
+1. `lang/c-abi/shims/hako_llvmc_ffi_same_module_generic_method_emit.inc`
+   - done: split the generic-method emitter by responsibility, starting with
+     the biggest method families
+   - done: kept the existing public emission behavior intact
+   - evidence: `bash tools/build_hako_llvmc_ffi.sh`
+   - no new row-specific guard
+
+2. `src/llvm_py/instructions/field_access_helpers.py`
+   - done: split helper-heavy field access support into smaller typed-object /
+     direct-slot / fallback helpers
+   - done: kept the `field_access.py` entry thin
+   - evidence: `python -m py_compile src/llvm_py/instructions/field_access.py src/llvm_py/instructions/field_access_helpers.py src/llvm_py/instructions/field_access_helpers_common.py src/llvm_py/instructions/field_access_helpers_typed.py`
+   - no new row-specific guard
+
+3. `src/mir/global_call_route_plan/string_return_profile.rs`
+   - done: split profile collection / candidate judging / report emission
+   - done: kept the route-plan decision points readable and fact-driven
+   - evidence: `cargo check -q`
+   - no new row-specific guard
+
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
 ### MIM-023: composite hot-cluster source inventory
@@ -1679,6 +1704,8 @@ element_type=i64
 bounds_policy=checked
 proof_kind=exact_front_contract
 fallback_policy=allow_checked
+cfg_shape=checked_branching
+store_semantics=not_store|append_or_overwrite
 checked_plan_cfg_safety=successor_phi_safe
 checked_plan_successor_phi_site_excluded=1
 lowering_changed=0
@@ -1691,8 +1718,19 @@ Phase 2 implementation:
 consumer=llvm_c_shim_checked_direct_array_get_set
 selection_source=fn_metadata.direct_array_access_plans
 receiver_origin_rescan_removed_for_checked_path=1
+consumer_requires_result_value_match=1
 unchecked_by_name_allowlist_changed=0
 lowering_behavior_expected_same=1
+```
+
+Phase 3 guardrail:
+
+```text
+proved_unchecked_cfg_shape=branchless
+loop_range_store_semantics=overwrite_existing
+loop_range_store_requires_index_lt_len=1
+capacity_only_store_proof_allowed=0
+append_or_overwrite_unchecked_requires_len_update=1
 ```
 
 Phase 2 verification:

@@ -61,6 +61,8 @@ fn build_mir_json_root_emits_direct_array_access_plans() {
     assert_eq!(load["bounds_policy"], "checked");
     assert_eq!(load["proof_kind"], "exact_front_contract");
     assert_eq!(load["fallback_policy"], "allow_checked");
+    assert_eq!(load["cfg_shape"], "checked_branching");
+    assert_eq!(load["store_semantics"], "not_store");
 
     let store = &plans[1];
     assert_eq!(store["op"], "store");
@@ -70,4 +72,6 @@ fn build_mir_json_root_emits_direct_array_access_plans() {
     assert_eq!(store["value_value"], 3);
     assert_eq!(store["result_value"], 6);
     assert_eq!(store["route"], "direct_array_i64_store");
+    assert_eq!(store["cfg_shape"], "checked_branching");
+    assert_eq!(store["store_semantics"], "append_or_overwrite");
 }

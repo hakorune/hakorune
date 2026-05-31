@@ -49,5 +49,7 @@ fn with_features<R>(features: Option<&str>, f: impl FnOnce() -> R) -> R {
 
 mod basics_and_enums;
 mod classification_contract;
+mod records_and_metadata;
 mod routing_and_emission;
 mod stage1_sources;
+mod typed_arrays_and_generic_arity;
