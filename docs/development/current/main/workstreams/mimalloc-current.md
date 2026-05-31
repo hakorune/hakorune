@@ -199,13 +199,13 @@ message.
     known user-defined `Callee::Method` calls, not only `Callee::Global`
   - no new source annotation, no Profile, no direct-state emitter branch
   - semantic smoke must keep the representative small-block workload green
-- [ ] MIM-033: DirectState method-lowering substrate selection
+- [x] MIM-033: DirectState method-lowering substrate selection
   - output: select whether to extract MIM-029 into a fact-driven
     DirectStateMethodLowering substrate
   - extraction requires either two same-family keepers or fresh MIM-030/MIM-032
     evidence that the selected call boundary remains a current owner
   - if not selected, keep the MIM-029 path temporary and proceed to MIM-034
-- [ ] MIM-034: selected direct-state pilot closeout
+- [x] MIM-034: selected direct-state pilot closeout
   - output: retire, promote, or explicitly extend the MIM-029 selected pilot
   - retire if MIM-030 shows nonkeeper/no-current-owner evidence
   - promote only through typed `direct_state_plans` / field-decl facts, not by
@@ -503,7 +503,7 @@ next_task=MIM-031 direct-state special-case residue audit
 
 ### MIM-031..MIM-034: direct-state pilot residue closeout
 
-MIM-031, MIM-032, and MIM-032a completed. MIM-033..MIM-034 remain pending.
+MIM-031..MIM-034 completed.
 
 These items exist to prevent the MIM-029 selected callsite lowering from
 becoming permanent hardcode. MIM-031 audits the exact selectors and slot
@@ -578,8 +578,84 @@ the existing required-inline contract. MIM-033 still decides whether the
 MIM-029 direct-state selected pilot has earned extraction into a fact-driven
 method-lowering substrate.
 
+MIM-033 post-MIM-032a reread:
+
+```text
+front=direct_exact
+sample_count=3
+body_elapsed_ns=8000000,8000000,8000000
+release_record_request_method_call_count=0
+alloc_record_success_method_call_count=2
+hako_direct_instructions=231529109
+hako_direct_cycles=42064140
+summary=ok
+```
+
+Low-sample perf owner reread:
+
+```text
+HakoAllocPageModel.releaseLocalKnownLive/1=21.66%
+HakoAllocObjectLifecycleAllocResult.resetAttempt/0=21.16%
+Main.runOne/2=20.35%
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=19.59%
+HakoAllocObjectLifecyclePageQueue.selectPage/0=15.74%
+```
+
+MIM-033 decision:
+
+```text
+selected_owner=do_not_promote_direct_state_method_lowering_yet
+promotion_ready=0
+same_family_keeper_count=1
+same_family_candidate_recordRequest_handled_by_required_inline=1
+record_success_still_current_top_owner=0
+next_owner_family=release_page_and_alloc_reset_attempt
+reason=single_selected_direct_state_keeper_plus_required_inline_consumed_release_candidate
+next_task=MIM-034 selected direct-state pilot closeout
+```
+
+DirectState method lowering remains a future substrate candidate, but not the
+next implementation. The current evidence favors returning to ordinary
+perf-owner selection around `releaseLocalKnownLive/1`, `resetAttempt/0`, and
+the remaining small-alloc/selectPage shape.
+
+MIM-034 closeout:
+
+```text
+selected_pilot=MIM-029_alloc_result_recordSuccess_direct_state
+closeout_decision=keep_bounded_selected_pilot
+delete_now=0
+promote_now=0
+bounded_keep_reason=structural_keeper_with_non_top_residual_call_boundary
+allowed_extension=0
+additional_by_name_branches_allowed=0
+reopen_promotion_only_if=future_perf_owner_selects_direct_state_method_family_with_two_or_more_keepers
+next_owner_selection=ordinary_perf_owner_first
+next_candidate_family=releaseLocalKnownLive_or_resetAttempt_or_smallAlloc_selectPage
+summary=ok
+```
+
+The MIM-029 path remains in place because it is a measured structural keeper,
+but it is closed as a bounded selected pilot. Future work must not extend it by
+adding another by-name branch. If DirectState method lowering reopens, it must
+start from a fresh owner selection and a fact-driven substrate plan.
+
 ## Decision Log
 
+- 2026-05-31: MIM-034 closed the selected direct-state pilot. The MIM-029
+  `AllocResult.recordSuccess/1` branch remains as a bounded selected pilot
+  because it is a structural keeper, but it is not promoted and cannot be
+  extended with more by-name branches. The lane returns to ordinary perf-owner
+  selection for `releaseLocalKnownLive/1`, `AllocResult.resetAttempt/0`,
+  `objectLifecycleSmallAlloc/1`, or `selectPage/0`.
+- 2026-05-31: MIM-033 rejected immediate DirectState method-lowering substrate
+  promotion. MIM-032a consumed the release-side same-family candidate through
+  the generic required-inline path, leaving only one direct-state selected
+  keeper. The post-MIM-032a direct exact reread stayed at 8ms with 231M
+  instructions, and the top owners moved to `releaseLocalKnownLive/1`,
+  `AllocResult.resetAttempt/0`, `Main.runOne/2`, `objectLifecycleSmallAlloc/1`,
+  and `selectPage/0`. MIM-034 should close the MIM-029 pilot as bounded keep or
+  delete, not promote it yet.
 - 2026-05-31: MIM-032 found a same-family release-side candidate, but the
   cleanest first fix was not another direct-state branch. `recordRequest/2`
   already carried `@rune Inline(required)`, while the soft-leaf pass only
