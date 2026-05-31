@@ -347,6 +347,18 @@ message.
     `131955824`; `body_elapsed_ns` measured `4000000` in the single smoke
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-050: alloc attempt write delayed to failure shape
+  - output: replace hot-path `alloc_result.resetAttempt()` with
+    `alloc_result.recordAttempt()` in `objectLifecycleSmallAlloc/1`; early
+    failures now publish sentinel state through `recordFailureNoSelection()`,
+    and selected-page failures use `recordFailureAfterSelectedPage()`
+  - reason: hot success overwrites page/block/reason/ok observer state, so the
+    entry reset was redundant on the measured direct exact path; failure
+    methods preserve the previous sentinel/selected-page observer semantics
+  - result: direct exact instructions improved from `131955824` to
+    `129858558`; `body_elapsed_ns` measured `5000000` in the single smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 

@@ -49,7 +49,7 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleSmallAlloc(size) {
         local alloc_result = me.alloc_result
-        alloc_result.resetAttempt()
+        alloc_result.recordAttempt()
 
         local queue = me.object_lifecycle_queue
 
@@ -57,11 +57,11 @@ box HakoAllocObjectLifecycleFacade {
         local selected_index = queue.last_selected_index
         if selected_index < 0 {
             local small_no_page_reason_selected = HakoAllocObjectLifecycleFacadeReason.small_no_page()
-            return alloc_result.recordFailure(small_no_page_reason_selected)
+            return alloc_result.recordFailureNoSelection(small_no_page_reason_selected)
         }
         if page == null {
             local small_no_page_reason_page = HakoAllocObjectLifecycleFacadeReason.small_no_page()
-            return alloc_result.recordFailure(small_no_page_reason_page)
+            return alloc_result.recordFailureNoSelection(small_no_page_reason_page)
         }
         local selected_page_id = queue.last_selected_page_id
         alloc_result.recordSelectedPage(selected_page_id)
@@ -71,18 +71,18 @@ box HakoAllocObjectLifecycleFacade {
             if selected_kind == 1 {
                 if page.reuse() == 0 {
                     local small_reuse_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_reuse_failed()
-                    return alloc_result.recordFailure(small_reuse_failed_reason)
+                    return alloc_result.recordFailureAfterSelectedPage(small_reuse_failed_reason)
                 }
             } else {
                 local small_bad_selected_kind_reason = HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind()
-                return alloc_result.recordFailure(small_bad_selected_kind_reason)
+                return alloc_result.recordFailureAfterSelectedPage(small_bad_selected_kind_reason)
             }
         }
 
         local block_id = page.acquireFreshSmall(size)
         if block_id < 0 {
             local small_acquire_failed_reason = HakoAllocObjectLifecycleFacadeReason.small_acquire_failed()
-            return alloc_result.recordFailure(small_acquire_failed_reason)
+            return alloc_result.recordFailureAfterSelectedPage(small_acquire_failed_reason)
         }
 
         alloc_result.recordBlock(block_id)

@@ -24,6 +24,7 @@ box HakoAllocObjectLifecycleAllocResult {
         return 1
     }
 
+    @rune Inline(required)
     recordAttempt() {
         me.attempt_count = me.attempt_count + 1
         return 1
@@ -52,6 +53,23 @@ box HakoAllocObjectLifecycleAllocResult {
     }
 
     recordFailure(reason) {
+        me.last_reason = reason
+        me.last_ok = 0
+        me.failure_count = me.failure_count + 1
+        return 0
+    }
+
+    recordFailureNoSelection(reason) {
+        me.last_page_id = -1
+        me.last_block_id = -1
+        me.last_reason = reason
+        me.last_ok = 0
+        me.failure_count = me.failure_count + 1
+        return 0
+    }
+
+    recordFailureAfterSelectedPage(reason) {
+        me.last_block_id = -1
         me.last_reason = reason
         me.last_ok = 0
         me.failure_count = me.failure_count + 1
