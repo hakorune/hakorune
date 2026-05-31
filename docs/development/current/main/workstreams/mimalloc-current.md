@@ -258,6 +258,13 @@ message.
     `body_elapsed_ns` moved from `6000000` to `5000000`
   - keep default/safe behavior, public ArrayBox, mixed storage, plugin typed
     ABI, and source syntax unchanged
+- [x] MIM-042: small-alloc selected page local reuse
+  - output: use the `queue.selectPage()` return value and a local
+    `selected_page_id` inside `objectLifecycleSmallAlloc/1`
+  - reason: avoid rereading selected page/page-id fields already produced by
+    the queue selection boundary
+  - result: direct exact instructions improved from `152851912` to `151803609`
+  - no source hand-expansion, no new compiler feature, no Array lane widening
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 

@@ -57,18 +57,18 @@ box HakoAllocObjectLifecycleFacade {
 
         local queue = me.object_lifecycle_queue
 
-        queue.selectPage()
+        local page = queue.selectPage()
         local selected_index = queue.last_selected_index
         if selected_index < 0 {
             local small_no_page_reason_selected = HakoAllocObjectLifecycleFacadeReason.small_no_page()
             return alloc_result.recordFailure(small_no_page_reason_selected)
         }
-        local page = queue.last_selected_page
         if page == null {
             local small_no_page_reason_page = HakoAllocObjectLifecycleFacadeReason.small_no_page()
             return alloc_result.recordFailure(small_no_page_reason_page)
         }
-        alloc_result.recordSelectedPage(queue.last_selected_page_id)
+        local selected_page_id = queue.last_selected_page_id
+        alloc_result.recordSelectedPage(selected_page_id)
 
         local selected_kind = queue.last_selected_kind
         if selected_kind != 1 {
@@ -92,7 +92,7 @@ box HakoAllocObjectLifecycleFacade {
         }
 
         alloc_result.recordBlock(block_id)
-        me.recordLastAllocPage(selected_index, queue.last_selected_page_id, page)
+        me.recordLastAllocPage(selected_index, selected_page_id, page)
         return alloc_result.recordSuccess(selected_kind)
     }
 
