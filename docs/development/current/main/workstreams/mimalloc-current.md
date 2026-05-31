@@ -370,6 +370,17 @@ message.
     `127761175`; `body_elapsed_ns` measured `4000000` in the single smoke
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-052: release known-page handle write removed from hot success
+  - output: remove `release_known_page = cached_page` from the first cached
+    known-page release success path; the fallback path still owns
+    `release_known_page` when it needs a temporary page carrier
+  - reason: the first cached-page success returns immediately after
+    `releaseLocalKnownLive()` and result publication, and `release_known_page`
+    has no public observer
+  - result: direct exact instructions improved from `127761175` to
+    `127237309`; `body_elapsed_ns` measured `4000000` in the single smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
