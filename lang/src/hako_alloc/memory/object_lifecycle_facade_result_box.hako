@@ -95,6 +95,7 @@ box HakoAllocObjectLifecycleReleaseResult {
     success_count: usize = 0
     failure_count: usize = 0
 
+    @rune Inline(required)
     reset() {
         me.last_page_id = -1
         me.last_block_id = -1
@@ -116,6 +117,7 @@ box HakoAllocObjectLifecycleReleaseResult {
         return 0
     }
 
+    @rune Inline(required)
     recordSuccess(page_id, block_id) {
         me.last_page_id = page_id
         me.last_block_id = block_id

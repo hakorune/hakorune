@@ -222,12 +222,18 @@ message.
     `objectLifecycleSmallAlloc/1`, `resetToFresh/0`, and
     `objectLifecycleReleaseBlock/2`
   - do not reopen DirectState or Array fast paths without new owner evidence
-- [ ] MIM-037: release-side structured inline feasibility
+- [x] MIM-037: release-side structured inline feasibility
   - output: decide whether the hot `objectLifecycleReleaseDirectCachedPage/2`
     boundary should be handled by a structured required-inline extension or
     parked as source-level release-shape work
   - do not hand-expand the helper in `.hako` as the final shape
   - do not reopen DirectState, Array, RuntimeDataBox, or helper micro-lanes
+- [ ] MIM-038: DirectArray i64 exact get boundary cut
+  - output: remove the current direct exact `array_runtime_get_idx` call
+    boundary only where current mimalloc perf evidence selects it
+  - keep public ArrayBox, mixed storage, plugin typed ABI, and default/safe
+    behavior unchanged
+  - no generic Array rewrite and no helper micro-lane
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -796,8 +802,94 @@ next_owner=release_side_structured_inline_feasibility
 next_task=MIM-037
 ```
 
+## MIM-037 Release-side Structured Inline Feasibility
+
+Selected slice:
+
+```text
+front=direct_exact
+selected_owner=release_result_capsule_hot_success_path
+source_shape=
+  objectLifecycleReleaseBlock -> release_result.reset()
+  objectLifecycleReleaseDirectCachedPage -> release_result.recordSuccess(page_id, block_id)
+```
+
+Implementation:
+
+```text
+source_annotations_added=
+  HakoAllocObjectLifecycleReleaseResult.reset/0:@rune Inline(required)
+  HakoAllocObjectLifecycleReleaseResult.recordSuccess/2:@rune Inline(required)
+wrapper_bypass_hot_path=1
+structured_branch_inline_added=0
+source_hand_expansion=0
+profile_added=0
+```
+
+Structural result:
+
+```text
+objectLifecycleReleaseBlock_mir_calls_before=11
+objectLifecycleReleaseBlock_mir_calls_after=10
+objectLifecycleReleaseDirectCachedPage_recordSuccess_call_erased=1
+remaining_hot_boundaries=
+  objectLifecycleReleaseDirectCachedPage/2
+  HakoAllocPageModel.releaseLocalKnownLive/1
+  array_runtime_get_idx
+```
+
+Validation:
+
+```text
+cargo_test_inline_required=ok
+cargo_test_inline_soft_leaf=ok
+cargo_build_hakorune=ok
+cargo_build_release_hakorune=ok
+semantic_smoke=representative-object-lifecycle-small-block-v0 direct exact EXE
+allocation_count=524288
+free_count=524288
+summary=ok
+```
+
+Perf reread:
+
+```text
+previous_hako_direct_instructions=221043533
+candidate_hako_direct_instructions=212654532
+instruction_delta=-8389001
+instruction_delta_pct=-3.80
+candidate_body_elapsed_ns=7000000
+candidate_cycles=36640249
+```
+
+Low-sample owner reread:
+
+```text
+HakoAllocObjectLifecyclePageQueue.selectPage/0=26.80%
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2=26.05%
+nyash_kernel::plugin::array_runtime_facade::array_runtime_get_idx=22.18%
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=15.91%
+HakoAllocPageModel.releaseLocalKnownLive/1=7.28%
+```
+
+Interpretation:
+
+```text
+keeper=structural_instruction_keeper
+structured_branch_inline_required=not_yet
+current_mimalloc_perf_selects_array_get_boundary=1
+next_task=MIM-038
+```
+
 ## Decision Log
 
+- 2026-05-31: MIM-037 narrowed the release-side owner to the result-capsule
+  success path instead of opening a branch inliner. `ReleaseResult.reset/0` and
+  `ReleaseResult.recordSuccess/2` now use explicit `@rune Inline(required)`,
+  and hot release source calls the capsule directly rather than through facade
+  wrappers. The representative direct exact EXE stayed green and instructions
+  moved from 221.0M to 212.7M. The next owner is selected by current evidence:
+  `array_runtime_get_idx` is now a 22% direct exact hot symbol.
 - 2026-05-31: MIM-036 annotated the three read-only `HakoAllocPageModel`
   accessors used by the `selectPage/0` single-page hot path with
   `@rune Inline(required)`. This removed three hot-path method-call boundaries
