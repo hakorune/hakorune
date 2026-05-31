@@ -142,8 +142,8 @@ Recommended order:
 8. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
    the DirectArray/Span proof system is stable.
 
-Return to mimalloc optimization now. The next blocker is
-`MIM-055-POST-DIRECT-MEMORY-OWNER-REFRESH`.
+Mimalloc optimization is active now. Read `CURRENT_STATE.toml` for the next
+blocker; the current post-MIM-056 checkpoint is a fresh owner refresh.
 
 ## Current Ordered App Bringup
 

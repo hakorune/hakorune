@@ -59,6 +59,35 @@ box HakoAllocObjectLifecyclePageQueue {
         return null
     }
 
+    trySelectSingleActivePage() {
+        if me.page_count != 1 {
+            return null
+        }
+
+        local page = me.first_page
+        if page == null {
+            return null
+        }
+        if page.decommitted != 0 {
+            return null
+        }
+        if page.retired != 0 {
+            return null
+        }
+        if page.free_top <= 0 {
+            return null
+        }
+
+        me.request_count = me.request_count + 1
+        me.last_selected_index = 0
+        me.last_selected_page_id = page.page_id
+        me.last_selected_kind = 2
+        me.select_count = me.select_count + 1
+        me.active_select_count = me.active_select_count + 1
+        me.single_page_fast_path_count = me.single_page_fast_path_count + 1
+        return page
+    }
+
     selectPage(): HakoAllocPageModel {
         me.request_count = me.request_count + 1
 

@@ -404,7 +404,7 @@ message.
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change; fallback release still
     revalidates the cached page id
-- [ ] MIM-055: post-direct-memory owner refresh
+- [x] MIM-055: post-direct-memory owner refresh
   - output: reread the direct exact perf owner after the direct-memory substrate
     wave (`DirectArray` / `Span` facts and required FastPath diagnostics)
   - start from current measured evidence before source edits
@@ -412,6 +412,17 @@ message.
     it and the expected net is positive
   - decide whether the next owner is mimalloc source shape, direct-state,
     DirectArray/Span diagnostic use, or no-current-owner
+- [x] MIM-056: single-active-page small-alloc selection route
+  - output: add a narrow queue-side `trySelectSingleActivePage()` route used by
+    `objectLifecycleSmallAlloc/1` before falling back to public `selectPage()`
+  - reason: post-MIM-055 perf selected the single-page active success branch
+    inside `selectPage/0`; the hot representative path does not need the full
+    reusable/multipage selection body
+  - preserve public `selectPage()` semantics and failure/miss accounting by
+    falling back to `selectPage()` when the narrow active-page route does not
+    match
+  - no new compiler feature, no `direct {}` syntax, no Array/Span/helper lane
+    widening, no provider/replacement activation
 
 ### Next Cleanup TODO
 
@@ -2259,6 +2270,36 @@ post_fix_perf_top_1_pct=23.36
 post_fix_perf_top_2=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 post_fix_perf_top_2_pct=19.16
 next_owner_candidate=selectPage_body_directness_or_queue_state_shape
+summary=ok
+```
+
+MIM-056 single-active-page small-alloc selection route:
+
+```text
+front=direct_exact
+selected_owner=HakoAllocObjectLifecyclePageQueue.selectPage/0
+selected_reason=post_MIM055_perf_top_selected_single_page_active_success_branch
+selected_change=objectLifecycleSmallAlloc_tries_queue.trySelectSingleActivePage_before_public_selectPage_fallback
+public_selectPage_semantics_changed=0
+fallback_miss_accounting_changed=0
+source_hand_expand_full_selectPage=0
+compiler_feature_added=0
+direct_block_syntax_added=0
+
+before_perf_event_count=408621989
+after_perf_event_count=381674429
+before_top_symbol=HakoAllocObjectLifecyclePageQueue.selectPage/0
+before_top_pct=35.62
+after_top_symbol=HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0
+after_top_pct=24.12
+
+representative_direct_exact_exe_smoke=ok
+hako_body_elapsed_ns=3000000
+c_body_elapsed_ns=3940951
+body_elapsed_ratio=0.761
+winner_claim=0
+performance_keeper=accepted_as_structural_and_single_run_timing_win
+next_owner_candidate=trySelectSingleActivePage_body_or_acquireFreshSmall_release_balance
 summary=ok
 ```
 
