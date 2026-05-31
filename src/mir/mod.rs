@@ -41,6 +41,7 @@ pub(crate) mod declared_type_storage; // shared declared type-name -> storage cl
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod direct_array_access_plan; // MIR-owned DirectArray access plans
+pub mod direct_array_extent_fact; // MIR-owned DirectArray extent facts
 pub mod direct_state_plan; // metadata-only direct mutable-state candidate plans
 pub mod effect;
 pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary

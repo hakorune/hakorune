@@ -25,6 +25,7 @@ use super::{
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
+    direct_array_extent_fact::refresh_function_direct_array_extent_facts,
     direct_state_plan::refresh_module_direct_state_plans,
     exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts,
     exact_numeric_value_facts::refresh_module_exact_numeric_value_facts,
@@ -97,6 +98,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_string_direct_set_window_routes(function);
     refresh_function_generic_method_routes(function);
     refresh_function_range_index_facts(function);
+    refresh_function_direct_array_extent_facts(function);
     refresh_function_direct_array_access_plans(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
