@@ -381,6 +381,17 @@ message.
     `127237309`; `body_elapsed_ns` measured `4000000` in the single smoke
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-053: selected-page handle mirror removed from selection success
+  - output: keep selected `index`, `page_id`, and `kind` publication, but stop
+    writing the internal `last_selected_page` handle mirror on `selectPage/0`
+    success paths
+  - reason: `selectPage()` already returns the selected page object, and the
+    public observer surface exposes selected kind/page-id/index rather than the
+    handle mirror
+  - result: direct exact instructions improved from `127237309` to
+    `126713126`; `body_elapsed_ns` measured `4000000` in the single smoke
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
