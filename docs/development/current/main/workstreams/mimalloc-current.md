@@ -166,7 +166,7 @@ message.
   - output: derive direct-state candidate metadata from `field_decls` and
     storage-class facts
   - no backend lowering, no runtime layout change, no helper ABI change
-- [ ] MIM-028: selected direct-state lowering guard surface
+- [x] MIM-028: selected direct-state lowering guard surface
   - output: one method/field group with proven same-object receiver,
     known materialization boundary, and positive helper/call reduction
   - selected-plan silent fallback is a row failure
@@ -291,13 +291,71 @@ backend lowering, provider activation, or allocator replacement is opened.
 
 ### MIM-028: selected direct-state guard surface
 
-Pending.
+Selected.
 
-The only plausible guard surface from the source audit is the scalar capsule
-family.
+MIR JSON proof:
 
-The current composite facade does not justify a broader guard surface yet, so no
-direct-state lowering guard is opened for the whole owner surface.
+```text
+emit_route=direct
+env.NYASH_FEATURES=rune
+env.HAKO_TYPED_OBJECT_STORE=direct_slot_exact
+env.HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact
+direct_state_plan_count=9
+summary=ok
+```
+
+Selected guard:
+
+```text
+selected_box=HakoAllocObjectLifecycleAllocResult
+selected_method=HakoAllocObjectLifecycleAllocResult.recordSuccess/1
+state_repr=direct_v0
+selected_field_count=9
+unsupported_field_count=0
+materialization_boundary_known=1
+positive_net_expected=1
+post_cut_perf_symbol_pct=10.58
+same_object_receiver_required=1
+silent_fallback_allowed=0
+```
+
+Selected fields:
+
+```text
+last_page_id
+last_block_id
+last_reason
+last_ok
+attempt_count
+success_count
+failure_count
+reusable_success_count
+active_success_count
+```
+
+Rejected for first lowering:
+
+```text
+HakoAllocObjectLifecycleFacade:
+  selected_field_count=4
+  unsupported_field_count=8
+  reason=mixed handle/object facade
+
+HakoAllocObjectLifecyclePageQueue:
+  selected_field_count=16
+  unsupported_field_count=3
+  reason=mixed page object / ArrayBox surface
+
+HakoAllocObjectLifecycleFacadeStatsSnapshot:
+  reason=observer snapshot, not active hot write owner
+
+alignment/realloc result capsules:
+  reason=not the representative small-block hot owner
+```
+
+This guard opens MIM-029 only for the selected alloc-result scalar capsule
+method/field group. It does not open generic user-box flattening or whole-facade
+direct-state lowering.
 
 ### MIM-029: narrow direct-state lowering implementation
 
@@ -321,9 +379,10 @@ remains the active owner surface and the lane stays on source-level mimalloc wor
 
 - 2026-05-31: MIM-023..MIM-026 closed as the source-shape direct-state audit.
   MIM-027 adds a real metadata-only `StateRepr::Direct` producer
-  (`direct_state_plans`) derived from typed `field_decls`. The composite facade
-  remains mixed-handle / public-observer heavy, so MIM-028..MIM-030 stay open
-  until current perf evidence selects one positive-net direct-state group.
+  (`direct_state_plans`) derived from typed `field_decls`. MIM-028 selects the
+  first lowering guard as `HakoAllocObjectLifecycleAllocResult.recordSuccess/1`
+  because it has a positive all-primitive direct-state plan and remains hot in
+  the post-DirectArray perf top. MIM-029..MIM-030 stay open.
 - 2026-05-31: Rows 388-413 are historical DirectArray / RuntimeDataBox /
   helper-cache closeout evidence. Row414 returned the lane to mimalloc
   source-level work. Row415 keeps `object_lifecycle_facade` as the active owner
