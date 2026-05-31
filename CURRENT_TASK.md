@@ -127,12 +127,18 @@ Recommended order:
 5. `LANG-DM-005` SpanI64 / SpanMutI64 minimal pilot
    - status: done; metadata carriers and fact-only Span access planner landed
      for one read and one mutable write fixture
-6. `LANG-DM-006` `direct {}` contract
-7. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
+6. `LANG-DM-006A` Direct FastPath Required Diagnostic Contract
+   - no `direct {}` source syntax in v0
+   - define `RequiredFastPathRegion` / `FastPathObligation`
+   - checked direct routes are allowed; generic helper / boxed fallback /
+     dynamic route are rejected when required
+7. `LANG-DM-006B` future `direct {}` syntax parking lot
+   - only after diagnostics are stable
+8. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
    the DirectArray/Span proof system is stable.
 
-Return to mimalloc optimization after the `direct {}` contract is either locked
-or explicitly parked by the direct-memory workstream.
+Return to mimalloc optimization after the required FastPath diagnostic contract
+is either locked or explicitly parked by the direct-memory workstream.
 
 ## Current Ordered App Bringup
 

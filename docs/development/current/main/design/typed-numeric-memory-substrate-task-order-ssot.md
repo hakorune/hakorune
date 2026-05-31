@@ -120,9 +120,16 @@ LANG-DM-005:
   SpanI64 / SpanMutI64 pilot over DirectArrayI64
   - access plans consume the same proof vocabulary as DirectArray
 
-LANG-DM-006:
-  direct{} contract
-  - fast-route requirement only
+LANG-DM-006A:
+  Direct FastPath Required Diagnostic Contract
+  - RequiredFastPathRegion / FastPathObligation
+  - no direct{} source syntax in v0
+  - checked direct routes are allowed
+  - generic helper / boxed fallback / dynamic route are rejected when required
+
+LANG-DM-006B:
+  future direct{} syntax
+  - thin syntax sugar over RequiredFastPathRegion only
   - not unsafe
   - not unchecked
 

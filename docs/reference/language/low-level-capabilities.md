@@ -125,17 +125,76 @@ Terminology:
 
 ```text
 direct:
-  fast-route contract; generic fallback is disallowed when requested
+  route contract; relevant memory-like access must have a FastPathPlan when
+  required
 
 unsafe memory:
-  permission to create a view over external/native memory
+  region / provenance / caller-assumption contract for external/native memory
 
 unchecked:
-  proof result that removes a check, usually bounds
+  bounds-check policy result, usually derived from proof
 ```
 
 Do not merge these meanings. `direct` is not unsafe, `unsafe memory` does not
 guarantee a fast route, and `unchecked` must come from proof.
+
+### Direct FastPath Diagnostics
+
+Decision: v0 does not add `direct {}` source syntax.
+
+The next direct-memory contract is diagnostic-first:
+
+```text
+RequiredFastPathRegion:
+  function or future source region where relevant access must have FastPathPlan
+
+FastPathObligation:
+  one relevant access site inside that region
+
+FastPathPlan:
+  DirectState / DirectArray / Span / future Bytes/LayoutSpan route plan
+```
+
+In v0, `RequiredFastPathRegion` is created by diagnostics, keeper
+expectations, or CI gates. A future `direct { ... }` block may become a thin
+source spelling for the same region contract, but it must not introduce a
+separate verifier.
+
+Relevant access kinds:
+
+```text
+direct_state_field load/store
+direct_array_i64 load/store
+span_i64 load
+span_mut_i64 load/store
+future bytes load/store
+future layout field load/store
+```
+
+Non-relevant operations include local scalar assignment, integer arithmetic,
+compare, branch, loop, and return.
+
+Allowed:
+
+```text
+route=direct_array_i64_store, bounds_policy=checked
+route=direct_array_i64_store, bounds_policy=proved_unchecked
+verified Inline(required) call, if the active region policy allows it
+```
+
+Rejected when required:
+
+```text
+generic helper route
+boxed fallback
+dynamic dispatch route
+runtime reflective access
+unknown storage route
+FastPathPlan present but backend/lowering used fallback
+```
+
+`direct` is therefore not a promise of branchless code. It only forbids slow or
+ambiguous routes for relevant access sites.
 
 Planned order:
 
@@ -144,9 +203,10 @@ Planned order:
 3. normalize `RangeIndexFact`, `DirectArrayExtentFact`, and
    `RegionStabilityFact`;
 4. add `SpanI64` / `SpanMutI64` as no-escape views over DirectArray storage;
-5. add `direct {}` only as a fast-route requirement;
-6. add `unsafe memory` / `Bytes` later, with `NativePtr` still opaque;
-7. add `LayoutSpan` and bulk memory pattern recognition after Span/Bytes.
+5. add `RequiredFastPathRegion` / `FastPathObligation` diagnostics;
+6. add `direct {}` later only as syntax sugar over the diagnostic contract;
+7. add `unsafe memory` / `Bytes` later, with `NativePtr` still opaque;
+8. add `LayoutSpan` and bulk memory pattern recognition after Span/Bytes.
 
 Span v0 is defined by
 `docs/development/current/main/design/span-no-escape-ssot.md`: `SpanI64` and

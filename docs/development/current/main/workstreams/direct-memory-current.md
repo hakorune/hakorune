@@ -73,9 +73,17 @@ direct storage routes.
     one read and one mutable write fixture; source syntax and lowering remain
     closed
 
-- [ ] LANG-DM-006: `direct {}` contract
-  - output: direct block requires `FastPathPlan`
-  - direct is not unsafe and does not imply unchecked
+- [ ] LANG-DM-006A: Direct FastPath Required Diagnostic Contract
+  - output: `RequiredFastPathRegion` / `FastPathObligation` diagnostic contract
+  - no `direct {}` source syntax in v0
+  - direct is a route contract, not unsafe memory and not unchecked
+  - checked direct routes are allowed; generic helper / boxed fallback /
+    dynamic route are rejected when the obligation is required
+
+- [ ] LANG-DM-006B: future `direct {}` syntax parking lot
+  - output: direct block remains a thin future syntax over
+    `RequiredFastPathRegion`
+  - do not implement parser/AST/MIR scope until diagnostics are stable
 
 ### Parked
 
@@ -122,3 +130,7 @@ direct storage routes.
   `SpanAccessPlan` rows only when a no-escape Span borrow, range index, direct
   array extent, and region stability proof all line up. No source syntax or
   lowering was opened.
+- 2026-06-01: LANG-DM-006 was split. v0 will not add `direct {}` syntax.
+  The active next slice is `LANG-DM-006A`: a diagnostic/report contract for
+  required FastPath regions. Future `direct {}` may only become syntax sugar
+  over that contract.
