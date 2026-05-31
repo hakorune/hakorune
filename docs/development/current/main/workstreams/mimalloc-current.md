@@ -182,6 +182,30 @@ message.
     selects one proven group
   - return to source-level mimalloc work if direct-state does not produce a
     structural keeper
+- [ ] MIM-031: direct-state special-case residue audit
+  - output: list every hardcoded MIM-029 selector, field slot, and storage
+    assumption in the same-module body emitter
+  - classify the path as `delete`, `keep_as_selected_pilot`, or
+    `promote_to_substrate`
+  - no implementation and no new fast path
+- [ ] MIM-032: direct-state same-family candidate inventory
+  - output: check whether the same result-capsule family has another
+    measured positive-net candidate
+  - candidates are limited to all-primitive, typed-field-decl backed methods
+    with known materialization boundaries
+  - no generic user-box flattening and no source syntax change
+- [ ] MIM-033: DirectState method-lowering substrate selection
+  - output: select whether to extract MIM-029 into a fact-driven
+    DirectStateMethodLowering substrate
+  - extraction requires either two same-family keepers or fresh MIM-030/MIM-032
+    evidence that the selected call boundary remains a current owner
+  - if not selected, keep the MIM-029 path temporary and proceed to MIM-034
+- [ ] MIM-034: selected direct-state pilot closeout
+  - output: retire, promote, or explicitly extend the MIM-029 selected pilot
+  - retire if MIM-030 shows nonkeeper/no-current-owner evidence
+  - promote only through typed `direct_state_plans` / field-decl facts, not by
+    adding more by-name callsite branches
+  - selected pilot may not remain open-ended after this item
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -400,6 +424,21 @@ active_success_count: usize/u64 slot 8
 The direct path is enabled only for `HAKO_TYPED_OBJECT_STORE=direct_slot_exact`.
 Default/safe and generic user-box method calls keep the existing route.
 
+Temporary residue rule:
+
+```text
+temporary_special_case_owner=MIM-029-selected-direct-state-lowering
+temporary_special_case_kind=selected_pilot
+allowed_until=MIM-034
+retire_condition=MIM-030_nonkeeper_or_no_current_owner
+promote_condition=fact_driven_DirectStateMethodLowering_selected_by_MIM-033
+forbidden_extension=additional_by_name_callsite_branches
+```
+
+The MIM-029 path is intentionally narrow, but it is not allowed to become a
+permanent hardcoded emitter branch. MIM-031..MIM-034 track the audit,
+same-family inventory, substrate selection, and final closeout.
+
 ### MIM-030: post-direct-state owner refresh
 
 Pending.
@@ -411,8 +450,24 @@ front and picks the next owner from measured evidence.
 Until MIM-028 selects one proven positive-net field group, `object_lifecycle_facade`
 remains the active owner surface and the lane stays on source-level mimalloc work.
 
+### MIM-031..MIM-034: direct-state pilot residue closeout
+
+Pending.
+
+These items exist to prevent the MIM-029 selected callsite lowering from
+becoming permanent hardcode. MIM-031 audits the exact selectors and slot
+assumptions. MIM-032 checks whether the same family has enough evidence for a
+second direct-state keeper. MIM-033 decides whether a generic substrate is
+earned. MIM-034 closes the pilot by deleting it, promoting it to fact-driven
+lowering, or documenting a bounded extension.
+
 ## Decision Log
 
+- 2026-05-31: MIM-029's direct-state emitter branch is a selected pilot, not a
+  permanent hardcode. MIM-031..MIM-034 now track the required residue audit,
+  same-family inventory, substrate selection, and closeout. Adding more by-name
+  direct-state callsite branches is forbidden unless MIM-033 first promotes the
+  path to fact-driven DirectState method lowering.
 - 2026-05-31: `@rune` parser surface is now default-on. Historical
   `NYASH_FEATURES=rune` usage remains compatible, but mimalloc proof apps and
   direct-state diagnostics should no longer require it in their commands.
