@@ -139,6 +139,11 @@ message.
   - no source `Contract(no_alloc)` / `Contract(no_safepoint)` requirement for
     this narrow leaf shape; verifier infers those facts from the body
   - no silent fallback, no source hand-expansion as the final shape
+- [ ] MIM-023: composite hot-cluster source inventory
+  - output: short source-shape note for `objectLifecycleSmallAlloc` and
+    `objectLifecycleReleaseBlock`
+  - keep the lane source-level only; no new helper, Array, or direct-path
+    reopening
 
 ## Decision Log
 
@@ -239,6 +244,11 @@ message.
   `object_lifecycle_facade` remains the source-level owner surface; the
   immediate leaf candidates are already source-inline or still reject as
   composite/call-heavy, so no new fast path is justified from this refresh.
+- 2026-05-31: MIM-020 source refresh narrowed the remaining hot source shapes
+  to the composite clusters around `objectLifecycleSmallAlloc` and
+  `objectLifecycleReleaseBlock`. Leaf capsules such as `recordSelectedPage`
+  and `recordBlock` are already source-inline; the next diagnostic boundary is
+  source inventory of those composite hot clusters, not a new fast path.
 
 ## MIM-001 Source-Shape Inventory
 
