@@ -3,8 +3,8 @@ use super::make_function;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::function::{
     CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, LoopRangeFact,
-    RegionStabilityFact, RegionStabilityProofKind, SpanBorrowFact, SpanBorrowMutability,
-    SpanElementType,
+    RegionStabilityFact, RegionStabilityProofKind, SpanAccessOp, SpanAccessPlan, SpanBorrowFact,
+    SpanBorrowMutability, SpanElementType,
 };
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirInstruction, MirModule, ValueId,
@@ -270,4 +270,44 @@ fn build_mir_json_root_emits_span_borrow_facts() {
     assert_eq!(fact["no_escape"], true);
     assert_eq!(fact["owner_stable"], true);
     assert_eq!(fact["region_stability_fact_id"], 0);
+}
+
+#[test]
+fn build_mir_json_root_emits_span_access_plans() {
+    let mut function = make_function("main", true);
+    function.metadata.span_access_plans.push(SpanAccessPlan {
+        span_id: 0,
+        op: SpanAccessOp::Store,
+        index_value: ValueId::new(4),
+        value_value: Some(ValueId::new(5)),
+        result_value: None,
+        element_type: SpanElementType::I64,
+        route: "span_i64_store",
+        bounds_policy: "proved_unchecked",
+        proof_ids: vec!["range_index", "direct_array_extent", "region_stability"],
+        fallback_policy: "fail_fast",
+    });
+
+    let mut module = MirModule::new("json_span_access_plan_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let plans = root["functions"][0]["metadata"]["span_access_plans"]
+        .as_array()
+        .expect("span_access_plans");
+    assert_eq!(plans.len(), 1);
+    let plan = &plans[0];
+    assert_eq!(plan["span_id"], 0);
+    assert_eq!(plan["op"], "store");
+    assert_eq!(plan["index_value"], 4);
+    assert_eq!(plan["value_value"], 5);
+    assert_eq!(plan["result_value"], serde_json::Value::Null);
+    assert_eq!(plan["element_type"], "i64");
+    assert_eq!(plan["route"], "span_i64_store");
+    assert_eq!(plan["bounds_policy"], "proved_unchecked");
+    assert_eq!(
+        plan["proof_ids"],
+        serde_json::json!(["range_index", "direct_array_extent", "region_stability"])
+    );
+    assert_eq!(plan["fallback_policy"], "fail_fast");
 }

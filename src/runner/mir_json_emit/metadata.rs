@@ -163,6 +163,20 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "region_stability_fact_id": fact.region_stability_fact_id,
             })
         }).collect::<Vec<_>>(),
+        "span_access_plans": metadata.span_access_plans.iter().map(|plan| {
+            json!({
+                "span_id": plan.span_id,
+                "op": plan.op.as_str(),
+                "index_value": plan.index_value.as_u32(),
+                "value_value": plan.value_value.map(|value| value.as_u32()),
+                "result_value": plan.result_value.map(|value| value.as_u32()),
+                "element_type": plan.element_type.as_str(),
+                "route": plan.route,
+                "bounds_policy": plan.bounds_policy,
+                "proof_ids": plan.proof_ids,
+                "fallback_policy": plan.fallback_policy,
+            })
+        }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

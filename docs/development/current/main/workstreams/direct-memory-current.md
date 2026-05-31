@@ -66,6 +66,8 @@ direct storage routes.
   - no NativePtr / Bytes yet
   - current slice: metadata-only `SpanBorrowFact` carrier lands first; access
     planning remains the next implementation slice
+  - current slice: metadata-only `SpanAccessPlan` carrier lands next; planner
+    and lowering remain closed until fixture selection
 
 - [ ] LANG-DM-006: `direct {}` contract
   - output: direct block requires `FastPathPlan`
@@ -108,3 +110,7 @@ direct storage routes.
   `SpanBorrowFact` records no-escape borrow shape over a stable region without
   adding source syntax or lowering behavior yet. Next slice should select the
   first read/write Span access plan.
+- 2026-06-01: LANG-DM-005 added a metadata-only `SpanAccessPlan` carrier.
+  The plan reuses the DirectArray proof vocabulary (`range_index`,
+  `direct_array_extent`, `region_stability`) and keeps Span planner/lowering
+  closed for the next selected fixture.

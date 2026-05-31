@@ -243,6 +243,39 @@ pub struct SpanBorrowFact {
     pub region_stability_fact_id: u32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpanAccessOp {
+    Load,
+    Store,
+}
+
+impl SpanAccessOp {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Load => "load",
+            Self::Store => "store",
+        }
+    }
+}
+
+/// Metadata-only Span access plan.
+///
+/// The first real planner will derive this from `SpanBorrowFact` plus the same
+/// range/extent/stability proof vocabulary used by DirectArray.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SpanAccessPlan {
+    pub span_id: u32,
+    pub op: SpanAccessOp,
+    pub index_value: ValueId,
+    pub value_value: Option<ValueId>,
+    pub result_value: Option<ValueId>,
+    pub element_type: SpanElementType,
+    pub route: &'static str,
+    pub bounds_policy: &'static str,
+    pub proof_ids: Vec<&'static str>,
+    pub fallback_policy: &'static str,
+}
+
 /// Lower-bound extent proof for a DirectArray receiver value.
 ///
 /// This is intentionally separate from `RangeIndexFact`: range facts prove the
@@ -334,6 +367,9 @@ pub struct FunctionMetadata {
 
     /// No-escape Span borrow facts over stable regions.
     pub span_borrow_facts: Vec<SpanBorrowFact>,
+
+    /// Metadata-only Span access plans over no-escape Span borrows.
+    pub span_access_plans: Vec<SpanAccessPlan>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,
