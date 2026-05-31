@@ -174,7 +174,7 @@ message.
   - output: direct offset load/store only for the MIM-028 selected group
   - no generic user-box flattening, no public ABI widening, no provider or
     allocator replacement activation
-- [ ] MIM-030: post-direct-state owner refresh
+- [x] MIM-030: post-direct-state owner refresh
   - output: compare direct exact front against the previous baseline and
     choose the next owner from current evidence
   - this is measurement / selection, not the fast-path implementation itself;
@@ -182,7 +182,7 @@ message.
     selects one proven group
   - return to source-level mimalloc work if direct-state does not produce a
     structural keeper
-- [ ] MIM-031: direct-state special-case residue audit
+- [x] MIM-031: direct-state special-case residue audit
   - output: list every hardcoded MIM-029 selector, field slot, and storage
     assumption in the same-module body emitter
   - classify the path as `delete`, `keep_as_selected_pilot`, or
@@ -441,18 +441,64 @@ same-family inventory, substrate selection, and final closeout.
 
 ### MIM-030: post-direct-state owner refresh
 
-Pending.
+Completed.
 
 This is not the direct-state fast path itself. MIM-030 runs only after MIM-029
 has installed a selected direct-state fast path, then rereads the direct exact
 front and picks the next owner from measured evidence.
 
-Until MIM-028 selects one proven positive-net field group, `object_lifecycle_facade`
-remains the active owner surface and the lane stays on source-level mimalloc work.
+Measured direct exact body samples after MIM-029:
+
+```text
+front=direct_exact
+env.HAKO_TYPED_OBJECT_STORE=direct_slot_exact
+env.HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact
+sample_count=3
+body_elapsed_ns=8000000,9000000,8000000
+allocation_count=524288
+free_count=524288
+select_page_single_fast_path_count=524288
+select_page_single_fallback_count=0
+release_known_page_fast_path_count=524288
+release_known_page_fallback_count=0
+summary=ok
+```
+
+Single direct exact `perf stat` reread:
+
+```text
+hako_direct_instructions=236247273
+hako_direct_cycles=45160170
+body_elapsed_ns=8000000
+```
+
+Low-sample perf owner reread:
+
+```text
+HakoAllocPageModel.releaseLocalKnownLive/1=40.82%
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=16.28%
+HakoAllocObjectLifecycleReleaseResult.recordRequest/2=14.43%
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2=14.01%
+HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2=13.64%
+```
+
+Interpretation:
+
+```text
+direct_state_alloc_success_keeper=structural
+previous_direct_body_elapsed_ns=13000000
+current_direct_body_elapsed_ns=8000000,9000000,8000000
+previous_direct_instructions=369629325
+current_direct_instructions=236247273
+record_success_removed_from_top_owner=1
+next_owner_family=release_side_hotpath
+new_direct_state_hardcode_allowed=0
+next_task=MIM-031 direct-state special-case residue audit
+```
 
 ### MIM-031..MIM-034: direct-state pilot residue closeout
 
-Pending.
+MIM-031 completed. MIM-032..MIM-034 remain pending.
 
 These items exist to prevent the MIM-029 selected callsite lowering from
 becoming permanent hardcode. MIM-031 audits the exact selectors and slot
@@ -461,8 +507,42 @@ second direct-state keeper. MIM-033 decides whether a generic substrate is
 earned. MIM-034 closes the pilot by deleting it, promoting it to fact-driven
 lowering, or documenting a bounded extension.
 
+MIM-031 audit result:
+
+```text
+audited_file=lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc
+temporary_special_case=HakoAllocObjectLifecycleAllocResult.recordSuccess/1
+selector_box=HakoAllocObjectLifecycleAllocResult
+selector_method=recordSuccess
+receiver_backend_required=direct_slot_exact
+arg_count_required=1
+arg0_kind=plain_i64
+hardcoded_slot_0=last_reason:i64:slot2:store_const_0
+hardcoded_slot_1=last_ok:i64:slot3:store_const_1
+hardcoded_slot_2=success_count:u64_or_usize:slot5:rmw_add1
+hardcoded_slot_3=reusable_success_count:u64_or_usize:slot7:rmw_add1_if_selected_kind_eq_1
+hardcoded_slot_4=active_success_count:u64_or_usize:slot8:rmw_add1_if_selected_kind_eq_2
+classification=keep_as_selected_pilot
+promotion_ready=0
+delete_now=0
+reason=keeper_but_single_method_only_and_recordSuccess_is_no_longer_top_owner
+next_task=MIM-032 direct-state same-family candidate inventory
+```
+
+The selected pilot remains bounded by `allowed_until=MIM-034`. MIM-032 may
+inspect `HakoAllocObjectLifecycleReleaseResult` because the post-MIM-029 owner
+reread moved heat to the release side, but it must not add another by-name
+emitter branch. Any second keeper has to feed MIM-033's substrate decision.
+
 ## Decision Log
 
+- 2026-05-31: MIM-030 accepted MIM-029 as a structural keeper on the direct
+  exact front: body samples moved from the prior 13ms band to 8/9/8ms and a
+  single perf stat reread moved from 369M to 236M instructions. The next heat
+  moved to release-side methods, so MIM-031 audited the existing direct-state
+  special case and classified it as `keep_as_selected_pilot`, not a generic
+  substrate. MIM-032 opens same-family inventory without permitting another
+  by-name emitter branch.
 - 2026-05-31: MIM-029's direct-state emitter branch is a selected pilot, not a
   permanent hardcode. MIM-031..MIM-034 now track the required residue audit,
   same-family inventory, substrate selection, and closeout. Adding more by-name
