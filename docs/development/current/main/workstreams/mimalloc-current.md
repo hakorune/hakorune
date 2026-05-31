@@ -418,6 +418,96 @@ unless one of them changes a durable contract or implementation boundary.
    - evidence: `cargo check -q`
    - no new row-specific guard
 
+### Parked Direct Memory View Roadmap
+
+This is a parking lot, not an active implementation lane. Keep mimalloc
+optimization on the current `DirectState` / `DirectArrayI64` / `RangeIndexFact`
+surface unless fresh perf evidence selects a representation fast path.
+
+Design decision:
+
+```text
+do_not_add_raw_pointer_surface=1
+native_ptr_direct_deref=0
+native_ptr_index_operator=0
+native_ptr_pointer_arithmetic=0
+source_reference_docs_changed=0
+reason=the_source_language_has_no_accepted_DirectMemory_or_Span_syntax_yet
+```
+
+Long-term layering:
+
+```text
+MemoryRegion:
+  the owned or borrowed storage region
+
+MemoryView:
+  the typed way to see that region
+
+MemoryAccessPlan:
+  the selected load/store route for one site
+
+Proof:
+  bounds / alignment / alias / lifetime / stability / initialization facts
+```
+
+Terminology rules:
+
+```text
+direct:
+  fast-route contract; generic fallback is not allowed when requested
+
+unsafe_memory:
+  permission to create a view over external/native memory
+
+unchecked:
+  proof result that removes bounds checks
+```
+
+Do not merge those three meanings.
+
+Recommended order when this becomes active:
+
+1. Keep current source syntax unchanged.
+   - continue using `me.field`, `direct_array[i]`, and ordinary loops
+   - do not add `RawPtr<T>`, `&`, `*`, `->`, or pointer arithmetic
+
+2. Strengthen existing DirectArray planning first.
+   - add `proof_ids` to `DirectArrayAccessPlanV0`
+   - add region/view vocabulary only as metadata, not source syntax
+   - preserve `direct != unchecked`
+
+3. Normalize proof facts.
+   - `RangeIndexFact`
+   - `DirectArrayExtentFact`
+   - `RegionStabilityFact`
+   - later: alias/lifetime/alignment/initialization facts
+
+4. Add `SpanI64` / `SpanMutI64` only after DirectArray proof facts are stable.
+   - span is a no-escape borrowed view
+   - span cannot be returned, stored in fields, captured, published, or cross
+     provider boundaries
+   - mutable span requires unique access to its region
+
+5. Add `direct {}` only as a fast-route requirement.
+   - it does not make memory unsafe
+   - it does not imply unchecked
+   - it fails if a required `FastPathPlan` is missing
+
+6. Add `unsafe memory` / `Bytes` later.
+   - `NativePtr` remains opaque
+   - `Bytes` owns byte-offset `load_*_at` / `store_*_at` methods
+   - byte access must carry alignment and bounds policy
+
+7. Add `LayoutSpan` and bulk memory patterns only after Span/Bytes are proven.
+   - layout field access stays separate from existing enum record payload
+     terminology
+   - bulk `fill` / `zero` / `iota` / `copy` should first be recognized from
+     loop idioms, not added as source APIs
+
+This parking lot intentionally does not update `docs/reference/**`: no source
+syntax, public ABI, or language-level unsafe memory contract is accepted here.
+
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
 ### MIM-023: composite hot-cluster source inventory
