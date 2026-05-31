@@ -234,6 +234,14 @@ message.
   - keep public ArrayBox, mixed storage, plugin typed ABI, and default/safe
     behavior unchanged
   - no generic Array rewrite and no helper micro-lane
+- [x] MIM-039: DirectArray i64 exact known-live store boundary cut
+  - output: reuse the existing unchecked DirectArray i64 store lane for
+    `HakoAllocPageModel.releaseLocalKnownLive/1`
+  - reason: caller has already proven the block is live; the method is the
+    direct exact known-live release path and does not need public ArrayBox
+    bounds/capacity semantics on its two internal i64 stores
+  - keep default/safe behavior, public ArrayBox, mixed storage, plugin typed
+    ABI, and source syntax unchanged
 
 ## MIM-023..MIM-027 Source-Shape And Metadata Notes
 
@@ -883,6 +891,13 @@ next_task=MIM-038
 
 ## Decision Log
 
+- 2026-05-31: MIM-039 extended the existing unchecked DirectArray i64 store
+  lane from `resetToFresh/0` to the proven known-live release method
+  `HakoAllocPageModel.releaseLocalKnownLive/1`. This removes public ArrayBox
+  bounds/capacity branches from the two internal store sites while preserving
+  default/safe behavior. The representative direct exact EXE stayed green,
+  disasm shows the checked store branches removed, and instruction count moved
+  from 184.9M to 178.6M.
 - 2026-05-31: MIM-038 cut the selected DirectArray i64 exact get boundary in
   the C shim direct exact path. The hot `HakoAllocPageModel.acquireFreshSmall/1`
   site now lowers `ArrayBox.get` over a proven DirectArrayI64 handle to direct

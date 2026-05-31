@@ -308,7 +308,9 @@
 
       auto int same_module_function_is_selected_direct_array_i64_unchecked_store_target(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name && !strcmp(name, "HakoAllocPageModel.resetToFresh/0");
+        return name &&
+               (!strcmp(name, "HakoAllocPageModel.resetToFresh/0") ||
+                !strcmp(name, "HakoAllocPageModel.releaseLocalKnownLive/1"));
       }
 
       auto int same_module_function_emit_direct_array_i64_store_unchecked_mir_call(
