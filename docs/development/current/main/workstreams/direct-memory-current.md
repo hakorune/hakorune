@@ -82,10 +82,13 @@ direct storage routes.
   - landed: metadata/json contract and source-syntax-free obligation refresh
     from existing DirectArray/Span plans; missing plan reports `DM006001`
 
-- [ ] LANG-DM-006B: future `direct {}` syntax parking lot
+- [x] LANG-DM-006B: future `direct {}` syntax parking lot
   - output: direct block remains a thin future syntax over
     `RequiredFastPathRegion`
   - do not implement parser/AST/MIR scope until diagnostics are stable
+  - parked: no parser, AST, MIR scope, or source syntax in this wave; reopen
+    only after `RequiredFastPathRegion` diagnostics are used by a real keeper
+    expectation and the syntax is only a thin source span carrier
 
 ### Parked
 
@@ -140,3 +143,6 @@ direct storage routes.
   `RequiredFastPathRegion` / `FastPathObligation`. Existing DirectArray and
   Span plans satisfy obligations; missing plans fail with `DM006001`. No
   parser, source syntax, or lowering contract was opened.
+- 2026-06-01: LANG-DM-006B parked future `direct {}` syntax. The current wave
+  keeps source unchanged; `direct {}` may reopen only as syntax sugar over
+  `RequiredFastPathRegion` after diagnostic/report usage proves it is needed.

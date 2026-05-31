@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-01"
 
 active_lane = "direct memory language substrate"
-active_lane_status = "Mimalloc source-level optimization is paused after MIM-054 to cleanly define the direct-memory / DirectArray / Span substrate. Required FastPath diagnostics are in place without direct{} syntax; next work should either park future direct{} syntax or return to mimalloc optimization."
+active_lane_status = "Direct-memory substrate cleanup is complete for this wave: DirectArray/Span proof facts, Span fact-only planning, and required FastPath diagnostics are in place without direct{} syntax. Return to mimalloc optimization with owner-first perf evidence."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
@@ -19,7 +19,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/direct-memor
 latest_card = "296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md"
 latest_card_summary = "Landed the mimalloc source-level owner refresh: object_lifecycle_facade remains the top source-level owner surface, and the mimalloc source-level owner selection opened next."
-current_blocker_token = "LANG-DM-006B-FUTURE-DIRECT-SYNTAX-PARKING-LOT"
+current_blocker_token = "MIM-055-POST-DIRECT-MEMORY-OWNER-REFRESH"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

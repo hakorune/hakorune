@@ -135,12 +135,13 @@ Recommended order:
    - checked direct routes are allowed; generic helper / boxed fallback /
      dynamic route are rejected when required
 7. `LANG-DM-006B` future `direct {}` syntax parking lot
+   - status: parked; no parser/AST/MIR source syntax in this wave
    - only after diagnostics are stable
 8. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
    the DirectArray/Span proof system is stable.
 
-Return to mimalloc optimization after the required FastPath diagnostic contract
-is either locked or explicitly parked by the direct-memory workstream.
+Return to mimalloc optimization now. The next blocker is
+`MIM-055-POST-DIRECT-MEMORY-OWNER-REFRESH`.
 
 ## Current Ordered App Bringup
 

@@ -404,6 +404,14 @@ message.
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change; fallback release still
     revalidates the cached page id
+- [ ] MIM-055: post-direct-memory owner refresh
+  - output: reread the direct exact perf owner after the direct-memory substrate
+    wave (`DirectArray` / `Span` facts and required FastPath diagnostics)
+  - start from current measured evidence before source edits
+  - no new DirectArray / Span / `direct {}` / helper lane unless perf selects
+    it and the expected net is positive
+  - decide whether the next owner is mimalloc source shape, direct-state,
+    DirectArray/Span diagnostic use, or no-current-owner
 
 ### Next Cleanup TODO
 
@@ -1221,6 +1229,9 @@ next_task=MIM-038
   the defensive id check. Representative direct exact smoke and the known-live
   release smoke stayed green, and instruction count moved from 126.7M to
   124.6M.
+- 2026-06-01: Direct-memory substrate cleanup returned control to mimalloc.
+  Next task is MIM-055: reread direct exact perf ownership before any source
+  edit or new fast-path reopening.
 - 2026-05-31: MIM-044 added generic nested-phi receiver origin acceptance for
   user-box route results. The `resetToFresh/0` fast guard introduces an extra
   guard-return control shape, which made the selected page flow through nested
