@@ -1363,6 +1363,38 @@ message.
     count-compatible workload candidate, but it still needs an in-process
     body-timing app before it can select an optimization owner.
 
+- [x] MIM-130: huge-ish body-timing matrix refresh
+  - output:
+    add a bounded in-process huge-ish body-timing app and fix direct-exact
+    stat reporting so fixed-repeat apps report their observed repeat count
+  - changed scope:
+    `apps/hako-alloc-mimalloc-comparison-in-process-huge-ish-proof/main.hako`
+    repeats the huge-ish workload with `in_process_operation_repeat=128`.
+    The small repeat is intentional because the C side performs real large
+    allocations while the Hako side models the huge path.
+  - tool cleanup:
+    `tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh` now reads
+    `in_process_operation_repeat` from the app output when present and reports
+    both `in_process_operation_repeat` and
+    `requested_in_process_operation_repeat`. This prevents fixed-repeat apps
+    from being mislabeled as the wrapper default `8192`.
+  - count contract:
+    Hako and C match at repeat `128` on
+    `allocation_count=256`, `free_count=256`,
+    `requested_bytes=536873088`, and `large_request_count=128`.
+  - body observation:
+    default Hako EXE reported `hako_body_elapsed_ns=1000000`; the C runner
+    reported `c_body_elapsed_ns=8106976`. Direct-exact stat for the Hako app
+    reported `in_process_operation_repeat=128`,
+    `requested_in_process_operation_repeat=8192`,
+    `hako_instructions_median=8141243`, and
+    `hako_cycles_median=2144556`.
+  - decision:
+    huge-ish is valid matrix evidence but not a direct mimalloc parity owner.
+    Its Hako subject is a model/metadata path while C performs real large
+    allocation/free operations, so body-time wins here must not select source
+    or MIR optimization work.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

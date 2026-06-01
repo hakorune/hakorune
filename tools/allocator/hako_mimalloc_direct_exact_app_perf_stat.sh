@@ -165,7 +165,8 @@ for i in $(seq 1 "$RUNS"); do
     exit 1
   fi
   body_elapsed_ns="$(awk -F= '$1 == "body_elapsed_ns" { print $2; exit }' "$run_out")"
-  printf "%s\t%s\t%s\n" "$instructions" "$cycles" "${body_elapsed_ns:-0}" >>"$sample_file"
+  observed_in_process_repeat="$(awk -F= '$1 == "in_process_operation_repeat" { print $2; exit }' "$run_out")"
+  printf "%s\t%s\t%s\t%s\n" "$instructions" "$cycles" "${body_elapsed_ns:-0}" "${observed_in_process_repeat:-0}" >>"$sample_file"
 done
 
 python3 - "$sample_file" "$APP" "$RUNS" "$IN_PROCESS_REPEAT" "$OUT_FILE" <<'PY'
@@ -182,17 +183,27 @@ out_path = Path(sys.argv[5])
 instructions = []
 cycles = []
 body_ns = []
+observed_repeats = []
 for line in sample_path.read_text(encoding="utf-8").splitlines():
-    instr, cyc, body = line.split("\t")
+    instr, cyc, body, observed_repeat = line.split("\t")
     instructions.append(int(instr))
     cycles.append(int(cyc))
     body_ns.append(int(body))
+    observed_repeats.append(int(observed_repeat))
+
+non_zero_repeats = [value for value in observed_repeats if value > 0]
+reported_repeat = in_process_repeat
+if non_zero_repeats:
+    if len(set(non_zero_repeats)) != 1:
+        raise SystemExit(f"inconsistent in_process_operation_repeat samples: {non_zero_repeats}")
+    reported_repeat = non_zero_repeats[0]
 
 lines = [
     "output_contract=hako-mimalloc-direct-exact-app-perf-stat-v0",
     f"hako_app={app}",
     f"runs={runs}",
-    f"in_process_operation_repeat={in_process_repeat}",
+    f"in_process_operation_repeat={reported_repeat}",
+    f"requested_in_process_operation_repeat={in_process_repeat}",
     f"hako_instructions_median={int(statistics.median(instructions))}",
     f"hako_cycles_median={int(statistics.median(cycles))}",
     f"hako_body_elapsed_ns_median={int(statistics.median(body_ns))}",
