@@ -1244,6 +1244,45 @@ message.
     quality blocks owner selection. Do not use this knob to claim a winner or
     to hide production behavior changes.
 
+- [x] MIM-126: small-block workload matrix refresh
+  - output:
+    add body timing to the existing PageModel-only in-process small-block
+    comparison app and refresh the next workload candidate before opening a
+    new optimization owner
+  - changed scope:
+    `apps/hako-alloc-mimalloc-comparison-in-process-small-block-proof/main.hako`
+    now reports the same body-timing fields as the object-lifecycle
+    representative apps:
+    `hako_body_timing_available=1`,
+    `body_timing_repeat_kind=workload-body-env-now-ms-v0`,
+    `body_timing_scope=allocator-workload-body`,
+    `body_timing_is_process_timing=0`, and `body_elapsed_ns=...`
+  - default/safe observation:
+    running the PageModel-only small-block app through
+    `hako_exe_memory_runner.sh` without the direct-exact env produced
+    `hako_body_timing_available=1`, `body_elapsed_ns=172000000`, while the
+    matching C runner reported `body_elapsed_ns=3171100` for the same
+    `allocation_count=524288`, `free_count=524288`, and
+    `requested_bytes=272416768`.
+  - direct-exact refresh:
+    the same checked-in app under
+    `hako_mimalloc_direct_exact_app_perf_stat.sh --in-process-repeat 81920`
+    produced `hako_instructions_median=256336433`,
+    `hako_cycles_median=39698054`, and
+    `hako_body_elapsed_ns_median=7000000`. The matching C runner at
+    `--in-process-repeat 81920` produced
+    `c_body_elapsed_ns_median=31570683`.
+  - decision:
+    PageModel-only small-block is not the next direct-exact optimization
+    owner. The large default/safe gap is a public/fallback tax, not a
+    mimalloc parity-front gap. The direct-exact front is already below the
+    C body-time line for this workload too.
+  - next:
+    continue workload-matrix expansion before source/MIR edits. The next
+    candidate is realloc/aligned body timing: its existing Hako app matches
+    the C count contract (`requested_bytes=216`) but is still single-shot and
+    reports `hako_body_timing_available=0`.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
