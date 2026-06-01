@@ -12,6 +12,16 @@ if [ "${1:-}" = "fastpath-explain" ]; then
   exec bash "$ROOT/tools/hako_check/fastpath_explain.sh" "$@"
 fi
 
+if [ "${1:-}" = "perf-surface" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/perf_surface_inventory.py" "$@"
+fi
+
+if [ "${1:-}" = "perf-surface-contract" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/perf_surface_contract.py" "$@"
+fi
+
 if [ ! -x "$BIN" ]; then
   echo "[ERROR] hakorune binary not found: $BIN" >&2
   echo "Run: cargo build --release" >&2
@@ -20,6 +30,8 @@ fi
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0 [--format text|dot|json-lsp] <file-or-dir|file> [more...]" >&2
+  echo "       $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]" >&2
+  echo "       $0 perf-surface-contract [--out report.txt]" >&2
   echo "       $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]" >&2
   exit 2
 fi

@@ -165,8 +165,10 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_perf_parity_selfhost_handoff_gate_guard.sh` | 296x-75 の selfhost handoff gate guard。small-block gap が残るため selfhost handoff を park し、hako_check perf-surface contract を次 row として選択する。 |
 | `tools/allocator/hako_mimalloc_perf_parity_selfhost_handoff_gate.py` | 296x selfhost handoff gate tool。hakmem LD_PRELOAD bench pilot 後の判断を stable report として出し、winner/replacement claims を閉じる。 |
 | `tools/checks/k2_wide_phase296x_hako_check_perf_surface_contract_guard.sh` | 296x-76 の hako_check perf-surface contract guard。observation-only の report surface を固定し、rewrite/provider/replacement/winner claims を閉じる。 |
+| `tools/hako_check.sh perf-surface-contract` | hako_check root wrapper の perf-surface contract subcommand。`tools/hako_check/perf_surface_contract.py` に委譲する。 |
 | `tools/hako_check/perf_surface_contract.py` | hako_check perf-surface contract tool。allocator hot-path inventory 用の stable report vocabulary を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_check_perf_surface_inventory_guard.sh` | 296x-77 の hako_check perf-surface inventory guard。object lifecycle facade の hot method 棚卸しから release known-page fast path keeper を選ぶ。 |
+| `tools/hako_check.sh perf-surface` | hako_check root wrapper の perf-surface subcommand。source-level allocator hot-path risk inventory を `tools/hako_check/perf_surface_inventory.py` に委譲する。 |
 | `tools/hako_check/perf_surface_inventory.py` | hako_check perf-surface inventory tool。選択 `.hako` methods の method-call density / loop calls / ArrayBox access / linear-search candidate を stable report にする。 |
 | `tools/hako_check.sh fastpath-explain` | hako_check root wrapper の FastPath explain subcommand。`--app` / `--mir-json` を `tools/hako_check/fastpath_explain.sh` に委譲する。 |
 | `tools/hako_check/fastpath_explain.py` | hako_check FastPath explain adapter。既存 MIR JSON の DirectArray / Span / RequiredFastPath metadata coverage を read-only report にする。 |

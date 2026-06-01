@@ -152,6 +152,8 @@ Recommended order:
    - status: done; `tools/hako_check/fastpath_explain.sh` can emit temporary
      MIR JSON for `--app app.hako` and then call the read-only adapter
    - root entry: `tools/hako_check.sh fastpath-explain`
+   - root hako_check tool entries also include `perf-surface` and
+     `perf-surface-contract`; MIR method-shape remains outside hako_check
    - no compiler build, benchmark run, source rewrite, persistent MIR artifact,
      or keeper selection
 10. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until

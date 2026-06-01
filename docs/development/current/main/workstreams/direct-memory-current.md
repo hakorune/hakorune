@@ -178,3 +178,8 @@ direct storage routes.
   `tools/hako_check/fastpath_explain.sh`. It can run from `.hako` source by
   emitting temporary MIR JSON first, but the policy owner stays the existing
   read-only `fastpath_explain.py` contract.
+- 2026-06-01: hako_check root wrapper now exposes `perf-surface`,
+  `perf-surface-contract`, and `fastpath-explain` as development-tool
+  subcommands. The ownership split remains unchanged: perf-surface is
+  source-level, fastpath-explain is read-only MIR metadata explanation, and
+  method-shape remains outside hako_check.

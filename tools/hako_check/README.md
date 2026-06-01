@@ -95,7 +95,7 @@ Performance Surface Inventory
 - The first stable contract is emitted by:
 
 ```bash
-python3 tools/hako_check/perf_surface_contract.py
+bash tools/hako_check.sh perf-surface-contract
 ```
 
 - Contract:
@@ -125,7 +125,7 @@ summary=ok
   provider, replaces the process allocator, installs hooks, or makes benchmark
   winner claims.
 - Minimal v1 source surface is emitted by
-  `python3 tools/hako_check/perf_surface_inventory.py --contract-version v1`.
+  `bash tools/hako_check.sh perf-surface --contract-version v1`.
   It keeps the same stop line and adds:
 
 ```text
