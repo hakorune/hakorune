@@ -55,7 +55,7 @@ box HakoAllocObjectLifecycleFacade {
 
         local page = queue.trySelectSingleActivePage()
         if page != null {
-            local selected_page_id = page.page_id
+            local selected_page_id = queue.last_selected_page_id
             alloc_result.recordSelectedPage(selected_page_id)
 
             local block_id = page.acquireFreshSmall(size)
