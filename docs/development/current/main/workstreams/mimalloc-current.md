@@ -530,7 +530,7 @@ message.
   - stop line: do not implement DirectArray load fact widening until a later
     perf refresh selects one of the parked buckets as a sampled owner
 
-- [ ] MIM-064: hot sampled body shape inventory
+- [x] MIM-064: hot sampled body shape inventory
   - output: classify the sampled blocks inside the current direct exact top
     hako_alloc methods before source edits
   - target methods:
@@ -541,6 +541,49 @@ message.
     structural seam, and reject/keep reason
   - no DirectArray/Span/direct-block/mixed-base-inline widening
   - no source edit before the owner table is written
+  - inventory:
+    - `objectLifecycleSmallAlloc/1`: top annotated block sampled the
+      single-active fresh path; the source still joined that known `kind=2`
+      route with the fallback `selectPage()` route before checking
+      `selected_kind`
+    - `acquireFreshSmall/1`: DirectArray access is already direct; samples sit
+      on page-local counter / peak-used observer updates, not on a missing
+      array helper route
+    - `objectLifecycleReleaseBlock/2`: hot cached success path is clean of the
+      residual `pages.get(known_index)` helper; the residual helper belongs to
+      fallback page lookup and stays parked
+    - `releaseLocalKnownLive/1`: sampled work is direct page-local state update
+      and last-release retirement branch; no new array fact is selected
+    - `trySelectSingleActivePage/0`: sampled work is selection publication and
+      counters; useful context for the small-alloc split, not a new helper lane
+  - selected next owner:
+    `single_active_small_alloc_fresh_path_split`
+  - reason: the selected source seam removes a sampled known-kind branch
+    without adding syntax, compiler features, DirectArray/Span widening, or
+    mixed-base inline support
+
+- [x] MIM-065: single-active small-alloc fresh-path split
+  - output: split the `trySelectSingleActivePage()` success route in
+    `objectLifecycleSmallAlloc/1` before the fallback `selectPage()` route
+  - reason: when the single-active route returns a page, the selected index is
+    `0` and selected kind is `2`; sending that path through the generic
+    selected-kind fallback branch kept a hot sampled branch in the direct exact
+    body
+  - result: representative direct exact EXE stayed green with
+    `body_elapsed_ns=4000000` in the runner smoke and `body_elapsed_ns=3000000`
+    under the follow-up perf-stat run; the direct exact perf-stat run measured
+    `instructions=111384596` and `cycles=21025771`
+  - smokes: `mimalloc_lite_exe` and `allocator_stress_exe` stayed green
+  - no compiler feature, no source hand-expansion of helper bodies, no
+    DirectArray/Span/direct-block/mixed-base-inline widening, and no
+    public ArrayBox/default-safe behavior change
+
+- [ ] MIM-066: post-single-active-fresh-split owner refresh
+  - output: reread the direct exact perf owner after MIM-065 and choose the
+    next source/MIR owner from current evidence
+  - include the remaining `slot_load_hi` residue only if the new perf evidence
+    samples it as a current owner
+  - no source edit before the refresh
 
 ### Next Cleanup TODO
 
