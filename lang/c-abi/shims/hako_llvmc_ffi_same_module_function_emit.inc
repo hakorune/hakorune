@@ -583,7 +583,7 @@
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
           fprintf(f, "%si64 %%r%lld", ai ? ", " : "", reg);
         }
-        fprintf(f, ") {\n");
+        fprintf(f, ") alwaysinline {\n");
         return 1;
       }
 

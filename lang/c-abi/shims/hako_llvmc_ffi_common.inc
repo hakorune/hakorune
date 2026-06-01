@@ -448,7 +448,7 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   n = snprintf(
       cmd,
       sizeof(cmd),
-      "%s -passes=mem2reg -S -o \"%s\" \"%s\" 2>\"%s\"",
+      "%s -passes=always-inline,mem2reg -S -o \"%s\" \"%s\" 2>\"%s\"",
       opt_tool,
       canon_ll,
       llpath,

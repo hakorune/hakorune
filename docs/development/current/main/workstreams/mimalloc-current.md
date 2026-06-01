@@ -3366,10 +3366,103 @@ truth stays in MIR metadata emitted by the compiler.
   - decision=keeper
   - no source rewrite, no multi-block `Inline(required)` widening, no generic
     optimizer rewrite until the owner is confirmed
-- [ ] MIM-102: post-record-success owner reread
+- [x] MIM-102: post-record-success owner reread
   - output: reread direct-exact hot symbol / asm after MIM-101 and select the
     next owner from current evidence
   - no source shape change before the reread
+  - evidence:
+    - direct-exact representative perf-stat after MIM-101 measured
+      `hako_instructions_median=105624855`,
+      `hako_cycles_median=18886007`,
+      `hako_body_elapsed_ns_median=3000000`
+    - period-sampled perf owner reread selected
+      `HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1`,
+      `HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0`, and
+      `HakoAllocPageModel.acquireFreshSmall/1`
+    - annotate shows the remaining sampled work is mostly selection/result
+      publication, proof counters, and page-local observer counters, not a
+      missing Array helper or generic method-dispatch route
+  - selected next:
+    `observer_counter_contract_split_feasibility`
+  - stop line:
+    do not remove or gate counters before classifying which counters are
+    proof-required public observer state versus optional diagnostic state
+- [x] MIM-103: observer counter contract split feasibility
+  - output: classify hot counters and selected-state fields reached by
+    `objectLifecycleSmallAlloc/1`, `trySelectSingleActivePage/0`,
+    `acquireFreshSmall/1`, and `objectLifecycleReleaseBlock/2`
+  - classify each item as:
+    `proof_required`, `public_observer`, `diagnostic_optional`, or
+    `internal_cache`
+  - decide whether the next keeper should be source-level relocation,
+    build-gate/observer-light variant work, compiler lowering, or no-change
+  - no counter deletion, build-gate rewrite, statement-level gate assumption,
+    or proof-app contract change before this classification
+  - classification:
+    - public proof app counters remain `proof_required` / `public_observer`;
+      deleting or build-gating them would change the proof-app contract
+    - `object-lifecycle-small-block-observer-light` is the comparison-only
+      split already present in tree:
+      `observer_light_facade=1`, `result_capsule_publication=0`,
+      `queue_publication=0`, `queue_counter_hot_updates=0`,
+      `release_result_publication=0`
+    - observer-light direct-exact baseline after MIM-101:
+      `hako_instructions_median=61049167`,
+      `hako_cycles_median=11628700`,
+      `hako_body_elapsed_ns_median=2000000`
+    - public proof direct-exact baseline after MIM-101:
+      `hako_instructions_median=105624844`,
+      `hako_cycles_median=18675729`,
+      `hako_body_elapsed_ns_median=3000000`
+  - selected next:
+    `same_module_late_hot_inline_consumer`
+  - decision:
+    no source counter relocation in this slice; keep public proof semantics and
+    optimize the same-module call boundary instead
+- [x] MIM-104: same-module late hot inline consumer
+  - output: keeper; generated same-module helper definitions are emitted with
+    LLVM `alwaysinline`, and canonicalization runs `always-inline,mem2reg`
+    before `llc`
+  - owner:
+    `lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc`
+    and `lang/c-abi/shims/hako_llvmc_ffi_common.inc`
+  - design boundary:
+    this is not a multi-block `Inline(required)` verifier widening and not a
+    source syntax change; it is a late backend consumer for exact same-module
+    helper definitions already selected by the compiler pipeline
+  - observer-light perf:
+    before `hako_instructions_median=61049167`,
+    after `hako_instructions_median=48752537`,
+    after `hako_cycles_median=8050480`,
+    after `hako_body_elapsed_ns_median=1000000`
+  - public proof perf:
+    before `hako_instructions_median=105624844`,
+    after `hako_instructions_median=80262663`,
+    after `hako_cycles_median=13772256`,
+    after `hako_body_elapsed_ns_median=2000000`
+  - structural evidence:
+    observer-light EXE no longer contains hot-core calls to
+    `HakoAllocPageModel.acquireFreshSmall/1` or
+    `HakoAllocPageModel.releaseLocalKnownLive/1`; their bodies are folded into
+    the same-module hot core by LLVM
+  - smokes:
+    - public direct-exact pair `summary=ok`,
+      `hako_body_elapsed_ns=2000000`, `body_elapsed_ratio=0.504`
+    - observer-light direct-exact pair `summary=ok`,
+      `hako_body_elapsed_ns=1000000`, `body_elapsed_ratio=0.296`
+    - `bash tools/checks/dev_gate.sh quick`
+  - decision=keeper
+  - winner_claim=0
+  - stop line:
+    do not generalize this into source-level required inline; next owner must
+    be selected by post-inline perf evidence
+- [ ] MIM-105: post-late-inline owner refresh
+  - output: reread direct-exact perf / asm after MIM-104 and select the next
+    owner from current evidence
+  - candidate seams to inspect:
+    page-local direct-state nonnegative/trap checks, page-local observer
+    counters, remaining DirectArray route shape, and hot-core wrapper overhead
+  - no new source rewrite or fastpath vocabulary before this reread
 
 ## Parking Lot
 
