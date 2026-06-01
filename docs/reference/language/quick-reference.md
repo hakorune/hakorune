@@ -79,6 +79,9 @@ Collections and failure values
   helper parameter declares the exact record type. This is compiler-local
   scalarization only: no runtime record object, no record return value, no
   storage escape, and no backend record lowering.
+- `record` is not an ordinary mutable owner replacement. Use `box` for
+  identity, lifecycle, methods, and DirectArray ownership; use `record` for
+  identity-free state/data bundles that remain inside an accepted record lane.
 - `local xs: Array<T> = []` — typed-context Array literal; `local xs = []` fail-fasts
 - `xs.push(v)`, `xs.get(i)`, `xs.set(i, v)`, `xs.length()` — canonical typed `Array<T>` methods
 - direct literal / `push` / `set` values are checked against typed `Array<T>` when known

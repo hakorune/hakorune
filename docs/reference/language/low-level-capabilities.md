@@ -92,6 +92,55 @@ NativePtr pointer arithmetic
 `NativePtr` remains opaque. Future native memory access must create a bounded
 view first.
 
+### Box, Record, And Mutable State
+
+`record` is the canonical source spelling for identity-free aggregate values.
+It is appropriate for metadata rows, snapshots, report payloads, and local
+scalarizable value bundles.
+
+`record` is not the v0 spelling for an allocator owner object. In particular,
+it must not be used to silently replace a `box` that owns lifecycle, method
+dispatch, DirectArray storage, observer/debug boundaries, or public identity.
+
+Use this split for low-level allocator code:
+
+```text
+box:
+  identity / lifecycle / methods / storage ownership
+
+record:
+  identity-free aggregate value, snapshot, metadata row, or local state bundle
+
+DirectArrayI64:
+  owned variable-length exact-i64 table
+```
+
+The desired C-struct-like shape for mutable internal state is therefore not
+"turn the owner box into a record". The narrow future direction is a
+box-private record residence plan:
+
+```hako
+record PageState {
+    used: i64
+    free_top: i64
+    local_free_top: i64
+    peak_used: i64
+}
+
+box HakoAllocPageModel {
+    state: PageState
+    free: DirectArrayI64
+    local_free: DirectArrayI64
+}
+```
+
+In that future shape, the `box` still owns identity and storage, while the
+compiler may lower `me.state.free_top` through a direct state/record residence
+plan when verifier facts prove the access. Until that row exists, record-local
+scalarization remains compiler-local and must not imply runtime record objects,
+backend record lowering, automatic record-to-box conversion, or ordinary-box
+auto-recordification.
+
 Internal representation work should use these layers:
 
 ```text
