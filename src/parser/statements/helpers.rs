@@ -418,7 +418,8 @@ impl NyashParser {
             })
         }
 
-        if self.match_token(&TokenType::IDENTIFIER("Gate".to_string())) {
+        if matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == "Gate")
+        {
             if !matches!(site, AnnotationSite::TopLevel) {
                 return Err(ParseError::UnexpectedToken {
                     found: self.current_token().token_type.clone(),

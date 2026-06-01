@@ -258,6 +258,21 @@ box BadGate {
 }
 
 #[test]
+fn member_level_inline_rune_is_not_rejected_as_gate_sugar() {
+    NyashParser::parse_from_string(
+        r#"
+box Page {
+    @rune Inline(required)
+    isRetired() {
+        return 0
+    }
+}
+"#,
+    )
+    .expect("member-level Inline rune should not be parsed as @rune Gate sugar");
+}
+
+#[test]
 fn member_level_gate_selects_box_declarations_without_layout_drift() {
     let source = r#"
 box ChoiceBox {
