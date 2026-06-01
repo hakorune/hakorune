@@ -423,6 +423,28 @@ message.
     match
   - no new compiler feature, no `direct {}` syntax, no Array/Span/helper lane
     widening, no provider/replacement activation
+- [x] MIM-057: post-single-active-page owner refresh
+  - output: reread the direct exact perf top after MIM-056 before source edits
+  - result: repeated direct exact perf selected `Main.runOne/2` as harness
+    surface, then `objectLifecycleReleaseBlock/2`, `acquireFreshSmall/1`,
+    `objectLifecycleSmallAlloc/1`, `releaseLocalKnownLive/1`, and
+    `trySelectSingleActivePage/0`
+  - decision: ignore the benchmark harness owner for source cleanup and keep
+    the next implementation on the top hako_alloc owner surface
+  - no new compiler feature, no Array/Span/helper lane widening
+- [x] MIM-058: cached release page-index guard removal
+  - output: remove the hot cached release success check on
+    `last_alloc_page_index >= 0` in `objectLifecycleReleaseBlock/2`
+  - reason: `recordLastAllocPage(index, page_id, page)` records the page id,
+    index, and handle together after allocation; the hot cached success path
+    only needs the fixed page id and non-null page handle, while the fallback
+    path still owns index validation when it is needed
+  - result: representative direct exact EXE stayed green, `mimalloc_lite_exe`
+    and `allocator_stress_exe` stayed green, quick gate stayed green, and the
+    one-sample direct exact perf stat measured `115056193` instructions with
+    `body_elapsed_ns=3000000`
+  - no source hand-expansion, no compiler feature, no Array lane widening, no
+    public ArrayBox/default-safe behavior change
 
 ### Next Cleanup TODO
 
