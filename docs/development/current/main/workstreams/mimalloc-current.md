@@ -3572,6 +3572,33 @@ truth stays in MIR metadata emitted by the compiler.
     shape is reopened, it needs a direct-state storage migration task, not an
     opportunistic `.hako` field-type edit inside the optimization loop.
 
+- [x] MIM-110: single-active queue publication helper probe
+  - output: rejected probe; test whether the MIM-104/MIM-106 late-inline
+    backend makes a larger receiver-local queue helper profitable for the
+    single-active selection success path
+  - attempted shape:
+    `recordSingleActiveSelection(page_id)` combined `request_count`,
+    selected-index/page/kind publication, `select_count`,
+    `active_select_count`, and `single_page_fast_path_count`
+  - result:
+    - direct-exact pair stayed green:
+      `summary=ok`, `hako_body_elapsed_ns=3000000`,
+      `body_elapsed_ratio=0.925`
+    - public proof runs=3 was effectively neutral:
+      `hako_instructions_median=71258913`
+    - public proof runs=5 was also neutral/slightly worse:
+      `hako_instructions_median=71259111`
+    - the source patch was reverted before commit
+  - decision=nonkeeper_reverted
+  - reason:
+    the helper is now safe to compile after late same-module inlining, but it
+    does not produce a stable instruction win over the existing inline leaf
+    plus one counter update shape
+  - next:
+    avoid more `.hako` helper extraction for queue publication unless a fresh
+    owner sample selects a larger structural seam with a clear instruction
+    delta
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
