@@ -3255,6 +3255,42 @@ truth stays in MIR metadata emitted by the compiler.
     - decision=structural_keeper_not_perf_keeper
     - reason=reduces source/MIR alias traffic in a current hot body without
       changing DirectArray proofs or public release-observer semantics
+- [x] MIM-098: release fast-path / slow-path source split
+  - output: keep the cached known-page release path in
+    `objectLifecycleReleaseBlock/2` small, and move the fallback page lookup /
+    generic release route into a separate non-inline slow helper
+  - selected surface:
+    `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2`
+  - preserve:
+    invalid page/block failures, cached known-page success,
+    `release_known_page_fast_path_count=524288`,
+    `release_known_page_fallback_count=0`, release result fields, and page
+    release state
+  - no multi-block `Inline(required)`, no counter gating, no direct syntax, no
+    helper name special case in lowering
+  - acceptance:
+    representative direct-exact pair smoke stays green; fast method MIR body
+    shrinks; direct-exact perf stat is keeper or neutral
+  - result:
+    - split the fallback known-page lookup / generic release route into
+      `objectLifecycleReleaseBlockSlow(page_id, block_id)`; the public
+      `objectLifecycleReleaseBlock/2` fast method now keeps only request
+      validation, cached known-page release, and the slow-path call
+    - MIR body shape improved:
+      `objectLifecycleReleaseBlock/2` changed from 37 blocks / 244
+      instructions to 10 blocks / 82 instructions
+    - slow fallback helper carries the cold route:
+      `objectLifecycleReleaseBlockSlow/2` has 32 blocks / 191 instructions
+    - direct-exact pair smoke stayed green: `summary=ok`,
+      `hako_body_elapsed_ns=4000000`, `c_body_elapsed_ns=3356438`,
+      `body_elapsed_ratio=1.192`
+    - direct-exact perf stat improved:
+      `hako_instructions_median=108770525`,
+      `hako_cycles_median=19038135`,
+      `hako_body_elapsed_ns_median=3000000`
+    - decision=perf_keeper
+    - reason=shrinks the hot release facade body without widening inline,
+      moving counters behind `gate`, or changing release observer semantics
 
 ## Parking Lot
 

@@ -125,42 +125,12 @@ box HakoAllocObjectLifecycleFacade {
         return me.release_result.recordSuccess(page_id, block_id)
     }
 
-    objectLifecycleKnownPageIndexById(page_id) {
-        local pages = me.object_lifecycle_queue.pages
-        local count = pages.length()
-        local i = 0
-        loop(i < count) {
-            local page = pages.get(i)
-            if page != null {
-                if page.page_id == page_id {
-                    return i
-                }
-            }
-            i = i + 1
-        }
-
-        return -1
-    }
-
-    objectLifecycleReleaseBlock(page_id, block_id) {
-        local release_result = me.release_result
-
+    objectLifecycleReleaseBlockSlow(page_id, block_id) {
         if page_id < 0 {
             return me.recordReleaseRequestFailure(page_id, block_id, HakoAllocObjectLifecycleFacadeReason.release_no_page())
         }
         if block_id < 0 {
             return me.recordReleaseRequestFailure(page_id, block_id, HakoAllocObjectLifecycleFacadeReason.release_bad_block())
-        }
-
-        if page_id == me.last_alloc_page_id {
-            local cached_page = me.last_alloc_page
-            if cached_page != null {
-                // last_alloc_page_id is recorded with this page handle after
-                // allocation; PageModel.page_id is fixed by birth().
-                me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
-                cached_page.releaseLocalKnownLive(block_id)
-                return release_result.recordSuccess(page_id, block_id)
-            }
         }
 
         me.release_known_page = null
@@ -199,6 +169,47 @@ box HakoAllocObjectLifecycleFacade {
         }
 
         return me.recordReleaseRequestFailure(page_id, block_id, HakoAllocObjectLifecycleFacadeReason.release_no_page())
+    }
+
+    objectLifecycleKnownPageIndexById(page_id) {
+        local pages = me.object_lifecycle_queue.pages
+        local count = pages.length()
+        local i = 0
+        loop(i < count) {
+            local page = pages.get(i)
+            if page != null {
+                if page.page_id == page_id {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+
+        return -1
+    }
+
+    objectLifecycleReleaseBlock(page_id, block_id) {
+        local release_result = me.release_result
+
+        if page_id < 0 {
+            return me.recordReleaseRequestFailure(page_id, block_id, HakoAllocObjectLifecycleFacadeReason.release_no_page())
+        }
+        if block_id < 0 {
+            return me.recordReleaseRequestFailure(page_id, block_id, HakoAllocObjectLifecycleFacadeReason.release_bad_block())
+        }
+
+        if page_id == me.last_alloc_page_id {
+            local cached_page = me.last_alloc_page
+            if cached_page != null {
+                // last_alloc_page_id is recorded with this page handle after
+                // allocation; PageModel.page_id is fixed by birth().
+                me.release_known_page_fast_path_count = me.release_known_page_fast_path_count + 1
+                cached_page.releaseLocalKnownLive(block_id)
+                return release_result.recordSuccess(page_id, block_id)
+            }
+        }
+
+        return me.objectLifecycleReleaseBlockSlow(page_id, block_id)
     }
 
     resetAlignmentResult() {
