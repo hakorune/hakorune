@@ -1,0 +1,188 @@
+// hako-alloc-mimalloc-comparison-in-process-mixed-small-proof
+// Purpose: repeat the representative mixed-small workload inside one EXE process.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    runOne(page) {
+        local reset_ok = page.resetToFresh()
+        if reset_ok != 1 {
+            return 0
+        }
+
+        local b0 = page.acquire_usize(16)
+        local b1 = page.acquire_usize(24)
+        local b2 = page.acquire_usize(32)
+        local b3 = page.acquire_usize(48)
+        local b4 = page.acquire_usize(64)
+        local b5 = page.acquire_usize(80)
+        local b6 = page.acquire_usize(96)
+        local b7 = page.acquire_usize(112)
+        local b8 = page.acquire_usize(128)
+        local b9 = page.acquire_usize(160)
+        local b10 = page.acquire_usize(192)
+        local b11 = page.acquire_usize(224)
+        local b12 = page.acquire_usize(256)
+        local b13 = page.acquire_usize(384)
+        local b14 = page.acquire_usize(512)
+        local b15 = page.acquire_usize(768)
+
+        local alloc_ok = 1
+        if b0 != 15 { alloc_ok = 0 }
+        if b1 != 14 { alloc_ok = 0 }
+        if b2 != 13 { alloc_ok = 0 }
+        if b3 != 12 { alloc_ok = 0 }
+        if b4 != 11 { alloc_ok = 0 }
+        if b5 != 10 { alloc_ok = 0 }
+        if b6 != 9 { alloc_ok = 0 }
+        if b7 != 8 { alloc_ok = 0 }
+        if b8 != 7 { alloc_ok = 0 }
+        if b9 != 6 { alloc_ok = 0 }
+        if b10 != 5 { alloc_ok = 0 }
+        if b11 != 4 { alloc_ok = 0 }
+        if b12 != 3 { alloc_ok = 0 }
+        if b13 != 2 { alloc_ok = 0 }
+        if b14 != 1 { alloc_ok = 0 }
+        if b15 != 0 { alloc_ok = 0 }
+
+        local r0 = page.releaseLocal(0)
+        local r1 = page.releaseLocal(1)
+        local r2 = page.releaseLocal(2)
+        local r3 = page.releaseLocal(3)
+        local r4 = page.releaseLocal(4)
+        local r5 = page.releaseLocal(5)
+        local r6 = page.releaseLocal(6)
+        local r7 = page.releaseLocal(7)
+        local r8 = page.releaseLocal(8)
+        local r9 = page.releaseLocal(9)
+        local r10 = page.releaseLocal(10)
+        local r11 = page.releaseLocal(11)
+        local r12 = page.releaseLocal(12)
+        local r13 = page.releaseLocal(13)
+        local r14 = page.releaseLocal(14)
+        local r15 = page.releaseLocal(15)
+
+        local release_ok = 1
+        if r0 != 1 { release_ok = 0 }
+        if r1 != 1 { release_ok = 0 }
+        if r2 != 1 { release_ok = 0 }
+        if r3 != 1 { release_ok = 0 }
+        if r4 != 1 { release_ok = 0 }
+        if r5 != 1 { release_ok = 0 }
+        if r6 != 1 { release_ok = 0 }
+        if r7 != 1 { release_ok = 0 }
+        if r8 != 1 { release_ok = 0 }
+        if r9 != 1 { release_ok = 0 }
+        if r10 != 1 { release_ok = 0 }
+        if r11 != 1 { release_ok = 0 }
+        if r12 != 1 { release_ok = 0 }
+        if r13 != 1 { release_ok = 0 }
+        if r14 != 1 { release_ok = 0 }
+        if r15 != 1 { release_ok = 0 }
+
+        if alloc_ok != 1 {
+            return 0
+        }
+        if release_ok != 1 {
+            return 0
+        }
+        if page.used != 0 {
+            return 0
+        }
+        if page.reject_count != 0 {
+            return 0
+        }
+        if page.requested_bytes != 3096 {
+            return 0
+        }
+        return 1
+    }
+
+    main(args) {
+        local operation_repeat = 8192
+        local page = new HakoAllocPageModel(0, 768, 16, 16)
+        local repeat = 0
+        local ok = 1
+        local body_start_ms = env.now_ms()
+        loop(repeat < operation_repeat) {
+            local run_ok = Main.runOne(page)
+            if run_ok != 1 {
+                ok = 0
+            }
+            repeat += 1
+        }
+        local body_end_ms = env.now_ms()
+        local body_elapsed_ms = body_end_ms - body_start_ms
+        if body_elapsed_ms < 0 {
+            body_elapsed_ms = 0
+        }
+        local body_elapsed_ns = body_elapsed_ms * 1000000
+
+        local allocation_count = 16 * operation_repeat
+        local free_count = 16 * operation_repeat
+        local requested_bytes = 3096 * operation_repeat
+        local committed_bytes = 12288 * operation_repeat
+
+        print("hako-alloc-mimalloc-comparison-in-process-mixed-small-proof")
+        print("workload=representative-mixed-small-v0")
+        print("operation_family=mixed-small")
+        print("operation_sequence_id=representative-mixed-small-v0-seq")
+        print("free_order_id=ascending-release-v0")
+        print("in_process_operation_repeat=" + operation_repeat)
+        print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("hako_body_timing_available=1")
+        print("body_timing_repeat_kind=workload-body-env-now-ms-v0")
+        print("body_timing_scope=allocator-workload-body")
+        print("body_timing_is_process_timing=0")
+        print("body_elapsed_ns=" + body_elapsed_ns)
+        print("allocation_count=" + allocation_count)
+        print("free_count=" + free_count)
+        print("requested_bytes=" + requested_bytes)
+        print("committed_bytes=" + committed_bytes)
+        print("realloc_count=0")
+        print("aligned_alloc_count=0")
+        print("large_request_count=0")
+        print("reuse_cycle_count=0")
+
+        local proof = new ProofCheck("in-process mixed-small comparison")
+        proof.expectEq("run ok", ok, 1)
+        proof.expectEq("allocation count", allocation_count, 131072)
+        proof.expectEq("free count", free_count, 131072)
+        proof.expectEq("requested bytes", requested_bytes, 25362432)
+        proof.expectEq("committed bytes", committed_bytes, 100663296)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

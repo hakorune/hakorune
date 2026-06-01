@@ -1283,6 +1283,41 @@ message.
     the C count contract (`requested_bytes=216`) but is still single-shot and
     reports `hako_body_timing_available=0`.
 
+- [x] MIM-127: mixed-small workload matrix refresh
+  - output:
+    add an in-process mixed-small comparison app so the workload matrix has a
+    second count-compatible body-timing representative beyond small-block /
+    object-lifecycle
+  - changed scope:
+    `apps/hako-alloc-mimalloc-comparison-in-process-mixed-small-proof/main.hako`
+    repeats the existing mixed-small sequence (`16` size classes, ascending
+    release order) inside one EXE process and reports body timing with the
+    same `workload-body-env-now-ms-v0` fields used by the current
+    representative apps.
+  - count contract:
+    the Hako and C reports match on `workload=representative-mixed-small-v0`,
+    `allocation_count=131072`, `free_count=131072`, and
+    `requested_bytes=25362432` for `in_process_operation_repeat=8192`.
+  - default/safe observation:
+    default `hako_exe_memory_runner.sh` produced
+    `hako_body_elapsed_ns=48000000`; the matching C runner produced
+    `c_body_elapsed_ns=1029980`.
+  - direct-exact refresh:
+    `hako_mimalloc_direct_exact_app_perf_stat.sh --runs 3` produced
+    `hako_instructions_median=38293662`,
+    `hako_cycles_median=6374619`,
+    `hako_body_elapsed_ns_median=1000000`; the matching C runner produced
+    `c_body_elapsed_ns_median=1025503`.
+  - decision:
+    mixed-small is also not a direct-exact optimization owner. The default
+    gap is again public/fallback front tax, while the direct-exact front is
+    already at the C body-time line.
+  - next:
+    do not open source/MIR optimization from mixed-small. Realloc/aligned is
+    still blocked as a parity body candidate because the current Hako model
+    and actual C mimalloc differ on `realloc_same_ptr_count`,
+    `realloc_moved_count`, and `copied_bytes` in this environment.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
