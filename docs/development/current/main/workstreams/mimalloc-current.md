@@ -1165,6 +1165,48 @@ message.
     no implementation is opened by this cleanup; return to owner-first perf/asm
     refresh next
 
+- [x] MIM-124: post-cleanup owner-first perf/asm refresh
+  - output:
+    refresh the current direct-exact public-proof and observer-light fronts
+    after the language/MIR responsibility cleanup, before opening another
+    optimization owner
+  - public-proof direct-exact pair:
+    `hako_body_elapsed_ns=3000000`, `c_body_elapsed_ns=3392224`,
+    `body_elapsed_ratio=0.884`, `summary=ok`
+  - public-proof direct-exact stat:
+    `hako_instructions_median=57585642`,
+    `hako_cycles_median=13475283`,
+    `hako_body_elapsed_ns_median=2000000`, `summary=ok`
+  - observer-light direct-exact pair:
+    `hako_body_elapsed_ns=1000000`, `c_body_elapsed_ns=3538439`,
+    `body_elapsed_ratio=0.283`, `summary=ok`
+  - observer-light direct-exact stat:
+    `hako_instructions_median=33375042`,
+    `hako_cycles_median=6314190`,
+    `hako_body_elapsed_ns_median=1000000`, `summary=ok`
+  - perf/asm note:
+    repeat-process `perf report` still attributes most samples to generated
+    `ny_main` (`public=97.53%`, `observer=91.85%`). The remaining samples are
+    too coarse and include process startup/dynamic-loader noise, so they are
+    not a valid basis for source-shape edits or new MIR plans. The observed
+    assembly still shows setup-time typed-layout registration and DirectArray
+    seeding boundaries, but the measured body front is already below the C
+    representative line.
+  - decision:
+    no new mimalloc optimization owner is opened in this slice
+  - reason:
+    both selected direct-exact fronts are currently below the C body-time line,
+    and the public-proof instruction count is already below the latest trusted
+    C comparison band. Opening record-state migration, route-aware
+    materialization, helper extraction, broad DirectArray cleanup, or source
+    syntax work without a selected hot transition would violate the
+    owner-first policy.
+  - next:
+    park implementation until a fresh workload/front shows a real C gap, or
+    until a body-isolated sampling tool identifies a concrete in-body block
+    with positive-net evidence. If the next task is tooling, prefer a
+    body-isolated perf/explain runner over source or MIR edits.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
