@@ -3146,11 +3146,31 @@ truth stays in MIR metadata emitted by the compiler.
   - smoke: direct-exact pair runner stayed green;
     `direct_exact_static_call_lowered_count=5`,
     `direct_exact_plan_lowered_to_fallback_count=0`
-- [ ] MIM-094: post-static-call perf reread
+- [x] MIM-094: post-static-call perf reread
   - output: direct-exact perf/stat and perf-top reread after MIM-093
   - decide whether remaining owner is PageModel body shape, DirectArray/Span
     proof residue, late hot inline, or no-current-owner
   - no `LateHotInlinePlan` unless current evidence still selects call overhead
+  - result:
+    - direct-exact perf stat remained in the prior band:
+      `hako_instructions_median=111392126`,
+      `hako_cycles_median=20550926`,
+      `hako_body_elapsed_ns_median=4000000`
+    - direct-exact pair smoke stayed green:
+      `hako_body_elapsed_ns=3000000`, `c_body_elapsed_ns=4074566`,
+      `body_elapsed_ratio=0.736`, `summary=ok`
+    - short perf report samples selected concrete method bodies, not generic
+      dispatch:
+      `HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0=25.39%`,
+      `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2=25.26%`,
+      `HakoAllocPageModel.releaseLocalKnownLive/1=25.11%`,
+      `HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1=21.15%`
+    - sample_count_note: perf report had only 12 samples; use as owner
+      direction only, not a winner claim
+  - selected_next_owner=page_queue_and_page_model_body_shape
+  - rejected_next_owner=direct_exact_call_boundary
+  - rejected_reason=HotCore static call lowering is already consumed and
+    `direct_exact_plan_lowered_to_fallback_count=0`
 
 ## Parking Lot
 
