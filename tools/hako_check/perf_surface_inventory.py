@@ -46,7 +46,11 @@ class MethodInventory:
 
 
 def find_method_body(source: str, method_name: str) -> str:
-    match = re.search(rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*\{{", source, re.M)
+    match = re.search(
+        rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*(?::\s*[A-Za-z_][A-Za-z0-9_<>.]*)?\s*\{{",
+        source,
+        re.M,
+    )
     if match is None:
         raise SystemExit(f"method not found: {method_name}")
     brace_start = source.find("{", match.start())
