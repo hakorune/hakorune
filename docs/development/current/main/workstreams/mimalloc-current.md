@@ -3131,13 +3131,21 @@ truth stays in MIR metadata emitted by the compiler.
     direct-exact HotCore call plan as unclean and prints
     `direct_exact_plan_fallback_*` rows
   - no static-call lowering yet
-- [ ] MIM-093: static exact call lowering consumer
-  - output: consume `DirectExactHotCoreCallPlanV0` to lower selected generic
-    method calls to static exact symbol calls
+- [x] MIM-093: static exact call lowering consumer
+  - output: consume the existing `user_box_method_routes` DirectAbi lowering
+    for selected HotCore call edges and surface it through
+    `DirectExactHotCoreCallPlanV0`
   - acceptance: representative direct-exact semantic smoke stays green;
     `hako_check fastpath-explain` shows lowered static-exact call edges and no
     plan-to-fallback mismatch
   - body inline remains out of scope
+  - result: no second lowerer was added; the existing C shim
+    `emit_user_box_method_lowering_plan_mir_call()` already emits the static
+    same-module symbol call from `user_box_method_routes`, and the HotCore plan
+    now reports `lowering_consumer_enabled=1` for those covered edges
+  - smoke: direct-exact pair runner stayed green;
+    `direct_exact_static_call_lowered_count=5`,
+    `direct_exact_plan_lowered_to_fallback_count=0`
 - [ ] MIM-094: post-static-call perf reread
   - output: direct-exact perf/stat and perf-top reread after MIM-093
   - decide whether remaining owner is PageModel body shape, DirectArray/Span

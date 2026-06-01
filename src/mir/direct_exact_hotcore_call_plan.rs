@@ -1,9 +1,11 @@
 /*!
- * Report-only direct-exact call plans for selected HotCore call edges.
+ * Direct-exact call explain plans for selected HotCore call edges.
  *
  * This is the call-boundary companion to `HotCoreMethodSummaryV0`. It records
- * where existing user-box method route metadata already proves a static exact
- * call candidate. It does not inline bodies or change lowering.
+ * where existing user-box method route metadata already proves and consumes a
+ * static exact same-module call. It does not inline bodies or introduce a
+ * second lowering path; the C shim consumes the underlying
+ * `user_box_method_routes` entry.
  */
 
 use std::collections::BTreeMap;
@@ -47,7 +49,10 @@ pub fn refresh_module_direct_exact_hotcore_call_plans(module: &mut MirModule) {
                 continue;
             }
 
-            let direct_exact = route.lowering_emit_kind() == LoweringPlanEmitKind::DirectFunctionCall;
+            let direct_exact =
+                route.lowering_emit_kind() == LoweringPlanEmitKind::DirectFunctionCall;
+            let lowering_consumer_enabled =
+                direct_exact && route.target_exists() && route.target_body_supported();
             let return_shape = route.return_shape();
             let scalar_return = return_shape == Some("scalar_i64");
             let callee_summary_status = summary_status
@@ -80,7 +85,7 @@ pub fn refresh_module_direct_exact_hotcore_call_plans(module: &mut MirModule) {
                     return_shape,
                     value_demand: route.value_demand(),
                     callee_summary_status,
-                    lowering_consumer_enabled: false,
+                    lowering_consumer_enabled,
                     generic_method_dispatch: !direct_exact,
                     dynamic_route: !direct_exact,
                     boxed_fallback: return_shape
@@ -114,8 +119,7 @@ fn is_selected_direct_exact_hotcore_callee(caller: &str, callee: &str) -> bool {
             | "HakoAllocObjectLifecycleHotCore.objectLifecycleReleaseBlock/2"
             | "HakoAllocPageModel.acquireFreshSmall/1"
             | "HakoAllocPageModel.releaseLocalKnownLive/1"
-    ) && (caller == "Main.runOne/2"
-        || caller.starts_with("HakoAllocObjectLifecycleHotCore."))
+    ) && (caller == "Main.runOne/2" || caller.starts_with("HakoAllocObjectLifecycleHotCore."))
 }
 
 fn first_failure_reason(

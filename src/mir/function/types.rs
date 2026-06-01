@@ -12,8 +12,8 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     direct_array_access_plan::DirectArrayAccessPlan,
+    direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
     exact_numeric_value_facts::{
         ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,

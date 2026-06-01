@@ -93,9 +93,8 @@ pub fn refresh_function_hotcore_method_summaries(function: &mut MirFunction) {
                             if *box_kind != CalleeBoxKind::UserDefined {
                                 boxed_fallback_count += 1;
                             }
-                            public_observer_count +=
-                                usize::from(is_observer_like_name(box_name))
-                                    + usize::from(is_observer_like_name(method));
+                            public_observer_count += usize::from(is_observer_like_name(box_name))
+                                + usize::from(is_observer_like_name(method));
                             result_capsule_materialization_count +=
                                 usize::from(is_result_capsule_like_name(box_name))
                                     + usize::from(is_result_capsule_like_name(method));
@@ -281,13 +280,13 @@ mod tests {
 
     #[test]
     fn selected_hotcore_summary_accepts_multiblock_scalar_body() {
-        let mut function = make_hotcore_function(
-            "HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc/1",
-        );
+        let mut function =
+            make_hotcore_function("HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc/1");
         for id in 1..11 {
-            function
-                .blocks
-                .insert(BasicBlockId::new(id), crate::mir::BasicBlock::new(BasicBlockId::new(id)));
+            function.blocks.insert(
+                BasicBlockId::new(id),
+                crate::mir::BasicBlock::new(BasicBlockId::new(id)),
+            );
         }
         function
             .get_block_mut(BasicBlockId::new(0))
