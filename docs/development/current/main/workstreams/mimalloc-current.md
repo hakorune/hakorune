@@ -3220,6 +3220,22 @@ truth stays in MIR metadata emitted by the compiler.
     - decision=structural_keeper_not_perf_keeper
     - reason=removes dynamic receiver route from MIR and preserves public proof
       counters, but does not move current instruction median
+- [ ] MIM-097: known-live release body-shape cleanup
+  - output: reduce internal MIR/body-shape residue around
+    `HakoAllocPageModel.releaseLocalKnownLive/1` and the known-page release
+    caller without changing public counters, release result publication, or
+    page state semantics
+  - selected surface:
+    `HakoAllocPageModel.releaseLocalKnownLive/1`,
+    `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2`
+  - preserve:
+    `release_known_page_fast_path_count=524288`,
+    `release_known_page_fallback_count=0`, release result success/failure
+    fields, `block_used`, `local_free`, `local_free_top`,
+    `local_free_count`, `used`, `retired`, and `retire_count`
+  - no counter gating, no multi-block `Inline(required)` widening, no source
+    hand-expansion, no new DirectArray proof unless current MIR evidence
+    selects it
 
 ## Parking Lot
 
