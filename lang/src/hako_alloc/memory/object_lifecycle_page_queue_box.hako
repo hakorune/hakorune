@@ -59,6 +59,26 @@ box HakoAllocObjectLifecyclePageQueue {
         return null
     }
 
+    @rune Inline(required)
+    recordActiveSelection(index, page_id) {
+        me.last_selected_index = index
+        me.last_selected_page_id = page_id
+        me.last_selected_kind = 2
+        me.select_count = me.select_count + 1
+        me.active_select_count = me.active_select_count + 1
+        return 1
+    }
+
+    @rune Inline(required)
+    recordReuseSelection(index, page_id) {
+        me.last_selected_index = index
+        me.last_selected_page_id = page_id
+        me.last_selected_kind = 1
+        me.select_count = me.select_count + 1
+        me.reuse_select_count = me.reuse_select_count + 1
+        return 1
+    }
+
     trySelectSingleActivePage() {
         if me.page_count != 1 {
             return null
@@ -79,11 +99,7 @@ box HakoAllocObjectLifecyclePageQueue {
         }
 
         me.request_count = me.request_count + 1
-        me.last_selected_index = 0
-        me.last_selected_page_id = page.page_id
-        me.last_selected_kind = 2
-        me.select_count = me.select_count + 1
-        me.active_select_count = me.active_select_count + 1
+        me.recordActiveSelection(0, page.page_id)
         me.single_page_fast_path_count = me.single_page_fast_path_count + 1
         return page
     }
@@ -102,11 +118,7 @@ box HakoAllocObjectLifecyclePageQueue {
             }
             if page.isRetired() != 0 {
                 if page.canReuse() != 0 {
-                    me.last_selected_index = 0
-                    me.last_selected_page_id = page.page_id
-                    me.last_selected_kind = 1
-                    me.select_count = me.select_count + 1
-                    me.reuse_select_count = me.reuse_select_count + 1
+                    me.recordReuseSelection(0, page.page_id)
                     me.single_page_fast_path_count = me.single_page_fast_path_count + 1
                     return page
                 }
@@ -114,11 +126,7 @@ box HakoAllocObjectLifecyclePageQueue {
                 return me.recordSelectionMiss()
             }
             if page.freeCount() > 0 {
-                me.last_selected_index = 0
-                me.last_selected_page_id = page.page_id
-                me.last_selected_kind = 2
-                me.select_count = me.select_count + 1
-                me.active_select_count = me.active_select_count + 1
+                me.recordActiveSelection(0, page.page_id)
                 me.single_page_fast_path_count = me.single_page_fast_path_count + 1
                 return page
             }
@@ -142,11 +150,7 @@ box HakoAllocObjectLifecyclePageQueue {
                     } else {
                         if page.isRetired() != 0 {
                             if page.canReuse() != 0 {
-                                me.last_selected_index = i
-                                me.last_selected_page_id = page.page_id
-                                me.last_selected_kind = 1
-                                me.select_count = me.select_count + 1
-                                me.reuse_select_count = me.reuse_select_count + 1
+                                me.recordReuseSelection(i, page.page_id)
                                 selected = page
                             }
                             if selected == null {
@@ -154,11 +158,7 @@ box HakoAllocObjectLifecyclePageQueue {
                             }
                         } else {
                             if page.freeCount() > 0 {
-                                me.last_selected_index = i
-                                me.last_selected_page_id = page.page_id
-                                me.last_selected_kind = 2
-                                me.select_count = me.select_count + 1
-                                me.active_select_count = me.active_select_count + 1
+                                me.recordActiveSelection(i, page.page_id)
                                 selected = page
                             } else {
                                 me.unavailable_skip_count = me.unavailable_skip_count + 1

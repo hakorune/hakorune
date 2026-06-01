@@ -445,6 +445,27 @@ message.
     `body_elapsed_ns=3000000`
   - no source hand-expansion, no compiler feature, no Array lane widening, no
     public ArrayBox/default-safe behavior change
+- [x] MIM-059: PageQueue receiver-local selection publication cleanup
+  - output: extract repeated active/reuse selection publication writes inside
+    `HakoAllocObjectLifecyclePageQueue` into receiver-local
+    `@rune Inline(required)` helpers
+  - reason: the previous helper-extraction probe crashed when the helper call
+    remained as a same-module EXE call, while mixed-base required inline was
+    rejected; the accepted shape keeps the helper body receiver-local and
+    verified-inline only
+  - result: representative direct exact EXE, `mimalloc_lite_exe`,
+    `allocator_stress_exe`, `current_state_pointer_guard.sh`, and
+    `dev_gate.sh quick` stayed green
+  - no source hand-expansion, no non-inline helper call, no compiler feature,
+    no Array lane widening, no public ArrayBox/default-safe behavior change
+- [ ] MIM-060: direct-exact runtime mode fail-fast contract
+  - output: audit and implement a fail-fast guard for direct-exact EXEs that
+    are run without the matching runtime backend modes
+  - reason: direct-slot/direct-array lowering may emit pointer/direct-buffer
+    assumptions that are invalid when runtime `HAKO_TYPED_OBJECT_STORE` or
+    `HAKO_ARRAY_SLOT_STORE` falls back to safe/default storage
+  - no silent env forcing, no fallback to safe runtime storage after direct
+    lowering was selected
 
 ### Next Cleanup TODO
 
@@ -472,23 +493,16 @@ unless one of them changes a durable contract or implementation boundary.
    - no new row-specific guard
 
 4. PageQueue helper-extraction crash investigation
-   - status: parked; do not retry inside the active mimalloc perf slice
-   - observation: extracting PageQueue selection writes into helper methods
-     made the representative smoke pass without `@rune Inline(required)`, but
-     `mimalloc_lite_exe` / `allocator_stress_exe` coredumped
-   - observation: adding `@rune Inline(required)` also failed structurally
-     because the current required-inline receiver leaf vocabulary does not
-     accept the helper body shape (`FieldGet` on the page object plus a larger
-     field-set body)
-   - hypothesis: this is a same-module EXE lowering/helper-call shape issue,
-     not a good mimalloc source cleanup candidate
-   - next safe step: create a minimal fixture outside the mimalloc hot path that
-     extracts the same object-field publication shape into a helper and checks
-     VM/EXE parity before touching PageQueue again
-   - no source cleanup should depend on this until the fixture is green
+   - done: MIM-059 accepted a receiver-local `@rune Inline(required)` shape and
+     avoided the non-inline same-module helper call that previously crashed
+   - rejected shape: helper body that reads `page.page_id` and writes `me.*`
+     stays rejected for now because it is a mixed-base required-inline body
+   - remaining follow-up: only reopen mixed-base helper extraction if a small
+     VM/EXE parity fixture selects it; mimalloc source cleanup no longer
+     depends on that shape
 
 5. Direct-exact runtime environment dependency audit
-   - status: parked; correctness hygiene, not a perf keeper
+   - status: active next correctness hygiene, not a perf keeper
    - observation: manually built direct-exact EXEs must be run with the same
      `HAKO_TYPED_OBJECT_STORE=direct_slot_exact` and
      `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact` environment used for
