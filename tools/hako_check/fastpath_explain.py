@@ -153,7 +153,11 @@ def main() -> int:
     )
     dynamic_route_count = sum(1 for row in hotcore_call_rows if bool(row.get("dynamic_route")))
     boxed_fallback_count = sum(1 for row in hotcore_call_rows if bool(row.get("boxed_fallback")))
-    clean = failed_obligation_count == 0 and hotcore_plan_failure_count == 0
+    clean = (
+        failed_obligation_count == 0
+        and hotcore_plan_failure_count == 0
+        and direct_exact_plan_lowered_to_fallback_count == 0
+    )
 
     function_plan_counts: Counter[str] = Counter()
     for name, _ in direct_plans:
@@ -257,6 +261,29 @@ def main() -> int:
                 f"{prefix}_lowering_consumer_enabled={bool_text(bool(plan.get('lowering_consumer_enabled')))}",
                 f"{prefix}_status={plan.get('summary', 'unknown')}",
                 f"{prefix}_failure_reason={field_text(plan, 'failure_reason', 'none')}",
+            ]
+        )
+
+    fallback_rows = [
+        (name, row)
+        for name, row in hotcore_call_plans
+        if bool(row.get("lowering_consumer_enabled"))
+        and (
+            bool(row.get("generic_method_dispatch"))
+            or bool(row.get("dynamic_route"))
+            or bool(row.get("boxed_fallback"))
+        )
+    ]
+    for idx, (name, plan) in enumerate(fallback_rows[: max(0, args.topn)]):
+        prefix = f"direct_exact_plan_fallback_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_caller={name}",
+                f"{prefix}_callee={plan.get('callee', 'unknown')}",
+                f"{prefix}_generic_method_dispatch={bool_text(bool(plan.get('generic_method_dispatch')))}",
+                f"{prefix}_dynamic_route={bool_text(bool(plan.get('dynamic_route')))}",
+                f"{prefix}_boxed_fallback={bool_text(bool(plan.get('boxed_fallback')))}",
+                f"{prefix}_failure_reason=direct_exact_plan_lowered_to_fallback",
             ]
         )
 

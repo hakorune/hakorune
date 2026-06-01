@@ -3120,12 +3120,16 @@ truth stays in MIR metadata emitted by the compiler.
     counters, and top call-edge rows from compiler-emitted MIR JSON metadata
   - no source rewrite, no MIR emission in the Python adapter, no keeper
     selection
-- [ ] MIM-092: strict diagnostic for plan-to-fallback mismatch
+- [x] MIM-092: strict diagnostic for plan-to-fallback mismatch
   - output: fail-fast metadata/report when a direct-exact plan exists but the
     lowering result uses generic dispatch, dynamic route, boxed fallback, or
     unsupported helper route
   - acceptance: planned-but-fallback is visible as a regression before
     performance measurement
+  - result: `hako_check fastpath-explain --require-clean` now treats
+    `lowering_consumer_enabled=1` plus generic/dynamic/boxed fallback on a
+    direct-exact HotCore call plan as unclean and prints
+    `direct_exact_plan_fallback_*` rows
   - no static-call lowering yet
 - [ ] MIM-093: static exact call lowering consumer
   - output: consume `DirectExactHotCoreCallPlanV0` to lower selected generic
