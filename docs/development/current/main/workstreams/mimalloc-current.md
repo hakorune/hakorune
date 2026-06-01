@@ -458,14 +458,24 @@ message.
     `dev_gate.sh quick` stayed green
   - no source hand-expansion, no non-inline helper call, no compiler feature,
     no Array lane widening, no public ArrayBox/default-safe behavior change
-- [ ] MIM-060: direct-exact runtime mode fail-fast contract
+- [x] MIM-060: direct-exact runtime mode fail-fast contract
   - output: audit and implement a fail-fast guard for direct-exact EXEs that
     are run without the matching runtime backend modes
   - reason: direct-slot/direct-array lowering may emit pointer/direct-buffer
     assumptions that are invalid when runtime `HAKO_TYPED_OBJECT_STORE` or
     `HAKO_ARRAY_SLOT_STORE` falls back to safe/default storage
+  - result: direct-exact generated `ny_main` now calls
+    `nyash.runtime.require_backend_modes_i(flags)` when compile-time direct
+    env selects direct-slot and/or direct-array lowering; missing runtime env
+    exits with a `[freeze:contract][direct-exact/runtime-mode]` diagnostic
+    instead of reaching the pointer/handle mismatch
   - no silent env forcing, no fallback to safe runtime storage after direct
     lowering was selected
+- [ ] MIM-061: post-runtime-mode-guard smoke and owner refresh
+  - output: rerun the direct exact representative smoke and selected app
+    smokes after MIM-060, then choose the next mimalloc owner from current
+    evidence
+  - no new fast-path surface unless current evidence selects it
 
 ### Next Cleanup TODO
 
@@ -502,15 +512,16 @@ unless one of them changes a durable contract or implementation boundary.
      depends on that shape
 
 5. Direct-exact runtime environment dependency audit
-   - status: active next correctness hygiene, not a perf keeper
+   - status: done by MIM-060; correctness hygiene, not a perf keeper
    - observation: manually built direct-exact EXEs must be run with the same
      `HAKO_TYPED_OBJECT_STORE=direct_slot_exact` and
      `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact` environment used for
      lowering; running the EXE without those runtime env values can crash
-   - expected contract candidate: direct-exact lowering should either embed
-     the required runtime mode into the generated EXE or fail fast with a clear
-     diagnostic when the runtime mode is missing
-   - do not mix this audit with MIM source-shape optimizations
+   - implemented contract: direct-exact lowering emits a `ny_main` prologue
+     check for the selected backend modes and exits with a clear fail-fast
+     diagnostic when runtime env is missing
+   - do not mix future env hygiene with MIM source-shape optimizations unless
+     current evidence selects it
 
 ### Parked Direct Memory View Roadmap
 

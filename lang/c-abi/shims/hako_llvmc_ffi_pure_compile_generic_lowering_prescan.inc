@@ -612,6 +612,7 @@
       fprintf(f, "declare i64 @\"nyash.runtime_data.set_hhh\"(i64, i64, i64)\n");
       if (needs.runtime_data_has) fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
+      hako_llvmc_emit_direct_exact_runtime_mode_declare(f);
       fprintf(f, "declare ptr @llvm.stacksave()\n");
       fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
       if (needs.arr_birth || module_has_planned_same_module_function_definition())

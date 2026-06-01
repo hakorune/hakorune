@@ -18,8 +18,40 @@ static void hako_llvmc_emit_entry_alias_if_needed(
     FILE* f,
     const hako_llvmc_entry_rune_selection* selection);
 
+enum {
+  HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_SLOT_EXACT = 1,
+  HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_ARRAY_I64_EXACT = 2
+};
+
 static const char* hako_llvmc_backend_compile_recipe(void) {
   return getenv("HAKO_BACKEND_COMPILE_RECIPE");
+}
+
+static int hako_llvmc_direct_exact_runtime_mode_flags(void) {
+  int flags = 0;
+  const char* typed_store = getenv("HAKO_TYPED_OBJECT_STORE");
+  const char* array_store = getenv("HAKO_ARRAY_SLOT_STORE");
+  if (typed_store && strcmp(typed_store, "direct_slot_exact") == 0) {
+    flags |= HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_SLOT_EXACT;
+  }
+  if (array_store && strcmp(array_store, "direct_array_i64_exact") == 0) {
+    flags |= HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_ARRAY_I64_EXACT;
+  }
+  return flags;
+}
+
+static void hako_llvmc_emit_direct_exact_runtime_mode_declare(FILE* f) {
+  if (hako_llvmc_direct_exact_runtime_mode_flags() == 0) return;
+  fprintf(f, "declare i64 @\"nyash.runtime.require_backend_modes_i\"(i64)\n");
+}
+
+static void hako_llvmc_emit_direct_exact_runtime_mode_check(FILE* f) {
+  int flags = hako_llvmc_direct_exact_runtime_mode_flags();
+  if (flags == 0) return;
+  fprintf(
+      f,
+      "  %%direct_exact_runtime_mode_ok = call i64 @\"nyash.runtime.require_backend_modes_i\"(i64 %d)\n",
+      flags);
 }
 
 static const char* hako_llvmc_backend_compat_replay(void) {
