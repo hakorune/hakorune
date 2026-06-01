@@ -3340,15 +3340,36 @@ truth stays in MIR metadata emitted by the compiler.
   - decision=nonkeeper_reverted
   - no new source helper, no new syntax, no inline verifier widening, no new
     source split
-- [ ] MIM-101: same-module direct-call constant branch owner
-  - output: inspect the selfhost LLVM/C-shim same-module body/call emission
-    path that turns `recordSuccess(2)` into branch-on-constant assembly, then
-    choose a narrow cleanup owner
+- [x] MIM-101: same-module direct-call constant branch owner
+  - output: keeper; constant-kind `recordSuccess(2)` direct-state lowering now
+    emits only the matching success counter update instead of two
+    branch-on-constant checks
   - selected evidence:
     Rust MIR still contains a `mir_call` to `recordSuccess/1`, while the final
-    EXE has the call removed and keeps the constant-condition branches
+    EXE has the call removed and kept the constant-condition branches before
+    this slice
+  - selected owner:
+    `lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc`
+    `same_module_function_emit_direct_state_record_alloc_success_mir_call`
+  - structural evidence:
+    `objectLifecycleSmallAlloc/1` fast active-page success path changed from
+    `inc success_count; constant branch; inc active_success_count` to
+    `inc success_count; inc active_success_count`
+  - smoke:
+    direct-exact pair `summary=ok`, `hako_body_elapsed_ns=3000000`,
+    `body_elapsed_ratio=0.940`
+  - perf:
+    direct-exact runs=3 `hako_instructions_median=105624855`,
+    `hako_cycles_median=18886007`, `hako_body_elapsed_ns_median=3000000`
+  - comparison:
+    previous keeper MIM-098 runs=3 `hako_instructions_median=108770525`
+  - decision=keeper
   - no source rewrite, no multi-block `Inline(required)` widening, no generic
     optimizer rewrite until the owner is confirmed
+- [ ] MIM-102: post-record-success owner reread
+  - output: reread direct-exact hot symbol / asm after MIM-101 and select the
+    next owner from current evidence
+  - no source shape change before the reread
 
 ## Parking Lot
 

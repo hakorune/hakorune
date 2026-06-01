@@ -430,6 +430,8 @@
           const char* bname,
           const char* mname) {
         long long selected_kind = 0;
+        long long selected_kind_const = 0;
+        int selected_kind_is_const = 0;
         char kind_ref[64];
         (void)f;
         if (!(bname && !strcmp(bname, "HakoAllocObjectLifecycleAllocResult") &&
@@ -445,6 +447,8 @@
         if (!same_module_function_alloc_result_direct_state_slots_ok(recv)) return -1;
 
         same_module_function_format_i64_ref(kind_ref, sizeof(kind_ref), selected_kind);
+        selected_kind_is_const =
+            has_const(resolve_copy_source_reg(selected_kind), &selected_kind_const);
         same_module_function_emit_direct_state_store_const(
             recv,
             2,
@@ -465,6 +469,29 @@
             "alloc_success_count",
             bid,
             ii);
+
+        if (selected_kind_is_const) {
+          if (selected_kind_const == 1) {
+            same_module_function_emit_direct_state_rmw_add1(
+                recv,
+                7,
+                "alloc_reusable_success_count",
+                bid,
+                ii);
+          } else if (selected_kind_const == 2) {
+            same_module_function_emit_direct_state_rmw_add1(
+                recv,
+                8,
+                "alloc_active_success_count",
+                bid,
+                ii);
+          }
+          if (dst) {
+            EMIT("  %%r%lld = add i64 1, 0\n", dst);
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
 
         EMIT("  %%direct_state_alloc_reusable_kind_%lld_%zu = icmp eq i64 %s, 1\n",
              bid,
