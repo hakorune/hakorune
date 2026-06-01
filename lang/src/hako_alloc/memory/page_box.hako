@@ -10,9 +10,9 @@ box HakoAllocPageModel {
     free: ArrayBox = new ArrayBox()
     local_free: ArrayBox = new ArrayBox()
     block_used: ArrayBox = new ArrayBox()
-    used: usize = 0
-    free_top: usize = 0
-    local_free_top: usize = 0
+    used: i64 = 0
+    free_top: i64 = 0
+    local_free_top: i64 = 0
     alloc_count: i64 = 0
     local_free_count: i64 = 0
     local_free_collect_count: usize = 0
@@ -27,7 +27,7 @@ box HakoAllocPageModel {
     lifecycle_reject_count: usize = 0
     reactivate_count: usize = 0
     reactivate_reject_count: usize = 0
-    peak_used: usize = 0
+    peak_used: i64 = 0
     requested_bytes: usize = 0
 
     birth(page_id, block_size: usize, capacity: usize, reserved: usize) {

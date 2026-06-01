@@ -3742,6 +3742,63 @@ truth stays in MIR metadata emitted by the compiler.
     demotion to all `usize` counters; only selected hot event counters are in
     scope.
 
+- [x] MIM-114: page-local stack/occupancy signed-storage keeper
+  - output:
+    source/front cleanup for the next selected exact-`usize` owner after
+    MIM-113: page-local stack-top and occupancy state in
+    `HakoAllocPageModel`.
+  - changed scope:
+    - `HakoAllocPageModel.used`
+    - `HakoAllocPageModel.free_top`
+    - `HakoAllocPageModel.local_free_top`
+    - `HakoAllocPageModel.peak_used`
+  - unchanged:
+    `capacity`, `reserved`, `block_size`, and `requested_bytes` remain exact
+    `usize`; DirectArray access proofs still report
+    `direct_array_proved_unchecked_plan_count=9` and
+    `direct_exact_plan_lowered_to_fallback_count=0`.
+  - validation:
+    - build:
+      `cargo build --release -p nyash-rust --bin hakorune -p nyash-llvm-compiler --bin ny-llvmc`
+      green
+    - fastpath explain:
+      `direct_array_proved_unchecked_plan_count=9`,
+      `direct_array_stack_top_pop_count=4`,
+      `direct_array_caller_precondition_count=2`,
+      `direct_exact_plan_lowered_to_fallback_count=0`, `summary=ok`
+    - `bash tools/checks/dev_gate.sh quick` green
+  - performance:
+    - MIM-113 public proof 7-run baseline:
+      `hako_instructions_median=61272866`
+    - MIM-114 public proof 5-run:
+      `hako_instructions_median=57578097`,
+      `hako_cycles_median=13322086`,
+      `hako_body_elapsed_ns_median=2000000`
+    - MIM-114 public proof 7-run:
+      `hako_instructions_median=57578266`,
+      `hako_cycles_median=13582204`,
+      `hako_body_elapsed_ns_median=3000000`
+    - direct-exact Hako/C pair:
+      `hako_body_elapsed_ns=2000000`,
+      `c_body_elapsed_ns=3395787`,
+      `body_elapsed_ratio=0.589`,
+      `summary=ok`
+  - decision=keeper
+  - reason:
+    the selected page-local fields are guarded internal state in the
+    direct-exact object-lifecycle model. Keeping them exact `usize` preserved
+    non-negative intent but forced hot dynamic range-check branches on every
+    acquire/release. Signed storage keeps the same public proof values, while
+    DirectArray metadata continues to prove the actual memory access routes.
+  - docs:
+    `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md` records the split:
+    page capacity/size/byte-length remain exact `usize`; selected hot
+    page-local stack/occupancy state is signed guarded storage.
+  - next:
+    rerun owner-first perf/asm after this keeper. Remaining candidates should
+    avoid broad source demotion and only touch fields selected by fresh perf
+    evidence.
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
