@@ -1,4 +1,4 @@
-# Build Conditional `when`
+# Build Conditional `gate`
 
 Status: Provisional reference
 Decision: accepted-for-implementation-slices
@@ -12,7 +12,7 @@ preprocessing.
 Accepted direction:
 
 ```hako
-when Build.test {
+gate Build.test {
     import "HakoTest"
 
     test resetToFresh_smoke() {
@@ -32,8 +32,12 @@ token paste
 conditional partial syntax
 ```
 
-`when` is a build-time selector. It is not a runtime `if`, not a macro, and
+`gate` is a build-time selector. It is not a runtime `if`, not a macro, and
 not a Rune metadata row.
+
+`gate` is a parser-contextual keyword. It is recognized only at build
+conditional item heads, so existing ordinary identifiers named `gate` remain
+valid in expressions and local bindings.
 
 ## Meaning
 
@@ -41,11 +45,11 @@ not a Rune metadata row.
 if:
   runtime value branch
 
-when:
+gate:
   build configuration branch
 ```
 
-Inactive `when` branches:
+Inactive `gate` branches:
 
 - are parsed
 - may be formatted and inspected by tooling
@@ -59,7 +63,7 @@ types, or backend-only names in inactive branches are not errors.
 
 ## Predicate Surface
 
-`when` predicates are a small build-configuration DSL. They are not ordinary
+`gate` predicates are a small build-configuration DSL. They are not ordinary
 `.hako` expressions.
 
 Accepted v0 predicate atoms:
@@ -84,7 +88,7 @@ any(...)
 
 Policy:
 
-- runtime values are not readable from `when`
+- runtime values are not readable from `gate`
 - function calls are not allowed, except the built-in predicate form
   `Feature("name")`
 - environment variables are not read directly from source
@@ -143,7 +147,7 @@ stored fields
 
 Constraint:
 
-Public ABI/layout changes behind `when` are rejected by default unless the
+Public ABI/layout changes behind `gate` are rejected by default unless the
 branch pair preserves the same public signature.
 
 ### LANG-CFG-003: statement level
@@ -160,21 +164,21 @@ Use case:
 resetToFresh() {
     ...
 
-    when Build.test {
+    gate Build.test {
         me.test_reset_count = me.test_reset_count + 1
     }
 }
 ```
 
-Statement-level `when` is intentionally later than item/member level because
+Statement-level `gate` is intentionally later than item/member level because
 it touches MIR construction and control-flow shape.
 
 ### LANG-CFG-004: optional Rune sugar
 
-`@rune When(...)` may be added later as single-declaration sugar only:
+`@rune Gate(...)` may be added later as single-declaration sugar only:
 
 ```hako
-@rune When(Build.test)
+@rune Gate(Build.test)
 test resetToFresh_smoke() {
     ...
 }
@@ -183,23 +187,23 @@ test resetToFresh_smoke() {
 It desugars to:
 
 ```hako
-when Build.test {
+gate Build.test {
     test resetToFresh_smoke() {
         ...
     }
 }
 ```
 
-`when` remains the semantic owner.
+`gate` remains the semantic owner.
 
 ## Style Rules
 
 - Prefer separate test modules for large test-only code.
-- Use `when Build.test { ... }` for small grouped test-only declarations.
+- Use `gate Build.test { ... }` for small grouped test-only declarations.
 - Do not put test-only fields in allocator hot-core boxes unless a dedicated
   layout row accepts the public/private layout change.
-- Do not use `when` to hide production behavior changes inside hot paths.
-- Do not use `when` as an optimization knob. Fast paths must still be selected
+- Do not use `gate` to hide production behavior changes inside hot paths.
+- Do not use `gate` as an optimization knob. Fast paths must still be selected
   by facts/plans/proofs, not by source branch names.
 
 ## Explain Report

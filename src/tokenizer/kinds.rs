@@ -60,7 +60,6 @@ pub enum TokenType {
     WEAK,
     USING,
     IMPORT,
-    WHEN,
     // Stage-3 keywords (env-gated)
     WHILE,
     FOR,

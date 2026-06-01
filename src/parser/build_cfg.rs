@@ -1,7 +1,7 @@
 //! Parser support for AST-level build conditionals.
 //!
-//! LANG-CFG-001 owns parser transport only. Build-config evaluation and
-//! inactive branch pruning are later slices.
+//! `gate` is intentionally parser-contextual instead of a tokenizer keyword so
+//! existing source may keep ordinary identifiers named `gate`.
 
 use crate::ast::{ASTNode, BuildPredicate, Span};
 use crate::parser::common::ParserUtils;
@@ -10,19 +10,19 @@ use crate::parser::{BuildMode, NyashParser, ParseError, ParserBuildConfig};
 use crate::tokenizer::TokenType;
 
 impl NyashParser {
-    pub(super) fn prune_build_when_program(&self, ast: ASTNode) -> Result<ASTNode, ParseError> {
+    pub(super) fn prune_build_gate_program(&self, ast: ASTNode) -> Result<ASTNode, ParseError> {
         let ASTNode::Program { statements, span } = ast else {
             return Ok(ast);
         };
-        let statements = self.prune_build_when_items(statements)?;
+        let statements = self.prune_build_gate_items(statements)?;
         Ok(ASTNode::Program { statements, span })
     }
 
-    fn prune_build_when_items(&self, items: Vec<ASTNode>) -> Result<Vec<ASTNode>, ParseError> {
+    fn prune_build_gate_items(&self, items: Vec<ASTNode>) -> Result<Vec<ASTNode>, ParseError> {
         let mut out = Vec::new();
         for item in items {
             match item {
-                ASTNode::BuildWhen {
+                ASTNode::BuildGate {
                     predicate,
                     then_items,
                     else_items,
@@ -33,7 +33,7 @@ impl NyashParser {
                     } else {
                         else_items.unwrap_or_default()
                     };
-                    out.extend(self.prune_build_when_items(selected)?);
+                    out.extend(self.prune_build_gate_items(selected)?);
                 }
                 other => out.push(other),
             }
@@ -41,24 +41,31 @@ impl NyashParser {
         Ok(out)
     }
 
-    pub(super) fn parse_build_when_item(&mut self) -> Result<ASTNode, ParseError> {
+    pub(super) fn is_build_gate_keyword(&self) -> bool {
+        matches!(
+            &self.current_token().token_type,
+            TokenType::IDENTIFIER(name) if name == "gate"
+        )
+    }
+
+    pub(super) fn parse_build_gate_item(&mut self) -> Result<ASTNode, ParseError> {
         let line = self.current_token().line;
-        self.consume(TokenType::WHEN)?;
+        self.consume_build_gate_keyword()?;
         let predicate = self.parse_build_predicate()?;
-        let then_items = self.parse_build_when_item_block()?;
+        let then_items = self.parse_build_gate_item_block()?;
 
         let else_items = if self.match_token(&TokenType::ELSE) {
             self.advance();
-            if self.match_token(&TokenType::WHEN) {
-                Some(vec![self.parse_build_when_item()?])
+            if self.is_build_gate_keyword() {
+                Some(vec![self.parse_build_gate_item()?])
             } else {
-                Some(self.parse_build_when_item_block()?)
+                Some(self.parse_build_gate_item_block()?)
             }
         } else {
             None
         };
 
-        Ok(ASTNode::BuildWhen {
+        Ok(ASTNode::BuildGate {
             predicate,
             then_items,
             else_items,
@@ -66,7 +73,20 @@ impl NyashParser {
         })
     }
 
-    fn parse_build_when_item_block(&mut self) -> Result<Vec<ASTNode>, ParseError> {
+    fn consume_build_gate_keyword(&mut self) -> Result<(), ParseError> {
+        if self.is_build_gate_keyword() {
+            self.advance();
+            Ok(())
+        } else {
+            Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "gate".to_string(),
+                line: self.current_token().line,
+            })
+        }
+    }
+
+    fn parse_build_gate_item_block(&mut self) -> Result<Vec<ASTNode>, ParseError> {
         self.consume(TokenType::LBRACE)?;
         let mut items = Vec::new();
 
@@ -79,8 +99,8 @@ impl NyashParser {
                 continue;
             }
 
-            let mut item = if self.match_token(&TokenType::WHEN) {
-                self.parse_build_when_item()?
+            let mut item = if self.is_build_gate_keyword() {
+                self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?
             };

@@ -11,7 +11,7 @@ Current canonical surface:
 - Type and enum surface: reference/language/types.md
 - Option / Result enum prelude: reference/language/option.md
 - Rune declaration metadata: reference/language/runes.md
-- Build conditional `when`: reference/language/build-conditional-when.md
+- Build conditional `gate`: reference/language/build-conditional-gate.md
 - Low-level language surface: reference/language/low-level-capabilities.md
 - Delegation and no-inheritance rule: reference/language/field-visibility-and-delegation.md
 
@@ -53,8 +53,8 @@ Type system (SSOT)
 - Low-level allocator-grade `.hako` code uses explicit capability modules,
   static tables, and Rune metadata rather than broad `unsafe` blocks. See:
   reference/language/low-level-capabilities.md and reference/language/runes.md.
-- Build-time conditional code uses `when Build... { ... }`, not C-style
-  token preprocessing. See reference/language/build-conditional-when.md.
+- Build-time conditional code uses `gate Build... { ... }`, not C-style
+  token preprocessing. See reference/language/build-conditional-gate.md.
 
 Grammar (EBNF)
 - See: reference/language/EBNF.md — living grammar reference used by parser

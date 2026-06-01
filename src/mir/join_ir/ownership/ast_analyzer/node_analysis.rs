@@ -272,7 +272,7 @@ impl AstOwnershipAnalyzer {
 
             ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => {}
 
-            ASTNode::BuildWhen {
+            ASTNode::BuildGate {
                 then_items,
                 else_items,
                 ..

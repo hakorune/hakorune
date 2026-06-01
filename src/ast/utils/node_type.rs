@@ -15,7 +15,7 @@ impl ASTNode {
             ASTNode::Continue { .. } => "Continue",
             ASTNode::UsingStatement { .. } => "UsingStatement",
             ASTNode::ImportStatement { .. } => "ImportStatement",
-            ASTNode::BuildWhen { .. } => "BuildWhen",
+            ASTNode::BuildGate { .. } => "BuildGate",
             ASTNode::BoxDeclaration {
                 is_record: true, ..
             } => "RecordDeclaration",

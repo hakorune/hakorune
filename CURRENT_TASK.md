@@ -88,7 +88,7 @@ Scope: current lane / next lane / restart order only.
      evidence or by the active direct-memory substrate workstream
   4. docs and shell hygiene
 - LANG-CFG build conditional syntax is the active short language slice before
-  returning to mimalloc. The source surface is `when Build... { ... }`, not
+  returning to mimalloc. The source surface is `gate Build... { ... }`, not
   C-style `#if`; read `CURRENT_STATE.toml` and
   `latest_workstream_card` for the active blocker.
 - Mimalloc direct-exact optimization is paused after MIM-069 nonkeeper. Return

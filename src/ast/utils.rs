@@ -78,7 +78,7 @@ impl ASTNode {
                     visitor(value);
                 }
             }
-            ASTNode::BuildWhen {
+            ASTNode::BuildGate {
                 then_items,
                 else_items,
                 ..
@@ -338,7 +338,7 @@ impl ASTNode {
                     format!("ImportStatement({})", path)
                 }
             }
-            ASTNode::BuildWhen {
+            ASTNode::BuildGate {
                 predicate,
                 then_items,
                 else_items,
@@ -346,7 +346,7 @@ impl ASTNode {
             } => {
                 let else_count = else_items.as_ref().map_or(0, Vec::len);
                 format!(
-                    "BuildWhen({:?}, then={}, else={})",
+                    "BuildGate({:?}, then={}, else={})",
                     predicate,
                     then_items.len(),
                     else_count
@@ -641,7 +641,7 @@ impl ASTNode {
             ASTNode::Continue { span, .. } => *span,
             ASTNode::UsingStatement { span, .. } => *span,
             ASTNode::ImportStatement { span, .. } => *span,
-            ASTNode::BuildWhen { span, .. } => *span,
+            ASTNode::BuildGate { span, .. } => *span,
             ASTNode::Nowait { span, .. } => *span,
             ASTNode::TaskScope { span, .. } => *span,
             ASTNode::ContextScope { span, .. } => *span,
@@ -834,7 +834,7 @@ impl ASTNode {
                 }
                 ASTNode::UsingStatement { .. }
                 | ASTNode::ImportStatement { .. }
-                | ASTNode::BuildWhen { .. } => false,
+                | ASTNode::BuildGate { .. } => false,
                 ASTNode::FromCall { .. } => false,
                 _ => node.any_child(|child| contains(child, loop_depth)),
             }

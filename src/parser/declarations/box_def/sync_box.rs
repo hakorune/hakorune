@@ -87,7 +87,7 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
             .or_else(|| first_wait_like_in_node(end))
             .or_else(|| first_wait_like_in_body(body)),
         ASTNode::Return { value, .. } => first_wait_like_in_optional_node(value),
-        ASTNode::BuildWhen {
+        ASTNode::BuildGate {
             then_items,
             else_items,
             ..

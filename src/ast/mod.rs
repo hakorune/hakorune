@@ -417,11 +417,11 @@ pub enum ASTNode {
         span: Span,
     },
 
-    /// Build-time conditional item group: `when Build.test { ... } else { ... }`.
+    /// Build-time conditional item group: `gate Build.test { ... } else { ... }`.
     ///
-    /// LANG-CFG-001 owns parser transport only. Inactive-branch pruning before
-    /// resolution/MIR is a later slice.
-    BuildWhen {
+    /// `gate` is a parser-contextual keyword, not a global tokenizer keyword:
+    /// ordinary identifiers named `gate` remain valid outside this item head.
+    BuildGate {
         predicate: BuildPredicate,
         then_items: Vec<ASTNode>,
         else_items: Option<Vec<ASTNode>>,

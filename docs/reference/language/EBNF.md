@@ -17,7 +17,7 @@ Design SSOT note (Scope Exit Semantics):
 
 program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
 
-cfg_item  := 'when' build_predicate '{' program_item* '}' ('else' cfg_else)?
+cfg_item  := 'gate' build_predicate '{' program_item* '}' ('else' cfg_else)?
 cfg_else  := cfg_item | '{' program_item* '}'
 program_item := static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt
 

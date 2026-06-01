@@ -203,7 +203,7 @@ pub struct NyashParser {
     pub(super) rune_metadata: Vec<RuneAttr>,
     /// Enum declarations parsed so far, used to resolve shorthand enum matches.
     pub(super) known_enums: std::collections::BTreeMap<String, Vec<EnumVariantDecl>>,
-    /// Build configuration used to prune AST-level `when` conditionals.
+    /// Build configuration used to prune AST-level `gate` conditionals.
     pub(super) build_config: ParserBuildConfig,
 }
 
@@ -322,7 +322,7 @@ impl NyashParser {
     /// パース実行 - Program ASTを返す
     pub fn parse(&mut self) -> Result<ASTNode, ParseError> {
         let ast = self.parse_program()?;
-        let ast = self.prune_build_when_program(ast)?;
+        let ast = self.prune_build_gate_program(ast)?;
         delegate_lowering::lower_delegate_exposes(ast)
     }
 
@@ -361,8 +361,8 @@ impl NyashParser {
                 continue;
             }
 
-            let mut statement = if self.match_token(&TokenType::WHEN) {
-                self.parse_build_when_item()?
+            let mut statement = if self.is_build_gate_keyword() {
+                self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?
             };

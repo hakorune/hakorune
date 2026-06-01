@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-01"
 
 active_lane = "language build conditional syntax"
-active_lane_status = "LANG-CFG is active before returning to mimalloc: LANG-CFG-002 now prunes AST-level `when Build... { ... }` before resolution; explain/report smoke opens next."
+active_lane_status = "LANG-CFG is active before returning to mimalloc: LANG-CFG-002 now prunes AST-level contextual `gate Build... { ... }` before resolution; explain/report smoke opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"

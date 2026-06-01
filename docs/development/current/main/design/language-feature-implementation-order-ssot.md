@@ -76,7 +76,7 @@ They exist to let source code carry future shapes while Stage1 becomes the seman
 | A8 | `L208 uses metadata capsule` | method-level `uses osvm` / `uses atomic` / `uses rawbuf` | complete as `293x-284`; syntax parse and capability metadata | capability policy, backend gate, `cap` block syntax | Stage1 capability checker owns policy. |
 | A9 | `L209 generic type annotation metadata capsule` | `Array<T>`, `PackedArray<T>`, capability-bearing type annotations | complete as `293x-285`; parse and metadata transport | typed array semantics, PackedArray planner, fallback policy | Stage1 typed container planner owns the facts. |
 | A10 | `L210 module header metadata capsule` | deferred `module` / `use` / `export` / `private` minimum | bootstrap header and export/private metadata only if needed | visibility semantics, duplicate import policy, alias rebinding policy | Stage1 module resolver owns package and visibility semantics. |
-| A11 | `LANG-CFG-001 build conditional when item capsule` | `when Build.test { ... } else { ... }` for item/import-level selection | parse `when`, build predicate metadata, and prune inactive branches before resolution | arbitrary runtime expressions, token preprocessing, statement-level MIR pruning, feature authority | Stage1/selfhost parser and build config owner carry the same AST-level conditional contract. |
+| A11 | `LANG-CFG-001 build conditional gate item capsule` | `gate Build.test { ... } else { ... }` for item/import-level selection | parse contextual `gate`, build predicate metadata, and prune inactive branches before resolution | arbitrary runtime expressions, token preprocessing, statement-level MIR pruning, feature authority | Stage1/selfhost parser and build config owner carry the same AST-level conditional contract. |
 
 ## Wave B: Stage1 semantic nucleus
 
@@ -151,7 +151,7 @@ docs/development/current/main/design/delegation-no-inheritance-ssot.md
 | `uses` | medium | low-level effect permission and backend gates | Stage0 metadata, Stage1 policy |
 | delegation no-inheritance | medium | existing composition needs a clean canonical surface before interface work | docs first, then Stage0 metadata, then Stage1 lowering |
 | `Span<T>` / deferred `view` | later | bounded raw view instead of C pointer style | Stage1 only |
-| `when Build...` | medium | keeps test/debug/target-only code out of production builds without C preprocessor or hot-path counters | AST-level item/import conditional first; member/statement later |
+| `gate Build...` | medium | keeps test/debug/target-only code out of production builds without C preprocessor or hot-path counters | AST-level item/import conditional first; member/statement later |
 | `interface` / `impl` | later | static host/substrate policy contracts only after delegation is insufficient | Stage1 only |
 | module visibility | later | package hygiene after bootstrap route is stable; `using` remains current import | Stage0 minimal header, Stage1 visibility |
 | `check report` | later | richer proof output | Stage1 proof object |
