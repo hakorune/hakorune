@@ -144,7 +144,11 @@ Recommended order:
 7. `LANG-DM-006B` future `direct {}` syntax parking lot
    - status: parked; no parser/AST/MIR source syntax in this wave
    - only after diagnostics are stable
-8. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
+8. `LANG-DM-006C` hako_check FastPath explain adapter
+   - status: done; `tools/hako_check/fastpath_explain.py` reads existing MIR
+     JSON and reports DirectArray / Span / RequiredFastPath metadata coverage
+   - no source rewrite, no MIR emission, no keeper selection
+9. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
    the DirectArray/Span proof system is stable.
 
 Mimalloc optimization is active now. Read `CURRENT_STATE.toml` for the next

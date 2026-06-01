@@ -14,7 +14,13 @@ Related:
 ## Decision
 
 `hako_check perf-surface` remains a source-level observation tool. MIR-level
-shape observation is a separate adapter/app surface.
+shape observation is normally a separate adapter/app surface.
+
+Exception: `hako_check fastpath-explain` may consume an already-emitted MIR JSON
+artifact to print direct-memory diagnostic coverage. This exception is read-only
+and exists so future `direct {}` / FastPath obligation failures have one
+developer-facing explanation surface. It must not emit MIR, rewrite source,
+select keepers, or own lowering policy.
 
 ```text
 hako_check perf-surface:
@@ -22,6 +28,9 @@ hako_check perf-surface:
 
 MIR method shape adapter:
   actual lowered MIR shape for selected methods
+
+hako_check fastpath-explain:
+  MIR JSON diagnostic adapter for DirectArray / Span / RequiredFastPath metadata
 
 keeper diff adapter:
   before/after source report + MIR report + measurement evidence
@@ -39,6 +48,11 @@ runtime checks.
 
 Keeping these contracts separate prevents hako_check from accumulating backend
 responsibility and keeps each row narrow.
+
+The fastpath-explain exception is intentionally narrower than the general MIR
+method-shape adapter: it reads named metadata fields that are already part of
+the direct-memory diagnostic contract and reports missing/passing obligations.
+It does not infer new method shape, route ownership, or performance keepers.
 
 ## Planned Surfaces
 
@@ -99,9 +113,33 @@ keeper_effect=accepted|no_effect|regressed|inconclusive
 summary=ok
 ```
 
+### FastPath Explain v0
+
+Owner: `tools/hako_check`, read-only MIR JSON adapter.
+
+```text
+output_contract=hako-check-fastpath-explain-v0
+input_kind=mir_json
+tool_surface=hako_check_fastpath_explain
+observation_only=1
+rewrite_executed=0
+direct_array_access_plan_count
+direct_array_checked_plan_count
+direct_array_proved_unchecked_plan_count
+span_access_plan_count
+required_fastpath_region_count
+fastpath_obligation_count
+fastpath_obligation_failed_count
+missing_fastpath_plan_count
+clean=0|1
+summary=ok|failed
+```
+
 ## Stop Line
 
 - `hako_check` does not rewrite source.
+- `hako_check fastpath-explain` does not emit MIR; it consumes a caller-provided
+  MIR JSON file only.
 - MIR method shape does not select keepers by itself.
 - Diff adapter does not implement keepers.
 - Provider activation, process allocator replacement, hooks, globals, and

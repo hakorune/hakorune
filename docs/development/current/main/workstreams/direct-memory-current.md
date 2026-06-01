@@ -90,6 +90,19 @@ direct storage routes.
     only after `RequiredFastPathRegion` diagnostics are used by a real keeper
     expectation and the syntax is only a thin source span carrier
 
+- [x] LANG-DM-006C: hako_check FastPath explain adapter
+  - output: add a read-only developer diagnostic for existing direct-memory MIR
+    metadata
+  - tool: `tools/hako_check/fastpath_explain.py`
+  - contract: `hako-check-fastpath-explain-v0`
+  - consumes caller-provided MIR JSON only; it does not emit MIR, rewrite
+    source, select keepers, or own lowering policy
+  - reports `DirectArrayAccessPlan`, `SpanAccessPlan`,
+    `RequiredFastPathRegion`, and `FastPathObligation` counts, plus
+    `DM006001` missing FastPathPlan failures
+  - optional `--require-clean` returns non-zero only when existing
+    FastPath obligations failed
+
 ### Parked
 
 - [ ] LANG-DM-007: unsafe memory / Bytes parked design
@@ -146,3 +159,7 @@ direct storage routes.
 - 2026-06-01: LANG-DM-006B parked future `direct {}` syntax. The current wave
   keeps source unchanged; `direct {}` may reopen only as syntax sugar over
   `RequiredFastPathRegion` after diagnostic/report usage proves it is needed.
+- 2026-06-01: LANG-DM-006C added `hako_check fastpath-explain` as a read-only
+  MIR JSON diagnostic adapter. This gives DirectArray / Span /
+  RequiredFastPath metadata one developer-facing report without widening
+  `.hako` syntax or moving keeper selection into hako_check.

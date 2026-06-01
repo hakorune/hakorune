@@ -140,6 +140,56 @@ confidence=low|medium|high
 summary=ok
 ```
 
+FastPath Explain
+- `hako_check fastpath-explain` is a MIR-backed diagnostic adapter for direct
+  memory work. It consumes an existing MIR JSON artifact and reports compiler
+  metadata coverage for `DirectArrayAccessPlan`, `SpanAccessPlan`, and
+  `RequiredFastPathRegion` / `FastPathObligation`.
+- This is not a source linter and not an optimizer. It does not emit MIR,
+  rewrite source, choose keepers, activate providers, replace allocators,
+  install hooks, or make benchmark winner claims.
+- The stable v0 entry is:
+
+```bash
+python3 tools/hako_check/fastpath_explain.py --mir-json app.mir.json
+```
+
+- Optional strict mode fails only when existing FastPath obligations failed:
+
+```bash
+python3 tools/hako_check/fastpath_explain.py \
+  --mir-json app.mir.json \
+  --method HakoAllocPageModel.resetToFresh/0 \
+  --require-clean
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-fastpath-explain-v0
+input_kind=mir_json
+tool_surface=hako_check_fastpath_explain
+observation_only=1
+rewrite_executed=0
+target_method
+fastpath_plan_count
+direct_array_access_plan_count
+direct_array_checked_plan_count
+direct_array_proved_unchecked_plan_count
+span_access_plan_count
+required_fastpath_region_count
+fastpath_obligation_count
+fastpath_obligation_passed_count
+fastpath_obligation_failed_count
+missing_fastpath_plan_count
+clean=0|1
+summary=ok|failed
+```
+
+- Boundary: `hako_check` may host this adapter because it only reads MIR JSON
+  facts and prints diagnostics. Any new MIR-producing analysis, lowering owner,
+  or keeper selection must stay outside hako_check.
+
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
 - `NYASH_BOX_FACTORY_POLICY=builtin_first` – prefer builtin/ring‑1 for stability
