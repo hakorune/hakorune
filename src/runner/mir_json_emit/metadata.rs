@@ -208,6 +208,29 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "failure_reason": obligation.failure_reason,
             })
         }).collect::<Vec<_>>(),
+        "hotcore_method_summaries": metadata.hotcore_method_summaries.iter().map(|summary| {
+            json!({
+                "method": summary.method,
+                "block_count": summary.block_count,
+                "instruction_count": summary.instruction_count,
+                "return_kind": summary.return_kind,
+                "allocation_count": summary.allocation_count,
+                "provider_call_count": summary.provider_call_count,
+                "public_observer_count": summary.public_observer_count,
+                "result_capsule_materialization_count": summary.result_capsule_materialization_count,
+                "safepoint_count": summary.safepoint_count,
+                "generic_method_route_count": summary.generic_method_route_count,
+                "generic_method_fallback_count": summary.generic_method_fallback_count,
+                "dynamic_route_count": summary.dynamic_route_count,
+                "boxed_fallback_count": summary.boxed_fallback_count,
+                "nested_call_count": summary.nested_call_count,
+                "nested_direct_exact_call_count": summary.nested_direct_exact_call_count,
+                "direct_array_access_plan_count": summary.direct_array_access_plan_count,
+                "direct_array_proved_unchecked_count": summary.direct_array_proved_unchecked_count,
+                "summary": summary.summary,
+                "failure_reason": summary.failure_reason,
+            })
+        }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

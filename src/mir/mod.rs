@@ -59,6 +59,7 @@ pub mod generic_method_route_plan; // MIR-owned generic method route policy plan
 pub mod global_call_route_plan; // MIR-owned unsupported global user-call route inventory
 pub mod hako_alloc_aligned_small_packed_store_pilot; // MIR-owned C210 aligned-small metadata packed-store pilot
 pub mod hako_alloc_huge_page_packed_store_pilot; // MIR-owned C211 huge-page metadata packed-store pilot
+pub mod hotcore_method_summary; // MIR-owned summaries for selected direct-exact hot-core callees
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier

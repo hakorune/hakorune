@@ -39,6 +39,7 @@ use super::{
     global_call_route_plan::refresh_function_global_call_routes,
     hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans,
     hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans,
+    hotcore_method_summary::refresh_function_hotcore_method_summaries,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
     range_index_fact::refresh_function_range_index_facts,
@@ -107,6 +108,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);
+    refresh_function_hotcore_method_summaries(function);
     refresh_function_map_lookup_fusion_routes(function);
     refresh_function_array_rmw_window_routes(function);
     refresh_function_array_string_len_window_routes(function);
@@ -147,6 +149,9 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
     refresh_module_route_fixpoint(module);
+    for function in module.functions.values_mut() {
+        refresh_function_hotcore_method_summaries(function);
+    }
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);

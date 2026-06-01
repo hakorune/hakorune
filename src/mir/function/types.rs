@@ -24,6 +24,7 @@ use crate::mir::{
     extern_call_route_plan::ExternCallRoute,
     generic_method_route_plan::GenericMethodRoute,
     global_call_route_plan::GlobalCallRoute,
+    hotcore_method_summary::HotCoreMethodSummary,
     inline_plan::InlinePlan,
     map_lookup_fusion_plan::MapLookupFusionRoute,
     placement_effect::PlacementEffectRoute,
@@ -407,6 +408,13 @@ pub struct FunctionMetadata {
 
     /// Per-site obligations derived from required fast-path regions.
     pub fastpath_obligations: Vec<FastPathObligation>,
+
+    /// Metadata-only summaries for selected direct-exact hot-core methods.
+    ///
+    /// This does not authorize inline lowering. It only reports whether a
+    /// selected multi-block callee keeps the expected scalar/no-fallback shape
+    /// before a later call-plan/lowering consumer is allowed to use it.
+    pub hotcore_method_summaries: Vec<HotCoreMethodSummary>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

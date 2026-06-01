@@ -3079,7 +3079,7 @@ The next implementation work must make the compiler-owned plan visible before
 lowering changes. `hako_check` is the user-facing explanation surface, but the
 truth stays in MIR metadata emitted by the compiler.
 
-- [ ] MIM-089: HotCore method summary metadata contract
+- [x] MIM-089: HotCore method summary metadata contract
   - output: `HotCoreMethodSummaryV0` / equivalent MIR metadata for selected
     hot-core callees
   - include: method name, block count, return kind, allocation/provider/public
@@ -3087,6 +3087,11 @@ truth stays in MIR metadata emitted by the compiler.
     nested direct-exact call counts
   - acceptance: 9-block and 11-block HotCore methods are reportable without
     widening `Inline(required)`
+  - result: observer-light MIR JSON emits two summaries:
+    `objectLifecycleReleaseBlock/2` has `block_count=9`, `return_kind=scalar_i64`,
+    `summary=ok`, `generic_method_fallback_count=0`, and
+    `nested_direct_exact_call_count=1`; `objectLifecycleSmallAlloc/1` has
+    `block_count=11` with the same accepted scalar/no-fallback shape
   - no lowering change, no source hand-expansion, no new rune/profile syntax
 - [ ] MIM-090: DirectExactHotCoreCallPlan report-only producer
   - output: `DirectExactHotCoreCallPlanV0` / equivalent MIR metadata for call
