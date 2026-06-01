@@ -24,6 +24,15 @@ Related:
   lifecycle observers/methods, and return the selected page object directly
   from the queue owner. It must not source OS pages, own segment/TLS/atomic/
   remote-free policy, activate providers/hooks, or add backend shortcuts.
+- `object_lifecycle_hot_core_box.hako` owns the page-local object-lifecycle hot
+  core used by direct-exact mimalloc comparison and future facade decomposition.
+  It may keep one already-created `HakoAllocPageModel`, perform small-block
+  allocation through `HakoAllocPageModel.acquireFreshSmall(size)`, release one
+  known live block through `HakoAllocPageModel.releaseLocalKnownLive(block_id)`,
+  and expose zero-valued compatibility counters for comparison workloads. It
+  must not own public facade/result capsule semantics, queue observer
+  publication, page sourcing, page-map lookup, provider activation, hooks,
+  remote-free policy, host allocator replacement, or backend shortcuts.
 - `object_lifecycle_facade_box.hako` owns the MIMAP-013 thin facade object
   lifecycle queue seam plus the MIMAP-014A/MIMAP-014B/MIMAP-014C small
   allocation fast-path, the MIMAP-015A/MIMAP-015B release route, and the

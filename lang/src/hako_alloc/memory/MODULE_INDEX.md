@@ -162,6 +162,7 @@ Current modules
 - `lifecycle_stats_observer_box.hako`
 - `page_queue_box.hako`
 - `object_lifecycle_page_queue_box.hako`
+- `object_lifecycle_hot_core_box.hako`
 - `object_lifecycle_facade_box.hako`
 - `object_lifecycle_facade_reason_box.hako`
 - `object_lifecycle_facade_result_box.hako`

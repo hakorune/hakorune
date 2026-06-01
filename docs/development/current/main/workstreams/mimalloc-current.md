@@ -2982,6 +2982,51 @@ next_candidate=separate_page_model_counter_cost_from_remaining_page_local_semant
 summary=ok
 ```
 
+MIM-085 active-success result helper probe:
+
+```text
+candidate=alloc_result.recordActiveBlockSuccess
+intent=replace_hot_recordBlock_plus_recordSuccess_2_with_branchless_same_receiver_leaf
+production_semantics_changed=0
+direct_exact_pair_smoke=ok
+before_hako_instructions_median=111391946
+after_hako_instructions_median=111391972
+instruction_delta=+26
+decision=nonkeeper_reverted
+reason=tiny_result_method_shape_does_not_change_current_machine_code_owner
+next_candidate=hotcore_boundary_instead_of_result_micro_helper
+summary=ok
+```
+
+MIM-086 hot-core boundary extraction:
+
+```text
+selected_change=extract_observer_light_facade_to_object_lifecycle_hot_core_box
+new_module=lang/src/hako_alloc/memory/object_lifecycle_hot_core_box.hako
+comparison_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-observer-light/main.hako
+module_export_added=lang/src/hako_alloc/hako_module.toml
+stage1_embedded_module_snapshot_refreshed=1
+production_facade_changed=0
+public_result_capsule_changed=0
+queue_observer_changed=0
+page_model_changed=0
+purpose=reusable_page_local_small_alloc_release_core_for_direct_exact_optimization
+owner_contract_updated=1
+module_index_updated=1
+expected_perf_effect=neutral_structural_boundary_only
+direct_exact_pair_smoke=ok
+observer_light_hako_body_elapsed_ns=2000000
+observer_light_c_body_elapsed_ns=3219767
+observer_light_body_elapsed_ratio=0.621
+observer_light_hako_instructions_median=61048900
+observer_light_hako_cycles_median=11647625
+previous_observer_light_hako_instructions_median=61048806
+instruction_delta=+94
+decision=structural_keeper_perf_neutral
+next_candidate=compose_public_facade_over_hot_core_or_measure_page_model_counter_owner
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

@@ -1,0 +1,78 @@
+// object_lifecycle_hot_core_box.hako — page-local object lifecycle hot core
+// Responsibility: keep the representative small-block core path free of public
+// facade/result/queue observer publication while preserving page-local semantics.
+// This module does not own public ArrayBox/facade observers, provider
+// activation, OS page sourcing, remote-free policy, page-map lookup, hooks, or
+// host allocator replacement.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box HakoAllocObjectLifecycleHotCore {
+    page: HakoAllocPageModel = null
+
+    objectLifecycleAddPage(page) {
+        if page == null {
+            return -1
+        }
+        me.page = page
+        return 0
+    }
+
+    objectLifecycleSmallAlloc(size) {
+        local page = me.page
+        if page == null {
+            return 0
+        }
+        if page.decommitted != 0 {
+            return 0
+        }
+        if page.retired != 0 {
+            return 0
+        }
+        if page.free_top <= 0 {
+            return 0
+        }
+
+        local block_id = page.acquireFreshSmall(size)
+        if block_id < 0 {
+            return 0
+        }
+        return 1
+    }
+
+    objectLifecycleReleaseBlock(page_id, block_id) {
+        if page_id < 0 {
+            return 0
+        }
+        if block_id < 0 {
+            return 0
+        }
+
+        local page = me.page
+        if page == null {
+            return 0
+        }
+        if page.page_id != page_id {
+            return 0
+        }
+
+        page.releaseLocalKnownLive(block_id)
+        return 1
+    }
+
+    objectLifecycleSinglePageFastPathCount() {
+        return 0
+    }
+
+    objectLifecycleSinglePageFallbackCount() {
+        return 0
+    }
+
+    objectLifecycleReleaseKnownPageFastPathCount() {
+        return 0
+    }
+
+    objectLifecycleReleaseKnownPageFallbackCount() {
+        return 0
+    }
+}
