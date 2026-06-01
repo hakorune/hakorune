@@ -2954,6 +2954,34 @@ next_candidate=perf_stat_or_asm_on_observer_light_to_quantify_instruction_delta
 summary=ok
 ```
 
+MIM-084 observer-light instruction delta:
+
+```text
+measurement_tool=tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh
+front=direct_exact
+runs=3
+standard_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako
+observer_light_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-observer-light/main.hako
+
+standard_hako_instructions_median=111391946
+standard_hako_cycles_median=20722680
+standard_hako_body_elapsed_ns_median=4000000
+observer_light_hako_instructions_median=61048806
+observer_light_hako_cycles_median=11572983
+observer_light_hako_body_elapsed_ns_median=2000000
+instruction_delta_standard_minus_observer_light=50343140
+cycle_delta_standard_minus_observer_light=9149697
+instruction_reduction_pct=45.2
+cycle_reduction_pct=44.2
+
+observed_result=facade_queue_result_publication_accounts_for_most_remaining_direct_exact_instruction_gap
+comparison_only=1
+production_semantics_changed=0
+winner_claim=0
+next_candidate=separate_page_model_counter_cost_from_remaining_page_local_semantics
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
