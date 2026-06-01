@@ -3551,6 +3551,27 @@ truth stays in MIR metadata emitted by the compiler.
     source/MIR probe must avoid counter deletion/gating and must preserve the
     MIM-106 backend pipeline
 
+- [x] MIM-109: result-capsule counter storage probe
+  - output: rejected probe; test whether public result-capsule observer
+    counters can move from `usize` to `i64` while leaving PageModel
+    size/capacity/requested-byte semantics unchanged
+  - result:
+    - observer-light stayed in the MIM-106 band because it does not use public
+      result-capsule publication:
+      `hako_instructions_median=39175556`
+    - public proof failed EXE lowering with
+      `unsupported pure shape`
+    - the source patch was reverted before commit
+  - decision=nonkeeper_reverted
+  - reason:
+    public result-capsule storage types are part of the current direct-state /
+    exact-slot lowering shape; changing them as a source optimization breaks
+    the public proof lane before it can be measured
+  - next:
+    do not use counter type relaxation as the next mimalloc keeper. If this
+    shape is reopened, it needs a direct-state storage migration task, not an
+    opportunistic `.hako` field-type edit inside the optimization loop.
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
