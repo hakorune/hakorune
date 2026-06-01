@@ -15,7 +15,7 @@ IN_PROCESS_REPEAT=8192
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/hako_mimalloc_direct_exact_pair.sh --out FILE [--app FILE] [--tmp-keep]
+usage: tools/allocator/hako_mimalloc_direct_exact_pair.sh --out FILE [--app FILE] [--in-process-repeat N] [--tmp-keep]
 
 Runs the current representative object-lifecycle Hako/C pair through the
 canonical direct-exact front:
@@ -101,9 +101,34 @@ fi
 hako_report="$tmp_dir/hako.out"
 c_report="$tmp_dir/c.out"
 pair_report="$tmp_dir/pair.out"
+hako_app="$APP"
+
+if [[ "$IN_PROCESS_REPEAT" != "8192" ]]; then
+  hako_app="$tmp_dir/app.in_process_repeat_${IN_PROCESS_REPEAT}.hako"
+  python3 - "$APP" "$hako_app" "$IN_PROCESS_REPEAT" <<'PY'
+import sys
+from pathlib import Path
+
+src_path = Path(sys.argv[1])
+out_path = Path(sys.argv[2])
+repeat = int(sys.argv[3])
+text = src_path.read_text(encoding="utf-8")
+replacements = {
+    "local operation_repeat = 8192": f"local operation_repeat = {repeat}",
+    "524288": str(64 * repeat),
+    "272416768": str(33254 * repeat),
+    "276824064": str(33792 * repeat),
+}
+for old, new in replacements.items():
+    if old not in text:
+        raise SystemExit(f"missing expected representative repeat token: {old}")
+    text = text.replace(old, new)
+out_path.write_text(text, encoding="utf-8")
+PY
+fi
 
 bash "$HAKO_RUNNER" \
-  --app "$APP" \
+  --app "$hako_app" \
   --workload representative-object-lifecycle-small-block-v0 \
   --runtime-config empty \
   --operation-repeat "$OPERATION_REPEAT" \
@@ -119,11 +144,13 @@ bash "$C_RUNNER" \
 python3 "$PAIR_ADAPTER" \
   --hako-report "$hako_report" \
   --c-report "$c_report" \
+  --in-process-repeat "$IN_PROCESS_REPEAT" \
   --out "$pair_report"
 
 {
   cat "$pair_report"
   echo "hako_app=$APP"
+  echo "hako_in_process_repeat=$IN_PROCESS_REPEAT"
   echo "direct_exact_env_contract=mimalloc-direct-exact-env-v0"
   echo "NYASH_FEATURES=$NYASH_FEATURES"
   echo "NYASH_DISABLE_PLUGINS=$NYASH_DISABLE_PLUGINS"

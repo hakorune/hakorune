@@ -1207,6 +1207,43 @@ message.
     with positive-net evidence. If the next task is tooling, prefer a
     body-isolated perf/explain runner over source or MIR edits.
 
+- [x] MIM-125: in-process repeat control for body-timing diagnostics
+  - output:
+    add narrow measurement-only repeat control to the current direct-exact
+    pair/stat wrappers without changing the representative app source shape
+  - changed scope:
+    when `--in-process-repeat N` differs from the canonical `8192`, the
+    wrapper creates a temporary copy of the selected representative app and
+    rewrites only the fixed repeat/count literals in that temporary file. The
+    checked-in `.hako` apps remain unchanged, so no new `env.get` / string
+    parsing MIR shape enters the benchmark source.
+  - wrapper alignment:
+    - `tools/allocator/hako_mimalloc_direct_exact_pair.sh --in-process-repeat N`
+      now uses the same repeat for the temporary Hako app and the C runner
+      through the pair adapter
+    - `tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh
+      --in-process-repeat N` now records the selected Hako repeat in its report
+  - validation:
+    - shell/python syntax:
+      `bash -n tools/allocator/hako_mimalloc_direct_exact_pair.sh
+      tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh` and
+      `python3 -m py_compile
+      tools/allocator/hako_mimalloc_object_lifecycle_body_timing_pair_adapter.py`
+    - Hako-only stat override smoke:
+      `--in-process-repeat 16`, `in_process_operation_repeat=16`,
+      `summary=ok`
+    - Hako/C pair override smoke:
+      `--in-process-repeat 16384`, `allocation_count=1048576`,
+      `hako_body_elapsed_ns=5000000`, `c_body_elapsed_ns=6902108`,
+      `body_elapsed_ratio=0.724`, `summary=ok`
+  - decision:
+    this is tooling/measurement cleanup, not an optimization owner and not a
+    fast-path selector. No environment variable is added.
+  - next:
+    use a larger in-process repeat only when timer granularity or perf sample
+    quality blocks owner selection. Do not use this knob to claim a winner or
+    to hide production behavior changes.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

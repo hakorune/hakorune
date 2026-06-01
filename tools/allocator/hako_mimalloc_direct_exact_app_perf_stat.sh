@@ -6,10 +6,11 @@ ENV_PRESET="${ROOT_DIR}/tools/allocator/mimalloc_direct_exact_env.sh"
 APP=""
 OUT_FILE=""
 RUNS=3
+IN_PROCESS_REPEAT=8192
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh --app FILE --out FILE [--runs N]
+usage: tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh --app FILE --out FILE [--runs N] [--in-process-repeat N]
 
 Builds one .hako app through the direct-exact EXE route and records perf stat
 instruction/cycle medians. This is Hako-only; use it to compare production
@@ -29,6 +30,10 @@ while [[ "$#" -gt 0 ]]; do
       ;;
     --runs)
       RUNS="${2:-}"
+      shift 2
+      ;;
+    --in-process-repeat)
+      IN_PROCESS_REPEAT="${2:-}"
       shift 2
       ;;
     -h|--help)
@@ -62,6 +67,16 @@ if [[ "$RUNS" -lt 1 ]]; then
   echo "[mimalloc-direct-exact-app-stat] ERROR: --runs must be >= 1" >&2
   exit 2
 fi
+case "$IN_PROCESS_REPEAT" in
+  ''|*[!0-9]*)
+    echo "[mimalloc-direct-exact-app-stat] ERROR: --in-process-repeat must be a positive integer" >&2
+    exit 2
+    ;;
+esac
+if [[ "$IN_PROCESS_REPEAT" -lt 1 ]]; then
+  echo "[mimalloc-direct-exact-app-stat] ERROR: --in-process-repeat must be >= 1" >&2
+  exit 2
+fi
 if ! command -v perf >/dev/null 2>&1; then
   echo "[mimalloc-direct-exact-app-stat] ERROR: perf is required" >&2
   exit 2
@@ -85,9 +100,34 @@ cat > "$run_cwd/nyash.toml" <<'TOML'
 [libraries]
 TOML
 
+hako_app="$APP"
+if [[ "$IN_PROCESS_REPEAT" != "8192" ]]; then
+  hako_app="$tmp_dir/app.in_process_repeat_${IN_PROCESS_REPEAT}.hako"
+  python3 - "$APP" "$hako_app" "$IN_PROCESS_REPEAT" <<'PY'
+import sys
+from pathlib import Path
+
+src_path = Path(sys.argv[1])
+out_path = Path(sys.argv[2])
+repeat = int(sys.argv[3])
+text = src_path.read_text(encoding="utf-8")
+replacements = {
+    "local operation_repeat = 8192": f"local operation_repeat = {repeat}",
+    "524288": str(64 * repeat),
+    "272416768": str(33254 * repeat),
+    "276824064": str(33792 * repeat),
+}
+for old, new in replacements.items():
+    if old not in text:
+        raise SystemExit(f"missing expected representative repeat token: {old}")
+    text = text.replace(old, new)
+out_path.write_text(text, encoding="utf-8")
+PY
+fi
+
 NYASH_FEATURES="$NYASH_FEATURES" \
 NYASH_DISABLE_PLUGINS="$NYASH_DISABLE_PLUGINS" \
-  "$ROOT_DIR/target/release/hakorune" --backend mir --emit-mir-json "$mir_json" "$APP" >/dev/null
+  "$ROOT_DIR/target/release/hakorune" --backend mir --emit-mir-json "$mir_json" "$hako_app" >/dev/null
 
 python3 "$ROOT_DIR/tools/checks/pure_first_route_preflight.py" "$mir_json" >/dev/null
 
@@ -128,7 +168,7 @@ for i in $(seq 1 "$RUNS"); do
   printf "%s\t%s\t%s\n" "$instructions" "$cycles" "${body_elapsed_ns:-0}" >>"$sample_file"
 done
 
-python3 - "$sample_file" "$APP" "$RUNS" "$OUT_FILE" <<'PY'
+python3 - "$sample_file" "$APP" "$RUNS" "$IN_PROCESS_REPEAT" "$OUT_FILE" <<'PY'
 import statistics
 import sys
 from pathlib import Path
@@ -136,7 +176,8 @@ from pathlib import Path
 sample_path = Path(sys.argv[1])
 app = sys.argv[2]
 runs = int(sys.argv[3])
-out_path = Path(sys.argv[4])
+in_process_repeat = int(sys.argv[4])
+out_path = Path(sys.argv[5])
 
 instructions = []
 cycles = []
@@ -151,6 +192,7 @@ lines = [
     "output_contract=hako-mimalloc-direct-exact-app-perf-stat-v0",
     f"hako_app={app}",
     f"runs={runs}",
+    f"in_process_operation_repeat={in_process_repeat}",
     f"hako_instructions_median={int(statistics.median(instructions))}",
     f"hako_cycles_median={int(statistics.median(cycles))}",
     f"hako_body_elapsed_ns_median={int(statistics.median(body_ns))}",

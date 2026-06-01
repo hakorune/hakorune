@@ -12,9 +12,6 @@ OPERATION_FAMILY = "small-block"
 OPERATION_SEQUENCE = "representative-object-lifecycle-small-block-v0-seq"
 FREE_ORDER = "even-odd-release-v0"
 IN_PROCESS_REPEAT = 8192
-ALLOCATION_COUNT = 524288
-FREE_COUNT = 524288
-REQUESTED_BYTES = 272416768
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -59,15 +56,18 @@ def require_positive_int(values: dict[str, str], key: str, label: str) -> int:
     return value
 
 
-def require_common_workload(values: dict[str, str], label: str) -> None:
+def require_common_workload(values: dict[str, str], label: str, in_process_repeat: int) -> None:
+    allocation_count = 64 * in_process_repeat
+    free_count = 64 * in_process_repeat
+    requested_bytes = 33254 * in_process_repeat
     require(values, "workload", WORKLOAD, label)
     require(values, "operation_family", OPERATION_FAMILY, label)
     require(values, "operation_sequence_id", OPERATION_SEQUENCE, label)
     require(values, "free_order_id", FREE_ORDER, label)
-    require(values, "in_process_operation_repeat", str(IN_PROCESS_REPEAT), label)
-    require(values, "allocation_count", str(ALLOCATION_COUNT), label)
-    require(values, "free_count", str(FREE_COUNT), label)
-    require(values, "requested_bytes", str(REQUESTED_BYTES), label)
+    require(values, "in_process_operation_repeat", str(in_process_repeat), label)
+    require(values, "allocation_count", str(allocation_count), label)
+    require(values, "free_count", str(free_count), label)
+    require(values, "requested_bytes", str(requested_bytes), label)
     require(values, "summary", "ok", label)
 
 
@@ -81,16 +81,23 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--hako-report", type=Path, required=True)
     parser.add_argument("--c-report", type=Path, required=True)
+    parser.add_argument("--in-process-repeat", type=int, default=IN_PROCESS_REPEAT)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
+    if args.in_process_repeat < 1:
+        raise SystemExit("--in-process-repeat must be >= 1")
+
+    allocation_count = 64 * args.in_process_repeat
+    free_count = 64 * args.in_process_repeat
+    requested_bytes = 33254 * args.in_process_repeat
 
     hako = read_kv(args.hako_report)
     c = read_kv(args.c_report)
 
     require(hako, "output_contract", "hako-exe-memory-evidence-v0", "hako")
     require(c, "output_contract", "allocator-comparison-c-mimalloc-explicit-runner-v0", "c")
-    require_common_workload(hako, "hako")
-    require_common_workload(c, "c")
+    require_common_workload(hako, "hako", args.in_process_repeat)
+    require_common_workload(c, "c", args.in_process_repeat)
     require(hako, "hako_body_timing_available", "1", "hako")
     require(c, "c_body_timing_available", "1", "c")
     require(hako, "body_timing_repeat_kind", "workload-body-env-now-ms-v0", "hako")
@@ -120,10 +127,10 @@ def main() -> int:
         f"operation_family={OPERATION_FAMILY}",
         f"operation_sequence_id={OPERATION_SEQUENCE}",
         f"free_order_id={FREE_ORDER}",
-        f"in_process_operation_repeat={IN_PROCESS_REPEAT}",
-        f"allocation_count={ALLOCATION_COUNT}",
-        f"free_count={FREE_COUNT}",
-        f"requested_bytes={REQUESTED_BYTES}",
+        f"in_process_operation_repeat={args.in_process_repeat}",
+        f"allocation_count={allocation_count}",
+        f"free_count={free_count}",
+        f"requested_bytes={requested_bytes}",
         "hako_subject=hako_exact_exe_object_lifecycle",
         "c_subject=c_mimalloc_explicit_object_lifecycle",
         "body_elapsed_role=primary_hot_loop_diagnostic",
