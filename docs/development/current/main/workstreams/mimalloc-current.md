@@ -3291,6 +3291,39 @@ truth stays in MIR metadata emitted by the compiler.
     - decision=perf_keeper
     - reason=shrinks the hot release facade body without widening inline,
       moving counters behind `gate`, or changing release observer semantics
+- [x] MIM-099: small-alloc fast-path / slow-path source split
+  - output: keep the single-active-page small allocation path in
+    `objectLifecycleSmallAlloc/1` small, and move the select/reuse fallback
+    route into a separate non-inline slow helper
+  - selected surface:
+    `HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1`
+  - preserve:
+    allocation attempt count, selected-page/result publication,
+    `recordLastAllocPage`, block acquisition failure semantics, and public
+    proof counters
+  - no multi-block `Inline(required)`, no counter gating, no direct syntax, no
+    helper name special case in lowering
+  - acceptance:
+    representative direct-exact pair smoke stays green; fast method MIR body
+    shrinks; direct-exact perf stat is keeper or neutral
+  - result:
+    - probe reverted before commit
+    - MIR body shape improved locally:
+      `objectLifecycleSmallAlloc/1` changed from 18 blocks / 188 instructions
+      to 5 blocks / 69 instructions, with a cold
+      `objectLifecycleSmallAllocSlowAfterAttempt/1` helper at 14 blocks / 125
+      instructions
+    - direct-exact pair smoke stayed green during the probe:
+      `summary=ok`
+    - direct-exact perf stat did not satisfy the primary instruction gate:
+      runs=3 `hako_instructions_median=109819194`,
+      `hako_cycles_median=18734801`;
+      runs=5 `hako_instructions_median=109819092`,
+      `hako_cycles_median=18482651`
+    - decision=nonkeeper_reverted
+    - reason=cycles improved, but exact-front instruction median regressed
+      versus MIM-098; do not split smallAlloc slow path without a lowerer/code
+      layout plan that preserves the instruction win
 
 ## Parking Lot
 
