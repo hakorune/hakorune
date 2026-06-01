@@ -1395,6 +1395,40 @@ message.
     allocation/free operations, so body-time wins here must not select source
     or MIR optimization work.
 
+- [x] MIM-131: reuse-cycle body timing and known-live release keeper
+  - output:
+    add the missing reuse-cycle in-process body-timing app and align the body
+    comparison with the C runner's known-live free subject
+  - changed scope:
+    `apps/hako-alloc-mimalloc-comparison-in-process-reuse-cycle-small-proof/main.hako`
+    repeats the two-wave reuse-cycle workload with
+    `in_process_operation_repeat=8192`.
+  - initial observation:
+    default/safe front produced `hako_body_elapsed_ns=458000000` while the
+    C runner produced `c_body_elapsed_ns=7512528`, with matching
+    `allocation_count=1048576`, `free_count=1048576`,
+    `requested_bytes=544833536`, and `reuse_cycle_count=8192`.
+  - direct-exact initial:
+    `hako_instructions_median=405574930`,
+    `hako_cycles_median=57979625`,
+    `hako_body_elapsed_ns_median=11000000`;
+    C median was `c_body_elapsed_ns_median=6471121`.
+  - keeper:
+    the in-process body app now calls `releaseLocalKnownLive` instead of
+    `releaseLocal`, matching the C runner's known-live pointer free subject.
+    This keeps the existing public reuse-cycle proof app unchanged.
+  - post-keeper direct-exact:
+    `hako_instructions_median=383481278`,
+    `hako_cycles_median=55818756`,
+    `hako_body_elapsed_ns_median=10000000`;
+    C median was `c_body_elapsed_ns_median=6365982`.
+  - remaining owner:
+    `perf report` still selects DirectArray exact runtime boundary symbols:
+    `direct_array_i64_exact_load_encoded_i64` and
+    `direct_array_i64_exact_store_i64`. `hako_check fastpath-explain` is
+    clean, so this is not a fallback problem. The next owner is DirectArray
+    exact access boundary thinning, not `.hako` source reshaping.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

@@ -1,0 +1,178 @@
+// hako-alloc-mimalloc-comparison-in-process-reuse-cycle-small-proof
+// Purpose: repeat the representative reuse-cycle small-block workload inside one EXE process.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    allocateWave(page) {
+        local i = 0
+        local cycle = 0
+        local ok = 1
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local block = page.acquire_usize(requested)
+            if block < 0 {
+                ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+        return ok
+    }
+
+    releaseEvenOdd(page) {
+        local released = 0
+        local ok = 1
+        loop(released < 64) {
+            local released_ok = page.releaseLocalKnownLive(released)
+            if released_ok != 1 {
+                ok = 0
+            }
+            released += 2
+        }
+        released = 1
+        loop(released < 64) {
+            local released_ok = page.releaseLocalKnownLive(released)
+            if released_ok != 1 {
+                ok = 0
+            }
+            released += 2
+        }
+        return ok
+    }
+
+    runOne(page) {
+        local reset_ok = page.resetToFresh()
+        if reset_ok != 1 {
+            return 0
+        }
+
+        local first_alloc_ok = Main.allocateWave(page)
+        local first_release_ok = Main.releaseEvenOdd(page)
+        local reuse_ok = page.reuse()
+        local second_alloc_ok = Main.allocateWave(page)
+        local second_release_ok = Main.releaseEvenOdd(page)
+
+        if first_alloc_ok != 1 {
+            return 0
+        }
+        if first_release_ok != 1 {
+            return 0
+        }
+        if reuse_ok != 1 {
+            return 0
+        }
+        if second_alloc_ok != 1 {
+            return 0
+        }
+        if second_release_ok != 1 {
+            return 0
+        }
+        if page.used != 0 {
+            return 0
+        }
+        if page.reject_count != 0 {
+            return 0
+        }
+        if page.reuse_count != 1 {
+            return 0
+        }
+        if page.requested_bytes != 66508 {
+            return 0
+        }
+        return 1
+    }
+
+    main(args) {
+        local operation_repeat = 8192
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+        local repeat = 0
+        local ok = 1
+        local body_start_ms = env.now_ms()
+        loop(repeat < operation_repeat) {
+            local run_ok = Main.runOne(page)
+            if run_ok != 1 {
+                ok = 0
+            }
+            repeat += 1
+        }
+        local body_end_ms = env.now_ms()
+        local body_elapsed_ms = body_end_ms - body_start_ms
+        if body_elapsed_ms < 0 {
+            body_elapsed_ms = 0
+        }
+        local body_elapsed_ns = body_elapsed_ms * 1000000
+
+        local allocation_count = 128 * operation_repeat
+        local free_count = 128 * operation_repeat
+        local requested_bytes = 66508 * operation_repeat
+        local committed_bytes = 33792 * operation_repeat
+        local reuse_cycle_count = operation_repeat
+
+        print("hako-alloc-mimalloc-comparison-in-process-reuse-cycle-small-proof")
+        print("workload=representative-reuse-cycle-small-v0")
+        print("operation_family=reuse-cycle-small")
+        print("operation_sequence_id=representative-reuse-cycle-small-v0-seq")
+        print("free_order_id=even-odd-release-then-reacquire-v0")
+        print("in_process_operation_repeat=" + operation_repeat)
+        print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("hako_body_timing_available=1")
+        print("body_timing_repeat_kind=workload-body-env-now-ms-v0")
+        print("body_timing_scope=allocator-workload-body")
+        print("body_timing_is_process_timing=0")
+        print("body_elapsed_ns=" + body_elapsed_ns)
+        print("allocation_count=" + allocation_count)
+        print("free_count=" + free_count)
+        print("requested_bytes=" + requested_bytes)
+        print("committed_bytes=" + committed_bytes)
+        print("realloc_count=0")
+        print("aligned_alloc_count=0")
+        print("large_request_count=0")
+        print("reuse_cycle_count=" + reuse_cycle_count)
+
+        local proof = new ProofCheck("in-process reuse-cycle small-block comparison")
+        proof.expectEq("run ok", ok, 1)
+        proof.expectEq("allocation count", allocation_count, 1048576)
+        proof.expectEq("free count", free_count, 1048576)
+        proof.expectEq("requested bytes", requested_bytes, 544833536)
+        proof.expectEq("committed bytes", committed_bytes, 276824064)
+        proof.expectEq("reuse cycle count", reuse_cycle_count, 8192)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}
