@@ -2923,6 +2923,37 @@ next_candidate=observer_light_comparison_measurement_for_result_capsule_and_queu
 summary=ok
 ```
 
+MIM-083 observer-light comparison app:
+
+```text
+selected_fix=comparison_only_observer_light_object_lifecycle_app
+observer_light_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-observer-light/main.hako
+production_facade_changed=0
+page_model_changed=0
+provider_activation=0
+allocator_replacement=0
+hook_installed=0
+global_allocator=0
+comparison_scope=facade_queue_result_publication_removed_from_hot_body
+page_local_semantics_preserved=1
+direct_exact_pair_runner=tools/allocator/hako_mimalloc_direct_exact_pair.sh
+worker_front_mismatch_guard=1
+
+standard_hako_body_elapsed_ns=4000000
+standard_c_body_elapsed_ns=3463799
+standard_body_elapsed_ratio=1.155
+observer_light_hako_body_elapsed_ns=2000000
+observer_light_c_body_elapsed_ns=4514702
+observer_light_body_elapsed_ratio=0.443
+timing_resolution_note=env.now_ms_body_timing_is_coarse;use_as_directional_not_winner_claim
+
+observed_result=observer_light_removes_large_hot_publication_cost
+remaining_page_model_cost_still_present=1
+winner_claim=0
+next_candidate=perf_stat_or_asm_on_observer_light_to_quantify_instruction_delta
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

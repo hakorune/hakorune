@@ -1,0 +1,242 @@
+// hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-observer-light
+// Purpose: comparison-only observer-light facade for the representative small-block workload.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box HakoAllocObserverLightObjectLifecycleFacade {
+    page: HakoAllocPageModel = null
+
+    objectLifecycleAddPage(page) {
+        if page == null {
+            return -1
+        }
+        me.page = page
+        return 0
+    }
+
+    objectLifecycleSmallAlloc(size) {
+        local page = me.page
+        if page == null {
+            return 0
+        }
+        if page.decommitted != 0 {
+            return 0
+        }
+        if page.retired != 0 {
+            return 0
+        }
+        if page.free_top <= 0 {
+            return 0
+        }
+
+        local block_id = page.acquireFreshSmall(size)
+        if block_id < 0 {
+            return 0
+        }
+        return 1
+    }
+
+    objectLifecycleReleaseBlock(page_id, block_id) {
+        if page_id < 0 {
+            return 0
+        }
+        if block_id < 0 {
+            return 0
+        }
+
+        local page = me.page
+        if page == null {
+            return 0
+        }
+        if page.page_id != page_id {
+            return 0
+        }
+
+        page.releaseLocalKnownLive(block_id)
+        return 1
+    }
+
+    objectLifecycleSinglePageFastPathCount() {
+        return 0
+    }
+
+    objectLifecycleSinglePageFallbackCount() {
+        return 0
+    }
+
+    objectLifecycleReleaseKnownPageFastPathCount() {
+        return 0
+    }
+
+    objectLifecycleReleaseKnownPageFallbackCount() {
+        return 0
+    }
+}
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expectEq(label, actual, expected) {
+        me.count += 1
+        if actual != expected {
+            me.passed = 0
+            me.fail_count += 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    runOne(page, alloc) {
+        local reset_ok = page.resetToFresh()
+        if reset_ok != 1 {
+            return 0
+        }
+
+        local i = 0
+        local cycle = 0
+        local alloc_ok = 1
+        loop(i < 64) {
+            local requested = 512 + cycle
+            local ok = alloc.objectLifecycleSmallAlloc(requested)
+            if ok != 1 {
+                alloc_ok = 0
+            }
+            i += 1
+            cycle += 1
+            if cycle == 17 {
+                cycle = 0
+            }
+        }
+
+        local released = 0
+        local release_ok = 1
+        loop(released < 64) {
+            local ok = alloc.objectLifecycleReleaseBlock(0, released)
+            if ok != 1 {
+                release_ok = 0
+            }
+            released += 2
+        }
+        released = 1
+        loop(released < 64) {
+            local ok = alloc.objectLifecycleReleaseBlock(0, released)
+            if ok != 1 {
+                release_ok = 0
+            }
+            released += 2
+        }
+
+        if alloc_ok != 1 {
+            return 0
+        }
+        if release_ok != 1 {
+            return 0
+        }
+        if page.used != 0 {
+            return 0
+        }
+        if page.reject_count != 0 {
+            return 0
+        }
+        if page.retired != 1 {
+            return 0
+        }
+        return 1
+    }
+
+    main(args) {
+        local operation_repeat = 8192
+        local page = new HakoAllocPageModel(0, 528, 64, 64)
+        local alloc = new HakoAllocObserverLightObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local repeat = 0
+        local ok = 1
+        local body_start_ms = env.now_ms()
+        loop(repeat < operation_repeat) {
+            local run_ok = Main.runOne(page, alloc)
+            if run_ok != 1 {
+                ok = 0
+            }
+            repeat += 1
+        }
+        local body_end_ms = env.now_ms()
+        local body_elapsed_ms = body_end_ms - body_start_ms
+        if body_elapsed_ms < 0 {
+            body_elapsed_ms = 0
+        }
+        local body_elapsed_ns = body_elapsed_ms * 1000000
+
+        local allocation_count = 64 * operation_repeat
+        local free_count = 64 * operation_repeat
+        local requested_bytes = 33254 * operation_repeat
+        local committed_bytes = 33792 * operation_repeat
+        local select_fast_path_count = allocation_count
+        local select_fallback_count = 0
+        local fast_path_count = free_count
+        local fallback_count = 0
+
+        print("hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-observer-light")
+        print("workload=representative-object-lifecycle-small-block-v0")
+        print("operation_family=small-block")
+        print("operation_sequence_id=representative-object-lifecycle-small-block-v0-seq")
+        print("free_order_id=even-odd-release-v0")
+        print("in_process_operation_repeat=" + operation_repeat)
+        print("timing_repeat_kind=in-process-operation-loop-v0")
+        print("hako_body_timing_available=1")
+        print("body_timing_repeat_kind=workload-body-env-now-ms-v0")
+        print("body_timing_scope=allocator-workload-body")
+        print("body_timing_is_process_timing=0")
+        print("body_elapsed_ns=" + body_elapsed_ns)
+        print("allocation_count=" + allocation_count)
+        print("free_count=" + free_count)
+        print("requested_bytes=" + requested_bytes)
+        print("committed_bytes=" + committed_bytes)
+        print("select_page_single_fast_path_count=" + select_fast_path_count)
+        print("select_page_single_fallback_count=" + select_fallback_count)
+        print("release_known_page_fast_path_count=" + fast_path_count)
+        print("release_known_page_fallback_count=" + fallback_count)
+        print("observer_light_facade=1")
+        print("result_capsule_publication=0")
+        print("queue_publication=0")
+        print("queue_counter_hot_updates=0")
+        print("release_result_publication=0")
+        print("realloc_count=0")
+        print("aligned_alloc_count=0")
+        print("large_request_count=0")
+        print("reuse_cycle_count=0")
+
+        local proof = new ProofCheck("in-process object-lifecycle small-block observer-light comparison")
+        proof.expectEq("run ok", ok, 1)
+        proof.expectEq("allocation count", allocation_count, 524288)
+        proof.expectEq("free count", free_count, 524288)
+        proof.expectEq("requested bytes", requested_bytes, 272416768)
+        proof.expectEq("committed bytes", committed_bytes, 276824064)
+        proof.expectEq("select page fast path count", select_fast_path_count, 524288)
+        proof.expectEq("select page fallback count", select_fallback_count, 0)
+        proof.expectEq("known page fast path count", fast_path_count, 524288)
+        proof.expectEq("known page fallback count", fallback_count, 0)
+
+        print("check=" + proof.ok())
+        if proof.ok() == 1 {
+            print("summary=ok")
+            return 0
+        }
+        print("summary=fail")
+        return 1
+    }
+}

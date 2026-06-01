@@ -15,7 +15,7 @@ IN_PROCESS_REPEAT=8192
 
 usage() {
   cat >&2 <<'USAGE'
-usage: tools/allocator/hako_mimalloc_direct_exact_pair.sh --out FILE [--tmp-keep]
+usage: tools/allocator/hako_mimalloc_direct_exact_pair.sh --out FILE [--app FILE] [--tmp-keep]
 
 Runs the current representative object-lifecycle Hako/C pair through the
 canonical direct-exact front:
@@ -29,6 +29,10 @@ USAGE
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
+    --app)
+      APP="${2:-}"
+      shift 2
+      ;;
     --out)
       OUT_FILE="${2:-}"
       shift 2
@@ -60,6 +64,10 @@ done
 if [[ -z "$OUT_FILE" ]]; then
   echo "[mimalloc-direct-exact-pair] ERROR: --out FILE is required" >&2
   usage
+  exit 2
+fi
+if [[ ! -f "$APP" ]]; then
+  echo "[mimalloc-direct-exact-pair] ERROR: app not found: $APP" >&2
   exit 2
 fi
 case "$OPERATION_REPEAT" in
@@ -115,6 +123,7 @@ python3 "$PAIR_ADAPTER" \
 
 {
   cat "$pair_report"
+  echo "hako_app=$APP"
   echo "direct_exact_env_contract=mimalloc-direct-exact-env-v0"
   echo "NYASH_FEATURES=$NYASH_FEATURES"
   echo "NYASH_DISABLE_PLUGINS=$NYASH_DISABLE_PLUGINS"
