@@ -78,6 +78,20 @@ impl ASTNode {
                     visitor(value);
                 }
             }
+            ASTNode::BuildWhen {
+                then_items,
+                else_items,
+                ..
+            } => {
+                for item in then_items {
+                    visitor(item);
+                }
+                if let Some(else_items) = else_items {
+                    for item in else_items {
+                        visitor(item);
+                    }
+                }
+            }
             ASTNode::BoxDeclaration {
                 methods,
                 constructors,
@@ -323,6 +337,20 @@ impl ASTNode {
                 } else {
                     format!("ImportStatement({})", path)
                 }
+            }
+            ASTNode::BuildWhen {
+                predicate,
+                then_items,
+                else_items,
+                ..
+            } => {
+                let else_count = else_items.as_ref().map_or(0, Vec::len);
+                format!(
+                    "BuildWhen({:?}, then={}, else={})",
+                    predicate,
+                    then_items.len(),
+                    else_count
+                )
             }
             ASTNode::BoxDeclaration {
                 name,
@@ -613,6 +641,7 @@ impl ASTNode {
             ASTNode::Continue { span, .. } => *span,
             ASTNode::UsingStatement { span, .. } => *span,
             ASTNode::ImportStatement { span, .. } => *span,
+            ASTNode::BuildWhen { span, .. } => *span,
             ASTNode::Nowait { span, .. } => *span,
             ASTNode::TaskScope { span, .. } => *span,
             ASTNode::ContextScope { span, .. } => *span,
@@ -803,7 +832,9 @@ impl ASTNode {
                             .iter()
                             .any(|s| contains(s, loop_depth.saturating_add(1)))
                 }
-                ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => false,
+                ASTNode::UsingStatement { .. }
+                | ASTNode::ImportStatement { .. }
+                | ASTNode::BuildWhen { .. } => false,
                 ASTNode::FromCall { .. } => false,
                 _ => node.any_child(|child| contains(child, loop_depth)),
             }

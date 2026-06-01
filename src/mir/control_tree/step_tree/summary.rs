@@ -39,6 +39,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::Continue { .. } => "Continue",
         ASTNode::UsingStatement { .. } => "UsingStatement",
         ASTNode::ImportStatement { .. } => "ImportStatement",
+        ASTNode::BuildWhen { .. } => "BuildWhen",
         ASTNode::Nowait { .. } => "Nowait",
         ASTNode::TaskScope { .. } => "TaskScope",
         ASTNode::ContextScope { .. } => "ContextScope",

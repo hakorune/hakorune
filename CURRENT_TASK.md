@@ -87,9 +87,12 @@ Scope: current lane / next lane / restart order only.
   3. Array / representation fast paths only when selected by mimalloc perf
      evidence or by the active direct-memory substrate workstream
   4. docs and shell hygiene
-- Mimalloc direct-exact optimization is active again after the direct-memory
-  substrate wave. MIM-055 consumed resetToFresh DirectArray range-index plans;
-  the next owner is read from `CURRENT_STATE.toml`.
+- LANG-CFG build conditional syntax is the active short language slice before
+  returning to mimalloc. The source surface is `when Build... { ... }`, not
+  C-style `#if`; read `CURRENT_STATE.toml` and
+  `latest_workstream_card` for the active blocker.
+- Mimalloc direct-exact optimization is paused after MIM-069 nonkeeper. Return
+  to MIM-070 only after the LANG-CFG slice is closed or explicitly parked.
 - Day-to-day work lives in `latest_workstream_card` from `CURRENT_STATE.toml`.
   Do not create numbered rows for inventory-only progress.
 - Do not open another Array / helper / RuntimeDataBox fast path unless the

@@ -61,6 +61,7 @@ impl NyashTokenizer {
             "delegate" => TokenType::DELEGATE,
             "weak" => TokenType::WEAK,
             "using" => TokenType::USING,
+            "when" => TokenType::WHEN,
             "and" => TokenType::AND,
             "or" => TokenType::OR,
             // Stage-3 loop keywords (gated below)

@@ -197,6 +197,14 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
                 scan_body(body, out);
             }
             ASTNode::Return { value, .. } => scan_optional_node(value, out),
+            ASTNode::BuildWhen {
+                then_items,
+                else_items,
+                ..
+            } => {
+                scan_body(then_items, out);
+                scan_optional_body(else_items, out);
+            }
             ASTNode::GlobalVar { value, .. } => scan_node(value, out),
             ASTNode::UnaryOp { operand, .. } => scan_node(operand, out),
             ASTNode::BinaryOp { left, right, .. } => {

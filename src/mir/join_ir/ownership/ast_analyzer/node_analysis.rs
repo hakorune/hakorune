@@ -272,6 +272,32 @@ impl AstOwnershipAnalyzer {
 
             ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => {}
 
+            ASTNode::BuildWhen {
+                then_items,
+                else_items,
+                ..
+            } => {
+                let block_scope = self.alloc_scope(ScopeKind::Block, Some(current_scope));
+                self.push_env();
+                let result: Result<(), String> = then_items
+                    .iter()
+                    .try_for_each(|s| self.analyze_node(s, block_scope, false));
+                self.pop_env();
+                result?;
+                self.propagate_to_parent(block_scope);
+
+                if let Some(else_items) = else_items {
+                    let else_scope = self.alloc_scope(ScopeKind::Block, Some(current_scope));
+                    self.push_env();
+                    let result: Result<(), String> = else_items
+                        .iter()
+                        .try_for_each(|s| self.analyze_node(s, else_scope, false));
+                    self.pop_env();
+                    result?;
+                    self.propagate_to_parent(else_scope);
+                }
+            }
+
             ASTNode::GlobalVar { value, .. } => {
                 self.analyze_node(value, current_scope, false)?;
             }

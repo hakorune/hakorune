@@ -18,6 +18,7 @@
 
 // サブモジュール宣言
 mod common;
+mod build_cfg;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
@@ -300,7 +301,11 @@ impl NyashParser {
                 continue;
             }
 
-            let mut statement = self.parse_statement()?;
+            let mut statement = if self.match_token(&TokenType::WHEN) {
+                self.parse_build_when_item()?
+            } else {
+                self.parse_statement()?
+            };
             self.attach_pending_runes_to_declaration(&mut statement)?;
             statements.push(statement);
             _statement_count += 1;

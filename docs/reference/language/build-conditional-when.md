@@ -1,0 +1,205 @@
+# Build Conditional `when`
+
+Status: Provisional reference
+Decision: accepted-for-implementation-slices
+Date: 2026-06-01
+
+## Purpose
+
+Hakorune uses AST-level build conditionals instead of C-style token
+preprocessing.
+
+Accepted direction:
+
+```hako
+when Build.test {
+    import "HakoTest"
+
+    test resetToFresh_smoke() {
+        ...
+    }
+} else {
+    import "HakoReleaseHooks"
+}
+```
+
+Rejected direction:
+
+```text
+#if / #else / #endif
+#define
+token paste
+conditional partial syntax
+```
+
+`when` is a build-time selector. It is not a runtime `if`, not a macro, and
+not a Rune metadata row.
+
+## Meaning
+
+```text
+if:
+  runtime value branch
+
+when:
+  build configuration branch
+```
+
+Inactive `when` branches:
+
+- are parsed
+- may be formatted and inspected by tooling
+- are not resolved
+- are not typechecked
+- do not produce MIR
+- do not reach lowering
+
+Syntax errors in inactive branches are still errors. Missing imports, missing
+types, or backend-only names in inactive branches are not errors.
+
+## Predicate Surface
+
+`when` predicates are a small build-configuration DSL. They are not ordinary
+`.hako` expressions.
+
+Accepted v0 predicate atoms:
+
+```text
+Build.test
+Build.debug
+Build.release
+Feature("name")
+Target.os == linux
+Target.arch == x86_64
+Backend.kind == c
+```
+
+Accepted combinators:
+
+```text
+not(...)
+all(...)
+any(...)
+```
+
+Policy:
+
+- runtime values are not readable from `when`
+- function calls are not allowed, except the built-in predicate form
+  `Feature("name")`
+- environment variables are not read directly from source
+- unknown features are compile errors, not silent false
+
+## Slice Order
+
+### LANG-CFG-001: item/import level
+
+Owner: parser + build-cfg prune before resolution.
+
+Scope:
+
+```text
+program item
+import / using
+box declaration
+function declaration
+test declaration when present
+```
+
+Acceptance:
+
+```text
+inactive_branch_mir_count=0
+inactive_branch_lowering_count=0
+unknown_feature_is_error=1
+inactive_import_not_resolved=1
+```
+
+### LANG-CFG-002: member level
+
+Scope:
+
+```text
+box member declarations
+method declarations
+stored fields
+```
+
+Constraint:
+
+Public ABI/layout changes behind `when` are rejected by default unless the
+branch pair preserves the same public signature.
+
+### LANG-CFG-003: statement level
+
+Scope:
+
+```text
+method body statement blocks
+```
+
+Use case:
+
+```hako
+resetToFresh() {
+    ...
+
+    when Build.test {
+        me.test_reset_count = me.test_reset_count + 1
+    }
+}
+```
+
+Statement-level `when` is intentionally later than item/member level because
+it touches MIR construction and control-flow shape.
+
+### LANG-CFG-004: optional Rune sugar
+
+`@rune When(...)` may be added later as single-declaration sugar only:
+
+```hako
+@rune When(Build.test)
+test resetToFresh_smoke() {
+    ...
+}
+```
+
+It desugars to:
+
+```hako
+when Build.test {
+    test resetToFresh_smoke() {
+        ...
+    }
+}
+```
+
+`when` remains the semantic owner.
+
+## Style Rules
+
+- Prefer separate test modules for large test-only code.
+- Use `when Build.test { ... }` for small grouped test-only declarations.
+- Do not put test-only fields in allocator hot-core boxes unless a dedicated
+  layout row accepts the public/private layout change.
+- Do not use `when` to hide production behavior changes inside hot paths.
+- Do not use `when` as an optimization knob. Fast paths must still be selected
+  by facts/plans/proofs, not by source branch names.
+
+## Explain Report
+
+Build conditional pruning should expose a compact report:
+
+```text
+output_contract=hakorune-build-cfg-explain-v0
+build_mode=test
+target_os=linux
+target_arch=x86_64
+backend=c
+
+conditional_group_count=...
+active_branch_count=...
+inactive_branch_count=...
+inactive_branch_mir_count=0
+summary=ok
+```

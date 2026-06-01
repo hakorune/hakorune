@@ -295,6 +295,21 @@ pub enum BinaryOperator {
     Or,
 }
 
+/// Build-time conditional predicate carried by `when`.
+///
+/// This is intentionally separate from ordinary expression AST. `when` is
+/// evaluated from build configuration before resolution/MIR, not at runtime.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BuildPredicate {
+    BuildFlag(String),
+    Feature(String),
+    TargetEq { key: String, value: String },
+    BackendEq { key: String, value: String },
+    Not(Box<BuildPredicate>),
+    All(Vec<BuildPredicate>),
+    Any(Vec<BuildPredicate>),
+}
+
 impl fmt::Display for UnaryOperator {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let symbol = match self {
@@ -399,6 +414,17 @@ pub enum ASTNode {
     ImportStatement {
         path: String,
         alias: Option<String>,
+        span: Span,
+    },
+
+    /// Build-time conditional item group: `when Build.test { ... } else { ... }`.
+    ///
+    /// LANG-CFG-001 owns parser transport only. Inactive-branch pruning before
+    /// resolution/MIR is a later slice.
+    BuildWhen {
+        predicate: BuildPredicate,
+        then_items: Vec<ASTNode>,
+        else_items: Option<Vec<ASTNode>>,
         span: Span,
     },
 

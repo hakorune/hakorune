@@ -15,7 +15,22 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
-program   := (static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
+program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
+
+cfg_item  := 'when' build_predicate '{' program_item* '}' ('else' cfg_else)?
+cfg_else  := cfg_item | '{' program_item* '}'
+program_item := static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt
+
+; Build conditional predicates are not ordinary runtime expressions.
+; LANG-CFG-001 owns parser transport and prune-before-resolution semantics.
+build_predicate :=
+             'Build' '.' ('test' | 'debug' | 'release')
+           | 'Feature' '(' STRING ')'
+           | 'Target' '.' ('os' | 'arch') '==' IDENT
+           | 'Backend' '.' 'kind' '==' IDENT
+           | 'not' '(' build_predicate ')'
+           | 'all' '(' build_predicate (',' build_predicate)* ')'
+           | 'any' '(' build_predicate (',' build_predicate)* ')'
 
 ; M11b static const table syntax.
 ; Reads use the existing postfix index expression.
