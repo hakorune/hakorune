@@ -69,6 +69,13 @@ def bool_text(value: bool) -> str:
     return "1" if value else "0"
 
 
+def field_text(row: dict[str, Any], key: str, default: str = "unknown") -> str:
+    value = row.get(key)
+    if value is None:
+        return default
+    return str(value)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mir-json", type=Path, required=True)
@@ -89,6 +96,8 @@ def main() -> int:
     span_plans: list[tuple[str, dict[str, Any]]] = []
     regions: list[tuple[str, dict[str, Any]]] = []
     obligations: list[tuple[str, dict[str, Any]]] = []
+    hotcore_summaries: list[tuple[str, dict[str, Any]]] = []
+    hotcore_call_plans: list[tuple[str, dict[str, Any]]] = []
 
     for function in selected:
         name = function_name(function)
@@ -96,10 +105,18 @@ def main() -> int:
         span_plans.extend((name, row) for row in list_meta(function, "span_access_plans"))
         regions.extend((name, row) for row in list_meta(function, "required_fastpath_regions"))
         obligations.extend((name, row) for row in list_meta(function, "fastpath_obligations"))
+        hotcore_summaries.extend(
+            (name, row) for row in list_meta(function, "hotcore_method_summaries")
+        )
+        hotcore_call_plans.extend(
+            (name, row) for row in list_meta(function, "direct_exact_hotcore_call_plans")
+        )
 
     direct_rows = [row for _, row in direct_plans]
     span_rows = [row for _, row in span_plans]
     obligation_rows = [row for _, row in obligations]
+    hotcore_summary_rows = [row for _, row in hotcore_summaries]
+    hotcore_call_rows = [row for _, row in hotcore_call_plans]
 
     direct_op_counts = count_by(direct_rows, "op")
     direct_bounds_counts = count_by(direct_rows, "bounds_policy")
@@ -107,6 +124,9 @@ def main() -> int:
     span_op_counts = count_by(span_rows, "op")
     span_bounds_counts = count_by(span_rows, "bounds_policy")
     obligation_status_counts = count_by(obligation_rows, "status")
+    hotcore_summary_status_counts = count_by(hotcore_summary_rows, "summary")
+    hotcore_call_status_counts = count_by(hotcore_call_rows, "summary")
+    hotcore_call_dispatch_counts = count_by(hotcore_call_rows, "dispatch_policy")
     failure_code_counts = count_by(
         [row for row in obligation_rows if str(row.get("status", "")) != "passed"],
         "failure_code",
@@ -114,7 +134,26 @@ def main() -> int:
 
     fastpath_plan_count = len(direct_plans) + len(span_plans)
     failed_obligation_count = obligation_status_counts["failed"]
-    clean = failed_obligation_count == 0
+    hotcore_plan_failure_count = hotcore_summary_status_counts["failed"] + hotcore_call_status_counts["failed"]
+    direct_exact_static_call_lowered_count = sum(
+        1 for row in hotcore_call_rows if bool(row.get("lowering_consumer_enabled"))
+    )
+    direct_exact_plan_lowered_to_fallback_count = sum(
+        1
+        for row in hotcore_call_rows
+        if bool(row.get("lowering_consumer_enabled"))
+        and (
+            bool(row.get("generic_method_dispatch"))
+            or bool(row.get("dynamic_route"))
+            or bool(row.get("boxed_fallback"))
+        )
+    )
+    generic_method_dispatch_count = sum(
+        1 for row in hotcore_call_rows if bool(row.get("generic_method_dispatch"))
+    )
+    dynamic_route_count = sum(1 for row in hotcore_call_rows if bool(row.get("dynamic_route")))
+    boxed_fallback_count = sum(1 for row in hotcore_call_rows if bool(row.get("boxed_fallback")))
+    clean = failed_obligation_count == 0 and hotcore_plan_failure_count == 0
 
     function_plan_counts: Counter[str] = Counter()
     for name, _ in direct_plans:
@@ -151,6 +190,18 @@ def main() -> int:
         f"fastpath_obligation_passed_count={obligation_status_counts['passed']}",
         f"fastpath_obligation_failed_count={failed_obligation_count}",
         f"missing_fastpath_plan_count={failure_code_counts['DM006001']}",
+        f"hotcore_method_summary_count={len(hotcore_summaries)}",
+        f"hotcore_method_summary_ok_count={hotcore_summary_status_counts['ok']}",
+        f"hotcore_method_summary_failed_count={hotcore_summary_status_counts['failed']}",
+        f"direct_exact_hotcore_call_plan_count={len(hotcore_call_plans)}",
+        f"direct_exact_hotcore_call_plan_ok_count={hotcore_call_status_counts['ok']}",
+        f"direct_exact_hotcore_call_plan_failed_count={hotcore_call_status_counts['failed']}",
+        f"direct_exact_static_exact_dispatch_count={hotcore_call_dispatch_counts['static_exact']}",
+        f"direct_exact_static_call_lowered_count={direct_exact_static_call_lowered_count}",
+        f"direct_exact_plan_lowered_to_fallback_count={direct_exact_plan_lowered_to_fallback_count}",
+        f"generic_method_dispatch_count={generic_method_dispatch_count}",
+        f"dynamic_route_count={dynamic_route_count}",
+        f"boxed_fallback_count={boxed_fallback_count}",
         f"require_clean={bool_text(args.require_clean)}",
         f"clean={bool_text(clean)}",
         "provider_active=0",
@@ -179,6 +230,33 @@ def main() -> int:
                 f"{prefix}_op={obligation.get('op', 'unknown')}",
                 f"{prefix}_failure_code={obligation.get('failure_code', 'unknown')}",
                 f"{prefix}_failure_reason={obligation.get('failure_reason', 'unknown')}",
+            ]
+        )
+
+    for idx, (name, summary) in enumerate(hotcore_summaries[: max(0, args.topn)]):
+        prefix = f"hotcore_summary_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={name}",
+                f"{prefix}_method={summary.get('method', 'unknown')}",
+                f"{prefix}_block_count={summary.get('block_count', 'unknown')}",
+                f"{prefix}_return_kind={summary.get('return_kind', 'unknown')}",
+                f"{prefix}_status={summary.get('summary', 'unknown')}",
+                f"{prefix}_failure_reason={field_text(summary, 'failure_reason', 'none')}",
+            ]
+        )
+
+    for idx, (name, plan) in enumerate(hotcore_call_plans[: max(0, args.topn)]):
+        prefix = f"direct_exact_hotcore_call_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_caller={name}",
+                f"{prefix}_callee={plan.get('callee', 'unknown')}",
+                f"{prefix}_dispatch_policy={plan.get('dispatch_policy', 'unknown')}",
+                f"{prefix}_callee_summary_status={plan.get('callee_summary_status', 'unknown')}",
+                f"{prefix}_lowering_consumer_enabled={bool_text(bool(plan.get('lowering_consumer_enabled')))}",
+                f"{prefix}_status={plan.get('summary', 'unknown')}",
+                f"{prefix}_failure_reason={field_text(plan, 'failure_reason', 'none')}",
             ]
         )
 

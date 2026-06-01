@@ -3108,13 +3108,16 @@ truth stays in MIR metadata emitted by the compiler.
     `dispatch_policy=static_exact`, `summary=ok`, and
     `lowering_consumer_enabled=false`
   - no body inline and no benchmark winner claim
-- [ ] MIM-091: hako_check fastpath-explain plan visibility extension
+- [x] MIM-091: hako_check fastpath-explain plan visibility extension
   - output: extend the existing read-only `hako_check fastpath-explain` surface
     to display HotCore summaries and DirectExactHotCoreCallPlan call edges
   - rule: `hako_check` must not infer optimization truth; it only renders
     compiler MIR metadata and fails strict mode when expected metadata reports
     a missing/fallback route
   - user-facing goal: explain what was optimized, what stayed generic, and why
+  - result: `fastpath_explain.py` now reports HotCore summary counts,
+    DirectExactHotCore call-plan counts, static-exact dispatch counts, fallback
+    counters, and top call-edge rows from compiler-emitted MIR JSON metadata
   - no source rewrite, no MIR emission in the Python adapter, no keeper
     selection
 - [ ] MIM-092: strict diagnostic for plan-to-fallback mismatch
