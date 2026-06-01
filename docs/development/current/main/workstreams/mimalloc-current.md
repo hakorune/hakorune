@@ -3171,7 +3171,7 @@ truth stays in MIR metadata emitted by the compiler.
   - rejected_next_owner=direct_exact_call_boundary
   - rejected_reason=HotCore static call lowering is already consumed and
     `direct_exact_plan_lowered_to_fallback_count=0`
-- [ ] MIM-095: counter publication and body-shape owner split
+- [x] MIM-095: counter publication and body-shape owner split
   - output: classify the remaining PageQueue/PageModel/Facade hot body work
     into public proof counters, observer publication, and internal scalar body
     shape
@@ -3182,6 +3182,23 @@ truth stays in MIR metadata emitted by the compiler.
     `release_known_page_fast_path_count=524288` for the current proof app
   - no source hand-inline of multi-block helpers; no `LateHotInlinePlan`
     unless a new measurement selects call overhead
+  - result:
+    - public proof counters:
+      `object_lifecycle_page_queue_box.hako:101-103`
+      (`request_count`, `recordActiveSelection`, `single_page_fast_path_count`)
+      and `object_lifecycle_facade_box.hako:160`
+      (`release_known_page_fast_path_count`) are read by the representative
+      proof app and cannot be moved behind `gate Build.*` without changing
+      proof output
+    - observer/result publication:
+      `object_lifecycle_facade_box.hako:160-162` publishes release success
+      state and fast-path count after the known-page release; this remains a
+      public facade responsibility
+    - internal body-shape cleanup:
+      the first selected implementation is MIM-096, because missing return
+      type metadata made the successful `trySelectSingleActivePage()` path
+      fall back to a dynamic `RuntimeDataBox.acquireFreshSmall` receiver route
+    - selected_next=MIM-096_trySelectSingleActivePage_typed_return_cleanup
 - [x] MIM-096: `trySelectSingleActivePage` typed return cleanup
   - output: annotate `trySelectSingleActivePage(): HakoAllocPageModel` so the
     active small-allocation fast path keeps `page.acquireFreshSmall(size)` on
