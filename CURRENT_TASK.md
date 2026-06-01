@@ -148,7 +148,12 @@ Recommended order:
    - status: done; `tools/hako_check/fastpath_explain.py` reads existing MIR
      JSON and reports DirectArray / Span / RequiredFastPath metadata coverage
    - no source rewrite, no MIR emission, no keeper selection
-9. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
+9. `LANG-DM-006D` hako_check FastPath explain developer wrapper
+   - status: done; `tools/hako_check/fastpath_explain.sh` can emit temporary
+     MIR JSON for `--app app.hako` and then call the read-only adapter
+   - no compiler build, benchmark run, source rewrite, persistent MIR artifact,
+     or keeper selection
+10. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
    the DirectArray/Span proof system is stable.
 
 Mimalloc optimization is active now. Read `CURRENT_STATE.toml` for the next

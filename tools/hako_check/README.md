@@ -154,11 +154,27 @@ FastPath Explain
 python3 tools/hako_check/fastpath_explain.py --mir-json app.mir.json
 ```
 
+- Developer convenience entry:
+
+```bash
+bash tools/hako_check/fastpath_explain.sh --app app.hako
+```
+
+- The wrapper is only an app-to-MIR-json adapter around the stable Python
+  contract. It requires an existing `target/release/hakorune`, emits a temporary
+  MIR JSON file, then invokes `fastpath_explain.py`. It does not build the
+  compiler or run benchmarks.
+- Existing MIR JSON artifacts can still be read directly:
+
+```bash
+bash tools/hako_check/fastpath_explain.sh --mir-json app.mir.json
+```
+
 - Optional strict mode fails only when existing FastPath obligations failed:
 
 ```bash
-python3 tools/hako_check/fastpath_explain.py \
-  --mir-json app.mir.json \
+bash tools/hako_check/fastpath_explain.sh \
+  --app app.hako \
   --method HakoAllocPageModel.resetToFresh/0 \
   --require-clean
 ```

@@ -103,6 +103,16 @@ direct storage routes.
   - optional `--require-clean` returns non-zero only when existing
     FastPath obligations failed
 
+- [x] LANG-DM-006D: hako_check FastPath explain developer wrapper
+  - output: make the FastPath explain adapter usable as a development tool
+    without a manual MIR JSON step
+  - tool: `tools/hako_check/fastpath_explain.sh`
+  - supports `--app app.hako` by emitting a temporary MIR JSON artifact, then
+    calling the stable read-only Python adapter
+  - supports `--mir-json app.mir.json` for prebuilt artifacts
+  - does not build the compiler, run benchmarks, persist MIR by default, rewrite
+    source, select keepers, or own lowering policy
+
 ### Parked
 
 - [ ] LANG-DM-007: unsafe memory / Bytes parked design
@@ -163,3 +173,7 @@ direct storage routes.
   MIR JSON diagnostic adapter. This gives DirectArray / Span /
   RequiredFastPath metadata one developer-facing report without widening
   `.hako` syntax or moving keeper selection into hako_check.
+- 2026-06-01: LANG-DM-006D added the developer wrapper
+  `tools/hako_check/fastpath_explain.sh`. It can run from `.hako` source by
+  emitting temporary MIR JSON first, but the policy owner stays the existing
+  read-only `fastpath_explain.py` contract.

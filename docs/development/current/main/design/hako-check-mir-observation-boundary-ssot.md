@@ -22,6 +22,12 @@ and exists so future `direct {}` / FastPath obligation failures have one
 developer-facing explanation surface. It must not emit MIR, rewrite source,
 select keepers, or own lowering policy.
 
+Developer convenience exception: `tools/hako_check/fastpath_explain.sh --app`
+may emit a temporary MIR JSON artifact before invoking the stable
+`fastpath_explain.py` adapter. This wrapper is allowed only as a tool entrypoint:
+it does not build the compiler, persist MIR by default, run benchmarks, select
+keepers, or change the read-only Python contract.
+
 ```text
 hako_check perf-surface:
   source-level risk and keeper suggestion
@@ -140,6 +146,9 @@ summary=ok|failed
 - `hako_check` does not rewrite source.
 - `hako_check fastpath-explain` does not emit MIR; it consumes a caller-provided
   MIR JSON file only.
+- `tools/hako_check/fastpath_explain.sh --app` is a developer wrapper that emits
+  temporary MIR JSON before calling the read-only adapter; it is not a MIR
+  analysis owner.
 - MIR method shape does not select keepers by itself.
 - Diff adapter does not implement keepers.
 - Provider activation, process allocator replacement, hooks, globals, and
