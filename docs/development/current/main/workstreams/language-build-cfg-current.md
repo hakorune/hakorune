@@ -50,13 +50,16 @@ when Build.test {
   - result: Rust parser carries `ASTNode::BuildWhen` with `BuildPredicate`
     metadata; parser tests cover `Build.test`, `Feature`, and `Target`
     predicates
-  - no pruning semantics yet
+  - pruning semantics landed in LANG-CFG-002
 
-- [ ] LANG-CFG-002: build config evaluator and prune-before-resolution
+- [x] LANG-CFG-002: build config evaluator and prune-before-resolution
   - output: active branches are retained and inactive branches are removed
     before name resolution/typecheck/MIR/lowering
   - unknown `Feature("name")` is an error
   - inactive imports are not resolved
+  - result: parser prunes `ASTNode::BuildWhen` after parse and before delegate
+    lowering; default mode is release, and parser tests can pass an explicit
+    `ParserBuildConfig`
 
 - [ ] LANG-CFG-003: explain report / smoke
   - output: `hakorune-build-cfg-explain-v0` report fields for active/inactive

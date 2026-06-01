@@ -90,6 +90,22 @@ Policy:
 - environment variables are not read directly from source
 - unknown features are compile errors, not silent false
 
+Default parser configuration:
+
+```text
+Build.release=1
+Build.test=0
+Build.debug=0
+Target.os=current host OS
+Target.arch=current host arch
+Backend.kind=unknown
+known_features=[]
+enabled_features=[]
+```
+
+Tooling/CLI integration may pass an explicit build config. Source files do not
+read environment variables directly.
+
 ## Slice Order
 
 ### LANG-CFG-001: item/import level

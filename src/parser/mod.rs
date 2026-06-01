@@ -42,6 +42,7 @@ use common::ParserUtils;
 
 use crate::ast::{ASTNode, EnumVariantDecl, RuneAttr, Span};
 use crate::tokenizer::{Token, TokenType, TokenizeError};
+use std::collections::BTreeSet;
 use thiserror::Error;
 
 #[inline]
@@ -52,6 +53,36 @@ fn is_sugar_enabled() -> bool {
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ParserMetadata {
     pub runes: Vec<RuneAttr>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BuildMode {
+    Test,
+    Debug,
+    Release,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParserBuildConfig {
+    pub mode: BuildMode,
+    pub known_features: BTreeSet<String>,
+    pub enabled_features: BTreeSet<String>,
+    pub target_os: String,
+    pub target_arch: String,
+    pub backend_kind: String,
+}
+
+impl Default for ParserBuildConfig {
+    fn default() -> Self {
+        Self {
+            mode: BuildMode::Release,
+            known_features: BTreeSet::new(),
+            enabled_features: BTreeSet::new(),
+            target_os: std::env::consts::OS.to_string(),
+            target_arch: std::env::consts::ARCH.to_string(),
+            backend_kind: "unknown".to_string(),
+        }
+    }
 }
 
 // ===== 🔥 Debug Macros =====
@@ -152,6 +183,9 @@ pub enum ParseError {
 
     #[error("Tokenize error: {0}")]
     TokenizeError(#[from] TokenizeError),
+
+    #[error("Build cfg error: {message} at line {line}")]
+    BuildCfg { message: String, line: usize },
 }
 
 /// Nyashパーサー - トークン列をASTに変換
@@ -169,6 +203,8 @@ pub struct NyashParser {
     pub(super) rune_metadata: Vec<RuneAttr>,
     /// Enum declarations parsed so far, used to resolve shorthand enum matches.
     pub(super) known_enums: std::collections::BTreeMap<String, Vec<EnumVariantDecl>>,
+    /// Build configuration used to prune AST-level `when` conditionals.
+    pub(super) build_config: ParserBuildConfig,
 }
 
 // ParserUtils trait implementation now lives here (legacy depth tracking removed)
@@ -185,7 +221,13 @@ impl NyashParser {
             rune_metadata: Vec::new(),
             known_enums: crate::semantics::result_option_prelude::result_option_prelude_enum_decls(
             ),
+            build_config: ParserBuildConfig::default(),
         }
+    }
+
+    pub fn with_build_config(mut self, build_config: ParserBuildConfig) -> Self {
+        self.build_config = build_config;
+        self
     }
 
     pub(super) fn register_enum_declaration(&mut self, name: &str, variants: &[EnumVariantDecl]) {
@@ -213,6 +255,21 @@ impl NyashParser {
         input: impl Into<String>,
         fuel: Option<usize>,
     ) -> Result<ASTNode, ParseError> {
+        Self::parse_from_string_with_fuel_and_build_config(input, fuel, ParserBuildConfig::default())
+    }
+
+    pub fn parse_from_string_with_build_config(
+        input: impl Into<String>,
+        build_config: ParserBuildConfig,
+    ) -> Result<ASTNode, ParseError> {
+        Self::parse_from_string_with_fuel_and_build_config(input, Some(100_000), build_config)
+    }
+
+    pub fn parse_from_string_with_fuel_and_build_config(
+        input: impl Into<String>,
+        fuel: Option<usize>,
+        build_config: ParserBuildConfig,
+    ) -> Result<ASTNode, ParseError> {
         let input_s: String = input.into();
         let pre = normalize_logical_ops(&input_s);
         let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
@@ -231,6 +288,7 @@ impl NyashParser {
 
         let mut parser = Self::new(tokens);
         parser.debug_fuel = fuel;
+        parser.build_config = build_config;
         parser.parse()
     }
 
@@ -263,7 +321,9 @@ impl NyashParser {
 
     /// パース実行 - Program ASTを返す
     pub fn parse(&mut self) -> Result<ASTNode, ParseError> {
-        delegate_lowering::lower_delegate_exposes(self.parse_program()?)
+        let ast = self.parse_program()?;
+        let ast = self.prune_build_when_program(ast)?;
+        delegate_lowering::lower_delegate_exposes(ast)
     }
 
     // ===== パース関数群 =====

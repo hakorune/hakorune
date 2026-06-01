@@ -6,10 +6,41 @@
 use crate::ast::{ASTNode, BuildPredicate, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::statements::helpers::AnnotationSite;
-use crate::parser::{NyashParser, ParseError};
+use crate::parser::{BuildMode, NyashParser, ParseError, ParserBuildConfig};
 use crate::tokenizer::TokenType;
 
 impl NyashParser {
+    pub(super) fn prune_build_when_program(&self, ast: ASTNode) -> Result<ASTNode, ParseError> {
+        let ASTNode::Program { statements, span } = ast else {
+            return Ok(ast);
+        };
+        let statements = self.prune_build_when_items(statements)?;
+        Ok(ASTNode::Program { statements, span })
+    }
+
+    fn prune_build_when_items(&self, items: Vec<ASTNode>) -> Result<Vec<ASTNode>, ParseError> {
+        let mut out = Vec::new();
+        for item in items {
+            match item {
+                ASTNode::BuildWhen {
+                    predicate,
+                    then_items,
+                    else_items,
+                    span,
+                } => {
+                    let selected = if eval_build_predicate(&predicate, &self.build_config, span)? {
+                        then_items
+                    } else {
+                        else_items.unwrap_or_default()
+                    };
+                    out.extend(self.prune_build_when_items(selected)?);
+                }
+                other => out.push(other),
+            }
+        }
+        Ok(out)
+    }
+
     pub(super) fn parse_build_when_item(&mut self) -> Result<ASTNode, ParseError> {
         let line = self.current_token().line;
         self.consume(TokenType::WHEN)?;
@@ -190,6 +221,66 @@ impl NyashParser {
                 expected: expected.to_string(),
                 line: self.current_token().line,
             })
+        }
+    }
+}
+
+fn eval_build_predicate(
+    predicate: &BuildPredicate,
+    config: &ParserBuildConfig,
+    span: Span,
+) -> Result<bool, ParseError> {
+    match predicate {
+        BuildPredicate::BuildFlag(flag) => Ok(match (flag.as_str(), &config.mode) {
+            ("test", BuildMode::Test) => true,
+            ("debug", BuildMode::Debug) => true,
+            ("release", BuildMode::Release) => true,
+            _ => false,
+        }),
+        BuildPredicate::Feature(name) => {
+            if !config.known_features.contains(name) {
+                return Err(ParseError::BuildCfg {
+                    message: format!("unknown feature '{}'", name),
+                    line: span.line,
+                });
+            }
+            Ok(config.enabled_features.contains(name))
+        }
+        BuildPredicate::TargetEq { key, value } => Ok(match key.as_str() {
+            "os" => &config.target_os == value,
+            "arch" => &config.target_arch == value,
+            _ => {
+                return Err(ParseError::BuildCfg {
+                    message: format!("unsupported Target key '{}'", key),
+                    line: span.line,
+                })
+            }
+        }),
+        BuildPredicate::BackendEq { key, value } => {
+            if key != "kind" {
+                return Err(ParseError::BuildCfg {
+                    message: format!("unsupported Backend key '{}'", key),
+                    line: span.line,
+                });
+            }
+            Ok(&config.backend_kind == value)
+        }
+        BuildPredicate::Not(inner) => Ok(!eval_build_predicate(inner, config, span)?),
+        BuildPredicate::All(items) => {
+            for item in items {
+                if !eval_build_predicate(item, config, span)? {
+                    return Ok(false);
+                }
+            }
+            Ok(true)
+        }
+        BuildPredicate::Any(items) => {
+            for item in items {
+                if eval_build_predicate(item, config, span)? {
+                    return Ok(true);
+                }
+            }
+            Ok(false)
         }
     }
 }
