@@ -493,17 +493,32 @@ message.
     inventory of an existing DirectArray route surface, not a new fast-path
     lane, new syntax, or mixed-base inline widening
 
-- [ ] MIM-062: direct-array load residue inventory
+- [x] MIM-062: direct-array load residue inventory
   - output: classify the remaining executable `nyash.array.slot_load_hi` calls
     in the direct exact representative EXE by method, receiver origin, index
     facts, extent facts, and CFG safety
+  - implemented tool:
+    `tools/allocator/direct_array_load_residue_inventory.py`
   - target calls observed after MIM-061:
     `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2`,
     `HakoAllocObjectLifecyclePageQueue.selectPage/0`, and
     `HakoAllocPageModel.reactivate/0`
+  - result:
+    `slot_load_hi_executable_call_count=3`;
+    `objectLifecycleReleaseBlock/2` is missing `RangeIndexFact`;
+    `selectPage/0` and `reactivate/0` have `RangeIndexFact` but are missing
+    `DirectArrayExtentFact` / `RegionStabilityFact`
+  - selected next owner:
+    `direct_array_load_fact_gap_split`
   - stop line: inventory only unless positive route evidence is found; no
     source hand-expansion, no generic Array rewrite, no `direct {}` syntax, and
     no mixed-base inline widening
+
+- [ ] MIM-063: direct-array load fact gap selection
+  - output: choose exactly one of the two MIM-062 buckets for implementation:
+    either the `objectLifecycleReleaseBlock/2` range-index producer gap or the
+    `selectPage/0` / `reactivate/0` extent-stability fact gap
+  - stop line: selection only; do not implement both buckets together
 
 ### Next Cleanup TODO
 
