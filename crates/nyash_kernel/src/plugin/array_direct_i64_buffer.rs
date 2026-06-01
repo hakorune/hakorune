@@ -210,82 +210,49 @@ fn decode_direct_array_i64_handle(handle: i64) -> Option<NonNull<DirectArrayI64B
     NonNull::new((raw & !DIRECT_ARRAY_I64_HANDLE_TAG) as *mut DirectArrayI64BufferV0)
 }
 
-fn direct_array_i64_header_is_supported(ptr: *mut DirectArrayI64BufferV0) -> bool {
-    let header = unsafe { &*ptr };
-    header.kind == DIRECT_ARRAY_I64_KIND_V0
-        && header.generation != 0
-        && header.element_tag == DIRECT_ARRAY_ELEMENT_TAG_I64
-        && header.len <= header.capacity
-}
-
-pub(crate) fn direct_array_i64_store_i64(handle: i64, index: i64, value: i64) -> bool {
-    if handle <= 0 || index < 0 {
-        return false;
-    }
-    let Some(ptr) = DirectArrayI64BufferV0Box::from_handle(handle) else {
-        return false;
-    };
-    let ptr = ptr.as_ptr();
-    if !direct_array_i64_header_is_supported(ptr) {
-        return false;
-    }
-
-    let index = index as usize;
-    let header = unsafe { &*ptr };
-    let len = header.len as usize;
-    let capacity = header.capacity as usize;
-    if index > len || index >= capacity {
-        return false;
-    }
-
-    unsafe {
-        *direct_array_i64_buffer_data_mut_ptr(ptr).add(index) = value;
-        if index == len {
-            (*ptr).len = (len + 1) as u64;
-        }
-    }
-    true
-}
-
-pub(crate) fn direct_array_i64_load_i64(handle: i64, index: i64) -> Option<i64> {
-    if handle <= 0 || index < 0 {
-        return None;
-    }
-    let ptr = DirectArrayI64BufferV0Box::from_handle(handle)?.as_ptr();
-    if !direct_array_i64_header_is_supported(ptr) {
-        return None;
-    }
-
-    let index = index as usize;
-    let header = unsafe { &*ptr };
-    if index >= header.len as usize {
-        return None;
-    }
-
-    Some(unsafe { *direct_array_i64_buffer_data_ptr(ptr).add(index) })
-}
-
-pub(crate) fn direct_array_i64_push_i64(handle: i64, value: i64) -> Option<i64> {
+fn with_registered_direct_array_i64<R>(
+    handle: i64,
+    f: impl FnOnce(&mut DirectArrayI64BufferV0Box) -> R,
+) -> Option<R> {
     if handle <= 0 {
         return None;
     }
-    let ptr = DirectArrayI64BufferV0Box::from_handle(handle)?.as_ptr();
-    if !direct_array_i64_header_is_supported(ptr) {
+    DIRECT_ARRAY_I64_OBJECTS.with(|objects| {
+        let mut objects = objects.borrow_mut();
+        let object = objects
+            .iter_mut()
+            .find(|object| object.matches_handle(handle))?;
+        if !object.header_is_supported() || object.len() > object.capacity() {
+            return None;
+        }
+        Some(f(object))
+    })
+}
+
+pub(crate) fn direct_array_i64_store_i64(handle: i64, index: i64, value: i64) -> bool {
+    if index < 0 {
+        return false;
+    }
+    with_registered_direct_array_i64(handle, |object| object.store(index as usize, value))
+        .unwrap_or(false)
+}
+
+pub(crate) fn direct_array_i64_load_i64(handle: i64, index: i64) -> Option<i64> {
+    if index < 0 {
         return None;
     }
+    with_registered_direct_array_i64(handle, |object| object.load(index as usize)).flatten()
+}
 
-    let header = unsafe { &*ptr };
-    let len = header.len as usize;
-    let capacity = header.capacity as usize;
-    if len >= capacity {
-        return None;
-    }
-
-    unsafe {
-        *direct_array_i64_buffer_data_mut_ptr(ptr).add(len) = value;
-        (*ptr).len = (len + 1) as u64;
-    }
-    i64::try_from(len + 1).ok()
+pub(crate) fn direct_array_i64_push_i64(handle: i64, value: i64) -> Option<i64> {
+    with_registered_direct_array_i64(handle, |object| {
+        let len = object.len();
+        if !object.store(len, value) {
+            return None;
+        }
+        i64::try_from(len + 1).ok()
+    })
+    .flatten()
 }
 
 pub(crate) fn direct_array_i64_birth_handle_with_capacity(capacity: usize) -> Option<i64> {
@@ -344,6 +311,16 @@ mod tests {
         assert_eq!(direct_array_i64_load_i64(handle, 0), Some(7));
         assert_eq!(direct_array_i64_load_i64(handle, 1), Some(8));
         assert_eq!(direct_array_i64_load_i64(handle, 2), None);
+    }
+
+    #[test]
+    fn direct_array_i64_runtime_ops_reject_public_arraybox_handles() {
+        let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+        let public_handle = host_handles::to_handle_arc(array) as i64;
+
+        assert_eq!(direct_array_i64_push_i64(public_handle, 7), None);
+        assert!(!direct_array_i64_store_i64(public_handle, 0, 7));
+        assert_eq!(direct_array_i64_load_i64(public_handle, 0), None);
     }
 
     #[test]

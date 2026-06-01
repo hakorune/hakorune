@@ -1097,6 +1097,46 @@ message.
     owner-first perf/asm run selects a concrete site family with a
     `before_route == after_route` proof and a positive machine-code gate
 
+- [x] MIM-122: current front/workload owner refresh and app-smoke blocker
+  - output:
+    refresh public-proof and observer-light fronts before opening another
+    optimization owner; fix the selected correctness blocker before perf work
+  - public-proof direct-exact refresh:
+    `hako_body_elapsed_ns=3000000`, `c_body_elapsed_ns=3414603`,
+    `body_elapsed_ratio=0.879`, `hako_instructions_median=57578793`,
+    `hako_cycles_median=13570766`
+  - observer-light direct-exact refresh:
+    `hako_body_elapsed_ns=1000000`, `c_body_elapsed_ns=3736966`,
+    `body_elapsed_ratio=0.268`, `hako_instructions_median=33367209`,
+    `hako_cycles_median=6609357`
+  - observer-light fastpath status:
+    `direct_array_access_plan_count=13`,
+    `direct_array_proved_unchecked_plan_count=9`,
+    `hotcore_method_summary_count=2`,
+    `direct_exact_hotcore_call_plan_count=5`,
+    `direct_exact_static_call_lowered_count=5`,
+    `direct_exact_plan_lowered_to_fallback_count=0`, `summary=ok`
+  - blocker:
+    `mimalloc_lite_exe` and `allocator_stress_exe` crashed in
+    `array_runtime_push_any` before the selected optimization owner could be
+    trusted
+  - fix:
+    DirectArrayI64 runtime load/store/push now touch only handles registered in
+    the DirectArray registry. Public ArrayBox handles no longer get accepted
+    merely because their integer handle happens to match the tagged-pointer bit
+    pattern; public pushes fall back through the ArrayBox slot append facade.
+  - validation:
+    - `cargo test -q -p nyash_kernel array_direct_i64_buffer -- --nocapture`
+    - `cargo test -q -p nyash_kernel runtime_data_array_round_trip_keeps_rawarray_contract -- --nocapture`
+    - `cargo build --release -p nyash_kernel -p nyash-llvm-compiler`
+    - `bash tools/smokes/v2/profiles/integration/apps/mimalloc_lite_exe.sh`
+    - `bash tools/smokes/v2/profiles/integration/apps/allocator_stress_exe.sh`
+  - decision:
+    no new mimalloc optimization owner is opened in this slice
+  - next:
+    resume owner-first perf/asm only after app smoke and direct/public handle
+    boundary stay green
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
