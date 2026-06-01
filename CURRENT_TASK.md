@@ -87,13 +87,14 @@ Scope: current lane / next lane / restart order only.
   3. Array / representation fast paths only when selected by mimalloc perf
      evidence or by the active direct-memory substrate workstream
   4. docs and shell hygiene
-- LANG-CFG build conditional syntax is the active short language slice before
-  returning to mimalloc. `LANG-CFG-003` is landed; `LANG-CFG-004` member-level
-  selection is landed; the source surface is `gate Build... { ... }`, not
-  C-style `#if`; read `CURRENT_STATE.toml` and `latest_workstream_card` for the
-  active blocker.
-- Mimalloc direct-exact optimization is paused after MIM-069 nonkeeper. Return
-  to MIM-070 only after the LANG-CFG slice is closed or explicitly parked.
+- LANG-CFG build conditional syntax is now closed for this pass:
+  `LANG-CFG-003` explain/report, `LANG-CFG-004` member-level selection,
+  `LANG-CFG-005` statement-level selection, and `LANG-CFG-006` optional
+  `@rune Gate(...)` sugar are all landed. The source surface is
+  `gate Build... { ... }`, not C-style `#if`; read `CURRENT_STATE.toml` and
+  `latest_workstream_card` for the active blocker.
+- Mimalloc direct-exact optimization resumes after MIM-069 nonkeeper. The next
+  owner refresh lives in `CURRENT_STATE.toml` and the mimalloc workstream card.
 - Day-to-day work lives in `latest_workstream_card` from `CURRENT_STATE.toml`.
   Do not create numbered rows for inventory-only progress.
 - Do not open another Array / helper / RuntimeDataBox fast path unless the
@@ -147,7 +148,8 @@ Recommended order:
    the DirectArray/Span proof system is stable.
 
 Mimalloc optimization is active now. Read `CURRENT_STATE.toml` for the next
-blocker; the current post-MIM-056 checkpoint is a fresh owner refresh.
+blocker; the current post-MIM-056 checkpoint is a fresh owner refresh and the
+paused build-conditional slice has returned control to mimalloc.
 
 ## Current Ordered App Bringup
 

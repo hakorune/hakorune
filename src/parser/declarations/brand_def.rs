@@ -22,9 +22,11 @@ pub fn parse_brand_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErro
     let underlying_type_name =
         crate::parser::common::type_refs::parse_type_ref_text(p, "brand underlying type")?;
 
-    Ok(ASTNode::BrandDeclaration {
+    let node = ASTNode::BrandDeclaration {
         name,
         underlying_type_name,
         span: Span::unknown(),
-    })
+    };
+
+    p.wrap_with_pending_build_gate(node)
 }

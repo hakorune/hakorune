@@ -28,10 +28,12 @@ impl NyashParser {
         self.consume(TokenType::ASSIGN)?;
         let value = Box::new(self.parse_expression()?);
 
-        Ok(ASTNode::GlobalVar {
+        let node = ASTNode::GlobalVar {
             name,
             value,
             span: Span::unknown(),
-        })
+        };
+
+        self.wrap_with_pending_build_gate(node)
     }
 }

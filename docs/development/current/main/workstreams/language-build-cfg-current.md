@@ -31,7 +31,8 @@ gate Build.test {
 - no runtime `if` semantics
 - no arbitrary `.hako` expression evaluation in predicates
 - no public ABI/layout changes behind `gate` without a later member-level row
-- no `@rune Gate(...)` until `gate` itself is stable
+- `@rune Gate(...)` is top-level single-declaration sugar only; do not use it
+  on box members or ordinary statements
 
 ## Checklist
 
@@ -82,6 +83,12 @@ gate Build.test {
   - result: method-body `gate` blocks are parsed as statement-level build
     conditionals and inactive branches are pruned before MIR / lowering
 
-- [ ] LANG-CFG-006: optional `@rune Gate(...)` sugar
+- [x] LANG-CFG-006: optional `@rune Gate(...)` sugar
   - output: single-declaration sugar only, desugared to `gate`
-  - do not implement before the core `gate` contract is stable
+  - result: parser accepts `@rune Gate(...)` on top-level single declarations
+    and lowers it through the existing `BuildGate` AST contract
+
+## Next Lane
+
+Return to the paused mimalloc source-level owner refresh lane after the build
+conditional contract closes out.

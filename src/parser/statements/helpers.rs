@@ -55,7 +55,7 @@ impl NyashParser {
         };
 
         if anno_name == "rune" {
-            return self.parse_rune_annotation();
+            return self.parse_rune_annotation(site);
         }
 
         let rune = self.parse_legacy_annotation_as_rune(anno_name)?;
@@ -317,7 +317,7 @@ impl NyashParser {
         }
     }
 
-    fn parse_rune_annotation(&mut self) -> Result<bool, ParseError> {
+    fn parse_rune_annotation(&mut self, site: AnnotationSite) -> Result<bool, ParseError> {
         fn parse_rune_name(this: &mut NyashParser) -> Result<RuneAttr, ParseError> {
             fn parse_rune_arg(
                 this: &mut NyashParser,
@@ -418,6 +418,41 @@ impl NyashParser {
             })
         }
 
+        if self.match_token(&TokenType::IDENTIFIER("Gate".to_string())) {
+            if !matches!(site, AnnotationSite::TopLevel) {
+                return Err(ParseError::UnexpectedToken {
+                    found: self.current_token().token_type.clone(),
+                    expected:
+                        "[freeze:contract][parser/rune] @rune Gate(...) is allowed only at top level"
+                            .to_string(),
+                    line: self.current_token().line,
+                });
+            }
+
+            let gate_line = self.current_token().line;
+            self.advance();
+            self.consume(TokenType::LPAREN)?;
+            let predicate = self.parse_build_predicate()?;
+            self.consume(TokenType::RPAREN)?;
+
+            if self.match_token(&TokenType::SEMICOLON) {
+                self.advance();
+            }
+
+            if !self.is_top_level_declaration_after_annotations_at(self.current) {
+                return Err(ParseError::UnexpectedToken {
+                    found: self.current_token().token_type.clone(),
+                    expected:
+                        "[freeze:contract][parser/rune] @rune Gate(...) must precede a top-level declaration"
+                            .to_string(),
+                    line: gate_line,
+                });
+            }
+
+            self.push_pending_build_gate(predicate, gate_line)?;
+            return Ok(true);
+        }
+
         let rune = parse_rune_name(self)?;
         if !RuneAttr::supported_name(&rune.name) {
             return Err(ParseError::UnexpectedToken {
@@ -462,6 +497,33 @@ impl NyashParser {
             self.advance();
         }
         Ok(true)
+    }
+
+    fn is_top_level_declaration_after_annotations_at(&self, mut idx: usize) -> bool {
+        idx = self.skip_annotation_trivia(idx);
+        while matches!(
+            self.tokens.get(idx).map(|token| &token.token_type),
+            Some(TokenType::AT)
+        ) {
+            let Some(next_idx) = self.scan_annotation_end(idx) else {
+                return false;
+            };
+            idx = self.skip_annotation_trivia(next_idx);
+        }
+
+        matches!(
+            self.tokens.get(idx).map(|token| &token.token_type),
+            Some(TokenType::BOX)
+                | Some(TokenType::RECORD)
+                | Some(TokenType::ENUM)
+                | Some(TokenType::BRAND)
+                | Some(TokenType::TYPE)
+                | Some(TokenType::FLOW)
+                | Some(TokenType::INTERFACE)
+                | Some(TokenType::GLOBAL)
+                | Some(TokenType::FUNCTION)
+                | Some(TokenType::STATIC)
+        )
     }
 
     /// Thin adapter: when Cursor route is enabled, align statement start position

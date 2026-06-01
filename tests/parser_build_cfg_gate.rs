@@ -1,6 +1,6 @@
 use nyash_rust::ast::ASTNode;
 use nyash_rust::ast::LiteralValue;
-use nyash_rust::parser::{BuildMode, BuildGateExplainReport, NyashParser, ParserBuildConfig};
+use nyash_rust::parser::{BuildGateExplainReport, BuildMode, NyashParser, ParserBuildConfig};
 use std::collections::BTreeSet;
 
 #[test]
@@ -32,7 +32,10 @@ gate Build.test {
     assert_eq!(statements[0].node_type(), "ImportStatement");
     assert_eq!(statements[1].node_type(), "FunctionDeclaration");
 
-    assert_eq!(report.output_contract, BuildGateExplainReport::OUTPUT_CONTRACT);
+    assert_eq!(
+        report.output_contract,
+        BuildGateExplainReport::OUTPUT_CONTRACT
+    );
     assert_eq!(report.conditional_group_count, 1);
     assert_eq!(report.active_branch_count, 1);
     assert_eq!(report.inactive_branch_count, 1);
@@ -65,31 +68,38 @@ gate Build.test {
 }
 "#;
 
-    let (test_ast, test_report) = NyashParser::parse_from_string_with_build_config_and_explain_report(
-        source,
-        ParserBuildConfig {
-            mode: BuildMode::Test,
-            ..ParserBuildConfig::default()
-        },
-    )
-    .expect("test build cfg explain should parse");
+    let (test_ast, test_report) =
+        NyashParser::parse_from_string_with_build_config_and_explain_report(
+            source,
+            ParserBuildConfig {
+                mode: BuildMode::Test,
+                ..ParserBuildConfig::default()
+            },
+        )
+        .expect("test build cfg explain should parse");
 
-    let (release_ast, release_report) = NyashParser::parse_from_string_with_build_config_and_explain_report(
-        source,
-        ParserBuildConfig {
-            mode: BuildMode::Release,
-            ..ParserBuildConfig::default()
-        },
-    )
-    .expect("release build cfg explain should parse");
+    let (release_ast, release_report) =
+        NyashParser::parse_from_string_with_build_config_and_explain_report(
+            source,
+            ParserBuildConfig {
+                mode: BuildMode::Release,
+                ..ParserBuildConfig::default()
+            },
+        )
+        .expect("release build cfg explain should parse");
 
-    let ASTNode::Program { statements: test_statements, .. } = test_ast else {
+    let ASTNode::Program {
+        statements: test_statements,
+        ..
+    } = test_ast
+    else {
         panic!("expected Program");
     };
     let ASTNode::Program {
         statements: release_statements,
         ..
-    } = release_ast else {
+    } = release_ast
+    else {
         panic!("expected Program");
     };
 
@@ -174,6 +184,80 @@ function main() {
 }
 
 #[test]
+fn rune_gate_sugar_wraps_single_top_level_declaration() {
+    let source = r#"
+@rune Gate(Build.test)
+function gated() {
+    return 1
+}
+"#;
+
+    let (test_ast, test_report) =
+        NyashParser::parse_from_string_with_build_config_and_explain_report(
+            source,
+            ParserBuildConfig {
+                mode: BuildMode::Test,
+                ..ParserBuildConfig::default()
+            },
+        )
+        .expect("top-level rune gate sugar should parse in test build");
+
+    let (release_ast, release_report) =
+        NyashParser::parse_from_string_with_build_config_and_explain_report(
+            source,
+            ParserBuildConfig {
+                mode: BuildMode::Release,
+                ..ParserBuildConfig::default()
+            },
+        )
+        .expect("top-level rune gate sugar should parse in release build");
+
+    let ASTNode::Program {
+        statements: test_statements,
+        ..
+    } = test_ast
+    else {
+        panic!("expected Program");
+    };
+    let ASTNode::Program {
+        statements: release_statements,
+        ..
+    } = release_ast
+    else {
+        panic!("expected Program");
+    };
+
+    assert_eq!(test_statements.len(), 1);
+    assert_eq!(test_statements[0].node_type(), "FunctionDeclaration");
+    assert!(release_statements.is_empty());
+
+    assert_eq!(test_report.conditional_group_count, 1);
+    assert_eq!(test_report.active_branch_count, 1);
+    assert_eq!(test_report.inactive_branch_count, 0);
+    assert_eq!(release_report.conditional_group_count, 1);
+    assert_eq!(release_report.active_branch_count, 0);
+    assert_eq!(release_report.inactive_branch_count, 1);
+}
+
+#[test]
+fn rune_gate_sugar_is_rejected_outside_top_level() {
+    let err = NyashParser::parse_from_string(
+        r#"
+box BadGate {
+    @rune Gate(Build.test)
+    value: i64
+}
+"#,
+    )
+    .expect_err("member-context rune gate sugar should fail fast");
+
+    assert!(
+        format!("{err}").contains("@rune Gate(...) is allowed only at top level"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
 fn member_level_gate_selects_box_declarations_without_layout_drift() {
     let source = r#"
 box ChoiceBox {
@@ -224,7 +308,10 @@ box ChoiceBox {
         panic!("expected FunctionDeclaration");
     };
     assert_eq!(body.len(), 1);
-    let ASTNode::Return { value: Some(expr), .. } = &body[0] else {
+    let ASTNode::Return {
+        value: Some(expr), ..
+    } = &body[0]
+    else {
         panic!("expected return statement");
     };
     let ASTNode::Literal {
@@ -300,26 +387,34 @@ function main() {
     )
     .expect("statement-level gate should parse in release build");
 
-    let ASTNode::Program { statements: test_statements, .. } = test_ast else {
+    let ASTNode::Program {
+        statements: test_statements,
+        ..
+    } = test_ast
+    else {
         panic!("expected Program");
     };
     let ASTNode::Program {
         statements: release_statements,
         ..
-    } = release_ast else {
+    } = release_ast
+    else {
         panic!("expected Program");
     };
 
     assert_eq!(test_statements.len(), 1);
     assert_eq!(release_statements.len(), 1);
 
-    let ASTNode::FunctionDeclaration { body: test_body, .. } = &test_statements[0] else {
+    let ASTNode::FunctionDeclaration {
+        body: test_body, ..
+    } = &test_statements[0]
+    else {
         panic!("expected FunctionDeclaration");
     };
     let ASTNode::FunctionDeclaration {
-        body: release_body,
-        ..
-    } = &release_statements[0] else {
+        body: release_body, ..
+    } = &release_statements[0]
+    else {
         panic!("expected FunctionDeclaration");
     };
 
@@ -333,13 +428,15 @@ function main() {
     let ASTNode::Local {
         initial_values: test_initial_values,
         ..
-    } = &test_body[0] else {
+    } = &test_body[0]
+    else {
         panic!("expected Local");
     };
     let ASTNode::Local {
         initial_values: release_initial_values,
         ..
-    } = &release_body[0] else {
+    } = &release_body[0]
+    else {
         panic!("expected Local");
     };
 
@@ -392,7 +489,10 @@ function main() {
     )
     .expect("statement-level gate should parse in explain mode");
 
-    assert_eq!(report.output_contract, BuildGateExplainReport::OUTPUT_CONTRACT);
+    assert_eq!(
+        report.output_contract,
+        BuildGateExplainReport::OUTPUT_CONTRACT
+    );
     assert_eq!(report.conditional_group_count, 1);
     assert_eq!(report.active_branch_count, 1);
     assert_eq!(report.inactive_branch_count, 1);

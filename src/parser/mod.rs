@@ -17,8 +17,8 @@
  */
 
 // サブモジュール宣言
-mod common;
 mod build_cfg;
+mod common;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
@@ -40,7 +40,7 @@ pub mod sugar_gate; // thread-local gate for sugar parsing (tests/docs)
 
 use common::ParserUtils;
 
-use crate::ast::{ASTNode, EnumVariantDecl, RuneAttr, Span};
+use crate::ast::{ASTNode, BuildPredicate, EnumVariantDecl, RuneAttr, Span};
 use crate::tokenizer::{Token, TokenType, TokenizeError};
 use std::collections::BTreeSet;
 use thiserror::Error;
@@ -201,6 +201,8 @@ pub struct NyashParser {
     pub(super) debug_fuel: Option<usize>,
     /// Pending rune annotations waiting for the next declaration node.
     pub(super) pending_runes: Vec<RuneAttr>,
+    /// Pending `@rune Gate(...)` sugar waiting for the next declaration node.
+    pub(super) pending_build_gate: Option<(BuildPredicate, usize)>,
     /// Committed rune metadata in source order.
     pub(super) rune_metadata: Vec<RuneAttr>,
     /// Enum declarations parsed so far, used to resolve shorthand enum matches.
@@ -220,6 +222,7 @@ impl NyashParser {
             static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
+            pending_build_gate: None,
             rune_metadata: Vec::new(),
             known_enums: crate::semantics::result_option_prelude::result_option_prelude_enum_decls(
             ),
@@ -257,7 +260,11 @@ impl NyashParser {
         input: impl Into<String>,
         fuel: Option<usize>,
     ) -> Result<ASTNode, ParseError> {
-        Self::parse_from_string_with_fuel_and_build_config(input, fuel, ParserBuildConfig::default())
+        Self::parse_from_string_with_fuel_and_build_config(
+            input,
+            fuel,
+            ParserBuildConfig::default(),
+        )
     }
 
     pub fn parse_from_string_with_build_config(
@@ -419,6 +426,7 @@ impl NyashParser {
 
         // 🔥 すべてのstatic box解析後に循環依存検出
         self.check_circular_dependencies()?;
+        self.ensure_no_pending_build_gate("end of file")?;
 
         Ok(ASTNode::Program {
             statements,
@@ -518,6 +526,52 @@ impl NyashParser {
 
     pub(super) fn push_pending_rune(&mut self, rune: RuneAttr) {
         self.pending_runes.push(rune);
+    }
+
+    pub(super) fn push_pending_build_gate(
+        &mut self,
+        predicate: BuildPredicate,
+        line: usize,
+    ) -> Result<(), ParseError> {
+        if self.pending_build_gate.is_some() {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "[freeze:contract][parser/build-gate] duplicate @rune Gate".to_string(),
+                line,
+            });
+        }
+        self.pending_build_gate = Some((predicate, line));
+        Ok(())
+    }
+
+    pub(super) fn take_pending_build_gate(&mut self) -> Option<(BuildPredicate, usize)> {
+        self.pending_build_gate.take()
+    }
+
+    pub(super) fn wrap_with_pending_build_gate(
+        &mut self,
+        node: ASTNode,
+    ) -> Result<ASTNode, ParseError> {
+        if let Some((predicate, line)) = self.take_pending_build_gate() {
+            Ok(ASTNode::BuildGate {
+                predicate,
+                then_items: vec![node],
+                else_items: None,
+                span: Span::new(0, 0, line, 1),
+            })
+        } else {
+            Ok(node)
+        }
+    }
+
+    pub(super) fn ensure_no_pending_build_gate(&self, context: &str) -> Result<(), ParseError> {
+        if self.pending_build_gate.is_none() {
+            return Ok(());
+        }
+        Err(ParseError::BuildCfg {
+            message: format!("dangling @rune Gate before {}", context),
+            line: self.current_token().line,
+        })
     }
 }
 

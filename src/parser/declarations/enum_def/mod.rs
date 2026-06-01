@@ -78,13 +78,15 @@ pub fn parse_enum_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError
 
     p.consume(TokenType::RBRACE)?;
     p.register_enum_declaration(&name, &variants);
-    Ok(ASTNode::EnumDeclaration {
+    let node = ASTNode::EnumDeclaration {
         name,
         variants,
         type_parameters,
         attrs,
         span: Span::unknown(),
-    })
+    };
+
+    p.wrap_with_pending_build_gate(node)
 }
 
 fn parse_enum_name(p: &mut NyashParser) -> Result<String, ParseError> {

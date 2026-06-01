@@ -22,9 +22,11 @@ pub fn parse_type_alias_declaration(p: &mut NyashParser) -> Result<ASTNode, Pars
     let target_type_name =
         crate::parser::common::type_refs::parse_type_ref_text(p, "type alias target")?;
 
-    Ok(ASTNode::TypeAliasDeclaration {
+    let node = ASTNode::TypeAliasDeclaration {
         name,
         target_type_name,
         span: Span::unknown(),
-    })
+    };
+
+    p.wrap_with_pending_build_gate(node)
 }

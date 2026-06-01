@@ -75,10 +75,7 @@ fn box_try_method_postfix_after_last(
     )
 }
 
-fn box_try_init_block(
-    p: &mut NyashParser,
-    state: &mut BoxMemberState,
-) -> Result<bool, ParseError> {
+fn box_try_init_block(p: &mut NyashParser, state: &mut BoxMemberState) -> Result<bool, ParseError> {
     if !(p.match_token(&TokenType::INIT) && p.peek_token() != &TokenType::LPAREN) {
         return Ok(false);
     }
@@ -86,22 +83,18 @@ fn box_try_init_block(
     members::fields::parse_init_block_if_any(p, &mut state.init_fields, &mut state.weak_fields)
 }
 
-fn box_try_delegate(
-    p: &mut NyashParser,
-    state: &mut BoxMemberState,
-) -> Result<bool, ParseError> {
+fn box_try_delegate(p: &mut NyashParser, state: &mut BoxMemberState) -> Result<bool, ParseError> {
     if !p.match_token(&TokenType::DELEGATE) {
         return Ok(false);
     }
     p.ensure_no_pending_runes("delegate declaration")?;
-    state.delegates.push(members::delegates::parse_delegate_decl(p)?);
+    state
+        .delegates
+        .push(members::delegates::parse_delegate_decl(p)?);
     Ok(true)
 }
 
-fn box_try_transition(
-    p: &mut NyashParser,
-    state: &mut BoxMemberState,
-) -> Result<bool, ParseError> {
+fn box_try_transition(p: &mut NyashParser, state: &mut BoxMemberState) -> Result<bool, ParseError> {
     if let Some(transition) = members::transitions::try_parse_transition_decl(p)? {
         p.ensure_no_pending_runes("transition declaration")?;
         state.transitions.push(transition);
@@ -512,7 +505,8 @@ impl BoxMemberState {
         self.delegates.extend(other.delegates.drain(..));
         self.invariants.extend(other.invariants.drain(..));
         self.transitions.extend(other.transitions.drain(..));
-        self.birth_once_props.extend(other.birth_once_props.drain(..));
+        self.birth_once_props
+            .extend(other.birth_once_props.drain(..));
     }
 
     fn signature(&self) -> BoxMemberSignature {
@@ -651,7 +645,7 @@ fn parse_box_declaration_after_box_keyword(
         sync_box::validate_no_waits_in_sync_box(p, &name, &state.methods, &state.constructors)?;
     }
 
-    Ok(ASTNode::BoxDeclaration {
+    let node = ASTNode::BoxDeclaration {
         name,
         fields: state.fields,
         field_decls: state.field_decls,
@@ -674,7 +668,9 @@ fn parse_box_declaration_after_box_keyword(
         static_init: None, // 通常のboxはstatic初期化ブロックなし
         attrs,
         span: Span::unknown(),
-    })
+    };
+
+    p.wrap_with_pending_build_gate(node)
 }
 
 /// Parse C202 record declaration: `record Name { field: Type ... }`.
@@ -772,7 +768,7 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
 
     p.consume(TokenType::RBRACE)?;
 
-    Ok(ASTNode::BoxDeclaration {
+    let node = ASTNode::BoxDeclaration {
         name,
         fields,
         field_decls,
@@ -795,7 +791,9 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
         static_init: None,
         attrs,
         span: Span::unknown(),
-    })
+    };
+
+    p.wrap_with_pending_build_gate(node)
 }
 
 /// interface box宣言をパース: interface box Name { methods... }

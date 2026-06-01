@@ -138,6 +138,23 @@ Reserved profile names are documented in:
 docs/reference/mir/rune-profile-registry.md
 ```
 
+## Build Gate Sugar
+
+`@rune Gate(...)` is accepted as parser-local sugar for a single top-level
+declaration:
+
+```hako
+@rune Gate(Build.test)
+function gated() {
+    return 1
+}
+```
+
+It desugars to the existing `gate` build conditional. This is not a normal
+runtime rune family and is not stored as declaration metadata. The sugar is
+intentionally top-level only; box members and ordinary statements must use the
+explicit `gate` syntax instead.
+
 ## Compatibility Spellings
 
 These spellings remain accepted during the migration window:

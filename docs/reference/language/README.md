@@ -57,7 +57,8 @@ Type system (SSOT)
   token preprocessing. Member-level `gate` is accepted inside box bodies for
   paired declaration branches with the same public signature, and
   statement-level `gate` is accepted inside method bodies as a build-time
-  branch selector. See reference/language/build-conditional-gate.md.
+  branch selector. `@rune Gate(...)` is accepted as top-level single-
+  declaration sugar only. See reference/language/build-conditional-gate.md.
 
 Grammar (EBNF)
 - See: reference/language/EBNF.md — living grammar reference used by parser

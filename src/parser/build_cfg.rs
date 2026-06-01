@@ -38,7 +38,10 @@ impl BuildGateExplainReport {
             format!("conditional_group_count={}", self.conditional_group_count),
             format!("active_branch_count={}", self.active_branch_count),
             format!("inactive_branch_count={}", self.inactive_branch_count),
-            format!("inactive_branch_mir_count={}", self.inactive_branch_mir_count),
+            format!(
+                "inactive_branch_mir_count={}",
+                self.inactive_branch_mir_count
+            ),
             "summary=ok".to_string(),
         ]
     }
@@ -84,7 +87,11 @@ impl NyashParser {
                         span,
                     });
                 }
-                ASTNode::TaskScope { body, source_keyword, span } => {
+                ASTNode::TaskScope {
+                    body,
+                    source_keyword,
+                    span,
+                } => {
                     out.push(ASTNode::TaskScope {
                         body: self.prune_build_gate_items(body)?,
                         source_keyword,
@@ -489,7 +496,9 @@ impl NyashParser {
                 tail_expr,
                 span,
             }),
-            ASTNode::GlobalVar { name, value, span } => Ok(ASTNode::GlobalVar { name, value, span }),
+            ASTNode::GlobalVar { name, value, span } => {
+                Ok(ASTNode::GlobalVar { name, value, span })
+            }
             other => Ok(other),
         }
     }

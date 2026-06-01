@@ -88,12 +88,14 @@ impl NyashParser {
         }
         self.consume(TokenType::RBRACK)?;
 
-        Ok(ASTNode::StaticConstTable {
+        let node = ASTNode::StaticConstTable {
             name,
             element_type: "u16".to_string(),
             values,
             span: Span::unknown(),
-        })
+        };
+
+        self.wrap_with_pending_build_gate(node)
     }
 
     /// 静的関数宣言をパース - static function Name() { ... }
@@ -151,7 +153,7 @@ impl NyashParser {
         // 関数本体をパース（共通ブロックヘルパー）
         let body = self.parse_block_statements()?;
 
-        Ok(ASTNode::FunctionDeclaration {
+        let node = ASTNode::FunctionDeclaration {
             name,
             params,
             param_decls,
@@ -163,7 +165,9 @@ impl NyashParser {
             is_override: false, // デフォルトは非オーバーライド
             attrs,
             span: Span::unknown(),
-        })
+        };
+
+        self.wrap_with_pending_build_gate(node)
     }
 }
 

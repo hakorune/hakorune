@@ -119,7 +119,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
 
     p.consume(TokenType::RBRACE)?;
 
-    Ok(ASTNode::BoxDeclaration {
+    let node = ASTNode::BoxDeclaration {
         name,
         fields: vec![], // インターフェースはフィールドなし
         field_decls: vec![],
@@ -142,5 +142,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         static_init: None, // インターフェースにstatic initなし
         attrs,
         span: Span::unknown(),
-    })
+    };
+
+    p.wrap_with_pending_build_gate(node)
 }

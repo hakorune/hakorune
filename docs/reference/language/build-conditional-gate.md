@@ -195,7 +195,8 @@ it touches MIR construction and control-flow shape.
 
 ### LANG-CFG-006: optional Rune sugar
 
-`@rune Gate(...)` may be added later as single-declaration sugar only:
+`@rune Gate(...)` is accepted as single-declaration sugar only on top-level
+declarations:
 
 ```hako
 @rune Gate(Build.test)
@@ -214,7 +215,9 @@ gate Build.test {
 }
 ```
 
-`gate` remains the semantic owner.
+`gate` remains the semantic owner. This sugar is parser-local and does not
+become a stored rune metadata family. It is intentionally not accepted on box
+members or ordinary statements.
 
 ## Style Rules
 
