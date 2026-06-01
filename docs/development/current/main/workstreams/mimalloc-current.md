@@ -2904,6 +2904,25 @@ next_candidate_2=stop_chasing_source_micro_bindings_without_new_perf_owner
 summary=ok
 ```
 
+MIM-082 direct-exact measurement env hygiene:
+
+```text
+selected_fix=canonical_direct_exact_env_preset_and_pair_runner
+env_preset=tools/allocator/mimalloc_direct_exact_env.sh
+pair_runner=tools/allocator/hako_mimalloc_direct_exact_pair.sh
+required_typed_object_store=direct_slot_exact
+required_array_slot_store=direct_array_i64_exact
+required_features=rune
+required_plugins_disabled=1
+required_toml_env_skip=1
+worker_front_mismatch_guard=1
+manual_env_typing_discouraged=1
+new_row_created=0
+new_row_specific_guard_created=0
+next_candidate=observer_light_comparison_measurement_for_result_capsule_and_queue_publication
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
