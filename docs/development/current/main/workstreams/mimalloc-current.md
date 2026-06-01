@@ -3027,6 +3027,29 @@ next_candidate=compose_public_facade_over_hot_core_or_measure_page_model_counter
 summary=ok
 ```
 
+MIM-087 hot-core post-extraction owner refresh:
+
+```text
+input_bundle=/tmp/hotcore_trace_bundle
+front=direct_exact
+target_function=Main.runOne/2
+perf_top_0_pct=57.46
+perf_top_0_symbol=Main.runOne/2
+perf_top_1_pct=27.79
+perf_top_1_symbol=HakoAllocPageModel.releaseLocalKnownLive/1
+perf_top_2_pct=13.55
+perf_top_2_symbol=HakoAllocPageModel.acquireFreshSmall/1
+mir_call_count=4
+mir_call_0=HakoAllocPageModel.resetToFresh
+mir_call_1=HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc
+mir_call_2=HakoAllocObjectLifecycleHotCore.objectLifecycleReleaseBlock
+mir_call_3=HakoAllocObjectLifecycleHotCore.objectLifecycleReleaseBlock
+selected_next_owner=hotcore_wrapper_call_boundary
+candidate=inline_or_plan_HakoAllocObjectLifecycleHotCore_small_alloc_release_wrapper
+source_manual_inline_selected=0
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
