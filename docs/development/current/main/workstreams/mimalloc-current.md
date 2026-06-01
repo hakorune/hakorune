@@ -3799,6 +3799,25 @@ truth stays in MIR metadata emitted by the compiler.
     avoid broad source demotion and only touch fields selected by fresh perf
     evidence.
 
+- [x] MIM-115: facade/result counter signed-storage probe
+  - candidate:
+    keep facade release-known counters and alloc/release result capsule
+    success/failure counters as signed `i64`, mirroring the MIM-113 event
+    counter rule.
+  - result:
+    MIR emission and `hako_check fastpath-explain` stayed clean, but
+    direct-exact EXE build failed with
+    `unsupported pure shape for current backend recipe`.
+  - decision=nonkeeper_reverted
+  - reason:
+    the candidate is not a measured perf keeper because it does not pass the
+    current direct-exact backend recipe. Treat this as a separate backend shape
+    issue if selected later; do not mix it with the current source/storage
+    optimization lane.
+  - next:
+    keep facade/result exact `usize` counters unchanged until a fresh owner
+    pass selects that backend recipe shape explicitly.
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
