@@ -3504,7 +3504,7 @@ truth stays in MIR metadata emitted by the compiler.
     - `bash tools/checks/dev_gate.sh quick`
   - decision=keeper
   - winner_claim=0
-- [ ] MIM-107: post-O3 owner refresh
+- [x] MIM-107: post-O3 owner refresh
   - output: reread direct-exact perf / asm after MIM-106 and select the next
     owner from current evidence
   - candidate seams to inspect:
@@ -3512,6 +3512,44 @@ truth stays in MIR metadata emitted by the compiler.
     DirectArray handle/tag stripping, and any residual startup/timing noise
   - no source counter gating, hot-core method split, or extra LLVM pass before
     this reread
+  - evidence:
+    - observer-light 65536-repeat temp sample: body work is now folded into
+      `ny_main`; sampled instructions are PageModel field updates, DirectArray
+      loads/stores, and exact `usize` nonnegative checks around page-local
+      counters/state
+    - public proof 65536-repeat temp sample: body work is also under
+      `ny_main`; public queue/result publication remains visible, including
+      selected-page publication and cold multipage fallback body code, but the
+      sampled keeper candidate still overlaps the PageModel exact-`usize`
+      check/counter surface
+    - no legacy Array helper call boundary or same-module helper call boundary
+      is selected as the next direct-exact owner after MIM-106
+  - selected probe:
+    `exact_slot_u64_nonnegative_load_assume_probe`
+  - reason:
+    try a backend-local proof hint for unsigned exact-slot loads before
+    changing `.hako` counter declarations or public observer semantics
+
+- [x] MIM-108: exact-slot u64 nonnegative load assume probe
+  - output: rejected probe; emit `llvm.assume(value >= 0)` after direct-slot
+    `exact_slot_u64` field loads and let the post-inline O3 pass fold any
+    redundant checks
+  - result:
+    - observer-light regressed from MIM-106
+      `hako_instructions_median=39175496` to `40207871`
+    - public proof regressed from MIM-106
+      `hako_instructions_median=71259106` to `73339839`
+    - the patch was reverted before commit
+  - decision=nonkeeper_reverted
+  - reason:
+    the assume adds IR/control work without producing a net instruction win in
+    the current direct-exact EXE; do not add generic unsigned-load assumes for
+    exact-slot fields
+  - next:
+    keep exact numeric trap elision closed unless a narrower proof removes a
+    concrete hot check without changing public counter semantics; the next
+    source/MIR probe must avoid counter deletion/gating and must preserve the
+    MIM-106 backend pipeline
 
 ## Parking Lot
 
