@@ -79,7 +79,7 @@ box HakoAllocObjectLifecyclePageQueue {
         return 1
     }
 
-    trySelectSingleActivePage() {
+    trySelectSingleActivePage(): HakoAllocPageModel {
         if me.page_count != 1 {
             return null
         }

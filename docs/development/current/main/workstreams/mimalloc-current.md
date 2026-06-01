@@ -3171,6 +3171,38 @@ truth stays in MIR metadata emitted by the compiler.
   - rejected_next_owner=direct_exact_call_boundary
   - rejected_reason=HotCore static call lowering is already consumed and
     `direct_exact_plan_lowered_to_fallback_count=0`
+- [ ] MIM-095: counter publication and body-shape owner split
+  - output: classify the remaining PageQueue/PageModel/Facade hot body work
+    into public proof counters, observer publication, and internal scalar body
+    shape
+  - gate rule: do not move existing counters behind `gate Build.*` if the
+    representative proof app reads and verifies those counters
+  - candidate implementation must preserve
+    `select_page_single_fast_path_count=524288` and
+    `release_known_page_fast_path_count=524288` for the current proof app
+  - no source hand-inline of multi-block helpers; no `LateHotInlinePlan`
+    unless a new measurement selects call overhead
+- [x] MIM-096: `trySelectSingleActivePage` typed return cleanup
+  - output: annotate `trySelectSingleActivePage(): HakoAllocPageModel` so the
+    active small-allocation fast path keeps `page.acquireFreshSmall(size)` on
+    a typed user-box route instead of `RuntimeDataBox.acquireFreshSmall`
+  - no source hand-inline, no counter gating, no public proof count changes
+  - acceptance: representative direct-exact pair smoke stays green and MIR for
+    `objectLifecycleSmallAlloc/1` no longer contains the RuntimeDataBox
+    `acquireFreshSmall` call on the `trySelectSingleActivePage` success path
+  - result:
+    - MIR cleanup succeeded:
+      `RuntimeDataBox.acquireFreshSmall` call count in
+      `objectLifecycleSmallAlloc/1` is 0; typed
+      `HakoAllocPageModel.acquireFreshSmall` call count is 2
+    - direct-exact pair smoke stayed green: `summary=ok`
+    - perf stat stayed neutral:
+      `hako_instructions_median=111392188`,
+      `hako_cycles_median=20789176`,
+      `hako_body_elapsed_ns_median=3000000`
+    - decision=structural_keeper_not_perf_keeper
+    - reason=removes dynamic receiver route from MIR and preserves public proof
+      counters, but does not move current instruction median
 
 ## Parking Lot
 
