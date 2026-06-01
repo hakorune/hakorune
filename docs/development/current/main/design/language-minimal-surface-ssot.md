@@ -5,6 +5,7 @@ Date: 2026-05-14
 Scope: Minimal canonical Hakorune language surface for low-level and selfhost work.
 Related:
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
+  - docs/development/current/main/design/hako-check-mir-observation-boundary-ssot.md
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
@@ -103,6 +104,80 @@ implicit inference
 silent fallback
 Stage0 semantic checkers
 ```
+
+## Current Source Surface Snapshot
+
+The active low-level / mimalloc work keeps the user-visible surface small.
+Current canonical vocabulary is enough for the next implementation wave:
+
+```text
+box
+record
+enum
+Array / DirectArrayI64
+loop
+gate
+@rune
+check
+uses
+```
+
+Do not add C-style pointer or preprocessor surfaces to close current
+performance gaps:
+
+```text
+RawPtr<T>
+NativePtr deref
+& / * / ->
+unsafe block
+direct {}
+layout {}
+slots {}
+state keyword
+record-to-box conversion
+ordinary box auto-recordification
+DirectRecord
+DirectArray<T> generic source
+Span<T> / view syntax
+Bytes / unsafe memory syntax
+C-style #if / #else
+broad Profile(...)
+large Inline(required)
+mixed-base Inline(required) generalization
+```
+
+The current reading is:
+
+```text
+source surface:
+  healthy and intentionally small
+
+compiler internals:
+  may grow through facts, plans, verifiers, explain reports, and fail-fast
+  lowering consumers
+```
+
+## Feature Classification Decision Table
+
+When a new request appears, classify it before adding syntax.
+
+| Request / Need | Canonical handling |
+| --- | --- |
+| Existing `.hako` can express it | Use the existing source; add facts/plans if needed. |
+| Identity, lifecycle, methods, storage ownership | `box` |
+| Identity-free data, snapshot, metadata, local scalarizable value | `record` |
+| C-like primitive state inside an owner box | `record` + future `RecordStateResidencePlanV0`; no new `state` keyword |
+| Exact hot i64 table | `DirectArrayI64` |
+| General / mixed / public array semantics | `Array` |
+| Build/test/target conditional | `gate`; not a fast-path selector |
+| Fast route requirement | `RequiredFastPathRegion` / `FastPathPlan`; `direct {}` remains parked |
+| Small receiver-local leaf call elimination | `@rune Inline(required)` |
+| Multi-block hot method boundary | `HotCoreMethodSummaryV0` / `DirectExactHotCoreCallPlanV0`, not `Inline(required)` |
+| Copy/materialization cleanup | Route-aware plan with `before_route == after_route` proof |
+| Native/raw memory | Opaque `NativePtr` plus future region/view/proof layers; no pointer operators |
+
+This table is a stop-line for AI work: if the request fits one of the internal
+fact/plan rows, do not widen the source language first.
 
 ## Fold-first rule
 

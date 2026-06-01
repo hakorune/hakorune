@@ -92,6 +92,76 @@ For state/record residence planning, `state-explain` may display field buckets,
 when the compiler emits them. Bucket labels are explanatory only and must not
 be used as proof that a source migration or backend lowering is legal.
 
+## Compiler Responsibility Boundary
+
+The current language surface is intentionally small. The corresponding compiler
+boundary must keep complexity out of the parser and MIRBuilder.
+
+```text
+MIRBuilder:
+  preserve source shape, receiver origin, field origin, callsite identity,
+  declared types, storage hints, and source spans
+  do not own proofs, optimization decisions, or backend routes
+
+Analyzer:
+  produce origin/proof facts such as RangeIndexFact, ExtentFact,
+  RegionStabilityFact, SpanBorrowFact, and EffectSummary
+
+Planner:
+  produce plans such as DirectArrayAccessPlan, RecordStateResidencePlan,
+  DirectExactHotCoreCallPlan, RequiredFastPathRegion, and FastPathPlan
+
+Verifier:
+  decide whether a plan is legal and fail fast when required facts are missing
+
+Lowering:
+  consume accepted plans only; do not re-infer source policy or method-name
+  special cases
+
+hako_check:
+  render emitted metadata and diagnostics; never synthesize optimization truth
+```
+
+One-line rule:
+
+```text
+MIRBuilder must not decide meaning. It must preserve enough information for
+later facts/plans/verifiers to decide meaning.
+```
+
+## Seven-Box Classification
+
+Before adding a feature, diagnostic, or optimization path, classify it into one
+of these boxes.
+
+| Box | Purpose | Examples |
+| --- | --- | --- |
+| Source Surface | User-visible syntax and types | `box`, `record`, `DirectArrayI64`, `gate`, `@rune` |
+| Declaration Metadata | Source-attached facts, not behavior | `Inline(required)`, `Contract(...)` |
+| Origin Facts | Where values/fields/calls came from | receiver origin, field origin, callsite span |
+| Proof Facts | Why an access/effect is safe | RangeIndexFact, ExtentFact, StabilityFact, EffectSummary |
+| Plans | What optimized route is requested | DirectArrayAccessPlan, RecordStateResidencePlan, DirectExactHotCoreCallPlan |
+| Diagnostics / Explain | User-facing visibility | `hako_check fastpath-explain`, `state-explain`, report fields |
+| Lowering Consumers | Backend implementation of accepted plans | static exact call, direct array load/store, checked/proved-unchecked route |
+
+If a proposal cannot name its box, stop and split it. In particular:
+
+```text
+Inline(required):
+  small leaf call elimination only
+
+multi-block hot core:
+  DirectExactHotCoreCallPlan, not Inline(required)
+
+record PageState:
+  Source Surface uses existing record, but runtime residence requires
+  RecordStateResidencePlanV0 before source migration
+
+copy cleanup:
+  RouteAwareMaterializationPlan with route preservation proof, not generic
+  Copy deletion
+```
+
 ## Planned Surfaces
 
 ### Source Perf-Surface v1

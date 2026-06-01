@@ -1137,6 +1137,34 @@ message.
     resume owner-first perf/asm only after app smoke and direct/public handle
     boundary stay green
 
+- [x] MIM-123: language surface and MIR responsibility cleanup
+  - output:
+    docs-only cleanup to preserve the current design reading before opening
+    another mimalloc optimization implementation
+  - source-surface decision:
+    the current `.hako` surface remains small enough for the next wave:
+    `box`, `record`, `enum`, `Array` / `DirectArrayI64`, `loop`, `gate`,
+    `@rune`, `check`, and `uses`
+  - stop line:
+    do not add `RawPtr`, pointer operators, broad `unsafe`, `direct {}`,
+    `layout`, `slots`, `state`, `DirectRecord`, broad `Profile(...)`, large
+    `Inline(required)`, or mixed-base inline generalization for the current C
+    gap
+  - responsibility boundary:
+    MIRBuilder preserves origin/type/span information; Analyzer produces facts;
+    Planner produces plans; Verifier accepts/rejects; Lowering consumes plans;
+    `hako_check` renders emitted metadata only
+  - docs:
+    - `docs/development/current/main/design/language-minimal-surface-ssot.md`
+      now carries the current source-surface snapshot and feature
+      classification table
+    - `docs/development/current/main/design/hako-check-mir-observation-boundary-ssot.md`
+      now carries the compiler responsibility boundary and seven-box
+      classification
+  - decision:
+    no implementation is opened by this cleanup; return to owner-first perf/asm
+    refresh next
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
