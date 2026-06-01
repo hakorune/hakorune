@@ -471,11 +471,39 @@ message.
     instead of reaching the pointer/handle mismatch
   - no silent env forcing, no fallback to safe runtime storage after direct
     lowering was selected
-- [ ] MIM-061: post-runtime-mode-guard smoke and owner refresh
+- [x] MIM-061: post-runtime-mode-guard smoke and owner refresh
   - output: rerun the direct exact representative smoke and selected app
     smokes after MIM-060, then choose the next mimalloc owner from current
     evidence
-  - no new fast-path surface unless current evidence selects it
+  - result: representative direct exact EXE stayed green with
+    `body_elapsed_ns=4000000`; `mimalloc_lite_exe`,
+    `allocator_stress_exe`, and the mixed-base helper proof stayed green
+  - runtime guard check: representative direct exact build/run used
+    `HAKO_TYPED_OBJECT_STORE=direct_slot_exact` and
+    `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact`
+  - owner refresh: `perf report` selected
+    `HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1` at 24.05%,
+    followed by `HakoAllocPageModel.acquireFreshSmall/1` at 20.23%,
+    `Main.runOne/2` at 17.06%,
+    `HakoAllocPageModel.releaseLocalKnownLive/1` at 13.79%, and
+    `HakoAllocObjectLifecycleReleaseBlock/2` at 12.59%
+  - residue: lowered IR still has 3 executable
+    `nyash.array.slot_load_hi` calls
+  - selected next: MIM-062 direct-array load residue inventory; this is an
+    inventory of an existing DirectArray route surface, not a new fast-path
+    lane, new syntax, or mixed-base inline widening
+
+- [ ] MIM-062: direct-array load residue inventory
+  - output: classify the remaining executable `nyash.array.slot_load_hi` calls
+    in the direct exact representative EXE by method, receiver origin, index
+    facts, extent facts, and CFG safety
+  - target calls observed after MIM-061:
+    `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2`,
+    `HakoAllocObjectLifecyclePageQueue.selectPage/0`, and
+    `HakoAllocPageModel.reactivate/0`
+  - stop line: inventory only unless positive route evidence is found; no
+    source hand-expansion, no generic Array rewrite, no `direct {}` syntax, and
+    no mixed-base inline widening
 
 ### Next Cleanup TODO
 
