@@ -514,11 +514,33 @@ message.
     source hand-expansion, no generic Array rewrite, no `direct {}` syntax, and
     no mixed-base inline widening
 
-- [ ] MIM-063: direct-array load fact gap selection
+- [x] MIM-063: direct-array load fact gap selection
   - output: choose exactly one of the two MIM-062 buckets for implementation:
     either the `objectLifecycleReleaseBlock/2` range-index producer gap or the
     `selectPage/0` / `reactivate/0` extent-stability fact gap
-  - stop line: selection only; do not implement both buckets together
+  - decision: park both buckets for now
+  - reason: the remaining `nyash.array.slot_load_hi` calls are concrete IR
+    residue, but the current direct exact perf top does not select those
+    residual load sites as the next sampled owner; widening RangeIndexFact or
+    extent/stability facts here would be fact plumbing without current
+    positive owner evidence
+  - selected next owner: hot sampled hako_alloc body shape inventory, starting
+    from `objectLifecycleSmallAlloc/1`, `acquireFreshSmall/1`, and
+    `objectLifecycleReleaseBlock/2`
+  - stop line: do not implement DirectArray load fact widening until a later
+    perf refresh selects one of the parked buckets as a sampled owner
+
+- [ ] MIM-064: hot sampled body shape inventory
+  - output: classify the sampled blocks inside the current direct exact top
+    hako_alloc methods before source edits
+  - target methods:
+    `HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1`,
+    `HakoAllocPageModel.acquireFreshSmall/1`, and
+    `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2`
+  - required output: small table of sampled block shape, source owner, likely
+    structural seam, and reject/keep reason
+  - no DirectArray/Span/direct-block/mixed-base-inline widening
+  - no source edit before the owner table is written
 
 ### Next Cleanup TODO
 
