@@ -177,6 +177,19 @@ front. The public proof front is heavier by design because it still carries
 facade/result/observer semantics. Do not mix those fronts when selecting the
 next owner.
 
+Latest representative public proof refresh:
+
+```text
+hako_body_elapsed_ns=3000000
+c_body_elapsed_ns=3523685
+hako_instructions=57574640
+c_instructions=65106835
+```
+
+Current decision: no route-aware copy/materialization implementation is open
+unless fresh owner-first perf/asm evidence selects a concrete site family and
+proves `before_route == after_route`.
+
 ## Current Direct Memory Task Order
 
 This wave is complete. For current work, read

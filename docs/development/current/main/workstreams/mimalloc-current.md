@@ -1065,6 +1065,38 @@ message.
     sample selects route-aware copy/materialization or a true
     `RecordStateResidencePlanV0` producer boundary.
 
+- [x] MIM-121: route-aware copy/materialization current evidence refresh
+  - output: refresh the public proof front before reopening MIR copy deletion,
+    copy forwarding, or materialization sinking
+  - fastpath status:
+    `hako_check fastpath-explain` reports `direct_array_access_plan_count=16`,
+    `direct_array_proved_unchecked_plan_count=9`, and no HotCore plans on the
+    public proof front; this is expected because the public proof app uses the
+    facade front, not the observer-light HotCore front
+  - copy status:
+    `objectLifecycleSmallAlloc/1` still reports `copy_count=99`, but
+    `backend_route_carrier_copy_count=73` and
+    `route_aware_candidate_copy_count=23`; the same pattern holds for release
+    and page methods, so generic copy forwarding remains rejected
+  - direct-exact body pair:
+    `hako_body_elapsed_ns=3000000`, `c_body_elapsed_ns=3523685`,
+    `body_elapsed_ratio=0.851`, `summary=ok`
+  - direct-exact single `perf stat` pair:
+    `hako_instructions=57574640`, `c_instructions=65106835`,
+    `instruction_ratio=0.884`, `hako_cycles=13493990`,
+    `c_cycles=17522275`, `cycle_ratio=0.770`
+  - decision:
+    do not implement route-aware copy/materialization in this slice
+  - reason:
+    the current representative public proof front is already below the C
+    instruction and body-time line in this refresh; the remaining copies are
+    mostly route carriers, and prior route-unaware copy cleanup regressed the
+    EXE heavily
+  - next:
+    route-aware materialization stays diagnostic-only until a fresh
+    owner-first perf/asm run selects a concrete site family with a
+    `before_route == after_route` proof and a positive machine-code gate
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
