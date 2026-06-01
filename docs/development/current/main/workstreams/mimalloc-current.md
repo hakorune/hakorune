@@ -471,6 +471,33 @@ unless one of them changes a durable contract or implementation boundary.
    - evidence: `cargo check -q`
    - no new row-specific guard
 
+4. PageQueue helper-extraction crash investigation
+   - status: parked; do not retry inside the active mimalloc perf slice
+   - observation: extracting PageQueue selection writes into helper methods
+     made the representative smoke pass without `@rune Inline(required)`, but
+     `mimalloc_lite_exe` / `allocator_stress_exe` coredumped
+   - observation: adding `@rune Inline(required)` also failed structurally
+     because the current required-inline receiver leaf vocabulary does not
+     accept the helper body shape (`FieldGet` on the page object plus a larger
+     field-set body)
+   - hypothesis: this is a same-module EXE lowering/helper-call shape issue,
+     not a good mimalloc source cleanup candidate
+   - next safe step: create a minimal fixture outside the mimalloc hot path that
+     extracts the same object-field publication shape into a helper and checks
+     VM/EXE parity before touching PageQueue again
+   - no source cleanup should depend on this until the fixture is green
+
+5. Direct-exact runtime environment dependency audit
+   - status: parked; correctness hygiene, not a perf keeper
+   - observation: manually built direct-exact EXEs must be run with the same
+     `HAKO_TYPED_OBJECT_STORE=direct_slot_exact` and
+     `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact` environment used for
+     lowering; running the EXE without those runtime env values can crash
+   - expected contract candidate: direct-exact lowering should either embed
+     the required runtime mode into the generated EXE or fail fast with a clear
+     diagnostic when the runtime mode is missing
+   - do not mix this audit with MIM source-shape optimizations
+
 ### Parked Direct Memory View Roadmap
 
 This is a parking lot, not an active implementation lane. Keep mimalloc
