@@ -170,7 +170,7 @@ box ChoiceBox {
 The branch bodies above are allowed because their declaration signatures are
 identical. Bodies may differ; field/method surface may not.
 
-### LANG-CFG-003: statement level
+### LANG-CFG-005: statement level
 
 Scope:
 
@@ -193,7 +193,7 @@ resetToFresh() {
 Statement-level `gate` is intentionally later than item/member level because
 it touches MIR construction and control-flow shape.
 
-### LANG-CFG-004: optional Rune sugar
+### LANG-CFG-006: optional Rune sugar
 
 `@rune Gate(...)` may be added later as single-declaration sugar only:
 

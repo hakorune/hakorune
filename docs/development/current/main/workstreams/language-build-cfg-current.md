@@ -30,7 +30,6 @@ gate Build.test {
 - no macro expansion or token-paste behavior
 - no runtime `if` semantics
 - no arbitrary `.hako` expression evaluation in predicates
-- no statement-level `gate` in the first implementation slice
 - no public ABI/layout changes behind `gate` without a later member-level row
 - no `@rune Gate(...)` until `gate` itself is stable
 
@@ -78,9 +77,10 @@ gate Build.test {
     bodies, selects the active branch during box parsing, and rejects branch
     signature drift before merge
 
-- [ ] LANG-CFG-005: statement-level selection
+- [x] LANG-CFG-005: statement-level selection
   - output: method body `gate` blocks produce no MIR for inactive branches
-  - deferred until item/member-level behavior is stable
+  - result: method-body `gate` blocks are parsed as statement-level build
+    conditionals and inactive branches are pruned before MIR / lowering
 
 - [ ] LANG-CFG-006: optional `@rune Gate(...)` sugar
   - output: single-declaration sugar only, desugared to `gate`

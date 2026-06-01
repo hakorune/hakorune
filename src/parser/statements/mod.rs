@@ -303,6 +303,10 @@ impl NyashParser {
             }
         }
 
+        if self.is_build_gate_head() {
+            return self.parse_build_gate_item();
+        }
+
         let result = match &start_tok {
             TokenType::LBRACE => self.parse_standalone_block_statement(),
 

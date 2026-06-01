@@ -267,3 +267,134 @@ box DriftBox {
         "unexpected error: {err}"
     );
 }
+
+#[test]
+fn statement_level_gate_prunes_inactive_branch_inside_method_body() {
+    let source = r#"
+function main() {
+    gate Build.test {
+        local chosen = 1
+        return chosen
+    } else {
+        local chosen = 2
+        return chosen
+    }
+}
+"#;
+
+    let test_ast = NyashParser::parse_from_string_with_build_config(
+        source,
+        ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        },
+    )
+    .expect("statement-level gate should parse in test build");
+
+    let release_ast = NyashParser::parse_from_string_with_build_config(
+        source,
+        ParserBuildConfig {
+            mode: BuildMode::Release,
+            ..ParserBuildConfig::default()
+        },
+    )
+    .expect("statement-level gate should parse in release build");
+
+    let ASTNode::Program { statements: test_statements, .. } = test_ast else {
+        panic!("expected Program");
+    };
+    let ASTNode::Program {
+        statements: release_statements,
+        ..
+    } = release_ast else {
+        panic!("expected Program");
+    };
+
+    assert_eq!(test_statements.len(), 1);
+    assert_eq!(release_statements.len(), 1);
+
+    let ASTNode::FunctionDeclaration { body: test_body, .. } = &test_statements[0] else {
+        panic!("expected FunctionDeclaration");
+    };
+    let ASTNode::FunctionDeclaration {
+        body: release_body,
+        ..
+    } = &release_statements[0] else {
+        panic!("expected FunctionDeclaration");
+    };
+
+    assert_eq!(test_body.len(), 2);
+    assert_eq!(release_body.len(), 2);
+    assert_eq!(test_body[0].node_type(), "Local");
+    assert_eq!(release_body[0].node_type(), "Local");
+    assert_eq!(test_body[1].node_type(), "Return");
+    assert_eq!(release_body[1].node_type(), "Return");
+
+    let ASTNode::Local {
+        initial_values: test_initial_values,
+        ..
+    } = &test_body[0] else {
+        panic!("expected Local");
+    };
+    let ASTNode::Local {
+        initial_values: release_initial_values,
+        ..
+    } = &release_body[0] else {
+        panic!("expected Local");
+    };
+
+    let Some(Some(test_expr)) = test_initial_values.first() else {
+        panic!("expected test init value");
+    };
+    let Some(Some(release_expr)) = release_initial_values.first() else {
+        panic!("expected release init value");
+    };
+
+    let ASTNode::Literal {
+        value: LiteralValue::Integer(test_n),
+        ..
+    } = test_expr.as_ref()
+    else {
+        panic!("expected integer literal");
+    };
+    let ASTNode::Literal {
+        value: LiteralValue::Integer(release_n),
+        ..
+    } = release_expr.as_ref()
+    else {
+        panic!("expected integer literal");
+    };
+
+    assert_eq!(*test_n, 1);
+    assert_eq!(*release_n, 2);
+}
+
+#[test]
+fn statement_level_gate_is_counted_in_build_cfg_explain_report() {
+    let source = r#"
+function main() {
+    gate Build.test {
+        local chosen = 1
+        return chosen
+    } else {
+        local chosen = 2
+        return chosen
+    }
+}
+"#;
+
+    let (_ast, report) = NyashParser::parse_from_string_with_build_config_and_explain_report(
+        source,
+        ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        },
+    )
+    .expect("statement-level gate should parse in explain mode");
+
+    assert_eq!(report.output_contract, BuildGateExplainReport::OUTPUT_CONTRACT);
+    assert_eq!(report.conditional_group_count, 1);
+    assert_eq!(report.active_branch_count, 1);
+    assert_eq!(report.inactive_branch_count, 1);
+    assert_eq!(report.inactive_branch_mir_count, 0);
+}

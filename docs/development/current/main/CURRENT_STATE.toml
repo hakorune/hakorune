@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-01"
 
 active_lane = "language build conditional syntax"
-active_lane_status = "LANG-CFG is active before returning to mimalloc: LANG-CFG-003 now emits the build-cfg explain report with zero inactive MIR; LANG-CFG-004 member-level selection is landed and statement-level selection opens next."
+active_lane_status = "LANG-CFG is active before returning to mimalloc: LANG-CFG-003 now emits the build-cfg explain report with zero inactive MIR; LANG-CFG-004 member-level selection is landed; LANG-CFG-005 statement-level selection is landed and LANG-CFG-006 optional sugar opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
@@ -18,8 +18,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/language-bui
 
 latest_card = "296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md"
-latest_card_summary = "Paused mimalloc after MIM-069 nonkeeper and opened LANG-CFG. LANG-CFG-003 now emits the build-cfg explain report with zero inactive MIR; member-level selection opens next."
-current_blocker_token = "LANG-CFG-005-STATEMENT-LEVEL-SELECTION"
+latest_card_summary = "Paused mimalloc after MIM-069 nonkeeper and opened LANG-CFG. LANG-CFG-003 now emits the build-cfg explain report with zero inactive MIR; LANG-CFG-004 member-level selection is landed; LANG-CFG-005 statement-level selection is landed and LANG-CFG-006 optional sugar opens next."
+current_blocker_token = "LANG-CFG-006-OPTIONAL-RUNE-GATE-SUGAR"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

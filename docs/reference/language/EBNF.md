@@ -59,6 +59,7 @@ stmt      := 'return' expr
            | fini_stmt
            | assign_stmt
            | guard_stmt
+           | gate_stmt
            | 'if' expr block ('else' block)?
            | loop_stmt
            | expr                         ; expression statement
@@ -83,6 +84,11 @@ guard_stmt := 'guard' expr 'else' block
            ; GUARDLET-001: guard-let is narrow enum variant sugar.
            ; MVP form: guard let Type::Variant(binding) = expr else block.
            ; It rewrites through existing Local / If / EnumMatchExpr pieces.
+
+gate_stmt  := 'gate' build_predicate block
+           ('else' ('gate' build_predicate block | block))?
+           ; statement-level build selection inside block/method bodies.
+           ; inactive branches are parsed but pruned before MIR/lowering.
 
 qualified_variant_pattern := IDENT '::' IDENT '(' IDENT ')'
 
