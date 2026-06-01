@@ -61,10 +61,14 @@ gate Build.test {
     lowering; default mode is release, and parser tests can pass an explicit
     `ParserBuildConfig`
 
-- [ ] LANG-CFG-003: explain report / smoke
+- [x] LANG-CFG-003: explain report / smoke
   - output: `hakorune-build-cfg-explain-v0` report fields for active/inactive
     branches and inactive MIR count
   - smoke: test build sees test-only item; production build does not
+  - result: parser now returns `BuildGateExplainReport` with
+    `conditional_group_count`, `active_branch_count`,
+    `inactive_branch_count`, and `inactive_branch_mir_count=0`; the smoke
+    fixtures cover both build modes plus contextual identifier safety
 
 - [ ] LANG-CFG-004: member-level selection
   - output: allow `gate` inside box bodies only for declaration members

@@ -72,6 +72,8 @@ pub struct ParserBuildConfig {
     pub backend_kind: String,
 }
 
+pub use build_cfg::BuildGateExplainReport;
+
 impl Default for ParserBuildConfig {
     fn default() -> Self {
         Self {
@@ -292,6 +294,48 @@ impl NyashParser {
         parser.parse()
     }
 
+    pub fn parse_from_string_with_build_config_and_explain_report(
+        input: impl Into<String>,
+        build_config: ParserBuildConfig,
+    ) -> Result<(ASTNode, BuildGateExplainReport), ParseError> {
+        Self::parse_from_string_with_fuel_and_build_config_and_explain_report(
+            input,
+            Some(100_000),
+            build_config,
+        )
+    }
+
+    pub fn parse_from_string_with_fuel_and_build_config_and_explain_report(
+        input: impl Into<String>,
+        fuel: Option<usize>,
+        build_config: ParserBuildConfig,
+    ) -> Result<(ASTNode, BuildGateExplainReport), ParseError> {
+        let input_s: String = input.into();
+        let pre = normalize_logical_ops(&input_s);
+        let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
+        let tokens = tokenizer.tokenize()?;
+
+        for tok in &tokens {
+            if let TokenType::IDENTIFIER(name) = &tok.token_type {
+                if name == "self" {
+                    return Err(ParseError::UnsupportedIdentifier {
+                        name: name.clone(),
+                        line: tok.line,
+                    });
+                }
+            }
+        }
+
+        let mut parser = Self::new(tokens);
+        parser.debug_fuel = fuel;
+        parser.build_config = build_config;
+        let ast = parser.parse_program()?;
+        let report = parser.explain_build_gate_program(&ast)?;
+        let ast = parser.prune_build_gate_program(ast)?;
+        let ast = delegate_lowering::lower_delegate_exposes(ast)?;
+        Ok((ast, report))
+    }
+
     /// 文字列からパースし、デバッグ燃料と metadata sidecar を返す。
     pub fn parse_from_string_with_fuel_and_metadata(
         input: impl Into<String>,
@@ -361,7 +405,7 @@ impl NyashParser {
                 continue;
             }
 
-            let mut statement = if self.is_build_gate_keyword() {
+            let mut statement = if self.is_build_gate_head() {
                 self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?

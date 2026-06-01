@@ -9,6 +9,40 @@ use crate::parser::statements::helpers::AnnotationSite;
 use crate::parser::{BuildMode, NyashParser, ParseError, ParserBuildConfig};
 use crate::tokenizer::TokenType;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BuildGateExplainReport {
+    pub output_contract: &'static str,
+    pub conditional_group_count: usize,
+    pub active_branch_count: usize,
+    pub inactive_branch_count: usize,
+    pub inactive_branch_mir_count: usize,
+}
+
+impl BuildGateExplainReport {
+    pub const OUTPUT_CONTRACT: &'static str = "hakorune-build-cfg-explain-v0";
+
+    pub fn new() -> Self {
+        Self {
+            output_contract: Self::OUTPUT_CONTRACT,
+            conditional_group_count: 0,
+            active_branch_count: 0,
+            inactive_branch_count: 0,
+            inactive_branch_mir_count: 0,
+        }
+    }
+
+    pub fn to_kv_lines(&self) -> Vec<String> {
+        vec![
+            format!("output_contract={}", self.output_contract),
+            format!("conditional_group_count={}", self.conditional_group_count),
+            format!("active_branch_count={}", self.active_branch_count),
+            format!("inactive_branch_count={}", self.inactive_branch_count),
+            format!("inactive_branch_mir_count={}", self.inactive_branch_mir_count),
+            "summary=ok".to_string(),
+        ]
+    }
+}
+
 impl NyashParser {
     pub(super) fn prune_build_gate_program(&self, ast: ASTNode) -> Result<ASTNode, ParseError> {
         let ASTNode::Program { statements, span } = ast else {
@@ -41,22 +75,35 @@ impl NyashParser {
         Ok(out)
     }
 
-    pub(super) fn is_build_gate_keyword(&self) -> bool {
-        matches!(
+    pub(super) fn is_build_gate_head(&self) -> bool {
+        if !matches!(
             &self.current_token().token_type,
             TokenType::IDENTIFIER(name) if name == "gate"
-        )
+        ) {
+            return false;
+        }
+        let Some(next) = self.tokens.get(self.current + 1) else {
+            return false;
+        };
+        matches!(
+            &next.token_type,
+            TokenType::IDENTIFIER(name)
+                if matches!(
+                    name.as_str(),
+                    "Build" | "Feature" | "Target" | "Backend" | "all" | "any"
+                )
+        ) || matches!(next.token_type, TokenType::NOT)
     }
 
     pub(super) fn parse_build_gate_item(&mut self) -> Result<ASTNode, ParseError> {
         let line = self.current_token().line;
-        self.consume_build_gate_keyword()?;
+        self.consume_build_gate_head()?;
         let predicate = self.parse_build_predicate()?;
         let then_items = self.parse_build_gate_item_block()?;
 
         let else_items = if self.match_token(&TokenType::ELSE) {
             self.advance();
-            if self.is_build_gate_keyword() {
+            if self.is_build_gate_head() {
                 Some(vec![self.parse_build_gate_item()?])
             } else {
                 Some(self.parse_build_gate_item_block()?)
@@ -73,8 +120,8 @@ impl NyashParser {
         })
     }
 
-    fn consume_build_gate_keyword(&mut self) -> Result<(), ParseError> {
-        if self.is_build_gate_keyword() {
+    fn consume_build_gate_head(&mut self) -> Result<(), ParseError> {
+        if self.is_build_gate_head() {
             self.advance();
             Ok(())
         } else {
@@ -99,7 +146,7 @@ impl NyashParser {
                 continue;
             }
 
-            let mut item = if self.is_build_gate_keyword() {
+            let mut item = if self.is_build_gate_head() {
                 self.parse_build_gate_item()?
             } else {
                 self.parse_statement()?
@@ -242,6 +289,59 @@ impl NyashParser {
                 line: self.current_token().line,
             })
         }
+    }
+
+    pub(super) fn explain_build_gate_program(
+        &self,
+        ast: &ASTNode,
+    ) -> Result<BuildGateExplainReport, ParseError> {
+        let mut report = BuildGateExplainReport::new();
+        self.collect_build_gate_explain(ast, &mut report)?;
+        Ok(report)
+    }
+
+    fn collect_build_gate_explain(
+        &self,
+        node: &ASTNode,
+        report: &mut BuildGateExplainReport,
+    ) -> Result<(), ParseError> {
+        match node {
+            ASTNode::BuildGate {
+                predicate,
+                then_items,
+                else_items,
+                span,
+            } => {
+                report.conditional_group_count += 1;
+                if eval_build_predicate(predicate, &self.build_config, *span)? {
+                    report.active_branch_count += 1;
+                    if else_items.is_some() {
+                        report.inactive_branch_count += 1;
+                    }
+                    for item in then_items {
+                        self.collect_build_gate_explain(item, report)?;
+                    }
+                } else if let Some(else_items) = else_items {
+                    report.active_branch_count += 1;
+                    report.inactive_branch_count += 1;
+                    for item in else_items {
+                        self.collect_build_gate_explain(item, report)?;
+                    }
+                } else {
+                    report.inactive_branch_count += 1;
+                }
+            }
+            _ => {
+                let mut child_result: Result<(), ParseError> = Ok(());
+                node.for_each_child(&mut |child| {
+                    if child_result.is_ok() {
+                        child_result = self.collect_build_gate_explain(child, report);
+                    }
+                });
+                child_result?;
+            }
+        }
+        Ok(())
     }
 }
 
