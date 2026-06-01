@@ -83,6 +83,27 @@ verifier may infer `no_alloc` / `no_safepoint` from the MIR shape instead of
 requiring source-visible `Contract(...)` rows. If verification fails, the
 compiler must fail fast instead of silently keeping the call.
 
+Supported v0 required-inline shapes are intentionally narrow. A small helper
+that only writes fields on one stable receiver base may be accepted after body
+verification. A mixed-base helper is not accepted just because it looks small:
+
+```hako
+helper(index, page, kind) {
+    me.last_selected_index = index
+    me.last_selected_page_id = page.page_id
+    me.last_selected_kind = kind
+    me.last_selected_page = page
+    return 1
+}
+```
+
+This shape reads a foreign object, writes receiver state, and may publish a
+foreign handle. It belongs to a future publication recipe, not the generic
+`Inline(required)` leaf verifier. The next compiler concept for reopening this
+surface is `EffectSummary`: receiver reads/writes, foreign reads/writes, handle
+publications, nested calls, allocations, and safepoints must be classified
+before a narrow `ReceiverSnapshotPublicationPlanV0` can be considered.
+
 ## Contracts
 
 `Contract(no_alloc)` and `Contract(no_safepoint)` are live narrow verifier rows.

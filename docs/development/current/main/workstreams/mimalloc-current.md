@@ -508,6 +508,8 @@ unless one of them changes a durable contract or implementation boundary.
    - done: added `apps/pagequeue-mixed-base-helper-proof` as the small
      mixed-base same-module no-coredump fixture; it runs VM, MIR route proof,
      pure-first EXE build, and EXE execution without requesting inline
+   - done: reference docs now point the future reopen path through
+     `EffectSummary` before any narrow publication plan
    - rejected shape: helper body that reads `page.page_id` and writes `me.*`
      stays rejected for now because it is a mixed-base required-inline body
    - remaining follow-up: only reopen mixed-base helper extraction if a small

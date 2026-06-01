@@ -158,6 +158,50 @@ forbidden:
 When that shape is accepted, `no_alloc` and `no_safepoint` are inferred from
 the body shape. They are not silently granted by the source rune.
 
+### Mixed-Base Publication Helpers Are Not Leaf Inline
+
+`Inline(required)` must not grow into a general "small helper inliner" for
+multi-base bodies. The PageQueue mixed-base helper shape is the canonical
+negative example:
+
+```hako
+helper(index, page, kind) {
+    me.last_selected_index = index
+    me.last_selected_page_id = page.page_id
+    me.last_selected_kind = kind
+    me.last_selected_page = page
+    me.select_count = me.select_count + 1
+    return 1
+}
+```
+
+This body has a receiver base (`me`) and a foreign base (`page`). It also mixes
+scalar snapshot publication with possible handle publication. That is not
+`single_object_fieldset_leaf`; widening the generic verifier for this shape
+would blur inline policy, effect classification, and publication semantics.
+
+Reopen order:
+
+```text
+1. Same-module helper call lowering must not coredump.
+   Unsupported lowering must be a compile-time diagnostic.
+
+2. Add EffectSummary vocabulary:
+   receiver_reads / receiver_writes
+   foreign_reads / foreign_writes
+   handle_publications
+   calls / allocations / safepoints
+
+3. If current evidence still selects the shape, add a narrow
+   ReceiverSnapshotPublicationPlanV0 recipe.
+```
+
+`ReceiverSnapshotPublicationPlanV0` is a future recipe that `Inline(required)`
+may consume after effect verification. It is not a replacement for the generic
+leaf verifier and must reject multiple foreign bases, foreign writes, nested
+calls, branch/loop bodies, allocation, dynamic field access, and handle
+publication that requires a runtime barrier.
+
 `@rune Profile(...)` is parked for v0. If repeated explicit annotations become
 real user-facing noise later, a profile may be reintroduced as a named bundle
 that expands to primitive MIR facts. The profile name itself must still never

@@ -70,6 +70,12 @@ Current live verifier row:
     The verifier accepts only supported required leaf shapes and may infer
     `no_alloc` / `no_safepoint` from that shape. Explicit contracts remain
     available but are not required for the small receiver-fieldset leaf row.
+- Mixed-base publication helpers are not a supported required leaf shape. A
+  helper that reads a foreign object field and publishes either the scalar
+  snapshot or the foreign handle must first be summarized as an effect shape.
+  Reopen this surface through an `EffectSummary` and a narrow publication plan,
+  not by letting the generic required-inline verifier accept arbitrary
+  multi-base bodies.
 - `Hint(inline)` remains a compat alias for advisory inline preference and may
   trigger the narrow M11c-soft-leaf MIR optimizer row:
   best-effort same-module pure leaf inline. Unsupported shapes keep the call.
@@ -115,6 +121,48 @@ Substrate-only required inline flow:
 
 Backends and `.inc` readers must not discover inline policy from function names,
 box names, or allocator-specific symbols.
+
+## Mixed-Base Helper Reopen Path
+
+When a same-module helper uses both the receiver base and one foreign object
+base, classify it before considering inline:
+
+```text
+EffectSummary:
+  receiver_reads
+  receiver_writes
+  foreign_reads
+  foreign_writes
+  handle_publications
+  nested_call_count
+  allocation_count
+  safepoint_count
+```
+
+The v0 rule is:
+
+```text
+receiver-local fieldset leaf:
+  may be verified by Inline(required)
+
+mixed-base publication helper:
+  not a generic Inline(required) leaf
+  first gate is same-module no-coredump / compile-time diagnostic
+  second gate is EffectSummary
+  optional later gate is ReceiverSnapshotPublicationPlanV0
+```
+
+Rejected until a narrow plan says otherwise:
+
+```text
+multiple foreign bases
+foreign writes
+nested calls
+branch or loop bodies
+allocation
+dynamic field access
+handle publication that needs a runtime barrier
+```
 
 Compatibility:
 
