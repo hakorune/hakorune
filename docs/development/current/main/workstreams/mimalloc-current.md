@@ -510,6 +510,22 @@ unless one of them changes a durable contract or implementation boundary.
    - remaining follow-up: only reopen mixed-base helper extraction if a small
      VM/EXE parity fixture selects it; mimalloc source cleanup no longer
      depends on that shape
+   - design rule: do not widen the generic `Inline(required)` verifier to
+     "multiple bases are probably fine"; mixed-base extraction must come back
+     only as a narrow recipe or as a same-module call lowering fix
+   - reopen order:
+     1. add a no-coredump fixture for the non-inline same-module mixed-base
+        helper call; unsupported lowering must become a compile-time diagnostic,
+        not an EXE crash
+     2. add helper `EffectSummary` vocabulary for receiver reads/writes,
+        foreign reads/writes, handle publications, calls, allocations, and
+        safepoints
+     3. if still selected, add a narrow
+        `ReceiverSnapshotPublicationPlanV0` recipe; start with scalar foreign
+        read publication before permitting foreign handle publication
+   - v0 rejected surfaces: multiple foreign bases, foreign writes, nested calls,
+     branch/loop bodies, allocation, dynamic field access, and handle
+     publication that needs a runtime barrier
 
 5. Direct-exact runtime environment dependency audit
    - status: done by MIM-060; correctness hygiene, not a perf keeper
