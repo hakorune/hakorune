@@ -12,6 +12,7 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
+    direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     direct_array_access_plan::DirectArrayAccessPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
     exact_numeric_value_facts::{
@@ -415,6 +416,13 @@ pub struct FunctionMetadata {
     /// selected multi-block callee keeps the expected scalar/no-fallback shape
     /// before a later call-plan/lowering consumer is allowed to use it.
     pub hotcore_method_summaries: Vec<HotCoreMethodSummary>,
+
+    /// Report-only call-edge plans for selected direct-exact HotCore calls.
+    ///
+    /// This is not body inlining. It records that an already-known user-box
+    /// method call can be explained as a static exact call candidate before a
+    /// later lowering consumer is allowed to remove generic dispatch.
+    pub direct_exact_hotcore_call_plans: Vec<DirectExactHotCoreCallPlan>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

@@ -231,6 +231,32 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "failure_reason": summary.failure_reason,
             })
         }).collect::<Vec<_>>(),
+        "direct_exact_hotcore_call_plans": metadata.direct_exact_hotcore_call_plans.iter().map(|plan| {
+            json!({
+                "route_id": "direct_exact.hotcore_call",
+                "block": plan.block.as_u32(),
+                "instruction_index": plan.instruction_index,
+                "caller": plan.caller,
+                "callee": plan.callee,
+                "box_name": plan.box_name,
+                "method": plan.method,
+                "receiver_value": plan.receiver_value.as_u32(),
+                "result_value": plan.result_value.map(|value| value.as_u32()),
+                "receiver_exact": plan.receiver_exact,
+                "same_module": plan.same_module,
+                "dispatch_policy": plan.dispatch_policy,
+                "call_boundary_policy": plan.call_boundary_policy,
+                "return_shape": plan.return_shape,
+                "value_demand": plan.value_demand,
+                "callee_summary_status": plan.callee_summary_status,
+                "lowering_consumer_enabled": plan.lowering_consumer_enabled,
+                "generic_method_dispatch": plan.generic_method_dispatch,
+                "dynamic_route": plan.dynamic_route,
+                "boxed_fallback": plan.boxed_fallback,
+                "summary": plan.summary,
+                "failure_reason": plan.failure_reason,
+            })
+        }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

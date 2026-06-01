@@ -24,6 +24,7 @@ use super::{
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
+    direct_exact_hotcore_call_plan::refresh_module_direct_exact_hotcore_call_plans,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
     direct_array_extent_fact::refresh_function_direct_array_extent_facts,
     direct_state_plan::refresh_module_direct_state_plans,
@@ -152,6 +153,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_hotcore_method_summaries(function);
     }
+    refresh_module_direct_exact_hotcore_call_plans(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);

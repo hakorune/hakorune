@@ -3093,13 +3093,20 @@ truth stays in MIR metadata emitted by the compiler.
     `nested_direct_exact_call_count=1`; `objectLifecycleSmallAlloc/1` has
     `block_count=11` with the same accepted scalar/no-fallback shape
   - no lowering change, no source hand-expansion, no new rune/profile syntax
-- [ ] MIM-090: DirectExactHotCoreCallPlan report-only producer
+- [x] MIM-090: DirectExactHotCoreCallPlan report-only producer
   - output: `DirectExactHotCoreCallPlanV0` / equivalent MIR metadata for call
     edges such as `Main.runOne/2 -> HotCore` and `HotCore -> PageModel`
   - include: caller, callee, receiver exactness, same-module/static-exact
     dispatch policy, scalar i64 return, generic dispatch count, dynamic route
     count, boxed fallback count, and failure reason when no plan is produced
   - acceptance: report-only plan exists before any static-call lowering
+  - result: observer-light MIR JSON emits five report-only plans:
+    `Main.runOne/2 -> objectLifecycleSmallAlloc/1`,
+    two `Main.runOne/2 -> objectLifecycleReleaseBlock/2` call edges,
+    `objectLifecycleSmallAlloc/1 -> acquireFreshSmall/1`, and
+    `objectLifecycleReleaseBlock/2 -> releaseLocalKnownLive/1`; all report
+    `dispatch_policy=static_exact`, `summary=ok`, and
+    `lowering_consumer_enabled=false`
   - no body inline and no benchmark winner claim
 - [ ] MIM-091: hako_check fastpath-explain plan visibility extension
   - output: extend the existing read-only `hako_check fastpath-explain` surface
