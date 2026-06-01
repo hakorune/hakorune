@@ -3064,6 +3064,67 @@ next_candidate=small_checked_wrapper_inline_plan_or_hotcore_operation_plan
 summary=ok
 ```
 
+## Next Task Order
+
+Keep `Inline(required)` narrow. It remains the one-block / receiver-local leaf
+contract. The hot-core methods below are multi-block direct-exact call
+boundaries, not required-inline leaves:
+
+```text
+HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc/1
+HakoAllocObjectLifecycleHotCore.objectLifecycleReleaseBlock/2
+```
+
+The next implementation work must make the compiler-owned plan visible before
+lowering changes. `hako_check` is the user-facing explanation surface, but the
+truth stays in MIR metadata emitted by the compiler.
+
+- [ ] MIM-089: HotCore method summary metadata contract
+  - output: `HotCoreMethodSummaryV0` / equivalent MIR metadata for selected
+    hot-core callees
+  - include: method name, block count, return kind, allocation/provider/public
+    observer/materialization counts, dynamic/generic fallback counts, and
+    nested direct-exact call counts
+  - acceptance: 9-block and 11-block HotCore methods are reportable without
+    widening `Inline(required)`
+  - no lowering change, no source hand-expansion, no new rune/profile syntax
+- [ ] MIM-090: DirectExactHotCoreCallPlan report-only producer
+  - output: `DirectExactHotCoreCallPlanV0` / equivalent MIR metadata for call
+    edges such as `Main.runOne/2 -> HotCore` and `HotCore -> PageModel`
+  - include: caller, callee, receiver exactness, same-module/static-exact
+    dispatch policy, scalar i64 return, generic dispatch count, dynamic route
+    count, boxed fallback count, and failure reason when no plan is produced
+  - acceptance: report-only plan exists before any static-call lowering
+  - no body inline and no benchmark winner claim
+- [ ] MIM-091: hako_check fastpath-explain plan visibility extension
+  - output: extend the existing read-only `hako_check fastpath-explain` surface
+    to display HotCore summaries and DirectExactHotCoreCallPlan call edges
+  - rule: `hako_check` must not infer optimization truth; it only renders
+    compiler MIR metadata and fails strict mode when expected metadata reports
+    a missing/fallback route
+  - user-facing goal: explain what was optimized, what stayed generic, and why
+  - no source rewrite, no MIR emission in the Python adapter, no keeper
+    selection
+- [ ] MIM-092: strict diagnostic for plan-to-fallback mismatch
+  - output: fail-fast metadata/report when a direct-exact plan exists but the
+    lowering result uses generic dispatch, dynamic route, boxed fallback, or
+    unsupported helper route
+  - acceptance: planned-but-fallback is visible as a regression before
+    performance measurement
+  - no static-call lowering yet
+- [ ] MIM-093: static exact call lowering consumer
+  - output: consume `DirectExactHotCoreCallPlanV0` to lower selected generic
+    method calls to static exact symbol calls
+  - acceptance: representative direct-exact semantic smoke stays green;
+    `hako_check fastpath-explain` shows lowered static-exact call edges and no
+    plan-to-fallback mismatch
+  - body inline remains out of scope
+- [ ] MIM-094: post-static-call perf reread
+  - output: direct-exact perf/stat and perf-top reread after MIM-093
+  - decide whether remaining owner is PageModel body shape, DirectArray/Span
+    proof residue, late hot inline, or no-current-owner
+  - no `LateHotInlinePlan` unless current evidence still selects call overhead
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

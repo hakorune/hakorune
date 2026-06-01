@@ -146,9 +146,16 @@ FastPath Explain
   memory work. It consumes an existing MIR JSON artifact and reports compiler
   metadata coverage for `DirectArrayAccessPlan`, `SpanAccessPlan`, and
   `RequiredFastPathRegion` / `FastPathObligation`.
+- The same surface is the planned user-facing explanation entry for
+  direct-exact hot-core call optimization. When the compiler emits
+  `HotCoreMethodSummaryV0`, `DirectExactHotCoreCallPlanV0`, or equivalent
+  lowering result metadata, this tool may display those fields.
 - This is not a source linter and not an optimizer. It does not emit MIR,
   rewrite source, choose keepers, activate providers, replace allocators,
   install hooks, or make benchmark winner claims.
+- Source of truth: compiler/MIR metadata. `hako_check fastpath-explain` must not
+  infer HotCore eligibility, direct-exact call edges, or lowering routes from
+  method names or source text.
 - The stable v0 entry is:
 
 ```bash
@@ -205,13 +212,22 @@ fastpath_obligation_count
 fastpath_obligation_passed_count
 fastpath_obligation_failed_count
 missing_fastpath_plan_count
+hotcore_method_summary_count
+direct_exact_hotcore_call_plan_count
+direct_exact_static_call_lowered_count
+direct_exact_plan_lowered_to_fallback_count
+generic_method_dispatch_count
+dynamic_route_count
+boxed_fallback_count
 clean=0|1
 summary=ok|failed
 ```
 
 - Boundary: `hako_check` may host this adapter because it only reads MIR JSON
-  facts and prints diagnostics. Any new MIR-producing analysis, lowering owner,
-  or keeper selection must stay outside hako_check.
+  facts and prints diagnostics. Any new MIR-producing analysis, HotCore plan
+  producer, lowering owner, or keeper selection must stay outside hako_check.
+- User-facing goal: answer "what optimization happened?" and "why did this site
+  stay generic?" from compiler-emitted metadata.
 
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise

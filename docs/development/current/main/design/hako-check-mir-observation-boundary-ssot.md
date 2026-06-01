@@ -22,6 +22,12 @@ and exists so future `direct {}` / FastPath obligation failures have one
 developer-facing explanation surface. It must not emit MIR, rewrite source,
 select keepers, or own lowering policy.
 
+The same read-only exception also covers compiler-emitted optimization outcome
+metadata for direct-exact hot-core calls. The compiler/MIR metadata remains the
+truth; `hako_check fastpath-explain` only renders that truth for users. It must
+not infer that a call is direct-exact, decide that a method is a hot core, or
+reimplement the optimizer's eligibility rules.
+
 Developer convenience exception: `tools/hako_check/fastpath_explain.sh --app`
 may emit a temporary MIR JSON artifact before invoking the stable
 `fastpath_explain.py` adapter. This wrapper is allowed only as a tool entrypoint:
@@ -37,6 +43,7 @@ MIR method shape adapter:
 
 hako_check fastpath-explain:
   MIR JSON diagnostic adapter for DirectArray / Span / RequiredFastPath metadata
+  and direct-exact HotCore call-plan metadata
 
 keeper diff adapter:
   before/after source report + MIR report + measurement evidence
@@ -59,6 +66,11 @@ The fastpath-explain exception is intentionally narrower than the general MIR
 method-shape adapter: it reads named metadata fields that are already part of
 the direct-memory diagnostic contract and reports missing/passing obligations.
 It does not infer new method shape, route ownership, or performance keepers.
+
+For HotCore/direct-exact call planning, the same rule applies. The adapter may
+display `HotCoreMethodSummaryV0`, `DirectExactHotCoreCallPlanV0`, and lowering
+result fields when the compiler emits them, but it cannot synthesize those
+plans from method names, source text, or MIR instruction patterns.
 
 ## Planned Surfaces
 
@@ -141,6 +153,48 @@ clean=0|1
 summary=ok|failed
 ```
 
+HotCore/direct-exact extension fields may be added to the same report once the
+compiler emits the corresponding metadata:
+
+```text
+hotcore_method_summary_count
+direct_exact_hotcore_call_plan_count
+direct_exact_static_call_lowered_count
+direct_exact_plan_lowered_to_fallback_count
+generic_method_dispatch_count
+dynamic_route_count
+boxed_fallback_count
+```
+
+Intended user-facing output:
+
+```text
+Function: Main.runOne/2
+
+FastPath summary:
+  direct_exact_hotcore_call_plan: 3
+  static_exact_call_lowered: 3
+  generic_method_dispatch: 0
+  dynamic_route: 0
+
+Call edges:
+  Main.runOne/2
+    -> HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc/1
+       route: static_exact_call
+       summary: HotCoreMethodSummaryV0 ok
+```
+
+Failure output must explain the compiler-owned reason instead of hiding the
+route:
+
+```text
+Missing direct-exact call plan:
+  site: Main.runOne/2 -> objectLifecycleSmallAlloc/1
+  expected: DirectExactHotCoreCallPlanV0
+  actual: generic_method_dispatch
+  reason: callee has public observer update
+```
+
 ## Stop Line
 
 - `hako_check` does not rewrite source.
@@ -150,6 +204,8 @@ summary=ok|failed
   temporary MIR JSON before calling the read-only adapter; it is not a MIR
   analysis owner.
 - MIR method shape does not select keepers by itself.
+- `hako_check fastpath-explain` does not infer HotCore summaries or direct-exact
+  call plans; it renders compiler-emitted metadata only.
 - Diff adapter does not implement keepers.
 - Provider activation, process allocator replacement, hooks, globals, and
   winner claims remain closed unless a separate decision row opens them.
