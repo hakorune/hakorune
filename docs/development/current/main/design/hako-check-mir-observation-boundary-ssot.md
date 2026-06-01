@@ -28,11 +28,22 @@ truth; `hako_check fastpath-explain` only renders that truth for users. It must
 not infer that a call is direct-exact, decide that a method is a hot core, or
 reimplement the optimizer's eligibility rules.
 
+Exception: `hako_check state-explain` may consume an already-emitted MIR JSON
+artifact to print state bucket and residence metadata coverage. This exception
+is read-only and exists so future `RecordStateResidencePlanV0` work has one
+developer-facing explanation surface. It must not emit MIR, rewrite source,
+select keepers, migrate `PageState`, infer public semantics, or own record-state
+lowering policy.
+
 Developer convenience exception: `tools/hako_check/fastpath_explain.sh --app`
 may emit a temporary MIR JSON artifact before invoking the stable
 `fastpath_explain.py` adapter. This wrapper is allowed only as a tool entrypoint:
 it does not build the compiler, persist MIR by default, run benchmarks, select
 keepers, or change the read-only Python contract.
+
+The same wrapper exception applies to `tools/hako_check/state_explain.sh --app`.
+It may emit temporary MIR JSON before invoking `state_explain.py`, but it does
+not become a MIR producer or state-residence planner.
 
 ```text
 hako_check perf-surface:
@@ -44,6 +55,10 @@ MIR method shape adapter:
 hako_check fastpath-explain:
   MIR JSON diagnostic adapter for DirectArray / Span / RequiredFastPath metadata
   and direct-exact HotCore call-plan metadata
+
+hako_check state-explain:
+  MIR JSON diagnostic adapter for user-box field buckets, DirectState metadata,
+  record layout facts, and future RecordStateResidencePlanV0 metadata
 
 keeper diff adapter:
   before/after source report + MIR report + measurement evidence
@@ -71,6 +86,11 @@ For HotCore/direct-exact call planning, the same rule applies. The adapter may
 display `HotCoreMethodSummaryV0`, `DirectExactHotCoreCallPlanV0`, and lowering
 result fields when the compiler emits them, but it cannot synthesize those
 plans from method names, source text, or MIR instruction patterns.
+
+For state/record residence planning, `state-explain` may display field buckets,
+`DirectStatePlan`, record layout rows, and `RecordStateResidencePlanV0` rows
+when the compiler emits them. Bucket labels are explanatory only and must not
+be used as proof that a source migration or backend lowering is legal.
 
 ## Planned Surfaces
 
@@ -195,6 +215,49 @@ Missing direct-exact call plan:
   reason: callee has public observer update
 ```
 
+### State Explain v0
+
+Owner: `tools/hako_check`, read-only MIR JSON adapter.
+
+```text
+output_contract=hako-check-state-explain-v0
+input_kind=mir_json
+tool_surface=hako_check_state_explain
+observation_only=1
+rewrite_executed=0
+keeper_selection=0
+target_box
+user_box_decl_count
+selected_field_count
+record_decl_count
+record_layout_plan_count
+direct_state_plan_count
+direct_state_positive_candidate_count
+direct_state_mixed_candidate_count
+selected_direct_state_plan_count
+selected_direct_state_positive_candidate_count
+selected_direct_state_mixed_candidate_count
+record_state_residence_plan_count
+record_state_residence_candidate_field_count
+record_state_handle_reject_field_count
+bucket_primitive_hot_state_field_count
+bucket_public_semantics_field_count
+bucket_proof_evidence_field_count
+bucket_diagnostic_only_field_count
+bucket_observer_boundary_field_count
+bucket_handle_cache_field_count
+bucket_result_capsule_field_count
+bucket_direct_array_owner_field_count
+bucket_escape_unknown_field_count
+record_state_source_migration_selected=0
+whole_record_abi_enabled=0
+public_materialization_enabled=0
+ordinary_box_auto_recordification=0
+record_to_box_conversion=0
+clean=0|1
+summary=ok
+```
+
 ## Stop Line
 
 - `hako_check` does not rewrite source.
@@ -203,6 +266,9 @@ Missing direct-exact call plan:
 - `tools/hako_check/fastpath_explain.sh --app` is a developer wrapper that emits
   temporary MIR JSON before calling the read-only adapter; it is not a MIR
   analysis owner.
+- `hako_check state-explain` follows the same boundary: it renders metadata and
+  explanatory buckets only, and does not select or implement
+  `RecordStateResidencePlanV0`.
 - MIR method shape does not select keepers by itself.
 - `hako_check fastpath-explain` does not infer HotCore summaries or direct-exact
   call plans; it renders compiler-emitted metadata only.

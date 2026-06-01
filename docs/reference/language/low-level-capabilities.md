@@ -116,8 +116,8 @@ DirectArrayI64:
 ```
 
 The desired C-struct-like shape for mutable internal state is therefore not
-"turn the owner box into a record". The narrow future direction is a
-box-private record residence plan:
+"turn the owner box into a record". The narrow future direction is
+`RecordStateResidencePlanV0`: a box-private record residence plan.
 
 ```hako
 record PageState {
@@ -140,6 +140,13 @@ plan when verifier facts prove the access. Until that row exists, record-local
 scalarization remains compiler-local and must not imply runtime record objects,
 backend record lowering, automatic record-to-box conversion, or ordinary-box
 auto-recordification.
+
+`RecordStateResidencePlanV0` is not a new source surface. It may only accept
+concrete box-private record fields with primitive scalar subfields. The v0
+operation set is subfield load/store such as `me.state.free_top`; whole-record
+read, whole-record assignment, record return ABI, helper argument ABI, public
+materialization, handle fields, nested records, and record methods remain
+rejected until separately accepted.
 
 Internal representation work should use these layers:
 

@@ -106,6 +106,77 @@ Scope: current lane / next lane / restart order only.
 - Detailed DirectArray / RuntimeDataBox / typed-object history lives in the
   phase cards and `CURRENT_STATE.toml` landed tail, not in this root pointer.
 
+## Current Language/Substrate Reset
+
+The current language-substrate direction is:
+
+```text
+source surface:
+  do not grow for this slice
+
+box:
+  identity / lifecycle / methods / DirectArray ownership
+
+record:
+  identity-free aggregate, snapshot, metadata row, or local scalarizable value
+  future box-private primitive state bundle only through RecordStateResidencePlanV0
+
+DirectArrayI64:
+  owned variable-length exact-i64 table for internal hot paths
+
+gate:
+  build/test/proof selection only; not a fast-path selector
+
+direct{}:
+  parked; v0 uses RequiredFastPathRegion / FastPathObligation diagnostics
+```
+
+Do not convert allocator owner boxes such as `HakoAllocPageModel` into records.
+The accepted future shape is `box` owner plus a primitive `record` state bundle
+when `RecordStateResidencePlanV0` proves box-private subfield load/store:
+
+```text
+PageModel:
+  box owner
+
+PageState:
+  record state bundle candidate
+
+me.state.free_top:
+  future direct record-state subfield access
+```
+
+Next active-lane substrate order before more speculative mimalloc source edits:
+
+1. `StateBucketClassifierV0` inventory for page / queue / facade / result
+   fields.
+2. `RecordStateResidencePlanV0` metadata-only contract; no source migration
+   yet.
+3. `hako_check state-explain` read-only adapter for field buckets and
+   record-state candidates.
+4. Route-aware materialization / HotCore direct-exact call plan selection if
+   current evidence still points to MIR call/copy boundaries.
+5. PageState source migration only after positive-net report evidence; no
+   whole-record ABI or public materialization.
+
+Current C-gap reading:
+
+```text
+Do not read the remaining C gap as "record is missing" alone.
+
+Expected composite:
+  RecordStateResidencePlanV0
+  + DirectArrayI64 / proved direct-array access
+  + HotCore direct-exact call plans where the active front uses HotCore
+  + route-aware copy/materialization
+  + observer/public/proof state classification
+```
+
+The observer-light HotCore compiler fastpath slice is already a completed
+front. The public proof front is heavier by design because it still carries
+facade/result/observer semantics. Do not mix those fronts when selecting the
+next owner.
+
 ## Current Direct Memory Task Order
 
 This wave is complete. For current work, read

@@ -14,6 +14,7 @@ Usage:
   $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]
   $0 perf-surface-contract [--out report.txt]
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
+  $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
 
 Tool surfaces:
   default             .hako lint/analyzer rules
@@ -21,6 +22,7 @@ Tool surfaces:
   perf-surface-contract
                       report vocabulary for perf-surface
   fastpath-explain    read-only DirectArray/Span FastPath metadata explanation
+  state-explain       read-only state bucket / direct-state metadata explanation
 
 Boundary:
   hako_check does not rewrite source, choose keepers, run benchmarks, or own MIR
@@ -38,6 +40,11 @@ esac
 if [ "${1:-}" = "fastpath-explain" ]; then
   shift
   exec bash "$ROOT/tools/hako_check/fastpath_explain.sh" "$@"
+fi
+
+if [ "${1:-}" = "state-explain" ]; then
+  shift
+  exec bash "$ROOT/tools/hako_check/state_explain.sh" "$@"
 fi
 
 if [ "${1:-}" = "perf-surface" ]; then

@@ -229,6 +229,90 @@ summary=ok|failed
 - User-facing goal: answer "what optimization happened?" and "why did this site
   stay generic?" from compiler-emitted metadata.
 
+State Explain
+- `hako_check state-explain` is a MIR-backed diagnostic adapter for state and
+  residence work. It consumes an existing MIR JSON artifact and reports
+  user-box field buckets, DirectState candidate metadata, record layout facts,
+  and the current `RecordStateResidencePlanV0` plan count.
+- This is not a source linter and not an optimizer. It does not emit MIR,
+  rewrite source, choose keepers, migrate `PageState`, infer public semantics,
+  or enable record-state backend lowering.
+- Source of truth: compiler/MIR metadata plus a small explanatory bucket
+  vocabulary. Bucket labels are for diagnosis only; optimizer or source
+  migration decisions must stay in the mimalloc workstream / compiler plan
+  owner.
+- Stable v0 entry:
+
+```bash
+python3 tools/hako_check/state_explain.py --mir-json app.mir.json
+```
+
+- Developer convenience entry:
+
+```bash
+bash tools/hako_check.sh state-explain --app app.hako
+```
+
+- Existing MIR JSON artifacts can be read directly:
+
+```bash
+bash tools/hako_check/state_explain.sh --mir-json app.mir.json
+```
+
+- Optional box filter:
+
+```bash
+bash tools/hako_check.sh state-explain \
+  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
+  --box HakoAllocPageModel
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-state-explain-v0
+input_kind=mir_json
+tool_surface=hako_check_state_explain
+observation_only=1
+rewrite_executed=0
+keeper_selection=0
+target_box
+user_box_decl_count
+selected_field_count
+record_decl_count
+record_layout_plan_count
+direct_state_plan_count
+direct_state_positive_candidate_count
+direct_state_mixed_candidate_count
+selected_direct_state_plan_count
+selected_direct_state_positive_candidate_count
+selected_direct_state_mixed_candidate_count
+record_state_residence_plan_count
+record_state_residence_candidate_field_count
+record_state_handle_reject_field_count
+bucket_primitive_hot_state_field_count
+bucket_public_semantics_field_count
+bucket_proof_evidence_field_count
+bucket_diagnostic_only_field_count
+bucket_observer_boundary_field_count
+bucket_handle_cache_field_count
+bucket_result_capsule_field_count
+bucket_direct_array_owner_field_count
+bucket_escape_unknown_field_count
+record_state_source_migration_selected=0
+whole_record_abi_enabled=0
+public_materialization_enabled=0
+ordinary_box_auto_recordification=0
+record_to_box_conversion=0
+clean=0|1
+summary=ok
+```
+
+- Boundary: `hako_check` may host this adapter because it only renders existing
+  metadata and explanatory bucket counts. Any `RecordStateResidencePlanV0`
+  producer, source migration, backend lowering, or keeper selection must stay
+  outside hako_check.
+
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise
 - `NYASH_BOX_FACTORY_POLICY=builtin_first` – prefer builtin/ring‑1 for stability

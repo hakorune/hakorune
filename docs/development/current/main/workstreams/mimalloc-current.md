@@ -922,6 +922,125 @@ message.
     route-aware MIR materialization improvement that proves a machine-code win,
     not only a MIR copy-count reduction
 
+- [x] MIM-116: state bucket classifier inventory
+  - output: classify current page / queue / facade / result fields before
+    another source edit
+  - buckets:
+    `primitive_hot_state`, `public_semantics`, `proof_evidence`,
+    `diagnostic_only`, `observer_boundary`, `handle_cache`,
+    `result_capsule`, `direct_array_owner`, `escape_unknown`
+  - required focus:
+    `HakoAllocPageModel`, `HakoAllocObjectLifecyclePageQueue`,
+    `HakoAllocObjectLifecycleFacade`, alloc/release result capsules
+  - no implementation, no source rewrite, no new row or row-specific `.sh`
+  - inventory:
+
+    | Owner | Bucket | Fields / surface | Reading |
+    | --- | --- | --- | --- |
+    | `HakoAllocPageModel` | `direct_array_owner` | `free`, `local_free`, `block_used` | variable-length page tables; keep in DirectArrayI64 lane, not record-state |
+    | `HakoAllocPageModel` | `primitive_hot_state` | `used`, `free_top`, `local_free_top`, `retired`, `peak_used` | best future `PageState` candidates; all primitive and hot in acquire/release |
+    | `HakoAllocPageModel` | `public_semantics` | `page_id`, `block_size`, `capacity`, `reserved`, `requested_bytes` | public/proof-visible page identity, size, extent, and requested-byte semantics |
+    | `HakoAllocPageModel` | `proof_evidence` | `requested_bytes`, lifecycle counters | proofs/apps read these directly; do not gate or elide without proof cleanup |
+    | `HakoAllocPageModel` | `diagnostic_only` | `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `decommit_count`, `recommit_count`, `reuse_count`, `lifecycle_reject_count`, `reactivate_count`, `reactivate_reject_count` | candidate for observer/gate cleanup only after public/proof reads are checked |
+    | `HakoAllocPageModel` | `observer_boundary` | `alloc_count`, `local_free_count`, `retire_count` | hot counters but visible through proof/observer surfaces; signed storage keeper already landed |
+    | `HakoAllocObjectLifecyclePageQueue` | `handle_cache` | `pages`, `first_page`, `last_selected_page` | object/ArrayBox handles; must stay outside record-state |
+    | `HakoAllocObjectLifecyclePageQueue` | `primitive_hot_state` | `last_selected_index`, `last_selected_page_id`, `last_selected_kind` | scalar selection publication; current helper shape is receiver-local inline |
+    | `HakoAllocObjectLifecyclePageQueue` | `observer_boundary` | `request_count`, `select_count`, `single_page_fast_path_count`, `active_select_count` | sampled counters; visible through facade accessors |
+    | `HakoAllocObjectLifecyclePageQueue` | `diagnostic_only` | `single_page_fallback_count`, `reuse_select_count`, `decommitted_skip_count`, `retired_skip_count`, `unavailable_skip_count`, `miss_count`, `reject_count` | possible observer/gate candidates after accessor/proof audit |
+    | `HakoAllocObjectLifecycleFacade` | `handle_cache` | `object_lifecycle_queue`, `last_alloc_page`, `release_known_page` | owner/cache handles; record-state rejects handle fields |
+    | `HakoAllocObjectLifecycleFacade` | `result_capsule` | `alloc_result`, `release_result`, `alignment_result`, `realloc_result` | scalar capsules; strongest existing direct-state/record-state family |
+    | `HakoAllocObjectLifecycleFacade` | `primitive_hot_state` | `last_alloc_page_index`, `last_alloc_page_id` | scalar cache ids; candidate only if handle-cache boundary remains explicit |
+    | `HakoAllocObjectLifecycleFacade` | `observer_boundary` | `release_known_page_fast_path_count`, `release_known_page_fallback_count`, `stats_surface` | public readback/stat surface; do not hide with `gate` in production |
+    | alloc/release result capsules | `result_capsule` | `last_*`, `*_count` fields | primitive scalar state with known materialization/readback methods; closest RecordStateResidencePlanV0 seed |
+    | alignment/realloc result capsules | `result_capsule` | request/status scalar fields | primitive scalar state but not current small-block hot owner |
+
+  - selected next: MIM-117 keeps `RecordStateResidencePlanV0` metadata-only;
+    no `PageState` source migration until state-explain/report evidence shows a
+    positive-net candidate
+
+- [x] MIM-117: RecordStateResidencePlanV0 metadata-only contract
+  - output: define the narrow accepted/rejected shape for box-private record
+    state residence
+  - accepted source shape:
+    `box` owner with a concrete `record` state field and primitive scalar
+    subfield load/store such as `me.state.free_top`
+  - rejected v0 shapes:
+    whole-record read, whole-record assignment, record return ABI, helper
+    argument ABI, public materialization, handle fields, nested records, and
+    record methods
+  - no `HakoAllocPageModel` source migration yet; no ordinary-box
+    auto-recordification and no record-to-box conversion
+  - result: reference contract is now named in
+    `docs/reference/language/low-level-capabilities.md`
+  - implementation boundary remains metadata/report-only; no MIR producer,
+    source migration, backend lowering, runtime layout change, or public
+    materialization is opened by this checklist item
+
+- [x] MIM-118: hako_check state-explain adapter
+  - output: add a read-only hako_check entry that reports field buckets and
+    record-state residence candidates/reject reasons from existing MIR JSON
+  - desired entry shape:
+    `tools/hako_check.sh state-explain`
+  - no compiler build, no benchmark run, no source rewrite, no persistent MIR
+    artifact, and no keeper selection
+  - implemented:
+    - `tools/hako_check/state_explain.py`
+    - `tools/hako_check/state_explain.sh`
+    - `tools/hako_check.sh state-explain`
+  - contract: `hako-check-state-explain-v0`
+  - result on representative app / `HakoAllocPageModel`:
+    - `bucket_primitive_hot_state_field_count=6`
+    - `bucket_public_semantics_field_count=4`
+    - `bucket_proof_evidence_field_count=1`
+    - `bucket_diagnostic_only_field_count=8`
+    - `bucket_observer_boundary_field_count=4`
+    - `bucket_direct_array_owner_field_count=3`
+    - `selected_direct_state_plan_count=1`
+    - `selected_direct_state_positive_candidate_count=0`
+    - `selected_direct_state_mixed_candidate_count=1`
+    - `record_state_residence_plan_count=0`
+    - `record_state_residence_candidate_field_count=6`
+    - `record_state_source_migration_selected=0`
+  - validation:
+    `python3 -m py_compile tools/hako_check/state_explain.py` and
+    `bash tools/hako_check.sh state-explain --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako --box HakoAllocPageModel --topn 6`
+
+- [x] MIM-119: front-aware route / HotCore status reconciliation
+  - output: record which front already owns HotCore direct-exact metadata and
+    avoid reopening a completed compiler-fastpath slice for the public facade
+    proof front
+  - observer-light status:
+    MIM-089..MIM-091 already landed `HotCoreMethodSummaryV0`,
+    `DirectExactHotCoreCallPlanV0`, and `hako_check fastpath-explain`
+    visibility; MIM-111 reports `hotcore_method_summary_ok_count=2`,
+    `direct_exact_hotcore_call_plan_ok_count=5`, and
+    `direct_exact_static_call_lowered_count=5`
+  - public proof status:
+    the public proof representative app uses
+    `HakoAllocObjectLifecycleFacade`, not `HakoAllocObjectLifecycleHotCore`,
+    so HotCore metadata is expected to be absent there
+  - read-only probe:
+    `bash tools/hako_check.sh fastpath-explain --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako --method HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1 --topn 4`
+  - probe result:
+    `hotcore_method_summary_count=0`,
+    `direct_exact_hotcore_call_plan_count=0`,
+    `fastpath_plan_count=0`
+  - interpretation:
+    this is not a missing HotCore producer. It is a front split. Continue
+    public-proof optimization through state bucket / route-aware
+    materialization evidence, not by widening `@rune Inline(required)` or
+    reopening the observer-light HotCore plan.
+
+- [ ] MIM-120: PageState source migration feasibility
+  - output: only after MIM-116..MIM-119 produce positive-net evidence, decide
+    whether a `record PageState` field should be introduced under the
+    `HakoAllocPageModel` box owner
+  - source policy:
+    `HakoAllocPageModel` remains a `box`; `PageState` is only a primitive
+    mutable state bundle candidate
+  - no migration if whole-record ABI, public materialization, or handle fields
+    are required
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
