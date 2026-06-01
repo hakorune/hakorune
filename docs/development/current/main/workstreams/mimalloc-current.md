@@ -640,11 +640,253 @@ message.
     `@rune Inline(required)` and stays inside the accepted receiver-local leaf
     budget; return to owner-first selection before the next edit
 
-- [ ] MIM-070: post-known-available-nonkeeper owner refresh
+- [x] MIM-070: post-known-available-nonkeeper owner refresh
   - output: reread the direct exact owner after reverting MIM-069 and select
     exactly one next source/MIR owner
   - treat new source helper extraction as suspect unless current evidence plus
     inline eligibility show a positive net path
+  - current candidate: page-local observer counter cost, starting with
+    `HakoAllocPageModel.requested_bytes` inside `acquireFreshSmall`
+  - decision note: do not delete the counter directly; first classify whether
+    it is public semantics, proof/evidence payload, or diagnostic-only state
+  - result: selected `requested_bytes` observer-counter classification as the
+    next smallest candidate, then closed it as nonkeeper because it is public
+    semantics plus proof evidence
+
+- [x] MIM-071: observer counter classification
+  - output: classify page-local counters reached by the current hot path as
+    `public_semantics`, `proof_evidence`, or `diagnostic_only`
+  - first field: `HakoAllocPageModel.requested_bytes`
+  - required checks:
+    - list every public accessor / proof / app readback that depends on the
+      field
+    - identify whether the current parity workload already computes the value
+      outside the hot path
+    - no source change except docs/checklist
+  - no counter elision yet
+  - result: `requested_bytes` is `public_semantics + proof_evidence`, not
+    `diagnostic_only`
+  - write sites:
+    - `lang/src/hako_alloc/memory/page_box.hako`: `acquire`,
+      `acquire_usize`, and `acquireFreshSmall` add `requested_size`
+    - `lang/src/hako_alloc/memory/page_box.hako`: `resetToFresh` clears it
+  - production/public readback:
+    - `lang/src/hako_alloc/memory/page_heap_box.hako`: `requestedBytes()`
+      sums `small_page.requested_bytes + medium_page.requested_bytes`
+    - `lang/src/hako_alloc/memory/osvm_backed_fast_path_heap_box.hako`:
+      `requestedBytes()` sums each page's `requested_bytes`
+  - proof/evidence readback:
+    - `apps/hako-alloc-mimalloc-comparison-representative-small-block-proof/main.hako`
+      prints and asserts `page.requested_bytes == 33254`
+    - `apps/mimalloc-page-model-proof/main.hako`,
+      `apps/mimalloc-local-free-retire-proof/main.hako`, and several
+      comparison proofs print/assert the page field directly
+  - current object-lifecycle in-process parity workload already computes
+    `requested_bytes = 33254 * operation_repeat` outside the hot page field,
+    but that does not remove the field's public/proof role elsewhere
+
+- [x] MIM-072: `gate` observer-counter policy selection
+  - output: decide which observer counters may move behind build-time `gate`
+    code without changing production semantics
+  - allowed targets:
+    - test/proof-only print and assertion payloads
+    - diagnostic-only counters with no public API contract
+    - alternate observer modules selected by `gate Build.test` or a declared
+      feature predicate
+  - forbidden targets:
+    - hiding a production public accessor change behind `gate`
+    - changing hot-core box layout behind `gate` without a dedicated layout row
+    - using `gate` as a fast-path selector
+  - if `requested_bytes` remains public semantics, keep the field/update live
+    and select a different implementation route
+  - decision: do not gate away `HakoAllocPageModel.requested_bytes` in
+    production; doing so would break public `requestedBytes()` semantics and
+    existing page-model proof evidence
+  - allowed follow-up: proof apps may stop reading the page field directly
+    when they can compute requested bytes from the workload contract, but that
+    is proof cleanup only and is not a hot-path keeper
+
+- [x] MIM-073: selected observer-counter implementation
+  - output: implement exactly one selected counter move/elision from MIM-072
+  - acceptable shapes:
+    - move proof-only requested-byte calculation to the proof/report side
+    - split observer counters into a gated observer facade/module
+    - leave hot path unchanged and close as nonkeeper if public semantics
+      require the update
+  - no broad counter cleanup, no provider activation, no DirectArray reopening
+  - result: no implementation for `requested_bytes`; close as nonkeeper for
+    hot-path elision because the counter is public semantics
+
+- [x] MIM-074: observer-counter measurement
+  - output: rerun direct exact measurement after MIM-073, compare against the
+    current direct exact baseline, and mark keeper/nonkeeper in this
+    workstream
+  - keeper requires instruction improvement or a clear structural reduction
+    with no public stats/proof regression
+  - result: skipped by design; no code changed, so no measurement is meaningful
+
+- [x] MIM-075: post-observer-counter-nonkeeper owner refresh
+  - output: reread the current direct exact source/MIR owner after
+    `requested_bytes` counter elision is rejected
+  - candidate set:
+    - `trySelectSingleActivePage` body
+    - `acquireFreshSmall` page body
+    - `objectLifecycleReleaseBlock` release side
+    - MIR call/copy materialization if source shapes continue to nonkeep
+  - do not reopen observer-counter gating unless a field is classified
+    `diagnostic_only`
+  - no implementation before the next owner is selected
+  - result: no new perf run required because MIM-071..MIM-074 made no code
+    change; the prior direct exact owner evidence remains the current evidence
+  - source-shape status:
+    - `trySelectSingleActivePage` local cleanup: nonkeeper in current probe
+    - `acquireFreshSmall` field-traffic localization: nonkeeper in current
+      probe
+    - `objectLifecycleReleaseBlock` local alias cleanup: nonkeeper in current
+      probe
+    - `requested_bytes` elision: rejected before implementation because it is
+      public semantics plus proof evidence
+  - selected next: `mir_call_copy_materialization_refresh`
+  - selected reason: recent source-level probes did not produce a keeper, so
+    the next useful owner is the remaining MIR call/copy materialization around
+    the same hot methods rather than another `.hako` local rewrite
+
+- [x] MIM-076: MIR call/copy materialization refresh
+  - output: attribute remaining copies/calls around the current hot methods
+    without changing source semantics
+  - target methods:
+    - `HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0`
+    - `HakoAllocPageModel.acquireFreshSmall/1`
+    - `HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2`
+  - required output:
+    - callsite receiver/arg/result copy counts
+    - local-SSA copy counts
+    - PHI edge copy counts
+    - selected single compiler owner or explicit no-owner result
+  - no source cleanup, no counter gating, no DirectArray reopening before the
+    attribution selects a positive-net implementation path
+  - prerequisite fix: `@rune Gate(...)` sugar had regressed member-level
+    `@rune Inline(required)` parsing because identifier matching treated every
+    rune name as `Gate`; fixed the parser to restrict only the exact `Gate`
+    rune to top-level sugar and added a regression test
+  - evidence command:
+    `NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 target/release/hakorune --backend mir --emit-mir-json <tmp>/app.mir.json apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako`
+    followed by `tools/allocator/mir_callsite_copy_attribution.py` for each
+    target method
+  - result:
+    - `trySelectSingleActivePage/0`: `instruction_count=72`,
+      `call_count=0`, `copy_count=18`, `local_ssa_copy_count=18`,
+      `phi_edge_copy_count=0`, `dominant_copy_owner=local_ssa_copy_materialization`
+    - `acquireFreshSmall/1`: `instruction_count=77`, `call_count=2`,
+      `copy_count=26`, `receiver_copy_count=2`, `arg_copy_count=4`,
+      `result_copy_count=3`, `local_ssa_copy_count=21`,
+      `phi_edge_copy_count=0`, `dominant_copy_owner=local_ssa_copy_materialization`
+    - `objectLifecycleReleaseBlock/2`: `instruction_count=244`,
+      `call_count=10`, `copy_count=89`, `receiver_copy_count=11`,
+      `arg_copy_count=16`, `result_copy_count=3`,
+      `local_ssa_copy_count=46`, `phi_edge_copy_count=13`,
+      `dominant_copy_owner=local_ssa_copy_materialization`
+  - selected owner: `local_ssa_copy_materialization`
+  - selected reason: all three candidates are dominated by local-SSA copy
+    materialization; callsite receiver/arg/result copies are secondary, and
+    helper-family attribution is zero for this refresh
+  - next: inspect MIR/local-SSA copy producer around these three methods and
+    choose one narrow structural reducer; do not add another `.hako` source
+    cleanup before that owner is localized
+
+- [x] MIM-077: block-local copy forwarding probe
+  - selected owner: `local_ssa_copy_materialization`
+  - attempted reducer: optimizer-level same-block `Copy` alias forwarding,
+    followed by existing DCE cleanup
+  - structural result before rejection:
+    - `trySelectSingleActivePage/0`: `copy_count 18 -> 1`
+    - `acquireFreshSmall/1`: `copy_count 26 -> 2`
+    - `objectLifecycleReleaseBlock/2`: `copy_count 89 -> 4`
+  - backend compatibility finding:
+    - forwarding field bases made pure-first fail with
+      `unsupported pure shape`, first blocker `Main.runOne/2` field_get
+    - keeping field bases but forwarding call operands made pure-first fail
+      on a same-module `mir_call`
+    - keeping both field bases and call operands allowed EXE build, but routed
+      into a much slower shape
+  - measurement:
+    - representative direct exact EXE smoke still produced `summary=ok`
+    - `body_elapsed_ns=369000000`, a large regression from the current
+      3-4ms band
+  - decision: nonkeeper; reverted the optimizer pass
+  - reason: the current pure-first backend treats some local materialization
+    copies as route-shape carriers, so generic block-local copy forwarding can
+    reduce MIR copy counts while destroying the fast backend route
+  - next: do not add generic copy propagation in the optimizer; if copy cleanup
+    is reopened, make it route-aware and prove the backend lowering route stays
+    identical before measuring
+
+- [x] MIM-078: route-carrier copy classification
+  - output: extend the existing local-SSA copy position probe with route-carrier
+    role counts; no optimizer pass and no source rewrite
+  - implementation: `tools/allocator/mir_local_ssa_copy_position_probe.py`
+    now reports copies whose alias chain feeds known backend route-sensitive
+    operands:
+    - `field_base_route_carrier_copy_count`
+    - `call_operand_route_carrier_copy_count`
+    - `call_result_route_carrier_copy_count`
+    - `compare_operand_route_carrier_copy_count`
+    - `field_set_value_route_carrier_copy_count`
+    - `backend_route_carrier_copy_count`
+    - `route_aware_candidate_copy_count`
+  - evidence command:
+    `NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 target/release/hakorune --backend mir --emit-mir-json <tmp>/app.mir.json apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako`
+    followed by `tools/allocator/mir_local_ssa_copy_position_probe.py`
+    for each MIM-076 target method
+  - result:
+    - `trySelectSingleActivePage/0`: `copy_count=18`,
+      `backend_route_carrier_copy_count=13`,
+      `route_aware_candidate_copy_count=5`,
+      `dominant_route_carrier_role=field_base`
+    - `acquireFreshSmall/1`: `copy_count=26`,
+      `backend_route_carrier_copy_count=11`,
+      `route_aware_candidate_copy_count=15`,
+      `field_base_route_carrier_copy_count=6`,
+      `call_operand_route_carrier_copy_count=4`,
+      `call_result_route_carrier_copy_count=3`
+    - `objectLifecycleReleaseBlock/2`: `copy_count=89`,
+      `backend_route_carrier_copy_count=50`,
+      `route_aware_candidate_copy_count=34`,
+      `field_base_route_carrier_copy_count=20`,
+      `call_operand_route_carrier_copy_count=27`,
+      `call_result_route_carrier_copy_count=3`
+  - decision: copy cleanup remains closed for implementation; the current
+    evidence says many copies are route-shape carriers, so the next keeper must
+    be route-aware and prove unchanged lowering route before deleting or
+    forwarding any copy
+  - next: select a narrow route-aware copy candidate only after one site family
+    has a stable `before_route == after_route` proof; otherwise return to perf
+    owner refresh instead of another generic MIR cleanup
+
+- [x] MIM-079: post-route-carrier perf pair refresh
+  - output: rerun the representative direct exact Hako EXE and explicit C
+    mimalloc body-timing pair after the MIM-077 nonkeeper was reverted and
+    MIM-078 classified copy carriers
+  - environment:
+    - `HAKO_TYPED_OBJECT_STORE=direct_slot_exact`
+    - `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact`
+    - `NYASH_FEATURES=rune`
+    - `NYASH_DISABLE_PLUGINS=1`
+  - evidence command:
+    - `tools/allocator/hako_exe_memory_runner.sh --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako --workload representative-object-lifecycle-small-block-v0 --runtime-config empty --operation-repeat 1 --out <tmp>/hako.out`
+    - `tools/allocator/c_mimalloc_explicit_runner.sh --workload representative-object-lifecycle-small-block-v0 --alloc-count 64 --block-size 512 --operation-repeat 1 --in-process-repeat 8192 --allow-ldconfig-discovery --out <tmp>/c.out`
+    - `tools/allocator/hako_mimalloc_object_lifecycle_body_timing_pair_adapter.py --hako-report <tmp>/hako.out --c-report <tmp>/c.out --out <tmp>/pair.out`
+  - result:
+    - `hako_body_elapsed_ns=4000000`
+    - `c_body_elapsed_ns=3938387`
+    - `body_elapsed_ratio=1.016`
+    - `summary=ok`
+  - interpretation: the current direct exact mainline is back near the C
+    body-timing band; the 369ms/385ms readings seen around MIM-077 are not a
+    keeper baseline and must not drive source edits
+  - decision: do not reopen generic copy forwarding; with current body timing
+    close to C, the next step should be instruction/perf-owner evidence before
+    any further source or MIR optimization
 
 ### Next Cleanup TODO
 

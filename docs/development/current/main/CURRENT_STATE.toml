@@ -19,7 +19,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 latest_card = "296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md"
 latest_card_summary = "Paused mimalloc after MIM-069 nonkeeper and opened LANG-CFG. LANG-CFG-003 now emits the build-cfg explain report with zero inactive MIR; LANG-CFG-004 member-level selection is landed; LANG-CFG-005 statement-level selection is landed; LANG-CFG-006 optional sugar is landed; mimalloc source-level owner refresh resumes next."
-current_blocker_token = "MIM-070-POST-KNOWN-AVAILABLE-NONKEEPER-OWNER-REFRESH"
+current_blocker_token = "MIMALLOC-SOURCE-LEVEL-OWNER-SELECTION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

@@ -93,6 +93,65 @@ def collect_call_attributed_copy_dsts(insts: list[dict[str, Any]]) -> set[Any]:
     return attributed
 
 
+def collect_descendants(seed: Any, src_to_dsts: dict[Any, set[Any]]) -> set[Any]:
+    seen: set[Any] = set()
+    stack = list(src_to_dsts.get(seed, ()))
+    while stack:
+        current = stack.pop()
+        if current in seen:
+            continue
+        seen.add(current)
+        stack.extend(src_to_dsts.get(current, ()))
+    return seen
+
+
+def alias_values(dst: Any, src_to_dsts: dict[Any, set[Any]]) -> set[Any]:
+    values = {dst}
+    values.update(collect_descendants(dst, src_to_dsts))
+    return values
+
+
+def collect_route_carrier_roles(
+    aliases: set[Any],
+    insts: list[dict[str, Any]],
+    src_to_dsts: dict[Any, set[Any]],
+) -> set[str]:
+    roles: set[str] = set()
+    for inst in insts:
+        op = inst.get("op")
+        if op == "field_get":
+            if inst.get("box") in aliases:
+                roles.add("field_base")
+        elif op == "field_set":
+            if inst.get("box") in aliases:
+                roles.add("field_base")
+            if inst.get("value") in aliases:
+                roles.add("field_set_value")
+        elif op == "mir_call":
+            mir_call = inst.get("mir_call")
+            if not isinstance(mir_call, dict):
+                continue
+            callee = mir_call.get("callee")
+            if isinstance(callee, dict) and callee.get("receiver") in aliases:
+                roles.add("call_operand")
+            args = mir_call.get("args", [])
+            if isinstance(args, list) and any(arg in aliases for arg in args):
+                roles.add("call_operand")
+            call_result_aliases = alias_values(inst.get("dst"), src_to_dsts)
+            if aliases & call_result_aliases:
+                roles.add("call_result")
+        elif op == "compare":
+            if inst.get("lhs") in aliases or inst.get("rhs") in aliases:
+                roles.add("compare_operand")
+        elif op == "branch":
+            if inst.get("cond") in aliases:
+                roles.add("branch_condition")
+        elif op == "ret":
+            if inst.get("value") in aliases:
+                roles.add("return_value")
+    return roles
+
+
 def classify_copy(
     dst: Any,
     src: Any,
@@ -148,19 +207,29 @@ def main() -> int:
 
     position_counts: Counter[str] = Counter()
     local_like_position_counts: Counter[str] = Counter()
+    route_carrier_counts: Counter[str] = Counter()
     block_counts: Counter[Any] = Counter()
     total_copy_count = 0
     local_like_count = 0
+    backend_route_carrier_copy_count = 0
+    route_aware_candidate_count = 0
     samples: list[dict[str, Any]] = []
     local_like_samples: list[dict[str, Any]] = []
+    route_carrier_samples: list[dict[str, Any]] = []
 
     for block_id, insts in blocks:
         call_attributed = collect_call_attributed_copy_dsts(insts)
+        copies = [inst for inst in insts if inst.get("op") == "copy"]
+        src_to_dsts: dict[Any, set[Any]] = {}
+        for copy_inst in copies:
+            src_to_dsts.setdefault(copy_inst.get("src"), set()).add(copy_inst.get("dst"))
         for inst_index, inst in enumerate(insts):
             if inst.get("op") != "copy":
                 continue
             total_copy_count += 1
             dst = inst.get("dst")
+            aliases = alias_values(dst, src_to_dsts)
+            carrier_roles = collect_route_carrier_roles(aliases, insts, src_to_dsts)
             category = classify_copy(
                 dst,
                 inst.get("src"),
@@ -171,6 +240,15 @@ def main() -> int:
             )
             position_counts[category] += 1
             block_counts[block_id] += 1
+            for role in carrier_roles:
+                route_carrier_counts[role] += 1
+            is_backend_route_carrier = bool(
+                carrier_roles & {"field_base", "call_operand", "call_result"}
+            )
+            if is_backend_route_carrier:
+                backend_route_carrier_copy_count += 1
+            elif category != "phi_edge":
+                route_aware_candidate_count += 1
             if category not in {"call_adjacent", "phi_edge"}:
                 local_like_count += 1
                 local_like_position_counts[category] += 1
@@ -181,10 +259,13 @@ def main() -> int:
                     "inst_index": inst_index,
                     "dst": dst,
                     "src": inst.get("src"),
+                    "route_roles": ",".join(sorted(carrier_roles)) or "none",
                 }
             )
             if category not in {"call_adjacent", "phi_edge"}:
                 local_like_samples.append(samples[-1])
+            if carrier_roles:
+                route_carrier_samples.append(samples[-1])
 
     local_like_samples.sort(
         key=lambda sample: (
@@ -202,8 +283,11 @@ def main() -> int:
         f"block_count={len(blocks)}",
         f"copy_count={total_copy_count}",
         f"local_like_copy_count={local_like_count}",
+        f"backend_route_carrier_copy_count={backend_route_carrier_copy_count}",
+        f"route_aware_candidate_copy_count={route_aware_candidate_count}",
         f"dominant_position={dominant(position_counts)}",
         f"dominant_local_like_position={dominant(local_like_position_counts)}",
+        f"dominant_route_carrier_role={dominant(route_carrier_counts)}",
         "optimization_open=0",
         "winner_claim=0",
         "replacement_active=0",
@@ -222,6 +306,16 @@ def main() -> int:
         "phi_edge",
     ):
         lines.append(f"{key}_copy_count={position_counts[key]}")
+    for key in (
+        "field_base",
+        "call_operand",
+        "call_result",
+        "branch_condition",
+        "compare_operand",
+        "field_set_value",
+        "return_value",
+    ):
+        lines.append(f"{key}_route_carrier_copy_count={route_carrier_counts[key]}")
     for idx, (block_id, count) in enumerate(block_counts.most_common(8)):
         lines.append(f"top_block_{idx}_id=block_{block_id}")
         lines.append(f"top_block_{idx}_copy_count={count}")
@@ -234,6 +328,19 @@ def main() -> int:
                 f"{prefix}_inst_index={sample['inst_index']}",
                 f"{prefix}_dst={sample['dst']}",
                 f"{prefix}_src={sample['src']}",
+                f"{prefix}_route_roles={sample['route_roles']}",
+            ]
+        )
+    for idx, sample in enumerate(route_carrier_samples[: max(0, args.topn)]):
+        prefix = f"route_carrier_sample_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_category={sample['category']}",
+                f"{prefix}_block=block_{sample['block_id']}",
+                f"{prefix}_inst_index={sample['inst_index']}",
+                f"{prefix}_dst={sample['dst']}",
+                f"{prefix}_src={sample['src']}",
+                f"{prefix}_route_roles={sample['route_roles']}",
             ]
         )
     lines.append("summary=ok")

@@ -228,6 +228,11 @@ members or ordinary statements.
 - Do not use `gate` to hide production behavior changes inside hot paths.
 - Do not use `gate` as an optimization knob. Fast paths must still be selected
   by facts/plans/proofs, not by source branch names.
+- Observer counters may use `gate` only after their role is classified:
+  proof/test payloads may move behind `Build.test`, diagnostic-only payloads may
+  move behind a declared feature predicate, and public semantics must remain
+  available in production builds. In particular, `gate` must not silently remove
+  a public stats accessor or change a hot-core box layout.
 
 ## Explain Report
 
