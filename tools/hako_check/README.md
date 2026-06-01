@@ -157,6 +157,12 @@ python3 tools/hako_check/fastpath_explain.py --mir-json app.mir.json
 - Developer convenience entry:
 
 ```bash
+bash tools/hako_check.sh fastpath-explain --app app.hako
+```
+
+- The direct helper remains available for scripts:
+
+```bash
 bash tools/hako_check/fastpath_explain.sh --app app.hako
 ```
 

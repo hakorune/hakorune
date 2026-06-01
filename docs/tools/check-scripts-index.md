@@ -168,6 +168,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/hako_check/perf_surface_contract.py` | hako_check perf-surface contract tool。allocator hot-path inventory 用の stable report vocabulary を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_check_perf_surface_inventory_guard.sh` | 296x-77 の hako_check perf-surface inventory guard。object lifecycle facade の hot method 棚卸しから release known-page fast path keeper を選ぶ。 |
 | `tools/hako_check/perf_surface_inventory.py` | hako_check perf-surface inventory tool。選択 `.hako` methods の method-call density / loop calls / ArrayBox access / linear-search candidate を stable report にする。 |
+| `tools/hako_check.sh fastpath-explain` | hako_check root wrapper の FastPath explain subcommand。`--app` / `--mir-json` を `tools/hako_check/fastpath_explain.sh` に委譲する。 |
 | `tools/hako_check/fastpath_explain.py` | hako_check FastPath explain adapter。既存 MIR JSON の DirectArray / Span / RequiredFastPath metadata coverage を read-only report にする。 |
 | `tools/hako_check/fastpath_explain.sh` | hako_check FastPath explain developer wrapper。`.hako` app から一時 MIR JSON を作って read-only adapter に渡す薄い入口。compiler build / benchmark / keeper selection はしない。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_perf_release_known_page_fast_path_guard.sh` | 296x-78 の release known-page fast path keeper guard。object lifecycle release が cached page lookup を使い、fallback scan と proof app を保つことを固定する。 |

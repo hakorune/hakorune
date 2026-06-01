@@ -7,6 +7,11 @@ EMIT_ROUTE="${ROOT}/tools/smokes/v2/lib/emit_mir_route.sh"
 MIR_CACHE_TOOL="${ROOT}/tools/cache/phase29x_l1_mir_cache.sh"
 MIR_CACHE_KEY_TOOL="${ROOT}/tools/cache/phase29x_cache_keys.sh"
 
+if [ "${1:-}" = "fastpath-explain" ]; then
+  shift
+  exec bash "$ROOT/tools/hako_check/fastpath_explain.sh" "$@"
+fi
+
 if [ ! -x "$BIN" ]; then
   echo "[ERROR] hakorune binary not found: $BIN" >&2
   echo "Run: cargo build --release" >&2
@@ -15,6 +20,7 @@ fi
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0 [--format text|dot|json-lsp] <file-or-dir|file> [more...]" >&2
+  echo "       $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]" >&2
   exit 2
 fi
 

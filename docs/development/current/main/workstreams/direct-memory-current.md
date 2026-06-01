@@ -107,6 +107,7 @@ direct storage routes.
   - output: make the FastPath explain adapter usable as a development tool
     without a manual MIR JSON step
   - tool: `tools/hako_check/fastpath_explain.sh`
+  - root entry: `tools/hako_check.sh fastpath-explain`
   - supports `--app app.hako` by emitting a temporary MIR JSON artifact, then
     calling the stable read-only Python adapter
   - supports `--mir-json app.mir.json` for prebuilt artifacts

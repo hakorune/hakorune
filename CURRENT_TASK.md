@@ -151,6 +151,7 @@ Recommended order:
 9. `LANG-DM-006D` hako_check FastPath explain developer wrapper
    - status: done; `tools/hako_check/fastpath_explain.sh` can emit temporary
      MIR JSON for `--app app.hako` and then call the read-only adapter
+   - root entry: `tools/hako_check.sh fastpath-explain`
    - no compiler build, benchmark run, source rewrite, persistent MIR artifact,
      or keeper selection
 10. Park `unsafe memory` / `Bytes`, `LayoutSpan`, and bulk memory patterns until
