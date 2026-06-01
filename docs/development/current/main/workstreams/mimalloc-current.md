@@ -578,12 +578,44 @@ message.
     DirectArray/Span/direct-block/mixed-base-inline widening, and no
     public ArrayBox/default-safe behavior change
 
-- [ ] MIM-066: post-single-active-fresh-split owner refresh
+- [x] MIM-066: post-single-active-fresh-split owner refresh
   - output: reread the direct exact perf owner after MIM-065 and choose the
     next source/MIR owner from current evidence
   - include the remaining `slot_load_hi` residue only if the new perf evidence
     samples it as a current owner
-  - no source edit before the refresh
+  - result: current evidence kept the owner on sampled `.hako` source shape,
+    not on parked DirectArray load residue or a new language surface
+  - source-shape inventory selected alloc-result active success capsule fusion
+    as the first low-risk probe, with queue publication and known-available
+    acquire parked behind it
+  - no source edit was kept before the refresh decision
+
+- [x] MIM-067: alloc-result active success capsule fusion probe
+  - output: test whether the single-active fresh success path can replace
+    `recordSelectedPage()` + `recordBlock()` + `recordSuccess(2)` with one
+    alloc-result capsule method
+  - attempted shape: `recordActiveSuccess(page_id, block_id)` on
+    `HakoAllocObjectLifecycleAllocResult`
+  - verifier result: `@rune Inline(required)` failed correctly with
+    `InlinePlanViolation tag=body-too-large instruction_count=18 budget=16`
+  - non-inline result: representative direct exact smokes stayed green, but
+    perf-stat instructions regressed from MIM-065 `111384596` to `114532706`;
+    cycles moved from `21025771` to `20914567`, and `body_elapsed_ns` stayed
+    at `3000000`
+  - decision: nonkeeper; reverted the source change and do not widen the
+    inline verifier or keep a non-inline capsule fusion for this path
+  - next: return to owner-first selection; likely candidates are a
+    known-available `acquireFreshSmall` source route or a receiver-local queue
+    publication cleanup, but only after current evidence selects one
+
+- [ ] MIM-068: post-active-success-nonkeeper owner refresh
+  - output: reread the direct exact owner after reverting MIM-067 and select
+    exactly one next source/MIR owner
+  - start from the current source-shape candidates:
+    known-available acquire route, receiver-local single-active queue
+    publication, or no source keeper
+  - no DirectArray/Span/direct-block/mixed-base-inline widening unless fresh
+    evidence selects it
 
 ### Next Cleanup TODO
 
