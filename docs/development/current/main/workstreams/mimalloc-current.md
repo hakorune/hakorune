@@ -1031,7 +1031,7 @@ message.
     materialization evidence, not by widening `@rune Inline(required)` or
     reopening the observer-light HotCore plan.
 
-- [ ] MIM-120: PageState source migration feasibility
+- [x] MIM-120: PageState source migration feasibility
   - output: only after MIM-116..MIM-119 produce positive-net evidence, decide
     whether a `record PageState` field should be introduced under the
     `HakoAllocPageModel` box owner
@@ -1040,6 +1040,30 @@ message.
     mutable state bundle candidate
   - no migration if whole-record ABI, public materialization, or handle fields
     are required
+  - state-explain evidence:
+    `HakoAllocPageModel` reports `record_state_residence_candidate_field_count=6`
+    for `used`, `free_top`, `local_free_top`, `retired`, `decommitted`, and
+    `peak_used`, but also reports `selected_direct_state_positive_candidate_count=0`,
+    `selected_direct_state_mixed_candidate_count=1`, and
+    `record_state_residence_plan_count=0`
+  - body-pair evidence:
+    direct-exact public proof pair with
+    `HAKO_TYPED_OBJECT_STORE=direct_slot_exact` and
+    `HAKO_ARRAY_SLOT_STORE=direct_array_i64_exact` reported
+    `hako_body_elapsed_ns=2000000`, `c_body_elapsed_ns=3177320`,
+    `body_elapsed_ratio=0.629`, `summary=ok`
+  - decision:
+    do not migrate `HakoAllocPageModel` source to `record PageState` now
+  - reason:
+    the current public proof front does not show a C body gap that requires
+    record-state source migration, and the MIR producer does not yet emit a
+    positive `RecordStateResidencePlanV0`. Source migration before a producer
+    and positive-net report would create whole-record/materialization risk
+    without a selected owner.
+  - next:
+    keep `PageState` parked. Continue from owner-first perf/asm if a future
+    sample selects route-aware copy/materialization or a true
+    `RecordStateResidencePlanV0` producer boundary.
 
 ### Next Cleanup TODO
 
