@@ -888,6 +888,40 @@ message.
     close to C, the next step should be instruction/perf-owner evidence before
     any further source or MIR optimization
 
+- [x] MIM-080: post-C-near-band owner and source-probe refresh
+  - output: refresh direct exact Hako/C evidence and test only the thinnest
+    source-contract candidates before reopening compiler work
+  - evidence:
+    - Hako/C body pair: `hako_body_elapsed_ns=4000000`,
+      `c_body_elapsed_ns=3219386`, `body_elapsed_ratio=1.242`
+    - perf stat: Hako `instructions=126160783`, `cycles=27694119`; C
+      `instructions=65100489`, `cycles=17830340`
+    - rough ratios: `instruction_ratio_hako_over_c=1.94`,
+      `cycle_ratio_hako_over_c=1.55`
+    - perf top with repeated exact EXE runs:
+      `objectLifecycleSmallAlloc/1=24.39%`,
+      `trySelectSingleActivePage/0=15.76%`,
+      `objectLifecycleReleaseBlock/2=15.42%`
+  - source probes rejected and reverted:
+    - `trySelectSingleActivePage(): HakoAllocPageModel` return annotation
+      increased `objectLifecycleSmallAlloc/1` from `instruction_count=186`,
+      `copy_count=97` to `instruction_count=188`, `copy_count=99`
+    - `recordSinglePageActiveSelection()` receiver-local helper exceeded the
+      required-inline verifier budget with `instruction_count=20 budget=16`
+    - `objectLifecycleReleaseBlock/2` localizing `last_alloc_page_id` reduced
+      one field get but increased MIR instructions/copies/phis, so it stayed
+      reverted
+    - route-aware same-block Copy reuse for `LocalKind::FieldBase` reduced
+      `objectLifecycleSmallAlloc/1` MIR copy count from `97` to `95`, but did
+      not improve the representative direct exact EXE perf stat
+      (`instructions=126160889` vs prior `126160783`, cycles worsened), so it
+      stayed reverted
+  - decision: do not keep another `.hako` local-binding/helper-extraction
+    probe or tiny copy-forwarding tweak for these sites; the next keeper must
+    either be current-owner evidence for a real source semantic reduction or a
+    route-aware MIR materialization improvement that proves a machine-code win,
+    not only a MIR copy-count reduction
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
