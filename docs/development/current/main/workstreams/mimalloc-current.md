@@ -505,6 +505,9 @@ unless one of them changes a durable contract or implementation boundary.
 4. PageQueue helper-extraction crash investigation
    - done: MIM-059 accepted a receiver-local `@rune Inline(required)` shape and
      avoided the non-inline same-module helper call that previously crashed
+   - done: added `apps/pagequeue-mixed-base-helper-proof` as the small
+     mixed-base same-module no-coredump fixture; it runs VM, MIR route proof,
+     pure-first EXE build, and EXE execution without requesting inline
    - rejected shape: helper body that reads `page.page_id` and writes `me.*`
      stays rejected for now because it is a mixed-base required-inline body
    - remaining follow-up: only reopen mixed-base helper extraction if a small
@@ -514,7 +517,7 @@ unless one of them changes a durable contract or implementation boundary.
      "multiple bases are probably fine"; mixed-base extraction must come back
      only as a narrow recipe or as a same-module call lowering fix
    - reopen order:
-     1. add a no-coredump fixture for the non-inline same-module mixed-base
+     1. done: add a no-coredump fixture for the non-inline same-module mixed-base
         helper call; unsupported lowering must become a compile-time diagnostic,
         not an EXE crash
      2. add helper `EffectSummary` vocabulary for receiver reads/writes,

@@ -1,0 +1,70 @@
+// pagequeue-mixed-base-helper-proof
+//
+// Mixed-base same-module helper fixture:
+// - reads a scalar field from a foreign object (`page.page_id`)
+// - writes receiver scalar fields
+// - publishes the foreign handle into a receiver field
+//
+// This shape is intentionally not marked `@rune Inline(required)`.
+
+box ProofPage {
+  page_id: i64 = -1
+
+  birth(page_id) {
+    me.page_id = page_id
+  }
+}
+
+box ProofQueue {
+  last_selected_index: i64 = -1
+  last_selected_page_id: i64 = -1
+  last_selected_kind: i64 = 0
+  last_selected_page: ProofPage = null
+  select_count: i64 = 0
+
+  publishSelection(index, page, kind) {
+    me.last_selected_index = index
+    me.last_selected_page_id = page.page_id
+    me.last_selected_kind = kind
+    me.last_selected_page = page
+    me.select_count = me.select_count + 1
+    return 1
+  }
+
+  selectedPageIdThroughHandle() {
+    if me.last_selected_page == null {
+      return -1
+    }
+    return me.last_selected_page.page_id
+  }
+}
+
+static box Main {
+  main() {
+    local page = new ProofPage(42)
+    local queue = new ProofQueue()
+    local ok = queue.publishSelection(7, page, 2)
+
+    if ok != 1 {
+      return 10
+    }
+    if queue.last_selected_index != 7 {
+      return 11
+    }
+    if queue.last_selected_page_id != 42 {
+      return 12
+    }
+    if queue.last_selected_kind != 2 {
+      return 13
+    }
+    if queue.select_count != 1 {
+      return 14
+    }
+    if queue.selectedPageIdThroughHandle() != 42 {
+      return 15
+    }
+
+    return 0
+  }
+}
+
