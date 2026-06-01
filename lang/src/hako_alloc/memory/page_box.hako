@@ -215,11 +215,9 @@ box HakoAllocPageModel {
     }
 
     releaseLocalKnownLive(block_id): i64 {
-        local block_used = me.block_used
-        block_used.set(block_id, 0)
+        me.block_used.set(block_id, 0)
         local local_free_top = me.local_free_top
-        local local_free = me.local_free
-        local_free.set(local_free_top, block_id)
+        me.local_free.set(local_free_top, block_id)
         local_free_top = local_free_top + 1
         me.local_free_top = local_free_top
         me.local_free_count = me.local_free_count + 1

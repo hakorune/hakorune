@@ -3220,7 +3220,7 @@ truth stays in MIR metadata emitted by the compiler.
     - decision=structural_keeper_not_perf_keeper
     - reason=removes dynamic receiver route from MIR and preserves public proof
       counters, but does not move current instruction median
-- [ ] MIM-097: known-live release body-shape cleanup
+- [x] MIM-097: known-live release body-shape cleanup
   - output: reduce internal MIR/body-shape residue around
     `HakoAllocPageModel.releaseLocalKnownLive/1` and the known-page release
     caller without changing public counters, release result publication, or
@@ -3236,6 +3236,25 @@ truth stays in MIR metadata emitted by the compiler.
   - no counter gating, no multi-block `Inline(required)` widening, no source
     hand-expansion, no new DirectArray proof unless current MIR evidence
     selects it
+  - result:
+    - removed redundant local aliases for `block_used` and `local_free` inside
+      `releaseLocalKnownLive/1`; page state semantics and public counters are
+      unchanged
+    - MIR body shape improved narrowly:
+      `releaseLocalKnownLive/1` instruction count `52 -> 50` and `copy`
+      count `13 -> 11`
+    - DirectArray proof stayed intact:
+      2 plans, both `proved_unchecked/caller_precondition/branchless`
+    - direct-exact pair smoke stayed green: `summary=ok`,
+      `hako_body_elapsed_ns=4000000`, `c_body_elapsed_ns=4452846`,
+      `body_elapsed_ratio=0.898`
+    - direct-exact perf stat stayed effectively neutral:
+      `hako_instructions_median=111391928`,
+      `hako_cycles_median=20675464`,
+      `hako_body_elapsed_ns_median=4000000`
+    - decision=structural_keeper_not_perf_keeper
+    - reason=reduces source/MIR alias traffic in a current hot body without
+      changing DirectArray proofs or public release-observer semantics
 
 ## Parking Lot
 
