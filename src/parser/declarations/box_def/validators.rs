@@ -2,7 +2,6 @@
 use crate::ast::ASTNode;
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
-use crate::tokenizer::TokenType;
 use std::collections::{HashMap, HashSet};
 
 /// Forbid user-defined methods named exactly as the box (constructor-like names).
@@ -93,26 +92,6 @@ pub(crate) fn validate_birth_once_cycles(
                 found: p.current_token().token_type.clone(),
                 expected: "birth_once declarations must not have cyclic dependencies".to_string(),
                 line,
-            });
-        }
-    }
-    Ok(())
-}
-
-/// Forbid constructor call with the same name as the box; enforce `birth()` usage.
-pub(crate) fn forbid_box_named_constructor(
-    p: &mut NyashParser,
-    box_name: &str,
-) -> Result<(), ParseError> {
-    if let TokenType::IDENTIFIER(id) = &p.current_token().token_type {
-        if id == box_name && p.peek_token() == &TokenType::LPAREN {
-            return Err(ParseError::UnexpectedToken {
-                expected: format!(
-                    "birth() constructor instead of {}(). Nyash uses birth() for unified constructor syntax.",
-                    box_name
-                ),
-                found: TokenType::IDENTIFIER(box_name.to_string()),
-                line: p.current_token().line,
             });
         }
     }

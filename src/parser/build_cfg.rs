@@ -6,7 +6,7 @@
 use crate::ast::{ASTNode, BuildPredicate, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::statements::helpers::AnnotationSite;
-use crate::parser::{BuildMode, NyashParser, ParseError, ParserBuildConfig};
+use crate::parser::{BuildMode, NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -62,7 +62,7 @@ impl NyashParser {
                     else_items,
                     span,
                 } => {
-                    let selected = if eval_build_predicate(&predicate, &self.build_config, span)? {
+                    let selected = if self.eval_build_predicate(&predicate, span)? {
                         then_items
                     } else {
                         else_items.unwrap_or_default()
@@ -120,7 +120,7 @@ impl NyashParser {
         })
     }
 
-    fn consume_build_gate_head(&mut self) -> Result<(), ParseError> {
+    pub(super) fn consume_build_gate_head(&mut self) -> Result<(), ParseError> {
         if self.is_build_gate_head() {
             self.advance();
             Ok(())
@@ -175,7 +175,7 @@ impl NyashParser {
         }
     }
 
-    fn parse_build_predicate(&mut self) -> Result<BuildPredicate, ParseError> {
+    pub(super) fn parse_build_predicate(&mut self) -> Result<BuildPredicate, ParseError> {
         let name = self.consume_identifier_like("build predicate head")?;
         match name.as_str() {
             "Build" => {
@@ -243,7 +243,7 @@ impl NyashParser {
         }
     }
 
-    fn parse_build_predicate_list(
+    pub(super) fn parse_build_predicate_list(
         &mut self,
         build: fn(Vec<BuildPredicate>) -> BuildPredicate,
     ) -> Result<BuildPredicate, ParseError> {
@@ -313,7 +313,7 @@ impl NyashParser {
                 span,
             } => {
                 report.conditional_group_count += 1;
-                if eval_build_predicate(predicate, &self.build_config, *span)? {
+                if self.eval_build_predicate(predicate, *span)? {
                     report.active_branch_count += 1;
                     if else_items.is_some() {
                         report.inactive_branch_count += 1;
@@ -343,64 +343,64 @@ impl NyashParser {
         }
         Ok(())
     }
-}
 
-fn eval_build_predicate(
-    predicate: &BuildPredicate,
-    config: &ParserBuildConfig,
-    span: Span,
-) -> Result<bool, ParseError> {
-    match predicate {
-        BuildPredicate::BuildFlag(flag) => Ok(match (flag.as_str(), &config.mode) {
-            ("test", BuildMode::Test) => true,
-            ("debug", BuildMode::Debug) => true,
-            ("release", BuildMode::Release) => true,
-            _ => false,
-        }),
-        BuildPredicate::Feature(name) => {
-            if !config.known_features.contains(name) {
-                return Err(ParseError::BuildCfg {
-                    message: format!("unknown feature '{}'", name),
-                    line: span.line,
-                });
-            }
-            Ok(config.enabled_features.contains(name))
-        }
-        BuildPredicate::TargetEq { key, value } => Ok(match key.as_str() {
-            "os" => &config.target_os == value,
-            "arch" => &config.target_arch == value,
-            _ => {
-                return Err(ParseError::BuildCfg {
-                    message: format!("unsupported Target key '{}'", key),
-                    line: span.line,
-                })
-            }
-        }),
-        BuildPredicate::BackendEq { key, value } => {
-            if key != "kind" {
-                return Err(ParseError::BuildCfg {
-                    message: format!("unsupported Backend key '{}'", key),
-                    line: span.line,
-                });
-            }
-            Ok(&config.backend_kind == value)
-        }
-        BuildPredicate::Not(inner) => Ok(!eval_build_predicate(inner, config, span)?),
-        BuildPredicate::All(items) => {
-            for item in items {
-                if !eval_build_predicate(item, config, span)? {
-                    return Ok(false);
+    pub(super) fn eval_build_predicate(
+        &self,
+        predicate: &BuildPredicate,
+        span: Span,
+    ) -> Result<bool, ParseError> {
+        match predicate {
+            BuildPredicate::BuildFlag(flag) => Ok(match (flag.as_str(), &self.build_config.mode) {
+                ("test", BuildMode::Test) => true,
+                ("debug", BuildMode::Debug) => true,
+                ("release", BuildMode::Release) => true,
+                _ => false,
+            }),
+            BuildPredicate::Feature(name) => {
+                if !self.build_config.known_features.contains(name) {
+                    return Err(ParseError::BuildCfg {
+                        message: format!("unknown feature '{}'", name),
+                        line: span.line,
+                    });
                 }
+                Ok(self.build_config.enabled_features.contains(name))
             }
-            Ok(true)
-        }
-        BuildPredicate::Any(items) => {
-            for item in items {
-                if eval_build_predicate(item, config, span)? {
-                    return Ok(true);
+            BuildPredicate::TargetEq { key, value } => Ok(match key.as_str() {
+                "os" => &self.build_config.target_os == value,
+                "arch" => &self.build_config.target_arch == value,
+                _ => {
+                    return Err(ParseError::BuildCfg {
+                        message: format!("unsupported Target key '{}'", key),
+                        line: span.line,
+                    })
                 }
+            }),
+            BuildPredicate::BackendEq { key, value } => {
+                if key != "kind" {
+                    return Err(ParseError::BuildCfg {
+                        message: format!("unsupported Backend key '{}'", key),
+                        line: span.line,
+                    });
+                }
+                Ok(&self.build_config.backend_kind == value)
             }
-            Ok(false)
+            BuildPredicate::Not(inner) => Ok(!self.eval_build_predicate(inner, span)?),
+            BuildPredicate::All(items) => {
+                for item in items {
+                    if !self.eval_build_predicate(item, span)? {
+                        return Ok(false);
+                    }
+                }
+                Ok(true)
+            }
+            BuildPredicate::Any(items) => {
+                for item in items {
+                    if self.eval_build_predicate(item, span)? {
+                        return Ok(true);
+                    }
+                }
+                Ok(false)
+            }
         }
     }
 }

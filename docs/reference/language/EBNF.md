@@ -730,6 +730,7 @@ member         := visibility_block
                 | transition_member
                 | invariant_member
                 | method_decl
+                | gate_member
                 | block_as_role      ; nyash-mode (block-first) equivalent
 
 visibility_block := ( 'public' | 'private' ) '{' member* '}'
@@ -775,6 +776,10 @@ birth_once_decl:= 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail
 method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block handler_tail?
                   ; return annotation is optional. `: void` is accepted, and
                   ; omission is the usual spelling for ordinary no-value helpers.
+
+gate_member    := 'gate' build_predicate '{' member* '}' ('else' ('gate' build_predicate '{' member* '}' | '{' member* '}'))?
+                  ; member-level build selection. Branches must preserve the
+                  ; same public signature; public ABI/layout drift fails-fast.
 
 params         := param (',' param)*
 param          := IDENT (':' TYPE_REF)?

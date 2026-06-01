@@ -70,9 +70,13 @@ gate Build.test {
     `inactive_branch_count`, and `inactive_branch_mir_count=0`; the smoke
     fixtures cover both build modes plus contextual identifier safety
 
-- [ ] LANG-CFG-004: member-level selection
+- [x] LANG-CFG-004: member-level selection
   - output: allow `gate` inside box bodies only for declaration members
+    when both branches preserve the same public signature
   - reject public ABI/layout drift by default
+  - result: parser now accepts paired member-level `gate` blocks inside box
+    bodies, selects the active branch during box parsing, and rejects branch
+    signature drift before merge
 
 - [ ] LANG-CFG-005: statement-level selection
   - output: method body `gate` blocks produce no MIR for inactive branches

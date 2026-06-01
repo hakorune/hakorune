@@ -54,7 +54,9 @@ Type system (SSOT)
   static tables, and Rune metadata rather than broad `unsafe` blocks. See:
   reference/language/low-level-capabilities.md and reference/language/runes.md.
 - Build-time conditional code uses `gate Build... { ... }`, not C-style
-  token preprocessing. See reference/language/build-conditional-gate.md.
+  token preprocessing. Member-level `gate` is accepted inside box bodies for
+  paired declaration branches with the same public signature. See
+  reference/language/build-conditional-gate.md.
 
 Grammar (EBNF)
 - See: reference/language/EBNF.md — living grammar reference used by parser

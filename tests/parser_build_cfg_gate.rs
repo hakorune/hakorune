@@ -1,4 +1,5 @@
 use nyash_rust::ast::ASTNode;
+use nyash_rust::ast::LiteralValue;
 use nyash_rust::parser::{BuildMode, BuildGateExplainReport, NyashParser, ParserBuildConfig};
 use std::collections::BTreeSet;
 
@@ -170,4 +171,99 @@ function main() {
     };
     assert_eq!(statements.len(), 1);
     assert_eq!(statements[0].node_type(), "FunctionDeclaration");
+}
+
+#[test]
+fn member_level_gate_selects_box_declarations_without_layout_drift() {
+    let source = r#"
+box ChoiceBox {
+    gate Build.test {
+        value: i64
+        choose() {
+            return 1
+        }
+    } else {
+        value: i64
+        choose() {
+            return 2
+        }
+    }
+}
+"#;
+
+    let ast = NyashParser::parse_from_string_with_build_config(
+        source,
+        ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        },
+    )
+    .expect("member-level gate should parse in test build");
+
+    let ASTNode::Program { statements, .. } = ast else {
+        panic!("expected Program");
+    };
+    assert_eq!(statements.len(), 1);
+
+    let ASTNode::BoxDeclaration {
+        fields,
+        field_decls,
+        methods,
+        ..
+    } = &statements[0]
+    else {
+        panic!("expected BoxDeclaration");
+    };
+    assert_eq!(fields, &vec!["value".to_string()]);
+    assert_eq!(field_decls.len(), 1);
+    assert_eq!(field_decls[0].name, "value");
+    assert_eq!(field_decls[0].declared_type_name.as_deref(), Some("i64"));
+
+    let choose = methods.get("choose").expect("expected choose() method");
+    let ASTNode::FunctionDeclaration { body, .. } = choose else {
+        panic!("expected FunctionDeclaration");
+    };
+    assert_eq!(body.len(), 1);
+    let ASTNode::Return { value: Some(expr), .. } = &body[0] else {
+        panic!("expected return statement");
+    };
+    let ASTNode::Literal {
+        value: LiteralValue::Integer(n),
+        ..
+    } = expr.as_ref()
+    else {
+        panic!("expected integer literal");
+    };
+    assert_eq!(*n, 1);
+}
+
+#[test]
+fn member_level_gate_rejects_layout_drift_by_default() {
+    let err = NyashParser::parse_from_string_with_build_config(
+        r#"
+box DriftBox {
+    gate Build.test {
+        value: i64
+        choose() {
+            return 1
+        }
+    } else {
+        other: i64
+        choose() {
+            return 2
+        }
+    }
+}
+"#,
+        ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        },
+    )
+    .expect_err("layout drift should be rejected");
+
+    assert!(
+        format!("{err}").contains("same public signature"),
+        "unexpected error: {err}"
+    );
 }

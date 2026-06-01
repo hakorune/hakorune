@@ -148,7 +148,27 @@ stored fields
 Constraint:
 
 Public ABI/layout changes behind `gate` are rejected by default unless the
-branch pair preserves the same public signature.
+branch pair preserves the same public signature. In v0, member-level `gate`
+is only accepted inside box bodies for declaration members, and paired
+branches must match on declaration surface before the selected branch is
+merged into the box layout.
+
+Example:
+
+```hako
+box ChoiceBox {
+    gate Build.test {
+        value: i64
+        choose() { return 1 }
+    } else {
+        value: i64
+        choose() { return 2 }
+    }
+}
+```
+
+The branch bodies above are allowed because their declaration signatures are
+identical. Bodies may differ; field/method surface may not.
 
 ### LANG-CFG-003: statement level
 
