@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-01"
 
 active_lane = "mimalloc migration and optimization"
-active_lane_status = "Direct-memory substrate cleanup is complete for this wave. Mimalloc direct-exact optimization is active again; MIM-067 rejected the alloc-result active-success fusion probe and opened a post-nonkeeper owner refresh."
+active_lane_status = "Direct-memory substrate cleanup is complete for this wave. Mimalloc direct-exact optimization is active again; MIM-069 rejected the known-available acquire helper probe and opened a post-nonkeeper owner refresh."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/README.md"
 method_anchor = "docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md"
@@ -18,8 +18,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md"
-latest_card_summary = "Landed the mimalloc source-level owner refresh: object_lifecycle_facade remains the top source-level owner surface. Current workstream landed MIM-067: alloc-result active-success capsule fusion was measured as a nonkeeper and reverted; post-nonkeeper owner refresh opened next."
-current_blocker_token = "MIM-068-POST-ACTIVE-SUCCESS-NONKEEPER-OWNER-REFRESH"
+latest_card_summary = "Landed the mimalloc source-level owner refresh: object_lifecycle_facade remains the top source-level owner surface. Current workstream landed MIM-069: known-available acquire helper extraction was measured as a nonkeeper and reverted; post-nonkeeper owner refresh opened next."
+current_blocker_token = "MIM-070-POST-KNOWN-AVAILABLE-NONKEEPER-OWNER-REFRESH"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

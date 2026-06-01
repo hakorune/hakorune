@@ -608,7 +608,7 @@ message.
     known-available `acquireFreshSmall` source route or a receiver-local queue
     publication cleanup, but only after current evidence selects one
 
-- [ ] MIM-068: post-active-success-nonkeeper owner refresh
+- [x] MIM-068: post-active-success-nonkeeper owner refresh
   - output: reread the direct exact owner after reverting MIM-067 and select
     exactly one next source/MIR owner
   - start from the current source-shape candidates:
@@ -616,6 +616,35 @@ message.
     publication, or no source keeper
   - no DirectArray/Span/direct-block/mixed-base-inline widening unless fresh
     evidence selects it
+  - result: reverted direct exact front returned to the MIM-065 instruction
+    band with `instructions=111384805`; perf selected
+    `objectLifecycleSmallAlloc/1` first, followed by
+    `objectLifecycleReleaseBlock/2`, `trySelectSingleActivePage/0`,
+    `acquireFreshSmall/1`, and `releaseLocalKnownLive/1`
+  - selected probe: known-available acquire route, because
+    `trySelectSingleActivePage()` already proves the single-active page has
+    `free_top > 0` before the following acquire
+
+- [x] MIM-069: known-available acquire route probe
+  - output: test a narrow `acquireFreshKnownAvailableSmall(size)` source route
+    for the single-active fresh path
+  - result: representative direct exact smoke stayed green, but the non-inline
+    same-module method boundary regressed perf-stat instructions from
+    `111384805` to `118724495`; cycles measured `21087030` and
+    `body_elapsed_ns=4000000`
+  - decision: nonkeeper; reverted the source change
+  - reason: the source invariant is valid, but extracting the shape into a new
+    helper adds a call boundary in the current EXE lowering and loses the net
+    win
+  - next: do not add another source helper unless it is verified
+    `@rune Inline(required)` and stays inside the accepted receiver-local leaf
+    budget; return to owner-first selection before the next edit
+
+- [ ] MIM-070: post-known-available-nonkeeper owner refresh
+  - output: reread the direct exact owner after reverting MIM-069 and select
+    exactly one next source/MIR owner
+  - treat new source helper extraction as suspect unless current evidence plus
+    inline eligibility show a positive net path
 
 ### Next Cleanup TODO
 
