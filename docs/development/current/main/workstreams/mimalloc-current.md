@@ -3050,6 +3050,20 @@ source_manual_inline_selected=0
 summary=ok
 ```
 
+MIM-088 hot-core wrapper inline probe:
+
+```text
+candidate=mark_HakoAllocObjectLifecycleHotCore_small_alloc_release_Inline_required
+direct_exact_pair_smoke=fail_fast_expected
+failure_tag=required-not-verified
+objectLifecycleSmallAlloc_reason=expected_one_block_got_11
+objectLifecycleReleaseBlock_reason=expected_one_block_got_9
+decision=nonkeeper_reverted
+reason=current_Inline_required_is_leaf_only;hotcore_wrapper_needs_compiler_wrapper_plan_not_source_rune
+next_candidate=small_checked_wrapper_inline_plan_or_hotcore_operation_plan
+summary=ok
+```
+
 ## Parking Lot
 
 - Array lane extension backlog remains in
