@@ -1318,6 +1318,51 @@ message.
     and actual C mimalloc differ on `realloc_same_ptr_count`,
     `realloc_moved_count`, and `copied_bytes` in this environment.
 
+- [x] MIM-128: realloc/aligned comparison contract split
+  - output:
+    classify the existing realloc/aligned candidate before adding body timing
+  - observation:
+    `apps/hako-alloc-mimalloc-comparison-realloc-aligned-exe-proof/main.hako`
+    and the C runner agree on the stable semantic workload fields:
+    `workload=representative-realloc-aligned-v0`,
+    `operation_family=realloc-aligned`, and `requested_bytes=216`.
+  - mismatch:
+    actual C mimalloc pointer behavior is environment-dependent. In the
+    current runner sample, C reported both realloc operations as moved
+    (`realloc_same_ptr_count=0`, `realloc_moved_count=2`,
+    `copied_bytes=24` for one in-process repeat), while the Hako comparison
+    model reports one same-class realloc and one moved realloc
+    (`realloc_same_ptr_count=1`, `realloc_moved_count=1`,
+    `copied_bytes=16`).
+  - decision:
+    do not use realloc/aligned body timing as a mimalloc parity owner until
+    its contract is split into stable semantic-model fields and actual
+    allocator pointer-behavior fields. Adding body timing before that split
+    would compare different subjects.
+
+- [x] MIM-129: reuse-cycle EXE cleanup
+  - output:
+    repair the reuse-cycle comparison app enough to make it usable in the
+    workload matrix
+  - changed scope:
+    `apps/hako-alloc-mimalloc-comparison-reuse-cycle-small-exe-proof/main.hako`
+    no longer stores mutable `StringBox` summary state. The summary is printed
+    as a literal `summary=ok|fail`, and `allocation_count` / `free_count`
+    lines are emitted explicitly.
+  - result:
+    the previous EXE lowering failure
+    (`unsupported pure shape for current backend recipe` with an undefined
+    string-handle value in field-set lowering) is avoided by removing the
+    unnecessary mutable string field from the proof app.
+  - count contract:
+    Hako and C now match for the single-repeat matrix sample:
+    `allocation_count=128`, `free_count=128`, `requested_bytes=66508`,
+    `reuse_cycle_count=1`, `summary=ok`.
+  - decision:
+    reuse-cycle is no longer classified as a backend blocker. It is a valid
+    count-compatible workload candidate, but it still needs an in-process
+    body-timing app before it can select an optimization owner.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
