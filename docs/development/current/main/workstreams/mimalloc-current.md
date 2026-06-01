@@ -3599,6 +3599,149 @@ truth stays in MIR metadata emitted by the compiler.
     owner sample selects a larger structural seam with a clear instruction
     delta
 
+- [x] MIM-111: post-nonkeeper automatic optimization boundary refresh
+  - output: owner refresh after MIM-108 / MIM-109 / MIM-110 nonkeepers
+  - current direct-exact public proof pair:
+    `summary=ok`, `hako_body_elapsed_ns=3000000`,
+    `c_body_elapsed_ns=3388757`, `body_elapsed_ratio=0.885`
+  - current direct-exact public proof stat:
+    `hako_instructions_median=71259090`,
+    `hako_cycles_median=13762865`,
+    `hako_body_elapsed_ns_median=2000000`
+  - current observer-light fastpath explain:
+    `direct_array_proved_unchecked_plan_count=9`,
+    `hotcore_method_summary_ok_count=2`,
+    `direct_exact_hotcore_call_plan_ok_count=5`,
+    `direct_exact_static_call_lowered_count=5`,
+    `direct_exact_plan_lowered_to_fallback_count=0`,
+    `summary=ok`
+  - current public proof fastpath explain:
+    `direct_array_proved_unchecked_plan_count=9`,
+    `hotcore_method_summary_count=0`,
+    `summary=ok`
+  - interpretation:
+    observer-light / HotCore automatic compiler fastpaths are a completed
+    slice for the current evidence: DirectArray plans, proved-unchecked stores,
+    static-exact hotcore calls, late same-module inlining, and O3
+    canonicalization are visible and green.
+  - public proof front remains intentionally heavier because it measures
+    public facade/result/observer semantics; treating that cost as a compiler
+    fastpath miss would mix fronts.
+  - remaining sampled body work:
+    direct array handle/tag stripping, direct array element stores/loads,
+    selected state publication stores, and exact `usize` nonnegative traps
+    around PageModel / queue / result counters.
+  - rejected next actions:
+    - no generic exact-slot `u64` load assume reopening without a narrower
+      concrete check-elision proof
+    - no opportunistic counter `usize -> i64` source storage rewrite
+    - no queue/publication helper extraction without a fresh owner delta
+    - no source counter gating for public proof semantics
+  - only open compiler-side optimization candidate:
+    a future exact-`usize` field range proof that can remove a concrete hot
+    nonnegative trap by MIR facts, not by `.hako` method name or source
+    counter deletion. Candidate facts include guarded decrement
+    (`free_top > 0 -> free_top - 1`), caller-owned live release
+    (`used > 0 -> used - 1`), and DirectArray extent-backed local-free push
+    (`local_free_top < capacity -> local_free_top + 1`).
+  - decision:
+    current automatic fastpath slice is closed; next implementation should
+    either open a separate exact-`usize` range-proof task, or return to
+    source/front selection work with public-proof semantics kept intact.
+
+- [x] MIM-112: exact `usize` guarded-decrement runtime-check elision probe
+  - candidate:
+    add a narrow MIR proof for `if old != 0 { field = old - 1 }` on the same
+    unsigned exact field, so backend runtime nonnegative checks are omitted
+    from `HakoAllocPageModel.acquireFreshSmall/1` and `acquire_usize/1`.
+  - implementation probe:
+    shared guarded-value proof vocabulary, exact numeric elision metadata,
+    hako_check `fastpath-explain` visibility, and unit fixtures.
+  - proof visibility:
+    public proof `fastpath-explain` reported
+    `exact_numeric_runtime_check_elision_count=2`,
+    `exact_numeric_guarded_unsigned_decrement_elision_count=2`,
+    with elisions on `free_top` in `acquireFreshSmall/1` and `acquire_usize/1`.
+  - validation:
+    `cargo test --release exact_numeric_field_contracts -- --nocapture` green
+    and `bash tools/checks/dev_gate.sh quick` green.
+  - performance:
+    public proof 7-run stat stayed effectively neutral/slightly worse:
+    `hako_instructions_median=71259295`,
+    `hako_cycles_median=13717084`,
+    `hako_body_elapsed_ns_median=2000000`.
+    Previous MIM-111 public proof baseline was
+    `hako_instructions_median=71259090`.
+  - decision=nonkeeper_reverted
+  - reason:
+    the proof is structurally valid and observable, but the current exact
+    front does not produce a primary instruction win on the selected mimalloc
+    public proof workload.
+  - next:
+    do not keep exact-`usize` check-elision code without a selected hot site
+    that proves a measurable instruction delta. Continue owner-first from
+    fresh perf/asm evidence instead of broadening range proofs.
+
+- [x] MIM-113: hot event counter signed-storage keeper
+  - output:
+    source/front cleanup for selected mimalloc hot counters after fresh
+    perf/asm evidence showed exact-`usize` nonnegative range checks dominating
+    the remaining public proof direct-exact body.
+  - changed scope:
+    only event/stat counters that are not used as capacities, stack tops,
+    indexes, occupancy bounds, or byte lengths:
+    - `HakoAllocPageModel.alloc_count`
+    - `HakoAllocPageModel.local_free_count`
+    - `HakoAllocPageModel.retire_count`
+    - `HakoAllocObjectLifecyclePageQueue.request_count`
+    - `HakoAllocObjectLifecyclePageQueue.select_count`
+    - `HakoAllocObjectLifecyclePageQueue.single_page_fast_path_count`
+    - `HakoAllocObjectLifecyclePageQueue.active_select_count`
+  - unchanged:
+    `capacity`, `reserved`, `used`, `free_top`, `local_free_top`,
+    `peak_used`, `requested_bytes`, and DirectArray extent/index-bearing
+    fields remain exact `usize`.
+  - validation:
+    - build:
+      `cargo build --release -p nyash-rust --bin hakorune -p nyash-llvm-compiler --bin ny-llvmc`
+      green
+    - fastpath explain:
+      `direct_array_proved_unchecked_plan_count=9`,
+      `direct_exact_plan_lowered_to_fallback_count=0`, `summary=ok`
+    - `bash tools/checks/dev_gate.sh quick` green
+  - performance:
+    - previous MIM-111/MIM-112 public proof baseline:
+      `hako_instructions_median ~= 71259090`
+    - MIM-113 public proof 5-run:
+      `hako_instructions_median=61272963`,
+      `hako_cycles_median=13063175`,
+      `hako_body_elapsed_ns_median=2000000`
+    - MIM-113 public proof 7-run:
+      `hako_instructions_median=61272866`,
+      `hako_cycles_median=13441823`,
+      `hako_body_elapsed_ns_median=2000000`
+    - direct-exact Hako/C pair:
+      `hako_body_elapsed_ns=3000000`,
+      `c_body_elapsed_ns=3567585`,
+      `body_elapsed_ratio=0.841`,
+      `summary=ok`
+  - decision=keeper
+  - reason:
+    the selected counters are public statistics, not allocator extent or
+    index-bearing state. Keeping them as exact `usize` forced dynamic range
+    checks in the hot body without improving the C-like storage contract.
+    Signed `i64` preserves the published integer values for the proof while
+    removing a large exact-`usize` range-check tax.
+  - docs:
+    `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md` records the narrowed rule:
+    exact `usize` remains for capacity/size/occupancy/stack-top/byte-length,
+    while selected hot event counters may stay signed when perf evidence
+    selects their range-check tax.
+  - next:
+    rerun owner-first perf/asm after this keeper. Do not broaden counter
+    demotion to all `usize` counters; only selected hot event counters are in
+    scope.
+
 ## Parking Lot
 
 - Array lane extension backlog remains in

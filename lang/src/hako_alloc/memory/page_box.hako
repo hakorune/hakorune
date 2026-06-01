@@ -13,14 +13,14 @@ box HakoAllocPageModel {
     used: usize = 0
     free_top: usize = 0
     local_free_top: usize = 0
-    alloc_count: usize = 0
-    local_free_count: usize = 0
+    alloc_count: i64 = 0
+    local_free_count: i64 = 0
     local_free_collect_count: usize = 0
     local_free_collected_blocks: usize = 0
     reject_count: usize = 0
     retired: i64 = 0
     decommitted: i64 = 0
-    retire_count: usize = 0
+    retire_count: i64 = 0
     decommit_count: usize = 0
     recommit_count: usize = 0
     reuse_count: usize = 0

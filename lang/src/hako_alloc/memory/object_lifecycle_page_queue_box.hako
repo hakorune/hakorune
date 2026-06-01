@@ -9,12 +9,12 @@ box HakoAllocObjectLifecyclePageQueue {
     first_page: HakoAllocPageModel = null
     page_count: usize = 0
     add_count: usize = 0
-    request_count: usize = 0
-    select_count: usize = 0
-    single_page_fast_path_count: usize = 0
+    request_count: i64 = 0
+    select_count: i64 = 0
+    single_page_fast_path_count: i64 = 0
     single_page_fallback_count: usize = 0
     reuse_select_count: usize = 0
-    active_select_count: usize = 0
+    active_select_count: i64 = 0
     decommitted_skip_count: usize = 0
     retired_skip_count: usize = 0
     unavailable_skip_count: usize = 0
