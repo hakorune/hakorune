@@ -3456,13 +3456,62 @@ truth stays in MIR metadata emitted by the compiler.
   - stop line:
     do not generalize this into source-level required inline; next owner must
     be selected by post-inline perf evidence
-- [ ] MIM-105: post-late-inline owner refresh
+- [x] MIM-105: post-late-inline owner refresh
   - output: reread direct-exact perf / asm after MIM-104 and select the next
     owner from current evidence
   - candidate seams to inspect:
     page-local direct-state nonnegative/trap checks, page-local observer
     counters, remaining DirectArray route shape, and hot-core wrapper overhead
   - no new source rewrite or fastpath vocabulary before this reread
+  - evidence:
+    - 8192-repeat observer-light sampling was too short after MIM-104 and
+      included loader/startup samples, so a temp-only 65536-repeat copy was
+      used for owner attribution without changing repo source
+    - sampled hot body now lives under `ny_main` after same-module inlining;
+      the remaining hot instructions are page-local field updates, direct
+      array element stores/loads, and exact `usize` nonnegative/trap checks
+      around PageModel state/counters
+    - page-local direct array access is already direct; no legacy Array helper
+      or method-name call boundary is selected as the next owner
+  - selected next:
+    `llvm_o3_canonicalization_after_late_inline`
+  - decision:
+    try stronger LLVM canonicalization before changing `.hako` source or
+    moving observer counters
+- [x] MIM-106: LLVM O3 canonicalization after late inline
+  - output: keeper; run LLVM `always-inline,default<O3>` before `llc` for the
+    pure EXE canonicalization step
+  - owner:
+    `lang/c-abi/shims/hako_llvmc_ffi_common.inc`
+  - design boundary:
+    this stays backend-local and source-free; it does not add syntax, does not
+    alter `Inline(required)`, and does not remove observer counters
+  - observer-light perf:
+    MIM-104 `hako_instructions_median=48752537`,
+    MIM-106 `hako_instructions_median=39175496`,
+    `hako_cycles_median=6543070`,
+    `hako_body_elapsed_ns_median=1000000`
+  - public proof perf:
+    MIM-104 `hako_instructions_median=80262663`,
+    MIM-106 `hako_instructions_median=71259106`,
+    `hako_cycles_median=13587587`,
+    `hako_body_elapsed_ns_median=2000000`
+  - smokes:
+    - public direct-exact pair `summary=ok`,
+      `hako_body_elapsed_ns=2000000`, `body_elapsed_ratio=0.608`
+    - observer-light direct-exact pair `summary=ok`,
+      `hako_body_elapsed_ns=1000000`, `body_elapsed_ratio=0.301`
+    - `bash tools/checks/dev_gate.sh quick`
+  - decision=keeper
+  - winner_claim=0
+- [ ] MIM-107: post-O3 owner refresh
+  - output: reread direct-exact perf / asm after MIM-106 and select the next
+    owner from current evidence
+  - candidate seams to inspect:
+    remaining exact `usize` range checks, PageModel observer counter writes,
+    DirectArray handle/tag stripping, and any residual startup/timing noise
+  - no source counter gating, hot-core method split, or extra LLVM pass before
+    this reread
 
 ## Parking Lot
 
