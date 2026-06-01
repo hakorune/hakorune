@@ -13,6 +13,7 @@ Canonical helpers
 - `bash tools/hako_check/run_tests.sh`
 - `bash tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/deadblocks_smoke.sh`
+- `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 

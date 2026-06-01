@@ -7,6 +7,34 @@ EMIT_ROUTE="${ROOT}/tools/smokes/v2/lib/emit_mir_route.sh"
 MIR_CACHE_TOOL="${ROOT}/tools/cache/phase29x_l1_mir_cache.sh"
 MIR_CACHE_KEY_TOOL="${ROOT}/tools/cache/phase29x_cache_keys.sh"
 
+usage() {
+  cat <<USAGE
+Usage:
+  $0 [--format text|dot|json-lsp] <file-or-dir|file> [more...]
+  $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]
+  $0 perf-surface-contract [--out report.txt]
+  $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
+
+Tool surfaces:
+  default             .hako lint/analyzer rules
+  perf-surface        source-level allocator hot-path risk inventory
+  perf-surface-contract
+                      report vocabulary for perf-surface
+  fastpath-explain    read-only DirectArray/Span FastPath metadata explanation
+
+Boundary:
+  hako_check does not rewrite source, choose keepers, run benchmarks, or own MIR
+  lowering policy.
+USAGE
+}
+
+case "${1:-}" in
+  help|--help|-h)
+    usage
+    exit 0
+    ;;
+esac
+
 if [ "${1:-}" = "fastpath-explain" ]; then
   shift
   exec bash "$ROOT/tools/hako_check/fastpath_explain.sh" "$@"
@@ -29,10 +57,7 @@ if [ ! -x "$BIN" ]; then
 fi
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 [--format text|dot|json-lsp] <file-or-dir|file> [more...]" >&2
-  echo "       $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]" >&2
-  echo "       $0 perf-surface-contract [--out report.txt]" >&2
-  echo "       $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]" >&2
+  usage >&2
   exit 2
 fi
 
