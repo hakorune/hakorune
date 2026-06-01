@@ -3324,6 +3324,31 @@ truth stays in MIR metadata emitted by the compiler.
     - reason=cycles improved, but exact-front instruction median regressed
       versus MIM-098; do not split smallAlloc slow path without a lowerer/code
       layout plan that preserves the instruction win
+- [x] MIM-100: post-inline constant branch cleanup
+  - output: rejected probe; rerunning the existing Rust MIR SimplifyCFG/DCE
+    cleanup after `inline_soft_leaf` does not affect the current exact-EXE
+    output
+  - selected evidence:
+    `objectLifecycleSmallAlloc/1` asm still contains branch-on-constant code
+    from inlined `recordSuccess(2)`, because the first SimplifyCFG pass runs
+    before same-module leaf inline; after the probe, generated MIR counts and
+    the final EXE asm stayed unchanged
+  - selected owner rejected:
+    Rust MIR optimizer pass ordering
+  - redirected owner:
+    selfhost LLVM/C-shim same-module direct-call/inlining cleanup
+  - decision=nonkeeper_reverted
+  - no new source helper, no new syntax, no inline verifier widening, no new
+    source split
+- [ ] MIM-101: same-module direct-call constant branch owner
+  - output: inspect the selfhost LLVM/C-shim same-module body/call emission
+    path that turns `recordSuccess(2)` into branch-on-constant assembly, then
+    choose a narrow cleanup owner
+  - selected evidence:
+    Rust MIR still contains a `mir_call` to `recordSuccess/1`, while the final
+    EXE has the call removed and keeps the constant-condition branches
+  - no source rewrite, no multi-block `Inline(required)` widening, no generic
+    optimizer rewrite until the owner is confirmed
 
 ## Parking Lot
 
