@@ -140,6 +140,26 @@ subject_N_next_owner_family=provider_alloc_free_internal_real_malloc_boundary
 Use those fields to avoid reading the current provider LD_PRELOAD bridge as a
 direct `.hako` allocator-core speed claim.
 
+Additional repo-local Hakmem fixtures are available when the owner refresh
+needs a wider shape than random-mixed or Hakozuna mixed-ws:
+
+```bash
+make -C benchmarks/external/hakmem/tiny-hot-system
+benchmarks/external/hakmem/tiny-hot-system/build/bench_tiny_hot_system \
+  64 100 1000
+```
+
+```bash
+make -C benchmarks/external/hakmem/mid-large-mt-system
+benchmarks/external/hakmem/mid-large-mt-system/build/bench_mid_large_mt_system \
+  2 1000 128 42
+```
+
+`tiny-hot-system` focuses on small malloc/free hot-path overhead.
+`mid-large-mt-system` focuses on 8-32KiB multi-thread allocation/free traffic.
+Both are minimal system-malloc fixtures copied from the extracted Hakmem
+corpus; do not vendor the full corpus for routine development.
+
 For the benchmark-only Hakorune replacement front subject, keep smoke/evidence
 and performance distribution separate. First run the counter-enabled thread
 local front with focused cross-thread smokes:
