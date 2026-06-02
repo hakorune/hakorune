@@ -1,7 +1,8 @@
 # Hakorune Provider Package v0
 
 Status: Active
-Scope: user-facing provider package v0 command, output layout, and no-load preflight path.
+Scope: user-facing provider package command, current staged build modes,
+output layout, and smoke/preflight path.
 Related:
 - docs/development/current/main/design/provider-abi-v1-ssot.md
 - docs/development/current/main/design/provider-package-artifact-ssot.md
@@ -9,14 +10,27 @@ Related:
 
 ## Purpose
 
-Provider package v0 turns an existing shared library into a Hakorune provider
-package artifact. The package is the formal artifact. The shared library is
+Provider package v0 turns a shared-library provider artifact into a Hakorune
+provider package. The package is the formal artifact. The shared library is
 only one file inside that package.
 
-v0 does not compile `.hako` into a shared library. It does not load the shared
-library, resolve exports, read descriptors, call provider APIs, activate a
-provider, replace the process allocator, install hooks, use global allocator
-integration, or claim benchmark winners.
+The current implementation has staged build modes:
+
+| Mode | Status | Boundary |
+| --- | --- | --- |
+| existing-binary package | supported | packages an already-built `.so` / `.dll` / `.dylib` with manifest metadata |
+| selected fixture provider build | supported | Hakorune-owned selected fixture only; no arbitrary shell build |
+| selected `.hako`-derived provider package | supported | selected fixtures only; not arbitrary `.hako` to DLL lowering |
+| semantic provider codegen | supported narrowly | only listed semantic modes are valid |
+| metadata/load/API/call smokes | supported by tools | package command itself stays no-load |
+| process allocator replacement | closed | no activation, hooks, or global allocator integration |
+| provider-backed `LD_PRELOAD` | closed | current `LD_PRELOAD` shim lane is probe-only unless a later row opens replacement |
+
+Do not read `.hako`-derived package support as arbitrary `.hako` to allocator
+DLL generation. Each semantic mode is a narrow selected entrypoint contract.
+The package command itself does not activate the provider, replace the process
+allocator, install hooks, use global allocator integration, or claim benchmark
+winners.
 
 ## Package Command
 
@@ -151,6 +165,41 @@ global_allocator=0
 winner_claim=0
 summary=ok
 ```
+
+## Current Smoke Ladder
+
+Use this ladder to verify the package path without treating it as allocator
+replacement.
+
+```bash
+python3 tools/allocator/provider_package_metadata_preflight.py \
+  --manifest dist/hakorune-provider/hakorune_provider.json
+
+python3 tools/allocator/provider_package_descriptor_smoke.py \
+  --manifest dist/hakorune-provider/hakorune_provider.json
+
+python3 tools/allocator/provider_package_api_bind_smoke.py \
+  --manifest dist/hakorune-provider/hakorune_provider.json
+
+python3 tools/allocator/provider_package_alloc_free_smoke.py \
+  --manifest dist/hakorune-provider/hakorune_provider.json
+```
+
+The smokes may load the shared library and call explicit provider APIs. They do
+not make the provider active as the process allocator:
+
+```text
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+winner_claim=0
+summary=ok
+```
+
+The `LD_PRELOAD` shim lane is separate and currently probe-only. It may prove
+that a shim loads and delegates through the platform loader, but it is not a
+provider-backed allocator replacement contract.
 
 ## Phase B1 Selected Fixture Build
 
