@@ -1670,6 +1670,37 @@ message.
     `shim_pointer_table_overflow=0`, `hook_installed=0`,
     `global_allocator=0`, `winner_claim=0`, and `summary=ok`
 
+- [x] MIM-140: generated Rust `#[global_allocator]` provider smoke pilot
+  - output:
+    prove that a generated Rust smoke process can route Rust allocation
+    traffic through the selected `.hako`-derived provider API using a local
+    `#[global_allocator]`
+  - implemented:
+    `tools/allocator/provider_package_rust_global_allocator_smoke.py`
+    validates the manifest, generates a standalone Rust executable with a
+    provider-backed `GlobalAlloc`, compiles it with `rustc`, and records
+    provider/global-allocator counters
+  - still closed:
+    `#[global_allocator]` in Hakorune binaries, production runtime global
+    allocator defaults, hook installation, ambient provider discovery, and
+    winner claim
+  - smoke:
+    `output_contract=hako-mimalloc-provider-backed-rust-global-allocator-smoke-v0`,
+    `dll_mode=provider-backed-rust-global-allocator-pilot`,
+    `global_allocator=1`,
+    `global_allocator_scope=generated-rust-smoke-process-only`,
+    `global_allocator_product_claim=0`, `replacement_active=0`,
+    `provider_api_bound=1`, `provider_call_executed=1`,
+    `allocator_entrypoint_called=1`, `rust_provider_bind_success=1`,
+    `rust_provider_alloc_count=8`, `rust_provider_realloc_count=4`,
+    `rust_provider_free_count=5`, `rust_runtime_fallback_count=0`,
+    `rust_pointer_table_overflow=0`, `hook_installed=0`,
+    `winner_claim=0`, and `summary=ok`
+  - next:
+    do not make a winner claim yet. First add a comparison/decision adapter
+    that consumes exact-EXE, C explicit, provider explicit, LD_PRELOAD corpus,
+    and generated global-allocator evidence without changing product defaults.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

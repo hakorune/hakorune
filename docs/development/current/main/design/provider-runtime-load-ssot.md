@@ -197,6 +197,50 @@ This pilot exists to prove that a `.hako`-derived provider package can be
 reached from a malloc-family replacement seam. It does not claim C parity,
 process-wide production replacement, or global allocator readiness.
 
+## Stage 7B: Rust Global Allocator Pilot
+
+Decision: accepted as a narrow generated-process pilot, not as product
+`#[global_allocator]` integration.
+
+This stage may generate and compile a standalone Rust smoke executable whose
+local `#[global_allocator]` routes Rust allocation traffic through the
+manifest-selected provider API.
+
+Allowed:
+
+```text
+manifest preflight
+provider API bind
+generated Rust smoke executable
+local #[global_allocator] inside the generated smoke only
+provider alloc/free calls through the API table
+allocator-local pointer table for origin-safe free/realloc
+```
+
+Still closed:
+
+```text
+global allocator in hakorune binaries
+production runtime global allocator default
+hook installation
+ambient provider discovery
+winner claim
+```
+
+The report must distinguish the pilot from product integration:
+
+```text
+dll_mode=provider-backed-rust-global-allocator-pilot
+global_allocator=1
+global_allocator_scope=generated-rust-smoke-process-only
+provider_api_bound=1
+provider_call_executed=1
+allocator_entrypoint_called=1
+replacement_active=0
+hook_installed=0
+winner_claim=0
+```
+
 ## Fail-Fast Rules
 
 ```text
