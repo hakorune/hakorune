@@ -1766,7 +1766,7 @@ def main() -> int:
                     f"subject_{index}_free_to_direct_free_boundary=always_inline",
                     f"subject_{index}_replacement_front_inplace_realloc_within_slot_plan=1",
                     f"subject_{index}_replacement_front_slot_size="
-                    f"{args.replacement_front_slot_size or 2048}",
+                    f"{replacement_slot_size}",
                 ]
             )
         if counters:
