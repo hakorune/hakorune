@@ -338,6 +338,11 @@ REPL-006:
   RequestedSizeTableTaxProbeV0
   nonkeeper: fixed-slot usable-size realloc mode
   attempted to remove requested_size store/clear from alloc/free hot path
+
+REPL-007:
+  ReplacementSlotSizeClassProbeV0
+  keeper: benchmark-only slot-size override for mixed-ws max-size matching
+  checks whether fixed 2048-byte slots are the remaining cache/footprint owner
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -362,6 +367,7 @@ free_hot_remote_queue_call=0|1
 replacement_entry_inline_plan=0|1
 malloc_to_direct_alloc_boundary=always_inline|tailcall|call
 free_to_direct_free_boundary=always_inline|tailcall|call
+replacement_front_slot_size=<bytes>
 ```
 
 The current keeper state is expected to show `tls_get_addr_hot_path=0`,
@@ -384,6 +390,14 @@ alloc/free. It was rejected as nonkeeper: median throughput fell from about
 realloc copy extent outweighed the removed metadata stores. Keep
 `requested_size` on the current hot path until a more precise realloc plan is
 selected by fresh evidence.
+
+`REPL-007` is a keeper. The current replacement front used a fixed 2048-byte
+slot even when the mixed-ws fixture was capped at 1024 bytes. A benchmark-only
+1024-byte slot-size override improved replacement-front median throughput from
+about `172.6M ops/s` to `283.9M ops/s` on the same mixed-ws shape, reaching
+about `55.1%` of the local C mimalloc reference in that run. This proves the
+fixed-slot footprint/cache shape is a major owner. It is still a
+benchmark-only storage-layout probe, not a product allocator size-class claim.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.

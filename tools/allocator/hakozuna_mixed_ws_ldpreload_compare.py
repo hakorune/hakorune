@@ -35,7 +35,9 @@ REPLACEMENT_FRONT_SHIM_C = r"""
 #include <pthread.h>
 #endif
 
+#ifndef HAKO_REPLACEMENT_SLOT_SIZE
 #define HAKO_REPLACEMENT_SLOT_SIZE 2048u
+#endif
 #define HAKO_REPLACEMENT_SLOT_COUNT 8192u
 #define HAKO_REPLACEMENT_ARENA_REGISTRY_CAP 128u
 
@@ -841,6 +843,7 @@ def build_replacement_front_shim(
     thread_local: bool,
     skip_hot_counters: bool,
     tls_counters: bool,
+    slot_size: int | None,
 ) -> Path:
     front_dir = out_dir / (
         "replacement-front-native-slot-locked" if locked else "replacement-front-native-slot"
@@ -851,6 +854,8 @@ def build_replacement_front_shim(
         front_dir = out_dir / f"{front_dir.name}-skip-hot-counters"
     if tls_counters:
         front_dir = out_dir / f"{front_dir.name}-tls-counters"
+    if slot_size is not None:
+        front_dir = out_dir / f"{front_dir.name}-slot-size-{slot_size}"
     front_dir.mkdir(parents=True, exist_ok=True)
     source = front_dir / "hako_alloc_replacement_front_native_slot.c"
     binary = front_dir / "libhako_alloc_replacement_front_native_slot.so"
@@ -871,6 +876,8 @@ def build_replacement_front_shim(
         cmd.append("-DHAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS=1")
     if tls_counters:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_TLS_COUNTERS=1")
+    if slot_size is not None:
+        cmd.append(f"-DHAKO_REPLACEMENT_SLOT_SIZE={slot_size}u")
     cmd.extend([str(source), "-ldl"])
     if locked or thread_local:
         cmd.append("-pthread")
@@ -1264,6 +1271,11 @@ def main() -> int:
         action="store_true",
         help="benchmark-only: aggregate replacement front counters through thread-local buffers",
     )
+    parser.add_argument(
+        "--replacement-front-slot-size",
+        type=int,
+        help="benchmark-only: override replacement front fixed slot size in bytes",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -1276,6 +1288,10 @@ def main() -> int:
     positive_int(args.max_size, "--max-size")
     if args.max_size < args.min_size:
         raise SystemExit("--max-size must be >= --min-size")
+    if args.replacement_front_slot_size is not None:
+        positive_int(args.replacement_front_slot_size, "--replacement-front-slot-size")
+        if args.replacement_front_slot_size < args.max_size:
+            raise SystemExit("--replacement-front-slot-size must be >= --max-size")
     if args.provider_assume_owned_mode and not args.provider_usable_size_mode:
         raise SystemExit("--provider-assume-owned-mode requires --provider-usable-size-mode")
     if args.replacement_front_lock_mode and not args.replacement_front_native_slot_mode:
@@ -1309,6 +1325,10 @@ def main() -> int:
         raise SystemExit(
             "--replacement-front-tls-counter-mode and "
             "--replacement-front-skip-hot-counters are exclusive"
+        )
+    if args.replacement_front_slot_size is not None and not args.replacement_front_native_slot_mode:
+        raise SystemExit(
+            "--replacement-front-slot-size requires --replacement-front-native-slot-mode"
         )
     if args.replacement_front_cross_thread_smoke and args.replacement_front_skip_hot_counters:
         raise SystemExit(
@@ -1363,6 +1383,7 @@ def main() -> int:
             thread_local=args.replacement_front_thread_local_mode,
             skip_hot_counters=args.replacement_front_skip_hot_counters,
             tls_counters=args.replacement_front_tls_counter_mode,
+            slot_size=args.replacement_front_slot_size,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -1439,6 +1460,7 @@ def main() -> int:
         f"replacement_front_cross_thread_smoke={1 if args.replacement_front_cross_thread_smoke else 0}",
         f"replacement_front_skip_hot_counters={1 if args.replacement_front_skip_hot_counters else 0}",
         f"replacement_front_tls_counter_mode={1 if args.replacement_front_tls_counter_mode else 0}",
+        f"replacement_front_slot_size={args.replacement_front_slot_size or 2048}",
     ]
     if replacement_front_smokes:
         cross_thread_free = replacement_front_smokes["cross_thread_free"]
@@ -1550,6 +1572,8 @@ def main() -> int:
                     f"subject_{index}_replacement_entry_inline_plan=1",
                     f"subject_{index}_malloc_to_direct_alloc_boundary=always_inline",
                     f"subject_{index}_free_to_direct_free_boundary=always_inline",
+                    f"subject_{index}_replacement_front_slot_size="
+                    f"{args.replacement_front_slot_size or 2048}",
                 ]
             )
         if counters:
