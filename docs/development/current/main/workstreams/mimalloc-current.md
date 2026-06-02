@@ -363,6 +363,12 @@ REPL-011:
   MixedWsSizeDistributionExplainV0
   report-only workload request histogram for the Hakozuna mixed-ws fixture
   fixes the measurement boundary before opening size-class or slot-metadata work
+
+REPL-012:
+  SlotMetaWordProbeV0
+  nonkeeper: benchmark-only coalescing of live state and requested size into one
+  metadata word
+  cross-thread semantics stayed intact, but counterless throughput regressed
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -462,16 +468,21 @@ allocation can request `size + 16` through `realloc`, so some default-shape
 realloc requests exceed 1024. Treat this as measurement context, not a product
 semantics claim.
 
-Next concrete owner after `REPL-011` is expected to be slot metadata traffic,
-not another delete-the-check probe. The narrow candidate is:
+`REPL-012` tested the narrow slot metadata traffic candidate from the worker
+inventory. The probe coalesced live/free/remote state and requested size into
+one metadata word while preserving requested-size and cross-thread semantics.
+Focused cross-thread free / abandoned-owner / cross-thread realloc smokes passed,
+but the counterless 1024-byte slot front regressed on the same local run:
 
 ```text
-REPL-012:
-  SlotMetaWordProbeV0
-  benchmark-only probe that coalesces live state and requested size into one
-  per-slot metadata word while preserving requested-size and cross-thread
-  semantics
+baseline_counterless_slot1024_median_ops_per_sec=662109806.277
+slot_meta_word_counterless_slot1024_median_ops_per_sec=643591446.219
+slot_meta_word_delta_pct=-2.80
 ```
+
+Do not keep the slot-meta-word implementation path in the tool. The remaining
+metadata owner is real, but this coalescing shape did not improve the current
+generated replacement front.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
