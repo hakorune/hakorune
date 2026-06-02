@@ -239,6 +239,8 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "handle_publications": plan.handle_publications,
                 "publication_kind": plan.publication_kind,
                 "barrier_policy": plan.barrier_policy,
+                "handle_publication_proof_kind": plan.handle_publication_proof_kind,
+                "lifetime_policy": plan.lifetime_policy,
                 "lowering_consumer_enabled": plan.lowering_consumer_enabled,
                 "summary": plan.summary,
                 "failure_reason": plan.failure_reason,

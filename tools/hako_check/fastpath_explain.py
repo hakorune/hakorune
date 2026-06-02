@@ -137,6 +137,7 @@ def main() -> int:
     receiver_snapshot_status_counts = count_by(receiver_snapshot_rows, "summary")
     receiver_snapshot_kind_counts = count_by(receiver_snapshot_rows, "publication_kind")
     receiver_snapshot_barrier_counts = count_by(receiver_snapshot_rows, "barrier_policy")
+    receiver_snapshot_lifetime_counts = count_by(receiver_snapshot_rows, "lifetime_policy")
     hotcore_summary_status_counts = count_by(hotcore_summary_rows, "summary")
     hotcore_call_status_counts = count_by(hotcore_call_rows, "summary")
     hotcore_call_dispatch_counts = count_by(hotcore_call_rows, "dispatch_policy")
@@ -224,6 +225,7 @@ def main() -> int:
         f"receiver_snapshot_foreign_handle_publication_count={receiver_snapshot_kind_counts['foreign_handle_publication']}",
         f"receiver_snapshot_barrier_none_count={receiver_snapshot_barrier_counts['none']}",
         f"receiver_snapshot_barrier_unproven_count={receiver_snapshot_barrier_counts['unproven']}",
+        f"receiver_snapshot_lifetime_caller_visible_handle_count={receiver_snapshot_lifetime_counts['caller_visible_handle']}",
         f"hotcore_method_summary_count={len(hotcore_summaries)}",
         f"hotcore_method_summary_ok_count={hotcore_summary_status_counts['ok']}",
         f"hotcore_method_summary_failed_count={hotcore_summary_status_counts['failed']}",
@@ -292,6 +294,8 @@ def main() -> int:
                 f"{prefix}_method={plan.get('method', 'unknown')}",
                 f"{prefix}_publication_kind={plan.get('publication_kind', 'unknown')}",
                 f"{prefix}_barrier_policy={plan.get('barrier_policy', 'unknown')}",
+                f"{prefix}_handle_publication_proof_kind={field_text(plan, 'handle_publication_proof_kind', 'none')}",
+                f"{prefix}_lifetime_policy={plan.get('lifetime_policy', 'unknown')}",
                 f"{prefix}_foreign_base_count={plan.get('foreign_base_count', 'unknown')}",
                 f"{prefix}_receiver_writes={plan.get('receiver_writes', 'unknown')}",
                 f"{prefix}_foreign_reads={plan.get('foreign_reads', 'unknown')}",

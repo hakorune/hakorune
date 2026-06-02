@@ -159,12 +159,12 @@ metadata and exposed by `hako_check fastpath-explain`. It classifies helper
 effect shape only; it does not authorize inline, direct call lowering, handle
 publication, or backend route changes.
 
-Decision: accepted scalar-only metadata. `ReceiverSnapshotPublicationPlanV0`
-consumes `EffectSummary` and accepts only scalar snapshot publication in v0:
-one foreign base may be read and scalar receiver fields may be written.
-Foreign handle publication is reported but rejected until a barrier/lifetime
-policy lands. This plan is still diagnostic only; lowering consumers remain
-disabled.
+Decision: accepted metadata-only. `ReceiverSnapshotPublicationPlanV0`
+consumes `EffectSummary` and accepts scalar snapshot publication plus the
+narrow foreign-handle publication shape where one foreign base is published to
+receiver state, the helper has no hidden calls/allocation/safepoints, and the
+current user-box field-store route requires no runtime barrier. This plan is
+still diagnostic only; lowering consumers remain disabled.
 
 Rejected until a narrow plan says otherwise:
 

@@ -1,9 +1,10 @@
 /*!
  * Metadata-only narrow mixed-base publication recipes.
  *
- * This plan consumes `EffectSummary` rows. v0 accepts only scalar snapshot
+ * This plan consumes `EffectSummary` rows. v0 accepts scalar snapshot
  * publication from one foreign base into receiver fields. Foreign handle
- * publication stays rejected until a barrier/lifetime policy is proven.
+ * publication is accepted only as metadata when the current user-box field
+ * store model requires no runtime barrier and the helper has no hidden effects.
  */
 
 use crate::mir::{effect_summary::EffectSummary, MirFunction, ValueId};
@@ -19,6 +20,8 @@ pub struct ReceiverSnapshotPublicationPlan {
     pub handle_publications: usize,
     pub publication_kind: &'static str,
     pub barrier_policy: &'static str,
+    pub handle_publication_proof_kind: Option<&'static str>,
+    pub lifetime_policy: &'static str,
     pub lowering_consumer_enabled: bool,
     pub summary: &'static str,
     pub failure_reason: Option<&'static str>,
@@ -47,21 +50,32 @@ fn plan_from_effect_summary(summary: &EffectSummary) -> Option<ReceiverSnapshotP
         _ => return None,
     }
 
-    let (publication_kind, barrier_policy, status, failure_reason) = if summary.summary != "ok" {
+    let (
+        publication_kind,
+        barrier_policy,
+        handle_publication_proof_kind,
+        lifetime_policy,
+        status,
+        failure_reason,
+    ) = if summary.summary != "ok" {
         (
             "unsupported_effect_shape",
+            "unresolved",
+            None,
             "unresolved",
             "rejected",
             summary.failure_reason.or(Some("effect_summary_rejected")),
         )
     } else if summary.handle_publications == 0 {
-        ("scalar_snapshot", "none", "ok", None)
+        ("scalar_snapshot", "none", None, "scalar_value", "ok", None)
     } else {
         (
             "foreign_handle_publication",
-            "unproven",
-            "rejected",
-            Some("handle_publication_barrier_unproven"),
+            "none",
+            Some("single_foreign_base_no_hidden_effects"),
+            "caller_visible_handle",
+            "ok",
+            None,
         )
     };
 
@@ -75,6 +89,8 @@ fn plan_from_effect_summary(summary: &EffectSummary) -> Option<ReceiverSnapshotP
         handle_publications: summary.handle_publications,
         publication_kind,
         barrier_policy,
+        handle_publication_proof_kind,
+        lifetime_policy,
         lowering_consumer_enabled: false,
         summary: status,
         failure_reason,
@@ -143,7 +159,7 @@ mod tests {
     }
 
     #[test]
-    fn rejects_foreign_handle_publication_until_barrier_policy_lands() {
+    fn accepts_foreign_handle_publication_as_metadata_when_barrier_is_proven_none() {
         let mut function =
             function_with_summary(base_summary("mixed_base_publication_candidate", 1));
 
@@ -151,11 +167,13 @@ mod tests {
 
         let plan = &function.metadata.receiver_snapshot_publication_plans[0];
         assert_eq!(plan.publication_kind, "foreign_handle_publication");
-        assert_eq!(plan.barrier_policy, "unproven");
-        assert_eq!(plan.summary, "rejected");
+        assert_eq!(plan.barrier_policy, "none");
         assert_eq!(
-            plan.failure_reason,
-            Some("handle_publication_barrier_unproven")
+            plan.handle_publication_proof_kind,
+            Some("single_foreign_base_no_hidden_effects")
         );
+        assert_eq!(plan.lifetime_policy, "caller_visible_handle");
+        assert_eq!(plan.summary, "ok");
+        assert_eq!(plan.failure_reason, None);
     }
 }
