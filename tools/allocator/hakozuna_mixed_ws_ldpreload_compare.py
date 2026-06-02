@@ -56,7 +56,11 @@ static hako_free_fn real_free_fn = 0;
 static int resolving_real = 0;
 
 #ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+#if defined(__GNUC__)
+#define HAKO_REPLACEMENT_STORAGE _Thread_local __attribute__((tls_model("initial-exec")))
+#else
 #define HAKO_REPLACEMENT_STORAGE _Thread_local
+#endif
 #else
 #define HAKO_REPLACEMENT_STORAGE
 #endif
@@ -111,6 +115,7 @@ static unsigned long long abandoned_arena_count = 0;
 static unsigned long long abandoned_remote_free_count = 0;
 static unsigned long long skip_hot_counters_enabled = 0;
 static unsigned long long tls_counter_mode_enabled = 0;
+static unsigned long long tls_initial_exec_model_enabled = 0;
 
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_alloc_count = 0;
@@ -523,6 +528,10 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_abandoned_remote_free_count", abandoned_remote_free_count);
   write_kv(fd, "replacement_front_skip_hot_counters_enabled", skip_hot_counters_enabled);
   write_kv(fd, "replacement_front_tls_counter_mode_enabled", tls_counter_mode_enabled);
+  write_kv(
+      fd,
+      "replacement_front_tls_initial_exec_model_enabled",
+      tls_initial_exec_model_enabled);
   close(fd);
 }
 
@@ -539,6 +548,9 @@ static void install_report(void) {
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
   tls_counter_mode_enabled = 1;
+#endif
+#if defined(HAKO_REPLACEMENT_FRONT_THREAD_LOCAL) && defined(__GNUC__)
+  tls_initial_exec_model_enabled = 1;
 #endif
   atexit(write_report);
 }

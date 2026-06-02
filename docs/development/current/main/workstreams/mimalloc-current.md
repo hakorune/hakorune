@@ -250,6 +250,9 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
      Use `--replacement-front-tls-counter-mode` as the benchmark-only keeper
      direction for preserving counters while avoiding hot atomic increments in
      the thread-local replacement front.
+     GNU/Linux thread-local replacement fronts use the initial-exec TLS model
+     for the benchmark-only shim. This removes hot `__tls_get_addr` calls from
+     the generated replacement front and remains benchmark-only evidence.
 
 ```text
 thread_local_replacement_front_smoke=1
