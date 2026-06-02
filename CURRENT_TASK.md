@@ -61,11 +61,16 @@ Scope: current lane / next lane / restart order only.
 - next active-lane order:
   1. read `current_blocker_token`, `phase_status`, and `latest_card_path` from
      `CURRENT_STATE.toml`
-  2. keep allocator-provider activation, host allocator replacement, hooks, and
-     `#[global_allocator]` out of scope
-  3. migrate hako_alloc non-negative fields only by explicit field-group rows
-  4. keep sentinel-bearing indexes signed
-  5. keep BoxShape cleanup separate from BoxCount feature rows
+  2. finish the Hakorune mimalloc lane through the active workstream:
+     `docs/development/current/main/workstreams/mimalloc-current.md`
+  3. keep ProviderFront and ReplacementFront separate; do not weaken the
+     provider API to chase malloc/free hot-path thinness
+  4. make the replacement-front path benchmark-only until a dedicated
+     activation row opens product replacement
+  5. add multithread support and evidence before any allocator victory claim
+  6. migrate hako_alloc non-negative fields only by explicit field-group rows
+  7. keep sentinel-bearing indexes signed
+  8. keep BoxShape cleanup separate from BoxCount feature rows
 - parked lanes:
   - the exact `usize` semantic foundation lane is closed; the first mimalloc
     comparison execution pass is landed; benchmark contract work is now the

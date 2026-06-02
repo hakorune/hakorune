@@ -210,12 +210,39 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --out /tmp/hakorune_replacement_front_compare/report.out
 ```
 
-6. Reopen `.hako` core optimization only with fresh owner evidence.
+6. Finish the Hakorune mimalloc lane before any victory claim.
+   - Treat `HakoAllocReplacementFront` as the thin-front direction for
+     C-like malloc/free speed.
+   - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
+   - Required before claiming allocator readiness:
+
+```text
+single_thread_replacement_front_smoke=1
+multithread_replacement_front_smoke=1
+thread_safety_claim=measured
+provider_api_hot_path_required=0
+activation=0
+benchmark_only=1
+winner_claim=0
+summary=ok
+```
+
+   - Multithread work must not silently share the current single-thread static
+     free stack without a synchronization or thread-local plan.
+   - Acceptable first multithread shapes:
+     - locked global native-slot front, benchmark-only
+     - thread-local slot arenas with explicit cross-thread free policy
+   - Rejected first shapes:
+     - unsynchronized global free stack
+     - product activation hidden behind benchmark mode
+     - `winner_claim=1` before multithread evidence
+
+7. Reopen `.hako` core optimization only with fresh owner evidence.
    - Candidate families: route-aware materialization/copy, HotCore direct-exact
      call boundary, record-state residence, DirectArray proof/lowering.
    - Do not source-hand-expand helpers to satisfy the compiler.
 
-7. Keep docs lean.
+8. Keep docs lean.
    - Record small inventories in commit messages or this checklist.
    - Move full evidence prose to investigations/archive, not this active card.
 
