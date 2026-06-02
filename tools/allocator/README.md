@@ -51,6 +51,30 @@ workload_size_class_distinct_count=...
 This mirrors `SizeClassBox` for workload classification only. It does not make
 the fixed-slot replacement front consume `.hako` size classes.
 
+For the benchmark-only replacement front, use the narrow size-class bridge when
+the owner evidence needs the fixed slot size to come from the `.hako`
+`SizeClassBox` mirror:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-match-hako-size-class \
+  --out target/hakozuna-mixed-ws-sizeclass-bridge/report.out \
+  --out-dir target/hakozuna-mixed-ws-sizeclass-bridge/artifacts \
+  --sample-count 3
+```
+
+This sets the benchmark-only slot size to
+`SizeClassBox.good_size(max-size + 16)` and reports:
+
+```text
+replacement_front_size_class_policy_bridge=1
+replacement_front_size_class_bridge_mode=hako_good_size_request_ceiling
+```
+
+It is still a single fixed-slot benchmark front, not product bins/pages.
+
 The same compare reports also emit the current HotCore bridge boundary:
 
 ```text

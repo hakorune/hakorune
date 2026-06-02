@@ -905,6 +905,14 @@ def hako_size_to_bin(size: int) -> int:
     return huge_bin
 
 
+def hako_good_size(size: int) -> int:
+    """Mirror SizeClassBox.good_size for benchmark-only size-class bridging."""
+    bin_index = hako_size_to_bin(size)
+    if bin_index == 73:
+        return -1
+    return hako_size_class_bin_size(bin_index)
+
+
 def mixed_ws_workload_histogram(
     *,
     threads: int,
@@ -1453,6 +1461,15 @@ def main() -> int:
             "matching the mixed-ws realloc grow request"
         ),
     )
+    parser.add_argument(
+        "--replacement-front-match-hako-size-class",
+        action="store_true",
+        help=(
+            "benchmark-only: set replacement front slot size to "
+            "SizeClassBox.good_size(max-size + 16), matching the mixed-ws "
+            "allocation/realloc request ceiling"
+        ),
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -1465,13 +1482,37 @@ def main() -> int:
     positive_int(args.max_size, "--max-size")
     if args.max_size < args.min_size:
         raise SystemExit("--max-size must be >= --min-size")
+    match_modes = sum(
+        1
+        for enabled in (
+            args.replacement_front_slot_size is not None,
+            args.replacement_front_match_workload_realloc_size,
+            args.replacement_front_match_hako_size_class,
+        )
+        if enabled
+    )
+    if match_modes > 1:
+        raise SystemExit(
+            "--replacement-front-slot-size, "
+            "--replacement-front-match-workload-realloc-size, and "
+            "--replacement-front-match-hako-size-class are mutually exclusive"
+        )
+    replacement_front_size_class_request_ceiling = args.max_size + 16
+    replacement_front_size_class_selected_bin = hako_size_to_bin(
+        replacement_front_size_class_request_ceiling
+    )
+    replacement_front_size_class_selected_good_size = hako_good_size(
+        replacement_front_size_class_request_ceiling
+    )
     if args.replacement_front_match_workload_realloc_size:
-        if args.replacement_front_slot_size is not None:
-            raise SystemExit(
-                "--replacement-front-match-workload-realloc-size and "
-                "--replacement-front-slot-size are exclusive"
-            )
         args.replacement_front_slot_size = args.max_size + 16
+    if args.replacement_front_match_hako_size_class:
+        if replacement_front_size_class_selected_good_size <= 0:
+            raise SystemExit(
+                "--replacement-front-match-hako-size-class selected huge bin; "
+                "use --replacement-front-slot-size explicitly for this workload"
+            )
+        args.replacement_front_slot_size = replacement_front_size_class_selected_good_size
     if args.replacement_front_slot_size is not None:
         positive_int(args.replacement_front_slot_size, "--replacement-front-slot-size")
         if args.replacement_front_slot_size < args.max_size:
@@ -1520,6 +1561,14 @@ def main() -> int:
     ):
         raise SystemExit(
             "--replacement-front-match-workload-realloc-size requires "
+            "--replacement-front-native-slot-mode"
+        )
+    if (
+        args.replacement_front_match_hako_size_class
+        and not args.replacement_front_native_slot_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-match-hako-size-class requires "
             "--replacement-front-native-slot-mode"
         )
     if args.replacement_front_cross_thread_smoke and args.replacement_front_skip_hot_counters:
@@ -1624,6 +1673,14 @@ def main() -> int:
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
     replacement_slot_size = args.replacement_front_slot_size or 2048
+    replacement_front_size_class_bridge_enabled = int(
+        args.replacement_front_match_hako_size_class
+    )
+    replacement_front_size_class_policy_source = (
+        "hako_size_class_box_report_mirror"
+        if args.replacement_front_match_hako_size_class
+        else "hako_model_not_consumed"
+    )
     workload_histogram = mixed_ws_workload_histogram(
         threads=args.threads,
         iters_per_thread=args.iters_per_thread,
@@ -1660,9 +1717,17 @@ def main() -> int:
         "replacement_front_algorithm_shape=fixed_slot_native_benchmark_front",
         "replacement_front_size_class_bridge_plan_v0=1",
         "replacement_front_size_class_bridge_report_only=1",
-        "replacement_front_size_class_policy_bridge=0",
+        f"replacement_front_size_class_policy_bridge={replacement_front_size_class_bridge_enabled}",
         "replacement_front_size_class_count=1",
-        "replacement_front_size_class_policy_source=hako_model_not_consumed",
+        f"replacement_front_size_class_policy_source={replacement_front_size_class_policy_source}",
+        "replacement_front_size_class_bridge_mode="
+        f"{'hako_good_size_request_ceiling' if args.replacement_front_match_hako_size_class else 'none'}",
+        "replacement_front_size_class_request_ceiling="
+        f"{replacement_front_size_class_request_ceiling}",
+        "replacement_front_size_class_selected_bin="
+        f"{replacement_front_size_class_selected_bin}",
+        "replacement_front_size_class_selected_good_size="
+        f"{replacement_front_size_class_selected_good_size}",
         "replacement_front_hotcore_bridge_plan_v0=1",
         "replacement_front_hotcore_bridge_report_only=1",
         "replacement_front_hotcore_consumer_enabled=0",
@@ -1676,6 +1741,8 @@ def main() -> int:
         f"replacement_front_slot_size={replacement_slot_size}",
         "replacement_front_match_workload_realloc_size="
         f"{1 if args.replacement_front_match_workload_realloc_size else 0}",
+        "replacement_front_match_hako_size_class="
+        f"{1 if args.replacement_front_match_hako_size_class else 0}",
         f"workload_size_histogram_source={workload_histogram['source']}",
         "workload_size_histogram_max_total_iters="
         f"{WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS}",
@@ -1818,9 +1885,25 @@ def main() -> int:
                     f"subject_{index}_replacement_front_algorithm_shape=fixed_slot_native_benchmark_front",
                     f"subject_{index}_replacement_front_size_class_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_size_class_bridge_report_only=1",
-                    f"subject_{index}_replacement_front_size_class_policy_bridge=0",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_policy_bridge="
+                    f"{replacement_front_size_class_bridge_enabled}",
                     f"subject_{index}_replacement_front_size_class_count=1",
-                    f"subject_{index}_replacement_front_size_class_policy_source=hako_model_not_consumed",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_policy_source="
+                    f"{replacement_front_size_class_policy_source}",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_bridge_mode="
+                    f"{'hako_good_size_request_ceiling' if args.replacement_front_match_hako_size_class else 'none'}",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_request_ceiling="
+                    f"{replacement_front_size_class_request_ceiling}",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_selected_bin="
+                    f"{replacement_front_size_class_selected_bin}",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_selected_good_size="
+                    f"{replacement_front_size_class_selected_good_size}",
                     f"subject_{index}_replacement_front_hotcore_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_hotcore_bridge_report_only=1",
                     f"subject_{index}_replacement_front_hotcore_consumer_enabled=0",

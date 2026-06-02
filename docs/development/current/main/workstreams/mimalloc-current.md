@@ -105,11 +105,13 @@ Current reading:
 benchmark-only replacement front execution:
   fixed_slot_native_free_stack=executed
   matched_fixed_slot_size=executed for selected fixtures
+  hako_size_class_good_size_slot=executed only when
+    --replacement-front-match-hako-size-class is passed
   in_place_realloc_within_fixed_slot=executed
   thread_local_arena_remote_free_bridge=executed
 
 not yet bridged:
-  size_class_policy_to_replacement_bins
+  size_class_policy_to_product_replacement_bins
   .hako PageModel arrays to source DirectArrayI64 storage
   .hako HotCore/PageModel plans to replacement-front lowering
   general page queue / segment / OSVM product allocator front
@@ -236,6 +238,9 @@ object-lifecycle-native-slot-bridge-v0:
 
 2. Bridge `.hako` algorithm pieces only by explicit owner evidence.
    - First candidate: size-class policy to replacement bins/pages.
+     `--replacement-front-match-hako-size-class` is the benchmark-only
+     single-class bridge and may be used for local evidence. It does not claim
+     product bins/pages.
    - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
      storage. The seed-time `push` shape is closed; do the field-type migration
      only when fresh owner evidence selects it.
