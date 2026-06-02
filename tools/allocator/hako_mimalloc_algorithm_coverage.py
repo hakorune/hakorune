@@ -196,9 +196,11 @@ def build_rows() -> list[CoverageRow]:
             area="directarray_source_storage",
             hako_model=int(direct_array_source),
             replacement_front=0,
-            status="open" if page_arrays_are_arraybox else "unknown",
+            status="open" if page_arrays_are_arraybox else "source_migrated",
             evidence="page_box.hako",
-            next_bridge="migrate hot page arrays from ArrayBox source to DirectArrayI64-backed storage when owner evidence selects it",
+            next_bridge="migrate hot page arrays from ArrayBox source to DirectArrayI64-backed storage when owner evidence selects it"
+            if page_arrays_are_arraybox
+            else "measure migrated DirectArrayI64 source route",
         ),
     ]
 
