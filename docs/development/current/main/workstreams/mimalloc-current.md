@@ -1572,6 +1572,28 @@ message.
     external hakmem compatibility remains available only as a probe-only
     LD_PRELOAD sample. It does not prove or open provider-backed replacement.
 
+- [x] MIM-137: provider package 3-way comparison ladder
+  - output:
+    add a reusable no-replacement 3-way comparison ladder for Hako exact-EXE,
+    C mimalloc explicit runner, and selected `.hako` provider package explicit
+    alloc/free
+  - implemented:
+    `tools/allocator/hako_mimalloc_provider_package_3way_comparison_ladder.sh`
+    runs `mimalloc_repeated_measurement_runner.py`, the provider explicit
+    ladder, and `provider_explicit_comparison_adapter.py` in one command
+  - smoke:
+    `--sample-count 1 --warmup-count 0 --operation-repeat 1` produced
+    `output_contract=mimalloc-provider-explicit-comparison-adapter-v0`,
+    `comparison_subjects=hako_exact_exe,c_mimalloc_explicit_runner,provider_package_explicit_alloc_free`,
+    `subject_count=3`, `provider_active=0`, `replacement_active=0`,
+    `hook_installed=0`, `global_allocator=0`, `winner_claim=0`, and
+    `summary=ok`
+  - decision:
+    the benchmark/DLL integration path now has a single reusable comparison
+    entrypoint. This still does not open provider activation, process
+    allocator replacement, hook installation, global allocator integration, or
+    provider-backed `LD_PRELOAD`.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
