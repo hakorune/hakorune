@@ -130,7 +130,7 @@ page_model_hot_array_source_migration_selected=0
 page_model_hot_array_candidate_type=DirectArrayI64
 page_model_hot_array_arraybox_fields=free,local_free,block_used
 page_model_hot_array_directarray_supported_ops=get,set
-page_model_hot_array_seed_push_blocker=1
+page_model_hot_array_seed_push_blocker=0
 page_model_hot_array_op_summary=free:get=...:set=...:push=...
 hotcore_replacement_bridge_plan_v0=1
 hotcore_replacement_consumer_enabled=0
@@ -141,10 +141,10 @@ This is bridge-readiness reporting, not source migration or replacement-front
 lowering consumption.
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
-seed-time `push` traffic. The current DirectArrayI64 source migration remains
-closed because `seedFreeBlocks` still initializes the three arrays with
-`ArrayBox.push`. The intended bridge is an initialized-length/birth route plus
-direct `set`, not an ArrayBox-compatible hidden push fallback.
+seed-time initialization traffic. `seedFreeBlocks` now uses append-or-overwrite
+`set(i, ...)` shape for all three arrays, so the old `ArrayBox.push` blocker is
+closed. DirectArrayI64 source migration still remains closed until fresh owner
+evidence selects the field-type change.
 
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
@@ -237,8 +237,8 @@ object-lifecycle-native-slot-bridge-v0:
 2. Bridge `.hako` algorithm pieces only by explicit owner evidence.
    - First candidate: size-class policy to replacement bins/pages.
    - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
-     storage. Before source migration, resolve the seed-time `push` shape with
-     an initialized-length/birth route plus direct `set`.
+     storage. The seed-time `push` shape is closed; do the field-type migration
+     only when fresh owner evidence selects it.
    - Third candidate: HotCore/PageModel plan consumption by replacement-front
      lowering.
    - Do not weaken ProviderFront or add source syntax to force the bridge.

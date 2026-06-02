@@ -45,9 +45,9 @@ box HakoAllocPageModel {
         local free_top = me.free_top
         local i = 0
         loop(i < me.capacity) {
-            free.push(i)
-            local_free.push(0)
-            block_used.push(0)
+            free.set(i, i)
+            local_free.set(i, 0)
+            block_used.set(i, 0)
             free_top = free_top + 1
             i = i + 1
         }
