@@ -1522,6 +1522,38 @@ message.
     benchmark/DLL/external-workload integration, with winner claims and process
     replacement still closed.
 
+- [x] MIM-135: provider package explicit measurement ladder refresh
+  - output:
+    recheck the selected `.hako`-derived mimalloc provider package ladder after
+    the mimalloc fastpath closeout and DLL reference cleanup
+  - ladder:
+    provider package build with
+    `object-lifecycle-small-alloc-release-v0`, metadata preflight, descriptor
+    smoke, API bind smoke, alloc/free smoke, explicit repeated measurement,
+    and native-fusion measurement adapter
+  - implemented:
+    `tools/allocator/hako_mimalloc_provider_package_explicit_ladder.sh`
+    runs the full no-replacement explicit provider ladder and stores the
+    intermediate build/smoke/measurement reports under `OUT_FILE.artifacts.d`
+  - result:
+    the current release `hakorune` binary produced
+    `hako_semantic_provider_codegen=object-lifecycle-small-alloc-release-v0`,
+    `hako_provider_object_lifecycle_entrypoint_verified=1`,
+    `provider_explicit_measurement_ready=1`,
+    `provider_per_operation_median_ns=687`,
+    `provider_call_executed=1`, `provider_active=0`,
+    `replacement_active=0`, `hook_installed=0`, `global_allocator=0`,
+    `winner_claim=0`, and `summary=ok`
+  - finding:
+    a stale local release binary still failed with the old
+    `HakoAllocPageModel.acquire` verifier until `cargo build --release --bin
+    hakorune` refreshed the binary; the source verifier already requires
+    `acquireFreshSmall/1` and `releaseLocalKnownLive/1`
+  - decision:
+    the provider/DLL explicit-call ladder is usable as benchmark integration
+    evidence. It is still not provider activation, process allocator
+    replacement, hook installation, or `LD_PRELOAD` replacement.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
