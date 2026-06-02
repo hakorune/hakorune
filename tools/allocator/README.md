@@ -151,7 +151,7 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --replacement-front-thread-local-mode \
   --replacement-front-tls-counter-mode \
   --replacement-front-cross-thread-smoke \
-  --replacement-front-slot-size 1024 \
+  --replacement-front-match-workload-realloc-size \
   --out target/hakozuna-mixed-ws-replacement-smoke/report.out \
   --out-dir target/hakozuna-mixed-ws-replacement-smoke/artifacts \
   --sample-count 5
@@ -165,15 +165,56 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --replacement-front-native-slot-mode \
   --replacement-front-thread-local-mode \
   --replacement-front-skip-hot-counters \
-  --replacement-front-slot-size 1024 \
+  --replacement-front-match-workload-realloc-size \
   --out target/hakozuna-mixed-ws-replacement-perf/report.out \
   --out-dir target/hakozuna-mixed-ws-replacement-perf/artifacts \
   --sample-count 7
 ```
 
-`--replacement-front-slot-size 1024` is a mixed-ws fixture probe, not a product
-size-class claim. `--replacement-front-skip-hot-counters` is incompatible with
-counter-validating smokes by design.
+For a stable local distribution run, keep the same subject and increase the
+operation count:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-skip-hot-counters \
+  --replacement-front-match-workload-realloc-size \
+  --threads 4 \
+  --iters-per-thread 10000000 \
+  --working-set 8192 \
+  --min-size 16 \
+  --max-size 1024 \
+  --out target/hakozuna-mixed-ws-replacement-perf-40m/report.out \
+  --out-dir target/hakozuna-mixed-ws-replacement-perf-40m/artifacts \
+  --sample-count 5 \
+  --warmup-count 1
+```
+
+`--replacement-front-match-workload-realloc-size` is a benchmark fixture probe,
+not a product size-class claim. It chooses a fixed replacement slot size large
+enough for the benchmark request range, for example `1040` bytes for the
+default `16..1024` mixed-ws workload. The report must keep:
+
+```text
+workload_realloc_request_gt_replacement_slot_size=0
+subject_N_replacement_front_match_workload_realloc_size=1
+subject_N_replacement_front_inplace_realloc_within_slot_plan=1
+```
+
+Counter-enabled smokes should also show in-place realloc coverage and no copy
+traffic:
+
+```text
+subject_N_replacement_front_realloc_inplace_count_total>0
+subject_N_replacement_front_realloc_copy_bytes_total=0
+```
+
+`--replacement-front-skip-hot-counters` is incompatible with
+counter-validating smokes by design. Slot metadata/header shortcut probes are
+not part of the current keeper path; keep them out unless a new owner-first
+row reopens that subject.
 
 Run the current no-product-default provider replacement decision ladder:
 

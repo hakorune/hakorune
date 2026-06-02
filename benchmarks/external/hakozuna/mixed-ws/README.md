@@ -59,6 +59,28 @@ Expected stdout contains:
 threads=<n> iters=<n> ws=<n> size=<min>..<max> time=<s> ops/s=<value>
 ```
 
+## Allocator Compare
+
+Use the repo-local compare tool to run this fixture under system malloc, C
+mimalloc, and the benchmark-only Hakorune replacement front:
+
+```sh
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-tls-counter-mode \
+  --replacement-front-cross-thread-smoke \
+  --replacement-front-match-workload-realloc-size \
+  --out target/hakozuna-mixed-ws-replacement-smoke/report.out \
+  --out-dir target/hakozuna-mixed-ws-replacement-smoke/artifacts \
+  --sample-count 5
+```
+
+The Hakorune replacement front here is a benchmark-only fixed-slot subject.
+It is useful for allocator-front development evidence, but it is not a product
+allocator activation path and must not be used for a winner claim.
+
 ## Contract
 
 The fixture is for external-process allocator replacement checks. It is built
