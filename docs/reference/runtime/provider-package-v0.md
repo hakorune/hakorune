@@ -201,6 +201,42 @@ The `LD_PRELOAD` shim lane is separate and currently probe-only. It may prove
 that a shim loads and delegates through the platform loader, but it is not a
 provider-backed allocator replacement contract.
 
+## Provider Front vs Replacement Front
+
+Allocator-facing packages have two different fronts:
+
+```text
+HakoAllocProviderFront:
+  explicit provider boundary
+  descriptor / manifest / ABI table / safe loader path
+  good for plugin/provider calls
+  intentionally thicker
+
+HakoAllocReplacementFront:
+  future thin malloc/free ABI boundary
+  benchmark/product replacement candidate only after a dedicated activation row
+  must not dispatch through the provider API table on the hot path
+```
+
+Do not optimize the Provider Front by weakening its safety boundary. If C-like
+allocator hot-path thinness is required, create a separate Replacement Front
+whose report proves:
+
+```text
+provider_table_dispatch=0
+function_pointer_hot_call=0
+owns_check_hot_path=0
+tracking_hot_path=0
+direct_core_call=1
+activation=0
+benchmark_only=1
+summary=ok
+```
+
+Until a dedicated activation row opens it, the Replacement Front is a benchmark
+front only. It is not a provider activation, hook install, global allocator, or
+winner claim.
+
 Native-slot provider packages may export the private symbol
 `hakorune_provider_usable_size_v0` for shim-cost measurement. This symbol is
 not part of `hakorune-provider-abi-v1`, is not listed in the provider API

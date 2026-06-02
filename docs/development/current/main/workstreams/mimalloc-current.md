@@ -182,12 +182,30 @@ object-lifecycle-native-slot-bridge-v0:
      `hook_installed=0`, `global_allocator_product_claim=0`,
      `winner_claim=0`.
 
-4. Reopen `.hako` core optimization only with fresh owner evidence.
+5. Add a benchmark-only `HakoAllocReplacementFront` probe if C-like thinness is
+   still required.
+   - Do not weaken `HakoAllocProviderFront`.
+   - The probe must bypass provider API table dispatch, hot function-pointer
+     calls, shim pointer tracking, and hot `owns` checks.
+   - Required report fields:
+
+```text
+provider_table_dispatch=0
+function_pointer_hot_call=0
+owns_check_hot_path=0
+tracking_hot_path=0
+direct_core_call=1
+activation=0
+benchmark_only=1
+summary=ok
+```
+
+6. Reopen `.hako` core optimization only with fresh owner evidence.
    - Candidate families: route-aware materialization/copy, HotCore direct-exact
      call boundary, record-state residence, DirectArray proof/lowering.
    - Do not source-hand-expand helpers to satisfy the compiler.
 
-5. Keep docs lean.
+7. Keep docs lean.
    - Record small inventories in commit messages or this checklist.
    - Move full evidence prose to investigations/archive, not this active card.
 
