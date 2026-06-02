@@ -828,12 +828,21 @@ static int hako_slot_index(void* ptr) {
     return -1;
   }
   uintptr_t value = (uintptr_t)ptr;
-  for (uint32_t i = 0; i < HAKO_PROVIDER_SLOT_COUNT; i++) {
-    if (value == (uintptr_t)HAKO_PROVIDER_SLOTS[i].bytes) {
-      return (int)i;
-    }
+  uintptr_t base = (uintptr_t)HAKO_PROVIDER_SLOTS[0].bytes;
+  uintptr_t end = (uintptr_t)(HAKO_PROVIDER_SLOTS + HAKO_PROVIDER_SLOT_COUNT);
+  if (value < base || value >= end) {
+    return -1;
   }
-  return -1;
+  uintptr_t delta = value - base;
+  uintptr_t stride = sizeof(HakoProviderSlot);
+  if ((delta % stride) != 0) {
+    return -1;
+  }
+  uintptr_t index = delta / stride;
+  if (index >= HAKO_PROVIDER_SLOT_COUNT) {
+    return -1;
+  }
+  return (int)index;
 }
 
 static void* hako_alloc(size_t size, size_t align) {
