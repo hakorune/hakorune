@@ -109,6 +109,24 @@ The provider replacement decision ladder can select it with:
 --ldpreload-benchmark hakozuna-mixed-ws
 ```
 
+For same-machine allocator comparison, use the Hakozuna mixed-ws compare tool.
+It runs the same repo-local CRT benchmark under system malloc, C mimalloc
+through LD_PRELOAD, and optionally the Hakorune provider LD_PRELOAD package:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --out target/hakozuna-mixed-ws-compare/report.out \
+  --out-dir target/hakozuna-mixed-ws-compare/artifacts \
+  --sample-count 5
+```
+
+Pass `--mimalloc-library /path/to/libmimalloc.so.2` to avoid `ldconfig`
+discovery. Pass `--manifest target/.../provider/pkg/hakorune_provider.json`
+when intentionally adding the Hakorune provider subject. The report uses C
+mimalloc as the local reference subject and keeps all product replacement and
+winner-claim fields closed.
+
 Run the current no-product-default provider replacement decision ladder:
 
 ```bash

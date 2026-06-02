@@ -1809,6 +1809,28 @@ message.
     no full hakozuna corpus import, no copied executable, no provider
     activation, no production replacement, no hook installation, no production
     `#[global_allocator]`, and no winner claim.
+
+- [x] MIM-146: Hakozuna mixed-ws same-machine C mimalloc comparison
+  - output:
+    add a same-machine comparison adapter for the repo-local Hakozuna mixed
+    working-set benchmark, so CPU differences from Ubuntu-side measurements do
+    not enter the current evidence.
+  - implemented:
+    `tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py` runs
+    `bench_mixed_ws_crt` under:
+    - system malloc with no LD_PRELOAD
+    - C mimalloc via `libmimalloc.so.2` LD_PRELOAD
+    - optional Hakorune provider LD_PRELOAD package when `--manifest` is passed
+  - contract:
+    `output_contract=hakozuna-mixed-ws-ldpreload-compare-v0`,
+    `reference_subject=c_mimalloc_ldpreload`, per-subject median/min/max
+    throughput, `subject_N_throughput_vs_c_mimalloc`, optional shim overhead
+    counters, and closed product/winner fields.
+  - smoke:
+    small `sample_count=1`, `iters_per_thread=100` runs pass with and without
+    the optional provider manifest. These smoke numbers are not perf claims;
+    they only prove that the C mimalloc and optional provider subjects are wired
+    into the same local benchmark.
   - stop lines:
     product provider activation, production replacement, hook installation,
     production global allocator default, and winner claim remain closed
