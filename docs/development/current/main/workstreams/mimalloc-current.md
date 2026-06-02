@@ -128,9 +128,13 @@ page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_source_migration_selected=0
 page_model_hot_array_candidate_type=DirectArrayI64
 page_model_hot_array_arraybox_fields=free,local_free,block_used
+hotcore_replacement_bridge_plan_v0=1
+hotcore_replacement_consumer_enabled=0
+hotcore_source_methods=objectLifecycleSmallAlloc,objectLifecycleReleaseBlock
 ```
 
-This is a bridge-readiness report, not a source migration.
+This is bridge-readiness reporting, not source migration or replacement-front
+lowering consumption.
 
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
@@ -473,6 +477,11 @@ REPL-017:
   SizeClassBridgeReportV0
   report-only: mirror `SizeClassBox` classification for the mixed-ws workload
   while keeping the benchmark-only replacement front as one fixed slot class
+
+REPL-018:
+  HotCoreReplacementBridgeReportV0
+  report-only: expose that the benchmark-only replacement front does not yet
+  consume `.hako` HotCore/PageModel plans
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -535,6 +544,16 @@ replacement_front_size_class_policy_bridge=0
 replacement_front_size_class_count=1
 workload_size_class_policy_source=hako_size_class_box_report_mirror
 workload_size_class_distinct_count=<n>
+```
+
+`REPL-018` also does not change allocator behavior. It makes the HotCore bridge
+boundary explicit in compare reports:
+
+```text
+replacement_front_hotcore_bridge_plan_v0=1
+replacement_front_hotcore_bridge_report_only=1
+replacement_front_hotcore_consumer_enabled=0
+replacement_front_hotcore_route=not_consumed_by_replacement_front
 ```
 
 `REPL-005` owner refresh after `REPL-004` showed `malloc` and `free` as the

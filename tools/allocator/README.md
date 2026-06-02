@@ -43,6 +43,17 @@ workload_size_class_distinct_count=...
 This mirrors `SizeClassBox` for workload classification only. It does not make
 the fixed-slot replacement front consume `.hako` size classes.
 
+The same compare reports also emit the current HotCore bridge boundary:
+
+```text
+replacement_front_hotcore_bridge_plan_v0=1
+replacement_front_hotcore_consumer_enabled=0
+```
+
+This means `.hako` `objectLifecycleSmallAlloc` /
+`objectLifecycleReleaseBlock` remain model/plan evidence, not the executed
+replacement-front algorithm.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \

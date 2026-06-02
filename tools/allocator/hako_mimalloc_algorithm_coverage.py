@@ -193,12 +193,18 @@ def build_rows() -> list[CoverageRow]:
 
 def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
+    hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
     hot_array_fields = ["free", "local_free", "block_used"]
     hot_array_arraybox_fields = [
         name for name in hot_array_fields if f"{name}: ArrayBox" in page_box
     ]
     hot_array_direct_fields = [
         name for name in hot_array_fields if f"{name}: DirectArrayI64" in page_box
+    ]
+    hotcore_methods = [
+        method
+        for method in ("objectLifecycleSmallAlloc", "objectLifecycleReleaseBlock")
+        if method in hot_core
     ]
     replacement_full_hako = int(
         all(row.replacement_front for row in rows if row.area in {
@@ -233,6 +239,12 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         "page_model_hot_array_directarray_field_count": len(hot_array_direct_fields),
         "page_model_hot_array_arraybox_fields": ",".join(hot_array_arraybox_fields) or "none",
         "page_model_hot_array_directarray_fields": ",".join(hot_array_direct_fields) or "none",
+        "hotcore_replacement_bridge_plan_v0": 1,
+        "hotcore_replacement_bridge_report_only": 1,
+        "hotcore_replacement_consumer_enabled": 0,
+        "hotcore_source_method_count": len(hotcore_methods),
+        "hotcore_source_methods": ",".join(hotcore_methods) or "none",
+        "hotcore_replacement_route": "not_consumed_by_replacement_front",
         "rows": [row.__dict__ for row in rows],
     }
 
@@ -260,6 +272,12 @@ def emit_text(data: dict[str, object]) -> None:
         "page_model_hot_array_directarray_field_count",
         "page_model_hot_array_arraybox_fields",
         "page_model_hot_array_directarray_fields",
+        "hotcore_replacement_bridge_plan_v0",
+        "hotcore_replacement_bridge_report_only",
+        "hotcore_replacement_consumer_enabled",
+        "hotcore_source_method_count",
+        "hotcore_source_methods",
+        "hotcore_replacement_route",
     ]:
         print(f"{key}={data[key]}")
 
