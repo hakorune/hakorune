@@ -184,6 +184,30 @@ bash tools/hako_check/fastpath_explain.sh --app app.hako
 bash tools/hako_check/fastpath_explain.sh --mir-json app.mir.json
 ```
 
+- Compact daily summary:
+
+```bash
+bash tools/hako_check.sh fastpath-explain --app app.hako --summary
+```
+
+- Machine-readable truth for tools / comparisons:
+
+```bash
+bash tools/hako_check.sh fastpath-explain \
+  --app app.hako \
+  --format json \
+  --out target/hako_check/fastpath.json
+```
+
+- Source-mapped report without rewriting source:
+
+```bash
+bash tools/hako_check.sh fastpath-explain \
+  --app app.hako \
+  --annotated-report md \
+  --out target/hako_check/fastpath.md
+```
+
 - Optional strict mode fails only when existing FastPath obligations failed:
 
 ```bash
@@ -201,6 +225,9 @@ input_kind=mir_json
 tool_surface=hako_check_fastpath_explain
 observation_only=1
 rewrite_executed=0
+source_rewrite_executed=0
+mir_hash
+source_hash
 target_method
 fastpath_plan_count
 direct_array_access_plan_count
@@ -223,6 +250,16 @@ clean=0|1
 summary=ok|failed
 ```
 
+- JSON / annotated report boundary:
+  - JSON is the machine-readable truth emitted by this adapter. It includes
+    count fields and a `sites[]` list with function, site id, block /
+    instruction index, route, bounds policy, proof ids, status, and failure
+    reason when available.
+  - Markdown / future HTML reports are generated artifacts only. They may show
+    source-mapped rows when MIR metadata carries spans, but they never modify
+    `.hako` source files.
+  - Source comments such as `[FASTPATH]` are not a supported truth surface.
+    FastPath truth remains MIR metadata plus the generated hako_check report.
 - Boundary: `hako_check` may host this adapter because it only reads MIR JSON
   facts and prints diagnostics. Any new MIR-producing analysis, HotCore plan
   producer, lowering owner, or keeper selection must stay outside hako_check.

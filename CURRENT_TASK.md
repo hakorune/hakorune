@@ -116,6 +116,38 @@ Scope: current lane / next lane / restart order only.
 - Detailed DirectArray / RuntimeDataBox / typed-object history lives in the
   phase cards and `CURRENT_STATE.toml` landed tail, not in this root pointer.
 
+## Current FastPath Visibility Order
+
+FastPath visibility is now part of the active implementation surface. The
+truth stays in compiler/MIR metadata and `hako_check` reports; source files are
+not rewritten.
+
+Current order:
+
+1. `FPVIS-001` JSON truth surface for `hako_check fastpath-explain`.
+   - include `mir_hash`, `source_hash` when available, stable `site_id`,
+     `source_span` placeholders, route/proof/fallback fields
+   - keep existing key-value output compatible
+2. `FPVIS-002` compact summary mode for daily diagnostics.
+3. `FPVIS-003` Markdown annotated report under `target/` or an explicit
+   `--out` path.
+   - annotate report excerpts only; do not edit `.hako` source comments
+4. `FPVIS-004` strict require-fastpath contract cleanup.
+   - current `--require-clean` remains the v0 strict mode
+   - broader CI matrix / costlier checks stay parked until explicitly opened
+5. `FPVIS-005` compare/SARIF/LSP/editor overlay are future tooling only.
+6. `@rune Check(fastpath)` or `@rune Require(fastpath)` remains parked until it
+   can be a thin `RequiredFastPathRegion` sugar.
+
+Rejected for this pass:
+
+```text
+source rewrite
+compiler-inserted [FASTPATH] comments
+source comments as optimization truth
+CI-by-default expensive fastpath matrix
+```
+
 ## Current Language/Substrate Reset
 
 The current language-substrate direction is:

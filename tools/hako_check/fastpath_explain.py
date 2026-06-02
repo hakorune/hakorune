@@ -9,6 +9,7 @@ plan/fact surfaces are present for selected functions.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from collections import Counter
 from pathlib import Path
@@ -76,11 +77,161 @@ def field_text(row: dict[str, Any], key: str, default: str = "unknown") -> str:
     return str(value)
 
 
+def file_sha256(path: Path) -> str:
+    hasher = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            hasher.update(chunk)
+    return "sha256:" + hasher.hexdigest()
+
+
+def kv_payload(lines: list[str]) -> dict[str, str]:
+    payload: dict[str, str] = {}
+    for line in lines:
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        payload[key] = value
+    return payload
+
+
+def site_id(row: dict[str, Any]) -> str:
+    explicit = row.get("site_id") or row.get("obligation_id")
+    if explicit is not None:
+        return str(explicit)
+    block = row.get("block", "unknown")
+    inst = row.get("instruction_index", "unknown")
+    return f"block_{block}:inst_{inst}"
+
+
+def site_record(function: str, kind: str, row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "function": function,
+        "site_id": site_id(row),
+        "kind": kind,
+        "block": row.get("block"),
+        "instruction_index": row.get("instruction_index"),
+        "op": row.get("op"),
+        "access_kind": row.get("access_kind", kind),
+        "route": row.get("route") or row.get("actual_route"),
+        "bounds_policy": row.get("bounds_policy"),
+        "proof_kind": row.get("proof_kind"),
+        "proof_ids": row.get("proof_ids") if isinstance(row.get("proof_ids"), list) else [],
+        "fallback_policy": row.get("fallback_policy"),
+        "status": row.get("status") or row.get("summary"),
+        "failure_code": row.get("failure_code"),
+        "failure_reason": row.get("failure_reason"),
+        "source_span": row.get("source_span") if isinstance(row.get("source_span"), dict) else None,
+        "source_text": row.get("source_text"),
+    }
+
+
+def render_summary(payload: dict[str, Any]) -> str:
+    counts = payload["counts"]
+    lines = [
+        "output_contract=hako-check-fastpath-summary-v0",
+        f"target_method={counts['target_method']}",
+        f"clean={counts['clean']}",
+        f"fastpath_plan_count={counts['fastpath_plan_count']}",
+        f"direct_array_access_plan_count={counts['direct_array_access_plan_count']}",
+        f"direct_array_proved_unchecked_plan_count={counts['direct_array_proved_unchecked_plan_count']}",
+        f"span_access_plan_count={counts['span_access_plan_count']}",
+        f"fastpath_obligation_failed_count={counts['fastpath_obligation_failed_count']}",
+        f"direct_exact_plan_lowered_to_fallback_count={counts['direct_exact_plan_lowered_to_fallback_count']}",
+        f"generic_method_dispatch_count={counts['generic_method_dispatch_count']}",
+        f"dynamic_route_count={counts['dynamic_route_count']}",
+        f"boxed_fallback_count={counts['boxed_fallback_count']}",
+        "source_rewrite_executed=0",
+        f"summary={'ok' if counts['clean'] == '1' else 'failed'}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def render_markdown(payload: dict[str, Any], topn: int) -> str:
+    counts = payload["counts"]
+    sites = payload["sites"][: max(0, topn)]
+    lines = [
+        "# Hakorune FastPath Report",
+        "",
+        f"- Output contract: `{payload['output_contract']}`",
+        f"- Target method: `{counts['target_method']}`",
+        f"- MIR hash: `{payload['mir_hash']}`",
+        f"- Source hash: `{payload['source_hash']}`",
+        "- Source rewrite: `0`",
+        f"- Clean: `{counts['clean']}`",
+        "",
+        "## Summary",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+        f"| FastPath plans | {counts['fastpath_plan_count']} |",
+        f"| DirectArray plans | {counts['direct_array_access_plan_count']} |",
+        f"| DirectArray proved unchecked | {counts['direct_array_proved_unchecked_plan_count']} |",
+        f"| Span plans | {counts['span_access_plan_count']} |",
+        f"| Failed obligations | {counts['fastpath_obligation_failed_count']} |",
+        f"| Lowering fallback | {counts['direct_exact_plan_lowered_to_fallback_count']} |",
+        f"| Generic method dispatch | {counts['generic_method_dispatch_count']} |",
+        "",
+        "## Sites",
+        "",
+    ]
+    if not sites:
+        lines.append("_No FastPath sites were present in the selected MIR metadata._")
+    else:
+        lines.extend(
+            [
+                "| Function | Site | Kind | Op | Route | Bounds | Proof | Status |",
+                "|---|---|---|---|---|---|---|---|",
+            ]
+        )
+        for site in sites:
+            proof = site.get("proof_kind") or ",".join(site.get("proof_ids") or []) or "unknown"
+            lines.append(
+                "| {function} | {site_id} | {kind} | {op} | {route} | {bounds} | {proof} | {status} |".format(
+                    function=site.get("function", "unknown"),
+                    site_id=site.get("site_id", "unknown"),
+                    kind=site.get("kind", "unknown"),
+                    op=site.get("op") or "unknown",
+                    route=site.get("route") or "unknown",
+                    bounds=site.get("bounds_policy") or "unknown",
+                    proof=proof,
+                    status=site.get("status") or "unknown",
+                )
+            )
+    lines.extend(
+        [
+            "",
+            "## Boundary",
+            "",
+            "This report is generated from MIR metadata. It does not edit `.hako` source files.",
+            "Source excerpts are only shown when the compiler emits source-span metadata for a site.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mir-json", type=Path, required=True)
     parser.add_argument("--method", help="Optional exact MIR function name")
     parser.add_argument("--topn", type=int, default=8)
+    parser.add_argument(
+        "--format",
+        choices=("kv", "json"),
+        default="kv",
+        help="Output format for the base report. Default: kv.",
+    )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Print a compact human-readable summary.",
+    )
+    parser.add_argument(
+        "--annotated-report",
+        choices=("md",),
+        help="Generate a source-mapped report without rewriting source files.",
+    )
     parser.add_argument(
         "--require-clean",
         action="store_true",
@@ -185,6 +336,9 @@ def main() -> int:
         "tool_surface=hako_check_fastpath_explain",
         "observation_only=1",
         "rewrite_executed=0",
+        "source_rewrite_executed=0",
+        f"mir_hash={file_sha256(args.mir_json)}",
+        "source_hash=unavailable",
         f"target_method={args.method or 'all'}",
         f"function_count={len(all_functions)}",
         f"selected_function_count={len(selected)}",
@@ -357,7 +511,35 @@ def main() -> int:
         )
 
     lines.append("summary=ok" if clean or not args.require_clean else "summary=failed")
-    report = "\n".join(lines) + "\n"
+
+    counts = kv_payload(lines)
+    site_rows: list[dict[str, Any]] = []
+    site_rows.extend(site_record(name, "direct_array_access", row) for name, row in direct_plans)
+    site_rows.extend(site_record(name, "span_access", row) for name, row in span_plans)
+    site_rows.extend(site_record(name, "fastpath_obligation", row) for name, row in obligations)
+    report_payload = {
+        "output_contract": "hako-check-fastpath-explain-v0",
+        "input_kind": "mir_json",
+        "tool_surface": "hako_check_fastpath_explain",
+        "observation_only": 1,
+        "rewrite_executed": 0,
+        "source_rewrite_executed": 0,
+        "mir_json_path": str(args.mir_json),
+        "mir_hash": counts["mir_hash"],
+        "source_hash": counts["source_hash"],
+        "counts": counts,
+        "sites": site_rows,
+    }
+
+    if args.annotated_report == "md":
+        report = render_markdown(report_payload, args.topn)
+    elif args.summary:
+        report = render_summary(report_payload)
+    elif args.format == "json":
+        report = json.dumps(report_payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    else:
+        report = "\n".join(lines) + "\n"
+
     if args.out is None:
         print(report, end="")
     else:

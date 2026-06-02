@@ -10,6 +10,9 @@ METHOD=""
 TOPN="8"
 OUT_PATH=""
 REQUIRE_CLEAN=0
+FORMAT="kv"
+SUMMARY=0
+ANNOTATED_REPORT=""
 
 usage() {
   cat <<'USAGE'
@@ -23,6 +26,10 @@ Options:
   --app PATH          Emit MIR JSON for a .hako app, then explain it.
   --method NAME       Filter to an exact MIR function name.
   --topn N            Limit top rows in the report. Default: 8.
+  --format kv|json    Output format for the base report. Default: kv.
+  --summary           Print a compact summary report.
+  --annotated-report md
+                      Generate a Markdown report without rewriting source.
   --require-clean     Exit non-zero when FastPath obligations failed.
   --out PATH          Write the report to PATH.
   -h, --help          Show this help.
@@ -58,6 +65,26 @@ while [ "$#" -gt 0 ]; do
     --topn)
       [ "$#" -ge 2 ] || die "--topn requires a number"
       TOPN="$2"
+      shift 2
+      ;;
+    --format)
+      [ "$#" -ge 2 ] || die "--format requires a value"
+      case "$2" in
+        kv|json) FORMAT="$2" ;;
+        *) die "--format must be kv or json" ;;
+      esac
+      shift 2
+      ;;
+    --summary)
+      SUMMARY=1
+      shift
+      ;;
+    --annotated-report)
+      [ "$#" -ge 2 ] || die "--annotated-report requires a kind"
+      case "$2" in
+        md) ANNOTATED_REPORT="$2" ;;
+        *) die "--annotated-report currently supports: md" ;;
+      esac
       shift 2
       ;;
     --require-clean)
@@ -120,6 +147,7 @@ ARGS=(
   "$ROOT_DIR/tools/hako_check/fastpath_explain.py"
   --mir-json "$MIR_JSON"
   --topn "$TOPN"
+  --format "$FORMAT"
 )
 
 if [ -n "$METHOD" ]; then
@@ -127,6 +155,12 @@ if [ -n "$METHOD" ]; then
 fi
 if [ "$REQUIRE_CLEAN" -eq 1 ]; then
   ARGS+=(--require-clean)
+fi
+if [ "$SUMMARY" -eq 1 ]; then
+  ARGS+=(--summary)
+fi
+if [ -n "$ANNOTATED_REPORT" ]; then
+  ARGS+=(--annotated-report "$ANNOTATED_REPORT")
 fi
 if [ -n "$OUT_PATH" ]; then
   ARGS+=(--out "$OUT_PATH")
