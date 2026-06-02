@@ -820,8 +820,22 @@ typedef struct HakoProviderApiV1 {
 
 static HakoProviderSlot HAKO_PROVIDER_SLOTS[HAKO_PROVIDER_SLOT_COUNT];
 static unsigned char HAKO_PROVIDER_USED[HAKO_PROVIDER_SLOT_COUNT];
+static uint32_t HAKO_PROVIDER_FREE_STACK[HAKO_PROVIDER_SLOT_COUNT];
+static uint32_t HAKO_PROVIDER_FREE_TOP = 0u;
+static unsigned char HAKO_PROVIDER_INIT = 0u;
 
 static int hako_ping(void) { return __PING_VALUE__; }
+
+static void hako_init_slots(void) {
+  if (HAKO_PROVIDER_INIT) {
+    return;
+  }
+  for (uint32_t i = 0; i < HAKO_PROVIDER_SLOT_COUNT; i++) {
+    HAKO_PROVIDER_FREE_STACK[i] = HAKO_PROVIDER_SLOT_COUNT - i - 1u;
+  }
+  HAKO_PROVIDER_FREE_TOP = HAKO_PROVIDER_SLOT_COUNT;
+  HAKO_PROVIDER_INIT = 1u;
+}
 
 static int hako_slot_index(void* ptr) {
   if (ptr == 0) {
@@ -855,19 +869,22 @@ static void* hako_alloc(size_t size, size_t align) {
   if (align > 16u) {
     return 0;
   }
-  for (uint32_t i = 0; i < HAKO_PROVIDER_SLOT_COUNT; i++) {
-    if (!HAKO_PROVIDER_USED[i]) {
-      HAKO_PROVIDER_USED[i] = 1u;
-      return HAKO_PROVIDER_SLOTS[i].bytes;
-    }
+  hako_init_slots();
+  if (HAKO_PROVIDER_FREE_TOP == 0u) {
+    return 0;
   }
-  return 0;
+  uint32_t index = HAKO_PROVIDER_FREE_STACK[--HAKO_PROVIDER_FREE_TOP];
+  HAKO_PROVIDER_USED[index] = 1u;
+  return HAKO_PROVIDER_SLOTS[index].bytes;
 }
 
 static void hako_free(void* ptr) {
   int index = hako_slot_index(ptr);
-  if (index >= 0) {
+  if (index >= 0 && HAKO_PROVIDER_USED[(uint32_t)index]) {
     HAKO_PROVIDER_USED[(uint32_t)index] = 0u;
+    if (HAKO_PROVIDER_FREE_TOP < HAKO_PROVIDER_SLOT_COUNT) {
+      HAKO_PROVIDER_FREE_STACK[HAKO_PROVIDER_FREE_TOP++] = (uint32_t)index;
+    }
   }
 }
 
