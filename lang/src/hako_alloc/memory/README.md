@@ -41,6 +41,10 @@ Scope
   segment-map mutation, atomics, OSVM/page-source, worker/TLS, provider, or
   backend matcher work opens.
 - `object_lifecycle_page_queue_box.hako` owns MIMAP-012 object-backed lifecycle queue. It keeps the queue route narrow, exact, and explicit before any facade composition, page-object selection, backend-visible release, provider activation, or replacement work opens.
+- `object_lifecycle_facade_box.hako` owns MIMAP-014A single-page small
+  allocation facade composition. It keeps add/select/acquire/result reporting
+  narrow before aligned allocation, realloc, provider activation, hook install,
+  or allocator replacement work opens.
 - `segment_allocation_readiness_scalar_box.hako` owns MIMAP-088A segment allocation readiness scalar contract. It keeps the readiness route narrow, exact, and explicit before any real execution, segment-map, atomics, OSVM/page-source, worker/TLS, provider, or backend matcher work opens.
 - `object_lifecycle_facade_stats_box.hako` owns MIMAP-018A facade stats
   snapshot. It keeps the stats snapshot route narrow, exact, and explicit

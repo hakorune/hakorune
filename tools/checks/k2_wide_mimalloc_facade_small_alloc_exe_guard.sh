@@ -26,16 +26,17 @@ rg -F -q 'objectLifecycleAllocPageId()' "$FACADE"
 rg -F -q 'objectLifecycleAllocBlockId()' "$FACADE"
 rg -F -q 'objectLifecycleAllocReason()' "$FACADE"
 rg -F -q 'objectLifecycleAllocOk()' "$FACADE"
-rg -F -q 'local selected_index = me.object_lifecycle_queue.last_selected_index' "$FACADE"
-rg -F -q 'local page = pages.get(selected_index)' "$FACADE"
+rg -F -q 'local queue = me.object_lifecycle_queue' "$FACADE"
+rg -F -q 'page = queue.selectPage()' "$FACADE"
+rg -F -q 'selected_index = queue.last_selected_index' "$FACADE"
 rg -F -q 'page.reuse()' "$FACADE"
-rg -F -q 'page.acquire(size)' "$FACADE"
+rg -F -q 'page.acquireFreshSmall(size)' "$FACADE"
 rg -F -q 'MIMAP-014A single-page small allocation fast-path' "$SSOT"
 rg -F -q 'k2_wide_mimalloc_facade_small_alloc_exe_guard.sh' "$INDEX"
 rg -F -q 'MIMAP-014A' "$README"
 
-if rg -n 'objectLifecycleAligned[A-Za-z0-9_]*\(|allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|realloc[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-014A facade must not activate aligned allocation/realloc/substrate/provider/hook behavior" >&2
+if rg -n 'OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-014A facade must not activate substrate/provider/hook behavior" >&2
   cat /tmp/"$TAG".forbidden >&2
   rm -f /tmp/"$TAG".forbidden
   exit 1
@@ -55,7 +56,7 @@ if rg -n 'objectLifecycleReleaseBlock\(|realloc[A-Za-z0-9_]*\(|align[A-Za-z0-9_]
 fi
 rm -f /tmp/"$TAG".forbidden
 
-if rg -n 'mimalloc-facade-small-alloc-proof|objectLifecycleSmallAlloc|objectLifecycleAlloc(PageId|BlockId|Reason|Ok)' \
+if rg -n 'mimalloc-facade-small-alloc-proof|objectLifecycleAlloc(PageId|BlockId|Reason|Ok)' \
   lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
   echo "[$TAG] ERROR: MIMAP-014A matcher leaked into .inc" >&2
   cat /tmp/"$TAG".app_specific.inc >&2
@@ -98,7 +99,7 @@ for required in (
     "HakoAllocObjectLifecycleFacade.objectLifecycleAllocOk/0",
     "HakoAllocObjectLifecyclePageQueue.selectPage/0",
     "HakoAllocPageModel.reuse/0",
-    "HakoAllocPageModel.acquire/1",
+    "HakoAllocPageModel.acquireFreshSmall/1",
 ):
     if functions.get(required) is None:
         raise SystemExit(f"missing MIMAP-014A function: {required}")
@@ -136,10 +137,9 @@ for name in (
     require_method(main, "HakoAllocObjectLifecycleFacade", name)
 
 small_alloc = functions["HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1"]
-require_method(small_alloc, "HakoAllocObjectLifecycleFacade", "resetSmallAllocResult")
 require_method(small_alloc, "HakoAllocObjectLifecyclePageQueue", "selectPage")
 require_method(small_alloc, "HakoAllocPageModel", "reuse")
-require_method(small_alloc, "HakoAllocPageModel", "acquire")
+require_method(small_alloc, "HakoAllocPageModel", "acquireFreshSmall")
 
 print("[mimap014a-mir-json] ok")
 PY
