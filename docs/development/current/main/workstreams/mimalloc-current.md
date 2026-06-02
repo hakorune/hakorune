@@ -358,6 +358,11 @@ REPL-010:
   HotResolvingRealGuardProbeV0
   nonkeeper: benchmark-only omission of malloc/free/realloc hot reentrant-real guard
   kept fallback resolver protection cold-side only
+
+REPL-011:
+  MixedWsSizeDistributionExplainV0
+  report-only workload request histogram for the Hakozuna mixed-ws fixture
+  fixes the measurement boundary before opening size-class or slot-metadata work
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -383,6 +388,17 @@ replacement_entry_inline_plan=0|1
 malloc_to_direct_alloc_boundary=always_inline|tailcall|call
 free_to_direct_free_boundary=always_inline|tailcall|call
 replacement_front_slot_size=<bytes>
+workload_size_histogram_source=deterministic_prefix_exact|deterministic_prefix_sampled
+workload_size_histogram_sample_exact=0|1
+workload_alloc_request_count=<sampled-count>
+workload_realloc_request_count=<sampled-count>
+workload_realloc_request_gt_replacement_slot_size=<sampled-count>
+workload_request_le_64=<sampled-count>
+workload_request_le_128=<sampled-count>
+workload_request_le_256=<sampled-count>
+workload_request_le_512=<sampled-count>
+workload_request_le_1024=<sampled-count>
+workload_request_gt_1024=<sampled-count>
 ```
 
 The current keeper state is expected to show `tls_get_addr_hot_path=0`,
@@ -434,6 +450,28 @@ the malloc/free/realloc hot entry path after fast/cold split. It was rejected as
 nonkeeper: median throughput fell from about `297.7M ops/s` to
 `253.8M ops/s` in the counterless 1024-byte slot front. Keep the hot guard in
 the current generated shape.
+
+`REPL-011` is report-only. It adds a deterministic Hakozuna mixed-ws request
+histogram to the comparison report so size-class and slot-metadata probes do
+not accidentally compare a lighter workload. Long runs use a bounded
+deterministic prefix sample and mark `workload_size_histogram_sample_exact=0`.
+The key warning field is
+`workload_realloc_request_gt_replacement_slot_size`: a 1024-byte replacement
+slot covers the default `malloc` request range `16..1024`, but every 64th
+allocation can request `size + 16` through `realloc`, so some default-shape
+realloc requests exceed 1024. Treat this as measurement context, not a product
+semantics claim.
+
+Next concrete owner after `REPL-011` is expected to be slot metadata traffic,
+not another delete-the-check probe. The narrow candidate is:
+
+```text
+REPL-012:
+  SlotMetaWordProbeV0
+  benchmark-only probe that coalesces live state and requested size into one
+  per-slot metadata word while preserving requested-size and cross-thread
+  semantics
+```
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.

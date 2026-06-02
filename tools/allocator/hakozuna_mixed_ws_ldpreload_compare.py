@@ -836,6 +836,112 @@ def counter_value(counters: dict[str, object], key: str) -> int:
     return 0
 
 
+WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS = 1_000_000
+
+
+def lcg_next(value: int) -> int:
+    return ((value * 1664525) + 1013904223) & 0xFFFFFFFF
+
+
+def mixed_ws_pick_size(value: int, min_size: int, max_size: int) -> int:
+    span = (max_size - min_size + 1) if max_size > min_size else 1
+    return min_size + (value % span)
+
+
+def size_bucket(size: int) -> str:
+    if size <= 64:
+        return "le_64"
+    if size <= 128:
+        return "le_128"
+    if size <= 256:
+        return "le_256"
+    if size <= 512:
+        return "le_512"
+    if size <= 1024:
+        return "le_1024"
+    return "gt_1024"
+
+
+def mixed_ws_workload_histogram(
+    *,
+    threads: int,
+    iters_per_thread: int,
+    working_set: int,
+    min_size: int,
+    max_size: int,
+    replacement_slot_size: int,
+) -> dict[str, int | str]:
+    sampled_iters_per_thread = iters_per_thread
+    if threads * iters_per_thread > WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS:
+        sampled_iters_per_thread = max(1, WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS // threads)
+    exact = sampled_iters_per_thread == iters_per_thread
+
+    buckets = {
+        "le_64": 0,
+        "le_128": 0,
+        "le_256": 0,
+        "le_512": 0,
+        "le_1024": 0,
+        "gt_1024": 0,
+    }
+    alloc_requests = 0
+    free_path_count = 0
+    cleanup_free_count = 0
+    realloc_requests = 0
+    realloc_gt_slot = 0
+    realloc_gt_max_size = 0
+    memset_le_64_count = 0
+    memset_gt_64_count = 0
+
+    ws = working_set if working_set > 0 else 1
+    for thread_index in range(threads):
+        seed = 1234 + thread_index
+        slots = [False] * ws
+        for iteration in range(sampled_iters_per_thread):
+            seed = lcg_next(seed)
+            idx = seed % ws
+            if slots[idx]:
+                free_path_count += 1
+                slots[idx] = False
+                continue
+
+            size = mixed_ws_pick_size(seed, min_size, max_size)
+            alloc_requests += 1
+            buckets[size_bucket(size)] += 1
+            if (iteration & 0x3F) == 0:
+                new_size = size + 16
+                realloc_requests += 1
+                buckets[size_bucket(new_size)] += 1
+                if new_size > replacement_slot_size:
+                    realloc_gt_slot += 1
+                if new_size > max_size:
+                    realloc_gt_max_size += 1
+                size = new_size
+            if size < 64:
+                memset_le_64_count += 1
+            else:
+                memset_gt_64_count += 1
+            slots[idx] = True
+        cleanup_free_count += sum(1 for occupied in slots if occupied)
+
+    return {
+        "source": "deterministic_prefix_exact" if exact else "deterministic_prefix_sampled",
+        "sampled_iters_per_thread": sampled_iters_per_thread,
+        "sampled_total_iterations": sampled_iters_per_thread * threads,
+        "full_total_iterations": iters_per_thread * threads,
+        "sample_exact": 1 if exact else 0,
+        "alloc_request_count": alloc_requests,
+        "free_path_count": free_path_count,
+        "cleanup_free_count": cleanup_free_count,
+        "realloc_request_count": realloc_requests,
+        "realloc_request_gt_replacement_slot_size": realloc_gt_slot,
+        "realloc_request_gt_max_size": realloc_gt_max_size,
+        "memset_le_64_count": memset_le_64_count,
+        "memset_gt_64_count": memset_gt_64_count,
+        **{f"request_{bucket}": count for bucket, count in buckets.items()},
+    }
+
+
 def build_replacement_front_shim(
     out_dir: Path,
     *,
@@ -1431,6 +1537,15 @@ def main() -> int:
         )
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
+    replacement_slot_size = args.replacement_front_slot_size or 2048
+    workload_histogram = mixed_ws_workload_histogram(
+        threads=args.threads,
+        iters_per_thread=args.iters_per_thread,
+        working_set=args.working_set,
+        min_size=args.min_size,
+        max_size=args.max_size,
+        replacement_slot_size=replacement_slot_size,
+    )
     lines = [
         "output_contract=hakozuna-mixed-ws-ldpreload-compare-v0",
         "benchmark_id=bench_mixed_ws_crt",
@@ -1460,7 +1575,46 @@ def main() -> int:
         f"replacement_front_cross_thread_smoke={1 if args.replacement_front_cross_thread_smoke else 0}",
         f"replacement_front_skip_hot_counters={1 if args.replacement_front_skip_hot_counters else 0}",
         f"replacement_front_tls_counter_mode={1 if args.replacement_front_tls_counter_mode else 0}",
-        f"replacement_front_slot_size={args.replacement_front_slot_size or 2048}",
+        f"replacement_front_slot_size={replacement_slot_size}",
+        f"workload_size_histogram_source={workload_histogram['source']}",
+        "workload_size_histogram_max_total_iters="
+        f"{WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS}",
+        "workload_size_histogram_sample_exact="
+        f"{workload_histogram['sample_exact']}",
+        "workload_size_histogram_sampled_iters_per_thread="
+        f"{workload_histogram['sampled_iters_per_thread']}",
+        "workload_size_histogram_sampled_total_iterations="
+        f"{workload_histogram['sampled_total_iterations']}",
+        "workload_size_histogram_full_total_iterations="
+        f"{workload_histogram['full_total_iterations']}",
+        "workload_alloc_request_count="
+        f"{workload_histogram['alloc_request_count']}",
+        "workload_free_path_count="
+        f"{workload_histogram['free_path_count']}",
+        "workload_cleanup_free_count="
+        f"{workload_histogram['cleanup_free_count']}",
+        "workload_realloc_request_count="
+        f"{workload_histogram['realloc_request_count']}",
+        "workload_realloc_request_gt_replacement_slot_size="
+        f"{workload_histogram['realloc_request_gt_replacement_slot_size']}",
+        "workload_realloc_request_gt_max_size="
+        f"{workload_histogram['realloc_request_gt_max_size']}",
+        "workload_memset_le_64_count="
+        f"{workload_histogram['memset_le_64_count']}",
+        "workload_memset_gt_64_count="
+        f"{workload_histogram['memset_gt_64_count']}",
+        "workload_request_le_64="
+        f"{workload_histogram['request_le_64']}",
+        "workload_request_le_128="
+        f"{workload_histogram['request_le_128']}",
+        "workload_request_le_256="
+        f"{workload_histogram['request_le_256']}",
+        "workload_request_le_512="
+        f"{workload_histogram['request_le_512']}",
+        "workload_request_le_1024="
+        f"{workload_histogram['request_le_1024']}",
+        "workload_request_gt_1024="
+        f"{workload_histogram['request_gt_1024']}",
     ]
     if replacement_front_smokes:
         cross_thread_free = replacement_front_smokes["cross_thread_free"]
