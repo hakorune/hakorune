@@ -1783,6 +1783,29 @@ message.
     product provider activation, production replacement, hook installation,
     production global allocator default, or winner claim
 
+- [x] MIM-145: repo-local vs external hakmem decision comparison
+  - output:
+    compare the repo-local minimal fixture decision report with the full
+    external corpus decision report using the same provider replacement decision
+    contract
+  - implemented:
+    `tools/allocator/provider_replacement_decision_pair_compare.py` validates
+    both reports, keeps all product replacement stop-lines closed, and emits
+    median throughput delta / ratio fields
+  - evidence:
+    comparing `target/provider-replacement-decision-s5/report.out` with
+    `target/provider-replacement-decision-external-s5/report.out` produced
+    `left_throughput_median_ops_per_sec=37594692`,
+    `right_throughput_median_ops_per_sec=37503047`,
+    `right_over_left_ratio_ppm=997562`, `winner_claim=0`, and `summary=ok`
+  - decision:
+    repo-local fixture is close enough for daily repeated checks; full external
+    corpus remains available for explicit confirmation and paper runs
+  - stop lines:
+    no speed winner claim, no corpus vendoring expansion, no product provider
+    activation, no production replacement, no hook installation, and no
+    production global allocator default
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

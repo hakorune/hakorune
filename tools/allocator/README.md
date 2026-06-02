@@ -115,6 +115,15 @@ To intentionally compare against a full extracted corpus build, pass:
 --hakmem-root /home/tomoaki/git/hakmem_20260525_extracted/hakmem
 ```
 
+Compare two decision reports without changing product defaults:
+
+```bash
+python3 tools/allocator/provider_replacement_decision_pair_compare.py \
+  --left target/provider-replacement-decision-s5/report.out \
+  --right target/provider-replacement-decision-external-s5/report.out \
+  --out target/provider-replacement-decision-pair/report.out
+```
+
 ## Stop Lines
 
 - Do not commit copied benchmark executables or generated `benchres.csv`.
