@@ -77,6 +77,19 @@ replacement_front_size_class_bridge_mode=hako_good_size_request_ceiling
 
 It is still a single fixed-slot benchmark front, not product bins/pages.
 
+The compare report also emits the product bins/pages readiness boundary:
+
+```text
+replacement_front_product_bins_plan_v0=1
+replacement_front_product_bins_consumer_enabled=0
+replacement_front_product_bins_required_regular_bins=...
+replacement_front_product_pages_plan_v0=1
+replacement_front_product_pages_consumer_enabled=0
+```
+
+These fields are report-only inputs for the future multi-class/page front.
+They do not mean product bins/pages are connected.
+
 The same compare reports also emit the current HotCore bridge boundary:
 
 ```text

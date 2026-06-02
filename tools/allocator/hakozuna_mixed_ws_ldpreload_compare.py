@@ -984,6 +984,7 @@ def mixed_ws_workload_histogram(
         cleanup_free_count += sum(1 for occupied in slots if occupied)
 
     regular_bins = [bin_index for bin_index in size_class_counts if bin_index != 73]
+    regular_bins_sorted = sorted(regular_bins)
     max_bin = max(size_class_counts) if size_class_counts else 0
     max_regular_seen = max(regular_bins) if regular_bins else 0
 
@@ -1003,6 +1004,9 @@ def mixed_ws_workload_histogram(
         "memset_gt_64_count": memset_gt_64_count,
         "size_class_policy_source": "hako_size_class_box_report_mirror",
         "size_class_distinct_count": len(size_class_counts),
+        "size_class_regular_distinct_count": len(regular_bins_sorted),
+        "size_class_regular_bins": ",".join(str(bin_index) for bin_index in regular_bins_sorted)
+        or "none",
         "size_class_max_bin": max_bin,
         "size_class_max_good_size": hako_size_class_bin_size(max_regular_seen),
         "size_class_huge_count": size_class_counts.get(73, 0),
@@ -1728,6 +1732,22 @@ def main() -> int:
         f"{replacement_front_size_class_selected_bin}",
         "replacement_front_size_class_selected_good_size="
         f"{replacement_front_size_class_selected_good_size}",
+        "replacement_front_product_bins_plan_v0=1",
+        "replacement_front_product_bins_report_only=1",
+        "replacement_front_product_bins_consumer_enabled=0",
+        "replacement_front_product_bins_connected=0",
+        "replacement_front_product_pages_plan_v0=1",
+        "replacement_front_product_pages_report_only=1",
+        "replacement_front_product_pages_consumer_enabled=0",
+        "replacement_front_product_pages_connected=0",
+        "replacement_front_product_bins_required_regular_distinct_count="
+        f"{workload_histogram['size_class_regular_distinct_count']}",
+        "replacement_front_product_bins_required_regular_bins="
+        f"{workload_histogram['size_class_regular_bins']}",
+        "replacement_front_product_bins_required_max_bin="
+        f"{workload_histogram['size_class_max_bin']}",
+        "replacement_front_product_bins_huge_route_required="
+        f"{1 if int(workload_histogram['size_class_huge_count']) > 0 else 0}",
         "replacement_front_hotcore_bridge_plan_v0=1",
         "replacement_front_hotcore_bridge_report_only=1",
         "replacement_front_hotcore_consumer_enabled=0",
@@ -1774,6 +1794,10 @@ def main() -> int:
         f"{workload_histogram['size_class_policy_source']}",
         "workload_size_class_distinct_count="
         f"{workload_histogram['size_class_distinct_count']}",
+        "workload_size_class_regular_distinct_count="
+        f"{workload_histogram['size_class_regular_distinct_count']}",
+        "workload_size_class_regular_bins="
+        f"{workload_histogram['size_class_regular_bins']}",
         "workload_size_class_max_bin="
         f"{workload_histogram['size_class_max_bin']}",
         "workload_size_class_max_good_size="
@@ -1904,6 +1928,26 @@ def main() -> int:
                     "subject_"
                     f"{index}_replacement_front_size_class_selected_good_size="
                     f"{replacement_front_size_class_selected_good_size}",
+                    f"subject_{index}_replacement_front_product_bins_plan_v0=1",
+                    f"subject_{index}_replacement_front_product_bins_report_only=1",
+                    f"subject_{index}_replacement_front_product_bins_consumer_enabled=0",
+                    f"subject_{index}_replacement_front_product_bins_connected=0",
+                    f"subject_{index}_replacement_front_product_pages_plan_v0=1",
+                    f"subject_{index}_replacement_front_product_pages_report_only=1",
+                    f"subject_{index}_replacement_front_product_pages_consumer_enabled=0",
+                    f"subject_{index}_replacement_front_product_pages_connected=0",
+                    "subject_"
+                    f"{index}_replacement_front_product_bins_required_regular_distinct_count="
+                    f"{workload_histogram['size_class_regular_distinct_count']}",
+                    "subject_"
+                    f"{index}_replacement_front_product_bins_required_regular_bins="
+                    f"{workload_histogram['size_class_regular_bins']}",
+                    "subject_"
+                    f"{index}_replacement_front_product_bins_required_max_bin="
+                    f"{workload_histogram['size_class_max_bin']}",
+                    "subject_"
+                    f"{index}_replacement_front_product_bins_huge_route_required="
+                    f"{1 if int(workload_histogram['size_class_huge_count']) > 0 else 0}",
                     f"subject_{index}_replacement_front_hotcore_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_hotcore_bridge_report_only=1",
                     f"subject_{index}_replacement_front_hotcore_consumer_enabled=0",
