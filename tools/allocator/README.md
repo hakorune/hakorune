@@ -9,6 +9,17 @@ Use the direct-exact wrappers when investigating current `.hako` mimalloc
 parity. They source `tools/allocator/mimalloc_direct_exact_env.sh` so worker
 runs do not accidentally measure the default/safe front.
 
+Tooling boundary:
+
+```text
+hakozuna_mixed_ws_ldpreload_compare.py:
+  runner, subject orchestration, report fields
+
+replacement_front_templates.py:
+  benchmark-only replacement-front C templates, deterministic workload helpers,
+  and .hako SizeClassBox mirror helpers
+```
+
 Before claiming that an allocator benchmark is measuring the full `.hako`
 mimalloc algorithm, run the algorithm coverage report:
 
