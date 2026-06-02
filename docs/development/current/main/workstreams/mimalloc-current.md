@@ -333,6 +333,11 @@ REPL-004:
 REPL-005:
   owner refresh
   open TlsArenaReallocPlanV0 only if fresh evidence selects realloc
+
+REPL-006:
+  RequestedSizeTableTaxProbeV0
+  nonkeeper: fixed-slot usable-size realloc mode
+  attempted to remove requested_size store/clear from alloc/free hot path
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -369,6 +374,16 @@ The current keeper state is expected to show `tls_get_addr_hot_path=0`,
 `REPL-004` fixes `replacement_entry_inline_plan=1` with
 `malloc_to_direct_alloc_boundary=always_inline` and
 `free_to_direct_free_boundary=always_inline`.
+
+`REPL-005` owner refresh after `REPL-004` showed `malloc` and `free` as the
+remaining replacement-front owners; `direct_alloc_slow` is cold. `realloc` was
+visible but not first owner. `REPL-006` tested fixed slot usable size as the
+replacement-front realloc copy extent while skipping `requested_size` writes on
+alloc/free. It was rejected as nonkeeper: median throughput fell from about
+`172.6M ops/s` to `156.1M ops/s` on the same mixed-ws shape because the larger
+realloc copy extent outweighed the removed metadata stores. Keep
+`requested_size` on the current hot path until a more precise realloc plan is
+selected by fresh evidence.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
