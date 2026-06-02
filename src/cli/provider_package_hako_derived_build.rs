@@ -820,6 +820,7 @@ typedef struct HakoProviderApiV1 {
 
 static HakoProviderSlot HAKO_PROVIDER_SLOTS[HAKO_PROVIDER_SLOT_COUNT];
 static unsigned char HAKO_PROVIDER_USED[HAKO_PROVIDER_SLOT_COUNT];
+static size_t HAKO_PROVIDER_REQUESTED_SIZE[HAKO_PROVIDER_SLOT_COUNT];
 static uint32_t HAKO_PROVIDER_FREE_STACK[HAKO_PROVIDER_SLOT_COUNT];
 static uint32_t HAKO_PROVIDER_FREE_TOP = 0u;
 static unsigned char HAKO_PROVIDER_INIT = 0u;
@@ -875,6 +876,7 @@ static void* hako_alloc(size_t size, size_t align) {
   }
   uint32_t index = HAKO_PROVIDER_FREE_STACK[--HAKO_PROVIDER_FREE_TOP];
   HAKO_PROVIDER_USED[index] = 1u;
+  HAKO_PROVIDER_REQUESTED_SIZE[index] = size;
   return HAKO_PROVIDER_SLOTS[index].bytes;
 }
 
@@ -882,6 +884,7 @@ static void hako_free(void* ptr) {
   int index = hako_slot_index(ptr);
   if (index >= 0 && HAKO_PROVIDER_USED[(uint32_t)index]) {
     HAKO_PROVIDER_USED[(uint32_t)index] = 0u;
+    HAKO_PROVIDER_REQUESTED_SIZE[(uint32_t)index] = 0u;
     if (HAKO_PROVIDER_FREE_TOP < HAKO_PROVIDER_SLOT_COUNT) {
       HAKO_PROVIDER_FREE_STACK[HAKO_PROVIDER_FREE_TOP++] = (uint32_t)index;
     }
@@ -918,6 +921,15 @@ const HakoProviderDescriptorV1* hakorune_provider_descriptor_v1(void) {
 __attribute__((visibility("default")))
 const HakoProviderApiV1* hakorune_provider_get_api_v1(void) {
   return &API;
+}
+
+__attribute__((visibility("default")))
+size_t hakorune_provider_usable_size_v0(void* ptr) {
+  int index = hako_slot_index(ptr);
+  if (index < 0 || !HAKO_PROVIDER_USED[(uint32_t)index]) {
+    return 0u;
+  }
+  return HAKO_PROVIDER_REQUESTED_SIZE[(uint32_t)index];
 }
 "#
 }

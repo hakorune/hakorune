@@ -168,6 +168,10 @@ object-lifecycle-native-slot-bridge-v0:
    - If benchmark setup noise dominates, improve measurement before code edits.
    - Do not call provider LD_PRELOAD evidence a `.hako` core speed result while
      `provider_ldpreload_is_hako_core_speed_claim=0`.
+   - Use `HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE=1` only as a
+     measurement-only native-slot shim variant. It bypasses shim pointer
+     tracking through the private `hakorune_provider_usable_size_v0` export and
+     exists to distinguish tracking tax from provider ABI call-boundary tax.
 
 4. Continue provider replacement ladder only as smoke/readiness.
    - Keep `provider_activation=0`, `production_replacement_active=0`,

@@ -69,6 +69,7 @@ def run_one(
     max_size: int,
     ld_preload: Path | None,
     provider_binary: Path | None,
+    provider_usable_size_mode: bool,
 ) -> tuple[float, dict[str, str], int]:
     run_dir = out_dir / subject / f"{kind}_{run_index}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -81,6 +82,8 @@ def run_one(
     if provider_binary is not None:
         env["HAKORUNE_PROVIDER_LIBRARY"] = str(provider_binary)
         env["HAKORUNE_PROVIDER_LDPRELOAD_REPORT"] = str(counts_path)
+        if provider_usable_size_mode:
+            env["HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE"] = "1"
     completed = subprocess.run(
         [
             str(bench),
@@ -126,6 +129,7 @@ def run_subject(
     max_size: int,
     ld_preload: Path | None,
     provider_binary: Path | None,
+    provider_usable_size_mode: bool,
 ) -> tuple[list[float], dict[str, int]]:
     sample_throughputs: list[float] = []
     counter_totals: dict[str, int] = {}
@@ -146,6 +150,7 @@ def run_subject(
             max_size=max_size,
             ld_preload=ld_preload,
             provider_binary=provider_binary,
+            provider_usable_size_mode=provider_usable_size_mode,
         )
         for key, value in counts.items():
             if value.isdigit():
@@ -247,6 +252,11 @@ def main() -> int:
     parser.add_argument("--working-set", type=int, default=128)
     parser.add_argument("--min-size", type=int, default=16)
     parser.add_argument("--max-size", type=int, default=1024)
+    parser.add_argument(
+        "--provider-usable-size-mode",
+        action="store_true",
+        help="measurement-only: bypass provider shim tracking through private usable_size symbol",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -291,7 +301,8 @@ def main() -> int:
                 str(out_dir / "provider-ldpreload-smoke"),
                 "--out",
                 str(smoke_report),
-            ],
+            ]
+            + (["--use-provider-usable-size"] if args.provider_usable_size_mode else []),
             check=True,
         )
         smoke = read_kv(smoke_report)
@@ -321,6 +332,9 @@ def main() -> int:
             max_size=args.max_size,
             ld_preload=ld_preload,
             provider_binary=provider,
+            provider_usable_size_mode=(
+                args.provider_usable_size_mode and subject == "hakorune_provider_ldpreload"
+            ),
         )
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
@@ -345,6 +359,7 @@ def main() -> int:
         "hook_installed=0",
         "global_allocator_product_claim=0",
         "winner_claim=0",
+        f"provider_usable_size_mode={1 if args.provider_usable_size_mode else 0}",
     ]
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")

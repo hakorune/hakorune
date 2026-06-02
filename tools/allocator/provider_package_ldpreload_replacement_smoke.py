@@ -30,6 +30,7 @@ typedef int (*hako_ping_fn)(void);
 typedef void* (*hako_provider_alloc_fn)(size_t, size_t);
 typedef void (*hako_provider_free_fn)(void*);
 typedef int (*hako_provider_owns_fn)(void*);
+typedef size_t (*hako_provider_usable_size_fn)(void*);
 typedef void* (*hako_malloc_fn)(size_t);
 typedef void* (*hako_calloc_fn)(size_t, size_t);
 typedef void* (*hako_realloc_fn)(void*, size_t);
@@ -61,10 +62,12 @@ static struct HakoProviderApiV1* provider_api = 0;
 static hako_provider_alloc_fn provider_alloc_fn = 0;
 static hako_provider_free_fn provider_free_fn = 0;
 static hako_provider_owns_fn provider_owns_fn = 0;
+static hako_provider_usable_size_fn provider_usable_size_fn = 0;
 static int resolving_real = 0;
 static int loading_provider = 0;
 static int provider_load_attempted = 0;
 static int provider_ready = 0;
+static int provider_usable_size_mode = 0;
 static int in_provider_call = 0;
 static struct HakoTrackedPtr tracked[HAKO_POINTER_TABLE_CAP];
 
@@ -98,6 +101,11 @@ static unsigned long long realloc_tracked_count = 0;
 static unsigned long long realloc_host_passthrough_count = 0;
 static unsigned long long realloc_null_count = 0;
 static unsigned long long realloc_free_count = 0;
+static unsigned long long usable_size_mode_enabled = 0;
+static unsigned long long usable_size_symbol_bound = 0;
+static unsigned long long usable_size_lookup_count = 0;
+static unsigned long long usable_size_lookup_failure_count = 0;
+static unsigned long long tracking_bypassed_count = 0;
 
 static void hako_count_init_fallback(void) {
   init_real_fallback_count++;
@@ -296,6 +304,11 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_realloc_host_passthrough_count", realloc_host_passthrough_count);
   hako_write_kv(fd, "shim_realloc_null_count", realloc_null_count);
   hako_write_kv(fd, "shim_realloc_free_count", realloc_free_count);
+  hako_write_kv(fd, "shim_usable_size_mode_enabled", usable_size_mode_enabled);
+  hako_write_kv(fd, "shim_usable_size_symbol_bound", usable_size_symbol_bound);
+  hako_write_kv(fd, "shim_usable_size_lookup_count", usable_size_lookup_count);
+  hako_write_kv(fd, "shim_usable_size_lookup_failure_count", usable_size_lookup_failure_count);
+  hako_write_kv(fd, "shim_tracking_bypassed_count", tracking_bypassed_count);
   close(fd);
 }
 
@@ -327,6 +340,8 @@ static int hako_ensure_provider(void) {
     loading_provider = 0;
     return 0;
   }
+  provider_usable_size_mode =
+      getenv("HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE") != 0;
   struct HakoProviderApiV1* api = get_api();
   if (!api || api->magic != HAKO_PROVIDER_API_MAGIC ||
       api->abi_major != HAKO_PROVIDER_API_MAJOR ||
@@ -340,6 +355,16 @@ static int hako_ensure_provider(void) {
   provider_alloc_fn = api->alloc;
   provider_free_fn = api->free;
   provider_owns_fn = api->owns;
+  if (provider_usable_size_mode) {
+    provider_usable_size_fn =
+        (hako_provider_usable_size_fn)dlsym(handle, "hakorune_provider_usable_size_v0");
+    if (provider_usable_size_fn) {
+      usable_size_symbol_bound = 1;
+      usable_size_mode_enabled = 1;
+    } else {
+      provider_usable_size_mode = 0;
+    }
+  }
   provider_ready = 1;
   provider_bind_success++;
   atexit(hako_write_report);
@@ -357,7 +382,11 @@ static void* hako_provider_alloc(size_t size, size_t align) {
   void* ptr = provider_alloc_fn(size, align);
   in_provider_call = 0;
   if (ptr) {
-    hako_track_ptr(ptr, size);
+    if (provider_usable_size_mode) {
+      tracking_bypassed_count++;
+    } else {
+      hako_track_ptr(ptr, size);
+    }
     provider_alloc_count++;
   }
   return ptr;
@@ -430,12 +459,37 @@ void* realloc(void* ptr, size_t size) {
     hako_resolve_real();
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
   }
-  int index = hako_find_tracked(ptr);
+  int index = provider_usable_size_mode ? -1 : hako_find_tracked(ptr);
   if (index < 0) {
-    realloc_host_passthrough_count++;
-    host_passthrough_count++;
-    hako_resolve_real();
-    return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
+    if (!provider_usable_size_mode || !provider_owns_fn || !provider_usable_size_fn) {
+      realloc_host_passthrough_count++;
+      host_passthrough_count++;
+      hako_resolve_real();
+      return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
+    }
+    in_provider_call = 1;
+    int owned = provider_owns_fn(ptr);
+    size_t old_size = owned == 1 ? provider_usable_size_fn(ptr) : 0u;
+    in_provider_call = 0;
+    usable_size_lookup_count++;
+    if (owned != 1 || old_size == 0u) {
+      usable_size_lookup_failure_count++;
+      realloc_host_passthrough_count++;
+      host_passthrough_count++;
+      hako_resolve_real();
+      return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
+    }
+    realloc_tracked_count++;
+    void* next = hako_provider_alloc(size, 16);
+    if (!next) {
+      return 0;
+    }
+    size_t copy_size = old_size < size ? old_size : size;
+    memcpy(next, ptr, copy_size);
+    realloc_copy_bytes += copy_size;
+    hako_provider_free(ptr);
+    provider_realloc_count++;
+    return next;
   }
   realloc_tracked_count++;
   size_t old_size = tracked[index].size;
@@ -466,7 +520,7 @@ void free(void* ptr) {
     }
     return;
   }
-  int index = hako_find_tracked(ptr);
+  int index = provider_usable_size_mode ? -1 : hako_find_tracked(ptr);
   if (index >= 0) {
     hako_untrack_index(index);
     hako_provider_free(ptr);
@@ -579,6 +633,7 @@ def emit_report(
         "global_allocator=0",
         "winner_claim=0",
         "thread_safety=single-thread-pilot",
+        "usable_size_tracking_bypass_mode=measurement_only",
         f"smoke_exit_code={smoke_exit_code}",
     ]
     for key in sorted(shim_fields):
@@ -592,6 +647,11 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--out", type=Path)
+    parser.add_argument(
+        "--use-provider-usable-size",
+        action="store_true",
+        help="measurement-only: bypass shim pointer tracking through provider usable_size symbol",
+    )
     args = parser.parse_args()
 
     manifest_path = args.manifest.resolve()
@@ -631,6 +691,8 @@ def main() -> int:
     env["LD_PRELOAD"] = str(shim_binary)
     env["HAKORUNE_PROVIDER_LIBRARY"] = str(binary_path)
     env["HAKORUNE_PROVIDER_LDPRELOAD_REPORT"] = str(shim_report)
+    if args.use_provider_usable_size:
+        env["HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE"] = "1"
     proc = subprocess.run([str(smoke_binary)], env=env, check=False)
     report = emit_report(
         manifest_path=manifest_path,

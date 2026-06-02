@@ -201,6 +201,15 @@ The `LD_PRELOAD` shim lane is separate and currently probe-only. It may prove
 that a shim loads and delegates through the platform loader, but it is not a
 provider-backed allocator replacement contract.
 
+Native-slot provider packages may export the private symbol
+`hakorune_provider_usable_size_v0` for shim-cost measurement. This symbol is
+not part of `hakorune-provider-abi-v1`, is not listed in the provider API
+table, and must not be used as a product allocator contract. The current
+LD_PRELOAD shim can opt into this path with
+`HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE=1` to bypass shim-side pointer
+tracking and classify whether size tracking or the provider call boundary owns
+the remaining cost.
+
 ## Phase B1 Selected Fixture Build
 
 Phase B1 adds one Hakorune-owned selected build producer:
