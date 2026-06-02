@@ -1635,6 +1635,41 @@ message.
     provider-backed external `LD_PRELOAD` corpus pilot first, Rust
     `#[global_allocator]` pilot second, winner claim last.
 
+- [x] MIM-139: provider-backed external hakmem LD_PRELOAD corpus pilot
+  - output:
+    apply the Stage 7A provider-backed malloc-family shim to the external
+    hakmem `bench_random_mixed_system` process and record replacement evidence
+    without product/global allocator claims
+  - implemented:
+    `tools/allocator/hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot.py`
+    reuses the MIM-138 shim smoke, applies the resulting shim to hakmem with
+    `LD_PRELOAD`, and records provider shim counters plus benchmark throughput
+  - still closed:
+    Rust `#[global_allocator]`, production hook installation, system allocator
+    default integration, ambient provider discovery, and winner claim
+  - smoke:
+    `--iterations 1000 --working-set 128 --seed 42` produced
+    `output_contract=hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0`,
+    `dll_mode=provider-backed-hakmem-ldpreload-pilot`,
+    `replacement_active=1`,
+    `replacement_scope=external-hakmem-bench-process-pilot`,
+    `benchmark_exit_code=0`, `throughput_ops_per_sec=26766595`,
+    `provider_api_bound=1`, `provider_call_executed=1`,
+    `allocator_entrypoint_called=1`, `shim_provider_bind_success=1`,
+    `shim_provider_alloc_count=581`, `shim_provider_calloc_count=1`,
+    `shim_provider_free_count=580`,
+    `shim_runtime_real_fallback_count=0`,
+    `shim_pointer_table_overflow=0`, `hook_installed=0`,
+    `global_allocator=0`, `winner_claim=0`, and `summary=ok`
+  - acceptance:
+    `replacement_active=1`,
+    `replacement_scope=external-hakmem-bench-process-pilot`,
+    `provider_api_bound=1`, `provider_call_executed=1`,
+    `allocator_entrypoint_called=1`,
+    `shim_runtime_real_fallback_count=0`,
+    `shim_pointer_table_overflow=0`, `hook_installed=0`,
+    `global_allocator=0`, `winner_claim=0`, and `summary=ok`
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
