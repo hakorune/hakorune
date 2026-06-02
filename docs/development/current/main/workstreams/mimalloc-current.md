@@ -457,6 +457,11 @@ REPL-016:
   report-only: matched 1040-byte slot + in-place realloc keeper still holds
   on the local 40M mixed-ws distribution after free-side header probes were
   rejected
+
+REPL-017:
+  SizeClassBridgeReportV0
+  report-only: mirror `SizeClassBox` classification for the mixed-ws workload
+  while keeping the benchmark-only replacement front as one fixed slot class
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -507,6 +512,19 @@ The current keeper state is expected to show `tls_get_addr_hot_path=0`,
 `REPL-004` fixes `replacement_entry_inline_plan=1` with
 `malloc_to_direct_alloc_boundary=always_inline` and
 `free_to_direct_free_boundary=always_inline`.
+
+`REPL-017` does not change allocator behavior. It adds workload size-class
+classification fields so the next bridge candidate can be selected without
+confusing the current fixed-slot front with `.hako` size-class execution:
+
+```text
+replacement_front_size_class_bridge_plan_v0=1
+replacement_front_size_class_bridge_report_only=1
+replacement_front_size_class_policy_bridge=0
+replacement_front_size_class_count=1
+workload_size_class_policy_source=hako_size_class_box_report_mirror
+workload_size_class_distinct_count=<n>
+```
 
 `REPL-005` owner refresh after `REPL-004` showed `malloc` and `free` as the
 remaining replacement-front owners; `direct_alloc_slow` is cold. `realloc` was

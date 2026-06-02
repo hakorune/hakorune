@@ -875,6 +875,36 @@ def size_bucket(size: int) -> str:
     return "gt_1024"
 
 
+def hako_size_class_bin_size(bin_index: int) -> int:
+    """Mirror SizeClassBox.bin_size for report-only workload classification."""
+    word_size = 8
+    max_regular_bin = 72
+    if bin_index <= 0:
+        return -1
+    if bin_index <= 8:
+        return bin_index * word_size
+    if bin_index > max_regular_bin:
+        return -1
+
+    x = bin_index + 3
+    bit_group = x // 4
+    top = x - (bit_group * 4)
+    scale = 1 << max(0, bit_group - 2)
+    words = (5 + top) * scale
+    return words * word_size
+
+
+def hako_size_to_bin(size: int) -> int:
+    """Mirror SizeClassBox.size_to_bin for report-only workload classification."""
+    max_regular_bin = 72
+    huge_bin = 73
+    n = size if size > 0 else 1
+    for bin_index in range(1, max_regular_bin + 1):
+        if n <= hako_size_class_bin_size(bin_index):
+            return bin_index
+    return huge_bin
+
+
 def mixed_ws_workload_histogram(
     *,
     threads: int,
@@ -905,8 +935,14 @@ def mixed_ws_workload_histogram(
     realloc_gt_max_size = 0
     memset_le_64_count = 0
     memset_gt_64_count = 0
+    size_class_counts: dict[int, int] = {}
 
     ws = working_set if working_set > 0 else 1
+
+    def record_size_class(request_size: int) -> None:
+        bin_index = hako_size_to_bin(request_size)
+        size_class_counts[bin_index] = size_class_counts.get(bin_index, 0) + 1
+
     for thread_index in range(threads):
         seed = 1234 + thread_index
         slots = [False] * ws
@@ -921,10 +957,12 @@ def mixed_ws_workload_histogram(
             size = mixed_ws_pick_size(seed, min_size, max_size)
             alloc_requests += 1
             buckets[size_bucket(size)] += 1
+            record_size_class(size)
             if (iteration & 0x3F) == 0:
                 new_size = size + 16
                 realloc_requests += 1
                 buckets[size_bucket(new_size)] += 1
+                record_size_class(new_size)
                 if new_size > replacement_slot_size:
                     realloc_gt_slot += 1
                 if new_size > max_size:
@@ -936,6 +974,10 @@ def mixed_ws_workload_histogram(
                 memset_gt_64_count += 1
             slots[idx] = True
         cleanup_free_count += sum(1 for occupied in slots if occupied)
+
+    regular_bins = [bin_index for bin_index in size_class_counts if bin_index != 73]
+    max_bin = max(size_class_counts) if size_class_counts else 0
+    max_regular_seen = max(regular_bins) if regular_bins else 0
 
     return {
         "source": "deterministic_prefix_exact" if exact else "deterministic_prefix_sampled",
@@ -951,6 +993,14 @@ def mixed_ws_workload_histogram(
         "realloc_request_gt_max_size": realloc_gt_max_size,
         "memset_le_64_count": memset_le_64_count,
         "memset_gt_64_count": memset_gt_64_count,
+        "size_class_policy_source": "hako_size_class_box_report_mirror",
+        "size_class_distinct_count": len(size_class_counts),
+        "size_class_max_bin": max_bin,
+        "size_class_max_good_size": hako_size_class_bin_size(max_regular_seen),
+        "size_class_huge_count": size_class_counts.get(73, 0),
+        "size_class_regular_request_count": sum(
+            count for bin_index, count in size_class_counts.items() if bin_index != 73
+        ),
         **{f"request_{bucket}": count for bucket, count in buckets.items()},
     }
 
@@ -1608,6 +1658,8 @@ def main() -> int:
         f"replacement_front_native_slot_mode={1 if args.replacement_front_native_slot_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
         "replacement_front_algorithm_shape=fixed_slot_native_benchmark_front",
+        "replacement_front_size_class_bridge_plan_v0=1",
+        "replacement_front_size_class_bridge_report_only=1",
         "replacement_front_size_class_policy_bridge=0",
         "replacement_front_size_class_count=1",
         "replacement_front_size_class_policy_source=hako_model_not_consumed",
@@ -1647,6 +1699,18 @@ def main() -> int:
         f"{workload_histogram['memset_le_64_count']}",
         "workload_memset_gt_64_count="
         f"{workload_histogram['memset_gt_64_count']}",
+        "workload_size_class_policy_source="
+        f"{workload_histogram['size_class_policy_source']}",
+        "workload_size_class_distinct_count="
+        f"{workload_histogram['size_class_distinct_count']}",
+        "workload_size_class_max_bin="
+        f"{workload_histogram['size_class_max_bin']}",
+        "workload_size_class_max_good_size="
+        f"{workload_histogram['size_class_max_good_size']}",
+        "workload_size_class_huge_count="
+        f"{workload_histogram['size_class_huge_count']}",
+        "workload_size_class_regular_request_count="
+        f"{workload_histogram['size_class_regular_request_count']}",
         "workload_request_le_64="
         f"{workload_histogram['request_le_64']}",
         "workload_request_le_128="
@@ -1748,6 +1812,8 @@ def main() -> int:
                     f"subject_{index}_benchmark_only=1",
                     f"subject_{index}_replacement_front_is_full_hako_algorithm=0",
                     f"subject_{index}_replacement_front_algorithm_shape=fixed_slot_native_benchmark_front",
+                    f"subject_{index}_replacement_front_size_class_bridge_plan_v0=1",
+                    f"subject_{index}_replacement_front_size_class_bridge_report_only=1",
                     f"subject_{index}_replacement_front_size_class_policy_bridge=0",
                     f"subject_{index}_replacement_front_size_class_count=1",
                     f"subject_{index}_replacement_front_size_class_policy_source=hako_model_not_consumed",

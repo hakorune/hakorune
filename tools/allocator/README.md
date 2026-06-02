@@ -29,6 +29,18 @@ winner_claim=0
 Use this to avoid reading the fixed-slot replacement front as a product
 allocator or full `.hako` algorithm claim.
 
+The Hakozuna mixed-ws compare report also emits a report-only size-class bridge
+view:
+
+```text
+replacement_front_size_class_bridge_plan_v0=1
+replacement_front_size_class_policy_bridge=0
+workload_size_class_distinct_count=...
+```
+
+This mirrors `SizeClassBox` for workload classification only. It does not make
+the fixed-slot replacement front consume `.hako` size classes.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
