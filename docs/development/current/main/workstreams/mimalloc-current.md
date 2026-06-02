@@ -343,6 +343,11 @@ REPL-007:
   ReplacementSlotSizeClassProbeV0
   keeper: benchmark-only slot-size override for mixed-ws max-size matching
   checks whether fixed 2048-byte slots are the remaining cache/footprint owner
+
+REPL-008:
+  ReplacementCounterlessPerfProbeV0
+  keeper as benchmark/perf-distribution mode only
+  skip malloc/free hot-path counters after smoke has already validated behavior
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -398,6 +403,14 @@ about `172.6M ops/s` to `283.9M ops/s` on the same mixed-ws shape, reaching
 about `55.1%` of the local C mimalloc reference in that run. This proves the
 fixed-slot footprint/cache shape is a major owner. It is still a
 benchmark-only storage-layout probe, not a product allocator size-class claim.
+
+`REPL-008` is a keeper only for benchmark/perf-distribution mode. With the
+1024-byte slot probe and no focused counter-validating smoke, skipping hot-path
+replacement counters improved Hakorune median throughput from about
+`283.3M ops/s` to `297.7M ops/s` on the same mixed-ws shape. This mode is
+counterless by design: use normal counter-enabled runs for smoke/evidence, then
+use counterless runs for performance distribution. Do not combine this with
+cross-thread counter smokes or product readiness claims.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
