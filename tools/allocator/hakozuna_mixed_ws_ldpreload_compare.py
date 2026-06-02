@@ -445,14 +445,10 @@ static void* direct_alloc(size_t size) {
   return slots[index].bytes;
 }
 
-static int direct_free(void* ptr) {
+static int direct_free_local(void* ptr) {
   int index = slot_index(ptr);
   if (index < 0 || used[(uint32_t)index] != 1u) {
-#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
-    return remote_free_to_owner(ptr);
-#else
     return 0;
-#endif
   }
   used[(uint32_t)index] = 0u;
   requested_size[(uint32_t)index] = 0u;
@@ -631,7 +627,7 @@ void* realloc(void* ptr, size_t size) {
   size_t copy_size = old_size < size ? old_size : size;
   memcpy(next, ptr, copy_size);
   add_counter(&realloc_copy_bytes, copy_size);
-  direct_free(ptr);
+  direct_free_local(ptr);
   unlock_arena();
   add_counter(&realloc_count, 1);
   return next;
@@ -649,8 +645,13 @@ void free(void* ptr) {
     return;
   }
   lock_arena();
-  int freed = direct_free(ptr);
+  int freed = direct_free_local(ptr);
   unlock_arena();
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+  if (!freed) {
+    freed = remote_free_to_owner(ptr);
+  }
+#endif
   if (freed) {
     add_counter(&free_count, 1);
     return;
