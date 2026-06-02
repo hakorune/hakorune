@@ -379,6 +379,11 @@ REPL-014:
   InplaceReallocWithinSlotPlanV0
   keeper: fixed-slot replacement front updates requested size and returns the
   same pointer when new_size <= slot_size
+
+REPL-015:
+  SlotHeaderIndexProbeV0
+  nonkeeper: benchmark-only payload header index for free/realloc decode
+  removed the 1040-stride divide shape but grew slot footprint and regressed
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -537,6 +542,24 @@ winner_claim=0
 
 This remains a benchmark-only fixed-slot front result. It does not claim that
 the product allocator has C mimalloc semantics across general size classes.
+
+`REPL-015` tested the next obvious `free` owner: avoid the 1040-byte stride
+index decode by placing a magic/index header before each returned payload. The
+focused smoke passed, and `objdump` confirmed the local `free` path no longer
+used the reciprocal-divide shape for the hot local index. The probe was still a
+nonkeeper because the extra header grew the physical slot stride and worsened
+the current counterless 40M replacement-front median:
+
+```text
+inplace_realloc_matched1040_median_ops_per_sec=1191748452.887
+slot_header_index_matched1040_median_ops_per_sec=1138610451.191
+slot_header_index_delta_pct=-4.67
+cross_thread_smoke=ok
+```
+
+Do not keep the slot-header-index implementation path in the tool. If `free`
+is reopened, prefer owner-first evidence for a layout that does not increase
+the hot fixed-slot footprint.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
