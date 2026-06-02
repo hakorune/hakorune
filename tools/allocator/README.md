@@ -109,6 +109,12 @@ repo-local hakmem LD_PRELOAD evidence, and the generated Rust global allocator
 smoke. It records readiness only; product allocator replacement, production
 hooks, production `#[global_allocator]`, and winner claims stay closed.
 
+To intentionally compare against a full extracted corpus build, pass:
+
+```bash
+--hakmem-root /home/tomoaki/git/hakmem_20260525_extracted/hakmem
+```
+
 ## Stop Lines
 
 - Do not commit copied benchmark executables or generated `benchres.csv`.

@@ -1762,6 +1762,27 @@ message.
     product provider activation, production replacement, hook installation,
     production global allocator default, and winner claim remain closed
 
+- [x] MIM-144: external hakmem corpus route for provider replacement ladder
+  - output:
+    allow the no-product-default provider replacement decision ladder to run
+    against either the repo-local minimal fixture or an explicit full external
+    corpus build
+  - implemented:
+    `tools/allocator/hako_mimalloc_provider_replacement_decision_ladder.sh`
+    accepts `--hakmem-root DIR` and forwards it to the provider-backed hakmem
+    LD_PRELOAD repeated measurement tool
+  - smoke:
+    `--hakmem-root /home/tomoaki/git/hakmem_20260525_extracted/hakmem`
+    with `sample-count=1`, `operation-repeat=1`, and `hakmem-iterations=1000`
+    produced `decision=external_process_repeated_ready_no_product_default_change`,
+    `replacement_active=1`, `replacement_product_claim=0`,
+    `hook_installed=0`, `global_allocator_product_claim=0`,
+    `winner_claim=0`, and `summary=ok`
+  - stop lines:
+    the full corpus remains external/read-only; no corpus vendoring expansion,
+    product provider activation, production replacement, hook installation,
+    production global allocator default, or winner claim
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

@@ -20,6 +20,7 @@ HAKO_RUNTIME_CONFIG="empty"
 HAKMEM_ITERATIONS=1000
 HAKMEM_WORKING_SET=128
 HAKMEM_SEED=42
+HAKMEM_ROOT=""
 
 usage() {
   cat >&2 <<'USAGE'
@@ -46,6 +47,7 @@ Options:
   --hakmem-iterations N      hakmem random-mixed iterations (default: 1000)
   --hakmem-working-set N     hakmem random-mixed working set (default: 128)
   --hakmem-seed N            hakmem random-mixed seed (default: 42)
+  --hakmem-root DIR          explicit hakmem root/build dir; defaults to repo-local fixture
   --skip-build-release       use existing target/release/hakorune in provider ladder
   --tmp-keep                 keep temporary artifacts and print their directory
 USAGE
@@ -123,6 +125,10 @@ while [[ "$#" -gt 0 ]]; do
       ;;
     --hakmem-seed)
       HAKMEM_SEED="${2:-}"
+      shift 2
+      ;;
+    --hakmem-root)
+      HAKMEM_ROOT="${2:-}"
       shift 2
       ;;
     --skip-build-release)
@@ -208,15 +214,20 @@ fi
 
 manifest="$(kv_value "$provider_ladder_report" manifest)"
 
-python3 "$LDPRELOAD_REPEATED" \
-  --manifest "$manifest" \
-  --out-dir "$OUT_DIR/hakmem_ldpreload" \
-  --out "$ldpreload_report" \
-  --sample-count "$SAMPLE_COUNT" \
-  --warmup-count "$WARMUP_COUNT" \
-  --iterations "$HAKMEM_ITERATIONS" \
-  --working-set "$HAKMEM_WORKING_SET" \
+ldpreload_args=(
+  --manifest "$manifest"
+  --out-dir "$OUT_DIR/hakmem_ldpreload"
+  --out "$ldpreload_report"
+  --sample-count "$SAMPLE_COUNT"
+  --warmup-count "$WARMUP_COUNT"
+  --iterations "$HAKMEM_ITERATIONS"
+  --working-set "$HAKMEM_WORKING_SET"
   --seed "$HAKMEM_SEED"
+)
+if [[ -n "$HAKMEM_ROOT" ]]; then
+  ldpreload_args+=(--hakmem-root "$HAKMEM_ROOT")
+fi
+python3 "$LDPRELOAD_REPEATED" "${ldpreload_args[@]}"
 
 python3 "$RUST_GLOBAL_SMOKE" \
   --manifest "$manifest" \
