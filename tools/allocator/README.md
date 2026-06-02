@@ -134,7 +134,30 @@ python3 tools/allocator/provider_package_export_bundle.py \
   --out dist/provider-handoff/export.out
 ```
 
-The output includes `hakorune-mimalloc-provider.zip`.
+The output includes `hakorune-mimalloc-provider.zip`. By default the bundle
+contains both the Hakorune provider shared library and a generated
+malloc-family LD_PRELOAD shim:
+
+```text
+dist/provider-handoff/hakorune-mimalloc-provider/
+  hakorune_provider.json
+  hakorune_provider.sha256
+  libhakorune_provider.so
+  libhakorune_provider_ldpreload.so
+  run_ldpreload_example.sh
+```
+
+Run the handoff bundle through LD_PRELOAD:
+
+```bash
+dist/provider-handoff/hakorune-mimalloc-provider/run_ldpreload_example.sh \
+  benchmarks/external/hakmem/random-mixed-system/build/bench_random_mixed_system \
+  1000 128 42
+```
+
+The helper sets `HAKORUNE_PROVIDER_LIBRARY`,
+`HAKORUNE_PROVIDER_LDPRELOAD_REPORT`, and `LD_PRELOAD` for that process only.
+It is still handoff evidence, not product allocator replacement.
 
 ## Stop Lines
 

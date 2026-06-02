@@ -1814,7 +1814,8 @@ message.
   - implemented:
     `tools/allocator/provider_package_export_bundle.py` copies
     `hakorune_provider.json`, `hakorune_provider.sha256`, the provider shared
-    library, a generated `README.md`, and `run_ldpreload_example.sh`
+    library, a generated LD_PRELOAD shim, a generated `README.md`, and
+    `run_ldpreload_example.sh`
   - policy:
     the export is a handoff artifact only. It does not activate product
     replacement, install hooks, set a production global allocator default, or
@@ -1822,13 +1823,19 @@ message.
   - smoke:
     exported `dist/provider-handoff/hakorune-mimalloc-provider.zip` with
     `README.md`, `hakorune_provider.json`, `hakorune_provider.sha256`,
-    `libhakorune_provider.so`, and `run_ldpreload_example.sh`;
+    `libhakorune_provider.so`, `libhakorune_provider_ldpreload.so`, and
+    `run_ldpreload_example.sh`;
     zip sha256 is
-    `283474baa32380e50938d8df99f9b3d43bc84ffa90f9fcbf9c9a23c37e80c95b`
+    `9578ea825a781c2375393da2840b7327624925b423311b410a4cdff3abda6400`
   - validation:
     `provider_package_metadata_preflight.py --manifest
     dist/provider-handoff/hakorune-mimalloc-provider/hakorune_provider.json`
-    produced `manifest_ready=1`, `binary_hash_ready=1`, and `summary=ok`
+    produced `manifest_ready=1`, `binary_hash_ready=1`, and `summary=ok`;
+    `run_ldpreload_example.sh
+    benchmarks/external/hakmem/random-mixed-system/build/bench_random_mixed_system
+    1000 128 42` produced `shim_provider_bind_success=1`,
+    `shim_provider_alloc_count=581`, `shim_provider_free_count=580`,
+    `shim_runtime_real_fallback_count=0`, and `shim_pointer_table_overflow=0`
 
 ### Next Cleanup TODO
 
