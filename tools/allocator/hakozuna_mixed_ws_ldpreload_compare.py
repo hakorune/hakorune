@@ -424,17 +424,7 @@ static int slot_index(void* ptr) {
   return (int)index;
 }
 
-static void* direct_alloc(size_t size) {
-  if (size == 0 || size > HAKO_REPLACEMENT_SLOT_SIZE) {
-    return 0;
-  }
-  init_slots();
-#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
-  if (!register_thread_arena()) {
-    return 0;
-  }
-  drain_remote_frees();
-#endif
+static void* direct_alloc_fast(size_t size) {
   if (free_top == 0u) {
     return 0;
   }
@@ -443,6 +433,40 @@ static void* direct_alloc(size_t size) {
   requested_size[index] = size;
   add_counter(&direct_core_call_count, 1);
   return slots[index].bytes;
+}
+
+static void* direct_alloc_slow(size_t size) {
+  if (size == 0 || size > HAKO_REPLACEMENT_SLOT_SIZE) {
+    return 0;
+  }
+  init_slots();
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+  if (!register_thread_arena()) {
+    return 0;
+  }
+  if (remote_head >= 0) {
+    drain_remote_frees();
+  }
+#endif
+  return direct_alloc_fast(size);
+}
+
+static void* direct_alloc(size_t size) {
+  if (size == 0 || size > HAKO_REPLACEMENT_SLOT_SIZE) {
+    return 0;
+  }
+  if (!init_done) {
+    return direct_alloc_slow(size);
+  }
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+  if (!arena_registered) {
+    return direct_alloc_slow(size);
+  }
+  if (remote_head >= 0) {
+    return direct_alloc_slow(size);
+  }
+#endif
+  return direct_alloc_fast(size);
 }
 
 static int direct_free_local(void* ptr) {
@@ -1500,16 +1524,16 @@ def main() -> int:
                     f"subject_{index}_hot_atomic_rmw={1 if hot_atomic_rmw else 0}",
                     "subject_"
                     f"{index}_remote_free_drain_hot_path="
-                    f"{1 if args.replacement_front_thread_local_mode else 0}",
+                    "0",
                     "subject_"
                     f"{index}_remote_owner_publication_after_local_fail="
                     f"{1 if args.replacement_front_thread_local_mode else 0}",
-                    f"subject_{index}_cold_init_in_hot_path=1",
+                    f"subject_{index}_cold_init_in_hot_path=0",
                     "subject_"
                     f"{index}_register_thread_arena_hot_path="
-                    f"{1 if args.replacement_front_thread_local_mode else 0}",
-                    f"subject_{index}_fast_cold_split_plan=0",
-                    f"subject_{index}_tls_arena_fast_alloc_plan=0",
+                    "0",
+                    f"subject_{index}_fast_cold_split_plan=1",
+                    f"subject_{index}_tls_arena_fast_alloc_plan=1",
                     f"subject_{index}_tls_arena_local_free_plan=0",
                     f"subject_{index}_replacement_entry_inline_plan=0",
                 ]

@@ -335,8 +335,9 @@ REPL-005:
   open TlsArenaReallocPlanV0 only if fresh evidence selects realloc
 ```
 
-`REPL-001` must report the current hot-path shape without claiming it is already
-C-thin. The important fields are:
+`REPL-001` reports the current hot-path shape without claiming it is already
+C-thin. `REPL-002` consumes that report vocabulary for the generated replacement
+front `direct_alloc` fast/cold split. The important fields are:
 
 ```text
 replacement_front_hotpath_plan_v0=1
@@ -354,9 +355,11 @@ replacement_entry_inline_plan=0|1
 ```
 
 The current keeper state is expected to show `tls_get_addr_hot_path=0`,
-`hot_atomic_rmw=0`, and `remote_owner_publication_after_local_fail=1`, while
-`remote_free_drain_hot_path`, `cold_init_in_hot_path`, and
-`register_thread_arena_hot_path` remain open until `REPL-002`.
+`hot_atomic_rmw=0`, `remote_owner_publication_after_local_fail=1`,
+`remote_free_drain_hot_path=0`, `cold_init_in_hot_path=0`,
+`register_thread_arena_hot_path=0`, `fast_cold_split_plan=1`, and
+`tls_arena_fast_alloc_plan=1`. `tls_arena_local_free_plan` and
+`replacement_entry_inline_plan` remain open.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
