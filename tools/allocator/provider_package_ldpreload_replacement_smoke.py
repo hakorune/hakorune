@@ -25,6 +25,7 @@ SHIM_C = r"""
 #define HAKO_PROVIDER_API_MAGIC 0x484B5241u
 #define HAKO_PROVIDER_API_MAJOR 1u
 #define HAKO_POINTER_TABLE_CAP 65536u
+#define HAKO_TRACKED_TOMBSTONE ((void*)1)
 
 typedef int (*hako_ping_fn)(void);
 typedef void* (*hako_provider_alloc_fn)(size_t, size_t);
@@ -100,9 +101,14 @@ static int hako_find_tracked(void* ptr) {
   if (!ptr) {
     return -1;
   }
-  for (unsigned int i = 0; i < HAKO_POINTER_TABLE_CAP; i++) {
-    if (tracked[i].ptr == ptr) {
-      return (int)i;
+  uintptr_t hash = ((uintptr_t)ptr >> 4u) % HAKO_POINTER_TABLE_CAP;
+  for (unsigned int probe = 0; probe < HAKO_POINTER_TABLE_CAP; probe++) {
+    unsigned int index = (unsigned int)((hash + probe) % HAKO_POINTER_TABLE_CAP);
+    if (tracked[index].ptr == ptr) {
+      return (int)index;
+    }
+    if (!tracked[index].ptr) {
+      return -1;
     }
   }
   return -1;
@@ -112,12 +118,31 @@ static void hako_track_ptr(void* ptr, size_t size) {
   if (!ptr) {
     return;
   }
-  for (unsigned int i = 0; i < HAKO_POINTER_TABLE_CAP; i++) {
-    if (!tracked[i].ptr) {
-      tracked[i].ptr = ptr;
-      tracked[i].size = size;
+  uintptr_t hash = ((uintptr_t)ptr >> 4u) % HAKO_POINTER_TABLE_CAP;
+  int first_tombstone = -1;
+  for (unsigned int probe = 0; probe < HAKO_POINTER_TABLE_CAP; probe++) {
+    unsigned int index = (unsigned int)((hash + probe) % HAKO_POINTER_TABLE_CAP);
+    if (tracked[index].ptr == ptr) {
+      tracked[index].size = size;
       return;
     }
+    if (tracked[index].ptr == HAKO_TRACKED_TOMBSTONE) {
+      if (first_tombstone < 0) {
+        first_tombstone = (int)index;
+      }
+      continue;
+    }
+    if (!tracked[index].ptr) {
+      unsigned int target = first_tombstone >= 0 ? (unsigned int)first_tombstone : index;
+      tracked[target].ptr = ptr;
+      tracked[target].size = size;
+      return;
+    }
+  }
+  if (first_tombstone >= 0) {
+    tracked[(unsigned int)first_tombstone].ptr = ptr;
+    tracked[(unsigned int)first_tombstone].size = size;
+    return;
   }
   pointer_table_overflow++;
 }
@@ -126,7 +151,7 @@ static void hako_untrack_index(int index) {
   if (index < 0) {
     return;
   }
-  tracked[index].ptr = 0;
+  tracked[index].ptr = HAKO_TRACKED_TOMBSTONE;
   tracked[index].size = 0;
 }
 
