@@ -4835,3 +4835,352 @@ truth stays in MIR metadata emitted by the compiler.
   mimalloc perf pass selects it again.
 - DirectArray optional member work stays closed until selected by current
   mimalloc evidence.
+
+---
+
+## Archived Replacement Front Hot-Path Plan (moved from active workstream 2026-06-03)
+
+## Replacement Front Hot-Path Plan
+
+Next slices:
+
+```text
+REPL-001:
+  ReplacementFrontHotPathPlanV0 report vocabulary
+  behavior change: none
+
+REPL-002:
+  TlsArenaFastAllocPlanV0 consumer
+  direct_alloc fast/cold split
+
+REPL-003:
+  TlsArenaLocalFreePlanV0 consumer
+  local free path thinning
+
+REPL-004:
+  ReplacementEntryInlinePlanV0
+  malloc/free entry boundary thinning
+
+REPL-005:
+  owner refresh
+  open TlsArenaReallocPlanV0 only if fresh evidence selects realloc
+
+REPL-006:
+  RequestedSizeTableTaxProbeV0
+  nonkeeper: fixed-slot usable-size realloc mode
+  attempted to remove requested_size store/clear from alloc/free hot path
+
+REPL-007:
+  ReplacementSlotSizeClassProbeV0
+  keeper: benchmark-only slot-size override for mixed-ws max-size matching
+  checks whether fixed 2048-byte slots are the remaining cache/footprint owner
+
+REPL-008:
+  ReplacementCounterlessPerfProbeV0
+  keeper as benchmark/perf-distribution mode only
+  skip malloc/free hot-path counters after smoke has already validated behavior
+
+REPL-009:
+  TrustedLocalSlotProbeV0
+  nonkeeper: benchmark-only local-thread trusted slot mode
+  attempted to remove `used[]` store/check/clear from malloc/free hot path
+
+REPL-010:
+  HotResolvingRealGuardProbeV0
+  nonkeeper: benchmark-only omission of malloc/free/realloc hot reentrant-real guard
+  kept fallback resolver protection cold-side only
+
+REPL-011:
+  MixedWsSizeDistributionExplainV0
+  report-only workload request histogram for the Hakozuna mixed-ws fixture
+  fixes the measurement boundary before opening size-class or slot-metadata work
+
+REPL-012:
+  SlotMetaWordProbeV0
+  nonkeeper: benchmark-only coalescing of live state and requested size into one
+  metadata word
+  cross-thread semantics stayed intact, but counterless throughput regressed
+
+REPL-013:
+  WorkloadReallocMatchedSlotProbeV0
+  keeper: benchmark-only slot-size selection for mixed-ws default realloc grow
+  uses slot_size=max_size+16 so default realloc grow requests stay covered
+
+REPL-014:
+  InplaceReallocWithinSlotPlanV0
+  keeper: fixed-slot replacement front updates requested size and returns the
+  same pointer when new_size <= slot_size
+
+REPL-015:
+  SlotHeaderIndexProbeV0
+  nonkeeper: benchmark-only payload header index for free/realloc decode
+  removed the 1040-stride divide shape but grew slot footprint and regressed
+
+REPL-016:
+  CurrentKeeperRefreshV0
+  report-only: matched 1040-byte slot + in-place realloc keeper still holds
+  on the local 40M mixed-ws distribution after free-side header probes were
+  rejected
+
+REPL-017:
+  SizeClassBridgeReportV0
+  report-only: mirror `SizeClassBox` classification for the mixed-ws workload
+  while keeping the benchmark-only replacement front as one fixed slot class
+
+REPL-018:
+  HotCoreReplacementBridgeReportV0
+  report-only: expose that the benchmark-only replacement front does not yet
+  consume `.hako` HotCore/PageModel plans
+```
+
+`REPL-001` reports the current hot-path shape without claiming it is already
+C-thin. `REPL-002` consumes that report vocabulary for the generated replacement
+front `direct_alloc` fast/cold split. The important fields are:
+
+```text
+replacement_front_hotpath_plan_v0=1
+replacement_front_hotpath_report_only=1
+tls_get_addr_hot_path=0|1
+hot_atomic_rmw=0|1
+remote_free_drain_hot_path=0|1
+remote_owner_publication_after_local_fail=0|1
+cold_init_in_hot_path=0|1
+register_thread_arena_hot_path=0|1
+fast_cold_split_plan=0|1
+tls_arena_fast_alloc_plan=0|1
+tls_arena_local_free_plan=0|1
+free_local_first=0|1
+free_remote_path_after_local_fail=0|1
+free_hot_remote_queue_call=0|1
+replacement_entry_inline_plan=0|1
+malloc_to_direct_alloc_boundary=always_inline|tailcall|call
+free_to_direct_free_boundary=always_inline|tailcall|call
+replacement_front_inplace_realloc_within_slot_plan=0|1
+replacement_front_slot_size=<bytes>
+replacement_front_match_workload_realloc_size=0|1
+workload_size_histogram_source=deterministic_prefix_exact|deterministic_prefix_sampled
+workload_size_histogram_sample_exact=0|1
+workload_alloc_request_count=<sampled-count>
+workload_realloc_request_count=<sampled-count>
+workload_realloc_request_gt_replacement_slot_size=<sampled-count>
+workload_request_le_64=<sampled-count>
+workload_request_le_128=<sampled-count>
+workload_request_le_256=<sampled-count>
+workload_request_le_512=<sampled-count>
+workload_request_le_1024=<sampled-count>
+workload_request_gt_1024=<sampled-count>
+```
+
+The current keeper state is expected to show `tls_get_addr_hot_path=0`,
+`hot_atomic_rmw=0`, `remote_owner_publication_after_local_fail=1`,
+`remote_free_drain_hot_path=0`, `cold_init_in_hot_path=0`,
+`register_thread_arena_hot_path=0`, `fast_cold_split_plan=1`, and
+`tls_arena_fast_alloc_plan=1`. `REPL-003` also fixes
+`tls_arena_local_free_plan=1`, `free_local_first=1`,
+`free_remote_path_after_local_fail=1`, and `free_hot_remote_queue_call=0`.
+`REPL-004` fixes `replacement_entry_inline_plan=1` with
+`malloc_to_direct_alloc_boundary=always_inline` and
+`free_to_direct_free_boundary=always_inline`.
+
+`REPL-017` does not change allocator behavior. It adds workload size-class
+classification fields so the next bridge candidate can be selected without
+confusing the current fixed-slot front with `.hako` size-class execution:
+
+```text
+replacement_front_size_class_bridge_plan_v0=1
+replacement_front_size_class_bridge_report_only=1
+replacement_front_size_class_policy_bridge=0
+replacement_front_size_class_count=1
+workload_size_class_policy_source=hako_size_class_box_report_mirror
+workload_size_class_distinct_count=<n>
+```
+
+`REPL-018` also does not change allocator behavior. It makes the HotCore bridge
+boundary explicit in compare reports:
+
+```text
+replacement_front_hotcore_bridge_plan_v0=1
+replacement_front_hotcore_bridge_report_only=1
+replacement_front_hotcore_consumer_enabled=0
+replacement_front_hotcore_route=not_consumed_by_replacement_front
+```
+
+`REPL-005` owner refresh after `REPL-004` showed `malloc` and `free` as the
+remaining replacement-front owners; `direct_alloc_slow` is cold. `realloc` was
+visible but not first owner. `REPL-006` tested fixed slot usable size as the
+replacement-front realloc copy extent while skipping `requested_size` writes on
+alloc/free. It was rejected as nonkeeper: median throughput fell from about
+`172.6M ops/s` to `156.1M ops/s` on the same mixed-ws shape because the larger
+realloc copy extent outweighed the removed metadata stores. Keep
+`requested_size` on the current hot path until a more precise realloc plan is
+selected by fresh evidence.
+
+`REPL-007` is a keeper. The current replacement front used a fixed 2048-byte
+slot even when the mixed-ws fixture was capped at 1024 bytes. A benchmark-only
+1024-byte slot-size override improved replacement-front median throughput from
+about `172.6M ops/s` to `283.9M ops/s` on the same mixed-ws shape, reaching
+about `55.1%` of the local C mimalloc reference in that run. This proves the
+fixed-slot footprint/cache shape is a major owner. It is still a
+benchmark-only storage-layout probe, not a product allocator size-class claim.
+
+`REPL-008` is a keeper only for benchmark/perf-distribution mode. With the
+1024-byte slot probe and no focused counter-validating smoke, skipping hot-path
+replacement counters improved Hakorune median throughput from about
+`283.3M ops/s` to `297.7M ops/s` on the same mixed-ws shape. This mode is
+counterless by design: use normal counter-enabled runs for smoke/evidence, then
+use counterless runs for performance distribution. Do not combine this with
+cross-thread counter smokes or product readiness claims.
+
+`REPL-009` tested a trusted local-thread mode that accepts in-range aligned
+pointers without `used[]` store/check/clear. It was rejected as nonkeeper:
+median throughput fell from about `297.7M ops/s` to `273.7M ops/s` in the
+counterless 1024-byte slot front. The mode is also unsafe for cross-thread and
+double-free semantics, so do not reopen it without a real owner token or
+size-class metadata plan.
+
+`REPL-010` tested whether the `resolving_real` reentrancy guard still belongs on
+the malloc/free/realloc hot entry path after fast/cold split. It was rejected as
+nonkeeper: median throughput fell from about `297.7M ops/s` to
+`253.8M ops/s` in the counterless 1024-byte slot front. Keep the hot guard in
+the current generated shape.
+
+`REPL-011` is report-only. It adds a deterministic Hakozuna mixed-ws request
+histogram to the comparison report so size-class and slot-metadata probes do
+not accidentally compare a lighter workload. Long runs use a bounded
+deterministic prefix sample and mark `workload_size_histogram_sample_exact=0`.
+The key warning field is
+`workload_realloc_request_gt_replacement_slot_size`: a 1024-byte replacement
+slot covers the default `malloc` request range `16..1024`, but every 64th
+allocation can request `size + 16` through `realloc`, so some default-shape
+realloc requests exceed 1024. Treat this as measurement context, not a product
+semantics claim.
+
+`REPL-012` tested the narrow slot metadata traffic candidate from the worker
+inventory. The probe coalesced live/free/remote state and requested size into
+one metadata word while preserving requested-size and cross-thread semantics.
+Focused cross-thread free / abandoned-owner / cross-thread realloc smokes passed,
+but the counterless 1024-byte slot front regressed on the same local run:
+
+```text
+baseline_counterless_slot1024_median_ops_per_sec=662109806.277
+slot_meta_word_counterless_slot1024_median_ops_per_sec=643591446.219
+slot_meta_word_delta_pct=-2.80
+```
+
+Do not keep the slot-meta-word implementation path in the tool. The remaining
+metadata owner is real, but this coalescing shape did not improve the current
+generated replacement front.
+
+`REPL-013` is a keeper for the benchmark tool. `REPL-011` showed that
+`--replacement-front-slot-size 1024` covers the default `malloc` request range
+but not every default mixed-ws `realloc(size + 16)` grow request. A 1040-byte
+replacement slot covers that grow request (`workload_realloc_request_gt_replacement_slot_size=0`)
+and still kept the benchmark-only replacement front above the local C mimalloc
+reference in the same short run:
+
+```text
+slot_size=1040
+replacement_front_match_workload_realloc_size=1
+c_mimalloc_median_ops_per_sec=349180817.438
+hakorune_replacement_front_median_ops_per_sec=637099210.841
+hakorune_vs_c_mimalloc=1.824554
+cross_thread_smoke=ok
+```
+
+This is still a benchmark-front result, not a product allocator winner claim.
+Use `--replacement-front-match-workload-realloc-size` to request this
+workload-matched slot size instead of hard-coding `1040` at call sites.
+
+`REPL-014` is a keeper for the benchmark replacement front. After `REPL-013`,
+the default mixed-ws realloc grow requests fit in the fixed slot, but the shim
+still allocated a new slot, copied the old payload, and freed the old slot.
+The replacement front now treats `new_size <= slot_size` as an in-place realloc:
+it updates `requested_size` and returns the same pointer. Counter-enabled smoke
+showed `replacement_front_realloc_copy_bytes_total=0`, and the counterless 40M
+run improved the replacement-front median from about `1123491677.314` to
+`1191748452.887 ops/s` on the same matched 1040-byte slot shape.
+
+```text
+replacement_front_inplace_realloc_within_slot_plan=1
+replacement_front_realloc_inplace_count_total>0
+replacement_front_realloc_copy_bytes_total=0
+cross_thread_smoke=ok
+activation=0
+benchmark_only=1
+winner_claim=0
+```
+
+This remains a benchmark-only fixed-slot front result. It does not claim that
+the product allocator has C mimalloc semantics across general size classes.
+
+`REPL-015` tested the next obvious `free` owner: avoid the 1040-byte stride
+index decode by placing a magic/index header before each returned payload. The
+focused smoke passed, and `objdump` confirmed the local `free` path no longer
+used the reciprocal-divide shape for the hot local index. The probe was still a
+nonkeeper because the extra header grew the physical slot stride and worsened
+the current counterless 40M replacement-front median:
+
+```text
+inplace_realloc_matched1040_median_ops_per_sec=1191748452.887
+slot_header_index_matched1040_median_ops_per_sec=1138610451.191
+slot_header_index_delta_pct=-4.67
+cross_thread_smoke=ok
+```
+
+Do not keep the slot-header-index implementation path in the tool. If `free`
+is reopened, prefer owner-first evidence for a layout that does not increase
+the hot fixed-slot footprint.
+
+`REPL-016` refreshed the current keeper after the free-side header probe was
+rejected. On the local 40M mixed-ws distribution with counterless thread-local
+replacement front, matched workload realloc size, and in-place realloc:
+
+```text
+replacement_front_slot_size=1040
+replacement_front_match_workload_realloc_size=1
+workload_realloc_request_gt_replacement_slot_size=0
+subject_2_replacement_front_inplace_realloc_within_slot_plan=1
+subject_2_throughput_median_ops_per_sec=1191438915.671
+subject_1_throughput_median_ops_per_sec=640931966.354
+subject_2_throughput_vs_c_mimalloc=1.858916
+subject_2_benchmark_only=1
+subject_2_activation=0
+subject_2_winner_claim=0
+```
+
+This is a replacement-front benchmark subject, not product allocator activation
+or a general size-class claim. Keep C mimalloc as local reference evidence.
+   - Treat `HakoAllocReplacementFront` as the thin-front direction for
+     C-like malloc/free speed.
+   - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
+   - Required before claiming allocator readiness:
+
+```text
+single_thread_replacement_front_smoke=1
+multithread_replacement_front_smoke=1
+thread_safety_claim=measured
+provider_api_hot_path_required=0
+activation=0
+benchmark_only=1
+winner_claim=0
+summary=ok
+```
+
+   - Multithread work must not silently share the current single-thread static
+     free stack without a synchronization or thread-local plan.
+   - Acceptable first multithread shapes:
+     - locked global native-slot front, benchmark-only
+     - thread-local slot arenas with explicit cross-thread free policy
+   - Rejected first shapes:
+     - unsynchronized global free stack
+     - product activation hidden behind benchmark mode
+     - `winner_claim=1` before multithread evidence
+
+7. Reopen `.hako` core optimization only with fresh owner evidence.
+   - Candidate families: route-aware materialization/copy, HotCore direct-exact
+     call boundary, record-state residence, DirectArray proof/lowering.
+   - Do not source-hand-expand helpers to satisfy the compiler.
+
+8. Keep docs lean.
+   - Record small inventories in commit messages or this checklist.
+   - Move full evidence prose to investigations/archive, not this active card.
