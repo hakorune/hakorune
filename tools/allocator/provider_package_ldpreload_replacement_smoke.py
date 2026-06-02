@@ -25,7 +25,6 @@ SHIM_C = r"""
 #define HAKO_PROVIDER_API_MAGIC 0x484B5241u
 #define HAKO_PROVIDER_API_MAJOR 1u
 #define HAKO_POINTER_TABLE_CAP 65536u
-#define HAKO_TRACKED_TOMBSTONE ((void*)1)
 
 typedef int (*hako_ping_fn)(void);
 typedef void* (*hako_provider_alloc_fn)(size_t, size_t);
@@ -130,11 +129,15 @@ static void hako_resolve_real(void) {
   resolving_real = 0;
 }
 
+static unsigned int hako_ptr_hash(void* ptr) {
+  return (unsigned int)(((uintptr_t)ptr >> 4u) % HAKO_POINTER_TABLE_CAP);
+}
+
 static int hako_find_tracked(void* ptr) {
   if (!ptr) {
     return -1;
   }
-  uintptr_t hash = ((uintptr_t)ptr >> 4u) % HAKO_POINTER_TABLE_CAP;
+  unsigned int hash = hako_ptr_hash(ptr);
   for (unsigned int probe = 0; probe < HAKO_POINTER_TABLE_CAP; probe++) {
     unsigned int index = (unsigned int)((hash + probe) % HAKO_POINTER_TABLE_CAP);
     unsigned int probe_count = probe + 1u;
@@ -167,8 +170,7 @@ static void hako_track_ptr(void* ptr, size_t size) {
   if (!ptr) {
     return;
   }
-  uintptr_t hash = ((uintptr_t)ptr >> 4u) % HAKO_POINTER_TABLE_CAP;
-  int first_tombstone = -1;
+  unsigned int hash = hako_ptr_hash(ptr);
   for (unsigned int probe = 0; probe < HAKO_POINTER_TABLE_CAP; probe++) {
     unsigned int index = (unsigned int)((hash + probe) % HAKO_POINTER_TABLE_CAP);
     unsigned int probe_count = probe + 1u;
@@ -180,32 +182,19 @@ static void hako_track_ptr(void* ptr, size_t size) {
       tracked[index].size = size;
       return;
     }
-    if (tracked[index].ptr == HAKO_TRACKED_TOMBSTONE) {
-      tombstone_hit_count++;
-      if (first_tombstone < 0) {
-        first_tombstone = (int)index;
-      }
-      continue;
-    }
     if (!tracked[index].ptr) {
-      unsigned int target = first_tombstone >= 0 ? (unsigned int)first_tombstone : index;
       track_probe_total += probe_count;
       if (probe_count > track_probe_max) {
         track_probe_max = probe_count;
       }
-      tracked[target].ptr = ptr;
-      tracked[target].size = size;
+      tracked[index].ptr = ptr;
+      tracked[index].size = size;
       return;
     }
   }
   track_probe_total += HAKO_POINTER_TABLE_CAP;
   if (HAKO_POINTER_TABLE_CAP > track_probe_max) {
     track_probe_max = HAKO_POINTER_TABLE_CAP;
-  }
-  if (first_tombstone >= 0) {
-    tracked[(unsigned int)first_tombstone].ptr = ptr;
-    tracked[(unsigned int)first_tombstone].size = size;
-    return;
   }
   pointer_table_overflow++;
 }
@@ -214,8 +203,24 @@ static void hako_untrack_index(int index) {
   if (index < 0) {
     return;
   }
-  tracked[index].ptr = HAKO_TRACKED_TOMBSTONE;
-  tracked[index].size = 0;
+  unsigned int hole = (unsigned int)index;
+  for (;;) {
+    unsigned int next = (unsigned int)((hole + 1u) % HAKO_POINTER_TABLE_CAP);
+    if (!tracked[next].ptr) {
+      tracked[hole].ptr = 0;
+      tracked[hole].size = 0;
+      return;
+    }
+    unsigned int home = hako_ptr_hash(tracked[next].ptr);
+    unsigned int distance = (unsigned int)((next + HAKO_POINTER_TABLE_CAP - home) % HAKO_POINTER_TABLE_CAP);
+    if (distance == 0) {
+      tracked[hole].ptr = 0;
+      tracked[hole].size = 0;
+      return;
+    }
+    tracked[hole] = tracked[next];
+    hole = next;
+  }
 }
 
 static void hako_write_str(int fd, const char* s) {
