@@ -1742,6 +1742,26 @@ message.
     product provider activation, production replacement, hook installation,
     production global allocator default, and winner claim remain closed
 
+- [x] MIM-143: provider-backed hakmem LD_PRELOAD repeated measurement
+  - output:
+    replace the single-sample external-process pilot in the decision ladder with
+    repeated repo-local hakmem LD_PRELOAD samples
+  - implemented:
+    `tools/allocator/hako_mimalloc_provider_backed_hakmem_ldpreload_repeated_measurement.py`
+    builds the provider-backed LD_PRELOAD shim once, runs warmup/sample
+    external processes, and reports median throughput plus shim counter totals
+  - adapter update:
+    `provider_replacement_decision_adapter.py` accepts either the old pilot
+    contract or the new repeated measurement contract, preferring
+    `throughput_median_ops_per_sec`
+  - decision:
+    `decision=external_process_repeated_ready_no_product_default_change`;
+    next step is scaling sample count or comparing against the full external
+    corpus before any winner claim
+  - stop lines:
+    product provider activation, production replacement, hook installation,
+    production global allocator default, and winner claim remain closed
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

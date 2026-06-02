@@ -84,15 +84,14 @@ def validate_provider_explicit(
 
 def validate_ldpreload(values: dict[str, str]) -> None:
     label = "ldpreload"
-    require(
-        values,
-        "output_contract",
+    contract = require_key(values, "output_contract", label)
+    if contract not in {
         "hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0",
-        label,
-    )
+        "hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0",
+    }:
+        raise SystemExit(f"{label}: unsupported output_contract {contract!r}")
     require(values, "summary", "ok", label)
     require(values, "ld_preload_env_applied", "1", label)
-    require(values, "benchmark_exit_code", "0", label)
     require(values, "provider_api_bound", "1", label)
     require(values, "provider_call_executed", "1", label)
     require(values, "allocator_entrypoint_called", "1", label)
@@ -101,11 +100,19 @@ def validate_ldpreload(values: dict[str, str]) -> None:
     require(values, "hook_installed", "0", label)
     require(values, "global_allocator", "0", label)
     require(values, "winner_claim", "0", label)
-    require(values, "shim_runtime_real_fallback_count", "0", label)
-    require(values, "shim_pointer_table_overflow", "0", label)
-    require_positive_int(values, "shim_provider_alloc_count", label)
-    require_positive_int(values, "shim_provider_free_count", label)
-    require_positive_int(values, "throughput_ops_per_sec", label)
+    if contract.endswith("repeated-measurement-v0"):
+        require(values, "shim_runtime_real_fallback_count_total", "0", label)
+        require(values, "shim_pointer_table_overflow_total", "0", label)
+        require_positive_int(values, "shim_provider_alloc_count_total", label)
+        require_positive_int(values, "shim_provider_free_count_total", label)
+        require_positive_int(values, "throughput_median_ops_per_sec", label)
+    else:
+        require(values, "benchmark_exit_code", "0", label)
+        require(values, "shim_runtime_real_fallback_count", "0", label)
+        require(values, "shim_pointer_table_overflow", "0", label)
+        require_positive_int(values, "shim_provider_alloc_count", label)
+        require_positive_int(values, "shim_provider_free_count", label)
+        require_positive_int(values, "throughput_ops_per_sec", label)
 
 
 def validate_rust_global(values: dict[str, str]) -> None:
@@ -158,7 +165,7 @@ def main() -> int:
 
     lines = [
         "output_contract=hako-mimalloc-provider-replacement-decision-adapter-v0",
-        "input_contracts=mimalloc-comparison-repeated-measurement-v0,hakorune-provider-explicit-repeated-measurement-v0,hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0,hako-mimalloc-provider-backed-rust-global-allocator-smoke-v0",
+        "input_contracts=mimalloc-comparison-repeated-measurement-v0,hakorune-provider-explicit-repeated-measurement-v0,hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0|hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0,hako-mimalloc-provider-backed-rust-global-allocator-smoke-v0",
         "decision_scope=provider_replacement_pilots_without_winner_claim",
         "measurement_domains=exact_exe_c_provider_explicit,external_ldpreload,generated_rust_global_allocator",
         f"workload_id={workload}",
@@ -178,7 +185,8 @@ def main() -> int:
         "subject_2_winner_claim=0",
         "subject_3_id=provider_backed_hakmem_ldpreload",
         f"subject_3_benchmark_id={require_key(ldpreload, 'benchmark_id', 'ldpreload')}",
-        f"subject_3_throughput_ops_per_sec={require_key(ldpreload, 'throughput_ops_per_sec', 'ldpreload')}",
+        f"subject_3_timing_repeat_kind={ldpreload.get('timing_repeat_kind', 'single-process-pilot-v0')}",
+        f"subject_3_throughput_median_ops_per_sec={ldpreload.get('throughput_median_ops_per_sec', ldpreload.get('throughput_ops_per_sec', ''))}",
         "subject_3_replacement_active=1",
         "subject_3_replacement_product_claim=0",
         "subject_3_winner_claim=0",
@@ -197,8 +205,8 @@ def main() -> int:
         "hook_installed=0",
         "global_allocator_product_claim=0",
         "winner_claim=0",
-        "decision=pilots_ready_no_product_default_change",
-        "next_step=run_repeated_external_process_ladder_before_any_winner_claim",
+        "decision=external_process_repeated_ready_no_product_default_change",
+        "next_step=compare_against_external_corpus_or_scale_sample_count_before_any_winner_claim",
         "summary=ok",
     ]
     report = "\n".join(lines) + "\n"

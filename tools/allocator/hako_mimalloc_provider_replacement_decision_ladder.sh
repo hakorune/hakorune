@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 REPEATED_RUNNER="${ROOT_DIR}/tools/allocator/mimalloc_repeated_measurement_runner.py"
 PROVIDER_LADDER="${ROOT_DIR}/tools/allocator/hako_mimalloc_provider_package_explicit_ladder.sh"
-LDPRELOAD_PILOT="${ROOT_DIR}/tools/allocator/hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot.py"
+LDPRELOAD_REPEATED="${ROOT_DIR}/tools/allocator/hako_mimalloc_provider_backed_hakmem_ldpreload_repeated_measurement.py"
 RUST_GLOBAL_SMOKE="${ROOT_DIR}/tools/allocator/provider_package_rust_global_allocator_smoke.py"
 DECISION_ADAPTER="${ROOT_DIR}/tools/allocator/provider_replacement_decision_adapter.py"
 
@@ -28,7 +28,7 @@ usage: tools/allocator/hako_mimalloc_provider_replacement_decision_ladder.sh --o
 Runs the no-product-default provider replacement decision ladder:
   Hako exact-EXE/C repeated measurement
   + selected .hako-derived provider explicit ladder
-  + provider-backed hakmem LD_PRELOAD pilot
+  + provider-backed hakmem LD_PRELOAD repeated measurement
   + generated Rust #[global_allocator] pilot
   + provider_replacement_decision_adapter.py
 
@@ -208,10 +208,12 @@ fi
 
 manifest="$(kv_value "$provider_ladder_report" manifest)"
 
-python3 "$LDPRELOAD_PILOT" \
+python3 "$LDPRELOAD_REPEATED" \
   --manifest "$manifest" \
   --out-dir "$OUT_DIR/hakmem_ldpreload" \
   --out "$ldpreload_report" \
+  --sample-count "$SAMPLE_COUNT" \
+  --warmup-count "$WARMUP_COUNT" \
   --iterations "$HAKMEM_ITERATIONS" \
   --working-set "$HAKMEM_WORKING_SET" \
   --seed "$HAKMEM_SEED"

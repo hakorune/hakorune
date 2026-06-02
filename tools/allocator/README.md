@@ -104,8 +104,8 @@ tools/allocator/hako_mimalloc_provider_replacement_decision_ladder.sh \
   --skip-build-release
 ```
 
-This consumes Hako/C repeated evidence, provider explicit evidence, the
-repo-local hakmem LD_PRELOAD fixture, and the generated Rust global allocator
+This consumes Hako/C repeated evidence, provider explicit evidence, repeated
+repo-local hakmem LD_PRELOAD evidence, and the generated Rust global allocator
 smoke. It records readiness only; product allocator replacement, production
 hooks, production `#[global_allocator]`, and winner claims stay closed.
 
