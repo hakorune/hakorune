@@ -277,6 +277,9 @@ replacement_front_cross_thread_free_smoke_ok=1
 replacement_front_cross_thread_free_remote_free_push_count>=1
 replacement_front_cross_thread_free_remote_free_drain_count>=1
 replacement_front_cross_thread_free_arena_registry_overflow_count=0
+replacement_front_cross_thread_realloc_smoke_ok=1
+replacement_front_cross_thread_realloc_unsupported_count>=1
+replacement_front_cross_thread_realloc_host_passthrough_count=0
 ```
 
    - If the owner thread has already exited, the benchmark-only front must not

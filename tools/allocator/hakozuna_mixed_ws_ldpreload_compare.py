@@ -630,6 +630,46 @@ int main(void) {
 """
 
 
+REPLACEMENT_FRONT_CROSS_THREAD_REALLOC_SMOKE_C = r"""
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static void* shared_ptr = 0;
+static void* realloc_result = 0;
+
+static void* realloc_from_worker(void* arg) {
+  (void)arg;
+  realloc_result = realloc(shared_ptr, 128);
+  return 0;
+}
+
+int main(void) {
+  shared_ptr = malloc(64);
+  if (!shared_ptr) {
+    fputs("malloc failed\n", stderr);
+    return 1;
+  }
+  pthread_t thread;
+  if (pthread_create(&thread, 0, realloc_from_worker, 0) != 0) {
+    fputs("pthread_create failed\n", stderr);
+    return 2;
+  }
+  if (pthread_join(thread, 0) != 0) {
+    fputs("pthread_join failed\n", stderr);
+    return 3;
+  }
+  if (realloc_result != 0) {
+    fputs("cross-thread realloc unexpectedly succeeded\n", stderr);
+    return 4;
+  }
+  free(shared_ptr);
+  shared_ptr = 0;
+  return 0;
+}
+"""
+
+
 def median_float(values: list[float]) -> float:
     ordered = sorted(values)
     return ordered[len(ordered) // 2]
@@ -765,9 +805,27 @@ def run_replacement_front_cross_thread_smokes(
     if counter_value(abandoned_owner, "replacement_front_host_passthrough_count") != 0:
         raise SystemExit("abandoned_owner smoke passed a recognized pointer to host free")
 
+    cross_thread_realloc = run_replacement_front_focused_smoke(
+        out_dir=out_dir,
+        replacement_front_shim=replacement_front_shim,
+        name="cross_thread_realloc",
+        source_text=REPLACEMENT_FRONT_CROSS_THREAD_REALLOC_SMOKE_C,
+    )
+    if (
+        counter_value(
+            cross_thread_realloc,
+            "replacement_front_cross_thread_realloc_unsupported_count",
+        )
+        < 1
+    ):
+        raise SystemExit("cross_thread_realloc smoke did not count unsupported realloc")
+    if counter_value(cross_thread_realloc, "replacement_front_host_passthrough_count") != 0:
+        raise SystemExit("cross_thread_realloc smoke used host realloc/free fallback")
+
     return {
         "cross_thread_free": cross_thread_free,
         "abandoned_owner": abandoned_owner,
+        "cross_thread_realloc": cross_thread_realloc,
     }
 
 
@@ -1187,12 +1245,15 @@ def main() -> int:
     if replacement_front_smokes:
         cross_thread_free = replacement_front_smokes["cross_thread_free"]
         abandoned_owner = replacement_front_smokes["abandoned_owner"]
+        cross_thread_realloc = replacement_front_smokes["cross_thread_realloc"]
         lines.extend(
             [
                 "replacement_front_cross_thread_free_smoke_ok=1",
                 "replacement_front_abandoned_owner_smoke_ok=1",
+                "replacement_front_cross_thread_realloc_smoke_ok=1",
                 "replacement_front_cross_thread_free_policy=remote_queue",
                 "replacement_front_abandoned_owner_policy=mark_abandoned_no_host_free",
+                "replacement_front_cross_thread_realloc_policy=unsupported_counted",
                 "replacement_front_cross_thread_free_remote_free_push_count="
                 f"{counter_value(cross_thread_free, 'replacement_front_remote_free_push_count')}",
                 "replacement_front_cross_thread_free_remote_free_drain_count="
@@ -1205,6 +1266,10 @@ def main() -> int:
                 f"{counter_value(abandoned_owner, 'replacement_front_abandoned_remote_free_count')}",
                 "replacement_front_abandoned_owner_host_passthrough_count="
                 f"{counter_value(abandoned_owner, 'replacement_front_host_passthrough_count')}",
+                "replacement_front_cross_thread_realloc_unsupported_count="
+                f"{counter_value(cross_thread_realloc, 'replacement_front_cross_thread_realloc_unsupported_count')}",
+                "replacement_front_cross_thread_realloc_host_passthrough_count="
+                f"{counter_value(cross_thread_realloc, 'replacement_front_host_passthrough_count')}",
             ]
         )
     for key in sorted(provider_manifest_metadata):
