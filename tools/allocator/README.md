@@ -78,6 +78,24 @@ Snapshot output:
 target/hakmem-bench/results/*.benchres.csv
 ```
 
+### Minimal LD_PRELOAD Fixture
+
+For daily LD_PRELOAD allocator replacement checks, use the repo-local minimal
+random-mixed fixture instead of the full extracted corpus:
+
+```bash
+make -C benchmarks/external/hakmem/random-mixed-system
+```
+
+The LD_PRELOAD pilot tools default to:
+
+```text
+benchmarks/external/hakmem/random-mixed-system/build/bench_random_mixed_system
+```
+
+Pass `--hakmem-root /path/to/hakmem` only when intentionally running against the
+full extracted corpus.
+
 ## Stop Lines
 
 - Do not commit copied benchmark executables or generated `benchres.csv`.

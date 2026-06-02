@@ -11,7 +11,10 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_HAKMEM_ROOT = Path("/home/tomoaki/git/hakmem_20260525_extracted/hakmem")
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_HAKMEM_ROOT = (
+    ROOT / "benchmarks" / "external" / "hakmem" / "random-mixed-system" / "build"
+)
 SMOKE_TOOL = Path(__file__).resolve().with_name("provider_package_ldpreload_replacement_smoke.py")
 THROUGHPUT_RE = re.compile(r"Throughput\s*=\s*([0-9]+)\s+ops/s")
 
@@ -40,7 +43,12 @@ def main() -> int:
     root = args.hakmem_root.resolve()
     bench = root / "bench_random_mixed_system"
     if not bench.is_file() or not os.access(bench, os.X_OK):
-        raise SystemExit(f"missing executable hakmem bench: {bench}")
+        raise SystemExit(
+            "missing executable hakmem bench: "
+            f"{bench}\n"
+            "hint: run `make -C benchmarks/external/hakmem/random-mixed-system` "
+            "or pass --hakmem-root for an external corpus build"
+        )
     if args.iterations < 1 or args.working_set < 1:
         raise SystemExit("--iterations and --working-set must be positive")
 
@@ -113,6 +121,7 @@ def main() -> int:
         "dll_mode=provider-backed-hakmem-ldpreload-pilot",
         f"manifest={args.manifest.resolve()}",
         f"provider_binary_path={provider_binary}",
+        "hakmem_fixture_kind=minimal-repo-random-mixed-system",
         f"hakmem_root={root}",
         "benchmark_id=bench_random_mixed_system",
         f"benchmark_path={bench}",

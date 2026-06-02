@@ -58,8 +58,20 @@ PERF_INDEX.md
 HAKMEM_ARCHITECTURE_OVERVIEW.md
 ```
 
-The corpus is read-only input for this repo. Do not move or rewrite files under
-the external path from Hakorune rows.
+The full corpus is read-only input for this repo. Do not move or rewrite files
+under the external path from Hakorune rows.
+
+For daily LD_PRELOAD allocator replacement checks, this repo may keep a minimal
+source fixture copied from the corpus:
+
+```text
+benchmarks/external/hakmem/random-mixed-system
+```
+
+That fixture is limited to `bench_random_mixed_system` source/build inputs plus
+license and notice files. Do not vendor the full corpus unless a later
+paper/reproducibility decision explicitly needs historical result archives or
+additional benchmark families.
 
 ## Benchmark Contract Order
 

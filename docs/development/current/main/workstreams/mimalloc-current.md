@@ -1701,6 +1701,27 @@ message.
     that consumes exact-EXE, C explicit, provider explicit, LD_PRELOAD corpus,
     and generated global-allocator evidence without changing product defaults.
 
+- [x] MIM-141: minimal repo-local hakmem LD_PRELOAD fixture
+  - output:
+    vendor only the source needed for `bench_random_mixed_system` so daily
+    LD_PRELOAD provider checks and paper reproductions do not depend on a
+    17GB external corpus checkout
+  - implemented:
+    `benchmarks/external/hakmem/random-mixed-system` contains
+    `bench_random_mixed.c`, `core/bench_profile.h`, `LICENSE`, `NOTICE`,
+    `THIRD_PARTY_NOTICES.md`, and a small local `Makefile`
+  - policy:
+    do not vendor the full external corpus. Keep historical result archives and
+    additional benchmark families external unless a later reproducibility
+    decision explicitly selects them.
+  - tool update:
+    the probe-only and provider-backed hakmem LD_PRELOAD pilot tools now
+    default to the repo-local fixture build directory; `--hakmem-root` remains
+    available for explicit full-corpus runs
+  - stop lines:
+    no copied benchmark executable in git, no provider activation, no hook
+    installation, no `#[global_allocator]` product default, and no winner claim
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
