@@ -538,6 +538,84 @@ void free(void* ptr) {
 """
 
 
+REPLACEMENT_FRONT_CROSS_THREAD_FREE_SMOKE_C = r"""
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static void* shared_ptr = 0;
+
+static void* free_from_worker(void* arg) {
+  (void)arg;
+  free(shared_ptr);
+  shared_ptr = 0;
+  return 0;
+}
+
+int main(void) {
+  shared_ptr = malloc(64);
+  if (!shared_ptr) {
+    fputs("malloc failed\n", stderr);
+    return 1;
+  }
+  pthread_t thread;
+  if (pthread_create(&thread, 0, free_from_worker, 0) != 0) {
+    fputs("pthread_create failed\n", stderr);
+    return 2;
+  }
+  if (pthread_join(thread, 0) != 0) {
+    fputs("pthread_join failed\n", stderr);
+    return 3;
+  }
+  void* drained = malloc(64);
+  if (!drained) {
+    fputs("drain malloc failed\n", stderr);
+    return 4;
+  }
+  free(drained);
+  return 0;
+}
+"""
+
+
+REPLACEMENT_FRONT_ABANDONED_OWNER_SMOKE_C = r"""
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static void* shared_ptr = 0;
+
+static void* allocate_from_worker(void* arg) {
+  (void)arg;
+  shared_ptr = malloc(64);
+  if (!shared_ptr) {
+    return (void*)1;
+  }
+  return 0;
+}
+
+int main(void) {
+  pthread_t thread;
+  void* thread_result = 0;
+  if (pthread_create(&thread, 0, allocate_from_worker, 0) != 0) {
+    fputs("pthread_create failed\n", stderr);
+    return 1;
+  }
+  if (pthread_join(thread, &thread_result) != 0) {
+    fputs("pthread_join failed\n", stderr);
+    return 2;
+  }
+  if (thread_result != 0 || !shared_ptr) {
+    fputs("worker malloc failed\n", stderr);
+    return 3;
+  }
+  free(shared_ptr);
+  shared_ptr = 0;
+  return 0;
+}
+"""
+
+
 def median_float(values: list[float]) -> float:
     ordered = sorted(values)
     return ordered[len(ordered) // 2]
@@ -546,6 +624,11 @@ def median_float(values: list[float]) -> float:
 def positive_int(value: int, label: str) -> None:
     if value < 1:
         raise SystemExit(f"{label} must be positive")
+
+
+def counter_value(counters: dict[str, str], key: str) -> int:
+    value = counters.get(key, "0")
+    return int(value) if value.isdigit() else 0
 
 
 def build_replacement_front_shim(out_dir: Path, *, locked: bool, thread_local: bool) -> Path:
@@ -571,11 +654,107 @@ def build_replacement_front_shim(out_dir: Path, *, locked: bool, thread_local: b
     if thread_local:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_THREAD_LOCAL=1")
     cmd.extend([str(source), "-ldl"])
-    if locked:
+    if locked or thread_local:
         cmd.append("-pthread")
     cmd.extend(["-o", str(binary)])
     subprocess.run(cmd, check=True)
     return binary
+
+
+def build_c_smoke(out_dir: Path, *, name: str, source_text: str) -> Path:
+    smoke_dir = out_dir / "replacement-front-cross-thread-smoke"
+    smoke_dir.mkdir(parents=True, exist_ok=True)
+    source = smoke_dir / f"{name}.c"
+    binary = smoke_dir / f"{name}.bin"
+    source.write_text(source_text.lstrip(), encoding="utf-8")
+    subprocess.run(
+        [
+            "cc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            str(source),
+            "-pthread",
+            "-o",
+            str(binary),
+        ],
+        check=True,
+    )
+    return binary
+
+
+def run_replacement_front_focused_smoke(
+    *,
+    out_dir: Path,
+    replacement_front_shim: Path,
+    name: str,
+    source_text: str,
+) -> dict[str, str]:
+    binary = build_c_smoke(out_dir, name=name, source_text=source_text)
+    smoke_dir = out_dir / "replacement-front-cross-thread-smoke" / name
+    smoke_dir.mkdir(parents=True, exist_ok=True)
+    stdout_path = smoke_dir / "stdout.txt"
+    stderr_path = smoke_dir / "stderr.txt"
+    report_path = smoke_dir / "replacement-front-report.out"
+    env = os.environ.copy()
+    env["LD_PRELOAD"] = str(replacement_front_shim)
+    env["HAKORUNE_REPLACEMENT_FRONT_REPORT"] = str(report_path)
+    completed = subprocess.run(
+        [str(binary)],
+        cwd=out_dir,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    stdout_path.write_text(completed.stdout, encoding="utf-8")
+    stderr_path.write_text(completed.stderr, encoding="utf-8")
+    if completed.returncode != 0:
+        raise SystemExit(
+            f"replacement front focused smoke {name} failed with "
+            f"{completed.returncode}: {completed.stderr.strip()}"
+        )
+    if not report_path.exists():
+        raise SystemExit(f"replacement front focused smoke {name} did not write a report")
+    return read_kv(report_path)
+
+
+def run_replacement_front_cross_thread_smokes(
+    *,
+    out_dir: Path,
+    replacement_front_shim: Path,
+) -> dict[str, dict[str, str]]:
+    cross_thread_free = run_replacement_front_focused_smoke(
+        out_dir=out_dir,
+        replacement_front_shim=replacement_front_shim,
+        name="cross_thread_free",
+        source_text=REPLACEMENT_FRONT_CROSS_THREAD_FREE_SMOKE_C,
+    )
+    if counter_value(cross_thread_free, "replacement_front_remote_free_push_count") < 1:
+        raise SystemExit("cross_thread_free smoke did not push a remote free")
+    if counter_value(cross_thread_free, "replacement_front_remote_free_drain_count") < 1:
+        raise SystemExit("cross_thread_free smoke did not drain a remote free")
+    if counter_value(cross_thread_free, "replacement_front_arena_registry_overflow_count") != 0:
+        raise SystemExit("cross_thread_free smoke overflowed the arena registry")
+
+    abandoned_owner = run_replacement_front_focused_smoke(
+        out_dir=out_dir,
+        replacement_front_shim=replacement_front_shim,
+        name="abandoned_owner",
+        source_text=REPLACEMENT_FRONT_ABANDONED_OWNER_SMOKE_C,
+    )
+    if counter_value(abandoned_owner, "replacement_front_abandoned_arena_count") < 1:
+        raise SystemExit("abandoned_owner smoke did not mark an abandoned arena")
+    if counter_value(abandoned_owner, "replacement_front_abandoned_remote_free_count") < 1:
+        raise SystemExit("abandoned_owner smoke did not count abandoned remote free")
+    if counter_value(abandoned_owner, "replacement_front_host_passthrough_count") != 0:
+        raise SystemExit("abandoned_owner smoke passed a recognized pointer to host free")
+
+    return {
+        "cross_thread_free": cross_thread_free,
+        "abandoned_owner": abandoned_owner,
+    }
 
 
 def find_mimalloc_library(c_library: Path | None, allow_ldconfig_discovery: bool) -> Path:
@@ -834,6 +1013,11 @@ def main() -> int:
         action="store_true",
         help="benchmark-only: build the replacement front with same-thread TLS arenas",
     )
+    parser.add_argument(
+        "--replacement-front-cross-thread-smoke",
+        action="store_true",
+        help="run focused cross-thread free and abandoned-owner replacement front smokes",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -859,6 +1043,11 @@ def main() -> int:
     if args.replacement_front_lock_mode and args.replacement_front_thread_local_mode:
         raise SystemExit(
             "--replacement-front-lock-mode and --replacement-front-thread-local-mode are exclusive"
+        )
+    if args.replacement_front_cross_thread_smoke and not args.replacement_front_thread_local_mode:
+        raise SystemExit(
+            "--replacement-front-cross-thread-smoke requires "
+            "--replacement-front-thread-local-mode"
         )
 
     root = args.hakozuna_root.resolve()
@@ -906,6 +1095,14 @@ def main() -> int:
             out_dir,
             locked=args.replacement_front_lock_mode,
             thread_local=args.replacement_front_thread_local_mode,
+        )
+    replacement_front_smokes: dict[str, dict[str, str]] = {}
+    if args.replacement_front_cross_thread_smoke:
+        if replacement_front_shim is None:
+            raise SystemExit("--replacement-front-cross-thread-smoke requires a replacement front")
+        replacement_front_smokes = run_replacement_front_cross_thread_smokes(
+            out_dir=out_dir,
+            replacement_front_shim=replacement_front_shim,
         )
 
     subject_specs: list[tuple[str, Path | None, Path | None, bool]] = [
@@ -971,7 +1168,31 @@ def main() -> int:
         f"replacement_front_native_slot_mode={1 if args.replacement_front_native_slot_mode else 0}",
         f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
         f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
+        f"replacement_front_cross_thread_smoke={1 if args.replacement_front_cross_thread_smoke else 0}",
     ]
+    if replacement_front_smokes:
+        cross_thread_free = replacement_front_smokes["cross_thread_free"]
+        abandoned_owner = replacement_front_smokes["abandoned_owner"]
+        lines.extend(
+            [
+                "replacement_front_cross_thread_free_smoke_ok=1",
+                "replacement_front_abandoned_owner_smoke_ok=1",
+                "replacement_front_cross_thread_free_policy=remote_queue",
+                "replacement_front_abandoned_owner_policy=mark_abandoned_no_host_free",
+                "replacement_front_cross_thread_free_remote_free_push_count="
+                f"{counter_value(cross_thread_free, 'replacement_front_remote_free_push_count')}",
+                "replacement_front_cross_thread_free_remote_free_drain_count="
+                f"{counter_value(cross_thread_free, 'replacement_front_remote_free_drain_count')}",
+                "replacement_front_cross_thread_free_arena_registry_overflow_count="
+                f"{counter_value(cross_thread_free, 'replacement_front_arena_registry_overflow_count')}",
+                "replacement_front_abandoned_owner_abandoned_arena_count="
+                f"{counter_value(abandoned_owner, 'replacement_front_abandoned_arena_count')}",
+                "replacement_front_abandoned_owner_abandoned_remote_free_count="
+                f"{counter_value(abandoned_owner, 'replacement_front_abandoned_remote_free_count')}",
+                "replacement_front_abandoned_owner_host_passthrough_count="
+                f"{counter_value(abandoned_owner, 'replacement_front_host_passthrough_count')}",
+            ]
+        )
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")
     if args.manifest is not None:

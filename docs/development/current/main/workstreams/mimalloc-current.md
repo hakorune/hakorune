@@ -255,12 +255,26 @@ summary=ok
 ```
 
    - The Hakozuna mixed-ws workload may not exercise cross-thread free. Use a
-     focused cross-thread free smoke when changing this path and require:
+     focused cross-thread free smoke when changing this path:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-cross-thread-smoke \
+  --threads 4 \
+  --out-dir /tmp/hakorune_replacement_front_tls_cross_thread_compare \
+  --out /tmp/hakorune_replacement_front_tls_cross_thread_compare/report.out
+```
+
+   - The focused smoke must require:
 
 ```text
-replacement_front_remote_free_push_count=1
-replacement_front_remote_free_drain_count=1
-replacement_front_arena_registry_overflow_count=0
+replacement_front_cross_thread_free_smoke_ok=1
+replacement_front_cross_thread_free_remote_free_push_count>=1
+replacement_front_cross_thread_free_remote_free_drain_count>=1
+replacement_front_cross_thread_free_arena_registry_overflow_count=0
 ```
 
    - If the owner thread has already exited, the benchmark-only front must not
@@ -268,7 +282,10 @@ replacement_front_arena_registry_overflow_count=0
      count it, and keep product activation closed:
 
 ```text
-replacement_front_abandoned_remote_free_count=1
+replacement_front_abandoned_owner_smoke_ok=1
+replacement_front_abandoned_owner_abandoned_arena_count>=1
+replacement_front_abandoned_owner_abandoned_remote_free_count>=1
+replacement_front_abandoned_owner_host_passthrough_count=0
 activation=0
 benchmark_only=1
 winner_claim=0
