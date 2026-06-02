@@ -353,6 +353,11 @@ REPL-009:
   TrustedLocalSlotProbeV0
   nonkeeper: benchmark-only local-thread trusted slot mode
   attempted to remove `used[]` store/check/clear from malloc/free hot path
+
+REPL-010:
+  HotResolvingRealGuardProbeV0
+  nonkeeper: benchmark-only omission of malloc/free/realloc hot reentrant-real guard
+  kept fallback resolver protection cold-side only
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -423,6 +428,12 @@ median throughput fell from about `297.7M ops/s` to `273.7M ops/s` in the
 counterless 1024-byte slot front. The mode is also unsafe for cross-thread and
 double-free semantics, so do not reopen it without a real owner token or
 size-class metadata plan.
+
+`REPL-010` tested whether the `resolving_real` reentrancy guard still belongs on
+the malloc/free/realloc hot entry path after fast/cold split. It was rejected as
+nonkeeper: median throughput fell from about `297.7M ops/s` to
+`253.8M ops/s` in the counterless 1024-byte slot front. Keep the hot guard in
+the current generated shape.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
