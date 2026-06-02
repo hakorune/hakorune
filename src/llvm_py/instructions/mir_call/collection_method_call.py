@@ -300,6 +300,20 @@ def _lower_direct_array_i64_set_proved_unchecked(builder: ir.IRBuilder, recv_h, 
     return one
 
 
+def _lower_direct_array_i64_set_unchecked_overwrite(builder: ir.IRBuilder, recv_h, index, value):
+    i64 = ir.IntType(64)
+    one = ir.Constant(i64, 1)
+    base = _direct_array_base(builder, recv_h)
+    element_ptr = _direct_array_i64_element_ptr(
+        builder,
+        base,
+        index,
+        "direct_array_i64_set_unchecked_overwrite_ptr",
+    )
+    builder.store(value, element_ptr)
+    return one
+
+
 def _lower_direct_array_nativedirect_call(
     *,
     builder: ir.IRBuilder,
@@ -337,6 +351,10 @@ def _lower_direct_array_nativedirect_call(
             and plan.get("cfg_shape") == "branchless"
             and plan.get("fallback_policy") == "fail_fast"
         ):
+            if plan.get("store_semantics") == "overwrite_existing":
+                return _lower_direct_array_i64_set_unchecked_overwrite(
+                    builder, recv_h, index, value
+                )
             return _lower_direct_array_i64_set_proved_unchecked(builder, recv_h, index, value)
         return _lower_direct_array_i64_set(builder, recv_h, index, value)
     return None

@@ -151,6 +151,12 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     }
     refresh_module_route_fixpoint(module);
     for function in module.functions.values_mut() {
+        // Route fixpoint can add or refine generic method routes after the
+        // function-local pass. Recompute route consumers here so metadata such
+        // as DirectArrayAccessPlan observes the final route surface.
+        refresh_function_direct_array_access_plans(function);
+        refresh_function_span_access_plans(function);
+        refresh_function_fastpath_obligations(function);
         refresh_function_hotcore_method_summaries(function);
     }
     refresh_module_direct_exact_hotcore_call_plans(module);

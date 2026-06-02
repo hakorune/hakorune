@@ -559,16 +559,10 @@ fn predecessor_branch_proves_nonzero_on_edge(
 ) -> bool {
     let value_origin = resolve_value_origin(function, def_map, value);
     function.blocks.values().any(|pred| {
-        let Some(MirInstruction::Branch {
-            condition,
-            then_bb,
-            else_bb,
-            ..
-        }) = &pred.terminator
-        else {
+        let Some((condition, then_bb, else_bb)) = block_branch_edges(pred) else {
             return false;
         };
-        let Some((op, lhs, rhs)) = compare_def(function, *condition) else {
+        let Some((op, lhs, rhs)) = compare_def(function, condition) else {
             return false;
         };
         let lhs_matches = resolve_value_origin(function, def_map, lhs) == value_origin
@@ -579,11 +573,51 @@ fn predecessor_branch_proves_nonzero_on_edge(
             return false;
         }
         match op {
-            CompareOp::Eq => *else_bb == target_block,
-            CompareOp::Ne => *then_bb == target_block,
-            _ => false,
+            CompareOp::Eq => else_bb == target_block,
+            CompareOp::Ne => then_bb == target_block,
+            CompareOp::Lt => {
+                // `0 < value` or `value < 0` proves non-zero on the true edge.
+                (lhs_matches || rhs_matches) && then_bb == target_block
+            }
+            CompareOp::Gt => {
+                // `value > 0` or `0 > value` proves non-zero on the true edge.
+                (lhs_matches || rhs_matches) && then_bb == target_block
+            }
+            CompareOp::Le => {
+                // `value <= 0` / `0 <= value` proves non-zero only on the false
+                // edge, where the value is respectively positive/negative.
+                (lhs_matches || rhs_matches) && else_bb == target_block
+            }
+            CompareOp::Ge => {
+                // `value >= 0` / `0 >= value` proves non-zero only on the false
+                // edge, where the value is respectively negative/positive.
+                (lhs_matches || rhs_matches) && else_bb == target_block
+            }
         }
     })
+}
+
+fn block_branch_edges(
+    block: &crate::mir::BasicBlock,
+) -> Option<(ValueId, BasicBlockId, BasicBlockId)> {
+    if let Some(MirInstruction::Branch {
+        condition,
+        then_bb,
+        else_bb,
+        ..
+    }) = &block.terminator
+    {
+        return Some((*condition, *then_bb, *else_bb));
+    }
+    match block.instructions.last() {
+        Some(MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            ..
+        }) => Some((*condition, *then_bb, *else_bb)),
+        _ => None,
+    }
 }
 
 fn compare_def(function: &MirFunction, value_id: ValueId) -> Option<(CompareOp, ValueId, ValueId)> {
@@ -1034,6 +1068,194 @@ mod tests {
             store.store_semantics(),
             DirectArrayStoreSemantics::OverwriteExisting
         );
+    }
+
+    #[test]
+    fn refresh_records_stack_top_pop_load_after_zero_lt_top_guard() {
+        let mut function = make_function();
+        let body_bb = BasicBlockId::new(1);
+        let miss_bb = BasicBlockId::new(2);
+        function.add_block(BasicBlock::new(body_bb));
+        function.add_block(BasicBlock::new(miss_bb));
+
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        entry.add_instruction(MirInstruction::Compare {
+            dst: ValueId::new(11),
+            op: CompareOp::Lt,
+            lhs: ValueId::new(10),
+            rhs: ValueId::new(2),
+        });
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(11),
+            then_bb: body_bb,
+            else_bb: miss_bb,
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+
+        let body = function.blocks.get_mut(&body_bb).expect("body");
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(12),
+            value: ConstValue::Integer(1),
+        });
+        body.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(13),
+            op: BinaryOp::Sub,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(12),
+        });
+        body.add_instruction(method_call(Some(14), "ArrayBox", "get", 3, vec![13]));
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
+        let load = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(load.op(), DirectArrayAccessOp::Load);
+        assert_eq!(
+            load.bounds_policy(),
+            DirectArrayBoundsPolicy::ProvedUnchecked
+        );
+        assert_eq!(load.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(load.proof_ids(), &["stack_top_pop"]);
+        assert_eq!(load.cfg_shape(), DirectArrayCfgShape::Branchless);
+    }
+
+    #[test]
+    fn refresh_reads_branch_instruction_when_terminator_is_absent() {
+        let mut function = make_function();
+        let body_bb = BasicBlockId::new(1);
+        let miss_bb = BasicBlockId::new(2);
+        function.add_block(BasicBlock::new(body_bb));
+        function.add_block(BasicBlock::new(miss_bb));
+
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        entry.add_instruction(MirInstruction::Compare {
+            dst: ValueId::new(11),
+            op: CompareOp::Eq,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(10),
+        });
+        entry.instructions.push(MirInstruction::Branch {
+            condition: ValueId::new(11),
+            then_bb: miss_bb,
+            else_bb: body_bb,
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+
+        let body = function.blocks.get_mut(&body_bb).expect("body");
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(12),
+            value: ConstValue::Integer(1),
+        });
+        body.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(13),
+            op: BinaryOp::Sub,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(12),
+        });
+        body.add_instruction(method_call(Some(14), "ArrayBox", "get", 3, vec![13]));
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
+        let load = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(load.op(), DirectArrayAccessOp::Load);
+        assert_eq!(load.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(load.cfg_shape(), DirectArrayCfgShape::Branchless);
+    }
+
+    #[test]
+    fn refresh_records_stack_top_pop_load_from_phi_guard() {
+        let mut function = make_function();
+        let guard_bb = BasicBlockId::new(1);
+        let body_bb = BasicBlockId::new(2);
+        let miss_bb = BasicBlockId::new(3);
+        function.add_block(BasicBlock::new(guard_bb));
+        function.add_block(BasicBlock::new(body_bb));
+        function.add_block(BasicBlock::new(miss_bb));
+
+        let guard = function.blocks.get_mut(&guard_bb).expect("guard");
+        guard.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(20),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(2)),
+                (BasicBlockId::new(4), ValueId::new(30)),
+            ],
+            type_hint: Some(MirType::Integer),
+        });
+        guard.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(21),
+            src: ValueId::new(20),
+        });
+        guard.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(22),
+            value: ConstValue::Integer(0),
+        });
+        guard.add_instruction(MirInstruction::Compare {
+            dst: ValueId::new(23),
+            op: CompareOp::Eq,
+            lhs: ValueId::new(21),
+            rhs: ValueId::new(22),
+        });
+        guard.set_terminator(MirInstruction::Branch {
+            condition: ValueId::new(23),
+            then_bb: miss_bb,
+            else_bb: body_bb,
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+
+        let body = function.blocks.get_mut(&body_bb).expect("body");
+        body.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(24),
+            src: ValueId::new(20),
+        });
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(25),
+            value: ConstValue::Integer(1),
+        });
+        body.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(26),
+            op: BinaryOp::Sub,
+            lhs: ValueId::new(24),
+            rhs: ValueId::new(25),
+        });
+        body.add_instruction(method_call(Some(27), "ArrayBox", "get", 3, vec![26]));
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
+        let load = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(load.op(), DirectArrayAccessOp::Load);
+        assert_eq!(load.proof_kind(), DirectArrayProofKind::StackTopPop);
+        assert_eq!(load.cfg_shape(), DirectArrayCfgShape::Branchless);
     }
 
     #[test]

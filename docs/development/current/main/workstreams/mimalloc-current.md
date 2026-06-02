@@ -1429,6 +1429,32 @@ message.
     clean, so this is not a fallback problem. The next owner is DirectArray
     exact access boundary thinning, not `.hako` source reshaping.
 
+- [x] MIM-132: DirectArray plan refresh after route fixpoint
+  - output:
+    recompute DirectArray / Span / RequiredFastPath metadata after route
+    fixpoint so newly selected `generic_method_routes` can feed the
+    DirectArray planner in the same semantic refresh.
+  - proof cleanup:
+    stack-top-pop proof now accepts zero-compare guard shapes such as
+    `0 < top`, reads branch edges from either terminator or branch-like final
+    instruction, and preserves the existing `proof_kind=stack_top_pop`
+    contract.
+  - result:
+    representative `hako_check fastpath-explain --require-clean` reports
+    `direct_array_access_plan_count=16`,
+    `direct_array_proved_unchecked_plan_count=12`, and
+    `direct_array_stack_top_pop_count=7`. Direct exact reuse-cycle 3-run
+    median is `hako_instructions_median=383481044`,
+    `hako_cycles_median=55969313`, and
+    `hako_body_elapsed_ns_median=10000000`.
+  - nonkeeper:
+    a broader refill-store `stack_refill` proof removed one remaining helper
+    call structurally, but regressed the 3-run median to roughly
+    `384013672` instructions. Keep it out until fresh owner evidence selects
+    that store.
+  - no source syntax change, no by-name selector, no public ArrayBox/default
+    safe behavior change, no new row/guard/script.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
@@ -2279,6 +2305,13 @@ next_task=MIM-038
 
 ## Decision Log
 
+- 2026-06-02: MIM-132 kept the DirectArray planner refresh/order fix and
+  stack-top-pop guard-shape cleanup, but rejected the broader refill-store
+  `stack_refill` proof. The refill proof removed a helper call structurally,
+  yet worsened representative direct-exact reuse-cycle instructions from the
+  stable `383.48M` band to about `384.01M`, so it is nonkeeper for the current
+  owner. Future DirectArray proof work must remain instruction-positive on
+  the active exact front, not only structurally cleaner.
 - 2026-06-01: MIM-054 removed the duplicate `cached_page.page_id == page_id`
   check from the first cached known-page release success path. The hot path has
   already matched `page_id == me.last_alloc_page_id`, and the cached handle and
