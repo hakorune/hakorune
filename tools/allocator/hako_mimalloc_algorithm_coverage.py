@@ -225,6 +225,18 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
     hot_array_direct_fields = [
         name for name in hot_array_fields if f"{name}: DirectArrayI64" in page_box
     ]
+    hot_array_source_type_ready = int(not hot_array_arraybox_fields and len(hot_array_direct_fields) == len(hot_array_fields))
+    hot_array_birth_contract_ready = int(
+        hot_array_source_type_ready
+        and has_all(page_box, ["new DirectArrayI64", ".set("])
+        and hot_array_push_count == 0
+    )
+    if hot_array_source_type_ready:
+        migration_blocker = "none" if hot_array_birth_contract_ready else "directarray_i64_birth_contract_unverified"
+    elif hot_array_push_count:
+        migration_blocker = "push_or_initialized_len_contract"
+    else:
+        migration_blocker = "field_type_and_birth_contract_unverified"
     hotcore_methods = [
         method
         for method in ("objectLifecycleSmallAlloc", "objectLifecycleReleaseBlock")
@@ -276,6 +288,12 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         "page_model_hot_array_access_plan_v0": 1,
         "page_model_hot_array_access_static_scan": 1,
         "page_model_hot_array_source_migration_selected": 0,
+        "page_model_hot_array_source_type_ready": hot_array_source_type_ready,
+        "page_model_hot_array_birth_contract_ready": hot_array_birth_contract_ready,
+        "page_model_hot_array_source_migration_blocker": migration_blocker,
+        "page_model_hot_array_next_bridge": "directarray_i64_field_type_and_birth_fixture"
+        if migration_blocker != "none"
+        else "source_migration_measurement",
         "page_model_hot_array_candidate_type": "DirectArrayI64",
         "page_model_hot_array_directarray_supported_ops": "get,set",
         "page_model_hot_array_directarray_missing_ops": "push_or_birth_with_initialized_len"
@@ -328,6 +346,10 @@ def emit_text(data: dict[str, object]) -> None:
         "page_model_hot_array_access_plan_v0",
         "page_model_hot_array_access_static_scan",
         "page_model_hot_array_source_migration_selected",
+        "page_model_hot_array_source_type_ready",
+        "page_model_hot_array_birth_contract_ready",
+        "page_model_hot_array_source_migration_blocker",
+        "page_model_hot_array_next_bridge",
         "page_model_hot_array_candidate_type",
         "page_model_hot_array_directarray_supported_ops",
         "page_model_hot_array_directarray_missing_ops",

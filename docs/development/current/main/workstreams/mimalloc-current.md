@@ -135,6 +135,10 @@ size_class_policy_single_class_bridge_mode=hako_good_size_request_ceiling
 page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_access_plan_v0=1
 page_model_hot_array_source_migration_selected=0
+page_model_hot_array_source_type_ready=0
+page_model_hot_array_birth_contract_ready=0
+page_model_hot_array_source_migration_blocker=field_type_and_birth_contract_unverified
+page_model_hot_array_next_bridge=directarray_i64_field_type_and_birth_fixture
 page_model_hot_array_candidate_type=DirectArrayI64
 page_model_hot_array_arraybox_fields=free,local_free,block_used
 page_model_hot_array_directarray_supported_ops=get,set
@@ -152,7 +156,9 @@ The PageModel hot-array access scan distinguishes hot `get/set` traffic from
 seed-time initialization traffic. `seedFreeBlocks` now uses append-or-overwrite
 `set(i, ...)` shape for all three arrays, so the old `ArrayBox.push` blocker is
 closed. DirectArrayI64 source migration still remains closed until fresh owner
-evidence selects the field-type change.
+evidence selects the field-type change. The current blocker is the
+DirectArrayI64 field-type plus birth/initialized-length fixture, not hot
+`get/set` traffic.
 
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
@@ -256,7 +262,8 @@ object-lifecycle-native-slot-bridge-v0:
      closed.
    - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
      storage. The seed-time `push` shape is closed; do the field-type migration
-     only when fresh owner evidence selects it.
+     only when fresh owner evidence selects it. Current next bridge is a
+     DirectArrayI64 field-type + birth/initialized-length fixture.
    - Third candidate: HotCore/PageModel plan consumption by replacement-front
      lowering.
    - Do not weaken ProviderFront or add source syntax to force the bridge.
