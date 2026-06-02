@@ -244,6 +244,9 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
      cross-thread realloc remains unsupported and must stay visible in counters.
      Remote-free publication is serialized with the arena registry so owner
      thread exit cannot race with a foreign free touching owner arena storage.
+     Use `--replacement-front-skip-hot-counters` only as a measurement-only
+     counter-tax probe; it is incompatible with the focused counter smokes and
+     is not allocator readiness evidence.
 
 ```text
 thread_local_replacement_front_smoke=1

@@ -109,9 +109,15 @@ static unsigned long long cross_thread_realloc_unsupported_count = 0;
 static unsigned long long arena_registry_overflow_count = 0;
 static unsigned long long abandoned_arena_count = 0;
 static unsigned long long abandoned_remote_free_count = 0;
+static unsigned long long skip_hot_counters_enabled = 0;
 
 static void add_counter(unsigned long long* counter, unsigned long long delta) {
+#ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
+  (void)counter;
+  (void)delta;
+#else
   __sync_fetch_and_add(counter, delta);
+#endif
 }
 
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
@@ -429,6 +435,7 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_arena_registry_overflow_count", arena_registry_overflow_count);
   write_kv(fd, "replacement_front_abandoned_arena_count", abandoned_arena_count);
   write_kv(fd, "replacement_front_abandoned_remote_free_count", abandoned_remote_free_count);
+  write_kv(fd, "replacement_front_skip_hot_counters_enabled", skip_hot_counters_enabled);
   close(fd);
 }
 
@@ -439,6 +446,9 @@ static void install_report(void) {
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
   thread_local_mode_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
+  skip_hot_counters_enabled = 1;
 #endif
   atexit(write_report);
 }
@@ -685,12 +695,20 @@ def counter_value(counters: dict[str, str], key: str) -> int:
     return int(value) if value.isdigit() else 0
 
 
-def build_replacement_front_shim(out_dir: Path, *, locked: bool, thread_local: bool) -> Path:
+def build_replacement_front_shim(
+    out_dir: Path,
+    *,
+    locked: bool,
+    thread_local: bool,
+    skip_hot_counters: bool,
+) -> Path:
     front_dir = out_dir / (
         "replacement-front-native-slot-locked" if locked else "replacement-front-native-slot"
     )
     if thread_local:
         front_dir = out_dir / "replacement-front-native-slot-thread-local"
+    if skip_hot_counters:
+        front_dir = out_dir / f"{front_dir.name}-skip-hot-counters"
     front_dir.mkdir(parents=True, exist_ok=True)
     source = front_dir / "hako_alloc_replacement_front_native_slot.c"
     binary = front_dir / "libhako_alloc_replacement_front_native_slot.so"
@@ -707,6 +725,8 @@ def build_replacement_front_shim(out_dir: Path, *, locked: bool, thread_local: b
         cmd.append("-DHAKO_REPLACEMENT_FRONT_LOCKED=1")
     if thread_local:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_THREAD_LOCAL=1")
+    if skip_hot_counters:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS=1")
     cmd.extend([str(source), "-ldl"])
     if locked or thread_local:
         cmd.append("-pthread")
@@ -1090,6 +1110,11 @@ def main() -> int:
         action="store_true",
         help="run focused cross-thread free and abandoned-owner replacement front smokes",
     )
+    parser.add_argument(
+        "--replacement-front-skip-hot-counters",
+        action="store_true",
+        help="measurement-only: skip malloc/free hot-path replacement front counters",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -1120,6 +1145,16 @@ def main() -> int:
         raise SystemExit(
             "--replacement-front-cross-thread-smoke requires "
             "--replacement-front-thread-local-mode"
+        )
+    if args.replacement_front_skip_hot_counters and not args.replacement_front_native_slot_mode:
+        raise SystemExit(
+            "--replacement-front-skip-hot-counters requires "
+            "--replacement-front-native-slot-mode"
+        )
+    if args.replacement_front_cross_thread_smoke and args.replacement_front_skip_hot_counters:
+        raise SystemExit(
+            "--replacement-front-cross-thread-smoke cannot be combined with "
+            "--replacement-front-skip-hot-counters because the smoke validates counters"
         )
 
     root = args.hakozuna_root.resolve()
@@ -1167,6 +1202,7 @@ def main() -> int:
             out_dir,
             locked=args.replacement_front_lock_mode,
             thread_local=args.replacement_front_thread_local_mode,
+            skip_hot_counters=args.replacement_front_skip_hot_counters,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -1241,6 +1277,7 @@ def main() -> int:
         f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
         f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
         f"replacement_front_cross_thread_smoke={1 if args.replacement_front_cross_thread_smoke else 0}",
+        f"replacement_front_skip_hot_counters={1 if args.replacement_front_skip_hot_counters else 0}",
     ]
     if replacement_front_smokes:
         cross_thread_free = replacement_front_smokes["cross_thread_free"]
