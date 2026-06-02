@@ -65,6 +65,14 @@ static int resolving_real = 0;
 #define HAKO_REPLACEMENT_STORAGE
 #endif
 
+#if defined(__GNUC__)
+#define HAKO_ALWAYS_INLINE static inline __attribute__((always_inline))
+#define HAKO_COLD_NOINLINE static __attribute__((cold, noinline))
+#else
+#define HAKO_ALWAYS_INLINE static inline
+#define HAKO_COLD_NOINLINE static
+#endif
+
 static HAKO_REPLACEMENT_STORAGE HakoReplacementSlot slots[HAKO_REPLACEMENT_SLOT_COUNT];
 static HAKO_REPLACEMENT_STORAGE unsigned char used[HAKO_REPLACEMENT_SLOT_COUNT];
 static HAKO_REPLACEMENT_STORAGE size_t requested_size[HAKO_REPLACEMENT_SLOT_COUNT];
@@ -209,14 +217,14 @@ static void add_counter(unsigned long long* counter, unsigned long long delta) {
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-static void lock_arena(void) {
+HAKO_ALWAYS_INLINE void lock_arena(void) {
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
   pthread_mutex_lock(&arena_lock);
   add_counter(&lock_enter_count, 1);
 #endif
 }
 
-static void unlock_arena(void) {
+HAKO_ALWAYS_INLINE void unlock_arena(void) {
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
   pthread_mutex_unlock(&arena_lock);
 #endif
@@ -424,7 +432,7 @@ static int slot_index(void* ptr) {
   return (int)index;
 }
 
-static void* direct_alloc_fast(size_t size) {
+HAKO_ALWAYS_INLINE void* direct_alloc_fast(size_t size) {
   if (free_top == 0u) {
     return 0;
   }
@@ -435,7 +443,7 @@ static void* direct_alloc_fast(size_t size) {
   return slots[index].bytes;
 }
 
-static void* direct_alloc_slow(size_t size) {
+HAKO_COLD_NOINLINE void* direct_alloc_slow(size_t size) {
   if (size == 0 || size > HAKO_REPLACEMENT_SLOT_SIZE) {
     return 0;
   }
@@ -451,7 +459,7 @@ static void* direct_alloc_slow(size_t size) {
   return direct_alloc_fast(size);
 }
 
-static void* direct_alloc(size_t size) {
+HAKO_ALWAYS_INLINE void* direct_alloc(size_t size) {
   if (size == 0 || size > HAKO_REPLACEMENT_SLOT_SIZE) {
     return 0;
   }
@@ -469,7 +477,7 @@ static void* direct_alloc(size_t size) {
   return direct_alloc_fast(size);
 }
 
-static int direct_free_local(void* ptr) {
+HAKO_ALWAYS_INLINE int direct_free_local(void* ptr) {
   int index = slot_index(ptr);
   if (index < 0 || used[(uint32_t)index] != 1u) {
     return 0;
@@ -1539,7 +1547,9 @@ def main() -> int:
                     f"subject_{index}_free_remote_path_after_local_fail="
                     f"{1 if args.replacement_front_thread_local_mode else 0}",
                     f"subject_{index}_free_hot_remote_queue_call=0",
-                    f"subject_{index}_replacement_entry_inline_plan=0",
+                    f"subject_{index}_replacement_entry_inline_plan=1",
+                    f"subject_{index}_malloc_to_direct_alloc_boundary=always_inline",
+                    f"subject_{index}_free_to_direct_free_boundary=always_inline",
                 ]
             )
         if counters:

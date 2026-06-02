@@ -355,6 +355,8 @@ free_local_first=0|1
 free_remote_path_after_local_fail=0|1
 free_hot_remote_queue_call=0|1
 replacement_entry_inline_plan=0|1
+malloc_to_direct_alloc_boundary=always_inline|tailcall|call
+free_to_direct_free_boundary=always_inline|tailcall|call
 ```
 
 The current keeper state is expected to show `tls_get_addr_hot_path=0`,
@@ -364,7 +366,9 @@ The current keeper state is expected to show `tls_get_addr_hot_path=0`,
 `tls_arena_fast_alloc_plan=1`. `REPL-003` also fixes
 `tls_arena_local_free_plan=1`, `free_local_first=1`,
 `free_remote_path_after_local_fail=1`, and `free_hot_remote_queue_call=0`.
-`replacement_entry_inline_plan` remains open.
+`REPL-004` fixes `replacement_entry_inline_plan=1` with
+`malloc_to_direct_alloc_boundary=always_inline` and
+`free_to_direct_free_boundary=always_inline`.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
