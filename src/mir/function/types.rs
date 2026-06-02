@@ -15,6 +15,7 @@ use crate::mir::{
     direct_array_access_plan::DirectArrayAccessPlan,
     direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
+    effect_summary::EffectSummary,
     exact_numeric_value_facts::{
         ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
         ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection, ExactNumericConstFact,
@@ -409,6 +410,13 @@ pub struct FunctionMetadata {
 
     /// Per-site obligations derived from required fast-path regions.
     pub fastpath_obligations: Vec<FastPathObligation>,
+
+    /// Metadata-only helper effect summaries.
+    ///
+    /// These inventory receiver/foreign reads, writes, handle publication, and
+    /// hidden effect blockers for future narrow mixed-base helper recipes. They
+    /// do not authorize Inline(required), call lowering, or publication routes.
+    pub effect_summaries: Vec<EffectSummary>,
 
     /// Metadata-only summaries for selected direct-exact hot-core methods.
     ///

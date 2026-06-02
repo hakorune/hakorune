@@ -28,6 +28,7 @@ use super::{
     direct_array_extent_fact::refresh_function_direct_array_extent_facts,
     direct_exact_hotcore_call_plan::refresh_module_direct_exact_hotcore_call_plans,
     direct_state_plan::refresh_module_direct_state_plans,
+    effect_summary::refresh_function_effect_summaries,
     exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts,
     exact_numeric_value_facts::refresh_module_exact_numeric_value_facts,
     exact_seed_backend_route::{
@@ -106,6 +107,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_direct_array_access_plans(function);
     refresh_function_span_access_plans(function);
     refresh_function_fastpath_obligations(function);
+    refresh_function_effect_summaries(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);
@@ -157,6 +159,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_direct_array_access_plans(function);
         refresh_function_span_access_plans(function);
         refresh_function_fastpath_obligations(function);
+        refresh_function_effect_summaries(function);
         refresh_function_hotcore_method_summaries(function);
     }
     refresh_module_direct_exact_hotcore_call_plans(module);

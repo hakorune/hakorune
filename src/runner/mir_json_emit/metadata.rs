@@ -208,6 +208,26 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "failure_reason": obligation.failure_reason,
             })
         }).collect::<Vec<_>>(),
+        "effect_summaries": metadata.effect_summaries.iter().map(|summary| {
+            json!({
+                "method": summary.method,
+                "receiver_value": summary.receiver_value.map(|value| value.as_u32()),
+                "receiver_reads": summary.receiver_reads,
+                "receiver_writes": summary.receiver_writes,
+                "foreign_reads": summary.foreign_reads,
+                "foreign_writes": summary.foreign_writes,
+                "handle_publications": summary.handle_publications,
+                "nested_call_count": summary.nested_call_count,
+                "allocation_count": summary.allocation_count,
+                "safepoint_count": summary.safepoint_count,
+                "branch_count": summary.branch_count,
+                "loop_like_count": summary.loop_like_count,
+                "foreign_base_count": summary.foreign_base_count,
+                "candidate_kind": summary.candidate_kind,
+                "summary": summary.summary,
+                "failure_reason": summary.failure_reason,
+            })
+        }).collect::<Vec<_>>(),
         "hotcore_method_summaries": metadata.hotcore_method_summaries.iter().map(|summary| {
             json!({
                 "method": summary.method,

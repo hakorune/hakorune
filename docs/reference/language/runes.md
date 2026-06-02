@@ -99,10 +99,12 @@ helper(index, page, kind) {
 
 This shape reads a foreign object, writes receiver state, and may publish a
 foreign handle. It belongs to a future publication recipe, not the generic
-`Inline(required)` leaf verifier. The next compiler concept for reopening this
-surface is `EffectSummary`: receiver reads/writes, foreign reads/writes, handle
-publications, nested calls, allocations, and safepoints must be classified
-before a narrow `ReceiverSnapshotPublicationPlanV0` can be considered.
+`Inline(required)` leaf verifier. The compiler now emits metadata-only
+`EffectSummary` rows for this surface: receiver reads/writes, foreign
+reads/writes, handle publications, nested calls, allocations, safepoints,
+branches, and foreign-base count are classified before a narrow
+`ReceiverSnapshotPublicationPlanV0` can be considered. This summary is
+diagnostic only; it does not authorize inline or backend route changes.
 
 ## Contracts
 

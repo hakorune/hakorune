@@ -1882,9 +1882,11 @@ unless one of them changes a durable contract or implementation boundary.
      1. done: add a no-coredump fixture for the non-inline same-module mixed-base
         helper call; unsupported lowering must become a compile-time diagnostic,
         not an EXE crash
-     2. add helper `EffectSummary` vocabulary for receiver reads/writes,
-        foreign reads/writes, handle publications, calls, allocations, and
-        safepoints
+     2. done: added metadata-only helper `EffectSummary` vocabulary for
+        receiver reads/writes, foreign reads/writes, handle publications,
+        calls, allocations, safepoints, branch count, and foreign-base count;
+        `hako_check fastpath-explain` now reports mixed-base publication
+        candidates from MIR JSON without authorizing inline or lowering
      3. if still selected, add a narrow
         `ReceiverSnapshotPublicationPlanV0` recipe; start with scalar foreign
         read publication before permitting foreign handle publication

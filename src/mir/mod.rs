@@ -46,6 +46,7 @@ pub mod direct_exact_hotcore_call_plan; // MIR-owned direct-exact HotCore call-e
 pub mod direct_state_plan; // metadata-only direct mutable-state candidate plans
 pub mod effect;
 pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary
+pub mod effect_summary; // MIR-owned helper effect summaries
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub(crate) mod exact_numeric_backend_capability; // backend fail-fast for exact numeric facts/storage
 pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts/contracts owner

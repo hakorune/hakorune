@@ -137,6 +137,8 @@ EffectSummary:
   nested_call_count
   allocation_count
   safepoint_count
+  branch_count
+  foreign_base_count
 ```
 
 The v0 rule is:
@@ -148,9 +150,14 @@ receiver-local fieldset leaf:
 mixed-base publication helper:
   not a generic Inline(required) leaf
   first gate is same-module no-coredump / compile-time diagnostic
-  second gate is EffectSummary
+  second gate is EffectSummary metadata
   optional later gate is ReceiverSnapshotPublicationPlanV0
 ```
+
+Decision: accepted metadata-only. `EffectSummary` is emitted in MIR function
+metadata and exposed by `hako_check fastpath-explain`. It classifies helper
+effect shape only; it does not authorize inline, direct call lowering, handle
+publication, or backend route changes.
 
 Rejected until a narrow plan says otherwise:
 
