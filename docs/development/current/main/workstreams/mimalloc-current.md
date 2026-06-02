@@ -242,6 +242,8 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
    - Interpret the thread-local arena probe as the first scalable shape. It is
      still benchmark-only. Cross-thread free routes through a remote queue;
      cross-thread realloc remains unsupported and must stay visible in counters.
+     Remote-free publication is serialized with the arena registry so owner
+     thread exit cannot race with a foreign free touching owner arena storage.
 
 ```text
 thread_local_replacement_front_smoke=1

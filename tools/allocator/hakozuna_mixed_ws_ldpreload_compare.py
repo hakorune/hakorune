@@ -268,29 +268,43 @@ static void drain_remote_frees(void) {
 }
 
 static int remote_free_to_owner(void* ptr) {
-  int index = -1;
-  HakoReplacementArenaView* view = find_foreign_arena(ptr, &index);
-  if (!view || index < 0) {
+  uintptr_t local_base = (uintptr_t)slots[0].bytes;
+  uintptr_t local_end = (uintptr_t)(slots + HAKO_REPLACEMENT_SLOT_COUNT);
+  uintptr_t value = (uintptr_t)ptr;
+  if (value >= local_base && value < local_end) {
     return 0;
   }
-  if (!view->active) {
-    add_counter(&abandoned_remote_free_count, 1);
-    add_counter(&direct_core_call_count, 1);
-    return 1;
-  }
-  uint32_t uindex = (uint32_t)index;
-  if (!__sync_bool_compare_and_swap(&view->used[uindex], 1u, 2u)) {
-    return 0;
-  }
-  for (;;) {
-    int old_head = *view->remote_head;
-    view->remote_next[uindex] = (uint32_t)old_head;
-    if (__sync_bool_compare_and_swap(view->remote_head, old_head, index)) {
-      add_counter(&remote_free_push_count, 1);
+  pthread_mutex_lock(&arena_registry_lock);
+  for (unsigned int i = 0; i < arena_registry_count; i++) {
+    HakoReplacementArenaView* view = &arena_registry[i];
+    int index = arena_view_slot_index(view, ptr);
+    if (index < 0) {
+      continue;
+    }
+    if (!view->active) {
+      pthread_mutex_unlock(&arena_registry_lock);
+      add_counter(&abandoned_remote_free_count, 1);
       add_counter(&direct_core_call_count, 1);
       return 1;
     }
+    uint32_t uindex = (uint32_t)index;
+    if (!__sync_bool_compare_and_swap(&view->used[uindex], 1u, 2u)) {
+      pthread_mutex_unlock(&arena_registry_lock);
+      return 0;
+    }
+    for (;;) {
+      int old_head = *view->remote_head;
+      view->remote_next[uindex] = (uint32_t)old_head;
+      if (__sync_bool_compare_and_swap(view->remote_head, old_head, index)) {
+        pthread_mutex_unlock(&arena_registry_lock);
+        add_counter(&remote_free_push_count, 1);
+        add_counter(&direct_core_call_count, 1);
+        return 1;
+      }
+    }
   }
+  pthread_mutex_unlock(&arena_registry_lock);
+  return 0;
 }
 #endif
 
