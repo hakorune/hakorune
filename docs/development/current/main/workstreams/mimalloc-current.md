@@ -36,6 +36,7 @@ Current focus:
 provider/DLL benchmark bridge
 same-machine C mimalloc comparison
 next owner selection from local evidence
+algorithm-port coverage separation
 ```
 
 ## Stop Line
@@ -79,6 +80,57 @@ record/state direction:
 Inline(required):
   small receiver-local leaf helper only
   multi-block hot paths use HotCore/direct-exact plans instead
+
+algorithm-port coverage:
+  `.hako` hako_alloc policy/model coverage and benchmark-only replacement-front
+  execution coverage are different surfaces. Do not read the fixed-slot
+  replacement front as proof that the full `.hako` mimalloc algorithm is wired
+  into LD_PRELOAD/product replacement.
+```
+
+## Algorithm Port Coverage
+
+Use this section before selecting the next implementation owner.
+
+Current reading:
+
+```text
+.hako model/policy coverage:
+  size_class_policy=modeled
+  page_local_free_stack=modeled
+  same_thread_local_free=modeled
+  object_lifecycle_hot_core=modeled
+  page_map/realloc/huge/osvm/remote_free=policy_or_seam_modeled
+
+benchmark-only replacement front execution:
+  fixed_slot_native_free_stack=executed
+  matched_fixed_slot_size=executed for selected fixtures
+  in_place_realloc_within_fixed_slot=executed
+  thread_local_arena_remote_free_bridge=executed
+
+not yet bridged:
+  size_class_policy_to_replacement_bins
+  .hako PageModel arrays to source DirectArrayI64 storage
+  .hako HotCore/PageModel plans to replacement-front lowering
+  general page queue / segment / OSVM product allocator front
+```
+
+Stable report entry:
+
+```bash
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py
+```
+
+Acceptance for claiming algorithmic completeness stays closed until the report
+can show the `.hako` size-class/page-local/HotCore route as the executed
+replacement-front path. Until then, replacement-front benchmark results are
+thin-front evidence only:
+
+```text
+replacement_front_is_full_hako_algorithm=0
+provider_activation=0
+production_replacement_active=0
+winner_claim=0
 ```
 
 ## Current Evidence Anchors
@@ -150,19 +202,34 @@ object-lifecycle-native-slot-bridge-v0:
 
 ## Next Task Order
 
-1. Measure the native slot bridge provider route.
+1. Keep algorithm-port coverage visible.
+   - Run `tools/allocator/hako_mimalloc_algorithm_coverage.py` before opening a
+     new allocator-algorithm claim.
+   - If the report still says `replacement_front_is_full_hako_algorithm=0`,
+     treat the benchmark-only front as thin-front evidence, not product
+     allocator evidence.
+
+2. Bridge `.hako` algorithm pieces only by explicit owner evidence.
+   - First candidate: size-class policy to replacement bins/pages.
+   - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
+     storage.
+   - Third candidate: HotCore/PageModel plan consumption by replacement-front
+     lowering.
+   - Do not weaken ProviderFront or add source syntax to force the bridge.
+
+3. Measure the native slot bridge provider route.
    - Build with `--provider-package-hako-semantic-codegen
      object-lifecycle-native-slot-bridge-v0`.
    - Confirm `hako_provider_alloc_free_uses_host_malloc=0`.
    - Compare against the previous host-wrapper provider route and C mimalloc.
 
-2. Run a stable same-machine Hakozuna mixed-ws comparison.
+4. Run a stable same-machine Hakozuna mixed-ws comparison.
    - Use enough iterations/samples to reduce startup noise.
    - Compare system malloc, C mimalloc LD_PRELOAD, and optional Hakorune
      provider LD_PRELOAD.
    - Treat the result as local evidence only.
 
-3. Classify the remaining gap.
+5. Classify the remaining gap.
    - If provider shim counters dominate, optimize shim/provider boundary first.
    - If `.hako` allocator core dominates, return to direct-exact app perf/asm.
    - If benchmark setup noise dominates, improve measurement before code edits.
@@ -177,12 +244,12 @@ object-lifecycle-native-slot-bridge-v0:
      to isolate the remaining call-boundary tax and is not a replacement
      contract.
 
-4. Continue provider replacement ladder only as smoke/readiness.
+6. Continue provider replacement ladder only as smoke/readiness.
    - Keep `provider_activation=0`, `production_replacement_active=0`,
      `hook_installed=0`, `global_allocator_product_claim=0`,
      `winner_claim=0`.
 
-5. Add a benchmark-only `HakoAllocReplacementFront` probe if C-like thinness is
+7. Add a benchmark-only `HakoAllocReplacementFront` probe if C-like thinness is
    still required.
    - Do not weaken `HakoAllocProviderFront`.
    - The probe must bypass provider API table dispatch, hot function-pointer

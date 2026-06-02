@@ -100,6 +100,11 @@ Scope: current lane / next lane / restart order only.
   `latest_workstream_card` for the active blocker.
 - Mimalloc direct-exact optimization resumes after MIM-069 nonkeeper. The next
   owner refresh lives in `CURRENT_STATE.toml` and the mimalloc workstream card.
+- The current LD_PRELOAD benchmark-only replacement front is not the full
+  `.hako` mimalloc algorithm. It is a fixed-slot native front used to isolate
+  replacement-boundary thinness. Treat `.hako` `hako_alloc` as the policy/model
+  algorithm source until an explicit bridge connects it to the replacement
+  front.
 - Day-to-day work lives in `latest_workstream_card` from `CURRENT_STATE.toml`.
   Do not create numbered rows for inventory-only progress.
 - Do not open another Array / helper / RuntimeDataBox fast path unless the
@@ -181,6 +186,33 @@ The observer-light HotCore compiler fastpath slice is already a completed
 front. The public proof front is heavier by design because it still carries
 facade/result/observer semantics. Do not mix those fronts when selecting the
 next owner.
+
+Current algorithm-port reading:
+
+```text
+Do not read benchmark-only ReplacementFront throughput as proof that the full
+.hako mimalloc algorithm is product-ready.
+
+Modelled in .hako:
+  size-class policy
+  page-local free/local_free/block_used state
+  page-map/realloc/huge/OSVM/remote-free policy seams
+  object-lifecycle hot-core small alloc/release shape
+
+Currently executed by the benchmark-only replacement front:
+  single fixed-slot native free stack
+  optional thread-local arena and remote-free bridge
+  direct malloc/free/realloc wrappers for the fixed slot size
+
+Open bridge work:
+  connect size-class policy to real replacement bins/pages
+  migrate hot page arrays toward DirectArrayI64-backed storage
+  connect .hako PageModel/HotCore plans to replacement-front lowering
+  keep provider API and ReplacementFront separate
+```
+
+Use `tools/allocator/hako_mimalloc_algorithm_coverage.py` for the current
+coverage report before claiming algorithmic port completeness.
 
 Latest representative public proof refresh:
 

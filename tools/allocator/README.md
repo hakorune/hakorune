@@ -9,6 +9,26 @@ Use the direct-exact wrappers when investigating current `.hako` mimalloc
 parity. They source `tools/allocator/mimalloc_direct_exact_env.sh` so worker
 runs do not accidentally measure the default/safe front.
 
+Before claiming that an allocator benchmark is measuring the full `.hako`
+mimalloc algorithm, run the algorithm coverage report:
+
+```bash
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py
+```
+
+The report separates `.hako` policy/model coverage from benchmark-only
+replacement-front execution. The current expected state is:
+
+```text
+replacement_front_is_full_hako_algorithm=0
+provider_activation=0
+production_replacement_active=0
+winner_claim=0
+```
+
+Use this to avoid reading the fixed-slot replacement front as a product
+allocator or full `.hako` algorithm claim.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
