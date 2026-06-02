@@ -231,6 +231,9 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         and has_all(page_box, ["new DirectArrayI64", ".set("])
         and hot_array_push_count == 0
     )
+    hot_array_source_migration_selected = int(
+        hot_array_source_type_ready and hot_array_birth_contract_ready
+    )
     if hot_array_source_type_ready:
         migration_blocker = "none" if hot_array_birth_contract_ready else "directarray_i64_birth_contract_unverified"
     elif hot_array_push_count:
@@ -287,7 +290,7 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         "page_model_hot_array_bridge_plan_v0": 1,
         "page_model_hot_array_access_plan_v0": 1,
         "page_model_hot_array_access_static_scan": 1,
-        "page_model_hot_array_source_migration_selected": 0,
+        "page_model_hot_array_source_migration_selected": hot_array_source_migration_selected,
         "page_model_hot_array_source_type_ready": hot_array_source_type_ready,
         "page_model_hot_array_birth_contract_ready": hot_array_birth_contract_ready,
         "page_model_hot_array_source_migration_blocker": migration_blocker,

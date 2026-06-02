@@ -45,7 +45,7 @@ impl BoxFactory for BuiltinBoxFactory {
             "BoolBox" => builtin_impls::bool_box::create(args),
 
             // Collection constructors are owned by ring1 provider seams.
-            "ArrayBox" => Ok(crate::providers::ring1::array::new_array_box()),
+            "ArrayBox" | "DirectArrayI64" => Ok(crate::providers::ring1::array::new_array_box()),
             "MapBox" => Ok(crate::providers::ring1::map::new_map_box()),
 
             // Phase 151: selfhost fallback, owned by the ring1 console seam.

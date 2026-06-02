@@ -7,9 +7,9 @@ box HakoAllocPageModel {
     block_size: usize
     capacity: usize
     reserved: usize
-    free: ArrayBox = new ArrayBox()
-    local_free: ArrayBox = new ArrayBox()
-    block_used: ArrayBox = new ArrayBox()
+    free: DirectArrayI64 = new DirectArrayI64()
+    local_free: DirectArrayI64 = new DirectArrayI64()
+    block_used: DirectArrayI64 = new DirectArrayI64()
     used: i64 = 0
     free_top: i64 = 0
     local_free_top: i64 = 0

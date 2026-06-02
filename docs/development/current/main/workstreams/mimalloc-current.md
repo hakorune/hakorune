@@ -134,14 +134,16 @@ size_class_policy_single_class_benchmark_bridge_supported=1
 size_class_policy_single_class_bridge_mode=hako_good_size_request_ceiling
 page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_access_plan_v0=1
-page_model_hot_array_source_migration_selected=0
-page_model_hot_array_source_type_ready=0
-page_model_hot_array_birth_contract_ready=0
-page_model_hot_array_source_migration_blocker=field_type_and_birth_contract_unverified
-page_model_hot_array_next_bridge=directarray_i64_field_type_and_birth_fixture
+page_model_hot_array_source_migration_selected=1
+page_model_hot_array_source_type_ready=1
+page_model_hot_array_birth_contract_ready=1
+page_model_hot_array_source_migration_blocker=none
+page_model_hot_array_next_bridge=source_migration_measurement
 page_model_hot_array_candidate_type=DirectArrayI64
-page_model_hot_array_arraybox_fields=free,local_free,block_used
+page_model_hot_array_arraybox_fields=none
+page_model_hot_array_directarray_fields=free,local_free,block_used
 page_model_hot_array_directarray_supported_ops=get,set
+page_model_hot_array_directarray_missing_ops=none
 page_model_hot_array_seed_push_blocker=0
 page_model_hot_array_op_summary=free:get=...:set=...:push=...
 hotcore_replacement_bridge_plan_v0=1
@@ -153,22 +155,18 @@ This is bridge-readiness reporting, not source migration or replacement-front
 lowering consumption.
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
-seed-time initialization traffic. `seedFreeBlocks` now uses append-or-overwrite
+seed-time initialization traffic. `seedFreeBlocks` uses append-or-overwrite
 `set(i, ...)` shape for all three arrays, so the old `ArrayBox.push` blocker is
-closed. DirectArrayI64 source migration still remains closed until fresh owner
-evidence selects the field-type change. The current blocker is the
-DirectArrayI64 field-type plus birth/initialized-length fixture, not hot
-`get/set` traffic.
+closed. The PageModel `free` / `local_free` / `block_used` fields are now
+`DirectArrayI64` source fields.
 
 Current implementation note: DirectArrayI64 source receivers are accepted by
 the generic `get/set` route producer and by DirectArrayAccessPlan /
-DirectArrayExtentFact metadata. This only opens the source-type route shape;
-PageModel source migration remains blocked until the birth/initialized-length
-fixture is fixed and measured.
+DirectArrayExtentFact metadata.
 
 Explicit `new DirectArrayI64()` also lowers to the direct-i64 birth symbol in
-the LLVM exact front. The remaining blocker is initialized-length / PageModel
-field migration measurement, not constructor availability.
+the LLVM exact front. The next bridge is source migration measurement, not
+another route/birth fixture.
 
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed

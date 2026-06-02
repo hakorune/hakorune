@@ -71,6 +71,20 @@ impl MirInterpreter {
             }
         }
 
+        // VM/reference semantics: DirectArrayI64 is an exact-storage source
+        // contract for lowering, but the interpreter may model it through the
+        // public ArrayBox behavior.  The direct buffer is owned by the LLVM
+        // exact front via DirectArrayAccessPlan and direct_i64 birth lowering.
+        if box_type == "DirectArrayI64" {
+            let created_vm =
+                VMValue::from_nyash_box(crate::providers::ring1::array::new_array_box());
+            self.write_reg(dst, created_vm);
+            if Self::box_trace_enabled() {
+                self.box_trace_emit_new(box_type, args.len());
+            }
+            return Ok(());
+        }
+
         // User-defined boxes (Program/MIR): create InstanceBox directly from compiler metadata.
         //
         // Why:

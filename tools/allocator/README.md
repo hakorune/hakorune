@@ -36,11 +36,11 @@ size_class_policy_product_bins_connected=0
 size_class_policy_single_class_benchmark_bridge_supported=1
 page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_access_plan_v0=1
-page_model_hot_array_source_migration_selected=0
-page_model_hot_array_source_type_ready=0
-page_model_hot_array_birth_contract_ready=0
-page_model_hot_array_source_migration_blocker=field_type_and_birth_contract_unverified
-page_model_hot_array_next_bridge=directarray_i64_field_type_and_birth_fixture
+page_model_hot_array_source_migration_selected=1
+page_model_hot_array_source_type_ready=1
+page_model_hot_array_birth_contract_ready=1
+page_model_hot_array_source_migration_blocker=none
+page_model_hot_array_next_bridge=source_migration_measurement
 page_model_hot_array_seed_push_blocker=0
 provider_activation=0
 production_replacement_active=0
@@ -53,10 +53,9 @@ allocator or full `.hako` algorithm claim.
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
 The seed path now uses append-or-overwrite `set(i, ...)` shape, so the old
-seed-time `push` blocker is closed. DirectArrayI64 source migration still
-requires explicit owner evidence before changing the PageModel field types. The
-current bridge is not another hot `get/set` route; it is the DirectArrayI64
-field-type plus birth/initialized-length fixture.
+seed-time `push` blocker is closed. PageModel hot arrays are now source-level
+`DirectArrayI64` fields. The current bridge is source migration measurement,
+not another hot `get/set` route or constructor fixture.
 
 The Hakozuna mixed-ws compare report also emits a report-only size-class bridge
 view:
