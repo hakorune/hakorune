@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -50,6 +51,17 @@ def has_all(text: str, needles: Iterable[str]) -> bool:
 
 def hako_file(name: str) -> Path:
     return HAKO_ALLOC / name
+
+
+def count_member_calls(text: str, field: str, method: str) -> int:
+    """Count direct `field.method(` and `me.field.method(` source calls.
+
+    This is a static readiness scan, not semantic alias analysis. The leading
+    boundary avoids counting `free.set(...)` inside `local_free.set(...)`.
+    """
+
+    pattern = rf"(?<![A-Za-z0-9_])(?:me\.)?{re.escape(field)}\.{method}\s*\("
+    return len(re.findall(pattern, text))
 
 
 def build_rows() -> list[CoverageRow]:
@@ -195,6 +207,17 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
     hot_array_fields = ["free", "local_free", "block_used"]
+    hot_array_ops = {
+        name: {
+            "get": count_member_calls(page_box, name, "get"),
+            "set": count_member_calls(page_box, name, "set"),
+            "push": count_member_calls(page_box, name, "push"),
+        }
+        for name in hot_array_fields
+    }
+    hot_array_get_count = sum(ops["get"] for ops in hot_array_ops.values())
+    hot_array_set_count = sum(ops["set"] for ops in hot_array_ops.values())
+    hot_array_push_count = sum(ops["push"] for ops in hot_array_ops.values())
     hot_array_arraybox_fields = [
         name for name in hot_array_fields if f"{name}: ArrayBox" in page_box
     ]
@@ -232,13 +255,27 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         ),
         "open_area_count": sum(1 for row in rows if row.status == "open"),
         "page_model_hot_array_bridge_plan_v0": 1,
+        "page_model_hot_array_access_plan_v0": 1,
+        "page_model_hot_array_access_static_scan": 1,
         "page_model_hot_array_source_migration_selected": 0,
         "page_model_hot_array_candidate_type": "DirectArrayI64",
+        "page_model_hot_array_directarray_supported_ops": "get,set",
+        "page_model_hot_array_directarray_missing_ops": "push_or_birth_with_initialized_len"
+        if hot_array_push_count
+        else "none",
+        "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
         "page_model_hot_array_directarray_field_count": len(hot_array_direct_fields),
         "page_model_hot_array_arraybox_fields": ",".join(hot_array_arraybox_fields) or "none",
         "page_model_hot_array_directarray_fields": ",".join(hot_array_direct_fields) or "none",
+        "page_model_hot_array_get_count": hot_array_get_count,
+        "page_model_hot_array_set_count": hot_array_set_count,
+        "page_model_hot_array_push_count": hot_array_push_count,
+        "page_model_hot_array_op_summary": ",".join(
+            f"{name}:get={ops['get']}:set={ops['set']}:push={ops['push']}"
+            for name, ops in hot_array_ops.items()
+        ),
         "hotcore_replacement_bridge_plan_v0": 1,
         "hotcore_replacement_bridge_report_only": 1,
         "hotcore_replacement_consumer_enabled": 0,
@@ -265,13 +302,22 @@ def emit_text(data: dict[str, object]) -> None:
         "split_model_and_fixed_front_area_count",
         "open_area_count",
         "page_model_hot_array_bridge_plan_v0",
+        "page_model_hot_array_access_plan_v0",
+        "page_model_hot_array_access_static_scan",
         "page_model_hot_array_source_migration_selected",
         "page_model_hot_array_candidate_type",
+        "page_model_hot_array_directarray_supported_ops",
+        "page_model_hot_array_directarray_missing_ops",
+        "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",
         "page_model_hot_array_directarray_field_count",
         "page_model_hot_array_arraybox_fields",
         "page_model_hot_array_directarray_fields",
+        "page_model_hot_array_get_count",
+        "page_model_hot_array_set_count",
+        "page_model_hot_array_push_count",
+        "page_model_hot_array_op_summary",
         "hotcore_replacement_bridge_plan_v0",
         "hotcore_replacement_bridge_report_only",
         "hotcore_replacement_consumer_enabled",

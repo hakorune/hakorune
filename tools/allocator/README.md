@@ -22,7 +22,9 @@ replacement-front execution. The current expected state is:
 ```text
 replacement_front_is_full_hako_algorithm=0
 page_model_hot_array_bridge_plan_v0=1
+page_model_hot_array_access_plan_v0=1
 page_model_hot_array_source_migration_selected=0
+page_model_hot_array_seed_push_blocker=1
 provider_activation=0
 production_replacement_active=0
 winner_claim=0
@@ -30,6 +32,12 @@ winner_claim=0
 
 Use this to avoid reading the fixed-slot replacement front as a product
 allocator or full `.hako` algorithm claim.
+
+`page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
+`free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
+The current blocker is the seed-time `push` shape; DirectArrayI64 migration
+should use an initialized-length/birth route plus direct `set`, not a hidden
+ArrayBox-compatible `push` fallback.
 
 The Hakozuna mixed-ws compare report also emits a report-only size-class bridge
 view:

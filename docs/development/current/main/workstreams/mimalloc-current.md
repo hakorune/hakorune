@@ -125,9 +125,13 @@ The same report carries the current PageModel hot-array readiness view:
 
 ```text
 page_model_hot_array_bridge_plan_v0=1
+page_model_hot_array_access_plan_v0=1
 page_model_hot_array_source_migration_selected=0
 page_model_hot_array_candidate_type=DirectArrayI64
 page_model_hot_array_arraybox_fields=free,local_free,block_used
+page_model_hot_array_directarray_supported_ops=get,set
+page_model_hot_array_seed_push_blocker=1
+page_model_hot_array_op_summary=free:get=...:set=...:push=...
 hotcore_replacement_bridge_plan_v0=1
 hotcore_replacement_consumer_enabled=0
 hotcore_source_methods=objectLifecycleSmallAlloc,objectLifecycleReleaseBlock
@@ -135,6 +139,12 @@ hotcore_source_methods=objectLifecycleSmallAlloc,objectLifecycleReleaseBlock
 
 This is bridge-readiness reporting, not source migration or replacement-front
 lowering consumption.
+
+The PageModel hot-array access scan distinguishes hot `get/set` traffic from
+seed-time `push` traffic. The current DirectArrayI64 source migration remains
+closed because `seedFreeBlocks` still initializes the three arrays with
+`ArrayBox.push`. The intended bridge is an initialized-length/birth route plus
+direct `set`, not an ArrayBox-compatible hidden push fallback.
 
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
@@ -227,7 +237,8 @@ object-lifecycle-native-slot-bridge-v0:
 2. Bridge `.hako` algorithm pieces only by explicit owner evidence.
    - First candidate: size-class policy to replacement bins/pages.
    - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
-     storage.
+     storage. Before source migration, resolve the seed-time `push` shape with
+     an initialized-length/birth route plus direct `set`.
    - Third candidate: HotCore/PageModel plan consumption by replacement-front
      lowering.
    - Do not weaken ProviderFront or add source syntax to force the bridge.
