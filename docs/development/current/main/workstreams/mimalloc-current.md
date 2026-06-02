@@ -1786,6 +1786,29 @@ message.
     production `#[global_allocator]`, or winner claim. Do not optimize the
     allocator core from this evidence; first use the emitted shim counters to
     select the LD_PRELOAD shim owner family.
+
+- [x] MIM-145: Hakozuna mixed-ws LD_PRELOAD fixture connection
+  - output:
+    add the Ubuntu-side mixed working-set benchmark subject to the repo-local
+    provider replacement ladder without importing the full external corpus
+  - fixture:
+    `benchmarks/external/hakozuna/mixed-ws` vendors only
+    `bench_mixed_ws.c`, Apache license/notice files, a CRT-mode Makefile, and
+    a local `hz3.h` stub. It builds `bench_mixed_ws_crt` with
+    `HZ3_BENCH_USE_CRT=1`, so the subject calls libc malloc/realloc/free and
+    can be driven by LD_PRELOAD.
+  - implemented:
+    `hako_mimalloc_provider_backed_hakozuna_mixed_ws_ldpreload_repeated_measurement.py`
+    runs repeated provider-backed LD_PRELOAD samples and emits the same shim
+    overhead counters as the hakmem repeated measurement.
+  - ladder:
+    `hako_mimalloc_provider_replacement_decision_ladder.sh` now accepts
+    `--ldpreload-benchmark hakozuna-mixed-ws` while preserving the default
+    `hakmem-random-mixed` subject.
+  - stop lines:
+    no full hakozuna corpus import, no copied executable, no provider
+    activation, no production replacement, no hook installation, no production
+    `#[global_allocator]`, and no winner claim.
   - stop lines:
     product provider activation, production replacement, hook installation,
     production global allocator default, and winner claim remain closed

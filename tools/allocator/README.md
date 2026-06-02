@@ -96,6 +96,19 @@ benchmarks/external/hakmem/random-mixed-system/build/bench_random_mixed_system
 Pass `--hakmem-root /path/to/hakmem` only when intentionally running against the
 full extracted corpus.
 
+For the Ubuntu-side mixed working-set subject, use the repo-local Hakozuna
+fixture:
+
+```bash
+make -C benchmarks/external/hakozuna/mixed-ws
+```
+
+The provider replacement decision ladder can select it with:
+
+```bash
+--ldpreload-benchmark hakozuna-mixed-ws
+```
+
 Run the current no-product-default provider replacement decision ladder:
 
 ```bash
@@ -128,6 +141,13 @@ To intentionally compare against a full extracted corpus build, pass:
 
 ```bash
 --hakmem-root /home/tomoaki/git/hakmem_20260525_extracted/hakmem
+```
+
+For an external Hakozuna mixed-ws build, pass:
+
+```bash
+--ldpreload-benchmark hakozuna-mixed-ws \
+--hakozuna-root /path/to/hakozuna/hz3/out/linux/x86_64
 ```
 
 Compare two decision reports without changing product defaults:

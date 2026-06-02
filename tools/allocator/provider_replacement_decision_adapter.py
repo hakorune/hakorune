@@ -37,6 +37,19 @@ def require_positive_int(values: dict[str, str], key: str, label: str) -> str:
     return value
 
 
+def require_positive_number(values: dict[str, str], key: str, label: str) -> str:
+    value = values.get(key)
+    if value is None:
+        raise SystemExit(f"{label}: missing {key}")
+    try:
+        number = float(value)
+    except ValueError as exc:
+        raise SystemExit(f"{label}: {key} must be a number, got {value!r}") from exc
+    if number <= 0:
+        raise SystemExit(f"{label}: {key} must be positive, got {value!r}")
+    return value
+
+
 def require_key(values: dict[str, str], key: str, label: str) -> str:
     value = values.get(key)
     if value is None or value == "":
@@ -88,6 +101,7 @@ def validate_ldpreload(values: dict[str, str]) -> None:
     if contract not in {
         "hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0",
         "hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0",
+        "hako-mimalloc-provider-backed-hakozuna-mixed-ws-ldpreload-repeated-measurement-v0",
     }:
         raise SystemExit(f"{label}: unsupported output_contract {contract!r}")
     require(values, "summary", "ok", label)
@@ -105,7 +119,7 @@ def validate_ldpreload(values: dict[str, str]) -> None:
         require(values, "shim_pointer_table_overflow_total", "0", label)
         require_positive_int(values, "shim_provider_alloc_count_total", label)
         require_positive_int(values, "shim_provider_free_count_total", label)
-        require_positive_int(values, "throughput_median_ops_per_sec", label)
+        require_positive_number(values, "throughput_median_ops_per_sec", label)
         require_key(values, "shim_init_real_fallback_count_total", label)
         require_key(values, "shim_host_passthrough_count_total", label)
         require_key(values, "shim_provider_bind_success_total", label)
@@ -169,7 +183,7 @@ def main() -> int:
 
     lines = [
         "output_contract=hako-mimalloc-provider-replacement-decision-adapter-v0",
-        "input_contracts=mimalloc-comparison-repeated-measurement-v0,hakorune-provider-explicit-repeated-measurement-v0,hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0|hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0,hako-mimalloc-provider-backed-rust-global-allocator-smoke-v0",
+        "input_contracts=mimalloc-comparison-repeated-measurement-v0,hakorune-provider-explicit-repeated-measurement-v0,hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0|hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0|hako-mimalloc-provider-backed-hakozuna-mixed-ws-ldpreload-repeated-measurement-v0,hako-mimalloc-provider-backed-rust-global-allocator-smoke-v0",
         "decision_scope=provider_replacement_pilots_without_winner_claim",
         "measurement_domains=exact_exe_c_provider_explicit,external_ldpreload,generated_rust_global_allocator",
         f"workload_id={workload}",
@@ -187,7 +201,7 @@ def main() -> int:
         f"subject_2_elapsed_median_ns={require_key(provider, 'sample_elapsed_median_ns', 'provider')}",
         "subject_2_replacement_active=0",
         "subject_2_winner_claim=0",
-        "subject_3_id=provider_backed_hakmem_ldpreload",
+        "subject_3_id=provider_backed_external_ldpreload",
         f"subject_3_benchmark_id={require_key(ldpreload, 'benchmark_id', 'ldpreload')}",
         f"subject_3_timing_repeat_kind={ldpreload.get('timing_repeat_kind', 'single-process-pilot-v0')}",
         f"subject_3_throughput_median_ops_per_sec={ldpreload.get('throughput_median_ops_per_sec', ldpreload.get('throughput_ops_per_sec', ''))}",

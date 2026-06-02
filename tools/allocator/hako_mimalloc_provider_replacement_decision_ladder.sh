@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 REPEATED_RUNNER="${ROOT_DIR}/tools/allocator/mimalloc_repeated_measurement_runner.py"
 PROVIDER_LADDER="${ROOT_DIR}/tools/allocator/hako_mimalloc_provider_package_explicit_ladder.sh"
 LDPRELOAD_REPEATED="${ROOT_DIR}/tools/allocator/hako_mimalloc_provider_backed_hakmem_ldpreload_repeated_measurement.py"
+LDPRELOAD_HAKOZUNA_MIXED_WS="${ROOT_DIR}/tools/allocator/hako_mimalloc_provider_backed_hakozuna_mixed_ws_ldpreload_repeated_measurement.py"
 RUST_GLOBAL_SMOKE="${ROOT_DIR}/tools/allocator/provider_package_rust_global_allocator_smoke.py"
 DECISION_ADAPTER="${ROOT_DIR}/tools/allocator/provider_replacement_decision_adapter.py"
 
@@ -21,6 +22,13 @@ HAKMEM_ITERATIONS=1000
 HAKMEM_WORKING_SET=128
 HAKMEM_SEED=42
 HAKMEM_ROOT=""
+LDPRELOAD_BENCHMARK="hakmem-random-mixed"
+HAKOZUNA_ROOT=""
+HAKOZUNA_THREADS=1
+HAKOZUNA_ITERS_PER_THREAD=1000
+HAKOZUNA_WORKING_SET=128
+HAKOZUNA_MIN_SIZE=16
+HAKOZUNA_MAX_SIZE=1024
 
 usage() {
   cat >&2 <<'USAGE'
@@ -48,6 +56,13 @@ Options:
   --hakmem-working-set N     hakmem random-mixed working set (default: 128)
   --hakmem-seed N            hakmem random-mixed seed (default: 42)
   --hakmem-root DIR          explicit hakmem root/build dir; defaults to repo-local fixture
+  --ldpreload-benchmark ID   hakmem-random-mixed|hakozuna-mixed-ws (default: hakmem-random-mixed)
+  --hakozuna-root DIR        explicit hakozuna mixed-ws root/build dir
+  --hakozuna-threads N       hakozuna mixed-ws threads (default: 1)
+  --hakozuna-iters N         hakozuna mixed-ws iters per thread (default: 1000)
+  --hakozuna-working-set N   hakozuna mixed-ws working set (default: 128)
+  --hakozuna-min-size N      hakozuna mixed-ws minimum allocation size (default: 16)
+  --hakozuna-max-size N      hakozuna mixed-ws maximum allocation size (default: 1024)
   --skip-build-release       use existing target/release/hakorune in provider ladder
   --tmp-keep                 keep temporary artifacts and print their directory
 USAGE
@@ -131,6 +146,34 @@ while [[ "$#" -gt 0 ]]; do
       HAKMEM_ROOT="${2:-}"
       shift 2
       ;;
+    --ldpreload-benchmark)
+      LDPRELOAD_BENCHMARK="${2:-}"
+      shift 2
+      ;;
+    --hakozuna-root)
+      HAKOZUNA_ROOT="${2:-}"
+      shift 2
+      ;;
+    --hakozuna-threads)
+      HAKOZUNA_THREADS="${2:-}"
+      shift 2
+      ;;
+    --hakozuna-iters)
+      HAKOZUNA_ITERS_PER_THREAD="${2:-}"
+      shift 2
+      ;;
+    --hakozuna-working-set)
+      HAKOZUNA_WORKING_SET="${2:-}"
+      shift 2
+      ;;
+    --hakozuna-min-size)
+      HAKOZUNA_MIN_SIZE="${2:-}"
+      shift 2
+      ;;
+    --hakozuna-max-size)
+      HAKOZUNA_MAX_SIZE="${2:-}"
+      shift 2
+      ;;
     --skip-build-release)
       BUILD_RELEASE=0
       shift
@@ -162,6 +205,23 @@ positive_int "$OPERATION_REPEAT" "--operation-repeat"
 positive_int "$HAKMEM_ITERATIONS" "--hakmem-iterations"
 positive_int "$HAKMEM_WORKING_SET" "--hakmem-working-set"
 positive_int "$HAKMEM_SEED" "--hakmem-seed"
+positive_int "$HAKOZUNA_THREADS" "--hakozuna-threads"
+positive_int "$HAKOZUNA_ITERS_PER_THREAD" "--hakozuna-iters"
+positive_int "$HAKOZUNA_WORKING_SET" "--hakozuna-working-set"
+positive_int "$HAKOZUNA_MIN_SIZE" "--hakozuna-min-size"
+positive_int "$HAKOZUNA_MAX_SIZE" "--hakozuna-max-size"
+if [[ "$HAKOZUNA_MAX_SIZE" -lt "$HAKOZUNA_MIN_SIZE" ]]; then
+  echo "[provider-replacement-decision-ladder] ERROR: --hakozuna-max-size must be >= --hakozuna-min-size" >&2
+  exit 2
+fi
+case "$LDPRELOAD_BENCHMARK" in
+  hakmem-random-mixed|hakozuna-mixed-ws)
+    ;;
+  *)
+    echo "[provider-replacement-decision-ladder] ERROR: --ldpreload-benchmark must be hakmem-random-mixed|hakozuna-mixed-ws" >&2
+    exit 2
+    ;;
+esac
 case "$HAKO_RUNTIME_CONFIG" in
   empty|root)
     ;;
@@ -214,20 +274,42 @@ fi
 
 manifest="$(kv_value "$provider_ladder_report" manifest)"
 
-ldpreload_args=(
-  --manifest "$manifest"
-  --out-dir "$OUT_DIR/hakmem_ldpreload"
-  --out "$ldpreload_report"
-  --sample-count "$SAMPLE_COUNT"
-  --warmup-count "$WARMUP_COUNT"
-  --iterations "$HAKMEM_ITERATIONS"
-  --working-set "$HAKMEM_WORKING_SET"
-  --seed "$HAKMEM_SEED"
-)
-if [[ -n "$HAKMEM_ROOT" ]]; then
-  ldpreload_args+=(--hakmem-root "$HAKMEM_ROOT")
-fi
-python3 "$LDPRELOAD_REPEATED" "${ldpreload_args[@]}"
+case "$LDPRELOAD_BENCHMARK" in
+  hakmem-random-mixed)
+    ldpreload_args=(
+      --manifest "$manifest"
+      --out-dir "$OUT_DIR/hakmem_ldpreload"
+      --out "$ldpreload_report"
+      --sample-count "$SAMPLE_COUNT"
+      --warmup-count "$WARMUP_COUNT"
+      --iterations "$HAKMEM_ITERATIONS"
+      --working-set "$HAKMEM_WORKING_SET"
+      --seed "$HAKMEM_SEED"
+    )
+    if [[ -n "$HAKMEM_ROOT" ]]; then
+      ldpreload_args+=(--hakmem-root "$HAKMEM_ROOT")
+    fi
+    python3 "$LDPRELOAD_REPEATED" "${ldpreload_args[@]}"
+    ;;
+  hakozuna-mixed-ws)
+    ldpreload_args=(
+      --manifest "$manifest"
+      --out-dir "$OUT_DIR/hakozuna_mixed_ws_ldpreload"
+      --out "$ldpreload_report"
+      --sample-count "$SAMPLE_COUNT"
+      --warmup-count "$WARMUP_COUNT"
+      --threads "$HAKOZUNA_THREADS"
+      --iters-per-thread "$HAKOZUNA_ITERS_PER_THREAD"
+      --working-set "$HAKOZUNA_WORKING_SET"
+      --min-size "$HAKOZUNA_MIN_SIZE"
+      --max-size "$HAKOZUNA_MAX_SIZE"
+    )
+    if [[ -n "$HAKOZUNA_ROOT" ]]; then
+      ldpreload_args+=(--hakozuna-root "$HAKOZUNA_ROOT")
+    fi
+    python3 "$LDPRELOAD_HAKOZUNA_MIXED_WS" "${ldpreload_args[@]}"
+    ;;
+esac
 
 python3 "$RUST_GLOBAL_SMOKE" \
   --manifest "$manifest" \
@@ -248,6 +330,7 @@ python3 "$DECISION_ADAPTER" \
   echo "provider_ladder_report=$provider_ladder_report"
   echo "provider_report=$provider_repeated_report"
   echo "ldpreload_report=$ldpreload_report"
+  echo "ldpreload_benchmark=$LDPRELOAD_BENCHMARK"
   echo "rust_global_report=$rust_global_report"
   echo "decision_report=$decision_report"
   echo "manifest=$manifest"
