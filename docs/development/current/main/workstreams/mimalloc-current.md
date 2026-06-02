@@ -1594,6 +1594,47 @@ message.
     allocator replacement, hook installation, global allocator integration, or
     provider-backed `LD_PRELOAD`.
 
+- [x] MIM-138: provider-backed LD_PRELOAD replacement smoke pilot
+  - output:
+    prove that the selected `.hako`-derived provider package can be reached
+    from a malloc-family `LD_PRELOAD` shim in a generated smoke process
+  - scope:
+    provider runtime load Stage 7A only; this is a local pilot for
+    malloc/calloc/realloc/free routing through the provider API table
+  - implemented:
+    `tools/allocator/provider_package_ldpreload_replacement_smoke.py`
+    validates the manifest, compiles a provider-backed malloc-family shim,
+    compiles a tiny smoke executable, runs it with `LD_PRELOAD`, and records
+    shim counters from the replacement process
+  - still closed:
+    production hook installation, Rust `#[global_allocator]`, system allocator
+    default integration, ambient provider discovery, unbounded external corpus
+    replacement claim, and winner claim
+  - smoke:
+    package build reused the selected `.hako`-derived provider fixture with
+    `object-lifecycle-small-alloc-release-v0`; the LD_PRELOAD smoke produced
+    `output_contract=hako-mimalloc-provider-backed-ldpreload-shim-smoke-v0`,
+    `dll_mode=provider-backed-ldpreload-pilot`,
+    `replacement_active=1`,
+    `replacement_scope=generated-smoke-process-only`,
+    `provider_api_bound=1`, `provider_call_executed=1`,
+    `allocator_entrypoint_called=1`, `shim_provider_bind_success=1`,
+    `shim_provider_alloc_count=3`, `shim_provider_calloc_count=1`,
+    `shim_provider_realloc_count=1`, `shim_provider_free_count=3`,
+    `shim_runtime_real_fallback_count=0`,
+    `shim_pointer_table_overflow=0`, `hook_installed=0`,
+    `global_allocator=0`, `winner_claim=0`, and `summary=ok`
+  - acceptance:
+    `replacement_active=1`,
+    `replacement_scope=generated-smoke-process-only`,
+    `provider_api_bound=1`, `provider_call_executed=1`,
+    `allocator_entrypoint_called=1`, `hook_installed=0`,
+    `global_allocator=0`, `winner_claim=0`, and `summary=ok`
+  - next:
+    after the smoke is green, keep the next ladder explicit:
+    provider-backed external `LD_PRELOAD` corpus pilot first, Rust
+    `#[global_allocator]` pilot second, winner claim last.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

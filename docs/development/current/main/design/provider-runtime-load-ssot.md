@@ -148,6 +148,55 @@ alloc/free smoke. Provider activation is separate from explicit provider calls.
 Process allocator replacement, hooks, and global allocator integration are a
 future lane.
 
+## Stage 7A: Provider-Backed LD_PRELOAD Pilot
+
+Decision: accepted as a narrow pilot, not as product allocator replacement.
+
+This stage may build a local `LD_PRELOAD` malloc-family shim that binds the
+manifest-selected provider API and routes a controlled smoke process through
+provider `alloc` / `free`.
+
+Allowed:
+
+```text
+manifest preflight
+provider API bind
+LD_PRELOAD env for a generated smoke process
+malloc / calloc / realloc / free shim exports
+provider alloc/free calls through the API table
+shim-local pointer-size table for pilot realloc correctness
+```
+
+Still closed:
+
+```text
+winner claim
+Rust #[global_allocator]
+system allocator default
+production hook install
+ambient provider discovery
+unbounded external workload replacement claim
+```
+
+The report must distinguish the pilot from closed product integration:
+
+```text
+dll_mode=provider-backed-ldpreload-pilot
+ld_preload_env_applied=1
+provider_api_bound=1
+provider_call_executed=1
+allocator_entrypoint_called=1
+replacement_active=1
+replacement_scope=generated-smoke-process-only
+hook_installed=0
+global_allocator=0
+winner_claim=0
+```
+
+This pilot exists to prove that a `.hako`-derived provider package can be
+reached from a malloc-family replacement seam. It does not claim C parity,
+process-wide production replacement, or global allocator readiness.
+
 ## Fail-Fast Rules
 
 ```text
