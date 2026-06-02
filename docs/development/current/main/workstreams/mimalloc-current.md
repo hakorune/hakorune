@@ -210,6 +210,23 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --out /tmp/hakorune_replacement_front_compare/report.out
 ```
 
+   - Locked multithread smoke entry:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-lock-mode \
+  --threads 4 \
+  --out-dir /tmp/hakorune_replacement_front_locked_mt_compare \
+  --out /tmp/hakorune_replacement_front_locked_mt_compare/report.out
+```
+
+   - Interpret the locked front as the first thread-safety shape only. It is
+     allowed to lose throughput to C mimalloc because the point is to prove that
+     the benchmark-only replacement front no longer uses an unsynchronized
+     global free stack.
+
 6. Finish the Hakorune mimalloc lane before any victory claim.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.

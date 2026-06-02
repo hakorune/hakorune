@@ -31,6 +31,10 @@ REPLACEMENT_FRONT_SHIM_C = r"""
 #include <string.h>
 #include <unistd.h>
 
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+#include <pthread.h>
+#endif
+
 #define HAKO_REPLACEMENT_SLOT_SIZE 2048u
 #define HAKO_REPLACEMENT_SLOT_COUNT 8192u
 
@@ -64,6 +68,29 @@ static unsigned long long host_passthrough_count = 0;
 static unsigned long long direct_core_call_count = 0;
 static unsigned long long realloc_copy_bytes = 0;
 static unsigned long long calloc_zero_bytes = 0;
+static unsigned long long lock_mode_enabled = 0;
+static unsigned long long lock_enter_count = 0;
+
+static void add_counter(unsigned long long* counter, unsigned long long delta) {
+  __sync_fetch_and_add(counter, delta);
+}
+
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
+static void lock_arena(void) {
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+  pthread_mutex_lock(&arena_lock);
+  add_counter(&lock_enter_count, 1);
+#endif
+}
+
+static void unlock_arena(void) {
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+  pthread_mutex_unlock(&arena_lock);
+#endif
+}
 
 static void resolve_real(void) {
   if (resolving_real) {
@@ -129,7 +156,7 @@ static void* direct_alloc(size_t size) {
   uint32_t index = free_stack[--free_top];
   used[index] = 1u;
   requested_size[index] = size;
-  direct_core_call_count++;
+  add_counter(&direct_core_call_count, 1);
   return slots[index].bytes;
 }
 
@@ -143,7 +170,7 @@ static int direct_free(void* ptr) {
   if (free_top < HAKO_REPLACEMENT_SLOT_COUNT) {
     free_stack[free_top++] = (uint32_t)index;
   }
-  direct_core_call_count++;
+  add_counter(&direct_core_call_count, 1);
   return 1;
 }
 
@@ -195,11 +222,16 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_direct_core_call_count", direct_core_call_count);
   write_kv(fd, "replacement_front_realloc_copy_bytes", realloc_copy_bytes);
   write_kv(fd, "replacement_front_calloc_zero_bytes", calloc_zero_bytes);
+  write_kv(fd, "replacement_front_lock_mode_enabled", lock_mode_enabled);
+  write_kv(fd, "replacement_front_lock_enter_count", lock_enter_count);
   close(fd);
 }
 
 __attribute__((constructor))
 static void install_report(void) {
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+  lock_mode_enabled = 1;
+#endif
   atexit(write_report);
 }
 
@@ -208,12 +240,14 @@ void* malloc(size_t size) {
   if (resolving_real) {
     return real_malloc_fn ? real_malloc_fn(size) : 0;
   }
+  lock_arena();
   void* ptr = direct_alloc(size);
+  unlock_arena();
   if (ptr) {
-    alloc_count++;
+    add_counter(&alloc_count, 1);
     return ptr;
   }
-  host_passthrough_count++;
+  add_counter(&host_passthrough_count, 1);
   resolve_real();
   return real_malloc_fn ? real_malloc_fn(size) : 0;
 }
@@ -227,15 +261,17 @@ void* calloc(size_t count, size_t size) {
     return 0;
   }
   size_t bytes = count * size;
+  lock_arena();
   void* ptr = direct_alloc(bytes);
+  unlock_arena();
   if (!ptr) {
-    host_passthrough_count++;
+    add_counter(&host_passthrough_count, 1);
     resolve_real();
     return real_calloc_fn ? real_calloc_fn(count, size) : 0;
   }
   memset(ptr, 0, bytes);
-  calloc_zero_bytes += bytes;
-  calloc_count++;
+  add_counter(&calloc_zero_bytes, bytes);
+  add_counter(&calloc_count, 1);
   return ptr;
 }
 
@@ -251,22 +287,26 @@ void* realloc(void* ptr, size_t size) {
   if (resolving_real) {
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
   }
+  lock_arena();
   int index = slot_index(ptr);
   if (index < 0 || !used[(uint32_t)index]) {
-    host_passthrough_count++;
+    unlock_arena();
+    add_counter(&host_passthrough_count, 1);
     resolve_real();
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
   }
   size_t old_size = requested_size[(uint32_t)index];
   void* next = direct_alloc(size);
   if (!next) {
+    unlock_arena();
     return 0;
   }
   size_t copy_size = old_size < size ? old_size : size;
   memcpy(next, ptr, copy_size);
-  realloc_copy_bytes += copy_size;
+  add_counter(&realloc_copy_bytes, copy_size);
   direct_free(ptr);
-  realloc_count++;
+  unlock_arena();
+  add_counter(&realloc_count, 1);
   return next;
 }
 
@@ -281,11 +321,14 @@ void free(void* ptr) {
     }
     return;
   }
-  if (direct_free(ptr)) {
-    free_count++;
+  lock_arena();
+  int freed = direct_free(ptr);
+  unlock_arena();
+  if (freed) {
+    add_counter(&free_count, 1);
     return;
   }
-  host_passthrough_count++;
+  add_counter(&host_passthrough_count, 1);
   resolve_real();
   if (real_free_fn) {
     real_free_fn(ptr);
@@ -304,27 +347,29 @@ def positive_int(value: int, label: str) -> None:
         raise SystemExit(f"{label} must be positive")
 
 
-def build_replacement_front_shim(out_dir: Path) -> Path:
-    front_dir = out_dir / "replacement-front-native-slot"
+def build_replacement_front_shim(out_dir: Path, *, locked: bool) -> Path:
+    front_dir = out_dir / (
+        "replacement-front-native-slot-locked" if locked else "replacement-front-native-slot"
+    )
     front_dir.mkdir(parents=True, exist_ok=True)
     source = front_dir / "hako_alloc_replacement_front_native_slot.c"
     binary = front_dir / "libhako_alloc_replacement_front_native_slot.so"
     source.write_text(REPLACEMENT_FRONT_SHIM_C.lstrip(), encoding="utf-8")
-    subprocess.run(
-        [
-            "cc",
-            "-shared",
-            "-fPIC",
-            "-O2",
-            "-Wall",
-            "-Wextra",
-            str(source),
-            "-ldl",
-            "-o",
-            str(binary),
-        ],
-        check=True,
-    )
+    cmd = [
+        "cc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+    ]
+    if locked:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_LOCKED=1")
+    cmd.extend([str(source), "-ldl"])
+    if locked:
+        cmd.append("-pthread")
+    cmd.extend(["-o", str(binary)])
+    subprocess.run(cmd, check=True)
     return binary
 
 
@@ -574,6 +619,11 @@ def main() -> int:
         action="store_true",
         help="benchmark-only: add a thin native-slot malloc/free replacement front subject",
     )
+    parser.add_argument(
+        "--replacement-front-lock-mode",
+        action="store_true",
+        help="benchmark-only: build the replacement front with a global arena mutex",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -588,6 +638,10 @@ def main() -> int:
         raise SystemExit("--max-size must be >= --min-size")
     if args.provider_assume_owned_mode and not args.provider_usable_size_mode:
         raise SystemExit("--provider-assume-owned-mode requires --provider-usable-size-mode")
+    if args.replacement_front_lock_mode and not args.replacement_front_native_slot_mode:
+        raise SystemExit(
+            "--replacement-front-lock-mode requires --replacement-front-native-slot-mode"
+        )
 
     root = args.hakozuna_root.resolve()
     bench = root / "bench_mixed_ws_crt"
@@ -630,7 +684,9 @@ def main() -> int:
         provider_shim = Path(smoke["shim_artifact_path"])
         provider_binary = Path(smoke["provider_binary_path"])
     if args.replacement_front_native_slot_mode:
-        replacement_front_shim = build_replacement_front_shim(out_dir)
+        replacement_front_shim = build_replacement_front_shim(
+            out_dir, locked=args.replacement_front_lock_mode
+        )
 
     subject_specs: list[tuple[str, Path | None, Path | None, bool]] = [
         ("system_malloc", None, None, False),
@@ -693,6 +749,7 @@ def main() -> int:
         f"provider_usable_size_mode={1 if args.provider_usable_size_mode else 0}",
         f"provider_assume_owned_mode={1 if args.provider_assume_owned_mode else 0}",
         f"replacement_front_native_slot_mode={1 if args.replacement_front_native_slot_mode else 0}",
+        f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
     ]
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")
@@ -718,6 +775,8 @@ def main() -> int:
             ]
         )
         if replacement_front_mode:
+            single_thread_smoke = args.threads == 1
+            multithread_smoke = args.threads > 1 and args.replacement_front_lock_mode
             lines.extend(
                 [
                     f"subject_{index}_provider_table_dispatch=0",
@@ -725,6 +784,10 @@ def main() -> int:
                     f"subject_{index}_owns_check_hot_path=0",
                     f"subject_{index}_tracking_hot_path=0",
                     f"subject_{index}_direct_core_call=1",
+                    f"subject_{index}_single_thread_replacement_front_smoke={1 if single_thread_smoke else 0}",
+                    f"subject_{index}_multithread_replacement_front_smoke={1 if multithread_smoke else 0}",
+                    f"subject_{index}_thread_safety_claim={'measured' if multithread_smoke else 'none'}",
+                    f"subject_{index}_provider_api_hot_path_required=0",
                     f"subject_{index}_activation=0",
                     f"subject_{index}_benchmark_only=1",
                 ]
