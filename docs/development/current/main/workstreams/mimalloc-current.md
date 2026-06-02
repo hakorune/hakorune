@@ -348,6 +348,11 @@ REPL-008:
   ReplacementCounterlessPerfProbeV0
   keeper as benchmark/perf-distribution mode only
   skip malloc/free hot-path counters after smoke has already validated behavior
+
+REPL-009:
+  TrustedLocalSlotProbeV0
+  nonkeeper: benchmark-only local-thread trusted slot mode
+  attempted to remove `used[]` store/check/clear from malloc/free hot path
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -411,6 +416,13 @@ replacement counters improved Hakorune median throughput from about
 counterless by design: use normal counter-enabled runs for smoke/evidence, then
 use counterless runs for performance distribution. Do not combine this with
 cross-thread counter smokes or product readiness claims.
+
+`REPL-009` tested a trusted local-thread mode that accepts in-range aligned
+pointers without `used[]` store/check/clear. It was rejected as nonkeeper:
+median throughput fell from about `297.7M ops/s` to `273.7M ops/s` in the
+counterless 1024-byte slot front. The mode is also unsafe for cross-thread and
+double-free semantics, so do not reopen it without a real owner token or
+size-class metadata plan.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
