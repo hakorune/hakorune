@@ -200,6 +200,16 @@ benchmark_only=1
 summary=ok
 ```
 
+   - Tool entry:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --out-dir /tmp/hakorune_replacement_front_compare \
+  --out /tmp/hakorune_replacement_front_compare/report.out
+```
+
 6. Reopen `.hako` core optimization only with fresh owner evidence.
    - Candidate families: route-aware materialization/copy, HotCore direct-exact
      call boundary, record-state residence, DirectArray proof/lowering.
