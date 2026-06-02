@@ -82,11 +82,14 @@ typedef struct HakoReplacementArenaView {
   uint32_t* free_top;
   uint32_t* remote_next;
   int* remote_head;
+  unsigned char active;
 } HakoReplacementArenaView;
 
 static HakoReplacementArenaView arena_registry[HAKO_REPLACEMENT_ARENA_REGISTRY_CAP];
 static unsigned int arena_registry_count = 0u;
 static pthread_mutex_t arena_registry_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_key_t arena_tls_key;
+static pthread_once_t arena_tls_key_once = PTHREAD_ONCE_INIT;
 #endif
 
 static unsigned long long alloc_count = 0;
@@ -104,6 +107,8 @@ static unsigned long long remote_free_push_count = 0;
 static unsigned long long remote_free_drain_count = 0;
 static unsigned long long cross_thread_realloc_unsupported_count = 0;
 static unsigned long long arena_registry_overflow_count = 0;
+static unsigned long long abandoned_arena_count = 0;
+static unsigned long long abandoned_remote_free_count = 0;
 
 static void add_counter(unsigned long long* counter, unsigned long long delta) {
   __sync_fetch_and_add(counter, delta);
@@ -161,13 +166,32 @@ static void init_slots(void) {
 }
 
 #ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+static void arena_tls_destructor(void* value) {
+  if (!value) {
+    return;
+  }
+  unsigned int arena_index = (unsigned int)((uintptr_t)value - 1u);
+  pthread_mutex_lock(&arena_registry_lock);
+  if (arena_index < arena_registry_count) {
+    arena_registry[arena_index].active = 0u;
+    add_counter(&abandoned_arena_count, 1);
+  }
+  pthread_mutex_unlock(&arena_registry_lock);
+}
+
+static void make_arena_tls_key(void) {
+  pthread_key_create(&arena_tls_key, arena_tls_destructor);
+}
+
 static int register_thread_arena(void) {
   if (arena_registered) {
     return 1;
   }
+  pthread_once(&arena_tls_key_once, make_arena_tls_key);
   pthread_mutex_lock(&arena_registry_lock);
   if (arena_registry_count < HAKO_REPLACEMENT_ARENA_REGISTRY_CAP) {
-    HakoReplacementArenaView* view = &arena_registry[arena_registry_count++];
+    unsigned int arena_index = arena_registry_count++;
+    HakoReplacementArenaView* view = &arena_registry[arena_index];
     view->base = (uintptr_t)slots[0].bytes;
     view->end = (uintptr_t)(slots + HAKO_REPLACEMENT_SLOT_COUNT);
     view->used = used;
@@ -176,7 +200,9 @@ static int register_thread_arena(void) {
     view->free_top = &free_top;
     view->remote_next = remote_next;
     view->remote_head = &remote_head;
+    view->active = 1u;
     arena_registered = 1u;
+    pthread_setspecific(arena_tls_key, (void*)((uintptr_t)arena_index + 1u));
   } else {
     add_counter(&arena_registry_overflow_count, 1);
   }
@@ -246,6 +272,11 @@ static int remote_free_to_owner(void* ptr) {
   HakoReplacementArenaView* view = find_foreign_arena(ptr, &index);
   if (!view || index < 0) {
     return 0;
+  }
+  if (!view->active) {
+    add_counter(&abandoned_remote_free_count, 1);
+    add_counter(&direct_core_call_count, 1);
+    return 1;
   }
   uint32_t uindex = (uint32_t)index;
   if (!__sync_bool_compare_and_swap(&view->used[uindex], 1u, 2u)) {
@@ -382,6 +413,8 @@ static void write_report(void) {
       "replacement_front_cross_thread_realloc_unsupported_count",
       cross_thread_realloc_unsupported_count);
   write_kv(fd, "replacement_front_arena_registry_overflow_count", arena_registry_overflow_count);
+  write_kv(fd, "replacement_front_abandoned_arena_count", abandoned_arena_count);
+  write_kv(fd, "replacement_front_abandoned_remote_free_count", abandoned_remote_free_count);
   close(fd);
 }
 

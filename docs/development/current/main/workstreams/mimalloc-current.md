@@ -263,6 +263,17 @@ replacement_front_remote_free_drain_count=1
 replacement_front_arena_registry_overflow_count=0
 ```
 
+   - If the owner thread has already exited, the benchmark-only front must not
+     pass a recognized Hakorune pointer to host `free`. Mark it abandoned,
+     count it, and keep product activation closed:
+
+```text
+replacement_front_abandoned_remote_free_count=1
+activation=0
+benchmark_only=1
+winner_claim=0
+```
+
 6. Finish the Hakorune mimalloc lane before any victory claim.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
