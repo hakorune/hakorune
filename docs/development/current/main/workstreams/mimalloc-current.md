@@ -1554,6 +1554,24 @@ message.
     evidence. It is still not provider activation, process allocator
     replacement, hook installation, or `LD_PRELOAD` replacement.
 
+- [x] MIM-136: hakmem probe-only LD_PRELOAD compatibility refresh
+  - output:
+    rerun the current probe-only LD_PRELOAD shim bench against the external
+    hakmem corpus after the provider explicit ladder refresh
+  - command:
+    `python3 tools/allocator/hako_mimalloc_hakmem_ldpreload_bench_pilot.py
+    --iterations 1000 --working-set 128 --seed 42`
+  - result:
+    `output_contract=hako-mimalloc-hakmem-ldpreload-bench-pilot-v0`,
+    `hakmem_script_compatible=probe-only`, `ld_preload_env_applied=1`,
+    `benchmark_sample_executed=1`, `benchmark_exit_code=0`,
+    `throughput_ops_per_sec=32951101`, `replacement_active=0`,
+    `hook_installed=0`, `global_allocator=0`, `winner_claim=0`, and
+    `summary=ok`
+  - decision:
+    external hakmem compatibility remains available only as a probe-only
+    LD_PRELOAD sample. It does not prove or open provider-backed replacement.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
