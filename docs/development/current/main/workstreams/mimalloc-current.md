@@ -384,6 +384,12 @@ REPL-015:
   SlotHeaderIndexProbeV0
   nonkeeper: benchmark-only payload header index for free/realloc decode
   removed the 1040-stride divide shape but grew slot footprint and regressed
+
+REPL-016:
+  CurrentKeeperRefreshV0
+  report-only: matched 1040-byte slot + in-place realloc keeper still holds
+  on the local 40M mixed-ws distribution after free-side header probes were
+  rejected
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -560,6 +566,26 @@ cross_thread_smoke=ok
 Do not keep the slot-header-index implementation path in the tool. If `free`
 is reopened, prefer owner-first evidence for a layout that does not increase
 the hot fixed-slot footprint.
+
+`REPL-016` refreshed the current keeper after the free-side header probe was
+rejected. On the local 40M mixed-ws distribution with counterless thread-local
+replacement front, matched workload realloc size, and in-place realloc:
+
+```text
+replacement_front_slot_size=1040
+replacement_front_match_workload_realloc_size=1
+workload_realloc_request_gt_replacement_slot_size=0
+subject_2_replacement_front_inplace_realloc_within_slot_plan=1
+subject_2_throughput_median_ops_per_sec=1191438915.671
+subject_1_throughput_median_ops_per_sec=640931966.354
+subject_2_throughput_vs_c_mimalloc=1.858916
+subject_2_benchmark_only=1
+subject_2_activation=0
+subject_2_winner_claim=0
+```
+
+This is a replacement-front benchmark subject, not product allocator activation
+or a general size-class claim. Keep C mimalloc as local reference evidence.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
