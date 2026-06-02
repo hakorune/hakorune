@@ -15,6 +15,8 @@ const OUTPUT_CONTRACT: &str = "hakorune-provider-package-hako-derived-build-v0";
 const BUILD_MODE: &str = "hako-derived-selected-fixture";
 const PACKAGE_MODE: &str = "hako-derived-provider-package";
 const OBJECT_LIFECYCLE_MODE: &str = "object-lifecycle-small-alloc-release-v0";
+const ALLOC_FREE_ROUTE: &str = "host_malloc_free_wrapper";
+const OBJECT_LIFECYCLE_USAGE: &str = "metadata_verification_only";
 
 pub fn maybe_run_provider_package_hako_derived_build(config: &CliConfig) -> Option<i32> {
     config
@@ -172,6 +174,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         "hako_provider_ping_value": semantic_ping_value,
         "hako_provider_owns_value": semantic_owns_value,
         "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
+        "hako_provider_alloc_free_route": ALLOC_FREE_ROUTE,
+        "hako_provider_alloc_free_uses_host_malloc": true,
+        "hako_provider_alloc_free_uses_hako_object_lifecycle": false,
+        "hako_provider_object_lifecycle_entrypoint_usage": OBJECT_LIFECYCLE_USAGE,
     });
     let contract_hash = sha256_bytes(
         serde_json::to_string(&contract)
@@ -236,6 +242,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             "hako_provider_ping_value": semantic_ping_value,
             "hako_provider_owns_value": semantic_owns_value,
             "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
+            "hako_provider_alloc_free_route": ALLOC_FREE_ROUTE,
+            "hako_provider_alloc_free_uses_host_malloc": true,
+            "hako_provider_alloc_free_uses_hako_object_lifecycle": false,
+            "hako_provider_object_lifecycle_entrypoint_usage": OBJECT_LIFECYCLE_USAGE,
             "hako_shared_library_generation": true
         },
         "artifact": {
@@ -274,6 +284,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
          hako_provider_owns_value={}\n\
          hako_provider_object_lifecycle_codegen={}\n\
          hako_provider_object_lifecycle_entrypoint_verified={}\n\
+         hako_provider_alloc_free_route={ALLOC_FREE_ROUTE}\n\
+         hako_provider_alloc_free_uses_host_malloc=1\n\
+         hako_provider_alloc_free_uses_hako_object_lifecycle=0\n\
+         hako_provider_object_lifecycle_entrypoint_usage={OBJECT_LIFECYCLE_USAGE}\n\
          shared_library_artifact_generated=1\n\
          arbitrary_shell_build_executed=0\n\
          package_dir={}\n\
@@ -603,6 +617,10 @@ fn hako_derived_function_table_hash(
         "hako_provider_ping_value": semantic_ping_value,
         "hako_provider_owns_value": semantic_owns_value,
         "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
+        "hako_provider_alloc_free_route": ALLOC_FREE_ROUTE,
+        "hako_provider_alloc_free_uses_host_malloc": true,
+        "hako_provider_alloc_free_uses_hako_object_lifecycle": false,
+        "hako_provider_object_lifecycle_entrypoint_usage": OBJECT_LIFECYCLE_USAGE,
     });
     Ok(sha256_bytes(
         serde_json::to_string(&contract)

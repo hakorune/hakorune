@@ -122,6 +122,8 @@ interpretation:
   provider subject is provider ABI wrapper + LD_PRELOAD shim bridge evidence
   provider_ldpreload_is_hako_core_speed_claim=0
   provider_ldpreload_is_product_allocator_claim=0
+  provider_manifest_hako_provider_alloc_free_route=host_malloc_free_wrapper
+  provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle=0
 
 key shim diagnostic:
   shim_init_real_fallback_per_provider_operation

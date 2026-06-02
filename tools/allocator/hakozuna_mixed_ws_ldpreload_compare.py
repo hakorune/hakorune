@@ -197,6 +197,18 @@ def load_manifest_metadata(path: Path | None) -> dict[str, str]:
         "provider_manifest_hako_provider_object_lifecycle_entrypoint_verified": manifest_string(
             build, "hako_provider_object_lifecycle_entrypoint_verified", "0"
         ),
+        "provider_manifest_hako_provider_alloc_free_route": manifest_string(
+            build, "hako_provider_alloc_free_route", "unknown"
+        ),
+        "provider_manifest_hako_provider_alloc_free_uses_host_malloc": manifest_string(
+            build, "hako_provider_alloc_free_uses_host_malloc", "unknown"
+        ),
+        "provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle": manifest_string(
+            build, "hako_provider_alloc_free_uses_hako_object_lifecycle", "unknown"
+        ),
+        "provider_manifest_hako_provider_object_lifecycle_entrypoint_usage": manifest_string(
+            build, "hako_provider_object_lifecycle_entrypoint_usage", "unknown"
+        ),
         "provider_manifest_allocator_replacement_allowed": manifest_string(
             activation, "allocator_replacement_allowed", "0"
         ),
