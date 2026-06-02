@@ -106,6 +106,10 @@ def validate_ldpreload(values: dict[str, str]) -> None:
         require_positive_int(values, "shim_provider_alloc_count_total", label)
         require_positive_int(values, "shim_provider_free_count_total", label)
         require_positive_int(values, "throughput_median_ops_per_sec", label)
+        require_key(values, "shim_init_real_fallback_count_total", label)
+        require_key(values, "shim_host_passthrough_count_total", label)
+        require_key(values, "shim_provider_bind_success_total", label)
+        require_key(values, "shim_provider_bind_failure_total", label)
     else:
         require(values, "benchmark_exit_code", "0", label)
         require(values, "shim_runtime_real_fallback_count", "0", label)
@@ -187,6 +191,13 @@ def main() -> int:
         f"subject_3_benchmark_id={require_key(ldpreload, 'benchmark_id', 'ldpreload')}",
         f"subject_3_timing_repeat_kind={ldpreload.get('timing_repeat_kind', 'single-process-pilot-v0')}",
         f"subject_3_throughput_median_ops_per_sec={ldpreload.get('throughput_median_ops_per_sec', ldpreload.get('throughput_ops_per_sec', ''))}",
+        f"subject_3_shim_provider_alloc_count_total={ldpreload.get('shim_provider_alloc_count_total', ldpreload.get('shim_provider_alloc_count', ''))}",
+        f"subject_3_shim_provider_free_count_total={ldpreload.get('shim_provider_free_count_total', ldpreload.get('shim_provider_free_count', ''))}",
+        f"subject_3_shim_runtime_real_fallback_count_total={ldpreload.get('shim_runtime_real_fallback_count_total', ldpreload.get('shim_runtime_real_fallback_count', ''))}",
+        f"subject_3_shim_init_real_fallback_count_total={ldpreload.get('shim_init_real_fallback_count_total', ldpreload.get('shim_init_real_fallback_count', ''))}",
+        f"subject_3_shim_host_passthrough_count_total={ldpreload.get('shim_host_passthrough_count_total', ldpreload.get('shim_host_passthrough_count', ''))}",
+        f"subject_3_shim_pointer_table_overflow_total={ldpreload.get('shim_pointer_table_overflow_total', ldpreload.get('shim_pointer_table_overflow', ''))}",
+        "subject_3_shim_init_real_fallback_is_perf_diagnostic=1",
         "subject_3_replacement_active=1",
         "subject_3_replacement_product_claim=0",
         "subject_3_winner_claim=0",

@@ -109,6 +109,21 @@ repo-local hakmem LD_PRELOAD evidence, and the generated Rust global allocator
 smoke. It records readiness only; product allocator replacement, production
 hooks, production `#[global_allocator]`, and winner claims stay closed.
 
+The LD_PRELOAD repeated report also carries shim overhead diagnostics:
+
+```text
+shim_runtime_real_fallback_count_total
+shim_init_real_fallback_count_total
+shim_host_passthrough_count_total
+shim_pointer_table_overflow_total
+```
+
+`shim_runtime_real_fallback_count_total` and
+`shim_pointer_table_overflow_total` are correctness gates and must stay zero.
+`shim_init_real_fallback_count_total` is a performance diagnostic: a large
+value means the replacement path is running through shim/provider boundary
+work even when the provider is bound successfully.
+
 To intentionally compare against a full extracted corpus build, pass:
 
 ```bash

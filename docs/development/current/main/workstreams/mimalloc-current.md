@@ -1758,6 +1758,34 @@ message.
     `decision=external_process_repeated_ready_no_product_default_change`;
     next step is scaling sample count or comparing against the full external
     corpus before any winner claim
+
+- [x] MIM-144: LD_PRELOAD shim overhead diagnostic surface
+  - output:
+    expose provider-backed LD_PRELOAD shim overhead counters in repeated
+    measurement and replacement-decision reports before optimizing the shim
+  - trigger:
+    an external Linux compare run connected `hakorune-mimalloc-provider.zip`
+    successfully through `LD_PRELOAD`, but measured roughly `0.034x` of the C
+    mimalloc throughput. The bind/runtime-fallback counters showed the provider
+    path was active rather than broken, so the current owner is shim/provider
+    boundary overhead, not allocator core correctness.
+  - implemented:
+    `hako_mimalloc_provider_backed_hakmem_ldpreload_repeated_measurement.py`
+    now reports totals for provider bind success/failure, init real fallback,
+    host passthrough, runtime real fallback, and pointer-table overflow.
+    `provider_replacement_decision_adapter.py` forwards the LD_PRELOAD subject
+    shim counters into the final decision report.
+  - policy:
+    `shim_runtime_real_fallback_count_total=0` and
+    `shim_pointer_table_overflow_total=0` remain correctness gates.
+    `shim_init_real_fallback_count_total` is a perf diagnostic, not a failure:
+    large values indicate reentrant/initialization fallback work around the
+    provider boundary.
+  - stop lines:
+    no provider activation, production replacement, hook installation,
+    production `#[global_allocator]`, or winner claim. Do not optimize the
+    allocator core from this evidence; first use the emitted shim counters to
+    select the LD_PRELOAD shim owner family.
   - stop lines:
     product provider activation, production replacement, hook installation,
     production global allocator default, and winner claim remain closed

@@ -144,6 +144,12 @@ def main() -> int:
     total_provider_free = 0
     total_provider_calloc = 0
     total_provider_realloc = 0
+    total_runtime_real_fallback = 0
+    total_init_real_fallback = 0
+    total_host_passthrough = 0
+    total_provider_bind_success = 0
+    total_provider_bind_failure = 0
+    total_pointer_table_overflow = 0
 
     lines = [
         "output_contract=hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0",
@@ -194,6 +200,12 @@ def main() -> int:
         total_provider_free += int(counts.get("shim_provider_free_count", "0"))
         total_provider_calloc += int(counts.get("shim_provider_calloc_count", "0"))
         total_provider_realloc += int(counts.get("shim_provider_realloc_count", "0"))
+        total_runtime_real_fallback += int(counts.get("shim_runtime_real_fallback_count", "0"))
+        total_init_real_fallback += int(counts.get("shim_init_real_fallback_count", "0"))
+        total_host_passthrough += int(counts.get("shim_host_passthrough_count", "0"))
+        total_provider_bind_success += int(counts.get("shim_provider_bind_success", "0"))
+        total_provider_bind_failure += int(counts.get("shim_provider_bind_failure", "0"))
+        total_pointer_table_overflow += int(counts.get("shim_pointer_table_overflow", "0"))
         if kind == "sample":
             sample_index = run_index - args.warmup_count
             sample_throughputs.append(throughput)
@@ -204,6 +216,8 @@ def main() -> int:
                     f"sample_{sample_index}_shim_provider_alloc_count={counts.get('shim_provider_alloc_count', '0')}",
                     f"sample_{sample_index}_shim_provider_free_count={counts.get('shim_provider_free_count', '0')}",
                     f"sample_{sample_index}_shim_runtime_real_fallback_count={counts.get('shim_runtime_real_fallback_count', '0')}",
+                    f"sample_{sample_index}_shim_init_real_fallback_count={counts.get('shim_init_real_fallback_count', '0')}",
+                    f"sample_{sample_index}_shim_host_passthrough_count={counts.get('shim_host_passthrough_count', '0')}",
                     f"sample_{sample_index}_shim_pointer_table_overflow={counts.get('shim_pointer_table_overflow', '0')}",
                     f"sample_{sample_index}_winner_claim=0",
                 ]
@@ -218,8 +232,13 @@ def main() -> int:
             f"shim_provider_free_count_total={total_provider_free}",
             f"shim_provider_calloc_count_total={total_provider_calloc}",
             f"shim_provider_realloc_count_total={total_provider_realloc}",
-            "shim_runtime_real_fallback_count_total=0",
-            "shim_pointer_table_overflow_total=0",
+            f"shim_provider_bind_success_total={total_provider_bind_success}",
+            f"shim_provider_bind_failure_total={total_provider_bind_failure}",
+            f"shim_runtime_real_fallback_count_total={total_runtime_real_fallback}",
+            f"shim_init_real_fallback_count_total={total_init_real_fallback}",
+            f"shim_host_passthrough_count_total={total_host_passthrough}",
+            f"shim_pointer_table_overflow_total={total_pointer_table_overflow}",
+            "shim_init_real_fallback_is_perf_diagnostic=1",
             "summary=ok",
         ]
     )
