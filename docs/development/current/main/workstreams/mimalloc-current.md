@@ -126,6 +126,9 @@ python3 tools/allocator/hako_mimalloc_algorithm_coverage.py
 The same report carries the current PageModel hot-array readiness view:
 
 ```text
+size_class_policy_product_bins_connected=0
+size_class_policy_single_class_benchmark_bridge_supported=1
+size_class_policy_single_class_bridge_mode=hako_good_size_request_ceiling
 page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_access_plan_v0=1
 page_model_hot_array_source_migration_selected=0
@@ -155,6 +158,7 @@ thin-front evidence only:
 
 ```text
 replacement_front_is_full_hako_algorithm=0
+size_class_policy_product_bins_connected=0
 provider_activation=0
 production_replacement_active=0
 winner_claim=0

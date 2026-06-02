@@ -206,6 +206,7 @@ def build_rows() -> list[CoverageRow]:
 def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
+    replacement = read_text(REPLACEMENT_FRONT)
     hot_array_fields = ["free", "local_free", "block_used"]
     hot_array_ops = {
         name: {
@@ -229,6 +230,14 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         for method in ("objectLifecycleSmallAlloc", "objectLifecycleReleaseBlock")
         if method in hot_core
     ]
+    size_class_single_bridge_supported = has_all(
+        replacement,
+        [
+            "--replacement-front-match-hako-size-class",
+            "hako_good_size",
+            "hako_good_size_request_ceiling",
+        ],
+    )
     replacement_full_hako = int(
         all(row.replacement_front for row in rows if row.area in {
             "size_class_policy",
@@ -254,6 +263,15 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
             1 for row in rows if row.status == "split_model_and_fixed_front"
         ),
         "open_area_count": sum(1 for row in rows if row.status == "open"),
+        "size_class_policy_bridge_plan_v0": 1,
+        "size_class_policy_product_bins_connected": 0,
+        "size_class_policy_single_class_benchmark_bridge_supported": int(
+            size_class_single_bridge_supported
+        ),
+        "size_class_policy_single_class_bridge_mode": "hako_good_size_request_ceiling"
+        if size_class_single_bridge_supported
+        else "none",
+        "size_class_policy_next_bridge": "product_replacement_bins_pages",
         "page_model_hot_array_bridge_plan_v0": 1,
         "page_model_hot_array_access_plan_v0": 1,
         "page_model_hot_array_access_static_scan": 1,
@@ -301,6 +319,11 @@ def emit_text(data: dict[str, object]) -> None:
         "model_only_area_count",
         "split_model_and_fixed_front_area_count",
         "open_area_count",
+        "size_class_policy_bridge_plan_v0",
+        "size_class_policy_product_bins_connected",
+        "size_class_policy_single_class_benchmark_bridge_supported",
+        "size_class_policy_single_class_bridge_mode",
+        "size_class_policy_next_bridge",
         "page_model_hot_array_bridge_plan_v0",
         "page_model_hot_array_access_plan_v0",
         "page_model_hot_array_access_static_scan",
