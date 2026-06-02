@@ -208,7 +208,10 @@ table, and must not be used as a product allocator contract. The current
 LD_PRELOAD shim can opt into this path with
 `HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE=1` to bypass shim-side pointer
 tracking and classify whether size tracking or the provider call boundary owns
-the remaining cost.
+the remaining cost. A stricter measurement-only mode,
+`HAKORUNE_PROVIDER_LDPRELOAD_ASSUME_PROVIDER_OWNED=1`, may be combined with
+usable-size mode to skip provider `owns` checks before `free`/`realloc`; this is
+only valid for controlled benchmarks where all hot pointers are provider-owned.
 
 ## Phase B1 Selected Fixture Build
 

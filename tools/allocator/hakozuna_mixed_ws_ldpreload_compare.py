@@ -70,6 +70,7 @@ def run_one(
     ld_preload: Path | None,
     provider_binary: Path | None,
     provider_usable_size_mode: bool,
+    provider_assume_owned_mode: bool,
 ) -> tuple[float, dict[str, str], int]:
     run_dir = out_dir / subject / f"{kind}_{run_index}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -84,6 +85,8 @@ def run_one(
         env["HAKORUNE_PROVIDER_LDPRELOAD_REPORT"] = str(counts_path)
         if provider_usable_size_mode:
             env["HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE"] = "1"
+        if provider_assume_owned_mode:
+            env["HAKORUNE_PROVIDER_LDPRELOAD_ASSUME_PROVIDER_OWNED"] = "1"
     completed = subprocess.run(
         [
             str(bench),
@@ -130,6 +133,7 @@ def run_subject(
     ld_preload: Path | None,
     provider_binary: Path | None,
     provider_usable_size_mode: bool,
+    provider_assume_owned_mode: bool,
 ) -> tuple[list[float], dict[str, int]]:
     sample_throughputs: list[float] = []
     counter_totals: dict[str, int] = {}
@@ -151,6 +155,7 @@ def run_subject(
             ld_preload=ld_preload,
             provider_binary=provider_binary,
             provider_usable_size_mode=provider_usable_size_mode,
+            provider_assume_owned_mode=provider_assume_owned_mode,
         )
         for key, value in counts.items():
             if value.isdigit():
@@ -257,6 +262,11 @@ def main() -> int:
         action="store_true",
         help="measurement-only: bypass provider shim tracking through private usable_size symbol",
     )
+    parser.add_argument(
+        "--provider-assume-owned-mode",
+        action="store_true",
+        help="measurement-only: with usable-size mode, skip provider owns checks before free/realloc",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -269,6 +279,8 @@ def main() -> int:
     positive_int(args.max_size, "--max-size")
     if args.max_size < args.min_size:
         raise SystemExit("--max-size must be >= --min-size")
+    if args.provider_assume_owned_mode and not args.provider_usable_size_mode:
+        raise SystemExit("--provider-assume-owned-mode requires --provider-usable-size-mode")
 
     root = args.hakozuna_root.resolve()
     bench = root / "bench_mixed_ws_crt"
@@ -291,20 +303,21 @@ def main() -> int:
     provider_binary: Path | None = None
     if args.manifest is not None:
         smoke_report = out_dir / "provider-ldpreload-smoke.out"
-        subprocess.run(
-            [
-                sys.executable,
-                str(SMOKE_TOOL),
-                "--manifest",
-                str(args.manifest.resolve()),
-                "--out-dir",
-                str(out_dir / "provider-ldpreload-smoke"),
-                "--out",
-                str(smoke_report),
-            ]
-            + (["--use-provider-usable-size"] if args.provider_usable_size_mode else []),
-            check=True,
-        )
+        smoke_cmd = [
+            sys.executable,
+            str(SMOKE_TOOL),
+            "--manifest",
+            str(args.manifest.resolve()),
+            "--out-dir",
+            str(out_dir / "provider-ldpreload-smoke"),
+            "--out",
+            str(smoke_report),
+        ]
+        if args.provider_usable_size_mode:
+            smoke_cmd.append("--use-provider-usable-size")
+        if args.provider_assume_owned_mode:
+            smoke_cmd.append("--assume-provider-owned")
+        subprocess.run(smoke_cmd, check=True)
         smoke = read_kv(smoke_report)
         provider_shim = Path(smoke["shim_artifact_path"])
         provider_binary = Path(smoke["provider_binary_path"])
@@ -335,6 +348,9 @@ def main() -> int:
             provider_usable_size_mode=(
                 args.provider_usable_size_mode and subject == "hakorune_provider_ldpreload"
             ),
+            provider_assume_owned_mode=(
+                args.provider_assume_owned_mode and subject == "hakorune_provider_ldpreload"
+            ),
         )
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
@@ -360,6 +376,7 @@ def main() -> int:
         "global_allocator_product_claim=0",
         "winner_claim=0",
         f"provider_usable_size_mode={1 if args.provider_usable_size_mode else 0}",
+        f"provider_assume_owned_mode={1 if args.provider_assume_owned_mode else 0}",
     ]
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")

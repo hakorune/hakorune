@@ -68,6 +68,7 @@ static int loading_provider = 0;
 static int provider_load_attempted = 0;
 static int provider_ready = 0;
 static int provider_usable_size_mode = 0;
+static int provider_assume_owned_mode = 0;
 static int in_provider_call = 0;
 static struct HakoTrackedPtr tracked[HAKO_POINTER_TABLE_CAP];
 
@@ -106,6 +107,9 @@ static unsigned long long usable_size_symbol_bound = 0;
 static unsigned long long usable_size_lookup_count = 0;
 static unsigned long long usable_size_lookup_failure_count = 0;
 static unsigned long long tracking_bypassed_count = 0;
+static unsigned long long assume_owned_mode_enabled = 0;
+static unsigned long long assume_owned_free_count = 0;
+static unsigned long long assume_owned_realloc_count = 0;
 
 static void hako_count_init_fallback(void) {
   init_real_fallback_count++;
@@ -309,6 +313,9 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_usable_size_lookup_count", usable_size_lookup_count);
   hako_write_kv(fd, "shim_usable_size_lookup_failure_count", usable_size_lookup_failure_count);
   hako_write_kv(fd, "shim_tracking_bypassed_count", tracking_bypassed_count);
+  hako_write_kv(fd, "shim_assume_owned_mode_enabled", assume_owned_mode_enabled);
+  hako_write_kv(fd, "shim_assume_owned_free_count", assume_owned_free_count);
+  hako_write_kv(fd, "shim_assume_owned_realloc_count", assume_owned_realloc_count);
   close(fd);
 }
 
@@ -342,6 +349,9 @@ static int hako_ensure_provider(void) {
   }
   provider_usable_size_mode =
       getenv("HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE") != 0;
+  provider_assume_owned_mode =
+      provider_usable_size_mode &&
+      getenv("HAKORUNE_PROVIDER_LDPRELOAD_ASSUME_PROVIDER_OWNED") != 0;
   struct HakoProviderApiV1* api = get_api();
   if (!api || api->magic != HAKO_PROVIDER_API_MAGIC ||
       api->abi_major != HAKO_PROVIDER_API_MAJOR ||
@@ -361,8 +371,12 @@ static int hako_ensure_provider(void) {
     if (provider_usable_size_fn) {
       usable_size_symbol_bound = 1;
       usable_size_mode_enabled = 1;
+      if (provider_assume_owned_mode) {
+        assume_owned_mode_enabled = 1;
+      }
     } else {
       provider_usable_size_mode = 0;
+      provider_assume_owned_mode = 0;
     }
   }
   provider_ready = 1;
@@ -468,10 +482,13 @@ void* realloc(void* ptr, size_t size) {
       return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
     }
     in_provider_call = 1;
-    int owned = provider_owns_fn(ptr);
+    int owned = provider_assume_owned_mode ? 1 : provider_owns_fn(ptr);
     size_t old_size = owned == 1 ? provider_usable_size_fn(ptr) : 0u;
     in_provider_call = 0;
     usable_size_lookup_count++;
+    if (provider_assume_owned_mode) {
+      assume_owned_realloc_count++;
+    }
     if (owned != 1 || old_size == 0u) {
       usable_size_lookup_failure_count++;
       realloc_host_passthrough_count++;
@@ -523,6 +540,11 @@ void free(void* ptr) {
   int index = provider_usable_size_mode ? -1 : hako_find_tracked(ptr);
   if (index >= 0) {
     hako_untrack_index(index);
+    hako_provider_free(ptr);
+    return;
+  }
+  if (provider_assume_owned_mode && (provider_ready || hako_ensure_provider())) {
+    assume_owned_free_count++;
     hako_provider_free(ptr);
     return;
   }
@@ -652,7 +674,14 @@ def main() -> int:
         action="store_true",
         help="measurement-only: bypass shim pointer tracking through provider usable_size symbol",
     )
+    parser.add_argument(
+        "--assume-provider-owned",
+        action="store_true",
+        help="measurement-only: with usable-size mode, skip provider owns checks before free/realloc",
+    )
     args = parser.parse_args()
+    if args.assume_provider_owned and not args.use_provider_usable_size:
+        raise SystemExit("--assume-provider-owned requires --use-provider-usable-size")
 
     manifest_path = args.manifest.resolve()
     _fields, _descriptor, _api, binary_path = run(manifest_path)
@@ -693,6 +722,8 @@ def main() -> int:
     env["HAKORUNE_PROVIDER_LDPRELOAD_REPORT"] = str(shim_report)
     if args.use_provider_usable_size:
         env["HAKORUNE_PROVIDER_LDPRELOAD_USE_USABLE_SIZE"] = "1"
+    if args.assume_provider_owned:
+        env["HAKORUNE_PROVIDER_LDPRELOAD_ASSUME_PROVIDER_OWNED"] = "1"
     proc = subprocess.run([str(smoke_binary)], env=env, check=False)
     report = emit_report(
         manifest_path=manifest_path,

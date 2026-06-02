@@ -172,6 +172,10 @@ object-lifecycle-native-slot-bridge-v0:
      measurement-only native-slot shim variant. It bypasses shim pointer
      tracking through the private `hakorune_provider_usable_size_v0` export and
      exists to distinguish tracking tax from provider ABI call-boundary tax.
+   - Use `HAKORUNE_PROVIDER_LDPRELOAD_ASSUME_PROVIDER_OWNED=1` only with
+     usable-size mode in controlled benchmarks. It skips provider `owns` checks
+     to isolate the remaining call-boundary tax and is not a replacement
+     contract.
 
 4. Continue provider replacement ladder only as smoke/readiness.
    - Keep `provider_activation=0`, `production_replacement_active=0`,
