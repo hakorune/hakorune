@@ -35,6 +35,8 @@ guard_expect_fixed_in_file "$TAG" 'winner_claim=0' "$CARD_70" "card must keep wi
 guard_expect_fixed_in_file "$TAG" 'object-lifecycle-small-alloc-release-v0' "$CLI_IMPL" "CLI impl must support object lifecycle mode"
 guard_expect_fixed_in_file "$TAG" 'validate_hako_provider_object_lifecycle_entrypoint' "$CLI_IMPL" "CLI impl must validate object lifecycle MIR"
 guard_expect_fixed_in_file "$TAG" 'HakoProvider.objectLifecycleSmallAllocReleaseOk/0' "$CLI_IMPL" "CLI impl must require provider entrypoint function"
+guard_expect_fixed_in_file "$TAG" 'HakoAllocPageModel.acquireFreshSmall/1' "$CLI_IMPL" "CLI impl must verify current small alloc hot entrypoint"
+guard_expect_fixed_in_file "$TAG" 'HakoAllocPageModel.releaseLocalKnownLive/1' "$CLI_IMPL" "CLI impl must verify current release hot entrypoint"
 guard_expect_fixed_in_file "$TAG" 'object-lifecycle-small-alloc-release-v0' "$CLI_ARGS" "CLI args must document object lifecycle mode"
 guard_expect_fixed_in_file "$TAG" 'objectLifecycleSmallAllocReleaseOk()' "$FIXTURE" "fixture must define selected provider proof method"
 guard_expect_fixed_in_file "$TAG" 'objectLifecycleSmallAlloc(8)' "$FIXTURE" "fixture must call selected alloc"

@@ -396,8 +396,8 @@ fn validate_hako_provider_object_lifecycle_entrypoint(mir_json_path: &Path) -> R
     for required in [
         "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
         "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
-        "HakoAllocPageModel.acquire/1",
-        "HakoAllocPageModel.releaseLocal/1",
+        "HakoAllocPageModel.acquireFreshSmall/1",
+        "HakoAllocPageModel.releaseLocalKnownLive/1",
     ] {
         require_mir_function(functions, required)?;
     }
@@ -421,13 +421,13 @@ fn validate_hako_provider_object_lifecycle_entrypoint(mir_json_path: &Path) -> R
         functions,
         "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
     )?;
-    require_mir_method_call(alloc_fn, "HakoAllocPageModel", "acquire")?;
+    require_mir_method_call(alloc_fn, "HakoAllocPageModel", "acquireFreshSmall")?;
 
     let release_fn = find_mir_function(
         functions,
         "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
     )?;
-    require_mir_method_call(release_fn, "HakoAllocPageModel", "releaseLocal")?;
+    require_mir_method_call(release_fn, "HakoAllocPageModel", "releaseLocalKnownLive")?;
     Ok(())
 }
 

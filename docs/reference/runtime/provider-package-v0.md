@@ -294,6 +294,38 @@ Native pointer allocation/free mechanics still belong to the generated wrapper
 in this mode. Provider activation and process allocator replacement remain
 closed.
 
+The selected object-lifecycle semantic-codegen mode is
+`object-lifecycle-small-alloc-release-v0`:
+
+```bash
+target/debug/hakorune \
+  --provider-package-hako-derived-build-fixture apps/provider-package/hako-derived-mimalloc-real-entrypoint-fixture/main.hako \
+  --provider-package-hako-semantic-codegen object-lifecycle-small-alloc-release-v0 \
+  --provider-package-out-dir dist/hakorune-provider \
+  --provider-package-id org.hakorune.provider.hako.mimalloc.real-entrypoint \
+  --provider-package-name hako-mimalloc-real-entrypoint-provider \
+  --provider-package-target-triple x86_64-unknown-linux-gnu \
+  --provider-package-platform linux \
+  --provider-package-provider-call-allowed
+```
+
+This mode verifies the selected `.hako` mimalloc entrypoint call chain:
+
+```text
+HakoProvider.objectLifecycleSmallAllocReleaseOk/0
+  -> HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+  -> HakoAllocPageModel.acquireFreshSmall/1
+
+HakoProvider.objectLifecycleSmallAllocReleaseOk/0
+  -> HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2
+  -> HakoAllocPageModel.releaseLocalKnownLive/1
+```
+
+The generated provider ABI wrapper still owns native pointer allocation/free in
+this mode. The `.hako` side is used as selected source/MIR evidence for the
+real object-lifecycle entrypoint; it is not arbitrary `.hako` to allocator-DLL
+lowering, and it does not activate provider replacement.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata
