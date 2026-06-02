@@ -53,12 +53,19 @@ static hako_calloc_fn real_calloc_fn = 0;
 static hako_realloc_fn real_realloc_fn = 0;
 static hako_free_fn real_free_fn = 0;
 static int resolving_real = 0;
-static HakoReplacementSlot slots[HAKO_REPLACEMENT_SLOT_COUNT];
-static unsigned char used[HAKO_REPLACEMENT_SLOT_COUNT];
-static size_t requested_size[HAKO_REPLACEMENT_SLOT_COUNT];
-static uint32_t free_stack[HAKO_REPLACEMENT_SLOT_COUNT];
-static uint32_t free_top = 0u;
-static unsigned char init_done = 0u;
+
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+#define HAKO_REPLACEMENT_STORAGE _Thread_local
+#else
+#define HAKO_REPLACEMENT_STORAGE
+#endif
+
+static HAKO_REPLACEMENT_STORAGE HakoReplacementSlot slots[HAKO_REPLACEMENT_SLOT_COUNT];
+static HAKO_REPLACEMENT_STORAGE unsigned char used[HAKO_REPLACEMENT_SLOT_COUNT];
+static HAKO_REPLACEMENT_STORAGE size_t requested_size[HAKO_REPLACEMENT_SLOT_COUNT];
+static HAKO_REPLACEMENT_STORAGE uint32_t free_stack[HAKO_REPLACEMENT_SLOT_COUNT];
+static HAKO_REPLACEMENT_STORAGE uint32_t free_top = 0u;
+static HAKO_REPLACEMENT_STORAGE unsigned char init_done = 0u;
 
 static unsigned long long alloc_count = 0;
 static unsigned long long calloc_count = 0;
@@ -70,6 +77,7 @@ static unsigned long long realloc_copy_bytes = 0;
 static unsigned long long calloc_zero_bytes = 0;
 static unsigned long long lock_mode_enabled = 0;
 static unsigned long long lock_enter_count = 0;
+static unsigned long long thread_local_mode_enabled = 0;
 
 static void add_counter(unsigned long long* counter, unsigned long long delta) {
   __sync_fetch_and_add(counter, delta);
@@ -224,6 +232,7 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_calloc_zero_bytes", calloc_zero_bytes);
   write_kv(fd, "replacement_front_lock_mode_enabled", lock_mode_enabled);
   write_kv(fd, "replacement_front_lock_enter_count", lock_enter_count);
+  write_kv(fd, "replacement_front_thread_local_mode_enabled", thread_local_mode_enabled);
   close(fd);
 }
 
@@ -231,6 +240,9 @@ __attribute__((constructor))
 static void install_report(void) {
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
   lock_mode_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+  thread_local_mode_enabled = 1;
 #endif
   atexit(write_report);
 }
@@ -347,10 +359,12 @@ def positive_int(value: int, label: str) -> None:
         raise SystemExit(f"{label} must be positive")
 
 
-def build_replacement_front_shim(out_dir: Path, *, locked: bool) -> Path:
+def build_replacement_front_shim(out_dir: Path, *, locked: bool, thread_local: bool) -> Path:
     front_dir = out_dir / (
         "replacement-front-native-slot-locked" if locked else "replacement-front-native-slot"
     )
+    if thread_local:
+        front_dir = out_dir / "replacement-front-native-slot-thread-local"
     front_dir.mkdir(parents=True, exist_ok=True)
     source = front_dir / "hako_alloc_replacement_front_native_slot.c"
     binary = front_dir / "libhako_alloc_replacement_front_native_slot.so"
@@ -365,6 +379,8 @@ def build_replacement_front_shim(out_dir: Path, *, locked: bool) -> Path:
     ]
     if locked:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_LOCKED=1")
+    if thread_local:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_THREAD_LOCAL=1")
     cmd.extend([str(source), "-ldl"])
     if locked:
         cmd.append("-pthread")
@@ -624,6 +640,11 @@ def main() -> int:
         action="store_true",
         help="benchmark-only: build the replacement front with a global arena mutex",
     )
+    parser.add_argument(
+        "--replacement-front-thread-local-mode",
+        action="store_true",
+        help="benchmark-only: build the replacement front with same-thread TLS arenas",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -641,6 +662,14 @@ def main() -> int:
     if args.replacement_front_lock_mode and not args.replacement_front_native_slot_mode:
         raise SystemExit(
             "--replacement-front-lock-mode requires --replacement-front-native-slot-mode"
+        )
+    if args.replacement_front_thread_local_mode and not args.replacement_front_native_slot_mode:
+        raise SystemExit(
+            "--replacement-front-thread-local-mode requires --replacement-front-native-slot-mode"
+        )
+    if args.replacement_front_lock_mode and args.replacement_front_thread_local_mode:
+        raise SystemExit(
+            "--replacement-front-lock-mode and --replacement-front-thread-local-mode are exclusive"
         )
 
     root = args.hakozuna_root.resolve()
@@ -685,7 +714,9 @@ def main() -> int:
         provider_binary = Path(smoke["provider_binary_path"])
     if args.replacement_front_native_slot_mode:
         replacement_front_shim = build_replacement_front_shim(
-            out_dir, locked=args.replacement_front_lock_mode
+            out_dir,
+            locked=args.replacement_front_lock_mode,
+            thread_local=args.replacement_front_thread_local_mode,
         )
 
     subject_specs: list[tuple[str, Path | None, Path | None, bool]] = [
@@ -750,6 +781,7 @@ def main() -> int:
         f"provider_assume_owned_mode={1 if args.provider_assume_owned_mode else 0}",
         f"replacement_front_native_slot_mode={1 if args.replacement_front_native_slot_mode else 0}",
         f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
+        f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
     ]
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")
@@ -776,7 +808,10 @@ def main() -> int:
         )
         if replacement_front_mode:
             single_thread_smoke = args.threads == 1
-            multithread_smoke = args.threads > 1 and args.replacement_front_lock_mode
+            thread_local_smoke = args.threads > 1 and args.replacement_front_thread_local_mode
+            multithread_smoke = args.threads > 1 and (
+                args.replacement_front_lock_mode or args.replacement_front_thread_local_mode
+            )
             lines.extend(
                 [
                     f"subject_{index}_provider_table_dispatch=0",
@@ -786,7 +821,12 @@ def main() -> int:
                     f"subject_{index}_direct_core_call=1",
                     f"subject_{index}_single_thread_replacement_front_smoke={1 if single_thread_smoke else 0}",
                     f"subject_{index}_multithread_replacement_front_smoke={1 if multithread_smoke else 0}",
-                    f"subject_{index}_thread_safety_claim={'measured' if multithread_smoke else 'none'}",
+                    f"subject_{index}_thread_local_replacement_front_smoke={1 if thread_local_smoke else 0}",
+                    f"subject_{index}_thread_safety_claim={'measured' if (multithread_smoke or thread_local_smoke) else 'none'}",
+                    f"subject_{index}_thread_local_arena={1 if args.replacement_front_thread_local_mode else 0}",
+                    "subject_"
+                    f"{index}_cross_thread_free_policy="
+                    f"{'same_thread_only_unsupported' if args.replacement_front_thread_local_mode else 'global_lock_or_not_applicable'}",
                     f"subject_{index}_provider_api_hot_path_required=0",
                     f"subject_{index}_activation=0",
                     f"subject_{index}_benchmark_only=1",

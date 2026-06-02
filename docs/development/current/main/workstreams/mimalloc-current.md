@@ -227,6 +227,31 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
      the benchmark-only replacement front no longer uses an unsynchronized
      global free stack.
 
+   - Thread-local arena probe entry:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --threads 4 \
+  --out-dir /tmp/hakorune_replacement_front_tls_mt_compare \
+  --out /tmp/hakorune_replacement_front_tls_mt_compare/report.out
+```
+
+   - Interpret the thread-local arena probe as the first scalable shape. It is
+     still benchmark-only and same-thread-free only:
+
+```text
+thread_local_replacement_front_smoke=1
+thread_local_arena=1
+cross_thread_free_policy=same_thread_only_unsupported
+activation=0
+benchmark_only=1
+winner_claim=0
+summary=ok
+```
+
 6. Finish the Hakorune mimalloc lane before any victory claim.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
