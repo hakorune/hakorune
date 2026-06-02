@@ -1722,6 +1722,26 @@ message.
     no copied benchmark executable in git, no provider activation, no hook
     installation, no `#[global_allocator]` product default, and no winner claim
 
+- [x] MIM-142: provider replacement decision adapter and ladder
+  - output:
+    consume Hako/C repeated, provider explicit, repo-local hakmem LD_PRELOAD,
+    and generated Rust global-allocator smoke evidence in one read-only
+    decision surface
+  - implemented:
+    `tools/allocator/provider_replacement_decision_adapter.py` validates the
+    four input contracts and emits
+    `output_contract=hako-mimalloc-provider-replacement-decision-adapter-v0`
+  - implemented:
+    `tools/allocator/hako_mimalloc_provider_replacement_decision_ladder.sh`
+    runs the no-product-default evidence ladder and writes the adapter output
+    plus artifact pointers
+  - decision:
+    `decision=pilots_ready_no_product_default_change`;
+    next step is repeated external-process measurement before any winner claim
+  - stop lines:
+    product provider activation, production replacement, hook installation,
+    production global allocator default, and winner claim remain closed
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

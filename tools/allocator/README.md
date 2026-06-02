@@ -96,6 +96,19 @@ benchmarks/external/hakmem/random-mixed-system/build/bench_random_mixed_system
 Pass `--hakmem-root /path/to/hakmem` only when intentionally running against the
 full extracted corpus.
 
+Run the current no-product-default provider replacement decision ladder:
+
+```bash
+tools/allocator/hako_mimalloc_provider_replacement_decision_ladder.sh \
+  --out target/provider-replacement-decision/report.out \
+  --skip-build-release
+```
+
+This consumes Hako/C repeated evidence, provider explicit evidence, the
+repo-local hakmem LD_PRELOAD fixture, and the generated Rust global allocator
+smoke. It records readiness only; product allocator replacement, production
+hooks, production `#[global_allocator]`, and winner claims stay closed.
+
 ## Stop Lines
 
 - Do not commit copied benchmark executables or generated `benchres.csv`.
