@@ -58,6 +58,9 @@ static hako_calloc_fn real_calloc_fn = 0;
 static hako_realloc_fn real_realloc_fn = 0;
 static hako_free_fn real_free_fn = 0;
 static struct HakoProviderApiV1* provider_api = 0;
+static hako_provider_alloc_fn provider_alloc_fn = 0;
+static hako_provider_free_fn provider_free_fn = 0;
+static hako_provider_owns_fn provider_owns_fn = 0;
 static int resolving_real = 0;
 static int loading_provider = 0;
 static int provider_load_attempted = 0;
@@ -334,6 +337,9 @@ static int hako_ensure_provider(void) {
     return 0;
   }
   provider_api = api;
+  provider_alloc_fn = api->alloc;
+  provider_free_fn = api->free;
+  provider_owns_fn = api->owns;
   provider_ready = 1;
   provider_bind_success++;
   atexit(hako_write_report);
@@ -342,13 +348,13 @@ static int hako_ensure_provider(void) {
 }
 
 static void* hako_provider_alloc(size_t size, size_t align) {
-  if (!hako_ensure_provider() || !provider_api || !provider_api->alloc) {
+  if (!provider_ready && !hako_ensure_provider()) {
     runtime_real_fallback_count++;
     hako_resolve_real();
     return real_malloc_fn ? real_malloc_fn(size) : 0;
   }
   in_provider_call = 1;
-  void* ptr = provider_api->alloc(size, align);
+  void* ptr = provider_alloc_fn(size, align);
   in_provider_call = 0;
   if (ptr) {
     hako_track_ptr(ptr, size);
@@ -361,7 +367,7 @@ static void hako_provider_free(void* ptr) {
   if (!ptr) {
     return;
   }
-  if (!provider_api || !provider_api->free) {
+  if (!provider_ready && !hako_ensure_provider()) {
     runtime_real_fallback_count++;
     hako_resolve_real();
     if (real_free_fn) {
@@ -370,7 +376,7 @@ static void hako_provider_free(void* ptr) {
     return;
   }
   in_provider_call = 1;
-  provider_api->free(ptr);
+  provider_free_fn(ptr);
   in_provider_call = 0;
   provider_free_count++;
 }
@@ -466,9 +472,9 @@ void free(void* ptr) {
     hako_provider_free(ptr);
     return;
   }
-  if (hako_ensure_provider() && provider_api && provider_api->owns) {
+  if ((provider_ready || hako_ensure_provider()) && provider_owns_fn) {
     in_provider_call = 1;
-    int owned = provider_api->owns(ptr);
+    int owned = provider_owns_fn(ptr);
     in_provider_call = 0;
     if (owned == 1) {
       hako_provider_free(ptr);
