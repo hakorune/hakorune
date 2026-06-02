@@ -247,6 +247,9 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
      Use `--replacement-front-skip-hot-counters` only as a measurement-only
      counter-tax probe; it is incompatible with the focused counter smokes and
      is not allocator readiness evidence.
+     Use `--replacement-front-tls-counter-mode` as the benchmark-only keeper
+     direction for preserving counters while avoiding hot atomic increments in
+     the thread-local replacement front.
 
 ```text
 thread_local_replacement_front_smoke=1

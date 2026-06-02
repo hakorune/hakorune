@@ -110,11 +110,91 @@ static unsigned long long arena_registry_overflow_count = 0;
 static unsigned long long abandoned_arena_count = 0;
 static unsigned long long abandoned_remote_free_count = 0;
 static unsigned long long skip_hot_counters_enabled = 0;
+static unsigned long long tls_counter_mode_enabled = 0;
+
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_alloc_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_calloc_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_realloc_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_free_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_host_passthrough_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_direct_core_call_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_realloc_copy_bytes = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_calloc_zero_bytes = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_lock_enter_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_remote_free_push_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_remote_free_drain_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_cross_thread_realloc_unsupported_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_arena_registry_overflow_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_abandoned_arena_count = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_abandoned_remote_free_count = 0;
+
+static void flush_one_counter(unsigned long long* global, unsigned long long* local) {
+  if (*local != 0) {
+    __sync_fetch_and_add(global, *local);
+    *local = 0;
+  }
+}
+
+static void flush_thread_counters(void) {
+  flush_one_counter(&alloc_count, &local_alloc_count);
+  flush_one_counter(&calloc_count, &local_calloc_count);
+  flush_one_counter(&realloc_count, &local_realloc_count);
+  flush_one_counter(&free_count, &local_free_count);
+  flush_one_counter(&host_passthrough_count, &local_host_passthrough_count);
+  flush_one_counter(&direct_core_call_count, &local_direct_core_call_count);
+  flush_one_counter(&realloc_copy_bytes, &local_realloc_copy_bytes);
+  flush_one_counter(&calloc_zero_bytes, &local_calloc_zero_bytes);
+  flush_one_counter(&lock_enter_count, &local_lock_enter_count);
+  flush_one_counter(&remote_free_push_count, &local_remote_free_push_count);
+  flush_one_counter(&remote_free_drain_count, &local_remote_free_drain_count);
+  flush_one_counter(
+      &cross_thread_realloc_unsupported_count,
+      &local_cross_thread_realloc_unsupported_count);
+  flush_one_counter(&arena_registry_overflow_count, &local_arena_registry_overflow_count);
+  flush_one_counter(&abandoned_arena_count, &local_abandoned_arena_count);
+  flush_one_counter(&abandoned_remote_free_count, &local_abandoned_remote_free_count);
+}
+#endif
 
 static void add_counter(unsigned long long* counter, unsigned long long delta) {
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
   (void)counter;
   (void)delta;
+#elif defined(HAKO_REPLACEMENT_FRONT_TLS_COUNTERS)
+  if (!arena_registered) {
+    __sync_fetch_and_add(counter, delta);
+  } else if (counter == &alloc_count) {
+    local_alloc_count += delta;
+  } else if (counter == &calloc_count) {
+    local_calloc_count += delta;
+  } else if (counter == &realloc_count) {
+    local_realloc_count += delta;
+  } else if (counter == &free_count) {
+    local_free_count += delta;
+  } else if (counter == &host_passthrough_count) {
+    local_host_passthrough_count += delta;
+  } else if (counter == &direct_core_call_count) {
+    local_direct_core_call_count += delta;
+  } else if (counter == &realloc_copy_bytes) {
+    local_realloc_copy_bytes += delta;
+  } else if (counter == &calloc_zero_bytes) {
+    local_calloc_zero_bytes += delta;
+  } else if (counter == &lock_enter_count) {
+    local_lock_enter_count += delta;
+  } else if (counter == &remote_free_push_count) {
+    local_remote_free_push_count += delta;
+  } else if (counter == &remote_free_drain_count) {
+    local_remote_free_drain_count += delta;
+  } else if (counter == &cross_thread_realloc_unsupported_count) {
+    local_cross_thread_realloc_unsupported_count += delta;
+  } else if (counter == &arena_registry_overflow_count) {
+    local_arena_registry_overflow_count += delta;
+  } else if (counter == &abandoned_arena_count) {
+    local_abandoned_arena_count += delta;
+  } else if (counter == &abandoned_remote_free_count) {
+    local_abandoned_remote_free_count += delta;
+  }
 #else
   __sync_fetch_and_add(counter, delta);
 #endif
@@ -181,6 +261,9 @@ static void arena_tls_destructor(void* value) {
   if (arena_index < arena_registry_count) {
     arena_registry[arena_index].active = 0u;
     add_counter(&abandoned_arena_count, 1);
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+    flush_thread_counters();
+#endif
   }
   pthread_mutex_unlock(&arena_registry_lock);
 }
@@ -407,6 +490,9 @@ static void write_kv(int fd, const char* key, unsigned long long value) {
 }
 
 static void write_report(void) {
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+  flush_thread_counters();
+#endif
   const char* path = getenv("HAKORUNE_REPLACEMENT_FRONT_REPORT");
   if (!path || !path[0]) {
     return;
@@ -436,6 +522,7 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_abandoned_arena_count", abandoned_arena_count);
   write_kv(fd, "replacement_front_abandoned_remote_free_count", abandoned_remote_free_count);
   write_kv(fd, "replacement_front_skip_hot_counters_enabled", skip_hot_counters_enabled);
+  write_kv(fd, "replacement_front_tls_counter_mode_enabled", tls_counter_mode_enabled);
   close(fd);
 }
 
@@ -449,6 +536,9 @@ static void install_report(void) {
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
   skip_hot_counters_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+  tls_counter_mode_enabled = 1;
 #endif
   atexit(write_report);
 }
@@ -701,6 +791,7 @@ def build_replacement_front_shim(
     locked: bool,
     thread_local: bool,
     skip_hot_counters: bool,
+    tls_counters: bool,
 ) -> Path:
     front_dir = out_dir / (
         "replacement-front-native-slot-locked" if locked else "replacement-front-native-slot"
@@ -709,6 +800,8 @@ def build_replacement_front_shim(
         front_dir = out_dir / "replacement-front-native-slot-thread-local"
     if skip_hot_counters:
         front_dir = out_dir / f"{front_dir.name}-skip-hot-counters"
+    if tls_counters:
+        front_dir = out_dir / f"{front_dir.name}-tls-counters"
     front_dir.mkdir(parents=True, exist_ok=True)
     source = front_dir / "hako_alloc_replacement_front_native_slot.c"
     binary = front_dir / "libhako_alloc_replacement_front_native_slot.so"
@@ -727,6 +820,8 @@ def build_replacement_front_shim(
         cmd.append("-DHAKO_REPLACEMENT_FRONT_THREAD_LOCAL=1")
     if skip_hot_counters:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS=1")
+    if tls_counters:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_TLS_COUNTERS=1")
     cmd.extend([str(source), "-ldl"])
     if locked or thread_local:
         cmd.append("-pthread")
@@ -1115,6 +1210,11 @@ def main() -> int:
         action="store_true",
         help="measurement-only: skip malloc/free hot-path replacement front counters",
     )
+    parser.add_argument(
+        "--replacement-front-tls-counter-mode",
+        action="store_true",
+        help="benchmark-only: aggregate replacement front counters through thread-local buffers",
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -1150,6 +1250,16 @@ def main() -> int:
         raise SystemExit(
             "--replacement-front-skip-hot-counters requires "
             "--replacement-front-native-slot-mode"
+        )
+    if args.replacement_front_tls_counter_mode and not args.replacement_front_thread_local_mode:
+        raise SystemExit(
+            "--replacement-front-tls-counter-mode requires "
+            "--replacement-front-thread-local-mode"
+        )
+    if args.replacement_front_tls_counter_mode and args.replacement_front_skip_hot_counters:
+        raise SystemExit(
+            "--replacement-front-tls-counter-mode and "
+            "--replacement-front-skip-hot-counters are exclusive"
         )
     if args.replacement_front_cross_thread_smoke and args.replacement_front_skip_hot_counters:
         raise SystemExit(
@@ -1203,6 +1313,7 @@ def main() -> int:
             locked=args.replacement_front_lock_mode,
             thread_local=args.replacement_front_thread_local_mode,
             skip_hot_counters=args.replacement_front_skip_hot_counters,
+            tls_counters=args.replacement_front_tls_counter_mode,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -1278,6 +1389,7 @@ def main() -> int:
         f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
         f"replacement_front_cross_thread_smoke={1 if args.replacement_front_cross_thread_smoke else 0}",
         f"replacement_front_skip_hot_counters={1 if args.replacement_front_skip_hot_counters else 0}",
+        f"replacement_front_tls_counter_mode={1 if args.replacement_front_tls_counter_mode else 0}",
     ]
     if replacement_front_smokes:
         cross_thread_free = replacement_front_smokes["cross_thread_free"]
