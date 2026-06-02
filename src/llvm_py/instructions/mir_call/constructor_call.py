@@ -86,10 +86,10 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
             callee = _declare("nyash.string.new", i64, [])
             result = builder.call(callee, [], name="unified_str_empty")
 
-    elif box_type == "ArrayBox":
+    elif box_type in ("ArrayBox", "DirectArrayI64"):
         # Default construction remains public ArrayBox. The DirectArray symbol
         # is exact-lane only and produces a distinct direct-buffer handle kind.
-        direct_array_birth = _direct_array_i64_constructor_enabled()
+        direct_array_birth = box_type == "DirectArrayI64" or _direct_array_i64_constructor_enabled()
         callee = _declare(
             DIRECT_ARRAY_I64_BIRTH_SYMBOL if direct_array_birth else PUBLIC_ARRAY_BIRTH_SYMBOL,
             i64,

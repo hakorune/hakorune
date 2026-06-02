@@ -166,6 +166,10 @@ DirectArrayExtentFact metadata. This only opens the source-type route shape;
 PageModel source migration remains blocked until the birth/initialized-length
 fixture is fixed and measured.
 
+Explicit `new DirectArrayI64()` also lowers to the direct-i64 birth symbol in
+the LLVM exact front. The remaining blocker is initialized-length / PageModel
+field migration measurement, not constructor availability.
+
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
 replacement-front path. Until then, replacement-front benchmark results are

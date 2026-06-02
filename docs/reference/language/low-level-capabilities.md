@@ -79,6 +79,15 @@ type. `DirectArrayI64` is not a subtype of `Array`, and implicit conversion in
 either direction is not accepted. Materialization or copy must be explicit when
 needed.
 
+Implementation status: the compiler recognizes `DirectArrayI64` constructor
+and `get` / `set` receiver shapes as DirectArray access-plan candidates, and
+the LLVM exact front can lower the explicit constructor to the direct-i64 birth
+symbol. A production source migration, such as changing allocator PageModel
+fields from `ArrayBox` to `DirectArrayI64`, still requires a separate
+initialized-length fixture and exact-front measurement. Do not treat the
+metadata route shape as permission to silently replace existing `ArrayBox`
+fields.
+
 The following are not accepted source features:
 
 ```text

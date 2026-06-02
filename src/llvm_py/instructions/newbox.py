@@ -170,11 +170,12 @@ def lower_newbox(
         return
 
     # Core fast paths
-    if box_type in ("ArrayBox", "MapBox"):
+    if box_type in ("ArrayBox", "DirectArrayI64", "MapBox"):
         direct_array_birth = box_type == "ArrayBox" and _direct_array_i64_constructor_enabled()
+        explicit_direct_array_birth = box_type == "DirectArrayI64"
         birth_name = (
             DIRECT_ARRAY_I64_BIRTH_SYMBOL
-            if direct_array_birth
+            if direct_array_birth or explicit_direct_array_birth
             else PUBLIC_ARRAY_BIRTH_SYMBOL if box_type == "ArrayBox" else "nyash.map.birth_h"
         )
         birth = None
@@ -187,7 +188,7 @@ def lower_newbox(
         handle = builder.call(birth, [], name=f"birth_{box_type}")
         vmap[dst_vid] = handle
         _mark_box_handle()
-        if direct_array_birth:
+        if direct_array_birth or explicit_direct_array_birth:
             _mark_direct_array_i64_origin()
         return
     # Prefer variadic shim: nyash.env.box.new_i64x(type_name, argc, a1, a2, a3, a4)

@@ -72,6 +72,20 @@ class TestDirectArrayI64ConstructorLowering(unittest.TestCase):
 
         self._with_env("direct_array_i64_exact", run)
 
+    def test_newbox_explicit_direct_array_i64_uses_direct_array_birth_without_env(self):
+        def run():
+            mod, builder, _ = self._make_builder()
+            resolver = _ResolverStub()
+            vmap = {}
+            lower_newbox(builder, mod, "DirectArrayI64", [], 11, vmap, resolver)
+            ir_txt = str(mod)
+            self.assertIn("nyash.array.direct_i64.birth_h", ir_txt)
+            self.assertNotIn("nyash.array.birth_h", ir_txt)
+            self.assertEqual(resolver.direct_array_i64_ids, {11})
+            self.assertEqual(resolver.arrayrepr_facts, {11: "ArrayRepr::DirectI64"})
+
+        self._with_env(None, run)
+
     def test_constructor_arraybox_direct_lane_uses_direct_array_birth(self):
         def run():
             mod, builder, _ = self._make_builder()
@@ -94,6 +108,29 @@ class TestDirectArrayI64ConstructorLowering(unittest.TestCase):
             self.assertEqual(resolver.arrayrepr_facts, {9: "ArrayRepr::DirectI64"})
 
         self._with_env("direct_array_i64_exact", run)
+
+    def test_constructor_explicit_direct_array_i64_uses_direct_array_birth_without_env(self):
+        def run():
+            mod, builder, _ = self._make_builder()
+            resolver = _ResolverStub()
+            vmap = {}
+            lower_constructor_call(
+                builder,
+                mod,
+                "DirectArrayI64",
+                [],
+                13,
+                vmap,
+                resolver,
+                _OwnerStub(),
+            )
+            ir_txt = str(mod)
+            self.assertIn("nyash.array.direct_i64.birth_h", ir_txt)
+            self.assertNotIn("nyash.array.birth_h", ir_txt)
+            self.assertEqual(resolver.direct_array_i64_ids, {13})
+            self.assertEqual(resolver.arrayrepr_facts, {13: "ArrayRepr::DirectI64"})
+
+        self._with_env(None, run)
 
 
 if __name__ == "__main__":
