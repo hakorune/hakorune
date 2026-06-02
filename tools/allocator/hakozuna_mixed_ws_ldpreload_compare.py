@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 from hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot import read_kv
 
@@ -159,6 +161,58 @@ def format_ratio(value: float, base: float) -> str:
     return f"{value / base:.6f}"
 
 
+def load_manifest_metadata(path: Path | None) -> dict[str, str]:
+    if path is None:
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"invalid provider manifest JSON: {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise SystemExit(f"provider manifest root must be an object: {path}")
+
+    build = data.get("build")
+    activation = data.get("activation")
+    if not isinstance(build, dict):
+        build = {}
+    if not isinstance(activation, dict):
+        activation = {}
+
+    def manifest_string(source: dict[str, Any], key: str, default: str = "unknown") -> str:
+        value = source.get(key)
+        if isinstance(value, bool):
+            return "1" if value else "0"
+        if value is None:
+            return default
+        return str(value)
+
+    return {
+        "provider_manifest_provider_name": manifest_string(data, "provider_name"),
+        "provider_manifest_provider_kind": manifest_string(data, "provider_kind"),
+        "provider_manifest_profile": manifest_string(data, "profile"),
+        "provider_manifest_build_mode": manifest_string(build, "mode"),
+        "provider_manifest_hako_semantic_provider_codegen": manifest_string(
+            build, "hako_semantic_provider_codegen", "none"
+        ),
+        "provider_manifest_hako_provider_object_lifecycle_entrypoint_verified": manifest_string(
+            build, "hako_provider_object_lifecycle_entrypoint_verified", "0"
+        ),
+        "provider_manifest_allocator_replacement_allowed": manifest_string(
+            activation, "allocator_replacement_allowed", "0"
+        ),
+        "provider_manifest_hook_allowed": manifest_string(activation, "hook_allowed", "0"),
+        "provider_manifest_global_allocator_allowed": manifest_string(
+            activation, "global_allocator_allowed", "0"
+        ),
+    }
+
+
+def format_per_operation(numerator: int, denominator: int) -> str:
+    if denominator <= 0:
+        return "0.000000"
+    return f"{numerator / denominator:.6f}"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--hakozuna-root", type=Path, default=DEFAULT_HAKOZUNA_ROOT)
@@ -200,6 +254,9 @@ def main() -> int:
     out_dir = args.out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     mimalloc_library = find_mimalloc_library(args.mimalloc_library, args.allow_ldconfig_discovery)
+    provider_manifest_metadata = load_manifest_metadata(
+        args.manifest.resolve() if args.manifest else None
+    )
 
     provider_shim: Path | None = None
     provider_binary: Path | None = None
@@ -270,6 +327,16 @@ def main() -> int:
         "global_allocator_product_claim=0",
         "winner_claim=0",
     ]
+    for key in sorted(provider_manifest_metadata):
+        lines.append(f"{key}={provider_manifest_metadata[key]}")
+    if args.manifest is not None:
+        lines.extend(
+            [
+                "provider_ldpreload_measurement_interpretation=provider_abi_wrapper_and_shim_bridge",
+                "provider_ldpreload_is_product_allocator_claim=0",
+                "provider_ldpreload_is_hako_core_speed_claim=0",
+            ]
+        )
     for index, (subject, _ld_preload, _provider) in enumerate(subject_specs):
         samples, counters = reports[subject]
         median = median_float(samples)
@@ -286,6 +353,23 @@ def main() -> int:
         if counters:
             for key in sorted(counters):
                 lines.append(f"subject_{index}_{key}_total={counters[key]}")
+            provider_ops = (
+                counters.get("shim_provider_alloc_count", 0)
+                + counters.get("shim_provider_calloc_count", 0)
+                + counters.get("shim_provider_realloc_count", 0)
+                + counters.get("shim_provider_free_count", 0)
+            )
+            lines.extend(
+                [
+                    f"subject_{index}_shim_provider_operation_count_total={provider_ops}",
+                    "subject_"
+                    f"{index}_shim_init_real_fallback_per_provider_operation="
+                    f"{format_per_operation(counters.get('shim_init_real_fallback_count', 0), provider_ops)}",
+                    "subject_"
+                    f"{index}_shim_host_passthrough_per_provider_operation="
+                    f"{format_per_operation(counters.get('shim_host_passthrough_count', 0), provider_ops)}",
+                ]
+            )
             lines.append(f"subject_{index}_shim_init_real_fallback_is_perf_diagnostic=1")
     lines.append("summary=ok")
     report = "\n".join(lines) + "\n"

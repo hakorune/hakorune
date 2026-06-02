@@ -125,7 +125,17 @@ Pass `--mimalloc-library /path/to/libmimalloc.so.2` to avoid `ldconfig`
 discovery. Pass `--manifest target/.../provider/pkg/hakorune_provider.json`
 when intentionally adding the Hakorune provider subject. The report uses C
 mimalloc as the local reference subject and keeps all product replacement and
-winner-claim fields closed.
+winner-claim fields closed. Provider-subject reports also emit manifest build
+metadata and bridge-interpretation fields:
+
+```text
+provider_ldpreload_measurement_interpretation=provider_abi_wrapper_and_shim_bridge
+provider_ldpreload_is_hako_core_speed_claim=0
+subject_N_shim_init_real_fallback_per_provider_operation=...
+```
+
+Use those fields to avoid reading the current provider LD_PRELOAD bridge as a
+direct `.hako` allocator-core speed claim.
 
 Run the current no-product-default provider replacement decision ladder:
 

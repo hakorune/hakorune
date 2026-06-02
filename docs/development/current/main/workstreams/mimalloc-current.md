@@ -117,6 +117,14 @@ optional_subject:
 
 report_contract:
   hakozuna-mixed-ws-ldpreload-compare-v0
+
+interpretation:
+  provider subject is provider ABI wrapper + LD_PRELOAD shim bridge evidence
+  provider_ldpreload_is_hako_core_speed_claim=0
+  provider_ldpreload_is_product_allocator_claim=0
+
+key shim diagnostic:
+  shim_init_real_fallback_per_provider_operation
 ```
 
 ## Next Task Order
@@ -131,6 +139,8 @@ report_contract:
    - If provider shim counters dominate, optimize shim/provider boundary first.
    - If `.hako` allocator core dominates, return to direct-exact app perf/asm.
    - If benchmark setup noise dominates, improve measurement before code edits.
+   - Do not call provider LD_PRELOAD evidence a `.hako` core speed result while
+     `provider_ldpreload_is_hako_core_speed_claim=0`.
 
 3. Continue provider replacement ladder only as smoke/readiness.
    - Keep `provider_activation=0`, `production_replacement_active=0`,
