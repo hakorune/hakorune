@@ -28,7 +28,10 @@ pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
     let mut stability_facts = Vec::new();
 
     for route in &function.metadata.generic_method_routes {
-        if route.receiver_origin_box() != Some("ArrayBox") {
+        if !matches!(
+            route.receiver_origin_box(),
+            Some("ArrayBox" | "DirectArrayI64")
+        ) {
             continue;
         }
         if !matches!(
@@ -197,7 +200,7 @@ fn field_get_origin(
 fn is_arraybox_field(field: &FieldGetOrigin) -> bool {
     matches!(
         field.declared_type.as_ref(),
-        Some(MirType::Box(name)) if name == "ArrayBox"
+        Some(MirType::Box(name)) if matches!(name.as_str(), "ArrayBox" | "DirectArrayI64")
     )
 }
 
@@ -339,6 +342,78 @@ mod tests {
             RegionStabilityProofKind::ProducerInvariant
         );
         assert!(stability.stable_in_region);
+
+        refresh_function_direct_array_access_plans(&mut function);
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 1);
+        let plan = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(
+            plan.bounds_policy(),
+            DirectArrayBoundsPolicy::ProvedUnchecked
+        );
+        assert_eq!(plan.proof_kind(), DirectArrayProofKind::RangeIndex);
+    }
+
+    #[test]
+    fn refresh_links_direct_array_i64_field_receiver_to_same_receiver_capacity_range() {
+        let mut function = make_function();
+        let mut body = BasicBlock::new(BasicBlockId::new(1));
+        body.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(10),
+            base: ValueId::new(0),
+            field: "free".to_string(),
+            declared_type: Some(MirType::Box("DirectArrayI64".to_string())),
+        });
+        body.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(11),
+            base: ValueId::new(0),
+            field: "capacity".to_string(),
+            declared_type: Some(MirType::Integer),
+        });
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(12),
+            value: ConstValue::Integer(0),
+        });
+        body.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(20)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "DirectArrayI64".to_string(),
+                method: "set".to_string(),
+                receiver: Some(ValueId::new(10)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(12), ValueId::new(12)],
+            effects: EffectMask::PURE,
+        });
+        function.add_block(body);
+        function
+            .metadata
+            .counting_loop_facts
+            .push(CountingLoopFact {
+                index_name: "i".to_string(),
+                lower_value: ValueId::new(12),
+                upper_exclusive_value: ValueId::new(11),
+                index_value: ValueId::new(12),
+                preheader_bb: BasicBlockId::new(0),
+                header_bb: BasicBlockId::new(2),
+                body_bb: BasicBlockId::new(1),
+                latch_bb: BasicBlockId::new(3),
+                exit_bb: BasicBlockId::new(4),
+                step: 1,
+                end_exclusive: true,
+                index_body_read_only: true,
+                loop_carried_writes_supported: false,
+            });
+
+        refresh_function_generic_method_routes(&mut function);
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_extent_facts(&mut function);
+
+        assert_eq!(function.metadata.direct_array_extent_facts.len(), 1);
+        let fact = &function.metadata.direct_array_extent_facts[0];
+        assert_eq!(fact.receiver_value, ValueId::new(10));
+        assert_eq!(fact.lower_bound_value, ValueId::new(11));
 
         refresh_function_direct_array_access_plans(&mut function);
         assert_eq!(function.metadata.direct_array_access_plans.len(), 1);

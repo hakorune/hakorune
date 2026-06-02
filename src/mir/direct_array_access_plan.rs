@@ -350,7 +350,10 @@ pub fn refresh_function_direct_array_access_plans(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
     let mut stack_top_pop_values = Vec::new();
     for route in &function.metadata.generic_method_routes {
-        if route.receiver_origin_box() != Some("ArrayBox") {
+        if !matches!(
+            route.receiver_origin_box(),
+            Some("ArrayBox" | "DirectArrayI64")
+        ) {
             continue;
         }
         let Some(index_value) = route.key_value() else {
@@ -865,6 +868,44 @@ mod tests {
             store.store_semantics(),
             DirectArrayStoreSemantics::AppendOrOverwrite
         );
+    }
+
+    #[test]
+    fn refresh_records_checked_load_and_store_plans_from_direct_array_i64_routes() {
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(0),
+        });
+        block.add_instruction(method_call(Some(5), "DirectArrayI64", "get", 2, vec![1]));
+        block.add_instruction(method_call(Some(6), "DirectArrayI64", "set", 2, vec![1, 3]));
+
+        crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(
+            &mut function,
+        );
+        refresh_function_range_index_facts(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+
+        assert_eq!(function.metadata.direct_array_access_plans.len(), 2);
+        let load = &function.metadata.direct_array_access_plans[0];
+        assert_eq!(load.op(), DirectArrayAccessOp::Load);
+        assert_eq!(load.receiver_value(), ValueId::new(2));
+        assert_eq!(load.index_value(), ValueId::new(1));
+        assert_eq!(load.route(), "direct_array_i64_load");
+        assert_eq!(load.bounds_policy(), DirectArrayBoundsPolicy::Checked);
+        assert_eq!(load.proof_kind(), DirectArrayProofKind::ExactFrontContract);
+
+        let store = &function.metadata.direct_array_access_plans[1];
+        assert_eq!(store.op(), DirectArrayAccessOp::Store);
+        assert_eq!(store.receiver_value(), ValueId::new(2));
+        assert_eq!(store.index_value(), ValueId::new(1));
+        assert_eq!(store.value_value(), Some(ValueId::new(3)));
+        assert_eq!(store.route(), "direct_array_i64_store");
+        assert_eq!(store.bounds_policy(), DirectArrayBoundsPolicy::Checked);
     }
 
     #[test]

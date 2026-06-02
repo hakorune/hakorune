@@ -177,6 +177,37 @@ fn records_direct_arraybox_get_as_warm_core_method_route() {
 }
 
 #[test]
+fn records_direct_array_i64_get_as_array_slot_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block
+        .instructions
+        .push(method_call(Some(3), "DirectArrayI64", "get", 1, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.get");
+    assert_eq!(route.box_name(), "DirectArrayI64");
+    assert_eq!(route.method(), "get");
+    assert_eq!(route.receiver_origin_box(), Some("DirectArrayI64"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
+    let core_method = route
+        .core_method()
+        .expect("DirectArrayI64.get core method op");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayGet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+}
+
+#[test]
 fn records_runtime_data_get_from_typed_object_array_field_origin() {
     let mut module = MirModule::new("typed_object_array_field_get_route_test".to_string());
     module.metadata.typed_object_plans.push(TypedObjectPlan {

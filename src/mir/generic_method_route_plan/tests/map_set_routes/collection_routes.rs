@@ -236,6 +236,38 @@ fn records_direct_array_and_map_set_core_method_routes() {
 }
 
 #[test]
+fn records_direct_array_i64_set_as_array_store_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(1),
+        value: crate::mir::ConstValue::Integer(0),
+    });
+    block.add_instruction(method_call(Some(5), "DirectArrayI64", "set", 2, vec![1, 3]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.set");
+    assert_eq!(route.box_name(), "DirectArrayI64");
+    assert_eq!(route.method(), "set");
+    assert_eq!(route.receiver_origin_box(), Some("DirectArrayI64"));
+    assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::I64Const));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayStoreAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::SetSurfacePolicy);
+    let core_method = route.core_method().expect("DirectArrayI64.set carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArraySet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::ColdFallback
+    );
+}
+
+#[test]
 fn records_mapbox_set_with_redundant_receiver_arg_as_core_method_route() {
     let mut function = make_function();
     let block = function

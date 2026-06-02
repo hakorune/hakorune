@@ -114,9 +114,14 @@ pub(super) fn match_generic_set_route(
         .or_else(|| {
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
-        .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
+        .or_else(|| {
+            matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
+                .then(|| box_name.clone())
+        });
     let (route_kind, core_op) = match (box_name.as_str(), receiver_origin_box.as_deref()) {
-        ("ArrayBox", _) | ("RuntimeDataBox", Some("ArrayBox")) => (
+        ("ArrayBox", _)
+        | ("DirectArrayI64", Some("DirectArrayI64"))
+        | ("RuntimeDataBox", Some("ArrayBox")) => (
             GenericMethodRouteKind::ArrayStoreAny,
             CoreMethodOp::ArraySet,
         ),

@@ -160,6 +160,12 @@ evidence selects the field-type change. The current blocker is the
 DirectArrayI64 field-type plus birth/initialized-length fixture, not hot
 `get/set` traffic.
 
+Current implementation note: DirectArrayI64 source receivers are accepted by
+the generic `get/set` route producer and by DirectArrayAccessPlan /
+DirectArrayExtentFact metadata. This only opens the source-type route shape;
+PageModel source migration remains blocked until the birth/initialized-length
+fixture is fixed and measured.
+
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
 replacement-front path. Until then, replacement-front benchmark results are

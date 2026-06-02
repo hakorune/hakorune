@@ -49,7 +49,10 @@ pub(super) fn match_generic_has_route(
         .or_else(|| {
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
-        .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
+        .or_else(|| {
+            matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
+                .then(|| box_name.clone())
+        });
     let key_route = classify_key_route(function, def_map, args[0]);
     let (route_kind, core_method) = match box_name.as_str() {
         "ArrayBox" if receiver_origin_box.as_deref() == Some("ArrayBox") => (
@@ -138,7 +141,10 @@ pub(super) fn match_generic_get_route(
         .or_else(|| {
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
-        .or_else(|| matches!(box_name.as_str(), "ArrayBox" | "MapBox").then(|| box_name.clone()));
+        .or_else(|| {
+            matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
+                .then(|| box_name.clone())
+        });
     let result_origin_box = generic_collection_element_origin_box_name(
         function,
         def_map,
@@ -162,7 +168,12 @@ pub(super) fn match_generic_get_route(
         }
     }
 
-    if box_name == "ArrayBox" && receiver_origin_box.as_deref() == Some("ArrayBox") {
+    if matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64")
+        && matches!(
+            receiver_origin_box.as_deref(),
+            Some("ArrayBox" | "DirectArrayI64")
+        )
+    {
         return Some(GenericMethodRoute::new(
             GenericMethodRouteSite::new(block, instruction_index),
             GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
