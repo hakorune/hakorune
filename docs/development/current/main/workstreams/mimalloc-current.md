@@ -498,6 +498,35 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --sample-count 5
 ```
 
+Run the benchmark-only replacement-front smoke/evidence subject:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-tls-counter-mode \
+  --replacement-front-cross-thread-smoke \
+  --replacement-front-slot-size 1024 \
+  --out target/hakozuna-mixed-ws-replacement-smoke/report.out \
+  --out-dir target/hakozuna-mixed-ws-replacement-smoke/artifacts \
+  --sample-count 5
+```
+
+Run the replacement-front performance distribution subject after smoke:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-skip-hot-counters \
+  --replacement-front-slot-size 1024 \
+  --out target/hakozuna-mixed-ws-replacement-perf/report.out \
+  --out-dir target/hakozuna-mixed-ws-replacement-perf/artifacts \
+  --sample-count 7
+```
+
 Run pointer guard after docs pointer edits:
 
 ```bash

@@ -140,6 +140,41 @@ subject_N_next_owner_family=provider_alloc_free_internal_real_malloc_boundary
 Use those fields to avoid reading the current provider LD_PRELOAD bridge as a
 direct `.hako` allocator-core speed claim.
 
+For the benchmark-only Hakorune replacement front subject, keep smoke/evidence
+and performance distribution separate. First run the counter-enabled thread
+local front with focused cross-thread smokes:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-tls-counter-mode \
+  --replacement-front-cross-thread-smoke \
+  --replacement-front-slot-size 1024 \
+  --out target/hakozuna-mixed-ws-replacement-smoke/report.out \
+  --out-dir target/hakozuna-mixed-ws-replacement-smoke/artifacts \
+  --sample-count 5
+```
+
+Then use the counterless variant only for performance distribution:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-skip-hot-counters \
+  --replacement-front-slot-size 1024 \
+  --out target/hakozuna-mixed-ws-replacement-perf/report.out \
+  --out-dir target/hakozuna-mixed-ws-replacement-perf/artifacts \
+  --sample-count 7
+```
+
+`--replacement-front-slot-size 1024` is a mixed-ws fixture probe, not a product
+size-class claim. `--replacement-front-skip-hot-counters` is incompatible with
+counter-validating smokes by design.
+
 Run the current no-product-default provider replacement decision ladder:
 
 ```bash
