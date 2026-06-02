@@ -52,6 +52,13 @@ Current mimalloc reading:
   completing the mimalloc port;
 - keep `.inc` and Stage0 free of provider, hook, and mimalloc-specific
   matchers.
+- read multithread allocator replacement as native-front plus substrate work:
+  `.hako` policy may model worker TLS and remote-free ownership, but the
+  `malloc/free` ABI front owns real OS-thread identity, thread-local arena
+  selection, and cross-thread free routing;
+- do not open source-level `worker_local`, `lock<T>`, true parallel language
+  semantics, provider activation, hooks, or `#[global_allocator]` merely
+  because a benchmark-only replacement front is being measured.
 
 ## Current Live Surface
 

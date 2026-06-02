@@ -46,6 +46,43 @@ true parallel language semantics
 `worker_local` is the important split: mimalloc needs an allocator-internal
 worker-local/TLS substrate, not a source-level `worker_local` feature.
 
+## Mimalloc Multithread Reading
+
+For allocator replacement work, read the multithread requirement as a substrate
+and native-front requirement first.
+
+```text
+.hako source:
+  do not open source-level worker_local / lock<T> / true parallel semantics
+
+.hako hako_alloc core:
+  may model worker TLS policy, remote-free policy, ownership, and reclaim
+
+runtime substrate:
+  provides hako.mem / hako.atomic / hako.tls / hako.worker routes
+
+native replacement front:
+  owns malloc/free ABI, real OS-thread identity, thread-local arena selection,
+  and cross-thread free routing
+```
+
+The current locked `HakoAllocReplacementFront` is only the first thread-safety
+smoke shape. It proves that the benchmark-only replacement front no longer uses
+an unsynchronized global free stack. It is not the scalable performance shape.
+
+The next scalable direction is:
+
+```text
+thread-local arena
++ same-thread local free stack
++ explicit cross-thread free policy
+```
+
+Do not interpret this as a request for new `.hako` syntax. If evidence later
+selects `.hako` core work, open narrow substrate rows such as real worker id,
+allocator TLS heap/cache slots, or production remote-free drain/page-owner
+mutation.
+
 ## Feature Reading
 
 | Feature | Mimalloc requirement | Owner reading |
