@@ -124,6 +124,18 @@ python3 tools/allocator/provider_replacement_decision_pair_compare.py \
   --out target/provider-replacement-decision-pair/report.out
 ```
 
+Export a provider package for handoff:
+
+```bash
+python3 tools/allocator/provider_package_export_bundle.py \
+  --package-dir target/provider-replacement-decision-s5/report.out.artifacts.d/provider/pkg \
+  --out-dir dist/provider-handoff \
+  --force \
+  --out dist/provider-handoff/export.out
+```
+
+The output includes `hakorune-mimalloc-provider.zip`.
+
 ## Stop Lines
 
 - Do not commit copied benchmark executables or generated `benchres.csv`.

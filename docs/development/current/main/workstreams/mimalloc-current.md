@@ -1806,6 +1806,30 @@ message.
     activation, no production replacement, no hook installation, and no
     production global allocator default
 
+- [x] MIM-146: provider package export bundle for allocator team handoff
+  - output:
+    create a distribution directory and zip archive from an existing provider
+    package so external allocator benchmark work can consume the `.hako`
+    mimalloc provider without needing Hakorune internals
+  - implemented:
+    `tools/allocator/provider_package_export_bundle.py` copies
+    `hakorune_provider.json`, `hakorune_provider.sha256`, the provider shared
+    library, a generated `README.md`, and `run_ldpreload_example.sh`
+  - policy:
+    the export is a handoff artifact only. It does not activate product
+    replacement, install hooks, set a production global allocator default, or
+    make a winner claim.
+  - smoke:
+    exported `dist/provider-handoff/hakorune-mimalloc-provider.zip` with
+    `README.md`, `hakorune_provider.json`, `hakorune_provider.sha256`,
+    `libhakorune_provider.so`, and `run_ldpreload_example.sh`;
+    zip sha256 is
+    `283474baa32380e50938d8df99f9b3d43bc84ffa90f9fcbf9c9a23c37e80c95b`
+  - validation:
+    `provider_package_metadata_preflight.py --manifest
+    dist/provider-handoff/hakorune-mimalloc-provider/hakorune_provider.json`
+    produced `manifest_ready=1`, `binary_hash_ready=1`, and `summary=ok`
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
