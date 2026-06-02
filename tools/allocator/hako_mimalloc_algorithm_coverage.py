@@ -192,6 +192,14 @@ def build_rows() -> list[CoverageRow]:
 
 
 def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
+    page_box = read_text(hako_file("page_box.hako"))
+    hot_array_fields = ["free", "local_free", "block_used"]
+    hot_array_arraybox_fields = [
+        name for name in hot_array_fields if f"{name}: ArrayBox" in page_box
+    ]
+    hot_array_direct_fields = [
+        name for name in hot_array_fields if f"{name}: DirectArrayI64" in page_box
+    ]
     replacement_full_hako = int(
         all(row.replacement_front for row in rows if row.area in {
             "size_class_policy",
@@ -217,6 +225,14 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
             1 for row in rows if row.status == "split_model_and_fixed_front"
         ),
         "open_area_count": sum(1 for row in rows if row.status == "open"),
+        "page_model_hot_array_bridge_plan_v0": 1,
+        "page_model_hot_array_source_migration_selected": 0,
+        "page_model_hot_array_candidate_type": "DirectArrayI64",
+        "page_model_hot_array_field_count": len(hot_array_fields),
+        "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
+        "page_model_hot_array_directarray_field_count": len(hot_array_direct_fields),
+        "page_model_hot_array_arraybox_fields": ",".join(hot_array_arraybox_fields) or "none",
+        "page_model_hot_array_directarray_fields": ",".join(hot_array_direct_fields) or "none",
         "rows": [row.__dict__ for row in rows],
     }
 
@@ -236,6 +252,14 @@ def emit_text(data: dict[str, object]) -> None:
         "model_only_area_count",
         "split_model_and_fixed_front_area_count",
         "open_area_count",
+        "page_model_hot_array_bridge_plan_v0",
+        "page_model_hot_array_source_migration_selected",
+        "page_model_hot_array_candidate_type",
+        "page_model_hot_array_field_count",
+        "page_model_hot_array_arraybox_field_count",
+        "page_model_hot_array_directarray_field_count",
+        "page_model_hot_array_arraybox_fields",
+        "page_model_hot_array_directarray_fields",
     ]:
         print(f"{key}={data[key]}")
 

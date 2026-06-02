@@ -121,6 +121,17 @@ Stable report entry:
 python3 tools/allocator/hako_mimalloc_algorithm_coverage.py
 ```
 
+The same report carries the current PageModel hot-array readiness view:
+
+```text
+page_model_hot_array_bridge_plan_v0=1
+page_model_hot_array_source_migration_selected=0
+page_model_hot_array_candidate_type=DirectArrayI64
+page_model_hot_array_arraybox_fields=free,local_free,block_used
+```
+
+This is a bridge-readiness report, not a source migration.
+
 Acceptance for claiming algorithmic completeness stays closed until the report
 can show the `.hako` size-class/page-local/HotCore route as the executed
 replacement-front path. Until then, replacement-front benchmark results are

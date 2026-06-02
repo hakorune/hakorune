@@ -21,6 +21,8 @@ replacement-front execution. The current expected state is:
 
 ```text
 replacement_front_is_full_hako_algorithm=0
+page_model_hot_array_bridge_plan_v0=1
+page_model_hot_array_source_migration_selected=0
 provider_activation=0
 production_replacement_active=0
 winner_claim=0
