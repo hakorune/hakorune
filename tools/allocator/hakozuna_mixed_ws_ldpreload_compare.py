@@ -712,6 +712,317 @@ void free(void* ptr) {
 """
 
 
+def generate_replacement_front_bins_shim_c(required_bins: list[int]) -> str:
+    """Generate a benchmark-only multi-bin replacement front.
+
+    This is intentionally narrower than the fixed-slot front: single-thread,
+    no remote-free bridge, and no product allocator claim. It exists to prove
+    the next size-class bridge shape without weakening ProviderFront.
+    """
+
+    bin_defs: list[str] = []
+    init_cases: list[str] = []
+    size_cases: list[str] = []
+    alloc_cases: list[str] = []
+    find_cases: list[str] = []
+    for bin_index in required_bins:
+        bin_size = hako_size_class_bin_size(bin_index)
+        if bin_size <= 0:
+            continue
+        tag = f"bin_{bin_index}"
+        bin_defs.extend(
+            [
+                f"#define HAKO_{tag.upper()}_SIZE {bin_size}u",
+                f"typedef union HakoReplacement{tag.title().replace('_', '')}Slot {{",
+                "  max_align_t align;",
+                f"  unsigned char bytes[HAKO_{tag.upper()}_SIZE];",
+                f"}} HakoReplacement{tag.title().replace('_', '')}Slot;",
+                f"static HakoReplacement{tag.title().replace('_', '')}Slot {tag}_slots[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                f"static unsigned char {tag}_used[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                f"static size_t {tag}_requested_size[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                f"static uint32_t {tag}_free_stack[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                f"static uint32_t {tag}_free_top = 0u;",
+            ]
+        )
+        init_cases.append(
+            f"""
+  for (uint32_t i = 0; i < HAKO_REPLACEMENT_BIN_SLOT_COUNT; i++) {{
+    {tag}_free_stack[i] = HAKO_REPLACEMENT_BIN_SLOT_COUNT - i - 1u;
+    {tag}_used[i] = 0u;
+    {tag}_requested_size[i] = 0u;
+  }}
+  {tag}_free_top = HAKO_REPLACEMENT_BIN_SLOT_COUNT;
+"""
+        )
+        size_cases.append(f"  if (size <= HAKO_{tag.upper()}_SIZE) return {bin_index};")
+        alloc_cases.append(
+            f"""
+    case {bin_index}:
+      if ({tag}_free_top == 0u) return 0;
+      index = {tag}_free_stack[--{tag}_free_top];
+      {tag}_used[index] = 1u;
+      {tag}_requested_size[index] = size;
+      direct_core_call_count++;
+      return {tag}_slots[index].bytes;
+"""
+        )
+        find_cases.append(
+            f"""
+  base = (uintptr_t){tag}_slots[0].bytes;
+  end = (uintptr_t)({tag}_slots + HAKO_REPLACEMENT_BIN_SLOT_COUNT);
+  if (value >= base && value < end) {{
+    delta = value - base;
+    stride = sizeof({tag}_slots[0]);
+    if ((delta % stride) != 0) return 0;
+    index = (uint32_t)(delta / stride);
+    if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) return 0;
+    *bin_out = {bin_index};
+    *index_out = index;
+    *slot_size_out = HAKO_{tag.upper()}_SIZE;
+    *used_out = {tag}_used;
+    *requested_out = {tag}_requested_size;
+    *free_stack_out = {tag}_free_stack;
+    *free_top_out = &{tag}_free_top;
+    return 1;
+  }}
+"""
+        )
+
+    return f"""
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define HAKO_REPLACEMENT_BIN_SLOT_COUNT 8192u
+
+typedef void* (*hako_malloc_fn)(size_t);
+typedef void* (*hako_calloc_fn)(size_t, size_t);
+typedef void* (*hako_realloc_fn)(void*, size_t);
+typedef void (*hako_free_fn)(void*);
+
+static hako_malloc_fn real_malloc_fn = 0;
+static hako_calloc_fn real_calloc_fn = 0;
+static hako_realloc_fn real_realloc_fn = 0;
+static hako_free_fn real_free_fn = 0;
+static int resolving_real = 0;
+
+{chr(10).join(bin_defs)}
+
+static unsigned char init_done = 0u;
+static unsigned long long alloc_count = 0;
+static unsigned long long calloc_count = 0;
+static unsigned long long realloc_count = 0;
+static unsigned long long free_count = 0;
+static unsigned long long host_passthrough_count = 0;
+static unsigned long long direct_core_call_count = 0;
+static unsigned long long realloc_copy_bytes = 0;
+static unsigned long long realloc_inplace_count = 0;
+static unsigned long long calloc_zero_bytes = 0;
+
+static void resolve_real(void) {{
+  if (resolving_real) return;
+  resolving_real = 1;
+  if (!real_malloc_fn) real_malloc_fn = (hako_malloc_fn)dlsym(RTLD_NEXT, "malloc");
+  if (!real_calloc_fn) real_calloc_fn = (hako_calloc_fn)dlsym(RTLD_NEXT, "calloc");
+  if (!real_realloc_fn) real_realloc_fn = (hako_realloc_fn)dlsym(RTLD_NEXT, "realloc");
+  if (!real_free_fn) real_free_fn = (hako_free_fn)dlsym(RTLD_NEXT, "free");
+  resolving_real = 0;
+}}
+
+static void init_bins(void) {{
+  if (init_done) return;
+{chr(10).join(init_cases)}
+  init_done = 1u;
+}}
+
+static int size_to_bin(size_t size) {{
+  if (size == 0) return -1;
+{chr(10).join(size_cases)}
+  return -1;
+}}
+
+static void* alloc_from_bin(int bin, size_t size) {{
+  uint32_t index = 0u;
+  switch (bin) {{
+{chr(10).join(alloc_cases)}
+    default:
+      return 0;
+  }}
+}}
+
+static int find_owned(
+    void* ptr,
+    int* bin_out,
+    uint32_t* index_out,
+    size_t* slot_size_out,
+    unsigned char** used_out,
+    size_t** requested_out,
+    uint32_t** free_stack_out,
+    uint32_t** free_top_out) {{
+  if (!ptr) return 0;
+  uintptr_t value = (uintptr_t)ptr;
+  uintptr_t base = 0u;
+  uintptr_t end = 0u;
+  uintptr_t delta = 0u;
+  uintptr_t stride = 0u;
+  uint32_t index = 0u;
+{chr(10).join(find_cases)}
+  return 0;
+}}
+
+static void write_str(int fd, const char* s) {{
+  size_t len = 0;
+  while (s[len]) len++;
+  ssize_t ignored = write(fd, s, len);
+  (void)ignored;
+}}
+
+static void write_u64(int fd, unsigned long long value) {{
+  char buf[32];
+  int pos = 31;
+  buf[pos--] = '\\n';
+  if (value == 0) {{
+    buf[pos--] = '0';
+  }} else {{
+    while (value > 0 && pos >= 0) {{
+      buf[pos--] = (char)('0' + (value % 10));
+      value /= 10;
+    }}
+  }}
+  ssize_t ignored = write(fd, buf + pos + 1, (size_t)(31 - pos));
+  (void)ignored;
+}}
+
+static void write_kv(int fd, const char* key, unsigned long long value) {{
+  write_str(fd, key);
+  write_str(fd, "=");
+  write_u64(fd, value);
+}}
+
+static void write_report(void) {{
+  const char* path = getenv("HAKORUNE_REPLACEMENT_FRONT_REPORT");
+  if (!path || !path[0]) return;
+  int fd = open(path, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+  if (fd < 0) return;
+  write_kv(fd, "replacement_front_alloc_count", alloc_count);
+  write_kv(fd, "replacement_front_calloc_count", calloc_count);
+  write_kv(fd, "replacement_front_realloc_count", realloc_count);
+  write_kv(fd, "replacement_front_free_count", free_count);
+  write_kv(fd, "replacement_front_host_passthrough_count", host_passthrough_count);
+  write_kv(fd, "replacement_front_direct_core_call_count", direct_core_call_count);
+  write_kv(fd, "replacement_front_realloc_copy_bytes", realloc_copy_bytes);
+  write_kv(fd, "replacement_front_realloc_inplace_count", realloc_inplace_count);
+  write_kv(fd, "replacement_front_calloc_zero_bytes", calloc_zero_bytes);
+  close(fd);
+}}
+
+__attribute__((constructor)) static void replacement_front_init(void) {{
+  resolve_real();
+  atexit(write_report);
+}}
+
+void* malloc(size_t size) {{
+  alloc_count++;
+  init_bins();
+  int bin = size_to_bin(size);
+  if (bin >= 0) {{
+    void* ptr = alloc_from_bin(bin, size);
+    if (ptr) return ptr;
+  }}
+  host_passthrough_count++;
+  resolve_real();
+  return real_malloc_fn ? real_malloc_fn(size) : 0;
+}}
+
+void free(void* ptr) {{
+  free_count++;
+  if (!ptr) return;
+  int bin = 0;
+  uint32_t index = 0u;
+  size_t slot_size = 0u;
+  unsigned char* used = 0;
+  size_t* requested = 0;
+  uint32_t* free_stack = 0;
+  uint32_t* free_top = 0;
+  if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
+    (void)bin;
+    (void)slot_size;
+    if (used[index] == 1u) {{
+      used[index] = 0u;
+      requested[index] = 0u;
+      if (*free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
+        free_stack[(*free_top)++] = index;
+      }}
+      direct_core_call_count++;
+    }}
+    return;
+  }}
+  host_passthrough_count++;
+  resolve_real();
+  if (real_free_fn) real_free_fn(ptr);
+}}
+
+void* calloc(size_t nmemb, size_t size) {{
+  calloc_count++;
+  if (size != 0 && nmemb > ((size_t)-1) / size) {{
+    host_passthrough_count++;
+    resolve_real();
+    return real_calloc_fn ? real_calloc_fn(nmemb, size) : 0;
+  }}
+  size_t total = nmemb * size;
+  void* ptr = malloc(total);
+  if (ptr) {{
+    memset(ptr, 0, total);
+    calloc_zero_bytes += total;
+  }}
+  return ptr;
+}}
+
+void* realloc(void* ptr, size_t size) {{
+  realloc_count++;
+  if (!ptr) return malloc(size);
+  if (size == 0) {{
+    free(ptr);
+    return 0;
+  }}
+  int bin = 0;
+  uint32_t index = 0u;
+  size_t slot_size = 0u;
+  unsigned char* used = 0;
+  size_t* requested = 0;
+  uint32_t* free_stack = 0;
+  uint32_t* free_top = 0;
+  if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
+    (void)bin;
+    (void)free_stack;
+    (void)free_top;
+    if (used[index] == 1u && size <= slot_size) {{
+      requested[index] = size;
+      realloc_inplace_count++;
+      direct_core_call_count++;
+      return ptr;
+    }}
+    size_t old_size = requested[index];
+    void* next = malloc(size);
+    if (!next) return 0;
+    size_t copy_size = old_size < size ? old_size : size;
+    memcpy(next, ptr, copy_size);
+    realloc_copy_bytes += copy_size;
+    free(ptr);
+    return next;
+  }}
+  host_passthrough_count++;
+  resolve_real();
+  return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
+}}
+"""
+
+
 REPLACEMENT_FRONT_CROSS_THREAD_FREE_SMOKE_C = r"""
 #include <pthread.h>
 #include <stdio.h>
@@ -1064,6 +1375,37 @@ def build_replacement_front_shim(
         cmd.append("-pthread")
     cmd.extend(["-o", str(binary)])
     subprocess.run(cmd, check=True)
+    return binary
+
+
+def build_replacement_front_bins_shim(
+    out_dir: Path,
+    *,
+    required_bins: list[int],
+) -> Path:
+    front_dir = out_dir / "replacement-front-native-bins"
+    front_dir.mkdir(parents=True, exist_ok=True)
+    source = front_dir / "hako_alloc_replacement_front_native_bins.c"
+    binary = front_dir / "libhako_alloc_replacement_front_native_bins.so"
+    source.write_text(
+        generate_replacement_front_bins_shim_c(required_bins).lstrip(),
+        encoding="utf-8",
+    )
+    subprocess.run(
+        [
+            "cc",
+            "-shared",
+            "-fPIC",
+            "-O3",
+            "-Wall",
+            "-Wextra",
+            str(source),
+            "-ldl",
+            "-o",
+            str(binary),
+        ],
+        check=True,
+    )
     return binary
 
 
@@ -1428,6 +1770,14 @@ def main() -> int:
         help="benchmark-only: add a thin native-slot malloc/free replacement front subject",
     )
     parser.add_argument(
+        "--replacement-front-native-bins-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: add a thin native multi-bin malloc/free replacement "
+            "front subject using workload .hako size-class bins"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-lock-mode",
         action="store_true",
         help="benchmark-only: build the replacement front with a global arena mutex",
@@ -1486,6 +1836,11 @@ def main() -> int:
     positive_int(args.max_size, "--max-size")
     if args.max_size < args.min_size:
         raise SystemExit("--max-size must be >= --min-size")
+    if args.replacement_front_native_slot_mode and args.replacement_front_native_bins_mode:
+        raise SystemExit(
+            "--replacement-front-native-slot-mode and "
+            "--replacement-front-native-bins-mode are exclusive"
+        )
     match_modes = sum(
         1
         for enabled in (
@@ -1580,6 +1935,36 @@ def main() -> int:
             "--replacement-front-cross-thread-smoke cannot be combined with "
             "--replacement-front-skip-hot-counters because the smoke validates counters"
         )
+    if args.replacement_front_native_bins_mode:
+        if args.threads != 1:
+            raise SystemExit("--replacement-front-native-bins-mode is v0 single-thread only")
+        if (
+            args.replacement_front_lock_mode
+            or args.replacement_front_thread_local_mode
+            or args.replacement_front_cross_thread_smoke
+            or args.replacement_front_skip_hot_counters
+            or args.replacement_front_tls_counter_mode
+            or args.replacement_front_slot_size is not None
+        ):
+            raise SystemExit(
+                "--replacement-front-native-bins-mode cannot be combined with "
+                "slot/thread/counter replacement-front modifiers in v0"
+            )
+
+    replacement_slot_size = args.replacement_front_slot_size or 2048
+    workload_histogram = mixed_ws_workload_histogram(
+        threads=args.threads,
+        iters_per_thread=args.iters_per_thread,
+        working_set=args.working_set,
+        min_size=args.min_size,
+        max_size=args.max_size,
+        replacement_slot_size=replacement_slot_size,
+    )
+    required_regular_bins = [
+        int(part)
+        for part in str(workload_histogram["size_class_regular_bins"]).split(",")
+        if part and part != "none"
+    ]
 
     root = args.hakozuna_root.resolve()
     bench = root / "bench_mixed_ws_crt"
@@ -1630,6 +2015,15 @@ def main() -> int:
             tls_counters=args.replacement_front_tls_counter_mode,
             slot_size=args.replacement_front_slot_size,
         )
+    if args.replacement_front_native_bins_mode:
+        if not required_regular_bins:
+            raise SystemExit("--replacement-front-native-bins-mode found no regular bins")
+        if int(workload_histogram["size_class_huge_count"]) > 0:
+            raise SystemExit("--replacement-front-native-bins-mode v0 does not support huge bins")
+        replacement_front_shim = build_replacement_front_bins_shim(
+            out_dir,
+            required_bins=required_regular_bins,
+        )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
         if replacement_front_shim is None:
@@ -1676,22 +2070,29 @@ def main() -> int:
         )
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
-    replacement_slot_size = args.replacement_front_slot_size or 2048
-    replacement_front_size_class_bridge_enabled = int(
-        args.replacement_front_match_hako_size_class
-    )
     replacement_front_size_class_policy_source = (
         "hako_size_class_box_report_mirror"
         if args.replacement_front_match_hako_size_class
+        or args.replacement_front_native_bins_mode
         else "hako_model_not_consumed"
     )
-    workload_histogram = mixed_ws_workload_histogram(
-        threads=args.threads,
-        iters_per_thread=args.iters_per_thread,
-        working_set=args.working_set,
-        min_size=args.min_size,
-        max_size=args.max_size,
-        replacement_slot_size=replacement_slot_size,
+    replacement_front_algorithm_shape = (
+        "multi_bin_native_benchmark_front"
+        if args.replacement_front_native_bins_mode
+        else "fixed_slot_native_benchmark_front"
+    )
+    replacement_front_size_class_bridge_enabled = int(
+        args.replacement_front_match_hako_size_class
+        or args.replacement_front_native_bins_mode
+    )
+    replacement_front_size_class_bridge_mode = (
+        "workload_regular_bins_hako_size_class"
+        if args.replacement_front_native_bins_mode
+        else (
+            "hako_good_size_request_ceiling"
+            if args.replacement_front_match_hako_size_class
+            else "none"
+        )
     )
     lines = [
         "output_contract=hakozuna-mixed-ws-ldpreload-compare-v0",
@@ -1717,15 +2118,16 @@ def main() -> int:
         f"provider_usable_size_mode={1 if args.provider_usable_size_mode else 0}",
         f"provider_assume_owned_mode={1 if args.provider_assume_owned_mode else 0}",
         f"replacement_front_native_slot_mode={1 if args.replacement_front_native_slot_mode else 0}",
+        f"replacement_front_native_bins_mode={1 if args.replacement_front_native_bins_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
-        "replacement_front_algorithm_shape=fixed_slot_native_benchmark_front",
+        f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
         "replacement_front_size_class_bridge_report_only=1",
         f"replacement_front_size_class_policy_bridge={replacement_front_size_class_bridge_enabled}",
-        "replacement_front_size_class_count=1",
+        "replacement_front_size_class_count="
+        f"{workload_histogram['size_class_regular_distinct_count'] if args.replacement_front_native_bins_mode else 1}",
         f"replacement_front_size_class_policy_source={replacement_front_size_class_policy_source}",
-        "replacement_front_size_class_bridge_mode="
-        f"{'hako_good_size_request_ceiling' if args.replacement_front_match_hako_size_class else 'none'}",
+        f"replacement_front_size_class_bridge_mode={replacement_front_size_class_bridge_mode}",
         "replacement_front_size_class_request_ceiling="
         f"{replacement_front_size_class_request_ceiling}",
         "replacement_front_size_class_selected_bin="
@@ -1734,8 +2136,11 @@ def main() -> int:
         f"{replacement_front_size_class_selected_good_size}",
         "replacement_front_product_bins_plan_v0=1",
         "replacement_front_product_bins_report_only=1",
-        "replacement_front_product_bins_consumer_enabled=0",
+        "replacement_front_product_bins_consumer_enabled="
+        f"{1 if args.replacement_front_native_bins_mode else 0}",
         "replacement_front_product_bins_connected=0",
+        "replacement_front_product_bins_route="
+        f"{'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
         "replacement_front_product_pages_plan_v0=1",
         "replacement_front_product_pages_report_only=1",
         "replacement_front_product_pages_consumer_enabled=0",
@@ -1906,19 +2311,22 @@ def main() -> int:
                     f"subject_{index}_activation=0",
                     f"subject_{index}_benchmark_only=1",
                     f"subject_{index}_replacement_front_is_full_hako_algorithm=0",
-                    f"subject_{index}_replacement_front_algorithm_shape=fixed_slot_native_benchmark_front",
+                    f"subject_{index}_replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
+                    f"subject_{index}_replacement_front_native_bins_mode={1 if args.replacement_front_native_bins_mode else 0}",
                     f"subject_{index}_replacement_front_size_class_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_size_class_bridge_report_only=1",
                     "subject_"
                     f"{index}_replacement_front_size_class_policy_bridge="
                     f"{replacement_front_size_class_bridge_enabled}",
-                    f"subject_{index}_replacement_front_size_class_count=1",
+                    "subject_"
+                    f"{index}_replacement_front_size_class_count="
+                    f"{workload_histogram['size_class_regular_distinct_count'] if args.replacement_front_native_bins_mode else 1}",
                     "subject_"
                     f"{index}_replacement_front_size_class_policy_source="
                     f"{replacement_front_size_class_policy_source}",
                     "subject_"
                     f"{index}_replacement_front_size_class_bridge_mode="
-                    f"{'hako_good_size_request_ceiling' if args.replacement_front_match_hako_size_class else 'none'}",
+                    f"{replacement_front_size_class_bridge_mode}",
                     "subject_"
                     f"{index}_replacement_front_size_class_request_ceiling="
                     f"{replacement_front_size_class_request_ceiling}",
@@ -1930,8 +2338,13 @@ def main() -> int:
                     f"{replacement_front_size_class_selected_good_size}",
                     f"subject_{index}_replacement_front_product_bins_plan_v0=1",
                     f"subject_{index}_replacement_front_product_bins_report_only=1",
-                    f"subject_{index}_replacement_front_product_bins_consumer_enabled=0",
+                    "subject_"
+                    f"{index}_replacement_front_product_bins_consumer_enabled="
+                    f"{1 if args.replacement_front_native_bins_mode else 0}",
                     f"subject_{index}_replacement_front_product_bins_connected=0",
+                    "subject_"
+                    f"{index}_replacement_front_product_bins_route="
+                    f"{'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
                     f"subject_{index}_replacement_front_product_pages_plan_v0=1",
                     f"subject_{index}_replacement_front_product_pages_report_only=1",
                     f"subject_{index}_replacement_front_product_pages_consumer_enabled=0",

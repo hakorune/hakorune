@@ -90,6 +90,31 @@ replacement_front_product_pages_consumer_enabled=0
 These fields are report-only inputs for the future multi-class/page front.
 They do not mean product bins/pages are connected.
 
+For the first benchmark-only multi-bin prototype, use:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-bins-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-native-bins/report.out \
+  --out-dir target/hakozuna-mixed-ws-native-bins/artifacts \
+  --sample-count 3
+```
+
+This generates only the regular `.hako` size-class bins required by the
+deterministic workload prefix and reports:
+
+```text
+replacement_front_algorithm_shape=multi_bin_native_benchmark_front
+replacement_front_product_bins_consumer_enabled=1
+replacement_front_product_bins_route=benchmark_native_bins
+replacement_front_product_pages_consumer_enabled=0
+```
+
+It remains single-thread-only in v0 and still keeps product pages, activation,
+hooks, globals, and winner claims closed.
+
 The same compare reports also emit the current HotCore bridge boundary:
 
 ```text
