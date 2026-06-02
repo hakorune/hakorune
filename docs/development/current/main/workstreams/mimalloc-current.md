@@ -308,6 +308,55 @@ winner_claim=0
 ```
 
 6. Finish the Hakorune mimalloc lane before any victory claim.
+
+## Replacement Front Hot-Path Plan
+
+Next slices:
+
+```text
+REPL-001:
+  ReplacementFrontHotPathPlanV0 report vocabulary
+  behavior change: none
+
+REPL-002:
+  TlsArenaFastAllocPlanV0 consumer
+  direct_alloc fast/cold split
+
+REPL-003:
+  TlsArenaLocalFreePlanV0 consumer
+  local free path thinning
+
+REPL-004:
+  ReplacementEntryInlinePlanV0
+  malloc/free entry boundary thinning
+
+REPL-005:
+  owner refresh
+  open TlsArenaReallocPlanV0 only if fresh evidence selects realloc
+```
+
+`REPL-001` must report the current hot-path shape without claiming it is already
+C-thin. The important fields are:
+
+```text
+replacement_front_hotpath_plan_v0=1
+replacement_front_hotpath_report_only=1
+tls_get_addr_hot_path=0|1
+hot_atomic_rmw=0|1
+remote_free_drain_hot_path=0|1
+remote_owner_publication_after_local_fail=0|1
+cold_init_in_hot_path=0|1
+register_thread_arena_hot_path=0|1
+fast_cold_split_plan=0|1
+tls_arena_fast_alloc_plan=0|1
+tls_arena_local_free_plan=0|1
+replacement_entry_inline_plan=0|1
+```
+
+The current keeper state is expected to show `tls_get_addr_hot_path=0`,
+`hot_atomic_rmw=0`, and `remote_owner_publication_after_local_fail=1`, while
+`remote_free_drain_hot_path`, `cold_init_in_hot_path`, and
+`register_thread_arena_hot_path` remain open until `REPL-002`.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.

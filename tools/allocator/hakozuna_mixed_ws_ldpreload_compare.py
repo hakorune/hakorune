@@ -793,9 +793,13 @@ def positive_int(value: int, label: str) -> None:
         raise SystemExit(f"{label} must be positive")
 
 
-def counter_value(counters: dict[str, str], key: str) -> int:
+def counter_value(counters: dict[str, object], key: str) -> int:
     value = counters.get(key, "0")
-    return int(value) if value.isdigit() else 0
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.isdigit():
+        return int(value)
+    return 0
 
 
 def build_replacement_front_shim(
@@ -1463,6 +1467,15 @@ def main() -> int:
             multithread_smoke = args.threads > 1 and (
                 args.replacement_front_lock_mode or args.replacement_front_thread_local_mode
             )
+            tls_initial_exec_enabled = (
+                counter_value(counters, "replacement_front_tls_initial_exec_model_enabled") > 0
+            )
+            tls_get_addr_hot_path = (
+                args.replacement_front_thread_local_mode and not tls_initial_exec_enabled
+            )
+            hot_atomic_rmw = not (
+                args.replacement_front_skip_hot_counters or args.replacement_front_tls_counter_mode
+            )
             lines.extend(
                 [
                     f"subject_{index}_provider_table_dispatch=0",
@@ -1481,6 +1494,24 @@ def main() -> int:
                     f"subject_{index}_provider_api_hot_path_required=0",
                     f"subject_{index}_activation=0",
                     f"subject_{index}_benchmark_only=1",
+                    f"subject_{index}_replacement_front_hotpath_plan_v0=1",
+                    f"subject_{index}_replacement_front_hotpath_report_only=1",
+                    f"subject_{index}_tls_get_addr_hot_path={1 if tls_get_addr_hot_path else 0}",
+                    f"subject_{index}_hot_atomic_rmw={1 if hot_atomic_rmw else 0}",
+                    "subject_"
+                    f"{index}_remote_free_drain_hot_path="
+                    f"{1 if args.replacement_front_thread_local_mode else 0}",
+                    "subject_"
+                    f"{index}_remote_owner_publication_after_local_fail="
+                    f"{1 if args.replacement_front_thread_local_mode else 0}",
+                    f"subject_{index}_cold_init_in_hot_path=1",
+                    "subject_"
+                    f"{index}_register_thread_arena_hot_path="
+                    f"{1 if args.replacement_front_thread_local_mode else 0}",
+                    f"subject_{index}_fast_cold_split_plan=0",
+                    f"subject_{index}_tls_arena_fast_alloc_plan=0",
+                    f"subject_{index}_tls_arena_local_free_plan=0",
+                    f"subject_{index}_replacement_entry_inline_plan=0",
                 ]
             )
         if counters:
