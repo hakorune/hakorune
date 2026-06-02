@@ -213,6 +213,13 @@ def format_per_operation(numerator: int, denominator: int) -> str:
     return f"{numerator / denominator:.6f}"
 
 
+def init_fallback_dominates_provider_ops(counters: dict[str, int], provider_ops: int) -> bool:
+    if provider_ops <= 0:
+        return False
+    init_fallback = counters.get("shim_init_real_fallback_count", 0)
+    return init_fallback * 2 >= provider_ops
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--hakozuna-root", type=Path, default=DEFAULT_HAKOZUNA_ROOT)
@@ -359,6 +366,7 @@ def main() -> int:
                 + counters.get("shim_provider_realloc_count", 0)
                 + counters.get("shim_provider_free_count", 0)
             )
+            init_fallback_dominates = init_fallback_dominates_provider_ops(counters, provider_ops)
             lines.extend(
                 [
                     f"subject_{index}_shim_provider_operation_count_total={provider_ops}",
@@ -368,8 +376,20 @@ def main() -> int:
                     "subject_"
                     f"{index}_shim_host_passthrough_per_provider_operation="
                     f"{format_per_operation(counters.get('shim_host_passthrough_count', 0), provider_ops)}",
+                    "subject_"
+                    f"{index}_shim_init_real_fallback_dominates_provider_ops="
+                    f"{1 if init_fallback_dominates else 0}",
                 ]
             )
+            if init_fallback_dominates:
+                lines.extend(
+                    [
+                        "subject_"
+                        f"{index}_next_owner_family=provider_alloc_free_internal_real_malloc_boundary",
+                        "subject_"
+                        f"{index}_gap_classification=provider_bridge_not_hako_core_speed",
+                    ]
+                )
             lines.append(f"subject_{index}_shim_init_real_fallback_is_perf_diagnostic=1")
     lines.append("summary=ok")
     report = "\n".join(lines) + "\n"

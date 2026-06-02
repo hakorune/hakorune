@@ -132,6 +132,7 @@ metadata and bridge-interpretation fields:
 provider_ldpreload_measurement_interpretation=provider_abi_wrapper_and_shim_bridge
 provider_ldpreload_is_hako_core_speed_claim=0
 subject_N_shim_init_real_fallback_per_provider_operation=...
+subject_N_next_owner_family=provider_alloc_free_internal_real_malloc_boundary
 ```
 
 Use those fields to avoid reading the current provider LD_PRELOAD bridge as a

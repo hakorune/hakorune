@@ -125,6 +125,10 @@ interpretation:
 
 key shim diagnostic:
   shim_init_real_fallback_per_provider_operation
+
+owner hint:
+  provider_alloc_free_internal_real_malloc_boundary when init fallback
+  dominates provider operations
 ```
 
 ## Next Task Order
