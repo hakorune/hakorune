@@ -717,7 +717,7 @@ def build_replacement_front_shim(
         "cc",
         "-shared",
         "-fPIC",
-        "-O2",
+        "-O3",
         "-Wall",
         "-Wextra",
     ]
