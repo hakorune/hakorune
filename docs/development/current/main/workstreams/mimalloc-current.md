@@ -374,6 +374,11 @@ REPL-013:
   WorkloadReallocMatchedSlotProbeV0
   keeper: benchmark-only slot-size selection for mixed-ws default realloc grow
   uses slot_size=max_size+16 so default realloc grow requests stay covered
+
+REPL-014:
+  InplaceReallocWithinSlotPlanV0
+  keeper: fixed-slot replacement front updates requested size and returns the
+  same pointer when new_size <= slot_size
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -398,6 +403,7 @@ free_hot_remote_queue_call=0|1
 replacement_entry_inline_plan=0|1
 malloc_to_direct_alloc_boundary=always_inline|tailcall|call
 free_to_direct_free_boundary=always_inline|tailcall|call
+replacement_front_inplace_realloc_within_slot_plan=0|1
 replacement_front_slot_size=<bytes>
 replacement_front_match_workload_realloc_size=0|1
 workload_size_histogram_source=deterministic_prefix_exact|deterministic_prefix_sampled
@@ -509,6 +515,28 @@ cross_thread_smoke=ok
 This is still a benchmark-front result, not a product allocator winner claim.
 Use `--replacement-front-match-workload-realloc-size` to request this
 workload-matched slot size instead of hard-coding `1040` at call sites.
+
+`REPL-014` is a keeper for the benchmark replacement front. After `REPL-013`,
+the default mixed-ws realloc grow requests fit in the fixed slot, but the shim
+still allocated a new slot, copied the old payload, and freed the old slot.
+The replacement front now treats `new_size <= slot_size` as an in-place realloc:
+it updates `requested_size` and returns the same pointer. Counter-enabled smoke
+showed `replacement_front_realloc_copy_bytes_total=0`, and the counterless 40M
+run improved the replacement-front median from about `1123491677.314` to
+`1191748452.887 ops/s` on the same matched 1040-byte slot shape.
+
+```text
+replacement_front_inplace_realloc_within_slot_plan=1
+replacement_front_realloc_inplace_count_total>0
+replacement_front_realloc_copy_bytes_total=0
+cross_thread_smoke=ok
+activation=0
+benchmark_only=1
+winner_claim=0
+```
+
+This remains a benchmark-only fixed-slot front result. It does not claim that
+the product allocator has C mimalloc semantics across general size classes.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.

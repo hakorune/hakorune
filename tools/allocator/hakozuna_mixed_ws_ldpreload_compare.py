@@ -113,6 +113,7 @@ static unsigned long long free_count = 0;
 static unsigned long long host_passthrough_count = 0;
 static unsigned long long direct_core_call_count = 0;
 static unsigned long long realloc_copy_bytes = 0;
+static unsigned long long realloc_inplace_count = 0;
 static unsigned long long calloc_zero_bytes = 0;
 static unsigned long long lock_mode_enabled = 0;
 static unsigned long long lock_enter_count = 0;
@@ -135,6 +136,7 @@ static HAKO_REPLACEMENT_STORAGE unsigned long long local_free_count = 0;
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_host_passthrough_count = 0;
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_direct_core_call_count = 0;
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_realloc_copy_bytes = 0;
+static HAKO_REPLACEMENT_STORAGE unsigned long long local_realloc_inplace_count = 0;
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_calloc_zero_bytes = 0;
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_lock_enter_count = 0;
 static HAKO_REPLACEMENT_STORAGE unsigned long long local_remote_free_push_count = 0;
@@ -159,6 +161,7 @@ static void flush_thread_counters(void) {
   flush_one_counter(&host_passthrough_count, &local_host_passthrough_count);
   flush_one_counter(&direct_core_call_count, &local_direct_core_call_count);
   flush_one_counter(&realloc_copy_bytes, &local_realloc_copy_bytes);
+  flush_one_counter(&realloc_inplace_count, &local_realloc_inplace_count);
   flush_one_counter(&calloc_zero_bytes, &local_calloc_zero_bytes);
   flush_one_counter(&lock_enter_count, &local_lock_enter_count);
   flush_one_counter(&remote_free_push_count, &local_remote_free_push_count);
@@ -193,6 +196,8 @@ static void add_counter(unsigned long long* counter, unsigned long long delta) {
     local_direct_core_call_count += delta;
   } else if (counter == &realloc_copy_bytes) {
     local_realloc_copy_bytes += delta;
+  } else if (counter == &realloc_inplace_count) {
+    local_realloc_inplace_count += delta;
   } else if (counter == &calloc_zero_bytes) {
     local_calloc_zero_bytes += delta;
   } else if (counter == &lock_enter_count) {
@@ -543,6 +548,7 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_host_passthrough_count", host_passthrough_count);
   write_kv(fd, "replacement_front_direct_core_call_count", direct_core_call_count);
   write_kv(fd, "replacement_front_realloc_copy_bytes", realloc_copy_bytes);
+  write_kv(fd, "replacement_front_realloc_inplace_count", realloc_inplace_count);
   write_kv(fd, "replacement_front_calloc_zero_bytes", calloc_zero_bytes);
   write_kv(fd, "replacement_front_lock_mode_enabled", lock_mode_enabled);
   write_kv(fd, "replacement_front_lock_enter_count", lock_enter_count);
@@ -653,6 +659,13 @@ void* realloc(void* ptr, size_t size) {
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
   }
   size_t old_size = requested_size[(uint32_t)index];
+  if (size <= HAKO_REPLACEMENT_SLOT_SIZE) {
+    requested_size[(uint32_t)index] = size;
+    unlock_arena();
+    add_counter(&realloc_inplace_count, 1);
+    add_counter(&realloc_count, 1);
+    return ptr;
+  }
   void* next = direct_alloc(size);
   if (!next) {
     unlock_arena();
@@ -1751,6 +1764,7 @@ def main() -> int:
                     f"subject_{index}_replacement_entry_inline_plan=1",
                     f"subject_{index}_malloc_to_direct_alloc_boundary=always_inline",
                     f"subject_{index}_free_to_direct_free_boundary=always_inline",
+                    f"subject_{index}_replacement_front_inplace_realloc_within_slot_plan=1",
                     f"subject_{index}_replacement_front_slot_size="
                     f"{args.replacement_front_slot_size or 2048}",
                 ]
