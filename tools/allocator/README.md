@@ -160,6 +160,36 @@ benchmarks/external/hakmem/mid-large-mt-system/build/bench_mid_large_mt_system \
 Both are minimal system-malloc fixtures copied from the extracted Hakmem
 corpus; do not vendor the full corpus for routine development.
 
+Compare repo-local Hakmem fixtures under system malloc and C mimalloc:
+
+```bash
+python3 tools/allocator/hakmem_fixture_ldpreload_compare.py \
+  --fixture tiny-hot-system \
+  --allow-ldconfig-discovery \
+  --out target/hakmem-fixture-tiny-hot/report.out \
+  --out-dir target/hakmem-fixture-tiny-hot/artifacts \
+  --sample-count 3
+```
+
+Add the benchmark-only Hakorune replacement front only when the fixed-slot
+shape is intentional for that fixture:
+
+```bash
+python3 tools/allocator/hakmem_fixture_ldpreload_compare.py \
+  --fixture tiny-hot-system \
+  --allow-ldconfig-discovery \
+  --replacement-front-native-slot-mode \
+  --replacement-front-thread-local-mode \
+  --replacement-front-tls-counter-mode \
+  --replacement-front-slot-size 64 \
+  --out target/hakmem-fixture-tiny-hot-replacement/report.out \
+  --out-dir target/hakmem-fixture-tiny-hot-replacement/artifacts \
+  --sample-count 3
+```
+
+For mid/large fixtures, start with system/C mimalloc comparison and open a
+replacement-front size-class row only if fresh owner evidence selects it.
+
 For the benchmark-only Hakorune replacement front subject, keep smoke/evidence
 and performance distribution separate. First run the counter-enabled thread
 local front with focused cross-thread smokes:
