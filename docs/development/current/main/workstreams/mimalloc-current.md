@@ -351,6 +351,9 @@ register_thread_arena_hot_path=0|1
 fast_cold_split_plan=0|1
 tls_arena_fast_alloc_plan=0|1
 tls_arena_local_free_plan=0|1
+free_local_first=0|1
+free_remote_path_after_local_fail=0|1
+free_hot_remote_queue_call=0|1
 replacement_entry_inline_plan=0|1
 ```
 
@@ -358,8 +361,10 @@ The current keeper state is expected to show `tls_get_addr_hot_path=0`,
 `hot_atomic_rmw=0`, `remote_owner_publication_after_local_fail=1`,
 `remote_free_drain_hot_path=0`, `cold_init_in_hot_path=0`,
 `register_thread_arena_hot_path=0`, `fast_cold_split_plan=1`, and
-`tls_arena_fast_alloc_plan=1`. `tls_arena_local_free_plan` and
-`replacement_entry_inline_plan` remain open.
+`tls_arena_fast_alloc_plan=1`. `REPL-003` also fixes
+`tls_arena_local_free_plan=1`, `free_local_first=1`,
+`free_remote_path_after_local_fail=1`, and `free_hot_remote_queue_call=0`.
+`replacement_entry_inline_plan` remains open.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.

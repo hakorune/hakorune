@@ -1534,7 +1534,11 @@ def main() -> int:
                     "0",
                     f"subject_{index}_fast_cold_split_plan=1",
                     f"subject_{index}_tls_arena_fast_alloc_plan=1",
-                    f"subject_{index}_tls_arena_local_free_plan=0",
+                    f"subject_{index}_tls_arena_local_free_plan=1",
+                    f"subject_{index}_free_local_first=1",
+                    f"subject_{index}_free_remote_path_after_local_fail="
+                    f"{1 if args.replacement_front_thread_local_mode else 0}",
+                    f"subject_{index}_free_hot_remote_queue_call=0",
                     f"subject_{index}_replacement_entry_inline_plan=0",
                 ]
             )
