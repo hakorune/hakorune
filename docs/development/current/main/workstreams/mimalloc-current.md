@@ -2312,6 +2312,13 @@ next_task=MIM-038
   stable `383.48M` band to about `384.01M`, so it is nonkeeper for the current
   owner. Future DirectArray proof work must remain instruction-positive on
   the active exact front, not only structurally cleaner.
+- 2026-06-02: Re-probed the MIM-069 known-available acquire route after
+  same-module late inline / O3 had landed. The invariant is still valid, and
+  `hako_check fastpath-explain --require-clean` stayed clean, but the public
+  proof direct-exact instruction median regressed from the current `57.6M`
+  band to `65.4M`. Keep `page.acquireFreshSmall(size)` as the source shape;
+  do not reopen known-available helper extraction unless fresh perf evidence
+  selects a different implementation path than adding another source helper.
 - 2026-06-01: MIM-054 removed the duplicate `cached_page.page_id == page_id`
   check from the first cached known-page release success path. The hot path has
   already matched `page_id == me.last_alloc_page_id`, and the cached handle and
