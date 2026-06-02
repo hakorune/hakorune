@@ -76,6 +76,39 @@ static unsigned long long host_passthrough_count = 0;
 static unsigned long long provider_bind_success = 0;
 static unsigned long long provider_bind_failure = 0;
 static unsigned long long pointer_table_overflow = 0;
+static unsigned long long init_fallback_loading_provider_count = 0;
+static unsigned long long init_fallback_resolving_real_count = 0;
+static unsigned long long init_fallback_in_provider_call_count = 0;
+static unsigned long long malloc_init_fallback_count = 0;
+static unsigned long long calloc_init_fallback_count = 0;
+static unsigned long long realloc_init_fallback_count = 0;
+static unsigned long long free_init_fallback_count = 0;
+static unsigned long long track_probe_total = 0;
+static unsigned long long track_probe_max = 0;
+static unsigned long long find_probe_total = 0;
+static unsigned long long find_probe_max = 0;
+static unsigned long long tombstone_hit_count = 0;
+static unsigned long long tracked_hit_count = 0;
+static unsigned long long tracked_miss_count = 0;
+static unsigned long long calloc_zero_bytes = 0;
+static unsigned long long realloc_copy_bytes = 0;
+static unsigned long long realloc_tracked_count = 0;
+static unsigned long long realloc_host_passthrough_count = 0;
+static unsigned long long realloc_null_count = 0;
+static unsigned long long realloc_free_count = 0;
+
+static void hako_count_init_fallback(void) {
+  init_real_fallback_count++;
+  if (loading_provider) {
+    init_fallback_loading_provider_count++;
+  }
+  if (resolving_real) {
+    init_fallback_resolving_real_count++;
+  }
+  if (in_provider_call) {
+    init_fallback_in_provider_call_count++;
+  }
+}
 
 static void hako_resolve_real(void) {
   if (resolving_real) {
@@ -104,13 +137,29 @@ static int hako_find_tracked(void* ptr) {
   uintptr_t hash = ((uintptr_t)ptr >> 4u) % HAKO_POINTER_TABLE_CAP;
   for (unsigned int probe = 0; probe < HAKO_POINTER_TABLE_CAP; probe++) {
     unsigned int index = (unsigned int)((hash + probe) % HAKO_POINTER_TABLE_CAP);
+    unsigned int probe_count = probe + 1u;
     if (tracked[index].ptr == ptr) {
+      find_probe_total += probe_count;
+      if (probe_count > find_probe_max) {
+        find_probe_max = probe_count;
+      }
+      tracked_hit_count++;
       return (int)index;
     }
     if (!tracked[index].ptr) {
+      find_probe_total += probe_count;
+      if (probe_count > find_probe_max) {
+        find_probe_max = probe_count;
+      }
+      tracked_miss_count++;
       return -1;
     }
   }
+  find_probe_total += HAKO_POINTER_TABLE_CAP;
+  if (HAKO_POINTER_TABLE_CAP > find_probe_max) {
+    find_probe_max = HAKO_POINTER_TABLE_CAP;
+  }
+  tracked_miss_count++;
   return -1;
 }
 
@@ -122,11 +171,17 @@ static void hako_track_ptr(void* ptr, size_t size) {
   int first_tombstone = -1;
   for (unsigned int probe = 0; probe < HAKO_POINTER_TABLE_CAP; probe++) {
     unsigned int index = (unsigned int)((hash + probe) % HAKO_POINTER_TABLE_CAP);
+    unsigned int probe_count = probe + 1u;
     if (tracked[index].ptr == ptr) {
+      track_probe_total += probe_count;
+      if (probe_count > track_probe_max) {
+        track_probe_max = probe_count;
+      }
       tracked[index].size = size;
       return;
     }
     if (tracked[index].ptr == HAKO_TRACKED_TOMBSTONE) {
+      tombstone_hit_count++;
       if (first_tombstone < 0) {
         first_tombstone = (int)index;
       }
@@ -134,10 +189,18 @@ static void hako_track_ptr(void* ptr, size_t size) {
     }
     if (!tracked[index].ptr) {
       unsigned int target = first_tombstone >= 0 ? (unsigned int)first_tombstone : index;
+      track_probe_total += probe_count;
+      if (probe_count > track_probe_max) {
+        track_probe_max = probe_count;
+      }
       tracked[target].ptr = ptr;
       tracked[target].size = size;
       return;
     }
+  }
+  track_probe_total += HAKO_POINTER_TABLE_CAP;
+  if (HAKO_POINTER_TABLE_CAP > track_probe_max) {
+    track_probe_max = HAKO_POINTER_TABLE_CAP;
   }
   if (first_tombstone >= 0) {
     tracked[(unsigned int)first_tombstone].ptr = ptr;
@@ -203,8 +266,28 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_provider_free_count", provider_free_count);
   hako_write_kv(fd, "shim_runtime_real_fallback_count", runtime_real_fallback_count);
   hako_write_kv(fd, "shim_init_real_fallback_count", init_real_fallback_count);
+  hako_write_kv(fd, "shim_init_fallback_loading_provider_count", init_fallback_loading_provider_count);
+  hako_write_kv(fd, "shim_init_fallback_resolving_real_count", init_fallback_resolving_real_count);
+  hako_write_kv(fd, "shim_init_fallback_in_provider_call_count", init_fallback_in_provider_call_count);
+  hako_write_kv(fd, "shim_malloc_init_fallback_count", malloc_init_fallback_count);
+  hako_write_kv(fd, "shim_calloc_init_fallback_count", calloc_init_fallback_count);
+  hako_write_kv(fd, "shim_realloc_init_fallback_count", realloc_init_fallback_count);
+  hako_write_kv(fd, "shim_free_init_fallback_count", free_init_fallback_count);
   hako_write_kv(fd, "shim_host_passthrough_count", host_passthrough_count);
   hako_write_kv(fd, "shim_pointer_table_overflow", pointer_table_overflow);
+  hako_write_kv(fd, "shim_track_probe_total", track_probe_total);
+  hako_write_kv(fd, "shim_track_probe_max", track_probe_max);
+  hako_write_kv(fd, "shim_find_probe_total", find_probe_total);
+  hako_write_kv(fd, "shim_find_probe_max", find_probe_max);
+  hako_write_kv(fd, "shim_tombstone_hit_count", tombstone_hit_count);
+  hako_write_kv(fd, "shim_tracked_hit_count", tracked_hit_count);
+  hako_write_kv(fd, "shim_tracked_miss_count", tracked_miss_count);
+  hako_write_kv(fd, "shim_calloc_zero_bytes", calloc_zero_bytes);
+  hako_write_kv(fd, "shim_realloc_copy_bytes", realloc_copy_bytes);
+  hako_write_kv(fd, "shim_realloc_tracked_count", realloc_tracked_count);
+  hako_write_kv(fd, "shim_realloc_host_passthrough_count", realloc_host_passthrough_count);
+  hako_write_kv(fd, "shim_realloc_null_count", realloc_null_count);
+  hako_write_kv(fd, "shim_realloc_free_count", realloc_free_count);
   close(fd);
 }
 
@@ -290,7 +373,8 @@ static void hako_provider_free(void* ptr) {
 __attribute__((visibility("default")))
 void* malloc(size_t size) {
   if (loading_provider || resolving_real || in_provider_call) {
-    init_real_fallback_count++;
+    hako_count_init_fallback();
+    malloc_init_fallback_count++;
     hako_resolve_real();
     return real_malloc_fn ? real_malloc_fn(size) : 0;
   }
@@ -300,7 +384,8 @@ void* malloc(size_t size) {
 __attribute__((visibility("default")))
 void* calloc(size_t count, size_t size) {
   if (loading_provider || resolving_real || in_provider_call) {
-    init_real_fallback_count++;
+    hako_count_init_fallback();
+    calloc_init_fallback_count++;
     hako_resolve_real();
     return real_calloc_fn ? real_calloc_fn(count, size) : 0;
   }
@@ -311,6 +396,7 @@ void* calloc(size_t count, size_t size) {
   void* ptr = hako_provider_alloc(bytes, 16);
   if (ptr) {
     memset(ptr, 0, bytes);
+    calloc_zero_bytes += bytes;
     provider_calloc_count++;
   }
   return ptr;
@@ -319,29 +405,36 @@ void* calloc(size_t count, size_t size) {
 __attribute__((visibility("default")))
 void* realloc(void* ptr, size_t size) {
   if (!ptr) {
+    realloc_null_count++;
     return malloc(size);
   }
   if (size == 0) {
+    realloc_free_count++;
     free(ptr);
     return 0;
   }
   if (loading_provider || resolving_real || in_provider_call) {
-    init_real_fallback_count++;
+    hako_count_init_fallback();
+    realloc_init_fallback_count++;
     hako_resolve_real();
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
   }
   int index = hako_find_tracked(ptr);
   if (index < 0) {
+    realloc_host_passthrough_count++;
     host_passthrough_count++;
     hako_resolve_real();
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
   }
+  realloc_tracked_count++;
   size_t old_size = tracked[index].size;
   void* next = hako_provider_alloc(size, 16);
   if (!next) {
     return 0;
   }
-  memcpy(next, ptr, old_size < size ? old_size : size);
+  size_t copy_size = old_size < size ? old_size : size;
+  memcpy(next, ptr, copy_size);
+  realloc_copy_bytes += copy_size;
   hako_untrack_index(index);
   hako_provider_free(ptr);
   provider_realloc_count++;
@@ -354,7 +447,8 @@ void free(void* ptr) {
     return;
   }
   if (loading_provider || resolving_real || in_provider_call) {
-    init_real_fallback_count++;
+    hako_count_init_fallback();
+    free_init_fallback_count++;
     hako_resolve_real();
     if (real_free_fn) {
       real_free_fn(ptr);
