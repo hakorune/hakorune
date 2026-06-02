@@ -132,6 +132,8 @@ Rule:
 - 原則: 調査ログを SSOT にしない（参照元を明記して“歴史化”できる形にする）。
 - よく参照する調査ログ:
   - Phase 259: block-parameterized CFG / ABI/contract 相談パケット: `docs/development/current/main/investigations/phase-259-block-parameterized-cfg-consult.md`
+  - Mimalloc current workstream historical log:
+    `docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md`
 
 ### `docs/development/current/main/workstreams/`（active work cards）
 
