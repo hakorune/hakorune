@@ -1455,6 +1455,37 @@ message.
   - no source syntax change, no by-name selector, no public ArrayBox/default
     safe behavior change, no new row/guard/script.
 
+- [x] MIM-133: direct-exact app perf/asm owner tool
+  - output:
+    add `tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh` as the
+    reusable owner-first assembly evidence wrapper for current mimalloc
+    direct-exact app fronts.
+  - contract:
+    the wrapper sources `mimalloc_direct_exact_env.sh`, builds the selected
+    `.hako` app through the direct-exact EXE route, records repeated perf
+    samples with a tiny direct C runner, and keeps `perf.data`,
+    `perf-report.txt`, `perf-annotate.txt`, `objdump.txt`, and the built EXE
+    under `OUT_FILE.artifacts.d`.
+  - smoke:
+    public proof app with `--runs 3` emitted
+    `output_contract=hako-mimalloc-direct-exact-app-perf-asm-v0`,
+    `top_symbol=ny_main`, `nonzero_annotate_line_count=1832`, and
+    `summary=ok`.
+  - owner reread:
+    public proof app with `--runs 120` selected `ny_main` at `97.72%`.
+    Top annotated lines were dominated by page/facade public-proof state:
+    `free_top` guarded acquire branch/store, `used`/counter increments,
+    release known-live state stores, and result/public publication stores.
+  - decision:
+    do not open a new source helper, route-aware copy, record-state migration,
+    or DirectArray proof from this sample alone. The sampled owner is not a
+    generic helper/fallback surface; it is the public proof body's remaining
+    semantic state work.
+  - next:
+    use this tool before future source edits. Open an implementation only if a
+    later sample selects a concrete removable site family with positive-net
+    evidence and a stable before/after route contract.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows

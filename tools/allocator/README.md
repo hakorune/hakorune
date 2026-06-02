@@ -3,6 +3,29 @@
 This directory contains small phase-295x comparison helpers. They are local
 evidence tools, not allocator-provider activation paths.
 
+## Mimalloc Direct-Exact Evidence
+
+Use the direct-exact wrappers when investigating current `.hako` mimalloc
+parity. They source `tools/allocator/mimalloc_direct_exact_env.sh` so worker
+runs do not accidentally measure the default/safe front.
+
+```bash
+tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
+  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
+  --out target/mimalloc-public.stat.txt \
+  --runs 5
+```
+
+For owner-first assembly evidence, use the perf/asm wrapper. It keeps the built
+EXE, `perf.data`, annotate output, and objdump next to the report.
+
+```bash
+tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh \
+  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
+  --out target/mimalloc-public.asm.txt \
+  --symbol ny_main
+```
+
 ## Hakmem External Bench Bridge
 
 Use `hakmem_external_bench.py` to run selected benchmarks from the extracted
