@@ -32,6 +32,8 @@ Options:
   --out FILE                 final normalized report path
   --out-dir DIR              artifact directory; defaults to FILE.artifacts.d
   --app FILE                 selected .hako provider fixture
+  --semantic-codegen MODE    semantic provider codegen mode
+                             (default: object-lifecycle-small-alloc-release-v0)
   --sample-count N           repeated measurement sample count (default: 3)
   --warmup-count N           repeated measurement warmup count (default: 1)
   --operation-repeat N       repeated provider alloc/free operations (default: 128)
@@ -69,6 +71,10 @@ while [[ "$#" -gt 0 ]]; do
       ;;
     --app)
       APP="${2:-}"
+      shift 2
+      ;;
+    --semantic-codegen)
+      MODE="${2:-}"
       shift 2
       ;;
     --sample-count)

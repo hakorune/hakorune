@@ -15,8 +15,45 @@ const OUTPUT_CONTRACT: &str = "hakorune-provider-package-hako-derived-build-v0";
 const BUILD_MODE: &str = "hako-derived-selected-fixture";
 const PACKAGE_MODE: &str = "hako-derived-provider-package";
 const OBJECT_LIFECYCLE_MODE: &str = "object-lifecycle-small-alloc-release-v0";
-const ALLOC_FREE_ROUTE: &str = "host_malloc_free_wrapper";
-const OBJECT_LIFECYCLE_USAGE: &str = "metadata_verification_only";
+const OBJECT_LIFECYCLE_NATIVE_SLOT_MODE: &str = "object-lifecycle-native-slot-bridge-v0";
+const HOST_ALLOC_FREE_ROUTE: &str = "host_malloc_free_wrapper";
+const HOST_OBJECT_LIFECYCLE_USAGE: &str = "metadata_verification_only";
+const NATIVE_SLOT_ALLOC_FREE_ROUTE: &str = "native_static_slot_bridge_from_object_lifecycle_shape";
+const NATIVE_SLOT_OBJECT_LIFECYCLE_USAGE: &str = "native_shape_codegen";
+
+#[derive(Clone, Copy)]
+struct AllocFreeRoute {
+    route: &'static str,
+    uses_host_malloc: bool,
+    uses_hako_object_lifecycle: bool,
+    object_lifecycle_usage: &'static str,
+}
+
+fn alloc_free_route(semantic_codegen: &str) -> AllocFreeRoute {
+    if semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE {
+        AllocFreeRoute {
+            route: NATIVE_SLOT_ALLOC_FREE_ROUTE,
+            uses_host_malloc: false,
+            uses_hako_object_lifecycle: true,
+            object_lifecycle_usage: NATIVE_SLOT_OBJECT_LIFECYCLE_USAGE,
+        }
+    } else {
+        AllocFreeRoute {
+            route: HOST_ALLOC_FREE_ROUTE,
+            uses_host_malloc: true,
+            uses_hako_object_lifecycle: false,
+            object_lifecycle_usage: HOST_OBJECT_LIFECYCLE_USAGE,
+        }
+    }
+}
+
+fn bool_i32(value: bool) -> i32 {
+    if value {
+        1
+    } else {
+        0
+    }
+}
 
 pub fn maybe_run_provider_package_hako_derived_build(config: &CliConfig) -> Option<i32> {
     config
@@ -83,8 +120,9 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         && semantic_codegen != "ping-literal-v0"
         && semantic_codegen != "alloc-free-owns-literal-v0"
         && semantic_codegen != OBJECT_LIFECYCLE_MODE
+        && semantic_codegen != OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
     {
-        return Err("[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0|alloc-free-owns-literal-v0|object-lifecycle-small-alloc-release-v0".to_string());
+        return Err("[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0|alloc-free-owns-literal-v0|object-lifecycle-small-alloc-release-v0|object-lifecycle-native-slot-bridge-v0".to_string());
     }
 
     let artifact_name = match config.provider_package_artifact_name.as_deref() {
@@ -126,6 +164,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     let semantic_ping_value = if semantic_codegen == "ping-literal-v0"
         || semantic_codegen == "alloc-free-owns-literal-v0"
         || semantic_codegen == OBJECT_LIFECYCLE_MODE
+        || semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
     {
         Some(extract_hako_provider_ping_literal(&mir_json_path)?)
     } else {
@@ -133,6 +172,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     };
     let semantic_owns_value = if semantic_codegen == "alloc-free-owns-literal-v0"
         || semantic_codegen == OBJECT_LIFECYCLE_MODE
+        || semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
     {
         let value = extract_hako_provider_owns_allocated_literal(&mir_json_path)?;
         if value != 0 && value != 1 {
@@ -144,12 +184,15 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     } else {
         None
     };
-    let semantic_object_lifecycle_verified = if semantic_codegen == OBJECT_LIFECYCLE_MODE {
+    let semantic_object_lifecycle_verified = if semantic_codegen == OBJECT_LIFECYCLE_MODE
+        || semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
+    {
         validate_hako_provider_object_lifecycle_entrypoint(&mir_json_path)?;
         true
     } else {
         false
     };
+    let alloc_route = alloc_free_route(semantic_codegen);
     let activation = json!({
         "provider_call_allowed": config.provider_package_provider_call_allowed,
         "allocator_replacement_allowed": false,
@@ -174,10 +217,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         "hako_provider_ping_value": semantic_ping_value,
         "hako_provider_owns_value": semantic_owns_value,
         "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
-        "hako_provider_alloc_free_route": ALLOC_FREE_ROUTE,
-        "hako_provider_alloc_free_uses_host_malloc": true,
-        "hako_provider_alloc_free_uses_hako_object_lifecycle": false,
-        "hako_provider_object_lifecycle_entrypoint_usage": OBJECT_LIFECYCLE_USAGE,
+        "hako_provider_alloc_free_route": alloc_route.route,
+        "hako_provider_alloc_free_uses_host_malloc": alloc_route.uses_host_malloc,
+        "hako_provider_alloc_free_uses_hako_object_lifecycle": alloc_route.uses_hako_object_lifecycle,
+        "hako_provider_object_lifecycle_entrypoint_usage": alloc_route.object_lifecycle_usage,
     });
     let contract_hash = sha256_bytes(
         serde_json::to_string(&contract)
@@ -194,6 +237,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         semantic_ping_value,
         semantic_owns_value,
         semantic_object_lifecycle_verified,
+        alloc_route,
     )?;
     let source_path = build_dir.join("hako_derived_provider_wrapper.c");
     fs::write(
@@ -206,6 +250,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             &function_table_hash,
             semantic_ping_value.unwrap_or(0),
             semantic_owns_value.unwrap_or(1),
+            semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE,
         ),
     )
     .map_err(|error| format!("[provider-package-hako-build/write-source-failed] {error}"))?;
@@ -242,10 +287,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             "hako_provider_ping_value": semantic_ping_value,
             "hako_provider_owns_value": semantic_owns_value,
             "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
-            "hako_provider_alloc_free_route": ALLOC_FREE_ROUTE,
-            "hako_provider_alloc_free_uses_host_malloc": true,
-            "hako_provider_alloc_free_uses_hako_object_lifecycle": false,
-            "hako_provider_object_lifecycle_entrypoint_usage": OBJECT_LIFECYCLE_USAGE,
+            "hako_provider_alloc_free_route": alloc_route.route,
+            "hako_provider_alloc_free_uses_host_malloc": alloc_route.uses_host_malloc,
+            "hako_provider_alloc_free_uses_hako_object_lifecycle": alloc_route.uses_hako_object_lifecycle,
+            "hako_provider_object_lifecycle_entrypoint_usage": alloc_route.object_lifecycle_usage,
             "hako_shared_library_generation": true
         },
         "artifact": {
@@ -284,10 +329,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
          hako_provider_owns_value={}\n\
          hako_provider_object_lifecycle_codegen={}\n\
          hako_provider_object_lifecycle_entrypoint_verified={}\n\
-         hako_provider_alloc_free_route={ALLOC_FREE_ROUTE}\n\
-         hako_provider_alloc_free_uses_host_malloc=1\n\
-         hako_provider_alloc_free_uses_hako_object_lifecycle=0\n\
-         hako_provider_object_lifecycle_entrypoint_usage={OBJECT_LIFECYCLE_USAGE}\n\
+         hako_provider_alloc_free_route={}\n\
+         hako_provider_alloc_free_uses_host_malloc={}\n\
+         hako_provider_alloc_free_uses_hako_object_lifecycle={}\n\
+         hako_provider_object_lifecycle_entrypoint_usage={}\n\
          shared_library_artifact_generated=1\n\
          arbitrary_shell_build_executed=0\n\
          package_dir={}\n\
@@ -337,6 +382,10 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         } else {
             0
         },
+        alloc_route.route,
+        bool_i32(alloc_route.uses_host_malloc),
+        bool_i32(alloc_route.uses_hako_object_lifecycle),
+        alloc_route.object_lifecycle_usage,
         out_dir.display(),
         source_path.display(),
         manifest_path.display(),
@@ -605,6 +654,7 @@ fn hako_derived_function_table_hash(
     semantic_ping_value: Option<i64>,
     semantic_owns_value: Option<i64>,
     semantic_object_lifecycle_verified: bool,
+    alloc_route: AllocFreeRoute,
 ) -> Result<String, String> {
     let contract = json!({
         "abi_version": ABI_VERSION,
@@ -617,10 +667,10 @@ fn hako_derived_function_table_hash(
         "hako_provider_ping_value": semantic_ping_value,
         "hako_provider_owns_value": semantic_owns_value,
         "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
-        "hako_provider_alloc_free_route": ALLOC_FREE_ROUTE,
-        "hako_provider_alloc_free_uses_host_malloc": true,
-        "hako_provider_alloc_free_uses_hako_object_lifecycle": false,
-        "hako_provider_object_lifecycle_entrypoint_usage": OBJECT_LIFECYCLE_USAGE,
+        "hako_provider_alloc_free_route": alloc_route.route,
+        "hako_provider_alloc_free_uses_host_malloc": alloc_route.uses_host_malloc,
+        "hako_provider_alloc_free_uses_hako_object_lifecycle": alloc_route.uses_hako_object_lifecycle,
+        "hako_provider_object_lifecycle_entrypoint_usage": alloc_route.object_lifecycle_usage,
     });
     Ok(sha256_bytes(
         serde_json::to_string(&contract)
@@ -641,8 +691,25 @@ fn hako_derived_wrapper_source(
     function_table_hash: &str,
     ping_value: i64,
     owns_value: i64,
+    use_native_slot_bridge: bool,
 ) -> String {
-    let source = r#"#include <stdint.h>
+    let source = if use_native_slot_bridge {
+        hako_derived_native_slot_wrapper_template()
+    } else {
+        hako_derived_host_malloc_wrapper_template()
+    };
+    source
+        .replace("__PACKAGE_ID__", &c_string_fragment(package_id))
+        .replace("__PROVIDER_KIND__", &c_string_fragment(provider_kind))
+        .replace("__PROVIDER_VERSION__", &c_string_fragment(provider_version))
+        .replace("__CONTRACT_HASH__", contract_hash)
+        .replace("__FUNCTION_TABLE_HASH__", function_table_hash)
+        .replace("__PING_VALUE__", &ping_value.to_string())
+        .replace("__OWNS_VALUE__", &owns_value.to_string())
+}
+
+fn hako_derived_host_malloc_wrapper_template() -> &'static str {
+    r#"#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -709,15 +776,124 @@ __attribute__((visibility("default")))
 const HakoProviderApiV1* hakorune_provider_get_api_v1(void) {
   return &API;
 }
-"#;
-    source
-        .replace("__PACKAGE_ID__", &c_string_fragment(package_id))
-        .replace("__PROVIDER_KIND__", &c_string_fragment(provider_kind))
-        .replace("__PROVIDER_VERSION__", &c_string_fragment(provider_version))
-        .replace("__CONTRACT_HASH__", contract_hash)
-        .replace("__FUNCTION_TABLE_HASH__", function_table_hash)
-        .replace("__PING_VALUE__", &ping_value.to_string())
-        .replace("__OWNS_VALUE__", &owns_value.to_string())
+"#
+}
+
+fn hako_derived_native_slot_wrapper_template() -> &'static str {
+    r#"#include <stdint.h>
+#include <stddef.h>
+
+#define HAKO_PROVIDER_SLOT_SIZE 2048u
+#define HAKO_PROVIDER_SLOT_COUNT 8192u
+
+typedef union HakoProviderSlot {
+  max_align_t align;
+  unsigned char bytes[HAKO_PROVIDER_SLOT_SIZE];
+} HakoProviderSlot;
+
+typedef struct HakoProviderDescriptorV1 {
+  uint32_t magic;
+  uint16_t abi_major;
+  uint16_t abi_minor;
+  uint32_t descriptor_size;
+  const char* provider_id;
+  const char* provider_kind;
+  const char* provider_version;
+  uint64_t capability_bits;
+  uint64_t safety_flags;
+  const char* contract_hash;
+  const char* function_table_hash;
+  uint32_t api_table_size;
+  uint32_t reserved;
+} HakoProviderDescriptorV1;
+
+typedef struct HakoProviderApiV1 {
+  uint32_t magic;
+  uint16_t abi_major;
+  uint16_t abi_minor;
+  uint32_t api_table_size;
+  int (*ping)(void);
+  void* (*alloc)(size_t size, size_t align);
+  void (*free)(void* ptr);
+  int (*owns)(void* ptr);
+} HakoProviderApiV1;
+
+static HakoProviderSlot HAKO_PROVIDER_SLOTS[HAKO_PROVIDER_SLOT_COUNT];
+static unsigned char HAKO_PROVIDER_USED[HAKO_PROVIDER_SLOT_COUNT];
+
+static int hako_ping(void) { return __PING_VALUE__; }
+
+static int hako_slot_index(void* ptr) {
+  if (ptr == 0) {
+    return -1;
+  }
+  uintptr_t value = (uintptr_t)ptr;
+  for (uint32_t i = 0; i < HAKO_PROVIDER_SLOT_COUNT; i++) {
+    if (value == (uintptr_t)HAKO_PROVIDER_SLOTS[i].bytes) {
+      return (int)i;
+    }
+  }
+  return -1;
+}
+
+static void* hako_alloc(size_t size, size_t align) {
+  if (size == 0 || size > HAKO_PROVIDER_SLOT_SIZE) {
+    return 0;
+  }
+  if (align == 0) {
+    align = sizeof(void*);
+  }
+  if (align > 16u) {
+    return 0;
+  }
+  for (uint32_t i = 0; i < HAKO_PROVIDER_SLOT_COUNT; i++) {
+    if (!HAKO_PROVIDER_USED[i]) {
+      HAKO_PROVIDER_USED[i] = 1u;
+      return HAKO_PROVIDER_SLOTS[i].bytes;
+    }
+  }
+  return 0;
+}
+
+static void hako_free(void* ptr) {
+  int index = hako_slot_index(ptr);
+  if (index >= 0) {
+    HAKO_PROVIDER_USED[(uint32_t)index] = 0u;
+  }
+}
+
+static int hako_owns(void* ptr) {
+  int index = hako_slot_index(ptr);
+  if (index < 0) {
+    return 0;
+  }
+  return HAKO_PROVIDER_USED[(uint32_t)index] ? __OWNS_VALUE__ : 0;
+}
+
+static const HakoProviderApiV1 API = {
+  0x484B5241u, 1, 0, sizeof(HakoProviderApiV1),
+  hako_ping, hako_alloc, hako_free, hako_owns
+};
+
+static const HakoProviderDescriptorV1 DESCRIPTOR = {
+  0x484B5250u, 1, 0, sizeof(HakoProviderDescriptorV1),
+  "__PACKAGE_ID__", "__PROVIDER_KIND__", "__PROVIDER_VERSION__",
+  3u, 1u,
+  "__CONTRACT_HASH__",
+  "__FUNCTION_TABLE_HASH__",
+  sizeof(HakoProviderApiV1), 0
+};
+
+__attribute__((visibility("default")))
+const HakoProviderDescriptorV1* hakorune_provider_descriptor_v1(void) {
+  return &DESCRIPTOR;
+}
+
+__attribute__((visibility("default")))
+const HakoProviderApiV1* hakorune_provider_get_api_v1(void) {
+  return &API;
+}
+"#
 }
 
 fn semantic_codegen_output(mode: &str) -> &str {

@@ -375,6 +375,40 @@ this mode. The `.hako` side is used as selected source/MIR evidence for the
 real object-lifecycle entrypoint; it is not arbitrary `.hako` to allocator-DLL
 lowering, and it does not activate provider replacement.
 
+The first experimental object-lifecycle native bridge mode is
+`object-lifecycle-native-slot-bridge-v0`:
+
+```bash
+target/debug/hakorune \
+  --provider-package-hako-derived-build-fixture apps/provider-package/hako-derived-mimalloc-real-entrypoint-fixture/main.hako \
+  --provider-package-hako-semantic-codegen object-lifecycle-native-slot-bridge-v0 \
+  --provider-package-out-dir dist/hakorune-provider \
+  --provider-package-id org.hakorune.provider.hako.mimalloc.real-entrypoint \
+  --provider-package-name hako-mimalloc-real-entrypoint-provider \
+  --provider-package-target-triple x86_64-unknown-linux-gnu \
+  --provider-package-platform linux \
+  --provider-package-provider-call-allowed
+```
+
+This mode still verifies the selected `.hako` object-lifecycle call chain, but
+the generated provider `alloc/free/owns` entrypoints use a native static slot
+bridge derived from that selected lifecycle shape:
+
+```text
+hako_semantic_provider_codegen=object-lifecycle-native-slot-bridge-v0
+hako_provider_object_lifecycle_entrypoint_verified=1
+hako_provider_alloc_free_route=native_static_slot_bridge_from_object_lifecycle_shape
+hako_provider_alloc_free_uses_host_malloc=0
+hako_provider_alloc_free_uses_hako_object_lifecycle=1
+hako_provider_object_lifecycle_entrypoint_usage=native_shape_codegen
+```
+
+This is an explicit provider-package experiment. It is not product allocator
+activation, not hook installation, not global allocator selection, and not a
+winner claim. The bridge is intentionally narrow: it provides a fixed native
+slot arena for provider API smoke and LD_PRELOAD bridge evidence before the
+full `.hako` object-lifecycle lowering is connected.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata

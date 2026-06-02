@@ -133,22 +133,43 @@ owner hint:
   dominates provider operations
 ```
 
+Provider package route split:
+
+```text
+object-lifecycle-small-alloc-release-v0:
+  verifies selected .hako object-lifecycle MIR call chain
+  provider alloc/free route = host_malloc_free_wrapper
+
+object-lifecycle-native-slot-bridge-v0:
+  verifies the same selected .hako object-lifecycle MIR call chain
+  provider alloc/free route = native_static_slot_bridge_from_object_lifecycle_shape
+  uses_host_malloc = 0
+  use only as explicit provider-package / LD_PRELOAD bridge evidence
+  product activation / hook / global allocator / winner claim remain closed
+```
+
 ## Next Task Order
 
-1. Run a stable same-machine Hakozuna mixed-ws comparison.
+1. Measure the native slot bridge provider route.
+   - Build with `--provider-package-hako-semantic-codegen
+     object-lifecycle-native-slot-bridge-v0`.
+   - Confirm `hako_provider_alloc_free_uses_host_malloc=0`.
+   - Compare against the previous host-wrapper provider route and C mimalloc.
+
+2. Run a stable same-machine Hakozuna mixed-ws comparison.
    - Use enough iterations/samples to reduce startup noise.
    - Compare system malloc, C mimalloc LD_PRELOAD, and optional Hakorune
      provider LD_PRELOAD.
    - Treat the result as local evidence only.
 
-2. Classify the remaining gap.
+3. Classify the remaining gap.
    - If provider shim counters dominate, optimize shim/provider boundary first.
    - If `.hako` allocator core dominates, return to direct-exact app perf/asm.
    - If benchmark setup noise dominates, improve measurement before code edits.
    - Do not call provider LD_PRELOAD evidence a `.hako` core speed result while
      `provider_ldpreload_is_hako_core_speed_claim=0`.
 
-3. Continue provider replacement ladder only as smoke/readiness.
+4. Continue provider replacement ladder only as smoke/readiness.
    - Keep `provider_activation=0`, `production_replacement_active=0`,
      `hook_installed=0`, `global_allocator_product_claim=0`,
      `winner_claim=0`.

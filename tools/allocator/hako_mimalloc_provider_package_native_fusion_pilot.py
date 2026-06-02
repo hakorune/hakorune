@@ -7,7 +7,10 @@ import argparse
 from pathlib import Path
 
 
-MODE = "object-lifecycle-small-alloc-release-v0"
+SUPPORTED_MODES = {
+    "object-lifecycle-small-alloc-release-v0",
+    "object-lifecycle-native-slot-bridge-v0",
+}
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -26,6 +29,16 @@ def require(values: dict[str, str], key: str, expected: str, label: str) -> None
         raise SystemExit(f"{label}: expected {key}={expected!r}, got {actual!r}")
 
 
+def require_supported_mode(values: dict[str, str], label: str) -> str:
+    mode = values.get("hako_semantic_provider_codegen")
+    if mode not in SUPPORTED_MODES:
+        supported = "|".join(sorted(SUPPORTED_MODES))
+        raise SystemExit(
+            f"{label}: expected hako_semantic_provider_codegen in {supported}, got {mode!r}"
+        )
+    return mode
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-report", type=Path, required=True)
@@ -37,7 +50,7 @@ def main() -> int:
     smoke = read_kv(args.alloc_free_report)
 
     require(build, "output_contract", "hakorune-provider-package-hako-derived-build-v0", "build")
-    require(build, "hako_semantic_provider_codegen", MODE, "build")
+    mode = require_supported_mode(build, "build")
     require(build, "hako_provider_object_lifecycle_codegen", "1", "build")
     require(build, "hako_provider_object_lifecycle_entrypoint_verified", "1", "build")
     require(build, "shared_library_artifact_generated", "1", "build")
@@ -60,7 +73,7 @@ def main() -> int:
         "output_contract=hako-mimalloc-provider-package-native-fusion-pilot-v0",
         "input_contract=hako-mimalloc-provider-package-native-fusion-selection-v0",
         "selected_entrypoint=object_lifecycle_small_alloc_release_v0",
-        f"hako_semantic_provider_codegen={MODE}",
+        f"hako_semantic_provider_codegen={mode}",
         f"hako_source_path={build['hako_source_path']}",
         f"hako_mir_json_path={build['hako_mir_json_path']}",
         f"manifest_path={build['manifest_path']}",

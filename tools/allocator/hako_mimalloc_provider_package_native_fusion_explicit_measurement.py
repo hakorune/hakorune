@@ -7,7 +7,10 @@ import argparse
 from pathlib import Path
 
 
-MODE = "object-lifecycle-small-alloc-release-v0"
+SUPPORTED_MODES = {
+    "object-lifecycle-small-alloc-release-v0",
+    "object-lifecycle-native-slot-bridge-v0",
+}
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -24,6 +27,16 @@ def require(values: dict[str, str], key: str, expected: str, label: str) -> None
     actual = values.get(key)
     if actual != expected:
         raise SystemExit(f"{label}: expected {key}={expected!r}, got {actual!r}")
+
+
+def require_supported_mode(values: dict[str, str], label: str) -> str:
+    mode = values.get("hako_semantic_provider_codegen")
+    if mode not in SUPPORTED_MODES:
+        supported = "|".join(sorted(SUPPORTED_MODES))
+        raise SystemExit(
+            f"{label}: expected hako_semantic_provider_codegen in {supported}, got {mode!r}"
+        )
+    return mode
 
 
 def require_int(values: dict[str, str], key: str, label: str) -> int:
@@ -47,7 +60,7 @@ def main() -> int:
     measurement = read_kv(args.measurement_report)
 
     require(build, "output_contract", "hakorune-provider-package-hako-derived-build-v0", "build")
-    require(build, "hako_semantic_provider_codegen", MODE, "build")
+    mode = require_supported_mode(build, "build")
     require(build, "hako_provider_object_lifecycle_entrypoint_verified", "1", "build")
     require(build, "summary", "ok", "build")
 
@@ -75,7 +88,7 @@ def main() -> int:
         "output_contract=hako-mimalloc-provider-package-native-fusion-explicit-measurement-v0",
         "input_contract=hako-mimalloc-provider-package-native-fusion-pilot-v0",
         "selected_entrypoint=object_lifecycle_small_alloc_release_v0",
-        f"hako_semantic_provider_codegen={MODE}",
+        f"hako_semantic_provider_codegen={mode}",
         "measurement_profile=provider-native-fusion-explicit-repeated-v0",
         f"sample_count={measurement['sample_count']}",
         f"warmup_count={measurement['warmup_count']}",
