@@ -45,6 +45,7 @@ use super::{
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
     range_index_fact::refresh_function_range_index_facts,
+    receiver_snapshot_publication_plan::refresh_function_receiver_snapshot_publication_plans,
     record_layout_plan::refresh_module_record_layout_plans,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
@@ -108,6 +109,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_span_access_plans(function);
     refresh_function_fastpath_obligations(function);
     refresh_function_effect_summaries(function);
+    refresh_function_receiver_snapshot_publication_plans(function);
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);
@@ -160,6 +162,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_span_access_plans(function);
         refresh_function_fastpath_obligations(function);
         refresh_function_effect_summaries(function);
+        refresh_function_receiver_snapshot_publication_plans(function);
         refresh_function_hotcore_method_summaries(function);
     }
     refresh_module_direct_exact_hotcore_call_plans(module);

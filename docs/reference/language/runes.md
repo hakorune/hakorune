@@ -105,6 +105,9 @@ reads/writes, handle publications, nested calls, allocations, safepoints,
 branches, and foreign-base count are classified before a narrow
 `ReceiverSnapshotPublicationPlanV0` can be considered. This summary is
 diagnostic only; it does not authorize inline or backend route changes.
+`ReceiverSnapshotPublicationPlanV0` v0 is also diagnostic only and accepts only
+scalar snapshot publication. Storing the foreign handle itself remains rejected
+until a barrier/lifetime policy is defined.
 
 ## Contracts
 

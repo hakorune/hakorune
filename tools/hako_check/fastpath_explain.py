@@ -97,6 +97,7 @@ def main() -> int:
     regions: list[tuple[str, dict[str, Any]]] = []
     obligations: list[tuple[str, dict[str, Any]]] = []
     effect_summaries: list[tuple[str, dict[str, Any]]] = []
+    receiver_snapshot_plans: list[tuple[str, dict[str, Any]]] = []
     hotcore_summaries: list[tuple[str, dict[str, Any]]] = []
     hotcore_call_plans: list[tuple[str, dict[str, Any]]] = []
 
@@ -107,6 +108,9 @@ def main() -> int:
         regions.extend((name, row) for row in list_meta(function, "required_fastpath_regions"))
         obligations.extend((name, row) for row in list_meta(function, "fastpath_obligations"))
         effect_summaries.extend((name, row) for row in list_meta(function, "effect_summaries"))
+        receiver_snapshot_plans.extend(
+            (name, row) for row in list_meta(function, "receiver_snapshot_publication_plans")
+        )
         hotcore_summaries.extend(
             (name, row) for row in list_meta(function, "hotcore_method_summaries")
         )
@@ -118,6 +122,7 @@ def main() -> int:
     span_rows = [row for _, row in span_plans]
     obligation_rows = [row for _, row in obligations]
     effect_summary_rows = [row for _, row in effect_summaries]
+    receiver_snapshot_rows = [row for _, row in receiver_snapshot_plans]
     hotcore_summary_rows = [row for _, row in hotcore_summaries]
     hotcore_call_rows = [row for _, row in hotcore_call_plans]
 
@@ -129,6 +134,9 @@ def main() -> int:
     obligation_status_counts = count_by(obligation_rows, "status")
     effect_summary_status_counts = count_by(effect_summary_rows, "summary")
     effect_summary_candidate_counts = count_by(effect_summary_rows, "candidate_kind")
+    receiver_snapshot_status_counts = count_by(receiver_snapshot_rows, "summary")
+    receiver_snapshot_kind_counts = count_by(receiver_snapshot_rows, "publication_kind")
+    receiver_snapshot_barrier_counts = count_by(receiver_snapshot_rows, "barrier_policy")
     hotcore_summary_status_counts = count_by(hotcore_summary_rows, "summary")
     hotcore_call_status_counts = count_by(hotcore_call_rows, "summary")
     hotcore_call_dispatch_counts = count_by(hotcore_call_rows, "dispatch_policy")
@@ -209,6 +217,13 @@ def main() -> int:
         f"effect_summary_handle_publication_count={sum(int(row.get('handle_publications', 0) or 0) for row in effect_summary_rows)}",
         f"effect_summary_foreign_read_count={sum(int(row.get('foreign_reads', 0) or 0) for row in effect_summary_rows)}",
         f"effect_summary_foreign_write_count={sum(int(row.get('foreign_writes', 0) or 0) for row in effect_summary_rows)}",
+        f"receiver_snapshot_publication_plan_count={len(receiver_snapshot_plans)}",
+        f"receiver_snapshot_publication_plan_ok_count={receiver_snapshot_status_counts['ok']}",
+        f"receiver_snapshot_publication_plan_rejected_count={receiver_snapshot_status_counts['rejected']}",
+        f"receiver_snapshot_scalar_snapshot_count={receiver_snapshot_kind_counts['scalar_snapshot']}",
+        f"receiver_snapshot_foreign_handle_publication_count={receiver_snapshot_kind_counts['foreign_handle_publication']}",
+        f"receiver_snapshot_barrier_none_count={receiver_snapshot_barrier_counts['none']}",
+        f"receiver_snapshot_barrier_unproven_count={receiver_snapshot_barrier_counts['unproven']}",
         f"hotcore_method_summary_count={len(hotcore_summaries)}",
         f"hotcore_method_summary_ok_count={hotcore_summary_status_counts['ok']}",
         f"hotcore_method_summary_failed_count={hotcore_summary_status_counts['failed']}",
@@ -266,6 +281,24 @@ def main() -> int:
                 f"{prefix}_handle_publications={summary.get('handle_publications', 'unknown')}",
                 f"{prefix}_status={summary.get('summary', 'unknown')}",
                 f"{prefix}_failure_reason={field_text(summary, 'failure_reason', 'none')}",
+            ]
+        )
+
+    for idx, (name, plan) in enumerate(receiver_snapshot_plans[: max(0, args.topn)]):
+        prefix = f"receiver_snapshot_publication_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={name}",
+                f"{prefix}_method={plan.get('method', 'unknown')}",
+                f"{prefix}_publication_kind={plan.get('publication_kind', 'unknown')}",
+                f"{prefix}_barrier_policy={plan.get('barrier_policy', 'unknown')}",
+                f"{prefix}_foreign_base_count={plan.get('foreign_base_count', 'unknown')}",
+                f"{prefix}_receiver_writes={plan.get('receiver_writes', 'unknown')}",
+                f"{prefix}_foreign_reads={plan.get('foreign_reads', 'unknown')}",
+                f"{prefix}_handle_publications={plan.get('handle_publications', 'unknown')}",
+                f"{prefix}_lowering_consumer_enabled={bool_text(bool(plan.get('lowering_consumer_enabled')))}",
+                f"{prefix}_status={plan.get('summary', 'unknown')}",
+                f"{prefix}_failure_reason={field_text(plan, 'failure_reason', 'none')}",
             ]
         )
 

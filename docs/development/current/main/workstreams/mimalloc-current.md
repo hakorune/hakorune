@@ -1887,9 +1887,13 @@ unless one of them changes a durable contract or implementation boundary.
         calls, allocations, safepoints, branch count, and foreign-base count;
         `hako_check fastpath-explain` now reports mixed-base publication
         candidates from MIR JSON without authorizing inline or lowering
-     3. if still selected, add a narrow
-        `ReceiverSnapshotPublicationPlanV0` recipe; start with scalar foreign
-        read publication before permitting foreign handle publication
+     3. done: added metadata-only `ReceiverSnapshotPublicationPlanV0` scalar
+        snapshot gate; scalar foreign reads can form an ok diagnostic plan, but
+        foreign handle publication is reported as rejected with
+        `handle_publication_barrier_unproven` until a barrier/lifetime policy
+        lands
+     4. if still selected, add a handle-publication barrier/lifetime proof
+        before permitting foreign handle publication or any lowering consumer
    - v0 rejected surfaces: multiple foreign bases, foreign writes, nested calls,
      branch/loop bodies, allocation, dynamic field access, and handle
      publication that needs a runtime barrier

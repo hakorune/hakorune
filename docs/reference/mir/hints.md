@@ -151,13 +151,20 @@ mixed-base publication helper:
   not a generic Inline(required) leaf
   first gate is same-module no-coredump / compile-time diagnostic
   second gate is EffectSummary metadata
-  optional later gate is ReceiverSnapshotPublicationPlanV0
+  third gate is ReceiverSnapshotPublicationPlanV0 metadata
 ```
 
 Decision: accepted metadata-only. `EffectSummary` is emitted in MIR function
 metadata and exposed by `hako_check fastpath-explain`. It classifies helper
 effect shape only; it does not authorize inline, direct call lowering, handle
 publication, or backend route changes.
+
+Decision: accepted scalar-only metadata. `ReceiverSnapshotPublicationPlanV0`
+consumes `EffectSummary` and accepts only scalar snapshot publication in v0:
+one foreign base may be read and scalar receiver fields may be written.
+Foreign handle publication is reported but rejected until a barrier/lifetime
+policy lands. This plan is still diagnostic only; lowering consumers remain
+disabled.
 
 Rejected until a narrow plan says otherwise:
 

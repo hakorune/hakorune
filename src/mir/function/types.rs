@@ -30,6 +30,7 @@ use crate::mir::{
     inline_plan::InlinePlan,
     map_lookup_fusion_plan::MapLookupFusionRoute,
     placement_effect::PlacementEffectRoute,
+    receiver_snapshot_publication_plan::ReceiverSnapshotPublicationPlan,
     storage_class::StorageClass,
     string_corridor::StringCorridorFact,
     string_corridor_placement::StringCorridorCandidate,
@@ -417,6 +418,12 @@ pub struct FunctionMetadata {
     /// hidden effect blockers for future narrow mixed-base helper recipes. They
     /// do not authorize Inline(required), call lowering, or publication routes.
     pub effect_summaries: Vec<EffectSummary>,
+
+    /// Metadata-only narrow mixed-base publication recipe plans.
+    ///
+    /// v0 accepts scalar snapshot publication only. Foreign handle publication
+    /// is reported but rejected until a barrier/lifetime policy lands.
+    pub receiver_snapshot_publication_plans: Vec<ReceiverSnapshotPublicationPlan>,
 
     /// Metadata-only summaries for selected direct-exact hot-core methods.
     ///
