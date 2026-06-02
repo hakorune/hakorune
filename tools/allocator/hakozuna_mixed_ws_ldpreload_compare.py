@@ -1382,6 +1382,14 @@ def main() -> int:
         type=int,
         help="benchmark-only: override replacement front fixed slot size in bytes",
     )
+    parser.add_argument(
+        "--replacement-front-match-workload-realloc-size",
+        action="store_true",
+        help=(
+            "benchmark-only: set replacement front slot size to max-size + 16, "
+            "matching the mixed-ws realloc grow request"
+        ),
+    )
     args = parser.parse_args()
 
     positive_int(args.sample_count, "--sample-count")
@@ -1394,6 +1402,13 @@ def main() -> int:
     positive_int(args.max_size, "--max-size")
     if args.max_size < args.min_size:
         raise SystemExit("--max-size must be >= --min-size")
+    if args.replacement_front_match_workload_realloc_size:
+        if args.replacement_front_slot_size is not None:
+            raise SystemExit(
+                "--replacement-front-match-workload-realloc-size and "
+                "--replacement-front-slot-size are exclusive"
+            )
+        args.replacement_front_slot_size = args.max_size + 16
     if args.replacement_front_slot_size is not None:
         positive_int(args.replacement_front_slot_size, "--replacement-front-slot-size")
         if args.replacement_front_slot_size < args.max_size:
@@ -1435,6 +1450,14 @@ def main() -> int:
     if args.replacement_front_slot_size is not None and not args.replacement_front_native_slot_mode:
         raise SystemExit(
             "--replacement-front-slot-size requires --replacement-front-native-slot-mode"
+        )
+    if (
+        args.replacement_front_match_workload_realloc_size
+        and not args.replacement_front_native_slot_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-match-workload-realloc-size requires "
+            "--replacement-front-native-slot-mode"
         )
     if args.replacement_front_cross_thread_smoke and args.replacement_front_skip_hot_counters:
         raise SystemExit(
@@ -1576,6 +1599,8 @@ def main() -> int:
         f"replacement_front_skip_hot_counters={1 if args.replacement_front_skip_hot_counters else 0}",
         f"replacement_front_tls_counter_mode={1 if args.replacement_front_tls_counter_mode else 0}",
         f"replacement_front_slot_size={replacement_slot_size}",
+        "replacement_front_match_workload_realloc_size="
+        f"{1 if args.replacement_front_match_workload_realloc_size else 0}",
         f"workload_size_histogram_source={workload_histogram['source']}",
         "workload_size_histogram_max_total_iters="
         f"{WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS}",

@@ -369,6 +369,11 @@ REPL-012:
   nonkeeper: benchmark-only coalescing of live state and requested size into one
   metadata word
   cross-thread semantics stayed intact, but counterless throughput regressed
+
+REPL-013:
+  WorkloadReallocMatchedSlotProbeV0
+  keeper: benchmark-only slot-size selection for mixed-ws default realloc grow
+  uses slot_size=max_size+16 so default realloc grow requests stay covered
 ```
 
 `REPL-001` reports the current hot-path shape without claiming it is already
@@ -394,6 +399,7 @@ replacement_entry_inline_plan=0|1
 malloc_to_direct_alloc_boundary=always_inline|tailcall|call
 free_to_direct_free_boundary=always_inline|tailcall|call
 replacement_front_slot_size=<bytes>
+replacement_front_match_workload_realloc_size=0|1
 workload_size_histogram_source=deterministic_prefix_exact|deterministic_prefix_sampled
 workload_size_histogram_sample_exact=0|1
 workload_alloc_request_count=<sampled-count>
@@ -483,6 +489,26 @@ slot_meta_word_delta_pct=-2.80
 Do not keep the slot-meta-word implementation path in the tool. The remaining
 metadata owner is real, but this coalescing shape did not improve the current
 generated replacement front.
+
+`REPL-013` is a keeper for the benchmark tool. `REPL-011` showed that
+`--replacement-front-slot-size 1024` covers the default `malloc` request range
+but not every default mixed-ws `realloc(size + 16)` grow request. A 1040-byte
+replacement slot covers that grow request (`workload_realloc_request_gt_replacement_slot_size=0`)
+and still kept the benchmark-only replacement front above the local C mimalloc
+reference in the same short run:
+
+```text
+slot_size=1040
+replacement_front_match_workload_realloc_size=1
+c_mimalloc_median_ops_per_sec=349180817.438
+hakorune_replacement_front_median_ops_per_sec=637099210.841
+hakorune_vs_c_mimalloc=1.824554
+cross_thread_smoke=ok
+```
+
+This is still a benchmark-front result, not a product allocator winner claim.
+Use `--replacement-front-match-workload-realloc-size` to request this
+workload-matched slot size instead of hard-coding `1040` at call sites.
    - Treat `HakoAllocReplacementFront` as the thin-front direction for
      C-like malloc/free speed.
    - Keep `HakoAllocProviderFront` as explicit-provider infrastructure.
