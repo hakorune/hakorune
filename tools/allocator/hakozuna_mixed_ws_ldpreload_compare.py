@@ -31,12 +31,13 @@ REPLACEMENT_FRONT_SHIM_C = r"""
 #include <string.h>
 #include <unistd.h>
 
-#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+#if defined(HAKO_REPLACEMENT_FRONT_LOCKED) || defined(HAKO_REPLACEMENT_FRONT_THREAD_LOCAL)
 #include <pthread.h>
 #endif
 
 #define HAKO_REPLACEMENT_SLOT_SIZE 2048u
 #define HAKO_REPLACEMENT_SLOT_COUNT 8192u
+#define HAKO_REPLACEMENT_ARENA_REGISTRY_CAP 128u
 
 typedef void* (*hako_malloc_fn)(size_t);
 typedef void* (*hako_calloc_fn)(size_t, size_t);
@@ -67,6 +68,27 @@ static HAKO_REPLACEMENT_STORAGE uint32_t free_stack[HAKO_REPLACEMENT_SLOT_COUNT]
 static HAKO_REPLACEMENT_STORAGE uint32_t free_top = 0u;
 static HAKO_REPLACEMENT_STORAGE unsigned char init_done = 0u;
 
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+static HAKO_REPLACEMENT_STORAGE uint32_t remote_next[HAKO_REPLACEMENT_SLOT_COUNT];
+static HAKO_REPLACEMENT_STORAGE int remote_head = -1;
+static HAKO_REPLACEMENT_STORAGE unsigned char arena_registered = 0u;
+
+typedef struct HakoReplacementArenaView {
+  uintptr_t base;
+  uintptr_t end;
+  unsigned char* used;
+  size_t* requested_size;
+  uint32_t* free_stack;
+  uint32_t* free_top;
+  uint32_t* remote_next;
+  int* remote_head;
+} HakoReplacementArenaView;
+
+static HakoReplacementArenaView arena_registry[HAKO_REPLACEMENT_ARENA_REGISTRY_CAP];
+static unsigned int arena_registry_count = 0u;
+static pthread_mutex_t arena_registry_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 static unsigned long long alloc_count = 0;
 static unsigned long long calloc_count = 0;
 static unsigned long long realloc_count = 0;
@@ -78,6 +100,10 @@ static unsigned long long calloc_zero_bytes = 0;
 static unsigned long long lock_mode_enabled = 0;
 static unsigned long long lock_enter_count = 0;
 static unsigned long long thread_local_mode_enabled = 0;
+static unsigned long long remote_free_push_count = 0;
+static unsigned long long remote_free_drain_count = 0;
+static unsigned long long cross_thread_realloc_unsupported_count = 0;
+static unsigned long long arena_registry_overflow_count = 0;
 
 static void add_counter(unsigned long long* counter, unsigned long long delta) {
   __sync_fetch_and_add(counter, delta);
@@ -126,10 +152,116 @@ static void init_slots(void) {
   }
   for (uint32_t i = 0; i < HAKO_REPLACEMENT_SLOT_COUNT; i++) {
     free_stack[i] = HAKO_REPLACEMENT_SLOT_COUNT - i - 1u;
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+    remote_next[i] = (uint32_t)-1;
+#endif
   }
   free_top = HAKO_REPLACEMENT_SLOT_COUNT;
   init_done = 1u;
 }
+
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+static int register_thread_arena(void) {
+  if (arena_registered) {
+    return 1;
+  }
+  pthread_mutex_lock(&arena_registry_lock);
+  if (arena_registry_count < HAKO_REPLACEMENT_ARENA_REGISTRY_CAP) {
+    HakoReplacementArenaView* view = &arena_registry[arena_registry_count++];
+    view->base = (uintptr_t)slots[0].bytes;
+    view->end = (uintptr_t)(slots + HAKO_REPLACEMENT_SLOT_COUNT);
+    view->used = used;
+    view->requested_size = requested_size;
+    view->free_stack = free_stack;
+    view->free_top = &free_top;
+    view->remote_next = remote_next;
+    view->remote_head = &remote_head;
+    arena_registered = 1u;
+  } else {
+    add_counter(&arena_registry_overflow_count, 1);
+  }
+  pthread_mutex_unlock(&arena_registry_lock);
+  return arena_registered ? 1 : 0;
+}
+
+static int arena_view_slot_index(HakoReplacementArenaView* view, void* ptr) {
+  uintptr_t value = (uintptr_t)ptr;
+  if (value < view->base || value >= view->end) {
+    return -1;
+  }
+  uintptr_t delta = value - view->base;
+  uintptr_t stride = sizeof(HakoReplacementSlot);
+  if ((delta % stride) != 0) {
+    return -1;
+  }
+  uintptr_t index = delta / stride;
+  if (index >= HAKO_REPLACEMENT_SLOT_COUNT) {
+    return -1;
+  }
+  return (int)index;
+}
+
+static HakoReplacementArenaView* find_foreign_arena(void* ptr, int* index_out) {
+  uintptr_t local_base = (uintptr_t)slots[0].bytes;
+  uintptr_t local_end = (uintptr_t)(slots + HAKO_REPLACEMENT_SLOT_COUNT);
+  uintptr_t value = (uintptr_t)ptr;
+  if (value >= local_base && value < local_end) {
+    return 0;
+  }
+  pthread_mutex_lock(&arena_registry_lock);
+  for (unsigned int i = 0; i < arena_registry_count; i++) {
+    HakoReplacementArenaView* view = &arena_registry[i];
+    int index = arena_view_slot_index(view, ptr);
+    if (index >= 0) {
+      *index_out = index;
+      pthread_mutex_unlock(&arena_registry_lock);
+      return view;
+    }
+  }
+  pthread_mutex_unlock(&arena_registry_lock);
+  return 0;
+}
+
+static void drain_remote_frees(void) {
+  for (;;) {
+    int head = remote_head;
+    if (head < 0) {
+      return;
+    }
+    int next = (int)remote_next[(uint32_t)head];
+    if (!__sync_bool_compare_and_swap(&remote_head, head, next)) {
+      continue;
+    }
+    used[(uint32_t)head] = 0u;
+    requested_size[(uint32_t)head] = 0u;
+    if (free_top < HAKO_REPLACEMENT_SLOT_COUNT) {
+      free_stack[free_top++] = (uint32_t)head;
+      add_counter(&remote_free_drain_count, 1);
+    }
+  }
+}
+
+static int remote_free_to_owner(void* ptr) {
+  int index = -1;
+  HakoReplacementArenaView* view = find_foreign_arena(ptr, &index);
+  if (!view || index < 0) {
+    return 0;
+  }
+  uint32_t uindex = (uint32_t)index;
+  if (!__sync_bool_compare_and_swap(&view->used[uindex], 1u, 2u)) {
+    return 0;
+  }
+  for (;;) {
+    int old_head = *view->remote_head;
+    view->remote_next[uindex] = (uint32_t)old_head;
+    if (__sync_bool_compare_and_swap(view->remote_head, old_head, index)) {
+      add_counter(&remote_free_push_count, 1);
+      add_counter(&direct_core_call_count, 1);
+      return 1;
+    }
+  }
+}
+#endif
 
 static int slot_index(void* ptr) {
   if (!ptr) {
@@ -158,6 +290,12 @@ static void* direct_alloc(size_t size) {
     return 0;
   }
   init_slots();
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+  if (!register_thread_arena()) {
+    return 0;
+  }
+  drain_remote_frees();
+#endif
   if (free_top == 0u) {
     return 0;
   }
@@ -170,8 +308,12 @@ static void* direct_alloc(size_t size) {
 
 static int direct_free(void* ptr) {
   int index = slot_index(ptr);
-  if (index < 0 || !used[(uint32_t)index]) {
+  if (index < 0 || used[(uint32_t)index] != 1u) {
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+    return remote_free_to_owner(ptr);
+#else
     return 0;
+#endif
   }
   used[(uint32_t)index] = 0u;
   requested_size[(uint32_t)index] = 0u;
@@ -233,6 +375,13 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_lock_mode_enabled", lock_mode_enabled);
   write_kv(fd, "replacement_front_lock_enter_count", lock_enter_count);
   write_kv(fd, "replacement_front_thread_local_mode_enabled", thread_local_mode_enabled);
+  write_kv(fd, "replacement_front_remote_free_push_count", remote_free_push_count);
+  write_kv(fd, "replacement_front_remote_free_drain_count", remote_free_drain_count);
+  write_kv(
+      fd,
+      "replacement_front_cross_thread_realloc_unsupported_count",
+      cross_thread_realloc_unsupported_count);
+  write_kv(fd, "replacement_front_arena_registry_overflow_count", arena_registry_overflow_count);
   close(fd);
 }
 
@@ -301,8 +450,15 @@ void* realloc(void* ptr, size_t size) {
   }
   lock_arena();
   int index = slot_index(ptr);
-  if (index < 0 || !used[(uint32_t)index]) {
+  if (index < 0 || used[(uint32_t)index] != 1u) {
     unlock_arena();
+#ifdef HAKO_REPLACEMENT_FRONT_THREAD_LOCAL
+    int foreign_index = -1;
+    if (find_foreign_arena(ptr, &foreign_index)) {
+      add_counter(&cross_thread_realloc_unsupported_count, 1);
+      return 0;
+    }
+#endif
     add_counter(&host_passthrough_count, 1);
     resolve_real();
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
@@ -826,7 +982,7 @@ def main() -> int:
                     f"subject_{index}_thread_local_arena={1 if args.replacement_front_thread_local_mode else 0}",
                     "subject_"
                     f"{index}_cross_thread_free_policy="
-                    f"{'same_thread_only_unsupported' if args.replacement_front_thread_local_mode else 'global_lock_or_not_applicable'}",
+                    f"{'remote_queue' if args.replacement_front_thread_local_mode else 'global_lock_or_not_applicable'}",
                     f"subject_{index}_provider_api_hot_path_required=0",
                     f"subject_{index}_activation=0",
                     f"subject_{index}_benchmark_only=1",

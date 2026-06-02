@@ -240,16 +240,27 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
 ```
 
    - Interpret the thread-local arena probe as the first scalable shape. It is
-     still benchmark-only and same-thread-free only:
+     still benchmark-only. Cross-thread free routes through a remote queue;
+     cross-thread realloc remains unsupported and must stay visible in counters.
 
 ```text
 thread_local_replacement_front_smoke=1
 thread_local_arena=1
-cross_thread_free_policy=same_thread_only_unsupported
+cross_thread_free_policy=remote_queue
+replacement_front_arena_registry_overflow_count_total=0
 activation=0
 benchmark_only=1
 winner_claim=0
 summary=ok
+```
+
+   - The Hakozuna mixed-ws workload may not exercise cross-thread free. Use a
+     focused cross-thread free smoke when changing this path and require:
+
+```text
+replacement_front_remote_free_push_count=1
+replacement_front_remote_free_drain_count=1
+replacement_front_arena_registry_overflow_count=0
 ```
 
 6. Finish the Hakorune mimalloc lane before any victory claim.
