@@ -1486,6 +1486,42 @@ message.
     later sample selects a concrete removable site family with positive-net
     evidence and a stable before/after route contract.
 
+- [x] MIM-134: observer-light direct-exact closeout refresh
+  - output:
+    reread the observer-light direct-exact front after MIM-133 and decide
+    whether another compiler/source optimization owner should open before
+    returning to benchmark/DLL work.
+  - fastpath explain:
+    `function_count=50`, `direct_array_access_plan_count=16`,
+    `direct_array_proved_unchecked_plan_count=12`,
+    `hotcore_method_summary_count=2`,
+    `direct_exact_hotcore_call_plan_count=5`,
+    `direct_exact_static_call_lowered_count=5`,
+    `direct_exact_plan_lowered_to_fallback_count=0`, `summary=ok`.
+  - pair/stat:
+    observer-light direct-exact pair measured
+    `hako_body_elapsed_ns=1000000`, `c_body_elapsed_ns=3202545`,
+    `body_elapsed_ratio=0.312`, `summary=ok`.
+    The 5-run stat measured
+    `hako_instructions_median=33374404`,
+    `hako_cycles_median=6327558`,
+    `hako_body_elapsed_ns_median=1000000`.
+  - asm:
+    `tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh --runs 120`
+    selected `ny_main=90.38%`, with nonzero annotate lines showing ordinary
+    direct page state / DirectArray hot body work, not generic fallback or
+    missing HotCore lowering.
+  - decision:
+    no new mimalloc source/MIR optimization opens here. The observer-light
+    front is already well below the C body-time line and carries the completed
+    HotCore direct-exact automatic compiler fastpaths. The public-proof front
+    is heavier by design because it carries proof/public publication.
+  - next:
+    treat current mimalloc automatic fastpath work as one-step closeout unless
+    a new workload/front shows a real C gap. The next practical lane is
+    benchmark/DLL/external-workload integration, with winner claims and process
+    replacement still closed.
+
 ### Next Cleanup TODO
 
 Use these as Ghost Tasks inside this workstream. Do not create numbered rows
