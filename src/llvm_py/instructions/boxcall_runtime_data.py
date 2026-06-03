@@ -15,6 +15,7 @@ from instructions.mir_call.auto_specialize import (
     receiver_is_stringish,
 )
 from instructions.mir_call.runtime_data_dispatch import select_array_collection_call_spec
+from instructions.mir_call.runtime_data_dispatch import runtime_data_arity_fallback_zero
 from utils.resolver_helpers import get_box_type
 
 
@@ -39,16 +40,28 @@ def try_lower_collection_boxcall(
             return None
         symbol, call_name, arity = spec
         if arity == 1:
-            value = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
+            if len(args) < 1:
+                return runtime_data_arity_fallback_zero(
+                    call_name,
+                    required=1,
+                    actual=len(args),
+                )
+            value = resolve_arg(args[0])
             if value is None:
                 value = ir.Constant(i64, 0)
             callee = declare(module, symbol, i64, [i64, i64])
             return builder.call(callee, [recv_h, value], name=call_name)
         if arity == 2:
-            key = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
+            if len(args) < 2:
+                return runtime_data_arity_fallback_zero(
+                    call_name,
+                    required=2,
+                    actual=len(args),
+                )
+            key = resolve_arg(args[0])
             if key is None:
                 key = ir.Constant(i64, 0)
-            value = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
+            value = resolve_arg(args[1])
             if value is None:
                 value = ir.Constant(i64, 0)
             callee = declare(module, symbol, i64, [i64, i64, i64])

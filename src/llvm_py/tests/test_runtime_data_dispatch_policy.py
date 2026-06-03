@@ -37,6 +37,7 @@ def _declare(module, name, ret, args):
 class TestRuntimeDataDispatchPolicy(unittest.TestCase):
     def tearDown(self):
         os.environ.pop("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", None)
+        os.environ.pop("NYASH_LLVM_STRICT", None)
         _reset_runtime_data_array_route_policy_cache_for_tests()
 
     def test_default_prefers_array_i64_route_when_hints_match(self):
@@ -318,6 +319,44 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         builder.ret(result)
 
         self.assertIn("nyash.map.slot_store_hhh", str(module))
+
+    def test_runtime_data_missing_arg_returns_zero_in_compat_mode(self):
+        i64 = ir.IntType(64)
+        module = ir.Module(name="test_runtime_data_missing_arg_compat")
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        result = lower_runtime_data_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="RuntimeDataBox",
+            method="get",
+            recv_h=ir.Constant(i64, 1),
+            args=[],
+            prefer_array_mono_route=False,
+        )
+
+        self.assertEqual(str(result), "i64 0")
+
+    def test_runtime_data_missing_arg_fails_fast_in_strict_mode(self):
+        i64 = ir.IntType(64)
+        module = ir.Module(name="test_runtime_data_missing_arg_strict")
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            lower_runtime_data_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="RuntimeDataBox",
+                method="set",
+                recv_h=ir.Constant(i64, 1),
+                args=[ir.Constant(i64, 2)],
+                prefer_array_mono_route=False,
+            )
 
 
 if __name__ == "__main__":

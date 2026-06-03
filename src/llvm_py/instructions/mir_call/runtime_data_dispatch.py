@@ -6,6 +6,8 @@ to avoid drift between method_call and mir_call_legacy lowerers.
 Array receiver specialized routing (AS-03/03b/03c) is selected here as well.
 """
 
+import os
+
 from llvmlite import ir
 from .auto_specialize import (
     prefer_runtime_data_array_i64_key_i64_value_route,
@@ -50,6 +52,15 @@ _RUNTIME_DATA_FIELD_METHODS = {
     "getField": ("nyash.map.slot_load_hh", "unified_runtime_data_getField", 1),
     "setField": ("nyash.map.slot_store_hhh", "unified_runtime_data_setField", 2),
 }
+
+
+def runtime_data_arity_fallback_zero(call_name: str, *, required: int, actual: int):
+    if os.environ.get("NYASH_LLVM_STRICT") == "1":
+        raise RuntimeError(
+            f"[LLVM_PY/STRICT] RuntimeData arity mismatch: "
+            f"{call_name} requires {required} args, got {actual}"
+        )
+    return ir.Constant(ir.IntType(64), 0)
 
 
 def _select_array_collection_call_spec(*, method_name, resolver=None, arg_vids=None):
@@ -172,13 +183,21 @@ def lower_runtime_data_method_call(
 
     if arity == 1:
         if len(call_args) < 1:
-            return zero
+            return runtime_data_arity_fallback_zero(
+                call_name,
+                required=1,
+                actual=len(call_args),
+            )
         callee = declare(symbol, i64, [i64, i64])
         return builder.call(callee, [recv_h, call_args[0] or zero], name=call_name)
 
     if arity == 2:
         if len(call_args) < 2:
-            return zero
+            return runtime_data_arity_fallback_zero(
+                call_name,
+                required=2,
+                actual=len(call_args),
+            )
         callee = declare(symbol, i64, [i64, i64, i64])
         return builder.call(
             callee,
@@ -230,7 +249,11 @@ def lower_runtime_data_field_call(
 
     if arity == 1:
         if len(call_args) < 1:
-            return zero
+            return runtime_data_arity_fallback_zero(
+                call_name,
+                required=1,
+                actual=len(call_args),
+            )
         key = resolve_arg(call_args[0]) if resolve_arg is not None else call_args[0]
         if key is None:
             key = zero
@@ -240,7 +263,11 @@ def lower_runtime_data_field_call(
 
     if arity == 2:
         if len(call_args) < 2:
-            return zero
+            return runtime_data_arity_fallback_zero(
+                call_name,
+                required=2,
+                actual=len(call_args),
+            )
         key = resolve_arg(call_args[0]) if resolve_arg is not None else call_args[0]
         value = resolve_arg(call_args[1]) if resolve_arg is not None else call_args[1]
         if key is None:

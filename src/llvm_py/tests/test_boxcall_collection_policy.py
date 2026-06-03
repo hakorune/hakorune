@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import unittest
 
 import llvmlite.ir as ir
@@ -30,6 +31,9 @@ def _declare(module, name, ret, args):
 
 
 class TestBoxcallCollectionPolicy(unittest.TestCase):
+    def tearDown(self):
+        os.environ.pop("NYASH_LLVM_STRICT", None)
+
     def test_array_get_with_i64_key_uses_slot_load_hi(self):
         i64, module, builder = _new_builder()
         resolver = _DummyResolver(
@@ -175,6 +179,44 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
         self.assertIsNone(result)
         self.assertNotIn("nyash.runtime_data.delete_hh", ir_text)
         self.assertNotIn("nyash.map.delete_hh", ir_text)
+
+    def test_boxcall_array_missing_arg_returns_zero_in_compat_mode(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "ArrayBox"}})
+
+        result = try_lower_collection_boxcall(
+            builder=builder,
+            module=module,
+            method_name="get",
+            recv_val=ir.Constant(i64, 1),
+            box_vid=1,
+            args=[],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+            declare=_declare,
+            resolver=resolver,
+        )
+
+        self.assertEqual(str(result), "i64 0")
+
+    def test_boxcall_array_missing_arg_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "ArrayBox"}})
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            try_lower_collection_boxcall(
+                builder=builder,
+                module=module,
+                method_name="set",
+                recv_val=ir.Constant(i64, 1),
+                box_vid=1,
+                args=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                declare=_declare,
+                resolver=resolver,
+            )
 
 
 if __name__ == "__main__":
