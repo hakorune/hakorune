@@ -6,6 +6,8 @@ Memory barriers for thread safety and memory ordering
 import llvmlite.ir as ir
 from typing import Dict, Optional
 
+_SAFE_BARRIER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_barrier(
     builder: ir.IRBuilder,
     barrier_type: str,
@@ -71,7 +73,7 @@ def lower_atomic_op(
     if ctx is not None:
         try:
             ptr = ctx.resolver.resolve_ptr(ptr_vid, builder.block, ctx.preds, ctx.block_end_values, ctx.vmap)
-        except Exception:
+        except _SAFE_BARRIER_EXC:
             ptr = vmap.get(ptr_vid)
     elif resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
         ptr = resolver.resolve_ptr(ptr_vid, builder.block, preds, block_end_values, vmap)
@@ -95,7 +97,7 @@ def lower_atomic_op(
             if ctx is not None:
                 try:
                     val = ctx.resolver.resolve_i64(val_vid, builder.block, ctx.preds, ctx.block_end_values, ctx.vmap, ctx.bb_map)
-                except Exception:
+                except _SAFE_BARRIER_EXC:
                     val = vmap.get(val_vid, ir.Constant(ir.IntType(64), 0))
             elif resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
                 val = resolver.resolve_i64(val_vid, builder.block, preds, block_end_values, vmap, bb_map)
@@ -109,7 +111,7 @@ def lower_atomic_op(
             if ctx is not None:
                 try:
                     val = ctx.resolver.resolve_i64(val_vid, builder.block, ctx.preds, ctx.block_end_values, ctx.vmap, ctx.bb_map)
-                except Exception:
+                except _SAFE_BARRIER_EXC:
                     val = ir.Constant(ir.IntType(64), 1)
             elif resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
                 val = resolver.resolve_i64(val_vid, builder.block, preds, block_end_values, vmap, bb_map)

@@ -7,6 +7,8 @@ import llvmlite.ir as ir
 from typing import Dict, List, Optional, Any
 import os
 
+_SAFE_SAFEPOINT_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_safepoint(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -63,7 +65,7 @@ def lower_safepoint(
                     p = getattr(ctx, 'preds', p)
                     bev = getattr(ctx, 'block_end_values', bev)
                     bbm = getattr(ctx, 'bb_map', bbm)
-                except Exception:
+                except _SAFE_SAFEPOINT_EXC:
                     pass
             if r is not None and p is not None and bev is not None and bbm is not None:
                 val = r.resolve_i64(vid, builder.block, p, bev, vmap, bbm)
@@ -138,7 +140,7 @@ def insert_automatic_safepoint(
             func = builder.block.parent
             cont = func.append_basic_block(name=f"cont_bb_{builder.block.name}")
             builder.position_at_end(cont)
-    except Exception:
+    except _SAFE_SAFEPOINT_EXC:
         pass
     # Insert safepoint check
     builder.call(check_func, [], name=f"safepoint_{location}")
