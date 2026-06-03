@@ -140,6 +140,14 @@ direct storage routes.
     `silent_fallback_count=0`
   - do not add backend method-name or helper-name route matchers
 
+- [x] LANG-DM-012: HotCore RouteDecision horizontal extension
+  - output: existing `DirectExactHotCoreCallPlan` rows also appear as
+    RouteDecision rows
+  - source syntax: none
+  - behavior change: none
+  - stop line: DirectState / RecordState / ReplacementFront remain parked until
+    route/perf evidence selects them
+
 ### Parked
 
 - [ ] LANG-DM-007: unsafe memory / Bytes parked design

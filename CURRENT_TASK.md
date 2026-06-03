@@ -184,8 +184,17 @@ Planned order:
 4. `RD-004` lowering consumer contract. Done.
    - lowering reads `selected_route`
    - report `backend_redecide_count=0` and `silent_fallback_count=0`
-5. `RD-005` horizontal extension after DirectArray proves the shape. Next.
+5. `RD-005` horizontal extension after DirectArray proves the shape. Done.
    - DirectState / RecordState / HotCore / ReplacementFront only by evidence
+
+Next after RouteDecision cleanup:
+
+```text
+1. refresh hako_check fastpath/route explain on the active mimalloc app
+2. return to mimalloc replacement-front / .hako hot-path owner selection
+3. only open DirectState / RecordState / ReplacementFront RouteDecision rows
+   if hako_check or perf evidence selects them
+```
 
 Rejected for this pass:
 
