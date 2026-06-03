@@ -30,37 +30,46 @@ DIRECT_SLOT_CELL_BYTES = 16
 DIRECT_SLOT_CELL_PAYLOAD_OFFSET_BYTES = 8
 
 
+def _resolver_value_types(resolver) -> Optional[Dict[int, Any]]:
+    if resolver is None:
+        return None
+    value_types = getattr(resolver, "value_types", None)
+    if value_types is None:
+        value_types = {}
+        setattr(resolver, "value_types", value_types)
+    if not isinstance(value_types, dict):
+        raise RuntimeError("[field-access/immediate-mark] resolver.value_types must be dict")
+    return value_types
+
+
+def _mark_immediate_type(resolver, vid: int, value_type: str) -> None:
+    value_types = _resolver_value_types(resolver)
+    if value_types is not None:
+        value_types[int(vid)] = value_type
+
+
+def _mark_integerish_id(resolver, vid: int) -> None:
+    if resolver is None:
+        return
+    integerish_ids = getattr(resolver, "integerish_ids", None)
+    if integerish_ids is None:
+        return
+    if not isinstance(integerish_ids, set):
+        raise RuntimeError("[field-access/immediate-mark] resolver.integerish_ids must be set")
+    integerish_ids.add(int(vid))
+
+
 def _mark_integer_immediate(resolver, vid: int) -> None:
-    try:
-        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
-            resolver.value_types = {}
-        resolver.value_types[int(vid)] = "i64"
-    except Exception:
-        pass
-    try:
-        integerish_ids = getattr(resolver, "integerish_ids", None)
-        if isinstance(integerish_ids, set):
-            integerish_ids.add(int(vid))
-    except Exception:
-        pass
+    _mark_immediate_type(resolver, vid, "i64")
+    _mark_integerish_id(resolver, vid)
 
 
 def _mark_bool_immediate(resolver, vid: int) -> None:
-    try:
-        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
-            resolver.value_types = {}
-        resolver.value_types[int(vid)] = "i1"
-    except Exception:
-        pass
+    _mark_immediate_type(resolver, vid, "i1")
 
 
 def _mark_float_immediate(resolver, vid: int) -> None:
-    try:
-        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
-            resolver.value_types = {}
-        resolver.value_types[int(vid)] = "Float"
-    except Exception:
-        pass
+    _mark_immediate_type(resolver, vid, "Float")
 
 
 def _exact_slot_helper_enabled() -> bool:
