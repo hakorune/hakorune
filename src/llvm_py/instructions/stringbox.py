@@ -56,13 +56,35 @@ def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.
 def _as_i8_pointer(builder: ir.IRBuilder, value: ir.Value) -> Optional[ir.Value]:
     if not hasattr(value, "type") or not isinstance(value.type, ir.PointerType):
         return None
-    try:
-        if isinstance(value.type.pointee, ir.ArrayType):
-            c0 = ir.IntType(32)(0)
-            return builder.gep(value, [c0, c0], name="sb_str_gep")
-    except Exception:
-        pass
+    if isinstance(value.type.pointee, ir.ArrayType):
+        c0 = ir.IntType(32)(0)
+        return builder.gep(value, [c0, c0], name="sb_str_gep")
     return value
+
+
+def _safe_ctx_value(ctx: Optional[Any], attr: str, fallback):
+    if ctx is None:
+        return fallback
+    value = getattr(ctx, attr, fallback)
+    return value if value is not None else fallback
+
+
+def _string_ptr_from_resolver(resolver, key: int):
+    if resolver is None or not hasattr(resolver, "string_ptrs"):
+        return None
+    ptrs = resolver.string_ptrs
+    if not isinstance(ptrs, dict):
+        return None
+    return ptrs.get(int(key))
+
+
+def _mark_string_result(resolver, dst_vid: Optional[int], ptr: Optional[ir.Value] = None) -> None:
+    if resolver is None or dst_vid is None:
+        return
+    if hasattr(resolver, 'mark_string'):
+        resolver.mark_string(dst_vid)
+    if ptr is not None and hasattr(resolver, 'string_ptrs') and isinstance(resolver.string_ptrs, dict):
+        resolver.string_ptrs[int(dst_vid)] = ptr
 
 
 def emit_stringbox_call(
@@ -113,30 +135,24 @@ def emit_stringbox_call(
     bev = block_end_values
     bbm = bb_map
     if ctx is not None:
-        try:
-            r = getattr(ctx, 'resolver', r)
-            p = getattr(ctx, 'preds', p)
-            bev = getattr(ctx, 'block_end_values', bev)
-            bbm = getattr(ctx, 'bb_map', bbm)
-        except Exception:
-            pass
+        r = _safe_ctx_value(ctx, 'resolver', r)
+        p = _safe_ctx_value(ctx, 'preds', p)
+        bev = _safe_ctx_value(ctx, 'block_end_values', bev)
+        bbm = _safe_ctx_value(ctx, 'bb_map', bbm)
 
     def _res_i64(vid: int):
         """Resolve value ID to i64 via resolver or vmap"""
         if r is not None and p is not None and bev is not None and bbm is not None:
-            try:
-                return resolve_i64_strict(
-                    r,
-                    vid,
-                    builder.block,
-                    p,
-                    bev,
-                    vmap,
-                    bbm,
-                    hot_scope="stringbox",
-                )
-            except Exception:
-                return None
+            return resolve_i64_strict(
+                r,
+                vid,
+                builder.block,
+                p,
+                bev,
+                vmap,
+                bbm,
+                hot_scope="stringbox",
+            )
         return vmap.get(vid)
 
     # Dispatch to method-specific handlers
@@ -192,67 +208,52 @@ def _emit_length(
         if not fast_on or resolver is None or dst_vid is None or box_vid is None:
             return
         cache = getattr(resolver, 'length_cache', None)
-        if cache is None:
+        if not isinstance(cache, dict):
             return
-        try:
-            cache[int(box_vid)] = val
-        except Exception:
-            pass
+        cache[int(box_vid)] = val
 
     # Fast path: check length_cache
     if fast_on and resolver is not None and dst_vid is not None and box_vid is not None:
         cache = getattr(resolver, 'length_cache', None)
-        if cache is not None:
-            try:
-                cached = cache.get(int(box_vid))
-            except Exception:
-                cached = None
+        if isinstance(cache, dict):
+            cached = cache.get(int(box_vid))
             if cached is not None:
                 vmap[dst_vid] = cached
                 return True
 
     # Ultra-fast: literal length folding
     if fast_on and dst_vid is not None and resolver is not None:
-        try:
-            lit = None
-            arg_vid = None
+        lit = None
+        arg_vid = None
 
-            # Case A: newbox(StringBox, const)
-            if hasattr(resolver, 'newbox_string_args'):
-                arg_vid = resolver.newbox_string_args.get(int(box_vid))
-            if arg_vid is not None and hasattr(resolver, 'string_literals'):
-                lit = resolver.string_literals.get(int(arg_vid))
+        # Case A: newbox(StringBox, const)
+        if hasattr(resolver, 'newbox_string_args') and isinstance(resolver.newbox_string_args, dict):
+            arg_vid = resolver.newbox_string_args.get(int(box_vid))
+        if arg_vid is not None and hasattr(resolver, 'string_literals') and isinstance(resolver.string_literals, dict):
+            lit = resolver.string_literals.get(int(arg_vid))
 
-            # Case B: receiver itself is a literal-backed handle
-            if lit is None and hasattr(resolver, 'string_literals'):
-                lit = resolver.string_literals.get(int(box_vid))
+        # Case B: receiver itself is a literal-backed handle
+        if lit is None and hasattr(resolver, 'string_literals') and isinstance(resolver.string_literals, dict):
+            lit = resolver.string_literals.get(int(box_vid))
 
-            if isinstance(lit, str):
-                # Compute length based on mode
-                use_cp = _codepoint_mode()
-                n = len(lit) if use_cp else len(lit.encode('utf-8'))
-                const_len = ir.Constant(i64, n)
-                vmap[dst_vid] = const_len
-                _cache_len(const_len)
-                return True
-        except Exception:
-            pass
+        if isinstance(lit, str):
+            # Compute length based on mode
+            use_cp = _codepoint_mode()
+            n = len(lit) if use_cp else len(lit.encode('utf-8'))
+            const_len = ir.Constant(i64, n)
+            vmap[dst_vid] = const_len
+            _cache_len(const_len)
+            return True
 
     # Fast path: use string_ptrs for direct strlen
     if fast_on and resolver is not None and hasattr(resolver, 'string_ptrs'):
-        try:
-            ptr = resolver.string_ptrs.get(int(box_vid))
-        except Exception:
-            ptr = None
+        ptr = _string_ptr_from_resolver(resolver, box_vid)
 
         # Fallback: check newbox_string_args
-        if ptr is None and hasattr(resolver, 'newbox_string_args'):
-            try:
-                arg_vid = resolver.newbox_string_args.get(int(box_vid))
-                if arg_vid is not None:
-                    ptr = resolver.string_ptrs.get(int(arg_vid))
-            except Exception:
-                pass
+        if ptr is None and hasattr(resolver, 'newbox_string_args') and isinstance(resolver.newbox_string_args, dict):
+            arg_vid = resolver.newbox_string_args.get(int(box_vid))
+            if arg_vid is not None:
+                ptr = _string_ptr_from_resolver(resolver, arg_vid)
 
         if ptr is not None:
             return _fast_strlen(builder, module, ptr, dst_vid, vmap, _cache_len)
@@ -260,21 +261,18 @@ def _emit_length(
     # Fast path: if receiver is known stringish handle, prefer direct len_h by default.
     # Legacy bridge path can be forced via NYASH_LEN_FORCE_BRIDGE=1.
     if fast_on and resolver is not None and hasattr(resolver, 'is_stringish'):
-        try:
-            if resolver.is_stringish(int(box_vid)):
-                recv_h = _ensure_handle(builder, module, recv_val)
-                if not force_bridge:
-                    callee = _declare(module, "nyash.string.len_h", i64, [i64])
-                    result = builder.call(callee, [recv_h], name="string_len_h")
-                    if dst_vid is not None:
-                        vmap[dst_vid] = result
-                    _cache_len(result)
-                    return True
-                to_i8p = _declare(module, "nyash.string.to_i8p_h", i8p, [i64])
-                ptr = builder.call(to_i8p, [recv_h], name="strlen_h2p")
-                return _fast_strlen(builder, module, ptr, dst_vid, vmap, _cache_len)
-        except Exception:
-            pass
+        if resolver.is_stringish(int(box_vid)):
+            recv_h = _ensure_handle(builder, module, recv_val)
+            if not force_bridge:
+                callee = _declare(module, "nyash.string.len_h", i64, [i64])
+                result = builder.call(callee, [recv_h], name="string_len_h")
+                if dst_vid is not None:
+                    vmap[dst_vid] = result
+                _cache_len(result)
+                return True
+            to_i8p = _declare(module, "nyash.string.to_i8p_h", i8p, [i64])
+            ptr = builder.call(to_i8p, [recv_h], name="strlen_h2p")
+            return _fast_strlen(builder, module, ptr, dst_vid, vmap, _cache_len)
 
     # Default: Any.length_h(handle) -> i64
     recv_h = _ensure_handle(builder, module, recv_val)
@@ -337,13 +335,7 @@ def _emit_substring(
 
             if dst_vid is not None:
                 vmap[dst_vid] = h
-                try:
-                    if resolver is not None and hasattr(resolver, 'mark_string'):
-                        resolver.mark_string(dst_vid)
-                    if resolver is not None and hasattr(resolver, 'string_ptrs'):
-                        resolver.string_ptrs[int(dst_vid)] = p
-                except Exception:
-                    pass
+                _mark_string_result(resolver, dst_vid, p)
             return True
 
     if hasattr(recv_val, 'type') and isinstance(recv_val.type, ir.IntType):
@@ -351,11 +343,7 @@ def _emit_substring(
         h = builder.call(callee, [recv_val, s, e], name="substring_h")
         if dst_vid is not None:
             vmap[dst_vid] = h
-            try:
-                if resolver is not None and hasattr(resolver, 'mark_string'):
-                    resolver.mark_string(dst_vid)
-            except Exception:
-                pass
+            _mark_string_result(resolver, dst_vid)
         return True
 
     # Pointer-based path
@@ -429,12 +417,9 @@ def _emit_lastindexof(
     # Pointer-based path
     recv_p = recv_val
     if hasattr(recv_p, 'type') and isinstance(recv_p.type, ir.PointerType):
-        try:
-            if isinstance(recv_p.type.pointee, ir.ArrayType):
-                c0 = ir.Constant(ir.IntType(32), 0)
-                recv_p = builder.gep(recv_p, [c0, c0], name="sb_gep_recv2")
-        except Exception:
-            pass
+        if isinstance(recv_p.type.pointee, ir.ArrayType):
+            c0 = ir.Constant(ir.IntType(32), 0)
+            recv_p = builder.gep(recv_p, [c0, c0], name="sb_gep_recv2")
     else:
         recv_p = ir.Constant(i8p, None)
 
