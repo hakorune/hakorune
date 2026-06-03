@@ -378,6 +378,19 @@ def report_dict(
         else "replacement_front_algorithm_shape",
         "not_consumed",
     )
+    hotcore_consumer_enabled = int_field(
+        benchmark,
+        f"{benchmark_subject_prefix}_replacement_front_hotcore_consumer_enabled"
+        if benchmark_subject_prefix
+        else "replacement_front_hotcore_consumer_enabled",
+        0,
+    )
+    hotcore_route = benchmark.get(
+        f"{benchmark_subject_prefix}_replacement_front_hotcore_route"
+        if benchmark_subject_prefix
+        else "replacement_front_hotcore_route",
+        "not_consumed_by_replacement_front",
+    )
     return {
         "output_contract": "hako-mimalloc-algorithm-coverage-v0",
         "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),
@@ -450,10 +463,10 @@ def report_dict(
         ),
         "hotcore_replacement_bridge_plan_v0": 1,
         "hotcore_replacement_bridge_report_only": 1,
-        "hotcore_replacement_consumer_enabled": 0,
+        "hotcore_replacement_consumer_enabled": hotcore_consumer_enabled,
         "hotcore_source_method_count": len(hotcore_methods),
         "hotcore_source_methods": ",".join(hotcore_methods) or "none",
-        "hotcore_replacement_route": "not_consumed_by_replacement_front",
+        "hotcore_replacement_route": hotcore_route,
         "rows": [row.__dict__ for row in rows],
     }
 
