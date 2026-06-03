@@ -31,6 +31,7 @@ use crate::mir::{
     map_lookup_fusion_plan::MapLookupFusionRoute,
     placement_effect::PlacementEffectRoute,
     receiver_snapshot_publication_plan::ReceiverSnapshotPublicationPlan,
+    route_decision::RouteDecision,
     storage_class::StorageClass,
     string_corridor::StringCorridorFact,
     string_corridor_placement::StringCorridorCandidate,
@@ -536,6 +537,13 @@ pub struct FunctionMetadata {
     /// method routes.  The first slice records checked DirectArrayI64
     /// candidates only; unchecked proofs and backend consumption land later.
     pub direct_array_access_plans: Vec<DirectArrayAccessPlan>,
+
+    /// Planner-owned fastpath-preferred route outcomes.
+    ///
+    /// This is a report-only view in v0. It records which route a planner
+    /// selected for one site and which fallback policy applies. MIRBuilder
+    /// must not produce these rows, and lowering must not re-decide them.
+    pub route_decisions: Vec<RouteDecision>,
 
     /// Backend-consumable extern call route plans.
     /// These own narrow extern surface policy decisions in MIR so backend

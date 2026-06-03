@@ -77,6 +77,7 @@ pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
+pub mod route_decision; // planner-owned fastpath-preferred selected route outcomes
 pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
 pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
 pub mod span_access_plan; // MIR-owned Span no-escape access plans

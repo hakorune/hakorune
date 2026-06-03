@@ -55,6 +55,7 @@ use super::{
     refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
+    route_decision::refresh_function_route_decisions,
     route_fixpoint::refresh_module_route_fixpoint,
     rune_plan_refresh::refresh_function_rune_plans,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
@@ -106,6 +107,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_range_index_facts(function);
     refresh_function_direct_array_extent_facts(function);
     refresh_function_direct_array_access_plans(function);
+    refresh_function_route_decisions(function);
     refresh_function_span_access_plans(function);
     refresh_function_fastpath_obligations(function);
     refresh_function_effect_summaries(function);
@@ -159,6 +161,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         // function-local pass. Recompute route consumers here so metadata such
         // as DirectArrayAccessPlan observes the final route surface.
         refresh_function_direct_array_access_plans(function);
+        refresh_function_route_decisions(function);
         refresh_function_span_access_plans(function);
         refresh_function_fastpath_obligations(function);
         refresh_function_effect_summaries(function);

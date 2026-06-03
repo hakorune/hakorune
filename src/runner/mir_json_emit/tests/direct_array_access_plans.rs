@@ -186,6 +186,7 @@ fn build_mir_json_root_emits_direct_array_access_plans() {
 
     crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(&mut function);
     crate::mir::direct_array_access_plan::refresh_function_direct_array_access_plans(&mut function);
+    crate::mir::route_decision::refresh_function_route_decisions(&mut function);
 
     let mut module = MirModule::new("json_direct_array_access_plan_test".to_string());
     module.add_function(function);
@@ -229,6 +230,27 @@ fn build_mir_json_root_emits_direct_array_access_plans() {
         store["proof_ids"],
         serde_json::json!(["exact_front_contract"])
     );
+
+    let decisions = root["functions"][0]["metadata"]["route_decisions"]
+        .as_array()
+        .expect("route_decisions");
+    assert_eq!(decisions.len(), 2);
+
+    let load_decision = &decisions[0];
+    assert_eq!(load_decision["route_id"], "route.decision");
+    assert_eq!(load_decision["site_id"], "b0.i0");
+    assert_eq!(load_decision["semantic_op"], "ArrayGet");
+    assert_eq!(load_decision["access_kind"], "direct_array_i64_load");
+    assert_eq!(load_decision["preferred_route"], "direct_array_i64_load");
+    assert_eq!(load_decision["selected_route"], "direct_array_i64_load");
+    assert_eq!(load_decision["fallback_route"], "generic_array_get_helper");
+    assert_eq!(load_decision["fallback_policy"], "opportunistic");
+    assert_eq!(
+        load_decision["proof_ids"],
+        serde_json::json!(["exact_front_contract"])
+    );
+    assert_eq!(load_decision["miss_reason"], serde_json::Value::Null);
+    assert_eq!(load_decision["source_plan_kind"], "DirectArrayAccessPlan");
     assert_eq!(store["cfg_shape"], "checked_branching");
     assert_eq!(store["store_semantics"], "append_or_overwrite");
 }

@@ -113,14 +113,14 @@ def site_record(function: str, kind: str, row: dict[str, Any]) -> dict[str, Any]
         "instruction_index": row.get("instruction_index"),
         "op": row.get("op"),
         "access_kind": row.get("access_kind", kind),
-        "route": row.get("route") or row.get("actual_route"),
+        "route": row.get("route") or row.get("selected_route") or row.get("actual_route"),
         "bounds_policy": row.get("bounds_policy"),
         "proof_kind": row.get("proof_kind"),
         "proof_ids": row.get("proof_ids") if isinstance(row.get("proof_ids"), list) else [],
         "fallback_policy": row.get("fallback_policy"),
-        "status": row.get("status") or row.get("summary"),
+        "status": row.get("status") or row.get("summary") or row.get("miss_reason") or "selected",
         "failure_code": row.get("failure_code"),
-        "failure_reason": row.get("failure_reason"),
+        "failure_reason": row.get("failure_reason") or row.get("miss_reason"),
         "source_span": row.get("source_span") if isinstance(row.get("source_span"), dict) else None,
         "source_text": row.get("source_text"),
     }
@@ -134,6 +134,10 @@ def render_summary(payload: dict[str, Any]) -> str:
         f"clean={counts['clean']}",
         f"fastpath_plan_count={counts['fastpath_plan_count']}",
         f"direct_array_access_plan_count={counts['direct_array_access_plan_count']}",
+        f"route_decision_count={counts['route_decision_count']}",
+        f"route_decision_fast_selected_count={counts['route_decision_fast_selected_count']}",
+        f"route_decision_slow_selected_count={counts['route_decision_slow_selected_count']}",
+        f"route_decision_missing_reason_count={counts['route_decision_missing_reason_count']}",
         f"direct_array_proved_unchecked_plan_count={counts['direct_array_proved_unchecked_plan_count']}",
         f"span_access_plan_count={counts['span_access_plan_count']}",
         f"fastpath_obligation_failed_count={counts['fastpath_obligation_failed_count']}",
@@ -166,6 +170,9 @@ def render_markdown(payload: dict[str, Any], topn: int) -> str:
         "|---|---:|",
         f"| FastPath plans | {counts['fastpath_plan_count']} |",
         f"| DirectArray plans | {counts['direct_array_access_plan_count']} |",
+        f"| Route decisions | {counts['route_decision_count']} |",
+        f"| Route decisions fast selected | {counts['route_decision_fast_selected_count']} |",
+        f"| Route decisions slow selected | {counts['route_decision_slow_selected_count']} |",
         f"| DirectArray proved unchecked | {counts['direct_array_proved_unchecked_plan_count']} |",
         f"| Span plans | {counts['span_access_plan_count']} |",
         f"| Failed obligations | {counts['fastpath_obligation_failed_count']} |",
@@ -247,6 +254,7 @@ def main() -> int:
     span_plans: list[tuple[str, dict[str, Any]]] = []
     regions: list[tuple[str, dict[str, Any]]] = []
     obligations: list[tuple[str, dict[str, Any]]] = []
+    route_decisions: list[tuple[str, dict[str, Any]]] = []
     effect_summaries: list[tuple[str, dict[str, Any]]] = []
     receiver_snapshot_plans: list[tuple[str, dict[str, Any]]] = []
     hotcore_summaries: list[tuple[str, dict[str, Any]]] = []
@@ -258,6 +266,7 @@ def main() -> int:
         span_plans.extend((name, row) for row in list_meta(function, "span_access_plans"))
         regions.extend((name, row) for row in list_meta(function, "required_fastpath_regions"))
         obligations.extend((name, row) for row in list_meta(function, "fastpath_obligations"))
+        route_decisions.extend((name, row) for row in list_meta(function, "route_decisions"))
         effect_summaries.extend((name, row) for row in list_meta(function, "effect_summaries"))
         receiver_snapshot_plans.extend(
             (name, row) for row in list_meta(function, "receiver_snapshot_publication_plans")
@@ -272,6 +281,7 @@ def main() -> int:
     direct_rows = [row for _, row in direct_plans]
     span_rows = [row for _, row in span_plans]
     obligation_rows = [row for _, row in obligations]
+    route_decision_rows = [row for _, row in route_decisions]
     effect_summary_rows = [row for _, row in effect_summaries]
     receiver_snapshot_rows = [row for _, row in receiver_snapshot_plans]
     hotcore_summary_rows = [row for _, row in hotcore_summaries]
@@ -283,6 +293,7 @@ def main() -> int:
     span_op_counts = count_by(span_rows, "op")
     span_bounds_counts = count_by(span_rows, "bounds_policy")
     obligation_status_counts = count_by(obligation_rows, "status")
+    route_decision_fallback_policy_counts = count_by(route_decision_rows, "fallback_policy")
     effect_summary_status_counts = count_by(effect_summary_rows, "summary")
     effect_summary_candidate_counts = count_by(effect_summary_rows, "candidate_kind")
     receiver_snapshot_status_counts = count_by(receiver_snapshot_rows, "summary")
@@ -298,6 +309,16 @@ def main() -> int:
     )
 
     fastpath_plan_count = len(direct_plans) + len(span_plans)
+    route_decision_slow_selected_count = sum(
+        1
+        for row in route_decision_rows
+        if str(row.get("selected_route", "")).startswith("generic_")
+        or str(row.get("selected_route", "")).endswith("_fallback")
+    )
+    route_decision_missing_reason_count = sum(
+        1 for row in route_decision_rows if row.get("miss_reason") is not None
+    )
+    route_decision_fast_selected_count = len(route_decision_rows) - route_decision_slow_selected_count
     failed_obligation_count = obligation_status_counts["failed"]
     hotcore_plan_failure_count = hotcore_summary_status_counts["failed"] + hotcore_call_status_counts["failed"]
     direct_exact_static_call_lowered_count = sum(
@@ -329,6 +350,8 @@ def main() -> int:
         function_plan_counts[name] += 1
     for name, _ in span_plans:
         function_plan_counts[name] += 1
+    for name, _ in route_decisions:
+        function_plan_counts[name] += 1
 
     lines = [
         "output_contract=hako-check-fastpath-explain-v0",
@@ -344,6 +367,12 @@ def main() -> int:
         f"selected_function_count={len(selected)}",
         f"fastpath_plan_count={fastpath_plan_count}",
         f"direct_array_access_plan_count={len(direct_plans)}",
+        f"route_decision_count={len(route_decisions)}",
+        f"route_decision_fast_selected_count={route_decision_fast_selected_count}",
+        f"route_decision_slow_selected_count={route_decision_slow_selected_count}",
+        f"route_decision_missing_reason_count={route_decision_missing_reason_count}",
+        f"route_decision_require_fastpath_count={route_decision_fallback_policy_counts['require_fastpath']}",
+        f"route_decision_opportunistic_count={route_decision_fallback_policy_counts['opportunistic']}",
         f"direct_array_load_plan_count={direct_op_counts['load']}",
         f"direct_array_store_plan_count={direct_op_counts['store']}",
         f"direct_array_checked_plan_count={direct_bounds_counts['checked']}",
@@ -515,6 +544,7 @@ def main() -> int:
     counts = kv_payload(lines)
     site_rows: list[dict[str, Any]] = []
     site_rows.extend(site_record(name, "direct_array_access", row) for name, row in direct_plans)
+    site_rows.extend(site_record(name, "route_decision", row) for name, row in route_decisions)
     site_rows.extend(site_record(name, "span_access", row) for name, row in span_plans)
     site_rows.extend(site_record(name, "fastpath_obligation", row) for name, row in obligations)
     report_payload = {

@@ -457,6 +457,23 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "store_semantics": plan.store_semantics().as_str(),
             })
         }).collect::<Vec<_>>(),
+        "route_decisions": metadata.route_decisions.iter().map(|decision| {
+            json!({
+                "route_id": "route.decision",
+                "site_id": decision.site_id,
+                "block": decision.block.as_u32(),
+                "instruction_index": decision.instruction_index,
+                "semantic_op": decision.semantic_op,
+                "access_kind": decision.access_kind,
+                "preferred_route": decision.preferred_route,
+                "selected_route": decision.selected_route,
+                "fallback_route": decision.fallback_route,
+                "fallback_policy": decision.fallback_policy,
+                "proof_ids": decision.proof_ids,
+                "miss_reason": decision.miss_reason,
+                "source_plan_kind": decision.source_plan_kind,
+            })
+        }).collect::<Vec<_>>(),
         "array_rmw_window_routes": metadata.array_rmw_window_routes.iter().map(|route| {
             json!({
                 "route_id": "array.rmw_add1.window",
