@@ -9,14 +9,13 @@ from typing import Dict, List, Optional, Any
 from instructions.string_fast import can_reuse_literal_string_handle
 from instructions.typed_object_exact import exact_object_plan_for_box
 from instructions.user_box_local import build_local_user_box_aggregate_for_newbox
-from utils.resolver_helpers import mark_arrayrepr_direct_i64, mark_as_handle
-
-DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
-PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
-
-
-def _direct_array_i64_constructor_enabled() -> bool:
-    return os.environ.get("HAKO_ARRAY_SLOT_STORE") == "direct_array_i64_exact"
+from instructions.mir_call.direct_array_birth import (
+    DIRECT_ARRAY_I64_BIRTH_SYMBOL,
+    PUBLIC_ARRAY_BIRTH_SYMBOL,
+    mark_direct_array_i64_origin,
+    should_use_direct_array_i64_birth,
+)
+from utils.resolver_helpers import mark_as_handle
 
 
 def lower_newbox(
@@ -46,17 +45,6 @@ def lower_newbox(
     def _mark_box_handle():
         try:
             mark_as_handle(resolver, dst_vid, box_type)
-        except Exception:
-            pass
-
-    def _mark_direct_array_i64_origin():
-        if resolver is None:
-            return
-        try:
-            if not hasattr(resolver, "direct_array_i64_ids"):
-                resolver.direct_array_i64_ids = set()
-            resolver.direct_array_i64_ids.add(int(dst_vid))
-            mark_arrayrepr_direct_i64(resolver, int(dst_vid))
         except Exception:
             pass
 
@@ -171,11 +159,10 @@ def lower_newbox(
 
     # Core fast paths
     if box_type in ("ArrayBox", "DirectArrayI64", "MapBox"):
-        direct_array_birth = box_type == "ArrayBox" and _direct_array_i64_constructor_enabled()
-        explicit_direct_array_birth = box_type == "DirectArrayI64"
+        direct_array_birth = should_use_direct_array_i64_birth(box_type)
         birth_name = (
             DIRECT_ARRAY_I64_BIRTH_SYMBOL
-            if direct_array_birth or explicit_direct_array_birth
+            if direct_array_birth
             else PUBLIC_ARRAY_BIRTH_SYMBOL if box_type == "ArrayBox" else "nyash.map.birth_h"
         )
         birth = None
@@ -188,8 +175,8 @@ def lower_newbox(
         handle = builder.call(birth, [], name=f"birth_{box_type}")
         vmap[dst_vid] = handle
         _mark_box_handle()
-        if direct_array_birth or explicit_direct_array_birth:
-            _mark_direct_array_i64_origin()
+        if direct_array_birth:
+            mark_direct_array_i64_origin(resolver, dst_vid)
         return
     # Prefer variadic shim: nyash.env.box.new_i64x(type_name, argc, a1, a2, a3, a4)
     new_i64x = None

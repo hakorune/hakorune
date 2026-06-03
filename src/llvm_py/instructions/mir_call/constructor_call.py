@@ -7,28 +7,13 @@ Supports built-in boxes (StringBox, ArrayBox, etc.) and plugin boxes.
 
 from typing import Dict, Any, Optional
 from llvmlite import ir
-import os
-from utils.resolver_helpers import mark_arrayrepr_direct_i64
 from .arg_resolver import make_call_arg_resolver
-
-DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
-PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
-
-
-def _direct_array_i64_constructor_enabled() -> bool:
-    return os.environ.get("HAKO_ARRAY_SLOT_STORE") == "direct_array_i64_exact"
-
-
-def _mark_direct_array_i64_origin(resolver, dst_vid) -> None:
-    if resolver is None or dst_vid is None:
-        return
-    try:
-        if not hasattr(resolver, "direct_array_i64_ids"):
-            resolver.direct_array_i64_ids = set()
-        resolver.direct_array_i64_ids.add(int(dst_vid))
-        mark_arrayrepr_direct_i64(resolver, int(dst_vid))
-    except Exception:
-        pass
+from .direct_array_birth import (
+    DIRECT_ARRAY_I64_BIRTH_SYMBOL,
+    PUBLIC_ARRAY_BIRTH_SYMBOL,
+    mark_direct_array_i64_origin,
+    should_use_direct_array_i64_birth,
+)
 
 
 def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resolver, owner):
@@ -89,7 +74,7 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
     elif box_type in ("ArrayBox", "DirectArrayI64"):
         # Default construction remains public ArrayBox. The DirectArray symbol
         # is exact-lane only and produces a distinct direct-buffer handle kind.
-        direct_array_birth = box_type == "DirectArrayI64" or _direct_array_i64_constructor_enabled()
+        direct_array_birth = should_use_direct_array_i64_birth(box_type)
         callee = _declare(
             DIRECT_ARRAY_I64_BIRTH_SYMBOL if direct_array_birth else PUBLIC_ARRAY_BIRTH_SYMBOL,
             i64,
@@ -97,7 +82,7 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
         )
         result = builder.call(callee, [], name="unified_arr_new")
         if direct_array_birth:
-            _mark_direct_array_i64_origin(resolver, dst_vid)
+            mark_direct_array_i64_origin(resolver, dst_vid)
 
     elif box_type == "MapBox":
         # Align with kernel export (birth_h)
