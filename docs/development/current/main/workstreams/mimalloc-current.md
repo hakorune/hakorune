@@ -197,11 +197,17 @@ free_release_owned_direct_probe:
   median_ops_per_sec=8,522,097.800
   previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
   decision=nonkeeper
+
+hotcore_cold_init_probe:
+  attempted_change=mark generated init_bins as cold,noinline
+  median_ops_per_sec=8,735,302.853
+  previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
+  decision=nonkeeper
 ```
 
-Interpretation: the asm shape got thinner, but end-to-end mixed-ws throughput
-regressed. Keep the existing HotCore/PageModel bridge and do not re-open this
-probe without new perf owner evidence.
+Interpretation: local C-shape cleanups can improve isolated assembly while
+regressing end-to-end mixed-ws throughput. Keep the existing HotCore/PageModel
+bridge and do not re-open these probes without new perf owner evidence.
 
 The same report carries the current PageModel hot-array readiness view:
 
