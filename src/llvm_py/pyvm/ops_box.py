@@ -8,6 +8,30 @@ from typing import Any, Dict, List
 import os
 
 
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
+def _method_owner_name(fn) -> str:
+    name = getattr(fn, "name", "")
+    if isinstance(name, bytes):
+        name = name.decode(errors="replace")
+    if isinstance(name, str) and "." in name:
+        return name.split(".")[0]
+    return ""
+
+
+def _read_text_file(path: str) -> str | None:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return None
+
+
 def op_newbox(owner, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
     btype = inst.get("type")
     # Sandbox gate: only allow minimal boxes when sandbox is active
@@ -50,12 +74,7 @@ def op_boxcall(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
     # boxcall with a synthetic receiver marker '__me__'. Resolve it by
     # dispatching to the current box's lowered function if available.
     if isinstance(recv, str) and recv == "__me__" and isinstance(method, str):
-        box_name = ""
-        try:
-            if "." in fn.name:
-                box_name = fn.name.split(".")[0]
-        except Exception:
-            box_name = ""
+        box_name = _method_owner_name(fn)
         if box_name:
             cand = f"{box_name}.{method}/{len(args)}"
             callee = owner.functions.get(cand)
@@ -105,13 +124,9 @@ def op_boxcall(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
             ok = 0
             content = None
             if mode == "r":
-                try:
-                    with open(path, "r", encoding="utf-8") as f:
-                        content = f.read()
+                content = _read_text_file(path)
+                if content is not None:
                     ok = 1
-                except Exception:
-                    ok = 0
-                    content = None
             recv["__open"] = (ok == 1)
             recv["__path"] = path
             recv["__content"] = content
@@ -250,10 +265,7 @@ def op_boxcall(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
             else:
                 out = 0
         elif method == "at":
-            try:
-                idx = int(args[0]) if args else 0
-            except Exception:
-                idx = 0
+            idx = _safe_int(args[0]) if args else 0
             if isinstance(node, list) and 0 <= idx < len(node):
                 out = {"__box__": "JsonNodeBox", "__node": node[idx]}
             else:
@@ -304,10 +316,7 @@ def op_boxcall(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
         s = str(recv)
         needle = str(args[0]) if args else ""
         if len(args) > 1 and args[1] is not None:
-            try:
-                start = int(args[1])
-            except Exception:
-                start = 0
+            start = _safe_int(args[1])
             out = s.rfind(needle, start)
         else:
             out = s.rfind(needle)
@@ -316,10 +325,7 @@ def op_boxcall(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
         s = str(recv)
         needle = str(args[0]) if args else ""
         if len(args) > 1 and args[1] is not None:
-            try:
-                start = int(args[1])
-            except Exception:
-                start = 0
+            start = _safe_int(args[1])
             out = s.find(needle, start)
         else:
             out = s.find(needle)
