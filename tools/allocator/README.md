@@ -211,6 +211,9 @@ page_model_hot_array_perf_delta_measurement_plan_v0=1
 page_model_hot_array_perf_delta_ready=...
 page_model_hot_array_perf_delta_blocker=...
 page_model_hot_array_perf_delta_next_bridge=...
+top_instruction_category=...
+hot_instruction_0_category=...
+hot_instruction_0_asm=...
 ```
 
 If the report says:
@@ -221,12 +224,16 @@ symbol_collapse_detected=1
 symbol_attribution_available=0
 instruction_attribution_available=1
 page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
+top_instruction_category=store_like
+hot_instruction_0_asm=mov    %rdi,0xa0(%rax)
 ```
 
 then the current perf report can still guide instruction-shape cleanup, but it
 cannot prove a DirectArray/PageModel-specific perf delta by symbol ownership.
 The next bridge is an asm instruction classifier or a perf mode that separates
-the hot body more clearly.
+the hot body more clearly. If the top instruction category is actionable
+(`store_like`, `branch`, `memory`, or `call`), inspect that category before
+opening another source rewrite.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

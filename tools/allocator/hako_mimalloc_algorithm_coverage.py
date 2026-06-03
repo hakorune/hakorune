@@ -745,6 +745,18 @@ def report_dict(
         "perf_top_instruction_mnemonic": str_field(
             perf_attribution, "top_instruction_mnemonic", "none"
         ),
+        "perf_top_instruction_category": str_field(
+            perf_attribution, "top_instruction_category", "none"
+        ),
+        "perf_hot_instruction_report_count": int_field(
+            perf_attribution, "hot_instruction_report_count", 0
+        ),
+        "perf_hot_instruction_0_category": str_field(
+            perf_attribution, "hot_instruction_0_category", "none"
+        ),
+        "perf_hot_instruction_0_asm": str_field(
+            perf_attribution, "hot_instruction_0_asm", "none"
+        ),
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
@@ -871,6 +883,10 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_annotate_nonzero_instruction_count",
         "perf_top_instruction_percent",
         "perf_top_instruction_mnemonic",
+        "perf_top_instruction_category",
+        "perf_hot_instruction_report_count",
+        "perf_hot_instruction_0_category",
+        "perf_hot_instruction_0_asm",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",

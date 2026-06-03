@@ -440,6 +440,7 @@ page_model_hot_array_perf_delta_measurement_plan_v0=1
 page_model_hot_array_perf_delta_ready=0
 page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
 page_model_hot_array_perf_delta_next_bridge=asm_instruction_classifier_or_in_process_perf_mode
+top_instruction_category=store_like
 ```
 
 Interpretation: the source route is clean, and perf has enough annotated
@@ -454,6 +455,7 @@ With benchmark, fastpath, and perf attribution reports all supplied,
 ```text
 perf_attribution_report_consumed=1
 structural_owner_next_action=asm_instruction_classifier_or_in_process_perf_mode
+perf_top_instruction_category=store_like
 ```
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from

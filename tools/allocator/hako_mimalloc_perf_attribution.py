@@ -133,6 +133,20 @@ def _is_arithmetic_or_compare(ins: AnnotatedInstruction) -> bool:
     )
 
 
+def _instruction_category(ins: AnnotatedInstruction) -> str:
+    if _is_call(ins):
+        return "call"
+    if _is_branch(ins):
+        return "branch"
+    if _is_store_like(ins):
+        return "store_like"
+    if _is_memory(ins):
+        return "memory"
+    if _is_arithmetic_or_compare(ins):
+        return "arithmetic_compare"
+    return "other"
+
+
 def _kv_bool(value: bool) -> str:
     return "1" if value else "0"
 
@@ -209,6 +223,7 @@ def emit_report(args: argparse.Namespace) -> str:
                 f"top_instruction_percent={top_instruction.percent:.2f}",
                 f"top_instruction_address={top_instruction.address}",
                 f"top_instruction_mnemonic={top_instruction.mnemonic}",
+                f"top_instruction_category={_instruction_category(top_instruction)}",
                 f"top_instruction_asm={top_instruction.asm}",
             ]
         )
@@ -218,7 +233,24 @@ def emit_report(args: argparse.Namespace) -> str:
                 "top_instruction_percent=0.00",
                 "top_instruction_address=",
                 "top_instruction_mnemonic=",
+                "top_instruction_category=none",
                 "top_instruction_asm=",
+            ]
+        )
+    hot_instructions = sorted(nonzero, key=lambda ins: ins.percent, reverse=True)[
+        : args.hot_limit
+    ]
+    lines.append(f"hot_instruction_report_limit={args.hot_limit}")
+    lines.append(f"hot_instruction_report_count={len(hot_instructions)}")
+    for idx, ins in enumerate(hot_instructions):
+        prefix = f"hot_instruction_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_percent={ins.percent:.2f}",
+                f"{prefix}_address={ins.address}",
+                f"{prefix}_mnemonic={ins.mnemonic}",
+                f"{prefix}_category={_instruction_category(ins)}",
+                f"{prefix}_asm={ins.asm}",
             ]
         )
     lines.append("summary=ok")
@@ -231,7 +263,10 @@ def main() -> int:
     parser.add_argument("--perf-annotate", type=Path)
     parser.add_argument("--symbol", default="ny_main")
     parser.add_argument("--collapse-threshold", type=float, default=90.0)
+    parser.add_argument("--hot-limit", type=int, default=8)
     args = parser.parse_args()
+    if args.hot_limit < 1:
+        parser.error("--hot-limit must be >= 1")
     print(emit_report(args), end="")
     return 0
 
