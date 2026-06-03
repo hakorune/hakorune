@@ -188,6 +188,21 @@ because it consumes the next `.hako` semantic boundary and improves over the
 same-run page-bins refresh. It is not a winner/performance claim against the
 older page-bins best sample or C mimalloc.
 
+Rejected local probe:
+
+```text
+free_release_owned_direct_probe:
+  attempted_change=replace free() out-param find_owned call with generated release_owned(ptr)
+  asm_effect=free stack canary/out-param call removed
+  median_ops_per_sec=8,522,097.800
+  previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
+  decision=nonkeeper
+```
+
+Interpretation: the asm shape got thinner, but end-to-end mixed-ws throughput
+regressed. Keep the existing HotCore/PageModel bridge and do not re-open this
+probe without new perf owner evidence.
+
 The same report carries the current PageModel hot-array readiness view:
 
 ```text
