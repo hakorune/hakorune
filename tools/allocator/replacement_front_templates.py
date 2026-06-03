@@ -966,6 +966,9 @@ static int find_owned(
     if product_pages_nonlinear_lookup:
         find_owned_source = ""
         page_index_source = f"""
+/* Benchmark-only ownership index for the page-bins front. This is not the
+ * product PageMap, allocator activation, or a full .hako mimalloc algorithm
+ * claim. */
 #define HAKO_PAGE_INDEX_TABLE_CAP 65536u
 #define HAKO_PAGE_INDEX_SHIFT 12u
 
