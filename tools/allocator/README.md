@@ -193,6 +193,7 @@ state_report_consumed=1
 record_state_field_access_plan_count=...
 record_state_field_access_ready=1
 record_state_field_access_lowering_enabled=0
+record_state_route_decision_enabled=0
 record_state_residence_next_bridge=select_record_state_lowering_owner
 ```
 

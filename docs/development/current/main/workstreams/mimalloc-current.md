@@ -406,6 +406,20 @@ record_state_residence_next_bridge=select_record_state_lowering_owner
 This is still metadata only. It does not create a runtime `PageState`, direct
 record lowering, whole-record ABI, or source migration permission.
 
+RouteDecision stop-line:
+
+```text
+record_state_field_access_lowering_enabled=0
+record_state_route_decision_enabled=0
+```
+
+Do not add `RecordStateFieldAccessPlan` rows to `RouteDecision` while lowering
+is disabled. `hako_check fastpath-explain --profile direct-memory` is currently
+the DirectArray/direct-memory route truth and must not be polluted with
+report-only record-state candidates. The next accepted slice must first choose
+the lowering owner and flip a narrow `lowering_enabled` contract, then add
+RouteDecision rows for those enabled sites.
+
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
 

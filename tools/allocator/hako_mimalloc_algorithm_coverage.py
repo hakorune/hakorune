@@ -899,6 +899,7 @@ def report_dict(
         "record_state_field_access_lowering_enabled": int_field(
             state, "record_state_field_access_lowering_enabled", 0
         ),
+        "record_state_route_decision_enabled": 0,
         "record_state_residence_owner_box": "HakoAllocPageModel",
         "record_state_residence_candidate_record": "PageState",
         "record_state_residence_static_candidate_fields": ",".join(
@@ -1090,6 +1091,7 @@ def emit_text(data: dict[str, object]) -> None:
         "record_state_field_access_plan_count",
         "record_state_field_access_ready",
         "record_state_field_access_lowering_enabled",
+        "record_state_route_decision_enabled",
         "record_state_residence_owner_box",
         "record_state_residence_candidate_record",
         "record_state_residence_static_candidate_fields",
