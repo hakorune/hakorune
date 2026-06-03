@@ -12,6 +12,8 @@ import os
 
 from .intrinsic_registry import is_length_like_method
 
+_SAFE_AUTO_SPECIALIZE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _is_stringbox_value_type(value_type: Any) -> bool:
     if not isinstance(value_type, dict):
@@ -51,7 +53,7 @@ def receiver_is_stringish(resolver: Any, receiver_vid: Optional[int]) -> bool:
     try:
         if hasattr(resolver, "is_stringish") and resolver.is_stringish(vid):
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("receiver_is_stringish resolver fact", exc)
 
     # Secondary hint: value_types facts.
@@ -59,7 +61,7 @@ def receiver_is_stringish(resolver: Any, receiver_vid: Optional[int]) -> bool:
         value_types = getattr(resolver, "value_types", None)
         if isinstance(value_types, dict) and _is_stringbox_value_type(value_types.get(vid)):
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("receiver_is_stringish value_types", exc)
 
     return False
@@ -76,14 +78,14 @@ def receiver_is_arrayish(resolver: Any, receiver_vid: Optional[int]) -> bool:
     try:
         if hasattr(resolver, "is_arrayish") and resolver.is_arrayish(vid):
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("receiver_is_arrayish resolver fact", exc)
 
     try:
         value_types = getattr(resolver, "value_types", None)
         if isinstance(value_types, dict) and _is_arraybox_value_type(value_types.get(vid)):
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("receiver_is_arrayish value_types", exc)
 
     return False
@@ -100,14 +102,14 @@ def receiver_is_mapish(resolver: Any, receiver_vid: Optional[int]) -> bool:
     try:
         if hasattr(resolver, "is_mapish") and resolver.is_mapish(vid):
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("receiver_is_mapish resolver fact", exc)
 
     try:
         value_types = getattr(resolver, "value_types", None)
         if isinstance(value_types, dict) and _is_mapbox_value_type(value_types.get(vid)):
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("receiver_is_mapish value_types", exc)
 
     return False
@@ -183,7 +185,7 @@ def _value_is_i64_hint(resolver: Any, value_vid: Optional[int]) -> bool:
         integerish_ids = getattr(resolver, "integerish_ids", None)
         if isinstance(integerish_ids, set) and vid in integerish_ids:
             return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("value_is_i64 integerish_ids", exc)
 
     # Secondary hint: explicit value type metadata.
@@ -198,7 +200,7 @@ def _value_is_i64_hint(resolver: Any, value_vid: Optional[int]) -> bool:
                 kind = str(value_type.get("kind") or "").lower()
                 if kind in ("i64", "int", "integer"):
                     return True
-    except Exception as exc:
+    except _SAFE_AUTO_SPECIALIZE_EXC as exc:
         _raise_if_strict("value_is_i64 value_types", exc)
 
     return False
