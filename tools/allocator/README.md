@@ -236,11 +236,12 @@ Expected current handoff:
 
 ```text
 perf_attribution_report_consumed=1
-structural_owner_next_action=split_init_public_stores_from_primitive_hot_state_stores
+structural_owner_next_action=split_or_sink_public_init_stores_around_primitive_hot_state_body
 page_model_hot_array_perf_delta_ready=0
 page_model_hot_array_perf_delta_blocker=missing_directarray_or_pagemodel_symbol_attribution
 perf_backend_store_shape_classifier_v0=1
-perf_backend_store_shape_selected=mixed_primitive_and_public_store_shape
+perf_backend_store_shape_selected=primitive_dominant_mixed_store_shape
+perf_backend_store_shape_weighted_dominant_bucket=primitive_hot_state
 ```
 
 The next measurement step is perf/asm attribution, not another source migration.
@@ -285,6 +286,9 @@ backend_store_shape_selected=...
 backend_store_shape_next_bridge=...
 backend_store_shape_hot_store_field_buckets=...
 backend_store_shape_context_field_buckets=...
+backend_store_shape_weighted_dominant_bucket=...
+backend_store_shape_primitive_hot_state_store_percent=...
+backend_store_shape_public_or_proof_store_percent=...
 ```
 
 If the report says:
@@ -300,14 +304,15 @@ top_instruction_field_hints=0xa0:free_top
 hot_instruction_0_asm=mov    %rdi,0xa0(%rax)
 hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
 backend_store_shape_classifier_v0=1
-backend_store_shape_selected=mixed_primitive_and_public_store_shape
-backend_store_shape_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
+backend_store_shape_selected=primitive_dominant_mixed_store_shape
+backend_store_shape_next_bridge=split_or_sink_public_init_stores_around_primitive_hot_state_body
+backend_store_shape_weighted_dominant_bucket=primitive_hot_state
 ```
 
 then the current perf report can still guide instruction-shape cleanup, but it
 cannot prove a DirectArray/PageModel-specific perf delta by symbol ownership.
-The next bridge is to split initialization/public stores from primitive
-hot-state stores, then remeasure. If the top instruction category is actionable
+The next bridge is to split or sink initialization/public stores around the
+primitive hot-state body, then remeasure. If the top instruction category is actionable
 (`store_like`, `branch`, `memory`, or `call`), inspect that category before
 opening another source rewrite. Field hints are layout candidates from
 `app.mir.json`; they intentionally skip scaled DirectArray element operands and
@@ -324,7 +329,8 @@ bash tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh \
 ```
 
 The current expected shape still reports `free_top` as the top store-like
-instruction and keeps `backend_store_shape_selected=mixed_primitive_and_public_store_shape`.
+instruction and keeps
+`backend_store_shape_selected=primitive_dominant_mixed_store_shape`.
 
 When the attribution report is passed into
 `hako_mimalloc_algorithm_coverage.py`, the coverage overlay buckets those field
@@ -361,11 +367,12 @@ replacement_front_product_pages_non_linear_lookup_probe_closed=1
 replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
 replacement_front_product_pages_linear_probe_closed=1
 next_perf_owner_selection_plan_v0=1
-next_perf_owner_selected=mixed_primitive_and_public_store_shape
-next_perf_owner_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
+next_perf_owner_selected=primitive_dominant_mixed_store_shape
+next_perf_owner_next_bridge=split_or_sink_public_init_stores_around_primitive_hot_state_body
 perf_backend_store_shape_classifier_v0=1
-perf_backend_store_shape_selected=mixed_primitive_and_public_store_shape
+perf_backend_store_shape_selected=primitive_dominant_mixed_store_shape
 perf_backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,block_size:public_semantics
+perf_backend_store_shape_weighted_dominant_bucket=primitive_hot_state
 ```
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports

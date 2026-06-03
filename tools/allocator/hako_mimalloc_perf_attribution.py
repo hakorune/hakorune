@@ -234,9 +234,52 @@ def _count_public_or_proof(fields: list[str]) -> int:
     )
 
 
+def _store_bucket_for_fields(fields: list[str]) -> str:
+    if not fields:
+        return "unknown"
+    buckets = [bucket_for_field(field) for field in fields]
+    if any(bucket == "primitive_hot_state" for bucket in buckets):
+        return "primitive_hot_state"
+    if any("public_semantics" in bucket or "proof_evidence" in bucket for bucket in buckets):
+        return "public_or_proof"
+    if any(bucket == "direct_array_owner" for bucket in buckets):
+        return "direct_array_owner"
+    if any(bucket == "observer_counter" for bucket in buckets):
+        return "observer_counter"
+    return "unknown"
+
+
+def _store_bucket_weights(
+    instructions: list[AnnotatedInstruction],
+    field_offsets: dict[int, str],
+) -> dict[str, float]:
+    weights = {
+        "primitive_hot_state": 0.0,
+        "public_or_proof": 0.0,
+        "direct_array_owner": 0.0,
+        "observer_counter": 0.0,
+        "unknown": 0.0,
+    }
+    for ins in instructions:
+        if not _is_store_like(ins):
+            continue
+        fields = _field_names_for_asm(ins.asm, field_offsets)
+        bucket = _store_bucket_for_fields(fields)
+        weights[bucket] = weights.get(bucket, 0.0) + ins.percent
+    return weights
+
+
+def _dominant_store_bucket(weights: dict[str, float]) -> str:
+    if not weights:
+        return "none"
+    bucket, value = max(weights.items(), key=lambda item: item[1])
+    return bucket if value > 0.0 else "none"
+
+
 def _select_backend_store_shape(
     store_fields: list[str],
     context_fields: list[str],
+    weighted_dominant_bucket: str,
 ) -> tuple[str, str]:
     fields = store_fields or context_fields
     if not fields:
@@ -245,6 +288,11 @@ def _select_backend_store_shape(
     public_or_proof = _count_public_or_proof(fields)
     direct_array = _count_bucket(fields, "direct_array_owner")
     if primitive > 0 and public_or_proof > 0:
+        if weighted_dominant_bucket == "primitive_hot_state":
+            return (
+                "primitive_dominant_mixed_store_shape",
+                "split_or_sink_public_init_stores_around_primitive_hot_state_body",
+            )
         return (
             "mixed_primitive_and_public_store_shape",
             "split_init_public_stores_from_primitive_hot_state_stores",
@@ -418,8 +466,14 @@ def emit_report(args: argparse.Namespace) -> str:
                 field_offsets,
             ),
         )
+    hot_store_bucket_weights = _store_bucket_weights(hot_instructions, field_offsets)
+    hot_store_dominant_bucket = _dominant_store_bucket(hot_store_bucket_weights)
     backend_store_shape_selected, backend_store_shape_next_bridge = (
-        _select_backend_store_shape(hot_store_fields, hot_context_fields)
+        _select_backend_store_shape(
+            hot_store_fields,
+            hot_context_fields,
+            hot_store_dominant_bucket,
+        )
     )
 
     symbol_attribution_available = (
@@ -479,6 +533,12 @@ def emit_report(args: argparse.Namespace) -> str:
         f"backend_store_shape_primitive_hot_state_field_count={_count_bucket(hot_store_fields, 'primitive_hot_state')}",
         f"backend_store_shape_public_or_proof_field_count={_count_public_or_proof(hot_store_fields)}",
         f"backend_store_shape_direct_array_owner_field_count={_count_bucket(hot_store_fields, 'direct_array_owner')}",
+        f"backend_store_shape_weighted_dominant_bucket={hot_store_dominant_bucket}",
+        f"backend_store_shape_primitive_hot_state_store_percent={hot_store_bucket_weights.get('primitive_hot_state', 0.0):.2f}",
+        f"backend_store_shape_public_or_proof_store_percent={hot_store_bucket_weights.get('public_or_proof', 0.0):.2f}",
+        f"backend_store_shape_direct_array_owner_store_percent={hot_store_bucket_weights.get('direct_array_owner', 0.0):.2f}",
+        f"backend_store_shape_observer_counter_store_percent={hot_store_bucket_weights.get('observer_counter', 0.0):.2f}",
+        f"backend_store_shape_unknown_store_percent={hot_store_bucket_weights.get('unknown', 0.0):.2f}",
     ]
     if top_instruction is not None:
         lines.extend(

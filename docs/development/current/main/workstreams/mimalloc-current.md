@@ -337,15 +337,18 @@ coverage_after_product_pages_closure:
   replacement_front_product_pages_non_linear_lookup_probe_closed=1
   replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
   structural_owner_selected=page_model_hot_array_source_route_measurement
-  structural_owner_next_action=split_init_public_stores_from_primitive_hot_state_stores
+  structural_owner_next_action=split_or_sink_public_init_stores_around_primitive_hot_state_body
   structural_owner_candidate_1_ready=0
   next_perf_owner_selection_plan_v0=1
-  next_perf_owner_selected=mixed_primitive_and_public_store_shape
+  next_perf_owner_selected=primitive_dominant_mixed_store_shape
   next_perf_owner_selected_reason=backend_store_shape_classifier_ready
-  next_perf_owner_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
+  next_perf_owner_next_bridge=split_or_sink_public_init_stores_around_primitive_hot_state_body
   perf_backend_store_shape_classifier_v0=1
-  perf_backend_store_shape_selected=mixed_primitive_and_public_store_shape
+  perf_backend_store_shape_selected=primitive_dominant_mixed_store_shape
   perf_backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,block_size:public_semantics
+  perf_backend_store_shape_weighted_dominant_bucket=primitive_hot_state
+  perf_backend_store_shape_primitive_hot_state_store_percent=42.70
+  perf_backend_store_shape_public_or_proof_store_percent=5.79
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -356,9 +359,11 @@ ownership table also regresses the same-run eager-init baseline, so product
 pages stay parked until a different structural owner or workload evidence
 selects them. After product-pages indexed lookup and record-state lowering are
 both closed as nonkeepers for this slice, the perf attribution report now
-classifies the backend store shape as mixed primitive hot-state and
-public/init-store traffic. The next concrete owner is to split those stores
-before another generated-C local probe. The bins counter-skip
+classifies the backend store shape as primitive-dominant mixed traffic:
+primitive hot-state stores dominate, while public/init/proof stores are still
+visible enough to avoid a clean owner claim. The next concrete owner is to
+split or sink public/init stores around the primitive hot-state body before
+another generated-C local probe. The bins counter-skip
 probe removes hot count writes but does not improve median throughput. The
 free-only ownership decode makes the generated `free` assembly cleaner, but it
 also fails the median-throughput keeper bar. The large-first ownership scan
@@ -388,8 +393,9 @@ perf_top_instruction_category=store_like
 perf_top_instruction_field_hints=0xa0:free_top
 hot_instruction_0_context=...requested_bytes...free_top...peak_used...
 backend_store_shape_classifier_v0=1
-backend_store_shape_selected=mixed_primitive_and_public_store_shape
-backend_store_shape_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
+backend_store_shape_selected=primitive_dominant_mixed_store_shape
+backend_store_shape_next_bridge=split_or_sink_public_init_stores_around_primitive_hot_state_body
+backend_store_shape_weighted_dominant_bucket=primitive_hot_state
 ```
 
 A repeat-amplified perf/asm check keeps the same owner shape:
@@ -403,14 +409,27 @@ symbol_collapse_detected=1
 top_instruction_percent=37.86
 top_instruction_category=store_like
 top_instruction_field_hints=0xa0:free_top
-backend_store_shape_selected=mixed_primitive_and_public_store_shape
+backend_store_shape_selected=primitive_dominant_mixed_store_shape
 backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,local_free:direct_array_owner,reserved:public_semantics,used:primitive_hot_state,local_free_count:observer_counter
+backend_store_shape_weighted_dominant_bucket=primitive_hot_state
+backend_store_shape_primitive_hot_state_store_percent=42.70
+backend_store_shape_public_or_proof_store_percent=5.79
 ```
+
+Attempted symbol-specific annotate on the same `perf.data` for
+`HakoAllocPageModel.acquireFreshSmall/1`,
+`HakoAllocPageModel.releaseLocalKnownLive/1`, and `Main.runOne/2` produced no
+samples even though the global report has samples under `ny_main`. Treat this
+as inlined/fused hot-body evidence for this measurement; do not wait on
+symbol-specific annotate before classifying the `ny_main` instruction shape.
 
 Do not reopen counter deletion/gating from this evidence. `requested_bytes`
 is public/proof-visible, and the counter-skip probe already regressed. Treat
 the next structural path as backend/store-shape separation evidence: split
-initialization/public stores from primitive hot-state stores, then remeasure.
+or sink initialization/public stores around the primitive hot-state body, then
+remeasure. The weighted store classifier says the store owner is primitive
+hot-state dominant, so do not misread the current evidence as primarily a
+public/proof counter deletion opportunity.
 Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later
 representation delta turns positive.
 

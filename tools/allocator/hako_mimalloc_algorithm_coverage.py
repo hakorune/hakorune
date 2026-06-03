@@ -1050,6 +1050,29 @@ def report_dict(
         "perf_backend_store_shape_context_field_buckets": str_field(
             perf_attribution, "backend_store_shape_context_field_buckets", "none"
         ),
+        "perf_backend_store_shape_weighted_dominant_bucket": str_field(
+            perf_attribution, "backend_store_shape_weighted_dominant_bucket", "none"
+        ),
+        "perf_backend_store_shape_primitive_hot_state_store_percent": str_field(
+            perf_attribution,
+            "backend_store_shape_primitive_hot_state_store_percent",
+            "0.00",
+        ),
+        "perf_backend_store_shape_public_or_proof_store_percent": str_field(
+            perf_attribution,
+            "backend_store_shape_public_or_proof_store_percent",
+            "0.00",
+        ),
+        "perf_backend_store_shape_direct_array_owner_store_percent": str_field(
+            perf_attribution,
+            "backend_store_shape_direct_array_owner_store_percent",
+            "0.00",
+        ),
+        "perf_backend_store_shape_observer_counter_store_percent": str_field(
+            perf_attribution,
+            "backend_store_shape_observer_counter_store_percent",
+            "0.00",
+        ),
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
@@ -1235,6 +1258,11 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_backend_store_shape_next_bridge",
         "perf_backend_store_shape_hot_store_field_buckets",
         "perf_backend_store_shape_context_field_buckets",
+        "perf_backend_store_shape_weighted_dominant_bucket",
+        "perf_backend_store_shape_primitive_hot_state_store_percent",
+        "perf_backend_store_shape_public_or_proof_store_percent",
+        "perf_backend_store_shape_direct_array_owner_store_percent",
+        "perf_backend_store_shape_observer_counter_store_percent",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",
