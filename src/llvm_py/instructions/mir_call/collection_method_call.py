@@ -85,8 +85,36 @@ def _current_direct_array_access_plan(
             continue
         if not is_arrayrepr_direct_i64(resolver, receiver_vid):
             continue
+        if not _route_decision_allows_direct_array_plan(
+            resolver=resolver,
+            block_id=block_id,
+            instruction_index=instruction_index,
+            expected_route=plan.get("route"),
+        ):
+            continue
         return plan
     return None
+
+
+def _route_decision_allows_direct_array_plan(
+    *,
+    resolver,
+    block_id: int,
+    instruction_index: int,
+    expected_route,
+) -> bool:
+    decisions_by_site = getattr(resolver, "route_decisions_by_site", None)
+    if not isinstance(decisions_by_site, dict):
+        return True
+    decisions = decisions_by_site.get((block_id, instruction_index), [])
+    if not decisions:
+        return True
+    for decision in decisions:
+        if not isinstance(decision, dict):
+            continue
+        if decision.get("selected_route") == expected_route:
+            return True
+    return False
 
 
 def _direct_array_base(builder: ir.IRBuilder, recv_h):

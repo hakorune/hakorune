@@ -299,6 +299,23 @@ def _load_direct_array_access_plan_metadata(builder, func_data: Dict[str, Any]) 
         by_site.setdefault((block, instruction_index), []).append(normalized)
     builder.resolver.direct_array_access_plans_by_site = by_site
 
+    decision_rows = metadata.get("route_decisions", []) if isinstance(metadata, dict) else []
+    decisions_by_site: Dict[tuple[int, int], List[Dict[str, Any]]] = {}
+    if isinstance(decision_rows, list):
+        for row in decision_rows:
+            if not isinstance(row, dict):
+                continue
+            normalized = dict(row)
+            try:
+                block = int(normalized.get("block"))
+                instruction_index = int(normalized.get("instruction_index"))
+            except (TypeError, ValueError):
+                continue
+            normalized["block"] = block
+            normalized["instruction_index"] = instruction_index
+            decisions_by_site.setdefault((block, instruction_index), []).append(normalized)
+    builder.resolver.route_decisions_by_site = decisions_by_site
+
 
 def _seed_resolver_fact_sets(
     builder,
