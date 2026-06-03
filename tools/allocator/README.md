@@ -166,6 +166,32 @@ page_model_hot_array_fastpath_slow_selected_count=0
 structural_owner_next_action=measure_page_model_hot_array_perf_delta
 ```
 
+After generating a perf attribution report, pass it back into the same coverage
+tool to advance the handoff from "measure perf delta" to the next concrete
+bridge:
+
+```bash
+python3 tools/allocator/hako_mimalloc_perf_attribution.py \
+  --perf-report target/mimalloc-public.asm.txt.artifacts.d/perf-report.txt \
+  --perf-annotate target/mimalloc-public.asm.txt.artifacts.d/perf-annotate.txt \
+  --symbol ny_main \
+  > target/page-model-hot-array-route/perf-attribution.txt
+
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
+  --benchmark-report target/hakozuna-mixed-ws-hotcore-size-table-eager-init-7/report.out \
+  --fastpath-report target/page-model-hot-array-route/fastpath.json \
+  --perf-attribution-report target/page-model-hot-array-route/perf-attribution.txt
+```
+
+Expected current handoff:
+
+```text
+perf_attribution_report_consumed=1
+structural_owner_next_action=asm_instruction_classifier_or_in_process_perf_mode
+page_model_hot_array_perf_delta_ready=0
+page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
+```
+
 The next measurement step is perf/asm attribution, not another source migration.
 Use the direct-exact app perf/asm tool, then inspect its attribution fields:
 

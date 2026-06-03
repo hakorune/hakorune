@@ -256,6 +256,7 @@ def report_dict(
     *,
     benchmark_report: Path | None = None,
     fastpath_report: Path | None = None,
+    perf_attribution_report: Path | None = None,
 ) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
@@ -378,8 +379,10 @@ def report_dict(
     )
     benchmark = read_kv_report(benchmark_report)
     fastpath = read_fastpath_counts(fastpath_report)
+    perf_attribution = read_kv_report(perf_attribution_report)
     benchmark_report_consumed = int(bool(benchmark))
     fastpath_report_consumed = int(bool(fastpath))
+    perf_attribution_report_consumed = int(bool(perf_attribution))
     benchmark_subject = "none"
     benchmark_subject_prefix = ""
     for prefix in ("subject_2", "subject_3", "subject_4"):
@@ -554,6 +557,26 @@ def report_dict(
     page_model_hot_array_measurement_ready = int(
         structural_owner_refresh_required and hot_array_source_migration_selected
     )
+    perf_delta_plan = int_field(
+        perf_attribution, "page_model_hot_array_perf_delta_measurement_plan_v0", 0
+    )
+    perf_delta_ready = int_field(
+        perf_attribution, "page_model_hot_array_perf_delta_ready", 0
+    )
+    perf_delta_blocker = str_field(
+        perf_attribution,
+        "page_model_hot_array_perf_delta_blocker",
+        "perf_attribution_report_not_consumed"
+        if not perf_attribution_report_consumed
+        else "unknown",
+    )
+    perf_delta_next_bridge = str_field(
+        perf_attribution,
+        "page_model_hot_array_perf_delta_next_bridge",
+        "run_hako_mimalloc_direct_exact_app_perf_asm"
+        if not perf_attribution_report_consumed
+        else "inspect_perf_attribution",
+    )
     product_pages_non_linear_owner_candidate_ready = int(
         structural_owner_refresh_required
         and product_pages_source_ready
@@ -567,6 +590,10 @@ def report_dict(
             if page_model_hot_array_source_route_measured
             else "measure_page_model_hot_array_source_route"
         )
+        if page_model_hot_array_source_route_measured and perf_attribution_report_consumed:
+            structural_owner_next_action = (
+                "select_next_perf_owner" if perf_delta_ready else perf_delta_next_bridge
+            )
     elif product_pages_non_linear_owner_candidate_ready:
         structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
         structural_owner_reason = "hotcore_measured_and_product_pages_source_ready"
@@ -614,6 +641,10 @@ def report_dict(
         "benchmark_replacement_subject": benchmark_subject,
         "fastpath_report": str(fastpath_report) if fastpath_report is not None else "none",
         "fastpath_report_consumed": fastpath_report_consumed,
+        "perf_attribution_report": str(perf_attribution_report)
+        if perf_attribution_report is not None
+        else "none",
+        "perf_attribution_report_consumed": perf_attribution_report_consumed,
         "area_count": len(rows),
         "hako_model_area_count": sum(row.hako_model for row in rows),
         "replacement_front_area_count": sum(row.replacement_front for row in rows),
@@ -690,6 +721,30 @@ def report_dict(
         "page_model_hot_array_fastpath_route_decision_count": fastpath_route_decision_count,
         "page_model_hot_array_fastpath_fast_selected_count": fastpath_fast_selected_count,
         "page_model_hot_array_fastpath_slow_selected_count": fastpath_slow_selected_count,
+        "page_model_hot_array_perf_delta_measurement_plan_v0": perf_delta_plan,
+        "page_model_hot_array_perf_delta_ready": perf_delta_ready,
+        "page_model_hot_array_perf_delta_blocker": perf_delta_blocker,
+        "page_model_hot_array_perf_delta_next_bridge": perf_delta_next_bridge,
+        "perf_top_symbol": str_field(perf_attribution, "top_symbol", "none"),
+        "perf_top_symbol_percent": str_field(perf_attribution, "top_symbol_percent", "0.00"),
+        "perf_symbol_collapse_detected": int_field(
+            perf_attribution, "symbol_collapse_detected", 0
+        ),
+        "perf_symbol_attribution_available": int_field(
+            perf_attribution, "symbol_attribution_available", 0
+        ),
+        "perf_instruction_attribution_available": int_field(
+            perf_attribution, "instruction_attribution_available", 0
+        ),
+        "perf_annotate_nonzero_instruction_count": int_field(
+            perf_attribution, "annotate_nonzero_instruction_count", 0
+        ),
+        "perf_top_instruction_percent": str_field(
+            perf_attribution, "top_instruction_percent", "0.00"
+        ),
+        "perf_top_instruction_mnemonic": str_field(
+            perf_attribution, "top_instruction_mnemonic", "none"
+        ),
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
@@ -736,6 +791,8 @@ def emit_text(data: dict[str, object]) -> None:
         "benchmark_replacement_subject",
         "fastpath_report",
         "fastpath_report_consumed",
+        "perf_attribution_report",
+        "perf_attribution_report_consumed",
         "area_count",
         "hako_model_area_count",
         "replacement_front_area_count",
@@ -802,6 +859,18 @@ def emit_text(data: dict[str, object]) -> None:
         "page_model_hot_array_fastpath_route_decision_count",
         "page_model_hot_array_fastpath_fast_selected_count",
         "page_model_hot_array_fastpath_slow_selected_count",
+        "page_model_hot_array_perf_delta_measurement_plan_v0",
+        "page_model_hot_array_perf_delta_ready",
+        "page_model_hot_array_perf_delta_blocker",
+        "page_model_hot_array_perf_delta_next_bridge",
+        "perf_top_symbol",
+        "perf_top_symbol_percent",
+        "perf_symbol_collapse_detected",
+        "perf_symbol_attribution_available",
+        "perf_instruction_attribution_available",
+        "perf_annotate_nonzero_instruction_count",
+        "perf_top_instruction_percent",
+        "perf_top_instruction_mnemonic",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",
@@ -861,12 +930,21 @@ def main() -> int:
             "DirectArray source-route measurement fields"
         ),
     )
+    parser.add_argument(
+        "--perf-attribution-report",
+        type=Path,
+        help=(
+            "optional hako-mimalloc-perf-attribution report to overlay "
+            "PageModel hot-array perf-delta readiness fields"
+        ),
+    )
     args = parser.parse_args()
 
     data = report_dict(
         build_rows(),
         benchmark_report=args.benchmark_report,
         fastpath_report=args.fastpath_report,
+        perf_attribution_report=args.perf_attribution_report,
     )
     if args.json:
         print(json.dumps(data, indent=2, sort_keys=True))

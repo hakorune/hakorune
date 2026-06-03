@@ -427,7 +427,9 @@ Activation, hooks, globals, and winner claims remain closed.
 The first perf/asm attribution pass is now an explicit measurement boundary:
 `tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh` appends
 `tools/allocator/hako_mimalloc_perf_attribution.py` output to its report. The
-current known artifact shape is:
+algorithm coverage overlay accepts this report through
+`--perf-attribution-report`, so the owner handoff can move past "measure perf
+delta" once the blocker is known. The current known artifact shape is:
 
 ```text
 top_symbol=ny_main
@@ -445,6 +447,14 @@ instructions to guide instruction-shape cleanup, but symbol ownership is still
 too collapsed to prove a DirectArray/PageModel-specific perf delta. Do not read
 symbol-based DirectArray owner refresh scripts returning `0%` as negative
 evidence while this blocker is present.
+
+With benchmark, fastpath, and perf attribution reports all supplied,
+`hako_mimalloc_algorithm_coverage.py` now reports:
+
+```text
+perf_attribution_report_consumed=1
+structural_owner_next_action=asm_instruction_classifier_or_in_process_perf_mode
+```
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
 seed-time initialization traffic. `seedFreeBlocks` uses append-or-overwrite
