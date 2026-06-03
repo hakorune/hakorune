@@ -5371,3 +5371,25 @@ landed slightly below the refreshed native-bins median. Do not keep a
 metadata-table lookup mode in the benchmark tool unless a later perf/asm pass
 selects a concrete page-table owner; the source code for this probe was
 discarded and only the evidence remains.
+
+`REPL-026` probed cold-splitting the generated page-bins `init_bins` routine.
+The first shape marked `init_bins` `cold,noinline` but left `malloc` calling it
+unconditionally; the second shape guarded the call with `if (!init_done)` so
+the hot path only retained the branch to `malloc.cold`.
+
+```text
+page_bins_cold_init_unconditional_probe=nonkeeper
+page_bins_cold_init_unconditional_sample_count=5
+page_bins_cold_init_unconditional_subject_2_throughput_median_ops_per_sec=6291801.154
+page_bins_cold_init_guarded_probe=nonkeeper
+page_bins_cold_init_guarded_sample_count=5
+page_bins_cold_init_guarded_subject_2_throughput_median_ops_per_sec=8588777.903
+page_bins_cold_init_baseline_subject_2_throughput_median_ops_per_sec=9221264.235
+page_bins_cold_init_guarded_malloc_cold_symbol=1
+page_bins_cold_init_route=range_scan
+```
+
+Interpretation: cold-splitting made the generated `malloc` symbol cleaner, and
+the guarded form correctly moved the initialization body to `malloc.cold`, but
+both variants regressed the local page-bins benchmark. Keep the current inline
+`init_bins` shape until perf/asm selects a stronger cold-path reason.
