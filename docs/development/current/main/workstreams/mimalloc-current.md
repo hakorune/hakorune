@@ -326,6 +326,13 @@ default as unreachable removes one fallback check but badly regresses generated
 code layout. Keep the existing HotCore/PageModel bridge and do not re-open
 these probes without new perf owner evidence.
 
+Stop-the-line: the current owner has enough negative local C-shape evidence.
+Do not continue by adding more generated `find_owned` ordering, free-only
+decode, counter, or switch-layout probes. The next positive-net candidate must
+be structural: either consume more real `.hako` allocator state through a
+planned bridge, or add a new route/report vocabulary that changes the owner
+family before editing generated C again.
+
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
 
