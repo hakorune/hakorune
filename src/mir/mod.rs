@@ -108,6 +108,7 @@ pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub(crate) mod raw_layout; // fixed raw-layout vocabulary for substrate metadata
 pub mod receiver_snapshot_publication_plan; // MIR-owned narrow mixed-base publication recipes
 pub mod record_layout_plan; // MIR-owned record layout plan metadata
+pub mod record_state_residence_plan; // metadata-only box-private record-state candidates
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub mod route_fixpoint; // module-level route convergence owner
 pub mod rune_plan_refresh; // SSOT refresh entry for rune-derived MIR plans

@@ -373,7 +373,24 @@ Interpretation: the hot field owner is not another counter-elision row. The
 next narrow compiler-facing owner is report-only `RecordStateResidencePlanV0`
 or equivalent state-representation vocabulary for primitive PageModel fields.
 PageModel remains the owner `box`; source migration to a `PageState` record is
-not open until a dedicated metadata producer/lowering slice accepts it.
+not open until a dedicated lowering/source-migration slice accepts it.
+
+The first metadata producer slice now emits the report-only row through MIR JSON
+and `hako_check state-explain`:
+
+```text
+record_state_residence_plan_count=1
+record_state_residence_plan_0_owner_box=HakoAllocPageModel
+record_state_residence_plan_0_candidate_record=PageState
+record_state_residence_plan_0_residence=box_private_record_state_v0
+record_state_residence_plan_0_report_only=1
+record_state_residence_plan_0_source_migration_allowed=0
+record_state_residence_plan_0_selected_field_count=6
+record_state_residence_plan_0_rejected_field_count=20
+```
+
+This is still metadata only. It does not create a runtime `PageState`, direct
+record lowering, whole-record ABI, or source migration permission.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:

@@ -5,8 +5,9 @@ use super::decls::{
     collect_array_record_storage_plan_values, collect_direct_state_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
     collect_hako_alloc_huge_page_packed_store_pilot_plan_values, collect_record_layout_plan_values,
-    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
-    collect_sorted_user_box_decl_values, collect_source_packed_array_autouse_pilot_plan_values,
+    collect_record_state_residence_plan_values, collect_sorted_enum_decl_values,
+    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
+    collect_source_packed_array_autouse_pilot_plan_values,
     collect_source_packed_array_direct_read_consumption_plan_values,
     collect_static_data_plan_values, collect_typed_object_plan_values,
 };
@@ -84,6 +85,7 @@ pub(super) fn build_mir_json_root(
     let record_decls = collect_sorted_record_decl_values(module);
     let typed_object_plans = collect_typed_object_plan_values(module);
     let direct_state_plans = collect_direct_state_plan_values(module);
+    let record_state_residence_plans = collect_record_state_residence_plan_values(module);
     let record_layout_plans = collect_record_layout_plan_values(module);
     let array_record_storage_plans = collect_array_record_storage_plan_values(module);
     let array_record_autouse_eligibility_plans =
@@ -112,6 +114,10 @@ pub(super) fn build_mir_json_root(
             obj.insert("record_decls".to_string(), json!(record_decls));
             obj.insert("typed_object_plans".to_string(), json!(typed_object_plans));
             obj.insert("direct_state_plans".to_string(), json!(direct_state_plans));
+            obj.insert(
+                "record_state_residence_plans".to_string(),
+                json!(record_state_residence_plans),
+            );
             obj.insert(
                 "record_layout_plans".to_string(),
                 json!(record_layout_plans),
@@ -161,6 +167,7 @@ pub(super) fn build_mir_json_root(
             "record_decls": record_decls,
             "typed_object_plans": typed_object_plans,
             "direct_state_plans": direct_state_plans,
+            "record_state_residence_plans": record_state_residence_plans,
             "record_layout_plans": record_layout_plans,
             "array_record_storage_plans": array_record_storage_plans,
             "array_record_autouse_eligibility_plans": array_record_autouse_eligibility_plans,

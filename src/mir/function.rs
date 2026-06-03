@@ -24,6 +24,7 @@ pub use types::{
     HakoAllocHugePagePackedStorePilotPlan, LoopRangeFact, MirEnumDecl, MirEnumVariantDecl,
     MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RangeIndexFact,
     RangeIndexFactOriginKind, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
+    RecordStateResidenceFieldPlan, RecordStateResidencePlan, RecordStateResidenceRejectedFieldPlan,
     RegionStabilityFact, RegionStabilityProofKind, RequiredFastPathRegion,
     SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, SpanAccessOp,
     SpanAccessPlan, SpanBorrowFact, SpanBorrowMutability, SpanElementType, StaticDataPlan,

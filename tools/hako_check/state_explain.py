@@ -301,6 +301,27 @@ def main() -> int:
             ]
         )
 
+    selected_record_state_plans = [
+        plan
+        for plan in record_state_residence_plans
+        if args.box_filter is None
+        or str(plan.get("owner_box", "unknown")) == args.box_filter
+    ]
+    for idx, plan in enumerate(selected_record_state_plans[: max(0, args.topn)]):
+        prefix = f"record_state_residence_plan_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_owner_box={plan.get('owner_box', 'unknown')}",
+                f"{prefix}_candidate_record={plan.get('candidate_record', 'unknown')}",
+                f"{prefix}_residence={plan.get('residence', 'unknown')}",
+                f"{prefix}_report_only={bool_text(bool(plan.get('report_only')))}",
+                f"{prefix}_source_migration_allowed={bool_text(bool(plan.get('source_migration_allowed')))}",
+                f"{prefix}_selected_field_count={plan.get('selected_field_count', 'unknown')}",
+                f"{prefix}_rejected_field_count={plan.get('rejected_field_count', 'unknown')}",
+                f"{prefix}_summary={plan.get('summary', 'unknown')}",
+            ]
+        )
+
     clean = len(record_state_residence_plans) == 0 or all(
         bool(row.get("summary", "ok") == "ok") for row in record_state_residence_plans
     )

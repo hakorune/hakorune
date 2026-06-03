@@ -47,6 +47,7 @@ use super::{
     range_index_fact::refresh_function_range_index_facts,
     receiver_snapshot_publication_plan::refresh_function_receiver_snapshot_publication_plans,
     record_layout_plan::refresh_module_record_layout_plans,
+    record_state_residence_plan::refresh_module_record_state_residence_plans,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
     refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
@@ -150,6 +151,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);
     refresh_module_typed_object_plans(module);
     refresh_module_direct_state_plans(module);
+    refresh_module_record_state_residence_plans(module);
     refresh_module_typed_object_field_value_types(module);
     let module_metadata = module.metadata.clone();
     for function in module.functions.values_mut() {

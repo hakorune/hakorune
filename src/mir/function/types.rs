@@ -876,6 +876,46 @@ pub struct DirectStatePlan {
     pub fields: Vec<DirectStateFieldPlan>,
 }
 
+/// Metadata-only box-private record residence candidate field.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordStateResidenceFieldPlan {
+    pub name: String,
+    pub slot: u32,
+    pub declared_type_name: Option<String>,
+    pub storage: TypedObjectFieldStorage,
+    pub bucket: String,
+}
+
+/// Metadata-only rejected field for record-state residence.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordStateResidenceRejectedFieldPlan {
+    pub name: String,
+    pub slot: u32,
+    pub declared_type_name: Option<String>,
+    pub reason: String,
+}
+
+/// MIR-owned report-only candidate for box-private primitive state residence.
+///
+/// This does not create a source record, rewrite storage, enable lowering, or
+/// authorize whole-record ABI. It only exposes which owner-box fields are
+/// narrow enough for a later `RecordStateResidencePlanV0` producer/lowering
+/// slice to consume.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordStateResidencePlan {
+    pub owner_box: String,
+    pub candidate_record: String,
+    pub residence: String,
+    pub field_decl_authority: bool,
+    pub report_only: bool,
+    pub source_migration_allowed: bool,
+    pub selected_field_count: u32,
+    pub rejected_field_count: u32,
+    pub fields: Vec<RecordStateResidenceFieldPlan>,
+    pub rejected_fields: Vec<RecordStateResidenceRejectedFieldPlan>,
+    pub summary: String,
+}
+
 /// Backend-readable slot layout for one field in an identity-free record.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RecordLayoutFieldPlan {
@@ -1139,6 +1179,9 @@ pub struct ModuleMetadata {
 
     /// Metadata-only direct-state candidates derived from user box field metadata.
     pub direct_state_plans: Vec<DirectStatePlan>,
+
+    /// Metadata-only box-private record-state residence candidates.
+    pub record_state_residence_plans: Vec<RecordStateResidencePlan>,
 
     /// Backend-readable record layouts derived from record declaration metadata.
     pub record_layout_plans: Vec<RecordLayoutPlan>,

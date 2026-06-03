@@ -163,6 +163,42 @@ pub(super) fn collect_direct_state_plan_values(
         .collect()
 }
 
+pub(super) fn collect_record_state_residence_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .record_state_residence_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "owner_box": plan.owner_box,
+                "candidate_record": plan.candidate_record,
+                "residence": plan.residence,
+                "field_decl_authority": plan.field_decl_authority,
+                "report_only": plan.report_only,
+                "source_migration_allowed": plan.source_migration_allowed,
+                "selected_field_count": plan.selected_field_count,
+                "rejected_field_count": plan.rejected_field_count,
+                "fields": plan.fields.iter().map(|field| json!({
+                    "name": field.name,
+                    "slot": field.slot,
+                    "declared_type": field.declared_type_name,
+                    "storage": field.storage.as_str(),
+                    "bucket": field.bucket,
+                })).collect::<Vec<_>>(),
+                "rejected_fields": plan.rejected_fields.iter().map(|field| json!({
+                    "name": field.name,
+                    "slot": field.slot,
+                    "declared_type": field.declared_type_name,
+                    "reason": field.reason,
+                })).collect::<Vec<_>>(),
+                "summary": plan.summary,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_record_layout_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {
