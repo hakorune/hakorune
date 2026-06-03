@@ -294,6 +294,19 @@ hotcore_find_owned_btree_probe:
   direct_core_call_count_total=8,336
   host_passthrough_count_total=8
   decision=nonkeeper_too_small_and_long_run_regressed
+
+hotcore_unreachable_bin_default_probe:
+  attempted_change=mark generated alloc_from_bin default as unreachable under
+    the size-class table route, aiming to remove the post-table switch fallback
+    range check
+  report=target/hakozuna-mixed-ws-hotcore-unreachable-bin-default-7/report.out
+  median_ops_per_sec=7,519,758.165
+  previous_hotcore_size_class_table_eager_init_median_ops_per_sec=9,424,804.200
+  asm_effect=removed the switch range fallback check, but changed generated
+    switch/code layout enough to regress throughput
+  direct_core_call_count_total=8,336
+  host_passthrough_count_total=8
+  decision=nonkeeper
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -308,8 +321,10 @@ current small-to-large find_owned ordering stays in place. Inlining the free
 ownership release into `free()` also regresses with unchanged counters, so the
 current find_owned/free routing stays in place. The generated address decision
 tree produces only a noise-level 7-sample median delta and regresses the 10M
-perf run, so it is also not a keeper. Keep the existing HotCore/PageModel
-bridge and do not re-open these probes without new perf owner evidence.
+perf run, so it is also not a keeper. Marking the table-selected bin switch
+default as unreachable removes one fallback check but badly regresses generated
+code layout. Keep the existing HotCore/PageModel bridge and do not re-open
+these probes without new perf owner evidence.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
