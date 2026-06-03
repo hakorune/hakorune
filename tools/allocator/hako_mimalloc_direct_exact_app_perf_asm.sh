@@ -254,6 +254,8 @@ python3 "$ROOT_DIR/tools/allocator/hako_mimalloc_perf_attribution.py" \
   --perf-report "$perf_report" \
   --perf-annotate "$perf_annotate" \
   --objdump "$objdump_txt" \
+  --mir-json "$mir_json" \
+  --layout-box HakoAllocPageModel \
   --symbol "$SYMBOL" >"$perf_attribution"
 
 body_elapsed_ns="$(awk -F= '$1 == "body_elapsed_ns" { print $2; exit }' "$run_out")"

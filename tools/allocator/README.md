@@ -175,6 +175,8 @@ python3 tools/allocator/hako_mimalloc_perf_attribution.py \
   --perf-report target/mimalloc-public.asm.txt.artifacts.d/perf-report.txt \
   --perf-annotate target/mimalloc-public.asm.txt.artifacts.d/perf-annotate.txt \
   --objdump target/mimalloc-public.asm.txt.artifacts.d/objdump.txt \
+  --mir-json target/mimalloc-public.asm.txt.artifacts.d/app.mir.json \
+  --layout-box HakoAllocPageModel \
   --symbol ny_main \
   > target/page-model-hot-array-route/perf-attribution.txt
 
@@ -213,7 +215,9 @@ page_model_hot_array_perf_delta_ready=...
 page_model_hot_array_perf_delta_blocker=...
 page_model_hot_array_perf_delta_next_bridge=...
 top_instruction_category=...
+top_instruction_field_hints=...
 hot_instruction_0_category=...
+hot_instruction_0_field_hints=...
 hot_instruction_0_asm=...
 hot_instruction_0_context_categories=...
 ```
@@ -227,6 +231,7 @@ symbol_attribution_available=0
 instruction_attribution_available=1
 page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
 top_instruction_category=store_like
+top_instruction_field_hints=0xa0:free_top
 hot_instruction_0_asm=mov    %rdi,0xa0(%rax)
 hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
 ```
@@ -236,7 +241,9 @@ cannot prove a DirectArray/PageModel-specific perf delta by symbol ownership.
 The next bridge is an asm instruction classifier or a perf mode that separates
 the hot body more clearly. If the top instruction category is actionable
 (`store_like`, `branch`, `memory`, or `call`), inspect that category before
-opening another source rewrite.
+opening another source rewrite. Field hints are layout candidates from
+`app.mir.json`; they intentionally skip scaled DirectArray element operands and
+do not prove the base register's object type by themselves.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

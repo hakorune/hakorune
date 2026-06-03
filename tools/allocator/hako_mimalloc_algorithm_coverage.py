@@ -748,11 +748,17 @@ def report_dict(
         "perf_top_instruction_category": str_field(
             perf_attribution, "top_instruction_category", "none"
         ),
+        "perf_top_instruction_field_hints": str_field(
+            perf_attribution, "top_instruction_field_hints", "none"
+        ),
         "perf_hot_instruction_report_count": int_field(
             perf_attribution, "hot_instruction_report_count", 0
         ),
         "perf_hot_instruction_0_category": str_field(
             perf_attribution, "hot_instruction_0_category", "none"
+        ),
+        "perf_hot_instruction_0_field_hints": str_field(
+            perf_attribution, "hot_instruction_0_field_hints", "none"
         ),
         "perf_hot_instruction_0_asm": str_field(
             perf_attribution, "hot_instruction_0_asm", "none"
@@ -890,8 +896,10 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_top_instruction_percent",
         "perf_top_instruction_mnemonic",
         "perf_top_instruction_category",
+        "perf_top_instruction_field_hints",
         "perf_hot_instruction_report_count",
         "perf_hot_instruction_0_category",
+        "perf_hot_instruction_0_field_hints",
         "perf_hot_instruction_0_asm",
         "perf_hot_instruction_0_context_categories",
         "perf_hot_instruction_0_context_count",

@@ -14,6 +14,7 @@ PageModel-specific perf delta. The report below makes that boundary explicit.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,6 +33,9 @@ OBJDUMP_RE = re.compile(
     r"^\s*(?P<addr>[0-9a-fA-F]+):\s+"
     r"(?P<bytes>(?:[0-9a-fA-F]{2}\s+)+)\s*"
     r"(?P<asm>.+?)\s*$"
+)
+MEMORY_OPERAND_RE = re.compile(
+    r"(?P<offset>-?(?:0x[0-9a-fA-F]+|\d+))?\((?P<body>[^)]*)\)"
 )
 
 
@@ -114,6 +118,73 @@ def parse_objdump_instructions(text: str) -> list[ObjdumpInstruction]:
     return instructions
 
 
+def parse_layout_field_offsets(
+    text: str,
+    box_name: str,
+    *,
+    base_offset: int,
+    field_stride: int,
+) -> dict[int, str]:
+    if not text or not box_name:
+        return {}
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return {}
+    decls = payload.get("user_box_decls") if isinstance(payload, dict) else None
+    if not isinstance(decls, list):
+        return {}
+    for decl in decls:
+        if not isinstance(decl, dict):
+            continue
+        if decl.get("name") != box_name and decl.get("box_name") != box_name:
+            continue
+        fields = decl.get("field_decls")
+        if not isinstance(fields, list):
+            return {}
+        offsets: dict[int, str] = {}
+        for field in fields:
+            if not isinstance(field, dict):
+                continue
+            name = field.get("name")
+            index = field.get("field_index")
+            if not isinstance(name, str) or not isinstance(index, int):
+                continue
+            offsets[base_offset + index * field_stride] = name
+        return offsets
+    return {}
+
+
+def _parse_int_literal(value: str) -> int | None:
+    try:
+        return int(value, 0)
+    except ValueError:
+        return None
+
+
+def _field_hints_for_asm(asm: str, field_offsets: dict[int, str]) -> str:
+    if not field_offsets:
+        return "none"
+    hints: list[str] = []
+    seen: set[int] = set()
+    for match in MEMORY_OPERAND_RE.finditer(asm):
+        # PageModel field hints only apply to simple object-slot operands such
+        # as `0xa0(%rax)`. Scaled operands like `0x20(%rdx,%rsi,8)` are
+        # DirectArray element accesses and must not be re-labeled as box fields.
+        if "," in match.group("body"):
+            continue
+        raw = match.group("offset") or "0"
+        offset = _parse_int_literal(raw)
+        if offset is None or offset in seen:
+            continue
+        seen.add(offset)
+        name = field_offsets.get(offset)
+        if name is None:
+            continue
+        hints.append(f"0x{offset:x}:{name}")
+    return ",".join(hints) or "none"
+
+
 def _sum_matching(
     instructions: list[AnnotatedInstruction],
     predicate,
@@ -191,6 +262,7 @@ def _context_for_address(
     objdump: list[ObjdumpInstruction],
     address: str,
     radius: int,
+    field_offsets: dict[int, str],
 ) -> tuple[str, str, str]:
     if not objdump or not address:
         return "", "0", "none"
@@ -202,7 +274,9 @@ def _context_for_address(
     end = min(len(objdump), idx + radius + 1)
     window = objdump[start:end]
     encoded = "|".join(
-        f"{ins.address}:{_instruction_category_from_asm(ins.asm)}:{_sanitize_context(ins.asm)}"
+        f"{ins.address}:{_instruction_category_from_asm(ins.asm)}:"
+        f"{_field_hints_for_asm(ins.asm, field_offsets)}:"
+        f"{_sanitize_context(ins.asm)}"
         for ins in window
     )
     categories = ",".join(sorted({_instruction_category_from_asm(ins.asm) for ins in window}))
@@ -217,6 +291,12 @@ def emit_report(args: argparse.Namespace) -> str:
     perf_symbols = parse_perf_symbols(_read(args.perf_report))
     annotated = parse_annotated_instructions(_read(args.perf_annotate))
     objdump = parse_objdump_instructions(_read(args.objdump))
+    field_offsets = parse_layout_field_offsets(
+        _read(args.mir_json),
+        args.layout_box,
+        base_offset=args.layout_base_offset,
+        field_stride=args.layout_field_stride,
+    )
 
     top_symbol = perf_symbols[0] if perf_symbols else PerfSymbol(0.0, "")
     top_target_is_symbol = bool(args.symbol and top_symbol.symbol == args.symbol)
@@ -275,6 +355,10 @@ def emit_report(args: argparse.Namespace) -> str:
         f"annotate_memory_percent={_sum_matching(nonzero, _is_memory):.2f}",
         f"annotate_store_like_percent={_sum_matching(nonzero, _is_store_like):.2f}",
         f"annotate_arithmetic_compare_percent={_sum_matching(nonzero, _is_arithmetic_or_compare):.2f}",
+        f"layout_hint_box={args.layout_box or 'none'}",
+        f"layout_hint_field_count={len(field_offsets)}",
+        f"layout_hint_base_offset=0x{args.layout_base_offset:x}",
+        f"layout_hint_field_stride=0x{args.layout_field_stride:x}",
         f"page_model_hot_array_perf_delta_measurement_plan_v0=1",
         f"page_model_hot_array_perf_delta_ready={_kv_bool(perf_delta_ready)}",
         f"page_model_hot_array_perf_delta_blocker={blocker}",
@@ -287,6 +371,7 @@ def emit_report(args: argparse.Namespace) -> str:
                 f"top_instruction_address={top_instruction.address}",
                 f"top_instruction_mnemonic={top_instruction.mnemonic}",
                 f"top_instruction_category={_instruction_category(top_instruction)}",
+                f"top_instruction_field_hints={_field_hints_for_asm(top_instruction.asm, field_offsets)}",
                 f"top_instruction_asm={top_instruction.asm}",
             ]
         )
@@ -297,6 +382,7 @@ def emit_report(args: argparse.Namespace) -> str:
                 "top_instruction_address=",
                 "top_instruction_mnemonic=",
                 "top_instruction_category=none",
+                "top_instruction_field_hints=none",
                 "top_instruction_asm=",
             ]
         )
@@ -309,7 +395,7 @@ def emit_report(args: argparse.Namespace) -> str:
     for idx, ins in enumerate(hot_instructions):
         prefix = f"hot_instruction_{idx}"
         context, context_count, context_categories = _context_for_address(
-            objdump, ins.address, args.context_radius
+            objdump, ins.address, args.context_radius, field_offsets
         )
         lines.extend(
             [
@@ -317,6 +403,7 @@ def emit_report(args: argparse.Namespace) -> str:
                 f"{prefix}_address={ins.address}",
                 f"{prefix}_mnemonic={ins.mnemonic}",
                 f"{prefix}_category={_instruction_category(ins)}",
+                f"{prefix}_field_hints={_field_hints_for_asm(ins.asm, field_offsets)}",
                 f"{prefix}_asm={ins.asm}",
                 f"{prefix}_context_count={context_count}",
                 f"{prefix}_context_categories={context_categories}",
@@ -332,6 +419,10 @@ def main() -> int:
     parser.add_argument("--perf-report", type=Path)
     parser.add_argument("--perf-annotate", type=Path)
     parser.add_argument("--objdump", type=Path)
+    parser.add_argument("--mir-json", type=Path)
+    parser.add_argument("--layout-box", default="")
+    parser.add_argument("--layout-base-offset", type=lambda s: int(s, 0), default=0x20)
+    parser.add_argument("--layout-field-stride", type=lambda s: int(s, 0), default=0x10)
     parser.add_argument("--symbol", default="ny_main")
     parser.add_argument("--collapse-threshold", type=float, default=90.0)
     parser.add_argument("--hot-limit", type=int, default=8)
