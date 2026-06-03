@@ -15,6 +15,66 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+PROFILES = ("default", "hot-report", "direct-memory", "direct-exact", "replacement-front")
+GROUPS = (
+    "@all",
+    "@required_fastpath_regions",
+    "@direct_memory",
+    "@hotcore_calls",
+    "@allocator_hot_paths",
+    "@replacement_front",
+)
+PROFILE_DEFAULT_GROUP = {
+    "default": "@all",
+    "hot-report": "@allocator_hot_paths",
+    "direct-memory": "@required_fastpath_regions",
+    "direct-exact": "@hotcore_calls",
+    "replacement-front": "@replacement_front",
+}
+PROFILE_ALLOWED_GROUPS = {
+    "default": set(GROUPS),
+    "hot-report": {
+        "@all",
+        "@allocator_hot_paths",
+        "@direct_memory",
+        "@hotcore_calls",
+        "@replacement_front",
+    },
+    "direct-memory": {"@required_fastpath_regions", "@direct_memory"},
+    "direct-exact": {"@hotcore_calls"},
+    "replacement-front": {"@replacement_front"},
+}
+PROFILE_POLICY = {
+    "default": "opportunistic",
+    "hot-report": "report_if_slow",
+    "direct-memory": "require_fastpath",
+    "direct-exact": "require_direct_exact",
+    "replacement-front": "require_direct_exact",
+}
+TIER_ORDER = {
+    "none": 0,
+    "slow_dynamic": 1,
+    "slow_generic": 2,
+    "checked_direct": 3,
+    "proved_direct": 4,
+    "static_exact_call": 5,
+    "replacement_thin": 6,
+}
+PROFILE_DEFAULT_REQUIRED_TIER = {
+    "default": "none",
+    "hot-report": "checked_direct",
+    "direct-memory": "checked_direct",
+    "direct-exact": "static_exact_call",
+    "replacement-front": "replacement_thin",
+}
+PROFILE_SEVERITY = {
+    "default": "observe",
+    "hot-report": "observe",
+    "direct-memory": "error",
+    "direct-exact": "error",
+    "replacement-front": "error",
+}
+
 
 def load_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as fh:
@@ -77,6 +137,156 @@ def field_text(row: dict[str, Any], key: str, default: str = "unknown") -> str:
     return str(value)
 
 
+def resolve_profile_group(profile: str, group: str | None) -> tuple[str, str, str]:
+    selected_group = group or PROFILE_DEFAULT_GROUP[profile]
+    if selected_group not in PROFILE_ALLOWED_GROUPS[profile]:
+        allowed = ", ".join(sorted(PROFILE_ALLOWED_GROUPS[profile]))
+        raise SystemExit(
+            f"profile/group mismatch: profile={profile} group={selected_group} "
+            f"(allowed: {allowed})"
+        )
+    return profile, selected_group, PROFILE_POLICY[profile]
+
+
+def direct_memory_access_kind(access_kind: str) -> bool:
+    return (
+        access_kind.startswith("direct_array_")
+        or access_kind.startswith("span_")
+        or access_kind.startswith("direct_state_")
+        or access_kind.startswith("record_state_")
+    )
+
+
+def route_decision_in_group(row: dict[str, Any], group: str) -> bool:
+    if group == "@all":
+        return True
+    access_kind = str(row.get("access_kind", ""))
+    fallback_policy = str(row.get("fallback_policy", ""))
+    if group == "@direct_memory":
+        return direct_memory_access_kind(access_kind)
+    if group == "@required_fastpath_regions":
+        return fallback_policy == "require_fastpath"
+    if group == "@hotcore_calls":
+        return access_kind == "hotcore_call"
+    if group == "@replacement_front":
+        return access_kind.startswith("replacement_")
+    if group == "@allocator_hot_paths":
+        return (
+            direct_memory_access_kind(access_kind)
+            or access_kind == "hotcore_call"
+            or access_kind.startswith("replacement_")
+        )
+    return False
+
+
+def selected_tier(row: dict[str, Any]) -> str:
+    selected_route = str(row.get("selected_route") or row.get("route") or "")
+    bounds_policy = str(row.get("bounds_policy", ""))
+    access_kind = str(row.get("access_kind", ""))
+    if selected_route == "replacement_thin" or access_kind.startswith("replacement_thin"):
+        return "replacement_thin"
+    if selected_route == "static_exact_call":
+        return "static_exact_call"
+    if bounds_policy == "proved_unchecked":
+        return "proved_direct"
+    if (
+        selected_route.startswith("direct_")
+        or selected_route.startswith("span_")
+        or selected_route.startswith("record_state_")
+        or selected_route.startswith("replacement_")
+    ):
+        return "checked_direct"
+    if "dynamic" in selected_route:
+        return "slow_dynamic"
+    if selected_route.startswith("generic_") or selected_route.endswith("_fallback"):
+        return "slow_generic"
+    return "slow_generic" if selected_route else "none"
+
+
+def required_tier(profile: str, group: str, row: dict[str, Any]) -> str:
+    if profile == "hot-report" and group == "@hotcore_calls":
+        return "static_exact_call"
+    if profile == "hot-report" and group == "@replacement_front":
+        return "replacement_thin"
+    fallback_policy = str(row.get("fallback_policy", ""))
+    if fallback_policy == "require_fastpath":
+        return "checked_direct"
+    if fallback_policy == "require_direct_exact":
+        return "static_exact_call"
+    return PROFILE_DEFAULT_REQUIRED_TIER[profile]
+
+
+def tier_result(selected: str, required: str) -> str:
+    return "ok" if TIER_ORDER[selected] >= TIER_ORDER[required] else "failed"
+
+
+def route_tier_record(
+    row: dict[str, Any],
+    profile: str,
+    group: str,
+) -> tuple[str, str, str, str]:
+    selected = selected_tier(row)
+    required = required_tier(profile, group, row)
+    severity = PROFILE_SEVERITY[profile]
+    result = tier_result(selected, required)
+    return selected, required, severity, result
+
+
+def row_in_group(kind: str, row: dict[str, Any], group: str) -> bool:
+    if group == "@all":
+        return True
+    if group == "@direct_memory":
+        if kind in {"direct_array_access", "span_access"}:
+            return True
+        if kind == "required_fastpath_region":
+            return str(row.get("relevant_access_policy", "")) == "direct_memory"
+        if kind == "fastpath_obligation":
+            return direct_memory_access_kind(str(row.get("access_kind", "")))
+        if kind == "route_decision":
+            return route_decision_in_group(row, group)
+        return False
+    if group == "@required_fastpath_regions":
+        if kind in {"required_fastpath_region", "fastpath_obligation"}:
+            return True
+        if kind == "route_decision":
+            return route_decision_in_group(row, group)
+        return False
+    if group == "@hotcore_calls":
+        if kind in {"hotcore_summary", "hotcore_call"}:
+            return True
+        if kind == "route_decision":
+            return route_decision_in_group(row, group)
+        return False
+    if group == "@replacement_front":
+        if kind == "route_decision":
+            return route_decision_in_group(row, group)
+        return False
+    if group == "@allocator_hot_paths":
+        if kind in {
+            "direct_array_access",
+            "span_access",
+            "hotcore_summary",
+            "hotcore_call",
+        }:
+            return True
+        if kind == "required_fastpath_region":
+            return str(row.get("relevant_access_policy", "")) == "direct_memory"
+        if kind == "fastpath_obligation":
+            return direct_memory_access_kind(str(row.get("access_kind", "")))
+        if kind == "route_decision":
+            return route_decision_in_group(row, group)
+        return False
+    return False
+
+
+def filter_group(
+    rows: list[tuple[str, dict[str, Any]]],
+    kind: str,
+    group: str,
+) -> list[tuple[str, dict[str, Any]]]:
+    return [(name, row) for name, row in rows if row_in_group(kind, row, group)]
+
+
 def file_sha256(path: Path) -> str:
     hasher = hashlib.sha256()
     with path.open("rb") as fh:
@@ -104,8 +314,14 @@ def site_id(row: dict[str, Any]) -> str:
     return f"block_{block}:inst_{inst}"
 
 
-def site_record(function: str, kind: str, row: dict[str, Any]) -> dict[str, Any]:
-    return {
+def site_record(
+    function: str,
+    kind: str,
+    row: dict[str, Any],
+    profile: str,
+    group: str,
+) -> dict[str, Any]:
+    record = {
         "function": function,
         "site_id": site_id(row),
         "kind": kind,
@@ -124,17 +340,31 @@ def site_record(function: str, kind: str, row: dict[str, Any]) -> dict[str, Any]
         "source_span": row.get("source_span") if isinstance(row.get("source_span"), dict) else None,
         "source_text": row.get("source_text"),
     }
+    if kind == "route_decision":
+        selected, required, severity, result = route_tier_record(row, profile, group)
+        record["selected_tier"] = selected
+        record["required_tier"] = required
+        record["severity"] = severity
+        record["tier_result"] = result
+    return record
 
 
 def render_summary(payload: dict[str, Any]) -> str:
     counts = payload["counts"]
     lines = [
         "output_contract=hako-check-fastpath-summary-v0",
+        f"selected_profile={counts['selected_profile']}",
+        f"selected_group={counts['selected_group']}",
+        f"profile_policy={counts['profile_policy']}",
+        f"default_required_tier={counts['default_required_tier']}",
+        f"default_severity={counts['default_severity']}",
         f"target_method={counts['target_method']}",
         f"clean={counts['clean']}",
         f"fastpath_plan_count={counts['fastpath_plan_count']}",
         f"direct_array_access_plan_count={counts['direct_array_access_plan_count']}",
         f"route_decision_count={counts['route_decision_count']}",
+        f"route_tier_ok_count={counts['route_tier_ok_count']}",
+        f"route_tier_failed_count={counts['route_tier_failed_count']}",
         f"route_decision_fast_selected_count={counts['route_decision_fast_selected_count']}",
         f"route_decision_slow_selected_count={counts['route_decision_slow_selected_count']}",
         f"route_decision_missing_reason_count={counts['route_decision_missing_reason_count']}",
@@ -224,6 +454,17 @@ def main() -> int:
     parser.add_argument("--method", help="Optional exact MIR function name")
     parser.add_argument("--topn", type=int, default=8)
     parser.add_argument(
+        "--profile",
+        choices=PROFILES,
+        default="default",
+        help="Route visibility profile. Default: default.",
+    )
+    parser.add_argument(
+        "--group",
+        choices=GROUPS,
+        help="Optional route target group. Defaults depend on --profile.",
+    )
+    parser.add_argument(
         "--format",
         choices=("kv", "json"),
         default="kv",
@@ -246,6 +487,7 @@ def main() -> int:
     )
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
+    selected_profile, selected_group, profile_policy = resolve_profile_group(args.profile, args.group)
 
     all_functions = functions(load_json(args.mir_json))
     selected = selected_functions(all_functions, args.method)
@@ -278,10 +520,27 @@ def main() -> int:
             (name, row) for row in list_meta(function, "direct_exact_hotcore_call_plans")
         )
 
+    direct_plans = filter_group(direct_plans, "direct_array_access", selected_group)
+    span_plans = filter_group(span_plans, "span_access", selected_group)
+    regions = filter_group(regions, "required_fastpath_region", selected_group)
+    obligations = filter_group(obligations, "fastpath_obligation", selected_group)
+    route_decisions = filter_group(route_decisions, "route_decision", selected_group)
+    effect_summaries = filter_group(effect_summaries, "effect_summary", selected_group)
+    receiver_snapshot_plans = filter_group(
+        receiver_snapshot_plans,
+        "receiver_snapshot_publication",
+        selected_group,
+    )
+    hotcore_summaries = filter_group(hotcore_summaries, "hotcore_summary", selected_group)
+    hotcore_call_plans = filter_group(hotcore_call_plans, "hotcore_call", selected_group)
+
     direct_rows = [row for _, row in direct_plans]
     span_rows = [row for _, row in span_plans]
     obligation_rows = [row for _, row in obligations]
     route_decision_rows = [row for _, row in route_decisions]
+    route_tier_rows = [
+        route_tier_record(row, selected_profile, selected_group) for row in route_decision_rows
+    ]
     effect_summary_rows = [row for _, row in effect_summaries]
     receiver_snapshot_rows = [row for _, row in receiver_snapshot_plans]
     hotcore_summary_rows = [row for _, row in hotcore_summaries]
@@ -294,6 +553,10 @@ def main() -> int:
     span_bounds_counts = count_by(span_rows, "bounds_policy")
     obligation_status_counts = count_by(obligation_rows, "status")
     route_decision_fallback_policy_counts = count_by(route_decision_rows, "fallback_policy")
+    route_selected_tier_counts: Counter[str] = Counter(row[0] for row in route_tier_rows)
+    route_required_tier_counts: Counter[str] = Counter(row[1] for row in route_tier_rows)
+    route_severity_counts: Counter[str] = Counter(row[2] for row in route_tier_rows)
+    route_tier_result_counts: Counter[str] = Counter(row[3] for row in route_tier_rows)
     effect_summary_status_counts = count_by(effect_summary_rows, "summary")
     effect_summary_candidate_counts = count_by(effect_summary_rows, "candidate_kind")
     receiver_snapshot_status_counts = count_by(receiver_snapshot_rows, "summary")
@@ -362,6 +625,11 @@ def main() -> int:
         "source_rewrite_executed=0",
         f"mir_hash={file_sha256(args.mir_json)}",
         "source_hash=unavailable",
+        f"selected_profile={selected_profile}",
+        f"selected_group={selected_group}",
+        f"profile_policy={profile_policy}",
+        f"default_required_tier={PROFILE_DEFAULT_REQUIRED_TIER[selected_profile]}",
+        f"default_severity={PROFILE_SEVERITY[selected_profile]}",
         f"target_method={args.method or 'all'}",
         f"function_count={len(all_functions)}",
         f"selected_function_count={len(selected)}",
@@ -375,6 +643,21 @@ def main() -> int:
         f"route_decision_require_direct_exact_count={route_decision_fallback_policy_counts['require_direct_exact']}",
         f"route_decision_report_if_slow_count={route_decision_fallback_policy_counts['report_if_slow']}",
         f"route_decision_opportunistic_count={route_decision_fallback_policy_counts['opportunistic']}",
+        f"route_tier_ok_count={route_tier_result_counts['ok']}",
+        f"route_tier_failed_count={route_tier_result_counts['failed']}",
+        f"selected_tier_none_count={route_selected_tier_counts['none']}",
+        f"selected_tier_slow_dynamic_count={route_selected_tier_counts['slow_dynamic']}",
+        f"selected_tier_slow_generic_count={route_selected_tier_counts['slow_generic']}",
+        f"selected_tier_checked_direct_count={route_selected_tier_counts['checked_direct']}",
+        f"selected_tier_proved_direct_count={route_selected_tier_counts['proved_direct']}",
+        f"selected_tier_static_exact_call_count={route_selected_tier_counts['static_exact_call']}",
+        f"selected_tier_replacement_thin_count={route_selected_tier_counts['replacement_thin']}",
+        f"required_tier_none_count={route_required_tier_counts['none']}",
+        f"required_tier_checked_direct_count={route_required_tier_counts['checked_direct']}",
+        f"required_tier_static_exact_call_count={route_required_tier_counts['static_exact_call']}",
+        f"required_tier_replacement_thin_count={route_required_tier_counts['replacement_thin']}",
+        f"route_severity_observe_count={route_severity_counts['observe']}",
+        f"route_severity_error_count={route_severity_counts['error']}",
         f"direct_array_load_plan_count={direct_op_counts['load']}",
         f"direct_array_store_plan_count={direct_op_counts['store']}",
         f"direct_array_checked_plan_count={direct_bounds_counts['checked']}",
@@ -545,10 +828,22 @@ def main() -> int:
 
     counts = kv_payload(lines)
     site_rows: list[dict[str, Any]] = []
-    site_rows.extend(site_record(name, "direct_array_access", row) for name, row in direct_plans)
-    site_rows.extend(site_record(name, "route_decision", row) for name, row in route_decisions)
-    site_rows.extend(site_record(name, "span_access", row) for name, row in span_plans)
-    site_rows.extend(site_record(name, "fastpath_obligation", row) for name, row in obligations)
+    site_rows.extend(
+        site_record(name, "direct_array_access", row, selected_profile, selected_group)
+        for name, row in direct_plans
+    )
+    site_rows.extend(
+        site_record(name, "route_decision", row, selected_profile, selected_group)
+        for name, row in route_decisions
+    )
+    site_rows.extend(
+        site_record(name, "span_access", row, selected_profile, selected_group)
+        for name, row in span_plans
+    )
+    site_rows.extend(
+        site_record(name, "fastpath_obligation", row, selected_profile, selected_group)
+        for name, row in obligations
+    )
     report_payload = {
         "output_contract": "hako-check-fastpath-explain-v0",
         "input_kind": "mir_json",

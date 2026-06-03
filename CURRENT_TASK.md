@@ -207,6 +207,201 @@ source comments as RouteDecision truth
 new source syntax
 ```
 
+## Current RouteTier Direction
+
+Decision:
+
+```text
+fallback_policy names are user-facing presets, not the long-term internal
+truth.
+
+Internal route checking should move toward:
+  selected_tier
+  required_tier
+  severity
+```
+
+Initial tier vocabulary:
+
+```text
+none
+slow_dynamic
+slow_generic
+checked_direct
+proved_direct
+static_exact_call
+replacement_thin
+```
+
+Severity vocabulary:
+
+```text
+observe
+warn
+error
+lock
+```
+
+Preset mapping:
+
+```text
+opportunistic:
+  required_tier=none
+  severity=observe
+
+report_if_slow:
+  required_tier=family/group default
+  severity=observe
+
+require_fastpath:
+  required_tier=checked_direct
+  severity=error
+
+require_direct_exact:
+  required_tier=static_exact_call
+  severity=error
+
+replacement-front:
+  required_tier=replacement_thin
+  severity=error
+```
+
+Next tier implementation order:
+
+1. `RD-TIER-001` add selected/required/severity fields to hako_check
+   fastpath reports without changing RouteDecision producers.
+2. `RD-TIER-002` move `fastpath-check` from count-based checks to
+   selected_tier >= required_tier.
+3. `RD-TIER-003` add MIR RouteDecision tier fields when the compiler-side
+   verifier is opened.
+4. `RD-TIER-004` add LoweringRouteAudit tier mismatch reports.
+
+Stop line:
+
+```text
+Do not add more policy names for every new fastpath variant. Add tier mapping
+instead.
+```
+
+## Current FastPath Profile / Lock Direction
+
+Decision:
+
+```text
+policy.toml is not the primary user path.
+
+Truth:
+  RouteDecision / FastPathPlan / MIR metadata
+
+User input:
+  generic profile names, optional groups, and generated locks
+
+Optional override:
+  small advanced config only, never a second source language
+```
+
+Boundary:
+
+```text
+hakorune:
+  build / run / emit MIR
+  stays simple; it does not own day-to-day fastpath diagnostics
+
+hako_check:
+  explain / profile / group / lock / CI check
+```
+
+Planned user/tool flow:
+
+```bash
+# daily visibility
+tools/hako_check.sh fastpath-explain --app app.hako --summary
+
+# profile-based visibility
+tools/hako_check.sh fastpath-explain \
+  --app app.hako \
+  --profile hot-report \
+  --group @allocator_hot_paths
+
+# strict check for a known profile
+tools/hako_check.sh fastpath-check --app app.hako --profile replacement-front
+
+# strict direct-exact hotcore call check
+tools/hako_check.sh fastpath-check \
+  --app app.hako \
+  --profile direct-exact \
+  --group @hotcore_calls
+
+# CI snapshot, generated not handwritten
+tools/hako_check.sh fastpath-lock \
+  --app app.hako \
+  --profile replacement-front \
+  --out checks/fastpath/replacement-front.lock.json
+
+tools/hako_check.sh fastpath-check \
+  --app app.hako \
+  --lock checks/fastpath/replacement-front.lock.json
+```
+
+Profile meanings:
+
+```text
+default:
+  opportunistic
+
+hot-report:
+  selected group is report_if_slow diagnostics
+
+direct-memory:
+  existing RequiredFastPathRegion rows are require_fastpath
+
+direct-exact:
+  selected call group is require_direct_exact
+
+replacement-front:
+  replacement-front group is require_direct_exact
+```
+
+Group meanings:
+
+```text
+@required_fastpath_regions:
+  regions already emitted by compiler/MIR metadata
+
+@direct_memory:
+  DirectArray / Span / DirectState style memory-ish RouteDecision sites
+
+@hotcore_calls:
+  DirectExactHotCoreCallPlan RouteDecision sites
+
+@allocator_hot_paths:
+  allocator hot method candidates, app-agnostic
+
+@replacement_front:
+  allocator replacement-front entry / hot boundary sites
+```
+
+Next implementation order:
+
+1. `FP-PROFILE-001` document profile vocabulary and keep `policy.toml`
+   advanced-only. Done.
+2. `FP-PROFILE-002` add `--profile` to `fastpath-explain` as report-only
+   filtering / labeling. Done.
+3. `FP-PROFILE-003` add `fastpath-check --profile` wrapper that applies
+   existing RouteDecision/explain results without hand-written per-function
+   TOML. Done for `direct-exact` / `replacement-front` v0 checks.
+4. `FP-PROFILE-004` add `fastpath-lock` generated JSON summary lock.
+5. `FP-PROFILE-005` optional `--suggest` for AI/user next-contract guidance.
+
+Rejected for this pass:
+
+```text
+mimalloc as a generic profile name
+large handwritten policy.toml as the normal path
+site-by-line policy files committed to the repo
+source annotations as the v0 requirement surface
+```
+
 ## Current Language/Substrate Reset
 
 The current language-substrate direction is:

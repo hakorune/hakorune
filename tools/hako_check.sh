@@ -14,6 +14,7 @@ Usage:
   $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]
   $0 perf-surface-contract [--out report.txt]
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
+  $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
 
 Tool surfaces:
@@ -21,7 +22,10 @@ Tool surfaces:
   perf-surface        source-level allocator hot-path risk inventory
   perf-surface-contract
                       report vocabulary for perf-surface
-  fastpath-explain    read-only DirectArray/Span FastPath metadata explanation
+  fastpath-explain    read-only FastPath / RouteDecision metadata explanation
+                      with optional --profile / --group report scoping
+  fastpath-check      CI-style RouteDecision profile check for current
+                      direct-exact / replacement-front optimization work
   state-explain       read-only state bucket / direct-state metadata explanation
 
 Boundary:
@@ -40,6 +44,11 @@ esac
 if [ "${1:-}" = "fastpath-explain" ]; then
   shift
   exec bash "$ROOT/tools/hako_check/fastpath_explain.sh" "$@"
+fi
+
+if [ "${1:-}" = "fastpath-check" ]; then
+  shift
+  exec bash "$ROOT/tools/hako_check/fastpath_check.sh" "$@"
 fi
 
 if [ "${1:-}" = "state-explain" ]; then

@@ -7,6 +7,8 @@ BIN_PATH="${HAKORUNE_BIN:-${NYASH_BIN:-$ROOT_DIR/target/release/hakorune}}"
 APP_PATH=""
 MIR_JSON=""
 METHOD=""
+PROFILE="default"
+GROUP=""
 TOPN="8"
 OUT_PATH=""
 REQUIRE_CLEAN=0
@@ -25,6 +27,11 @@ Options:
   --mir-json PATH     Read an existing MIR JSON artifact.
   --app PATH          Emit MIR JSON for a .hako app, then explain it.
   --method NAME       Filter to an exact MIR function name.
+  --profile NAME      Route visibility profile: default, hot-report,
+                      direct-memory, direct-exact, replacement-front.
+  --group NAME        Route target group: @all, @required_fastpath_regions,
+                      @direct_memory, @hotcore_calls, @allocator_hot_paths,
+                      @replacement_front.
   --topn N            Limit top rows in the report. Default: 8.
   --format kv|json    Output format for the base report. Default: kv.
   --summary           Print a compact summary report.
@@ -62,6 +69,22 @@ while [ "$#" -gt 0 ]; do
     --method)
       [ "$#" -ge 2 ] || die "--method requires a name"
       METHOD="$2"
+      shift 2
+      ;;
+    --profile)
+      [ "$#" -ge 2 ] || die "--profile requires a name"
+      case "$2" in
+        default|hot-report|direct-memory|direct-exact|replacement-front) PROFILE="$2" ;;
+        *) die "--profile must be one of: default, hot-report, direct-memory, direct-exact, replacement-front" ;;
+      esac
+      shift 2
+      ;;
+    --group)
+      [ "$#" -ge 2 ] || die "--group requires a name"
+      case "$2" in
+        @all|@required_fastpath_regions|@direct_memory|@hotcore_calls|@allocator_hot_paths|@replacement_front) GROUP="$2" ;;
+        *) die "--group must be one of: @all, @required_fastpath_regions, @direct_memory, @hotcore_calls, @allocator_hot_paths, @replacement_front" ;;
+      esac
       shift 2
       ;;
     --topn)
@@ -150,8 +173,12 @@ ARGS=(
   --mir-json "$MIR_JSON"
   --topn "$TOPN"
   --format "$FORMAT"
+  --profile "$PROFILE"
 )
 
+if [ -n "$GROUP" ]; then
+  ARGS+=(--group "$GROUP")
+fi
 if [ -n "$METHOD" ]; then
   ARGS+=(--method "$METHOD")
 fi

@@ -217,6 +217,119 @@ bash tools/hako_check/fastpath_explain.sh \
   --require-clean
 ```
 
+- Profile path:
+
+```bash
+# Daily route visibility.
+bash tools/hako_check.sh fastpath-explain --app app.hako --summary
+
+# Allocator-oriented diagnostics without making slow routes compile errors.
+bash tools/hako_check.sh fastpath-explain \
+  --app app.hako \
+  --profile hot-report \
+  --group @allocator_hot_paths
+
+# Strict replacement-front check for the current direct-exact optimization lane.
+bash tools/hako_check.sh fastpath-check --app app.hako --profile replacement-front
+
+# Strict HotCore call check without replacement-front-specific grouping.
+bash tools/hako_check.sh fastpath-check \
+  --app app.hako \
+  --profile direct-exact \
+  --group @hotcore_calls
+```
+
+- Planned CI lock path:
+
+```bash
+bash tools/hako_check.sh fastpath-lock \
+  --app app.hako \
+  --profile replacement-front \
+  --out checks/fastpath/replacement-front.lock.json
+
+bash tools/hako_check.sh fastpath-check \
+  --app app.hako \
+  --lock checks/fastpath/replacement-front.lock.json
+```
+
+- Profile vocabulary:
+
+```text
+default:
+  opportunistic RouteDecision diagnostics
+
+hot-report:
+  selected group is surfaced as report_if_slow diagnostics
+
+direct-memory:
+  existing RequiredFastPathRegion rows are checked as require_fastpath
+
+direct-exact:
+  selected call group is checked as require_direct_exact
+
+replacement-front:
+  replacement-front group is checked as require_direct_exact
+```
+
+- Route tier direction:
+  - Profile names are presets, not the internal truth.
+  - The next verifier/check shape should expose:
+
+```text
+selected_tier
+required_tier
+severity
+```
+
+  - `require_fastpath` maps to `required_tier=checked_direct` and
+    `severity=error`.
+  - `require_direct_exact` maps to `required_tier=static_exact_call` and
+    `severity=error`.
+  - `replacement-front` maps to `required_tier=replacement_thin` and
+    `severity=error`.
+  - `checked_direct` remains acceptable for `require_fastpath`; direct does
+    not imply unchecked.
+
+- Group vocabulary:
+
+```text
+@required_fastpath_regions:
+  regions already emitted by compiler/MIR metadata
+
+@direct_memory:
+  DirectArray / Span / DirectState style memory-ish RouteDecision sites
+
+@hotcore_calls:
+  DirectExactHotCoreCallPlan RouteDecision sites
+
+@allocator_hot_paths:
+  allocator hot method candidates, independent of any one allocator app name
+
+@replacement_front:
+  allocator replacement-front entry / hot boundary sites
+```
+
+- Policy-file boundary:
+  - Hand-written `policy.toml` is not the primary user path.
+  - Human and AI workflows should prefer profile names, groups, generated
+    locks, and `hako_check` suggestions.
+  - If an advanced override file is added later, it should stay small, for
+    example `profiles = ["replacement-front"]` or
+    `require = ["@replacement_front:direct_exact"]`. It must not become a
+    second source language with per-site expectations.
+  - App names such as mimalloc may appear in report or lock file names, but
+    they are not generic profile names.
+
+- `fastpath-check` v0 boundary:
+  - It is a CI-style adapter over `fastpath-explain --format json`.
+  - It does not emit new MIR facts and does not enforce compiler compile
+    errors.
+  - It fails when `route_tier_failed_count > 0`,
+    `fastpath_obligation_failed_count > 0`, or direct-exact lowering fallback
+    counters are nonzero.
+  - Current tier fields are computed by hako_check from existing MIR metadata;
+    compiler-side RouteDecision tier fields are planned later.
+
 - Contract:
 
 ```text

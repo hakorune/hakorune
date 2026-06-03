@@ -318,9 +318,131 @@ require_direct_exact:
   direct-exact / replacement-front mode; slow hot-path fallback is an error
 ```
 
+These policy names are user-facing presets. Internally, RouteDecision should
+move toward orthogonal route quality fields:
+
+```text
+selected_tier:
+  the route quality actually selected for the site
+
+required_tier:
+  the minimum route quality requested by the active profile / region / lock
+
+severity:
+  how to treat selected_tier < required_tier
+```
+
+Initial tier vocabulary:
+
+```text
+none:
+  no route quality requirement
+
+slow_dynamic:
+  dynamic dispatch or unknown route
+
+slow_generic:
+  generic helper, boxed fallback, or public generic route
+
+checked_direct:
+  direct memory route selected; bounds/checks may remain
+
+proved_direct:
+  direct memory route selected with proof-backed check elimination
+
+static_exact_call:
+  same-module/static exact HotCore call boundary
+
+replacement_thin:
+  replacement-front hot path without provider table, function-pointer,
+  owns-check, host fallback, or remote/cold-path work
+```
+
+Severity vocabulary:
+
+```text
+observe:
+  report only
+
+warn:
+  report as warning; compilation/check continues
+
+error:
+  compiler/check failure
+
+lock:
+  generated baseline regression failure
+```
+
+Preset mapping:
+
+```text
+opportunistic:
+  required_tier=none
+  severity=observe
+
+report_if_slow:
+  required_tier depends on family/group
+  severity=observe
+
+require_fastpath:
+  required_tier=checked_direct
+  severity=error
+
+require_direct_exact:
+  required_tier=static_exact_call
+  severity=error
+
+replacement-front profile:
+  required_tier=replacement_thin
+  severity=error
+```
+
 Slow routes are allowed only when the active policy allows them, and they must
 carry `miss_reason`. Lowering must not infer a different route from source
 names, method names, helper symbols, or backend-local guesses.
+
+User-facing strictness is profile-first:
+
+```text
+default:
+  opportunistic
+
+hot-report:
+  report selected group routes with report_if_slow
+
+direct-memory:
+  enforce existing RequiredFastPathRegion rows with require_fastpath
+
+direct-exact:
+  enforce selected call group with require_direct_exact
+
+replacement-front:
+  enforce replacement-front direct-exact routes with require_direct_exact
+```
+
+Profiles describe strictness; groups describe targets. Generic profile names
+must not be app names. For example, a `.hako` allocator app may generate a
+lock file named `hako-mimalloc-replacement-front.lock.json`, but `mimalloc` is
+not a generic profile. Use a generic pair such as:
+
+```text
+profile=hot-report
+group=@allocator_hot_paths
+```
+
+Policy files are optional advanced overrides, not the primary source of truth.
+The normal path is:
+
+```text
+profile name
+  + optional group
+  -> RouteDecision / RequiredFastPathRegion policy
+  -> hako_check report or RoutePolicyVerifier
+```
+
+CI should prefer generated summary locks over large handwritten policy files.
+Source annotations such as `@rune Check(fastpath)` remain future sugar only.
 
 Stop lines:
 
