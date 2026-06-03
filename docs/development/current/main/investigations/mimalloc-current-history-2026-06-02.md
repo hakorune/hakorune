@@ -5184,3 +5184,44 @@ summary=ok
 8. Keep docs lean.
    - Record small inventories in commit messages or this checklist.
    - Move full evidence prose to investigations/archive, not this active card.
+
+`REPL-019` refreshed the benchmark-only replacement-front evidence after the
+RouteDecision / hako_check cleanup. Two report/tooling corrections were made
+before selecting another code owner:
+
+```text
+native_bins_hot_atomic_rmw_report=0
+reason=native-bins v0 is single-thread and uses plain generated counters
+
+perf_surface_objectLifecycleSmallAlloc_hot_path_reason=single_page_fast_path_present
+perf_surface_suggested_next=measure_single_page_fast_path_coverage
+```
+
+Current local same-machine evidence:
+
+```text
+native_bins_sample_count=5
+native_bins_threads=1
+native_bins_subject_2_throughput_median_ops_per_sec=9543897.155
+native_bins_subject_2_throughput_vs_c_mimalloc=1.416143
+native_bins_product_bins_consumer_enabled=1
+native_bins_product_pages_consumer_enabled=0
+native_bins_hako_mimalloc_algorithm_claim=0
+native_bins_winner_claim=0
+
+thread_local_smoke_sample_count=3
+thread_local_smoke_threads=2
+thread_local_smoke_ok=1
+thread_local_subject_2_throughput_median_ops_per_sec=1927430.321
+thread_local_subject_2_throughput_vs_c_mimalloc=0.311775
+thread_local_thread_safety_claim=measured
+thread_local_cross_thread_free_policy=remote_queue
+thread_local_tls_get_addr_hot_path=0
+thread_local_hot_atomic_rmw=0
+thread_local_winner_claim=0
+```
+
+Interpretation: single-thread native-bins remains good thin-front evidence, but
+the next positive-net owner is not another source-level single-page fast path.
+The current gap is the multithread/thread-local replacement-front shape, while
+product pages and full `.hako` algorithm consumption remain unclaimed.
