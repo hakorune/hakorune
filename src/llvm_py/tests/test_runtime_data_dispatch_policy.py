@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import os
 import unittest
+from functools import partial
 
 import llvmlite.ir as ir
 
+from src.llvm_py.instructions.llvm_decl import declare_function
 from src.llvm_py.instructions.mir_call.runtime_data_dispatch import (
     lower_runtime_data_field_call,
     lower_runtime_data_method_call,
@@ -24,14 +26,6 @@ class _DummyResolver:
     def is_arrayish(self, value_id: int) -> bool:
         value = self.value_types.get(int(value_id))
         return isinstance(value, dict) and value.get("box_type") == "ArrayBox"
-
-
-def _declare(module, name, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 class TestRuntimeDataDispatchPolicy(unittest.TestCase):
@@ -289,7 +283,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
 
         result = lower_runtime_data_field_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="RuntimeDataBox",
             method="getField",
             recv_h=ir.Constant(i64, 1),
@@ -309,7 +303,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
 
         result = lower_runtime_data_field_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="RuntimeDataBox",
             method="setField",
             recv_h=ir.Constant(i64, 1),
@@ -329,7 +323,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
 
         result = lower_runtime_data_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="RuntimeDataBox",
             method="get",
             recv_h=ir.Constant(i64, 1),
@@ -350,7 +344,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
             lower_runtime_data_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="RuntimeDataBox",
                 method="set",
                 recv_h=ir.Constant(i64, 1),
@@ -369,7 +363,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
             lower_runtime_data_field_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="RuntimeDataBox",
                 method="getField",
                 recv_h=ir.Constant(i64, 1),

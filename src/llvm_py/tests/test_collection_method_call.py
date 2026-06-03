@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import unittest
 import os
+from functools import partial
 
 import llvmlite.ir as ir
 
+from src.llvm_py.instructions.llvm_decl import declare_function
 from src.llvm_py.instructions.mir_call.collection_method_call import (
     lower_collection_method_call,
 )
@@ -31,14 +33,6 @@ def _new_builder_named(name):
     bb = fn.append_basic_block("entry")
     builder = ir.IRBuilder(bb)
     return i64, module, builder
-
-
-def _declare(module, name, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 def _seed_direct_array_plan(
@@ -104,7 +98,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="get",
             recv_h=ir.Constant(i64, 1),
@@ -120,7 +114,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="RuntimeDataBox",
             method_name="push",
             recv_h=ir.Constant(i64, 1),
@@ -138,7 +132,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="ArrayBox",
             method_name="get",
             recv_h=ir.Constant(i64, 1),
@@ -159,7 +153,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="ArrayBox",
             method_name="get",
             recv_h=ir.Constant(i64, 1),
@@ -179,7 +173,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="ArrayBox",
             method_name="set",
             recv_h=ir.Constant(i64, 1),
@@ -204,7 +198,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="get",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -235,7 +229,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="get",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -263,7 +257,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="set",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -302,7 +296,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="set",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -332,7 +326,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="get",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -360,7 +354,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="get",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -387,7 +381,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="get",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -413,7 +407,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="get",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -441,7 +435,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
             result = lower_collection_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 box_name="ArrayBox",
                 method_name="has",
                 recv_h=ir.Constant(i64, 0x1003),
@@ -470,7 +464,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="ArrayBox",
             method_name="set",
             recv_h=ir.Constant(i64, 1),
@@ -490,7 +484,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="ArrayBox",
             method_name="has",
             recv_h=ir.Constant(i64, 1),
@@ -509,7 +503,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="clear",
             recv_h=ir.Constant(i64, 1),
@@ -527,7 +521,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="delete",
             recv_h=ir.Constant(i64, 1),
@@ -545,7 +539,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="RuntimeDataBox",
             method_name="delete",
             recv_h=ir.Constant(i64, 1),

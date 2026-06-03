@@ -5,6 +5,7 @@ import unittest
 import llvmlite.ir as ir
 
 from src.llvm_py.instructions.boxcall_runtime_data import try_lower_collection_boxcall
+from src.llvm_py.instructions.llvm_decl import declare_function
 
 
 class _DummyResolver:
@@ -20,14 +21,6 @@ def _new_builder():
     bb = fn.append_basic_block("entry")
     builder = ir.IRBuilder(bb)
     return i64, module, builder
-
-
-def _declare(module, name, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 class TestBoxcallCollectionPolicy(unittest.TestCase):
@@ -50,7 +43,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[2],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
         builder.ret(result)
@@ -78,7 +71,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[2, 3],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
         builder.ret(result)
@@ -104,7 +97,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[2],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
         builder.ret(result)
@@ -126,7 +119,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
         builder.ret(result)
@@ -148,7 +141,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[2],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
         builder.ret(result)
@@ -170,7 +163,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[2],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
         builder.ret(result if result is not None else ir.Constant(i64, 0))
@@ -193,7 +186,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
             args=[],
             resolve_arg=lambda vid: ir.Constant(i64, vid),
             ensure_handle=lambda value: value,
-            declare=_declare,
+            declare=declare_function,
             resolver=resolver,
         )
 
@@ -214,7 +207,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
                 args=[2],
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 ensure_handle=lambda value: value,
-                declare=_declare,
+                declare=declare_function,
                 resolver=resolver,
             )
 
@@ -233,7 +226,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
                 args=[],
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 ensure_handle=lambda value: value,
-                declare=_declare,
+                declare=declare_function,
                 resolver=resolver,
             )
 
@@ -252,7 +245,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
                 args=[2],
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 ensure_handle=lambda value: value,
-                declare=_declare,
+                declare=declare_function,
                 resolver=resolver,
             )
 
@@ -271,7 +264,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
                 args=[2],
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 ensure_handle=lambda value: value,
-                declare=_declare,
+                declare=declare_function,
                 resolver=resolver,
             )
 
@@ -290,7 +283,7 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
                 args=[],
                 resolve_arg=lambda vid: ir.Constant(i64, vid),
                 ensure_handle=lambda value: value,
-                declare=_declare,
+                declare=declare_function,
                 resolver=resolver,
             )
 

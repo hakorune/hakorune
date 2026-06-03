@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import unittest
+from functools import partial
 
 import llvmlite.ir as ir
 
+from src.llvm_py.instructions.llvm_decl import declare_function
 from src.llvm_py.instructions.mir_call.collection_method_call import (
     lower_collection_method_call,
 )
@@ -17,21 +19,13 @@ def _new_builder():
     return i64, module, builder
 
 
-def _declare(module, name, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
-
-
 class TestRawMapFirstSliceLock(unittest.TestCase):
     def test_mapbox_get_uses_slot_load_hh(self):
         i64, module, builder = _new_builder()
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="get",
             recv_h=ir.Constant(i64, 1),
@@ -47,7 +41,7 @@ class TestRawMapFirstSliceLock(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="set",
             recv_h=ir.Constant(i64, 1),
@@ -63,7 +57,7 @@ class TestRawMapFirstSliceLock(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="has",
             recv_h=ir.Constant(i64, 1),
@@ -79,7 +73,7 @@ class TestRawMapFirstSliceLock(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="clear",
             recv_h=ir.Constant(i64, 1),
@@ -95,7 +89,7 @@ class TestRawMapFirstSliceLock(unittest.TestCase):
 
         result = lower_collection_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             box_name="MapBox",
             method_name="delete",
             recv_h=ir.Constant(i64, 1),

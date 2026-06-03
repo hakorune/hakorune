@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os
 import unittest
+from functools import partial
 from unittest.mock import patch
 
 import llvmlite.ir as ir
 
+from src.llvm_py.instructions.llvm_decl import declare_function
 from src.llvm_py.instructions.mir_call.string_console_method_call import (
     lower_string_search_or_slice_method_call,
     lower_string_or_console_method_call,
@@ -30,14 +32,6 @@ def _new_ptr_builder():
     return i64, module, builder, fn.args[0], fn.args[1]
 
 
-def _declare(module, name, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
-
-
 class TestStringConsoleMethodCall(unittest.TestCase):
     def test_substring_search_slice_route_uses_string_kernel_and_marks_receiver(self):
         i64, module, builder = _new_builder()
@@ -45,7 +39,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         result = lower_string_search_or_slice_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             method_name="substring",
             recv_h=ir.Constant(i64, 1),
             arg_ids=[2, 3],
@@ -66,7 +60,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         result = lower_string_search_or_slice_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             method_name="indexOf",
             recv_h=ir.Constant(i64, 1),
             arg_ids=[2],
@@ -88,7 +82,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
         with patch.dict(os.environ, {"NYASH_LLVM_FAST": "1"}, clear=False):
             result = lower_string_search_or_slice_method_call(
                 builder=builder,
-                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                declare=partial(declare_function, module),
                 method_name="indexOf",
                 recv_h=ir.Constant(i64, 1),
                 recv_ptr=recv_ptr,
@@ -112,7 +106,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         result = lower_string_search_or_slice_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             method_name="lastIndexOf",
             recv_h=ir.Constant(i64, 1),
             arg_ids=[2],
@@ -130,7 +124,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         result = lower_string_or_console_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             method_name="substring",
             recv_h=ir.Constant(i64, 1),
             arg_ids=[2, 3],
@@ -148,7 +142,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         result = lower_string_or_console_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             method_name="log",
             recv_h=ir.Constant(i64, 1),
             arg_ids=[2],
@@ -166,7 +160,7 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         result = lower_string_or_console_method_call(
             builder=builder,
-            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            declare=partial(declare_function, module),
             method_name="push",
             recv_h=ir.Constant(i64, 1),
             arg_ids=[2],
