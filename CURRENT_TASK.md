@@ -148,6 +148,54 @@ source comments as optimization truth
 CI-by-default expensive fastpath matrix
 ```
 
+## Current RouteDecision Task Order
+
+Route decision cleanup is the next compiler-shape direction if the active
+mimalloc lane needs a cleaner fastpath/slowpath boundary.
+
+Decision:
+
+```text
+fastpath-preferred:
+  planners try fast routes first
+
+fallback-explicit:
+  slow routes are named, reportable, and policy-controlled
+
+MIRBuilder:
+  preserves origin/span/type/semantic-op facts; it does not choose fast vs slow
+
+Lowering:
+  consumes selected RouteDecision rows; it must not re-decide route policy
+```
+
+Planned order:
+
+1. `RD-001` RouteDecisionV0 docs/report-only surface.
+   - define `preferred_route`, `selected_route`, `fallback_policy`,
+     `proof_ids`, and `miss_reason`
+   - behavior change: none
+2. `RD-002` DirectArray RouteDecision view.
+   - map existing `DirectArrayAccessPlan` rows into RouteDecision output
+   - first fixture: `DirectArrayI64` source migration / resetToFresh
+3. `RD-003` fallback policy bridge.
+   - `RequiredFastPathRegion` sets `fallback_policy=require_fastpath`
+   - normal code remains `opportunistic` or `report_if_slow`
+4. `RD-004` lowering consumer contract.
+   - lowering reads `selected_route`
+   - report `backend_redecide_count=0` and `silent_fallback_count=0`
+5. `RD-005` horizontal extension after DirectArray proves the shape.
+   - DirectState / RecordState / HotCore / ReplacementFront only by evidence
+
+Rejected for this pass:
+
+```text
+MIRBuilder directly emitting fast/slow variants
+backend method-name or helper-name route redecision
+source comments as RouteDecision truth
+new source syntax
+```
+
 ## Current Language/Substrate Reset
 
 The current language-substrate direction is:

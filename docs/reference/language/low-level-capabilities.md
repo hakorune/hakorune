@@ -261,6 +261,75 @@ FastPathPlan present but backend/lowering used fallback
 `direct` is therefore not a promise of branchless code. It only forbids slow or
 ambiguous routes for relevant access sites.
 
+### Route Decisions
+
+Decision: fast routes are preferred by planners, not selected by MIRBuilder.
+
+The current low-level optimization rule is:
+
+```text
+source:
+  ordinary .hako code
+
+MIRBuilder:
+  preserve semantic ops, source spans, receiver origins, field declarations,
+  exact source types, and callsite identity
+
+Planner:
+  try the fast route first and produce RouteDecisionV0
+
+Verifier:
+  check required proof facts and fallback policy
+
+Lowering:
+  consume the selected RouteDecisionV0 route only
+```
+
+This is `fastpath-preferred, fallback-explicit`, not silent fallback.
+
+`RouteDecisionV0` is the planned single-site truth for selected route outcomes:
+
+```text
+RouteDecisionV0:
+  site_id
+  source_span
+  semantic_op
+  preferred_route
+  selected_route
+  fallback_route
+  fallback_policy
+  proof_ids
+  miss_reason
+```
+
+Fallback policy is explicit:
+
+```text
+opportunistic:
+  normal code; try fast route, allow slow route with reportable reason
+
+report_if_slow:
+  diagnostic/tooling mode; slow route is allowed but visible
+
+require_fastpath:
+  RequiredFastPathRegion / keeper mode; missing fast route is an error
+
+require_direct_exact:
+  direct-exact / replacement-front mode; slow hot-path fallback is an error
+```
+
+Slow routes are allowed only when the active policy allows them, and they must
+carry `miss_reason`. Lowering must not infer a different route from source
+names, method names, helper symbols, or backend-local guesses.
+
+Stop lines:
+
+```text
+MIRBuilder must not choose fast vs slow routes.
+Lowering must not re-decide route policy.
+FastPathPlan / RouteDecision truth must not be stored in source comments.
+```
+
 Planned order:
 
 1. keep current `Array` / `DirectArrayI64` source shape;
@@ -269,9 +338,10 @@ Planned order:
    `RegionStabilityFact`;
 4. add `SpanI64` / `SpanMutI64` as no-escape views over DirectArray storage;
 5. add `RequiredFastPathRegion` / `FastPathObligation` diagnostics;
-6. add `direct {}` later only as syntax sugar over the diagnostic contract;
-7. add `unsafe memory` / `Bytes` later, with `NativePtr` still opaque;
-8. add `LayoutSpan` and bulk memory pattern recognition after Span/Bytes.
+6. add `RouteDecisionV0` as a planner-owned fastpath-preferred outcome view;
+7. add `direct {}` later only as syntax sugar over the diagnostic contract;
+8. add `unsafe memory` / `Bytes` later, with `NativePtr` still opaque;
+9. add `LayoutSpan` and bulk memory pattern recognition after Span/Bytes.
 
 Span v0 is defined by
 `docs/development/current/main/design/span-no-escape-ssot.md`: `SpanI64` and

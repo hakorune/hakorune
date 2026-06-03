@@ -114,6 +114,32 @@ direct storage routes.
   - does not build the compiler, run benchmarks, persist MIR by default, rewrite
     source, select keepers, or own lowering policy
 
+- [ ] LANG-DM-009: RouteDecisionV0 report-only bridge
+  - output: make fastpath-preferred / fallback-explicit visible as a single
+    site-level outcome view
+  - source syntax: none
+  - behavior change: none
+  - first consumer view: existing DirectArrayAccessPlan rows
+  - required fields:
+    `preferred_route`, `selected_route`, `fallback_policy`, `proof_ids`,
+    `miss_reason`
+  - stop line: MIRBuilder preserves origin/span/type facts but does not choose
+    fast vs slow routes
+
+- [ ] LANG-DM-010: RequiredFastPathRegion fallback-policy bridge
+  - output: RequiredFastPathRegion maps to
+    `fallback_policy=require_fastpath`
+  - checked direct routes remain allowed
+  - generic helper / boxed fallback / dynamic route become errors only when
+    the policy requires fastpath
+
+- [ ] LANG-DM-011: lowering consumer no-redecision contract
+  - output: lowering consumes `selected_route` from RouteDecision rows
+  - report counters:
+    `backend_redecide_count=0`
+    `silent_fallback_count=0`
+  - do not add backend method-name or helper-name route matchers
+
 ### Parked
 
 - [ ] LANG-DM-007: unsafe memory / Bytes parked design
@@ -178,6 +204,11 @@ direct storage routes.
   `tools/hako_check/fastpath_explain.sh`. It can run from `.hako` source by
   emitting temporary MIR JSON first, but the policy owner stays the existing
   read-only `fastpath_explain.py` contract.
+- 2026-06-03: RouteDecision direction accepted as the next cleanup shape when
+  direct-memory fastpath/slowpath boundaries need simplification. MIRBuilder
+  stays origin-preserving; planners emit fastpath-preferred decisions with
+  explicit fallback policy; lowering consumes the selected route instead of
+  re-deciding.
 - 2026-06-01: hako_check root wrapper now exposes `perf-surface`,
   `perf-surface-contract`, and `fastpath-explain` as development-tool
   subcommands. The ownership split remains unchanged: perf-surface is

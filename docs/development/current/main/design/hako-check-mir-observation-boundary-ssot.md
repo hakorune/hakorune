@@ -35,6 +35,11 @@ developer-facing explanation surface. It must not emit MIR, rewrite source,
 select keepers, migrate `PageState`, infer public semantics, or own record-state
 lowering policy.
 
+Exception: `hako_check fastpath-explain` may also render compiler-emitted
+`RouteDecisionV0` rows. This exception is read-only. `hako_check` must not
+choose the preferred route, compute proof facts, infer miss reasons, or decide
+fallback policy. The compiler/MIR metadata remains the only truth.
+
 Developer convenience exception: `tools/hako_check/fastpath_explain.sh --app`
 may emit a temporary MIR JSON artifact before invoking the stable
 `fastpath_explain.py` adapter. This wrapper is allowed only as a tool entrypoint:
@@ -54,7 +59,7 @@ MIR method shape adapter:
 
 hako_check fastpath-explain:
   MIR JSON diagnostic adapter for DirectArray / Span / RequiredFastPath metadata
-  and direct-exact HotCore call-plan metadata
+  direct-exact HotCore call-plan metadata, and RouteDecisionV0 outcomes
 
 hako_check state-explain:
   MIR JSON diagnostic adapter for user-box field buckets, DirectState metadata,
@@ -108,15 +113,16 @@ Analyzer:
   RegionStabilityFact, SpanBorrowFact, and EffectSummary
 
 Planner:
-  produce plans such as DirectArrayAccessPlan, RecordStateResidencePlan,
-  DirectExactHotCoreCallPlan, RequiredFastPathRegion, and FastPathPlan
+  try fast routes first and produce plans / outcome rows such as
+  DirectArrayAccessPlan, RecordStateResidencePlan, DirectExactHotCoreCallPlan,
+  RequiredFastPathRegion, FastPathPlan, and RouteDecisionV0
 
 Verifier:
   decide whether a plan is legal and fail fast when required facts are missing
 
 Lowering:
-  consume accepted plans only; do not re-infer source policy or method-name
-  special cases
+  consume accepted plans / selected RouteDecision rows only; do not re-infer
+  source policy, helper-name policy, or method-name special cases
 
 hako_check:
   render emitted metadata and diagnostics; never synthesize optimization truth
@@ -141,6 +147,7 @@ of these boxes.
 | Origin Facts | Where values/fields/calls came from | receiver origin, field origin, callsite span |
 | Proof Facts | Why an access/effect is safe | RangeIndexFact, ExtentFact, StabilityFact, EffectSummary |
 | Plans | What optimized route is requested | DirectArrayAccessPlan, RecordStateResidencePlan, DirectExactHotCoreCallPlan |
+| Route Outcomes | Which route was selected and why | RouteDecisionV0 selected_route, fallback_policy, miss_reason |
 | Diagnostics / Explain | User-facing visibility | `hako_check fastpath-explain`, `state-explain`, report fields |
 | Lowering Consumers | Backend implementation of accepted plans | static exact call, direct array load/store, checked/proved-unchecked route |
 
@@ -160,6 +167,9 @@ record PageState:
 copy cleanup:
   RouteAwareMaterializationPlan with route preservation proof, not generic
   Copy deletion
+
+fastpath-first:
+  Planner emits RouteDecisionV0; MIRBuilder does not choose fast vs slow
 ```
 
 ## Planned Surfaces

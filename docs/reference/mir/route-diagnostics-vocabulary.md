@@ -18,6 +18,9 @@ planner reason:
 
 preflight reason:
   stable diagnostic token printed before backend emission
+
+route decision miss_reason:
+  site-level explanation for why a preferred route was not selected
 ```
 
 Backends consume `functions[].metadata.lowering_plan` and proof-bearing route
@@ -33,6 +36,11 @@ or source strings.
 | Pure-first preflight | `tools/checks/pure_first_route_preflight.py` | Reads `lowering_plan` and emits stable preflight reasons before ny-llvmc/C shim. |
 | C backend shim | `lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_metadata.inc` | Consumes accepted proofs and route fields for emission. It is the final route guard, not the first diagnostic owner. |
 | Docs | this file | Owns reason/proof boundaries and token spelling. |
+
+`RouteDecisionV0` rows may carry `miss_reason` for developer-facing
+fastpath/slowpath explanation. Those miss reasons are not automatically
+preflight failure reasons. Preflight maps only route-contract failures that
+block pure-first EXE emission to stable `reason` tokens.
 
 ## Output Contract
 
