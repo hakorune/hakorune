@@ -6,6 +6,8 @@ Encapsulates hasattr/isinstance checks for cleaner code.
 
 from typing import Optional, Dict, Any
 
+_SAFE_RESOLVER_HELPERS_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def safe_get_type_tag(resolver, vid: int) -> Optional[Dict[str, Any]]:
     """Safely get type tag from resolver.value_types
@@ -33,7 +35,7 @@ def safe_get_type_tag(resolver, vid: int) -> Optional[Dict[str, Any]]:
         if tag is None or not isinstance(tag, dict):
             return None
         return tag
-    except Exception:
+    except _SAFE_RESOLVER_HELPERS_EXC:
         return None
 
 
@@ -62,7 +64,7 @@ def safe_set_type_tag(resolver, vid: int, tag: Dict[str, Any]) -> bool:
             resolver.value_types = {}
         resolver.value_types[vid] = tag
         return True
-    except Exception:
+    except _SAFE_RESOLVER_HELPERS_EXC:
         return False
 
 
@@ -152,7 +154,7 @@ def _arrayrepr_fact_store(resolver):
         facts = {}
         setattr(resolver, "arrayrepr_facts", facts)
         return facts
-    except Exception:
+    except _SAFE_RESOLVER_HELPERS_EXC:
         return None
 
 
@@ -166,7 +168,7 @@ def record_arrayrepr_fact(resolver, vid: int, fact: str) -> bool:
             return False
         facts[int(vid)] = fact
         return True
-    except Exception:
+    except _SAFE_RESOLVER_HELPERS_EXC:
         return False
 
 
@@ -183,7 +185,7 @@ def get_arrayrepr_fact(resolver, vid: int) -> Optional[str]:
             return None
         fact = facts.get(int(vid))
         return str(fact) if fact is not None else None
-    except Exception:
+    except _SAFE_RESOLVER_HELPERS_EXC:
         return None
 
 
@@ -215,5 +217,5 @@ def is_stringish_legacy(resolver, vid: int) -> bool:
             return resolver.is_stringish(vid)
 
         return False
-    except Exception:
+    except _SAFE_RESOLVER_HELPERS_EXC:
         return False
