@@ -483,6 +483,44 @@ replacement_front_page_bins_product_claim=0
 It remains single-thread-only in v0 and still keeps product pages, activation,
 hooks, globals, and winner claims closed.
 
+The benchmark-only non-linear product-pages ownership lookup can be measured on
+top of page-bins with:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-page-bins-mode \
+  --replacement-front-hotcore-page-model-mode \
+  --replacement-front-size-class-table-mode \
+  --replacement-front-eager-init-mode \
+  --replacement-front-product-pages-nonlinear-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-product-pages-nonlinear/report.out \
+  --out-dir target/hakozuna-mixed-ws-product-pages-nonlinear/artifacts \
+  --sample-count 3
+```
+
+`--replacement-front-product-pages-nonlinear-mode` requires
+`--replacement-front-page-bins-mode`. It replaces the generated linear
+`find_owned` range scan with a page-key indexed ownership table and reports:
+
+```text
+replacement_front_algorithm_shape=page_bin_hotcore_page_model_product_pages_nonlinear_benchmark_front
+replacement_front_product_pages_consumer_enabled=1
+replacement_front_product_pages_route=benchmark_product_pages_indexed_page_table
+replacement_front_page_bins_lookup_route=indexed_page_table
+replacement_front_page_index_insert_count_total=...
+replacement_front_page_index_probe_count_total=...
+replacement_front_page_index_collision_count_total=...
+replacement_front_page_index_overflow_count_total=...
+replacement_front_page_bins_product_claim=0
+replacement_front_is_full_hako_algorithm=0
+```
+
+This is still a benchmark-only replacement-front bridge. It does not activate
+product replacement, does not install hooks/globals, and does not claim that the
+full `.hako` mimalloc algorithm is wired into LD_PRELOAD.
+
 Without `--replacement-front-hotcore-page-model-mode`, the compare reports show
 the HotCore source-ready boundary but no replacement-front consumption yet:
 

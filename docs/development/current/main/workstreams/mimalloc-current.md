@@ -471,6 +471,43 @@ next implementation owner is a non-linear ownership lookup plan for a
 benchmark-only product-pages bridge, not product activation or a full allocator
 claim.
 
+The first benchmark-only non-linear consumer is available through
+`--replacement-front-product-pages-nonlinear-mode` on top of page-bins:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-page-bins-mode \
+  --replacement-front-hotcore-page-model-mode \
+  --replacement-front-size-class-table-mode \
+  --replacement-front-eager-init-mode \
+  --replacement-front-product-pages-nonlinear-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-product-pages-nonlinear/report.out \
+  --out-dir target/hakozuna-mixed-ws-product-pages-nonlinear/artifacts \
+  --sample-count 3
+```
+
+Small smoke evidence:
+
+```text
+report=target/hakozuna-product-pages-nonlinear-smoke/report.out
+replacement_front_algorithm_shape=page_bin_hotcore_page_model_product_pages_nonlinear_benchmark_front
+replacement_front_product_pages_consumer_enabled=1
+replacement_front_product_pages_route=benchmark_product_pages_indexed_page_table
+replacement_front_page_bins_lookup_route=indexed_page_table
+replacement_front_page_index_insert_count_total=10382
+replacement_front_page_index_probe_count_total=37
+replacement_front_page_index_collision_count_total=0
+replacement_front_page_index_overflow_count_total=0
+summary=ok
+```
+
+Interpretation: this consumes a non-linear page-key ownership lookup in the
+benchmark-only replacement front. It remains single-thread/smoke evidence until
+a larger measurement selects it; product replacement, hooks, globals, full
+`.hako` algorithm claims, and winner claims remain closed.
+
 The same report carries the current PageModel hot-array readiness view:
 
 ```text

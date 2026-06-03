@@ -96,6 +96,7 @@ def build_replacement_front_bins_shim(
     hotcore_page_model: bool = False,
     size_class_table: bool = False,
     eager_init: bool = False,
+    product_pages_nonlinear_lookup: bool = False,
 ) -> Path:
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
     if hotcore_page_model:
@@ -104,6 +105,8 @@ def build_replacement_front_bins_shim(
         front_name = f"{front_name}-size-table"
     if eager_init:
         front_name = f"{front_name}-eager-init"
+    if product_pages_nonlinear_lookup:
+        front_name = f"{front_name}-product-pages-nonlinear"
     source_name = (
         "hako_alloc_replacement_front_page_bins.c"
         if page_shaped
@@ -125,6 +128,7 @@ def build_replacement_front_bins_shim(
             hotcore_page_model=hotcore_page_model,
             size_class_table=size_class_table,
             eager_init=eager_init,
+            product_pages_nonlinear_lookup=product_pages_nonlinear_lookup,
         ).lstrip(),
         encoding="utf-8",
     )
@@ -531,6 +535,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--replacement-front-product-pages-nonlinear-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: with page-bins mode, use a page-key indexed "
+            "ownership lookup instead of the linear generated find_owned scan"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-size-class-table-mode",
         action="store_true",
         help=(
@@ -722,6 +734,14 @@ def main() -> int:
             "--replacement-front-hotcore-page-model-mode requires "
             "--replacement-front-page-bins-mode"
         )
+    if (
+        args.replacement_front_product_pages_nonlinear_mode
+        and not args.replacement_front_page_bins_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-product-pages-nonlinear-mode requires "
+            "--replacement-front-page-bins-mode"
+        )
     if args.replacement_front_size_class_table_mode and not (
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     ):
@@ -841,6 +861,7 @@ def main() -> int:
             hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
             size_class_table=args.replacement_front_size_class_table_mode,
             eager_init=args.replacement_front_eager_init_mode,
+            product_pages_nonlinear_lookup=args.replacement_front_product_pages_nonlinear_mode,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -894,15 +915,23 @@ def main() -> int:
         or replacement_front_bins_mode
         else "hako_model_not_consumed"
     )
-    replacement_front_algorithm_shape = (
-        "page_bin_hotcore_page_model_benchmark_front"
-        if args.replacement_front_hotcore_page_model_mode
-        else "page_bin_benchmark_front"
-        if args.replacement_front_page_bins_mode
-        else "multi_bin_native_benchmark_front"
-        if args.replacement_front_native_bins_mode
-        else "fixed_slot_native_benchmark_front"
-    )
+    if (
+        args.replacement_front_product_pages_nonlinear_mode
+        and args.replacement_front_hotcore_page_model_mode
+    ):
+        replacement_front_algorithm_shape = (
+            "page_bin_hotcore_page_model_product_pages_nonlinear_benchmark_front"
+        )
+    elif args.replacement_front_product_pages_nonlinear_mode:
+        replacement_front_algorithm_shape = "page_bin_product_pages_nonlinear_benchmark_front"
+    elif args.replacement_front_hotcore_page_model_mode:
+        replacement_front_algorithm_shape = "page_bin_hotcore_page_model_benchmark_front"
+    elif args.replacement_front_page_bins_mode:
+        replacement_front_algorithm_shape = "page_bin_benchmark_front"
+    elif args.replacement_front_native_bins_mode:
+        replacement_front_algorithm_shape = "multi_bin_native_benchmark_front"
+    else:
+        replacement_front_algorithm_shape = "fixed_slot_native_benchmark_front"
     replacement_front_size_class_bridge_enabled = int(
         args.replacement_front_match_hako_size_class
         or replacement_front_bins_mode
@@ -1002,13 +1031,16 @@ def main() -> int:
         f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
         "replacement_front_product_pages_plan_v0=1",
         "replacement_front_product_pages_report_only=1",
-        "replacement_front_product_pages_consumer_enabled=0",
+        "replacement_front_product_pages_consumer_enabled="
+        f"{1 if args.replacement_front_product_pages_nonlinear_mode else 0}",
         "replacement_front_product_pages_connected=0",
         "replacement_front_product_pages_next_bridge=design_non_linear_product_pages_bridge",
         "replacement_front_product_pages_non_linear_lookup_plan_v0=1",
         "replacement_front_product_pages_linear_probe_closed=1",
         "replacement_front_product_pages_non_linear_lookup_strategy=range_decision_tree_or_indexed_page_table",
         "replacement_front_product_pages_non_linear_next_bridge=replacement_front_product_pages_non_linear_plan",
+        "replacement_front_product_pages_route="
+        f"{'benchmark_product_pages_indexed_page_table' if args.replacement_front_product_pages_nonlinear_mode else 'not_consumed'}",
         "replacement_front_page_bins_plan_v0=1",
         "replacement_front_page_bins_report_only=1",
         "replacement_front_page_bins_consumer_enabled="
@@ -1016,7 +1048,7 @@ def main() -> int:
         "replacement_front_page_bins_route="
         f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
         "replacement_front_page_bins_lookup_route="
-        f"{'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
+        f"{'indexed_page_table' if args.replacement_front_product_pages_nonlinear_mode else 'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
         "replacement_front_page_bins_owner=benchmark_only",
         "replacement_front_page_bins_product_claim=0",
         "replacement_front_product_bins_required_regular_distinct_count="
@@ -1246,7 +1278,9 @@ def main() -> int:
                     f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
                     f"subject_{index}_replacement_front_product_pages_plan_v0=1",
                     f"subject_{index}_replacement_front_product_pages_report_only=1",
-                    f"subject_{index}_replacement_front_product_pages_consumer_enabled=0",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_consumer_enabled="
+                    f"{1 if args.replacement_front_product_pages_nonlinear_mode else 0}",
                     f"subject_{index}_replacement_front_product_pages_connected=0",
                     "subject_"
                     f"{index}_replacement_front_product_pages_next_bridge="
@@ -1261,6 +1295,9 @@ def main() -> int:
                     "subject_"
                     f"{index}_replacement_front_product_pages_non_linear_next_bridge="
                     "replacement_front_product_pages_non_linear_plan",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_route="
+                    f"{'benchmark_product_pages_indexed_page_table' if args.replacement_front_product_pages_nonlinear_mode else 'not_consumed'}",
                     f"subject_{index}_replacement_front_page_bins_plan_v0=1",
                     f"subject_{index}_replacement_front_page_bins_report_only=1",
                     "subject_"
@@ -1271,7 +1308,7 @@ def main() -> int:
                     f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
                     "subject_"
                     f"{index}_replacement_front_page_bins_lookup_route="
-                    f"{'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
+                    f"{'indexed_page_table' if args.replacement_front_product_pages_nonlinear_mode else 'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
                     f"subject_{index}_replacement_front_page_bins_owner=benchmark_only",
                     f"subject_{index}_replacement_front_page_bins_product_claim=0",
                     "subject_"

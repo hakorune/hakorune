@@ -706,6 +706,7 @@ def generate_replacement_front_bins_shim_c(
     hotcore_page_model: bool = False,
     size_class_table: bool = False,
     eager_init: bool = False,
+    product_pages_nonlinear_lookup: bool = False,
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
@@ -716,6 +717,7 @@ def generate_replacement_front_bins_shim_c(
 
     bin_defs: list[str] = []
     init_cases: list[str] = []
+    page_index_register_cases: list[str] = []
     size_cases: list[str] = []
     alloc_cases: list[str] = []
     find_cases: list[str] = []
@@ -803,6 +805,20 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
     {requested_expr}[i] = 0u;
   }}
   {free_top_expr} = HAKO_REPLACEMENT_BIN_SLOT_COUNT;
+"""
+        )
+        page_index_register_cases.append(
+            f"""
+  page_index_register_range(
+      (uintptr_t){slot_expr}[0].bytes,
+      (uintptr_t)({slot_expr} + HAKO_REPLACEMENT_BIN_SLOT_COUNT),
+      sizeof({slot_expr}[0]),
+      HAKO_{tag.upper()}_SIZE,
+      {bin_index},
+      {used_expr},
+      {requested_expr},
+      {free_stack_expr},
+      &{free_top_expr});
 """
         )
         size_cases.append(f"  if (size <= HAKO_{tag.upper()}_SIZE) return {bin_index};")
@@ -925,6 +941,157 @@ static int release_from_bin(int bin, uint32_t index) {{
 """
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
 
+    page_index_source = ""
+    find_owned_source = f"""
+static int find_owned(
+    void* ptr,
+    int* bin_out,
+    uint32_t* index_out,
+    size_t* slot_size_out,
+    unsigned char** used_out,
+    size_t** requested_out,
+    uint32_t** free_stack_out,
+    uint32_t** free_top_out) {{
+  if (!ptr) return 0;
+  uintptr_t value = (uintptr_t)ptr;
+  uintptr_t base = 0u;
+  uintptr_t end = 0u;
+  uintptr_t delta = 0u;
+  uintptr_t stride = 0u;
+  uint32_t index = 0u;
+{chr(10).join(find_cases)}
+  return 0;
+}}
+"""
+    if product_pages_nonlinear_lookup:
+        find_owned_source = ""
+        page_index_source = f"""
+#define HAKO_PAGE_INDEX_TABLE_CAP 65536u
+#define HAKO_PAGE_INDEX_SHIFT 12u
+
+typedef struct HakoReplacementPageIndexEntry {{
+  uintptr_t page_key;
+  uintptr_t base;
+  uintptr_t end;
+  uintptr_t stride;
+  size_t slot_size;
+  int bin;
+  unsigned char* used;
+  size_t* requested;
+  uint32_t* free_stack;
+  uint32_t* free_top;
+  unsigned char occupied;
+}} HakoReplacementPageIndexEntry;
+
+static HakoReplacementPageIndexEntry page_index_table[HAKO_PAGE_INDEX_TABLE_CAP];
+static unsigned long long page_index_insert_count = 0;
+static unsigned long long page_index_probe_count = 0;
+static unsigned long long page_index_collision_count = 0;
+static unsigned long long page_index_overflow_count = 0;
+
+static unsigned int page_index_slot(uintptr_t page_key) {{
+  uintptr_t mixed = page_key * 11400714819323198485ull;
+  return (unsigned int)(mixed & (HAKO_PAGE_INDEX_TABLE_CAP - 1u));
+}}
+
+static void page_index_insert(
+    uintptr_t page_key,
+    uintptr_t base,
+    uintptr_t end,
+    uintptr_t stride,
+    size_t slot_size,
+    int bin,
+    unsigned char* used,
+    size_t* requested,
+    uint32_t* free_stack,
+    uint32_t* free_top) {{
+  unsigned int slot = page_index_slot(page_key);
+  for (unsigned int probe = 0; probe < HAKO_PAGE_INDEX_TABLE_CAP; probe++) {{
+    HakoReplacementPageIndexEntry* entry =
+        &page_index_table[(slot + probe) & (HAKO_PAGE_INDEX_TABLE_CAP - 1u)];
+    if (!entry->occupied) {{
+      entry->page_key = page_key;
+      entry->base = base;
+      entry->end = end;
+      entry->stride = stride;
+      entry->slot_size = slot_size;
+      entry->bin = bin;
+      entry->used = used;
+      entry->requested = requested;
+      entry->free_stack = free_stack;
+      entry->free_top = free_top;
+      entry->occupied = 1u;
+      page_index_insert_count++;
+      return;
+    }}
+    if (entry->page_key == page_key) {{
+      page_index_collision_count++;
+    }}
+  }}
+  page_index_overflow_count++;
+}}
+
+static void page_index_register_range(
+    uintptr_t base,
+    uintptr_t end,
+    uintptr_t stride,
+    size_t slot_size,
+    int bin,
+    unsigned char* used,
+    size_t* requested,
+    uint32_t* free_stack,
+    uint32_t* free_top) {{
+  uintptr_t first_page = base >> HAKO_PAGE_INDEX_SHIFT;
+  uintptr_t last_page = (end - 1u) >> HAKO_PAGE_INDEX_SHIFT;
+  for (uintptr_t page = first_page; page <= last_page; page++) {{
+    page_index_insert(page, base, end, stride, slot_size, bin, used, requested, free_stack, free_top);
+  }}
+}}
+
+static int find_owned(
+    void* ptr,
+    int* bin_out,
+    uint32_t* index_out,
+    size_t* slot_size_out,
+    unsigned char** used_out,
+    size_t** requested_out,
+    uint32_t** free_stack_out,
+    uint32_t** free_top_out) {{
+  if (!ptr) return 0;
+  uintptr_t value = (uintptr_t)ptr;
+  uintptr_t page_key = value >> HAKO_PAGE_INDEX_SHIFT;
+  unsigned int slot = page_index_slot(page_key);
+  for (unsigned int probe = 0; probe < HAKO_PAGE_INDEX_TABLE_CAP; probe++) {{
+    HakoReplacementPageIndexEntry* entry =
+        &page_index_table[(slot + probe) & (HAKO_PAGE_INDEX_TABLE_CAP - 1u)];
+    if (!entry->occupied) return 0;
+    if (entry->page_key != page_key) continue;
+    page_index_probe_count++;
+    if (value < entry->base || value >= entry->end) continue;
+    uintptr_t delta = value - entry->base;
+    if ((delta % entry->stride) != 0) continue;
+    uintptr_t index = delta / entry->stride;
+    if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) continue;
+    *bin_out = entry->bin;
+    *index_out = (uint32_t)index;
+    *slot_size_out = entry->slot_size;
+    *used_out = entry->used;
+    *requested_out = entry->requested;
+    *free_stack_out = entry->free_stack;
+    *free_top_out = entry->free_top;
+    return 1;
+  }}
+  return 0;
+}}
+"""
+    else:
+        page_index_source = """
+static unsigned long long page_index_insert_count = 0;
+static unsigned long long page_index_probe_count = 0;
+static unsigned long long page_index_collision_count = 0;
+static unsigned long long page_index_overflow_count = 0;
+"""
+
     malloc_init_line = (
         "  if (!init_done) return real_malloc_fn ? real_malloc_fn(size) : 0;"
         if eager_init
@@ -968,6 +1135,8 @@ static unsigned long long realloc_copy_bytes = 0;
 static unsigned long long realloc_inplace_count = 0;
 static unsigned long long calloc_zero_bytes = 0;
 
+{page_index_source}
+
 static void resolve_real(void) {{
   if (resolving_real) return;
   resolving_real = 1;
@@ -981,6 +1150,7 @@ static void resolve_real(void) {{
 static void init_bins(void) {{
   if (init_done) return;
 {chr(10).join(init_cases)}
+{chr(10).join(page_index_register_cases) if product_pages_nonlinear_lookup else ""}
   init_done = 1u;
 }}
 
@@ -997,25 +1167,7 @@ static void* alloc_from_bin(int bin, size_t size) {{
   }}
 }}
 
-static int find_owned(
-    void* ptr,
-    int* bin_out,
-    uint32_t* index_out,
-    size_t* slot_size_out,
-    unsigned char** used_out,
-    size_t** requested_out,
-    uint32_t** free_stack_out,
-    uint32_t** free_top_out) {{
-  if (!ptr) return 0;
-  uintptr_t value = (uintptr_t)ptr;
-  uintptr_t base = 0u;
-  uintptr_t end = 0u;
-  uintptr_t delta = 0u;
-  uintptr_t stride = 0u;
-  uint32_t index = 0u;
-{chr(10).join(find_cases)}
-  return 0;
-}}
+{find_owned_source}
 
 {release_from_bin_source}
 
@@ -1062,6 +1214,10 @@ static void write_report(void) {{
   write_kv(fd, "replacement_front_realloc_copy_bytes", realloc_copy_bytes);
   write_kv(fd, "replacement_front_realloc_inplace_count", realloc_inplace_count);
   write_kv(fd, "replacement_front_calloc_zero_bytes", calloc_zero_bytes);
+  write_kv(fd, "replacement_front_page_index_insert_count", page_index_insert_count);
+  write_kv(fd, "replacement_front_page_index_probe_count", page_index_probe_count);
+  write_kv(fd, "replacement_front_page_index_collision_count", page_index_collision_count);
+  write_kv(fd, "replacement_front_page_index_overflow_count", page_index_overflow_count);
   close(fd);
 }}
 
