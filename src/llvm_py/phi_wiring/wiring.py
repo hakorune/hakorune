@@ -65,11 +65,8 @@ def ensure_phi(builder, block_id: int, dst_vid: int, bb: ir.Block, dst_type=None
                   file=sys.stderr)
 
             # PhiManager に古いPHI無効化を通知（あれば）
-            try:
-                if hasattr(builder, 'phi_manager'):
-                    builder.phi_manager.invalidate_phi(int(block_id), int(dst_vid))
-            except Exception:
-                pass
+            if hasattr(builder, 'phi_manager'):
+                builder.phi_manager.invalidate_phi(int(block_id), int(dst_vid))
 
             # 詳細デバッグ
             if is_phi_debug_enabled():
@@ -196,7 +193,7 @@ def _initial_non_self_source(dst_vid: int, incoming: List[Tuple[int, int]]) -> i
     for (_decl_b, v_src) in incoming:
         try:
             src_vid = int(v_src)
-        except Exception:
+        except (TypeError, ValueError):
             continue
         if src_vid != int(dst_vid):
             return src_vid
@@ -214,7 +211,7 @@ def _resolve_incoming_value(builder, block_id: int, dst_vid: int, pred_match: in
     try:
         val = builder.resolver.resolve_incoming(pred_match, src_vid, context=context)
         trace({"phi": "wire_resolved", "vs": int(src_vid), "pred": int(pred_match), "val_type": type(val).__name__})
-    except Exception as e:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as e:
         trace({"phi": "wire_resolve_fail", "vs": int(src_vid), "pred": int(pred_match), "error": str(e)})
         val = None
 
@@ -233,7 +230,7 @@ def _resolve_incoming_value(builder, block_id: int, dst_vid: int, pred_match: in
     try:
         if not hasattr(val, "type"):
             val = _const_i64(builder, int(val))
-    except Exception as e:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as e:
         error = PhiStrictError(
             message=f"PHI v{dst_vid} incoming type coercion failed (vs={src_vid}, pred={pred_match}): {e}",
             next_file="phi_wiring.py::get_phi_operand_type",
@@ -250,7 +247,7 @@ def _is_zero_const(v: ir.Value) -> bool:
     try:
         if isinstance(v, ir.Constant) and isinstance(v.type, ir.IntType) and v.type.width == 64:
             return int(getattr(v, "constant", 1)) == 0
-    except Exception:
+    except (AttributeError, TypeError, ValueError):
         pass
     return False
 
@@ -312,7 +309,7 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
         try:
             bd = int(b_decl)
             vs = int(v_src)
-        except Exception:
+        except (TypeError, ValueError):
             continue
         trace({"phi": "wire_process", "dst": int(dst_vid), "decl_b": bd, "v_src": vs, "init_src_vid": init_src_vid})
         pred_match = nearest_pred_on_path(succs, preds_list, bd, block_id)
@@ -359,7 +356,7 @@ def _mark_phi_stringish(builder, dst_vid: int, incoming: List[Tuple[int, int]]) 
             if resolver.is_stringish(int(v_src)):
                 resolver.mark_string(int(dst_vid))
                 return
-        except Exception:
+        except (TypeError, ValueError):
             continue
 
 
@@ -383,7 +380,7 @@ def _consensus_incoming_mapping(
     for (_decl_b, v_src) in incoming or []:
         try:
             v_src_i = int(v_src)
-        except Exception:
+        except (TypeError, ValueError):
             continue
         mapped = candidate if v_src_i == int(dst_vid) and candidate is not None else mapping.get(v_src_i)
         if not value_ok(mapped):
@@ -422,15 +419,12 @@ def _string_ptr_phi_candidate(builder, block_id: int, dst_vid: int):
     phi = ptr_map.get(int(dst_vid))
     if phi is None or not hasattr(phi, "add_incoming"):
         return None
-    try:
-        if not isinstance(phi.type, ir.PointerType):
-            return None
-        phi_bb_name = getattr(getattr(phi, "basic_block", None), "name", None)
-        bb = builder.bb_map.get(block_id)
-        bb_name = getattr(bb, "name", None) if bb is not None else None
-        return phi if phi_bb_name == bb_name else None
-    except Exception:
+    if not isinstance(phi.type, ir.PointerType):
         return None
+    phi_bb_name = getattr(getattr(phi, "basic_block", None), "name", None)
+    bb = builder.bb_map.get(block_id)
+    bb_name = getattr(bb, "name", None) if bb is not None else None
+    return phi if phi_bb_name == bb_name else None
 
 
 def _declare_to_i8p_bridge(builder) -> ir.Function:
@@ -458,21 +452,18 @@ def _resolve_incoming_string_ptr(builder, pred_match: int, src_vid: int, context
     try:
         if not (hasattr(handle_val, "type") and isinstance(handle_val.type, ir.IntType) and handle_val.type.width == 64):
             return None, False
-    except Exception:
+    except (AttributeError, TypeError, ValueError):
         return None, False
 
     pred_bb = builder.bb_map.get(pred_match)
     if pred_bb is None:
         return None, False
     pred_builder = ir.IRBuilder(pred_bb)
-    try:
-        term = pred_bb.terminator
-        if term is not None:
-            pred_builder.position_before(term)
-        else:
-            pred_builder.position_at_end(pred_bb)
-    except Exception:
-        pass
+    term = pred_bb.terminator
+    if term is not None:
+        pred_builder.position_before(term)
+    else:
+        pred_builder.position_at_end(pred_bb)
     bridge = _declare_to_i8p_bridge(builder)
     ptr_val = pred_builder.call(bridge, [handle_val], name=f"phi_strptr_h2p_{src_vid}_{pred_match}")
     if isinstance(ptr_snapshot, dict):
@@ -493,7 +484,7 @@ def _wire_string_ptr_incomings(builder, block_id: int, dst_vid: int, incoming: L
         try:
             bd = int(b_decl)
             vs = int(v_src)
-        except Exception:
+        except (TypeError, ValueError):
             continue
         pred_match = nearest_pred_on_path(succs, preds_list, bd, block_id)
         if pred_match is None:
