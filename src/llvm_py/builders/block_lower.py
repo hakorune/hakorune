@@ -65,22 +65,22 @@ def _bind_resolver_block(
     *,
     disable_phi_synthesis: bool = False,
 ) -> None:
-    try:
-        builder.resolver.builder = ir_builder
-        builder.resolver.module = builder.module
-        builder.resolver.current_block_id = block_id
-        if disable_phi_synthesis:
-            builder.resolver._disable_phi_synthesis = True
-    except Exception:
-        pass
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
+        return
+    resolver.builder = ir_builder
+    resolver.module = builder.module
+    resolver.current_block_id = block_id
+    if disable_phi_synthesis:
+        resolver._disable_phi_synthesis = True
 
 
 def _bind_resolver_instruction(builder, block_id: int, instruction_index: int) -> None:
-    try:
-        builder.resolver.current_block_id = block_id
-        builder.resolver.current_instruction_index = int(instruction_index)
-    except Exception:
-        pass
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
+        return
+    resolver.current_block_id = block_id
+    resolver.current_instruction_index = int(instruction_index)
 
 
 def _set_current_vmap(builder, vmap):
@@ -121,10 +121,9 @@ def _split_block_ops(insts: List[Dict[str, Any]], block_id: int):
 def _record_created_id(context, created_ids: List[int], vid: int, block_id: int) -> None:
     if vid not in created_ids:
         created_ids.append(vid)
-    try:
-        context.add_def_block(vid, block_id)
-    except Exception:
-        pass
+    add_def_block = getattr(context, "add_def_block", None)
+    if callable(add_def_block):
+        add_def_block(vid, block_id)
 
 
 def _find_function_block(func: ir.Function, name: str):
@@ -650,7 +649,5 @@ def lower_terminators(builder, func: ir.Function):
             _restore_current_vmap(builder, old_current_vmap)
 
     # Clean up deferred state
-    try:
+    if hasattr(builder, '_deferred_terminators'):
         delattr(builder, '_deferred_terminators')
-    except Exception:
-        pass
