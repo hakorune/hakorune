@@ -83,6 +83,20 @@ def _bind_resolver_instruction(builder, block_id: int, instruction_index: int) -
         pass
 
 
+def _set_current_vmap(builder, vmap):
+    old_current_vmap = getattr(builder, '_current_vmap', None)
+    builder._current_vmap = vmap
+    return old_current_vmap
+
+
+def _restore_current_vmap(builder, old_current_vmap) -> None:
+    if old_current_vmap is None:
+        if hasattr(builder, '_current_vmap'):
+            delattr(builder, '_current_vmap')
+    else:
+        builder._current_vmap = old_current_vmap
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -264,7 +278,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             from instructions.loopform import lower_while_loopform
             ok = False
             try:
-                builder._current_vmap = dict(builder.vmap)
+                _set_current_vmap(builder, dict(builder.vmap))
                 ok = lower_while_loopform(
                     ib,
                     func,
@@ -291,10 +305,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                                     builder.loop_count, builder.vmap, builder.bb_map,
                                     builder.resolver, builder.preds, builder.block_end_values,
                                     loop_simd_contract)
-            try:
-                delattr(builder, '_current_vmap')
-            except Exception:
-                pass
+            _restore_current_vmap(builder, None)
             for bskip in loop_plan.get('skip_blocks', []):
                 skipped.add(bskip)
             # Ensure skipped original blocks have a valid terminator: branch to while exit
@@ -375,7 +386,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         except Exception:
             # Fallback: copy all values without filtering
             vmap_cur = dict(builder.vmap)
-        builder._current_vmap = vmap_cur
+        _set_current_vmap(builder, vmap_cur)
         # Phase 131-12-P1: Object identity trace for vmap_cur investigation
         import os, sys
         if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
@@ -594,10 +605,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                     f"[vmap/snapshot/passA] bb{bid} snapshot deferred (not stored in block_end_values)",
                     file=sys.stderr
                 )
-        try:
-            delattr(builder, '_current_vmap')
-        except Exception:
-            pass
+        _restore_current_vmap(builder, None)
 
 
 def lower_terminators(builder, func: ir.Function):
@@ -629,8 +637,7 @@ def lower_terminators(builder, func: ir.Function):
             trace_debug(f"[llvm-py/pass-c/strict] bb{bid} vmap_snapshot id={id(vmap_snapshot)}")
 
         # Phase 131-12-P1 P0-3: Save and restore _current_vmap
-        old_current_vmap = getattr(builder, '_current_vmap', None)
-        builder._current_vmap = vmap_snapshot
+        old_current_vmap = _set_current_vmap(builder, vmap_snapshot)
 
         # Trace snapshot restoration
         if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
@@ -664,11 +671,7 @@ def lower_terminators(builder, func: ir.Function):
                 builder.lower_instruction(ib, inst, func)
         finally:
             # Phase 131-12-P1 P0-3: Restore previous _current_vmap state (prevent side effects)
-            if old_current_vmap is None:
-                if hasattr(builder, '_current_vmap'):
-                    delattr(builder, '_current_vmap')
-            else:
-                builder._current_vmap = old_current_vmap
+            _restore_current_vmap(builder, old_current_vmap)
 
     # Clean up deferred state
     try:
