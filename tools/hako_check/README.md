@@ -442,6 +442,8 @@ user_box_decl_count
 selected_field_count
 record_decl_count
 record_layout_plan_count
+typed_object_plan_count
+selected_typed_object_plan_count
 direct_state_plan_count
 direct_state_positive_candidate_count
 direct_state_mixed_candidate_count
@@ -451,6 +453,13 @@ selected_direct_state_mixed_candidate_count
 record_state_residence_plan_count
 record_state_field_access_plan_count
 record_state_field_access_lowering_enabled=0
+record_state_route_decision_enabled=0
+record_state_lowering_owner_selection_plan_v0
+record_state_access_exact_slot_covered_count
+record_state_access_exact_slot_missing_count
+record_state_lowering_owner_selected
+record_state_lowering_owner_reason
+record_state_lowering_owner_next_bridge
 record_state_residence_candidate_field_count
 record_state_handle_reject_field_count
 record_state_residence_plan_0_owner_box
@@ -489,6 +498,11 @@ summary=ok
   metadata and explanatory bucket counts. Any `RecordStateResidencePlanV0`
   producer, source migration, backend lowering, or keeper selection must stay
   outside hako_check.
+- Record-state lowering owner rows are report-only. When they say
+  `typed_object_exact_slot_existing`, the current meaning is that the observed
+  record-state access sites already have typed-object exact slot storage
+  coverage; it is not permission to enable record-state lowering or
+  RouteDecision rows.
 
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise

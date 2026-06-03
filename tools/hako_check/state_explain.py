@@ -86,6 +86,17 @@ def root_list(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
     return [row for row in value if isinstance(row, dict)]
 
 
+def typed_object_field_names(plan: dict[str, Any]) -> set[str]:
+    values = plan.get("fields")
+    if not isinstance(values, list):
+        return set()
+    names: set[str] = set()
+    for field in values:
+        if isinstance(field, dict) and isinstance(field.get("name"), str):
+            names.add(str(field["name"]))
+    return names
+
+
 def function_metadata_rows(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for function in root_list(data, "functions"):
@@ -200,6 +211,7 @@ def main() -> int:
     data = load_json(args.mir_json)
     user_box_decls = root_list(data, "user_box_decls")
     record_decls = root_list(data, "record_decls")
+    typed_object_plans = root_list(data, "typed_object_plans")
     direct_state_plans = root_list(data, "direct_state_plans")
     record_layout_plans = root_list(data, "record_layout_plans")
     record_state_residence_plans = root_list(data, "record_state_residence_plans")
@@ -215,6 +227,14 @@ def main() -> int:
         (owner, bucket) for owner, _, bucket in field_rows
     )
     direct_state_by_box = {str(plan.get("box_name", "unknown")): plan for plan in direct_state_plans}
+    typed_object_by_box = {
+        str(plan.get("box_name", "unknown")): plan for plan in typed_object_plans
+    }
+    selected_typed_object_plans = [
+        plan
+        for plan in typed_object_plans
+        if args.box_filter is None or str(plan.get("box_name", "unknown")) == args.box_filter
+    ]
     selected_direct_state_plans = [
         plan
         for plan in direct_state_plans
@@ -250,6 +270,48 @@ def main() -> int:
     record_state_field_access_lowering_enabled = sum(
         1 for plan in record_state_field_access_plans if bool(plan.get("lowering_enabled"))
     )
+    selected_record_state_plans = [
+        plan
+        for plan in record_state_residence_plans
+        if args.box_filter is None
+        or str(plan.get("owner_box", "unknown")) == args.box_filter
+    ]
+    selected_record_state_access_plans = [
+        plan
+        for plan in record_state_field_access_plans
+        if args.box_filter is None
+        or str(plan.get("owner_box", "unknown")) == args.box_filter
+    ]
+    record_state_access_exact_slot_covered_count = 0
+    record_state_access_exact_slot_missing_count = 0
+    for plan in selected_record_state_access_plans:
+        owner = str(plan.get("owner_box", "unknown"))
+        field = str(plan.get("field_name", "unknown"))
+        typed_object_field_set = typed_object_field_names(typed_object_by_box.get(owner, {}))
+        if field in typed_object_field_set:
+            record_state_access_exact_slot_covered_count += 1
+        else:
+            record_state_access_exact_slot_missing_count += 1
+    record_state_lowering_owner_selection_enabled = int(
+        bool(selected_record_state_plans) and bool(selected_record_state_access_plans)
+    )
+    if record_state_lowering_owner_selection_enabled:
+        if record_state_access_exact_slot_missing_count == 0:
+            record_state_lowering_owner_selected = "typed_object_exact_slot_existing"
+            record_state_lowering_owner_reason = (
+                "record_state_access_sites_already_have_typed_object_slot_storage"
+            )
+            record_state_lowering_owner_next_bridge = (
+                "measure_representation_delta_before_record_state_lowering"
+            )
+        else:
+            record_state_lowering_owner_selected = "typed_object_exact_slot_gap"
+            record_state_lowering_owner_reason = "record_state_access_sites_missing_typed_slots"
+            record_state_lowering_owner_next_bridge = "fix_typed_object_slot_coverage_first"
+    else:
+        record_state_lowering_owner_selected = "none"
+        record_state_lowering_owner_reason = "record_state_access_sites_not_ready"
+        record_state_lowering_owner_next_bridge = "record_state_field_access_site_measurement"
 
     lines = [
         "output_contract=hako-check-state-explain-v0",
@@ -263,6 +325,8 @@ def main() -> int:
         f"selected_field_count={len(field_rows)}",
         f"record_decl_count={len(record_decls)}",
         f"record_layout_plan_count={len(record_layout_plans)}",
+        f"typed_object_plan_count={len(typed_object_plans)}",
+        f"selected_typed_object_plan_count={len(selected_typed_object_plans)}",
         f"direct_state_plan_count={len(direct_state_plans)}",
         f"direct_state_positive_candidate_count={len(positive_direct_state)}",
         f"direct_state_mixed_candidate_count={len(mixed_direct_state)}",
@@ -272,6 +336,14 @@ def main() -> int:
         f"record_state_residence_plan_count={len(record_state_residence_plans)}",
         f"record_state_field_access_plan_count={len(record_state_field_access_plans)}",
         f"record_state_field_access_lowering_enabled={record_state_field_access_lowering_enabled}",
+        "record_state_route_decision_enabled=0",
+        "record_state_lowering_owner_selection_plan_v0="
+        f"{record_state_lowering_owner_selection_enabled}",
+        f"record_state_access_exact_slot_covered_count={record_state_access_exact_slot_covered_count}",
+        f"record_state_access_exact_slot_missing_count={record_state_access_exact_slot_missing_count}",
+        f"record_state_lowering_owner_selected={record_state_lowering_owner_selected}",
+        f"record_state_lowering_owner_reason={record_state_lowering_owner_reason}",
+        f"record_state_lowering_owner_next_bridge={record_state_lowering_owner_next_bridge}",
         f"record_state_residence_candidate_field_count={len(record_state_candidate_fields)}",
         f"record_state_handle_reject_field_count={len(handle_reject_fields)}",
         "record_state_source_migration_selected=0",
@@ -328,12 +400,6 @@ def main() -> int:
             ]
         )
 
-    selected_record_state_plans = [
-        plan
-        for plan in record_state_residence_plans
-        if args.box_filter is None
-        or str(plan.get("owner_box", "unknown")) == args.box_filter
-    ]
     for idx, plan in enumerate(selected_record_state_plans[: max(0, args.topn)]):
         prefix = f"record_state_residence_plan_{idx}"
         lines.extend(
@@ -349,12 +415,6 @@ def main() -> int:
             ]
         )
 
-    selected_record_state_access_plans = [
-        plan
-        for plan in record_state_field_access_plans
-        if args.box_filter is None
-        or str(plan.get("owner_box", "unknown")) == args.box_filter
-    ]
     for idx, plan in enumerate(selected_record_state_access_plans[: max(0, args.topn)]):
         prefix = f"record_state_field_access_plan_{idx}"
         lines.extend(

@@ -194,6 +194,9 @@ record_state_field_access_plan_count=...
 record_state_field_access_ready=1
 record_state_field_access_lowering_enabled=0
 record_state_route_decision_enabled=0
+record_state_lowering_owner_selected=typed_object_exact_slot_existing
+record_state_access_exact_slot_missing_count=0
+record_state_lowering_owner_next_bridge=measure_representation_delta_before_record_state_lowering
 record_state_residence_next_bridge=select_record_state_lowering_owner
 ```
 
@@ -298,6 +301,13 @@ test-only gating closed. The same overlay then emits a report-only
 `RecordStateResidencePlanV0` candidate for `HakoAllocPageModel`; this is a
 compiler-owner selection artifact, not permission to rewrite PageModel source
 into a record yet.
+
+When the state report says
+`record_state_lowering_owner_selected=typed_object_exact_slot_existing`, the
+current record-state access sites are already covered by typed-object exact
+slot storage. That keeps `record_state_field_access_lowering_enabled=0` and
+`record_state_route_decision_enabled=0`; the next bridge is a representation
+delta measurement before enabling any record-state lowering.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

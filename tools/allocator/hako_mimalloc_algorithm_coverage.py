@@ -718,11 +718,25 @@ def report_dict(
     record_state_field_access_ready = int(
         state_report_consumed and record_state_field_access_plan_count > 0
     )
+    record_state_lowering_owner_selected = str_field(
+        state, "record_state_lowering_owner_selected", "none"
+    )
+    record_state_access_exact_slot_covered_count = int_field(
+        state, "record_state_access_exact_slot_covered_count", 0
+    )
+    record_state_access_exact_slot_missing_count = int_field(
+        state, "record_state_access_exact_slot_missing_count", 0
+    )
+    record_state_lowering_owner_next_bridge = str_field(
+        state,
+        "record_state_lowering_owner_next_bridge",
+        "select_record_state_lowering_owner",
+    )
     record_state_next_bridge = (
         "record_state_field_access_site_measurement"
         if record_state_report_ready
         and not record_state_field_access_ready
-        else "select_record_state_lowering_owner"
+        else record_state_lowering_owner_next_bridge
         if record_state_field_access_ready
         else hot_field_next_bridge
     )
@@ -900,6 +914,10 @@ def report_dict(
             state, "record_state_field_access_lowering_enabled", 0
         ),
         "record_state_route_decision_enabled": 0,
+        "record_state_lowering_owner_selected": record_state_lowering_owner_selected,
+        "record_state_access_exact_slot_covered_count": record_state_access_exact_slot_covered_count,
+        "record_state_access_exact_slot_missing_count": record_state_access_exact_slot_missing_count,
+        "record_state_lowering_owner_next_bridge": record_state_lowering_owner_next_bridge,
         "record_state_residence_owner_box": "HakoAllocPageModel",
         "record_state_residence_candidate_record": "PageState",
         "record_state_residence_static_candidate_fields": ",".join(
@@ -1092,6 +1110,10 @@ def emit_text(data: dict[str, object]) -> None:
         "record_state_field_access_ready",
         "record_state_field_access_lowering_enabled",
         "record_state_route_decision_enabled",
+        "record_state_lowering_owner_selected",
+        "record_state_access_exact_slot_covered_count",
+        "record_state_access_exact_slot_missing_count",
+        "record_state_lowering_owner_next_bridge",
         "record_state_residence_owner_box",
         "record_state_residence_candidate_record",
         "record_state_residence_static_candidate_fields",

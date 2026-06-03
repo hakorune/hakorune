@@ -400,11 +400,23 @@ page_model_hot_array_source_route_measurement_blocker=none
 record_state_field_access_plan_count=88
 record_state_field_access_ready=1
 record_state_field_access_lowering_enabled=0
-record_state_residence_next_bridge=select_record_state_lowering_owner
+record_state_route_decision_enabled=0
+record_state_lowering_owner_selected=typed_object_exact_slot_existing
+record_state_access_exact_slot_covered_count=88
+record_state_access_exact_slot_missing_count=0
+record_state_lowering_owner_next_bridge=measure_representation_delta_before_record_state_lowering
+record_state_residence_next_bridge=measure_representation_delta_before_record_state_lowering
 ```
 
 This is still metadata only. It does not create a runtime `PageState`, direct
 record lowering, whole-record ABI, or source migration permission.
+
+Interpretation: the observed record-state access sites are already covered by
+the typed-object exact slot storage owner. Enabling a separate record-state
+lowering lane now would duplicate the existing slot route unless a
+representation delta is measured first. Keep record-state RouteDecision rows
+disabled until a narrow lowering contract proves a positive representation
+change.
 
 RouteDecision stop-line:
 
