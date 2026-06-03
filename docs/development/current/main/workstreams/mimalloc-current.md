@@ -370,11 +370,20 @@ structural_owner_selection_plan_v0=1
 structural_owner_refresh_required=1
 structural_owner_selected=page_model_hot_array_source_route_measurement
 structural_owner_selected_reason=hotcore_measured_and_directarray_source_ready
-structural_owner_next_action=measure_page_model_hot_array_source_route
+structural_owner_next_action=measure_page_model_hot_array_perf_delta
 structural_owner_candidate_0=page_model_hot_array_source_route_measurement
 structural_owner_candidate_0_ready=1
 structural_owner_candidate_1=product_pages_bridge_non_linear_owner_lookup
 structural_owner_candidate_1_ready=1
+fastpath_report_consumed=1
+page_model_hot_array_source_route_measurement_plan_v0=1
+page_model_hot_array_source_route_measured=1
+page_model_hot_array_source_route_measurement_blocker=none
+page_model_hot_array_source_route_next_bridge=perf_delta_measurement
+page_model_hot_array_fastpath_direct_array_plan_count=24
+page_model_hot_array_fastpath_route_decision_count=24
+page_model_hot_array_fastpath_fast_selected_count=24
+page_model_hot_array_fastpath_slow_selected_count=0
 page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_access_plan_v0=1
 page_model_hot_array_source_migration_selected=1
@@ -408,8 +417,11 @@ the consumed route as `hotcore_replacement_consumer_enabled=1`,
 `hotcore_replacement_next_bridge=select_next_structural_owner`. The structural
 owner handoff selects `page_model_hot_array_source_route_measurement` first,
 because `free` / `local_free` / `block_used` are already source-level
-`DirectArrayI64`. Product pages stay second and must reopen through a non-linear
-ownership bridge, not by retrying the known-losing linear page-map probe.
+`DirectArrayI64`. A matching `hako_check fastpath-explain` report now confirms
+that this source route has clean DirectArray RouteDecision coverage
+(`fast_selected=24`, `slow_selected=0`). Product pages stay second and must
+reopen through a non-linear ownership bridge, not by retrying the known-losing
+linear page-map probe.
 Activation, hooks, globals, and winner claims remain closed.
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
@@ -538,8 +550,10 @@ object-lifecycle-native-slot-bridge-v0:
     `hotcore_replacement_next_bridge=select_next_structural_owner`.
     The same overlay reports
     `structural_owner_selected=page_model_hot_array_source_route_measurement`
-    as the next owner. This is a measurement owner, not another generated-C
-    local probe.
+    as the next owner. With `--fastpath-report`, it also reports
+    `page_model_hot_array_source_route_measured=1`; the next action is
+    `measure_page_model_hot_array_perf_delta`, not another generated-C local
+    probe.
   - Current stop-line: local generated-C probes around `find_owned`, free-only
     ownership decode, counters, and switch layout have enough negative evidence.
     The next positive-net candidate must change the structural owner family

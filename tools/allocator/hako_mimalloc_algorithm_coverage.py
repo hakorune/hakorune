@@ -58,6 +58,23 @@ def read_kv_report(path: Path | None) -> dict[str, str]:
     return data
 
 
+def read_fastpath_counts(path: Path | None) -> dict[str, str]:
+    if path is None:
+        return {}
+    try:
+        text = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return {}
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return read_kv_report(path)
+    counts = payload.get("counts") if isinstance(payload, dict) else None
+    if not isinstance(counts, dict):
+        return {}
+    return {str(key): str(value) for key, value in counts.items()}
+
+
 def int_field(data: dict[str, str], key: str, default: int = 0) -> int:
     try:
         return int(data.get(key, str(default)))
@@ -238,6 +255,7 @@ def report_dict(
     rows: list[CoverageRow],
     *,
     benchmark_report: Path | None = None,
+    fastpath_report: Path | None = None,
 ) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
@@ -259,6 +277,7 @@ def report_dict(
     }
     hot_array_get_count = sum(ops["get"] for ops in hot_array_ops.values())
     hot_array_set_count = sum(ops["set"] for ops in hot_array_ops.values())
+    hot_array_access_count = hot_array_get_count + hot_array_set_count
     hot_array_push_count = sum(ops["push"] for ops in hot_array_ops.values())
     hot_array_arraybox_fields = [
         name for name in hot_array_fields if f"{name}: ArrayBox" in page_box
@@ -358,7 +377,9 @@ def report_dict(
         })
     )
     benchmark = read_kv_report(benchmark_report)
+    fastpath = read_fastpath_counts(fastpath_report)
     benchmark_report_consumed = int(bool(benchmark))
+    fastpath_report_consumed = int(bool(fastpath))
     benchmark_subject = "none"
     benchmark_subject_prefix = ""
     for prefix in ("subject_2", "subject_3", "subject_4"):
@@ -447,6 +468,43 @@ def report_dict(
     hotcore_measurement_reported = int(
         hotcore_consumer_enabled and hotcore_median_ops_per_sec != "0"
     )
+    fastpath_direct_array_plan_count = int_field(
+        fastpath, "direct_array_access_plan_count", 0
+    )
+    fastpath_route_decision_count = int_field(fastpath, "route_decision_count", 0)
+    fastpath_fast_selected_count = int_field(
+        fastpath, "route_decision_fast_selected_count", 0
+    )
+    fastpath_slow_selected_count = int_field(
+        fastpath, "route_decision_slow_selected_count", 0
+    )
+    fastpath_generic_dispatch_count = int_field(
+        fastpath, "generic_method_dispatch_count", 0
+    )
+    fastpath_dynamic_route_count = int_field(fastpath, "dynamic_route_count", 0)
+    fastpath_boxed_fallback_count = int_field(fastpath, "boxed_fallback_count", 0)
+    fastpath_clean = int_field(fastpath, "clean", 0)
+    page_model_hot_array_source_route_measured = int(
+        fastpath_report_consumed
+        and hot_array_access_count > 0
+        and fastpath_direct_array_plan_count >= hot_array_access_count
+        and fastpath_route_decision_count > 0
+        and fastpath_fast_selected_count == fastpath_route_decision_count
+        and fastpath_slow_selected_count == 0
+        and fastpath_generic_dispatch_count == 0
+        and fastpath_dynamic_route_count == 0
+        and fastpath_boxed_fallback_count == 0
+        and fastpath_clean == 1
+    )
+    if page_model_hot_array_source_route_measured:
+        hot_array_route_measurement_blocker = "none"
+        hot_array_route_next_bridge = "perf_delta_measurement"
+    elif fastpath_report_consumed:
+        hot_array_route_measurement_blocker = "directarray_route_not_clean"
+        hot_array_route_next_bridge = "fix_or_explain_directarray_route_miss"
+    else:
+        hot_array_route_measurement_blocker = "fastpath_report_not_consumed"
+        hot_array_route_next_bridge = "run_hako_check_fastpath_explain"
     hotcore_page_model_source_ready = int(
         len(hotcore_methods) == 2
         and hotcore_small_alloc_calls_acquire_fresh_small
@@ -504,7 +562,11 @@ def report_dict(
     if page_model_hot_array_measurement_ready:
         structural_owner_selected = "page_model_hot_array_source_route_measurement"
         structural_owner_reason = "hotcore_measured_and_directarray_source_ready"
-        structural_owner_next_action = "measure_page_model_hot_array_source_route"
+        structural_owner_next_action = (
+            "measure_page_model_hot_array_perf_delta"
+            if page_model_hot_array_source_route_measured
+            else "measure_page_model_hot_array_source_route"
+        )
     elif product_pages_non_linear_owner_candidate_ready:
         structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
         structural_owner_reason = "hotcore_measured_and_product_pages_source_ready"
@@ -550,6 +612,8 @@ def report_dict(
         "benchmark_report": str(benchmark_report) if benchmark_report is not None else "none",
         "benchmark_report_consumed": benchmark_report_consumed,
         "benchmark_replacement_subject": benchmark_subject,
+        "fastpath_report": str(fastpath_report) if fastpath_report is not None else "none",
+        "fastpath_report_consumed": fastpath_report_consumed,
         "area_count": len(rows),
         "hako_model_area_count": sum(row.hako_model for row in rows),
         "replacement_front_area_count": sum(row.replacement_front for row in rows),
@@ -618,6 +682,14 @@ def report_dict(
         "page_model_hot_array_directarray_missing_ops": "push_or_birth_with_initialized_len"
         if hot_array_push_count
         else "none",
+        "page_model_hot_array_source_route_measurement_plan_v0": 1,
+        "page_model_hot_array_source_route_measured": page_model_hot_array_source_route_measured,
+        "page_model_hot_array_source_route_measurement_blocker": hot_array_route_measurement_blocker,
+        "page_model_hot_array_source_route_next_bridge": hot_array_route_next_bridge,
+        "page_model_hot_array_fastpath_direct_array_plan_count": fastpath_direct_array_plan_count,
+        "page_model_hot_array_fastpath_route_decision_count": fastpath_route_decision_count,
+        "page_model_hot_array_fastpath_fast_selected_count": fastpath_fast_selected_count,
+        "page_model_hot_array_fastpath_slow_selected_count": fastpath_slow_selected_count,
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
@@ -662,6 +734,8 @@ def emit_text(data: dict[str, object]) -> None:
         "benchmark_report",
         "benchmark_report_consumed",
         "benchmark_replacement_subject",
+        "fastpath_report",
+        "fastpath_report_consumed",
         "area_count",
         "hako_model_area_count",
         "replacement_front_area_count",
@@ -720,6 +794,14 @@ def emit_text(data: dict[str, object]) -> None:
         "page_model_hot_array_candidate_type",
         "page_model_hot_array_directarray_supported_ops",
         "page_model_hot_array_directarray_missing_ops",
+        "page_model_hot_array_source_route_measurement_plan_v0",
+        "page_model_hot_array_source_route_measured",
+        "page_model_hot_array_source_route_measurement_blocker",
+        "page_model_hot_array_source_route_next_bridge",
+        "page_model_hot_array_fastpath_direct_array_plan_count",
+        "page_model_hot_array_fastpath_route_decision_count",
+        "page_model_hot_array_fastpath_fast_selected_count",
+        "page_model_hot_array_fastpath_slow_selected_count",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",
@@ -771,9 +853,21 @@ def main() -> int:
             "benchmark-only replacement-front route fields"
         ),
     )
+    parser.add_argument(
+        "--fastpath-report",
+        type=Path,
+        help=(
+            "optional hako_check fastpath-explain JSON/KV report to overlay "
+            "DirectArray source-route measurement fields"
+        ),
+    )
     args = parser.parse_args()
 
-    data = report_dict(build_rows(), benchmark_report=args.benchmark_report)
+    data = report_dict(
+        build_rows(),
+        benchmark_report=args.benchmark_report,
+        fastpath_report=args.fastpath_report,
+    )
     if args.json:
         print(json.dumps(data, indent=2, sort_keys=True))
     else:

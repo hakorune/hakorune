@@ -35,12 +35,31 @@ python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
   --benchmark-report target/hakozuna-mixed-ws-page-bins-current/report.out
 ```
 
+To also overlay the current `hako_check fastpath-explain` route truth for the
+PageModel hot arrays, first emit a JSON report and pass it as
+`--fastpath-report`:
+
+```bash
+mkdir -p target/page-model-hot-array-route
+bash tools/hako_check.sh fastpath-explain \
+  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
+  --profile hot-report \
+  --group @allocator_hot_paths \
+  --format json \
+  --out target/page-model-hot-array-route/fastpath.json
+
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
+  --benchmark-report target/hakozuna-mixed-ws-hotcore-size-table-eager-init-7/report.out \
+  --fastpath-report target/page-model-hot-array-route/fastpath.json
+```
+
 The report separates `.hako` policy/model coverage from benchmark-only
 replacement-front execution. The current expected state is:
 
 ```text
 replacement_front_is_full_hako_algorithm=0
 benchmark_report_consumed=0
+fastpath_report_consumed=0
 size_class_policy_product_bins_connected=0
 size_class_policy_single_class_benchmark_bridge_supported=1
 page_model_hot_array_bridge_plan_v0=1
@@ -50,6 +69,10 @@ page_model_hot_array_source_type_ready=1
 page_model_hot_array_birth_contract_ready=1
 page_model_hot_array_source_migration_blocker=none
 page_model_hot_array_next_bridge=source_migration_measurement
+page_model_hot_array_source_route_measurement_plan_v0=1
+page_model_hot_array_source_route_measured=0
+page_model_hot_array_source_route_measurement_blocker=fastpath_report_not_consumed
+page_model_hot_array_source_route_next_bridge=run_hako_check_fastpath_explain
 page_model_hot_array_seed_push_blocker=0
 replacement_front_product_pages_bridge_plan_v0=1
 replacement_front_product_pages_bridge_report_only=1
@@ -85,6 +108,8 @@ route while preserving the no-product-claim boundary:
 ```text
 benchmark_report_consumed=1
 benchmark_replacement_subject=hakorune_replacement_front_ldpreload
+fastpath_report=target/page-model-hot-array-route/fastpath.json
+fastpath_report_consumed=1
 size_class_policy_product_bins_connected=1
 replacement_front_product_bins_consumer_enabled=1
 replacement_front_product_bins_route=benchmark_page_bins_hotcore_page_model
@@ -125,6 +150,21 @@ selects the first source-ready structural owner. The current first candidate is
 are already source-level `DirectArrayI64`; product pages remain a second
 candidate and should only reopen through a non-linear ownership bridge, not by
 retrying the known-losing linear page-map probe.
+
+When a matching `hako_check` fastpath report is also supplied, the same overlay
+advances that first candidate from source-ready to route-measured:
+
+```text
+page_model_hot_array_source_route_measurement_plan_v0=1
+page_model_hot_array_source_route_measured=1
+page_model_hot_array_source_route_measurement_blocker=none
+page_model_hot_array_source_route_next_bridge=perf_delta_measurement
+page_model_hot_array_fastpath_direct_array_plan_count=24
+page_model_hot_array_fastpath_route_decision_count=24
+page_model_hot_array_fastpath_fast_selected_count=24
+page_model_hot_array_fastpath_slow_selected_count=0
+structural_owner_next_action=measure_page_model_hot_array_perf_delta
+```
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
