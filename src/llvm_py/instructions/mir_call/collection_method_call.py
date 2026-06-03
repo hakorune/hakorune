@@ -31,6 +31,14 @@ def _resolve_or_zero(
     return resolve_arg(arg_ids[index]) or zero
 
 
+def _direct_array_op_for_method(method_name: str) -> Optional[str]:
+    if method_name == "get":
+        return "load"
+    if method_name == "set":
+        return "store"
+    return None
+
+
 def _current_direct_array_access_plan(
     *,
     resolver,
@@ -52,7 +60,7 @@ def _current_direct_array_access_plan(
     if not isinstance(plans_by_site, dict):
         return None
     plans = plans_by_site.get((block_id, instruction_index), [])
-    expected_op = "load" if method_name == "get" else "store" if method_name == "set" else None
+    expected_op = _direct_array_op_for_method(method_name)
     if expected_op is None:
         return None
     try:
@@ -362,14 +370,15 @@ def _lower_direct_array_nativedirect_call(
     )
     if plan is None:
         return None
+    direct_op = _direct_array_op_for_method(method_name)
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
-    if method_name == "get":
+    if direct_op == "load":
         if not arg_ids:
             return zero
         index = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         return _lower_direct_array_i64_get(builder, recv_h, index)
-    if method_name == "set":
+    if direct_op == "store":
         if len(arg_ids) < 2:
             return recv_h
         index = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
