@@ -10,6 +10,8 @@ from instructions.thin_entry_selection import (
 )
 from utils.values import resolve_i64_strict
 
+_SAFE_USER_BOX_LOCAL_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 _UNSET_LOCAL_FIELD = object()
 
@@ -60,7 +62,7 @@ def _canonical_i64(builder: ir.IRBuilder, value, *, name_hint: str):
         return ir.Constant(i64, 0)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_USER_BOX_LOCAL_EXC:
         vtype = None
     if isinstance(vtype, ir.PointerType):
         return builder.ptrtoint(value, i64, name=f"{name_hint}_p2i")
@@ -78,7 +80,7 @@ def _canonical_bool_i1(builder: ir.IRBuilder, value, *, name_hint: str):
         return ir.Constant(i1, 0)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_USER_BOX_LOCAL_EXC:
         vtype = None
     if isinstance(vtype, ir.IntType):
         if vtype.width == 1:
@@ -108,7 +110,7 @@ def _canonical_f64(builder: ir.IRBuilder, value, *, name_hint: str):
         return ir.Constant(f64, 0.0)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_USER_BOX_LOCAL_EXC:
         vtype = None
     if isinstance(vtype, ir.DoubleType):
         return value
@@ -598,7 +600,7 @@ def _resolve_local_user_box_aggregate(value_vid: int, vmap: Dict[int, Any], reso
             global_value = global_vmap.get(int(value_vid))
             if _is_local_user_box_aggregate(global_value):
                 return global_value
-    except Exception:
+    except _SAFE_USER_BOX_LOCAL_EXC:
         pass
 
     try:
@@ -609,7 +611,7 @@ def _resolve_local_user_box_aggregate(value_vid: int, vmap: Dict[int, Any], reso
             snap_value = snapshot.get(int(value_vid))
             if _is_local_user_box_aggregate(snap_value):
                 return snap_value
-    except Exception:
+    except _SAFE_USER_BOX_LOCAL_EXC:
         pass
 
     return None
