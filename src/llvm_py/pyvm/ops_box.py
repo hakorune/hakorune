@@ -7,11 +7,13 @@ from __future__ import annotations
 from typing import Any, Dict, List
 import os
 
+_SAFE_OPS_BOX_EXC = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
+
 
 def _safe_int(value: Any, default: int = 0) -> int:
     try:
         return int(value)
-    except Exception:
+    except _SAFE_OPS_BOX_EXC:
         return default
 
 
@@ -28,7 +30,7 @@ def _read_text_file(path: str) -> str | None:
     try:
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
-    except Exception:
+    except _SAFE_OPS_BOX_EXC:
         return None
 
 
@@ -220,7 +222,7 @@ def op_boxcall(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
             try:
                 recv["__doc"] = json.loads(str(s))
                 recv["__err"] = None
-            except Exception as e:
+            except _SAFE_OPS_BOX_EXC as e:
                 recv["__doc"] = None
                 recv["__err"] = str(e)
             out = 0
