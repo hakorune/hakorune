@@ -98,15 +98,9 @@ def _restore_current_vmap(builder, old_current_vmap) -> None:
 
 
 def _annotate_instruction(inst: Dict[str, Any], block_id: int, instruction_index: int):
-    try:
-        op = inst.get('op')
-    except Exception:
-        op = None
-    try:
-        inst["__block_id"] = block_id
-        inst["__instruction_index"] = instruction_index
-    except Exception:
-        pass
+    op = inst.get('op')
+    inst["__block_id"] = block_id
+    inst["__instruction_index"] = instruction_index
     return op
 
 
@@ -285,12 +279,9 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
     """
     skipped: set[int] = set()
     if loop_plan is not None:
-        try:
-            for bskip in loop_plan.get('skip_blocks', []):
-                if bskip != loop_plan.get('header'):
-                    skipped.add(int(bskip))
-        except Exception:
-            pass
+        for bskip in loop_plan.get('skip_blocks', []):
+            if bskip != loop_plan.get('header'):
+                skipped.add(int(bskip))
     for bid in order:
         block_data = block_by_id.get(bid)
         if block_data is None:
@@ -304,13 +295,10 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             body_insts = loop_plan.get('body_insts', [])
             cond_vid = loop_plan.get('cond')
             loop_simd_contract = None
-            try:
-                header_bid = int(loop_plan.get("header"))
-                ctx = getattr(builder, "ctx", None)
-                if ctx is not None:
-                    loop_simd_contract = getattr(ctx, "loop_simd_contracts", {}).get(header_bid)
-            except Exception:
-                loop_simd_contract = None
+            header_bid = int(loop_plan.get("header"))
+            ctx = getattr(builder, "ctx", None)
+            if ctx is not None:
+                loop_simd_contract = getattr(ctx, "loop_simd_contracts", {}).get(header_bid)
             from instructions.loopform import lower_while_loopform
             ok = False
             try:
@@ -412,15 +400,9 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         created_ids: List[int] = []
         # Lower body ops
         for i_idx, inst in enumerate(body_ops):
-            try:
-                trace_debug(f"[llvm-py] body op: {inst.get('op')} dst={inst.get('dst')} cond={inst.get('cond')}")
-            except Exception:
-                pass
-            try:
-                if bb.terminator is not None:
-                    break
-            except Exception:
-                pass
+            trace_debug(f"[llvm-py] body op: {inst.get('op')} dst={inst.get('dst')} cond={inst.get('cond')}")
+            if bb.terminator is not None:
+                break
             ib.position_at_end(bb)
             _bind_resolver_instruction(builder, bid, inst.get("__instruction_index", i_idx))
             if inst.get('op') == 'copy':
@@ -597,10 +579,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         # Phase 131-14-B: Only store snapshot if not deferred (snap is not None)
         # Phase 132-P1: Use context.set_block_snapshot (simple block_id key)
         if snap is not None:
-            try:
-                keys = sorted(list(snap.keys()))
-            except Exception:
-                keys = list(snap.keys())
+            keys = sorted(list(snap.keys()))
             trace_phi_json({"phi": "snapshot", "block": int(bid), "keys": [int(k) for k in keys[:20]]})
             for vid in created_ids:
                 if vid in vmap_cur:
@@ -664,17 +643,11 @@ def lower_terminators(builder, func: ir.Function):
             _bind_resolver_block(builder, ib, bid, disable_phi_synthesis=True)
 
             for inst in term_ops:
-                try:
-                    trace_debug(f"[llvm-py/pass-c] term op: {inst.get('op')} dst={inst.get('dst')} in bb{bid}")
-                except Exception:
-                    pass
-                try:
-                    if bb.terminator is not None:
-                        # Terminator already exists (e.g., from loop lowering), skip
-                        trace_debug(f"[llvm-py/pass-c] bb{bid} already has terminator, skipping")
-                        break
-                except Exception:
-                    pass
+                trace_debug(f"[llvm-py/pass-c] term op: {inst.get('op')} dst={inst.get('dst')} in bb{bid}")
+                if bb.terminator is not None:
+                    # Terminator already exists (e.g., from loop lowering), skip
+                    trace_debug(f"[llvm-py/pass-c] bb{bid} already has terminator, skipping")
+                    break
                 ib.position_at_end(bb)
                 _bind_resolver_instruction(builder, bid, inst.get("__instruction_index", -1))
                 builder.lower_instruction(ib, inst, func)
