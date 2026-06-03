@@ -220,6 +220,12 @@ hot_instruction_0_category=...
 hot_instruction_0_field_hints=...
 hot_instruction_0_asm=...
 hot_instruction_0_context_categories=...
+page_model_hot_field_traffic_plan_v0=1
+page_model_hot_field_top=...
+page_model_hot_field_top_bucket=...
+page_model_hot_field_buckets=...
+page_model_hot_field_counter_deletion_allowed=0
+page_model_hot_field_next_bridge=...
 ```
 
 If the report says:
@@ -244,6 +250,14 @@ the hot body more clearly. If the top instruction category is actionable
 opening another source rewrite. Field hints are layout candidates from
 `app.mir.json`; they intentionally skip scaled DirectArray element operands and
 do not prove the base register's object type by themselves.
+
+When the attribution report is passed into
+`hako_mimalloc_algorithm_coverage.py`, the coverage overlay buckets those field
+hints into the current PageModel state taxonomy. For example,
+`free_top:primitive_hot_state` and `peak_used:primitive_hot_state` point toward
+record-state residence / state representation work, while
+`requested_bytes:public_semantics_proof_evidence` keeps counter deletion and
+test-only gating closed.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

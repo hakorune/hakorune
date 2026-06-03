@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 HAKO_ALLOC = ROOT / "lang/src/hako_alloc/memory"
 REPLACEMENT_FRONT = ROOT / "tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py"
 REPLACEMENT_TEMPLATES = ROOT / "tools/allocator/replacement_front_templates.py"
+FIELD_HINT_RE = re.compile(r"0x[0-9a-fA-F]+:(?P<field>[A-Za-z_][A-Za-z0-9_]*)")
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,30 @@ class CoverageRow:
     status: str
     evidence: str
     next_bridge: str
+
+
+FIELD_BUCKETS: dict[str, str] = {
+    "used": "primitive_hot_state",
+    "free_top": "primitive_hot_state",
+    "local_free_top": "primitive_hot_state",
+    "retired": "primitive_hot_state",
+    "decommitted": "primitive_hot_state",
+    "peak_used": "primitive_hot_state",
+    "page_id": "public_semantics",
+    "block_size": "public_semantics",
+    "capacity": "public_semantics",
+    "reserved": "public_semantics",
+    "requested_bytes": "public_semantics_proof_evidence",
+    "alloc_count": "observer_counter",
+    "local_free_count": "observer_counter",
+    "release_count": "observer_counter",
+    "reject_count": "observer_counter",
+    "retire_count": "observer_counter",
+    "reactivate_count": "observer_counter",
+    "free": "direct_array_owner",
+    "local_free": "direct_array_owner",
+    "block_used": "direct_array_owner",
+}
 
 
 def read_text(path: Path) -> str:
@@ -85,6 +110,35 @@ def int_field(data: dict[str, str], key: str, default: int = 0) -> int:
 def str_field(data: dict[str, str], key: str, default: str = "0") -> str:
     value = data.get(key, default)
     return value if value else default
+
+
+def fields_from_hint(value: str) -> list[str]:
+    fields: list[str] = []
+    for match in FIELD_HINT_RE.finditer(value):
+        name = match.group("field")
+        if name not in fields:
+            fields.append(name)
+    return fields
+
+
+def fields_from_context(value: str) -> list[str]:
+    fields: list[str] = []
+    if not value or value in {"none", "not_found"}:
+        return fields
+    for field in fields_from_hint(value):
+        if field not in fields:
+            fields.append(field)
+    return fields
+
+
+def _bucket_for_field(field: str) -> str:
+    return FIELD_BUCKETS.get(field, "unknown")
+
+
+def _format_field_buckets(fields: list[str]) -> str:
+    if not fields:
+        return "none"
+    return ",".join(f"{field}:{_bucket_for_field(field)}" for field in fields)
 
 
 def has_file(path: Path) -> bool:
@@ -577,6 +631,55 @@ def report_dict(
         if not perf_attribution_report_consumed
         else "inspect_perf_attribution",
     )
+    perf_top_instruction_field_hints = str_field(
+        perf_attribution, "top_instruction_field_hints", "none"
+    )
+    perf_hot_instruction_0_field_hints = str_field(
+        perf_attribution, "hot_instruction_0_field_hints", "none"
+    )
+    perf_hot_instruction_0_context = str_field(
+        perf_attribution, "hot_instruction_0_context", "none"
+    )
+    hot_field_names: list[str] = []
+    for field in fields_from_hint(perf_top_instruction_field_hints):
+        if field not in hot_field_names:
+            hot_field_names.append(field)
+    for field in fields_from_hint(perf_hot_instruction_0_field_hints):
+        if field not in hot_field_names:
+            hot_field_names.append(field)
+    for field in fields_from_context(perf_hot_instruction_0_context):
+        if field not in hot_field_names:
+            hot_field_names.append(field)
+    hot_field_bucket_names = [_bucket_for_field(field) for field in hot_field_names]
+    primitive_hot_state_field_count = sum(
+        1 for bucket in hot_field_bucket_names if bucket == "primitive_hot_state"
+    )
+    public_or_proof_field_count = sum(
+        1
+        for bucket in hot_field_bucket_names
+        if "public_semantics" in bucket or "proof_evidence" in bucket
+    )
+    observer_counter_field_count = sum(
+        1 for bucket in hot_field_bucket_names if bucket == "observer_counter"
+    )
+    hot_field_top = hot_field_names[0] if hot_field_names else "none"
+    hot_field_top_bucket = (
+        _bucket_for_field(hot_field_top) if hot_field_top != "none" else "none"
+    )
+    hot_field_plan_ready = int(
+        perf_attribution_report_consumed
+        and perf_delta_blocker == "ny_main_symbol_collapse"
+        and primitive_hot_state_field_count > 0
+    )
+    hot_field_next_bridge = (
+        "record_state_residence_plan_report"
+        if hot_field_plan_ready
+        else (
+            "collect_perf_field_hints"
+            if perf_attribution_report_consumed
+            else "run_hako_mimalloc_direct_exact_app_perf_asm"
+        )
+    )
     product_pages_non_linear_owner_candidate_ready = int(
         structural_owner_refresh_required
         and product_pages_source_ready
@@ -592,7 +695,13 @@ def report_dict(
         )
         if page_model_hot_array_source_route_measured and perf_attribution_report_consumed:
             structural_owner_next_action = (
-                "select_next_perf_owner" if perf_delta_ready else perf_delta_next_bridge
+                "select_next_perf_owner"
+                if perf_delta_ready
+                else (
+                    hot_field_next_bridge
+                    if hot_field_plan_ready
+                    else perf_delta_next_bridge
+                )
             )
     elif product_pages_non_linear_owner_candidate_ready:
         structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
@@ -725,6 +834,16 @@ def report_dict(
         "page_model_hot_array_perf_delta_ready": perf_delta_ready,
         "page_model_hot_array_perf_delta_blocker": perf_delta_blocker,
         "page_model_hot_array_perf_delta_next_bridge": perf_delta_next_bridge,
+        "page_model_hot_field_traffic_plan_v0": 1,
+        "page_model_hot_field_traffic_ready": hot_field_plan_ready,
+        "page_model_hot_field_top": hot_field_top,
+        "page_model_hot_field_top_bucket": hot_field_top_bucket,
+        "page_model_hot_field_buckets": _format_field_buckets(hot_field_names),
+        "page_model_hot_field_primitive_hot_state_count": primitive_hot_state_field_count,
+        "page_model_hot_field_public_or_proof_count": public_or_proof_field_count,
+        "page_model_hot_field_observer_counter_count": observer_counter_field_count,
+        "page_model_hot_field_counter_deletion_allowed": 0,
+        "page_model_hot_field_next_bridge": hot_field_next_bridge,
         "perf_top_symbol": str_field(perf_attribution, "top_symbol", "none"),
         "perf_top_symbol_percent": str_field(perf_attribution, "top_symbol_percent", "0.00"),
         "perf_symbol_collapse_detected": int_field(
@@ -748,18 +867,14 @@ def report_dict(
         "perf_top_instruction_category": str_field(
             perf_attribution, "top_instruction_category", "none"
         ),
-        "perf_top_instruction_field_hints": str_field(
-            perf_attribution, "top_instruction_field_hints", "none"
-        ),
+        "perf_top_instruction_field_hints": perf_top_instruction_field_hints,
         "perf_hot_instruction_report_count": int_field(
             perf_attribution, "hot_instruction_report_count", 0
         ),
         "perf_hot_instruction_0_category": str_field(
             perf_attribution, "hot_instruction_0_category", "none"
         ),
-        "perf_hot_instruction_0_field_hints": str_field(
-            perf_attribution, "hot_instruction_0_field_hints", "none"
-        ),
+        "perf_hot_instruction_0_field_hints": perf_hot_instruction_0_field_hints,
         "perf_hot_instruction_0_asm": str_field(
             perf_attribution, "hot_instruction_0_asm", "none"
         ),
@@ -887,6 +1002,16 @@ def emit_text(data: dict[str, object]) -> None:
         "page_model_hot_array_perf_delta_ready",
         "page_model_hot_array_perf_delta_blocker",
         "page_model_hot_array_perf_delta_next_bridge",
+        "page_model_hot_field_traffic_plan_v0",
+        "page_model_hot_field_traffic_ready",
+        "page_model_hot_field_top",
+        "page_model_hot_field_top_bucket",
+        "page_model_hot_field_buckets",
+        "page_model_hot_field_primitive_hot_state_count",
+        "page_model_hot_field_public_or_proof_count",
+        "page_model_hot_field_observer_counter_count",
+        "page_model_hot_field_counter_deletion_allowed",
+        "page_model_hot_field_next_bridge",
         "perf_top_symbol",
         "perf_top_symbol_percent",
         "perf_symbol_collapse_detected",

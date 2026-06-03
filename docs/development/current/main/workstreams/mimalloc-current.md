@@ -349,6 +349,22 @@ the next structural path as field-traffic representation/planning evidence
 (`RecordStateResidencePlanV0`-style state bundling or equivalent route
 vocabulary), not as another generated C counter probe.
 
+The coverage overlay now buckets those field hints:
+
+```text
+page_model_hot_field_traffic_plan_v0=1
+page_model_hot_field_traffic_ready=1
+page_model_hot_field_top=free_top
+page_model_hot_field_top_bucket=primitive_hot_state
+page_model_hot_field_buckets=free_top:primitive_hot_state,requested_bytes:public_semantics_proof_evidence,peak_used:primitive_hot_state
+page_model_hot_field_counter_deletion_allowed=0
+page_model_hot_field_next_bridge=record_state_residence_plan_report
+```
+
+Interpretation: the hot field owner is not another counter-elision row. The
+next narrow compiler-facing owner is report-only `RecordStateResidencePlanV0`
+or equivalent state-representation vocabulary for primitive PageModel fields.
+
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
 
@@ -471,9 +487,13 @@ With benchmark, fastpath, and perf attribution reports all supplied,
 
 ```text
 perf_attribution_report_consumed=1
-structural_owner_next_action=asm_instruction_classifier_or_in_process_perf_mode
+structural_owner_next_action=record_state_residence_plan_report
 perf_top_instruction_category=store_like
 perf_top_instruction_field_hints=0xa0:free_top
+page_model_hot_field_top=free_top
+page_model_hot_field_top_bucket=primitive_hot_state
+page_model_hot_field_buckets=free_top:primitive_hot_state,requested_bytes:public_semantics_proof_evidence,peak_used:primitive_hot_state
+page_model_hot_field_next_bridge=record_state_residence_plan_report
 perf_hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
 ```
 
