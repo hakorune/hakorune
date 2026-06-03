@@ -300,6 +300,11 @@ def _load_direct_array_access_plan_metadata(builder, func_data: Dict[str, Any]) 
     builder.resolver.direct_array_access_plans_by_site = by_site
 
     decision_rows = metadata.get("route_decisions", []) if isinstance(metadata, dict) else []
+    builder.resolver.route_decisions_metadata_present = (
+        isinstance(metadata, dict)
+        and "route_decisions" in metadata
+        and isinstance(decision_rows, list)
+    )
     decisions_by_site: Dict[tuple[int, int], List[Dict[str, Any]]] = {}
     if isinstance(decision_rows, list):
         for row in decision_rows:

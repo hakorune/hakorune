@@ -85,6 +85,7 @@ class Resolver:
         self.sum_local_aggregate_paths: Dict[int, str] = {}
         self.sum_local_aggregate_layouts: Dict[int, str] = {}
         self.user_box_local_aggregate_layouts: Dict[int, Dict[str, Any]] = {}
+        self.route_decisions_metadata_present = False
 
         # Type shortcuts
         self.i64 = ir.IntType(64)

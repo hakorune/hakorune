@@ -108,7 +108,7 @@ def _route_decision_allows_direct_array_plan(
         return True
     decisions = decisions_by_site.get((block_id, instruction_index), [])
     if not decisions:
-        return True
+        return not bool(getattr(resolver, "route_decisions_metadata_present", False))
     for decision in decisions:
         if not isinstance(decision, dict):
             continue

@@ -15,6 +15,7 @@ class _DummyResolver:
         self.integerish_ids = set(integerish_ids or [])
         self.direct_array_access_plans_by_site = {}
         self.route_decisions_by_site = {}
+        self.route_decisions_metadata_present = False
         self.current_block_id = 0
         self.current_instruction_index = 0
 
@@ -300,6 +301,34 @@ class TestCollectionMethodCall(unittest.TestCase):
             resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
             _seed_direct_array_plan(resolver, op="load")
             _seed_route_decision(resolver, selected_route="generic_array_get_helper")
+
+            result = lower_collection_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="ArrayBox",
+                method_name="get",
+                recv_h=ir.Constant(i64, 0x1003),
+                arg_ids=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                resolver=resolver,
+                receiver_vid=1,
+                dst_vid=9,
+            )
+            builder.ret(result)
+
+            ir_text = str(module)
+            self.assertIn("nyash.array.slot_load_hi", ir_text)
+            self.assertNotIn("direct_array_i64_get_ptr", ir_text)
+
+        self._with_array_backend("direct_array_i64_exact", run)
+
+    def test_direct_array_plan_without_decision_in_modern_metadata_keeps_helper_path(self):
+        def run():
+            i64, module, builder = _new_builder_named("SomeUserMethod/0")
+            resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+            resolver.arrayrepr_facts = {1: "ArrayRepr::DirectI64"}
+            resolver.route_decisions_metadata_present = True
+            _seed_direct_array_plan(resolver, op="load")
 
             result = lower_collection_method_call(
                 builder=builder,
