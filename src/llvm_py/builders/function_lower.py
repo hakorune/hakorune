@@ -444,6 +444,17 @@ def _build_function_type(builder, name: str, params: List[Any]) -> ir.FunctionTy
     return ir.FunctionType(builder.i64, [builder.i64] * arity)
 
 
+def _add_int_value(target: Set[int], value) -> None:
+    if isinstance(value, int):
+        target.add(int(value))
+
+
+def _add_int_values(target: Set[int], values) -> None:
+    if isinstance(values, list):
+        for value in values:
+            _add_int_value(target, value)
+
+
 def _get_or_create_function(builder, name: str, func_ty: ir.FunctionType) -> ir.Function:
     for func in builder.module.functions:
         if func.name == name:
@@ -456,40 +467,16 @@ def _collect_param_candidate_value_ids(blocks: List[Dict[str, Any]]) -> List[int
     uses = set()
     for block in (blocks or []):
         for ins in (block.get("instructions") or []):
-            try:
-                dstv = ins.get("dst")
-                if isinstance(dstv, int):
-                    defs.add(int(dstv))
-            except Exception:
-                pass
+            _add_int_value(defs, ins.get("dst"))
 
             for key in ("lhs", "rhs", "value", "cond", "box_val", "box", "src"):
-                try:
-                    value = ins.get(key)
-                    if isinstance(value, int):
-                        uses.add(int(value))
-                except Exception:
-                    pass
+                _add_int_value(uses, ins.get(key))
 
-            try:
-                args = ins.get("args")
-                if isinstance(args, list):
-                    for value in args:
-                        if isinstance(value, int):
-                            uses.add(int(value))
-            except Exception:
-                pass
+            _add_int_values(uses, ins.get("args"))
 
-            try:
-                mir_call = ins.get("mir_call")
-                if isinstance(mir_call, dict):
-                    args = mir_call.get("args")
-                    if isinstance(args, list):
-                        for value in args:
-                            if isinstance(value, int):
-                                uses.add(int(value))
-            except Exception:
-                pass
+            mir_call = ins.get("mir_call")
+            if isinstance(mir_call, dict):
+                _add_int_values(uses, mir_call.get("args"))
 
     candidates = [vid for vid in uses if vid not in defs]
     candidates.sort()
