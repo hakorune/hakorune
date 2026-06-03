@@ -22,6 +22,8 @@ from type_facts import is_box_handle_fact, make_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
 from utils.values import safe_vmap_write
 
+_SAFE_SUM_OPS_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _is_local_sum_aggregate(value: Any) -> bool:
     return isinstance(value, dict) and value.get("kind") == "local_sum_aggregate"
@@ -82,7 +84,7 @@ def _resolve_local_sum_aggregate(value_vid: int, vmap: Dict[int, Any], resolver)
             global_value = global_vmap.get(int(value_vid))
             if _is_local_sum_aggregate(global_value):
                 return global_value
-    except Exception:
+    except _SAFE_SUM_OPS_EXC:
         pass
 
     try:
@@ -93,7 +95,7 @@ def _resolve_local_sum_aggregate(value_vid: int, vmap: Dict[int, Any], resolver)
             snap_value = snapshot.get(int(value_vid))
             if _is_local_sum_aggregate(snap_value):
                 return snap_value
-    except Exception:
+    except _SAFE_SUM_OPS_EXC:
         pass
 
     return None
@@ -111,14 +113,14 @@ def _copy_local_sum_metadata_alias(resolver, src_vid: int, dst_vid: int) -> None
         paths = _sum_local_aggregate_paths(resolver)
         if int(src_vid) in paths:
             paths[int(dst_vid)] = paths[int(src_vid)]
-    except Exception:
+    except _SAFE_SUM_OPS_EXC:
         pass
 
     try:
         layouts = _sum_local_aggregate_layouts(resolver)
         if int(src_vid) in layouts:
             layouts[int(dst_vid)] = layouts[int(src_vid)]
-    except Exception:
+    except _SAFE_SUM_OPS_EXC:
         pass
 
 
@@ -548,7 +550,7 @@ def _new_runtime_sum_handle(
     try:
         fn = builder.block.parent
         fn_name = getattr(fn, "name", "fn")
-    except Exception:
+    except _SAFE_SUM_OPS_EXC:
         fn_name = "fn"
     base = f".sum_box_ty_{fn_name}_{name_hint}"
     existing = {g.name for g in module.global_values}
@@ -779,7 +781,7 @@ def _apply_payload_fact_to_result(resolver, dst_vid: int, payload_fact: Any) -> 
     if is_box_handle_fact(payload_fact, "StringBox"):
         try:
             resolver.mark_string(int(dst_vid))
-        except Exception:
+        except _SAFE_SUM_OPS_EXC:
             mark_as_handle(resolver, int(dst_vid), "StringBox")
         return
     if isinstance(payload_fact, dict) and payload_fact.get("kind") == "handle":
