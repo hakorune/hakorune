@@ -28,6 +28,8 @@ from instructions.mir_call import lower_mir_call  # New unified handler
 from instructions.weak import lower_weak_new, lower_weak_load  # Phase 285LLVM-1: WeakRef
 from instructions.lifecycle import lower_keepalive, lower_release_strong  # Phase 287: Lifecycle
 
+_SAFE_INSTRUCTION_LOWER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 SUPPORTED_OPS = {
     "const",
     "binop",
@@ -214,9 +216,9 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             try:
                 if isinstance(method, str) and method == 'substring' and isinstance(dst, int):
                     owner._last_substring_vid = int(dst)
-            except Exception:
+            except _SAFE_INSTRUCTION_LOWER_EXC:
                 pass
-        except Exception:
+        except _SAFE_INSTRUCTION_LOWER_EXC:
             pass
 
     elif op == "externcall":
@@ -350,7 +352,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             # Fallback to regular while (structured)
             try:
                 owner.resolver._owner_lower_instruction = owner.lower_instruction
-            except Exception:
+            except _SAFE_INSTRUCTION_LOWER_EXC:
                 pass
             lower_while_regular(builder, func, cond, body,
                                 owner.loop_count, ctx.vmap, ctx.bb_map,
@@ -368,9 +370,9 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             cur_bid = None
             try:
                 cur_bid = int(str(builder.block.name).replace('bb',''))
-            except Exception:
+            except _SAFE_INSTRUCTION_LOWER_EXC:
                 pass
             if cur_bid is not None:
                 ctx.def_blocks.setdefault(dst_maybe, set()).add(cur_bid)
-    except Exception:
+    except _SAFE_INSTRUCTION_LOWER_EXC:
         pass
