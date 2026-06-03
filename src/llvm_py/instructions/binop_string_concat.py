@@ -31,7 +31,7 @@ def _binop_plus_explicit_route(dst_type: Optional[Any]) -> tuple[bool, bool]:
             and dst_type.get("box_type") == "StringBox"
         ):
             explicit_string = True
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         pass
     return explicit_integer, explicit_string
 
@@ -50,7 +50,7 @@ def _binop_plus_operand_is_stringish(resolver, lhs: int, rhs: int, lhs_raw, rhs_
             return True
         if rhs_raw is not None and hasattr(rhs_raw, "type") and isinstance(rhs_raw.type, ir.PointerType):
             return True
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         return False
     return False
 
@@ -67,7 +67,7 @@ def _binop_plus_any_tagged_string(resolver, lhs: int, rhs: int) -> bool:
             lhs_ty = resolver.value_types.get(lhs)
             rhs_ty = resolver.value_types.get(rhs)
             return _stringbox_type(lhs_ty) or _stringbox_type(rhs_ty)
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         return False
     return False
 
@@ -120,7 +120,7 @@ def _binop_plus_string_tags(resolver, lhs: int, rhs: int) -> tuple[bool, bool]:
                     lhs_tag = _stringbox_type(resolver.value_types.get(lhs))
                 if not rhs_tag:
                     rhs_tag = _stringbox_type(resolver.value_types.get(rhs))
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         pass
     return lhs_tag, rhs_tag
 
@@ -133,7 +133,7 @@ def _binop_to_string_handle(builder: ir.IRBuilder, raw, value, tag: str, dst: in
             if isinstance(raw.type.pointee, ir.ArrayType):
                 c0 = ir.Constant(ir.IntType(32), 0)
                 raw = builder.gep(raw, [c0, c0], name=f"bin_gep_{tag}_{dst}")
-        except Exception:
+        except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
             pass
         callee = _ensure_module_function(
             builder.module,
@@ -155,7 +155,7 @@ def _binop_to_string_ptr(builder: ir.IRBuilder, resolver, value_id: int, raw, va
             if isinstance(raw.type.pointee, ir.ArrayType):
                 c0 = ir.Constant(ir.IntType(32), 0)
                 ptr = builder.gep(raw, [c0, c0], name="bin_str_gep")
-        except Exception:
+        except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
             pass
     if ptr is None:
         ptr = string_ptr_for_value(resolver, value_id)
@@ -182,7 +182,7 @@ def _binop_needs_stringify_bridge(tagged: bool, raw, value) -> bool:
             and isinstance(candidate.type, ir.IntType)
             and candidate.type.width == 64
         )
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         return False
 
 
@@ -252,7 +252,7 @@ def _try_lower_string_concat_fast(
             resolver.string_ptrs[int(dst)] = out_ptr
         if hasattr(resolver, "mark_string"):
             resolver.mark_string(dst)
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         pass
 
     return out_h
@@ -287,7 +287,7 @@ def _finalize_string_concat_result(resolver, vmap: Dict[int, ir.Value], dst: int
     try:
         if resolver is not None and hasattr(resolver, "mark_string"):
             resolver.mark_string(dst)
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         pass
 
 
@@ -342,7 +342,7 @@ def _extract_concat_hh_args(raw) -> Optional[tuple]:
         return None
     try:
         operands = list(getattr(raw, "operands", []))
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         return None
     if len(operands) < 3:
         return None
@@ -395,5 +395,5 @@ def _prune_dead_chain_call(builder: ir.IRBuilder, folded_call, replacement_call=
         return
     try:
         parent.instructions.remove(folded_call)
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         pass

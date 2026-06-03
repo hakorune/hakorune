@@ -446,6 +446,7 @@ def _enforce_phi_ordering_contract(builder) -> None:
 
 def _run_finalize_tail(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, Any]], context: FunctionLowerContext) -> None:
     from builders.block_lower import lower_terminators as _lower_terminators
+    func_name = getattr(context, "func_name", "<unknown>")
 
     _finalize_phis(builder, context)
     _lower_terminators(builder, func)
@@ -453,11 +454,11 @@ def _run_finalize_tail(builder, func: ir.Function, block_by_id: Dict[int, Dict[s
     try:
         _enforce_terminators(builder, func, block_by_id)
     except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
-        trace_debug(f"[function-lower/enforce-terminators-skip] fn={context.func_name}: {exc}")
+        trace_debug(f"[function-lower/enforce-terminators-skip] fn={func_name}: {exc}")
     try:
         _emit_hot_summary(context)
     except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
-        trace_debug(f"[function-lower/hot-summary-skip] fn={context.func_name}: {exc}")
+        trace_debug(f"[function-lower/hot-summary-skip] fn={func_name}: {exc}")
 
 
 def _build_function_type(builder, name: str, params: List[Any]) -> ir.FunctionType:

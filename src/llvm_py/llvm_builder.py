@@ -44,6 +44,13 @@ _PHI_DEF_RE = re.compile(r"^([%A-Za-z$._][\w$.\-]*)\s*=\s*phi\b")
 _PHI_INCOMING_PRED_RE = re.compile(r",\s*%([A-Za-z$._][\w$.-]*)\s*\]")
 
 
+def _safe_trace_debug(message: str) -> None:
+    try:
+        trace_debug(message)
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
+        pass
+
+
 def _sanitize_empty_phi_rows(ir_text: str) -> str:
     """Drop malformed PHI rows that were emitted without incoming pairs.
 
@@ -138,6 +145,66 @@ def _first_phi_verify_mismatch(ir_text: str) -> Optional[Dict[str, Any]]:
     return flush_current_function()
 
 
+def _safe_makedirs(path: str) -> None:
+    dirname = os.path.dirname(path)
+    if dirname:
+        os.makedirs(dirname, exist_ok=True)
+
+
+def _safe_write_text(path: str, text: str, *, encoding: str = "utf-8") -> None:
+    try:
+        _safe_makedirs(path)
+        with open(path, "w", encoding=encoding) as f:
+            f.write(text)
+    except (AttributeError, FileNotFoundError, IsADirectoryError, OSError, PermissionError, TypeError, ValueError):
+        pass
+
+
+def _safe_write_binary(path: str, data: bytes) -> None:
+    try:
+        _safe_makedirs(path)
+        with open(path, "wb") as f:
+            f.write(data)
+    except (AttributeError, FileNotFoundError, IsADirectoryError, OSError, PermissionError, TypeError, ValueError):
+        pass
+
+
+def _safe_apply_runtime_llvm_attrs(module) -> None:
+    try:
+        _apply_runtime_llvm_attrs(module)
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
+        _safe_trace_debug(f"[Python LLVM] runtime attr policy skipped: {exc}")
+
+
+def _safe_ensure_ny_main(builder) -> None:
+    try:
+        from builders.entry import ensure_ny_main as _ensure_ny_main
+        _ensure_ny_main(builder)
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
+        _safe_trace_debug(f"[Python LLVM] ensure_ny_main failed: {exc}")
+
+
+def _safe_run_fast_ir_passes(mod, opt_level: int) -> None:
+    try:
+        pmb = llvm.create_pass_manager_builder()
+        pmb.opt_level = int(opt_level)
+        pmb.size_level = 0
+        _apply_numeric_loop_pass_policy(pmb, opt_level)
+        mpm = llvm.create_module_pass_manager()
+        pmb.populate(mpm)
+        mpm.run(mod)
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
+        _safe_trace_debug(f"[Python LLVM] fast IR passes skipped: {exc}")
+
+
+def _safe_dump_ir_text(ir_text: str, dump_path: Optional[str], verbose: bool) -> None:
+    if dump_path:
+        _safe_write_text(dump_path, ir_text)
+        return
+    if verbose:
+        _safe_write_text(os.path.join("tmp", "nyash_harness.ll"), ir_text)
+
+
 class NyashLLVMBuilder:
     """Main LLVM IR builder for Nyash MIR"""
     
@@ -197,13 +264,7 @@ class NyashLLVMBuilder:
 
     def apply_runtime_llvm_attrs(self) -> None:
         """Annotate known runtime helper declarations with conservative LLVM attrs."""
-        try:
-            _apply_runtime_llvm_attrs(self.module)
-        except Exception as _e:
-            try:
-                trace_debug(f"[Python LLVM] runtime attr policy skipped: {_e}")
-            except Exception:
-                pass
+        _safe_apply_runtime_llvm_attrs(self.module)
         
     def build_from_mir(self, mir_json: Dict[str, Any]) -> str:
         """Build LLVM IR from MIR JSON"""
@@ -231,10 +292,7 @@ class NyashLLVMBuilder:
                 arity = len(params_list)
                 # Dev fallback: when params missing for Box.method, use call-site arity
                 if arity == 0:
-                    try:
-                        arity = int(self.call_arities.get(name, 0))
-                    except Exception:
-                        pass
+                    arity = int(self.call_arities.get(name, 0) or 0)
             else:
                 arity = int(m.group(1)) if m else len(params_list)
             if name == "ny_main":
@@ -255,14 +313,7 @@ class NyashLLVMBuilder:
             self.lower_function(func_data)
 
         # Create ny_main wrapper if necessary (delegated builder; no legacy fallback)
-        try:
-            from builders.entry import ensure_ny_main as _ensure_ny_main
-            _ensure_ny_main(self)
-        except Exception as _e:
-            try:
-                trace_debug(f"[Python LLVM] ensure_ny_main failed: {_e}")
-            except Exception:
-                pass
+        _safe_ensure_ny_main(self)
 
         # Apply a narrow runtime LLVM attribute policy after all helper
         # declarations are in place but before textual emission / parsing.
@@ -270,20 +321,7 @@ class NyashLLVMBuilder:
         
         ir_text = str(self.module)
         # Optional IR dump to file for debugging
-        try:
-            dump_path = os.environ.get('NYASH_LLVM_DUMP_IR')
-            if dump_path:
-                os.makedirs(os.path.dirname(dump_path), exist_ok=True)
-                with open(dump_path, 'w') as f:
-                    f.write(ir_text)
-            else:
-                # Default dump location when verbose and not explicitly set
-                if os.environ.get('NYASH_CLI_VERBOSE') == '1':
-                    os.makedirs('tmp', exist_ok=True)
-                    with open('tmp/nyash_harness.ll', 'w') as f:
-                        f.write(ir_text)
-        except Exception:
-            pass
+        _safe_dump_ir_text(ir_text, os.environ.get('NYASH_LLVM_DUMP_IR'), os.environ.get('NYASH_CLI_VERBOSE') == '1')
         return ir_text
     
     def _create_dummy_main(self) -> str:
@@ -300,14 +338,11 @@ class NyashLLVMBuilder:
         try:
             from builders.function_lower import lower_function as _lower
             return _lower(self, func_data)
-        except Exception as _e:
-            try:
-                trace_debug(f"[Python LLVM] lower_function failed: {_e}")
-                # Always print traceback for debugging (Phase 21.1)
-                import traceback
-                traceback.print_exc(file=sys.stderr)
-            except Exception:
-                pass
+        except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as _e:
+            _safe_trace_debug(f"[Python LLVM] lower_function failed: {_e}")
+            # Always print traceback for debugging (Phase 21.1)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
             raise
 
 
@@ -332,22 +367,16 @@ class NyashLLVMBuilder:
         """
         # Sanitize: stop at first terminator in the MIR list
         effective: List[Dict[str, Any]] = []
-        try:
-            for it in insts:
-                op = (it or {}).get('op')
-                effective.append(it)
-                if op in ('ret', 'branch', 'jump'):
-                    break
-        except Exception:
-            effective = list(insts)
+        for it in insts:
+            op = (it or {}).get('op')
+            effective.append(it)
+            if op in ('ret', 'branch', 'jump'):
+                break
         for sub in effective:
             # If current block already has a terminator, stop lowering further instructions
             # to keep LLVM IR structurally valid. Any residuals should be split upstream.
-            try:
-                if builder.block is not None and builder.block.terminator is not None:
-                    break
-            except Exception:
-                pass
+            if builder.block is not None and builder.block.terminator is not None:
+                break
             self.lower_instruction(builder, sub, func)
     
     def finalize_phis(self):
@@ -368,40 +397,30 @@ class NyashLLVMBuilder:
             target,
             opt_level=build_opts.opt_level,
         )
-        try:
-            trace_debug(
-                f"[Python LLVM] opt-level={build_opts.opt_level} "
-                f"lto_mode={ipo_policy.lto_mode} pgo_mode={ipo_policy.pgo_mode} "
-                f"thin_candidates={ipo_policy.thinlto_import_candidate_count}"
-            )
-        except Exception:
-            pass
+        _safe_trace_debug(
+            f"[Python LLVM] opt-level={build_opts.opt_level} "
+            f"lto_mode={ipo_policy.lto_mode} pgo_mode={ipo_policy.pgo_mode} "
+            f"thin_candidates={ipo_policy.thinlto_import_candidate_count}"
+        )
         
         # Compile
         self.apply_runtime_llvm_attrs()
         ir_text = str(self.module)
         # Optional IR dump for debugging (Phase 131-7)
         if os.environ.get('NYASH_LLVM_DUMP_IR') == '1':
-            try:
-                ir_dump_path = output_path.replace('.o', '.ll')
-                with open(ir_dump_path, 'w') as f:
-                    f.write(ir_text)
-                print(f"[llvm_builder] IR dumped to: {ir_dump_path}", file=sys.stderr)
-            except Exception as e:
-                print(f"[llvm_builder] IR dump failed: {e}", file=sys.stderr)
+            ir_dump_path = output_path.replace('.o', '.ll')
+            _safe_write_text(ir_dump_path, ir_text)
+            print(f"[llvm_builder] IR dumped to: {ir_dump_path}", file=sys.stderr)
         # Optional sanitize: drop any empty PHI rows (no incoming list) to satisfy IR parser.
         # Gate with NYASH_LLVM_SANITIZE_EMPTY_PHI=1. Additionally, auto-enable when harness is requested.
         if build_opts.sanitize_empty_phi:
-            try:
-                ir_text = _sanitize_empty_phi_rows(ir_text)
-            except Exception:
-                pass
+            ir_text = _sanitize_empty_phi_rows(ir_text)
         mod = llvm.parse_assembly(ir_text)
         # Allow skipping verifier for iterative bring-up
         if build_opts.verify_ir:
             try:
                 mod.verify()
-            except Exception:
+            except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
                 mismatch = _first_phi_verify_mismatch(ir_text)
                 if mismatch is not None:
                     print(
@@ -423,28 +442,16 @@ class NyashLLVMBuilder:
         # PERF-only fast path: run standard LLVM module optimization passes before codegen.
         # Keep default behavior unchanged; this is gated by NYASH_LLVM_FAST=1.
         if build_opts.fast_ir_passes:
-            try:
-                pmb = llvm.create_pass_manager_builder()
-                pmb.opt_level = int(build_opts.opt_level)
-                pmb.size_level = 0
-                _apply_numeric_loop_pass_policy(pmb, build_opts.opt_level)
-                mpm = llvm.create_module_pass_manager()
-                pmb.populate(mpm)
-                mpm.run(mod)
-            except Exception as _e:
-                try:
-                    trace_debug(f"[Python LLVM] fast IR passes skipped: {_e}")
-                except Exception:
-                    pass
+            _safe_run_fast_ir_passes(mod, build_opts.opt_level)
 
         companion_path = _thinlto_companion_path(output_path, ipo_policy)
         if companion_path is not None:
-            with open(companion_path, 'wb') as f:
-                f.write(mod.as_bitcode())
+            _safe_write_binary(companion_path, mod.as_bitcode())
         pgo_manifest_path = _pgo_sidecar_path(output_path, pgo_policy)
         if pgo_manifest_path is not None:
-            with open(pgo_manifest_path, 'w', encoding='utf-8') as f:
-                json.dump(
+            _safe_write_text(
+                pgo_manifest_path,
+                json.dumps(
                     {
                         "phase": pgo_policy.phase,
                         "producer": pgo_policy.producer,
@@ -452,17 +459,16 @@ class NyashLLVMBuilder:
                         "exclusion": pgo_policy.exclusion,
                         "hotness_feed": pgo_policy.hotness_feed,
                     },
-                    f,
                     sort_keys=True,
                     indent=2,
-                )
+                ),
+            )
         
         # Generate object code
         obj = target_machine.emit_object(mod)
         
         # Write to file
-        with open(output_path, 'wb') as f:
-            f.write(obj)
+        _safe_write_binary(output_path, obj)
 
 def default_output_file():
     return os.path.join('tmp', 'nyash_llvm_py.o')
@@ -498,10 +504,7 @@ def parse_cli_args(argv):
 
 
 def ensure_output_dir(output_file):
-    try:
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    except Exception:
-        pass
+    _safe_makedirs(output_file)
 
 
 def load_input_mir_json(input_file):
