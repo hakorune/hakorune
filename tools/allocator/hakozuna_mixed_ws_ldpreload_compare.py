@@ -933,6 +933,8 @@ def main() -> int:
         f"{1 if args.replacement_front_page_bins_mode else 0}",
         "replacement_front_page_bins_route="
         f"{'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
+        "replacement_front_page_bins_lookup_route="
+        f"{'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
         "replacement_front_page_bins_owner=benchmark_only",
         "replacement_front_page_bins_product_claim=0",
         "replacement_front_product_bins_required_regular_distinct_count="
@@ -1167,6 +1169,9 @@ def main() -> int:
                     "subject_"
                     f"{index}_replacement_front_page_bins_route="
                     f"{'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
+                    "subject_"
+                    f"{index}_replacement_front_page_bins_lookup_route="
+                    f"{'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
                     f"subject_{index}_replacement_front_page_bins_owner=benchmark_only",
                     f"subject_{index}_replacement_front_page_bins_product_claim=0",
                     "subject_"

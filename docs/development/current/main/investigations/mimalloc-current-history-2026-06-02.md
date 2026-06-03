@@ -5330,3 +5330,20 @@ Interpretation: frequency order looked plausible because hot frees skew toward
 larger bins, but it regressed local page-bins. Keep the generated ownership
 lookup in canonical ascending bin order unless a later perf/asm pass selects a
 different lookup shape.
+
+`REPL-024` probed an aligned page-base ownership lookup for page-bins:
+
+```text
+page_bins_aligned_lookup_probe=nonkeeper
+page_bins_aligned_lookup_sample_count=1
+page_bins_aligned_lookup_subject_2_throughput_median_ops_per_sec=382049.190
+page_bins_aligned_lookup_direct_core_call_count_total=2084
+page_bins_aligned_lookup_host_passthrough_count_total=2
+page_bins_aligned_lookup_route=aligned_page_base_mask
+page_bins_aligned_lookup_baseline_route=range_scan
+```
+
+Interpretation: the route stayed direct, but forcing every generated page to a
+large static alignment made this local benchmark dramatically slower. Keep
+page-bins on the current `range_scan` lookup route; only the report vocabulary
+now names that lookup route so future probes can compare against it explicitly.
