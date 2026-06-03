@@ -12,6 +12,8 @@ from instructions.user_box_local import materialize_user_box_escape_value_if_nee
 from naming_helper import encode_static_method
 from utils.values import resolve_i64_strict
 
+_SAFE_CALL_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_call(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -48,14 +50,14 @@ def lower_call(
                 block_end_values = ctx.block_end_values
             if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
                 bb_map = ctx.bb_map
-        except Exception:
+        except _SAFE_CALL_EXC:
             pass
     # Insert an automatic safepoint after the function call
     try:
         import os
         if os.environ.get('NYASH_LLVM_AUTO_SAFEPOINT', '1') == '1':
             insert_automatic_safepoint(builder, module, "function_call")
-    except Exception:
+    except _SAFE_CALL_EXC:
         pass
     # Short-hands with ctx (backward-compatible fallback)
     r = resolver
@@ -68,7 +70,7 @@ def lower_call(
             p = getattr(ctx, 'preds', p)
             bev = getattr(ctx, 'block_end_values', bev)
             bbm = getattr(ctx, 'bb_map', bbm)
-        except Exception:
+        except _SAFE_CALL_EXC:
             pass
 
     # Resolver helpers (prefer resolver when available)
@@ -105,7 +107,7 @@ def lower_call(
                     bbm,
                     hot_scope="call",
                 )
-            except Exception:
+            except _SAFE_CALL_EXC:
                 return None
         return vmap.get(vid)
 
@@ -133,7 +135,7 @@ def lower_call(
         if r is not None and p is not None and bev is not None:
             try:
                 return r.resolve_ptr(vid, builder.block, p, bev, vmap)
-            except Exception:
+            except _SAFE_CALL_EXC:
                 return None
         return vmap.get(vid)
 
@@ -163,7 +165,7 @@ def lower_call(
         try:
             if isinstance(name, str):
                 is_console = (name in ("print", "println")) or name.startswith("nyash.console.")
-        except Exception:
+        except _SAFE_CALL_EXC:
             is_console = False
         if is_console:
             func_type = ir.FunctionType(i64, [i8p])
@@ -183,7 +185,7 @@ def lower_call(
                     b.ret(ir.Constant(rty, 1))
                 else:
                     b.ret_void()
-        except Exception:
+        except _SAFE_CALL_EXC:
             pass
 
     # Prepare arguments
@@ -251,5 +253,5 @@ def lower_call(
                         bridge = ir.Function(module, ir.FunctionType(i8p, [i64]), name='nyash.string.to_i8p_h')
                     pv = builder.call(bridge, [result], name=f"ret_h2p_{dst_vid}")
                     resolver.string_ptrs[int(dst_vid)] = pv
-        except Exception:
+        except _SAFE_CALL_EXC:
             pass

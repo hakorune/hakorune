@@ -26,6 +26,7 @@ from trace import hot_count as trace_hot_count
 
 _BINOP_COMMUTATIVE_OPS = {"+", "*", "&", "|", "^"}
 _BINOP_EXPR_CACHEABLE_OPS = _BINOP_COMMUTATIVE_OPS | {"-", "/", "%", "<<", ">>"}
+_SAFE_BINOP_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
 
 
 def _canonicalize_i64(builder: ir.IRBuilder, value, vid, vmap: Dict[int, ir.Value], hint: str):
@@ -35,7 +36,7 @@ def _canonicalize_i64(builder: ir.IRBuilder, value, vid, vmap: Dict[int, ir.Valu
     target = ir.IntType(64)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_BINOP_EXC:
         vtype = None
     if isinstance(vtype, ir.PointerType):
         value = builder.ptrtoint(value, target, name=f"{hint}_p2i_{vid}")
@@ -58,7 +59,7 @@ def _block_id_from_name(current_block) -> Optional[int]:
         return None
     try:
         return int(name[2:])
-    except Exception:
+    except _SAFE_BINOP_EXC:
         return None
 
 
@@ -71,7 +72,7 @@ def _value_sig(val, fallback_vid: int):
                 return ("c_i", vtype.width, int(val.constant))
             if isinstance(vtype, ir.DoubleType):
                 return ("c_f", float(val.constant))
-    except Exception:
+    except _SAFE_BINOP_EXC:
         pass
     if val is not None:
         return ("obj", id(val))
@@ -103,7 +104,7 @@ def _cache_entry_reusable(resolver, current_bid: Optional[int], def_bid: Optiona
         return False
     try:
         return bool(ctx.dominates(def_bid, current_bid))
-    except Exception:
+    except _SAFE_BINOP_EXC:
         return False
 
 
@@ -143,7 +144,7 @@ def _binop_expr_cache_state(
         cached = cached_entry[0]
         try:
             cached_def_bid = int(cached_entry[1])
-        except Exception:
+        except _SAFE_BINOP_EXC:
             cached_def_bid = None
     else:
         cached = cached_entry
@@ -368,7 +369,7 @@ def _coerce_float_operand_to_f64(builder: ir.IRBuilder, operand, *, trace_values
                 [i64],
             )
             return builder.call(callee, [operand], name="unbox_float")
-    except Exception as exc:
+    except _SAFE_BINOP_EXC as exc:
         if trace_values is not None:
             trace_values(f"[binop] Exception checking Float type: {exc}, assuming constant")
         return operand
@@ -435,7 +436,7 @@ def _const_i64_literal(val):
             vtype = getattr(val, "type", None)
             if isinstance(vtype, ir.IntType):
                 return int(val.constant)
-    except Exception:
+    except _SAFE_BINOP_EXC:
         pass
     return None
 
@@ -451,7 +452,7 @@ def _lower_mod_op(builder: ir.IRBuilder, resolver, lhs_val, rhs_val, lhs_vid: in
     try:
         nonneg_ids = getattr(resolver, "non_negative_ids", None)
         lhs_nonneg = isinstance(nonneg_ids, set) and int(lhs_vid) in nonneg_ids
-    except Exception:
+    except _SAFE_BINOP_EXC:
         lhs_nonneg = False
 
     if isinstance(rhs_const, int) and _is_positive_power_of_two(rhs_const):
