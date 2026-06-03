@@ -118,11 +118,18 @@ def classify_method(method_name: str, body: str) -> MethodInventory:
         suggested_next_kind = "box_count"
         confidence = "high"
     elif method_name == "objectLifecycleSmallAlloc" and "selectPage" in body:
-        suggested_next = "select_page_single_page_fast_path"
-        hot_path_risk = "medium"
-        hot_path_reason = "source_selectPage_hot_path"
-        suggested_next_kind = "box_count"
-        confidence = "medium"
+        if "trySelectSingleActivePage" in body:
+            suggested_next = "measure_single_page_fast_path_coverage"
+            hot_path_risk = "low"
+            hot_path_reason = "single_page_fast_path_present"
+            suggested_next_kind = "observe"
+            confidence = "medium"
+        else:
+            suggested_next = "select_page_single_page_fast_path"
+            hot_path_risk = "medium"
+            hot_path_reason = "source_selectPage_hot_path"
+            suggested_next_kind = "box_count"
+            confidence = "medium"
     elif loop_array_get_count > 0 or loop_array_length_count > 0:
         suggested_next = "array_loop_access_reduction"
         hot_path_risk = "medium"
