@@ -58,6 +58,31 @@ class DeferredTerminator(NamedTuple):
     vmap_snapshot: Dict[int, ir.Value]
 
 
+def _bind_resolver_block(
+    builder,
+    ir_builder: ir.IRBuilder,
+    block_id: int,
+    *,
+    disable_phi_synthesis: bool = False,
+) -> None:
+    try:
+        builder.resolver.builder = ir_builder
+        builder.resolver.module = builder.module
+        builder.resolver.current_block_id = block_id
+        if disable_phi_synthesis:
+            builder.resolver._disable_phi_synthesis = True
+    except Exception:
+        pass
+
+
+def _bind_resolver_instruction(builder, block_id: int, instruction_index: int) -> None:
+    try:
+        builder.resolver.current_block_id = block_id
+        builder.resolver.current_instruction_index = int(instruction_index)
+    except Exception:
+        pass
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -224,13 +249,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         if loop_plan is not None and bid == loop_plan.get('header'):
             bb = builder.bb_map[bid]
             ib = ir.IRBuilder(bb)
-            try:
-                builder.resolver.builder = ib
-                builder.resolver.module = builder.module
-                # P0-1: Set current block_id for def_blocks tracking
-                builder.resolver.current_block_id = bid
-            except Exception:
-                pass
+            _bind_resolver_block(builder, ib, bid)
             builder.loop_count += 1
             body_insts = loop_plan.get('body_insts', [])
             cond_vid = loop_plan.get('cond')
@@ -318,13 +337,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             continue
         bb = builder.bb_map[bid]
         ib = ir.IRBuilder(bb)
-        try:
-            builder.resolver.builder = ib
-            builder.resolver.module = builder.module
-            # P0-1: Set current block_id for def_blocks tracking
-            builder.resolver.current_block_id = bid
-        except Exception:
-            pass
+        _bind_resolver_block(builder, ib, bid)
         block_data = block_by_id.get(bid, {})
         insts = block_data.get('instructions', []) or []
         # Split into body and terminator ops
@@ -388,11 +401,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             except Exception:
                 pass
             ib.position_at_end(bb)
-            try:
-                builder.resolver.current_block_id = bid
-                builder.resolver.current_instruction_index = int(inst.get("__instruction_index", i_idx))
-            except Exception:
-                pass
+            _bind_resolver_instruction(builder, bid, inst.get("__instruction_index", i_idx))
             if inst.get('op') == 'copy':
                 src_i = inst.get('src')
                 skip_now = False
@@ -634,14 +643,9 @@ def lower_terminators(builder, func: ir.Function):
 
         try:
             ib = ir.IRBuilder(bb)
-            try:
-                builder.resolver.builder = ib
-                builder.resolver.module = builder.module
-                # Phase 131-4: Disable PHI synthesis during terminator lowering
-                # Terminators should only use values that already exist (from Pass A/B)
-                builder.resolver._disable_phi_synthesis = True
-            except Exception:
-                pass
+            # Phase 131-4: Disable PHI synthesis during terminator lowering.
+            # Terminators should only use values that already exist (from Pass A/B).
+            _bind_resolver_block(builder, ib, bid, disable_phi_synthesis=True)
 
             for inst in term_ops:
                 try:
@@ -656,11 +660,7 @@ def lower_terminators(builder, func: ir.Function):
                 except Exception:
                     pass
                 ib.position_at_end(bb)
-                try:
-                    builder.resolver.current_block_id = bid
-                    builder.resolver.current_instruction_index = int(inst.get("__instruction_index", -1))
-                except Exception:
-                    pass
+                _bind_resolver_instruction(builder, bid, inst.get("__instruction_index", -1))
                 builder.lower_instruction(ib, inst, func)
         finally:
             # Phase 131-12-P1 P0-3: Restore previous _current_vmap state (prevent side effects)
