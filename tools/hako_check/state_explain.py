@@ -247,6 +247,9 @@ def main() -> int:
         for owner, field, bucket in field_rows
         if bucket in {"handle_cache", "direct_array_owner", "escape_unknown"}
     ]
+    record_state_field_access_lowering_enabled = sum(
+        1 for plan in record_state_field_access_plans if bool(plan.get("lowering_enabled"))
+    )
 
     lines = [
         "output_contract=hako-check-state-explain-v0",
@@ -268,6 +271,7 @@ def main() -> int:
         f"selected_direct_state_mixed_candidate_count={len(selected_mixed_direct_state)}",
         f"record_state_residence_plan_count={len(record_state_residence_plans)}",
         f"record_state_field_access_plan_count={len(record_state_field_access_plans)}",
+        f"record_state_field_access_lowering_enabled={record_state_field_access_lowering_enabled}",
         f"record_state_residence_candidate_field_count={len(record_state_candidate_fields)}",
         f"record_state_handle_reject_field_count={len(handle_reject_fields)}",
         "record_state_source_migration_selected=0",
