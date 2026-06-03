@@ -7,6 +7,7 @@ known-box lowering.
 """
 
 from typing import Callable, List, Optional
+import os
 
 from llvmlite import ir
 
@@ -53,6 +54,15 @@ def _declare_const_string_handle(
     return builder.call(boxer, [ptr], name=call_name)
 
 
+def _strict_direct_arg_or_zero(call_name: str, arg_index: int):
+    if os.environ.get("NYASH_LLVM_STRICT") == "1":
+        raise RuntimeError(
+            f"[LLVM_PY/STRICT] FileBox direct arg unresolved: "
+            f"{call_name} arg{arg_index}"
+        )
+    return ir.Constant(ir.IntType(64), 0)
+
+
 def lower_filebox_open_direct(
     *,
     builder: ir.IRBuilder,
@@ -69,13 +79,13 @@ def lower_filebox_open_direct(
     i64 = ir.IntType(64)
     path_arg = resolve_arg(args[0])
     if path_arg is None:
-        path_arg = ir.Constant(i64, 0)
+        path_arg = _strict_direct_arg_or_zero(call_name, 0)
     path_h = ensure_handle(path_arg)
 
     if len(args) == 2:
         mode_arg = resolve_arg(args[1])
         if mode_arg is None:
-            mode_arg = ir.Constant(i64, 0)
+            mode_arg = _strict_direct_arg_or_zero(call_name, 1)
         mode_h = ensure_handle(mode_arg)
     else:
         mode_h = _declare_const_string_handle(

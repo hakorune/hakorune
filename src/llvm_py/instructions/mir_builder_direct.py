@@ -6,6 +6,7 @@ slice so direct route logic does not grow back into generic known-box lowering.
 """
 
 from typing import Callable, List, Optional, Tuple
+import os
 
 from llvmlite import ir
 
@@ -34,6 +35,15 @@ def _resolve_direct_callee(
     return None
 
 
+def _strict_direct_arg_or_zero(method_name: str, arg_index: int):
+    if os.environ.get("NYASH_LLVM_STRICT") == "1":
+        raise RuntimeError(
+            f"[LLVM_PY/STRICT] MirBuilderBox direct arg unresolved: "
+            f"{method_name} arg{arg_index}"
+        )
+    return ir.Constant(ir.IntType(64), 0)
+
+
 def _lower_mir_builder_direct(
     *,
     builder: ir.IRBuilder,
@@ -53,10 +63,10 @@ def _lower_mir_builder_direct(
         return None
 
     argv = []
-    for arg_vid in args:
+    for index, arg_vid in enumerate(args):
         arg_val = resolve_arg(arg_vid)
         if arg_val is None:
-            arg_val = ir.Constant(i64, 0)
+            arg_val = _strict_direct_arg_or_zero(method_name, index)
         argv.append(ensure_handle(arg_val))
     return builder.call(callee, argv, name=call_name)
 

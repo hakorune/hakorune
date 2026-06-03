@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import unittest
 
 import llvmlite.ir as ir
@@ -18,6 +19,9 @@ def _new_builder():
 
 
 class TestMethodFallbackTail(unittest.TestCase):
+    def tearDown(self):
+        os.environ.pop("NYASH_LLVM_STRICT", None)
+
     def test_prefers_direct_known_box_method_when_present(self):
         i64, module, builder = _new_builder()
         ir.Function(module, ir.FunctionType(i64, [i64, i64]), name="StringBox.length/2")
@@ -271,6 +275,24 @@ class TestMethodFallbackTail(unittest.TestCase):
             or "nyash.box.from_i8_string" in ir_text
         )
 
+    def test_filebox_open_unresolved_path_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "FileBox direct arg unresolved"):
+            lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name="FileBox",
+                method_name="open",
+                recv_h=ir.Constant(i64, 7),
+                args=[2],
+                resolve_arg=lambda vid: None,
+                ensure_handle=lambda value: value,
+                direct_call_name="known_box_file_open_missing_path",
+                plugin_call_name="unified_plugin_invoke",
+            )
+
     def test_filebox_read_prefers_direct_kernel_route(self):
         i64, module, builder = _new_builder()
 
@@ -390,6 +412,30 @@ class TestMethodFallbackTail(unittest.TestCase):
             )
 
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", str(module))
+
+    def test_mir_builder_direct_unresolved_arg_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64, i64]),
+            name="MirBuilderBox.emit_from_program_json_v0/2",
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "MirBuilderBox direct arg unresolved"):
+            lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name=None,
+                method_name="emit_from_program_json_v0",
+                recv_h=ir.Constant(i64, 0),
+                args=[2, 3],
+                resolve_arg=lambda vid: None,
+                ensure_handle=lambda value: value,
+                direct_call_name="known_box_emit_program_json_missing_arg",
+                plugin_call_name="unified_plugin_invoke",
+                receiver_literal="lang.mir.builder.MirBuilderBox",
+            )
 
     def test_unsupported_direct_target_fails_fast_when_plugin_tail_is_retired(self):
         i64, module, builder = _new_builder()
