@@ -1124,6 +1124,21 @@ def report_dict(
             "inlined_hot_body_mixed_percent",
             "0.00",
         ),
+        "perf_public_proof_accumulator_plan_v0": int_field(
+            perf_attribution, "public_proof_accumulator_plan_v0", 0
+        ),
+        "perf_public_proof_accumulator_fields": str_field(
+            perf_attribution, "public_proof_accumulator_fields", "none"
+        ),
+        "perf_public_proof_accumulator_policy": str_field(
+            perf_attribution, "public_proof_accumulator_policy", "none"
+        ),
+        "perf_public_proof_accumulator_source_reorder_allowed": int_field(
+            perf_attribution, "public_proof_accumulator_source_reorder_allowed", 0
+        ),
+        "perf_public_proof_accumulator_next_bridge": str_field(
+            perf_attribution, "public_proof_accumulator_next_bridge", "none"
+        ),
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
@@ -1324,6 +1339,11 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_inlined_hot_body_release_local_known_live_percent",
         "perf_inlined_hot_body_init_public_store_percent",
         "perf_inlined_hot_body_mixed_percent",
+        "perf_public_proof_accumulator_plan_v0",
+        "perf_public_proof_accumulator_fields",
+        "perf_public_proof_accumulator_policy",
+        "perf_public_proof_accumulator_source_reorder_allowed",
+        "perf_public_proof_accumulator_next_bridge",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",

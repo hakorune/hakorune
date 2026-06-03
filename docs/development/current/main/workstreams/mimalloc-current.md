@@ -423,6 +423,10 @@ inlined_hot_body_init_public_store_percent=14.19
 inlined_hot_body_split_ready=0
 inlined_hot_body_split_blocker=checked_public_proof_accumulator_requires_overflow_policy
 inlined_hot_body_split_next_bridge=add_public_proof_accumulator_overflow_policy_before_source_reorder
+public_proof_accumulator_plan_v0=1
+public_proof_accumulator_fields=requested_bytes
+public_proof_accumulator_policy=checked_add_sign_guard
+public_proof_accumulator_source_reorder_allowed=0
 ```
 
 Attempted symbol-specific annotate on the same `perf.data` for
@@ -443,8 +447,11 @@ therefore focus on this acquire-like body before reopening
 release/init/store-layout probes. However, the same context also shows the
 `requested_bytes` public/proof accumulator protected by a checked overflow
 branch before the primitive `free_top` store. Do not reorder or sink that
-store until an explicit overflow policy / proof is added. The weighted store
-classifier says the store owner is primitive
+store until an explicit overflow policy / proof is added. The
+`public_proof_accumulator_plan_v0` report names this as
+`requested_bytes` with `checked_add_sign_guard`, and keeps
+`source_reorder_allowed=0`. The weighted store classifier says the store owner
+is primitive
 hot-state dominant, so do not misread the current evidence as primarily a
 public/proof counter deletion opportunity.
 Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later

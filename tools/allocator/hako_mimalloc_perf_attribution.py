@@ -412,6 +412,32 @@ def _has_checked_public_accumulator_barrier(
     return False
 
 
+def _public_proof_accumulator_fields(
+    instructions: list[AnnotatedInstruction],
+    objdump: list[ObjdumpInstruction],
+    field_offsets: dict[int, str],
+    context_radius: int,
+) -> list[str]:
+    fields: list[str] = []
+    for ins in instructions:
+        context_fields = _context_fields_for_address(
+            objdump,
+            ins.address,
+            context_radius,
+            field_offsets,
+        )
+        if _select_inline_owner_for_fields(context_fields) != "acquire_fresh_small_like":
+            continue
+        for field in context_fields:
+            if "public_semantics" not in bucket_for_field(field):
+                continue
+            if "proof_evidence" not in bucket_for_field(field):
+                continue
+            if field not in fields:
+                fields.append(field)
+    return fields
+
+
 def _select_backend_store_shape(
     store_fields: list[str],
     context_fields: list[str],
@@ -621,6 +647,19 @@ def emit_report(args: argparse.Namespace) -> str:
         field_offsets,
         args.context_radius,
     )
+    public_proof_accumulator_fields = _public_proof_accumulator_fields(
+        hot_instructions,
+        objdump,
+        field_offsets,
+        args.context_radius,
+    )
+    public_proof_accumulator_policy = (
+        "checked_add_sign_guard"
+        if checked_public_accumulator_barrier
+        else "none"
+        if not public_proof_accumulator_fields
+        else "unclassified"
+    )
     split_ready = bool(
         hot_inline_owner != "none" and not checked_public_accumulator_barrier
     )
@@ -719,6 +758,11 @@ def emit_report(args: argparse.Namespace) -> str:
         f"inlined_hot_body_split_ready={_kv_bool(split_ready)}",
         f"inlined_hot_body_split_blocker={split_blocker}",
         f"inlined_hot_body_split_next_bridge={split_next_bridge}",
+        "public_proof_accumulator_plan_v0=1",
+        f"public_proof_accumulator_fields={','.join(public_proof_accumulator_fields) or 'none'}",
+        f"public_proof_accumulator_policy={public_proof_accumulator_policy}",
+        f"public_proof_accumulator_source_reorder_allowed={_kv_bool(not checked_public_accumulator_barrier)}",
+        f"public_proof_accumulator_next_bridge={split_next_bridge}",
     ]
     if top_instruction is not None:
         lines.extend(
