@@ -42,6 +42,29 @@ def read_text(path: Path) -> str:
         return ""
 
 
+def read_kv_report(path: Path | None) -> dict[str, str]:
+    if path is None:
+        return {}
+    data: dict[str, str] = {}
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return {}
+    for line in lines:
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        data[key.strip()] = value.strip()
+    return data
+
+
+def int_field(data: dict[str, str], key: str, default: int = 0) -> int:
+    try:
+        return int(data.get(key, str(default)))
+    except ValueError:
+        return default
+
+
 def has_file(path: Path) -> bool:
     return path.exists() and path.is_file()
 
@@ -206,7 +229,11 @@ def build_rows() -> list[CoverageRow]:
     ]
 
 
-def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
+def report_dict(
+    rows: list[CoverageRow],
+    *,
+    benchmark_report: Path | None = None,
+) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
     replacement = read_text(REPLACEMENT_FRONT) + "\n" + read_text(REPLACEMENT_TEMPLATES)
@@ -291,6 +318,66 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
             "page_map_lookup",
         })
     )
+    benchmark = read_kv_report(benchmark_report)
+    benchmark_report_consumed = int(bool(benchmark))
+    benchmark_subject = "none"
+    benchmark_subject_prefix = ""
+    for prefix in ("subject_2", "subject_3", "subject_4"):
+        if benchmark.get(f"{prefix}_name") == "hakorune_replacement_front_ldpreload":
+            benchmark_subject = benchmark[f"{prefix}_name"]
+            benchmark_subject_prefix = prefix
+            break
+    if (
+        benchmark_report_consumed
+        and benchmark_subject == "none"
+        and int_field(benchmark, "replacement_front_page_bins_consumer_enabled", 0)
+    ):
+        benchmark_subject = "hakorune_replacement_front_ldpreload"
+    page_bins_consumer_enabled = int_field(
+        benchmark,
+        f"{benchmark_subject_prefix}_replacement_front_page_bins_consumer_enabled"
+        if benchmark_subject_prefix
+        else "replacement_front_page_bins_consumer_enabled",
+        0,
+    )
+    page_bins_route = benchmark.get(
+        f"{benchmark_subject_prefix}_replacement_front_page_bins_route"
+        if benchmark_subject_prefix
+        else "replacement_front_page_bins_route",
+        "not_consumed",
+    )
+    page_bins_lookup_route = benchmark.get(
+        f"{benchmark_subject_prefix}_replacement_front_page_bins_lookup_route"
+        if benchmark_subject_prefix
+        else "replacement_front_page_bins_lookup_route",
+        "not_recorded" if page_bins_consumer_enabled else "not_consumed",
+    )
+    product_bins_consumer_enabled = int_field(
+        benchmark,
+        f"{benchmark_subject_prefix}_replacement_front_product_bins_consumer_enabled"
+        if benchmark_subject_prefix
+        else "replacement_front_product_bins_consumer_enabled",
+        0,
+    )
+    product_bins_route = benchmark.get(
+        f"{benchmark_subject_prefix}_replacement_front_product_bins_route"
+        if benchmark_subject_prefix
+        else "replacement_front_product_bins_route",
+        "not_consumed",
+    )
+    product_pages_consumer_enabled = int_field(
+        benchmark,
+        f"{benchmark_subject_prefix}_replacement_front_product_pages_consumer_enabled"
+        if benchmark_subject_prefix
+        else "replacement_front_product_pages_consumer_enabled",
+        0,
+    )
+    algorithm_shape = benchmark.get(
+        f"{benchmark_subject_prefix}_replacement_front_algorithm_shape"
+        if benchmark_subject_prefix
+        else "replacement_front_algorithm_shape",
+        "not_consumed",
+    )
     return {
         "output_contract": "hako-mimalloc-algorithm-coverage-v0",
         "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),
@@ -299,6 +386,9 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         "provider_activation": 0,
         "production_replacement_active": 0,
         "winner_claim": 0,
+        "benchmark_report": str(benchmark_report) if benchmark_report is not None else "none",
+        "benchmark_report_consumed": benchmark_report_consumed,
+        "benchmark_replacement_subject": benchmark_subject,
         "area_count": len(rows),
         "hako_model_area_count": sum(row.hako_model for row in rows),
         "replacement_front_area_count": sum(row.replacement_front for row in rows),
@@ -308,7 +398,7 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         ),
         "open_area_count": sum(1 for row in rows if row.status == "open"),
         "size_class_policy_bridge_plan_v0": 1,
-        "size_class_policy_product_bins_connected": 0,
+        "size_class_policy_product_bins_connected": product_bins_consumer_enabled,
         "size_class_policy_single_class_benchmark_bridge_supported": int(
             size_class_single_bridge_supported
         ),
@@ -318,10 +408,15 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         "size_class_policy_next_bridge": "product_replacement_bins_pages",
         "replacement_front_page_bins_plan_v0": 1,
         "replacement_front_page_bins_supported": int(page_bins_bridge_supported),
-        "replacement_front_page_bins_consumer_enabled": 0,
-        "replacement_front_page_bins_route": "not_consumed",
+        "replacement_front_page_bins_consumer_enabled": page_bins_consumer_enabled,
+        "replacement_front_page_bins_route": page_bins_route,
+        "replacement_front_page_bins_lookup_route": page_bins_lookup_route,
         "replacement_front_page_bins_owner": "benchmark_only",
         "replacement_front_page_bins_product_claim": 0,
+        "replacement_front_benchmark_algorithm_shape": algorithm_shape,
+        "replacement_front_product_bins_consumer_enabled": product_bins_consumer_enabled,
+        "replacement_front_product_bins_route": product_bins_route,
+        "replacement_front_product_pages_consumer_enabled": product_pages_consumer_enabled,
         "replacement_front_locked_global_multithread_supported": int(locked_front),
         "replacement_front_thread_local_multithread_supported": int(tls_front),
         "replacement_front_multithread_claim": 0,
@@ -372,6 +467,9 @@ def emit_text(data: dict[str, object]) -> None:
         "provider_activation",
         "production_replacement_active",
         "winner_claim",
+        "benchmark_report",
+        "benchmark_report_consumed",
+        "benchmark_replacement_subject",
         "area_count",
         "hako_model_area_count",
         "replacement_front_area_count",
@@ -387,8 +485,13 @@ def emit_text(data: dict[str, object]) -> None:
         "replacement_front_page_bins_supported",
         "replacement_front_page_bins_consumer_enabled",
         "replacement_front_page_bins_route",
+        "replacement_front_page_bins_lookup_route",
         "replacement_front_page_bins_owner",
         "replacement_front_page_bins_product_claim",
+        "replacement_front_benchmark_algorithm_shape",
+        "replacement_front_product_bins_consumer_enabled",
+        "replacement_front_product_bins_route",
+        "replacement_front_product_pages_consumer_enabled",
         "replacement_front_locked_global_multithread_supported",
         "replacement_front_thread_local_multithread_supported",
         "replacement_front_multithread_claim",
@@ -437,9 +540,17 @@ def emit_text(data: dict[str, object]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="emit JSON instead of text")
+    parser.add_argument(
+        "--benchmark-report",
+        type=Path,
+        help=(
+            "optional hakozuna mixed-ws compare report to overlay executed "
+            "benchmark-only replacement-front route fields"
+        ),
+    )
     args = parser.parse_args()
 
-    data = report_dict(build_rows())
+    data = report_dict(build_rows(), benchmark_report=args.benchmark_report)
     if args.json:
         print(json.dumps(data, indent=2, sort_keys=True))
     else:

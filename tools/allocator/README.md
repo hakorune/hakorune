@@ -27,11 +27,20 @@ mimalloc algorithm, run the algorithm coverage report:
 python3 tools/allocator/hako_mimalloc_algorithm_coverage.py
 ```
 
+To overlay an already generated Hakozuna mixed-ws compare report onto the
+static inventory, pass it explicitly:
+
+```bash
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
+  --benchmark-report target/hakozuna-mixed-ws-page-bins-current/report.out
+```
+
 The report separates `.hako` policy/model coverage from benchmark-only
 replacement-front execution. The current expected state is:
 
 ```text
 replacement_front_is_full_hako_algorithm=0
+benchmark_report_consumed=0
 size_class_policy_product_bins_connected=0
 size_class_policy_single_class_benchmark_bridge_supported=1
 page_model_hot_array_bridge_plan_v0=1
@@ -52,6 +61,26 @@ winner_claim=0
 
 Use this to avoid reading the fixed-slot replacement front as a product
 allocator or full `.hako` algorithm claim.
+
+With `--benchmark-report`, the report overlays the executed benchmark-only
+route while preserving the no-product-claim boundary:
+
+```text
+benchmark_report_consumed=1
+benchmark_replacement_subject=hakorune_replacement_front_ldpreload
+size_class_policy_product_bins_connected=1
+replacement_front_product_bins_consumer_enabled=1
+replacement_front_product_bins_route=benchmark_page_bins
+replacement_front_page_bins_consumer_enabled=1
+replacement_front_page_bins_route=benchmark_page_bins
+replacement_front_product_pages_consumer_enabled=0
+replacement_front_page_bins_product_claim=0
+replacement_front_is_full_hako_algorithm=0
+```
+
+This overlay is evidence that the benchmark-only front consumed the selected
+route in that report. It is not product allocator activation and it does not
+turn benchmark page-bins into the full `.hako` mimalloc algorithm.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

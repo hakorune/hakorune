@@ -126,6 +126,19 @@ Stable report entry:
 python3 tools/allocator/hako_mimalloc_algorithm_coverage.py
 ```
 
+Overlay a generated mixed-ws compare report when selecting the next bridge
+owner from executed benchmark evidence:
+
+```bash
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
+  --benchmark-report target/hakozuna-mixed-ws-page-bins-current/report.out
+```
+
+The overlay may show `replacement_front_product_bins_consumer_enabled=1` for a
+benchmark-only route, while `replacement_front_is_full_hako_algorithm=0` and
+`replacement_front_product_pages_consumer_enabled=0` keep product allocator
+claims closed.
+
 The same report carries the current PageModel hot-array readiness view:
 
 ```text
