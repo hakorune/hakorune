@@ -222,15 +222,25 @@ hotcore_skip_counters_probe:
   median_ops_per_sec=8,713,306.090
   previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
   decision=nonkeeper
+
+hotcore_free_lookup_probe:
+  attempted_change=add free-only ownership decode that returns only bin/index,
+    removing free() stack-canary/out-param-heavy find_owned call shape
+  asm_effect=free symbol no longer needs stack canary for the ownership lookup
+  report=target/hakozuna-mixed-ws-hotcore-free-lookup-current/report.out
+  median_ops_per_sec=8,823,010.411
+  previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
+  decision=nonkeeper
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
 regressing end-to-end mixed-ws throughput. The naive page-map-backed ownership
 bridge proves the report shape can consume product pages, but its linear lookup
 is too expensive for the current optimization owner. The bins counter-skip
-probe removes hot count writes but does not improve median throughput. Keep the
-existing HotCore/PageModel bridge and do not re-open these probes without new
-perf owner evidence.
+probe removes hot count writes but does not improve median throughput. The
+free-only ownership decode makes the generated `free` assembly cleaner, but it
+also fails the median-throughput keeper bar. Keep the existing HotCore/PageModel
+bridge and do not re-open these probes without new perf owner evidence.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
