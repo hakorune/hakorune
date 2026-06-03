@@ -389,6 +389,20 @@ record_state_residence_plan_0_selected_field_count=6
 record_state_residence_plan_0_rejected_field_count=20
 ```
 
+The next report-only slice also emits access-site metadata. When the algorithm
+coverage overlay consumes both the fastpath report and this state report:
+
+```text
+fastpath_report_consumed=1
+state_report_consumed=1
+page_model_hot_array_source_route_measured=1
+page_model_hot_array_source_route_measurement_blocker=none
+record_state_field_access_plan_count=88
+record_state_field_access_ready=1
+record_state_field_access_lowering_enabled=0
+record_state_residence_next_bridge=select_record_state_lowering_owner
+```
+
 This is still metadata only. It does not create a runtime `PageState`, direct
 record lowering, whole-record ABI, or source migration permission.
 

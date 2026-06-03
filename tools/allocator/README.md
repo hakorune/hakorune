@@ -36,21 +36,38 @@ python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
 ```
 
 To also overlay the current `hako_check fastpath-explain` route truth for the
-PageModel hot arrays, first emit a JSON report and pass it as
-`--fastpath-report`:
+PageModel hot arrays, first emit a report and pass it as `--fastpath-report`.
+The coverage adapter treats `clean=1`, `slow_selected=0`, and at least one
+DirectArray plan as the route truth; the static source get/set count is only a
+readiness scan because MIR may elide or merge source-level sites.
 
 ```bash
 mkdir -p target/page-model-hot-array-route
-bash tools/hako_check.sh fastpath-explain \
-  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
-  --profile hot-report \
-  --group @allocator_hot_paths \
-  --format json \
-  --out target/page-model-hot-array-route/fastpath.json
+HAKORUNE_BIN=target/debug/hakorune tools/hako_check/fastpath_explain.sh \
+  --app apps/mimalloc-page-model-proof/main.hako \
+  --profile direct-memory \
+  --group @direct_memory \
+  --format kv \
+  --out target/page-model-hot-array-route/fastpath.kv
 
 python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
   --benchmark-report target/hakozuna-mixed-ws-hotcore-size-table-eager-init-7/report.out \
-  --fastpath-report target/page-model-hot-array-route/fastpath.json
+  --fastpath-report target/page-model-hot-array-route/fastpath.kv
+```
+
+To overlay record-state residence and access-site metadata, also pass the
+`hako_check state-explain` report. This is still report-only: it does not enable
+record lowering, create a runtime `PageState`, or allow source migration.
+
+```bash
+HAKORUNE_BIN=target/debug/hakorune tools/hako_check/state_explain.sh \
+  --app apps/mimalloc-page-model-proof/main.hako \
+  --box HakoAllocPageModel \
+  > target/page-model-hot-array-route/state.kv
+
+python3 tools/allocator/hako_mimalloc_algorithm_coverage.py \
+  --fastpath-report target/page-model-hot-array-route/fastpath.kv \
+  --state-report target/page-model-hot-array-route/state.kv
 ```
 
 The report separates `.hako` policy/model coverage from benchmark-only
@@ -60,6 +77,7 @@ replacement-front execution. The current expected state is:
 replacement_front_is_full_hako_algorithm=0
 benchmark_report_consumed=0
 fastpath_report_consumed=0
+state_report_consumed=0
 size_class_policy_product_bins_connected=0
 size_class_policy_single_class_benchmark_bridge_supported=1
 page_model_hot_array_bridge_plan_v0=1
@@ -110,6 +128,7 @@ benchmark_report_consumed=1
 benchmark_replacement_subject=hakorune_replacement_front_ldpreload
 fastpath_report=target/page-model-hot-array-route/fastpath.json
 fastpath_report_consumed=1
+state_report_consumed=0
 size_class_policy_product_bins_connected=1
 replacement_front_product_bins_consumer_enabled=1
 replacement_front_product_bins_route=benchmark_page_bins_hotcore_page_model
@@ -159,11 +178,22 @@ page_model_hot_array_source_route_measurement_plan_v0=1
 page_model_hot_array_source_route_measured=1
 page_model_hot_array_source_route_measurement_blocker=none
 page_model_hot_array_source_route_next_bridge=perf_delta_measurement
-page_model_hot_array_fastpath_direct_array_plan_count=24
-page_model_hot_array_fastpath_route_decision_count=24
-page_model_hot_array_fastpath_fast_selected_count=24
+page_model_hot_array_fastpath_direct_array_plan_count=...
+page_model_hot_array_fastpath_route_decision_count=...
+page_model_hot_array_fastpath_fast_selected_count=...
 page_model_hot_array_fastpath_slow_selected_count=0
 structural_owner_next_action=measure_page_model_hot_array_perf_delta
+```
+
+When a matching `hako_check state-explain` report is also supplied, the overlay
+shows the report-only record-state access-site surface:
+
+```text
+state_report_consumed=1
+record_state_field_access_plan_count=...
+record_state_field_access_ready=1
+record_state_field_access_lowering_enabled=0
+record_state_residence_next_bridge=select_record_state_lowering_owner
 ```
 
 After generating a perf attribution report, pass it back into the same coverage

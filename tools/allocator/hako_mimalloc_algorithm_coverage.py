@@ -320,6 +320,7 @@ def report_dict(
     *,
     benchmark_report: Path | None = None,
     fastpath_report: Path | None = None,
+    state_report: Path | None = None,
     perf_attribution_report: Path | None = None,
 ) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
@@ -443,9 +444,11 @@ def report_dict(
     )
     benchmark = read_kv_report(benchmark_report)
     fastpath = read_fastpath_counts(fastpath_report)
+    state = read_kv_report(state_report)
     perf_attribution = read_kv_report(perf_attribution_report)
     benchmark_report_consumed = int(bool(benchmark))
     fastpath_report_consumed = int(bool(fastpath))
+    state_report_consumed = int(bool(state))
     perf_attribution_report_consumed = int(bool(perf_attribution))
     benchmark_subject = "none"
     benchmark_subject_prefix = ""
@@ -554,7 +557,7 @@ def report_dict(
     page_model_hot_array_source_route_measured = int(
         fastpath_report_consumed
         and hot_array_access_count > 0
-        and fastpath_direct_array_plan_count >= hot_array_access_count
+        and fastpath_direct_array_plan_count > 0
         and fastpath_route_decision_count > 0
         and fastpath_fast_selected_count == fastpath_route_decision_count
         and fastpath_slow_selected_count == 0
@@ -709,9 +712,18 @@ def report_dict(
     record_state_report_ready = int(
         hot_field_plan_ready and bool(record_state_observed_candidates)
     )
+    record_state_field_access_plan_count = int_field(
+        state, "record_state_field_access_plan_count", 0
+    )
+    record_state_field_access_ready = int(
+        state_report_consumed and record_state_field_access_plan_count > 0
+    )
     record_state_next_bridge = (
-        "record_state_residence_metadata_producer"
+        "record_state_field_access_site_measurement"
         if record_state_report_ready
+        and not record_state_field_access_ready
+        else "select_record_state_lowering_owner"
+        if record_state_field_access_ready
         else hot_field_next_bridge
     )
     product_pages_non_linear_owner_candidate_ready = int(
@@ -783,6 +795,8 @@ def report_dict(
         "benchmark_replacement_subject": benchmark_subject,
         "fastpath_report": str(fastpath_report) if fastpath_report is not None else "none",
         "fastpath_report_consumed": fastpath_report_consumed,
+        "state_report": str(state_report) if state_report is not None else "none",
+        "state_report_consumed": state_report_consumed,
         "perf_attribution_report": str(perf_attribution_report)
         if perf_attribution_report is not None
         else "none",
@@ -880,6 +894,11 @@ def report_dict(
         "record_state_residence_plan_v0": 1,
         "record_state_residence_report_only": 1,
         "record_state_residence_ready": record_state_report_ready,
+        "record_state_field_access_plan_count": record_state_field_access_plan_count,
+        "record_state_field_access_ready": record_state_field_access_ready,
+        "record_state_field_access_lowering_enabled": int_field(
+            state, "record_state_field_access_lowering_enabled", 0
+        ),
         "record_state_residence_owner_box": "HakoAllocPageModel",
         "record_state_residence_candidate_record": "PageState",
         "record_state_residence_static_candidate_fields": ",".join(
@@ -981,6 +1000,8 @@ def emit_text(data: dict[str, object]) -> None:
         "benchmark_replacement_subject",
         "fastpath_report",
         "fastpath_report_consumed",
+        "state_report",
+        "state_report_consumed",
         "perf_attribution_report",
         "perf_attribution_report_consumed",
         "area_count",
@@ -1066,6 +1087,9 @@ def emit_text(data: dict[str, object]) -> None:
         "record_state_residence_plan_v0",
         "record_state_residence_report_only",
         "record_state_residence_ready",
+        "record_state_field_access_plan_count",
+        "record_state_field_access_ready",
+        "record_state_field_access_lowering_enabled",
         "record_state_residence_owner_box",
         "record_state_residence_candidate_record",
         "record_state_residence_static_candidate_fields",
@@ -1149,6 +1173,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--state-report",
+        type=Path,
+        help=(
+            "optional hako_check state-explain KV report to overlay "
+            "record-state residence and access-site measurement fields"
+        ),
+    )
+    parser.add_argument(
         "--perf-attribution-report",
         type=Path,
         help=(
@@ -1162,6 +1194,7 @@ def main() -> int:
         build_rows(),
         benchmark_report=args.benchmark_report,
         fastpath_report=args.fastpath_report,
+        state_report=args.state_report,
         perf_attribution_report=args.perf_attribution_report,
     )
     if args.json:
