@@ -5225,3 +5225,27 @@ Interpretation: single-thread native-bins remains good thin-front evidence, but
 the next positive-net owner is not another source-level single-page fast path.
 The current gap is the multithread/thread-local replacement-front shape, while
 product pages and full `.hako` algorithm consumption remain unclaimed.
+
+Follow-up multithread split:
+
+```text
+thread_local_counterless_threads=2
+thread_local_counterless_sample_count=5
+thread_local_counterless_subject_2_throughput_median_ops_per_sec=1752206.466
+thread_local_counterless_subject_2_throughput_vs_c_mimalloc=0.831494
+thread_local_counterless_tls_get_addr_hot_path=0
+thread_local_counterless_hot_atomic_rmw=0
+
+locked_global_counterless_threads=2
+locked_global_counterless_sample_count=5
+locked_global_counterless_subject_2_throughput_median_ops_per_sec=17169445.255
+locked_global_counterless_subject_2_throughput_vs_c_mimalloc=2.278935
+locked_global_counterless_tls_get_addr_hot_path=0
+locked_global_counterless_hot_atomic_rmw=0
+```
+
+Interpretation: thread-local correctness is available, but it is not the
+current 2-thread performance keeper. For this local workload, the benchmark-only
+locked global front is the positive multithread evidence owner. Reopen
+thread-local only with perf/asm evidence showing a concrete local/remote hot
+cost to remove.

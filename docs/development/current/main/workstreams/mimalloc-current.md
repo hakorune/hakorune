@@ -449,6 +449,8 @@ Current replacement-front truth:
 fixed_slot_native_front=available
 matched_hako_good_size_slot=available
 multi_bin_native_benchmark_front=available_single_thread_v0
+locked_global_multithread_front=positive_local_evidence_v0
+thread_local_multithread_front=correctness_smoke_available_not_perf_keeper
 product_pages=not_connected
 provider_activation=0
 production_replacement_active=0
@@ -459,9 +461,12 @@ Next replacement-front order:
 
 1. Keep `--replacement-front-native-bins-mode` benchmark-only and single-thread
    until a thread/page plan is selected.
-2. Open product pages only after bins evidence says pages are the owner.
-3. Reopen `.hako` core optimization only with fresh owner evidence.
-4. Keep detailed evidence in the investigation archive, not this active card.
+2. Treat the locked global counterless front as the current local multithread
+   performance evidence owner; keep thread-local as correctness/smoke evidence
+   until perf/asm selects a concrete thread-local hot cost.
+3. Open product pages only after bins evidence says pages are the owner.
+4. Reopen `.hako` core optimization only with fresh owner evidence.
+5. Keep detailed evidence in the investigation archive, not this active card.
 
 ## Daily Commands
 
