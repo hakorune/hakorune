@@ -608,12 +608,14 @@ def report_dict(
         and huge_page_source_ready
         and osvm_page_source_pilot_ready
     )
+    product_pages_non_linear_lookup_probe_closed = 1
+    product_pages_non_linear_lookup_decision = "nonkeeper"
     if product_pages_consumer_enabled:
-        product_pages_bridge_blocker = "none"
-        product_pages_next_bridge = "measure_product_pages_consumer"
+        product_pages_bridge_blocker = "non_linear_probe_measured_nonkeeper"
+        product_pages_next_bridge = "select_next_perf_owner"
     elif product_pages_source_ready:
-        product_pages_bridge_blocker = "consumer_not_enabled"
-        product_pages_next_bridge = "design_non_linear_product_pages_bridge"
+        product_pages_bridge_blocker = "non_linear_probe_closed_nonkeeper"
+        product_pages_next_bridge = "select_next_perf_owner"
     else:
         product_pages_bridge_blocker = "source_shape_not_ready"
         product_pages_next_bridge = "fix_product_pages_source_shape"
@@ -758,7 +760,7 @@ def report_dict(
         else "record_state_lowering_owner_not_selected"
     )
     record_state_representation_delta_next_bridge = (
-        "design_non_linear_product_pages_bridge"
+        "select_next_perf_owner"
         if record_state_representation_delta_ready
         else record_state_lowering_owner_next_bridge
     )
@@ -774,6 +776,7 @@ def report_dict(
         structural_owner_refresh_required
         and product_pages_source_ready
         and not product_pages_consumer_enabled
+        and not product_pages_non_linear_lookup_probe_closed
     )
     if (
         page_model_hot_array_measurement_ready
@@ -892,6 +895,8 @@ def report_dict(
         "replacement_front_product_pages_next_bridge": product_pages_next_bridge,
         "replacement_front_product_pages_non_linear_lookup_plan_v0": product_pages_non_linear_lookup_plan,
         "replacement_front_product_pages_linear_probe_closed": product_pages_linear_probe_closed,
+        "replacement_front_product_pages_non_linear_lookup_probe_closed": product_pages_non_linear_lookup_probe_closed,
+        "replacement_front_product_pages_non_linear_lookup_decision": product_pages_non_linear_lookup_decision,
         "replacement_front_product_pages_non_linear_lookup_strategy": product_pages_non_linear_lookup_strategy,
         "replacement_front_product_pages_non_linear_next_bridge": product_pages_non_linear_next_bridge,
         "page_map_source_ready": page_map_source_ready,
@@ -1103,6 +1108,8 @@ def emit_text(data: dict[str, object]) -> None:
         "replacement_front_product_pages_next_bridge",
         "replacement_front_product_pages_non_linear_lookup_plan_v0",
         "replacement_front_product_pages_linear_probe_closed",
+        "replacement_front_product_pages_non_linear_lookup_probe_closed",
+        "replacement_front_product_pages_non_linear_lookup_decision",
         "replacement_front_product_pages_non_linear_lookup_strategy",
         "replacement_front_product_pages_non_linear_next_bridge",
         "page_map_source_ready",

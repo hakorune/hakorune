@@ -330,6 +330,15 @@ product_pages_indexed_lookup_probe:
   page_index_collision_count_total=0
   page_index_overflow_count_total=0
   decision=nonkeeper
+
+coverage_after_product_pages_closure:
+  replacement_front_product_pages_bridge_blocker=non_linear_probe_closed_nonkeeper
+  replacement_front_product_pages_next_bridge=select_next_perf_owner
+  replacement_front_product_pages_non_linear_lookup_probe_closed=1
+  replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
+  structural_owner_selected=page_model_hot_array_source_route_measurement
+  structural_owner_next_action=select_next_perf_owner
+  structural_owner_candidate_1_ready=0
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
