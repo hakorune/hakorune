@@ -114,7 +114,7 @@ direct storage routes.
   - does not build the compiler, run benchmarks, persist MIR by default, rewrite
     source, select keepers, or own lowering policy
 
-- [ ] LANG-DM-009: RouteDecisionV0 report-only bridge
+- [x] LANG-DM-009: RouteDecisionV0 report-only bridge
   - output: make fastpath-preferred / fallback-explicit visible as a single
     site-level outcome view
   - source syntax: none
@@ -126,14 +126,14 @@ direct storage routes.
   - stop line: MIRBuilder preserves origin/span/type facts but does not choose
     fast vs slow routes
 
-- [ ] LANG-DM-010: RequiredFastPathRegion fallback-policy bridge
+- [x] LANG-DM-010: RequiredFastPathRegion fallback-policy bridge
   - output: RequiredFastPathRegion maps to
     `fallback_policy=require_fastpath`
   - checked direct routes remain allowed
   - generic helper / boxed fallback / dynamic route become errors only when
     the policy requires fastpath
 
-- [ ] LANG-DM-011: lowering consumer no-redecision contract
+- [x] LANG-DM-011: lowering consumer no-redecision contract
   - output: lowering consumes `selected_route` from RouteDecision rows
   - report counters:
     `backend_redecide_count=0`

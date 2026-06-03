@@ -171,20 +171,20 @@ Lowering:
 
 Planned order:
 
-1. `RD-001` RouteDecisionV0 docs/report-only surface.
+1. `RD-001` RouteDecisionV0 docs/report-only surface. Done.
    - define `preferred_route`, `selected_route`, `fallback_policy`,
      `proof_ids`, and `miss_reason`
    - behavior change: none
-2. `RD-002` DirectArray RouteDecision view.
+2. `RD-002` DirectArray RouteDecision view. Done.
    - map existing `DirectArrayAccessPlan` rows into RouteDecision output
    - first fixture: `DirectArrayI64` source migration / resetToFresh
-3. `RD-003` fallback policy bridge.
+3. `RD-003` fallback policy bridge. Done.
    - `RequiredFastPathRegion` sets `fallback_policy=require_fastpath`
    - normal code remains `opportunistic` or `report_if_slow`
-4. `RD-004` lowering consumer contract.
+4. `RD-004` lowering consumer contract. Done.
    - lowering reads `selected_route`
    - report `backend_redecide_count=0` and `silent_fallback_count=0`
-5. `RD-005` horizontal extension after DirectArray proves the shape.
+5. `RD-005` horizontal extension after DirectArray proves the shape. Next.
    - DirectState / RecordState / HotCore / ReplacementFront only by evidence
 
 Rejected for this pass:
