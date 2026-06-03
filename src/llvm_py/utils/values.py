@@ -179,7 +179,7 @@ def _is_global_vmap(vmap: Dict[int, Any], resolver: Any) -> bool:
     try:
         gv = getattr(resolver, "global_vmap", None)
         return isinstance(gv, dict) and (vmap is gv)
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         return False
 
 

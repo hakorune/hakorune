@@ -6,6 +6,8 @@ For blocks that end with return and have multiple predecessors, plan PHI predecl
 from typing import Dict, Any, Optional
 from cfg.utils import build_preds_succs
 
+_SAFE_IF_MERGE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def plan_ret_phi_predeclare(block_by_id: Dict[int, Dict[str, Any]]) -> Optional[Dict[int, int]]:
     """Return a map {block_id: value_id} for blocks that end with ret <value>
     and have multiple predecessors. The caller can predeclare a PHI for value_id
@@ -39,7 +41,7 @@ def plan_ret_phi_predeclare(block_by_id: Dict[int, Dict[str, Any]]) -> Optional[
                     break
             if defined_here:
                 continue
-        except Exception:
+        except _SAFE_IF_MERGE_EXC:
             pass
         pred_list = [p for p in preds.get(int(bid), []) if p != int(bid)]
         if len(pred_list) > 1:

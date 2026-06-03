@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Tuple
 
+_SAFE_OPS_FLOW_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def op_branch(owner, inst: Dict[str, Any], regs: Dict[int, Any], cur: int, prev: int | None) -> Tuple[int | None, int]:
     cond = owner._read(regs, inst.get("cond"))
@@ -59,7 +61,7 @@ def op_call(owner, fn, inst: Dict[str, Any], regs: Dict[int, Any]) -> Any:
                 # Prefer the current box if available (MiniVm.* when inside MiniVm.*)
                 try:
                     cur_box = fn.name.split(".")[0] if "." in fn.name else ""
-                except Exception:
+                except _SAFE_OPS_FLOW_EXC:
                     cur_box = ""
                 if cur_box:
                     scoped = [k for k in candidates if k.startswith(cur_box + ".")]

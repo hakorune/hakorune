@@ -10,6 +10,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from naming_helper import encode_static_method
 
+_SAFE_INTRINSIC_EXC = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
+
 
 def try_intrinsic(name: str, args: List[Any]) -> Tuple[bool, Any]:
     try:
@@ -53,7 +55,6 @@ def try_intrinsic(name: str, args: List[Any]) -> Tuple[bool, Any]:
             if d == "":
                 d = "."
             return True, d
-    except Exception:
+    except _SAFE_INTRINSIC_EXC:
         pass
     return (False, None)
-

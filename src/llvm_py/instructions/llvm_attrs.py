@@ -13,6 +13,8 @@ from typing import Mapping, Sequence
 
 import llvmlite.ir as ir
 
+_SAFE_LLVM_ATTRS_EXC = (AttributeError, RuntimeError, TypeError, ValueError)
+
 
 _READONLY_FUNCTIONS = {
     "nyash.string.len_h",
@@ -45,21 +47,21 @@ _NOCAPTURE_POINTER_ARGS: Mapping[str, Sequence[int]] = {
 def _add_function_attr(func: ir.Function, attr_name: str) -> None:
     try:
         func.attributes.add(attr_name)
-    except Exception:
+    except _SAFE_LLVM_ATTRS_EXC:
         pass
 
 
 def _add_arg_attr(arg: ir.Argument, attr_name: str) -> None:
     try:
         arg.add_attribute(attr_name)
-    except Exception:
+    except _SAFE_LLVM_ATTRS_EXC:
         pass
 
 
 def _looks_pointer_typed(value) -> bool:
     try:
         return isinstance(value.type, ir.PointerType)
-    except Exception:
+    except _SAFE_LLVM_ATTRS_EXC:
         return False
 
 

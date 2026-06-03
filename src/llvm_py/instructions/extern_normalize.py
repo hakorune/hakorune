@@ -13,13 +13,15 @@ to avoid duplication and drift.
 
 from typing import Optional
 
+_SAFE_EXTERN_NORMALIZE_EXC = (AttributeError, RuntimeError, TypeError, ValueError)
+
 
 def normalize_extern_name(name: Optional[str]) -> str:
     if not name:
         return ""
     try:
         n = str(name)
-    except Exception:
+    except _SAFE_EXTERN_NORMALIZE_EXC:
         return ""
 
     try:
@@ -42,7 +44,7 @@ def normalize_extern_name(name: Optional[str]) -> str:
             return "nyash.env.set"
         if n == "env.now_ms":
             return "nyash.env.now_ms"
-    except Exception:
+    except _SAFE_EXTERN_NORMALIZE_EXC:
         # Fallthrough to original if anything odd happens
         pass
     return n
