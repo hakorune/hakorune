@@ -704,6 +704,7 @@ def generate_replacement_front_bins_shim_c(
     *,
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
+    size_class_table: bool = False,
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
@@ -719,10 +720,12 @@ def generate_replacement_front_bins_shim_c(
     find_cases: list[str] = []
     helper_defs: list[str] = []
     release_cases: list[str] = []
+    bin_sizes: list[tuple[int, int]] = []
     for bin_index in required_bins:
         bin_size = hako_size_class_bin_size(bin_index)
         if bin_size <= 0:
             continue
+        bin_sizes.append((bin_index, bin_size))
         tag = f"bin_{bin_index}"
         type_tag = tag.title().replace("_", "")
         slot_expr = f"{tag}_slots"
@@ -849,6 +852,45 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
 """
         )
 
+    size_to_bin_source = f"""
+static int size_to_bin(size_t size) {{
+  if (size == 0) return -1;
+{chr(10).join(size_cases)}
+  return -1;
+}}
+"""
+    if size_class_table and bin_sizes:
+        sorted_bin_sizes = sorted(bin_sizes, key=lambda item: item[1])
+        max_bin_size = sorted_bin_sizes[-1][1]
+        bucket_unit = 8
+        bucket_count = (max_bin_size + bucket_unit - 1) // bucket_unit
+        table_values = [-1]
+        for bucket in range(1, bucket_count + 1):
+            request_ceiling = bucket * bucket_unit
+            selected_bin = -1
+            for bin_index, bin_size in sorted_bin_sizes:
+                if request_ceiling <= bin_size:
+                    selected_bin = bin_index
+                    break
+            table_values.append(selected_bin)
+        table_rows = []
+        for start in range(0, len(table_values), 16):
+            row = ", ".join(str(value) for value in table_values[start : start + 16])
+            table_rows.append(f"  {row},")
+        size_to_bin_source = f"""
+#define HAKO_SIZE_TO_BIN_TABLE_UNIT 8u
+#define HAKO_SIZE_TO_BIN_TABLE_MAX {max_bin_size}u
+static const signed char hako_size_to_bin_table[{len(table_values)}] = {{
+{chr(10).join(table_rows)}
+}};
+
+static int size_to_bin(size_t size) {{
+  if (size == 0 || size > HAKO_SIZE_TO_BIN_TABLE_MAX) return -1;
+  size_t bucket = (size + HAKO_SIZE_TO_BIN_TABLE_UNIT - 1u) / HAKO_SIZE_TO_BIN_TABLE_UNIT;
+  return (int)hako_size_to_bin_table[bucket];
+}}
+"""
+
     release_from_bin_source = ""
     if hotcore_page_model:
         release_from_bin_source = f"""
@@ -936,11 +978,7 @@ static void init_bins(void) {{
 
 {chr(10).join(helper_defs)}
 
-static int size_to_bin(size_t size) {{
-  if (size == 0) return -1;
-{chr(10).join(size_cases)}
-  return -1;
-}}
+{size_to_bin_source}
 
 static void* alloc_from_bin(int bin, size_t size) {{
 {alloc_index_decl.rstrip()}

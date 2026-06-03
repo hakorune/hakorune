@@ -94,10 +94,13 @@ def build_replacement_front_bins_shim(
     required_bins: list[int],
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
+    size_class_table: bool = False,
 ) -> Path:
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
     if hotcore_page_model:
         front_name = f"{front_name}-hotcore-page-model"
+    if size_class_table:
+        front_name = f"{front_name}-size-table"
     source_name = (
         "hako_alloc_replacement_front_page_bins.c"
         if page_shaped
@@ -117,6 +120,7 @@ def build_replacement_front_bins_shim(
             required_bins,
             page_shaped=page_shaped,
             hotcore_page_model=hotcore_page_model,
+            size_class_table=size_class_table,
         ).lstrip(),
         encoding="utf-8",
     )
@@ -523,6 +527,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--replacement-front-size-class-table-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: with bins mode, lower SizeClassBox size lookup "
+            "through an 8-byte bucket table instead of an ordered range scan"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-lock-mode",
         action="store_true",
         help="benchmark-only: build the replacement front with a global arena mutex",
@@ -698,6 +710,13 @@ def main() -> int:
             "--replacement-front-hotcore-page-model-mode requires "
             "--replacement-front-page-bins-mode"
         )
+    if args.replacement_front_size_class_table_mode and not (
+        args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-size-class-table-mode requires "
+            "--replacement-front-native-bins-mode or --replacement-front-page-bins-mode"
+        )
     replacement_front_bins_mode = (
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     )
@@ -801,6 +820,7 @@ def main() -> int:
             required_bins=required_regular_bins,
             page_shaped=args.replacement_front_page_bins_mode,
             hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
+            size_class_table=args.replacement_front_size_class_table_mode,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -932,6 +952,8 @@ def main() -> int:
         f"replacement_front_page_bins_mode={1 if args.replacement_front_page_bins_mode else 0}",
         "replacement_front_hotcore_page_model_mode="
         f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
+        "replacement_front_size_class_table_mode="
+        f"{1 if args.replacement_front_size_class_table_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
@@ -941,6 +963,8 @@ def main() -> int:
         f"{workload_histogram['size_class_regular_distinct_count'] if replacement_front_bins_mode else 1}",
         f"replacement_front_size_class_policy_source={replacement_front_size_class_policy_source}",
         f"replacement_front_size_class_bridge_mode={replacement_front_size_class_bridge_mode}",
+        "replacement_front_size_class_lookup_route="
+        f"{'table_8byte_bucket' if args.replacement_front_size_class_table_mode else 'range_scan' if replacement_front_bins_mode else 'not_consumed'}",
         "replacement_front_size_class_request_ceiling="
         f"{replacement_front_size_class_request_ceiling}",
         "replacement_front_size_class_selected_bin="

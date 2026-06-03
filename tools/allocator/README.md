@@ -293,6 +293,36 @@ replacement_front_hotcore_route=benchmark_page_bins_hotcore_page_model
 The boundary remains narrow: product pages, activation, hooks, globals, winner
 claims, and full `.hako` algorithm claims stay closed.
 
+The current malloc-owner keeper for this bridge is the benchmark-only
+SizeClassBox table lookup. It keeps the same page-bin HotCore/PageModel route,
+but lowers the request-size to bin mapping through an 8-byte bucket table
+instead of the generated ordered range scan:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-page-bins-mode \
+  --replacement-front-hotcore-page-model-mode \
+  --replacement-front-size-class-table-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-hotcore-size-table/report.out \
+  --out-dir target/hakozuna-mixed-ws-hotcore-size-table/artifacts \
+  --sample-count 7
+```
+
+Expected report fields:
+
+```text
+replacement_front_size_class_table_mode=1
+replacement_front_size_class_lookup_route=table_8byte_bucket
+replacement_front_algorithm_shape=page_bin_hotcore_page_model_benchmark_front
+replacement_front_hotcore_consumer_enabled=1
+replacement_front_is_full_hako_algorithm=0
+```
+
+This is still a benchmark-only replacement-front lowering probe. It is not a
+new source syntax, product page bridge, allocator activation, or winner claim.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \

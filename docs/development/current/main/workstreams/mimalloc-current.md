@@ -181,12 +181,30 @@ hotcore_page_model:
   median_ops_per_sec=8,945,904.118
   hotcore_consumer_enabled=1
   route=benchmark_page_bins_hotcore_page_model
+
+hotcore_size_class_table:
+  attempted_change=lower benchmark-only HotCore/PageModel size_to_bin through
+    an 8-byte bucket table instead of the generated ordered range scan
+  report=target/hakozuna-mixed-ws-hotcore-size-table-7/report.out
+  baseline_report=target/hakozuna-mixed-ws-hotcore-baseline-7/report.out
+  baseline_median_ops_per_sec=8,241,237.504
+  median_ops_per_sec=8,691,873.099
+  size_class_lookup_route=table_8byte_bucket
+  decision=keeper
 ```
 
 Interpretation: HotCore/PageModel wrapper mode is a structural bridge keeper
 because it consumes the next `.hako` semantic boundary and improves over the
 same-run page-bins refresh. It is not a winner/performance claim against the
 older page-bins best sample or C mimalloc.
+
+The size-class table lookup is the current malloc-owner keeper: `perf` on the
+current bridge selected `malloc` plus the ownership lookup as the dominant
+replacement-front symbols, and the table path improves the same-run 7-sample
+HotCore/PageModel median. It keeps the same benchmark-only route and only
+changes the generated SizeClassBox mirror lookup shape. Product pages,
+activation, hooks, globals, full `.hako` algorithm claims, and winner claims
+remain closed.
 
 Rejected local probe:
 
