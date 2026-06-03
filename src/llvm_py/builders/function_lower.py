@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Any, List, Optional, Set, Tuple
 
 from llvmlite import ir
@@ -591,6 +592,12 @@ def _merge_ipo_contracts_into_builder(builder, context: FunctionLowerContext) ->
         pass
 
 
+def _set_resolver_attr(builder, name: str, value) -> None:
+    resolver = getattr(builder, "resolver", None)
+    if resolver is not None:
+        setattr(resolver, name, value)
+
+
 def _seed_resolver_fact_sets(builder, context: FunctionLowerContext, blocks: List[Dict[str, Any]]) -> None:
     _metadata_seed_resolver_fact_sets(
         builder,
@@ -672,7 +679,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # This allows compare lowering to keep those values as i1 in hot loops.
     try:
         context.fast_branch_only_compare_dsts = _collect_branch_only_compare_dsts(blocks)
-        builder.resolver.fast_branch_only_compare_dsts = context.fast_branch_only_compare_dsts
+        _set_resolver_attr(builder, "fast_branch_only_compare_dsts", context.fast_branch_only_compare_dsts)
     except Exception:
         context.fast_branch_only_compare_dsts = set()
 
@@ -683,8 +690,8 @@ def lower_function(builder, func_data: Dict[str, Any]):
     try:
         context.entry_block_id = int(entry_bid) if entry_bid is not None else None
         context.entry_block = builder.bb_map.get(int(entry_bid)) if entry_bid is not None else None
-        builder.resolver.entry_block_id = context.entry_block_id
-        builder.resolver.entry_block = context.entry_block
+        _set_resolver_attr(builder, "entry_block_id", context.entry_block_id)
+        _set_resolver_attr(builder, "entry_block", context.entry_block)
     except Exception:
         context.entry_block_id = None
         context.entry_block = None
@@ -696,7 +703,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
     try:
         context.reachable_block_ids = reachable_from_entry
-        builder.resolver.reachable_block_ids = reachable_from_entry
+        _set_resolver_attr(builder, "reachable_block_ids", reachable_from_entry)
     except Exception:
         context.reachable_block_ids = set()
 
@@ -743,44 +750,17 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
 
 def _enforce_terminators(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, Any]]):
-    import re
     succs = _build_succs(getattr(builder, 'preds', {}) or {})
     for bb in func.blocks:
-        try:
-            if bb.terminator is not None:
-                continue
-        except Exception:
-            # If property access fails, try to add a branch/ret anyway
-            pass
-        # Parse block id from name like "bb123"
-        bid = None
-        try:
-            m = re.match(r"bb(\d+)$", str(bb.name))
-            bid = int(m.group(1)) if m else None
-        except Exception:
-            bid = None
-        # Choose a reasonable successor if any
-        target_bb = None
-        if bid is not None:
-            for s in (succs.get(int(bid), []) or []):
-                try:
-                    cand = builder.bb_map.get(int(s))
-                except Exception:
-                    cand = None
-                if cand is not None and cand is not bb:
-                    target_bb = cand
-                    break
+        if bb.terminator is not None:
+            continue
+        bid = _parse_basic_block_id(bb)
+        target_bb = _select_open_successor(builder, succs, bid, bb)
         ib = ir.IRBuilder(bb)
         if target_bb is not None:
-            try:
-                ib.position_at_end(bb)
-            except Exception:
-                pass
+            ib.position_at_end(bb)
             ib.branch(target_bb)
-            try:
-                trace_debug(f"[llvm-py] enforce_terminators: br from {bb.name} -> {target_bb.name}")
-            except Exception:
-                pass
+            trace_debug(f"[llvm-py] enforce_terminators: br from {bb.name} -> {target_bb.name}")
             continue
         # Fallback: insert a return of 0 matching function return type (i32 for ny_main, else i64)
         try:
@@ -792,10 +772,22 @@ def _enforce_terminators(builder, func: ir.Function, block_by_id: Dict[int, Dict
             else:
                 # Unknown/void – synthesize a dummy br to self to keep parser happy (unreachable in practice)
                 ib.branch(bb)
-            try:
-                trace_debug(f"[llvm-py] enforce_terminators: ret/br injected in {bb.name}")
-            except Exception:
-                pass
-        except Exception:
+            trace_debug(f"[llvm-py] enforce_terminators: ret/br injected in {bb.name}")
+        except Exception as exc:
             # Last resort: do nothing
-            pass
+            trace_debug(f"[llvm-py] enforce_terminators: skip {bb.name}: {exc}")
+
+
+def _parse_basic_block_id(bb) -> int | None:
+    m = re.match(r"bb(\d+)$", str(bb.name))
+    return int(m.group(1)) if m else None
+
+
+def _select_open_successor(builder, succs: Dict[int, List[int]], bid: int | None, current_bb):
+    if bid is None:
+        return None
+    for succ_bid in (succs.get(int(bid), []) or []):
+        cand = builder.bb_map.get(int(succ_bid))
+        if cand is not None and cand is not current_bb:
+            return cand
+    return None
