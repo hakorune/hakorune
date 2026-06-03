@@ -269,7 +269,7 @@ def _canonical_i64(builder: ir.IRBuilder, value, *, name_hint: str):
         return ir.Constant(i64, 0)
     try:
         vtype = value.type
-    except Exception:
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         vtype = None
     if isinstance(vtype, ir.PointerType):
         return builder.ptrtoint(value, i64, name=f"{name_hint}_p2i")

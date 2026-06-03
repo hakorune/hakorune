@@ -9,10 +9,12 @@ import llvmlite.ir as ir
 from typing import Dict, Optional, Any
 from instructions.sum_escape import materialize_sum_escape_value_if_needed
 from instructions.user_box_local import materialize_user_box_escape_value_if_needed
+_SAFE_RET_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 try:
     # Create PHIs at block head to satisfy LLVM invariant
-    from ..phi_wiring.wiring import phi_at_block_head as _phi_at_block_head
-except Exception:
+    from phi_wiring.wiring import phi_at_block_head as _phi_at_block_head
+except _SAFE_RET_EXC:
     _phi_at_block_head = None
 
 
@@ -383,7 +385,7 @@ def lower_return(
                     )
                     if phi is not None:
                         ret_val = phi
-        except Exception:
+        except _SAFE_RET_EXC:
             pass
 
         # Delegate type adjustment to ReturnTypeAdjusterBox (Box-First principle)
