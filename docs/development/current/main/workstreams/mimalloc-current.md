@@ -424,6 +424,28 @@ reopen through a non-linear ownership bridge, not by retrying the known-losing
 linear page-map probe.
 Activation, hooks, globals, and winner claims remain closed.
 
+The first perf/asm attribution pass is now an explicit measurement boundary:
+`tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh` appends
+`tools/allocator/hako_mimalloc_perf_attribution.py` output to its report. The
+current known artifact shape is:
+
+```text
+top_symbol=ny_main
+symbol_collapse_detected=1
+symbol_attribution_available=0
+instruction_attribution_available=1
+page_model_hot_array_perf_delta_measurement_plan_v0=1
+page_model_hot_array_perf_delta_ready=0
+page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
+page_model_hot_array_perf_delta_next_bridge=asm_instruction_classifier_or_in_process_perf_mode
+```
+
+Interpretation: the source route is clean, and perf has enough annotated
+instructions to guide instruction-shape cleanup, but symbol ownership is still
+too collapsed to prove a DirectArray/PageModel-specific perf delta. Do not read
+symbol-based DirectArray owner refresh scripts returning `0%` as negative
+evidence while this blocker is present.
+
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
 seed-time initialization traffic. `seedFreeBlocks` uses append-or-overwrite
 `set(i, ...)` shape for all three arrays, so the old `ArrayBox.push` blocker is
@@ -553,7 +575,10 @@ object-lifecycle-native-slot-bridge-v0:
     as the next owner. With `--fastpath-report`, it also reports
     `page_model_hot_array_source_route_measured=1`; the next action is
     `measure_page_model_hot_array_perf_delta`, not another generated-C local
-    probe.
+    probe. The first perf/asm attribution helper reports the current blocker as
+    `ny_main_symbol_collapse`; continue with an asm instruction classifier or a
+    perf mode that separates the hot body before claiming a PageModel
+    hot-array perf delta.
   - Current stop-line: local generated-C probes around `find_owned`, free-only
     ownership decode, counters, and switch layout have enough negative evidence.
     The next positive-net candidate must change the structural owner family

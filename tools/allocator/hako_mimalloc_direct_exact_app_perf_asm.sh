@@ -123,6 +123,7 @@ exe_out="$artifact_dir/app.exe"
 perf_data="$artifact_dir/perf.data"
 perf_report="$artifact_dir/perf-report.txt"
 perf_annotate="$artifact_dir/perf-annotate.txt"
+perf_attribution="$artifact_dir/perf-attribution.txt"
 objdump_txt="$artifact_dir/objdump.txt"
 runner_c="$work_dir/runner.c"
 runner_bin="$work_dir/runner.bin"
@@ -249,6 +250,10 @@ EOF
 perf report --stdio --no-children -i "$perf_data" >"$perf_report"
 perf annotate --stdio -i "$perf_data" --symbol "$SYMBOL" >"$perf_annotate" || true
 objdump -d --demangle "$exe_out" >"$objdump_txt"
+python3 "$ROOT_DIR/tools/allocator/hako_mimalloc_perf_attribution.py" \
+  --perf-report "$perf_report" \
+  --perf-annotate "$perf_annotate" \
+  --symbol "$SYMBOL" >"$perf_attribution"
 
 body_elapsed_ns="$(awk -F= '$1 == "body_elapsed_ns" { print $2; exit }' "$run_out")"
 observed_repeat="$(awk -F= '$1 == "in_process_operation_repeat" { print $2; exit }' "$run_out")"
@@ -285,6 +290,7 @@ exe=$exe_out
 perf_data=$perf_data
 perf_report=$perf_report
 perf_annotate=$perf_annotate
+perf_attribution=$perf_attribution
 objdump=$objdump_txt
 direct_exact_env_contract=mimalloc-direct-exact-env-v0
 NYASH_FEATURES=$NYASH_FEATURES
@@ -295,6 +301,11 @@ NYASH_SCHED_POLL_IN_SAFEPOINT=$NYASH_SCHED_POLL_IN_SAFEPOINT
 HAKO_TYPED_OBJECT_STORE=$HAKO_TYPED_OBJECT_STORE
 HAKO_ARRAY_SLOT_STORE=$HAKO_ARRAY_SLOT_STORE
 worker_front_mismatch_guard=1
+EOF
+awk -F= '
+  $1 != "output_contract" && $1 != "summary" { print }
+' "$perf_attribution" >>"$OUT_FILE"
+cat >>"$OUT_FILE" <<'EOF'
 summary=ok
 EOF
 

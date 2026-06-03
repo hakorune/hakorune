@@ -166,6 +166,42 @@ page_model_hot_array_fastpath_slow_selected_count=0
 structural_owner_next_action=measure_page_model_hot_array_perf_delta
 ```
 
+The next measurement step is perf/asm attribution, not another source migration.
+Use the direct-exact app perf/asm tool, then inspect its attribution fields:
+
+```bash
+bash tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh \
+  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
+  --out target/mimalloc-public.asm.txt
+```
+
+The generated report now includes a nested perf attribution summary:
+
+```text
+perf_attribution=target/mimalloc-public.asm.txt.artifacts.d/perf-attribution.txt
+symbol_attribution_available=...
+instruction_attribution_available=...
+page_model_hot_array_perf_delta_measurement_plan_v0=1
+page_model_hot_array_perf_delta_ready=...
+page_model_hot_array_perf_delta_blocker=...
+page_model_hot_array_perf_delta_next_bridge=...
+```
+
+If the report says:
+
+```text
+top_symbol=ny_main
+symbol_collapse_detected=1
+symbol_attribution_available=0
+instruction_attribution_available=1
+page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
+```
+
+then the current perf report can still guide instruction-shape cleanup, but it
+cannot prove a DirectArray/PageModel-specific perf delta by symbol ownership.
+The next bridge is an asm instruction classifier or a perf mode that separates
+the hot body more clearly.
+
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
 The seed path now uses append-or-overwrite `set(i, ...)` shape, so the old
