@@ -1004,6 +1004,11 @@ def main() -> int:
         "replacement_front_product_pages_report_only=1",
         "replacement_front_product_pages_consumer_enabled=0",
         "replacement_front_product_pages_connected=0",
+        "replacement_front_product_pages_next_bridge=design_non_linear_product_pages_bridge",
+        "replacement_front_product_pages_non_linear_lookup_plan_v0=1",
+        "replacement_front_product_pages_linear_probe_closed=1",
+        "replacement_front_product_pages_non_linear_lookup_strategy=range_decision_tree_or_indexed_page_table",
+        "replacement_front_product_pages_non_linear_next_bridge=replacement_front_product_pages_non_linear_plan",
         "replacement_front_page_bins_plan_v0=1",
         "replacement_front_page_bins_report_only=1",
         "replacement_front_page_bins_consumer_enabled="
@@ -1243,6 +1248,19 @@ def main() -> int:
                     f"subject_{index}_replacement_front_product_pages_report_only=1",
                     f"subject_{index}_replacement_front_product_pages_consumer_enabled=0",
                     f"subject_{index}_replacement_front_product_pages_connected=0",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_next_bridge="
+                    "design_non_linear_product_pages_bridge",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_non_linear_lookup_plan_v0=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_linear_probe_closed=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_non_linear_lookup_strategy="
+                    "range_decision_tree_or_indexed_page_table",
+                    "subject_"
+                    f"{index}_replacement_front_product_pages_non_linear_next_bridge="
+                    "replacement_front_product_pages_non_linear_plan",
                     f"subject_{index}_replacement_front_page_bins_plan_v0=1",
                     f"subject_{index}_replacement_front_page_bins_report_only=1",
                     "subject_"
