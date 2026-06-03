@@ -804,6 +804,24 @@ def main() -> int:
             else "none"
         )
     )
+    replacement_front_evidence_owner = "none"
+    replacement_front_multithread_perf_candidate = 0
+    replacement_front_thread_local_perf_candidate = 0
+    replacement_front_correctness_smoke = 0
+    if args.replacement_front_native_bins_mode:
+        replacement_front_evidence_owner = "single_thread_native_bins"
+    elif args.replacement_front_native_slot_mode:
+        replacement_front_evidence_owner = "fixed_slot_native_front"
+        if args.threads > 1 and args.replacement_front_lock_mode:
+            replacement_front_evidence_owner = "locked_global_multithread_front"
+            if args.replacement_front_skip_hot_counters:
+                replacement_front_multithread_perf_candidate = 1
+        elif args.threads > 1 and args.replacement_front_thread_local_mode:
+            replacement_front_evidence_owner = "thread_local_multithread_front"
+            replacement_front_thread_local_perf_candidate = int(
+                args.replacement_front_skip_hot_counters
+            )
+            replacement_front_correctness_smoke = int(args.replacement_front_cross_thread_smoke)
     lines = [
         "output_contract=hakozuna-mixed-ws-ldpreload-compare-v0",
         "benchmark_id=bench_mixed_ws_crt",
@@ -870,6 +888,12 @@ def main() -> int:
         "hako_mimalloc_algorithm_claim=0",
         f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
         f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
+        f"replacement_front_evidence_owner={replacement_front_evidence_owner}",
+        "replacement_front_multithread_perf_candidate="
+        f"{replacement_front_multithread_perf_candidate}",
+        "replacement_front_thread_local_perf_candidate="
+        f"{replacement_front_thread_local_perf_candidate}",
+        f"replacement_front_correctness_smoke={replacement_front_correctness_smoke}",
         f"replacement_front_cross_thread_smoke={1 if args.replacement_front_cross_thread_smoke else 0}",
         f"replacement_front_skip_hot_counters={1 if args.replacement_front_skip_hot_counters else 0}",
         f"replacement_front_tls_counter_mode={1 if args.replacement_front_tls_counter_mode else 0}",
@@ -1024,6 +1048,17 @@ def main() -> int:
                     f"subject_{index}_benchmark_only=1",
                     f"subject_{index}_replacement_front_is_full_hako_algorithm=0",
                     f"subject_{index}_replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
+                    f"subject_{index}_replacement_front_evidence_owner="
+                    f"{replacement_front_evidence_owner}",
+                    "subject_"
+                    f"{index}_replacement_front_multithread_perf_candidate="
+                    f"{replacement_front_multithread_perf_candidate}",
+                    "subject_"
+                    f"{index}_replacement_front_thread_local_perf_candidate="
+                    f"{replacement_front_thread_local_perf_candidate}",
+                    "subject_"
+                    f"{index}_replacement_front_correctness_smoke="
+                    f"{replacement_front_correctness_smoke}",
                     f"subject_{index}_replacement_front_native_bins_mode={1 if args.replacement_front_native_bins_mode else 0}",
                     f"subject_{index}_replacement_front_size_class_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_size_class_bridge_report_only=1",

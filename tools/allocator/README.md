@@ -340,13 +340,15 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --sample-count 5
 ```
 
-Then use the counterless variant only for performance distribution:
+Then use the current multithread performance owner for distribution. The local
+v0 owner is the counterless locked global front; it is benchmark-only and still
+does not claim product replacement:
 
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
   --replacement-front-native-slot-mode \
-  --replacement-front-thread-local-mode \
+  --replacement-front-lock-mode \
   --replacement-front-skip-hot-counters \
   --replacement-front-match-workload-realloc-size \
   --out target/hakozuna-mixed-ws-replacement-perf/report.out \
@@ -361,7 +363,7 @@ operation count:
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
   --replacement-front-native-slot-mode \
-  --replacement-front-thread-local-mode \
+  --replacement-front-lock-mode \
   --replacement-front-skip-hot-counters \
   --replacement-front-match-workload-realloc-size \
   --threads 4 \
@@ -373,6 +375,25 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --out-dir target/hakozuna-mixed-ws-replacement-perf-40m/artifacts \
   --sample-count 5 \
   --warmup-count 1
+```
+
+Reports classify the selected replacement-front evidence owner so that smoke
+and performance runs are not confused:
+
+```text
+replacement_front_evidence_owner=locked_global_multithread_front
+replacement_front_multithread_perf_candidate=1
+replacement_front_thread_local_perf_candidate=0
+replacement_front_correctness_smoke=0
+```
+
+Thread-local reports remain useful for correctness and remote-free evidence,
+but are not the current performance keeper unless fresh perf/asm evidence
+selects them:
+
+```text
+replacement_front_evidence_owner=thread_local_multithread_front
+replacement_front_thread_local_perf_candidate=1
 ```
 
 `--replacement-front-match-workload-realloc-size` is a benchmark fixture probe,
