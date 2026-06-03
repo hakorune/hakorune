@@ -3,6 +3,8 @@ BoxCall instruction lowering
 Core of Nyash's "Everything is Box" philosophy
 """
 
+import os
+
 import llvmlite.ir as ir
 
 # Phase 287 P5: Universal slot constants (SSOT)
@@ -38,12 +40,9 @@ def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.
             # call nyash.box.from_i8_string(i8*) -> i64
             i8p = ir.IntType(8).as_pointer()
             # If pointer-to-array, GEP to first element
-            try:
-                if isinstance(v.type.pointee, ir.ArrayType):
-                    c0 = ir.IntType(32)(0)
-                    v = builder.gep(v, [c0, c0], name="bc_str_gep")
-            except Exception:
-                pass
+            if hasattr(v.type, "pointee") and isinstance(v.type.pointee, ir.ArrayType):
+                c0 = ir.IntType(32)(0)
+                v = builder.gep(v, [c0, c0], name="bc_str_gep")
             callee = _declare(module, "nyash.box.from_i8_string", i64, [i8p])
             return builder.call(callee, [v], name="str_ptr2h")
         if isinstance(v.type, ir.IntType):
@@ -61,20 +60,79 @@ def _maybe_seed_string_ptr_from_handle(
 ) -> None:
     if resolver is None or dst_vid is None:
         return
+    if not (hasattr(handle_val, "type") and isinstance(handle_val.type, ir.IntType) and handle_val.type.width == 64):
+        return
+    if not hasattr(resolver, "is_stringish") or not resolver.is_stringish(int(dst_vid)):
+        return
+    ptr_map = getattr(resolver, "string_ptrs", None)
+    if not isinstance(ptr_map, dict) or int(dst_vid) in ptr_map:
+        return
+    bridge = _declare(module, "nyash.string.to_i8p_h", ir.IntType(8).as_pointer(), [ir.IntType(64)])
+    ptr_map[int(dst_vid)] = builder.call(bridge, [handle_val], name=f"boxcall_str_h2p_{dst_vid}")
+    if hasattr(resolver, "mark_string"):
+        resolver.mark_string(int(dst_vid))
+
+
+def _position_after_terminator(builder: ir.IRBuilder) -> None:
+    block = getattr(builder, "block", None)
+    if block is None or getattr(block, "terminator", None) is None:
+        return
+    func = getattr(block, "parent", None)
+    if func is None:
+        return
+    cont = func.append_basic_block(name=f"cont_bb_{block.name}")
+    builder.position_at_end(cont)
+
+
+def _maybe_insert_automatic_safepoint(builder: ir.IRBuilder, module: ir.Module) -> None:
+    if os.environ.get('NYASH_LLVM_AUTO_SAFEPOINT', '1') == '1':
+        insert_automatic_safepoint(builder, module, "boxcall")
+
+
+def _ctx_attr(ctx: Optional[Any], name: str, default: Any) -> Any:
+    if ctx is None:
+        return default
+    return getattr(ctx, name, default)
+
+
+def _safe_resolve_i64(resolver, value_id: int, current_block, preds, block_end_values, vmap, bb_map):
     try:
-        if not (hasattr(handle_val, "type") and isinstance(handle_val.type, ir.IntType) and handle_val.type.width == 64):
-            return
-        if not hasattr(resolver, "is_stringish") or not resolver.is_stringish(int(dst_vid)):
-            return
-        ptr_map = getattr(resolver, "string_ptrs", None)
-        if not isinstance(ptr_map, dict) or int(dst_vid) in ptr_map:
-            return
-        bridge = _declare(module, "nyash.string.to_i8p_h", ir.IntType(8).as_pointer(), [ir.IntType(64)])
-        ptr_map[int(dst_vid)] = builder.call(bridge, [handle_val], name=f"boxcall_str_h2p_{dst_vid}")
-        if hasattr(resolver, "mark_string"):
-            resolver.mark_string(int(dst_vid))
-    except Exception:
-        pass
+        return resolve_i64_strict(resolver, value_id, current_block, preds, block_end_values, vmap, bb_map)
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
+        return None
+
+
+def _safe_mark_string(resolver, dst_vid: Optional[int]) -> None:
+    if resolver is None or dst_vid is None:
+        return
+    if hasattr(resolver, "mark_string"):
+        resolver.mark_string(dst_vid)
+
+
+def _safe_current_function_name(builder: ir.IRBuilder) -> str:
+    block = getattr(builder, "block", None)
+    parent = getattr(block, "parent", None) if block is not None else None
+    name = getattr(parent, "name", "")
+    return str(name) if name is not None else ""
+
+
+def _is_me_handle(box_vid: int, resolver) -> bool:
+    if box_vid == 0:
+        return True
+    if resolver is not None and hasattr(resolver, 'string_literals'):
+        lit = resolver.string_literals.get(box_vid)
+        return lit == "__me__"
+    return False
+
+
+def _maybe_tag_boxcall_result(resolver, dst_vid: Optional[int], method_name: str) -> None:
+    if resolver is None or dst_vid is None:
+        return
+    if not hasattr(resolver, 'value_types'):
+        return
+    mark_string_result_if_needed(resolver, dst_vid, method_name)
+    if method_name == "getField":
+        mark_as_handle(resolver, dst_vid)
 
 def lower_boxcall(
     builder: ir.IRBuilder,
@@ -92,13 +150,7 @@ def lower_boxcall(
     method_id: Optional[int] = None,  # Phase 287 P4: Universal slot ID
 ) -> None:
     # Guard against emitting after a terminator: create continuation block if needed.
-    try:
-        if builder.block is not None and getattr(builder.block, 'terminator', None) is not None:
-            func = builder.block.parent
-            cont = func.append_basic_block(name=f"cont_bb_{builder.block.name}")
-            builder.position_at_end(cont)
-    except Exception:
-        pass
+    _position_after_terminator(builder)
     """
     Lower MIR BoxCall instruction
     
@@ -118,12 +170,7 @@ def lower_boxcall(
     i8 = ir.IntType(8)
     i8p = i8.as_pointer()
     # Insert a safepoint around potential heavy boxcall sites (pre-call)
-    try:
-        import os
-        if os.environ.get('NYASH_LLVM_AUTO_SAFEPOINT', '1') == '1':
-            insert_automatic_safepoint(builder, module, "boxcall")
-    except Exception:
-        pass
+    _maybe_insert_automatic_safepoint(builder, module)
 
     # Phase 287 P4: Universal slot #0 handling (toString/stringify/str)
     # SSOT: toString is ALWAYS slot #0, works on ALL types including primitives
@@ -182,11 +229,7 @@ def lower_boxcall(
         if dst_vid is not None:
             vmap[dst_vid] = result
             # Mark result as string handle
-            try:
-                if resolver is not None and hasattr(resolver, 'mark_string'):
-                    resolver.mark_string(dst_vid)
-            except Exception:
-                pass
+            _safe_mark_string(resolver, dst_vid)
         return
 
     # Short-hands with ctx (backward-compatible fallback)
@@ -195,13 +238,10 @@ def lower_boxcall(
     bev = block_end_values
     bbm = bb_map
     if ctx is not None:
-        try:
-            r = getattr(ctx, 'resolver', r)
-            p = getattr(ctx, 'preds', p)
-            bev = getattr(ctx, 'block_end_values', bev)
-            bbm = getattr(ctx, 'bb_map', bbm)
-        except Exception:
-            pass
+        r = _ctx_attr(ctx, 'resolver', r)
+        p = _ctx_attr(ctx, 'preds', p)
+        bev = _ctx_attr(ctx, 'block_end_values', bev)
+        bbm = _ctx_attr(ctx, 'bb_map', bbm)
     def _res_i64(vid: int):
         local_sum_value = materialize_sum_escape_value_if_needed(
             builder,
@@ -225,25 +265,19 @@ def lower_boxcall(
             return local_user_box
         # SSOT: Use the common resolver policy (prefer local SSA, then global vmap, then PHI-localize).
         if r is not None and p is not None and bev is not None:
-            try:
-                return resolve_i64_strict(r, vid, builder.block, p, bev, vmap, bbm)
-            except Exception:
-                return None
+            return _safe_resolve_i64(r, vid, builder.block, p, bev, vmap, bbm)
         return vmap.get(vid)
 
     # If BuildCtx is provided, prefer its maps for consistency.
     if ctx is not None:
-        try:
-            if getattr(ctx, 'resolver', None) is not None:
-                resolver = ctx.resolver
-            if getattr(ctx, 'preds', None) is not None and preds is None:
-                preds = ctx.preds
-            if getattr(ctx, 'block_end_values', None) is not None and block_end_values is None:
-                block_end_values = ctx.block_end_values
-            if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
-                bb_map = ctx.bb_map
-        except Exception:
-            pass
+        if getattr(ctx, 'resolver', None) is not None:
+            resolver = ctx.resolver
+        if getattr(ctx, 'preds', None) is not None and preds is None:
+            preds = ctx.preds
+        if getattr(ctx, 'block_end_values', None) is not None and block_end_values is None:
+            block_end_values = ctx.block_end_values
+        if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
+            bb_map = ctx.bb_map
     # Receiver value
     recv_val = _res_i64(box_vid)
     if recv_val is None:
@@ -277,22 +311,9 @@ def lower_boxcall(
         return
 
     # Special: method on `me` (self) or static dispatch to Main.* → direct call to `Main.method/arity`
-    try:
-        cur_fn_name = str(builder.block.parent.name)
-    except Exception:
-        cur_fn_name = ''
+    cur_fn_name = _safe_current_function_name(builder)
     # Heuristic: MIR encodes `me` as a string literal "__me__" or sometimes value-id 0.
-    is_me = False
-    try:
-        if box_vid == 0:
-            is_me = True
-        # Prefer literal marker captured by resolver (from const lowering)
-        elif resolver is not None and hasattr(resolver, 'string_literals'):
-            lit = resolver.string_literals.get(box_vid)
-            if lit == "__me__":
-                is_me = True
-    except Exception:
-        pass
+    is_me = _is_me_handle(box_vid, resolver)
     if is_me and cur_fn_name.startswith('Main.'):
         # NamingBox SSOT: Build target function name with arity
         arity = len(args)
@@ -322,11 +343,8 @@ def lower_boxcall(
             res = builder.call(callee, a, name=f"call_self_{method_name}")
             if dst_vid is not None:
                 vmap[dst_vid] = res
-                try:
-                    if method_name in ("esc_json", "node_json", "dirname", "join", "read_all") and resolver is not None and hasattr(resolver, 'mark_string'):
-                        resolver.mark_string(dst_vid)
-                except Exception:
-                    pass
+                if method_name in ("esc_json", "node_json", "dirname", "join", "read_all"):
+                    _safe_mark_string(resolver, dst_vid)
             return
 
     known_box_name = get_box_type(resolver, box_vid)
@@ -351,20 +369,7 @@ def lower_boxcall(
     if dst_vid is not None:
         vmap[dst_vid] = result
         # Type tagging: mark handles for downstream consumers (e.g., print)
-        try:
-            if resolver is not None and hasattr(resolver, 'value_types'):
-                # String-returning plugin methods share the MIR call registry SSOT.
-                mark_string_result_if_needed(resolver, dst_vid, method_name)
-
-                # Phase 285LLVM-1.5: Tag getField results as handles (unified via mark_as_handle)
-                # getField returns a handle to the field value (e.g., handle to IntegerBox(42))
-                # This prevents print from boxing the handle itself
-                if method_name == "getField":
-                    # Mark as generic handle (box_type unknown - could be IntegerBox, StringBox, etc.)
-                    mark_as_handle(resolver, dst_vid)
-                    # Debug logging: getField tagging
-                    import os, sys
-                    if os.environ.get('NYASH_CLI_VERBOSE') == '1':
-                        print(f"[llvm-py/types] getField dst=%{dst_vid}: tagged as handle", file=sys.stderr)
-        except Exception:
-            pass
+        _maybe_tag_boxcall_result(resolver, dst_vid, method_name)
+        if method_name == "getField" and os.environ.get('NYASH_CLI_VERBOSE') == '1':
+            import sys
+            print(f"[llvm-py/types] getField dst=%{dst_vid}: tagged as handle", file=sys.stderr)
