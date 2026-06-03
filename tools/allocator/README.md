@@ -227,6 +227,34 @@ This means `.hako` `objectLifecycleSmallAlloc` /
 `objectLifecycleReleaseBlock` and their PageModel hot calls are source-ready,
 but remain model/plan evidence until the replacement front consumes that route.
 
+For the first benchmark-only HotCore/PageModel bridge, keep page-bins mode and
+add the HotCore wrapper mode:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-page-bins-mode \
+  --replacement-front-hotcore-page-model-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-hotcore-page-model/report.out \
+  --out-dir target/hakozuna-mixed-ws-hotcore-page-model/artifacts \
+  --sample-count 3
+```
+
+This routes the benchmark-only page-bin alloc/free core through
+HotCore/PageModel-shaped acquire/release helpers and reports:
+
+```text
+replacement_front_algorithm_shape=page_bin_hotcore_page_model_benchmark_front
+replacement_front_product_bins_route=benchmark_page_bins_hotcore_page_model
+replacement_front_page_bins_route=benchmark_page_bins_hotcore_page_model
+replacement_front_hotcore_consumer_enabled=1
+replacement_front_hotcore_route=benchmark_page_bins_hotcore_page_model
+```
+
+The boundary remains narrow: product pages, activation, hooks, globals, winner
+claims, and full `.hako` algorithm claims stay closed.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \

@@ -703,6 +703,7 @@ def generate_replacement_front_bins_shim_c(
     required_bins: list[int],
     *,
     page_shaped: bool = False,
+    hotcore_page_model: bool = False,
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
@@ -716,6 +717,8 @@ def generate_replacement_front_bins_shim_c(
     size_cases: list[str] = []
     alloc_cases: list[str] = []
     find_cases: list[str] = []
+    helper_defs: list[str] = []
+    release_cases: list[str] = []
     for bin_index in required_bins:
         bin_size = hako_size_class_bin_size(bin_index)
         if bin_size <= 0:
@@ -764,6 +767,30 @@ def generate_replacement_front_bins_shim_c(
                     f"static uint32_t {free_top_expr} = 0u;",
                 ]
             )
+        if hotcore_page_model:
+            helper_defs.append(
+                f"""
+static inline void* hako_page_acquire_fresh_small_{tag}(size_t size) {{
+  if ({free_top_expr} == 0u) return 0;
+  uint32_t index = {free_stack_expr}[--{free_top_expr}];
+  {used_expr}[index] = 1u;
+  {requested_expr}[index] = size;
+  direct_core_call_count++;
+  return {slot_expr}[index].bytes;
+}}
+
+static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
+  if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT || {used_expr}[index] != 1u) return 0;
+  {used_expr}[index] = 0u;
+  {requested_expr}[index] = 0u;
+  if ({free_top_expr} < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
+    {free_stack_expr}[{free_top_expr}++] = index;
+  }}
+  direct_core_call_count++;
+  return 1;
+}}
+"""
+            )
         init_cases.append(
             f"""
   for (uint32_t i = 0; i < HAKO_REPLACEMENT_BIN_SLOT_COUNT; i++) {{
@@ -775,8 +802,22 @@ def generate_replacement_front_bins_shim_c(
 """
         )
         size_cases.append(f"  if (size <= HAKO_{tag.upper()}_SIZE) return {bin_index};")
-        alloc_cases.append(
-            f"""
+        if hotcore_page_model:
+            alloc_cases.append(
+                f"""
+    case {bin_index}:
+      return hako_page_acquire_fresh_small_{tag}(size);
+"""
+            )
+            release_cases.append(
+                f"""
+    case {bin_index}:
+      return hako_page_release_local_known_live_{tag}(index);
+"""
+            )
+        else:
+            alloc_cases.append(
+                f"""
     case {bin_index}:
       if ({free_top_expr} == 0u) return 0;
       index = {free_stack_expr}[--{free_top_expr}];
@@ -785,7 +826,7 @@ def generate_replacement_front_bins_shim_c(
       direct_core_call_count++;
       return {slot_expr}[index].bytes;
 """
-        )
+            )
         find_cases.append(
             f"""
   base = (uintptr_t){slot_expr}[0].bytes;
@@ -807,6 +848,39 @@ def generate_replacement_front_bins_shim_c(
   }}
 """
         )
+
+    release_from_bin_source = ""
+    if hotcore_page_model:
+        release_from_bin_source = f"""
+static int release_from_bin(int bin, uint32_t index) {{
+  switch (bin) {{
+{chr(10).join(release_cases)}
+    default:
+      return 0;
+  }}
+}}
+"""
+    if hotcore_page_model:
+        free_owned_body = """    (void)slot_size;
+    (void)used;
+    (void)requested;
+    (void)free_stack;
+    (void)free_top;
+    (void)release_from_bin(bin, index);
+"""
+    else:
+        free_owned_body = """    (void)bin;
+    (void)slot_size;
+    if (used[index] == 1u) {
+      used[index] = 0u;
+      requested[index] = 0u;
+      if (*free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {
+        free_stack[(*free_top)++] = index;
+      }
+      direct_core_call_count++;
+    }
+"""
+    alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
 
     return f"""
 #define _GNU_SOURCE
@@ -860,6 +934,8 @@ static void init_bins(void) {{
   init_done = 1u;
 }}
 
+{chr(10).join(helper_defs)}
+
 static int size_to_bin(size_t size) {{
   if (size == 0) return -1;
 {chr(10).join(size_cases)}
@@ -867,7 +943,7 @@ static int size_to_bin(size_t size) {{
 }}
 
 static void* alloc_from_bin(int bin, size_t size) {{
-  uint32_t index = 0u;
+{alloc_index_decl.rstrip()}
   switch (bin) {{
 {chr(10).join(alloc_cases)}
     default:
@@ -894,6 +970,8 @@ static int find_owned(
 {chr(10).join(find_cases)}
   return 0;
 }}
+
+{release_from_bin_source}
 
 static void write_str(int fd, const char* s) {{
   size_t len = 0;
@@ -970,16 +1048,7 @@ void free(void* ptr) {{
   uint32_t* free_stack = 0;
   uint32_t* free_top = 0;
   if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
-    (void)bin;
-    (void)slot_size;
-    if (used[index] == 1u) {{
-      used[index] = 0u;
-      requested[index] = 0u;
-      if (*free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
-        free_stack[(*free_top)++] = index;
-      }}
-      direct_core_call_count++;
-    }}
+{free_owned_body}
     return;
   }}
   host_passthrough_count++;

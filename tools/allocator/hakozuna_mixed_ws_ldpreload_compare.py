@@ -93,8 +93,11 @@ def build_replacement_front_bins_shim(
     *,
     required_bins: list[int],
     page_shaped: bool = False,
+    hotcore_page_model: bool = False,
 ) -> Path:
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
+    if hotcore_page_model:
+        front_name = f"{front_name}-hotcore-page-model"
     source_name = (
         "hako_alloc_replacement_front_page_bins.c"
         if page_shaped
@@ -113,6 +116,7 @@ def build_replacement_front_bins_shim(
         generate_replacement_front_bins_shim_c(
             required_bins,
             page_shaped=page_shaped,
+            hotcore_page_model=hotcore_page_model,
         ).lstrip(),
         encoding="utf-8",
     )
@@ -511,6 +515,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--replacement-front-hotcore-page-model-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: with page-bins mode, route alloc/free through "
+            "HotCore/PageModel-shaped acquire/release helpers"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-lock-mode",
         action="store_true",
         help="benchmark-only: build the replacement front with a global arena mutex",
@@ -678,6 +690,14 @@ def main() -> int:
             "--replacement-front-cross-thread-smoke cannot be combined with "
             "--replacement-front-skip-hot-counters because the smoke validates counters"
         )
+    if (
+        args.replacement_front_hotcore_page_model_mode
+        and not args.replacement_front_page_bins_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-hotcore-page-model-mode requires "
+            "--replacement-front-page-bins-mode"
+        )
     replacement_front_bins_mode = (
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     )
@@ -780,6 +800,7 @@ def main() -> int:
             out_dir,
             required_bins=required_regular_bins,
             page_shaped=args.replacement_front_page_bins_mode,
+            hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -834,7 +855,9 @@ def main() -> int:
         else "hako_model_not_consumed"
     )
     replacement_front_algorithm_shape = (
-        "page_bin_benchmark_front"
+        "page_bin_hotcore_page_model_benchmark_front"
+        if args.replacement_front_hotcore_page_model_mode
+        else "page_bin_benchmark_front"
         if args.replacement_front_page_bins_mode
         else "multi_bin_native_benchmark_front"
         if args.replacement_front_native_bins_mode
@@ -845,7 +868,9 @@ def main() -> int:
         or replacement_front_bins_mode
     )
     replacement_front_size_class_bridge_mode = (
-        "workload_regular_bins_page_shaped_hako_size_class"
+        "workload_regular_bins_page_shaped_hotcore_page_model_hako_size_class"
+        if args.replacement_front_hotcore_page_model_mode
+        else "workload_regular_bins_page_shaped_hako_size_class"
         if args.replacement_front_page_bins_mode
         else "workload_regular_bins_hako_size_class"
         if args.replacement_front_native_bins_mode
@@ -860,7 +885,11 @@ def main() -> int:
     replacement_front_thread_local_perf_candidate = 0
     replacement_front_correctness_smoke = 0
     if args.replacement_front_page_bins_mode:
-        replacement_front_evidence_owner = "single_thread_page_bins"
+        replacement_front_evidence_owner = (
+            "single_thread_page_bins_hotcore_page_model"
+            if args.replacement_front_hotcore_page_model_mode
+            else "single_thread_page_bins"
+        )
     elif args.replacement_front_native_bins_mode:
         replacement_front_evidence_owner = "single_thread_native_bins"
     elif args.replacement_front_native_slot_mode:
@@ -901,6 +930,8 @@ def main() -> int:
         f"replacement_front_native_slot_mode={1 if args.replacement_front_native_slot_mode else 0}",
         f"replacement_front_native_bins_mode={1 if args.replacement_front_native_bins_mode else 0}",
         f"replacement_front_page_bins_mode={1 if args.replacement_front_page_bins_mode else 0}",
+        "replacement_front_hotcore_page_model_mode="
+        f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
@@ -922,7 +953,7 @@ def main() -> int:
         f"{1 if replacement_front_bins_mode else 0}",
         "replacement_front_product_bins_connected=0",
         "replacement_front_product_bins_route="
-        f"{'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
+        f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
         "replacement_front_product_pages_plan_v0=1",
         "replacement_front_product_pages_report_only=1",
         "replacement_front_product_pages_consumer_enabled=0",
@@ -932,7 +963,7 @@ def main() -> int:
         "replacement_front_page_bins_consumer_enabled="
         f"{1 if args.replacement_front_page_bins_mode else 0}",
         "replacement_front_page_bins_route="
-        f"{'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
+        f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
         "replacement_front_page_bins_lookup_route="
         f"{'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
         "replacement_front_page_bins_owner=benchmark_only",
@@ -947,8 +978,10 @@ def main() -> int:
         f"{1 if int(workload_histogram['size_class_huge_count']) > 0 else 0}",
         "replacement_front_hotcore_bridge_plan_v0=1",
         "replacement_front_hotcore_bridge_report_only=1",
-        "replacement_front_hotcore_consumer_enabled=0",
-        "replacement_front_hotcore_route=not_consumed_by_replacement_front",
+        "replacement_front_hotcore_consumer_enabled="
+        f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
+        "replacement_front_hotcore_route="
+        f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'not_consumed_by_replacement_front'}",
         "hako_mimalloc_algorithm_claim=0",
         f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
         f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
@@ -1125,6 +1158,9 @@ def main() -> int:
                     f"{replacement_front_correctness_smoke}",
                     f"subject_{index}_replacement_front_native_bins_mode={1 if args.replacement_front_native_bins_mode else 0}",
                     f"subject_{index}_replacement_front_page_bins_mode={1 if args.replacement_front_page_bins_mode else 0}",
+                    "subject_"
+                    f"{index}_replacement_front_hotcore_page_model_mode="
+                    f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
                     f"subject_{index}_replacement_front_size_class_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_size_class_bridge_report_only=1",
                     "subject_"
@@ -1156,7 +1192,7 @@ def main() -> int:
                     f"subject_{index}_replacement_front_product_bins_connected=0",
                     "subject_"
                     f"{index}_replacement_front_product_bins_route="
-                    f"{'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
+                    f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'benchmark_native_bins' if args.replacement_front_native_bins_mode else 'not_consumed'}",
                     f"subject_{index}_replacement_front_product_pages_plan_v0=1",
                     f"subject_{index}_replacement_front_product_pages_report_only=1",
                     f"subject_{index}_replacement_front_product_pages_consumer_enabled=0",
@@ -1168,7 +1204,7 @@ def main() -> int:
                     f"{1 if args.replacement_front_page_bins_mode else 0}",
                     "subject_"
                     f"{index}_replacement_front_page_bins_route="
-                    f"{'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
+                    f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'benchmark_page_bins' if args.replacement_front_page_bins_mode else 'not_consumed'}",
                     "subject_"
                     f"{index}_replacement_front_page_bins_lookup_route="
                     f"{'range_scan' if args.replacement_front_page_bins_mode else 'not_consumed'}",
@@ -1188,8 +1224,12 @@ def main() -> int:
                     f"{1 if int(workload_histogram['size_class_huge_count']) > 0 else 0}",
                     f"subject_{index}_replacement_front_hotcore_bridge_plan_v0=1",
                     f"subject_{index}_replacement_front_hotcore_bridge_report_only=1",
-                    f"subject_{index}_replacement_front_hotcore_consumer_enabled=0",
-                    f"subject_{index}_replacement_front_hotcore_route=not_consumed_by_replacement_front",
+                    "subject_"
+                    f"{index}_replacement_front_hotcore_consumer_enabled="
+                    f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
+                    "subject_"
+                    f"{index}_replacement_front_hotcore_route="
+                    f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'not_consumed_by_replacement_front'}",
                     f"subject_{index}_hako_mimalloc_algorithm_claim=0",
                     f"subject_{index}_replacement_front_hotpath_plan_v0=1",
                     f"subject_{index}_replacement_front_hotpath_report_only=1",

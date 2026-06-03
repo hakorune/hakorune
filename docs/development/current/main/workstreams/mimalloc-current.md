@@ -139,6 +139,55 @@ benchmark-only route, while `replacement_front_is_full_hako_algorithm=0` and
 `replacement_front_product_pages_consumer_enabled=0` keep product allocator
 claims closed.
 
+The first benchmark-only HotCore/PageModel bridge is available as:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-page-bins-mode \
+  --replacement-front-hotcore-page-model-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-hotcore-page-model/report.out \
+  --out-dir target/hakozuna-mixed-ws-hotcore-page-model/artifacts \
+  --sample-count 3
+```
+
+Expected route fields:
+
+```text
+replacement_front_algorithm_shape=page_bin_hotcore_page_model_benchmark_front
+replacement_front_product_bins_route=benchmark_page_bins_hotcore_page_model
+replacement_front_page_bins_route=benchmark_page_bins_hotcore_page_model
+replacement_front_hotcore_consumer_enabled=1
+replacement_front_hotcore_route=benchmark_page_bins_hotcore_page_model
+replacement_front_product_pages_consumer_enabled=0
+replacement_front_is_full_hako_algorithm=0
+```
+
+This bridge consumes the HotCore/PageModel-shaped alloc/free helper route in the
+benchmark-only replacement front. It is still not product pages, activation,
+hook installation, or a full `.hako` allocator algorithm claim.
+
+Local 3-sample refresh:
+
+```text
+page_bins_refresh:
+  report=target/hakozuna-mixed-ws-page-bins-refresh/report.out
+  median_ops_per_sec=8,136,100.692
+  hotcore_consumer_enabled=0
+
+hotcore_page_model:
+  report=target/hakozuna-mixed-ws-hotcore-page-model/report.out
+  median_ops_per_sec=8,945,904.118
+  hotcore_consumer_enabled=1
+  route=benchmark_page_bins_hotcore_page_model
+```
+
+Interpretation: HotCore/PageModel wrapper mode is a structural bridge keeper
+because it consumes the next `.hako` semantic boundary and improves over the
+same-run page-bins refresh. It is not a winner/performance claim against the
+older page-bins best sample or C mimalloc.
+
 The same report carries the current PageModel hot-array readiness view:
 
 ```text
@@ -294,7 +343,9 @@ object-lifecycle-native-slot-bridge-v0:
      `block_used`; do not keep probing local get/set shape unless new owner
      evidence selects it.
    - Third candidate, now primary after page-bins local probes:
-     HotCore/PageModel plan consumption by replacement-front lowering.
+     HotCore/PageModel plan consumption by replacement-front lowering. The
+     benchmark-only HotCore/PageModel wrapper mode is connected; next decide
+     keeper/nonkeeper from same-machine measurement.
    - Do not weaken ProviderFront or add source syntax to force the bridge.
 
 3. Measure the native slot bridge provider route.
