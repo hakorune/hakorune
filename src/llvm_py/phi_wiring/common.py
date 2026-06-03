@@ -5,24 +5,30 @@ import json
 
 from .debug_helper import is_phi_trace_enabled
 
+def _stringify_trace_msg(msg: Any) -> str:
+    if isinstance(msg, (str, bytes)):
+        return msg if isinstance(msg, str) else msg.decode(errors="replace")
+    try:
+        return json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
+    except Exception:
+        return str(msg)
+
+def _append_trace_line(path: str, msg: str) -> None:
+    try:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(msg.rstrip() + "\n")
+    except Exception:
+        pass
+
 def trace(msg: Any):
     if not is_phi_trace_enabled():
         return
     out = os.environ.get("NYASH_LLVM_TRACE_OUT")
-    if not isinstance(msg, (str, bytes)):
-        try:
-            msg = json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
-        except Exception:
-            msg = str(msg)
+    msg = _stringify_trace_msg(msg)
     if out:
-        try:
-            with open(out, "a", encoding="utf-8") as f:
-                f.write(msg.rstrip() + "\n")
-        except Exception:
-            pass
+        _append_trace_line(out, msg)
     else:
         try:
             print(msg)
         except Exception:
             pass
-

@@ -12,102 +12,78 @@ from phi_wiring.debug_helper import is_phi_debug_enabled, is_phi_trace_enabled
 
 
 def _block_id_from_block_name(block: Any) -> Optional[int]:
-    try:
-        name = getattr(block, "name", None)
-        if isinstance(name, bytes):
-            name = name.decode()
-        if isinstance(name, str) and name.startswith("bb"):
-            return int(name[2:])
-    except Exception:
-        return None
+    name = getattr(block, "name", None)
+    if isinstance(name, bytes):
+        name = name.decode(errors="replace")
+    if isinstance(name, str) and name.startswith("bb"):
+        return int(name[2:])
     return None
 
 
 def _phi_owner_name(candidate: Any) -> Optional[str]:
-    try:
-        owner = getattr(getattr(candidate, "basic_block", None), "name", None)
-        if owner is None:
-            owner = getattr(getattr(candidate, "parent", None), "name", None)
-        if isinstance(owner, bytes):
-            owner = owner.decode()
-        return owner if isinstance(owner, str) else None
-    except Exception:
-        return None
+    owner = getattr(getattr(candidate, "basic_block", None), "name", None)
+    if owner is None:
+        owner = getattr(getattr(candidate, "parent", None), "name", None)
+    if isinstance(owner, bytes):
+        owner = owner.decode(errors="replace")
+    return owner if isinstance(owner, str) else None
 
 
 def _block_name(block: Any) -> Optional[str]:
-    try:
-        name = getattr(block, "name", None)
-        if isinstance(name, bytes):
-            name = name.decode()
-        return name if isinstance(name, str) else None
-    except Exception:
-        return None
+    name = getattr(block, "name", None)
+    if isinstance(name, bytes):
+        name = name.decode(errors="replace")
+    return name if isinstance(name, str) else None
 
 
 def _same_block_phi(candidate: Any, current_block: ir.Block) -> bool:
-    try:
-        if candidate is None or not hasattr(candidate, "add_incoming"):
-            return False
-        return _phi_owner_name(candidate) == _block_name(current_block)
-    except Exception:
+    if candidate is None or not hasattr(candidate, "add_incoming"):
         return False
+    return _phi_owner_name(candidate) == _block_name(current_block)
 
 
 def _defined_in_block(resolver: Any, value_id: int, block_id: Optional[int]) -> bool:
-    try:
-        if block_id is None:
-            return False
-        def_blocks = getattr(resolver, "def_blocks", {})
-        return (
-            isinstance(def_blocks, dict)
-            and value_id in def_blocks
-            and int(block_id) in def_blocks.get(value_id, set())
-        )
-    except Exception:
+    if block_id is None:
         return False
+    def_blocks = getattr(resolver, "def_blocks", {})
+    return (
+        isinstance(def_blocks, dict)
+        and value_id in def_blocks
+        and int(block_id) in def_blocks.get(value_id, set())
+    )
 
 
 def _single_def_dominates_block(resolver: Any, value_id: int, block_id: Optional[int]) -> bool:
-    try:
-        if block_id is None:
-            return False
-        def_blocks = getattr(resolver, "def_blocks", {})
-        defs = def_blocks.get(value_id, set()) if isinstance(def_blocks, dict) else set()
-        if len(defs) != 1:
-            return False
-        def_bid = next(iter(defs))
-        ctx = getattr(resolver, "context", None)
-        if ctx is None or not hasattr(ctx, "dominates"):
-            return False
-        return bool(ctx.dominates(int(def_bid), int(block_id)))
-    except Exception:
+    if block_id is None:
         return False
+    def_blocks = getattr(resolver, "def_blocks", {})
+    defs = def_blocks.get(value_id, set()) if isinstance(def_blocks, dict) else set()
+    if len(defs) != 1:
+        return False
+    def_bid = next(iter(defs))
+    ctx = getattr(resolver, "context", None)
+    if ctx is None or not hasattr(ctx, "dominates"):
+        return False
+    return bool(ctx.dominates(int(def_bid), int(block_id)))
 
 
 def _phi_owner_dominates_block(resolver: Any, candidate: Any, block_id: Optional[int]) -> bool:
-    try:
-        if block_id is None or candidate is None or not hasattr(candidate, "add_incoming"):
-            return False
-        phi_bid = _block_id_from_block_name(getattr(candidate, "basic_block", None))
-        if phi_bid is None:
-            return False
-        ctx = getattr(resolver, "context", None)
-        if ctx is None or not hasattr(ctx, "dominates"):
-            return False
-        return bool(ctx.dominates(phi_bid, int(block_id)))
-    except Exception:
+    if block_id is None or candidate is None or not hasattr(candidate, "add_incoming"):
         return False
+    phi_bid = _block_id_from_block_name(getattr(candidate, "basic_block", None))
+    if phi_bid is None:
+        return False
+    ctx = getattr(resolver, "context", None)
+    if ctx is None or not hasattr(ctx, "dominates"):
+        return False
+    return bool(ctx.dominates(phi_bid, int(block_id)))
 
 
 def _global_reuse_allowed(resolver: Any, value_id: int, candidate: Any, current_block: ir.Block) -> bool:
-    try:
-        if candidate is None:
-            return False
-        if isinstance(candidate, (ir.Argument, ir.Constant)):
-            return True
-    except Exception:
-        pass
+    if candidate is None:
+        return False
+    if isinstance(candidate, (ir.Argument, ir.Constant)):
+        return True
 
     current_bid = _block_id_from_block_name(current_block)
     if hasattr(candidate, "add_incoming"):
@@ -127,17 +103,14 @@ def _global_reuse_allowed(resolver: Any, value_id: int, candidate: Any, current_
 
 
 def _declared_phi_in_current_block(resolver: Any, value_id: int, current_block: ir.Block) -> bool:
-    try:
-        block_phi_incomings = getattr(resolver, "block_phi_incomings", None)
-        if not isinstance(block_phi_incomings, dict):
-            return False
-        current_bid = _block_id_from_block_name(current_block)
-        if current_bid is None:
-            return False
-        dst_map = block_phi_incomings.get(int(current_bid))
-        return isinstance(dst_map, dict) and int(value_id) in dst_map
-    except Exception:
+    block_phi_incomings = getattr(resolver, "block_phi_incomings", None)
+    if not isinstance(block_phi_incomings, dict):
         return False
+    current_bid = _block_id_from_block_name(current_block)
+    if current_bid is None:
+        return False
+    dst_map = block_phi_incomings.get(int(current_bid))
+    return isinstance(dst_map, dict) and int(value_id) in dst_map
 
 
 def resolve_i64_strict(
@@ -182,18 +155,15 @@ def resolve_i64_strict(
     # known to safely dominate here. Raw global vmap reuse for ordinary SSA
     # values can pull a sibling-block definition into the current block and
     # trigger LLVM dominance failures.
-    try:
-        if hasattr(resolver, 'global_vmap') and isinstance(resolver.global_vmap, dict):
-            gval = resolver.global_vmap.get(value_id)
-            if gval is not None:
-                allow_global = _global_reuse_allowed(resolver, value_id, gval, current_block)
-                if allow_global:
-                    trace_hot_count(resolver, f"resolve_global_hit_{scope}")
-                    if debug:
-                        trace_phi(f"[resolve_i64_strict] v{value_id} -> global_vmap")
-                    return gval
-    except Exception:
-        pass
+    if hasattr(resolver, 'global_vmap') and isinstance(resolver.global_vmap, dict):
+        gval = resolver.global_vmap.get(value_id)
+        if gval is not None:
+            allow_global = _global_reuse_allowed(resolver, value_id, gval, current_block)
+            if allow_global:
+                trace_hot_count(resolver, f"resolve_global_hit_{scope}")
+                if debug:
+                    trace_phi(f"[resolve_i64_strict] v{value_id} -> global_vmap")
+                return gval
     # Fallback to resolver
     if resolver is None:
         if debug:

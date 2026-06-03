@@ -47,16 +47,27 @@ HOT_SUMMARY_FIELDS = (
 
 def _write(msg: str) -> None:
     if _TRACE_OUT:
-        try:
-            with open(_TRACE_OUT, 'a', encoding='utf-8') as f:
-                f.write(msg.rstrip() + "\n")
-            return
-        except Exception:
-            pass
+        _write_to_path(_TRACE_OUT, msg)
+        return
     try:
         print(msg, flush=True)
     except Exception:
         pass
+
+def _write_to_path(path: str, msg: str) -> None:
+    try:
+        with open(path, 'a', encoding='utf-8') as f:
+            f.write(msg.rstrip() + "\n")
+    except Exception:
+        pass
+
+def _stringify_trace_msg(msg) -> str:
+    if isinstance(msg, (str, bytes)):
+        return msg if isinstance(msg, str) else msg.decode(errors="replace")
+    try:
+        return json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
+    except Exception:
+        return str(msg)
 
 def _enabled(env_key: str) -> bool:
     return os.environ.get(env_key) == '1'
@@ -67,13 +78,7 @@ def debug(msg: str) -> None:
 
 def phi(msg) -> None:
     if is_phi_trace_enabled():
-        # Accept raw strings or arbitrary objects; non-strings are JSON-encoded
-        if not isinstance(msg, (str, bytes)):
-            try:
-                msg = json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
-            except Exception:
-                msg = str(msg)
-        _write(msg)
+        _write(_stringify_trace_msg(msg))
 
 def values(msg: str) -> None:
     if _enabled('NYASH_LLVM_TRACE_VALUES'):
@@ -123,12 +128,4 @@ def phi_json(msg):
         _trace_phi_json(msg)
     except Exception:
         # Fallback: stringify and route via plain phi
-        try:
-            if not isinstance(msg, (str, bytes)):
-                try:
-                    msg = json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
-                except Exception:
-                    msg = str(msg)
-            phi(msg)
-        except Exception:
-            pass
+        phi(_stringify_trace_msg(msg))
