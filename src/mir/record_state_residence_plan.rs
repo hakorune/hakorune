@@ -155,6 +155,9 @@ fn record_state_candidate_fields(
             }
         }
     }
+    // Field access plans are keyed by source field name. If two report-only
+    // owner boxes expose the same candidate field name, neither entry is a
+    // safe unambiguous route owner for later access-site metadata.
     for name in duplicate_names {
         fields.remove(&name);
     }

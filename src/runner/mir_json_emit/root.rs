@@ -17,6 +17,17 @@ use super::metadata::build_function_metadata_json;
 use super::order::ordered_harness_functions;
 use serde_json::json;
 
+fn insert_root_metadata(
+    root: &mut serde_json::Value,
+    entries: Vec<(&'static str, serde_json::Value)>,
+) {
+    if let Some(obj) = root.as_object_mut() {
+        for (key, value) in entries {
+            obj.insert(key.to_string(), value);
+        }
+    }
+}
+
 pub(super) fn build_mir_json_root(
     module: &crate::mir::MirModule,
 ) -> Result<serde_json::Value, String> {
@@ -80,107 +91,88 @@ pub(super) fn build_mir_json_root(
     // Phase 155: Extract CFG information for hako_check
     let cfg_info = nyash_rust::mir::cfg_extractor::extract_cfg_info(module);
 
-    // Phase 285LLVM-1.1: Extract user box declarations for LLVM harness
-    let user_box_decls = collect_sorted_user_box_decl_values(module);
-    let record_decls = collect_sorted_record_decl_values(module);
-    let typed_object_plans = collect_typed_object_plan_values(module);
-    let direct_state_plans = collect_direct_state_plan_values(module);
-    let record_state_residence_plans = collect_record_state_residence_plan_values(module);
-    let record_layout_plans = collect_record_layout_plan_values(module);
-    let array_record_storage_plans = collect_array_record_storage_plan_values(module);
-    let array_record_autouse_eligibility_plans =
-        collect_array_record_autouse_eligibility_plan_values(module);
-    let array_record_materialization_boundary_plans =
-        collect_array_record_materialization_boundary_plan_values(module);
-    let array_record_packed_autouse_pilot_plans =
-        collect_array_record_packed_autouse_pilot_plan_values(module);
-    let source_packed_array_autouse_pilot_plans =
-        collect_source_packed_array_autouse_pilot_plan_values(module);
-    let source_packed_array_direct_read_consumption_plans =
-        collect_source_packed_array_direct_read_consumption_plan_values(module);
-    let hako_alloc_aligned_small_packed_store_pilot_plans =
-        collect_hako_alloc_aligned_small_packed_store_pilot_plan_values(module);
-    let hako_alloc_huge_page_packed_store_pilot_plans =
-        collect_hako_alloc_huge_page_packed_store_pilot_plan_values(module);
-    let static_data_plans = collect_static_data_plan_values(module);
-    let enum_decls = collect_sorted_enum_decl_values(module);
+    // Phase 285LLVM-1.1+: shared root metadata for both JSON v1 and legacy v0.
+    // Keep this list as the single insertion point when a new top-level plan
+    // surface is added.
+    let root_metadata = vec![
+        ("cfg", cfg_info),
+        (
+            "user_box_decls",
+            json!(collect_sorted_user_box_decl_values(module)),
+        ),
+        (
+            "record_decls",
+            json!(collect_sorted_record_decl_values(module)),
+        ),
+        (
+            "typed_object_plans",
+            json!(collect_typed_object_plan_values(module)),
+        ),
+        (
+            "direct_state_plans",
+            json!(collect_direct_state_plan_values(module)),
+        ),
+        (
+            "record_state_residence_plans",
+            json!(collect_record_state_residence_plan_values(module)),
+        ),
+        (
+            "record_layout_plans",
+            json!(collect_record_layout_plan_values(module)),
+        ),
+        (
+            "array_record_storage_plans",
+            json!(collect_array_record_storage_plan_values(module)),
+        ),
+        (
+            "array_record_autouse_eligibility_plans",
+            json!(collect_array_record_autouse_eligibility_plan_values(module)),
+        ),
+        (
+            "array_record_materialization_boundary_plans",
+            json!(collect_array_record_materialization_boundary_plan_values(
+                module
+            )),
+        ),
+        (
+            "array_record_packed_autouse_pilot_plans",
+            json!(collect_array_record_packed_autouse_pilot_plan_values(
+                module
+            )),
+        ),
+        (
+            "source_packed_array_autouse_pilot_plans",
+            json!(collect_source_packed_array_autouse_pilot_plan_values(
+                module
+            )),
+        ),
+        (
+            "source_packed_array_direct_read_consumption_plans",
+            json!(collect_source_packed_array_direct_read_consumption_plan_values(module)),
+        ),
+        (
+            "hako_alloc_aligned_small_packed_store_pilot_plans",
+            json!(collect_hako_alloc_aligned_small_packed_store_pilot_plan_values(module)),
+        ),
+        (
+            "hako_alloc_huge_page_packed_store_pilot_plans",
+            json!(collect_hako_alloc_huge_page_packed_store_pilot_plan_values(
+                module
+            )),
+        ),
+        (
+            "static_data_plans",
+            json!(collect_static_data_plan_values(module)),
+        ),
+        ("enum_decls", json!(collect_sorted_enum_decl_values(module))),
+    ];
 
-    let root = if use_v1_schema {
-        let mut root = helpers::create_json_v1_root(json!(funs));
-        // Add CFG data and user box declarations to v1 schema
-        if let Some(obj) = root.as_object_mut() {
-            obj.insert("cfg".to_string(), cfg_info);
-            obj.insert("user_box_decls".to_string(), json!(user_box_decls)); // Phase 285LLVM-1.1
-            obj.insert("record_decls".to_string(), json!(record_decls));
-            obj.insert("typed_object_plans".to_string(), json!(typed_object_plans));
-            obj.insert("direct_state_plans".to_string(), json!(direct_state_plans));
-            obj.insert(
-                "record_state_residence_plans".to_string(),
-                json!(record_state_residence_plans),
-            );
-            obj.insert(
-                "record_layout_plans".to_string(),
-                json!(record_layout_plans),
-            );
-            obj.insert(
-                "array_record_storage_plans".to_string(),
-                json!(array_record_storage_plans),
-            );
-            obj.insert(
-                "array_record_autouse_eligibility_plans".to_string(),
-                json!(array_record_autouse_eligibility_plans),
-            );
-            obj.insert(
-                "array_record_materialization_boundary_plans".to_string(),
-                json!(array_record_materialization_boundary_plans),
-            );
-            obj.insert(
-                "array_record_packed_autouse_pilot_plans".to_string(),
-                json!(array_record_packed_autouse_pilot_plans),
-            );
-            obj.insert(
-                "source_packed_array_autouse_pilot_plans".to_string(),
-                json!(source_packed_array_autouse_pilot_plans),
-            );
-            obj.insert(
-                "source_packed_array_direct_read_consumption_plans".to_string(),
-                json!(source_packed_array_direct_read_consumption_plans),
-            );
-            obj.insert(
-                "hako_alloc_aligned_small_packed_store_pilot_plans".to_string(),
-                json!(hako_alloc_aligned_small_packed_store_pilot_plans),
-            );
-            obj.insert(
-                "hako_alloc_huge_page_packed_store_pilot_plans".to_string(),
-                json!(hako_alloc_huge_page_packed_store_pilot_plans),
-            );
-            obj.insert("static_data_plans".to_string(), json!(static_data_plans));
-            obj.insert("enum_decls".to_string(), json!(enum_decls));
-        }
-        root
+    let mut root = if use_v1_schema {
+        helpers::create_json_v1_root(json!(funs))
     } else {
-        // v0 legacy format - also add CFG and user_box_decls
-        json!({
-            "functions": funs,
-            "cfg": cfg_info,
-            "user_box_decls": user_box_decls,  // Phase 285LLVM-1.1
-            "record_decls": record_decls,
-            "typed_object_plans": typed_object_plans,
-            "direct_state_plans": direct_state_plans,
-            "record_state_residence_plans": record_state_residence_plans,
-            "record_layout_plans": record_layout_plans,
-            "array_record_storage_plans": array_record_storage_plans,
-            "array_record_autouse_eligibility_plans": array_record_autouse_eligibility_plans,
-            "array_record_materialization_boundary_plans": array_record_materialization_boundary_plans,
-            "array_record_packed_autouse_pilot_plans": array_record_packed_autouse_pilot_plans,
-            "source_packed_array_autouse_pilot_plans": source_packed_array_autouse_pilot_plans,
-            "source_packed_array_direct_read_consumption_plans": source_packed_array_direct_read_consumption_plans,
-            "hako_alloc_aligned_small_packed_store_pilot_plans": hako_alloc_aligned_small_packed_store_pilot_plans,
-            "hako_alloc_huge_page_packed_store_pilot_plans": hako_alloc_huge_page_packed_store_pilot_plans,
-            "static_data_plans": static_data_plans,
-            "enum_decls": enum_decls
-        })
+        json!({ "functions": funs })
     };
+    insert_root_metadata(&mut root, root_metadata);
 
     // NOTE: numeric_core strict validation is applied on the AotPrep output
     // (tools/hakorune_emit_mir.sh) rather than at raw MIR emit time. This keeps
