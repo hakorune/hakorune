@@ -5269,3 +5269,64 @@ Interpretation: the locked global front is now the benchmark-only multithread
 keeper for local evidence. The next optimization step should not be another
 thread-local probe unless perf/asm selects it. The remaining real bridge is
 product pages / full `.hako` algorithm consumption.
+
+`REPL-021` added the benchmark-only page-bins front and measured it against the
+same local mixed-ws fixture:
+
+```text
+page_bins_threads=1
+page_bins_sample_count=5
+page_bins_subject_2_throughput_median_ops_per_sec=9221264.235
+page_bins_subject_2_throughput_vs_c_mimalloc=1.505086
+page_bins_algorithm_shape=page_bin_benchmark_front
+page_bins_evidence_owner=single_thread_page_bins
+page_bins_product_bins_route=benchmark_page_bins
+page_bins_page_bins_route=benchmark_page_bins
+page_bins_product_pages_consumer_enabled=0
+page_bins_hako_mimalloc_algorithm_claim=0
+page_bins_winner_claim=0
+
+native_bins_refresh_threads=1
+native_bins_refresh_sample_count=5
+native_bins_refresh_subject_2_throughput_median_ops_per_sec=8500221.006
+native_bins_refresh_algorithm_shape=multi_bin_native_benchmark_front
+native_bins_refresh_product_bins_route=benchmark_native_bins
+```
+
+Interpretation: page-bins is a positive bridge shape because it consumes the
+same workload regular bins through page-shaped owner storage while keeping
+product pages and full `.hako` algorithm claims closed. The separate
+`throughput_vs_c_mimalloc` values are not directly comparable across runs
+because each report samples its own C mimalloc median; use subject medians for
+page-vs-native local comparison.
+
+`REPL-022` probed forced inlining of the generated `size_to_bin`,
+`alloc_from_bin`, and `find_owned` helpers:
+
+```text
+page_bins_find_owned_always_inline_probe=nonkeeper
+page_bins_find_owned_always_inline_sample_count=5
+page_bins_find_owned_always_inline_subject_2_throughput_median_ops_per_sec=8470628.097
+page_bins_find_owned_always_inline_baseline_subject_2_throughput_median_ops_per_sec=9221264.235
+page_bins_find_owned_always_inline_symbol_removed=1
+```
+
+Interpretation: the probe removed the helper call boundary and stack out-param
+setup, but expanded `free` / `realloc` enough to regress the local benchmark.
+Do not force-inline this helper family again without fresh perf/asm evidence.
+
+`REPL-023` probed reordering the generated page-bins ownership lookup by the
+deterministic workload's size-class request frequency:
+
+```text
+page_bins_lookup_order_by_request_count_probe=nonkeeper
+page_bins_lookup_order_by_request_count_sample_count=5
+page_bins_lookup_order_by_request_count_subject_2_throughput_median_ops_per_sec=8262550.815
+page_bins_lookup_order_by_request_count_baseline_subject_2_throughput_median_ops_per_sec=9221264.235
+page_bins_lookup_order_by_request_count_order=24,22,23,21,20,19,15,17,18,13,14,16,12,11,10,5,9,3,4,6,7,8,2,25
+```
+
+Interpretation: frequency order looked plausible because hot frees skew toward
+larger bins, but it regressed local page-bins. Keep the generated ownership
+lookup in canonical ascending bin order unless a later perf/asm pass selects a
+different lookup shape.
