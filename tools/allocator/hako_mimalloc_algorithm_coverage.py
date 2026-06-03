@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Iterable
 
@@ -469,6 +469,28 @@ def report_dict(
     else:
         product_pages_bridge_blocker = "source_shape_not_ready"
         product_pages_next_bridge = "fix_product_pages_source_shape"
+    refreshed_rows: list[CoverageRow] = []
+    for row in rows:
+        if row.area == "size_class_policy" and product_bins_consumer_enabled:
+            row = replace(
+                row,
+                replacement_front=1,
+                status="split_model_and_fixed_front",
+                evidence="size_class_box.hako + benchmark replacement-front size-class bridge",
+                next_bridge="measure current size-class bridge or connect product pages",
+            )
+        if row.area == "object_lifecycle_hot_core" and hotcore_consumer_enabled:
+            row = replace(
+                row,
+                replacement_front=1,
+                status="split_model_and_fixed_front",
+                evidence=(
+                    "object_lifecycle_hot_core_box.hako + benchmark HotCore/PageModel front"
+                ),
+                next_bridge=hotcore_next_bridge,
+            )
+        refreshed_rows.append(row)
+    rows = refreshed_rows
     return {
         "output_contract": "hako-mimalloc-algorithm-coverage-v0",
         "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),

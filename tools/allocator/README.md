@@ -290,6 +290,12 @@ replacement_front_hotcore_consumer_enabled=1
 replacement_front_hotcore_route=benchmark_page_bins_hotcore_page_model
 ```
 
+When `hako_mimalloc_algorithm_coverage.py --benchmark-report ...` consumes a
+report with that HotCore route, the `area_status` row for
+`object_lifecycle_hot_core` also flips to `replacement_front=1` /
+`split_model_and_fixed_front`. Without a benchmark report, it remains
+source/model readiness only.
+
 The boundary remains narrow: product pages, activation, hooks, globals, winner
 claims, and full `.hako` algorithm claims stay closed.
 
