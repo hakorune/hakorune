@@ -21,6 +21,29 @@ from trace import hot_count as trace_hot_count
 _COMPARE_COMMUTATIVE_PREDS = {"==", "!="}
 
 
+def _safe_ctx_value(ctx: Any, attr: str, fallback):
+    if ctx is None:
+        return fallback
+    value = getattr(ctx, attr, fallback)
+    return value if value is not None else fallback
+
+
+def _safe_stringish(resolver: Any, value_id: int) -> bool:
+    if resolver is None or not hasattr(resolver, "is_stringish"):
+        return False
+    return resolver.is_stringish(value_id)
+
+
+def _safe_fast_branch_only_compare_dsts(resolver: Any):
+    fast_set = getattr(resolver, "fast_branch_only_compare_dsts", None)
+    return fast_set if isinstance(fast_set, set) else None
+
+
+def _safe_compare_expr_cache(resolver: Any):
+    cache_candidate = getattr(resolver, "compare_expr_cache", None)
+    return cache_candidate if isinstance(cache_candidate, dict) else None
+
+
 def _canonicalize_i64(builder: ir.IRBuilder, value, vid, vmap: Dict[int, ir.Value], hint: str):
     if value is None:
         return None
@@ -82,17 +105,14 @@ def lower_compare(
     """
     # If BuildCtx is provided, prefer its maps for consistency.
     if ctx is not None:
-        try:
-            if getattr(ctx, 'resolver', None) is not None:
-                resolver = ctx.resolver
-            if getattr(ctx, 'preds', None) is not None and preds is None:
-                preds = ctx.preds
-            if getattr(ctx, 'block_end_values', None) is not None and block_end_values is None:
-                block_end_values = ctx.block_end_values
-            if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
-                bb_map = ctx.bb_map
-        except Exception:
-            pass
+        if getattr(ctx, 'resolver', None) is not None:
+            resolver = ctx.resolver
+        if getattr(ctx, 'preds', None) is not None and preds is None:
+            preds = ctx.preds
+        if getattr(ctx, 'block_end_values', None) is not None and block_end_values is None:
+            block_end_values = ctx.block_end_values
+        if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
+            bb_map = ctx.bb_map
     trace_hot_count(resolver, "compare_total")
     i64 = ir.IntType(64)
     i8p = ir.IntType(8).as_pointer()
@@ -219,17 +239,11 @@ def lower_compare(
         lh_val = vmap.get(lhs)
         rh_val = vmap.get(rhs)
         if lhs_type is None and lh_val is not None:
-            try:
-                if isinstance(lh_val.type, ir.DoubleType):
-                    lhs_type = 'Float'
-            except Exception:
-                pass
+            if isinstance(lh_val.type, ir.DoubleType):
+                lhs_type = 'Float'
         if rhs_type is None and rh_val is not None:
-            try:
-                if isinstance(rh_val.type, ir.DoubleType):
-                    rhs_type = 'Float'
-            except Exception:
-                pass
+            if isinstance(rh_val.type, ir.DoubleType):
+                rhs_type = 'Float'
 
         # Float==Float (or either side is Float): use fcmp (not icmp)
         if lhs_type == 'Float' or rhs_type == 'Float':
@@ -250,22 +264,19 @@ def lower_compare(
             f64 = ir.DoubleType()
             def ensure_double(val, is_float_type):
                 """Convert i64 Float handle to double if needed."""
-                try:
-                    if isinstance(val.type, ir.DoubleType):
-                        return val  # Already double
-                    if isinstance(val.type, ir.IntType) and val.type.width == 64 and is_float_type:
-                        # i64 handle - unbox to double
-                        unbox_func_name = 'nyash.float.unbox_to_f64'
-                        unbox_func = None
-                        for f in builder.module.functions:
-                            if f.name == unbox_func_name:
-                                unbox_func = f
-                                break
-                        if not unbox_func:
-                            unbox_func = ir.Function(builder.module, ir.FunctionType(f64, [ir.IntType(64)]), name=unbox_func_name)
-                        return builder.call(unbox_func, [val], name='unbox_for_fcmp')
-                except Exception:
-                    pass
+                if isinstance(val.type, ir.DoubleType):
+                    return val  # Already double
+                if isinstance(val.type, ir.IntType) and val.type.width == 64 and is_float_type:
+                    # i64 handle - unbox to double
+                    unbox_func_name = 'nyash.float.unbox_to_f64'
+                    unbox_func = None
+                    for f in builder.module.functions:
+                        if f.name == unbox_func_name:
+                            unbox_func = f
+                            break
+                    if not unbox_func:
+                        unbox_func = ir.Function(builder.module, ir.FunctionType(f64, [ir.IntType(64)]), name=unbox_func_name)
+                    return builder.call(unbox_func, [val], name='unbox_for_fcmp')
                 return val
 
             lh = ensure_double(lh, lhs_type == 'Float')
@@ -447,18 +458,14 @@ def lower_compare(
     # and redundant cond compare in hot loops). Other compare results remain i64.
     keep_i1 = False
     if llvm_fast_enabled():
-        try:
-            fast_set = getattr(resolver, "fast_branch_only_compare_dsts", None)
-            keep_i1 = isinstance(fast_set, set) and int(dst) in fast_set
-        except Exception:
-            keep_i1 = False
+        fast_set = _safe_fast_branch_only_compare_dsts(resolver)
+        keep_i1 = fast_set is not None and int(dst) in fast_set
 
     expr_cache = None
     expr_key = None
     if os.environ.get('NYASH_LLVM_FAST') == '1' and resolver is not None:
-        cache_candidate = getattr(resolver, "compare_expr_cache", None)
-        if isinstance(cache_candidate, dict):
-            expr_cache = cache_candidate
+        expr_cache = _safe_compare_expr_cache(resolver)
+        if expr_cache is not None:
             expr_key = _compare_expr_cache_key(current_block, pred, lhs_val, rhs_val, keep_i1)
             if expr_key is not None:
                 cached = expr_cache.get(expr_key)
