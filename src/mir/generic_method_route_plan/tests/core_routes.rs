@@ -208,6 +208,69 @@ fn records_direct_array_i64_get_as_array_slot_route() {
 }
 
 #[test]
+fn records_runtime_data_set_from_declared_direct_array_i64_field_origin() {
+    let mut module = MirModule::new("typed_object_direct_array_field_set_route_test".to_string());
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Page".to_string(),
+        type_id: 2,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 1,
+        fields: vec![TypedObjectFieldPlan {
+            name: "free".to_string(),
+            slot: 0,
+            declared_type_name: Some("DirectArrayI64".to_string()),
+            storage: TypedObjectFieldStorage::Handle,
+            is_weak: false,
+        }],
+    });
+
+    let mut reset = MirFunction::new(
+        FunctionSignature {
+            name: "Page.reset/2".to_string(),
+            params: vec![
+                MirType::Box("Page".to_string()),
+                MirType::Integer,
+                MirType::Integer,
+            ],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    reset.params = vec![ValueId::new(0), ValueId::new(1), ValueId::new(2)];
+    let mut block = BasicBlock::new(BasicBlockId::new(0));
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: ValueId::new(3),
+        base: ValueId::new(0),
+        field: "free".to_string(),
+        declared_type: None,
+    });
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(4),
+        src: ValueId::new(3),
+    });
+    block.add_instruction(method_call(None, "RuntimeDataBox", "set", 4, vec![1, 2]));
+    block.set_terminator(MirInstruction::Return { value: None });
+    reset.add_block(block);
+    module.add_function(reset);
+
+    refresh_module_generic_method_routes(&mut module);
+
+    let reset = module.get_function("Page.reset/2").expect("reset function");
+    assert_eq!(reset.metadata.generic_method_routes.len(), 1);
+    let route = &reset.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.set");
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.method(), "set");
+    assert_eq!(route.receiver_origin_box(), Some("DirectArrayI64"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayStoreAny);
+    let core_method = route
+        .core_method()
+        .expect("RuntimeDataBox DirectArrayI64 set core method op");
+    assert_eq!(core_method.op, CoreMethodOp::ArraySet);
+}
+
+#[test]
 fn records_runtime_data_get_from_typed_object_array_field_origin() {
     let mut module = MirModule::new("typed_object_array_field_get_route_test".to_string());
     module.metadata.typed_object_plans.push(TypedObjectPlan {

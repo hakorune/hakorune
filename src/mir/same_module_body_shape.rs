@@ -61,7 +61,7 @@ fn same_module_instruction_supported(
         ),
         MirInstruction::Copy { .. } => true,
         MirInstruction::NewBox { box_type, .. } => {
-            matches!(box_type.as_str(), "ArrayBox" | "MapBox")
+            matches!(box_type.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
                 || typed_plan_type_ids.contains_key(box_type)
         }
         MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. } => true,
@@ -107,10 +107,18 @@ fn same_module_instruction_supported(
                             && (route.reason().is_none()
                                 || route.target_symbol() == function.signature.name)
                     })
+                || known_same_module_typed_method_call(box_name, typed_plan_type_ids)
                 || known_user_defined_method_call(instruction)
         }
         _ => false,
     }
+}
+
+fn known_same_module_typed_method_call(
+    box_name: &str,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> bool {
+    typed_plan_type_ids.contains_key(box_name)
 }
 
 fn known_user_defined_method_call(instruction: &MirInstruction) -> bool {

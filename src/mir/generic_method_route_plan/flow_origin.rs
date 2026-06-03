@@ -391,6 +391,7 @@ pub(super) fn generic_array_flow_origin_box_name(
 fn collection_origin_box_name(box_name: &str) -> Option<&'static str> {
     match box_name {
         "ArrayBox" => Some("ArrayBox"),
+        "DirectArrayI64" => Some("DirectArrayI64"),
         "MapBox" => Some("MapBox"),
         _ => None,
     }

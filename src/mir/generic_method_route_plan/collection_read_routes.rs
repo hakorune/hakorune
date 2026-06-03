@@ -81,13 +81,20 @@ pub(super) fn match_generic_has_route(
                 )),
             )
         }
-        "RuntimeDataBox" if receiver_origin_box.as_deref() == Some("ArrayBox") => (
-            GenericMethodRouteKind::ArrayContainsAny,
-            Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::ArrayHas,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-        ),
+        "RuntimeDataBox"
+            if matches!(
+                receiver_origin_box.as_deref(),
+                Some("ArrayBox" | "DirectArrayI64")
+            ) =>
+        {
+            (
+                GenericMethodRouteKind::ArrayContainsAny,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::ArrayHas,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+            )
+        }
         "RuntimeDataBox" => (GenericMethodRouteKind::RuntimeDataContainsAny, None),
         _ => return None,
     };
@@ -168,11 +175,13 @@ pub(super) fn match_generic_get_route(
         }
     }
 
-    if matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64")
+    if (matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64")
         && matches!(
             receiver_origin_box.as_deref(),
             Some("ArrayBox" | "DirectArrayI64")
-        )
+        ))
+        || (box_name == "RuntimeDataBox"
+            && receiver_origin_box.as_deref() == Some("DirectArrayI64"))
     {
         return Some(GenericMethodRoute::new(
             GenericMethodRouteSite::new(block, instruction_index),

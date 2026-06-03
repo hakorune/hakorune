@@ -41,7 +41,7 @@ fn legacy_storage_for_declared_type(
 ) -> Option<TypedObjectFieldStorage> {
     match type_name {
         name if is_inline_i64_storage_type_name(name) => Some(TypedObjectFieldStorage::I64),
-        "StringBox" | "String" | "str" | "ArrayBox" | "MapBox" => {
+        "StringBox" | "String" | "str" | "ArrayBox" | "DirectArrayI64" | "MapBox" => {
             Some(TypedObjectFieldStorage::Handle)
         }
         name if metadata.user_box_decls.contains_key(name) => Some(TypedObjectFieldStorage::Handle),

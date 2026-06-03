@@ -121,7 +121,7 @@ pub(super) fn match_generic_set_route(
     let (route_kind, core_op) = match (box_name.as_str(), receiver_origin_box.as_deref()) {
         ("ArrayBox", _)
         | ("DirectArrayI64", Some("DirectArrayI64"))
-        | ("RuntimeDataBox", Some("ArrayBox")) => (
+        | ("RuntimeDataBox", Some("ArrayBox" | "DirectArrayI64")) => (
             GenericMethodRouteKind::ArrayStoreAny,
             CoreMethodOp::ArraySet,
         ),

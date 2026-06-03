@@ -25,7 +25,24 @@ pub(super) fn infer_typed_object_field_handle_origins(module: &MirModule) -> Fie
             })
         })
         .collect::<BTreeMap<_, _>>();
-    let mut origins = BTreeMap::<FieldHandleOriginKey, String>::new();
+    let mut origins = module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .flat_map(|plan| {
+            plan.fields.iter().filter_map(move |field| {
+                if field.storage != crate::mir::function::TypedObjectFieldStorage::Handle {
+                    return None;
+                }
+                let origin =
+                    declared_collection_handle_origin(field.declared_type_name.as_deref())?;
+                Some((
+                    (plan.box_name.clone(), field.name.clone()),
+                    origin.to_string(),
+                ))
+            })
+        })
+        .collect::<BTreeMap<FieldHandleOriginKey, String>>();
     let mut conflicts = BTreeSet::<FieldHandleOriginKey>::new();
 
     for function in module.functions.values() {
@@ -67,6 +84,15 @@ pub(super) fn infer_typed_object_field_handle_origins(module: &MirModule) -> Fie
     }
 
     origins
+}
+
+fn declared_collection_handle_origin(type_name: Option<&str>) -> Option<&'static str> {
+    match type_name? {
+        "ArrayBox" => Some("ArrayBox"),
+        "DirectArrayI64" => Some("DirectArrayI64"),
+        "MapBox" => Some("MapBox"),
+        _ => None,
+    }
 }
 
 pub(super) fn infer_typed_object_collection_element_origins(
