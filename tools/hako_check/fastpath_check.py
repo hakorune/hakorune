@@ -63,27 +63,58 @@ def failure_reasons(counts: dict[str, Any]) -> list[str]:
 
 
 def render(counts: dict[str, Any], reasons: list[str]) -> str:
+    status = "OK" if not reasons else "FAILED"
+    matched = int_count(counts, "route_decision_count") > 0
     lines = [
-        "output_contract=hako-check-fastpath-check-v0",
-        f"selected_profile={counts.get('selected_profile', 'unknown')}",
-        f"selected_group={counts.get('selected_group', 'unknown')}",
-        f"profile_policy={counts.get('profile_policy', 'unknown')}",
-        f"default_required_tier={counts.get('default_required_tier', 'unknown')}",
-        f"default_severity={counts.get('default_severity', 'unknown')}",
-        f"route_decision_count={counts.get('route_decision_count', '0')}",
-        f"route_tier_ok_count={counts.get('route_tier_ok_count', '0')}",
-        f"route_tier_failed_count={counts.get('route_tier_failed_count', '0')}",
-        f"route_decision_slow_selected_count={counts.get('route_decision_slow_selected_count', '0')}",
-        f"direct_exact_plan_lowered_to_fallback_count={counts.get('direct_exact_plan_lowered_to_fallback_count', '0')}",
-        f"generic_method_dispatch_count={counts.get('generic_method_dispatch_count', '0')}",
-        f"dynamic_route_count={counts.get('dynamic_route_count', '0')}",
-        f"boxed_fallback_count={counts.get('boxed_fallback_count', '0')}",
-        f"fastpath_obligation_failed_count={counts.get('fastpath_obligation_failed_count', '0')}",
-        f"failure_count={len(reasons)}",
+        f"FastPath check: {status}",
+        "",
+        "Profile",
+        f"  profile: {counts.get('selected_profile', 'unknown')}",
+        f"  group: {counts.get('selected_group', 'unknown')}",
+        f"  policy: {counts.get('profile_policy', 'unknown')}",
+        f"  required tier: {counts.get('default_required_tier', 'unknown')}",
+        f"  severity: {counts.get('default_severity', 'unknown')}",
+        "",
+        "Route Tiers",
+        f"  decisions: {counts.get('route_decision_count', '0')}",
+        f"  ok: {counts.get('route_tier_ok_count', '0')}",
+        f"  failed: {counts.get('route_tier_failed_count', '0')}",
+        f"  slow selected: {counts.get('route_decision_slow_selected_count', '0')}",
+        f"  selected checked direct: {counts.get('selected_tier_checked_direct_count', '0')}",
+        f"  selected proved direct: {counts.get('selected_tier_proved_direct_count', '0')}",
+        f"  selected static exact: {counts.get('selected_tier_static_exact_call_count', '0')}",
+        f"  selected replacement thin: {counts.get('selected_tier_replacement_thin_count', '0')}",
+        "",
+        "Fallbacks",
+        f"  failed obligations: {counts.get('fastpath_obligation_failed_count', '0')}",
+        f"  lowering fallback: {counts.get('direct_exact_plan_lowered_to_fallback_count', '0')}",
+        f"  generic method dispatch: {counts.get('generic_method_dispatch_count', '0')}",
+        f"  dynamic route: {counts.get('dynamic_route_count', '0')}",
+        f"  boxed fallback: {counts.get('boxed_fallback_count', '0')}",
     ]
+    if reasons:
+        lines.extend(["", "Failures"])
+        for idx, reason in enumerate(reasons):
+            lines.append(f"  {idx + 1}. {reason}")
+    if not matched:
+        lines.extend(
+            [
+                "",
+                "Note",
+                "  no RouteDecision rows matched this profile/group selection",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "Machine",
+            "  output_contract=hako-check-fastpath-check-v0",
+            f"  failure_count={len(reasons)}",
+        ]
+    )
     for idx, reason in enumerate(reasons):
-        lines.append(f"failure_{idx}_reason={reason}")
-    lines.append("summary=ok" if not reasons else "summary=failed")
+        lines.append(f"  failure_{idx}_reason={reason}")
+    lines.append("  summary=ok" if not reasons else "  summary=failed")
     return "\n".join(lines) + "\n"
 
 

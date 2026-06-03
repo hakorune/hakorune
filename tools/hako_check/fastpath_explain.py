@@ -351,33 +351,61 @@ def site_record(
 
 def render_summary(payload: dict[str, Any]) -> str:
     counts = payload["counts"]
+    clean = counts["clean"] == "1"
+    matched = counts["route_decision_count"] != "0"
     lines = [
-        "output_contract=hako-check-fastpath-summary-v0",
-        f"selected_profile={counts['selected_profile']}",
-        f"selected_group={counts['selected_group']}",
-        f"profile_policy={counts['profile_policy']}",
-        f"default_required_tier={counts['default_required_tier']}",
-        f"default_severity={counts['default_severity']}",
-        f"target_method={counts['target_method']}",
-        f"clean={counts['clean']}",
-        f"fastpath_plan_count={counts['fastpath_plan_count']}",
-        f"direct_array_access_plan_count={counts['direct_array_access_plan_count']}",
-        f"route_decision_count={counts['route_decision_count']}",
-        f"route_tier_ok_count={counts['route_tier_ok_count']}",
-        f"route_tier_failed_count={counts['route_tier_failed_count']}",
-        f"route_decision_fast_selected_count={counts['route_decision_fast_selected_count']}",
-        f"route_decision_slow_selected_count={counts['route_decision_slow_selected_count']}",
-        f"route_decision_missing_reason_count={counts['route_decision_missing_reason_count']}",
-        f"direct_array_proved_unchecked_plan_count={counts['direct_array_proved_unchecked_plan_count']}",
-        f"span_access_plan_count={counts['span_access_plan_count']}",
-        f"fastpath_obligation_failed_count={counts['fastpath_obligation_failed_count']}",
-        f"direct_exact_plan_lowered_to_fallback_count={counts['direct_exact_plan_lowered_to_fallback_count']}",
-        f"generic_method_dispatch_count={counts['generic_method_dispatch_count']}",
-        f"dynamic_route_count={counts['dynamic_route_count']}",
-        f"boxed_fallback_count={counts['boxed_fallback_count']}",
-        "source_rewrite_executed=0",
-        f"summary={'ok' if counts['clean'] == '1' else 'failed'}",
+        f"FastPath explain: {'OK' if clean else 'FAILED'}",
+        "",
+        "Profile",
+        f"  profile: {counts['selected_profile']}",
+        f"  group: {counts['selected_group']}",
+        f"  policy: {counts['profile_policy']}",
+        f"  required tier: {counts['default_required_tier']}",
+        f"  severity: {counts['default_severity']}",
+        f"  target method: {counts['target_method']}",
+        "",
+        "Coverage",
+        f"  route decisions: {counts['route_decision_count']}",
+        f"  fastpath plans: {counts['fastpath_plan_count']}",
+        f"  DirectArray plans: {counts['direct_array_access_plan_count']}",
+        f"  DirectArray proved unchecked: {counts['direct_array_proved_unchecked_plan_count']}",
+        f"  Span plans: {counts['span_access_plan_count']}",
+        "",
+        "Route Tiers",
+        f"  ok: {counts['route_tier_ok_count']}",
+        f"  failed: {counts['route_tier_failed_count']}",
+        f"  fast selected: {counts['route_decision_fast_selected_count']}",
+        f"  slow selected: {counts['route_decision_slow_selected_count']}",
+        f"  miss reasons: {counts['route_decision_missing_reason_count']}",
+        "",
+        "Fallbacks",
+        f"  failed obligations: {counts['fastpath_obligation_failed_count']}",
+        f"  lowering fallback: {counts['direct_exact_plan_lowered_to_fallback_count']}",
+        f"  generic method dispatch: {counts['generic_method_dispatch_count']}",
+        f"  dynamic route: {counts['dynamic_route_count']}",
+        f"  boxed fallback: {counts['boxed_fallback_count']}",
+        "",
+        "Boundary",
+        "  source rewrite: 0",
+        "  keeper selection: 0",
     ]
+    if not matched:
+        lines.extend(
+            [
+                "",
+                "Note",
+                "  no RouteDecision rows matched this profile/group selection",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "Machine",
+            "  output_contract=hako-check-fastpath-summary-v0",
+            f"  clean={counts['clean']}",
+            f"  summary={'ok' if clean else 'failed'}",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 

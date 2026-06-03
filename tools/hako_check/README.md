@@ -324,11 +324,18 @@ severity
   - It is a CI-style adapter over `fastpath-explain --format json`.
   - It does not emit new MIR facts and does not enforce compiler compile
     errors.
+  - Its default output is human-oriented: verdict, profile, route tiers,
+    fallback counters, optional failure reasons, and a small machine-contract
+    footer. Use `fastpath-explain --format json` when tooling needs the full
+    machine-readable truth.
   - It fails when `route_tier_failed_count > 0`,
     `fastpath_obligation_failed_count > 0`, or direct-exact lowering fallback
     counters are nonzero.
   - Current tier fields are computed by hako_check from existing MIR metadata;
     compiler-side RouteDecision tier fields are planned later.
+  - If a selected profile/group matches no RouteDecision rows, the tool prints a
+    note. This is not a v0 failure by itself; stricter minimum-count checks are
+    a planned lock/profile refinement.
 
 - Contract:
 
