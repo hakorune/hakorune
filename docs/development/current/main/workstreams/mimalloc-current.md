@@ -213,14 +213,24 @@ page_map_backed_bridge_probe:
   median_ops_per_sec=4,021,684.925
   previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
   decision=nonkeeper
+
+hotcore_skip_counters_probe:
+  attempted_change=allow --replacement-front-skip-hot-counters for page-bins
+    HotCore/PageModel front and compile counters to no-op macros
+  report=target/hakozuna-mixed-ws-hotcore-skip-counters-current/report.out
+  direct_core_call_count_total=0
+  median_ops_per_sec=8,713,306.090
+  previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
+  decision=nonkeeper
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
 regressing end-to-end mixed-ws throughput. The naive page-map-backed ownership
 bridge proves the report shape can consume product pages, but its linear lookup
-is too expensive for the current optimization owner. Keep the existing
-HotCore/PageModel bridge and do not re-open these probes without new perf owner
-evidence.
+is too expensive for the current optimization owner. The bins counter-skip
+probe removes hot count writes but does not improve median throughput. Keep the
+existing HotCore/PageModel bridge and do not re-open these probes without new
+perf owner evidence.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
