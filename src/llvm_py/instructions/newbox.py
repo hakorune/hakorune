@@ -18,6 +18,65 @@ from instructions.mir_call.direct_array_birth import (
 from utils.resolver_helpers import mark_as_handle
 
 
+def _declare(module: ir.Module, name: str, ret_ty, arg_tys):
+    for f in module.functions:
+        if f.name == name:
+            return f
+    return ir.Function(module, ir.FunctionType(ret_ty, arg_tys), name=name)
+
+
+def _unique_global_name(module: ir.Module, base: str) -> str:
+    existing = {g.name for g in module.global_values}
+    name = base
+    suffix = 1
+    while name in existing:
+        name = f"{base}.{suffix}"
+        suffix += 1
+    return name
+
+
+def _lower_env_box_new_i64x(
+    *,
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    box_type: str,
+    dst_vid: int,
+):
+    """Lower the explicit generic env-box constructor fallback."""
+    i64 = ir.IntType(64)
+    i8p = ir.IntType(8).as_pointer()
+    new_i64x = _declare(
+        module,
+        "nyash.env.box.new_i64x",
+        i64,
+        [i8p, i64, i64, i64, i64, i64],
+    )
+
+    sbytes = (box_type + "\0").encode("utf-8")
+    arr_ty = ir.ArrayType(ir.IntType(8), len(sbytes))
+    try:
+        fn = builder.block.parent
+        fn_name = getattr(fn, "name", "fn")
+    except Exception:
+        fn_name = "fn"
+    g = ir.GlobalVariable(
+        module,
+        arr_ty,
+        name=_unique_global_name(module, f".box_ty_{fn_name}_{dst_vid}"),
+    )
+    g.linkage = "private"
+    g.global_constant = True
+    g.initializer = ir.Constant(arr_ty, bytearray(sbytes))
+    c0 = ir.Constant(ir.IntType(32), 0)
+    ptr = builder.gep(g, [c0, c0], inbounds=True)
+    zero = ir.Constant(i64, 0)
+    return builder.call(
+        new_i64x,
+        [ptr, zero, zero, zero, zero, zero],
+        name=f"new_{box_type}",
+    )
+
+
 def lower_newbox(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -52,12 +111,6 @@ def lower_newbox(
     i64 = ir.IntType(64)
     i8p = ir.IntType(8).as_pointer()
     fast_on = os.environ.get('NYASH_LLVM_FAST') == '1'
-
-    def _declare(name: str, ret_ty, arg_tys):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        return ir.Function(module, ir.FunctionType(ret_ty, arg_tys), name=name)
 
     def _resolve_arg(vid: int):
         try:
@@ -106,7 +159,7 @@ def lower_newbox(
             field_count = int(exact_plan.get("field_count"))
         except (TypeError, ValueError):
             raise RuntimeError("[typed-object/exact] malformed type_id or field_count")
-        callee = _declare("nyash.object.new_typed_hi", i64, [i64, i64])
+        callee = _declare(module, "nyash.object.new_typed_hi", i64, [i64, i64])
         handle = builder.call(
             callee,
             [ir.Constant(i64, type_id), ir.Constant(i64, field_count)],
@@ -137,19 +190,19 @@ def lower_newbox(
         if arg0 is not None:
             if isinstance(arg0.type, ir.IntType) and arg0.type.width == 64:
                 # Handle -> UTF-8 pointer -> fresh StringBox handle
-                to_i8p = _declare("nyash.string.to_i8p_h", i8p, [i64])
-                from_i8 = _declare("nyash.box.from_i8_string", i64, [i8p])
+                to_i8p = _declare(module, "nyash.string.to_i8p_h", i8p, [i64])
+                from_i8 = _declare(module, "nyash.box.from_i8_string", i64, [i8p])
                 p = builder.call(to_i8p, [arg0], name="newbox_str_h2p")
                 handle = builder.call(from_i8, [p], name="newbox_string_from_h")
             elif arg0.type.is_pointer:
-                from_i8 = _declare("nyash.box.from_i8_string", i64, [i8p])
+                from_i8 = _declare(module, "nyash.box.from_i8_string", i64, [i8p])
                 p = arg0 if arg0.type == i8p else builder.bitcast(arg0, i8p, name="newbox_str_cast")
                 handle = builder.call(from_i8, [p], name="newbox_string_from_p")
             else:
-                new_str = _declare("nyash.string.new", i64, [])
+                new_str = _declare(module, "nyash.string.new", i64, [])
                 handle = builder.call(new_str, [], name="newbox_string_empty")
         else:
-            new_str = _declare("nyash.string.new", i64, [])
+            new_str = _declare(module, "nyash.string.new", i64, [])
             handle = builder.call(new_str, [], name="newbox_string_empty")
 
         vmap[dst_vid] = handle
@@ -178,37 +231,12 @@ def lower_newbox(
         if direct_array_birth:
             mark_direct_array_i64_origin(resolver, dst_vid)
         return
-    # Prefer variadic shim: nyash.env.box.new_i64x(type_name, argc, a1, a2, a3, a4)
-    new_i64x = None
-    for f in module.functions:
-        if f.name == "nyash.env.box.new_i64x":
-            new_i64x = f
-            break
-    if not new_i64x:
-        new_i64x = ir.Function(module, ir.FunctionType(i64, [i8p, i64, i64, i64, i64, i64]), name="nyash.env.box.new_i64x")
-
-    # Build C-string for type name (unique global per function)
-    sbytes = (box_type + "\0").encode('utf-8')
-    arr_ty = ir.ArrayType(ir.IntType(8), len(sbytes))
-    try:
-        fn = builder.block.parent
-        fn_name = getattr(fn, 'name', 'fn')
-    except Exception:
-        fn_name = 'fn'
-    base = f".box_ty_{fn_name}_{dst_vid}"
-    existing = {g.name for g in module.global_values}
-    name = base
-    n = 1
-    while name in existing:
-        name = f"{base}.{n}"; n += 1
-    g = ir.GlobalVariable(module, arr_ty, name=name)
-    g.linkage = 'private'
-    g.global_constant = True
-    g.initializer = ir.Constant(arr_ty, bytearray(sbytes))
-    c0 = ir.Constant(ir.IntType(32), 0)
-    ptr = builder.gep(g, [c0, c0], inbounds=True)
-    zero = ir.Constant(i64, 0)
-    handle = builder.call(new_i64x, [ptr, zero, zero, zero, zero, zero], name=f"new_{box_type}")
+    handle = _lower_env_box_new_i64x(
+        builder=builder,
+        module=module,
+        box_type=box_type,
+        dst_vid=dst_vid,
+    )
     vmap[dst_vid] = handle
 
     _track_stringbox_origin()

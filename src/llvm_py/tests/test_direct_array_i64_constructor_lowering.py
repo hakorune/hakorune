@@ -86,6 +86,16 @@ class TestDirectArrayI64ConstructorLowering(unittest.TestCase):
 
         self._with_env(None, run)
 
+    def test_newbox_unknown_box_uses_env_box_new_i64x_fallback(self):
+        mod, builder, _ = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {}
+        lower_newbox(builder, mod, "PluginThingBox", [], 17, vmap, resolver)
+        ir_txt = str(mod)
+        self.assertIn("nyash.env.box.new_i64x", ir_txt)
+        self.assertIn(".box_ty_", ir_txt)
+        self.assertIn("PluginThingBox", ir_txt)
+
     def test_constructor_arraybox_direct_lane_uses_direct_array_birth(self):
         def run():
             mod, builder, _ = self._make_builder()
