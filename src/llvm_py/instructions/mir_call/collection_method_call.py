@@ -493,7 +493,7 @@ def _lower_array_collection_method_call(
     )
 
 
-def _lower_map_collection_method_call(
+def _lower_non_array_collection_method_call(
     *,
     builder: ir.IRBuilder,
     declare: Callable,
@@ -531,6 +531,9 @@ def _lower_map_collection_method_call(
         return builder.call(callee, [recv_h, key], name="unified_map_slot_load_hh")
 
     if method_name == "push":
+        # Legacy non-ArrayBox collection fallback. This is intentionally kept
+        # separate from MapBox-only clear/delete until route metadata can
+        # distinguish array-like unknown receivers from true map receivers.
         value = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         if not arg_ids:
             return recv_h
@@ -602,7 +605,7 @@ def lower_collection_method_call(
             dst_vid=dst_vid,
         )
 
-    return _lower_map_collection_method_call(
+    return _lower_non_array_collection_method_call(
         builder=builder,
         declare=declare,
         box_name=box_name,
