@@ -5,6 +5,10 @@ PHI dst_type 取得ロジックを統一管理。
 - 優先度2: resolver.value_types (型推論後)
 """
 
+
+_SAFE_PHI_TYPE_HELPER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
+
 def get_phi_dst_type(builder, dst_vid, inst=None):
     """PHI destination type を取得
 
@@ -43,7 +47,7 @@ def get_phi_dst_type(builder, dst_vid, inst=None):
             # Box型の場合
             if isinstance(vt, dict) and vt.get('kind') == 'handle':
                 return 'handle'
-    except Exception:
+    except _SAFE_PHI_TYPE_HELPER_EXC:
         pass
 
     return None

@@ -9,6 +9,10 @@ Box-First principle: Encapsulate PHI lifecycle management
 
 import llvmlite.ir as ir
 
+
+_SAFE_PHI_MANAGER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
+
 class PhiManager:
     """PHI value lifecycle manager (Box pattern)"""
 
@@ -35,7 +39,7 @@ class PhiManager:
                 owner = owner.decode()
             if isinstance(owner, str) and owner.startswith("bb"):
                 return int(owner[2:])
-        except Exception:
+        except _SAFE_PHI_MANAGER_EXC:
             return None
         return None
 
@@ -47,7 +51,7 @@ class PhiManager:
             return False
         try:
             return bool(context.dominates(int(owner_bid), int(target_bid)))
-        except Exception:
+        except _SAFE_PHI_MANAGER_EXC:
             return False
 
     def _single_def_block_id(self, vid, context):
@@ -58,7 +62,7 @@ class PhiManager:
             if len(defs) != 1:
                 return None
             return next(iter(defs))
-        except Exception:
+        except _SAFE_PHI_MANAGER_EXC:
             return None
 
     def _single_def_dominates_target(self, vid, target_bid: int, context) -> bool:
@@ -67,7 +71,7 @@ class PhiManager:
             return False
         try:
             return bool(context.dominates(int(def_bid), int(target_bid)))
-        except Exception:
+        except _SAFE_PHI_MANAGER_EXC:
             return False
 
     def _merge_predeclared_for_target(self, result: dict, target_bid: int):
