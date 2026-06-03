@@ -174,6 +174,7 @@ bridge:
 python3 tools/allocator/hako_mimalloc_perf_attribution.py \
   --perf-report target/mimalloc-public.asm.txt.artifacts.d/perf-report.txt \
   --perf-annotate target/mimalloc-public.asm.txt.artifacts.d/perf-annotate.txt \
+  --objdump target/mimalloc-public.asm.txt.artifacts.d/objdump.txt \
   --symbol ny_main \
   > target/page-model-hot-array-route/perf-attribution.txt
 
@@ -214,6 +215,7 @@ page_model_hot_array_perf_delta_next_bridge=...
 top_instruction_category=...
 hot_instruction_0_category=...
 hot_instruction_0_asm=...
+hot_instruction_0_context_categories=...
 ```
 
 If the report says:
@@ -226,6 +228,7 @@ instruction_attribution_available=1
 page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
 top_instruction_category=store_like
 hot_instruction_0_asm=mov    %rdi,0xa0(%rax)
+hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
 ```
 
 then the current perf report can still guide instruction-shape cleanup, but it

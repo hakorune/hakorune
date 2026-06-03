@@ -456,6 +456,7 @@ With benchmark, fastpath, and perf attribution reports all supplied,
 perf_attribution_report_consumed=1
 structural_owner_next_action=asm_instruction_classifier_or_in_process_perf_mode
 perf_top_instruction_category=store_like
+perf_hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
 ```
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from

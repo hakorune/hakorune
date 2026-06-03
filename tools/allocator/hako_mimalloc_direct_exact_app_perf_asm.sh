@@ -253,6 +253,7 @@ objdump -d --demangle "$exe_out" >"$objdump_txt"
 python3 "$ROOT_DIR/tools/allocator/hako_mimalloc_perf_attribution.py" \
   --perf-report "$perf_report" \
   --perf-annotate "$perf_annotate" \
+  --objdump "$objdump_txt" \
   --symbol "$SYMBOL" >"$perf_attribution"
 
 body_elapsed_ns="$(awk -F= '$1 == "body_elapsed_ns" { print $2; exit }' "$run_out")"

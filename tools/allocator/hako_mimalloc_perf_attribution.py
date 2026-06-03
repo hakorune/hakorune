@@ -28,6 +28,11 @@ ANNOTATE_RE = re.compile(
     r"(?P<addr>[0-9a-fA-F]+):\s+"
     r"(?P<asm>.+?)\s*$"
 )
+OBJDUMP_RE = re.compile(
+    r"^\s*(?P<addr>[0-9a-fA-F]+):\s+"
+    r"(?P<bytes>(?:[0-9a-fA-F]{2}\s+)+)\s*"
+    r"(?P<asm>.+?)\s*$"
+)
 
 
 @dataclass(frozen=True)
@@ -39,6 +44,16 @@ class PerfSymbol:
 @dataclass(frozen=True)
 class AnnotatedInstruction:
     percent: float
+    address: str
+    asm: str
+
+    @property
+    def mnemonic(self) -> str:
+        return self.asm.strip().split(None, 1)[0] if self.asm.strip() else ""
+
+
+@dataclass(frozen=True)
+class ObjdumpInstruction:
     address: str
     asm: str
 
@@ -84,6 +99,21 @@ def parse_annotated_instructions(text: str) -> list[AnnotatedInstruction]:
     return instructions
 
 
+def parse_objdump_instructions(text: str) -> list[ObjdumpInstruction]:
+    instructions: list[ObjdumpInstruction] = []
+    for line in text.splitlines():
+        match = OBJDUMP_RE.match(line)
+        if not match:
+            continue
+        instructions.append(
+            ObjdumpInstruction(
+                address=match.group("addr").lower(),
+                asm=match.group("asm").strip(),
+            )
+        )
+    return instructions
+
+
 def _sum_matching(
     instructions: list[AnnotatedInstruction],
     predicate,
@@ -107,6 +137,8 @@ def _is_memory(ins: AnnotatedInstruction) -> bool:
 def _is_store_like(ins: AnnotatedInstruction) -> bool:
     mnemonic = ins.mnemonic
     asm = ins.asm
+    if mnemonic.startswith(("cmp", "test")):
+        return False
     if mnemonic in {"inc", "incq", "incl", "dec", "decq", "decl"}:
         return _is_memory(ins)
     if "," not in asm:
@@ -147,6 +179,36 @@ def _instruction_category(ins: AnnotatedInstruction) -> str:
     return "other"
 
 
+def _instruction_category_from_asm(asm: str) -> str:
+    return _instruction_category(AnnotatedInstruction(0.0, "", asm))
+
+
+def _sanitize_context(value: str) -> str:
+    return value.replace("|", "/").replace("=", "~")
+
+
+def _context_for_address(
+    objdump: list[ObjdumpInstruction],
+    address: str,
+    radius: int,
+) -> tuple[str, str, str]:
+    if not objdump or not address:
+        return "", "0", "none"
+    index_by_address = {ins.address: idx for idx, ins in enumerate(objdump)}
+    idx = index_by_address.get(address.lower())
+    if idx is None:
+        return "", "0", "not_found"
+    start = max(0, idx - radius)
+    end = min(len(objdump), idx + radius + 1)
+    window = objdump[start:end]
+    encoded = "|".join(
+        f"{ins.address}:{_instruction_category_from_asm(ins.asm)}:{_sanitize_context(ins.asm)}"
+        for ins in window
+    )
+    categories = ",".join(sorted({_instruction_category_from_asm(ins.asm) for ins in window}))
+    return encoded, str(len(window)), categories or "none"
+
+
 def _kv_bool(value: bool) -> str:
     return "1" if value else "0"
 
@@ -154,6 +216,7 @@ def _kv_bool(value: bool) -> str:
 def emit_report(args: argparse.Namespace) -> str:
     perf_symbols = parse_perf_symbols(_read(args.perf_report))
     annotated = parse_annotated_instructions(_read(args.perf_annotate))
+    objdump = parse_objdump_instructions(_read(args.objdump))
 
     top_symbol = perf_symbols[0] if perf_symbols else PerfSymbol(0.0, "")
     top_target_is_symbol = bool(args.symbol and top_symbol.symbol == args.symbol)
@@ -242,8 +305,12 @@ def emit_report(args: argparse.Namespace) -> str:
     ]
     lines.append(f"hot_instruction_report_limit={args.hot_limit}")
     lines.append(f"hot_instruction_report_count={len(hot_instructions)}")
+    lines.append(f"hot_instruction_context_radius={args.context_radius}")
     for idx, ins in enumerate(hot_instructions):
         prefix = f"hot_instruction_{idx}"
+        context, context_count, context_categories = _context_for_address(
+            objdump, ins.address, args.context_radius
+        )
         lines.extend(
             [
                 f"{prefix}_percent={ins.percent:.2f}",
@@ -251,6 +318,9 @@ def emit_report(args: argparse.Namespace) -> str:
                 f"{prefix}_mnemonic={ins.mnemonic}",
                 f"{prefix}_category={_instruction_category(ins)}",
                 f"{prefix}_asm={ins.asm}",
+                f"{prefix}_context_count={context_count}",
+                f"{prefix}_context_categories={context_categories}",
+                f"{prefix}_context={context}",
             ]
         )
     lines.append("summary=ok")
@@ -261,12 +331,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--perf-report", type=Path)
     parser.add_argument("--perf-annotate", type=Path)
+    parser.add_argument("--objdump", type=Path)
     parser.add_argument("--symbol", default="ny_main")
     parser.add_argument("--collapse-threshold", type=float, default=90.0)
     parser.add_argument("--hot-limit", type=int, default=8)
+    parser.add_argument("--context-radius", type=int, default=3)
     args = parser.parse_args()
     if args.hot_limit < 1:
         parser.error("--hot-limit must be >= 1")
+    if args.context_radius < 0:
+        parser.error("--context-radius must be >= 0")
     print(emit_report(args), end="")
     return 0
 
