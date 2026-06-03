@@ -271,6 +271,17 @@ hotcore_find_owned_large_first_probe:
   direct_core_call_count_total=8,336
   host_passthrough_count_total=8
   decision=nonkeeper
+
+hotcore_inline_free_owned_probe:
+  attempted_change=inline generated owned-pointer release directly in free(),
+    avoiding find_owned out-params on the free path while leaving realloc on
+    find_owned
+  report=target/hakozuna-mixed-ws-hotcore-inline-free-owned-7/report.out
+  median_ops_per_sec=9,113,527.208
+  previous_hotcore_size_class_table_eager_init_median_ops_per_sec=9,424,804.200
+  direct_core_call_count_total=8,336
+  host_passthrough_count_total=8
+  decision=nonkeeper
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -281,7 +292,9 @@ probe removes hot count writes but does not improve median throughput. The
 free-only ownership decode makes the generated `free` assembly cleaner, but it
 also fails the median-throughput keeper bar. The large-first ownership scan
 regresses despite unchanged direct-core and host-passthrough counters, so the
-current small-to-large find_owned ordering stays in place. Keep the existing
+current small-to-large find_owned ordering stays in place. Inlining the free
+ownership release into `free()` also regresses with unchanged counters, so the
+current find_owned/free routing stays in place. Keep the existing
 HotCore/PageModel bridge and do not re-open these probes without new perf owner
 evidence.
 
