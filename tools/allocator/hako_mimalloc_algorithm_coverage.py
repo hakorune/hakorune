@@ -65,6 +65,11 @@ def int_field(data: dict[str, str], key: str, default: int = 0) -> int:
         return default
 
 
+def str_field(data: dict[str, str], key: str, default: str = "0") -> str:
+    value = data.get(key, default)
+    return value if value else default
+
+
 def has_file(path: Path) -> bool:
     return path.exists() and path.is_file()
 
@@ -357,8 +362,9 @@ def report_dict(
     benchmark_subject = "none"
     benchmark_subject_prefix = ""
     for prefix in ("subject_2", "subject_3", "subject_4"):
-        if benchmark.get(f"{prefix}_name") == "hakorune_replacement_front_ldpreload":
-            benchmark_subject = benchmark[f"{prefix}_name"]
+        subject_id = benchmark.get(f"{prefix}_id") or benchmark.get(f"{prefix}_name")
+        if subject_id == "hakorune_replacement_front_ldpreload":
+            benchmark_subject = subject_id
             benchmark_subject_prefix = prefix
             break
     if (
@@ -431,6 +437,16 @@ def report_dict(
         else "replacement_front_hotcore_route",
         "not_consumed_by_replacement_front",
     )
+    hotcore_median_ops_per_sec = str_field(
+        benchmark,
+        f"{benchmark_subject_prefix}_throughput_median_ops_per_sec"
+        if benchmark_subject_prefix
+        else "throughput_median_ops_per_sec",
+        "0",
+    )
+    hotcore_measurement_reported = int(
+        hotcore_consumer_enabled and hotcore_median_ops_per_sec != "0"
+    )
     hotcore_page_model_source_ready = int(
         len(hotcore_methods) == 2
         and hotcore_small_alloc_calls_acquire_fresh_small
@@ -441,7 +457,11 @@ def report_dict(
     hotcore_replacement_shape_ready = int(hotcore_page_model_source_ready)
     if hotcore_consumer_enabled:
         hotcore_bridge_blocker = "none"
-        hotcore_next_bridge = "measure_hotcore_replacement_consumer"
+        hotcore_next_bridge = (
+            "select_next_structural_owner"
+            if hotcore_measurement_reported
+            else "measure_hotcore_replacement_consumer"
+        )
     elif hotcore_replacement_shape_ready:
         hotcore_bridge_blocker = "consumer_not_enabled"
         hotcore_next_bridge = "replacement_front_consume_hotcore_page_model"
@@ -580,6 +600,8 @@ def report_dict(
         "hotcore_replacement_shape_ready": hotcore_replacement_shape_ready,
         "hotcore_replacement_bridge_blocker": hotcore_bridge_blocker,
         "hotcore_replacement_next_bridge": hotcore_next_bridge,
+        "hotcore_replacement_measurement_reported": hotcore_measurement_reported,
+        "hotcore_replacement_median_ops_per_sec": hotcore_median_ops_per_sec,
         "hotcore_page_model_source_ready": hotcore_page_model_source_ready,
         "hotcore_small_alloc_calls_acquire_fresh_small": hotcore_small_alloc_calls_acquire_fresh_small,
         "hotcore_release_calls_release_local_known_live": hotcore_release_calls_release_local_known_live,
@@ -668,6 +690,8 @@ def emit_text(data: dict[str, object]) -> None:
         "hotcore_replacement_shape_ready",
         "hotcore_replacement_bridge_blocker",
         "hotcore_replacement_next_bridge",
+        "hotcore_replacement_measurement_reported",
+        "hotcore_replacement_median_ops_per_sec",
         "hotcore_page_model_source_ready",
         "hotcore_small_alloc_calls_acquire_fresh_small",
         "hotcore_release_calls_release_local_known_live",

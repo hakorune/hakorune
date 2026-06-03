@@ -394,9 +394,10 @@ hotcore_source_methods=objectLifecycleSmallAlloc,objectLifecycleReleaseBlock
 
 This block is the source-ready-only boundary before
 `--replacement-front-hotcore-page-model-mode`. The current keeper report overlays
-the consumed route as `hotcore_replacement_consumer_enabled=1` and
-`hotcore_replacement_next_bridge=measure_hotcore_replacement_consumer`; product
-pages, activation, hooks, globals, and winner claims remain closed.
+the consumed route as `hotcore_replacement_consumer_enabled=1`,
+`hotcore_replacement_measurement_reported=1`, and
+`hotcore_replacement_next_bridge=select_next_structural_owner`; product pages,
+activation, hooks, globals, and winner claims remain closed.
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
 seed-time initialization traffic. `seedFreeBlocks` uses append-or-overwrite

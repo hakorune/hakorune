@@ -93,7 +93,9 @@ replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_pl
 hotcore_replacement_consumer_enabled=1
 hotcore_replacement_shape_ready=1
 hotcore_replacement_bridge_blocker=none
-hotcore_replacement_next_bridge=measure_hotcore_replacement_consumer
+hotcore_replacement_next_bridge=select_next_structural_owner
+hotcore_replacement_measurement_reported=1
+hotcore_replacement_median_ops_per_sec=...
 hotcore_replacement_route=benchmark_page_bins_hotcore_page_model
 replacement_front_page_bins_product_claim=0
 replacement_front_is_full_hako_algorithm=0
@@ -294,7 +296,10 @@ replacement_front_hotcore_route=benchmark_page_bins_hotcore_page_model
 When `hako_mimalloc_algorithm_coverage.py --benchmark-report ...` consumes a
 report with that HotCore route, the `area_status` row for
 `object_lifecycle_hot_core` also flips to `replacement_front=1` /
-`split_model_and_fixed_front`. Without a benchmark report, it remains
+`split_model_and_fixed_front`. If the benchmark report includes the replacement
+subject median, `hotcore_replacement_measurement_reported=1` moves the next
+bridge from `measure_hotcore_replacement_consumer` to
+`select_next_structural_owner`. Without a benchmark report, it remains
 source/model readiness only.
 
 The boundary remains narrow: product pages, activation, hooks, globals, winner
