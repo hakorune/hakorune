@@ -236,9 +236,11 @@ Expected current handoff:
 
 ```text
 perf_attribution_report_consumed=1
-structural_owner_next_action=asm_instruction_classifier_or_in_process_perf_mode
+structural_owner_next_action=split_init_public_stores_from_primitive_hot_state_stores
 page_model_hot_array_perf_delta_ready=0
-page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
+page_model_hot_array_perf_delta_blocker=missing_directarray_or_pagemodel_symbol_attribution
+perf_backend_store_shape_classifier_v0=1
+perf_backend_store_shape_selected=mixed_primitive_and_public_store_shape
 ```
 
 The next measurement step is perf/asm attribution, not another source migration.
@@ -278,6 +280,11 @@ record_state_residence_static_candidate_fields=...
 record_state_residence_observed_candidate_fields=...
 record_state_residence_rejected_observed_fields=...
 record_state_residence_next_bridge=...
+backend_store_shape_classifier_v0=1
+backend_store_shape_selected=...
+backend_store_shape_next_bridge=...
+backend_store_shape_hot_store_field_buckets=...
+backend_store_shape_context_field_buckets=...
 ```
 
 If the report says:
@@ -292,12 +299,15 @@ top_instruction_category=store_like
 top_instruction_field_hints=0xa0:free_top
 hot_instruction_0_asm=mov    %rdi,0xa0(%rax)
 hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
+backend_store_shape_classifier_v0=1
+backend_store_shape_selected=mixed_primitive_and_public_store_shape
+backend_store_shape_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
 ```
 
 then the current perf report can still guide instruction-shape cleanup, but it
 cannot prove a DirectArray/PageModel-specific perf delta by symbol ownership.
-The next bridge is an asm instruction classifier or a perf mode that separates
-the hot body more clearly. If the top instruction category is actionable
+The next bridge is to split initialization/public stores from primitive
+hot-state stores, then remeasure. If the top instruction category is actionable
 (`store_like`, `branch`, `memory`, or `call`), inspect that category before
 opening another source rewrite. Field hints are layout candidates from
 `app.mir.json`; they intentionally skip scaled DirectArray element operands and
@@ -325,8 +335,10 @@ overlay reports
 open duplicate record-state lowering. It should hand off to the next structural
 owner. The non-linear product-pages lookup probe has now been measured and
 parked as a nonkeeper, so the current handoff is the next perf-owner selector:
-split the collapsed `ny_main` symbol attribution or classify the backend store
-shape around the primitive hot-state instructions.
+classify the backend store shape around the primitive hot-state instructions.
+The current classifier result is mixed primitive hot-state and public/init
+stores, so the next bridge is to split those store shapes before opening
+another generated-C local probe.
 
 For that handoff, the coverage overlay keeps the old linear page-map probe
 closed and emits the non-linear bridge closure plus next-owner vocabulary:
@@ -336,8 +348,11 @@ replacement_front_product_pages_non_linear_lookup_probe_closed=1
 replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
 replacement_front_product_pages_linear_probe_closed=1
 next_perf_owner_selection_plan_v0=1
-next_perf_owner_selected=asm_symbol_split_or_backend_store_shape
-next_perf_owner_next_bridge=split_symbol_or_classify_backend_store_shape
+next_perf_owner_selected=mixed_primitive_and_public_store_shape
+next_perf_owner_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
+perf_backend_store_shape_classifier_v0=1
+perf_backend_store_shape_selected=mixed_primitive_and_public_store_shape
+perf_backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,block_size:public_semantics
 ```
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports

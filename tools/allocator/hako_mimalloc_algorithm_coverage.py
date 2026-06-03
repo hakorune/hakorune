@@ -18,12 +18,18 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Iterable
 
+from allocator_field_buckets import (
+    bucket_for_field,
+    fields_from_context,
+    fields_from_hint,
+    format_field_buckets,
+)
+
 
 ROOT = Path(__file__).resolve().parents[2]
 HAKO_ALLOC = ROOT / "lang/src/hako_alloc/memory"
 REPLACEMENT_FRONT = ROOT / "tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py"
 REPLACEMENT_TEMPLATES = ROOT / "tools/allocator/replacement_front_templates.py"
-FIELD_HINT_RE = re.compile(r"0x[0-9a-fA-F]+:(?P<field>[A-Za-z_][A-Za-z0-9_]*)")
 
 
 @dataclass(frozen=True)
@@ -34,30 +40,6 @@ class CoverageRow:
     status: str
     evidence: str
     next_bridge: str
-
-
-FIELD_BUCKETS: dict[str, str] = {
-    "used": "primitive_hot_state",
-    "free_top": "primitive_hot_state",
-    "local_free_top": "primitive_hot_state",
-    "retired": "primitive_hot_state",
-    "decommitted": "primitive_hot_state",
-    "peak_used": "primitive_hot_state",
-    "page_id": "public_semantics",
-    "block_size": "public_semantics",
-    "capacity": "public_semantics",
-    "reserved": "public_semantics",
-    "requested_bytes": "public_semantics_proof_evidence",
-    "alloc_count": "observer_counter",
-    "local_free_count": "observer_counter",
-    "release_count": "observer_counter",
-    "reject_count": "observer_counter",
-    "retire_count": "observer_counter",
-    "reactivate_count": "observer_counter",
-    "free": "direct_array_owner",
-    "local_free": "direct_array_owner",
-    "block_used": "direct_array_owner",
-}
 
 
 def read_text(path: Path) -> str:
@@ -110,35 +92,6 @@ def int_field(data: dict[str, str], key: str, default: int = 0) -> int:
 def str_field(data: dict[str, str], key: str, default: str = "0") -> str:
     value = data.get(key, default)
     return value if value else default
-
-
-def fields_from_hint(value: str) -> list[str]:
-    fields: list[str] = []
-    for match in FIELD_HINT_RE.finditer(value):
-        name = match.group("field")
-        if name not in fields:
-            fields.append(name)
-    return fields
-
-
-def fields_from_context(value: str) -> list[str]:
-    fields: list[str] = []
-    if not value or value in {"none", "not_found"}:
-        return fields
-    for field in fields_from_hint(value):
-        if field not in fields:
-            fields.append(field)
-    return fields
-
-
-def _bucket_for_field(field: str) -> str:
-    return FIELD_BUCKETS.get(field, "unknown")
-
-
-def _format_field_buckets(fields: list[str]) -> str:
-    if not fields:
-        return "none"
-    return ",".join(f"{field}:{_bucket_for_field(field)}" for field in fields)
 
 
 def page_model_field_names(page_box: str) -> list[str]:
@@ -669,6 +622,17 @@ def report_dict(
     perf_hot_instruction_0_context = str_field(
         perf_attribution, "hot_instruction_0_context", "none"
     )
+    backend_store_shape_ready = int_field(
+        perf_attribution, "backend_store_shape_ready", 0
+    )
+    backend_store_shape_selected = str_field(
+        perf_attribution, "backend_store_shape_selected", "none"
+    )
+    backend_store_shape_next_bridge = str_field(
+        perf_attribution,
+        "backend_store_shape_next_bridge",
+        "split_symbol_or_classify_backend_store_shape",
+    )
     hot_field_names: list[str] = []
     for field in fields_from_hint(perf_top_instruction_field_hints):
         if field not in hot_field_names:
@@ -679,7 +643,7 @@ def report_dict(
     for field in fields_from_context(perf_hot_instruction_0_context):
         if field not in hot_field_names:
             hot_field_names.append(field)
-    hot_field_bucket_names = [_bucket_for_field(field) for field in hot_field_names]
+    hot_field_bucket_names = [bucket_for_field(field) for field in hot_field_names]
     primitive_hot_state_field_count = sum(
         1 for bucket in hot_field_bucket_names if bucket == "primitive_hot_state"
     )
@@ -696,7 +660,7 @@ def report_dict(
     )
     hot_field_top = hot_field_names[0] if hot_field_names else "none"
     hot_field_top_bucket = (
-        _bucket_for_field(hot_field_top) if hot_field_top != "none" else "none"
+        bucket_for_field(hot_field_top) if hot_field_top != "none" else "none"
     )
     hot_field_plan_ready = int(
         perf_attribution_report_consumed
@@ -716,17 +680,17 @@ def report_dict(
     record_state_static_candidates = [
         field
         for field in page_model_fields
-        if _bucket_for_field(field) == "primitive_hot_state"
+        if bucket_for_field(field) == "primitive_hot_state"
     ]
     record_state_observed_candidates = [
         field
         for field in hot_field_names
-        if _bucket_for_field(field) == "primitive_hot_state"
+        if bucket_for_field(field) == "primitive_hot_state"
     ]
     record_state_observed_rejections = [
         field
         for field in hot_field_names
-        if _bucket_for_field(field) != "primitive_hot_state"
+        if bucket_for_field(field) != "primitive_hot_state"
     ]
     record_state_report_ready = int(
         hot_field_plan_ready and bool(record_state_observed_candidates)
@@ -788,6 +752,10 @@ def report_dict(
         next_perf_owner_selected = "owner_delta_measurement"
         next_perf_owner_reason = "symbol_attribution_available"
         next_perf_owner_next_bridge = "measure_owner_delta"
+    elif backend_store_shape_ready:
+        next_perf_owner_selected = backend_store_shape_selected
+        next_perf_owner_reason = "backend_store_shape_classifier_ready"
+        next_perf_owner_next_bridge = backend_store_shape_next_bridge
     elif primitive_hot_state_field_count > 0 and record_state_representation_delta_ready:
         next_perf_owner_selected = "asm_symbol_split_or_backend_store_shape"
         next_perf_owner_reason = (
@@ -991,7 +959,7 @@ def report_dict(
         "page_model_hot_field_traffic_ready": hot_field_plan_ready,
         "page_model_hot_field_top": hot_field_top,
         "page_model_hot_field_top_bucket": hot_field_top_bucket,
-        "page_model_hot_field_buckets": _format_field_buckets(hot_field_names),
+        "page_model_hot_field_buckets": format_field_buckets(hot_field_names),
         "page_model_hot_field_primitive_hot_state_count": primitive_hot_state_field_count,
         "page_model_hot_field_public_or_proof_count": public_or_proof_field_count,
         "page_model_hot_field_observer_counter_count": observer_counter_field_count,
@@ -1025,7 +993,7 @@ def report_dict(
             record_state_observed_candidates
         )
         or "none",
-        "record_state_residence_rejected_observed_fields": _format_field_buckets(
+        "record_state_residence_rejected_observed_fields": format_field_buckets(
             record_state_observed_rejections
         ),
         "record_state_residence_source_migration_allowed": 0,
@@ -1069,6 +1037,18 @@ def report_dict(
         ),
         "perf_hot_instruction_0_context_count": int_field(
             perf_attribution, "hot_instruction_0_context_count", 0
+        ),
+        "perf_backend_store_shape_classifier_v0": int_field(
+            perf_attribution, "backend_store_shape_classifier_v0", 0
+        ),
+        "perf_backend_store_shape_ready": backend_store_shape_ready,
+        "perf_backend_store_shape_selected": backend_store_shape_selected,
+        "perf_backend_store_shape_next_bridge": backend_store_shape_next_bridge,
+        "perf_backend_store_shape_hot_store_field_buckets": str_field(
+            perf_attribution, "backend_store_shape_hot_store_field_buckets", "none"
+        ),
+        "perf_backend_store_shape_context_field_buckets": str_field(
+            perf_attribution, "backend_store_shape_context_field_buckets", "none"
         ),
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
@@ -1249,6 +1229,12 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_hot_instruction_0_asm",
         "perf_hot_instruction_0_context_categories",
         "perf_hot_instruction_0_context_count",
+        "perf_backend_store_shape_classifier_v0",
+        "perf_backend_store_shape_ready",
+        "perf_backend_store_shape_selected",
+        "perf_backend_store_shape_next_bridge",
+        "perf_backend_store_shape_hot_store_field_buckets",
+        "perf_backend_store_shape_context_field_buckets",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",

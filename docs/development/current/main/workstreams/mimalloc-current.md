@@ -337,12 +337,15 @@ coverage_after_product_pages_closure:
   replacement_front_product_pages_non_linear_lookup_probe_closed=1
   replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
   structural_owner_selected=page_model_hot_array_source_route_measurement
-  structural_owner_next_action=split_symbol_or_classify_backend_store_shape
+  structural_owner_next_action=split_init_public_stores_from_primitive_hot_state_stores
   structural_owner_candidate_1_ready=0
   next_perf_owner_selection_plan_v0=1
-  next_perf_owner_selected=asm_symbol_split_or_backend_store_shape
-  next_perf_owner_selected_reason=primitive_state_store_like_hot_but_exact_slot_already_covers_record_state
-  next_perf_owner_next_bridge=split_symbol_or_classify_backend_store_shape
+  next_perf_owner_selected=mixed_primitive_and_public_store_shape
+  next_perf_owner_selected_reason=backend_store_shape_classifier_ready
+  next_perf_owner_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
+  perf_backend_store_shape_classifier_v0=1
+  perf_backend_store_shape_selected=mixed_primitive_and_public_store_shape
+  perf_backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,block_size:public_semantics
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -352,10 +355,10 @@ is too expensive for the current optimization owner. The non-linear page-key
 ownership table also regresses the same-run eager-init baseline, so product
 pages stay parked until a different structural owner or workload evidence
 selects them. After product-pages indexed lookup and record-state lowering are
-both closed as nonkeepers for this slice, the coverage overlay now selects a
-concrete next owner: split the collapsed `ny_main` attribution or classify the
-backend store shape around the primitive hot-state instructions. The bins
-counter-skip
+both closed as nonkeepers for this slice, the perf attribution report now
+classifies the backend store shape as mixed primitive hot-state and
+public/init-store traffic. The next concrete owner is to split those stores
+before another generated-C local probe. The bins counter-skip
 probe removes hot count writes but does not improve median throughput. The
 free-only ownership decode makes the generated `free` assembly cleaner, but it
 also fails the median-throughput keeper bar. The large-first ownership scan
@@ -384,13 +387,17 @@ annotated field candidate is `HakoAllocPageModel.free_top`, with nearby
 perf_top_instruction_category=store_like
 perf_top_instruction_field_hints=0xa0:free_top
 hot_instruction_0_context=...requested_bytes...free_top...peak_used...
+backend_store_shape_classifier_v0=1
+backend_store_shape_selected=mixed_primitive_and_public_store_shape
+backend_store_shape_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
 ```
 
 Do not reopen counter deletion/gating from this evidence. `requested_bytes`
 is public/proof-visible, and the counter-skip probe already regressed. Treat
-the next structural path as field-traffic representation/planning evidence
-(`RecordStateResidencePlanV0`-style state bundling or equivalent route
-vocabulary), not as another generated C counter probe.
+the next structural path as backend/store-shape separation evidence: split
+initialization/public stores from primitive hot-state stores, then remeasure.
+Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later
+representation delta turns positive.
 
 The coverage overlay now buckets those field hints:
 
@@ -628,15 +635,18 @@ delta" once the blocker is known. The current known artifact shape is:
 
 ```text
 top_symbol=ny_main
-symbol_collapse_detected=1
+symbol_collapse_detected=0
 symbol_attribution_available=0
 instruction_attribution_available=1
 page_model_hot_array_perf_delta_measurement_plan_v0=1
 page_model_hot_array_perf_delta_ready=0
-page_model_hot_array_perf_delta_blocker=ny_main_symbol_collapse
-page_model_hot_array_perf_delta_next_bridge=asm_instruction_classifier_or_in_process_perf_mode
+page_model_hot_array_perf_delta_blocker=missing_directarray_or_pagemodel_symbol_attribution
+page_model_hot_array_perf_delta_next_bridge=asm_instruction_classifier_or_symbol_split
 top_instruction_category=store_like
 top_instruction_field_hints=0xa0:free_top
+backend_store_shape_classifier_v0=1
+backend_store_shape_selected=mixed_primitive_and_public_store_shape
+backend_store_shape_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
 ```
 
 Interpretation: the source route is clean, and perf has enough annotated
@@ -791,10 +801,10 @@ object-lifecycle-native-slot-bridge-v0:
     as the next owner. With `--fastpath-report`, it also reports
     `page_model_hot_array_source_route_measured=1`; the next action is
     `measure_page_model_hot_array_perf_delta`, not another generated-C local
-    probe. The first perf/asm attribution helper reports the current blocker as
-    `ny_main_symbol_collapse`; continue with an asm instruction classifier or a
-    perf mode that separates the hot body before claiming a PageModel
-    hot-array perf delta.
+    probe. The perf/asm attribution helper now classifies the current backend
+    store shape as `mixed_primitive_and_public_store_shape`; continue by
+    separating initialization/public stores from primitive hot-state stores
+    before claiming a PageModel hot-array perf delta.
   - Current stop-line: local generated-C probes around `find_owned`, free-only
     ownership decode, counters, and switch layout have enough negative evidence.
     The next positive-net candidate must change the structural owner family

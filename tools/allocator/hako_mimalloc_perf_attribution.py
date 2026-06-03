@@ -19,6 +19,12 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from allocator_field_buckets import (
+    bucket_for_field,
+    fields_from_hint,
+    format_field_buckets,
+)
+
 
 PERCENT_RE = r"(?P<pct>[0-9]+(?:\.[0-9]+)?)%"
 PERF_REPORT_RE = re.compile(
@@ -185,6 +191,82 @@ def _field_hints_for_asm(asm: str, field_offsets: dict[int, str]) -> str:
     return ",".join(hints) or "none"
 
 
+def _field_names_for_asm(asm: str, field_offsets: dict[int, str]) -> list[str]:
+    return fields_from_hint(_field_hints_for_asm(asm, field_offsets))
+
+
+def _append_unique(target: list[str], values: list[str]) -> None:
+    for value in values:
+        if value not in target:
+            target.append(value)
+
+
+def _context_fields_for_address(
+    objdump: list[ObjdumpInstruction],
+    address: str,
+    radius: int,
+    field_offsets: dict[int, str],
+) -> list[str]:
+    if not objdump or not address:
+        return []
+    index_by_address = {ins.address: idx for idx, ins in enumerate(objdump)}
+    idx = index_by_address.get(address.lower())
+    if idx is None:
+        return []
+    start = max(0, idx - radius)
+    end = min(len(objdump), idx + radius + 1)
+    fields: list[str] = []
+    for ins in objdump[start:end]:
+        _append_unique(fields, _field_names_for_asm(ins.asm, field_offsets))
+    return fields
+
+
+def _count_bucket(fields: list[str], bucket: str) -> int:
+    return sum(1 for field in fields if bucket_for_field(field) == bucket)
+
+
+def _count_public_or_proof(fields: list[str]) -> int:
+    return sum(
+        1
+        for field in fields
+        if "public_semantics" in bucket_for_field(field)
+        or "proof_evidence" in bucket_for_field(field)
+    )
+
+
+def _select_backend_store_shape(
+    store_fields: list[str],
+    context_fields: list[str],
+) -> tuple[str, str]:
+    fields = store_fields or context_fields
+    if not fields:
+        return "none", "rerun_perf_with_context_or_symbol_split"
+    primitive = _count_bucket(fields, "primitive_hot_state")
+    public_or_proof = _count_public_or_proof(fields)
+    direct_array = _count_bucket(fields, "direct_array_owner")
+    if primitive > 0 and public_or_proof > 0:
+        return (
+            "mixed_primitive_and_public_store_shape",
+            "split_init_public_stores_from_primitive_hot_state_stores",
+        )
+    if primitive > 0:
+        return (
+            "primitive_hot_state_store_shape",
+            "classify_backend_store_shape_for_state_write_elision",
+        )
+    if public_or_proof > 0:
+        return (
+            "public_or_proof_store_shape",
+            "separate_init_or_proof_stores_from_hot_lifecycle_body",
+        )
+    if direct_array > 0:
+        return (
+            "direct_array_owner_store_shape",
+            "classify_directarray_owner_instruction_shape",
+        )
+    return "unknown_store_shape", "rerun_perf_with_wider_context"
+
+
 def _sum_matching(
     instructions: list[AnnotatedInstruction],
     predicate,
@@ -316,6 +398,29 @@ def emit_report(args: argparse.Namespace) -> str:
     nonzero = [ins for ins in annotated if ins.percent > 0.0]
     top_instruction = max(nonzero, key=lambda ins: ins.percent, default=None)
     total_local = sum(ins.percent for ins in nonzero)
+    hot_instructions = sorted(nonzero, key=lambda ins: ins.percent, reverse=True)[
+        : args.hot_limit
+    ]
+    hot_store_fields: list[str] = []
+    hot_context_fields: list[str] = []
+    for ins in hot_instructions:
+        if _is_store_like(ins):
+            _append_unique(
+                hot_store_fields,
+                _field_names_for_asm(ins.asm, field_offsets),
+            )
+        _append_unique(
+            hot_context_fields,
+            _context_fields_for_address(
+                objdump,
+                ins.address,
+                args.context_radius,
+                field_offsets,
+            ),
+        )
+    backend_store_shape_selected, backend_store_shape_next_bridge = (
+        _select_backend_store_shape(hot_store_fields, hot_context_fields)
+    )
 
     symbol_attribution_available = (
         direct_array_symbol_pct > 0.0 or page_model_symbol_pct > 0.0
@@ -363,6 +468,17 @@ def emit_report(args: argparse.Namespace) -> str:
         f"page_model_hot_array_perf_delta_ready={_kv_bool(perf_delta_ready)}",
         f"page_model_hot_array_perf_delta_blocker={blocker}",
         f"page_model_hot_array_perf_delta_next_bridge={next_bridge}",
+        "backend_store_shape_classifier_v0=1",
+        f"backend_store_shape_ready={_kv_bool(bool(hot_store_fields or hot_context_fields))}",
+        f"backend_store_shape_selected={backend_store_shape_selected}",
+        f"backend_store_shape_next_bridge={backend_store_shape_next_bridge}",
+        f"backend_store_shape_hot_store_fields={','.join(hot_store_fields) or 'none'}",
+        f"backend_store_shape_hot_store_field_buckets={format_field_buckets(hot_store_fields)}",
+        f"backend_store_shape_context_fields={','.join(hot_context_fields) or 'none'}",
+        f"backend_store_shape_context_field_buckets={format_field_buckets(hot_context_fields)}",
+        f"backend_store_shape_primitive_hot_state_field_count={_count_bucket(hot_store_fields, 'primitive_hot_state')}",
+        f"backend_store_shape_public_or_proof_field_count={_count_public_or_proof(hot_store_fields)}",
+        f"backend_store_shape_direct_array_owner_field_count={_count_bucket(hot_store_fields, 'direct_array_owner')}",
     ]
     if top_instruction is not None:
         lines.extend(
@@ -386,9 +502,6 @@ def emit_report(args: argparse.Namespace) -> str:
                 "top_instruction_asm=",
             ]
         )
-    hot_instructions = sorted(nonzero, key=lambda ins: ins.percent, reverse=True)[
-        : args.hot_limit
-    ]
     lines.append(f"hot_instruction_report_limit={args.hot_limit}")
     lines.append(f"hot_instruction_report_count={len(hot_instructions)}")
     lines.append(f"hot_instruction_context_radius={args.context_radius}")
