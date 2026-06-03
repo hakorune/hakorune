@@ -197,6 +197,10 @@ record_state_route_decision_enabled=0
 record_state_lowering_owner_selected=typed_object_exact_slot_existing
 record_state_access_exact_slot_missing_count=0
 record_state_lowering_owner_next_bridge=measure_representation_delta_before_record_state_lowering
+record_state_representation_delta_plan_v0=1
+record_state_representation_delta_ready=1
+record_state_representation_delta_positive_candidate=0
+record_state_representation_delta_next_bridge=design_non_linear_product_pages_bridge
 record_state_residence_next_bridge=select_record_state_lowering_owner
 ```
 
@@ -307,7 +311,11 @@ When the state report says
 current record-state access sites are already covered by typed-object exact
 slot storage. That keeps `record_state_field_access_lowering_enabled=0` and
 `record_state_route_decision_enabled=0`; the next bridge is a representation
-delta measurement before enabling any record-state lowering.
+delta measurement before enabling any record-state lowering. If the coverage
+overlay reports
+`record_state_representation_delta_positive_candidate=0`, this pass should not
+open duplicate record-state lowering. It should hand off to the next structural
+owner, currently the non-linear product-pages bridge design.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

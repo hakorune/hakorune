@@ -732,11 +732,27 @@ def report_dict(
         "record_state_lowering_owner_next_bridge",
         "select_record_state_lowering_owner",
     )
+    record_state_representation_delta_ready = int(
+        record_state_field_access_ready
+        and record_state_lowering_owner_selected == "typed_object_exact_slot_existing"
+        and record_state_access_exact_slot_missing_count == 0
+    )
+    record_state_representation_delta_positive_candidate = 0
+    record_state_representation_delta_blocker = (
+        "typed_object_exact_slot_already_covers_record_state_access"
+        if record_state_representation_delta_ready
+        else "record_state_lowering_owner_not_selected"
+    )
+    record_state_representation_delta_next_bridge = (
+        "design_non_linear_product_pages_bridge"
+        if record_state_representation_delta_ready
+        else record_state_lowering_owner_next_bridge
+    )
     record_state_next_bridge = (
         "record_state_field_access_site_measurement"
         if record_state_report_ready
         and not record_state_field_access_ready
-        else record_state_lowering_owner_next_bridge
+        else record_state_representation_delta_next_bridge
         if record_state_field_access_ready
         else hot_field_next_bridge
     )
@@ -745,7 +761,17 @@ def report_dict(
         and product_pages_source_ready
         and not product_pages_consumer_enabled
     )
-    if page_model_hot_array_measurement_ready:
+    if (
+        page_model_hot_array_measurement_ready
+        and record_state_representation_delta_ready
+        and product_pages_non_linear_owner_candidate_ready
+    ):
+        structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
+        structural_owner_reason = (
+            "record_state_delta_closed_and_product_pages_source_ready"
+        )
+        structural_owner_next_action = "design_non_linear_product_pages_bridge"
+    elif page_model_hot_array_measurement_ready:
         structural_owner_selected = "page_model_hot_array_source_route_measurement"
         structural_owner_reason = "hotcore_measured_and_directarray_source_ready"
         structural_owner_next_action = (
@@ -918,6 +944,11 @@ def report_dict(
         "record_state_access_exact_slot_covered_count": record_state_access_exact_slot_covered_count,
         "record_state_access_exact_slot_missing_count": record_state_access_exact_slot_missing_count,
         "record_state_lowering_owner_next_bridge": record_state_lowering_owner_next_bridge,
+        "record_state_representation_delta_plan_v0": 1,
+        "record_state_representation_delta_ready": record_state_representation_delta_ready,
+        "record_state_representation_delta_positive_candidate": record_state_representation_delta_positive_candidate,
+        "record_state_representation_delta_blocker": record_state_representation_delta_blocker,
+        "record_state_representation_delta_next_bridge": record_state_representation_delta_next_bridge,
         "record_state_residence_owner_box": "HakoAllocPageModel",
         "record_state_residence_candidate_record": "PageState",
         "record_state_residence_static_candidate_fields": ",".join(
@@ -1114,6 +1145,11 @@ def emit_text(data: dict[str, object]) -> None:
         "record_state_access_exact_slot_covered_count",
         "record_state_access_exact_slot_missing_count",
         "record_state_lowering_owner_next_bridge",
+        "record_state_representation_delta_plan_v0",
+        "record_state_representation_delta_ready",
+        "record_state_representation_delta_positive_candidate",
+        "record_state_representation_delta_blocker",
+        "record_state_representation_delta_next_bridge",
         "record_state_residence_owner_box",
         "record_state_residence_candidate_record",
         "record_state_residence_static_candidate_fields",

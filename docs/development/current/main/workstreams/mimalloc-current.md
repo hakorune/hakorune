@@ -405,7 +405,12 @@ record_state_lowering_owner_selected=typed_object_exact_slot_existing
 record_state_access_exact_slot_covered_count=88
 record_state_access_exact_slot_missing_count=0
 record_state_lowering_owner_next_bridge=measure_representation_delta_before_record_state_lowering
-record_state_residence_next_bridge=measure_representation_delta_before_record_state_lowering
+record_state_representation_delta_plan_v0=1
+record_state_representation_delta_ready=1
+record_state_representation_delta_positive_candidate=0
+record_state_representation_delta_blocker=typed_object_exact_slot_already_covers_record_state_access
+record_state_representation_delta_next_bridge=design_non_linear_product_pages_bridge
+record_state_residence_next_bridge=design_non_linear_product_pages_bridge
 ```
 
 This is still metadata only. It does not create a runtime `PageState`, direct
@@ -414,9 +419,10 @@ record lowering, whole-record ABI, or source migration permission.
 Interpretation: the observed record-state access sites are already covered by
 the typed-object exact slot storage owner. Enabling a separate record-state
 lowering lane now would duplicate the existing slot route unless a
-representation delta is measured first. Keep record-state RouteDecision rows
-disabled until a narrow lowering contract proves a positive representation
-change.
+representation delta is measured first. The current representation delta report
+has no positive candidate (`record_state_representation_delta_positive_candidate=0`),
+so keep record-state RouteDecision rows disabled and hand off to the next
+structural owner: a non-linear product-pages bridge design.
 
 RouteDecision stop-line:
 
