@@ -35,8 +35,9 @@ PUBLIC_SEMANTIC_FIELDS = {
     "block_size",
     "capacity",
     "reserved",
-    "requested_bytes",
 }
+
+PUBLIC_PROOF_FIELDS = {"requested_bytes"}
 
 PRIMITIVE_HOT_FIELDS = {
     "used",
@@ -124,9 +125,9 @@ def classify_field(owner: str, field: dict[str, Any]) -> str:
         return "handle_cache"
     if owner.endswith("Result"):
         return "result_capsule"
+    if name in PUBLIC_PROOF_FIELDS:
+        return "public_semantics_proof_evidence"
     if name in PUBLIC_SEMANTIC_FIELDS:
-        if name == "requested_bytes":
-            return "proof_evidence"
         return "public_semantics"
     if name in PRIMITIVE_HOT_FIELDS:
         return "primitive_hot_state"
@@ -258,6 +259,7 @@ def main() -> int:
     for bucket in (
         "primitive_hot_state",
         "public_semantics",
+        "public_semantics_proof_evidence",
         "proof_evidence",
         "diagnostic_only",
         "observer_boundary",
