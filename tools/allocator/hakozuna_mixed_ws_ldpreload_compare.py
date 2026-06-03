@@ -1000,7 +1000,9 @@ def main() -> int:
                 args.replacement_front_thread_local_mode and not tls_initial_exec_enabled
             )
             hot_atomic_rmw = not (
-                args.replacement_front_skip_hot_counters or args.replacement_front_tls_counter_mode
+                args.replacement_front_native_bins_mode
+                or args.replacement_front_skip_hot_counters
+                or args.replacement_front_tls_counter_mode
             )
             lines.extend(
                 [
