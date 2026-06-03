@@ -124,6 +124,15 @@ def _split_block_ops(insts: List[Dict[str, Any]], block_id: int):
     return body_ops, term_ops
 
 
+def _record_created_id(context, created_ids: List[int], vid: int, block_id: int) -> None:
+    if vid not in created_ids:
+        created_ids.append(vid)
+    try:
+        context.add_def_block(vid, block_id)
+    except Exception:
+        pass
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -456,14 +465,10 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                         except Exception:
                             vmap_cur[dst] = _gval
                     if dst not in created_ids and dst in vmap_cur:
-                        created_ids.append(dst)
                         # P0-1.5: Update def_blocks IMMEDIATELY after instruction lowering
                         # This ensures resolver can detect defined_here for same-block uses
                         # Phase 132-P1: Use context.add_def_block
-                        try:
-                            context.add_def_block(dst, block_data.get("id", 0))
-                        except Exception:
-                            pass
+                        _record_created_id(context, created_ids, dst, block_data.get("id", 0))
             except Exception:
                 pass
         # Materialize trivial PHI aliases for this block into vmap_cur so snapshots
@@ -486,9 +491,12 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                     )
                     if alias_val is not None:
                         vmap_cur[int(dst_vid)] = alias_val
-                        if int(dst_vid) not in created_ids:
-                            created_ids.append(int(dst_vid))
-                        context.add_def_block(int(dst_vid), block_data.get("id", 0))
+                        _record_created_id(
+                            context,
+                            created_ids,
+                            int(dst_vid),
+                            block_data.get("id", 0),
+                        )
         except Exception:
             pass
         # Phase 131-4 Pass A: DEFER terminators until after PHI finalization
@@ -596,7 +604,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             trace_phi_json({"phi": "snapshot", "block": int(bid), "keys": [int(k) for k in keys[:20]]})
             for vid in created_ids:
                 if vid in vmap_cur:
-                    context.add_def_block(vid, block_data.get("id", 0))
+                    _record_created_id(context, created_ids, vid, block_data.get("id", 0))
             context.set_block_snapshot(bid, snap)
             context.set_block_string_ptr_snapshot(bid, ptr_snap or {})
         else:
