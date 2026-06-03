@@ -104,6 +104,10 @@ replacement_front_product_bins_consumer_enabled=0
 replacement_front_product_bins_required_regular_bins=...
 replacement_front_product_pages_plan_v0=1
 replacement_front_product_pages_consumer_enabled=0
+replacement_front_page_bins_plan_v0=1
+replacement_front_page_bins_consumer_enabled=0
+replacement_front_page_bins_owner=benchmark_only
+replacement_front_page_bins_product_claim=0
 ```
 
 These fields are report-only inputs for the future multi-class/page front.
@@ -133,6 +137,12 @@ replacement_front_product_pages_consumer_enabled=0
 
 It remains single-thread-only in v0 and still keeps product pages, activation,
 hooks, globals, and winner claims closed.
+
+The next bridge after native-bins is `page_bins`: a benchmark-only page-shaped
+bin route. It may consume workload regular bins plus page-shaped owner storage,
+but it must keep product replacement and full `.hako` algorithm claims closed
+until the algorithm coverage report proves the executed route is no longer
+split from the `.hako` model.
 
 The same compare reports also emit the current HotCore bridge boundary:
 

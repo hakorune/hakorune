@@ -449,6 +449,7 @@ Current replacement-front truth:
 fixed_slot_native_front=available
 matched_hako_good_size_slot=available
 multi_bin_native_benchmark_front=available_single_thread_v0
+page_bin_benchmark_front=planned_report_only_v0
 locked_global_multithread_front=positive_local_evidence_v0
 thread_local_multithread_front=correctness_smoke_available_not_perf_keeper
 product_pages=not_connected
@@ -467,6 +468,23 @@ Next replacement-front order:
 3. Open product pages only after bins evidence says pages are the owner.
 4. Reopen `.hako` core optimization only with fresh owner evidence.
 5. Keep detailed evidence in the investigation archive, not this active card.
+
+Product pages v0 boundary:
+
+```text
+replacement_front_page_bins_plan_v0=1
+replacement_front_page_bins_consumer_enabled=0
+replacement_front_page_bins_route=not_consumed
+replacement_front_page_bins_owner=benchmark_only
+replacement_front_page_bins_threading=single_thread_until_plan_selected
+replacement_front_page_bins_product_claim=0
+```
+
+The first acceptable implementation is a benchmark-only page/bin-backed route
+that keeps provider activation, product replacement, hooks, global allocator,
+and winner claims closed. It may consume the workload regular bins and add a
+page-shaped owner structure, but it must not claim full `.hako` mimalloc until
+the coverage report stops saying `replacement_front_is_full_hako_algorithm=0`.
 
 ## Daily Commands
 

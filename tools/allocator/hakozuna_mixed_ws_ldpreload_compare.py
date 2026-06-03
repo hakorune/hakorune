@@ -873,6 +873,12 @@ def main() -> int:
         "replacement_front_product_pages_report_only=1",
         "replacement_front_product_pages_consumer_enabled=0",
         "replacement_front_product_pages_connected=0",
+        "replacement_front_page_bins_plan_v0=1",
+        "replacement_front_page_bins_report_only=1",
+        "replacement_front_page_bins_consumer_enabled=0",
+        "replacement_front_page_bins_route=not_consumed",
+        "replacement_front_page_bins_owner=benchmark_only",
+        "replacement_front_page_bins_product_claim=0",
         "replacement_front_product_bins_required_regular_distinct_count="
         f"{workload_histogram['size_class_regular_distinct_count']}",
         "replacement_front_product_bins_required_regular_bins="
@@ -1096,6 +1102,12 @@ def main() -> int:
                     f"subject_{index}_replacement_front_product_pages_report_only=1",
                     f"subject_{index}_replacement_front_product_pages_consumer_enabled=0",
                     f"subject_{index}_replacement_front_product_pages_connected=0",
+                    f"subject_{index}_replacement_front_page_bins_plan_v0=1",
+                    f"subject_{index}_replacement_front_page_bins_report_only=1",
+                    f"subject_{index}_replacement_front_page_bins_consumer_enabled=0",
+                    f"subject_{index}_replacement_front_page_bins_route=not_consumed",
+                    f"subject_{index}_replacement_front_page_bins_owner=benchmark_only",
+                    f"subject_{index}_replacement_front_page_bins_product_claim=0",
                     "subject_"
                     f"{index}_replacement_front_product_bins_required_regular_distinct_count="
                     f"{workload_histogram['size_class_regular_distinct_count']}",
