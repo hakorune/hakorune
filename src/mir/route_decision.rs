@@ -26,7 +26,10 @@ pub struct RouteDecision {
 }
 
 impl RouteDecision {
-    fn from_direct_array_access_plan(plan: &DirectArrayAccessPlan) -> Self {
+    fn from_direct_array_access_plan(
+        plan: &DirectArrayAccessPlan,
+        fallback_policy: &'static str,
+    ) -> Self {
         let (semantic_op, access_kind, fallback_route) = match plan.op() {
             DirectArrayAccessOp::Load => (
                 "ArrayGet",
@@ -48,10 +51,7 @@ impl RouteDecision {
             preferred_route: plan.route(),
             selected_route: plan.route(),
             fallback_route,
-            fallback_policy: match plan.fallback_policy().as_str() {
-                "fail_fast" => "require_fastpath",
-                _ => "opportunistic",
-            },
+            fallback_policy,
             proof_ids: plan.proof_ids().to_vec(),
             miss_reason: None,
             source_plan_kind: "DirectArrayAccessPlan",
@@ -60,11 +60,26 @@ impl RouteDecision {
 }
 
 pub fn refresh_function_route_decisions(function: &mut MirFunction) {
+    let direct_memory_required = function
+        .metadata
+        .required_fastpath_regions
+        .iter()
+        .any(|region| {
+            region.relevant_access_policy == "direct_memory"
+                && region.route_requirement == "fastpath_plan_required"
+                && region.fallback_policy == "fail_fast"
+        });
+    let fallback_policy = if direct_memory_required {
+        "require_fastpath"
+    } else {
+        "opportunistic"
+    };
+
     function.metadata.route_decisions = function
         .metadata
         .direct_array_access_plans
         .iter()
-        .map(RouteDecision::from_direct_array_access_plan)
+        .map(|plan| RouteDecision::from_direct_array_access_plan(plan, fallback_policy))
         .collect();
 }
 
@@ -73,6 +88,7 @@ mod tests {
     use super::*;
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::direct_array_access_plan::refresh_function_direct_array_access_plans;
+    use crate::mir::function::RequiredFastPathRegion;
     use crate::mir::generic_method_route_plan::refresh_function_generic_method_routes;
     use crate::mir::{
         BasicBlock, Callee, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
@@ -131,5 +147,43 @@ mod tests {
         assert_eq!(decision.fallback_policy, "opportunistic");
         assert_eq!(decision.miss_reason, None);
         assert_eq!(decision.source_plan_kind, "DirectArrayAccessPlan");
+    }
+
+    #[test]
+    fn required_fastpath_region_marks_route_decision_required() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .required_fastpath_regions
+            .push(RequiredFastPathRegion {
+                region_id: 0,
+                source_kind: "diagnostic_mode",
+                relevant_access_policy: "direct_memory",
+                route_requirement: "fastpath_plan_required",
+                bounds_requirement: "checked_allowed",
+                fallback_policy: "fail_fast",
+            });
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
+        block.set_terminator(MirInstruction::Return { value: None });
+        function.add_block(block);
+
+        refresh_function_generic_method_routes(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+        refresh_function_route_decisions(&mut function);
+
+        assert_eq!(function.metadata.route_decisions.len(), 1);
+        assert_eq!(
+            function.metadata.route_decisions[0].fallback_policy,
+            "require_fastpath"
+        );
     }
 }
