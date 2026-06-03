@@ -15,14 +15,8 @@ from instructions.mir_call.direct_array_birth import (
     mark_direct_array_i64_origin,
     should_use_direct_array_i64_birth,
 )
+from instructions.llvm_decl import declare_function as _declare
 from utils.resolver_helpers import mark_as_handle
-
-
-def _declare(module: ir.Module, name: str, ret_ty, arg_tys):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    return ir.Function(module, ir.FunctionType(ret_ty, arg_tys), name=name)
 
 
 def _unique_global_name(module: ir.Module, base: str) -> str:

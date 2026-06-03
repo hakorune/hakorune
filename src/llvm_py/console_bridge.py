@@ -14,6 +14,8 @@ Phase 133: Console LLVM Bridge - ConsoleBox 統合モジュール
 import llvmlite.ir as ir
 from typing import Dict, List, Optional, Any
 
+from instructions.llvm_decl import declare_function as _declare
+
 # Console method mapping (Phase 122 unified)
 # slot 400: log/println (alias)
 # slot 401: warn
@@ -27,15 +29,6 @@ CONSOLE_METHODS = {
     "error": "nyash.console.error",
     "clear": "nyash.console.clear",
 }
-
-
-def _declare(module: ir.Module, name: str, ret, args):
-    """Declare or get existing function"""
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 def _ensure_i8_ptr(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.Value:

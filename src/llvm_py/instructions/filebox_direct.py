@@ -11,15 +11,8 @@ import os
 
 from llvmlite import ir
 
+from instructions.llvm_decl import declare_function as _declare
 from instructions.string_fast import string_const_boxer_symbol
-
-
-def _declare(module: ir.Module, name: str, ret, args):
-    for func in module.functions:
-        if func.name == name:
-            return func
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 def _unique_global_name(module: ir.Module, base: str) -> str:

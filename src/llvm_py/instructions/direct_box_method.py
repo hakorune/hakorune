@@ -26,6 +26,7 @@ from instructions.mir_builder_direct import (
     lower_mir_builder_emit_from_program_json_direct,
     lower_mir_builder_emit_from_source_direct,
 )
+from instructions.llvm_decl import declare_function as _declare
 from naming_helper import encode_static_method
 
 
@@ -49,14 +50,6 @@ _DIRECT_METHOD_LOWERERS = {
     ("MirBuilderBox", "emit_from_program_json_v0"): lower_mir_builder_emit_from_program_json_direct,
     ("MirBuilderBox", "emit_from_source_v0"): lower_mir_builder_emit_from_source_direct,
 }
-
-
-def _declare(module: ir.Module, name: str, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 def resolve_known_box_name(

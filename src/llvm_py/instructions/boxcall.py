@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Any
 from instructions.safepoint import insert_automatic_safepoint
 from naming_helper import encode_static_method
 from console_bridge import emit_console_call  # Phase 133: Console 箱化モジュール
+from instructions.llvm_decl import declare_function as _declare
 from instructions.stringbox import emit_stringbox_call  # Phase 134-B: StringBox 箱化モジュール
 from instructions.mir_call.auto_specialize import (
     prefer_runtime_data_array_i64_key_route,
@@ -26,13 +27,6 @@ from instructions.string_fast import literal_string_for_receiver
 from instructions.string_result_policy import mark_string_result_if_needed
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import get_box_type, mark_as_handle
-
-def _declare(module: ir.Module, name: str, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.Value:
     """Coerce a value to i64 handle. If pointer, box via nyash.box.from_i8_string."""

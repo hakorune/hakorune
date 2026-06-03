@@ -3,6 +3,7 @@ import hashlib
 
 import llvmlite.ir as ir
 
+from instructions.llvm_decl import declare_function as _declare
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
 from instructions.thin_entry_selection import (
     thin_entry_prefers_inline_scalar_subject,
@@ -24,13 +25,6 @@ _LOCAL_LAYOUT_NAMES = {
     "f64": "inline_f64",
     "floatbox": "inline_f64",
 }
-
-
-def _declare(module: ir.Module, name: str, ret, args):
-    for func in module.functions:
-        if func.name == name:
-            return func
-    return ir.Function(module, ir.FunctionType(ret, args), name=name)
 
 
 def _field_ptr(builder: ir.IRBuilder, module: ir.Module, field_name: str) -> ir.Value:

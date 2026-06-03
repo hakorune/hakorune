@@ -5,6 +5,7 @@ import sys
 
 import llvmlite.ir as ir
 
+from instructions.llvm_decl import declare_function as _declare
 from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field_call
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
 from instructions.thin_entry_selection import thin_entry_prefers_inline_scalar_field
@@ -60,14 +61,6 @@ def _mark_float_immediate(resolver, vid: int) -> None:
         resolver.value_types[int(vid)] = "Float"
     except Exception:
         pass
-
-
-def _declare(module: ir.Module, name: str, ret, args):
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 def _exact_slot_helper_enabled() -> bool:

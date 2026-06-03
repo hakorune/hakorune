@@ -6,6 +6,7 @@ from instructions.primitive_handles import (
     resolver_value_type,
     unbox_primitive_handle_if_needed,
 )
+from instructions.llvm_decl import declare_function as _declare
 from instructions.typeop import _emit_trap
 from utils.values import resolve_i64_strict, safe_vmap_write
 
@@ -72,13 +73,6 @@ def _exact_route_type_info(
     if info is None:
         raise RuntimeError("[exact-numeric/backend-unsupported-type]")
     return info
-
-
-def _declare(module: ir.Module, name: str, ret_ty, arg_tys):
-    for fn in module.functions:
-        if fn.name == name:
-            return fn
-    return ir.Function(module, ir.FunctionType(ret_ty, arg_tys), name=name)
 
 
 def _resolve_i64_operand(

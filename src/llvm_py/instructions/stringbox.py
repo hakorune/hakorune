@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Any
 import os
 from utils.values import resolve_i64_strict
 from instructions.string_fast import string_ptr_for_value
+from instructions.llvm_decl import declare_function as _declare
 
 
 # StringBox method mapping (TypeRegistry slots 410-413)
@@ -26,15 +27,6 @@ STRINGBOX_METHODS = {
     "lastIndexOf": 412,
     "indexOf": 413,
 }
-
-
-def _declare(module: ir.Module, name: str, ret, args):
-    """Declare or get existing function"""
-    for f in module.functions:
-        if f.name == name:
-            return f
-    fnty = ir.FunctionType(ret, args)
-    return ir.Function(module, fnty, name=name)
 
 
 def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.Value:
