@@ -182,6 +182,124 @@ def _sync_lowered_dst(context, builder, vmap_cur, created_ids, block_id: int, bb
         _record_created_id(context, created_ids, dst, block_id)
 
 
+def _filter_block_vmap(context, builder, block_id: int):
+    try:
+        vmap_cur = context.phi_manager.filter_vmap_preserve_phis(
+            builder.vmap or {},
+            int(block_id),
+            context,
+        )
+        if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
+            phi_count = sum(1 for v in vmap_cur.values() if hasattr(v, 'add_incoming'))
+            print(
+                f"[vmap/phi_filter] bb{block_id} filtered vmap: "
+                f"{len(vmap_cur)} values, {phi_count} PHIs",
+                file=sys.stderr,
+            )
+        return vmap_cur
+    except Exception as exc:
+        trace_debug(f"[block-lower/phi-filter-fallback] bb{block_id}: {exc}")
+        return dict(builder.vmap)
+
+
+def _install_owner_lower_instruction(builder) -> None:
+    resolver = getattr(builder, "resolver", None)
+    if resolver is not None:
+        resolver._owner_lower_instruction = builder.lower_instruction
+
+
+def _lower_loop_prepass(builder, ib, func, cond_vid, body_insts, loop_simd_contract) -> None:
+    from instructions.loopform import lower_while_loopform
+
+    ok = False
+    try:
+        _set_current_vmap(builder, dict(builder.vmap))
+        ok = lower_while_loopform(
+            ib,
+            func,
+            cond_vid,
+            body_insts,
+            builder.loop_count,
+            builder.vmap,
+            builder.bb_map,
+            builder.resolver,
+            builder.preds,
+            builder.block_end_values,
+            getattr(builder, 'ctx', None),
+            loop_simd_contract,
+        )
+    except Exception as exc:
+        trace_debug(f"[block-lower/loopform-fallback] loop={builder.loop_count}: {exc}")
+        ok = False
+
+    if not ok:
+        _install_owner_lower_instruction(builder)
+        from instructions.controlflow.while_ import lower_while_regular
+        lower_while_regular(
+            ib,
+            func,
+            cond_vid,
+            body_insts,
+            builder.loop_count,
+            builder.vmap,
+            builder.bb_map,
+            builder.resolver,
+            builder.preds,
+            builder.block_end_values,
+            loop_simd_contract,
+        )
+
+
+def _materialize_trivial_phi_aliases(context, builder, vmap_cur, created_ids, block_id: int, bb) -> None:
+    alias_map = getattr(context, "phi_trivial_aliases", None)
+    if not isinstance(alias_map, dict):
+        return
+
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
+        return
+
+    for (alias_bid, dst_vid), src_vid in alias_map.items():
+        if int(alias_bid) != int(block_id):
+            continue
+        dst_vid = int(dst_vid)
+        if dst_vid in vmap_cur:
+            continue
+        try:
+            alias_val = resolver.resolve_i64(
+                int(src_vid),
+                bb,
+                builder.preds,
+                builder.block_end_values,
+                vmap_cur,
+                builder.bb_map,
+            )
+        except Exception as exc:
+            trace_debug(
+                f"[block-lower/phi-alias-skip] bb{block_id} "
+                f"dst={dst_vid} src={src_vid}: {exc}"
+            )
+            continue
+        if alias_val is not None:
+            vmap_cur[dst_vid] = alias_val
+            _record_created_id(context, created_ids, dst_vid, block_id)
+
+
+def _sync_created_values_to_global_vmap(context, builder, vmap_cur, created_ids, block_id: int) -> None:
+    sync_dict = {vid: vmap_cur[vid] for vid in created_ids if vid in vmap_cur}
+    try:
+        context.phi_manager.sync_protect_phis(builder.vmap, sync_dict)
+    except Exception as exc:
+        trace_debug(f"[block-lower/vmap-sync-fallback] bb{block_id}: {exc}")
+        return
+    if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
+        print(
+            f"[vmap/sync] bb{block_id} synced {len(sync_dict)} values "
+            "to builder.vmap (PHIs protected)",
+            file=sys.stderr,
+        )
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -354,36 +472,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             ctx = getattr(builder, "ctx", None)
             if ctx is not None:
                 loop_simd_contract = getattr(ctx, "loop_simd_contracts", {}).get(header_bid)
-            from instructions.loopform import lower_while_loopform
-            ok = False
-            try:
-                _set_current_vmap(builder, dict(builder.vmap))
-                ok = lower_while_loopform(
-                    ib,
-                    func,
-                    cond_vid,
-                    body_insts,
-                    builder.loop_count,
-                    builder.vmap,
-                    builder.bb_map,
-                    builder.resolver,
-                    builder.preds,
-                    builder.block_end_values,
-                    getattr(builder, 'ctx', None),
-                    loop_simd_contract,
-                )
-            except Exception:
-                ok = False
-            if not ok:
-                try:
-                    builder.resolver._owner_lower_instruction = builder.lower_instruction
-                except Exception:
-                    pass
-                from instructions.controlflow.while_ import lower_while_regular
-                lower_while_regular(ib, func, cond_vid, body_insts,
-                                    builder.loop_count, builder.vmap, builder.bb_map,
-                                    builder.resolver, builder.preds, builder.block_end_values,
-                                    loop_simd_contract)
+            _lower_loop_prepass(builder, ib, func, cond_vid, body_insts, loop_simd_contract)
             _restore_current_vmap(builder, None)
             for bskip in loop_plan.get('skip_blocks', []):
                 skipped.add(bskip)
@@ -401,20 +490,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         body_ops, term_ops = _split_block_ops(insts, bid)
         # Per-block SSA map
         # Phase 132-P1: Use context.phi_manager for PHI filtering (Box-First principle)
-        vmap_cur: Dict[int, ir.Value] = {}
-        try:
-            vmap_cur = context.phi_manager.filter_vmap_preserve_phis(
-                builder.vmap or {},
-                int(bid),
-                context,
-            )
-            # Trace output for debugging (only if env var set)
-            if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
-                phi_count = sum(1 for v in vmap_cur.values() if hasattr(v, 'add_incoming'))
-                print(f"[vmap/phi_filter] bb{bid} filtered vmap: {len(vmap_cur)} values, {phi_count} PHIs", file=sys.stderr)
-        except Exception:
-            # Fallback: copy all values without filtering
-            vmap_cur = dict(builder.vmap)
+        vmap_cur: Dict[int, ir.Value] = _filter_block_vmap(context, builder, bid)
         _set_current_vmap(builder, vmap_cur)
         # Phase 131-12-P1: Object identity trace for vmap_cur investigation
         import os, sys
@@ -439,32 +515,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             _sync_lowered_dst(context, builder, vmap_cur, created_ids, block_data.get("id", 0), bb, inst)
         # Materialize trivial PHI aliases for this block into vmap_cur so snapshots
         # carry alias destinations even when not explicitly used in block body.
-        try:
-            alias_map = getattr(context, "phi_trivial_aliases", None)
-            if isinstance(alias_map, dict):
-                for (alias_bid, dst_vid), src_vid in alias_map.items():
-                    if int(alias_bid) != int(bid):
-                        continue
-                    if int(dst_vid) in vmap_cur:
-                        continue
-                    alias_val = builder.resolver.resolve_i64(
-                        int(src_vid),
-                        bb,
-                        builder.preds,
-                        builder.block_end_values,
-                        vmap_cur,
-                        builder.bb_map,
-                    )
-                    if alias_val is not None:
-                        vmap_cur[int(dst_vid)] = alias_val
-                        _record_created_id(
-                            context,
-                            created_ids,
-                            int(dst_vid),
-                            block_data.get("id", 0),
-                        )
-        except Exception:
-            pass
+        _materialize_trivial_phi_aliases(context, builder, vmap_cur, created_ids, bid, bb)
         # Phase 131-4 Pass A: DEFER terminators until after PHI finalization
         # Phase 131-12-P1 P0-2: Store terminators WITH vmap_cur snapshot for Pass C
         if not hasattr(builder, '_deferred_terminators'):
@@ -480,15 +531,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         # Phase 131-7: Sync ALL created values to global vmap (not just PHIs)
         # This ensures Pass C (deferred terminators) can access values from Pass A
         # Phase 132-P1: Use context.phi_manager for PHI protection (Box-First principle)
-        try:
-            # Create sync dict from created values only
-            sync_dict = {vid: vmap_cur[vid] for vid in created_ids if vid in vmap_cur}
-            # PhiManager.sync_protect_phis ensures PHIs are never overwritten (SSOT)
-            context.phi_manager.sync_protect_phis(builder.vmap, sync_dict)
-            if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
-                print(f"[vmap/sync] bb{bid} synced {len(sync_dict)} values to builder.vmap (PHIs protected)", file=sys.stderr)
-        except Exception:
-            pass
+        _sync_created_values_to_global_vmap(context, builder, vmap_cur, created_ids, bid)
         # End-of-block snapshot
         # Phase 131-14-B P0-1: Jump-only blocks - record metadata only (Pass A)
         strict_mode = os.environ.get('NYASH_LLVM_STRICT') == '1'
