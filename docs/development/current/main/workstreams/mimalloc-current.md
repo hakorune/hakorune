@@ -333,6 +333,22 @@ be structural: either consume more real `.hako` allocator state through a
 planned bridge, or add a new route/report vocabulary that changes the owner
 family before editing generated C again.
 
+The current `ny_main` asm classifier reinforces this stop-line. The hottest
+annotated field candidate is `HakoAllocPageModel.free_top`, with nearby
+`requested_bytes` and `peak_used` stores:
+
+```text
+perf_top_instruction_category=store_like
+perf_top_instruction_field_hints=0xa0:free_top
+hot_instruction_0_context=...requested_bytes...free_top...peak_used...
+```
+
+Do not reopen counter deletion/gating from this evidence. `requested_bytes`
+is public/proof-visible, and the counter-skip probe already regressed. Treat
+the next structural path as field-traffic representation/planning evidence
+(`RecordStateResidencePlanV0`-style state bundling or equivalent route
+vocabulary), not as another generated C counter probe.
+
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
 
