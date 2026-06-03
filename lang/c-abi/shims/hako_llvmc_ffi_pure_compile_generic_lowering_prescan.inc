@@ -43,7 +43,8 @@
           generic_pure_publish_i64_origin(reg, ORG_STRING);
           return 1;
         }
-        if (box_type && !strcmp(box_type, "ArrayBox")) {
+        if (box_type && (!strcmp(box_type, "ArrayBox") ||
+                         !strcmp(box_type, "DirectArrayI64"))) {
           generic_pure_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
           return 1;
         }
@@ -116,7 +117,8 @@
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
             int typed_plan_index = -1;
-            if (tname && strcmp(tname, "ArrayBox") == 0) {
+            if (tname && (!strcmp(tname, "ArrayBox") ||
+                          !strcmp(tname, "DirectArrayI64"))) {
               needs.arr_birth = 1;
               if (dst) {
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);

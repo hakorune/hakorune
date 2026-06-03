@@ -137,6 +137,43 @@
         return same_module_method_view_matches_route_rule(view, &rule);
       }
 
+      auto int same_module_method_view_is_direct_array_receiver_with(
+          const struct LoweringPlanGenericMethodView* view,
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* symbol,
+          const char* route_proof,
+          const char* return_shape,
+          const char* value_demand,
+          const char* publication_policy,
+          enum LoweringPlanTierMetadata tier) {
+        return same_module_method_view_is_direct_receiver_with(
+                   view,
+                   route_id,
+                   core_op,
+                   route_kind,
+                   symbol,
+                   route_proof,
+                   "ArrayBox",
+                   return_shape,
+                   value_demand,
+                   publication_policy,
+                   tier) ||
+               same_module_method_view_is_direct_receiver_with(
+                   view,
+                   route_id,
+                   core_op,
+                   route_kind,
+                   symbol,
+                   route_proof,
+                   "DirectArrayI64",
+                   return_shape,
+                   value_demand,
+                   publication_policy,
+                   tier);
+      }
+
       auto int same_module_method_view_is_ownerless_with(
           const struct LoweringPlanGenericMethodView* view,
           const char* route_id,
@@ -189,14 +226,13 @@
 
       auto int same_module_method_view_is_direct_array_len(
           const struct LoweringPlanGenericMethodView* view) {
-        return same_module_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_array_receiver_with(
             view,
             "generic_method.len",
             "ArrayLen",
             "array_slot_len",
             "nyash.array.slot_len_h",
             "len_surface_policy",
-            "ArrayBox",
             "scalar_i64",
             "scalar_i64",
             "no_publication",
@@ -205,14 +241,13 @@
 
       auto int same_module_method_view_is_direct_array_push(
           const struct LoweringPlanGenericMethodView* view) {
-        return same_module_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_array_receiver_with(
             view,
             "generic_method.push",
             "ArrayPush",
             "array_append_any",
             "nyash.array.slot_append_hh",
             "push_surface_policy",
-            "ArrayBox",
             "scalar_i64",
             "write_any",
             "no_publication",
@@ -221,14 +256,13 @@
 
       auto int same_module_method_view_is_direct_array_get(
           const struct LoweringPlanGenericMethodView* view) {
-        return same_module_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_array_receiver_with(
             view,
             "generic_method.get",
             "ArrayGet",
             "array_slot_load_any",
             "nyash.array.slot_load_hi",
             "get_surface_policy",
-            "ArrayBox",
             NULL,
             "read_ref",
             NULL,
@@ -505,14 +539,13 @@
          * The star is a MIR-owned symbolic helper token for the array-set
          * variant family. This predicate still performs exact string matching.
          */
-        return same_module_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_array_receiver_with(
             view,
             "generic_method.set",
             "ArraySet",
             "array_store_any",
             "nyash.array.slot_store_*",
             "set_surface_policy",
-            "ArrayBox",
             NULL,
             "write_any",
             NULL,
@@ -575,14 +608,13 @@
 
       auto int same_module_method_view_is_direct_array_has(
           const struct LoweringPlanGenericMethodView* view) {
-        return same_module_method_view_is_direct_receiver_with(
+        return same_module_method_view_is_direct_array_receiver_with(
             view,
             "generic_method.has",
             "ArrayHas",
             "array_contains_any",
             "nyash.array.has_hh",
             "has_surface_policy",
-            "ArrayBox",
             NULL,
             "read_ref",
             NULL,

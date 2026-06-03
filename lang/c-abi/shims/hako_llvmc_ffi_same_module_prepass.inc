@@ -341,7 +341,8 @@
         if (!strcmp(op, "newbox")) {
           long long dst = read_int(ins, "dst");
           const char* tname = read_str(ins, "type");
-          if (tname && !strcmp(tname, "ArrayBox")) {
+          if (tname && (!strcmp(tname, "ArrayBox") ||
+                        !strcmp(tname, "DirectArrayI64"))) {
             same_module_function_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
             return 1;
           }

@@ -39,7 +39,8 @@
           same_module_function_publish_i64_origin(reg, ORG_STRING);
           return 1;
         }
-        if (!strcmp(box_name, "ArrayBox")) {
+        if (!strcmp(box_name, "ArrayBox") ||
+            !strcmp(box_name, "DirectArrayI64")) {
           same_module_function_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
           return 1;
         }
@@ -60,7 +61,8 @@
           same_module_function_publish_i64_origin(reg, ORG_STRING);
           return 1;
         }
-        if (box_type && !strcmp(box_type, "ArrayBox")) {
+        if (box_type && (!strcmp(box_type, "ArrayBox") ||
+                         !strcmp(box_type, "DirectArrayI64"))) {
           same_module_function_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
           return 1;
         }

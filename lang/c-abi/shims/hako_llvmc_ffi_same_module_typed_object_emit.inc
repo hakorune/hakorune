@@ -58,6 +58,13 @@
         long long dst = read_int(ins, "dst");
         const char* tname = read_str(ins, "type");
         int typed_plan_index = -1;
+        if (tname && !strcmp(tname, "DirectArrayI64")) {
+          same_module_function_emit_i64_birth_call(
+              dst,
+              "nyash.array.direct_i64.birth_h",
+              ORG_ARRAY_BIRTH);
+          return 1;
+        }
         if (tname && !strcmp(tname, "ArrayBox")) {
           const char* array_store = getenv("HAKO_ARRAY_SLOT_STORE");
           same_module_function_emit_i64_birth_call(
