@@ -19,6 +19,7 @@ from trace import values as trace_values
 from trace import hot_count as trace_hot_count
 
 _COMPARE_COMMUTATIVE_PREDS = {"==", "!="}
+_SAFE_COMPARE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
 
 
 def _safe_ctx_value(ctx: Any, attr: str, fallback):
@@ -50,7 +51,7 @@ def _canonicalize_i64(builder: ir.IRBuilder, value, vid, vmap: Dict[int, ir.Valu
     target = ir.IntType(64)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_COMPARE_EXC:
         vtype = None
     if isinstance(vtype, ir.PointerType):
         value = builder.ptrtoint(value, target, name=f"{hint}_p2i_{vid}")
@@ -355,7 +356,7 @@ def lower_compare(
         try:
             if isinstance(meta, dict) and meta.get('cmp_kind') == 'string':
                 force_string = True
-        except Exception:
+        except _SAFE_COMPARE_EXC:
             pass
         lhs_tag = False
         rhs_tag = False
@@ -363,13 +364,13 @@ def lower_compare(
             if resolver is not None and hasattr(resolver, 'is_stringish'):
                 lhs_tag = resolver.is_stringish(lhs)
                 rhs_tag = resolver.is_stringish(rhs)
-        except Exception:
+        except _SAFE_COMPARE_EXC:
             pass
         if force_string or lhs_tag or rhs_tag:
             try:
                 fn_name = getattr(getattr(builder, "block", None), "parent", None)
                 fn_name = getattr(fn_name, "name", "?")
-            except Exception:
+            except _SAFE_COMPARE_EXC:
                 fn_name = "?"
             trace_values(
                 f"[compare] string-eq path: fn={fn_name} lhs={lhs} rhs={rhs} "

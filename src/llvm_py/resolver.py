@@ -22,6 +22,8 @@ except ImportError:
         make_box_handle_fact,
     )
 
+_SAFE_RESOLVER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 class Resolver:
     """
     Centralized value resolution with per-block caching.
@@ -163,14 +165,14 @@ class Resolver:
                 name = name.decode()
             if isinstance(name, str) and name.startswith("bb"):
                 return int(name[2:])
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             pass
         return default
 
     def _safe_position_at_start(self, builder: ir.IRBuilder, block: ir.Block) -> None:
         try:
             builder.position_at_start(block)
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             pass
 
     def _safe_position_before_terminator(self, builder: ir.IRBuilder, block: ir.Block) -> None:
@@ -180,7 +182,7 @@ class Resolver:
                 builder.position_before(term)
             else:
                 builder.position_at_end(block)
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             builder.position_at_end(block)
 
     def _safe_first_element_gep(self, builder: ir.IRBuilder, value: ir.Value, name: str) -> ir.Value:
@@ -188,7 +190,7 @@ class Resolver:
             if hasattr(value, "type") and hasattr(value.type, "pointee") and isinstance(value.type.pointee, ir.ArrayType):
                 c0 = ir.Constant(ir.IntType(32), 0)
                 return builder.gep(value, [c0, c0], name=name)
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             pass
         return value
 
@@ -214,7 +216,7 @@ class Resolver:
                 alias_src = self.phi_trivial_aliases.get((int(block_id), int(value_id)))
                 if isinstance(alias_src, int) and alias_src != int(value_id):
                     return alias_src
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             pass
         return None
 
@@ -223,7 +225,7 @@ class Resolver:
             if isinstance(self.block_phi_incomings, dict):
                 bmap = self.block_phi_incomings.get(int(block_id))
                 return isinstance(bmap, dict) and value_id in bmap
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             pass
         return False
 
@@ -231,7 +233,7 @@ class Resolver:
         try:
             if value_id in self.def_blocks:
                 return f"def_blocks={sorted(list(self.def_blocks[value_id]))}"
-        except Exception:
+        except _SAFE_RESOLVER_EXC:
             pass
         return "not_in_def_blocks"
 
