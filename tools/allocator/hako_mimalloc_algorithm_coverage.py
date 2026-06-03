@@ -236,6 +236,12 @@ def report_dict(
 ) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
+    page_map = read_text(hako_file("page_map_box.hako"))
+    page_map_release = read_text(hako_file("page_map_release_box.hako"))
+    realloc_same = read_text(hako_file("page_map_realloc_same_class_box.hako"))
+    realloc_grow = read_text(hako_file("page_map_realloc_alloc_copy_release_box.hako"))
+    huge_model = read_text(hako_file("huge_page_model_box.hako"))
+    osvm_source = read_text(hako_file("osvm_page_source_pilot_box.hako"))
     replacement = read_text(REPLACEMENT_FRONT) + "\n" + read_text(REPLACEMENT_TEMPLATES)
     hot_array_fields = ["free", "local_free", "block_used"]
     hot_array_ops = {
@@ -283,6 +289,25 @@ def report_dict(
     )
     page_model_hot_methods_ready = int(
         has_all(page_box, ["acquireFreshSmall", "releaseLocalKnownLive"])
+    )
+    page_map_source_ready = int(
+        has_all(page_map, ["findIndex", "register", "lookup", "unregister"])
+    )
+    page_map_release_source_ready = int(
+        has_all(page_map_release, ["releasePtr", "page_map.lookup", "page.releaseLocal", "page_map.unregister"])
+    )
+    realloc_same_class_source_ready = int(
+        has_all(realloc_same, ["tryReallocSameClass", "page_map.lookup", "blockIsLive", "requested_size > page.block_size"])
+    )
+    realloc_grow_copy_release_source_ready = int(
+        has_all(realloc_grow, ["page_map.lookup", "copy", "page_map.register"])
+    )
+    huge_page_source_ready = int(
+        has_all(huge_model, ["register", "lookup", "huge"])
+        or has_all(huge_model, ["allocateHuge", "markReleased", "requestedSizeFor"])
+    )
+    osvm_page_source_pilot_ready = int(
+        has_all(osvm_source, ["osvm", "page"]) and has_file(hako_file("osvm_page_source_pilot_box.hako"))
     )
     size_class_single_bridge_supported = has_all(
         replacement,
@@ -381,6 +406,12 @@ def report_dict(
         else "replacement_front_product_pages_consumer_enabled",
         0,
     )
+    product_pages_route = benchmark.get(
+        f"{benchmark_subject_prefix}_replacement_front_product_pages_route"
+        if benchmark_subject_prefix
+        else "replacement_front_product_pages_route",
+        "not_consumed",
+    )
     algorithm_shape = benchmark.get(
         f"{benchmark_subject_prefix}_replacement_front_algorithm_shape"
         if benchmark_subject_prefix
@@ -417,6 +448,27 @@ def report_dict(
     else:
         hotcore_bridge_blocker = "source_shape_not_ready"
         hotcore_next_bridge = "fix_hotcore_page_model_source_shape"
+    product_pages_source_ready = int(
+        page_map_source_ready
+        and page_map_release_source_ready
+        and realloc_same_class_source_ready
+        and page_model_hot_methods_ready
+    )
+    product_pages_full_source_ready = int(
+        product_pages_source_ready
+        and realloc_grow_copy_release_source_ready
+        and huge_page_source_ready
+        and osvm_page_source_pilot_ready
+    )
+    if product_pages_consumer_enabled:
+        product_pages_bridge_blocker = "none"
+        product_pages_next_bridge = "measure_product_pages_consumer"
+    elif product_pages_source_ready:
+        product_pages_bridge_blocker = "consumer_not_enabled"
+        product_pages_next_bridge = "page_map_backed_replacement_front_plan"
+    else:
+        product_pages_bridge_blocker = "source_shape_not_ready"
+        product_pages_next_bridge = "fix_product_pages_source_shape"
     return {
         "output_contract": "hako-mimalloc-algorithm-coverage-v0",
         "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),
@@ -455,7 +507,20 @@ def report_dict(
         "replacement_front_benchmark_algorithm_shape": algorithm_shape,
         "replacement_front_product_bins_consumer_enabled": product_bins_consumer_enabled,
         "replacement_front_product_bins_route": product_bins_route,
+        "replacement_front_product_pages_bridge_plan_v0": 1,
+        "replacement_front_product_pages_bridge_report_only": 1,
         "replacement_front_product_pages_consumer_enabled": product_pages_consumer_enabled,
+        "replacement_front_product_pages_route": product_pages_route,
+        "replacement_front_product_pages_source_ready": product_pages_source_ready,
+        "replacement_front_product_pages_full_source_ready": product_pages_full_source_ready,
+        "replacement_front_product_pages_bridge_blocker": product_pages_bridge_blocker,
+        "replacement_front_product_pages_next_bridge": product_pages_next_bridge,
+        "page_map_source_ready": page_map_source_ready,
+        "page_map_release_source_ready": page_map_release_source_ready,
+        "realloc_same_class_source_ready": realloc_same_class_source_ready,
+        "realloc_grow_copy_release_source_ready": realloc_grow_copy_release_source_ready,
+        "huge_page_source_ready": huge_page_source_ready,
+        "osvm_page_source_pilot_ready": osvm_page_source_pilot_ready,
         "replacement_front_locked_global_multithread_supported": int(locked_front),
         "replacement_front_thread_local_multithread_supported": int(tls_front),
         "replacement_front_multithread_claim": 0,
@@ -537,7 +602,20 @@ def emit_text(data: dict[str, object]) -> None:
         "replacement_front_benchmark_algorithm_shape",
         "replacement_front_product_bins_consumer_enabled",
         "replacement_front_product_bins_route",
+        "replacement_front_product_pages_bridge_plan_v0",
+        "replacement_front_product_pages_bridge_report_only",
         "replacement_front_product_pages_consumer_enabled",
+        "replacement_front_product_pages_route",
+        "replacement_front_product_pages_source_ready",
+        "replacement_front_product_pages_full_source_ready",
+        "replacement_front_product_pages_bridge_blocker",
+        "replacement_front_product_pages_next_bridge",
+        "page_map_source_ready",
+        "page_map_release_source_ready",
+        "realloc_same_class_source_ready",
+        "realloc_grow_copy_release_source_ready",
+        "huge_page_source_ready",
+        "osvm_page_source_pilot_ready",
         "replacement_front_locked_global_multithread_supported",
         "replacement_front_thread_local_multithread_supported",
         "replacement_front_multithread_claim",

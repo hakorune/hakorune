@@ -209,6 +209,33 @@ Interpretation: local C-shape cleanups can improve isolated assembly while
 regressing end-to-end mixed-ws throughput. Keep the existing HotCore/PageModel
 bridge and do not re-open these probes without new perf owner evidence.
 
+The same algorithm coverage overlay now reports product-pages bridge readiness
+without opening product replacement:
+
+```text
+replacement_front_product_pages_bridge_plan_v0=1
+replacement_front_product_pages_bridge_report_only=1
+replacement_front_product_pages_consumer_enabled=0
+replacement_front_product_pages_route=not_consumed
+replacement_front_product_pages_source_ready=1
+replacement_front_product_pages_full_source_ready=1
+replacement_front_product_pages_bridge_blocker=consumer_not_enabled
+replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_plan
+page_map_source_ready=1
+page_map_release_source_ready=1
+realloc_same_class_source_ready=1
+realloc_grow_copy_release_source_ready=1
+huge_page_source_ready=1
+osvm_page_source_pilot_ready=1
+```
+
+Interpretation: `.hako` PageMap, page-map release, same-class realloc,
+grow/copy/release, huge model, and OSVM pilot seams are source-present for the
+next bridge design. The replacement front still does not consume product pages,
+and `replacement_front_is_full_hako_algorithm=0` remains the claim boundary.
+The next implementation owner is a narrow page-map-backed benchmark bridge
+plan, not product activation or a full allocator claim.
+
 The same report carries the current PageModel hot-array readiness view:
 
 ```text

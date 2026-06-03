@@ -51,6 +51,19 @@ page_model_hot_array_birth_contract_ready=1
 page_model_hot_array_source_migration_blocker=none
 page_model_hot_array_next_bridge=source_migration_measurement
 page_model_hot_array_seed_push_blocker=0
+replacement_front_product_pages_bridge_plan_v0=1
+replacement_front_product_pages_bridge_report_only=1
+replacement_front_product_pages_consumer_enabled=0
+replacement_front_product_pages_source_ready=1
+replacement_front_product_pages_full_source_ready=1
+replacement_front_product_pages_bridge_blocker=consumer_not_enabled
+replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_plan
+page_map_source_ready=1
+page_map_release_source_ready=1
+realloc_same_class_source_ready=1
+realloc_grow_copy_release_source_ready=1
+huge_page_source_ready=1
+osvm_page_source_pilot_ready=1
 replacement_front_locked_global_multithread_supported=1
 replacement_front_thread_local_multithread_supported=1
 replacement_front_multithread_claim=0
@@ -74,6 +87,9 @@ replacement_front_product_bins_route=benchmark_page_bins
 replacement_front_page_bins_consumer_enabled=1
 replacement_front_page_bins_route=benchmark_page_bins
 replacement_front_product_pages_consumer_enabled=0
+replacement_front_product_pages_source_ready=1
+replacement_front_product_pages_bridge_blocker=consumer_not_enabled
+replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_plan
 hotcore_replacement_consumer_enabled=0
 hotcore_replacement_shape_ready=1
 hotcore_replacement_bridge_blocker=consumer_not_enabled
@@ -147,6 +163,28 @@ replacement_front_page_bins_product_claim=0
 
 These fields are report-only inputs for the future multi-class/page front.
 They do not mean product bins/pages are connected.
+
+The algorithm coverage report also exposes the product-pages source-readiness
+bridge. This is still report-only and keeps `consumer_enabled=0`; it only says
+that the `.hako` PageMap/release/realloc/huge/OSVM seams are present enough for
+the next benchmark-only bridge design:
+
+```text
+replacement_front_product_pages_bridge_plan_v0=1
+replacement_front_product_pages_bridge_report_only=1
+replacement_front_product_pages_consumer_enabled=0
+replacement_front_product_pages_route=not_consumed
+replacement_front_product_pages_source_ready=1
+replacement_front_product_pages_full_source_ready=1
+replacement_front_product_pages_bridge_blocker=consumer_not_enabled
+replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_plan
+page_map_source_ready=1
+page_map_release_source_ready=1
+realloc_same_class_source_ready=1
+realloc_grow_copy_release_source_ready=1
+huge_page_source_ready=1
+osvm_page_source_pilot_ready=1
+```
 
 For the first benchmark-only multi-bin prototype, use:
 
