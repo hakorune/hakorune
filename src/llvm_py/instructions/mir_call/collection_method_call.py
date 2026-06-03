@@ -5,11 +5,11 @@ This module owns the common `get/push/set/has/clear` route order shared by
 `method_call.py` and `mir_call_legacy.py`.
 """
 
-import os
 from typing import Any, Callable, Dict, List, Optional
 
 from llvmlite import ir
 
+from .direct_array_birth import direct_array_i64_exact_lane_enabled
 from .runtime_data_dispatch import (
     lower_runtime_data_method_call,
     select_array_collection_call_spec,
@@ -39,7 +39,7 @@ def _current_direct_array_access_plan(
     arg_ids: List[int],
     dst_vid=None,
 ) -> Optional[Dict[str, Any]]:
-    if os.environ.get("HAKO_ARRAY_SLOT_STORE") != "direct_array_i64_exact":
+    if not direct_array_i64_exact_lane_enabled():
         return None
     if resolver is None or receiver_vid is None:
         return None

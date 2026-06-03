@@ -14,13 +14,13 @@ DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
 PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
 
 
-def direct_array_i64_constructor_enabled() -> bool:
+def direct_array_i64_exact_lane_enabled() -> bool:
     return os.environ.get("HAKO_ARRAY_SLOT_STORE") == "direct_array_i64_exact"
 
 
 def should_use_direct_array_i64_birth(box_type: str) -> bool:
     return box_type == "DirectArrayI64" or (
-        box_type == "ArrayBox" and direct_array_i64_constructor_enabled()
+        box_type == "ArrayBox" and direct_array_i64_exact_lane_enabled()
     )
 
 
