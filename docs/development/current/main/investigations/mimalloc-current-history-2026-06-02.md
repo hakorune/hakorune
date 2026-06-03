@@ -5347,3 +5347,27 @@ Interpretation: the route stayed direct, but forcing every generated page to a
 large static alignment made this local benchmark dramatically slower. Keep
 page-bins on the current `range_scan` lookup route; only the report vocabulary
 now names that lookup route so future probes can compare against it explicitly.
+
+`REPL-025` probed a generated page metadata table for page-bins ownership
+lookup. The prototype kept the route benchmark-only and stored each generated
+page's base/end/stride/slot metadata in a small table before scanning it in
+`find_owned`.
+
+```text
+page_bins_metadata_table_lookup_probe=nonkeeper
+page_bins_metadata_table_lookup_sample_count=5
+page_bins_metadata_table_lookup_subject_2_throughput_median_ops_per_sec=8486586.949
+page_bins_metadata_table_lookup_baseline_subject_2_throughput_median_ops_per_sec=9221264.235
+page_bins_metadata_table_lookup_native_bins_refresh_subject_2_throughput_median_ops_per_sec=8500221.006
+page_bins_metadata_table_lookup_route=metadata_table
+page_bins_metadata_table_lookup_baseline_route=range_scan
+page_bins_metadata_table_lookup_direct_core_call_count_total=6252
+page_bins_metadata_table_lookup_host_passthrough_count_total=6
+```
+
+Interpretation: the metadata-table shape is a useful product-pages bridge
+probe, but it regressed against the current page-bins `range_scan` keeper and
+landed slightly below the refreshed native-bins median. Do not keep a
+metadata-table lookup mode in the benchmark tool unless a later perf/asm pass
+selects a concrete page-table owner; the source code for this probe was
+discarded and only the evidence remains.
