@@ -35,6 +35,8 @@ from .ops_ctrl import op_externcall
 from .ops_flow import op_branch, op_jump, op_ret, op_call
 from .intrinsic import try_intrinsic as _intrinsic_try
 
+_SAFE_PYVM_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 @dataclass
 class Block:
@@ -71,7 +73,7 @@ class PyVM:
             try:
                 import sys as _sys
                 print(*a, file=_sys.stderr)
-            except Exception:
+            except _SAFE_PYVM_EXC:
                 pass
 
     def _type_name(self, v: Any) -> str:
@@ -131,7 +133,7 @@ class PyVM:
             if self._trace_fn and self._cur_fn == self._trace_fn:
                 if self._trace_reg is None or self._trace_reg == str(rid):
                     self._dbg(f"[pyvm][set] fn={self._cur_fn} r{rid}={val}")
-        except Exception:
+        except _SAFE_PYVM_EXC:
             pass
 
     def _truthy(self, v: Any) -> bool:
@@ -195,7 +197,7 @@ class PyVM:
                 call_args = [{"__box__": "ArrayBox", "__arr": list(args)}]
             elif fn.params and len(fn.params) == 1:
                 call_args = [{"__box__": "ArrayBox", "__arr": list(args)}]
-        except Exception:
+        except _SAFE_PYVM_EXC:
             pass
         return self._exec_function(fn, call_args)
 
@@ -228,7 +230,7 @@ class PyVM:
             if "/" in fn.name:
                 try:
                     n = int(fn.name.split("/")[-1])
-                except Exception:
+                except _SAFE_PYVM_EXC:
                     n = 0
             for i in range(n):
                 regs[i] = args[i] if i < len(args) else None
@@ -242,7 +244,7 @@ class PyVM:
         max_steps = 0
         try:
             max_steps = int(os.environ.get("NYASH_PYVM_MAX_STEPS", "200000"))
-        except Exception:
+        except _SAFE_PYVM_EXC:
             max_steps = 200000
         steps = 0
         while True:
