@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import unittest
 
 from src.llvm_py.instructions.mir_call.auto_specialize import (
@@ -32,7 +33,27 @@ class _DummyResolver:
         return isinstance(value_type, dict) and value_type.get("box_type") == "MapBox"
 
 
+class _RaisingResolver:
+    def __init__(self):
+        self.integerish_ids = set()
+        self.value_types = {}
+
+    def is_arrayish(self, value_id: int) -> bool:
+        raise RuntimeError("arrayish unavailable")
+
+
+class _RaisingIntegerishResolver:
+    @property
+    def integerish_ids(self):
+        raise RuntimeError("integerish unavailable")
+
+    value_types = {}
+
+
 class TestMirCallAutoSpecialize(unittest.TestCase):
+    def tearDown(self):
+        os.environ.pop("NYASH_LLVM_STRICT", None)
+
     def test_receiver_is_stringish_via_tag(self):
         resolver = _DummyResolver(string_ids={10})
         self.assertTrue(receiver_is_stringish(resolver, 10))
@@ -123,6 +144,24 @@ class TestMirCallAutoSpecialize(unittest.TestCase):
         self.assertFalse(
             prefer_runtime_data_array_i64_key_i64_value_route("get", resolver, [2])
         )
+
+    def test_receiver_fact_exception_falls_back_in_compat_mode(self):
+        self.assertFalse(receiver_is_arrayish(_RaisingResolver(), 1))
+
+    def test_receiver_fact_exception_fails_fast_in_strict_mode(self):
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+        with self.assertRaisesRegex(RuntimeError, "auto-specialize receiver_is_arrayish"):
+            receiver_is_arrayish(_RaisingResolver(), 1)
+
+    def test_i64_hint_exception_falls_back_in_compat_mode(self):
+        self.assertFalse(
+            prefer_runtime_data_array_i64_key_route("get", _RaisingIntegerishResolver(), [2])
+        )
+
+    def test_i64_hint_exception_fails_fast_in_strict_mode(self):
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+        with self.assertRaisesRegex(RuntimeError, "auto-specialize value_is_i64"):
+            prefer_runtime_data_array_i64_key_route("get", _RaisingIntegerishResolver(), [2])
 
 
 if __name__ == "__main__":
