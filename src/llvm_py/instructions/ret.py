@@ -16,6 +16,31 @@ except Exception:
     _phi_at_block_head = None
 
 
+def _block_id_from_name(block_name: Any) -> Optional[int]:
+    if isinstance(block_name, bytes):
+        block_name = block_name.decode(errors="replace")
+    if isinstance(block_name, str) and block_name.startswith("bb"):
+        try:
+            return int(block_name[2:])
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def _safe_block_id(builder: ir.IRBuilder) -> Optional[int]:
+    return _block_id_from_name(getattr(builder.block, "name", None))
+
+
+def _same_block_name(lhs: Any, rhs: Any) -> bool:
+    lhs_name = getattr(getattr(lhs, "basic_block", None), "name", None)
+    rhs_name = getattr(rhs, "name", None)
+    if isinstance(lhs_name, bytes):
+        lhs_name = lhs_name.decode(errors="replace")
+    if isinstance(rhs_name, bytes):
+        rhs_name = rhs_name.decode(errors="replace")
+    return lhs_name == rhs_name
+
+
 class UnreachableReturnHandlerBox:
     """
     Box-First principle: Single Responsibility - Handle unreachable block returns
@@ -184,12 +209,7 @@ class ReturnPhiSynthesizerBox:
                 return None
 
         # Derive current block ID from name like 'bb3'
-        cur_bid = None
-        try:
-            cur_bid = int(str(builder.block.name).replace('bb', ''))
-        except Exception:
-            return None
-
+        cur_bid = _safe_block_id(builder)
         if cur_bid is None:
             return None
 
@@ -199,11 +219,7 @@ class ReturnPhiSynthesizerBox:
             if p == cur_bid:
                 continue
 
-            v = None
-            try:
-                v = block_end_values.get(p, {}).get(value_id)
-            except Exception:
-                v = None
+            v = block_end_values.get(p, {}).get(value_id)
 
             if v is None:
                 v = ir.Constant(return_type, 0)
@@ -220,13 +236,9 @@ class ReturnPhiSynthesizerBox:
             phi = _phi_at_block_head(builder.block, return_type, name=f"ret_phi_{value_id}")
         else:
             # Fallback: create PHI at block head using a temporary builder
-            try:
-                _b = ir.IRBuilder(builder.block)
-                _b.position_at_start(builder.block)
-                phi = _b.phi(return_type, name=f"ret_phi_{value_id}")
-            except Exception:
-                # As a last resort, create via current builder (may still succeed)
-                phi = builder.phi(return_type, name=f"ret_phi_{value_id}")
+            _b = ir.IRBuilder(builder.block)
+            _b.position_at_start(builder.block)
+            phi = _b.phi(return_type, name=f"ret_phi_{value_id}")
 
         # Add incoming values
         for (v, bblk) in incoming:
@@ -257,17 +269,14 @@ def lower_return(
     """
     # Prefer BuildCtx maps if provided
     if ctx is not None:
-        try:
-            if getattr(ctx, 'resolver', None) is not None:
-                resolver = ctx.resolver
-            if getattr(ctx, 'preds', None) is not None and preds is None:
-                preds = ctx.preds
-            if getattr(ctx, 'block_end_values', None) is not None and block_end_values is None:
-                block_end_values = ctx.block_end_values
-            if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
-                bb_map = ctx.bb_map
-        except Exception:
-            pass
+        if getattr(ctx, 'resolver', None) is not None:
+            resolver = ctx.resolver
+        if getattr(ctx, 'preds', None) is not None and preds is None:
+            preds = ctx.preds
+        if getattr(ctx, 'block_end_values', None) is not None and block_end_values is None:
+            block_end_values = ctx.block_end_values
+        if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
+            bb_map = ctx.bb_map
     if value_id is None:
         # Delegate to UnreachableReturnHandlerBox (Box-First principle)
         UnreachableReturnHandlerBox.handle_null_return(builder, return_type)
@@ -296,17 +305,10 @@ def lower_return(
         # only reuse vmap value when it is guaranteed to dominate this return block.
         if ret_val is None and isinstance(value_id, int):
             tmp0 = vmap.get(value_id)
-            cur_bid = None
+            cur_bid = _safe_block_id(builder)
             pred_ids = []
-            try:
-                cur_bid = int(str(builder.block.name).replace('bb', ''))
-            except Exception:
-                cur_bid = None
-            try:
-                if cur_bid is not None and isinstance(preds, dict):
-                    pred_ids = [p for p in preds.get(cur_bid, []) if p != cur_bid]
-            except Exception:
-                pred_ids = []
+            if cur_bid is not None and isinstance(preds, dict):
+                pred_ids = [p for p in preds.get(cur_bid, []) if p != cur_bid]
 
             # Phase 132 Debug: trace vmap lookup
             if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
@@ -319,24 +321,12 @@ def lower_return(
                 is_phi = hasattr(tmp0, 'add_incoming')
                 phi_in_current = False
                 if is_phi:
-                    try:
-                        phi_bb = getattr(getattr(tmp0, 'basic_block', None), 'name', None)
-                        cur_bb = getattr(builder.block, 'name', None)
-                        if isinstance(phi_bb, bytes):
-                            phi_bb = phi_bb.decode()
-                        if isinstance(cur_bb, bytes):
-                            cur_bb = cur_bb.decode()
-                        phi_in_current = phi_bb == cur_bb
-                    except Exception:
-                        phi_in_current = False
+                    phi_in_current = _same_block_name(tmp0, builder.block)
 
                 defined_here = False
                 if resolver is not None and cur_bid is not None and hasattr(resolver, 'def_blocks'):
-                    try:
-                        defs = resolver.def_blocks.get(value_id, set())
-                        defined_here = cur_bid in defs
-                    except Exception:
-                        defined_here = False
+                    defs = resolver.def_blocks.get(value_id, set())
+                    defined_here = cur_bid in defs
 
                 # Entry/no-pred block can safely reuse args/constants from local vmap.
                 entry_like = len(pred_ids) == 0
@@ -348,12 +338,9 @@ def lower_return(
                     ret_val = tmp0
         # Fallback: consult builder-global vmap (via resolver) for predeclared PHIs
         if ret_val is None and resolver is not None and hasattr(resolver, 'global_vmap'):
-            try:
-                g = resolver.global_vmap.get(int(value_id)) if isinstance(value_id, int) else None
-                if g is not None:
-                    ret_val = g
-            except Exception:
-                pass
+            g = resolver.global_vmap.get(int(value_id)) if isinstance(value_id, int) else None
+            if g is not None:
+                ret_val = g
         if ret_val is None:
             if resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
                 # Resolve direct value; PHIは finalize_phis に一任
@@ -362,10 +349,7 @@ def lower_return(
                 else:
                     is_stringish = False
                     if hasattr(resolver, 'is_stringish'):
-                        try:
-                            is_stringish = resolver.is_stringish(int(value_id))
-                        except Exception:
-                            is_stringish = False
+                        is_stringish = resolver.is_stringish(int(value_id))
                     if is_stringish and hasattr(resolver, 'string_ptrs') and int(value_id) in getattr(resolver, 'string_ptrs'):
                         # Delegate to StringBoxerBox (Box-First principle)
                         p = resolver.string_ptrs[int(value_id)]
@@ -376,10 +360,7 @@ def lower_return(
         if ret_val is None:
             # Default to vmap (non-PHI) if available
             tmp = vmap.get(value_id)
-            try:
-                is_phi = hasattr(tmp, 'add_incoming')
-            except Exception:
-                is_phi = False
+            is_phi = hasattr(tmp, 'add_incoming')
             if tmp is not None and not is_phi:
                 ret_val = tmp
         if not ret_val:
