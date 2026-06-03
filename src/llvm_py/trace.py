@@ -22,6 +22,7 @@ from typing import Mapping
 from phi_wiring.debug_helper import is_phi_trace_enabled
 
 _TRACE_OUT = os.environ.get('NYASH_LLVM_TRACE_OUT')
+_SAFE_TRACE_EXC = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
 
 HOT_SUMMARY_FIELDS = (
     "binop_total",
@@ -51,14 +52,14 @@ def _write(msg: str) -> None:
         return
     try:
         print(msg, flush=True)
-    except Exception:
+    except _SAFE_TRACE_EXC:
         pass
 
 def _write_to_path(path: str, msg: str) -> None:
     try:
         with open(path, 'a', encoding='utf-8') as f:
             f.write(msg.rstrip() + "\n")
-    except Exception:
+    except _SAFE_TRACE_EXC:
         pass
 
 def _stringify_trace_msg(msg) -> str:
@@ -66,7 +67,7 @@ def _stringify_trace_msg(msg) -> str:
         return msg if isinstance(msg, str) else msg.decode(errors="replace")
     try:
         return json.dumps(msg, ensure_ascii=False, separators=(",", ":"))
-    except Exception:
+    except _SAFE_TRACE_EXC:
         return str(msg)
 
 def _enabled(env_key: str) -> bool:
@@ -103,7 +104,7 @@ def hot_count(resolver, key: str, inc: int = 1) -> None:
         counts = getattr(ctx, "hot_trace_counts", None) if ctx is not None else None
         if isinstance(counts, dict):
             counts[key] = int(counts.get(key, 0)) + int(inc)
-    except Exception:
+    except _SAFE_TRACE_EXC:
         pass
 
 
@@ -126,6 +127,6 @@ def phi_json(msg):
     try:
         from phi_wiring.common import trace as _trace_phi_json  # type: ignore
         _trace_phi_json(msg)
-    except Exception:
+    except _SAFE_TRACE_EXC:
         # Fallback: stringify and route via plain phi
         phi(_stringify_trace_msg(msg))
