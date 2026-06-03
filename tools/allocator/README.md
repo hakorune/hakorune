@@ -75,6 +75,9 @@ replacement_front_page_bins_consumer_enabled=1
 replacement_front_page_bins_route=benchmark_page_bins
 replacement_front_product_pages_consumer_enabled=0
 hotcore_replacement_consumer_enabled=0
+hotcore_replacement_shape_ready=1
+hotcore_replacement_bridge_blocker=consumer_not_enabled
+hotcore_replacement_next_bridge=replacement_front_consume_hotcore_page_model
 hotcore_replacement_route=not_consumed_by_replacement_front
 replacement_front_page_bins_product_claim=0
 replacement_front_is_full_hako_algorithm=0
@@ -211,11 +214,18 @@ The same compare reports also emit the current HotCore bridge boundary:
 ```text
 replacement_front_hotcore_bridge_plan_v0=1
 replacement_front_hotcore_consumer_enabled=0
+hotcore_replacement_shape_ready=1
+hotcore_replacement_bridge_blocker=consumer_not_enabled
+hotcore_replacement_next_bridge=replacement_front_consume_hotcore_page_model
+hotcore_page_model_source_ready=1
+hotcore_small_alloc_calls_acquire_fresh_small=1
+hotcore_release_calls_release_local_known_live=1
+page_model_hot_methods_ready=1
 ```
 
 This means `.hako` `objectLifecycleSmallAlloc` /
-`objectLifecycleReleaseBlock` remain model/plan evidence, not the executed
-replacement-front algorithm.
+`objectLifecycleReleaseBlock` and their PageModel hot calls are source-ready,
+but remain model/plan evidence until the replacement front consumes that route.
 
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \

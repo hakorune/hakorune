@@ -275,6 +275,15 @@ def report_dict(
         for method in ("objectLifecycleSmallAlloc", "objectLifecycleReleaseBlock")
         if method in hot_core
     ]
+    hotcore_small_alloc_calls_acquire_fresh_small = int(
+        "page.acquireFreshSmall(" in hot_core
+    )
+    hotcore_release_calls_release_local_known_live = int(
+        "page.releaseLocalKnownLive(" in hot_core
+    )
+    page_model_hot_methods_ready = int(
+        has_all(page_box, ["acquireFreshSmall", "releaseLocalKnownLive"])
+    )
     size_class_single_bridge_supported = has_all(
         replacement,
         [
@@ -391,6 +400,23 @@ def report_dict(
         else "replacement_front_hotcore_route",
         "not_consumed_by_replacement_front",
     )
+    hotcore_page_model_source_ready = int(
+        len(hotcore_methods) == 2
+        and hotcore_small_alloc_calls_acquire_fresh_small
+        and hotcore_release_calls_release_local_known_live
+        and page_model_hot_methods_ready
+        and hot_array_source_migration_selected
+    )
+    hotcore_replacement_shape_ready = int(hotcore_page_model_source_ready)
+    if hotcore_consumer_enabled:
+        hotcore_bridge_blocker = "none"
+        hotcore_next_bridge = "measure_hotcore_replacement_consumer"
+    elif hotcore_replacement_shape_ready:
+        hotcore_bridge_blocker = "consumer_not_enabled"
+        hotcore_next_bridge = "replacement_front_consume_hotcore_page_model"
+    else:
+        hotcore_bridge_blocker = "source_shape_not_ready"
+        hotcore_next_bridge = "fix_hotcore_page_model_source_shape"
     return {
         "output_contract": "hako-mimalloc-algorithm-coverage-v0",
         "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),
@@ -464,6 +490,13 @@ def report_dict(
         "hotcore_replacement_bridge_plan_v0": 1,
         "hotcore_replacement_bridge_report_only": 1,
         "hotcore_replacement_consumer_enabled": hotcore_consumer_enabled,
+        "hotcore_replacement_shape_ready": hotcore_replacement_shape_ready,
+        "hotcore_replacement_bridge_blocker": hotcore_bridge_blocker,
+        "hotcore_replacement_next_bridge": hotcore_next_bridge,
+        "hotcore_page_model_source_ready": hotcore_page_model_source_ready,
+        "hotcore_small_alloc_calls_acquire_fresh_small": hotcore_small_alloc_calls_acquire_fresh_small,
+        "hotcore_release_calls_release_local_known_live": hotcore_release_calls_release_local_known_live,
+        "page_model_hot_methods_ready": page_model_hot_methods_ready,
         "hotcore_source_method_count": len(hotcore_methods),
         "hotcore_source_methods": ",".join(hotcore_methods) or "none",
         "hotcore_replacement_route": hotcore_route,
@@ -532,6 +565,13 @@ def emit_text(data: dict[str, object]) -> None:
         "hotcore_replacement_bridge_plan_v0",
         "hotcore_replacement_bridge_report_only",
         "hotcore_replacement_consumer_enabled",
+        "hotcore_replacement_shape_ready",
+        "hotcore_replacement_bridge_blocker",
+        "hotcore_replacement_next_bridge",
+        "hotcore_page_model_source_ready",
+        "hotcore_small_alloc_calls_acquire_fresh_small",
+        "hotcore_release_calls_release_local_known_live",
+        "page_model_hot_methods_ready",
         "hotcore_source_method_count",
         "hotcore_source_methods",
         "hotcore_replacement_route",

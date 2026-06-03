@@ -161,11 +161,19 @@ page_model_hot_array_seed_push_blocker=0
 page_model_hot_array_op_summary=free:get=...:set=...:push=...
 hotcore_replacement_bridge_plan_v0=1
 hotcore_replacement_consumer_enabled=0
+hotcore_replacement_shape_ready=1
+hotcore_replacement_bridge_blocker=consumer_not_enabled
+hotcore_replacement_next_bridge=replacement_front_consume_hotcore_page_model
+hotcore_page_model_source_ready=1
+hotcore_small_alloc_calls_acquire_fresh_small=1
+hotcore_release_calls_release_local_known_live=1
+page_model_hot_methods_ready=1
 hotcore_source_methods=objectLifecycleSmallAlloc,objectLifecycleReleaseBlock
 ```
 
 This is bridge-readiness reporting, not source migration or replacement-front
-lowering consumption.
+lowering consumption. The `.hako` HotCore/PageModel shape is ready; the current
+gap is that the replacement front still does not consume it.
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
 seed-time initialization traffic. `seedFreeBlocks` uses append-or-overwrite
@@ -282,11 +290,11 @@ object-lifecycle-native-slot-bridge-v0:
      it consumes workload regular bins but keeps pages/product activation
      closed.
    - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
-     storage. The seed-time `push` shape is closed; do the field-type migration
-     only when fresh owner evidence selects it. Current next bridge is a
-     DirectArrayI64 field-type + birth/initialized-length fixture.
-   - Third candidate: HotCore/PageModel plan consumption by replacement-front
-     lowering.
+     storage. This source migration is complete for `free` / `local_free` /
+     `block_used`; do not keep probing local get/set shape unless new owner
+     evidence selects it.
+   - Third candidate, now primary after page-bins local probes:
+     HotCore/PageModel plan consumption by replacement-front lowering.
    - Do not weaken ProviderFront or add source syntax to force the bridge.
 
 3. Measure the native slot bridge provider route.
