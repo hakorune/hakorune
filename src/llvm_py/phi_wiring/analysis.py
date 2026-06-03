@@ -3,6 +3,8 @@ from typing import Dict, List, Any, Tuple
 
 from .common import trace
 
+_SAFE_PHI_ANALYSIS_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _string_handle_type(value_type: Any) -> bool:
     if value_type == "string":
@@ -37,7 +39,7 @@ def _seed_stringish_dst(inst: Dict[str, Any]) -> int | None:
         if opx in ("binop", "boxcall", "externcall"):
             if _string_handle_type(inst.get("dst_type")):
                 return int(dstx)
-    except Exception:
+    except _SAFE_PHI_ANALYSIS_EXC:
         return None
 
     return None
@@ -77,7 +79,7 @@ def _propagate_stringish_from_inst(
             for pair in inst.get("incoming", []) or []:
                 try:
                     v_src, _b = pair
-                except Exception:
+                except _SAFE_PHI_ANALYSIS_EXC:
                     continue
                 if produced_str.get(int(v_src)):
                     produced_str[dst_i] = True
@@ -90,7 +92,7 @@ def _propagate_stringish_from_inst(
                 if value_id is not None and produced_str.get(int(value_id)):
                     produced_str[dst_i] = True
                     return True
-    except Exception:
+    except _SAFE_PHI_ANALYSIS_EXC:
         return False
 
     return False
@@ -133,7 +135,7 @@ def analyze_incomings(blocks: List[Dict[str, Any]]) -> Dict[int, Dict[int, List[
                 try:
                     dst0 = int(inst.get("dst"))
                     incoming0 = inst.get("incoming", []) or []
-                except Exception:
+                except _SAFE_PHI_ANALYSIS_EXC:
                     dst0 = None
                     incoming0 = []
                 if dst0 is None:
@@ -147,6 +149,6 @@ def analyze_incomings(blocks: List[Dict[str, Any]]) -> Dict[int, Dict[int, List[
                         "dst": dst0,
                         "incoming": pairs,
                     })
-                except Exception:
+                except _SAFE_PHI_ANALYSIS_EXC:
                     pass
     return result

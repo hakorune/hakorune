@@ -25,12 +25,14 @@ import llvmlite.ir as ir
 
 from phi_wiring.debug_helper import is_phi_debug_enabled
 
+_SAFE_PHI_PLACEMENT_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def is_phi_instruction(instr: ir.Instruction) -> bool:
     """Check if an instruction is a PHI instruction."""
     try:
         return hasattr(instr, 'add_incoming')
-    except Exception:
+    except _SAFE_PHI_PLACEMENT_EXC:
         return False
 
 
@@ -39,7 +41,7 @@ def is_terminator(instr: ir.Instruction) -> bool:
     try:
         opname = instr.opcode if hasattr(instr, 'opcode') else str(instr).split()[0]
         return opname in ('ret', 'br', 'switch', 'unreachable', 'indirectbr')
-    except Exception:
+    except _SAFE_PHI_PLACEMENT_EXC:
         return False
 
 
@@ -63,7 +65,7 @@ def collect_block_instructions(block: ir.Block) -> tuple[List[ir.Instruction], L
                 terminator = instr
             else:
                 non_phi_instructions.append(instr)
-    except Exception:
+    except _SAFE_PHI_PLACEMENT_EXC:
         pass
 
     return phi_instructions, non_phi_instructions, terminator
@@ -110,7 +112,7 @@ def reorder_block_instructions(builder, block_id: int) -> bool:
 
         return True
 
-    except Exception as e:
+    except _SAFE_PHI_PLACEMENT_EXC as e:
         if is_phi_debug_enabled():
             import sys
             print(f"[phi_placement] Error in block {block_id}: {e}", file=sys.stderr)
@@ -151,7 +153,7 @@ def _is_already_ordered(block: ir.Block, phi_instrs: List, non_phi_instrs: List,
 
         return True
 
-    except Exception:
+    except _SAFE_PHI_PLACEMENT_EXC:
         return True  # Assume correct if we can't determine
 
 
@@ -174,7 +176,7 @@ def verify_phi_ordering(builder) -> Dict[int, bool]:
                 print(f"[phi_placement] ❌ Block {block_id} has incorrect PHI ordering!", file=sys.stderr)
                 print(f"  PHIs: {len(phi_instrs)}, non-PHIs: {len(non_phi_instrs)}, "
                       f"terminator: {term_instr is not None}", file=sys.stderr)
-    except Exception as e:
+    except _SAFE_PHI_PLACEMENT_EXC as e:
         if is_phi_debug_enabled():
             import sys
             print(f"[phi_placement] Error during verification: {e}", file=sys.stderr)
