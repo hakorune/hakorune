@@ -299,6 +299,9 @@ public_proof_accumulator_plan_v0=1
 public_proof_accumulator_fields=...
 public_proof_accumulator_policy=...
 public_proof_accumulator_source_reorder_allowed=...
+public_proof_accumulator_observed_requested_bytes=...
+public_proof_accumulator_observed_no_overflow=...
+public_proof_accumulator_general_no_overflow_proof=...
 inlined_hot_body_acquire_fresh_small_percent=...
 inlined_hot_body_release_local_known_live_percent=...
 inlined_hot_body_init_public_store_percent=...
@@ -330,6 +333,8 @@ public_proof_accumulator_plan_v0=1
 public_proof_accumulator_fields=requested_bytes
 public_proof_accumulator_policy=checked_add_sign_guard
 public_proof_accumulator_source_reorder_allowed=0
+public_proof_accumulator_observed_no_overflow=1
+public_proof_accumulator_general_no_overflow_proof=0
 ```
 
 then the current perf report can still guide instruction-shape cleanup, but it
@@ -340,7 +345,8 @@ selects `acquire_fresh_small_like`, the narrower next bridge is to split
 public/proof stores from the acquire-like body first. If
 `inlined_hot_body_split_blocker` reports the checked public/proof accumulator,
 do not source-reorder the `requested_bytes` store until an overflow policy or
-proof exists. If the top instruction category is actionable
+proof exists. Observed no-overflow from a concrete benchmark run is useful
+measurement evidence, but it is not a general source/compiler proof. If the top instruction category is actionable
 (`store_like`, `branch`, `memory`, or `call`), inspect that category before
 opening another source rewrite. Field hints are layout candidates from
 `app.mir.json`; they intentionally skip scaled DirectArray element operands and
@@ -406,6 +412,8 @@ perf_inlined_hot_body_selected=acquire_fresh_small_like
 perf_inlined_hot_body_split_blocker=checked_public_proof_accumulator_requires_overflow_policy
 perf_public_proof_accumulator_fields=requested_bytes
 perf_public_proof_accumulator_policy=checked_add_sign_guard
+perf_public_proof_accumulator_observed_no_overflow=1
+perf_public_proof_accumulator_general_no_overflow_proof=0
 ```
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports

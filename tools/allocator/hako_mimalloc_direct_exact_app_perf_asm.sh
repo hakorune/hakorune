@@ -250,16 +250,19 @@ EOF
 perf report --stdio --no-children -i "$perf_data" >"$perf_report"
 perf annotate --stdio -i "$perf_data" --symbol "$SYMBOL" >"$perf_annotate" || true
 objdump -d --demangle "$exe_out" >"$objdump_txt"
+
+body_elapsed_ns="$(awk -F= '$1 == "body_elapsed_ns" { print $2; exit }' "$run_out")"
+observed_repeat="$(awk -F= '$1 == "in_process_operation_repeat" { print $2; exit }' "$run_out")"
+observed_requested_bytes="$(awk -F= '$1 == "requested_bytes" { print $2; exit }' "$run_out")"
+
 python3 "$ROOT_DIR/tools/allocator/hako_mimalloc_perf_attribution.py" \
   --perf-report "$perf_report" \
   --perf-annotate "$perf_annotate" \
   --objdump "$objdump_txt" \
   --mir-json "$mir_json" \
   --layout-box HakoAllocPageModel \
-  --symbol "$SYMBOL" >"$perf_attribution"
-
-body_elapsed_ns="$(awk -F= '$1 == "body_elapsed_ns" { print $2; exit }' "$run_out")"
-observed_repeat="$(awk -F= '$1 == "in_process_operation_repeat" { print $2; exit }' "$run_out")"
+  --symbol "$SYMBOL" \
+  --observed-requested-bytes "${observed_requested_bytes:-0}" >"$perf_attribution"
 nonzero_annotate_count="$(
   awk '
     /^[[:space:]]*[0-9]+([.][0-9]+)?[[:space:]]*:/ { count++ }
@@ -285,6 +288,7 @@ symbol=$SYMBOL
 perf_freq=$PERF_FREQ
 in_process_operation_repeat=${observed_repeat:-0}
 requested_in_process_operation_repeat=$IN_PROCESS_REPEAT
+requested_bytes=${observed_requested_bytes:-0}
 body_elapsed_ns=${body_elapsed_ns:-0}
 top_symbol=${top_symbol:-}
 nonzero_annotate_line_count=$nonzero_annotate_count

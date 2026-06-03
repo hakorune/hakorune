@@ -1136,6 +1136,18 @@ def report_dict(
         "perf_public_proof_accumulator_source_reorder_allowed": int_field(
             perf_attribution, "public_proof_accumulator_source_reorder_allowed", 0
         ),
+        "perf_public_proof_accumulator_observed_requested_bytes": str_field(
+            perf_attribution, "public_proof_accumulator_observed_requested_bytes", "none"
+        ),
+        "perf_public_proof_accumulator_observed_no_overflow": int_field(
+            perf_attribution, "public_proof_accumulator_observed_no_overflow", 0
+        ),
+        "perf_public_proof_accumulator_observed_i64_margin": str_field(
+            perf_attribution, "public_proof_accumulator_observed_i64_margin", "none"
+        ),
+        "perf_public_proof_accumulator_general_no_overflow_proof": int_field(
+            perf_attribution, "public_proof_accumulator_general_no_overflow_proof", 0
+        ),
         "perf_public_proof_accumulator_next_bridge": str_field(
             perf_attribution, "public_proof_accumulator_next_bridge", "none"
         ),
@@ -1343,6 +1355,10 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_public_proof_accumulator_fields",
         "perf_public_proof_accumulator_policy",
         "perf_public_proof_accumulator_source_reorder_allowed",
+        "perf_public_proof_accumulator_observed_requested_bytes",
+        "perf_public_proof_accumulator_observed_no_overflow",
+        "perf_public_proof_accumulator_observed_i64_margin",
+        "perf_public_proof_accumulator_general_no_overflow_proof",
         "perf_public_proof_accumulator_next_bridge",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",

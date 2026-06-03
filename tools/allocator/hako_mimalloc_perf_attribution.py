@@ -579,6 +579,9 @@ def _kv_bool(value: bool) -> str:
     return "1" if value else "0"
 
 
+I64_SIGNED_MAX = (1 << 63) - 1
+
+
 def emit_report(args: argparse.Namespace) -> str:
     perf_symbols = parse_perf_symbols(_read(args.perf_report))
     annotated = parse_annotated_instructions(_read(args.perf_annotate))
@@ -659,6 +662,15 @@ def emit_report(args: argparse.Namespace) -> str:
         else "none"
         if not public_proof_accumulator_fields
         else "unclassified"
+    )
+    observed_no_overflow = bool(
+        args.observed_requested_bytes is not None
+        and 0 <= args.observed_requested_bytes <= I64_SIGNED_MAX
+    )
+    observed_margin = (
+        I64_SIGNED_MAX - args.observed_requested_bytes
+        if args.observed_requested_bytes is not None
+        else None
     )
     split_ready = bool(
         hot_inline_owner != "none" and not checked_public_accumulator_barrier
@@ -762,6 +774,10 @@ def emit_report(args: argparse.Namespace) -> str:
         f"public_proof_accumulator_fields={','.join(public_proof_accumulator_fields) or 'none'}",
         f"public_proof_accumulator_policy={public_proof_accumulator_policy}",
         f"public_proof_accumulator_source_reorder_allowed={_kv_bool(not checked_public_accumulator_barrier)}",
+        f"public_proof_accumulator_observed_requested_bytes={args.observed_requested_bytes if args.observed_requested_bytes is not None else 'none'}",
+        f"public_proof_accumulator_observed_no_overflow={_kv_bool(observed_no_overflow)}",
+        f"public_proof_accumulator_observed_i64_margin={observed_margin if observed_margin is not None else 'none'}",
+        "public_proof_accumulator_general_no_overflow_proof=0",
         f"public_proof_accumulator_next_bridge={split_next_bridge}",
     ]
     if top_instruction is not None:
@@ -829,6 +845,7 @@ def main() -> int:
     parser.add_argument("--collapse-threshold", type=float, default=90.0)
     parser.add_argument("--hot-limit", type=int, default=8)
     parser.add_argument("--context-radius", type=int, default=3)
+    parser.add_argument("--observed-requested-bytes", type=int)
     args = parser.parse_args()
     if args.hot_limit < 1:
         parser.error("--hot-limit must be >= 1")

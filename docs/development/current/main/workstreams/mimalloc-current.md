@@ -427,6 +427,8 @@ public_proof_accumulator_plan_v0=1
 public_proof_accumulator_fields=requested_bytes
 public_proof_accumulator_policy=checked_add_sign_guard
 public_proof_accumulator_source_reorder_allowed=0
+public_proof_accumulator_observed_no_overflow=1
+public_proof_accumulator_general_no_overflow_proof=0
 ```
 
 Attempted symbol-specific annotate on the same `perf.data` for
@@ -450,8 +452,11 @@ branch before the primitive `free_top` store. Do not reorder or sink that
 store until an explicit overflow policy / proof is added. The
 `public_proof_accumulator_plan_v0` report names this as
 `requested_bytes` with `checked_add_sign_guard`, and keeps
-`source_reorder_allowed=0`. The weighted store classifier says the store owner
-is primitive
+`source_reorder_allowed=0`. The direct perf tool can also pass observed
+`requested_bytes` from the benchmark run and report observed no-overflow, but
+that is measurement evidence only; the general compiler/source proof remains
+`0` until an explicit accumulator overflow contract is added. The weighted
+store classifier says the store owner is primitive
 hot-state dominant, so do not misread the current evidence as primarily a
 public/proof counter deletion opportunity.
 Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later
