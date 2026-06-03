@@ -699,7 +699,11 @@ void free(void* ptr) {
 """
 
 
-def generate_replacement_front_bins_shim_c(required_bins: list[int]) -> str:
+def generate_replacement_front_bins_shim_c(
+    required_bins: list[int],
+    *,
+    page_shaped: bool = False,
+) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
     This is intentionally narrower than the fixed-slot front: single-thread,
@@ -717,59 +721,88 @@ def generate_replacement_front_bins_shim_c(required_bins: list[int]) -> str:
         if bin_size <= 0:
             continue
         tag = f"bin_{bin_index}"
+        type_tag = tag.title().replace("_", "")
+        slot_expr = f"{tag}_slots"
+        used_expr = f"{tag}_used"
+        requested_expr = f"{tag}_requested_size"
+        free_stack_expr = f"{tag}_free_stack"
+        free_top_expr = f"{tag}_free_top"
         bin_defs.extend(
             [
                 f"#define HAKO_{tag.upper()}_SIZE {bin_size}u",
-                f"typedef union HakoReplacement{tag.title().replace('_', '')}Slot {{",
+                f"typedef union HakoReplacement{type_tag}Slot {{",
                 "  max_align_t align;",
                 f"  unsigned char bytes[HAKO_{tag.upper()}_SIZE];",
-                f"}} HakoReplacement{tag.title().replace('_', '')}Slot;",
-                f"static HakoReplacement{tag.title().replace('_', '')}Slot {tag}_slots[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                f"static unsigned char {tag}_used[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                f"static size_t {tag}_requested_size[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                f"static uint32_t {tag}_free_stack[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                f"static uint32_t {tag}_free_top = 0u;",
+                f"}} HakoReplacement{type_tag}Slot;",
             ]
         )
+        if page_shaped:
+            bin_defs.extend(
+                [
+                    f"typedef struct HakoReplacement{type_tag}Page {{",
+                    f"  HakoReplacement{type_tag}Slot slots[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    "  unsigned char used[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    "  size_t requested_size[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    "  uint32_t free_stack[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    "  uint32_t free_top;",
+                    f"}} HakoReplacement{type_tag}Page;",
+                    f"static HakoReplacement{type_tag}Page {tag}_page;",
+                ]
+            )
+            slot_expr = f"{tag}_page.slots"
+            used_expr = f"{tag}_page.used"
+            requested_expr = f"{tag}_page.requested_size"
+            free_stack_expr = f"{tag}_page.free_stack"
+            free_top_expr = f"{tag}_page.free_top"
+        else:
+            bin_defs.extend(
+                [
+                    f"static HakoReplacement{type_tag}Slot {slot_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static unsigned char {used_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static size_t {requested_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static uint32_t {free_stack_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static uint32_t {free_top_expr} = 0u;",
+                ]
+            )
         init_cases.append(
             f"""
   for (uint32_t i = 0; i < HAKO_REPLACEMENT_BIN_SLOT_COUNT; i++) {{
-    {tag}_free_stack[i] = HAKO_REPLACEMENT_BIN_SLOT_COUNT - i - 1u;
-    {tag}_used[i] = 0u;
-    {tag}_requested_size[i] = 0u;
+    {free_stack_expr}[i] = HAKO_REPLACEMENT_BIN_SLOT_COUNT - i - 1u;
+    {used_expr}[i] = 0u;
+    {requested_expr}[i] = 0u;
   }}
-  {tag}_free_top = HAKO_REPLACEMENT_BIN_SLOT_COUNT;
+  {free_top_expr} = HAKO_REPLACEMENT_BIN_SLOT_COUNT;
 """
         )
         size_cases.append(f"  if (size <= HAKO_{tag.upper()}_SIZE) return {bin_index};")
         alloc_cases.append(
             f"""
     case {bin_index}:
-      if ({tag}_free_top == 0u) return 0;
-      index = {tag}_free_stack[--{tag}_free_top];
-      {tag}_used[index] = 1u;
-      {tag}_requested_size[index] = size;
+      if ({free_top_expr} == 0u) return 0;
+      index = {free_stack_expr}[--{free_top_expr}];
+      {used_expr}[index] = 1u;
+      {requested_expr}[index] = size;
       direct_core_call_count++;
-      return {tag}_slots[index].bytes;
+      return {slot_expr}[index].bytes;
 """
         )
         find_cases.append(
             f"""
-  base = (uintptr_t){tag}_slots[0].bytes;
-  end = (uintptr_t)({tag}_slots + HAKO_REPLACEMENT_BIN_SLOT_COUNT);
+  base = (uintptr_t){slot_expr}[0].bytes;
+  end = (uintptr_t)({slot_expr} + HAKO_REPLACEMENT_BIN_SLOT_COUNT);
   if (value >= base && value < end) {{
     delta = value - base;
-    stride = sizeof({tag}_slots[0]);
+    stride = sizeof({slot_expr}[0]);
     if ((delta % stride) != 0) return 0;
     index = (uint32_t)(delta / stride);
     if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) return 0;
     *bin_out = {bin_index};
     *index_out = index;
     *slot_size_out = HAKO_{tag.upper()}_SIZE;
-    *used_out = {tag}_used;
-    *requested_out = {tag}_requested_size;
-    *free_stack_out = {tag}_free_stack;
-    *free_top_out = &{tag}_free_top;
+    *used_out = {used_expr};
+    *requested_out = {requested_expr};
+    *free_stack_out = {free_stack_expr};
+    *free_top_out = &{free_top_expr};
     return 1;
   }}
 """

@@ -105,6 +105,7 @@ replacement_front_product_bins_required_regular_bins=...
 replacement_front_product_pages_plan_v0=1
 replacement_front_product_pages_consumer_enabled=0
 replacement_front_page_bins_plan_v0=1
+replacement_front_page_bins_supported=...
 replacement_front_page_bins_consumer_enabled=0
 replacement_front_page_bins_owner=benchmark_only
 replacement_front_page_bins_product_claim=0
@@ -143,6 +144,35 @@ bin route. It may consume workload regular bins plus page-shaped owner storage,
 but it must keep product replacement and full `.hako` algorithm claims closed
 until the algorithm coverage report proves the executed route is no longer
 split from the `.hako` model.
+
+For the first page-shaped benchmark-only multi-bin prototype, use:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --replacement-front-page-bins-mode \
+  --threads 1 \
+  --out target/hakozuna-mixed-ws-page-bins/report.out \
+  --out-dir target/hakozuna-mixed-ws-page-bins/artifacts \
+  --sample-count 3
+```
+
+This keeps the same workload regular `.hako` size-class bins as
+`--replacement-front-native-bins-mode`, but stores each bin in a page-shaped
+owner struct. It reports:
+
+```text
+replacement_front_algorithm_shape=page_bin_benchmark_front
+replacement_front_product_bins_consumer_enabled=1
+replacement_front_product_bins_route=benchmark_page_bins
+replacement_front_page_bins_consumer_enabled=1
+replacement_front_page_bins_route=benchmark_page_bins
+replacement_front_product_pages_consumer_enabled=0
+replacement_front_page_bins_product_claim=0
+```
+
+It remains single-thread-only in v0 and still keeps product pages, activation,
+hooks, globals, and winner claims closed.
 
 The same compare reports also emit the current HotCore bridge boundary:
 

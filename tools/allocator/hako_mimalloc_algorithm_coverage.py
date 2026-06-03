@@ -256,6 +256,16 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
             "hako_good_size_request_ceiling",
         ],
     )
+    page_bins_bridge_supported = has_all(
+        replacement,
+        [
+            "--replacement-front-page-bins-mode",
+            "page_shaped",
+            "HakoReplacement",
+            "Page",
+            "benchmark_page_bins",
+        ],
+    )
     locked_front = has_all(
         replacement,
         [
@@ -307,6 +317,7 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         else "none",
         "size_class_policy_next_bridge": "product_replacement_bins_pages",
         "replacement_front_page_bins_plan_v0": 1,
+        "replacement_front_page_bins_supported": int(page_bins_bridge_supported),
         "replacement_front_page_bins_consumer_enabled": 0,
         "replacement_front_page_bins_route": "not_consumed",
         "replacement_front_page_bins_owner": "benchmark_only",
@@ -373,6 +384,7 @@ def emit_text(data: dict[str, object]) -> None:
         "size_class_policy_single_class_bridge_mode",
         "size_class_policy_next_bridge",
         "replacement_front_page_bins_plan_v0",
+        "replacement_front_page_bins_supported",
         "replacement_front_page_bins_consumer_enabled",
         "replacement_front_page_bins_route",
         "replacement_front_page_bins_owner",
