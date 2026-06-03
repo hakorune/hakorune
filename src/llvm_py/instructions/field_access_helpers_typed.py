@@ -38,6 +38,8 @@ from instructions.field_access_helpers_common import (
     _resolve_receiver,
 )
 
+_SAFE_TYPED_FIELD_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def _handle_box_type(meta: Any) -> Optional[str]:
     if isinstance(meta, dict) and meta.get("kind") == "handle":
         box_type = meta.get("box_type")
@@ -216,7 +218,7 @@ def _boolish_llvm_value(vmap: Dict[int, Any], value_vid: Optional[int]) -> bool:
         return False
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_TYPED_FIELD_EXC:
         return False
     return isinstance(vtype, ir.IntType) and vtype.width == 1
 
@@ -229,7 +231,7 @@ def _floatish_llvm_value(vmap: Dict[int, Any], value_vid: Optional[int]) -> bool
         return False
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_TYPED_FIELD_EXC:
         return False
     return isinstance(vtype, ir.DoubleType)
 
@@ -533,7 +535,7 @@ def _canonical_bool_i64(builder: ir.IRBuilder, value, *, name_hint: str):
         return ir.Constant(i64, 0)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_TYPED_FIELD_EXC:
         vtype = None
     if isinstance(vtype, ir.PointerType):
         value = builder.ptrtoint(value, i64, name=f"{name_hint}_p2i")
@@ -634,7 +636,7 @@ def _resolve_typed_float_value(
         return ir.Constant(f64, 0.0)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_TYPED_FIELD_EXC:
         vtype = None
     if isinstance(vtype, ir.DoubleType):
         return value
@@ -646,7 +648,7 @@ def _resolve_typed_float_value(
     )
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_TYPED_FIELD_EXC:
         vtype = None
     if isinstance(vtype, ir.DoubleType):
         return value

@@ -3,6 +3,8 @@ from typing import Any, Optional
 
 from type_facts import is_box_handle_fact
 
+_SAFE_PRIMITIVE_HANDLE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _ensure_module_function(module, name: str, return_type, arg_types):
     for func in module.functions:
@@ -69,7 +71,7 @@ def _canonical_unbox_helper_arg(
     i64 = ir.IntType(64)
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_PRIMITIVE_HANDLE_EXC:
         vtype = None
 
     if isinstance(vtype, ir.PointerType):
@@ -97,7 +99,7 @@ def unbox_primitive_handle_if_needed(
 
     try:
         vtype = value.type
-    except Exception:
+    except _SAFE_PRIMITIVE_HANDLE_EXC:
         vtype = None
 
     if isinstance(vtype, ir.DoubleType) and isinstance(return_type, ir.DoubleType):

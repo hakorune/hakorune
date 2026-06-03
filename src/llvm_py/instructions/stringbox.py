@@ -18,6 +18,8 @@ from utils.values import resolve_i64_strict
 from instructions.string_fast import string_ptr_for_value
 from instructions.llvm_decl import declare_function as _declare
 
+_SAFE_STRINGBOX_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 # StringBox method mapping (TypeRegistry slots 410-413)
 STRINGBOX_METHODS = {
@@ -43,7 +45,7 @@ def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.
                 if isinstance(v.type.pointee, ir.ArrayType):
                     c0 = ir.IntType(32)(0)
                     v = builder.gep(v, [c0, c0], name="sb_str_gep")
-            except Exception:
+            except _SAFE_STRINGBOX_EXC:
                 pass
             callee = _declare(module, "nyash.box.from_i8_string", i64, [i8p])
             return builder.call(callee, [v], name="str_ptr2h_sb")
@@ -353,7 +355,7 @@ def _emit_substring(
             if isinstance(recv_p.type.pointee, ir.ArrayType):
                 c0 = ir.Constant(ir.IntType(32), 0)
                 recv_p = builder.gep(recv_p, [c0, c0], name="sb_gep_recv")
-        except Exception:
+        except _SAFE_STRINGBOX_EXC:
             pass
     else:
         recv_p = ir.Constant(i8p, None)
@@ -376,7 +378,7 @@ def _emit_substring(
                 resolver.mark_string(dst_vid)
             if resolver is not None and hasattr(resolver, 'string_ptrs'):
                 resolver.string_ptrs[int(dst_vid)] = p
-        except Exception:
+        except _SAFE_STRINGBOX_EXC:
             pass
 
     return True
@@ -432,7 +434,7 @@ def _emit_lastindexof(
             if isinstance(needle.type.pointee, ir.ArrayType):
                 c0 = ir.Constant(ir.IntType(32), 0)
                 needle = builder.gep(needle, [c0, c0], name="sb_gep_needle")
-        except Exception:
+        except _SAFE_STRINGBOX_EXC:
             pass
 
     callee = _declare(module, "nyash.string.lastIndexOf_ss", i64, [i8p, i8p])
