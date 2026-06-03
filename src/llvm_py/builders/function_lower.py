@@ -131,17 +131,21 @@ def _mark_arrayish_param_fact(builder, value_id: int) -> None:
     except (TypeError, ValueError):
         return
 
-    try:
-        builder.resolver.array_ids.add(vid)
-    except Exception:
-        pass
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
+        return
 
-    try:
-        if not hasattr(builder.resolver, "value_types") or not isinstance(builder.resolver.value_types, dict):
-            builder.resolver.value_types = {}
-        builder.resolver.value_types[vid] = {"kind": "handle", "box_type": "ArrayBox"}
-    except Exception:
-        pass
+    array_ids = getattr(resolver, "array_ids", None)
+    if not isinstance(array_ids, set):
+        array_ids = set(array_ids or [])
+        resolver.array_ids = array_ids
+    array_ids.add(vid)
+
+    value_types = getattr(resolver, "value_types", None)
+    if not isinstance(value_types, dict):
+        value_types = {}
+        resolver.value_types = value_types
+    value_types[vid] = {"kind": "handle", "box_type": "ArrayBox"}
 
 
 def _seed_hakocli_args_array_fact(
@@ -186,20 +190,19 @@ def _seed_hakocli_args_array_fact(
 
 def _propagate_arrayish_value_facts(builder, blocks: List[Dict[str, Any]]) -> None:
     """Expand seeded ArrayBox facts across copy/phi carrier chains."""
-    try:
-        seeded = set(getattr(builder.resolver, "array_ids", set()) or set())
-        propagated = propagate_arrayish_value_ids(blocks, seeded)
-    except Exception:
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
         return
 
-    try:
-        builder.resolver.array_ids.clear()
-        builder.resolver.array_ids.update(propagated)
-    except Exception:
-        try:
-            builder.resolver.array_ids = set(propagated)
-        except Exception:
-            pass
+    seeded = set(getattr(resolver, "array_ids", set()) or set())
+    propagated = propagate_arrayish_value_ids(blocks, seeded)
+
+    array_ids = getattr(resolver, "array_ids", None)
+    if not isinstance(array_ids, set):
+        resolver.array_ids = set(propagated)
+    else:
+        array_ids.clear()
+        array_ids.update(propagated)
 
     for vid in propagated:
         _mark_arrayish_param_fact(builder, int(vid))
@@ -222,12 +225,9 @@ def _dedup_non_self_preds(preds_map: Dict[int, List[int]], block_id: int) -> Lis
 def _collect_block_defs(block: Dict[str, Any]) -> set[int]:
     defs: set[int] = set()
     for ins in block.get("instructions") or []:
-        try:
-            dstv = ins.get("dst")
-            if isinstance(dstv, int):
-                defs.add(int(dstv))
-        except Exception:
-            continue
+        dstv = ins.get("dst")
+        if isinstance(dstv, int):
+            defs.add(int(dstv))
     return defs
 
 
@@ -235,12 +235,9 @@ def _collect_block_uses(block: Dict[str, Any]) -> set[int]:
     uses: set[int] = set()
     for ins in block.get("instructions") or []:
         for key in ("lhs", "rhs", "value", "cond", "box_val", "box"):
-            try:
-                value = ins.get(key)
-                if isinstance(value, int):
-                    uses.add(int(value))
-            except Exception:
-                continue
+            value = ins.get(key)
+            if isinstance(value, int):
+                uses.add(int(value))
     return uses
 
 
@@ -257,35 +254,24 @@ def _seed_multi_pred_block_phi_incomings(builder, block_by_id: Dict[int, Dict[st
         if not need:
             continue
         for vid in need:
-            try:
-                builder.block_phi_incomings.setdefault(int(bid), {})[int(vid)] = [
-                    (int(pred_bid), int(vid)) for pred_bid in preds_list
-                ]
-            except Exception:
-                pass
-    try:
-        builder.resolver.block_phi_incomings = builder.block_phi_incomings
-    except Exception:
-        pass
+            builder.block_phi_incomings.setdefault(int(bid), {})[int(vid)] = [
+                (int(pred_bid), int(vid)) for pred_bid in preds_list
+            ]
+    resolver = getattr(builder, "resolver", None)
+    if resolver is not None:
+        resolver.block_phi_incomings = builder.block_phi_incomings
 
 
 def _seed_if_merge_ret_phi_incomings(builder, plan: Dict[int, int]) -> None:
     for bbid, ret_vid in (plan or {}).items():
         preds_list = _dedup_non_self_preds(getattr(builder, "preds", {}) or {}, int(bbid))
-        try:
-            builder.block_phi_incomings.setdefault(int(bbid), {})[int(ret_vid)] = [
-                (int(pred_bid), int(ret_vid)) for pred_bid in preds_list
-            ]
-        except Exception:
-            pass
-        try:
-            trace_debug(f"[prepass] if-merge: plan metadata at bb{bbid} for v{ret_vid} preds={preds_list}")
-        except Exception:
-            pass
-    try:
-        builder.resolver.block_phi_incomings = builder.block_phi_incomings
-    except Exception:
-        pass
+        builder.block_phi_incomings.setdefault(int(bbid), {})[int(ret_vid)] = [
+            (int(pred_bid), int(ret_vid)) for pred_bid in preds_list
+        ]
+        trace_debug(f"[prepass] if-merge: plan metadata at bb{bbid} for v{ret_vid} preds={preds_list}")
+    resolver = getattr(builder, "resolver", None)
+    if resolver is not None:
+        resolver.block_phi_incomings = builder.block_phi_incomings
 
 
 def _run_if_merge_prepass(builder, block_by_id: Dict[int, Dict[str, Any]]) -> None:
