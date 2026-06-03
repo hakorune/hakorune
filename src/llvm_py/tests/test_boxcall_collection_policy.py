@@ -218,6 +218,82 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
                 resolver=resolver,
             )
 
+    def test_boxcall_map_get_missing_arg_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "MapBox"}})
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            try_lower_collection_boxcall(
+                builder=builder,
+                module=module,
+                method_name="get",
+                recv_val=ir.Constant(i64, 1),
+                box_vid=1,
+                args=[],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                declare=_declare,
+                resolver=resolver,
+            )
+
+    def test_boxcall_map_set_missing_arg_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "MapBox"}})
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            try_lower_collection_boxcall(
+                builder=builder,
+                module=module,
+                method_name="set",
+                recv_val=ir.Constant(i64, 1),
+                box_vid=1,
+                args=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                declare=_declare,
+                resolver=resolver,
+            )
+
+    def test_boxcall_map_clear_extra_arg_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "MapBox"}})
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            try_lower_collection_boxcall(
+                builder=builder,
+                module=module,
+                method_name="clear",
+                recv_val=ir.Constant(i64, 1),
+                box_vid=1,
+                args=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                declare=_declare,
+                resolver=resolver,
+            )
+
+    def test_boxcall_map_delete_missing_arg_fails_fast_in_strict_mode(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "MapBox"}})
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            try_lower_collection_boxcall(
+                builder=builder,
+                module=module,
+                method_name="delete",
+                recv_val=ir.Constant(i64, 1),
+                box_vid=1,
+                args=[],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                declare=_declare,
+                resolver=resolver,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

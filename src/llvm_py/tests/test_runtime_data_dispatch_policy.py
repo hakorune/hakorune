@@ -358,6 +358,25 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
                 prefer_array_mono_route=False,
             )
 
+    def test_runtime_data_field_missing_arg_fails_fast_in_strict_mode(self):
+        i64 = ir.IntType(64)
+        module = ir.Module(name="test_runtime_data_field_missing_arg_strict")
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+        os.environ["NYASH_LLVM_STRICT"] = "1"
+
+        with self.assertRaisesRegex(RuntimeError, "RuntimeData arity mismatch"):
+            lower_runtime_data_field_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                box_name="RuntimeDataBox",
+                method="getField",
+                recv_h=ir.Constant(i64, 1),
+                args=[],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

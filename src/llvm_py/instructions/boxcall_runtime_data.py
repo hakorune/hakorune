@@ -92,7 +92,13 @@ def try_lower_collection_boxcall(
                     arg_vids=args,
                 )
             )
-        k = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
+        if len(args) < 1:
+            return runtime_data_arity_fallback_zero(
+                "map_slot_load_hh",
+                required=1,
+                actual=len(args),
+            )
+        k = resolve_arg(args[0])
         if k is None:
             k = ir.Constant(i64, 0)
         callee = declare(module, "nyash.map.slot_load_hh", i64, [i64, i64])
@@ -117,10 +123,16 @@ def try_lower_collection_boxcall(
                     arg_vids=args,
                 )
             )
-        k = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
+        if len(args) < 2:
+            return runtime_data_arity_fallback_zero(
+                "map_slot_store_hhh",
+                required=2,
+                actual=len(args),
+            )
+        k = resolve_arg(args[0])
         if k is None:
             k = ir.Constant(i64, 0)
-        v = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
+        v = resolve_arg(args[1])
         if v is None:
             v = ir.Constant(i64, 0)
         callee = declare(module, "nyash.map.slot_store_hhh", i64, [i64, i64, i64])
@@ -136,7 +148,13 @@ def try_lower_collection_boxcall(
                     arg_vids=args,
                 )
             )
-        k = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
+        if len(args) < 1:
+            return runtime_data_arity_fallback_zero(
+                "map_probe_hh",
+                required=1,
+                actual=len(args),
+            )
+        k = resolve_arg(args[0])
         if k is None:
             k = ir.Constant(i64, 0)
         callee = declare(module, "nyash.map.probe_hh", i64, [i64, i64])
@@ -146,7 +164,11 @@ def try_lower_collection_boxcall(
         known_box_name = get_box_type(resolver, box_vid)
         if known_box_name == "MapBox" or receiver_is_mapish(resolver, box_vid):
             if args:
-                return ir.Constant(i64, 0)
+                return runtime_data_arity_fallback_zero(
+                    "map_clear_h",
+                    required=0,
+                    actual=len(args),
+                )
             callee = declare(module, "nyash.map.clear_h", i64, [i64])
             return builder.call(callee, [recv_h], name="map_clear_h")
 
@@ -154,8 +176,12 @@ def try_lower_collection_boxcall(
         known_box_name = get_box_type(resolver, box_vid)
         if known_box_name == "MapBox" or receiver_is_mapish(resolver, box_vid):
             if not args:
-                return ir.Constant(i64, 0)
-            key = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
+                return runtime_data_arity_fallback_zero(
+                    "map_delete_hh",
+                    required=1,
+                    actual=len(args),
+                )
+            key = resolve_arg(args[0])
             if key is None:
                 key = ir.Constant(i64, 0)
             callee = declare(module, "nyash.map.delete_hh", i64, [i64, i64])
