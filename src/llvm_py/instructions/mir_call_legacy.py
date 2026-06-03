@@ -3,11 +3,13 @@ Unified MIR Call instruction handler - ChatGPT5 Pro A++ Design
 Replaces call.py, boxcall.py, externcall.py, newbox.py, plugin_invoke.py, newclosure.py
 """
 
+from functools import partial
 from typing import Dict, Any, Optional
 from llvmlite import ir
 import os
 import json
 from instructions.mir_call.arg_resolver import make_call_arg_resolver
+from instructions.llvm_decl import declare_function
 from instructions.mir_call.collection_method_call import lower_collection_method_call
 from instructions.mir_call.method_fallback_tail import lower_direct_or_plugin_method_call
 from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field_call
@@ -194,13 +196,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     if os.environ.get('NYASH_LLVM_AUTO_SAFEPOINT', '1') == '1':
         insert_automatic_safepoint(builder, module, "boxcall")
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    _declare = partial(declare_function, module)
 
     # Helper to ensure i64 handle
     def _ensure_handle(v):
@@ -372,13 +368,7 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
     # Helper to resolve arguments
     _resolve_arg = make_call_arg_resolver(builder, vmap, resolver, owner)
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    _declare = partial(declare_function, module)
 
     # TRUE UNIFIED CONSTRUCTOR DISPATCH
     if box_type == "StringBox":
@@ -479,13 +469,7 @@ def lower_value_call(builder, module, func_vid, args, dst_vid, vmap, resolver, o
     # Helper to resolve arguments
     _resolve_arg = make_call_arg_resolver(builder, vmap, resolver, owner)
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    _declare = partial(declare_function, module)
 
     # Resolve the function value (handle to function or closure)
     func_val = _resolve_arg(func_vid)

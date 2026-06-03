@@ -4,6 +4,7 @@ import sys
 # NamingBox SSOT: Add parent directory to path for naming_helper import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from naming_helper import encode_static_method
+from instructions.llvm_decl import declare_function
 from instructions.sum_runtime import merge_user_box_decls
 from instructions.typed_object_exact import exact_object_plans, storage_tag
 
@@ -196,18 +197,14 @@ def _emit_typed_object_layout_registration(b, module, typed_object_plans):
 
     i64 = ir.IntType(64)
 
-    def _declare(name, ret_ty, arg_tys):
-        for func in module.functions:
-            if func.name == name:
-                return func
-        return ir.Function(module, ir.FunctionType(ret_ty, arg_tys), name=name)
-
-    register_layout = _declare(
+    register_layout = declare_function(
+        module,
         "nyash.object.register_typed_layout_hi",
         i64,
         [i64, i64],
     )
-    register_slot = _declare(
+    register_slot = declare_function(
+        module,
         "nyash.object.register_typed_layout_slot_iii",
         i64,
         [i64, i64, i64],
