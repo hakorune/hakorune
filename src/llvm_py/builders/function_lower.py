@@ -610,6 +610,76 @@ def _seed_resolver_fact_sets(builder, context: FunctionLowerContext, blocks: Lis
     )
 
 
+def _map_params_and_seed_entry_facts(
+    builder,
+    func,
+    *,
+    func_name: str,
+    func_data: Dict[str, Any],
+    blocks: List[Dict[str, Any]],
+) -> None:
+    try:
+        params_list = func_data.get("params", []) or []
+        param_value_ids = _map_function_params_to_vmap(builder, func, params_list, blocks)
+        _seed_hakocli_args_array_fact(
+            func_name=func_name,
+            params_list=params_list if isinstance(params_list, list) else [],
+            param_value_ids=param_value_ids,
+            builder=builder,
+        )
+        _propagate_arrayish_value_facts(builder, blocks)
+    except Exception as exc:
+        trace_debug(f"[function-lower/param-map-fallback] fn={func_name}: {exc}")
+
+
+def _seed_fast_branch_compare_contract(builder, context: FunctionLowerContext, blocks: List[Dict[str, Any]]) -> None:
+    try:
+        context.fast_branch_only_compare_dsts = _collect_branch_only_compare_dsts(blocks)
+        _set_resolver_attr(builder, "fast_branch_only_compare_dsts", context.fast_branch_only_compare_dsts)
+    except Exception as exc:
+        trace_debug(f"[function-lower/fast-compare-contract-skip] fn={context.func_name}: {exc}")
+        context.fast_branch_only_compare_dsts = set()
+
+
+def _set_entry_metadata(builder, context: FunctionLowerContext, entry_bid) -> None:
+    try:
+        context.entry_block_id = int(entry_bid) if entry_bid is not None else None
+        context.entry_block = builder.bb_map.get(int(entry_bid)) if entry_bid is not None else None
+        _set_resolver_attr(builder, "entry_block_id", context.entry_block_id)
+        _set_resolver_attr(builder, "entry_block", context.entry_block)
+    except Exception as exc:
+        trace_debug(f"[function-lower/entry-metadata-skip] fn={context.func_name}: {exc}")
+        context.entry_block_id = None
+        context.entry_block = None
+
+
+def _set_reachable_metadata(builder, context: FunctionLowerContext, reachable_from_entry: Set[int]) -> None:
+    try:
+        context.reachable_block_ids = reachable_from_entry
+        _set_resolver_attr(builder, "reachable_block_ids", reachable_from_entry)
+    except Exception as exc:
+        trace_debug(f"[function-lower/reachable-metadata-skip] fn={context.func_name}: {exc}")
+        context.reachable_block_ids = set()
+
+
+def _run_optional_function_prepasses(builder, block_by_id: Dict[int, Dict[str, Any]], context: FunctionLowerContext):
+    try:
+        _run_if_merge_prepass(builder, block_by_id)
+    except Exception as exc:
+        trace_debug(f"[function-lower/if-merge-prepass-skip] fn={context.func_name}: {exc}")
+
+    try:
+        _seed_multi_pred_block_phi_incomings(builder, block_by_id)
+    except Exception as exc:
+        trace_debug(f"[function-lower/multi-pred-phi-seed-skip] fn={context.func_name}: {exc}")
+
+    try:
+        return _run_loop_prepass(block_by_id, context)
+    except Exception as exc:
+        trace_debug(f"[function-lower/loop-prepass-skip] fn={context.func_name}: {exc}")
+        return None
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -652,19 +722,13 @@ def lower_function(builder, func_data: Dict[str, Any]):
     #
     # Fallback: If params are missing (older JSON / legacy emit), use a heuristic:
     # - map "used but not defined" ValueIds to args in ascending ValueId order.
-    try:
-        params_list = func_data.get("params", []) or []
-        param_value_ids = _map_function_params_to_vmap(builder, func, params_list, blocks)
-
-        _seed_hakocli_args_array_fact(
-            func_name=name,
-            params_list=params_list if isinstance(params_list, list) else [],
-            param_value_ids=param_value_ids,
-            builder=builder,
-        )
-        _propagate_arrayish_value_facts(builder, blocks)
-    except Exception:
-        pass
+    _map_params_and_seed_entry_facts(
+        builder,
+        func,
+        func_name=name,
+        func_data=func_data,
+        blocks=blocks,
+    )
 
     # Build predecessor map from control-flow edges
     builder.preds = _build_predecessor_map(blocks)
@@ -677,58 +741,25 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
     # FAST compare contract: identify compare results consumed only by branch cond.
     # This allows compare lowering to keep those values as i1 in hot loops.
-    try:
-        context.fast_branch_only_compare_dsts = _collect_branch_only_compare_dsts(blocks)
-        _set_resolver_attr(builder, "fast_branch_only_compare_dsts", context.fast_branch_only_compare_dsts)
-    except Exception:
-        context.fast_branch_only_compare_dsts = set()
+    _seed_fast_branch_compare_contract(builder, context, blocks)
 
     # Determine entry block: first with no predecessors; fallback to first block
     entry_bid = _determine_entry_block_id(builder.preds, blocks)
 
     # Function-local entry metadata for dominance-safe hoist paths.
-    try:
-        context.entry_block_id = int(entry_bid) if entry_bid is not None else None
-        context.entry_block = builder.bb_map.get(int(entry_bid)) if entry_bid is not None else None
-        _set_resolver_attr(builder, "entry_block_id", context.entry_block_id)
-        _set_resolver_attr(builder, "entry_block", context.entry_block)
-    except Exception:
-        context.entry_block_id = None
-        context.entry_block = None
+    _set_entry_metadata(builder, context, entry_bid)
 
     # Compute reverse-postorder over successors (SSOT):
     # - Ensures a stable, mostly-forward lowering order (preds before succs) even with loops.
     # - Avoids lowering a block before its dominating setup/copies when possible.
     order, reachable_from_entry, context.block_dominators = _compute_lower_order(block_by_id, entry_bid)
 
-    try:
-        context.reachable_block_ids = reachable_from_entry
-        _set_resolver_attr(builder, "reachable_block_ids", reachable_from_entry)
-    except Exception:
-        context.reachable_block_ids = set()
+    _set_reachable_metadata(builder, context, reachable_from_entry)
 
     # Prepass: collect PHI metadata and placeholders
     _setup_phi_placeholders(builder, blocks)
 
-    # Optional: if-merge prepass (gate NYASH_LLVM_PREPASS_IFMERGE)
-    try:
-        _run_if_merge_prepass(builder, block_by_id)
-    except Exception:
-        pass
-
-    # Predeclare PHIs for used-in-block values defined in predecessors (multi-pred only)
-    try:
-        # Phase 132-P1: block_phi_incomings already points to context storage
-        # No need to reassign - it's already initialized
-        _seed_multi_pred_block_phi_incomings(builder, block_by_id)
-    except Exception:
-        pass
-
-    # Optional: simple loop prepass
-    try:
-        loop_plan = _run_loop_prepass(block_by_id, context)
-    except Exception:
-        loop_plan = None
+    loop_plan = _run_optional_function_prepasses(builder, block_by_id, context)
 
     # Phase 131-4 Pass A: Lower non-terminator instructions (terminators deferred)
     # Phase 132-P1: Pass context Box for function-local state isolation
