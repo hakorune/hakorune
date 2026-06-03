@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-BIN_PATH="${HAKORUNE_BIN:-$ROOT_DIR/target/release/hakorune}"
+BIN_PATH="${HAKORUNE_BIN:-${NYASH_BIN:-$ROOT_DIR/target/release/hakorune}}"
 
 APP_PATH=""
 MIR_JSON=""
@@ -26,8 +26,10 @@ Options:
   -h, --help          Show this help.
 
 Notes:
-  --app requires target/release/hakorune to already exist. This wrapper does not
-  build the compiler, rewrite source, choose keepers, or run benchmarks.
+  --app requires a hakorune binary to already exist. Set HAKORUNE_BIN or
+  NYASH_BIN to override the default target/release/hakorune path. This wrapper
+  does not build the compiler, rewrite source, choose keepers, or run
+  benchmarks.
 USAGE
 }
 
