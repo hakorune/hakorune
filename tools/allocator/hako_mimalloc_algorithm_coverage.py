@@ -691,6 +691,9 @@ def report_dict(
     observer_counter_field_count = sum(
         1 for bucket in hot_field_bucket_names if bucket == "observer_counter"
     )
+    direct_array_owner_field_count = sum(
+        1 for bucket in hot_field_bucket_names if bucket == "direct_array_owner"
+    )
     hot_field_top = hot_field_names[0] if hot_field_names else "none"
     hot_field_top_bucket = (
         _bucket_for_field(hot_field_top) if hot_field_top != "none" else "none"
@@ -772,6 +775,37 @@ def report_dict(
         if record_state_field_access_ready
         else hot_field_next_bridge
     )
+    next_perf_owner_selection_plan = int(
+        structural_owner_refresh_required
+        and product_pages_non_linear_lookup_probe_closed
+        and record_state_representation_delta_ready
+    )
+    if not perf_attribution_report_consumed:
+        next_perf_owner_selected = "perf_attribution_collection"
+        next_perf_owner_reason = "perf_attribution_report_not_consumed"
+        next_perf_owner_next_bridge = "run_hako_mimalloc_direct_exact_app_perf_asm"
+    elif perf_delta_ready:
+        next_perf_owner_selected = "owner_delta_measurement"
+        next_perf_owner_reason = "symbol_attribution_available"
+        next_perf_owner_next_bridge = "measure_owner_delta"
+    elif primitive_hot_state_field_count > 0 and record_state_representation_delta_ready:
+        next_perf_owner_selected = "asm_symbol_split_or_backend_store_shape"
+        next_perf_owner_reason = (
+            "primitive_state_store_like_hot_but_exact_slot_already_covers_record_state"
+        )
+        next_perf_owner_next_bridge = "split_symbol_or_classify_backend_store_shape"
+    elif direct_array_owner_field_count > 0:
+        next_perf_owner_selected = "directarray_owner_instruction_shape"
+        next_perf_owner_reason = "direct_array_owner_field_hints_present"
+        next_perf_owner_next_bridge = "classify_directarray_owner_instruction_shape"
+    elif instruction_attribution_available:
+        next_perf_owner_selected = perf_delta_next_bridge
+        next_perf_owner_reason = "instruction_attribution_without_known_owner"
+        next_perf_owner_next_bridge = perf_delta_next_bridge
+    else:
+        next_perf_owner_selected = "none"
+        next_perf_owner_reason = "missing_perf_instruction_attribution"
+        next_perf_owner_next_bridge = "rerun_perf_with_higher_repeat_or_symbol"
     product_pages_non_linear_owner_candidate_ready = int(
         structural_owner_refresh_required
         and product_pages_source_ready
@@ -805,6 +839,11 @@ def report_dict(
                 structural_owner_next_action = hot_field_next_bridge
             else:
                 structural_owner_next_action = perf_delta_next_bridge
+        if (
+            structural_owner_next_action == "select_next_perf_owner"
+            and next_perf_owner_selection_plan
+        ):
+            structural_owner_next_action = next_perf_owner_next_bridge
     elif product_pages_non_linear_owner_candidate_ready:
         structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
         structural_owner_reason = "hotcore_measured_and_product_pages_source_ready"
@@ -917,6 +956,10 @@ def report_dict(
         "structural_owner_candidate_0_ready": page_model_hot_array_measurement_ready,
         "structural_owner_candidate_1": "product_pages_bridge_non_linear_owner_lookup",
         "structural_owner_candidate_1_ready": product_pages_non_linear_owner_candidate_ready,
+        "next_perf_owner_selection_plan_v0": next_perf_owner_selection_plan,
+        "next_perf_owner_selected": next_perf_owner_selected,
+        "next_perf_owner_selected_reason": next_perf_owner_reason,
+        "next_perf_owner_next_bridge": next_perf_owner_next_bridge,
         "page_model_hot_array_bridge_plan_v0": 1,
         "page_model_hot_array_access_plan_v0": 1,
         "page_model_hot_array_access_static_scan": 1,
@@ -1130,6 +1173,10 @@ def emit_text(data: dict[str, object]) -> None:
         "structural_owner_candidate_0_ready",
         "structural_owner_candidate_1",
         "structural_owner_candidate_1_ready",
+        "next_perf_owner_selection_plan_v0",
+        "next_perf_owner_selected",
+        "next_perf_owner_selected_reason",
+        "next_perf_owner_next_bridge",
         "page_model_hot_array_bridge_plan_v0",
         "page_model_hot_array_access_plan_v0",
         "page_model_hot_array_access_static_scan",

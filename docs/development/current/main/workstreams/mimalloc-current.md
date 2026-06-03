@@ -337,8 +337,12 @@ coverage_after_product_pages_closure:
   replacement_front_product_pages_non_linear_lookup_probe_closed=1
   replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
   structural_owner_selected=page_model_hot_array_source_route_measurement
-  structural_owner_next_action=select_next_perf_owner
+  structural_owner_next_action=split_symbol_or_classify_backend_store_shape
   structural_owner_candidate_1_ready=0
+  next_perf_owner_selection_plan_v0=1
+  next_perf_owner_selected=asm_symbol_split_or_backend_store_shape
+  next_perf_owner_selected_reason=primitive_state_store_like_hot_but_exact_slot_already_covers_record_state
+  next_perf_owner_next_bridge=split_symbol_or_classify_backend_store_shape
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -347,7 +351,11 @@ bridge proves the report shape can consume product pages, but its linear lookup
 is too expensive for the current optimization owner. The non-linear page-key
 ownership table also regresses the same-run eager-init baseline, so product
 pages stay parked until a different structural owner or workload evidence
-selects them. The bins counter-skip
+selects them. After product-pages indexed lookup and record-state lowering are
+both closed as nonkeepers for this slice, the coverage overlay now selects a
+concrete next owner: split the collapsed `ny_main` attribution or classify the
+backend store shape around the primitive hot-state instructions. The bins
+counter-skip
 probe removes hot count writes but does not improve median throughput. The
 free-only ownership decode makes the generated `free` assembly cleaner, but it
 also fails the median-throughput keeper bar. The large-first ownership scan

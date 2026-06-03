@@ -323,16 +323,21 @@ delta measurement before enabling any record-state lowering. If the coverage
 overlay reports
 `record_state_representation_delta_positive_candidate=0`, this pass should not
 open duplicate record-state lowering. It should hand off to the next structural
-owner, currently the non-linear product-pages bridge design.
+owner. The non-linear product-pages lookup probe has now been measured and
+parked as a nonkeeper, so the current handoff is the next perf-owner selector:
+split the collapsed `ny_main` symbol attribution or classify the backend store
+shape around the primitive hot-state instructions.
 
 For that handoff, the coverage overlay keeps the old linear page-map probe
-closed and emits the non-linear bridge plan vocabulary:
+closed and emits the non-linear bridge closure plus next-owner vocabulary:
 
 ```text
-replacement_front_product_pages_non_linear_lookup_plan_v0=1
+replacement_front_product_pages_non_linear_lookup_probe_closed=1
+replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
 replacement_front_product_pages_linear_probe_closed=1
-replacement_front_product_pages_non_linear_lookup_strategy=range_decision_tree_or_indexed_page_table
-replacement_front_product_pages_non_linear_next_bridge=replacement_front_product_pages_non_linear_plan
+next_perf_owner_selection_plan_v0=1
+next_perf_owner_selected=asm_symbol_split_or_backend_store_shape
+next_perf_owner_next_bridge=split_symbol_or_classify_backend_store_shape
 ```
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
