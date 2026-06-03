@@ -6,6 +6,8 @@ from trace import debug as trace_debug
 from trace import phi_json as trace_phi_json
 from phi_manager import PhiManager
 
+_SAFE_BLOCK_LOWER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def is_jump_only_block(block_info: Dict) -> bool:
     """Phase 131-14-B: Detect pure jump-only blocks (trampoline blocks).
@@ -197,7 +199,7 @@ def _filter_block_vmap(context, builder, block_id: int):
                 file=sys.stderr,
             )
         return vmap_cur
-    except Exception as exc:
+    except _SAFE_BLOCK_LOWER_EXC as exc:
         trace_debug(f"[block-lower/phi-filter-fallback] bb{block_id}: {exc}")
         return dict(builder.vmap)
 
@@ -228,7 +230,7 @@ def _lower_loop_prepass(builder, ib, func, cond_vid, body_insts, loop_simd_contr
             getattr(builder, 'ctx', None),
             loop_simd_contract,
         )
-    except Exception as exc:
+    except _SAFE_BLOCK_LOWER_EXC as exc:
         trace_debug(f"[block-lower/loopform-fallback] loop={builder.loop_count}: {exc}")
         ok = False
 
@@ -274,7 +276,7 @@ def _materialize_trivial_phi_aliases(context, builder, vmap_cur, created_ids, bl
                 vmap_cur,
                 builder.bb_map,
             )
-        except Exception as exc:
+        except _SAFE_BLOCK_LOWER_EXC as exc:
             trace_debug(
                 f"[block-lower/phi-alias-skip] bb{block_id} "
                 f"dst={dst_vid} src={src_vid}: {exc}"
@@ -289,7 +291,7 @@ def _sync_created_values_to_global_vmap(context, builder, vmap_cur, created_ids,
     sync_dict = {vid: vmap_cur[vid] for vid in created_ids if vid in vmap_cur}
     try:
         context.phi_manager.sync_protect_phis(builder.vmap, sync_dict)
-    except Exception as exc:
+    except _SAFE_BLOCK_LOWER_EXC as exc:
         trace_debug(f"[block-lower/vmap-sync-fallback] bb{block_id}: {exc}")
         return
     if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
