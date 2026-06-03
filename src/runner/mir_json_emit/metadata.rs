@@ -180,6 +180,24 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "fallback_policy": plan.fallback_policy,
             })
         }).collect::<Vec<_>>(),
+        "record_state_field_access_plans": metadata.record_state_field_access_plans.iter().map(|plan| {
+            json!({
+                "block": plan.block.as_u32(),
+                "instruction_index": plan.instruction_index,
+                "owner_box": plan.owner_box,
+                "candidate_record": plan.candidate_record,
+                "field_name": plan.field_name,
+                "op": plan.op,
+                "value": plan.value.map(|value| value.as_u32()),
+                "result": plan.result.map(|value| value.as_u32()),
+                "route": plan.route,
+                "storage": plan.storage.as_str(),
+                "proof_ids": plan.proof_ids,
+                "lowering_enabled": plan.lowering_enabled,
+                "fallback_policy": plan.fallback_policy,
+                "summary": plan.summary,
+            })
+        }).collect::<Vec<_>>(),
         "required_fastpath_regions": metadata.required_fastpath_regions.iter().map(|region| {
             json!({
                 "region_id": region.region_id,

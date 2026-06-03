@@ -86,6 +86,23 @@ def root_list(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
     return [row for row in value if isinstance(row, dict)]
 
 
+def function_metadata_rows(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for function in root_list(data, "functions"):
+        metadata = function.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+        values = metadata.get(key)
+        if not isinstance(values, list):
+            continue
+        for row in values:
+            if isinstance(row, dict):
+                copied = dict(row)
+                copied.setdefault("function", function.get("name", "unknown"))
+                rows.append(copied)
+    return rows
+
+
 def field_name(row: dict[str, Any]) -> str:
     return str(row.get("name", "unknown"))
 
@@ -186,6 +203,9 @@ def main() -> int:
     direct_state_plans = root_list(data, "direct_state_plans")
     record_layout_plans = root_list(data, "record_layout_plans")
     record_state_residence_plans = root_list(data, "record_state_residence_plans")
+    record_state_field_access_plans = function_metadata_rows(
+        data, "record_state_field_access_plans"
+    )
 
     all_field_rows = iter_user_box_fields(user_box_decls)
     field_rows = selected_boxes(all_field_rows, args.box_filter)
@@ -247,6 +267,7 @@ def main() -> int:
         f"selected_direct_state_positive_candidate_count={len(selected_positive_direct_state)}",
         f"selected_direct_state_mixed_candidate_count={len(selected_mixed_direct_state)}",
         f"record_state_residence_plan_count={len(record_state_residence_plans)}",
+        f"record_state_field_access_plan_count={len(record_state_field_access_plans)}",
         f"record_state_residence_candidate_field_count={len(record_state_candidate_fields)}",
         f"record_state_handle_reject_field_count={len(handle_reject_fields)}",
         "record_state_source_migration_selected=0",
@@ -321,6 +342,27 @@ def main() -> int:
                 f"{prefix}_selected_field_count={plan.get('selected_field_count', 'unknown')}",
                 f"{prefix}_rejected_field_count={plan.get('rejected_field_count', 'unknown')}",
                 f"{prefix}_summary={plan.get('summary', 'unknown')}",
+            ]
+        )
+
+    selected_record_state_access_plans = [
+        plan
+        for plan in record_state_field_access_plans
+        if args.box_filter is None
+        or str(plan.get("owner_box", "unknown")) == args.box_filter
+    ]
+    for idx, plan in enumerate(selected_record_state_access_plans[: max(0, args.topn)]):
+        prefix = f"record_state_field_access_plan_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={plan.get('function', 'unknown')}",
+                f"{prefix}_owner_box={plan.get('owner_box', 'unknown')}",
+                f"{prefix}_candidate_record={plan.get('candidate_record', 'unknown')}",
+                f"{prefix}_field={plan.get('field_name', 'unknown')}",
+                f"{prefix}_op={plan.get('op', 'unknown')}",
+                f"{prefix}_route={plan.get('route', 'unknown')}",
+                f"{prefix}_lowering_enabled={bool_text(bool(plan.get('lowering_enabled')))}",
+                f"{prefix}_fallback_policy={plan.get('fallback_policy', 'unknown')}",
             ]
         )
 

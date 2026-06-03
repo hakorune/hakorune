@@ -47,7 +47,10 @@ use super::{
     range_index_fact::refresh_function_range_index_facts,
     receiver_snapshot_publication_plan::refresh_function_receiver_snapshot_publication_plans,
     record_layout_plan::refresh_module_record_layout_plans,
-    record_state_residence_plan::refresh_module_record_state_residence_plans,
+    record_state_residence_plan::{
+        refresh_function_record_state_field_access_plans,
+        refresh_module_record_state_residence_plans,
+    },
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
     refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
@@ -110,6 +113,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_direct_array_access_plans(function);
     refresh_function_route_decisions(function);
     refresh_function_span_access_plans(function);
+    refresh_function_record_state_field_access_plans(function, module_metadata);
     refresh_function_fastpath_obligations(function);
     refresh_function_effect_summaries(function);
     refresh_function_receiver_snapshot_publication_plans(function);
@@ -165,6 +169,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_direct_array_access_plans(function);
         refresh_function_route_decisions(function);
         refresh_function_span_access_plans(function);
+        refresh_function_record_state_field_access_plans(function, &module_metadata);
         refresh_function_fastpath_obligations(function);
         refresh_function_effect_summaries(function);
         refresh_function_receiver_snapshot_publication_plans(function);

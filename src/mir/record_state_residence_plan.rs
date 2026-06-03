@@ -8,15 +8,109 @@
 
 use crate::mir::declared_type_storage::storage_for_declared_type;
 use crate::mir::function::{
-    RecordStateResidenceFieldPlan, RecordStateResidencePlan, RecordStateResidenceRejectedFieldPlan,
-    TypedObjectFieldStorage,
+    ModuleMetadata, RecordStateFieldAccessPlan, RecordStateResidenceFieldPlan,
+    RecordStateResidencePlan, RecordStateResidenceRejectedFieldPlan, TypedObjectFieldStorage,
 };
-use crate::mir::{MirModule, UserBoxFieldDecl};
+use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, UserBoxFieldDecl};
+use std::collections::BTreeMap;
 
 pub const RECORD_STATE_RESIDENCE_V0: &str = "box_private_record_state_v0";
 
+pub fn refresh_function_record_state_field_access_plans(
+    function: &mut MirFunction,
+    module_metadata: &ModuleMetadata,
+) {
+    function.metadata.record_state_field_access_plans =
+        build_record_state_field_access_plans(function, module_metadata);
+}
+
 pub fn refresh_module_record_state_residence_plans(module: &mut MirModule) {
     module.metadata.record_state_residence_plans = build_record_state_residence_plans(module);
+}
+
+pub fn build_record_state_field_access_plans(
+    function: &MirFunction,
+    module_metadata: &ModuleMetadata,
+) -> Vec<RecordStateFieldAccessPlan> {
+    let candidate_fields = record_state_candidate_fields(module_metadata);
+    if candidate_fields.is_empty() {
+        return Vec::new();
+    }
+
+    let mut plans = Vec::new();
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+    for block_id in block_ids {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for (instruction_index, instruction) in block.instructions.iter().enumerate() {
+            match instruction {
+                MirInstruction::FieldGet {
+                    dst,
+                    field,
+                    declared_type,
+                    ..
+                } => {
+                    let Some((owner_box, candidate_record, storage)) =
+                        candidate_fields.get(field).cloned()
+                    else {
+                        continue;
+                    };
+                    if declared_type_supported(declared_type, storage) {
+                        plans.push(RecordStateFieldAccessPlan {
+                            block: block_id,
+                            instruction_index,
+                            owner_box,
+                            candidate_record,
+                            field_name: field.clone(),
+                            op: "load".to_string(),
+                            value: None,
+                            result: Some(*dst),
+                            route: format!("record_state_{}_load", storage.as_str()),
+                            storage,
+                            proof_ids: vec!["record_state_residence_plan".to_string()],
+                            lowering_enabled: false,
+                            fallback_policy: "report_only".to_string(),
+                            summary: "ok".to_string(),
+                        });
+                    }
+                }
+                MirInstruction::FieldSet {
+                    field,
+                    value,
+                    declared_type,
+                    ..
+                } => {
+                    let Some((owner_box, candidate_record, storage)) =
+                        candidate_fields.get(field).cloned()
+                    else {
+                        continue;
+                    };
+                    if declared_type_supported(declared_type, storage) {
+                        plans.push(RecordStateFieldAccessPlan {
+                            block: block_id,
+                            instruction_index,
+                            owner_box,
+                            candidate_record,
+                            field_name: field.clone(),
+                            op: "store".to_string(),
+                            value: Some(*value),
+                            result: None,
+                            route: format!("record_state_{}_store", storage.as_str()),
+                            storage,
+                            proof_ids: vec!["record_state_residence_plan".to_string()],
+                            lowering_enabled: false,
+                            fallback_policy: "report_only".to_string(),
+                            summary: "ok".to_string(),
+                        });
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    plans
 }
 
 pub fn build_record_state_residence_plans(module: &MirModule) -> Vec<RecordStateResidencePlan> {
@@ -35,6 +129,47 @@ pub fn build_record_state_residence_plans(module: &MirModule) -> Vec<RecordState
             build_record_state_residence_plan(module, box_name, fields)
         })
         .collect()
+}
+
+fn record_state_candidate_fields(
+    module_metadata: &ModuleMetadata,
+) -> BTreeMap<String, (String, String, TypedObjectFieldStorage)> {
+    let mut fields = BTreeMap::new();
+    let mut duplicate_names = std::collections::BTreeSet::new();
+    for plan in &module_metadata.record_state_residence_plans {
+        if !plan.report_only || plan.source_migration_allowed {
+            continue;
+        }
+        for field in &plan.fields {
+            if fields.contains_key(&field.name) {
+                duplicate_names.insert(field.name.clone());
+            } else {
+                fields.insert(
+                    field.name.clone(),
+                    (
+                        plan.owner_box.clone(),
+                        plan.candidate_record.clone(),
+                        field.storage,
+                    ),
+                );
+            }
+        }
+    }
+    for name in duplicate_names {
+        fields.remove(&name);
+    }
+    fields
+}
+
+fn declared_type_supported(
+    declared_type: &Option<MirType>,
+    storage: TypedObjectFieldStorage,
+) -> bool {
+    match declared_type {
+        Some(MirType::Integer) => storage.uses_integer_lane(),
+        Some(_) => false,
+        None => true,
+    }
 }
 
 fn build_record_state_residence_plan(

@@ -407,6 +407,9 @@ pub struct FunctionMetadata {
     /// Metadata-only Span access plans over no-escape Span borrows.
     pub span_access_plans: Vec<SpanAccessPlan>,
 
+    /// Metadata-only record-state candidate field access sites.
+    pub record_state_field_access_plans: Vec<RecordStateFieldAccessPlan>,
+
     /// Required fast-path diagnostic regions.
     pub required_fastpath_regions: Vec<RequiredFastPathRegion>,
 
@@ -913,6 +916,25 @@ pub struct RecordStateResidencePlan {
     pub rejected_field_count: u32,
     pub fields: Vec<RecordStateResidenceFieldPlan>,
     pub rejected_fields: Vec<RecordStateResidenceRejectedFieldPlan>,
+    pub summary: String,
+}
+
+/// Metadata-only access-site view for a record-state residence candidate.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordStateFieldAccessPlan {
+    pub block: BasicBlockId,
+    pub instruction_index: usize,
+    pub owner_box: String,
+    pub candidate_record: String,
+    pub field_name: String,
+    pub op: String,
+    pub value: Option<ValueId>,
+    pub result: Option<ValueId>,
+    pub route: String,
+    pub storage: TypedObjectFieldStorage,
+    pub proof_ids: Vec<String>,
+    pub lowering_enabled: bool,
+    pub fallback_policy: String,
     pub summary: String,
 }
 
