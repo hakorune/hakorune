@@ -521,6 +521,7 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --replacement-front-lock-mode \
   --replacement-front-skip-hot-counters \
   --replacement-front-slot-size 1024 \
+  --threads 2 \
   --out target/hakozuna-mixed-ws-replacement-perf/report.out \
   --out-dir target/hakozuna-mixed-ws-replacement-perf/artifacts \
   --sample-count 7

@@ -5249,3 +5249,23 @@ current 2-thread performance keeper. For this local workload, the benchmark-only
 locked global front is the positive multithread evidence owner. Reopen
 thread-local only with perf/asm evidence showing a concrete local/remote hot
 cost to remove.
+
+`REPL-020` stabilized the current locked-global multithread keeper with a
+7-sample local run:
+
+```text
+locked_global_counterless_threads=2
+locked_global_counterless_sample_count=7
+locked_global_counterless_subject_2_throughput_median_ops_per_sec=15994625.806
+locked_global_counterless_subject_2_throughput_vs_c_mimalloc=7.015275
+locked_global_counterless_evidence_owner=locked_global_multithread_front
+locked_global_counterless_multithread_perf_candidate=1
+locked_global_counterless_hot_atomic_rmw=0
+locked_global_counterless_hako_mimalloc_algorithm_claim=0
+locked_global_counterless_winner_claim=0
+```
+
+Interpretation: the locked global front is now the benchmark-only multithread
+keeper for local evidence. The next optimization step should not be another
+thread-local probe unless perf/asm selects it. The remaining real bridge is
+product pages / full `.hako` algorithm consumption.
