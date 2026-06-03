@@ -58,6 +58,10 @@ replacement_front_product_pages_source_ready=1
 replacement_front_product_pages_full_source_ready=1
 replacement_front_product_pages_bridge_blocker=consumer_not_enabled
 replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_plan
+structural_owner_selection_plan_v0=1
+structural_owner_refresh_required=0
+structural_owner_selected=none
+structural_owner_next_action=measure_hotcore_replacement_consumer
 page_map_source_ready=1
 page_map_release_source_ready=1
 realloc_same_class_source_ready=1
@@ -97,6 +101,14 @@ hotcore_replacement_next_bridge=select_next_structural_owner
 hotcore_replacement_measurement_reported=1
 hotcore_replacement_median_ops_per_sec=...
 hotcore_replacement_route=benchmark_page_bins_hotcore_page_model
+structural_owner_refresh_required=1
+structural_owner_selected=page_model_hot_array_source_route_measurement
+structural_owner_selected_reason=hotcore_measured_and_directarray_source_ready
+structural_owner_next_action=measure_page_model_hot_array_source_route
+structural_owner_candidate_0=page_model_hot_array_source_route_measurement
+structural_owner_candidate_0_ready=1
+structural_owner_candidate_1=product_pages_bridge_non_linear_owner_lookup
+structural_owner_candidate_1_ready=1
 replacement_front_page_bins_product_claim=0
 replacement_front_is_full_hako_algorithm=0
 ```
@@ -104,6 +116,15 @@ replacement_front_is_full_hako_algorithm=0
 This overlay is evidence that the benchmark-only front consumed the selected
 route in that report. It is not product allocator activation and it does not
 turn benchmark page-bins into the full `.hako` mimalloc algorithm.
+
+`structural_owner_selected` is the post-HotCore handoff field. When HotCore has
+not been measured, it stays `none` and asks for HotCore measurement. Once a
+benchmark report carries `hotcore_replacement_measurement_reported=1`, the tool
+selects the first source-ready structural owner. The current first candidate is
+`page_model_hot_array_source_route_measurement` because the PageModel hot arrays
+are already source-level `DirectArrayI64`; product pages remain a second
+candidate and should only reopen through a non-linear ownership bridge, not by
+retrying the known-losing linear page-map probe.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

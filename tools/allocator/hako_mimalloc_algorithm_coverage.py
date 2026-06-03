@@ -489,6 +489,34 @@ def report_dict(
     else:
         product_pages_bridge_blocker = "source_shape_not_ready"
         product_pages_next_bridge = "fix_product_pages_source_shape"
+    structural_owner_refresh_required = int(
+        hotcore_measurement_reported
+        and hotcore_next_bridge == "select_next_structural_owner"
+    )
+    page_model_hot_array_measurement_ready = int(
+        structural_owner_refresh_required and hot_array_source_migration_selected
+    )
+    product_pages_non_linear_owner_candidate_ready = int(
+        structural_owner_refresh_required
+        and product_pages_source_ready
+        and not product_pages_consumer_enabled
+    )
+    if page_model_hot_array_measurement_ready:
+        structural_owner_selected = "page_model_hot_array_source_route_measurement"
+        structural_owner_reason = "hotcore_measured_and_directarray_source_ready"
+        structural_owner_next_action = "measure_page_model_hot_array_source_route"
+    elif product_pages_non_linear_owner_candidate_ready:
+        structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
+        structural_owner_reason = "hotcore_measured_and_product_pages_source_ready"
+        structural_owner_next_action = "design_non_linear_product_pages_bridge"
+    elif structural_owner_refresh_required:
+        structural_owner_selected = "none"
+        structural_owner_reason = "no_source_ready_structural_owner"
+        structural_owner_next_action = "fix_source_shape_before_next_probe"
+    else:
+        structural_owner_selected = "none"
+        structural_owner_reason = "hotcore_measurement_not_reported"
+        structural_owner_next_action = "measure_hotcore_replacement_consumer"
     refreshed_rows: list[CoverageRow] = []
     for row in rows:
         if row.area == "size_class_policy" and product_bins_consumer_enabled:
@@ -566,6 +594,15 @@ def report_dict(
         "replacement_front_locked_global_multithread_supported": int(locked_front),
         "replacement_front_thread_local_multithread_supported": int(tls_front),
         "replacement_front_multithread_claim": 0,
+        "structural_owner_selection_plan_v0": 1,
+        "structural_owner_refresh_required": structural_owner_refresh_required,
+        "structural_owner_selected": structural_owner_selected,
+        "structural_owner_selected_reason": structural_owner_reason,
+        "structural_owner_next_action": structural_owner_next_action,
+        "structural_owner_candidate_0": "page_model_hot_array_source_route_measurement",
+        "structural_owner_candidate_0_ready": page_model_hot_array_measurement_ready,
+        "structural_owner_candidate_1": "product_pages_bridge_non_linear_owner_lookup",
+        "structural_owner_candidate_1_ready": product_pages_non_linear_owner_candidate_ready,
         "page_model_hot_array_bridge_plan_v0": 1,
         "page_model_hot_array_access_plan_v0": 1,
         "page_model_hot_array_access_static_scan": 1,
@@ -663,6 +700,15 @@ def emit_text(data: dict[str, object]) -> None:
         "replacement_front_locked_global_multithread_supported",
         "replacement_front_thread_local_multithread_supported",
         "replacement_front_multithread_claim",
+        "structural_owner_selection_plan_v0",
+        "structural_owner_refresh_required",
+        "structural_owner_selected",
+        "structural_owner_selected_reason",
+        "structural_owner_next_action",
+        "structural_owner_candidate_0",
+        "structural_owner_candidate_0_ready",
+        "structural_owner_candidate_1",
+        "structural_owner_candidate_1_ready",
         "page_model_hot_array_bridge_plan_v0",
         "page_model_hot_array_access_plan_v0",
         "page_model_hot_array_access_static_scan",

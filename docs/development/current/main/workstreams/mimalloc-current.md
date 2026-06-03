@@ -366,6 +366,15 @@ The same report carries the current PageModel hot-array readiness view:
 size_class_policy_product_bins_connected=0
 size_class_policy_single_class_benchmark_bridge_supported=1
 size_class_policy_single_class_bridge_mode=hako_good_size_request_ceiling
+structural_owner_selection_plan_v0=1
+structural_owner_refresh_required=1
+structural_owner_selected=page_model_hot_array_source_route_measurement
+structural_owner_selected_reason=hotcore_measured_and_directarray_source_ready
+structural_owner_next_action=measure_page_model_hot_array_source_route
+structural_owner_candidate_0=page_model_hot_array_source_route_measurement
+structural_owner_candidate_0_ready=1
+structural_owner_candidate_1=product_pages_bridge_non_linear_owner_lookup
+structural_owner_candidate_1_ready=1
 page_model_hot_array_bridge_plan_v0=1
 page_model_hot_array_access_plan_v0=1
 page_model_hot_array_source_migration_selected=1
@@ -396,8 +405,12 @@ This block is the source-ready-only boundary before
 `--replacement-front-hotcore-page-model-mode`. The current keeper report overlays
 the consumed route as `hotcore_replacement_consumer_enabled=1`,
 `hotcore_replacement_measurement_reported=1`, and
-`hotcore_replacement_next_bridge=select_next_structural_owner`; product pages,
-activation, hooks, globals, and winner claims remain closed.
+`hotcore_replacement_next_bridge=select_next_structural_owner`. The structural
+owner handoff selects `page_model_hot_array_source_route_measurement` first,
+because `free` / `local_free` / `block_used` are already source-level
+`DirectArrayI64`. Product pages stay second and must reopen through a non-linear
+ownership bridge, not by retrying the known-losing linear page-map probe.
+Activation, hooks, globals, and winner claims remain closed.
 
 The PageModel hot-array access scan distinguishes hot `get/set` traffic from
 seed-time initialization traffic. `seedFreeBlocks` uses append-or-overwrite
@@ -523,6 +536,10 @@ object-lifecycle-native-slot-bridge-v0:
     and measured; `hako_mimalloc_algorithm_coverage.py --benchmark-report ...`
     now reports `hotcore_replacement_measurement_reported=1` and
     `hotcore_replacement_next_bridge=select_next_structural_owner`.
+    The same overlay reports
+    `structural_owner_selected=page_model_hot_array_source_route_measurement`
+    as the next owner. This is a measurement owner, not another generated-C
+    local probe.
   - Current stop-line: local generated-C probes around `find_owned`, free-only
     ownership decode, counters, and switch layout have enough negative evidence.
     The next positive-net candidate must change the structural owner family
