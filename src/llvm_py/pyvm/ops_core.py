@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+_SAFE_OPS_CORE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def op_phi(owner, inst: Dict[str, Any], regs: Dict[int, Any], prev: Optional[int]) -> None:
     incoming = inst.get("incoming", [])
@@ -114,11 +116,11 @@ def op_compare(owner, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
     if operation in ("<", "<=", ">", ">="):
         try:
             ai = 0 if a is None else (int(a) if not isinstance(a, str) else 0)
-        except Exception:
+        except _SAFE_OPS_CORE_EXC:
             ai = 0
         try:
             bi = 0 if b is None else (int(b) if not isinstance(b, str) else 0)
-        except Exception:
+        except _SAFE_OPS_CORE_EXC:
             bi = 0
         if operation == "<":
             res = ai < bi
@@ -204,7 +206,7 @@ def op_unop(owner, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
         else:
             try:
                 out = -int(src)
-            except Exception:
+            except _SAFE_OPS_CORE_EXC:
                 out = 0
     elif kind == "not":
         out = 0 if owner._truthy(src) else 1

@@ -8,6 +8,8 @@ from instructions.llvm_decl import declare_function
 from instructions.sum_runtime import merge_user_box_decls
 from instructions.typed_object_exact import exact_object_plans, storage_tag
 
+_SAFE_ENTRY_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def ensure_ny_main(builder) -> None:
     """Ensure ny_main wrapper exists by delegating to Main.main/1 or main().
     Phase 285LLVM-1.1: Register user box declarations before calling main.
@@ -30,7 +32,7 @@ def ensure_ny_main(builder) -> None:
     # Hide the target to avoid symbol conflicts
     try:
         target_fn.linkage = 'private'
-    except Exception:
+    except _SAFE_ENTRY_EXC:
         pass
     # i32 ny_main() { return (i32) Main.main(args) | main(); }
     from llvmlite import ir

@@ -8,6 +8,8 @@ Prevents cross-function state leakage and collisions.
 from typing import Dict, Set, Any, Optional
 from llvmlite import ir
 
+_SAFE_FUNCTION_LOWER_CONTEXT_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 class FunctionLowerContext:
     """
@@ -191,7 +193,7 @@ class FunctionLowerContext:
         try:
             u = int(use_bid)
             d = int(def_bid)
-        except Exception:
+        except _SAFE_FUNCTION_LOWER_CONTEXT_EXC:
             return False
         dom_set = self.block_dominators.get(u)
         if isinstance(dom_set, set):

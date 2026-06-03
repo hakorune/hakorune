@@ -6,6 +6,8 @@ KeepAlive and ReleaseStrong for reference counting semantics
 import llvmlite.ir as ir
 from typing import Dict, List, Any, Optional
 
+_SAFE_LIFECYCLE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_keepalive(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -80,7 +82,7 @@ def lower_release_strong(
                 p = getattr(ctx, 'preds', p)
                 bev = getattr(ctx, 'block_end_values', bev)
                 bbm = getattr(ctx, 'bb_map', bbm)
-            except Exception:
+            except _SAFE_LIFECYCLE_EXC:
                 pass
 
         if r is not None and p is not None and bev is not None and bbm is not None:

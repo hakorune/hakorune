@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+_SAFE_OPS_CTRL_EXC = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
+
 
 def op_externcall(owner, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
     func = inst.get("func")
@@ -34,11 +36,10 @@ def op_externcall(owner, inst: Dict[str, Any], regs: Dict[int, Any]) -> None:
             try:
                 import sys as _sys
                 print(str(s), file=_sys.stderr)
-            except Exception:
+            except _SAFE_OPS_CTRL_EXC:
                 print(str(s))
             out = 0
         else:
             # Macro sandbox: disallow unknown externcall unless explicitly whitelisted by future caps
             out = 0
     owner._set(regs, inst.get("dst"), out)
-
