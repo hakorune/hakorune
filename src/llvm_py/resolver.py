@@ -41,13 +41,9 @@ class Resolver:
             # Legacy constructor (vmap, bb_map) — builder/module will be set later when available
             self.builder = None
             self.module = None
-            try:
-                # Keep references to global maps when provided
-                self.global_vmap = a if isinstance(a, dict) else None
-                self.global_bb_map = b if isinstance(b, dict) else None
-            except Exception:
-                self.global_vmap = None
-                self.global_bb_map = None
+            # Keep references to global maps when provided
+            self.global_vmap = a if isinstance(a, dict) else None
+            self.global_bb_map = b if isinstance(b, dict) else None
 
         # Phase 132-P1: Context reference (will be set by bind_context)
         self.context = None
@@ -160,29 +156,107 @@ class Resolver:
             return
         value_types[vid] = make_box_handle_fact(box_type)
 
-    def mark_string(self, value_id: int) -> None:
+    def _block_id_from_name(self, block_or_name: Any, default: int = -1) -> int:
         try:
-            vid = int(value_id)
-            self.string_ids.add(vid)
-            self._set_box_handle_type_if_missing(vid, "StringBox")
+            name = block_or_name.name if hasattr(block_or_name, "name") else block_or_name
+            if isinstance(name, bytes):
+                name = name.decode()
+            if isinstance(name, str) and name.startswith("bb"):
+                return int(name[2:])
+        except Exception:
+            pass
+        return default
+
+    def _safe_position_at_start(self, builder: ir.IRBuilder, block: ir.Block) -> None:
+        try:
+            builder.position_at_start(block)
         except Exception:
             pass
 
-    def is_stringish(self, value_id: int) -> bool:
+    def _safe_position_before_terminator(self, builder: ir.IRBuilder, block: ir.Block) -> None:
         try:
-            vid = int(value_id)
-            if vid in self.string_ids:
-                return True
-            return is_stringish_fact(self._value_type_meta(vid))
+            term = block.terminator
+            if term is not None:
+                builder.position_before(term)
+            else:
+                builder.position_at_end(block)
         except Exception:
-            return False
+            builder.position_at_end(block)
+
+    def _safe_first_element_gep(self, builder: ir.IRBuilder, value: ir.Value, name: str) -> ir.Value:
+        try:
+            if hasattr(value, "type") and hasattr(value.type, "pointee") and isinstance(value.type.pointee, ir.ArrayType):
+                c0 = ir.Constant(ir.IntType(32), 0)
+                return builder.gep(value, [c0, c0], name=name)
+        except Exception:
+            pass
+        return value
+
+    def _resolve_string_to_i8p_bridge(self) -> Optional[ir.Function]:
+        if self.module is None:
+            return None
+        for f in self.module.functions:
+            if f.name == 'nyash.string.to_i8p_h':
+                return f
+        return ir.Function(self.module, ir.FunctionType(self.i8p, [self.i64]), name='nyash.string.to_i8p_h')
+
+    def _resolve_box_from_string_bridge(self) -> Optional[ir.Function]:
+        if self.module is None:
+            return None
+        for f in self.module.functions:
+            if f.name == 'nyash.box.from_i8_string':
+                return f
+        return ir.Function(self.module, ir.FunctionType(self.i64, [self.i8p]), name='nyash.box.from_i8_string')
+
+    def _safe_trivial_alias_source(self, block_id: int, value_id: int) -> Optional[int]:
+        try:
+            if isinstance(self.phi_trivial_aliases, dict):
+                alias_src = self.phi_trivial_aliases.get((int(block_id), int(value_id)))
+                if isinstance(alias_src, int) and alias_src != int(value_id):
+                    return alias_src
+        except Exception:
+            pass
+        return None
+
+    def _has_declared_phi(self, block_id: int, value_id: int) -> bool:
+        try:
+            if isinstance(self.block_phi_incomings, dict):
+                bmap = self.block_phi_incomings.get(int(block_id))
+                return isinstance(bmap, dict) and value_id in bmap
+        except Exception:
+            pass
+        return False
+
+    def _def_blocks_info(self, value_id: int) -> str:
+        try:
+            if value_id in self.def_blocks:
+                return f"def_blocks={sorted(list(self.def_blocks[value_id]))}"
+        except Exception:
+            pass
+        return "not_in_def_blocks"
+
+    def _trace_resolve_i64_entry(self, current_block: ir.Block, value_id: int) -> None:
+        if not is_phi_debug_enabled():
+            return
+        bid = self._block_id_from_name(current_block, default=-1)
+        in_def_blocks = value_id in self.def_blocks
+        def_in_blocks = list(self.def_blocks.get(value_id, set())) if in_def_blocks else []
+        trace_phi(f"[resolve_i64/entry] bb{bid} v{value_id} in_def_blocks={in_def_blocks} def_in={def_in_blocks}")
+
+    def mark_string(self, value_id: int) -> None:
+        vid = int(value_id)
+        self.string_ids.add(vid)
+        self._set_box_handle_type_if_missing(vid, "StringBox")
+
+    def is_stringish(self, value_id: int) -> bool:
+        vid = int(value_id)
+        if vid in self.string_ids:
+            return True
+        return is_stringish_fact(self._value_type_meta(vid))
 
     def is_arrayish(self, value_id: int) -> bool:
-        try:
-            vid = int(value_id)
-            return vid in self.array_ids or is_arrayish_fact(self._value_type_meta(vid))
-        except Exception:
-            return False
+        vid = int(value_id)
+        return vid in self.array_ids or is_arrayish_fact(self._value_type_meta(vid))
 
     def _check_cycle(self, block_id: int, value_id: int):
         """P0-3: Circular reference detection (hang prevention)"""
@@ -248,23 +322,17 @@ class Resolver:
         def _canonical_i64(val: Optional[ir.Value]) -> Optional[ir.Value]:
             if val is None:
                 return None
-            try:
-                if isinstance(val.type, ir.IntType) and val.type.width == 1:
-                    return ir.IRBuilder(current_block).zext(
-                        val, self.i64, name=f"same_block_i64_{value_id}"
-                    )
-            except Exception:
-                pass
+            if hasattr(val, "type") and isinstance(val.type, ir.IntType) and val.type.width == 1:
+                return ir.IRBuilder(current_block).zext(
+                    val, self.i64, name=f"same_block_i64_{value_id}"
+                )
             return val
 
         direct = vmap.get(value_id)
         if direct is not None:
             return _canonical_i64(direct)
 
-        try:
-            block_id = int(str(current_block.name).replace("bb", ""))
-        except Exception:
-            block_id = 0
+        block_id = self._block_id_from_name(current_block, default=0)
 
         resolved = self._value_at_end_i64(
             value_id, block_id, preds, block_end_values, vmap, bb_map
@@ -292,11 +360,7 @@ class Resolver:
         """
         # Phase 132-P1: Use context.get_block_snapshot (simple block_id key)
         ctx = context if context is not None else self.context
-        if ctx is not None:
-            snapshot = ctx.get_block_snapshot(pred_block_id)
-        else:
-            # Fallback for backward compatibility (legacy code path)
-            snapshot = self.block_end_values.get(pred_block_id, {})
+        snapshot = ctx.get_block_snapshot(pred_block_id) if ctx is not None else self.block_end_values.get(pred_block_id, {})
 
         val = snapshot.get(value_id)
         if val is not None:
@@ -328,21 +392,13 @@ class Resolver:
         """
         cache_key = (current_block.name, value_id)
 
-        if is_phi_debug_enabled():
-            try:
-                bid = int(str(current_block.name).replace('bb',''))
-                in_def_blocks = value_id in self.def_blocks
-                if in_def_blocks:
-                    def_in_blocks = list(self.def_blocks.get(value_id, set()))
-                else:
-                    def_in_blocks = []
-                trace_phi(f"[resolve_i64/entry] bb{bid} v{value_id} in_def_blocks={in_def_blocks} def_in={def_in_blocks}")
-            except Exception as e:
-                trace_phi(f"[resolve_i64/entry] ERROR: {e}")
+        self._trace_resolve_i64_entry(current_block, value_id)
 
         # Check cache
         if cache_key in self.i64_cache:
             return self.i64_cache[cache_key]
+
+        block_id = self._block_id_from_name(current_block, default=-1)
 
         # Do not trust global vmap across blocks unless we know it's defined in this block.
 
@@ -351,13 +407,30 @@ class Resolver:
         # alias instead of a real placeholder. Resolve that alias before any
         # multi-predecessor fallback so uses inside the block still see the
         # carried SSA value.
-        try:
-            alias_src = None
-            if isinstance(self.phi_trivial_aliases, dict):
-                alias_src = self.phi_trivial_aliases.get((int(bid), int(value_id)))
-            if isinstance(alias_src, int) and alias_src != int(value_id):
+        alias_src = self._safe_trivial_alias_source(block_id, value_id)
+        if alias_src is not None:
+            alias_val = self.resolve_i64(
+                alias_src,
+                current_block,
+                preds,
+                block_end_values,
+                vmap,
+                bb_map,
+            )
+            if alias_val is not None:
+                self.i64_cache[cache_key] = alias_val
+                return alias_val
+
+        # If this block has a declared MIR PHI for the value, prefer that placeholder
+        # and avoid creating any PHI here. Incoming is wired by finalize_phis().
+        if self._has_declared_phi(block_id, value_id):
+            # Trivial PHI alias path:
+            # If setup tagged this (bb,dst) as copy-like merge, resolve source value
+            # directly in the current block context instead of forcing a PHI placeholder.
+            alias_src = self._safe_trivial_alias_source(block_id, value_id)
+            if alias_src is not None:
                 alias_val = self.resolve_i64(
-                    int(alias_src),
+                    alias_src,
                     current_block,
                     preds,
                     block_end_values,
@@ -367,91 +440,37 @@ class Resolver:
                 if alias_val is not None:
                     self.i64_cache[cache_key] = alias_val
                     return alias_val
-        except Exception:
-            pass
-
-        # If this block has a declared MIR PHI for the value, prefer that placeholder
-        # and avoid creating any PHI here. Incoming is wired by finalize_phis().
-        try:
-            try:
-                block_id = int(str(current_block.name).replace('bb',''))
-            except Exception:
-                block_id = -1
-            if isinstance(self.block_phi_incomings, dict):
-                bmap = self.block_phi_incomings.get(block_id)
-                if isinstance(bmap, dict) and value_id in bmap:
-                    # Trivial PHI alias path:
-                    # If setup tagged this (bb,dst) as copy-like merge, resolve source value
-                    # directly in the current block context instead of forcing a PHI placeholder.
-                    try:
-                        alias_src = None
-                        if isinstance(self.phi_trivial_aliases, dict):
-                            alias_src = self.phi_trivial_aliases.get((int(block_id), int(value_id)))
-                        if isinstance(alias_src, int) and alias_src != int(value_id):
-                            alias_val = self.resolve_i64(
-                                alias_src,
-                                current_block,
-                                preds,
-                                block_end_values,
-                                vmap,
-                                bb_map,
-                            )
-                            if alias_val is not None:
-                                self.i64_cache[cache_key] = alias_val
-                                return alias_val
-                    except Exception:
-                        pass
-                    existing_cur = vmap.get(value_id)
-                    # Fallback: try builder/global vmap when local map lacks placeholder
-                    try:
-                        if (existing_cur is None or not hasattr(existing_cur, 'add_incoming')) and hasattr(self, 'global_vmap') and isinstance(self.global_vmap, dict):
-                            gcand = self.global_vmap.get(value_id)
-                            if gcand is not None and hasattr(gcand, 'add_incoming'):
-                                existing_cur = gcand
-                    except Exception:
-                        pass
-                    # If a placeholder PHI already exists in this block, reuse it.
-                    try:
-                        if existing_cur is not None and hasattr(existing_cur, 'add_incoming'):
-                            cur_bb_name = getattr(getattr(existing_cur, 'basic_block', None), 'name', None)
-                            cbn = current_block.name if hasattr(current_block, 'name') else None
-                            try:
-                                if isinstance(cur_bb_name, bytes):
-                                    cur_bb_name = cur_bb_name.decode()
-                            except Exception:
-                                pass
-                            try:
-                                if isinstance(cbn, bytes):
-                                    cbn = cbn.decode()
-                            except Exception:
-                                pass
-                            if cur_bb_name == cbn or cur_bb_name is None:
-                                self.i64_cache[cache_key] = existing_cur
-                                return existing_cur
-                    except Exception:
-                        pass
-                    # Otherwise, materialize a placeholder PHI at the block head now
-                    # so that comparisons and terminators can dominate subsequent uses.
-                    # As a last resort, fall back to zero (should be unreachable when
-                    # placeholders are properly predeclared during lowering/tagging).
-                    zero = ir.Constant(self.i64, 0)
-                    self.i64_cache[cache_key] = zero
-                    return zero
-        except Exception:
-            pass
+            existing_cur = vmap.get(value_id)
+            # Fallback: try builder/global vmap when local map lacks placeholder
+            if (existing_cur is None or not hasattr(existing_cur, 'add_incoming')) and hasattr(self, 'global_vmap') and isinstance(self.global_vmap, dict):
+                gcand = self.global_vmap.get(value_id)
+                if gcand is not None and hasattr(gcand, 'add_incoming'):
+                    existing_cur = gcand
+            # If a placeholder PHI already exists in this block, reuse it.
+            if existing_cur is not None and hasattr(existing_cur, 'add_incoming'):
+                cur_bb_name = getattr(getattr(existing_cur, 'basic_block', None), 'name', None)
+                cbn = current_block.name if hasattr(current_block, 'name') else None
+                if isinstance(cur_bb_name, bytes):
+                    cur_bb_name = cur_bb_name.decode()
+                if isinstance(cbn, bytes):
+                    cbn = cbn.decode()
+                if cur_bb_name == cbn or cur_bb_name is None:
+                    self.i64_cache[cache_key] = existing_cur
+                    return existing_cur
+            # Otherwise, materialize a placeholder PHI at the block head now
+            # so that comparisons and terminators can dominate subsequent uses.
+            # As a last resort, fall back to zero (should be unreachable when
+            # placeholders are properly predeclared during lowering/tagging).
+            zero = ir.Constant(self.i64, 0)
+            self.i64_cache[cache_key] = zero
+            return zero
         
         # Get predecessor blocks
-        try:
-            bid = int(str(current_block.name).replace('bb',''))
-        except Exception:
-            bid = -1
+        bid = self._block_id_from_name(current_block, default=-1)
         pred_ids = [p for p in preds.get(bid, []) if p != bid]
 
         # Lifetime hint: if value is defined in this block, and present in vmap as i64, reuse it.
-        try:
-            defined_here = value_id in self.def_blocks and bid in self.def_blocks.get(value_id, set())
-        except Exception:
-            defined_here = False
+        defined_here = value_id in self.def_blocks and bid in self.def_blocks.get(value_id, set())
         if defined_here:
             existing = vmap.get(value_id)
             if is_phi_debug_enabled():
@@ -474,36 +493,25 @@ class Resolver:
         # Reuse dominating global SSA/PHI values before falling back to predecessor
         # localization. Trivial PHI aliases such as {dst <- phi(src, src)} rely on this
         # to see the carried PHI from an earlier loop/header block.
-        try:
-            global_vmap = getattr(self, "global_vmap", None)
-            gval = global_vmap.get(value_id) if isinstance(global_vmap, dict) else None
-            if gval is not None:
-                allow_global = False
-                if isinstance(gval, (ir.Argument, ir.Constant)):
-                    allow_global = True
-                elif hasattr(gval, "add_incoming"):
-                    owner_bid = None
-                    try:
-                        owner = getattr(getattr(gval, "basic_block", None), "name", None)
-                        if isinstance(owner, bytes):
-                            owner = owner.decode()
-                        if isinstance(owner, str) and owner.startswith("bb"):
-                            owner_bid = int(owner[2:])
-                    except Exception:
-                        owner_bid = None
-                    if owner_bid is not None and self.context is not None:
-                        allow_global = bool(self.context.dominates(int(owner_bid), int(bid)))
-                    elif value_id in self.def_blocks and len(self.def_blocks.get(value_id, set())) == 1 and self.context is not None:
-                        def_bid = next(iter(self.def_blocks.get(value_id, set())))
-                        allow_global = bool(self.context.dominates(int(def_bid), int(bid)))
+        global_vmap = getattr(self, "global_vmap", None)
+        gval = global_vmap.get(value_id) if isinstance(global_vmap, dict) else None
+        if gval is not None:
+            allow_global = False
+            if isinstance(gval, (ir.Argument, ir.Constant)):
+                allow_global = True
+            elif hasattr(gval, "add_incoming"):
+                owner_bid = self._block_id_from_name(getattr(getattr(gval, "basic_block", None), "name", None), default=None)
+                if owner_bid is not None and self.context is not None:
+                    allow_global = bool(self.context.dominates(int(owner_bid), int(bid)))
                 elif value_id in self.def_blocks and len(self.def_blocks.get(value_id, set())) == 1 and self.context is not None:
                     def_bid = next(iter(self.def_blocks.get(value_id, set())))
                     allow_global = bool(self.context.dominates(int(def_bid), int(bid)))
-                if allow_global:
-                    self.i64_cache[cache_key] = gval
-                    return gval
-        except Exception:
-            pass
+            elif value_id in self.def_blocks and len(self.def_blocks.get(value_id, set())) == 1 and self.context is not None:
+                def_bid = next(iter(self.def_blocks.get(value_id, set())))
+                allow_global = bool(self.context.dominates(int(def_bid), int(bid)))
+            if allow_global:
+                self.i64_cache[cache_key] = gval
+                return gval
 
         if not pred_ids:
             # Entry block or no predecessors: prefer local vmap value (already dominating)
@@ -515,25 +523,12 @@ class Resolver:
                 # If pointer string, box to handle in current block (use local builder)
                 if hasattr(base_val, 'type') and isinstance(base_val.type, ir.PointerType) and self.module is not None:
                     pb = ir.IRBuilder(current_block)
-                    try:
-                        pb.position_at_start(current_block)
-                    except Exception:
-                        pass
+                    self._safe_position_at_start(pb, current_block)
                     i8p = ir.IntType(8).as_pointer()
                     v = base_val
-                    try:
-                        if hasattr(v.type, 'pointee') and isinstance(v.type.pointee, ir.ArrayType):
-                            c0 = ir.Constant(ir.IntType(32), 0)
-                            v = pb.gep(v, [c0, c0], name=f"res_gep_{value_id}")
-                    except Exception:
-                        pass
+                    v = self._safe_first_element_gep(pb, v, f"res_gep_{value_id}")
                     # declare and call boxer
-                    for f in self.module.functions:
-                        if f.name == 'nyash.box.from_i8_string':
-                            box_from = f
-                            break
-                    else:
-                        box_from = ir.Function(self.module, ir.FunctionType(self.i64, [i8p]), name='nyash.box.from_i8_string')
+                    box_from = self._resolve_box_from_string_bridge()
                     result = pb.call(box_from, [v], name=f"res_ptr2h_{value_id}")
                 elif hasattr(base_val, 'type') and isinstance(base_val.type, ir.IntType):
                     result = base_val if base_val.type.width == 64 else ir.Constant(self.i64, 0)
@@ -549,18 +544,8 @@ class Resolver:
             # materialize it on-demand via end-of-block resolver. Otherwise,
             # synthesize a localization PHI at the current block head to ensure
             # dominance for downstream uses (MIR13 PHI-off compatibility).
-            try:
-                cur_bid = int(str(current_block.name).replace('bb',''))
-            except Exception:
-                cur_bid = -1
-            declared = False
-            try:
-                if isinstance(self.block_phi_incomings, dict):
-                    m = self.block_phi_incomings.get(cur_bid)
-                    if isinstance(m, dict) and value_id in m:
-                        declared = True
-            except Exception:
-                declared = False
+            cur_bid = self._block_id_from_name(current_block, default=-1)
+            declared = self._has_declared_phi(cur_bid, value_id)
             if declared:
                 # Return existing placeholder if present; do not create a new PHI here.
                 trace_phi(f"[resolve] use placeholder PHI: bb{cur_bid} v{value_id}")
@@ -575,12 +560,7 @@ class Resolver:
                 import os
                 if os.environ.get('NYASH_LLVM_STRICT') == '1':
                     # P0-2: STRICT mode - fail fast on undeclared PHI in multi-pred context
-                    def_blocks_info = "not_in_def_blocks"
-                    try:
-                        if value_id in self.def_blocks:
-                            def_blocks_info = f"def_blocks={sorted(list(self.def_blocks[value_id]))}"
-                    except Exception:
-                        pass
+                    def_blocks_info = self._def_blocks_info(value_id)
 
                     raise RuntimeError(
                         f"[LLVM_PY/STRICT] Undeclared PHI in multi-pred block:\n"
@@ -616,19 +596,9 @@ class Resolver:
                 else:
                     result = val
             elif hasattr(val, 'type') and isinstance(val.type, ir.IntType):
-                use_bridge = False
-                try:
-                    if hasattr(self, 'is_stringish') and self.is_stringish(int(value_id)):
-                        use_bridge = True
-                except Exception:
-                    use_bridge = False
+                use_bridge = hasattr(self, 'is_stringish') and self.is_stringish(int(value_id))
                 if use_bridge and self.builder is not None:
-                    bridge = None
-                    for f in self.module.functions:
-                        if f.name == 'nyash.string.to_i8p_h':
-                            bridge = f; break
-                    if bridge is None:
-                        bridge = ir.Function(self.module, ir.FunctionType(self.i8p, [self.i64]), name='nyash.string.to_i8p_h')
+                    bridge = self._resolve_string_to_i8p_bridge()
                     result = self.builder.call(bridge, [val], name=f"res_h2p_{value_id}")
                 else:
                     result = self.builder.inttoptr(val, self.i8p, name=f"res_i2p_{value_id}")
@@ -666,16 +636,9 @@ class Resolver:
         val = snap.get(value_id)
 
         if val is not None:
-            is_phi_val = False
-            try:
-                is_phi_val = hasattr(val, 'add_incoming')
-            except Exception:
-                is_phi_val = False
-            try:
-                ty = 'phi' if is_phi_val else ('ptr' if hasattr(val, 'type') and isinstance(val.type, ir.PointerType) else ('i'+str(getattr(val.type,'width','?')) if hasattr(val,'type') and isinstance(val.type, ir.IntType) else 'other'))
-                trace_phi(f"[resolve]  snap hit: bb{block_id} v{value_id} type={ty}")
-            except Exception:
-                pass
+            is_phi_val = hasattr(val, 'add_incoming')
+            ty = 'phi' if is_phi_val else ('ptr' if hasattr(val, 'type') and isinstance(val.type, ir.PointerType) else ('i'+str(getattr(val.type,'width','?')) if hasattr(val,'type') and isinstance(val.type, ir.IntType) else 'other'))
+            trace_phi(f"[resolve]  snap hit: bb{block_id} v{value_id} type={ty}")
             if is_phi_val:
                 # PHIs are valid SSA values to carry through snapshots: a PHI defined at a
                 # dominating block head can be used at the end of successor blocks.
@@ -691,12 +654,7 @@ class Resolver:
         import os
         if os.environ.get('NYASH_LLVM_STRICT') == '1':
             # Collect diagnostic information
-            def_blocks_info = "not_in_def_blocks"
-            try:
-                if value_id in self.def_blocks:
-                    def_blocks_info = f"def_blocks={sorted(list(self.def_blocks[value_id]))}"
-            except Exception:
-                pass
+            def_blocks_info = self._def_blocks_info(value_id)
 
             snapshot_keys = sorted(list(snap.keys())) if snap else []
 
@@ -727,14 +685,7 @@ class Resolver:
             if pred_bb is None:
                 return ir.Constant(self.i64, 0)
             pb = ir.IRBuilder(pred_bb)
-            try:
-                term = pred_bb.terminator
-                if term is not None:
-                    pb.position_before(term)
-                else:
-                    pb.position_at_end(pred_bb)
-            except Exception:
-                pb.position_at_end(pred_bb)
+            self._safe_position_before_terminator(pb, pred_bb)
             if val.type.width < 64:
                 return pb.zext(val, self.i64, name=f"res_zext_{block_id}")
             else:
@@ -744,30 +695,12 @@ class Resolver:
             if pred_bb is None:
                 return ir.Constant(self.i64, 0)
             pb = ir.IRBuilder(pred_bb)
-            try:
-                term = pred_bb.terminator
-                if term is not None:
-                    pb.position_before(term)
-                else:
-                    pb.position_at_end(pred_bb)
-            except Exception:
-                pb.position_at_end(pred_bb)
+            self._safe_position_before_terminator(pb, pred_bb)
             i8p = ir.IntType(8).as_pointer()
             v = val
-            try:
-                if hasattr(v.type, 'pointee') and isinstance(v.type.pointee, ir.ArrayType):
-                    c0 = ir.Constant(ir.IntType(32), 0)
-                    v = pb.gep(v, [c0, c0], name=f"res_gep_{block_id}_{id(val)}")
-            except Exception:
-                pass
+            v = self._safe_first_element_gep(pb, v, f"res_gep_{block_id}_{id(val)}")
             # declare boxer
-            box_from = None
-            for f in self.module.functions:
-                if f.name == 'nyash.box.from_i8_string':
-                    box_from = f
-                    break
-            if box_from is None:
-                box_from = ir.Function(self.module, ir.FunctionType(self.i64, [i8p]), name='nyash.box.from_i8_string')
+            box_from = self._resolve_box_from_string_bridge()
             return pb.call(box_from, [v], name=f"res_ptr2h_{block_id}")
         return ir.Constant(self.i64, 0)
     
