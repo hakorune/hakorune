@@ -317,6 +317,16 @@ overlay reports
 open duplicate record-state lowering. It should hand off to the next structural
 owner, currently the non-linear product-pages bridge design.
 
+For that handoff, the coverage overlay keeps the old linear page-map probe
+closed and emits the non-linear bridge plan vocabulary:
+
+```text
+replacement_front_product_pages_non_linear_lookup_plan_v0=1
+replacement_front_product_pages_linear_probe_closed=1
+replacement_front_product_pages_non_linear_lookup_strategy=range_decision_tree_or_indexed_page_table
+replacement_front_product_pages_non_linear_next_bridge=replacement_front_product_pages_non_linear_plan
+```
+
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
 The seed path now uses append-or-overwrite `set(i, ...)` shape, so the old

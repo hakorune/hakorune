@@ -449,7 +449,11 @@ replacement_front_product_pages_route=not_consumed
 replacement_front_product_pages_source_ready=1
 replacement_front_product_pages_full_source_ready=1
 replacement_front_product_pages_bridge_blocker=consumer_not_enabled
-replacement_front_product_pages_next_bridge=page_map_backed_replacement_front_plan
+replacement_front_product_pages_next_bridge=design_non_linear_product_pages_bridge
+replacement_front_product_pages_non_linear_lookup_plan_v0=1
+replacement_front_product_pages_linear_probe_closed=1
+replacement_front_product_pages_non_linear_lookup_strategy=range_decision_tree_or_indexed_page_table
+replacement_front_product_pages_non_linear_next_bridge=replacement_front_product_pages_non_linear_plan
 page_map_source_ready=1
 page_map_release_source_ready=1
 realloc_same_class_source_ready=1
@@ -462,8 +466,10 @@ Interpretation: `.hako` PageMap, page-map release, same-class realloc,
 grow/copy/release, huge model, and OSVM pilot seams are source-present for the
 next bridge design. The replacement front still does not consume product pages,
 and `replacement_front_is_full_hako_algorithm=0` remains the claim boundary.
-The next implementation owner is a narrow page-map-backed benchmark bridge
-plan, not product activation or a full allocator claim.
+The previous linear page-map-backed lookup probe is closed as a nonkeeper; the
+next implementation owner is a non-linear ownership lookup plan for a
+benchmark-only product-pages bridge, not product activation or a full allocator
+claim.
 
 The same report carries the current PageModel hot-array readiness view:
 

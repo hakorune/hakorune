@@ -613,10 +613,24 @@ def report_dict(
         product_pages_next_bridge = "measure_product_pages_consumer"
     elif product_pages_source_ready:
         product_pages_bridge_blocker = "consumer_not_enabled"
-        product_pages_next_bridge = "page_map_backed_replacement_front_plan"
+        product_pages_next_bridge = "design_non_linear_product_pages_bridge"
     else:
         product_pages_bridge_blocker = "source_shape_not_ready"
         product_pages_next_bridge = "fix_product_pages_source_shape"
+    product_pages_non_linear_lookup_plan = int(
+        product_pages_source_ready and not product_pages_consumer_enabled
+    )
+    product_pages_linear_probe_closed = int(product_pages_non_linear_lookup_plan)
+    product_pages_non_linear_lookup_strategy = (
+        "range_decision_tree_or_indexed_page_table"
+        if product_pages_non_linear_lookup_plan
+        else "none"
+    )
+    product_pages_non_linear_next_bridge = (
+        "replacement_front_product_pages_non_linear_plan"
+        if product_pages_non_linear_lookup_plan
+        else product_pages_next_bridge
+    )
     structural_owner_refresh_required = int(
         hotcore_measurement_reported
         and hotcore_next_bridge == "select_next_structural_owner"
@@ -876,6 +890,10 @@ def report_dict(
         "replacement_front_product_pages_full_source_ready": product_pages_full_source_ready,
         "replacement_front_product_pages_bridge_blocker": product_pages_bridge_blocker,
         "replacement_front_product_pages_next_bridge": product_pages_next_bridge,
+        "replacement_front_product_pages_non_linear_lookup_plan_v0": product_pages_non_linear_lookup_plan,
+        "replacement_front_product_pages_linear_probe_closed": product_pages_linear_probe_closed,
+        "replacement_front_product_pages_non_linear_lookup_strategy": product_pages_non_linear_lookup_strategy,
+        "replacement_front_product_pages_non_linear_next_bridge": product_pages_non_linear_next_bridge,
         "page_map_source_ready": page_map_source_ready,
         "page_map_release_source_ready": page_map_release_source_ready,
         "realloc_same_class_source_ready": realloc_same_class_source_ready,
@@ -1083,6 +1101,10 @@ def emit_text(data: dict[str, object]) -> None:
         "replacement_front_product_pages_full_source_ready",
         "replacement_front_product_pages_bridge_blocker",
         "replacement_front_product_pages_next_bridge",
+        "replacement_front_product_pages_non_linear_lookup_plan_v0",
+        "replacement_front_product_pages_linear_probe_closed",
+        "replacement_front_product_pages_non_linear_lookup_strategy",
+        "replacement_front_product_pages_non_linear_next_bridge",
         "page_map_source_ready",
         "page_map_release_source_ready",
         "realloc_same_class_source_ready",
