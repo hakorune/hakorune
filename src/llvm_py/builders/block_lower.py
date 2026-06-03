@@ -152,6 +152,36 @@ def _patch_loop_prepass_skipped_blocks(builder, func: ir.Function, loop_plan, lo
         _branch_to_if_open(builder.bb_map.get(bskip), orig_exit_bb)
 
 
+def _body_redefines_value(body_ops: List[Dict[str, Any]], start_index: int, value_id: int) -> bool:
+    for rest in body_ops[start_index:]:
+        dst = rest.get('dst')
+        if isinstance(dst, int) and int(dst) == int(value_id):
+            return True
+    return False
+
+
+def _sync_lowered_dst(context, builder, vmap_cur, created_ids, block_id: int, bb, inst) -> None:
+    dst = inst.get("dst")
+    if not isinstance(dst, int):
+        return
+
+    lowered_value = vmap_cur.get(dst)
+    if lowered_value is None:
+        lowered_value = (getattr(builder, "vmap", {}) or {}).get(dst)
+    if lowered_value is None:
+        return
+
+    if hasattr(lowered_value, 'add_incoming'):
+        value_block_name = getattr(getattr(lowered_value, 'basic_block', None), 'name', None)
+        if value_block_name != bb.name:
+            return
+
+    vmap_cur[dst] = lowered_value
+    if dst in vmap_cur:
+        # P0-1.5: Update def_blocks IMMEDIATELY after instruction lowering.
+        _record_created_id(context, created_ids, dst, block_id)
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -400,52 +430,13 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             _bind_resolver_instruction(builder, bid, inst.get("__instruction_index", i_idx))
             if inst.get('op') == 'copy':
                 src_i = inst.get('src')
-                skip_now = False
-                if isinstance(src_i, int):
-                    try:
-                        for _rest in body_ops[i_idx+1:]:
-                            try:
-                                if int(_rest.get('dst')) == int(src_i):
-                                    skip_now = True
-                                    break
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
-                if skip_now:
+                if isinstance(src_i, int) and _body_redefines_value(body_ops, i_idx + 1, src_i):
                     pass
                 else:
                     builder.lower_instruction(ib, inst, func)
             else:
                 builder.lower_instruction(ib, inst, func)
-            try:
-                dst = inst.get("dst")
-                if isinstance(dst, int):
-                    # Prefer current vmap context (_current_vmap) updates; fallback to global vmap
-                    _gval = None
-                    try:
-                        _gval = vmap_cur.get(dst)
-                    except Exception:
-                        _gval = None
-                    if _gval is None and dst in builder.vmap:
-                        _gval = builder.vmap[dst]
-                    if _gval is not None:
-                        try:
-                            if hasattr(_gval, 'add_incoming'):
-                                bb_of = getattr(getattr(_gval, 'basic_block', None), 'name', None)
-                                if bb_of == bb.name:
-                                    vmap_cur[dst] = _gval
-                            else:
-                                vmap_cur[dst] = _gval
-                        except Exception:
-                            vmap_cur[dst] = _gval
-                    if dst not in created_ids and dst in vmap_cur:
-                        # P0-1.5: Update def_blocks IMMEDIATELY after instruction lowering
-                        # This ensures resolver can detect defined_here for same-block uses
-                        # Phase 132-P1: Use context.add_def_block
-                        _record_created_id(context, created_ids, dst, block_data.get("id", 0))
-            except Exception:
-                pass
+            _sync_lowered_dst(context, builder, vmap_cur, created_ids, block_data.get("id", 0), bb, inst)
         # Materialize trivial PHI aliases for this block into vmap_cur so snapshots
         # carry alias destinations even when not explicitly used in block body.
         try:
