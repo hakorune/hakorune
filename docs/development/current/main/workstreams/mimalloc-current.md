@@ -359,11 +359,21 @@ page_model_hot_field_top_bucket=primitive_hot_state
 page_model_hot_field_buckets=free_top:primitive_hot_state,requested_bytes:public_semantics_proof_evidence,peak_used:primitive_hot_state
 page_model_hot_field_counter_deletion_allowed=0
 page_model_hot_field_next_bridge=record_state_residence_plan_report
+record_state_residence_plan_v0=1
+record_state_residence_report_only=1
+record_state_residence_ready=1
+record_state_residence_static_candidate_fields=used,free_top,local_free_top,retired,decommitted,peak_used
+record_state_residence_observed_candidate_fields=free_top,peak_used
+record_state_residence_rejected_observed_fields=requested_bytes:public_semantics_proof_evidence
+record_state_residence_source_migration_allowed=0
+record_state_residence_next_bridge=record_state_residence_metadata_producer
 ```
 
 Interpretation: the hot field owner is not another counter-elision row. The
 next narrow compiler-facing owner is report-only `RecordStateResidencePlanV0`
 or equivalent state-representation vocabulary for primitive PageModel fields.
+PageModel remains the owner `box`; source migration to a `PageState` record is
+not open until a dedicated metadata producer/lowering slice accepts it.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
@@ -487,13 +497,15 @@ With benchmark, fastpath, and perf attribution reports all supplied,
 
 ```text
 perf_attribution_report_consumed=1
-structural_owner_next_action=record_state_residence_plan_report
+structural_owner_next_action=record_state_residence_metadata_producer
 perf_top_instruction_category=store_like
 perf_top_instruction_field_hints=0xa0:free_top
 page_model_hot_field_top=free_top
 page_model_hot_field_top_bucket=primitive_hot_state
 page_model_hot_field_buckets=free_top:primitive_hot_state,requested_bytes:public_semantics_proof_evidence,peak_used:primitive_hot_state
-page_model_hot_field_next_bridge=record_state_residence_plan_report
+record_state_residence_observed_candidate_fields=free_top,peak_used
+record_state_residence_rejected_observed_fields=requested_bytes:public_semantics_proof_evidence
+record_state_residence_next_bridge=record_state_residence_metadata_producer
 perf_hot_instruction_0_context_categories=arithmetic_compare,branch,memory,store_like
 ```
 

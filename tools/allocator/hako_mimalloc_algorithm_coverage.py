@@ -141,6 +141,16 @@ def _format_field_buckets(fields: list[str]) -> str:
     return ",".join(f"{field}:{_bucket_for_field(field)}" for field in fields)
 
 
+def page_model_field_names(page_box: str) -> list[str]:
+    names: list[str] = []
+    field_re = r"^\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*:"
+    for match in re.finditer(field_re, page_box, re.MULTILINE):
+        name = match.group("name")
+        if name not in names:
+            names.append(name)
+    return names
+
+
 def has_file(path: Path) -> bool:
     return path.exists() and path.is_file()
 
@@ -680,6 +690,30 @@ def report_dict(
             else "run_hako_mimalloc_direct_exact_app_perf_asm"
         )
     )
+    page_model_fields = page_model_field_names(page_box)
+    record_state_static_candidates = [
+        field
+        for field in page_model_fields
+        if _bucket_for_field(field) == "primitive_hot_state"
+    ]
+    record_state_observed_candidates = [
+        field
+        for field in hot_field_names
+        if _bucket_for_field(field) == "primitive_hot_state"
+    ]
+    record_state_observed_rejections = [
+        field
+        for field in hot_field_names
+        if _bucket_for_field(field) != "primitive_hot_state"
+    ]
+    record_state_report_ready = int(
+        hot_field_plan_ready and bool(record_state_observed_candidates)
+    )
+    record_state_next_bridge = (
+        "record_state_residence_metadata_producer"
+        if record_state_report_ready
+        else hot_field_next_bridge
+    )
     product_pages_non_linear_owner_candidate_ready = int(
         structural_owner_refresh_required
         and product_pages_source_ready
@@ -694,15 +728,14 @@ def report_dict(
             else "measure_page_model_hot_array_source_route"
         )
         if page_model_hot_array_source_route_measured and perf_attribution_report_consumed:
-            structural_owner_next_action = (
-                "select_next_perf_owner"
-                if perf_delta_ready
-                else (
-                    hot_field_next_bridge
-                    if hot_field_plan_ready
-                    else perf_delta_next_bridge
-                )
-            )
+            if perf_delta_ready:
+                structural_owner_next_action = "select_next_perf_owner"
+            elif record_state_report_ready:
+                structural_owner_next_action = record_state_next_bridge
+            elif hot_field_plan_ready:
+                structural_owner_next_action = hot_field_next_bridge
+            else:
+                structural_owner_next_action = perf_delta_next_bridge
     elif product_pages_non_linear_owner_candidate_ready:
         structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
         structural_owner_reason = "hotcore_measured_and_product_pages_source_ready"
@@ -844,6 +877,24 @@ def report_dict(
         "page_model_hot_field_observer_counter_count": observer_counter_field_count,
         "page_model_hot_field_counter_deletion_allowed": 0,
         "page_model_hot_field_next_bridge": hot_field_next_bridge,
+        "record_state_residence_plan_v0": 1,
+        "record_state_residence_report_only": 1,
+        "record_state_residence_ready": record_state_report_ready,
+        "record_state_residence_owner_box": "HakoAllocPageModel",
+        "record_state_residence_candidate_record": "PageState",
+        "record_state_residence_static_candidate_fields": ",".join(
+            record_state_static_candidates
+        )
+        or "none",
+        "record_state_residence_observed_candidate_fields": ",".join(
+            record_state_observed_candidates
+        )
+        or "none",
+        "record_state_residence_rejected_observed_fields": _format_field_buckets(
+            record_state_observed_rejections
+        ),
+        "record_state_residence_source_migration_allowed": 0,
+        "record_state_residence_next_bridge": record_state_next_bridge,
         "perf_top_symbol": str_field(perf_attribution, "top_symbol", "none"),
         "perf_top_symbol_percent": str_field(perf_attribution, "top_symbol_percent", "0.00"),
         "perf_symbol_collapse_detected": int_field(
@@ -1012,6 +1063,16 @@ def emit_text(data: dict[str, object]) -> None:
         "page_model_hot_field_observer_counter_count",
         "page_model_hot_field_counter_deletion_allowed",
         "page_model_hot_field_next_bridge",
+        "record_state_residence_plan_v0",
+        "record_state_residence_report_only",
+        "record_state_residence_ready",
+        "record_state_residence_owner_box",
+        "record_state_residence_candidate_record",
+        "record_state_residence_static_candidate_fields",
+        "record_state_residence_observed_candidate_fields",
+        "record_state_residence_rejected_observed_fields",
+        "record_state_residence_source_migration_allowed",
+        "record_state_residence_next_bridge",
         "perf_top_symbol",
         "perf_top_symbol_percent",
         "perf_symbol_collapse_detected",
