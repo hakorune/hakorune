@@ -13,11 +13,18 @@ from .error_helpers import PhiStrictError, PhiDebugMessage
 from .fact_propagation import mark_arrayish_handle, should_mark_phi_arrayish
 
 def _const_i64(builder, n: int) -> ir.Constant:
-    try:
-        return ir.Constant(builder.i64, int(n))
-    except Exception:
-        # Failsafe: llvmlite requires a Module-bound type; fallback to 64-bit 0
-        return ir.Constant(ir.IntType(64), int(n) if isinstance(n, int) else 0)
+    return ir.Constant(builder.i64, int(n))
+
+
+def _safe_block_name(block: Any) -> Optional[str]:
+    name = getattr(block, "name", None)
+    if isinstance(name, bytes):
+        return name.decode(errors="replace")
+    return name if isinstance(name, str) else None
+
+
+def _same_block_name(lhs: Any, rhs: Any) -> bool:
+    return _safe_block_name(lhs) == _safe_block_name(rhs)
 
 
 def ensure_phi(builder, block_id: int, dst_vid: int, bb: ir.Block, dst_type=None) -> ir.Instruction:
@@ -32,27 +39,11 @@ def ensure_phi(builder, block_id: int, dst_vid: int, bb: ir.Block, dst_type=None
 
     # Check if PHI already exists in vmap for this block
     cur = builder.vmap.get(dst_vid)
-    try:
-        if cur is not None and hasattr(cur, "add_incoming"):
-            cur_bb_name = getattr(getattr(cur, "basic_block", None), "name", None)
-            bb_name = getattr(bb, "name", None)
-            try:
-                if isinstance(cur_bb_name, bytes):
-                    cur_bb_name = cur_bb_name.decode()
-            except Exception:
-                pass
-            try:
-                if isinstance(bb_name, bytes):
-                    bb_name = bb_name.decode()
-            except Exception:
-                pass
-            if cur_bb_name == bb_name:
-                import sys
-                if is_phi_debug_enabled():
-                    print(f"[phi_wiring/reuse] v{dst_vid} existing PHI found, type={cur.type}", file=sys.stderr)
-                return cur
-    except Exception:
-        pass
+    if cur is not None and hasattr(cur, "add_incoming") and _same_block_name(getattr(cur, "basic_block", None), bb):
+        import sys
+        if is_phi_debug_enabled():
+            print(f"[phi_wiring/reuse] v{dst_vid} existing PHI found, type={cur.type}", file=sys.stderr)
+        return cur
 
     # Phase 275 P0: Check predeclared PHI with type compatibility verification
     predecl = getattr(builder, "predeclared_ret_phis", {}) if hasattr(builder, "predeclared_ret_phis") else {}
@@ -87,11 +78,7 @@ def ensure_phi(builder, block_id: int, dst_vid: int, bb: ir.Block, dst_type=None
     # Phase 132 Critical Fix: Check if block already has a terminator
     # If so, we're trying to add PHI too late - this is a bug
     block_has_terminator = False
-    try:
-        if bb.terminator is not None:
-            block_has_terminator = True
-    except Exception:
-        pass
+    block_has_terminator = bb.terminator is not None
 
     if block_has_terminator:
         # This should not happen - PHIs must be created before terminators
@@ -111,19 +98,13 @@ def ensure_phi(builder, block_id: int, dst_vid: int, bb: ir.Block, dst_type=None
 
     # Create PHI at block start
     b = ir.IRBuilder(bb)
-    try:
-        # Phase 132: Explicitly position BEFORE the first instruction
-        # This ensures PHI is at the very start
-        instrs = list(bb.instructions)
-        if instrs:
-            b.position_before(instrs[0])
-        else:
-            b.position_at_start(bb)
-    except Exception:
-        try:
-            b.position_at_start(bb)
-        except Exception:
-            pass
+    # Phase 132: Explicitly position BEFORE the first instruction
+    # This ensures PHI is at the very start
+    instrs = list(bb.instructions)
+    if instrs:
+        b.position_before(instrs[0])
+    else:
+        b.position_at_start(bb)
 
     # Phase 277 P1: Use type_helper SSOT for PHI type determination
     from .type_helper import dst_type_to_llvm_type
@@ -150,10 +131,7 @@ def phi_at_block_head(block: ir.Block, ty: ir.Type, name: str | None = None) -> 
     Keeps LLVM's requirement that PHI nodes are grouped at the top of a block.
     """
     b = ir.IRBuilder(block)
-    try:
-        b.position_at_start(block)
-    except Exception:
-        pass
+    b.position_at_start(block)
     return b.phi(ty, name=name) if name is not None else b.phi(ty)
 
 
@@ -188,36 +166,18 @@ def nearest_pred_on_path(
 
 def _snapshot_phi_candidate(builder, block_id: int, dst_vid: int, bb: ir.Block, context=None):
     phi = None
-    try:
-        if context is not None:
-            snapshot = context.get_block_snapshot(int(block_id))
-            cur = snapshot.get(int(dst_vid))
-        else:
-            snap = getattr(builder, "block_end_values", {}) or {}
-            cur = snap.get(int(block_id), {}).get(int(dst_vid))
-        if cur is None or not hasattr(cur, "add_incoming"):
-            return None
-
-        cur_bb_name = getattr(getattr(cur, "basic_block", None), "name", None)
-        bb_name = getattr(bb, "name", None)
-        try:
-            if isinstance(cur_bb_name, bytes):
-                cur_bb_name = cur_bb_name.decode()
-        except Exception:
-            pass
-        try:
-            if isinstance(bb_name, bytes):
-                bb_name = bb_name.decode()
-        except Exception:
-            pass
-        if cur_bb_name == bb_name:
-            phi = cur
-            try:
-                builder.vmap[dst_vid] = phi
-            except Exception:
-                pass
-    except Exception:
+    if context is not None:
+        snapshot = context.get_block_snapshot(int(block_id))
+        cur = snapshot.get(int(dst_vid))
+    else:
+        snap = getattr(builder, "block_end_values", {}) or {}
+        cur = snap.get(int(block_id), {}).get(int(dst_vid))
+    if cur is None or not hasattr(cur, "add_incoming"):
         return None
+
+    if _same_block_name(getattr(cur, "basic_block", None), bb):
+        phi = cur
+        builder.vmap[dst_vid] = phi
     return phi
 
 
@@ -387,32 +347,26 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
 
 
 def _mark_phi_stringish(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
-    try:
-        resolver = getattr(builder, "resolver", None)
-        if not (
-            resolver is not None
-            and hasattr(resolver, "is_stringish")
-            and hasattr(resolver, "mark_string")
-        ):
-            return
-        for (_decl_b, v_src) in incoming or []:
-            try:
-                if resolver.is_stringish(int(v_src)):
-                    resolver.mark_string(int(dst_vid))
-                    return
-            except Exception:
-                continue
-    except Exception:
-        pass
+    resolver = getattr(builder, "resolver", None)
+    if not (
+        resolver is not None
+        and hasattr(resolver, "is_stringish")
+        and hasattr(resolver, "mark_string")
+    ):
+        return
+    for (_decl_b, v_src) in incoming or []:
+        try:
+            if resolver.is_stringish(int(v_src)):
+                resolver.mark_string(int(dst_vid))
+                return
+        except Exception:
+            continue
 
 
 def _mark_phi_arrayish(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
-    try:
-        resolver = getattr(builder, "resolver", None)
-        if should_mark_phi_arrayish(resolver, None, incoming):
-            mark_arrayish_handle(resolver, int(dst_vid))
-    except Exception:
-        pass
+    resolver = getattr(builder, "resolver", None)
+    if should_mark_phi_arrayish(resolver, None, incoming):
+        mark_arrayish_handle(resolver, int(dst_vid))
 
 
 def _consensus_incoming_mapping(
@@ -449,21 +403,15 @@ def _propagate_phi_origin_maps(builder, dst_vid: int, incoming: List[Tuple[int, 
     if resolver is None:
         return
 
-    try:
-        src_map = getattr(resolver, "newbox_string_args", None)
-        candidate = _consensus_incoming_mapping(src_map, dst_vid, incoming, lambda value: value is not None)
-        if candidate is not None and isinstance(src_map, dict):
-            src_map[int(dst_vid)] = candidate
-    except Exception:
-        pass
+    src_map = getattr(resolver, "newbox_string_args", None)
+    candidate = _consensus_incoming_mapping(src_map, dst_vid, incoming, lambda value: value is not None)
+    if candidate is not None and isinstance(src_map, dict):
+        src_map[int(dst_vid)] = candidate
 
-    try:
-        lit_map = getattr(resolver, "string_literals", None)
-        candidate = _consensus_incoming_mapping(lit_map, dst_vid, incoming, lambda value: isinstance(value, str))
-        if isinstance(candidate, str) and isinstance(lit_map, dict):
-            lit_map[int(dst_vid)] = candidate
-    except Exception:
-        pass
+    lit_map = getattr(resolver, "string_literals", None)
+    candidate = _consensus_incoming_mapping(lit_map, dst_vid, incoming, lambda value: isinstance(value, str))
+    if isinstance(candidate, str) and isinstance(lit_map, dict):
+        lit_map[int(dst_vid)] = candidate
 
 
 def _string_ptr_phi_candidate(builder, block_id: int, dst_vid: int):
