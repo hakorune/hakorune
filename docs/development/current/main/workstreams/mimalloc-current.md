@@ -456,7 +456,9 @@ store until an explicit overflow policy / proof is added. The
 `requested_bytes` from the benchmark run and report observed no-overflow, but
 that is measurement evidence only; the general compiler/source proof remains
 `0` until an explicit accumulator overflow contract is added. The weighted
-store classifier says the store owner is primitive
+store classifier says the store owner is primitive hot-state dominant, so do
+not misread the current evidence as primarily a public/proof counter deletion
+opportunity.
 
 The workload arithmetic is now available as a separate requested-bytes
 accumulator contract:
@@ -475,8 +477,27 @@ This narrows the next implementation decision without changing source
 semantics: a benchmark-specific probe may use the bounded workload evidence,
 but a general source/backend reorder still needs an explicit no-overflow
 contract.
-hot-state dominant, so do not misread the current evidence as primarily a
-public/proof counter deletion opportunity.
+
+A `.hako` acquire-family store-order probe was measured and closed as a
+nonkeeper:
+
+```text
+report=target/mimalloc-acquire-store-order-probe.asm.txt
+changed=acquire_usize/acquireFreshSmall stored free_top before requested_bytes
+body_elapsed_ns_before=18000000
+body_elapsed_ns_after=19000000
+store_like_percent_before=68.59
+store_like_percent_after=22.41
+top_instruction_after=memory_load_used
+decision=nonkeeper_reverted
+reason=instruction_shape_changed_without_positive_body_time_evidence
+source_reorder_allowed=0
+```
+
+The probe proves the `.hako` source order can affect the fused `ny_main` hot
+shape, but it does not authorize keeping the source change. Continue through
+the accumulator overflow policy / proof bridge before reordering
+`requested_bytes` around primitive hot-state stores.
 Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later
 representation delta turns positive.
 

@@ -442,6 +442,13 @@ source_reorder_allowed=0
 useful for probe selection, but it does not authorize a general compiler
 source reorder.
 
+The acquire-family `.hako` store-order probe is closed as a nonkeeper. Moving
+the `free_top` store before the `requested_bytes` accumulator changed the fused
+hot instruction mix (`store_like` dropped from 68.59% to 22.41%), but the short
+body timing moved from 18ms to 19ms and the report still emitted
+`source_reorder_allowed=0`. Keep `page_box.hako` in semantic order until the
+public/proof accumulator overflow contract is explicit.
+
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
 The seed path now uses append-or-overwrite `set(i, ...)` shape, so the old
