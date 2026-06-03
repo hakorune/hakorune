@@ -392,6 +392,21 @@ backend_store_shape_selected=mixed_primitive_and_public_store_shape
 backend_store_shape_next_bridge=split_init_public_stores_from_primitive_hot_state_stores
 ```
 
+A repeat-amplified perf/asm check keeps the same owner shape:
+
+```text
+report=target/mimalloc-store-shape-repeat65536.asm.txt
+runs=40
+in_process_operation_repeat=65536
+top_symbol=ny_main
+symbol_collapse_detected=1
+top_instruction_percent=37.86
+top_instruction_category=store_like
+top_instruction_field_hints=0xa0:free_top
+backend_store_shape_selected=mixed_primitive_and_public_store_shape
+backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,local_free:direct_array_owner,reserved:public_semantics,used:primitive_hot_state,local_free_count:observer_counter
+```
+
 Do not reopen counter deletion/gating from this evidence. `requested_bytes`
 is public/proof-visible, and the counter-skip probe already regressed. Treat
 the next structural path as backend/store-shape separation evidence: split

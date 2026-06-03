@@ -313,6 +313,19 @@ opening another source rewrite. Field hints are layout candidates from
 `app.mir.json`; they intentionally skip scaled DirectArray element operands and
 do not prove the base register's object type by themselves.
 
+A repeat-amplified confirmation can be run with:
+
+```bash
+bash tools/allocator/hako_mimalloc_direct_exact_app_perf_asm.sh \
+  --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
+  --out target/mimalloc-store-shape-repeat65536.asm.txt \
+  --runs 40 \
+  --in-process-repeat 65536
+```
+
+The current expected shape still reports `free_top` as the top store-like
+instruction and keeps `backend_store_shape_selected=mixed_primitive_and_public_store_shape`.
+
 When the attribution report is passed into
 `hako_mimalloc_algorithm_coverage.py`, the coverage overlay buckets those field
 hints into the current PageModel state taxonomy. For example,
