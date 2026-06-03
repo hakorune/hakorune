@@ -23,7 +23,20 @@ from type_facts import is_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
 from utils.values import resolve_i64_strict
 
-from instructions.field_access_helpers_common import *
+from instructions.field_access_helpers_common import (
+    _canonical_i64,
+    _declare,
+    _ensure_handle,
+    _exact_slot_helper_enabled,
+    _field_ptr,
+    _is_exact_slot_u64_storage,
+    _lower_direct_slot_nativedirect_get,
+    _lower_direct_slot_nativedirect_set,
+    _mark_bool_immediate,
+    _mark_float_immediate,
+    _mark_integer_immediate,
+    _resolve_receiver,
+)
 
 def _handle_box_type(meta: Any) -> Optional[str]:
     if isinstance(meta, dict) and meta.get("kind") == "handle":
@@ -177,39 +190,6 @@ def _typed_float_field_enabled(
         thin_entry_surface=thin_entry_surface,
         selection_value_id=selection_value_id,
     )
-
-
-def _mark_integer_immediate(resolver, vid: int) -> None:
-    try:
-        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
-            resolver.value_types = {}
-        resolver.value_types[int(vid)] = "i64"
-    except Exception:
-        pass
-    try:
-        integerish_ids = getattr(resolver, "integerish_ids", None)
-        if isinstance(integerish_ids, set):
-            integerish_ids.add(int(vid))
-    except Exception:
-        pass
-
-
-def _mark_bool_immediate(resolver, vid: int) -> None:
-    try:
-        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
-            resolver.value_types = {}
-        resolver.value_types[int(vid)] = "i1"
-    except Exception:
-        pass
-
-
-def _mark_float_immediate(resolver, vid: int) -> None:
-    try:
-        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
-            resolver.value_types = {}
-        resolver.value_types[int(vid)] = "Float"
-    except Exception:
-        pass
 
 
 def _is_bool_immediate_meta(meta: Any) -> bool:

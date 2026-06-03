@@ -29,6 +29,39 @@ DIRECT_SLOT_CELL_BYTES = 16
 DIRECT_SLOT_CELL_PAYLOAD_OFFSET_BYTES = 8
 
 
+def _mark_integer_immediate(resolver, vid: int) -> None:
+    try:
+        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
+            resolver.value_types = {}
+        resolver.value_types[int(vid)] = "i64"
+    except Exception:
+        pass
+    try:
+        integerish_ids = getattr(resolver, "integerish_ids", None)
+        if isinstance(integerish_ids, set):
+            integerish_ids.add(int(vid))
+    except Exception:
+        pass
+
+
+def _mark_bool_immediate(resolver, vid: int) -> None:
+    try:
+        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
+            resolver.value_types = {}
+        resolver.value_types[int(vid)] = "i1"
+    except Exception:
+        pass
+
+
+def _mark_float_immediate(resolver, vid: int) -> None:
+    try:
+        if not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
+            resolver.value_types = {}
+        resolver.value_types[int(vid)] = "Float"
+    except Exception:
+        pass
+
+
 def _declare(module: ir.Module, name: str, ret, args):
     for f in module.functions:
         if f.name == name:
