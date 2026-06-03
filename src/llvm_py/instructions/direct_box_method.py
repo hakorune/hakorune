@@ -41,6 +41,14 @@ _MODULE_RECEIVER_BOX_ALIASES = {
     "selfhost.shared.common.string_helpers": "StringHelpers",
 }
 _DIRECT_BOX_NAMES = frozenset(_MODULE_RECEIVER_BOX_ALIASES.values())
+_DIRECT_METHOD_LOWERERS = {
+    ("FileBox", "open"): lower_filebox_open_direct,
+    ("FileBox", "read"): lower_filebox_read_direct,
+    ("FileBox", "close"): lower_filebox_close_direct,
+    ("FileBox", "readBytes"): lower_filebox_read_bytes_direct,
+    ("MirBuilderBox", "emit_from_program_json_v0"): lower_mir_builder_emit_from_program_json_direct,
+    ("MirBuilderBox", "emit_from_source_v0"): lower_mir_builder_emit_from_source_direct,
+}
 
 
 def _declare(module: ir.Module, name: str, ret, args):
@@ -121,60 +129,24 @@ def try_lower_known_box_method_call(
     resolved_box_name = resolve_known_box_name(box_name, receiver_literal)
     if not resolved_box_name or not method_name:
         return None
-    if resolved_box_name == "FileBox" and method_name == "open":
-        return lower_filebox_open_direct(
+
+    direct_lowerer = _DIRECT_METHOD_LOWERERS.get((resolved_box_name, method_name))
+    if direct_lowerer is not None:
+        kwargs = dict(
             builder=builder,
             module=module,
             recv_h=recv_h,
             args=args,
+            call_name=call_name,
+        )
+        if resolved_box_name == "FileBox" and method_name in ("read", "close", "readBytes"):
+            return direct_lowerer(**kwargs)
+        return direct_lowerer(
+            **kwargs,
             resolve_arg=resolve_arg,
             ensure_handle=ensure_handle,
-            call_name=call_name,
         )
-    if resolved_box_name == "FileBox" and method_name == "read":
-        return lower_filebox_read_direct(
-            builder=builder,
-            module=module,
-            recv_h=recv_h,
-            args=args,
-            call_name=call_name,
-        )
-    if resolved_box_name == "FileBox" and method_name == "close":
-        return lower_filebox_close_direct(
-            builder=builder,
-            module=module,
-            recv_h=recv_h,
-            args=args,
-            call_name=call_name,
-        )
-    if resolved_box_name == "FileBox" and method_name == "readBytes":
-        return lower_filebox_read_bytes_direct(
-            builder=builder,
-            module=module,
-            recv_h=recv_h,
-            args=args,
-            call_name=call_name,
-        )
-    if resolved_box_name == "MirBuilderBox" and method_name == "emit_from_program_json_v0":
-        return lower_mir_builder_emit_from_program_json_direct(
-            builder=builder,
-            module=module,
-            recv_h=recv_h,
-            args=args,
-            resolve_arg=resolve_arg,
-            ensure_handle=ensure_handle,
-            call_name=call_name,
-        )
-    if resolved_box_name == "MirBuilderBox" and method_name == "emit_from_source_v0":
-        return lower_mir_builder_emit_from_source_direct(
-            builder=builder,
-            module=module,
-            recv_h=recv_h,
-            args=args,
-            resolve_arg=resolve_arg,
-            ensure_handle=ensure_handle,
-            call_name=call_name,
-        )
+
     callee = resolve_known_box_method(
         module,
         box_name,
