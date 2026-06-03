@@ -115,8 +115,8 @@ benchmark-only replacement front execution:
 
 not yet bridged:
   size_class_policy_to_product_replacement_pages
-  .hako PageModel arrays to source DirectArrayI64 storage
-  .hako HotCore/PageModel plans to replacement-front lowering
+  measured DirectArrayI64 source route in product-like execution
+  selected next structural owner after HotCore/PageModel measurement
   general page queue / segment / OSVM product allocator front
 ```
 
@@ -513,15 +513,21 @@ object-lifecycle-native-slot-bridge-v0:
      `--replacement-front-native-bins-mode` is the next benchmark-only v0:
      it consumes workload regular bins but keeps pages/product activation
      closed.
-   - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
-     storage. This source migration is complete for `free` / `local_free` /
-     `block_used`; do not keep probing local get/set shape unless new owner
-     evidence selects it.
-   - Third candidate, now primary after page-bins local probes:
-     HotCore/PageModel plan consumption by replacement-front lowering. The
-     benchmark-only HotCore/PageModel wrapper mode is connected; next decide
-     keeper/nonkeeper from same-machine measurement.
-   - Do not weaken ProviderFront or add source syntax to force the bridge.
+  - Second candidate: `HakoAllocPageModel` hot arrays to DirectArrayI64-backed
+    storage. This source migration is complete for `free` / `local_free` /
+    `block_used`; do not keep probing local get/set shape unless new owner
+    evidence selects it. The remaining bridge is measurement in a product-like
+    execution path, not another source rewrite.
+  - Third candidate: HotCore/PageModel plan consumption by replacement-front
+    lowering. The benchmark-only HotCore/PageModel wrapper mode is connected
+    and measured; `hako_mimalloc_algorithm_coverage.py --benchmark-report ...`
+    now reports `hotcore_replacement_measurement_reported=1` and
+    `hotcore_replacement_next_bridge=select_next_structural_owner`.
+  - Current stop-line: local generated-C probes around `find_owned`, free-only
+    ownership decode, counters, and switch layout have enough negative evidence.
+    The next positive-net candidate must change the structural owner family
+    before editing generated C again.
+  - Do not weaken ProviderFront or add source syntax to force the bridge.
 
 3. Measure the native slot bridge provider route.
    - Build with `--provider-package-hako-semantic-codegen
@@ -713,7 +719,8 @@ Next replacement-front order:
    performance evidence owner; keep thread-local as correctness/smoke evidence
    until perf/asm selects a concrete thread-local hot cost.
 3. Open product pages only after bins evidence says pages are the owner.
-4. Reopen `.hako` core optimization only with fresh owner evidence.
+4. Reopen `.hako` core or generated-C local optimization only with fresh
+   structural owner evidence.
 5. Keep detailed evidence in the investigation archive, not this active card.
 
 Product pages v0 boundary:
