@@ -518,7 +518,7 @@ Run the replacement-front performance distribution subject after smoke:
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
   --replacement-front-native-slot-mode \
-  --replacement-front-thread-local-mode \
+  --replacement-front-lock-mode \
   --replacement-front-skip-hot-counters \
   --replacement-front-slot-size 1024 \
   --out target/hakozuna-mixed-ws-replacement-perf/report.out \

@@ -22,6 +22,7 @@ from typing import Iterable
 ROOT = Path(__file__).resolve().parents[2]
 HAKO_ALLOC = ROOT / "lang/src/hako_alloc/memory"
 REPLACEMENT_FRONT = ROOT / "tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py"
+REPLACEMENT_TEMPLATES = ROOT / "tools/allocator/replacement_front_templates.py"
 
 
 @dataclass(frozen=True)
@@ -74,7 +75,7 @@ def build_rows() -> list[CoverageRow]:
     remote_policy = read_text(hako_file("remote_free_policy_box.hako"))
     osvm_source = read_text(hako_file("osvm_page_source_pilot_box.hako"))
     huge_model = read_text(hako_file("huge_page_model_box.hako"))
-    replacement = read_text(REPLACEMENT_FRONT)
+    replacement = read_text(REPLACEMENT_FRONT) + "\n" + read_text(REPLACEMENT_TEMPLATES)
 
     fixed_slot_front = has_all(
         replacement,
@@ -208,7 +209,7 @@ def build_rows() -> list[CoverageRow]:
 def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
-    replacement = read_text(REPLACEMENT_FRONT)
+    replacement = read_text(REPLACEMENT_FRONT) + "\n" + read_text(REPLACEMENT_TEMPLATES)
     hot_array_fields = ["free", "local_free", "block_used"]
     hot_array_ops = {
         name: {
@@ -255,6 +256,22 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
             "hako_good_size_request_ceiling",
         ],
     )
+    locked_front = has_all(
+        replacement,
+        [
+            "HAKO_REPLACEMENT_FRONT_LOCKED",
+            "lock_arena",
+            "pthread_mutex_lock(&arena_lock)",
+        ],
+    )
+    tls_front = has_all(
+        replacement,
+        [
+            "HAKO_REPLACEMENT_FRONT_THREAD_LOCAL",
+            "remote_free_to_owner",
+            "arena_registry",
+        ],
+    )
     replacement_full_hako = int(
         all(row.replacement_front for row in rows if row.area in {
             "size_class_policy",
@@ -289,6 +306,9 @@ def report_dict(rows: list[CoverageRow]) -> dict[str, object]:
         if size_class_single_bridge_supported
         else "none",
         "size_class_policy_next_bridge": "product_replacement_bins_pages",
+        "replacement_front_locked_global_multithread_supported": int(locked_front),
+        "replacement_front_thread_local_multithread_supported": int(tls_front),
+        "replacement_front_multithread_claim": 0,
         "page_model_hot_array_bridge_plan_v0": 1,
         "page_model_hot_array_access_plan_v0": 1,
         "page_model_hot_array_access_static_scan": 1,
@@ -347,6 +367,9 @@ def emit_text(data: dict[str, object]) -> None:
         "size_class_policy_single_class_benchmark_bridge_supported",
         "size_class_policy_single_class_bridge_mode",
         "size_class_policy_next_bridge",
+        "replacement_front_locked_global_multithread_supported",
+        "replacement_front_thread_local_multithread_supported",
+        "replacement_front_multithread_claim",
         "page_model_hot_array_bridge_plan_v0",
         "page_model_hot_array_access_plan_v0",
         "page_model_hot_array_access_static_scan",
