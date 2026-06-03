@@ -261,6 +261,16 @@ hotcore_free_lookup_probe:
   median_ops_per_sec=8,823,010.411
   previous_hotcore_page_model_median_ops_per_sec=8,945,904.118
   decision=nonkeeper
+
+hotcore_find_owned_large_first_probe:
+  attempted_change=scan generated find_owned ownership ranges from larger size
+    classes first, on top of the size-class table plus eager-init keeper
+  report=target/hakozuna-mixed-ws-hotcore-large-first-7/report.out
+  median_ops_per_sec=8,171,670.453
+  previous_hotcore_size_class_table_eager_init_median_ops_per_sec=9,424,804.200
+  direct_core_call_count_total=8,336
+  host_passthrough_count_total=8
+  decision=nonkeeper
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -269,8 +279,11 @@ bridge proves the report shape can consume product pages, but its linear lookup
 is too expensive for the current optimization owner. The bins counter-skip
 probe removes hot count writes but does not improve median throughput. The
 free-only ownership decode makes the generated `free` assembly cleaner, but it
-also fails the median-throughput keeper bar. Keep the existing HotCore/PageModel
-bridge and do not re-open these probes without new perf owner evidence.
+also fails the median-throughput keeper bar. The large-first ownership scan
+regresses despite unchanged direct-core and host-passthrough counters, so the
+current small-to-large find_owned ordering stays in place. Keep the existing
+HotCore/PageModel bridge and do not re-open these probes without new perf owner
+evidence.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
