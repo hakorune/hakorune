@@ -336,7 +336,7 @@ def _try_annotate_numeric_loop_plan(
             integerish_ids=getattr(context, "integerish_value_ids", None),
             non_negative_ids=getattr(context, "non_negative_value_ids", None),
         )
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/numeric-loop-annotation-skip] fn={context.func_name}: {exc}")
         return None
 
@@ -344,7 +344,7 @@ def _try_annotate_numeric_loop_plan(
 def _try_build_loop_simd_contract(loop_plan):
     try:
         return build_loop_simd_contract(loop_plan)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/loop-simd-contract-skip] header={loop_plan.get('header')}: {exc}")
         return None
 
@@ -369,7 +369,7 @@ def _compute_lower_order(
 
     try:
         succs2, block_dominators = _compute_successors_and_dominators(block_by_id, entry_bid)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/lower-order-fallback] entry={entry_bid}: {exc}")
         succs2 = {}
         block_dominators = {}
@@ -452,11 +452,11 @@ def _run_finalize_tail(builder, func: ir.Function, block_by_id: Dict[int, Dict[s
     _enforce_phi_ordering_contract(builder)
     try:
         _enforce_terminators(builder, func, block_by_id)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/enforce-terminators-skip] fn={context.func_name}: {exc}")
     try:
         _emit_hot_summary(context)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/hot-summary-skip] fn={context.func_name}: {exc}")
 
 
@@ -660,7 +660,7 @@ def _map_params_and_seed_entry_facts(
             builder=builder,
         )
         _propagate_arrayish_value_facts(builder, blocks)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/param-map-fallback] fn={func_name}: {exc}")
 
 
@@ -668,7 +668,7 @@ def _seed_fast_branch_compare_contract(builder, context: FunctionLowerContext, b
     try:
         context.fast_branch_only_compare_dsts = _collect_branch_only_compare_dsts(blocks)
         _set_resolver_attr(builder, "fast_branch_only_compare_dsts", context.fast_branch_only_compare_dsts)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/fast-compare-contract-skip] fn={context.func_name}: {exc}")
         context.fast_branch_only_compare_dsts = set()
 
@@ -679,7 +679,7 @@ def _set_entry_metadata(builder, context: FunctionLowerContext, entry_bid) -> No
         context.entry_block = builder.bb_map.get(int(entry_bid)) if entry_bid is not None else None
         _set_resolver_attr(builder, "entry_block_id", context.entry_block_id)
         _set_resolver_attr(builder, "entry_block", context.entry_block)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/entry-metadata-skip] fn={context.func_name}: {exc}")
         context.entry_block_id = None
         context.entry_block = None
@@ -689,7 +689,7 @@ def _set_reachable_metadata(builder, context: FunctionLowerContext, reachable_fr
     try:
         context.reachable_block_ids = reachable_from_entry
         _set_resolver_attr(builder, "reachable_block_ids", reachable_from_entry)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/reachable-metadata-skip] fn={context.func_name}: {exc}")
         context.reachable_block_ids = set()
 
@@ -697,17 +697,17 @@ def _set_reachable_metadata(builder, context: FunctionLowerContext, reachable_fr
 def _run_optional_function_prepasses(builder, block_by_id: Dict[int, Dict[str, Any]], context: FunctionLowerContext):
     try:
         _run_if_merge_prepass(builder, block_by_id)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/if-merge-prepass-skip] fn={context.func_name}: {exc}")
 
     try:
         _seed_multi_pred_block_phi_incomings(builder, block_by_id)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/multi-pred-phi-seed-skip] fn={context.func_name}: {exc}")
 
     try:
         return _run_loop_prepass(block_by_id, context)
-    except Exception as exc:
+    except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
         trace_debug(f"[function-lower/loop-prepass-skip] fn={context.func_name}: {exc}")
         return None
 
@@ -836,7 +836,7 @@ def _enforce_terminators(builder, func: ir.Function, block_by_id: Dict[int, Dict
                 # Unknown/void – synthesize a dummy br to self to keep parser happy (unreachable in practice)
                 ib.branch(bb)
             trace_debug(f"[llvm-py] enforce_terminators: ret/br injected in {bb.name}")
-        except Exception as exc:
+        except (AttributeError, KeyError, NotImplementedError, RuntimeError, TypeError, ValueError) as exc:
             # Last resort: do nothing
             trace_debug(f"[llvm-py] enforce_terminators: skip {bb.name}: {exc}")
 
