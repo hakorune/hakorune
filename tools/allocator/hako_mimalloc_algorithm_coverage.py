@@ -633,6 +633,14 @@ def report_dict(
         "backend_store_shape_next_bridge",
         "split_symbol_or_classify_backend_store_shape",
     )
+    inlined_hot_body_selected = str_field(
+        perf_attribution, "inlined_hot_body_selected", "none"
+    )
+    inlined_hot_body_next_bridge = str_field(
+        perf_attribution,
+        "inlined_hot_body_next_bridge",
+        "rerun_perf_with_wider_context_or_symbol_split",
+    )
     hot_field_names: list[str] = []
     for field in fields_from_hint(perf_top_instruction_field_hints):
         if field not in hot_field_names:
@@ -755,7 +763,13 @@ def report_dict(
     elif backend_store_shape_ready:
         next_perf_owner_selected = backend_store_shape_selected
         next_perf_owner_reason = "backend_store_shape_classifier_ready"
-        next_perf_owner_next_bridge = backend_store_shape_next_bridge
+        if (
+            backend_store_shape_selected == "primitive_dominant_mixed_store_shape"
+            and inlined_hot_body_selected != "none"
+        ):
+            next_perf_owner_next_bridge = inlined_hot_body_next_bridge
+        else:
+            next_perf_owner_next_bridge = backend_store_shape_next_bridge
     elif primitive_hot_state_field_count > 0 and record_state_representation_delta_ready:
         next_perf_owner_selected = "asm_symbol_split_or_backend_store_shape"
         next_perf_owner_reason = (
@@ -1073,6 +1087,31 @@ def report_dict(
             "backend_store_shape_observer_counter_store_percent",
             "0.00",
         ),
+        "perf_inlined_hot_body_classifier_v0": int_field(
+            perf_attribution, "inlined_hot_body_classifier_v0", 0
+        ),
+        "perf_inlined_hot_body_selected": inlined_hot_body_selected,
+        "perf_inlined_hot_body_next_bridge": inlined_hot_body_next_bridge,
+        "perf_inlined_hot_body_acquire_fresh_small_percent": str_field(
+            perf_attribution,
+            "inlined_hot_body_acquire_fresh_small_percent",
+            "0.00",
+        ),
+        "perf_inlined_hot_body_release_local_known_live_percent": str_field(
+            perf_attribution,
+            "inlined_hot_body_release_local_known_live_percent",
+            "0.00",
+        ),
+        "perf_inlined_hot_body_init_public_store_percent": str_field(
+            perf_attribution,
+            "inlined_hot_body_init_public_store_percent",
+            "0.00",
+        ),
+        "perf_inlined_hot_body_mixed_percent": str_field(
+            perf_attribution,
+            "inlined_hot_body_mixed_percent",
+            "0.00",
+        ),
         "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
         "page_model_hot_array_field_count": len(hot_array_fields),
         "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
@@ -1263,6 +1302,13 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_backend_store_shape_public_or_proof_store_percent",
         "perf_backend_store_shape_direct_array_owner_store_percent",
         "perf_backend_store_shape_observer_counter_store_percent",
+        "perf_inlined_hot_body_classifier_v0",
+        "perf_inlined_hot_body_selected",
+        "perf_inlined_hot_body_next_bridge",
+        "perf_inlined_hot_body_acquire_fresh_small_percent",
+        "perf_inlined_hot_body_release_local_known_live_percent",
+        "perf_inlined_hot_body_init_public_store_percent",
+        "perf_inlined_hot_body_mixed_percent",
         "page_model_hot_array_seed_push_blocker",
         "page_model_hot_array_field_count",
         "page_model_hot_array_arraybox_field_count",

@@ -414,6 +414,12 @@ backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,local_f
 backend_store_shape_weighted_dominant_bucket=primitive_hot_state
 backend_store_shape_primitive_hot_state_store_percent=42.70
 backend_store_shape_public_or_proof_store_percent=5.79
+inlined_hot_body_classifier_v0=1
+inlined_hot_body_selected=acquire_fresh_small_like
+inlined_hot_body_next_bridge=split_public_proof_stores_from_acquire_fresh_small_like_body
+inlined_hot_body_acquire_fresh_small_percent=37.86
+inlined_hot_body_release_local_known_live_percent=13.48
+inlined_hot_body_init_public_store_percent=14.19
 ```
 
 Attempted symbol-specific annotate on the same `perf.data` for
@@ -427,7 +433,12 @@ Do not reopen counter deletion/gating from this evidence. `requested_bytes`
 is public/proof-visible, and the counter-skip probe already regressed. Treat
 the next structural path as backend/store-shape separation evidence: split
 or sink initialization/public stores around the primitive hot-state body, then
-remeasure. The weighted store classifier says the store owner is primitive
+remeasure. The inlined hot-body classifier narrows the first target further:
+the dominant context is `acquireFreshSmall`-like
+(`requested_bytes/free_top/peak_used`). The next source/backend slice should
+therefore try to split public/proof stores from the acquire-like primitive
+body before reopening release/init/store-layout probes. The weighted store
+classifier says the store owner is primitive
 hot-state dominant, so do not misread the current evidence as primarily a
 public/proof counter deletion opportunity.
 Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later

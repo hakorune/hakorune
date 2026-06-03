@@ -276,6 +276,95 @@ def _dominant_store_bucket(weights: dict[str, float]) -> str:
     return bucket if value > 0.0 else "none"
 
 
+INLINE_OWNER_MOTIFS: dict[str, tuple[str, ...]] = {
+    # These are intentionally "like" classifiers. They use PageModel layout
+    # hints from surrounding asm context and do not prove the base object.
+    "acquire_fresh_small_like": (
+        "requested_bytes",
+        "free_top",
+        "peak_used",
+        "used",
+    ),
+    "release_local_known_live_like": (
+        "local_free_top",
+        "local_free_count",
+        "used",
+        "retired",
+        "retire_count",
+    ),
+    "init_public_store_like": (
+        "page_id",
+        "block_size",
+        "capacity",
+        "reserved",
+    ),
+    "direct_array_owner_init_like": (
+        "free",
+        "local_free",
+        "block_used",
+    ),
+}
+
+
+INLINE_OWNER_NEXT_BRIDGE: dict[str, str] = {
+    "acquire_fresh_small_like": "split_public_proof_stores_from_acquire_fresh_small_like_body",
+    "release_local_known_live_like": "split_observer_or_retire_stores_from_release_like_body",
+    "init_public_store_like": "sink_or_outline_public_init_store_cluster",
+    "direct_array_owner_init_like": "classify_directarray_owner_init_store_cluster",
+    "mixed_hot_body_like": "split_or_sink_public_init_stores_around_primitive_hot_state_body",
+    "none": "rerun_perf_with_wider_context_or_symbol_split",
+}
+
+
+def _owner_scores_for_fields(fields: list[str]) -> dict[str, int]:
+    present = set(fields)
+    return {
+        owner: sum(1 for field in motif_fields if field in present)
+        for owner, motif_fields in INLINE_OWNER_MOTIFS.items()
+    }
+
+
+def _select_inline_owner_for_fields(fields: list[str]) -> str:
+    scores = _owner_scores_for_fields(fields)
+    if not scores:
+        return "none"
+    best_score = max(scores.values())
+    if best_score <= 0:
+        return "none"
+    winners = [owner for owner, score in scores.items() if score == best_score]
+    if len(winners) > 1:
+        return "mixed_hot_body_like"
+    return winners[0]
+
+
+def _inline_owner_weights(
+    instructions: list[AnnotatedInstruction],
+    objdump: list[ObjdumpInstruction],
+    field_offsets: dict[int, str],
+    context_radius: int,
+) -> dict[str, float]:
+    weights = {owner: 0.0 for owner in INLINE_OWNER_MOTIFS}
+    weights["mixed_hot_body_like"] = 0.0
+    weights["none"] = 0.0
+    for ins in instructions:
+        fields = _context_fields_for_address(
+            objdump,
+            ins.address,
+            context_radius,
+            field_offsets,
+        )
+        owner = _select_inline_owner_for_fields(fields)
+        weights[owner] = weights.get(owner, 0.0) + ins.percent
+    return weights
+
+
+def _dominant_inline_owner(weights: dict[str, float]) -> str:
+    if not weights:
+        return "none"
+    owner, value = max(weights.items(), key=lambda item: item[1])
+    return owner if value > 0.0 else "none"
+
+
 def _select_backend_store_shape(
     store_fields: list[str],
     context_fields: list[str],
@@ -468,6 +557,17 @@ def emit_report(args: argparse.Namespace) -> str:
         )
     hot_store_bucket_weights = _store_bucket_weights(hot_instructions, field_offsets)
     hot_store_dominant_bucket = _dominant_store_bucket(hot_store_bucket_weights)
+    hot_inline_owner_weights = _inline_owner_weights(
+        hot_instructions,
+        objdump,
+        field_offsets,
+        args.context_radius,
+    )
+    hot_inline_owner = _dominant_inline_owner(hot_inline_owner_weights)
+    hot_inline_owner_next_bridge = INLINE_OWNER_NEXT_BRIDGE.get(
+        hot_inline_owner,
+        "rerun_perf_with_wider_context_or_symbol_split",
+    )
     backend_store_shape_selected, backend_store_shape_next_bridge = (
         _select_backend_store_shape(
             hot_store_fields,
@@ -539,6 +639,15 @@ def emit_report(args: argparse.Namespace) -> str:
         f"backend_store_shape_direct_array_owner_store_percent={hot_store_bucket_weights.get('direct_array_owner', 0.0):.2f}",
         f"backend_store_shape_observer_counter_store_percent={hot_store_bucket_weights.get('observer_counter', 0.0):.2f}",
         f"backend_store_shape_unknown_store_percent={hot_store_bucket_weights.get('unknown', 0.0):.2f}",
+        "inlined_hot_body_classifier_v0=1",
+        f"inlined_hot_body_selected={hot_inline_owner}",
+        f"inlined_hot_body_next_bridge={hot_inline_owner_next_bridge}",
+        f"inlined_hot_body_acquire_fresh_small_percent={hot_inline_owner_weights.get('acquire_fresh_small_like', 0.0):.2f}",
+        f"inlined_hot_body_release_local_known_live_percent={hot_inline_owner_weights.get('release_local_known_live_like', 0.0):.2f}",
+        f"inlined_hot_body_init_public_store_percent={hot_inline_owner_weights.get('init_public_store_like', 0.0):.2f}",
+        f"inlined_hot_body_direct_array_owner_init_percent={hot_inline_owner_weights.get('direct_array_owner_init_like', 0.0):.2f}",
+        f"inlined_hot_body_mixed_percent={hot_inline_owner_weights.get('mixed_hot_body_like', 0.0):.2f}",
+        f"inlined_hot_body_unknown_percent={hot_inline_owner_weights.get('none', 0.0):.2f}",
     ]
     if top_instruction is not None:
         lines.extend(
@@ -570,6 +679,10 @@ def emit_report(args: argparse.Namespace) -> str:
         context, context_count, context_categories = _context_for_address(
             objdump, ins.address, args.context_radius, field_offsets
         )
+        context_fields = _context_fields_for_address(
+            objdump, ins.address, args.context_radius, field_offsets
+        )
+        inline_owner = _select_inline_owner_for_fields(context_fields)
         lines.extend(
             [
                 f"{prefix}_percent={ins.percent:.2f}",
@@ -577,6 +690,7 @@ def emit_report(args: argparse.Namespace) -> str:
                 f"{prefix}_mnemonic={ins.mnemonic}",
                 f"{prefix}_category={_instruction_category(ins)}",
                 f"{prefix}_field_hints={_field_hints_for_asm(ins.asm, field_offsets)}",
+                f"{prefix}_inlined_owner_candidate={inline_owner}",
                 f"{prefix}_asm={ins.asm}",
                 f"{prefix}_context_count={context_count}",
                 f"{prefix}_context_categories={context_categories}",

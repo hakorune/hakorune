@@ -289,6 +289,12 @@ backend_store_shape_context_field_buckets=...
 backend_store_shape_weighted_dominant_bucket=...
 backend_store_shape_primitive_hot_state_store_percent=...
 backend_store_shape_public_or_proof_store_percent=...
+inlined_hot_body_classifier_v0=1
+inlined_hot_body_selected=...
+inlined_hot_body_next_bridge=...
+inlined_hot_body_acquire_fresh_small_percent=...
+inlined_hot_body_release_local_known_live_percent=...
+inlined_hot_body_init_public_store_percent=...
 ```
 
 If the report says:
@@ -307,12 +313,17 @@ backend_store_shape_classifier_v0=1
 backend_store_shape_selected=primitive_dominant_mixed_store_shape
 backend_store_shape_next_bridge=split_or_sink_public_init_stores_around_primitive_hot_state_body
 backend_store_shape_weighted_dominant_bucket=primitive_hot_state
+inlined_hot_body_classifier_v0=1
+inlined_hot_body_selected=acquire_fresh_small_like
+inlined_hot_body_next_bridge=split_public_proof_stores_from_acquire_fresh_small_like_body
 ```
 
 then the current perf report can still guide instruction-shape cleanup, but it
 cannot prove a DirectArray/PageModel-specific perf delta by symbol ownership.
-The next bridge is to split or sink initialization/public stores around the
-primitive hot-state body, then remeasure. If the top instruction category is actionable
+The broad bridge is to split or sink initialization/public stores around the
+primitive hot-state body, then remeasure. If `inlined_hot_body_classifier_v0`
+selects `acquire_fresh_small_like`, the narrower next bridge is to split
+public/proof stores from the acquire-like body first. If the top instruction category is actionable
 (`store_like`, `branch`, `memory`, or `call`), inspect that category before
 opening another source rewrite. Field hints are layout candidates from
 `app.mir.json`; they intentionally skip scaled DirectArray element operands and
@@ -368,11 +379,13 @@ replacement_front_product_pages_non_linear_lookup_decision=nonkeeper
 replacement_front_product_pages_linear_probe_closed=1
 next_perf_owner_selection_plan_v0=1
 next_perf_owner_selected=primitive_dominant_mixed_store_shape
-next_perf_owner_next_bridge=split_or_sink_public_init_stores_around_primitive_hot_state_body
+next_perf_owner_next_bridge=split_public_proof_stores_from_acquire_fresh_small_like_body
 perf_backend_store_shape_classifier_v0=1
 perf_backend_store_shape_selected=primitive_dominant_mixed_store_shape
 perf_backend_store_shape_hot_store_field_buckets=free_top:primitive_hot_state,block_size:public_semantics
 perf_backend_store_shape_weighted_dominant_bucket=primitive_hot_state
+perf_inlined_hot_body_classifier_v0=1
+perf_inlined_hot_body_selected=acquire_fresh_small_like
 ```
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
