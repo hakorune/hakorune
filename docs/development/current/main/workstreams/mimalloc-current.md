@@ -282,6 +282,18 @@ hotcore_inline_free_owned_probe:
   direct_core_call_count_total=8,336
   host_passthrough_count_total=8
   decision=nonkeeper
+
+hotcore_find_owned_btree_probe:
+  attempted_change=lower generated find_owned range checks through an address
+    decision tree instead of the linear bin range scan
+  report=target/hakozuna-mixed-ws-hotcore-find-btree-7/report.out
+  median_ops_per_sec=9,425,870.243
+  previous_hotcore_size_class_table_eager_init_median_ops_per_sec=9,424,804.200
+  long_run_perf_ops_per_sec=70,795,149.026
+  current_keeper_long_run_perf_ops_per_sec=74,332,371.909
+  direct_core_call_count_total=8,336
+  host_passthrough_count_total=8
+  decision=nonkeeper_too_small_and_long_run_regressed
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
@@ -294,9 +306,10 @@ also fails the median-throughput keeper bar. The large-first ownership scan
 regresses despite unchanged direct-core and host-passthrough counters, so the
 current small-to-large find_owned ordering stays in place. Inlining the free
 ownership release into `free()` also regresses with unchanged counters, so the
-current find_owned/free routing stays in place. Keep the existing
-HotCore/PageModel bridge and do not re-open these probes without new perf owner
-evidence.
+current find_owned/free routing stays in place. The generated address decision
+tree produces only a noise-level 7-sample median delta and regresses the 10M
+perf run, so it is also not a keeper. Keep the existing HotCore/PageModel
+bridge and do not re-open these probes without new perf owner evidence.
 
 The same algorithm coverage overlay now reports product-pages bridge readiness
 without opening product replacement:
