@@ -40,6 +40,9 @@ from .string_console_method_call import (
 from instructions.string_result_policy import mark_string_result_if_needed
 
 
+_SAFE_METHOD_CALL_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
+
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
     """
     Lower box method call - TRUE UNIFIED IMPLEMENTATION
@@ -127,14 +130,14 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 resolver.string_ptrs[int(dst_vid)] = ptr
             if dst_vid is not None and resolver is not None and hasattr(resolver, "mark_string"):
                 resolver.mark_string(int(dst_vid))
-        except Exception:
+        except _SAFE_METHOD_CALL_EXC:
             pass
 
     def _mark_receiver_stringish():
         try:
             if resolver is not None and hasattr(resolver, "mark_string"):
                 resolver.mark_string(receiver)
-        except Exception:
+        except _SAFE_METHOD_CALL_EXC:
             pass
 
     len_ptr_hint = _resolve_string_ptr_for_receiver(receiver)
@@ -197,7 +200,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                         result = vmap.get(dst_vid)
                     if result is None:
                         result = ir.Constant(i64, 0)
-            except Exception:
+            except _SAFE_METHOD_CALL_EXC:
                 result = None
 
         # size/length/len:
@@ -279,7 +282,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                         )
                         if hasattr(resolver, "mark_string"):
                             resolver.mark_string(int(dst_vid))
-            except Exception:
+            except _SAFE_METHOD_CALL_EXC:
                 pass
 
     elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:
