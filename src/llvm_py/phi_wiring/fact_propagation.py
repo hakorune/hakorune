@@ -17,14 +17,11 @@ def _dst_type_is_arraybox(dst_type: Any) -> bool:
 def resolver_is_arrayish_vid(resolver: Any, value_id: Any) -> bool:
     try:
         vid = int(value_id)
-    except Exception:
+    except (TypeError, ValueError):
         return False
 
-    try:
-        if resolver is not None and hasattr(resolver, "is_arrayish") and resolver.is_arrayish(vid):
-            return True
-    except Exception:
-        pass
+    if resolver is not None and hasattr(resolver, "is_arrayish") and resolver.is_arrayish(vid):
+        return True
 
     return get_box_type(resolver, vid) == "ArrayBox"
 
@@ -32,7 +29,7 @@ def resolver_is_arrayish_vid(resolver: Any, value_id: Any) -> bool:
 def _incoming_pair_has_arrayish_source(resolver: Any, pair: Any) -> bool:
     try:
         left, right = pair
-    except Exception:
+    except (TypeError, ValueError):
         return False
 
     # setup_phi_placeholders sees raw JSON order (value, block), while
@@ -59,14 +56,11 @@ def should_mark_phi_arrayish(
 def mark_arrayish_handle(resolver: Any, value_id: Any) -> None:
     try:
         vid = int(value_id)
-    except Exception:
+    except (TypeError, ValueError):
         return
 
-    try:
-        array_ids = getattr(resolver, "array_ids", None)
-        if isinstance(array_ids, set):
-            array_ids.add(vid)
-    except Exception:
-        pass
+    array_ids = getattr(resolver, "array_ids", None)
+    if isinstance(array_ids, set):
+        array_ids.add(vid)
 
     mark_as_handle(resolver, vid, "ArrayBox")
