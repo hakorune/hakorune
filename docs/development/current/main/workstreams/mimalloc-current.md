@@ -202,6 +202,13 @@ hotcore_size_class_table_eager_init:
   size_class_lookup_route=table_8byte_bucket
   eager_init_mode=1
   decision=keeper
+
+hotcore_size_class_table_eager_init_refresh:
+  report=target/hakozuna-mixed-ws-eager-init-refresh-7/report.out
+  median_ops_per_sec=7,523,888.345
+  product_pages_nonlinear_mode=0
+  page_bins_lookup_route=range_scan
+  decision=current_same-run_baseline_for_product_pages_nonlinear_probe
 ```
 
 Interpretation: HotCore/PageModel wrapper mode is a structural bridge keeper
@@ -307,12 +314,31 @@ hotcore_unreachable_bin_default_probe:
   direct_core_call_count_total=8,336
   host_passthrough_count_total=8
   decision=nonkeeper
+
+product_pages_indexed_lookup_probe:
+  attempted_change=replace the generated linear page-bins ownership scan with
+    a benchmark-only page-key indexed ownership table
+  report=target/hakozuna-mixed-ws-product-pages-nonlinear-7/report.out
+  baseline_report=target/hakozuna-mixed-ws-eager-init-refresh-7/report.out
+  median_ops_per_sec=7,168,818.507
+  baseline_median_ops_per_sec=7,523,888.345
+  product_pages_consumer_enabled=1
+  product_pages_product_connected=0
+  page_bins_lookup_route=indexed_page_table
+  page_index_insert_count_total=125,632
+  page_index_probe_count_total=4,208
+  page_index_collision_count_total=0
+  page_index_overflow_count_total=0
+  decision=nonkeeper
 ```
 
 Interpretation: local C-shape cleanups can improve isolated assembly while
 regressing end-to-end mixed-ws throughput. The naive page-map-backed ownership
 bridge proves the report shape can consume product pages, but its linear lookup
-is too expensive for the current optimization owner. The bins counter-skip
+is too expensive for the current optimization owner. The non-linear page-key
+ownership table also regresses the same-run eager-init baseline, so product
+pages stay parked until a different structural owner or workload evidence
+selects them. The bins counter-skip
 probe removes hot count writes but does not improve median throughput. The
 free-only ownership decode makes the generated `free` assembly cleaner, but it
 also fails the median-throughput keeper bar. The large-first ownership scan
@@ -508,9 +534,9 @@ summary=ok
 ```
 
 Interpretation: this consumes a non-linear page-key ownership lookup in the
-benchmark-only replacement front. It remains single-thread/smoke evidence until
-a larger measurement selects it; product replacement, hooks, globals, full
-`.hako` algorithm claims, and winner claims remain closed.
+benchmark-only replacement front. The subsequent 7-sample measurement above
+closed this exact indexed lookup as a nonkeeper; product replacement, hooks,
+globals, full `.hako` algorithm claims, and winner claims remain closed.
 
 The same report carries the current PageModel hot-array readiness view:
 
@@ -571,9 +597,9 @@ owner handoff selects `page_model_hot_array_source_route_measurement` first,
 because `free` / `local_free` / `block_used` are already source-level
 `DirectArrayI64`. A matching `hako_check fastpath-explain` report now confirms
 that this source route has clean DirectArray RouteDecision coverage
-(`fast_selected=24`, `slow_selected=0`). Product pages stay second and must
-reopen through a non-linear ownership bridge, not by retrying the known-losing
-linear page-map probe.
+(`fast_selected=24`, `slow_selected=0`). Product pages stay parked after both
+the linear page-map and indexed page-key ownership probes regressed; reopen
+them only if a different structural owner or workload evidence selects them.
 Activation, hooks, globals, and winner claims remain closed.
 
 The first perf/asm attribution pass is now an explicit measurement boundary:
