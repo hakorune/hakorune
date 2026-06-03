@@ -55,7 +55,7 @@ use super::{
     refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
-    route_decision::refresh_function_route_decisions,
+    route_decision::{refresh_function_route_decisions, refresh_module_hotcore_route_decisions},
     route_fixpoint::refresh_module_route_fixpoint,
     rune_plan_refresh::refresh_function_rune_plans,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
@@ -169,6 +169,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_hotcore_method_summaries(function);
     }
     refresh_module_direct_exact_hotcore_call_plans(module);
+    refresh_module_hotcore_route_decisions(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);
