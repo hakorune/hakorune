@@ -641,6 +641,11 @@ def report_dict(
         "inlined_hot_body_next_bridge",
         "rerun_perf_with_wider_context_or_symbol_split",
     )
+    inlined_hot_body_split_next_bridge = str_field(
+        perf_attribution,
+        "inlined_hot_body_split_next_bridge",
+        inlined_hot_body_next_bridge,
+    )
     hot_field_names: list[str] = []
     for field in fields_from_hint(perf_top_instruction_field_hints):
         if field not in hot_field_names:
@@ -767,7 +772,7 @@ def report_dict(
             backend_store_shape_selected == "primitive_dominant_mixed_store_shape"
             and inlined_hot_body_selected != "none"
         ):
-            next_perf_owner_next_bridge = inlined_hot_body_next_bridge
+            next_perf_owner_next_bridge = inlined_hot_body_split_next_bridge
         else:
             next_perf_owner_next_bridge = backend_store_shape_next_bridge
     elif primitive_hot_state_field_count > 0 and record_state_representation_delta_ready:
@@ -1092,6 +1097,13 @@ def report_dict(
         ),
         "perf_inlined_hot_body_selected": inlined_hot_body_selected,
         "perf_inlined_hot_body_next_bridge": inlined_hot_body_next_bridge,
+        "perf_inlined_hot_body_split_ready": int_field(
+            perf_attribution, "inlined_hot_body_split_ready", 0
+        ),
+        "perf_inlined_hot_body_split_blocker": str_field(
+            perf_attribution, "inlined_hot_body_split_blocker", "none"
+        ),
+        "perf_inlined_hot_body_split_next_bridge": inlined_hot_body_split_next_bridge,
         "perf_inlined_hot_body_acquire_fresh_small_percent": str_field(
             perf_attribution,
             "inlined_hot_body_acquire_fresh_small_percent",
@@ -1305,6 +1317,9 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_inlined_hot_body_classifier_v0",
         "perf_inlined_hot_body_selected",
         "perf_inlined_hot_body_next_bridge",
+        "perf_inlined_hot_body_split_ready",
+        "perf_inlined_hot_body_split_blocker",
+        "perf_inlined_hot_body_split_next_bridge",
         "perf_inlined_hot_body_acquire_fresh_small_percent",
         "perf_inlined_hot_body_release_local_known_live_percent",
         "perf_inlined_hot_body_init_public_store_percent",

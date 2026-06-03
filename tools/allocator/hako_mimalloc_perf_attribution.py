@@ -365,6 +365,53 @@ def _dominant_inline_owner(weights: dict[str, float]) -> str:
     return owner if value > 0.0 else "none"
 
 
+def _context_window(
+    objdump: list[ObjdumpInstruction],
+    address: str,
+    radius: int,
+) -> list[ObjdumpInstruction]:
+    if not objdump or not address:
+        return []
+    index_by_address = {ins.address: idx for idx, ins in enumerate(objdump)}
+    idx = index_by_address.get(address.lower())
+    if idx is None:
+        return []
+    start = max(0, idx - radius)
+    end = min(len(objdump), idx + radius + 1)
+    return objdump[start:end]
+
+
+def _has_checked_public_accumulator_barrier(
+    instructions: list[AnnotatedInstruction],
+    objdump: list[ObjdumpInstruction],
+    field_offsets: dict[int, str],
+    context_radius: int,
+) -> bool:
+    for ins in instructions:
+        fields = _context_fields_for_address(
+            objdump,
+            ins.address,
+            context_radius,
+            field_offsets,
+        )
+        if "requested_bytes" not in fields:
+            continue
+        if _select_inline_owner_for_fields(fields) != "acquire_fresh_small_like":
+            continue
+        window = _context_window(objdump, ins.address, context_radius)
+        # The current acquire-like body has `add requested_bytes` followed by
+        # a sign/overflow guard (`js`). Sinking that public/proof accumulator
+        # past primitive stores needs an explicit overflow policy first.
+        has_requested_bytes = any(
+            "requested_bytes" in _field_names_for_asm(row.asm, field_offsets)
+            for row in window
+        )
+        has_overflow_branch = any(row.mnemonic == "js" for row in window)
+        if has_requested_bytes and has_overflow_branch:
+            return True
+    return False
+
+
 def _select_backend_store_shape(
     store_fields: list[str],
     context_fields: list[str],
@@ -568,6 +615,27 @@ def emit_report(args: argparse.Namespace) -> str:
         hot_inline_owner,
         "rerun_perf_with_wider_context_or_symbol_split",
     )
+    checked_public_accumulator_barrier = _has_checked_public_accumulator_barrier(
+        hot_instructions,
+        objdump,
+        field_offsets,
+        args.context_radius,
+    )
+    split_ready = bool(
+        hot_inline_owner != "none" and not checked_public_accumulator_barrier
+    )
+    split_blocker = (
+        "checked_public_proof_accumulator_requires_overflow_policy"
+        if checked_public_accumulator_barrier
+        else "none"
+        if split_ready
+        else "missing_inlined_hot_body_candidate"
+    )
+    split_next_bridge = (
+        "add_public_proof_accumulator_overflow_policy_before_source_reorder"
+        if checked_public_accumulator_barrier
+        else hot_inline_owner_next_bridge
+    )
     backend_store_shape_selected, backend_store_shape_next_bridge = (
         _select_backend_store_shape(
             hot_store_fields,
@@ -648,6 +716,9 @@ def emit_report(args: argparse.Namespace) -> str:
         f"inlined_hot_body_direct_array_owner_init_percent={hot_inline_owner_weights.get('direct_array_owner_init_like', 0.0):.2f}",
         f"inlined_hot_body_mixed_percent={hot_inline_owner_weights.get('mixed_hot_body_like', 0.0):.2f}",
         f"inlined_hot_body_unknown_percent={hot_inline_owner_weights.get('none', 0.0):.2f}",
+        f"inlined_hot_body_split_ready={_kv_bool(split_ready)}",
+        f"inlined_hot_body_split_blocker={split_blocker}",
+        f"inlined_hot_body_split_next_bridge={split_next_bridge}",
     ]
     if top_instruction is not None:
         lines.extend(

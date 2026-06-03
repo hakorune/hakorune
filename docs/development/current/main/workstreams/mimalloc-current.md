@@ -420,6 +420,9 @@ inlined_hot_body_next_bridge=split_public_proof_stores_from_acquire_fresh_small_
 inlined_hot_body_acquire_fresh_small_percent=37.86
 inlined_hot_body_release_local_known_live_percent=13.48
 inlined_hot_body_init_public_store_percent=14.19
+inlined_hot_body_split_ready=0
+inlined_hot_body_split_blocker=checked_public_proof_accumulator_requires_overflow_policy
+inlined_hot_body_split_next_bridge=add_public_proof_accumulator_overflow_policy_before_source_reorder
 ```
 
 Attempted symbol-specific annotate on the same `perf.data` for
@@ -436,8 +439,11 @@ or sink initialization/public stores around the primitive hot-state body, then
 remeasure. The inlined hot-body classifier narrows the first target further:
 the dominant context is `acquireFreshSmall`-like
 (`requested_bytes/free_top/peak_used`). The next source/backend slice should
-therefore try to split public/proof stores from the acquire-like primitive
-body before reopening release/init/store-layout probes. The weighted store
+therefore focus on this acquire-like body before reopening
+release/init/store-layout probes. However, the same context also shows the
+`requested_bytes` public/proof accumulator protected by a checked overflow
+branch before the primitive `free_top` store. Do not reorder or sink that
+store until an explicit overflow policy / proof is added. The weighted store
 classifier says the store owner is primitive
 hot-state dominant, so do not misread the current evidence as primarily a
 public/proof counter deletion opportunity.
