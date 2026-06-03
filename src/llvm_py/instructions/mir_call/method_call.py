@@ -5,10 +5,12 @@ Handles lowering of box method calls (BoxCall) to LLVM IR.
 Implements the "Everything is Box" philosophy with unified method dispatch.
 """
 
+from functools import partial
 from typing import Dict, Any, Optional
 from llvmlite import ir
 import os
 from instructions.direct_box_method import try_lower_known_box_method_call
+from instructions.llvm_decl import declare_function
 from instructions.stringbox import emit_stringbox_call
 from instructions.string_fast import (
     literal_string_for_receiver,
@@ -70,20 +72,14 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     receiver_literal = literal_string_for_receiver(resolver, receiver)
     literal_recv = receiver_literal if fast_on and is_length_like_method(method) else None
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    declare = partial(declare_function, module)
 
     # Helper to ensure i64 handle
     def _ensure_handle(v):
         if isinstance(v.type, ir.IntType) and v.type.width == 64:
             return v
         if v.type.is_pointer:
-            callee = _declare("nyash.box.from_i8_string", i64, [i8p])
+            callee = declare("nyash.box.from_i8_string", i64, [i8p])
             return builder.call(callee, [v], name="unified_str_ptr2h")
         if isinstance(v.type, ir.IntType):
             return builder.zext(v, i64) if v.type.width < 64 else builder.trunc(v, i64)
@@ -122,7 +118,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             return None
 
     def _box_string_ptr(ptr):
-        callee = _declare("nyash.box.from_i8_string", i64, [i8p])
+        callee = declare("nyash.box.from_i8_string", i64, [i8p])
         return builder.call(callee, [ptr], name="unified_str_ptr2h")
 
     def _store_result_string_ptr(ptr):
@@ -168,7 +164,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
 
     # TRUE UNIFIED METHOD DISPATCH - Everything is Box philosophy
     if method in ("toString", "stringify", "str"):
-        callee = _declare("nyash.any.toString_h", i64, [i64])
+        callee = declare("nyash.any.toString_h", i64, [i64])
         result = builder.call(callee, [recv_h], name="slot0_tostring")
 
     elif is_length_like_method(method):
@@ -209,29 +205,29 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         # - otherwise keep generic Any.length_h contract.
         if result is None:
             if str(box_name or "") == "ArrayBox" and len(args) == 0:
-                callee = _declare("nyash.array.slot_len_h", i64, [i64])
+                callee = declare("nyash.array.slot_len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_array_slot_len_h")
             elif str(box_name or "") == "MapBox" and len(args) == 0:
-                callee = _declare("nyash.map.entry_count_i64", i64, [i64])
+                callee = declare("nyash.map.entry_count_i64", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_map_entry_count_i64")
             elif prefer_string_len_h_route(method, len(args), resolver, receiver):
-                callee = _declare("nyash.string.len_h", i64, [i64])
+                callee = declare("nyash.string.len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_string_len_h")
             elif prefer_array_len_h_route(method, len(args), resolver, receiver):
-                callee = _declare("nyash.array.slot_len_h", i64, [i64])
+                callee = declare("nyash.array.slot_len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_array_slot_len_h")
             elif prefer_map_len_h_route(method, len(args), resolver, receiver):
-                callee = _declare("nyash.map.entry_count_i64", i64, [i64])
+                callee = declare("nyash.map.entry_count_i64", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_map_entry_count_i64")
 
             if method == "size" and fast_on:
                 mode = ir.Constant(i64, 1 if os.environ.get('NYASH_STR_CP') == '1' else 0)
-                fast_strlen = _declare("nyrt_string_length", i64, [i8p, i64])
+                fast_strlen = declare("nyrt_string_length", i64, [i8p, i64])
                 ptr = len_ptr_hint
                 if ptr is None and resolver is not None and hasattr(resolver, "is_stringish"):
                     try:
                         if resolver.is_stringish(int(receiver)):
-                            to_i8p = _declare("nyash.string.to_i8p_h", i8p, [i64])
+                            to_i8p = declare("nyash.string.to_i8p_h", i8p, [i64])
                             ptr = builder.call(to_i8p, [recv_h], name="unified_strlen_h2p")
                     except (TypeError, ValueError):
                         pass
@@ -239,7 +235,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                     result = builder.call(fast_strlen, [ptr, mode], name="unified_strlen_si")
 
             if result is None:
-                callee = _declare("nyash.any.length_h", i64, [i64])
+                callee = declare("nyash.any.length_h", i64, [i64])
                 call_name = "unified_size" if method == "size" else "unified_length"
                 result = builder.call(callee, [recv_h], name=call_name)
 
@@ -251,7 +247,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     elif method in {"get", "push", "set", "has", "clear", "delete"}:
         result = lower_collection_method_call(
             builder=builder,
-            declare=_declare,
+            declare=declare,
             box_name=box_name,
             method_name=method,
             recv_h=recv_h,
@@ -277,7 +273,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                         and isinstance(result.type, ir.IntType)
                         and result.type.width == 64
                     ):
-                        bridge = _declare("nyash.string.to_i8p_h", i8p, [i64])
+                        bridge = declare("nyash.string.to_i8p_h", i8p, [i64])
                         ptr_map[int(dst_vid)] = builder.call(
                             bridge, [result], name=f"method_get_str_h2p_{dst_vid}"
                         )
@@ -289,7 +285,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:
         result = lower_runtime_data_field_call(
             builder=builder,
-            declare=_declare,
+            declare=declare,
             box_name=box_name,
             method=method,
             recv_h=recv_h,
@@ -319,7 +315,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         string_recv_ptr = _resolve_string_ptr_for_receiver(receiver)
         result = lower_string_search_or_slice_method_call(
             builder=builder,
-            declare=_declare,
+            declare=declare,
             method_name=method,
             recv_h=recv_h,
             recv_ptr=string_recv_ptr,
@@ -336,7 +332,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         if result is None:
             result = lower_string_or_console_method_call(
                 builder=builder,
-                declare=_declare,
+                declare=declare,
                 method_name=method,
                 recv_h=recv_h,
                 recv_ptr=string_recv_ptr,

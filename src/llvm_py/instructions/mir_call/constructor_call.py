@@ -5,8 +5,10 @@ Handles lowering of box constructor calls (NewBox) to LLVM IR.
 Supports built-in boxes (StringBox, ArrayBox, etc.) and plugin boxes.
 """
 
+from functools import partial
 from typing import Dict, Any, Optional
 from llvmlite import ir
+from instructions.llvm_decl import declare_function
 from .arg_resolver import make_call_arg_resolver
 from .direct_array_birth import (
     DIRECT_ARRAY_I64_BIRTH_SYMBOL,
@@ -42,13 +44,7 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
     # Helper to resolve arguments
     _resolve_arg = make_call_arg_resolver(builder, vmap, resolver, owner)
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    declare = partial(declare_function, module)
 
     # TRUE UNIFIED CONSTRUCTOR DISPATCH
     if box_type == "StringBox":
@@ -60,22 +56,22 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
                 result = arg0
             elif arg0 and arg0.type.is_pointer:
                 # Convert i8* to string handle
-                callee = _declare("nyash.box.from_i8_string", i64, [i8p])
+                callee = declare("nyash.box.from_i8_string", i64, [i8p])
                 result = builder.call(callee, [arg0], name="unified_str_new")
             else:
                 # Create empty string
-                callee = _declare("nyash.string.new", i64, [])
+                callee = declare("nyash.string.new", i64, [])
                 result = builder.call(callee, [], name="unified_str_empty")
         else:
             # Empty string constructor
-            callee = _declare("nyash.string.new", i64, [])
+            callee = declare("nyash.string.new", i64, [])
             result = builder.call(callee, [], name="unified_str_empty")
 
     elif box_type in ("ArrayBox", "DirectArrayI64"):
         # Default construction remains public ArrayBox. The DirectArray symbol
         # is exact-lane only and produces a distinct direct-buffer handle kind.
         direct_array_birth = should_use_direct_array_i64_birth(box_type)
-        callee = _declare(
+        callee = declare(
             DIRECT_ARRAY_I64_BIRTH_SYMBOL if direct_array_birth else PUBLIC_ARRAY_BIRTH_SYMBOL,
             i64,
             [],
@@ -86,25 +82,25 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
 
     elif box_type == "MapBox":
         # Align with kernel export (birth_h)
-        callee = _declare("nyash.map.birth_h", i64, [])
+        callee = declare("nyash.map.birth_h", i64, [])
         result = builder.call(callee, [], name="unified_map_new")
 
     elif box_type == "IntegerBox":
         if args and len(args) > 0:
             arg0 = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            callee = _declare("nyash.integer.new", i64, [i64])
+            callee = declare("nyash.integer.new", i64, [i64])
             result = builder.call(callee, [arg0], name="unified_int_new")
         else:
-            callee = _declare("nyash.integer.new", i64, [i64])
+            callee = declare("nyash.integer.new", i64, [i64])
             result = builder.call(callee, [ir.Constant(i64, 0)], name="unified_int_zero")
 
     elif box_type == "BoolBox":
         if args and len(args) > 0:
             arg0 = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            callee = _declare("nyash.bool.new", i64, [i64])
+            callee = declare("nyash.bool.new", i64, [i64])
             result = builder.call(callee, [arg0], name="unified_bool_new")
         else:
-            callee = _declare("nyash.bool.new", i64, [i64])
+            callee = declare("nyash.bool.new", i64, [i64])
             result = builder.call(callee, [ir.Constant(i64, 0)], name="unified_bool_false")
 
     else:
@@ -118,10 +114,10 @@ def lower_constructor_call(builder, module, box_type, args, dst_vid, vmap, resol
         if args:
             arg_vals = [_resolve_arg(arg_id) or ir.Constant(i64, 0) for arg_id in args]
             arg_types = [i64] * len(arg_vals)
-            callee = _declare(constructor_name, i64, arg_types)
+            callee = declare(constructor_name, i64, arg_types)
             result = builder.call(callee, arg_vals, name=f"unified_{box_type_lower}_new")
         else:
-            callee = _declare(constructor_name, i64, [])
+            callee = declare(constructor_name, i64, [])
             result = builder.call(callee, [], name=f"unified_{box_type_lower}_new")
 
     # Store result

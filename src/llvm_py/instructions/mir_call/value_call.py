@@ -5,8 +5,10 @@ Handles lowering of first-class function calls (calling through a function value
 to LLVM IR.
 """
 
+from functools import partial
 from typing import Dict, Any, Optional
 from llvmlite import ir
+from instructions.llvm_decl import declare_function
 from .arg_resolver import make_call_arg_resolver
 
 
@@ -36,13 +38,7 @@ def lower_value_call(builder, module, func_vid, args, dst_vid, vmap, resolver, o
     # Helper to resolve arguments
     _resolve_arg = make_call_arg_resolver(builder, vmap, resolver, owner)
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    declare = partial(declare_function, module)
 
     # Resolve the function value (handle to function or closure)
     func_val = _resolve_arg(func_vid)
@@ -60,17 +56,17 @@ def lower_value_call(builder, module, func_vid, args, dst_vid, vmap, resolver, o
 
     if len(arg_vals) == 0:
         # No arguments - simple function call
-        callee = _declare("nyash.dynamic.call_0", i64, [i64])
+        callee = declare("nyash.dynamic.call_0", i64, [i64])
         result = builder.call(callee, [func_val], name="unified_dynamic_call_0")
 
     elif len(arg_vals) == 1:
         # One argument
-        callee = _declare("nyash.dynamic.call_1", i64, [i64, i64])
+        callee = declare("nyash.dynamic.call_1", i64, [i64, i64])
         result = builder.call(callee, [func_val, arg_vals[0]], name="unified_dynamic_call_1")
 
     elif len(arg_vals) == 2:
         # Two arguments
-        callee = _declare("nyash.dynamic.call_2", i64, [i64, i64, i64])
+        callee = declare("nyash.dynamic.call_2", i64, [i64, i64, i64])
         result = builder.call(callee, [func_val, arg_vals[0], arg_vals[1]], name="unified_dynamic_call_2")
 
     else:
@@ -81,12 +77,12 @@ def lower_value_call(builder, module, func_vid, args, dst_vid, vmap, resolver, o
         if len(arg_vals) <= 4:
             # Use direct argument passing for small argument lists
             arg_types = [i64] * (2 + len(arg_vals))  # func_val, argc, ...args
-            callee = _declare("nyash.dynamic.call_n", i64, arg_types)
+            callee = declare("nyash.dynamic.call_n", i64, arg_types)
             call_args = [func_val, argc] + arg_vals
             result = builder.call(callee, call_args, name="unified_dynamic_call_n")
         else:
             # For large argument lists, use array-based approach
-            callee = _declare("nyash.dynamic.call_array", i64, [i64, i64, i8p])
+            callee = declare("nyash.dynamic.call_array", i64, [i64, i64, i8p])
 
             # Create temporary array for arguments
             array_type = ir.ArrayType(i64, len(arg_vals))

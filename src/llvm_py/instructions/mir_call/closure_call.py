@@ -4,8 +4,10 @@ Closure creation lowering for MIR Call instruction.
 Handles lowering of closure creation (NewClosure) to LLVM IR.
 """
 
+from functools import partial
 from typing import Dict, Any, Optional
 from llvmlite import ir
+from instructions.llvm_decl import declare_function
 from .arg_resolver import make_call_arg_resolver
 from builders.closure_split_contract import build_closure_split_contract
 from builders.ipo_callable_contract import build_ipo_callable_contract
@@ -54,13 +56,7 @@ def lower_closure_creation(builder, module, params, captures, me_capture, dst_vi
     # Helper to resolve arguments
     _resolve_arg = make_call_arg_resolver(builder, vmap, resolver, owner)
 
-    # Helper to declare function
-    def _declare(name: str, ret, args_types):
-        for f in module.functions:
-            if f.name == name:
-                return f
-        fnty = ir.FunctionType(ret, args_types)
-        return ir.Function(module, fnty, name=name)
+    declare = partial(declare_function, module)
 
     contract = build_closure_split_contract(params, captures, me_capture)
     ipo_callable_contract = build_ipo_callable_contract(contract)
@@ -74,12 +70,12 @@ def lower_closure_creation(builder, module, params, captures, me_capture, dst_vi
     # Call closure creation function
     if contract["lowering"]["use_capture_ctor"]:
         # Closure with captures
-        callee = _declare(contract["lowering"]["ctor_name"], i64, [i64, i64] + [i64] * num_captures)
+        callee = declare(contract["lowering"]["ctor_name"], i64, [i64, i64] + [i64] * num_captures)
         args = [ir.Constant(i64, num_params), ir.Constant(i64, num_captures)] + capture_vals
         result = builder.call(callee, args, name="unified_closure_with_captures")
     else:
         # Simple closure without captures
-        callee = _declare(contract["lowering"]["ctor_name"], i64, [i64])
+        callee = declare(contract["lowering"]["ctor_name"], i64, [i64])
         result = builder.call(callee, [ir.Constant(i64, num_params)], name="unified_closure_simple")
 
     # Store result
