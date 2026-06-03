@@ -6,6 +6,8 @@ from typing import Dict, Any, Optional
 import llvmlite.ir as ir
 from utils.values import resolve_i64_strict
 
+_SAFE_UNOP_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def lower_unop(
     builder: ir.IRBuilder,
@@ -38,7 +40,7 @@ def lower_unop(
             if os.environ.get('NYASH_CLI_VERBOSE') == '1':
                 val_type = str(val.type) if hasattr(val, 'type') else 'no-type'
                 print(f"[unop/not] dst={dst} val={val} type={val_type}", file=sys.stderr)
-        except Exception:
+        except _SAFE_UNOP_EXC:
             pass
         # If already i1, xor with 1
         if hasattr(val, 'type') and isinstance(val.type, ir.IntType) and val.type.width == 1:
@@ -50,7 +52,7 @@ def lower_unop(
                 import os
                 if os.environ.get('NYASH_CLI_VERBOSE') == '1':
                     print(f"[unop/not] Stored dst={dst} -> {result} in vmap (id={id(vmap)})", file=sys.stderr)
-            except Exception:
+            except _SAFE_UNOP_EXC:
                 pass
             return
         # If pointer: null check (== null) yields i1
@@ -91,4 +93,3 @@ def lower_unop(
         return
     # Fallback: store 0
     vmap[dst] = ir.Constant(ir.IntType(64), 0)
-

@@ -7,6 +7,8 @@ import llvmlite.ir as ir
 from instructions.safepoint import insert_automatic_safepoint
 from builders.loop_simd_contract import apply_loop_simd_metadata
 
+_SAFE_WHILE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_while_regular(
     builder: ir.IRBuilder,
     func: ir.Function,
@@ -39,7 +41,7 @@ def lower_while_regular(
     try:
         # Resolve against the condition block to localize dominance
         cond_val = resolver.resolve_i64(cond_vid, cond_bb, preds, block_end_values, vmap, bb_map)
-    except Exception:
+    except _SAFE_WHILE_EXC:
         cond_val = vmap.get(cond_vid)
     if cond_val is None:
         cond_val = ir.Constant(i1, 0)
@@ -65,7 +67,7 @@ def lower_while_regular(
         import os
         if os.environ.get('NYASH_LLVM_AUTO_SAFEPOINT', '1') == '1':
             insert_automatic_safepoint(cbuild, builder.block.parent.module, "loop_header")
-    except Exception:
+    except _SAFE_WHILE_EXC:
         pass
     cbuild.cbranch(cond_val, body_bb, exit_bb)
 
@@ -86,7 +88,7 @@ def lower_while_regular(
         backedge = bbuild.branch(cond_bb)
         try:
             apply_loop_simd_metadata(func.module, backedge, loop_simd_contract)
-        except Exception:
+        except _SAFE_WHILE_EXC:
             pass
 
     # Continue at exit

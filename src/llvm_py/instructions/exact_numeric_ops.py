@@ -10,6 +10,8 @@ from instructions.llvm_decl import declare_function as _declare
 from instructions.typeop import _emit_trap
 from utils.values import resolve_i64_strict, safe_vmap_write
 
+_SAFE_EXACT_NUMERIC_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 _EXACT_NUMERIC_TYPES = {
     "i8": ("signed", 8),
@@ -102,7 +104,7 @@ def _resolve_i64_operand(
         )
     try:
         value_type = value.type
-    except Exception:
+    except _SAFE_EXACT_NUMERIC_EXC:
         value_type = None
     if isinstance(value_type, ir.PointerType):
         value = builder.ptrtoint(value, i64, name=f"{name_hint}_p2i")
