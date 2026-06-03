@@ -215,10 +215,10 @@ def _propagate_arrayish_value_facts(builder, blocks: List[Dict[str, Any]]) -> No
 
 
 def _dedup_non_self_preds(preds_map: Dict[int, List[int]], block_id: int) -> List[int]:
-    try:
-        preds_raw = [p for p in preds_map.get(int(block_id), []) if p != int(block_id)]
-    except Exception:
-        preds_raw = []
+    bid = _as_int_or_none(block_id)
+    if bid is None:
+        return []
+    preds_raw = [p for p in preds_map.get(bid, []) if p != bid]
     seen = set()
     preds_list: List[int] = []
     for pred_bid in preds_raw:
@@ -226,6 +226,13 @@ def _dedup_non_self_preds(preds_map: Dict[int, List[int]], block_id: int) -> Lis
             preds_list.append(pred_bid)
             seen.add(pred_bid)
     return preds_list
+
+
+def _as_int_or_none(value) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _collect_block_defs(block: Dict[str, Any]) -> set[int]:
@@ -361,15 +368,9 @@ def _compute_lower_order(
     block_dominators: Dict[int, Set[int]] = {}
 
     try:
-        from cfg.utils import (
-            build_preds_succs as _build_preds_succs,
-            compute_dominators as _compute_dominators,
-        )
-
-        _preds2, succs2 = _build_preds_succs(block_by_id)
-        if entry_bid is not None:
-            block_dominators = _compute_dominators(int(entry_bid), _preds2, succs2)
-    except Exception:
+        succs2, block_dominators = _compute_successors_and_dominators(block_by_id, entry_bid)
+    except Exception as exc:
+        trace_debug(f"[function-lower/lower-order-fallback] entry={entry_bid}: {exc}")
         succs2 = {}
         block_dominators = {}
 
@@ -377,12 +378,7 @@ def _compute_lower_order(
         if bid in visited:
             return
         visited.add(bid)
-        try:
-            succ_list = list(succs2.get(bid, []) or [])
-            succ_list = [int(x) for x in succ_list]
-            succ_list.sort()
-        except Exception:
-            succ_list = []
+        succ_list = sorted(_int_values(succs2.get(bid, []) or []))
         for succ_bid in succ_list:
             dfs(succ_bid)
         post.append(bid)
@@ -396,6 +392,31 @@ def _compute_lower_order(
             dfs(int(bid))
 
     return list(reversed(post)), reachable_from_entry, block_dominators
+
+
+def _compute_successors_and_dominators(
+    block_by_id: Dict[int, Dict[str, Any]],
+    entry_bid,
+) -> Tuple[Dict[int, List[int]], Dict[int, Set[int]]]:
+    from cfg.utils import (
+        build_preds_succs as _build_preds_succs,
+        compute_dominators as _compute_dominators,
+    )
+
+    preds_map, succs = _build_preds_succs(block_by_id)
+    dominators: Dict[int, Set[int]] = {}
+    if entry_bid is not None:
+        dominators = _compute_dominators(int(entry_bid), preds_map, succs)
+    return succs, dominators
+
+
+def _int_values(values) -> List[int]:
+    result: List[int] = []
+    for value in values:
+        converted = _as_int_or_none(value)
+        if converted is not None:
+            result.append(converted)
+    return result
 
 
 def _enforce_phi_ordering_contract(builder) -> None:
@@ -431,12 +452,12 @@ def _run_finalize_tail(builder, func: ir.Function, block_by_id: Dict[int, Dict[s
     _enforce_phi_ordering_contract(builder)
     try:
         _enforce_terminators(builder, func, block_by_id)
-    except Exception:
-        pass
+    except Exception as exc:
+        trace_debug(f"[function-lower/enforce-terminators-skip] fn={context.func_name}: {exc}")
     try:
         _emit_hot_summary(context)
-    except Exception:
-        pass
+    except Exception as exc:
+        trace_debug(f"[function-lower/hot-summary-skip] fn={context.func_name}: {exc}")
 
 
 def _build_function_type(builder, name: str, params: List[Any]) -> ir.FunctionType:
@@ -448,10 +469,7 @@ def _build_function_type(builder, name: str, params: List[Any]) -> ir.FunctionTy
     m = re.search(r"/(\d+)$", name)
     arity = int(m.group(1)) if m else len(params)
     if arity == 0 and "." in name:
-        try:
-            arity = int(builder.call_arities.get(name, 0))
-        except Exception:
-            pass
+        arity = int(getattr(builder, "call_arities", {}).get(name, 0))
     return ir.FunctionType(builder.i64, [builder.i64] * arity)
 
 
@@ -584,18 +602,26 @@ def _create_function_context(builder, name: str) -> FunctionLowerContext:
 
 
 def _merge_ipo_contracts_into_builder(builder, context: FunctionLowerContext) -> None:
-    try:
-        builder.ipo_callable_contracts_by_function[context.func_name] = dict(
-            getattr(context, "ipo_callable_contracts", {}) or {}
-        )
-    except Exception:
-        pass
-    try:
-        builder.ipo_call_edge_contracts_by_function[context.func_name] = dict(
-            getattr(context, "ipo_call_edge_contracts", {}) or {}
-        )
-    except Exception:
-        pass
+    _merge_context_dict(
+        builder,
+        "ipo_callable_contracts_by_function",
+        context.func_name,
+        getattr(context, "ipo_callable_contracts", {}) or {},
+    )
+    _merge_context_dict(
+        builder,
+        "ipo_call_edge_contracts_by_function",
+        context.func_name,
+        getattr(context, "ipo_call_edge_contracts", {}) or {},
+    )
+
+
+def _merge_context_dict(builder, attr_name: str, func_name: str, values) -> None:
+    target = getattr(builder, attr_name, None)
+    if not isinstance(target, dict):
+        target = {}
+        setattr(builder, attr_name, target)
+    target[func_name] = dict(values or {})
 
 
 def _set_resolver_attr(builder, name: str, value) -> None:
