@@ -416,6 +416,32 @@ perf_public_proof_accumulator_observed_no_overflow=1
 perf_public_proof_accumulator_general_no_overflow_proof=0
 ```
 
+The representative requested-bytes arithmetic can also be emitted as a
+separate workload contract:
+
+```bash
+python3 tools/allocator/hako_mimalloc_requested_bytes_accumulator_contract.py \
+  --operation-repeat 65536 \
+  --measurement-report target/mimalloc-store-shape-repeat65536.asm.txt
+```
+
+Expected handoff fields:
+
+```text
+output_contract=hako-mimalloc-requested-bytes-accumulator-contract-v0
+accumulator_field=requested_bytes
+per_run_requested_bytes=33254
+expected_no_overflow=1
+observed_no_overflow=1
+general_no_overflow_proof=0
+source_reorder_allowed=0
+```
+
+`hako_mimalloc_algorithm_coverage.py` accepts this via
+`--accumulator-report`. Keep the distinction: workload bounded evidence is
+useful for probe selection, but it does not authorize a general compiler
+source reorder.
+
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.
 The seed path now uses append-or-overwrite `set(i, ...)` shape, so the old

@@ -275,6 +275,7 @@ def report_dict(
     fastpath_report: Path | None = None,
     state_report: Path | None = None,
     perf_attribution_report: Path | None = None,
+    accumulator_report: Path | None = None,
 ) -> dict[str, object]:
     page_box = read_text(hako_file("page_box.hako"))
     hot_core = read_text(hako_file("object_lifecycle_hot_core_box.hako"))
@@ -399,10 +400,16 @@ def report_dict(
     fastpath = read_fastpath_counts(fastpath_report)
     state = read_kv_report(state_report)
     perf_attribution = read_kv_report(perf_attribution_report)
+    accumulator = read_kv_report(accumulator_report)
     benchmark_report_consumed = int(bool(benchmark))
     fastpath_report_consumed = int(bool(fastpath))
     state_report_consumed = int(bool(state))
     perf_attribution_report_consumed = int(bool(perf_attribution))
+    accumulator_report_consumed = int(bool(accumulator))
+    accumulator_contract_ready = int(
+        str_field(accumulator, "output_contract", "")
+        == "hako-mimalloc-requested-bytes-accumulator-contract-v0"
+    )
     benchmark_subject = "none"
     benchmark_subject_prefix = ""
     for prefix in ("subject_2", "subject_3", "subject_4"):
@@ -884,6 +891,28 @@ def report_dict(
         if perf_attribution_report is not None
         else "none",
         "perf_attribution_report_consumed": perf_attribution_report_consumed,
+        "accumulator_report": str(accumulator_report)
+        if accumulator_report is not None
+        else "none",
+        "accumulator_report_consumed": accumulator_report_consumed,
+        "requested_bytes_accumulator_contract_v0": accumulator_contract_ready,
+        "requested_bytes_accumulator_expected_no_overflow": int_field(
+            accumulator, "expected_no_overflow", 0
+        ),
+        "requested_bytes_accumulator_observed_no_overflow": int_field(
+            accumulator, "observed_no_overflow", 0
+        ),
+        "requested_bytes_accumulator_general_no_overflow_proof": int_field(
+            accumulator, "general_no_overflow_proof", 0
+        ),
+        "requested_bytes_accumulator_source_reorder_allowed": int_field(
+            accumulator, "source_reorder_allowed", 0
+        ),
+        "requested_bytes_accumulator_next_bridge": str_field(
+            accumulator,
+            "next_bridge",
+            "add_public_proof_accumulator_overflow_policy_before_source_reorder",
+        ),
         "area_count": len(rows),
         "hako_model_area_count": sum(row.hako_model for row in rows),
         "replacement_front_area_count": sum(row.replacement_front for row in rows),
@@ -1201,6 +1230,14 @@ def emit_text(data: dict[str, object]) -> None:
         "state_report_consumed",
         "perf_attribution_report",
         "perf_attribution_report_consumed",
+        "accumulator_report",
+        "accumulator_report_consumed",
+        "requested_bytes_accumulator_contract_v0",
+        "requested_bytes_accumulator_expected_no_overflow",
+        "requested_bytes_accumulator_observed_no_overflow",
+        "requested_bytes_accumulator_general_no_overflow_proof",
+        "requested_bytes_accumulator_source_reorder_allowed",
+        "requested_bytes_accumulator_next_bridge",
         "area_count",
         "hako_model_area_count",
         "replacement_front_area_count",
@@ -1435,6 +1472,14 @@ def main() -> int:
             "PageModel hot-array perf-delta readiness fields"
         ),
     )
+    parser.add_argument(
+        "--accumulator-report",
+        type=Path,
+        help=(
+            "optional requested-bytes accumulator contract report to overlay "
+            "workload bounded-overflow evidence"
+        ),
+    )
     args = parser.parse_args()
 
     data = report_dict(
@@ -1443,6 +1488,7 @@ def main() -> int:
         fastpath_report=args.fastpath_report,
         state_report=args.state_report,
         perf_attribution_report=args.perf_attribution_report,
+        accumulator_report=args.accumulator_report,
     )
     if args.json:
         print(json.dumps(data, indent=2, sort_keys=True))

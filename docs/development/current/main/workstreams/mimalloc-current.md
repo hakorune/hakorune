@@ -457,6 +457,24 @@ store until an explicit overflow policy / proof is added. The
 that is measurement evidence only; the general compiler/source proof remains
 `0` until an explicit accumulator overflow contract is added. The weighted
 store classifier says the store owner is primitive
+
+The workload arithmetic is now available as a separate requested-bytes
+accumulator contract:
+
+```text
+output_contract=hako-mimalloc-requested-bytes-accumulator-contract-v0
+accumulator_field=requested_bytes
+per_run_requested_bytes=33254
+expected_no_overflow=1
+observed_no_overflow=1
+general_no_overflow_proof=0
+source_reorder_allowed=0
+```
+
+This narrows the next implementation decision without changing source
+semantics: a benchmark-specific probe may use the bounded workload evidence,
+but a general source/backend reorder still needs an explicit no-overflow
+contract.
 hot-state dominant, so do not misread the current evidence as primarily a
 public/proof counter deletion opportunity.
 Do not open duplicate `RecordStateResidencePlanV0` lowering unless a later
