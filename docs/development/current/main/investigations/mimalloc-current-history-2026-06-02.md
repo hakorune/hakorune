@@ -5393,3 +5393,22 @@ Interpretation: cold-splitting made the generated `malloc` symbol cleaner, and
 the guarded form correctly moved the initialization body to `malloc.cold`, but
 both variants regressed the local page-bins benchmark. Keep the current inline
 `init_bins` shape until perf/asm selects a stronger cold-path reason.
+
+`REPL-027` probed splitting the generated `find_owned` output contract into
+`free`-specific and `realloc`-specific lookup functions. The generated `free`
+machine code became visibly thinner because the stack out-param setup
+disappeared, but the benchmark regressed.
+
+```text
+page_bins_specialized_lookup_probe=nonkeeper
+page_bins_specialized_lookup_sample_count=5
+page_bins_specialized_lookup_subject_2_throughput_median_ops_per_sec=8475869.200
+page_bins_specialized_lookup_baseline_subject_2_throughput_median_ops_per_sec=9221264.235
+page_bins_specialized_lookup_free_stack_out_params_removed=1
+page_bins_specialized_lookup_route=range_scan
+```
+
+Interpretation: thinner local assembly is not sufficient evidence for this
+workload. Keep the single `find_owned` contract for now; reopen specialized
+lookup only if perf samples select out-param setup again with a positive
+implementation path.
