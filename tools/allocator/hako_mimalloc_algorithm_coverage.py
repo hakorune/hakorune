@@ -681,7 +681,7 @@ def report_dict(
     )
     hot_field_plan_ready = int(
         perf_attribution_report_consumed
-        and perf_delta_blocker == "ny_main_symbol_collapse"
+        and int_field(perf_attribution, "instruction_attribution_available", 0)
         and primitive_hot_state_field_count > 0
     )
     hot_field_next_bridge = (
