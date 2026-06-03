@@ -16,6 +16,8 @@ from typing import Dict, List, Optional, Any
 
 from instructions.llvm_decl import declare_function as _declare
 
+_SAFE_CONSOLE_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 # Console method mapping (Phase 122 unified)
 # slot 400: log/println (alias)
 # slot 401: warn
@@ -121,7 +123,7 @@ def emit_console_call(
             p = getattr(ctx, 'preds', p)
             bev = getattr(ctx, 'block_end_values', bev)
             bbm = getattr(ctx, 'bb_map', bbm)
-        except Exception:
+        except _SAFE_CONSOLE_EXC:
             pass
 
     def _res_i64(vid: int):
@@ -129,7 +131,7 @@ def emit_console_call(
         if r is not None and p is not None and bev is not None and bbm is not None:
             try:
                 return r.resolve_i64(vid, builder.block, p, bev, vmap, bbm)
-            except Exception:
+            except _SAFE_CONSOLE_EXC:
                 return None
         return vmap.get(vid)
 
@@ -153,7 +155,7 @@ def emit_console_call(
         if r is not None and hasattr(r, 'string_ptrs'):
             try:
                 arg0_ptr = r.string_ptrs.get(int(arg0_vid))
-            except Exception:
+            except _SAFE_CONSOLE_EXC:
                 pass
 
         # Fallback: resolve value and convert to i8*

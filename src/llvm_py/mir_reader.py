@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from typing import Callable, Dict, List, Any, Optional, Union, Tuple
 from enum import Enum
 
+_SAFE_MIR_READER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 class MirType(Enum):
     """MIR type enumeration"""
     VOID = "void"
@@ -149,7 +151,7 @@ def build_builder_input(
     functions = normalize_functions_payload(mir_json)
     try:
         call_arities = scan_call_arities_fn(functions)
-    except Exception:
+    except _SAFE_MIR_READER_EXC:
         call_arities = {}
 
     user_box_decls = mir_json.get("user_box_decls", [])

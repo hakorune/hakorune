@@ -1,5 +1,7 @@
 from typing import Dict, Any, List
 
+_SAFE_MIR_ANALYSIS_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _const_string_name(ins: Dict[str, Any]):
     val = ins.get("value") or {}
@@ -27,7 +29,7 @@ def _collect_const_string_names(blocks: List[Dict[str, Any]]) -> Dict[int, str]:
                 name = _const_string_name(ins)
                 if isinstance(dst, int) and isinstance(name, str):
                     const_names[int(dst)] = name
-            except Exception:
+            except _SAFE_MIR_ANALYSIS_EXC:
                 continue
     return const_names
 
@@ -58,6 +60,6 @@ def scan_call_arities(funcs: List[Dict[str, Any]]):
             for ins in (bb.get("instructions") or []):
                 try:
                     _record_call_arity(ar, const_names, ins)
-                except Exception:
+                except _SAFE_MIR_ANALYSIS_EXC:
                     continue
     return ar

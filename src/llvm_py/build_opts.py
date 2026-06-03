@@ -5,6 +5,7 @@ from builders.ipo_build_policy import apply_ipo_build_policy, resolve_ipo_build_
 
 _OPT_ENV_KEYS = ("HAKO_LLVM_OPT_LEVEL", "NYASH_LLVM_OPT_LEVEL")
 _FAST_NATIVE_ENV_KEYS = ("NYASH_LLVM_FAST_NATIVE", "HAKO_LLVM_FAST_NATIVE")
+_SAFE_BUILD_OPT_EXC = (AttributeError, RuntimeError, TypeError, ValueError)
 
 
 @dataclass(frozen=True)
@@ -73,7 +74,7 @@ def resolve_codegen_opt_level_for_level(level: int):
         if result is None:
             return 2
         return result
-    except Exception:
+    except _SAFE_BUILD_OPT_EXC:
         return level if level is not None else 2
 
 
@@ -113,7 +114,7 @@ def resolve_target_machine_kwargs(opt_level: int | None = None):
             cpu = cpu.decode("utf-8", "ignore")
         if cpu:
             kwargs["cpu"] = cpu
-    except Exception:
+    except _SAFE_BUILD_OPT_EXC:
         pass
 
     try:
@@ -122,7 +123,7 @@ def resolve_target_machine_kwargs(opt_level: int | None = None):
             flattened = features.flatten()
             if flattened:
                 kwargs["features"] = flattened
-    except Exception:
+    except _SAFE_BUILD_OPT_EXC:
         pass
 
     return apply_ipo_build_policy(kwargs, resolve_ipo_build_policy())
