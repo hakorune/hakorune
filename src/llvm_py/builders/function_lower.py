@@ -168,10 +168,8 @@ def _seed_hakocli_args_array_fact(
     if not name.startswith("HakoCli."):
         return
 
-    try:
-        method_with_arity = name.split(".", 1)[1]
-        method_name = method_with_arity.split("/", 1)[0]
-    except Exception:
+    method_name = _hako_cli_method_name(name)
+    if method_name is None:
         return
 
     if method_name != "run" and not method_name.startswith("cmd_"):
@@ -187,6 +185,13 @@ def _seed_hakocli_args_array_fact(
         return
 
     _mark_arrayish_param_fact(builder, param_value_ids[1])
+
+
+def _hako_cli_method_name(func_name: str) -> str | None:
+    parts = str(func_name or "").split(".", 1)
+    if len(parts) != 2:
+        return None
+    return parts[1].split("/", 1)[0]
 
 
 def _propagate_arrayish_value_facts(builder, blocks: List[Dict[str, Any]]) -> None:
@@ -297,39 +302,44 @@ def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]], context: FunctionL
             f"latch=bb{loop_plan['latch']} exit=bb{loop_plan['exit']}"
         )
         if context is not None:
-            try:
-                annotated = annotate_numeric_loop_plan(
-                    block_by_id,
-                    loop_plan,
-                    integerish_ids=getattr(context, "integerish_value_ids", None),
-                    non_negative_ids=getattr(context, "non_negative_value_ids", None),
-                )
-            except Exception:
-                annotated = None
+            annotated = _try_annotate_numeric_loop_plan(block_by_id, loop_plan, context)
             if annotated is not None:
                 loop_plan = annotated
-                try:
-                    header_bid = int(loop_plan.get("header"))
-                    context.numeric_loop_plans[header_bid] = loop_plan
-                except Exception:
-                    pass
-                try:
-                    trace_debug(
-                        "[prepass] numeric-loop induction "
-                        f"header=bb{loop_plan['header']} candidates={loop_plan.get('numeric_induction_value_ids', [])}"
-                    )
-                except Exception:
-                    pass
-                try:
-                    contract = build_loop_simd_contract(loop_plan)
-                except Exception:
-                    contract = None
+                header_bid = int(loop_plan.get("header"))
+                context.numeric_loop_plans[header_bid] = loop_plan
+                trace_debug(
+                    "[prepass] numeric-loop induction "
+                    f"header=bb{loop_plan['header']} candidates={loop_plan.get('numeric_induction_value_ids', [])}"
+                )
+                contract = _try_build_loop_simd_contract(loop_plan)
                 if contract is not None:
-                    try:
-                        context.loop_simd_contracts[header_bid] = contract
-                    except Exception:
-                        pass
+                    context.loop_simd_contracts[header_bid] = contract
     return loop_plan
+
+
+def _try_annotate_numeric_loop_plan(
+    block_by_id: Dict[int, Dict[str, Any]],
+    loop_plan: Dict[str, Any],
+    context: FunctionLowerContext,
+):
+    try:
+        return annotate_numeric_loop_plan(
+            block_by_id,
+            loop_plan,
+            integerish_ids=getattr(context, "integerish_value_ids", None),
+            non_negative_ids=getattr(context, "non_negative_value_ids", None),
+        )
+    except Exception as exc:
+        trace_debug(f"[function-lower/numeric-loop-annotation-skip] fn={context.func_name}: {exc}")
+        return None
+
+
+def _try_build_loop_simd_contract(loop_plan):
+    try:
+        return build_loop_simd_contract(loop_plan)
+    except Exception as exc:
+        trace_debug(f"[function-lower/loop-simd-contract-skip] header={loop_plan.get('header')}: {exc}")
+        return None
 
 
 def _determine_entry_block_id(preds_map: Dict[int, List[int]], blocks: List[Dict[str, Any]]):
@@ -546,21 +556,17 @@ def _index_blocks_by_id(blocks: List[Dict[str, Any]]) -> Dict[int, Dict[str, Any
 
 
 def _reset_function_lower_state(builder) -> None:
-    try:
-        builder.vmap.clear()
-    except Exception:
-        builder.vmap = {}
-    try:
-        builder.bb_map.clear()
-    except Exception:
-        builder.bb_map = {}
-    try:
-        builder.predeclared_ret_phis.clear()
-    except Exception:
-        try:
-            builder.predeclared_ret_phis = {}
-        except Exception:
-            pass
+    _clear_or_reset_attr(builder, "vmap")
+    _clear_or_reset_attr(builder, "bb_map")
+    _clear_or_reset_attr(builder, "predeclared_ret_phis")
+
+
+def _clear_or_reset_attr(owner, name: str) -> None:
+    value = getattr(owner, name, None)
+    if hasattr(value, "clear"):
+        value.clear()
+    else:
+        setattr(owner, name, {})
 
 
 def _create_function_context(builder, name: str) -> FunctionLowerContext:
