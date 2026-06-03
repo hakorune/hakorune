@@ -19,6 +19,8 @@ from instructions.mir_call.string_console_method_call import (
 from instructions.string_fast import literal_string_for_receiver, string_ptr_for_value
 from instructions.string_result_policy import mark_string_result_if_needed
 
+_SAFE_MIR_CALL_LEGACY_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_vid: Optional[int], vmap: Dict, resolver):
     """
@@ -39,7 +41,7 @@ def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_v
             func = builder.block.parent
             cont = func.append_basic_block(name=f"cont_bb_{builder.block.name}")
             builder.position_at_end(cont)
-    except Exception:
+    except _SAFE_MIR_CALL_LEGACY_EXC:
         pass
 
     # Check if unified call is enabled
@@ -72,7 +74,7 @@ def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_v
             elif callee_type == 'Extern':
                 evt.update({'name': callee.get('name')})
             print(json.dumps({'phase':'llvm','cat':'mir_call','event':evt}))
-        except Exception:
+        except _SAFE_MIR_CALL_LEGACY_EXC:
             pass
 
     if callee_type == "Global":
@@ -255,7 +257,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 resolver.string_ptrs[int(dst_vid)] = ptr
             if dst_vid is not None and resolver is not None and hasattr(resolver, "mark_string"):
                 resolver.mark_string(int(dst_vid))
-        except Exception:
+        except _SAFE_MIR_CALL_LEGACY_EXC:
             pass
 
     # TRUE UNIFIED METHOD DISPATCH - Everything is Box philosophy
@@ -305,7 +307,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                         )
                         if hasattr(resolver, "mark_string"):
                             resolver.mark_string(int(dst_vid))
-            except Exception:
+            except _SAFE_MIR_CALL_LEGACY_EXC:
                 pass
 
     elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:

@@ -7,6 +7,8 @@ import llvmlite.ir as ir
 from typing import Dict, Optional, Any
 from utils.values import safe_vmap_write
 
+_SAFE_TYPEOP_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 # Type aliases for frontend normalization (shared with MIR builder)
 TYPE_ALIASES = {
     "Int": "IntegerBox",
@@ -68,7 +70,7 @@ def lower_typeop(
                 block_end_values = ctx.block_end_values
             if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
                 bb_map = ctx.bb_map
-        except Exception:
+        except _SAFE_TYPEOP_EXC:
             pass
 
     if resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
@@ -372,7 +374,7 @@ def lower_convert(
                 block_end_values = ctx.block_end_values
             if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
                 bb_map = ctx.bb_map
-        except Exception:
+        except _SAFE_TYPEOP_EXC:
             pass
     if resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
         # Choose resolution based on from_type
