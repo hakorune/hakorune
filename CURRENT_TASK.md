@@ -180,7 +180,9 @@ Planned order:
    - first fixture: `DirectArrayI64` source migration / resetToFresh
 3. `RD-003` fallback policy bridge. Done.
    - `RequiredFastPathRegion` sets `fallback_policy=require_fastpath`
-   - normal code remains `opportunistic` or `report_if_slow`
+   - diagnostic regions can set `fallback_policy=report_if_slow`
+   - direct-exact regions can set `fallback_policy=require_direct_exact`
+   - normal code remains `opportunistic`
 4. `RD-004` lowering consumer contract. Done.
    - lowering reads `selected_route`
    - report `backend_redecide_count=0` and `silent_fallback_count=0`

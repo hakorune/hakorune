@@ -372,6 +372,8 @@ def main() -> int:
         f"route_decision_slow_selected_count={route_decision_slow_selected_count}",
         f"route_decision_missing_reason_count={route_decision_missing_reason_count}",
         f"route_decision_require_fastpath_count={route_decision_fallback_policy_counts['require_fastpath']}",
+        f"route_decision_require_direct_exact_count={route_decision_fallback_policy_counts['require_direct_exact']}",
+        f"route_decision_report_if_slow_count={route_decision_fallback_policy_counts['report_if_slow']}",
         f"route_decision_opportunistic_count={route_decision_fallback_policy_counts['opportunistic']}",
         f"direct_array_load_plan_count={direct_op_counts['load']}",
         f"direct_array_store_plan_count={direct_op_counts['store']}",

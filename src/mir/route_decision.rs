@@ -59,7 +59,10 @@ impl RouteDecision {
         }
     }
 
-    fn from_direct_exact_hotcore_call_plan(plan: &DirectExactHotCoreCallPlan) -> Self {
+    fn from_direct_exact_hotcore_call_plan(
+        plan: &DirectExactHotCoreCallPlan,
+        fallback_policy: &'static str,
+    ) -> Self {
         let selected_route = if plan.lowering_consumer_enabled {
             "static_exact_call"
         } else {
@@ -79,7 +82,7 @@ impl RouteDecision {
             preferred_route: "static_exact_call",
             selected_route,
             fallback_route: "generic_method_dispatch",
-            fallback_policy: "opportunistic",
+            fallback_policy,
             proof_ids,
             miss_reason: plan.failure_reason,
             source_plan_kind: "DirectExactHotCoreCallPlan",
@@ -88,20 +91,7 @@ impl RouteDecision {
 }
 
 pub fn refresh_function_route_decisions(function: &mut MirFunction) {
-    let direct_memory_required = function
-        .metadata
-        .required_fastpath_regions
-        .iter()
-        .any(|region| {
-            region.relevant_access_policy == "direct_memory"
-                && region.route_requirement == "fastpath_plan_required"
-                && region.fallback_policy == "fail_fast"
-        });
-    let fallback_policy = if direct_memory_required {
-        "require_fastpath"
-    } else {
-        "opportunistic"
-    };
+    let fallback_policy = direct_memory_route_policy(function);
 
     function.metadata.route_decisions = function
         .metadata
@@ -113,6 +103,7 @@ pub fn refresh_function_route_decisions(function: &mut MirFunction) {
 
 pub fn refresh_module_hotcore_route_decisions(module: &mut MirModule) {
     for function in module.functions.values_mut() {
+        let fallback_policy = direct_exact_route_policy(function);
         function
             .metadata
             .route_decisions
@@ -122,9 +113,79 @@ pub fn refresh_module_hotcore_route_decisions(module: &mut MirModule) {
                 .metadata
                 .direct_exact_hotcore_call_plans
                 .iter()
-                .map(RouteDecision::from_direct_exact_hotcore_call_plan),
+                .map(|plan| {
+                    RouteDecision::from_direct_exact_hotcore_call_plan(plan, fallback_policy)
+                }),
         );
     }
+}
+
+fn direct_memory_route_policy(function: &MirFunction) -> &'static str {
+    if function
+        .metadata
+        .required_fastpath_regions
+        .iter()
+        .any(|region| {
+            region.relevant_access_policy == "direct_memory"
+                && region.route_requirement == "fastpath_plan_required"
+                && region.fallback_policy == "fail_fast"
+        })
+    {
+        return "require_fastpath";
+    }
+    if function
+        .metadata
+        .required_fastpath_regions
+        .iter()
+        .any(|region| {
+            region.relevant_access_policy == "direct_memory"
+                && region.fallback_policy == "report_if_slow"
+        })
+    {
+        return "report_if_slow";
+    }
+    "opportunistic"
+}
+
+fn direct_exact_route_policy(function: &MirFunction) -> &'static str {
+    if function
+        .metadata
+        .required_fastpath_regions
+        .iter()
+        .any(|region| {
+            is_direct_exact_region(region.relevant_access_policy)
+                && is_direct_exact_requirement(region.route_requirement)
+                && region.fallback_policy == "fail_fast"
+        })
+    {
+        return "require_direct_exact";
+    }
+    if function
+        .metadata
+        .required_fastpath_regions
+        .iter()
+        .any(|region| {
+            is_direct_exact_region(region.relevant_access_policy)
+                && region.fallback_policy == "report_if_slow"
+        })
+    {
+        return "report_if_slow";
+    }
+    "opportunistic"
+}
+
+fn is_direct_exact_region(relevant_access_policy: &str) -> bool {
+    matches!(
+        relevant_access_policy,
+        "direct_exact" | "direct_exact_call" | "hotcore_call"
+    )
+}
+
+fn is_direct_exact_requirement(route_requirement: &str) -> bool {
+    matches!(
+        route_requirement,
+        "direct_exact_required" | "static_exact_call_required" | "fastpath_plan_required"
+    )
 }
 
 #[cfg(test)]
@@ -158,6 +219,32 @@ mod tests {
             }),
             args: args.into_iter().map(ValueId::new).collect(),
             effects: EffectMask::PURE,
+        }
+    }
+
+    fn direct_exact_hotcore_call_plan() -> DirectExactHotCoreCallPlan {
+        DirectExactHotCoreCallPlan {
+            block: BasicBlockId::new(3),
+            instruction_index: 7,
+            caller: "Main.runOne/2".to_string(),
+            callee: "HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc/1".to_string(),
+            box_name: "HakoAllocObjectLifecycleHotCore".to_string(),
+            method: "objectLifecycleSmallAlloc".to_string(),
+            receiver_value: ValueId::new(1),
+            result_value: Some(ValueId::new(9)),
+            receiver_exact: true,
+            same_module: true,
+            dispatch_policy: "static_exact",
+            call_boundary_policy: "thin_direct_call_candidate",
+            return_shape: Some("scalar_i64"),
+            value_demand: "read_scalar",
+            callee_summary_status: "ok",
+            lowering_consumer_enabled: true,
+            generic_method_dispatch: false,
+            dynamic_route: false,
+            boxed_fallback: false,
+            summary: "ok",
+            failure_reason: None,
         }
     }
 
@@ -232,6 +319,44 @@ mod tests {
     }
 
     #[test]
+    fn diagnostic_region_marks_route_decision_report_if_slow() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .required_fastpath_regions
+            .push(RequiredFastPathRegion {
+                region_id: 0,
+                source_kind: "diagnostic_mode",
+                relevant_access_policy: "direct_memory",
+                route_requirement: "fastpath_plan_required",
+                bounds_requirement: "checked_allowed",
+                fallback_policy: "report_if_slow",
+            });
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
+        block.set_terminator(MirInstruction::Return { value: None });
+        function.add_block(block);
+
+        refresh_function_generic_method_routes(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+        refresh_function_route_decisions(&mut function);
+
+        assert_eq!(function.metadata.route_decisions.len(), 1);
+        assert_eq!(
+            function.metadata.route_decisions[0].fallback_policy,
+            "report_if_slow"
+        );
+    }
+
+    #[test]
     fn hotcore_call_plan_appends_route_decision() {
         let mut function = MirFunction::new(
             FunctionSignature {
@@ -245,29 +370,7 @@ mod tests {
         function
             .metadata
             .direct_exact_hotcore_call_plans
-            .push(DirectExactHotCoreCallPlan {
-                block: BasicBlockId::new(3),
-                instruction_index: 7,
-                caller: "Main.runOne/2".to_string(),
-                callee: "HakoAllocObjectLifecycleHotCore.objectLifecycleSmallAlloc/1".to_string(),
-                box_name: "HakoAllocObjectLifecycleHotCore".to_string(),
-                method: "objectLifecycleSmallAlloc".to_string(),
-                receiver_value: ValueId::new(1),
-                result_value: Some(ValueId::new(9)),
-                receiver_exact: true,
-                same_module: true,
-                dispatch_policy: "static_exact",
-                call_boundary_policy: "thin_direct_call_candidate",
-                return_shape: Some("scalar_i64"),
-                value_demand: "read_scalar",
-                callee_summary_status: "ok",
-                lowering_consumer_enabled: true,
-                generic_method_dispatch: false,
-                dynamic_route: false,
-                boxed_fallback: false,
-                summary: "ok",
-                failure_reason: None,
-            });
+            .push(direct_exact_hotcore_call_plan());
         let mut module = MirModule::new("route-decision-hotcore-test".to_string());
         module.add_function(function);
 
@@ -286,6 +389,45 @@ mod tests {
         assert_eq!(
             decision.proof_ids,
             vec!["same_module", "static_exact", "scalar_return"]
+        );
+    }
+
+    #[test]
+    fn direct_exact_required_region_marks_hotcore_route_decision_required() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "Main.runOne/2".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .required_fastpath_regions
+            .push(RequiredFastPathRegion {
+                region_id: 0,
+                source_kind: "diagnostic_mode",
+                relevant_access_policy: "direct_exact_call",
+                route_requirement: "direct_exact_required",
+                bounds_requirement: "checked_allowed",
+                fallback_policy: "fail_fast",
+            });
+        function
+            .metadata
+            .direct_exact_hotcore_call_plans
+            .push(direct_exact_hotcore_call_plan());
+        let mut module = MirModule::new("route-decision-direct-exact-required-test".to_string());
+        module.add_function(function);
+
+        refresh_module_hotcore_route_decisions(&mut module);
+
+        let function = module.functions.get("Main.runOne/2").expect("function");
+        assert_eq!(function.metadata.route_decisions.len(), 1);
+        assert_eq!(
+            function.metadata.route_decisions[0].fallback_policy,
+            "require_direct_exact"
         );
     }
 }
