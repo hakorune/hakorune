@@ -18,6 +18,8 @@ from instructions.mir_call.direct_array_birth import (
 from instructions.llvm_decl import declare_function as _declare
 from utils.resolver_helpers import mark_as_handle
 
+_SAFE_NEWBOX_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _unique_global_name(module: ir.Module, base: str) -> str:
     existing = {g.name for g in module.global_values}
@@ -51,7 +53,7 @@ def _lower_env_box_new_i64x(
     try:
         fn = builder.block.parent
         fn_name = getattr(fn, "name", "fn")
-    except Exception:
+    except _SAFE_NEWBOX_EXC:
         fn_name = "fn"
     g = ir.GlobalVariable(
         module,
@@ -98,7 +100,7 @@ def lower_newbox(
     def _mark_box_handle():
         try:
             mark_as_handle(resolver, dst_vid, box_type)
-        except Exception:
+        except _SAFE_NEWBOX_EXC:
             pass
 
     # Use NyRT shim: prefer dedicated core-box paths, otherwise env.box.new_i64x
@@ -140,7 +142,7 @@ def lower_newbox(
                         resolver.mark_string(int(dst_vid))
                     except (TypeError, ValueError):
                         resolver.mark_string(dst_vid)
-            except (AttributeError, TypeError, KeyError):
+            except _SAFE_NEWBOX_EXC:
                 pass
 
     exact_plan = exact_object_plan_for_box(

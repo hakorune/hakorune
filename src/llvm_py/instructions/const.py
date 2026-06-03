@@ -9,6 +9,8 @@ from typing import Dict, Any, Optional, Tuple
 from utils.values import safe_vmap_write
 from instructions.string_fast import string_const_boxer_symbol, llvm_fast_enabled
 
+_SAFE_CONST_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 _I64 = ir.IntType(64)
 _I64_CONST_CACHE: Dict[int, ir.Constant] = {}
 
@@ -67,7 +69,7 @@ def _try_get_or_create_hoisted_string_const(
         cur_bid = None
         try:
             cur_bid = int(str(builder.block.name).replace("bb", ""))
-        except Exception:
+        except _SAFE_CONST_EXC:
             cur_bid = None
         if cur_bid is not None and cur_bid not in reachable:
             return None
@@ -91,7 +93,7 @@ def _try_get_or_create_hoisted_string_const(
     try:
         fn = entry_bb.parent
         fn_name = getattr(fn, "name", "fn")
-    except Exception:
+    except _SAFE_CONST_EXC:
         fn_name = "fn"
     gname = _unique_global_name(module, f".strhoist.{fn_name}")
     g = ir.GlobalVariable(module, arr_ty, name=gname)
@@ -165,7 +167,7 @@ def lower_const(
                     resolver.mark_string(dst)
                 try:
                     resolver.string_ptrs[dst] = gep
-                except Exception:
+                except _SAFE_CONST_EXC:
                     pass
             return
 
@@ -177,7 +179,7 @@ def lower_const(
         try:
             fn = builder.block.parent
             fn_name = getattr(fn, 'name', 'fn')
-        except Exception:
+        except _SAFE_CONST_EXC:
             fn_name = 'fn'
         name = _unique_global_name(module, f".str.{fn_name}.{dst}")
         g = ir.GlobalVariable(module, arr_ty, name=name)
@@ -209,7 +211,7 @@ def lower_const(
             # Keep raw pointer for potential pointer-API sites (e.g., console.log)
             try:
                 resolver.string_ptrs[dst] = gep
-            except Exception:
+            except _SAFE_CONST_EXC:
                 pass
 
     elif const_type == 'void':

@@ -15,6 +15,8 @@ from instructions.user_box_local import (
 from utils.values import resolve_i64_strict, safe_vmap_write
 from utils.resolver_helpers import safe_get_type_tag, safe_set_type_tag
 
+_SAFE_COPY_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_copy(
     builder: ir.IRBuilder,
     dst: int,
@@ -45,7 +47,7 @@ def lower_copy(
                 block_end_values = ctx.block_end_values
             if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
                 bb_map = ctx.bb_map
-        except Exception:
+        except _SAFE_COPY_EXC:
             pass
     # Prefer local SSA directly in FAST lane to avoid resolver round-trip overhead
     # on dense copy chains (numeric_mixed_medium hotspot).
@@ -60,7 +62,7 @@ def lower_copy(
         try:
             if val is None:
                 val = vmap.get(src)
-        except Exception:
+        except _SAFE_COPY_EXC:
             if val is None:
                 val = None
     # Resolve otherwise to preserve dominance
@@ -94,7 +96,7 @@ def lower_copy(
         elif resolver is not None and hasattr(resolver, "is_stringish") and resolver.is_stringish(src):
             if hasattr(resolver, "mark_string"):
                 resolver.mark_string(dst)
-    except Exception:
+    except _SAFE_COPY_EXC:
         pass
 
     # Propagate literal StringBox origin metadata for fast length/len lowering.
@@ -103,7 +105,7 @@ def lower_copy(
             src_map = resolver.newbox_string_args
             if isinstance(src_map, dict) and src in src_map:
                 src_map[dst] = src_map[src]
-    except Exception:
+    except _SAFE_COPY_EXC:
         pass
 
     # Propagate literal string table through Copy so PHI/call routes can fold.
@@ -112,7 +114,7 @@ def lower_copy(
             lit_map = resolver.string_literals
             if isinstance(lit_map, dict) and src in lit_map:
                 lit_map[dst] = lit_map[src]
-    except Exception:
+    except _SAFE_COPY_EXC:
         pass
 
     # Keep pointer provenance across Copy so FAST string routes do not
@@ -122,5 +124,5 @@ def lower_copy(
             ptr_map = resolver.string_ptrs
             if isinstance(ptr_map, dict) and src in ptr_map:
                 ptr_map[dst] = ptr_map[src]
-    except Exception:
+    except _SAFE_COPY_EXC:
         pass

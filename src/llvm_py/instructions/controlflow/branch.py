@@ -7,6 +7,8 @@ import llvmlite.ir as ir
 from typing import Dict
 from utils.values import resolve_i64_strict
 
+_SAFE_BRANCH_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_branch(
     builder: ir.IRBuilder,
     cond_vid: int,
@@ -37,14 +39,14 @@ def lower_branch(
             print(f"[branch] cond_vid={cond_vid} in vmap={cond_vid in vmap} (vmap id={id(vmap)})", file=sys.stderr)
             if cond_vid in vmap:
                 print(f"[branch] vmap[{cond_vid}] = {vmap[cond_vid]}", file=sys.stderr)
-    except Exception:
+    except _SAFE_BRANCH_EXC:
         pass
     cond = resolve_i64_strict(resolver, cond_vid, builder.block, preds, block_end_values, vmap, bb_map)
     try:
         import os, sys
         if os.environ.get('NYASH_CLI_VERBOSE') == '1':
             print(f"[branch] resolved cond={cond}", file=sys.stderr)
-    except Exception:
+    except _SAFE_BRANCH_EXC:
         pass
     if cond is None:
         # Default to false if missing
