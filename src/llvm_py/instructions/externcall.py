@@ -9,6 +9,8 @@ from instructions.safepoint import insert_automatic_safepoint
 from instructions.extern_normalize import normalize_extern_name
 from utils.values import resolve_i64_strict
 
+_SAFE_EXTERNCALL_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 def lower_externcall(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -45,7 +47,7 @@ def lower_externcall(
                 block_end_values = ctx.block_end_values
             if getattr(ctx, 'bb_map', None) is not None and bb_map is None:
                 bb_map = ctx.bb_map
-        except Exception:
+        except _SAFE_EXTERNCALL_EXC:
             pass
     # Normalize extern target names through shared policy
     llvm_name = normalize_extern_name(func_name)
@@ -146,7 +148,7 @@ def lower_externcall(
             try:
                 # Use strict resolver (handles PHI values correctly, same as binop/compare/copy)
                 aval = resolve_i64_strict(resolver, arg_id, builder.block, preds, block_end_values, vmap, bb_map)
-            except Exception:
+            except _SAFE_EXTERNCALL_EXC:
                 aval = None
         if aval is None:
             aval = vmap.get(arg_id)
@@ -184,7 +186,7 @@ def lower_externcall(
                             aval = builder.zext(aval, i64, name=f"ext_zext_h_{i}")
                         aval = builder.call(to_i8p, [aval], name=f"ext_h2p_arg{i}")
                         used_string_h2p = True
-                except Exception:
+                except _SAFE_EXTERNCALL_EXC:
                     used_string_h2p = used_string_h2p or False
                 if not used_string_h2p:
                     if hasattr(aval, 'type'):
@@ -198,7 +200,7 @@ def lower_externcall(
                                 if isinstance(aval.type.pointee, ir.ArrayType) and isinstance(expected_ty.pointee, ir.IntType) and expected_ty.pointee.width == 8:
                                     c0 = ir.Constant(ir.IntType(32), 0)
                                     aval = builder.gep(aval, [c0, c0], name=f"ext_gep_arg{i}")
-                            except Exception:
+                            except _SAFE_EXTERNCALL_EXC:
                                 pass
                 else:
                     # used_string_h2p was true: keep the resolved pointer (do not null it)
@@ -247,12 +249,12 @@ def lower_externcall(
                         resolver.mark_string(int(dst_vid))
                     if hasattr(resolver, "value_types") and isinstance(resolver.value_types, dict):
                         resolver.value_types[int(dst_vid)] = {"kind": "handle", "box_type": "StringBox"}
-            except Exception:
+            except _SAFE_EXTERNCALL_EXC:
                 pass
     # Insert an automatic safepoint after externcall
     try:
         import os
         if os.environ.get('NYASH_LLVM_AUTO_SAFEPOINT', '1') == '1':
             insert_automatic_safepoint(builder, module, "extern_call")
-    except Exception:
+    except _SAFE_EXTERNCALL_EXC:
         pass

@@ -19,6 +19,8 @@ from .runtime_data_route_policy import (
     reset_runtime_data_array_route_policy_cache_for_tests as _reset_runtime_data_array_route_policy_cache_for_tests,
 )
 
+_SAFE_RUNTIME_DATA_DISPATCH_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 _RUNTIME_DATA_METHODS = {
     "get": ("nyash.runtime_data.get_hh", "unified_runtime_data_get", 1),
@@ -244,7 +246,7 @@ def lower_runtime_data_field_call(
             return value
         try:
             return ensure_handle(value)
-        except Exception:
+        except _SAFE_RUNTIME_DATA_DISPATCH_EXC:
             return value
 
     if arity == 1:

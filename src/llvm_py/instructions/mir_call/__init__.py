@@ -38,6 +38,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from mir_call_compat import MirCallCompat
 
+_SAFE_MIR_CALL_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_vid: Optional[int], vmap: Dict, resolver):
     """
@@ -75,7 +77,7 @@ def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_v
             func = builder.block.parent
             cont = func.append_basic_block(name=f"cont_bb_{builder.block.name}")
             builder.position_at_end(cont)
-    except Exception:
+    except _SAFE_MIR_CALL_EXC:
         pass
 
     # Extract callee and arguments
@@ -107,7 +109,7 @@ def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_v
             elif callee_type == 'Extern':
                 evt.update({'name': callee.get('name')})
             print(json.dumps({'phase': 'llvm', 'cat': 'mir_call', 'event': evt}))
-        except Exception:
+        except _SAFE_MIR_CALL_EXC:
             pass
 
     # Dispatch to specialized handler based on callee type

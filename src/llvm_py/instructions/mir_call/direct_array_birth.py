@@ -10,6 +10,8 @@ import os
 
 from utils.resolver_helpers import mark_arrayrepr_direct_i64
 
+_SAFE_DIRECT_ARRAY_BIRTH_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 DIRECT_ARRAY_I64_BIRTH_SYMBOL = "nyash.array.direct_i64.birth_h"
 PUBLIC_ARRAY_BIRTH_SYMBOL = "nyash.array.birth_h"
 
@@ -32,5 +34,5 @@ def mark_direct_array_i64_origin(resolver, dst_vid) -> None:
             resolver.direct_array_i64_ids = set()
         resolver.direct_array_i64_ids.add(int(dst_vid))
         mark_arrayrepr_direct_i64(resolver, int(dst_vid))
-    except Exception:
+    except _SAFE_DIRECT_ARRAY_BIRTH_EXC:
         pass

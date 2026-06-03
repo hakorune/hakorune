@@ -22,6 +22,8 @@ DIRECT_ARRAY_HEADER_CAPACITY_OFFSET_BYTES = 24
 DIRECT_ARRAY_DATA_OFFSET_BYTES = 32
 DIRECT_ARRAY_ELEMENT_BYTES = 8
 
+_SAFE_COLLECTION_METHOD_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
 
 def _resolve_or_zero(
     resolve_arg: Callable[[int], Optional[ir.Value]], arg_ids: List[int], index: int, zero
@@ -65,7 +67,7 @@ def _current_direct_array_access_plan(
         return None
     try:
         receiver_vid = int(receiver_vid)
-    except Exception:
+    except _SAFE_COLLECTION_METHOD_EXC:
         return None
 
     for plan in plans:
