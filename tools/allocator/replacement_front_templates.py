@@ -705,6 +705,7 @@ def generate_replacement_front_bins_shim_c(
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
     size_class_table: bool = False,
+    eager_init: bool = False,
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
@@ -924,6 +925,13 @@ static int release_from_bin(int bin, uint32_t index) {{
 """
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
 
+    malloc_init_line = (
+        "  if (!init_done) return real_malloc_fn ? real_malloc_fn(size) : 0;"
+        if eager_init
+        else "  init_bins();"
+    )
+    constructor_init_line = "  init_bins();" if eager_init else ""
+
     return f"""
 #define _GNU_SOURCE
 #include <dlfcn.h>
@@ -1058,13 +1066,14 @@ static void write_report(void) {{
 }}
 
 __attribute__((constructor)) static void replacement_front_init(void) {{
+{constructor_init_line}
   resolve_real();
   atexit(write_report);
 }}
 
 void* malloc(size_t size) {{
   alloc_count++;
-  init_bins();
+{malloc_init_line}
   int bin = size_to_bin(size);
   if (bin >= 0) {{
     void* ptr = alloc_from_bin(bin, size);

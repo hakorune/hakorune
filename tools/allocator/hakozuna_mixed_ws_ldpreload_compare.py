@@ -95,12 +95,15 @@ def build_replacement_front_bins_shim(
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
     size_class_table: bool = False,
+    eager_init: bool = False,
 ) -> Path:
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
     if hotcore_page_model:
         front_name = f"{front_name}-hotcore-page-model"
     if size_class_table:
         front_name = f"{front_name}-size-table"
+    if eager_init:
+        front_name = f"{front_name}-eager-init"
     source_name = (
         "hako_alloc_replacement_front_page_bins.c"
         if page_shaped
@@ -121,6 +124,7 @@ def build_replacement_front_bins_shim(
             page_shaped=page_shaped,
             hotcore_page_model=hotcore_page_model,
             size_class_table=size_class_table,
+            eager_init=eager_init,
         ).lstrip(),
         encoding="utf-8",
     )
@@ -535,6 +539,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--replacement-front-eager-init-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: with bins mode, initialize replacement bins in the "
+            "constructor and keep hot malloc on the already-initialized path"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-lock-mode",
         action="store_true",
         help="benchmark-only: build the replacement front with a global arena mutex",
@@ -717,6 +729,13 @@ def main() -> int:
             "--replacement-front-size-class-table-mode requires "
             "--replacement-front-native-bins-mode or --replacement-front-page-bins-mode"
         )
+    if args.replacement_front_eager_init_mode and not (
+        args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-eager-init-mode requires "
+            "--replacement-front-native-bins-mode or --replacement-front-page-bins-mode"
+        )
     replacement_front_bins_mode = (
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     )
@@ -821,6 +840,7 @@ def main() -> int:
             page_shaped=args.replacement_front_page_bins_mode,
             hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
             size_class_table=args.replacement_front_size_class_table_mode,
+            eager_init=args.replacement_front_eager_init_mode,
         )
     replacement_front_smokes: dict[str, dict[str, str]] = {}
     if args.replacement_front_cross_thread_smoke:
@@ -954,6 +974,8 @@ def main() -> int:
         f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
         "replacement_front_size_class_table_mode="
         f"{1 if args.replacement_front_size_class_table_mode else 0}",
+        "replacement_front_eager_init_mode="
+        f"{1 if args.replacement_front_eager_init_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",

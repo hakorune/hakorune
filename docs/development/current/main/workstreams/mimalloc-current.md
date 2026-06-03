@@ -191,6 +191,17 @@ hotcore_size_class_table:
   median_ops_per_sec=8,691,873.099
   size_class_lookup_route=table_8byte_bucket
   decision=keeper
+
+hotcore_size_class_table_eager_init:
+  attempted_change=initialize benchmark-only bins in the replacement-front
+    constructor while keeping the size-class table route
+  report=target/hakozuna-mixed-ws-hotcore-size-table-eager-init-7/report.out
+  previous_keeper_report=target/hakozuna-mixed-ws-hotcore-size-table-7/report.out
+  previous_keeper_median_ops_per_sec=8,691,873.099
+  median_ops_per_sec=9,424,804.200
+  size_class_lookup_route=table_8byte_bucket
+  eager_init_mode=1
+  decision=keeper
 ```
 
 Interpretation: HotCore/PageModel wrapper mode is a structural bridge keeper
@@ -201,8 +212,9 @@ older page-bins best sample or C mimalloc.
 The size-class table lookup is the current malloc-owner keeper: `perf` on the
 current bridge selected `malloc` plus the ownership lookup as the dominant
 replacement-front symbols, and the table path improves the same-run 7-sample
-HotCore/PageModel median. It keeps the same benchmark-only route and only
-changes the generated SizeClassBox mirror lookup shape. Product pages,
+HotCore/PageModel median. The eager-init follow-up is the current top keeper:
+it keeps the same benchmark-only route and table lookup, but moves bin
+initialization into the replacement-front constructor. Product pages,
 activation, hooks, globals, full `.hako` algorithm claims, and winner claims
 remain closed.
 
