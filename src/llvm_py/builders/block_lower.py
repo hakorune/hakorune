@@ -97,6 +97,33 @@ def _restore_current_vmap(builder, old_current_vmap) -> None:
         builder._current_vmap = old_current_vmap
 
 
+def _annotate_instruction(inst: Dict[str, Any], block_id: int, instruction_index: int):
+    try:
+        op = inst.get('op')
+    except Exception:
+        op = None
+    try:
+        inst["__block_id"] = block_id
+        inst["__instruction_index"] = instruction_index
+    except Exception:
+        pass
+    return op
+
+
+def _split_block_ops(insts: List[Dict[str, Any]], block_id: int):
+    body_ops: List[Dict[str, Any]] = []
+    term_ops: List[Dict[str, Any]] = []
+    for original_instruction_index, inst in enumerate(insts):
+        op = _annotate_instruction(inst, block_id, original_instruction_index)
+        if op in ("ret", "jump", "branch"):
+            term_ops.append(inst)
+        elif op == "phi":
+            continue
+        else:
+            body_ops.append(inst)
+    return body_ops, term_ops
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -351,25 +378,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         _bind_resolver_block(builder, ib, bid)
         block_data = block_by_id.get(bid, {})
         insts = block_data.get('instructions', []) or []
-        # Split into body and terminator ops
-        body_ops: List[Dict[str, Any]] = []
-        term_ops: List[Dict[str, Any]] = []
-        for original_instruction_index, inst in enumerate(insts):
-            try:
-                opx = inst.get('op')
-            except Exception:
-                opx = None
-            try:
-                inst["__block_id"] = bid
-                inst["__instruction_index"] = original_instruction_index
-            except Exception:
-                pass
-            if opx in ("ret","jump","branch"):
-                term_ops.append(inst)
-            elif opx == "phi":
-                continue
-            else:
-                body_ops.append(inst)
+        body_ops, term_ops = _split_block_ops(insts, bid)
         # Per-block SSA map
         # Phase 132-P1: Use context.phi_manager for PHI filtering (Box-First principle)
         vmap_cur: Dict[int, ir.Value] = {}
@@ -392,14 +401,6 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
             print(f"[vmap/id] bb{bid} vmap_cur id={id(vmap_cur)} keys={sorted(vmap_cur.keys())[:10]}", file=sys.stderr)
         created_ids: List[int] = []
-        defined_here_all: set = set()
-        for _inst in body_ops:
-            try:
-                d = _inst.get('dst')
-                if isinstance(d, int):
-                    defined_here_all.add(d)
-            except Exception:
-                pass
         # Lower body ops
         for i_idx, inst in enumerate(body_ops):
             try:
