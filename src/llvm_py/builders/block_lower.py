@@ -127,6 +127,32 @@ def _record_created_id(context, created_ids: List[int], vid: int, block_id: int)
         pass
 
 
+def _find_function_block(func: ir.Function, name: str):
+    for block in func.blocks:
+        if str(block.name) == name:
+            return block
+    return None
+
+
+def _branch_to_if_open(block, target) -> None:
+    if block is not None and target is not None and block.terminator is None:
+        ir.IRBuilder(block).branch(target)
+
+
+def _patch_loop_prepass_skipped_blocks(builder, func: ir.Function, loop_plan, loop_count: int) -> None:
+    exit_bb = _find_function_block(func, f"while{loop_count}_exit")
+    if exit_bb is None:
+        return
+
+    orig_exit_bb = builder.bb_map.get(loop_plan.get('exit'))
+    _branch_to_if_open(exit_bb, orig_exit_bb)
+
+    for bskip in loop_plan.get('skip_blocks', []):
+        if bskip == loop_plan.get('header'):
+            continue
+        _branch_to_if_open(builder.bb_map.get(bskip), orig_exit_bb)
+
+
 def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]], context):
     """Phase 131-14-B P0-2: Resolve jump-only block snapshots (Pass B).
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -333,39 +359,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             for bskip in loop_plan.get('skip_blocks', []):
                 skipped.add(bskip)
             # Ensure skipped original blocks have a valid terminator: branch to while exit
-            try:
-                exit_name = f"while{builder.loop_count}_exit"
-                exit_bb = None
-                for bbf in func.blocks:
-                    try:
-                        if str(bbf.name) == exit_name:
-                            exit_bb = bbf
-                            break
-                    except Exception:
-                        pass
-                if exit_bb is not None:
-                    try:
-                        orig_exit_bb = builder.bb_map.get(loop_plan.get('exit'))
-                        if orig_exit_bb is not None and exit_bb.terminator is None:
-                            ibx = ir.IRBuilder(exit_bb)
-                            ibx.branch(orig_exit_bb)
-                    except Exception:
-                        pass
-                    for bskip in loop_plan.get('skip_blocks', []):
-                        if bskip == loop_plan.get('header'):
-                            continue
-                        bb_skip = builder.bb_map.get(bskip)
-                        if bb_skip is None:
-                            continue
-                        try:
-                            if bb_skip.terminator is None:
-                                ib = ir.IRBuilder(bb_skip)
-                                if orig_exit_bb is not None:
-                                    ib.branch(orig_exit_bb)
-                        except Exception:
-                            pass
-            except Exception:
-                pass
+            _patch_loop_prepass_skipped_blocks(builder, func, loop_plan, builder.loop_count)
             continue
 
         if bid in skipped:
