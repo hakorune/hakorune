@@ -65,6 +65,15 @@ diagnostic should inventory its source shape inside the active mimalloc work
 instead of creating another inventory-only row. The direct-path lane stays
 closed.
 
+## Current Workstream Note
+
+HostAllocatorV0 provider-host refresh is recorded in the active workstream.
+The provider-host normal route is now close to C mimalloc, while the
+usable-size / tracking-bypass route is faster in the same sample shape. The
+next provider-boundary owner is shim pointer tracking removal for the
+provider-host mainline, without opening provider activation, product
+replacement, hooks, global allocator, or winner claims.
+
 ## Forbidden
 
 - no new DirectArray member

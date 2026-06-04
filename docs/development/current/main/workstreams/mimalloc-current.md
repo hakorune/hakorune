@@ -365,6 +365,38 @@ provider_abi_claim_boundary:
   global_allocator_claim=0
   hook_installed=0
 
+provider_host_vtable_refresh_2026_06_04:
+  algorithm_coverage_report=target/mimalloc-opt-refresh/algorithm-coverage-after-host-vtable.out
+  algorithm_coverage_host_report=target/mimalloc-opt-refresh/algorithm-coverage-provider-host-vtable-gap-s5.out
+  algorithm_coverage_host_usable_report=target/mimalloc-opt-refresh/algorithm-coverage-provider-host-vtable-usable-gap-s5.out
+  replacement_front_is_full_hako_algorithm=0
+  replacement_front_multithread_claim=0
+  host_vtable_normal_report=target/mimalloc-opt-refresh/provider-host-vtable-gap-s5.out
+  host_vtable_normal_provider_median_ops_per_sec=4,741,831.011
+  host_vtable_normal_provider_vs_mimalloc_ratio=0.957
+  host_vtable_normal_provider_slower_than_mimalloc_percent=4.5
+  host_vtable_normal_tracking_insert_probe_total=3,150
+  host_vtable_normal_tracking_lookup_probe_total=3,138
+  host_vtable_usable_report=target/mimalloc-opt-refresh/provider-host-vtable-usable-gap-s5.out
+  host_vtable_usable_provider_median_ops_per_sec=6,493,801.666
+  host_vtable_usable_provider_vs_mimalloc_ratio=1.304
+  host_vtable_usable_provider_slower_than_mimalloc_percent=-23.3
+  host_vtable_usable_tracking_insert_probe_total=0
+  host_vtable_usable_tracking_lookup_probe_total=0
+  provider_host_allocator_init_result_total=6
+  provider_host_allocator_vtable_init_count_total=6
+  provider_host_passthrough_count_total=0
+  provider_runtime_real_fallback_count_total=0
+  provider_init_real_fallback_per_provider_operation=0.007
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  decision=HostAllocatorV0_is_keeper
+  selected_next_owner=shim_pointer_tracking_removal_for_provider_host_mainline
+  selected_next_action=turn_provider_usable_size_claim_into_the_normal_owned-pointer_query_path_before_any_new_provider_C_shape_probe
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
