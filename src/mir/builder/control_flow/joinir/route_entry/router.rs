@@ -26,10 +26,9 @@ use super::registry;
 use crate::mir::builder::control_flow::lower::expectations;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{
-    try_build_outcome, CorePlan, Freeze, PlanBuildOutcome, PlanLowerer,
+    loop_body_has_nested_loop, router_shadow_pre_plan_guard_error, try_build_outcome, CorePlan,
+    Freeze, PlanBuildOutcome, PlanLowerer,
 };
-use crate::mir::builder::control_flow::plan::composer::shadow_pre_plan_guard_error;
-use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
@@ -148,7 +147,7 @@ fn enforce_shadow_adopt_pre_plan_guard(
     strict_or_dev: bool,
     outcome: &PlanBuildOutcome,
 ) -> Result<(), String> {
-    let Some(err) = shadow_pre_plan_guard_error(ctx, outcome) else {
+    let Some(err) = router_shadow_pre_plan_guard_error(ctx, outcome) else {
         return Ok(());
     };
     flowbox_tags::emit_flowbox_freeze_tag_from_facts(
@@ -283,7 +282,7 @@ pub(crate) fn route_loop(
     // - generic_loop_v{1,0} facts (recipe-first best-effort; only no-match `Ok(None)` continues routing, `Err` propagates)
     // - migrated scan families (Phase C15/C16 recipe-first pipelines are already gated)
     // - loop_cond_break_continue with explicit exit-driven accept kinds.
-    let release_recipe_first_allowed = if !detect_nested_loop(ctx.body) {
+    let release_recipe_first_allowed = if !loop_body_has_nested_loop(ctx.body) {
         true
     } else {
         release_allows_nested_recipe_first(&outcome)

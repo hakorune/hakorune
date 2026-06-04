@@ -1,24 +1,24 @@
-//! Shared recipe fallback orchestration for nested-loop lowering.
+//! Shared recipe adoption orchestration for nested-loop lowering.
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::nested_loop_plan_break_continue::try_compose_loop_cond_break_continue_recipe_bridge;
 use crate::mir::builder::control_flow::plan::nested_loop_plan_continue_with_return::try_compose_loop_cond_continue_with_return_recipe_bridge;
-use crate::mir::builder::control_flow::plan::nested_loop_plan_recipe_fallback_policy::{
-    select_nested_loop_recipe_fallback, NestedLoopRecipeFallbackKind,
+use crate::mir::builder::control_flow::plan::nested_loop_plan_recipe_adoption_policy::{
+    select_nested_loop_recipe_adoption, NestedLoopRecipeAdoptionKind,
 };
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
-pub(in crate::mir::builder) fn try_compose_nested_loop_recipe_fallback(
+pub(in crate::mir::builder) fn try_compose_nested_loop_recipe_adoption(
     builder: &mut MirBuilder,
     outcome: &PlanBuildOutcome,
     nested_ctx: &LoopRouteContext,
     stage: &str,
     planner_required: bool,
 ) -> Result<Option<LoweredRecipe>, String> {
-    match select_nested_loop_recipe_fallback(outcome, planner_required) {
-        Some(NestedLoopRecipeFallbackKind::ContinueWithReturn) => {
+    match select_nested_loop_recipe_adoption(outcome, planner_required) {
+        Some(NestedLoopRecipeAdoptionKind::ContinueWithReturn) => {
             try_compose_loop_cond_continue_with_return_recipe_bridge(
                 builder,
                 outcome,
@@ -27,7 +27,7 @@ pub(in crate::mir::builder) fn try_compose_nested_loop_recipe_fallback(
                 planner_required,
             )
         }
-        Some(NestedLoopRecipeFallbackKind::BreakContinue) => {
+        Some(NestedLoopRecipeAdoptionKind::BreakContinue) => {
             try_compose_loop_cond_break_continue_recipe_bridge(
                 builder,
                 outcome,
@@ -74,7 +74,7 @@ mod tests {
     }
 
     #[test]
-    fn nested_loop_recipe_fallback_skips_when_not_required() {
+    fn nested_loop_recipe_adoption_skips_when_not_required() {
         let mut builder = MirBuilder::new();
         let condition = less_cond();
         let body = vec![ASTNode::Assignment {
@@ -88,20 +88,20 @@ mod tests {
             recipe_contract: None,
         };
 
-        let result = try_compose_nested_loop_recipe_fallback(
+        let result = try_compose_nested_loop_recipe_adoption(
             &mut builder,
             &outcome,
             &ctx,
-            "nested_loop_recipe_fallback",
+            "nested_loop_recipe_adoption",
             false,
         )
-        .expect("fallback should not error");
+        .expect("adoption should not error");
 
         assert!(result.is_none());
     }
 
     #[test]
-    fn nested_loop_recipe_fallback_skips_without_facts() {
+    fn nested_loop_recipe_adoption_skips_without_facts() {
         let mut builder = MirBuilder::new();
         let condition = less_cond();
         let body = vec![ASTNode::Assignment {
@@ -115,14 +115,14 @@ mod tests {
             recipe_contract: None,
         };
 
-        let result = try_compose_nested_loop_recipe_fallback(
+        let result = try_compose_nested_loop_recipe_adoption(
             &mut builder,
             &outcome,
             &ctx,
-            "nested_loop_recipe_fallback",
+            "nested_loop_recipe_adoption",
             true,
         )
-        .expect("fallback should not error");
+        .expect("adoption should not error");
 
         assert!(result.is_none());
     }

@@ -1,26 +1,26 @@
-//! Policy for nested-loop recipe fallback selection order.
+//! Policy for nested-loop recipe adoption selection order.
 
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum NestedLoopRecipeFallbackKind {
+pub(in crate::mir::builder) enum NestedLoopRecipeAdoptionKind {
     ContinueWithReturn,
     BreakContinue,
 }
 
-pub(in crate::mir::builder) fn select_nested_loop_recipe_fallback(
+pub(in crate::mir::builder) fn select_nested_loop_recipe_adoption(
     outcome: &PlanBuildOutcome,
     planner_required: bool,
-) -> Option<NestedLoopRecipeFallbackKind> {
+) -> Option<NestedLoopRecipeAdoptionKind> {
     if !planner_required {
         return None;
     }
     let facts = outcome.facts.as_ref()?;
     if facts.facts.loop_cond_continue_with_return.is_some() {
-        return Some(NestedLoopRecipeFallbackKind::ContinueWithReturn);
+        return Some(NestedLoopRecipeAdoptionKind::ContinueWithReturn);
     }
     if facts.facts.loop_cond_break_continue.is_some() {
-        return Some(NestedLoopRecipeFallbackKind::BreakContinue);
+        return Some(NestedLoopRecipeAdoptionKind::BreakContinue);
     }
     None
 }
@@ -95,7 +95,7 @@ mod tests {
     }
 
     #[test]
-    fn select_nested_loop_recipe_fallback_prefers_continue_with_return() {
+    fn select_nested_loop_recipe_adoption_prefers_continue_with_return() {
         let mut facts = base_loop_facts();
         facts.loop_cond_continue_with_return = Some(LoopCondContinueWithReturnFacts {
             condition: bool_lit(true),
@@ -117,22 +117,22 @@ mod tests {
             recipe_contract: None,
         };
 
-        let selected = select_nested_loop_recipe_fallback(&outcome, true);
+        let selected = select_nested_loop_recipe_adoption(&outcome, true);
 
         assert_eq!(
             selected,
-            Some(NestedLoopRecipeFallbackKind::ContinueWithReturn)
+            Some(NestedLoopRecipeAdoptionKind::ContinueWithReturn)
         );
     }
 
     #[test]
-    fn select_nested_loop_recipe_fallback_skips_when_not_required() {
+    fn select_nested_loop_recipe_adoption_skips_when_not_required() {
         let outcome = PlanBuildOutcome {
             facts: None,
             recipe_contract: None,
         };
 
-        let selected = select_nested_loop_recipe_fallback(&outcome, false);
+        let selected = select_nested_loop_recipe_adoption(&outcome, false);
 
         assert_eq!(selected, None);
     }

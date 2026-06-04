@@ -4,6 +4,10 @@ Purpose: keep `loop_*_v0` modules explicit and prevent accidental drift while pa
 
 Scope: `src/mir/builder/control_flow/plan/**` only.
 
+`legacy-v0` is a containment label for routed one-shape compatibility boxes.
+It is not an acceptance policy, and it must not be used as a reason to add
+silent fallback behavior.
+
 ## Routed legacy-v0 modules (active)
 
 These modules are still part of the routed planner path (`registry`/handlers/composer wiring exists):

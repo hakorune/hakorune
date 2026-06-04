@@ -13,7 +13,7 @@ use crate::mir::{CompareOp, ConstValue, MirType};
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::nested_loop_depth1_handoff::try_lower_generic_nested_loop_depth1_fastpath;
-use super::nested_loop_recipe_fallback::try_compose_generic_nested_loop_recipe_fallback;
+use super::nested_loop_recipe_adoption::try_compose_generic_nested_loop_recipe_adoption;
 use super::nested_loop_reject_tail::finish_generic_nested_loop_reject_tail;
 use super::GENERIC_LOOP_ERR;
 use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
@@ -86,7 +86,7 @@ pub(super) fn lower_nested_loop_plan(
         outcome.recipe_contract.is_some(),
     );
 
-    if let Some(recipe) = try_compose_generic_nested_loop_recipe_fallback(
+    if let Some(recipe) = try_compose_generic_nested_loop_recipe_adoption(
         builder,
         &outcome,
         &nested_ctx,

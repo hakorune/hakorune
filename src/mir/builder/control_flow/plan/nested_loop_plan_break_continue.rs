@@ -1,4 +1,4 @@
-//! Break-continue recipe bridge for nested-loop fallback.
+//! Break-continue recipe bridge for nested-loop adoption.
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;

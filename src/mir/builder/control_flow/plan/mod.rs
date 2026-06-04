@@ -90,8 +90,8 @@ mod nested_loop_plan;
 mod nested_loop_plan_break_continue;
 mod nested_loop_plan_bridge;
 mod nested_loop_plan_continue_with_return;
-mod nested_loop_plan_recipe_fallback;
-mod nested_loop_plan_recipe_fallback_policy;
+mod nested_loop_plan_recipe_adoption;
+mod nested_loop_plan_recipe_adoption_policy;
 
 // Layer 6: Data Structures (データ構造)
 // CorePlan の構成要素

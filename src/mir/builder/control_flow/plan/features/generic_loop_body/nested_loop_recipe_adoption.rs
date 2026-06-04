@@ -12,7 +12,7 @@ use crate::mir::builder::MirBuilder;
 
 const STAGE: &str = "generic_loop_body::nested_loop_plan";
 
-pub(super) fn try_compose_generic_nested_loop_recipe_fallback(
+pub(super) fn try_compose_generic_nested_loop_recipe_adoption(
     builder: &mut MirBuilder,
     outcome: &PlanBuildOutcome,
     nested_ctx: &LoopRouteContext,
@@ -138,7 +138,7 @@ mod tests {
     }
 
     #[test]
-    fn generic_nested_loop_recipe_fallback_skips_when_not_required() {
+    fn generic_nested_loop_recipe_adoption_skips_when_not_required() {
         let mut builder = MirBuilder::new();
         let condition = less_cond();
         let body = vec![ASTNode::Assignment {
@@ -152,20 +152,20 @@ mod tests {
             recipe_contract: None,
         };
 
-        let result = try_compose_generic_nested_loop_recipe_fallback(
+        let result = try_compose_generic_nested_loop_recipe_adoption(
             &mut builder,
             &outcome,
             &ctx,
             false,
             false,
         )
-        .expect("fallback should not error");
+        .expect("adoption should not error");
 
         assert!(result.is_none());
     }
 
     #[test]
-    fn generic_nested_loop_recipe_fallback_skips_without_facts() {
+    fn generic_nested_loop_recipe_adoption_skips_without_facts() {
         let mut builder = MirBuilder::new();
         let condition = less_cond();
         let body = vec![ASTNode::Assignment {
@@ -179,14 +179,14 @@ mod tests {
             recipe_contract: None,
         };
 
-        let result = try_compose_generic_nested_loop_recipe_fallback(
+        let result = try_compose_generic_nested_loop_recipe_adoption(
             &mut builder,
             &outcome,
             &ctx,
             true,
             true,
         )
-        .expect("fallback should not error");
+        .expect("adoption should not error");
 
         assert!(result.is_none());
     }

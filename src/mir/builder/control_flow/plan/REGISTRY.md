@@ -21,7 +21,7 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 |---|---|---|---|
 | `generic_loop_v0` | release + strict/dev | basic loop(cond) skeletons | `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md` |
 | `generic_loop_v1` | strict/dev + planner_required | loop body as CorePlan tree (If/Exit), minimal carriers | `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md` |
-| `loop_true_break_continue` | strict/dev + planner_required (fallback-only) | `loop(true)` with `break/continue/return(value)` in ExitIf, plus unconditional tail `return(value)` (return+prelude+else は禁止) | `src/mir/builder/control_flow/plan/loop_true_break_continue/README.md` |
+| `loop_true_break_continue` | strict/dev + planner_required (exception slot; no silent fallback) | `loop(true)` with `break/continue/return(value)` in ExitIf, plus unconditional tail `return(value)` (return+prelude+else は禁止) | `src/mir/builder/control_flow/plan/loop_true_break_continue/README.md` |
 | `loop_cond_break_continue` | strict/dev + planner_required | loop(cond) with multi `ExitIf(break/continue)` and conditional update/join; cluster3/4/5 are selected via `facts/nested_loop_profile.rs` | `docs/development/current/main/design/loop-cond-break-continue-ssot.md` |
 | `loop_scan_v0` | strict/dev + planner_required | loop(cond) scan: `ch=substring(i,i+1)` + comma-continue + close-break + tail `i=i+1` (one-shape) | `src/mir/builder/control_flow/plan/loop_scan_v0/` |
 | `loop_scan_methods_v0` | strict/dev + planner_required | FuncScannerBox._scan_methods outer loop(cond) with nested loops/ifs (one-shape) | `src/mir/builder/control_flow/plan/loop_scan_methods_v0/` |
@@ -104,7 +104,7 @@ Allowed public entry surfaces:
 | Surface | Role |
 | --- | --- |
 | `joinir::route_entry::router::route_loop` | main loop routing entry from `MirBuilder::cf_loop` |
-| `control_flow/lower/planner_compat.rs` | consumer-facing compatibility facade for planner/lowerer exports |
+| `control_flow/lower/planner_compat.rs` | consumer-facing compatibility facade for planner/lowerer exports and router-only planner probes |
 | `route_entry/registry` | ordered recipe-first route table and ambiguity/candidate checks |
 | `plan/REGISTRY.md` | route-order, exception, and cleanup ledger |
 
@@ -112,12 +112,17 @@ Accepted temporary exceptions:
 
 | Exception | Current reason | Cleanup direction |
 | --- | --- | --- |
-| `route_entry/router.rs` imports `plan::composer::shadow_pre_plan_guard_error` | router-only diagnostic seam | move behind lower/planner facade or document as router facade export |
-| `route_entry/router.rs` imports `plan::facts::feature_facts::detect_nested_loop` | route selection preflight | move behind a facts facade |
 | `route_entry/registry/handlers*` imports composer / recipe-tree / facts internals | route table still owns candidate ordering | keep local to registry or wrap in a route-handler facade |
 | `control_flow/facts/**` imports plan freeze / recipe vocabulary | facts split is mid-folderization | decide whether top-level facts or plan-local facts owns each vocabulary |
 | `control_flow/recipes/**` imports plan facts / recipe_tree | recipe split is mid-folderization | decide whether top-level recipes or plan-local recipe_tree owns each vocabulary |
 | `builder/stmts/return_stmt.rs` directly adopts match-return CorePlan | non-loop CorePlan adoption lacks a named facade | add a non-loop FlowPlanner adoption boundary before changing behavior |
+
+Closed entry exceptions:
+
+| Closed | Boundary now |
+| --- | --- |
+| `route_entry/router.rs` direct import of `plan::composer::shadow_pre_plan_guard_error` | `control_flow/lower/planner_compat.rs::router_shadow_pre_plan_guard_error` |
+| `route_entry/router.rs` direct import of `plan::facts::feature_facts::detect_nested_loop` | `control_flow/lower/planner_compat.rs::loop_body_has_nested_loop` |
 
 Rejected bypasses:
 
@@ -151,7 +156,7 @@ Rejected bypasses:
 - JoinFeature (if-join PHI insertion) is `src/mir/builder/control_flow/plan/features/if_join.rs`.
 - “continue 経路の合流” は plan rule を増やして個別対応せず、CorePlan の primitive（例: `ContinueWithPhiArgs`）へ寄せる。
 - `continue` の飛び先が “常に step_bb” だと箱ごとに例外が増えるため、ContinueTarget slot（`continue_target_bb`）を土台として先に入れる（SSOT: `docs/development/current/main/design/coreloop-continue-target-slot-ssot.md`）。
-- 候補競合は “ルール順” より “責務スロット” で解決する（例: fallback-only / requires-carrier-merge / forbids-value-join）。
+- 候補競合は “ルール順” より “責務スロット” で解決する（例: planner-required exception slot / requires-carrier-merge / forbids-value-join）。
 - `loop_cond_break_continue` は handled-guard (`if handled==0 { break }`) と continue-if-with-fallthrough-else を許可する土台として拡張中。
 - `loop_cond_break_continue` の正規化は `features/exit_if_map.rs` / `features/conditional_update_join.rs` / `features/carrier_merge.rs` に分解済み。
 - `loop_cond_break_continue` の Program block（ASTNode::Program）は container として展開し、展開後 stmt を同じルールで判定する。
@@ -159,6 +164,7 @@ Rejected bypasses:
 - `loop_cond_break_continue` の else-only-break は base 受理（`IfMode::ElseOnlyExit` / `IfContractKind::ExitAllowed`、planner_required に限定しない）。
 - `loop_cond_break_continue` は accept_kind で Facts->Lower 契約を固定し、Lower は全 variant を match する（局所契約であり他箱へは横展開しない）。
 - `loop_cond_break_continue` の `ExitIfTree`（Phase 29bq BoxCount）: nested if-in-loop で全枝が exit で終わる再帰構造を受理。Recipe: `ExitKind`/`ExitLeaf`/`ExitIfTree`, Pipeline: `item_lowering.rs` + `else_patterns.rs::lower_exit_if_tree`。
+- nested-loop recipe-first adoption selection order is owned by `nested_loop_plan_recipe_adoption_policy.rs`; bridge modules call that policy and do not encode a second route order.
 - loop_cond 系 Facts は `src/mir/builder/control_flow/plan/loop_cond_unified/variants/` に集約（Level 1 cleanup完了：旧 wrapper directories 削除済み、recipes も unified module に移動）。
 - loop_cond の共通 helper SSOT は `src/mir/builder/control_flow/plan/loop_cond_unified/REGISTRY.md` に集約。
 - cluster3/4/5 は **profile 駆動**（`CLUSTER_PROFILES`）で loop_cond_break_continue に統合済み。
@@ -179,7 +185,7 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - `scan_with_init` / `split_scan`: アルゴリズム意図（scan/split）と LoopSkeleton を分離
 - `loop_true_early_exit`: `loop(true)` skeleton + exit_if + carrier update に分離（Phase 29bw: pipeline 化済み）
 - `if_phi_join`: IfSkeleton + JoinFeature（CoreIfJoin）の pred 収集を1箇所に集約
-- `loop_true_break_continue`: LoopTrueSkeleton + ExitIfMapFeature + NestedLoopFeature(depth<=1) に寄せ、fallback-only 条件は planner 側の slot へ
+- `loop_true_break_continue`: LoopTrueSkeleton + ExitIfMapFeature + NestedLoopFeature(depth<=1) に寄せ、planner-required exception 条件は planner 側の slot へ
 - `loop_true_break_continue` の旧正規化ロジックは削除済み（feature 経由の入口のみ）。
 - `loop_cond_break_continue`: LoopCondSkeleton + (ExitIfMap/ConditionalUpdate/CarrierMerge/GuardBreak) を Feature 化して肥大化を防ぐ
 - `ExitBranch`（planned）: If/BranchN/Loop 内の “exit 付きブランチ” を共通 feature として抽出し、exit_if/match/loop の重複を減らす（“例外パターンの堆積” を防ぐ）
