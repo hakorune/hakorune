@@ -52,6 +52,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - allocator / collection / runtime substrate capability ladder owner
 - `design/hako-alloc-policy-state-contract-ssot.md`
   - allocator policy/state owner vs native metal keep stop-line owner
+- `design/hako-thread-substrate-boundary-ssot.md`
+  - `.hako` source-level concurrency, runtime ThreadApi substrate, and
+    allocator pthread benchmark claim boundary owner
 - `design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - pure-first/selfhost MIR artifact exactness, route preflight, and no-output diagnostics owner
 - `design/hakorune-provider-package-abi-v1-future-ssot.md`
@@ -113,6 +116,7 @@ Rule:
   - Hotline CoreMethodContract（zero-cost hot-line / method contract migration SSOT）: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
   - Substrate Capability Ladder（allocator/collection/runtime substrate parent SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+  - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 

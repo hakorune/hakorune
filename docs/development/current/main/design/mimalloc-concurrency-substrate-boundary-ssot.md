@@ -7,6 +7,7 @@ Scope: mimalloc-facing concurrency substrate vs user-facing concurrency language
 Related:
 - `docs/reference/concurrency/semantics.md`
 - `docs/reference/concurrency/lock_scoped_worker_local.md`
+- `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
 - `docs/reference/runtime/substrate-capabilities.md`
 - `docs/reference/mir/metadata-facts-ssot.md`
 - `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
@@ -201,3 +202,23 @@ no source-level worker_local / lock<T> / Channel / co / task_scope
 no provider hook / host allocator replacement / #[global_allocator]
 no backend .inc special-case
 ```
+
+## Pthread Benchmark Claim Boundary
+
+C pthread and std::thread allocator smokes are native execution evidence, not
+`.hako` source-level thread support.
+
+Replacement-front pthread reports should read:
+
+```text
+benchmark_thread_origin=c_pthread
+concurrency_surface_claim=not_applicable
+hako_source_thread_support_claim=0
+allocator_threading_evidence=c_side
+nowait_os_thread_spawn=0
+c_pthread_benchmark_hako_thread_support_claim=0
+```
+
+If a future report uses `.hako` runtime scheduling, it must say so explicitly
+with `benchmark_thread_origin=hako_scheduler` or a narrower accepted value. Do
+not infer that from allocator pthread evidence.

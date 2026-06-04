@@ -945,6 +945,28 @@ thread_local_replacement_front_tls_asm_probe_2026_06_05:
   selected_owner=thread_local_replacement_front_free_slot_index_decode
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+thread_substrate_boundary_docs_2026_06_05:
+  status=landed
+  task_kind=docs_report_only
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  related_docs=docs/reference/concurrency/semantics.md,docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md,docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md
+  nowait_os_thread_spawn=0
+  c_pthread_benchmark_hako_thread_support_claim=0
+  benchmark_thread_origin=c_pthread
+  hako_source_thread_support_claim=0
+  allocator_threading_evidence=c_side
+  worker_local_is_allocator_substrate=1
+  scoped_context_is_task_local=1
+  behavior_change=0
+  source_syntax_expansion=0
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  next_thread_task=THREAD-API-001
+  next_thread_task_scope=add_ThreadApi_yield_now_current_thread_id_and_route_runtime_policy_yields_through_ThreadApi
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

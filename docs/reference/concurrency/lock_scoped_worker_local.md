@@ -15,6 +15,8 @@ Related SSOT:
 - `docs/reference/language/variables-and-scope.md` (locals / lexical scope)
 - `docs/reference/concurrency/semantics.md` (current implementation status, `co` / `task_scope`, `nowait` / `await`, channels)
 - Pre-selfhost execution plan (VM+LLVM): `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
+- Thread substrate / benchmark claim boundary:
+  `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
 - Mimalloc allocator substrate cut:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 

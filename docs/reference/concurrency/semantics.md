@@ -8,6 +8,7 @@ See also:
 - `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md` (implementation rows and compatibility archive rule)
 - `docs/reference/concurrency/lock_scoped_worker_local.md` (`lock` / `scoped` / `worker_local` historical/provisional state-model notes)
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md` (VM+LLVM execution ledger and historical phase provenance)
+- `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md` (`nowait` vs OS thread substrate and benchmark claim boundary)
 
 ## Implementation Status
 
@@ -30,10 +31,15 @@ Mimalloc reading:
 - This table is the user-facing concurrency surface status.
 - Mimalloc migration reads allocator substrate requirements from
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`.
+- Runtime/thread benchmark claim boundaries are owned by
+  `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`.
 - Internal worker-local/TLS cache slots, atomics, OSVM, and thread-safe
   `hako_mem` ABI are runtime/backend substrate rows; they do not imply that
   source-level `worker_local`, `lock<T>`, channels, task scopes, or true
   parallel language semantics are active.
+- C pthread replacement-front benchmarks are allocator execution evidence only:
+  `benchmark_thread_origin=c_pthread`,
+  `hako_source_thread_support_claim=0`, and `nowait_os_thread_spawn=0`.
 
 ## CONC Vocabulary
 
@@ -47,6 +53,9 @@ Mimalloc reading:
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
+- `nowait` is not an OS-thread spawn contract. Runtime scheduling may later
+  choose worker-pool execution for eligible tasks, but source meaning stays
+  Future/task ownership.
 - The structured-concurrency source surface should be read as `co`.
 - `task_scope` is the compatibility spelling and semantic/runtime wording.
 - The current runtime scaffold behind that scope is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`.

@@ -7,6 +7,8 @@ Related:
 - Current concurrency semantic SSOT + implementation status: `docs/reference/concurrency/semantics.md`
 - Boundary-model SSOT: `docs/reference/concurrency/boundary-model.md`
 - Historical/provisional state-model notes (`lock` / `scoped` / `worker_local`): `docs/reference/concurrency/lock_scoped_worker_local.md`
+- Thread substrate / benchmark claim boundary:
+  `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
 - Long-term note (deferred): `docs/development/current/main/design/exception-cleanup-async.md`（state-machine lowering）
 - Current lowering: `src/mir/builder/stmts/async_stmt.rs`
 - LLVM harness runner: `tools/run_llvm_harness.sh`
@@ -27,6 +29,9 @@ Current status policy:
 
 Non-goals (この文書で今すぐやらない):
 - “真の並列性” の保証（スレッド/ワーカープールの意味論化）
+- `nowait` を OS thread spawn として再定義すること
+- C pthread / std::thread benchmark を `.hako` source-level thread support
+  の証拠として読むこと
 - 例外 + cleanup + async を統合した state-machine lowering（Phase 260 以降に委譲）
 
 ### Historical structured-scope follow-ups (Phase 242x-255x)
@@ -87,6 +92,8 @@ Repro (LLVM harness):
 - `nowait fut = expr` は “Future 値を得る” 構文である。
 - Phase-0 では `expr` の評価は **順次でもよい**（実装は future を “resolved” として作っても良い）。
 - `nowait` が “スレッド” を意味する仕様にはしない。
+- Future route vocabulary and OS-thread substrate boundaries are owned by
+  `hako-thread-substrate-boundary-ssot.md`.
 
 ### 2.2 `await`
 - `await fut` は fut が完了していれば値を返す。未完了なら Phase-0 では待つ（実装は即完了のみでもよい）。
