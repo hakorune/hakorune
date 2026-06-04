@@ -19,6 +19,10 @@ replacement_front_report.py:
   replacement-front product activation/preflight report fields only;
   no shim generation, no Provider ABI calls, no allocator behavior changes
 
+replacement_front_smokes.py:
+  focused non-activating replacement-front C smoke build/run/assert logic;
+  no product activation report fields, no subject orchestration
+
 replacement_front_templates.py:
   benchmark-only replacement-front C templates, deterministic workload helpers,
   and .hako SizeClassBox mirror helpers
