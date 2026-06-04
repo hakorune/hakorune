@@ -315,6 +315,25 @@ hotcore_unreachable_bin_default_probe:
   host_passthrough_count_total=8
   decision=nonkeeper
 
+provider_gap_refresh_2026_06_04:
+  exact_front_report=target/mimalloc-opt-refresh/direct-exact-repeat8192.out
+  direct_exact_hako_body_elapsed_ns=3,000,000
+  direct_exact_c_mimalloc_body_elapsed_ns=3,271,981
+  direct_exact_body_elapsed_ratio=0.917
+  provider_host_report=target/mimalloc-opt-refresh/provider-host-refresh-gap-s5.out
+  provider_host_median_ops_per_sec=5,721,593.006
+  provider_host_vs_mimalloc_ratio=0.446
+  provider_host_init_real_fallback_per_provider_operation=1.157
+  direct_libc_probe_report=target/mimalloc-opt-refresh/provider-host-direct-libc-gap-s5.out
+  direct_libc_probe_median_ops_per_sec=5,144,681.300
+  direct_libc_probe_vs_mimalloc_ratio=0.414
+  direct_libc_probe_init_real_fallback_per_provider_operation=0.765
+  direct_libc_probe_decision=nonkeeper_reverted
+  native_slot_thread_probe=target/mimalloc-opt-refresh/provider-native-slot-lockonly-assume-gap-s5.out
+  native_slot_thread_probe_decision=nonkeeper_reverted_invalid_pointer_under_ldpreload_threads
+  selected_next_owner=provider_alloc_free_internal_real_malloc_boundary
+  selected_next_action=split provider ABI/shim boundary before another host-wrapper C-shape probe
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
