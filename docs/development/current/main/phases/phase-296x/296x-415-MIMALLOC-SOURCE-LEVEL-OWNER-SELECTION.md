@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-296x/296x-414-MIMALLOC-SOURCE-LEVEL-OWNER-REFRESH.md
   - lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako
   - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
+  - docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
 ---
 
 # 296x-415 Mimalloc Source-Level Owner Selection
@@ -76,6 +77,17 @@ keeper but does not select host-backed provider C-shape work for thread
 performance; the next threaded owner is thread-local or pure-provider allocator
 shape. Provider activation, product replacement, hooks, global allocator, and
 winner claims remain closed.
+
+Route taxonomy is mandatory for this note:
+
+```text
+provider_ldpreload_measurement_route=provider_host_adapter_ldpreload
+provider_ldpreload_hako_hot_path_claim=0
+hako_mimalloc_thread_hot_path_claim=0
+```
+
+This is provider ABI / shim / host-backed adapter evidence, not `.hako`
+mimalloc object-lifecycle thread hot-path evidence.
 
 ## Forbidden
 

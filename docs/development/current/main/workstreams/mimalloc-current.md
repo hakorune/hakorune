@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
   - docs/development/current/main/design/current-docs-archive-policy-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
+  - docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
   - docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md
@@ -424,6 +425,15 @@ provider_host_claim_mainline_refresh_2026_06_04:
 
 provider_host_claim_mainline_thread_refresh_2026_06_04:
   tls_guard_change=provider_ldpreload_in_provider_call_guard_is_thread_local
+  provider_benchmark_front_class=provider_host_adapter
+  provider_ldpreload_measurement_route=provider_host_adapter_ldpreload
+  provider_ldpreload_hako_hot_path_claim=0
+  provider_ldpreload_hako_object_lifecycle_hot_path=0
+  provider_ldpreload_hako_object_lifecycle_metadata_only=1
+  provider_manifest_hako_provider_alloc_free_route=host_malloc_free_wrapper
+  provider_manifest_hako_provider_alloc_free_uses_host_malloc=1
+  provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle=0
+  provider_manifest_hako_provider_object_lifecycle_entrypoint_usage=metadata_verification_only
   thread2_report=target/mimalloc-opt-refresh/provider-host-claim-mainline-tls-guard-thread2-gap-s5.out
   thread2_provider_median_ops_per_sec=11,056,504.265
   thread2_provider_vs_mimalloc_ratio=1.077
@@ -441,6 +451,8 @@ provider_host_claim_mainline_thread_refresh_2026_06_04:
   provider_runtime_real_fallback_count_total=0
   replacement_front_is_full_hako_algorithm=0
   replacement_front_multithread_claim=0
+  hako_mimalloc_thread_hot_path_claim=0
+  provider_host_adapter_thread_evidence=1
   provider_activation=0
   production_replacement_active=0
   hook_installed=0

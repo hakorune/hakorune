@@ -491,6 +491,68 @@ def load_manifest_metadata(path: Path | None) -> dict[str, str]:
     }
 
 
+def provider_ldpreload_route_metadata(metadata: dict[str, str]) -> dict[str, str]:
+    if not metadata:
+        return {}
+
+    allocator_kind = metadata.get("provider_manifest_provider_allocator_kind", "unknown")
+    alloc_free_route = metadata.get(
+        "provider_manifest_hako_provider_alloc_free_route", "unknown"
+    )
+    uses_host_malloc = metadata.get(
+        "provider_manifest_hako_provider_alloc_free_uses_host_malloc", "unknown"
+    )
+    uses_hako_object_lifecycle = metadata.get(
+        "provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle",
+        "unknown",
+    )
+    entrypoint_usage = metadata.get(
+        "provider_manifest_hako_provider_object_lifecycle_entrypoint_usage",
+        "unknown",
+    )
+
+    route = "provider_ldpreload_unknown"
+    hako_hot_path = "0"
+    metadata_only = "0"
+    if (
+        allocator_kind == "host_backed_adapter"
+        or alloc_free_route == "host_malloc_free_wrapper"
+        or uses_host_malloc == "1"
+    ):
+        route = "provider_host_adapter_ldpreload"
+    elif uses_hako_object_lifecycle == "1":
+        route = "provider_hako_object_lifecycle_ldpreload"
+        hako_hot_path = "1"
+    elif allocator_kind == "pure_allocator":
+        route = "provider_pure_allocator_ldpreload"
+
+    if entrypoint_usage == "metadata_verification_only":
+        metadata_only = "1"
+        hako_hot_path = "0"
+
+    return {
+        "provider_ldpreload_measurement_route": route,
+        "provider_ldpreload_provider_allocator_kind": allocator_kind,
+        "provider_ldpreload_alloc_free_route": alloc_free_route,
+        "provider_ldpreload_uses_host_malloc": uses_host_malloc,
+        "provider_ldpreload_uses_hako_object_lifecycle": uses_hako_object_lifecycle,
+        "provider_ldpreload_object_lifecycle_entrypoint_usage": entrypoint_usage,
+        "provider_ldpreload_hako_hot_path_claim": hako_hot_path,
+        "provider_ldpreload_hako_object_lifecycle_hot_path": hako_hot_path,
+        "provider_ldpreload_hako_object_lifecycle_metadata_only": metadata_only,
+    }
+
+
+def provider_front_class(route: str) -> str:
+    if route == "provider_host_adapter_ldpreload":
+        return "provider_host_adapter"
+    if route == "provider_hako_object_lifecycle_ldpreload":
+        return "provider_pure_object_lifecycle_bridge"
+    if route == "provider_pure_allocator_ldpreload":
+        return "provider_pure_allocator"
+    return "provider_unknown"
+
+
 def format_per_operation(numerator: int, denominator: int) -> str:
     if denominator <= 0:
         return "0.000000"
@@ -835,6 +897,7 @@ def main() -> int:
     provider_manifest_metadata = load_manifest_metadata(
         args.manifest.resolve() if args.manifest else None
     )
+    provider_route_metadata = provider_ldpreload_route_metadata(provider_manifest_metadata)
 
     provider_shim: Path | None = None
     provider_binary: Path | None = None
@@ -1236,9 +1299,13 @@ def main() -> int:
         )
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")
+    for key in sorted(provider_route_metadata):
+        lines.append(f"{key}={provider_route_metadata[key]}")
     if args.manifest is not None:
         lines.extend(
             [
+                "provider_ldpreload_benchmark_front_class="
+                f"{provider_front_class(provider_route_metadata.get('provider_ldpreload_measurement_route', ''))}",
                 "provider_ldpreload_measurement_interpretation=provider_abi_wrapper_and_shim_bridge",
                 "provider_ldpreload_is_product_allocator_claim=0",
                 "provider_ldpreload_is_hako_core_speed_claim=0",
@@ -1247,9 +1314,29 @@ def main() -> int:
     for index, (subject, _ld_preload, _provider, replacement_front_mode) in enumerate(subject_specs):
         samples, counters = reports[subject]
         median = median_float(samples)
+        if subject == "system_malloc":
+            front_class = "system_malloc"
+            hako_hot_path_claim = "0"
+        elif subject == "c_mimalloc_ldpreload":
+            front_class = "c_mimalloc_ldpreload"
+            hako_hot_path_claim = "0"
+        elif subject == "hakorune_provider_ldpreload":
+            route = provider_route_metadata.get("provider_ldpreload_measurement_route", "")
+            front_class = provider_front_class(route)
+            hako_hot_path_claim = provider_route_metadata.get(
+                "provider_ldpreload_hako_hot_path_claim", "0"
+            )
+        elif replacement_front_mode:
+            front_class = "replacement_front_c_shim"
+            hako_hot_path_claim = "0"
+        else:
+            front_class = "unknown"
+            hako_hot_path_claim = "0"
         lines.extend(
             [
                 f"subject_{index}_id={subject}",
+                f"subject_{index}_benchmark_front_class={front_class}",
+                f"subject_{index}_hako_hot_path_claim={hako_hot_path_claim}",
                 f"subject_{index}_throughput_min_ops_per_sec={min(samples):.3f}",
                 f"subject_{index}_throughput_median_ops_per_sec={median:.3f}",
                 f"subject_{index}_throughput_max_ops_per_sec={max(samples):.3f}",

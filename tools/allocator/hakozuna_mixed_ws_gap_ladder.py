@@ -151,6 +151,15 @@ def emit_summary(compare_report: Path, out: Path) -> None:
     ]
 
     for key in (
+        "provider_ldpreload_measurement_route",
+        "provider_ldpreload_provider_allocator_kind",
+        "provider_ldpreload_alloc_free_route",
+        "provider_ldpreload_uses_host_malloc",
+        "provider_ldpreload_uses_hako_object_lifecycle",
+        "provider_ldpreload_object_lifecycle_entrypoint_usage",
+        "provider_ldpreload_hako_hot_path_claim",
+        "provider_ldpreload_hako_object_lifecycle_hot_path",
+        "provider_ldpreload_hako_object_lifecycle_metadata_only",
         "provider_manifest_hako_semantic_provider_codegen",
         "provider_manifest_hako_provider_object_lifecycle_entrypoint_verified",
         "provider_manifest_hako_provider_alloc_free_route",
@@ -170,6 +179,8 @@ def emit_summary(compare_report: Path, out: Path) -> None:
 
     if provider is not None:
         provider_median = float(provider["throughput_median_ops_per_sec"])
+        provider_front_class = provider.get("benchmark_front_class", "unknown")
+        provider_hako_hot_path_claim = provider.get("hako_hot_path_claim", "0")
         provider_ops = as_int(provider, "shim_provider_operation_count_total")
         init_fallback = as_int(provider, "shim_init_real_fallback_count_total")
         init_fallback_in_provider = as_int(
@@ -207,6 +218,8 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         lines.extend(
             [
                 f"provider_median_ops_per_sec={provider_median:.3f}",
+                f"provider_benchmark_front_class={provider_front_class}",
+                f"provider_hako_hot_path_claim={provider_hako_hot_path_claim}",
                 f"provider_vs_mimalloc_ratio={ratio(provider_median, mimalloc_median)}",
                 "provider_slower_than_mimalloc_percent="
                 f"{slower_percent(provider_median, mimalloc_median)}",

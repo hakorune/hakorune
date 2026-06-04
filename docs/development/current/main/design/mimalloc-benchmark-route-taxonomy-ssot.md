@@ -1,0 +1,142 @@
+---
+Status: Active
+Date: 2026-06-04
+Scope: Mimalloc benchmark route taxonomy and report keys.
+Related:
+  - docs/development/current/main/workstreams/mimalloc-current.md
+  - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
+  - docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
+  - tools/allocator/hako_mimalloc_direct_exact_pair.sh
+  - tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py
+  - tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+---
+
+# Mimalloc Benchmark Route Taxonomy
+
+## Decision
+
+Mimalloc evidence must name the measured hot route explicitly. A report must
+not be interpreted as `.hako` mimalloc hot-path evidence just because it loaded
+a `.hako`-derived provider package.
+
+## Routes
+
+```text
+hako_direct_exact_body:
+  .hako object-lifecycle body timing against the paired C mimalloc body
+  no provider ABI
+  no LD_PRELOAD replacement claim
+
+provider_host_adapter_ldpreload:
+  LD_PRELOAD malloc-family shim calls a provider ABI table
+  provider allocator kind is host_backed_adapter
+  alloc/free storage comes from the HostAllocator vtable / host malloc
+  .hako object-lifecycle entrypoint may be generated and verified as metadata
+  but it is not the alloc/free hot path
+
+provider_hako_object_lifecycle_ldpreload:
+  LD_PRELOAD malloc-family shim calls a provider ABI table
+  provider alloc/free route consumes .hako object-lifecycle storage/lifecycle
+  this is the first provider route allowed to make a `.hako hot path` claim
+
+provider_pure_allocator_ldpreload:
+  LD_PRELOAD malloc-family shim calls a provider ABI table
+  provider owns allocation storage and pointer lifecycle without host malloc
+
+replacement_front_benchmark:
+  benchmark-only C replacement front
+  may mirror selected .hako shapes or size-class policy
+  `replacement_front_is_full_hako_algorithm=0` means it is not the full
+  product `.hako` mimalloc algorithm
+
+c_mimalloc_ldpreload:
+  same-machine C mimalloc LD_PRELOAD baseline
+```
+
+## Required Provider Route Keys
+
+Provider-backed LD_PRELOAD reports must expose these keys:
+
+```text
+provider_benchmark_front_class=
+  provider_host_adapter
+  | provider_pure_object_lifecycle_bridge
+  | provider_pure_allocator
+  | provider_unknown
+
+provider_ldpreload_measurement_route=
+  provider_host_adapter_ldpreload
+  | provider_hako_object_lifecycle_ldpreload
+  | provider_pure_allocator_ldpreload
+  | provider_ldpreload_unknown
+
+provider_ldpreload_provider_allocator_kind=
+  host_backed_adapter|pure_allocator|unknown
+
+provider_ldpreload_alloc_free_route=
+  host_malloc_free_wrapper|...|unknown
+
+provider_ldpreload_uses_host_malloc=0|1|unknown
+provider_ldpreload_uses_hako_object_lifecycle=0|1|unknown
+provider_ldpreload_object_lifecycle_entrypoint_usage=
+  metadata_verification_only|hot_path|unknown
+
+provider_ldpreload_hako_hot_path_claim=0|1
+provider_ldpreload_hako_object_lifecycle_hot_path=0|1
+provider_ldpreload_hako_object_lifecycle_metadata_only=0|1
+```
+
+Every subject row in a Hakozuna compare report should also expose:
+
+```text
+subject_N_benchmark_front_class=
+  system_malloc
+  | c_mimalloc_ldpreload
+  | provider_host_adapter
+  | provider_pure_object_lifecycle_bridge
+  | provider_pure_allocator
+  | replacement_front_c_shim
+  | unknown
+
+subject_N_hako_hot_path_claim=0|1
+```
+
+Interpretation rule:
+
+```text
+provider_ldpreload_hako_hot_path_claim=1
+```
+
+is allowed only when alloc/free storage or lifecycle is actually routed through
+the `.hako` object-lifecycle provider path. A generated or verified `.hako`
+entrypoint with `metadata_verification_only` is proof of package/codegen
+connectivity, not proof of `.hako` mimalloc hot-path speed.
+
+## Current Thread Evidence
+
+The current provider-host claim-mainline thread reports are route evidence for:
+
+```text
+provider_ldpreload_measurement_route=provider_host_adapter_ldpreload
+provider_ldpreload_hako_hot_path_claim=0
+provider_manifest_hako_provider_alloc_free_route=host_malloc_free_wrapper
+provider_manifest_hako_provider_alloc_free_uses_host_malloc=1
+provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle=0
+provider_manifest_hako_provider_object_lifecycle_entrypoint_usage=metadata_verification_only
+```
+
+Therefore they must not be summarized as `.hako mimalloc thread hot-path`
+benchmarks. They are valid provider ABI / shim / host-backed adapter benchmarks.
+
+## Next Clean Route
+
+To measure `.hako` mimalloc under threaded allocation pressure, open one of:
+
+```text
+provider_hako_object_lifecycle_ldpreload
+provider_pure_allocator_ldpreload
+thread_local_replacement_front_then_promote_to_provider_route
+```
+
+Do not continue optimizing `provider_host_adapter_ldpreload` as if it were the
+`.hako` object-lifecycle allocator body.
