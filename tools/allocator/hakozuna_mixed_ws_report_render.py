@@ -165,39 +165,12 @@ def render_hakozuna_mixed_ws_report(
             replacement_front_correctness_smoke = int(args.replacement_front_cross_thread_smoke)
 
     lines = build_report_preamble_lines(
-        {
-            "args": args,
-            "bench": bench,
-            "root": root,
-            "mimalloc_library": mimalloc_library,
-            "workload_histogram": workload_histogram,
-            "replacement_front_smokes": replacement_front_smokes,
+        locals()
+        | {
             "subject_count": len(subject_specs),
-            "provider_manifest_metadata": provider_manifest_metadata,
-            "provider_route_metadata": provider_route_metadata,
-            "measurement_quality": measurement_quality,
-            "min_observed_sample_seconds": min_observed_sample_seconds,
-            "median_observed_sample_seconds": median_observed_sample_seconds,
-            "replacement_front_size_class_policy_source": replacement_front_size_class_policy_source,
-            "replacement_front_product_pages_consumer_enabled": replacement_front_product_pages_consumer_enabled,
-            "replacement_front_algorithm_shape": replacement_front_algorithm_shape,
-            "replacement_front_product_bins_route": replacement_front_product_bins_route,
-            "replacement_front_product_pages_route": replacement_front_product_pages_route,
-            "replacement_front_product_pages_non_linear_lookup_selected": replacement_front_product_pages_non_linear_lookup_selected,
-            "replacement_front_preflight": replacement_front_preflight,
-            "replacement_front_page_bins_route": replacement_front_page_bins_route,
-            "replacement_front_page_bins_lookup_route": replacement_front_page_bins_lookup_route,
-            "replacement_front_size_class_bridge_enabled": replacement_front_size_class_bridge_enabled,
-            "replacement_front_size_class_bridge_mode": replacement_front_size_class_bridge_mode,
-            "replacement_front_evidence_owner": replacement_front_evidence_owner,
-            "replacement_front_multithread_perf_candidate": replacement_front_multithread_perf_candidate,
-            "replacement_front_thread_local_perf_candidate": replacement_front_thread_local_perf_candidate,
-            "replacement_front_correctness_smoke": replacement_front_correctness_smoke,
-            "replacement_slot_size": replacement_slot_size,
             "replacement_front_size_class_request_ceiling": replacement_front_size_class_request_ceiling,
             "replacement_front_size_class_selected_bin": replacement_front_size_class_selected_bin,
             "replacement_front_size_class_selected_good_size": replacement_front_size_class_selected_good_size,
-            "replacement_front_bins_mode": replacement_front_bins_mode,
         }
     )
     subject_lines = build_subject_lines(
