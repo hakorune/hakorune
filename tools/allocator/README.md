@@ -114,13 +114,17 @@ replacement_front_bins_templates.py:
   benchmark-only multi-bin replacement-front C template generation; no runner
   logic or report fields
 
+replacement_front_shim_templates.py:
+  benchmark-only replacement-front shim raw C source only; no runner logic or
+  report fields
+
 hakozuna_mixed_ws_report_support.py:
   manifest decoding, route classification, and report-only math helpers;
   no benchmark execution logic
 
 replacement_front_templates.py:
-  benchmark-only replacement-front fixed-slot shim template and smoke/support
-  re-export facade; no multi-bin generation
+  benchmark-only replacement-front fixed-slot facade exports and smoke/support
+  re-exports; no raw shim source or multi-bin generation
 ```
 
 Before claiming that an allocator benchmark is measuring the full `.hako`
