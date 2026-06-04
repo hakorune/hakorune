@@ -394,6 +394,22 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"{replacement_front.get('replacement_front_product_activation_requires_remote_abandoned_counters', 'unknown')}",
                 "replacement_front_product_activation_requires_rollback_optout_plan="
                 f"{replacement_front.get('replacement_front_product_activation_requires_rollback_optout_plan', 'unknown')}",
+                "replacement_front_rollback_optout_plan_v0="
+                f"{replacement_front.get('replacement_front_rollback_optout_plan_v0', 'unknown')}",
+                "replacement_front_rollback_optout_env="
+                f"{replacement_front.get('replacement_front_rollback_optout_env', 'unknown')}",
+                "replacement_front_rollback_optout_env_value="
+                f"{replacement_front.get('replacement_front_rollback_optout_env_value', 'unknown')}",
+                "replacement_front_per_process_disable="
+                f"{replacement_front.get('replacement_front_per_process_disable', 'unknown')}",
+                "replacement_front_activation_mode="
+                f"{replacement_front.get('replacement_front_activation_mode', 'unknown')}",
+                "replacement_front_activation_default="
+                f"{replacement_front.get('replacement_front_activation_default', 'unknown')}",
+                "replacement_front_activation_report_required="
+                f"{replacement_front.get('replacement_front_activation_report_required', 'unknown')}",
+                "replacement_front_rollback_report_path_required="
+                f"{replacement_front.get('replacement_front_rollback_report_path_required', 'unknown')}",
                 "replacement_front_product_activation_blockers="
                 f"{replacement_product_activation_blockers}",
                 f"replacement_front_benchmark_front_class={replacement_front_class}",

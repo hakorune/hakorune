@@ -1237,8 +1237,16 @@ def main() -> int:
         "replacement_front_product_activation_requires_cross_thread_policy=1",
         "replacement_front_product_activation_requires_remote_abandoned_counters=1",
         "replacement_front_product_activation_requires_rollback_optout_plan=1",
+        "replacement_front_rollback_optout_plan_v0=1",
+        "replacement_front_rollback_optout_env=HAKORUNE_REPLACEMENT_FRONT_DISABLE",
+        "replacement_front_rollback_optout_env_value=1",
+        "replacement_front_per_process_disable=1",
+        "replacement_front_activation_mode=explicit_only",
+        "replacement_front_activation_default=off",
+        "replacement_front_activation_report_required=1",
+        "replacement_front_rollback_report_path_required=1",
         "replacement_front_product_activation_blockers="
-        "benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan",
+        "benchmark_only,product_gate_closed,no_activation_row",
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
         "replacement_front_size_class_bridge_report_only=1",
@@ -1556,9 +1564,19 @@ def main() -> int:
                     f"{index}_replacement_front_product_activation_requires_remote_abandoned_counters=1",
                     "subject_"
                     f"{index}_replacement_front_product_activation_requires_rollback_optout_plan=1",
+                    f"subject_{index}_replacement_front_rollback_optout_plan_v0=1",
+                    "subject_"
+                    f"{index}_replacement_front_rollback_optout_env="
+                    "HAKORUNE_REPLACEMENT_FRONT_DISABLE",
+                    f"subject_{index}_replacement_front_rollback_optout_env_value=1",
+                    f"subject_{index}_replacement_front_per_process_disable=1",
+                    f"subject_{index}_replacement_front_activation_mode=explicit_only",
+                    f"subject_{index}_replacement_front_activation_default=off",
+                    f"subject_{index}_replacement_front_activation_report_required=1",
+                    f"subject_{index}_replacement_front_rollback_report_path_required=1",
                     "subject_"
                     f"{index}_replacement_front_product_activation_blockers="
-                    "benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan",
+                    "benchmark_only,product_gate_closed,no_activation_row",
                     f"subject_{index}_replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
                     f"subject_{index}_replacement_front_evidence_owner="
                     f"{replacement_front_evidence_owner}",

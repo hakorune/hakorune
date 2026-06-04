@@ -137,6 +137,14 @@ replacement_front_product_activation_requires_type_abi_hot_lookup_zero=1
 replacement_front_product_activation_requires_cross_thread_policy=1
 replacement_front_product_activation_requires_remote_abandoned_counters=1
 replacement_front_product_activation_requires_rollback_optout_plan=1
+replacement_front_rollback_optout_plan_v0=1
+replacement_front_rollback_optout_env=HAKORUNE_REPLACEMENT_FRONT_DISABLE
+replacement_front_rollback_optout_env_value=1
+replacement_front_per_process_disable=1
+replacement_front_activation_mode=explicit_only
+replacement_front_activation_default=off
+replacement_front_activation_report_required=1
+replacement_front_rollback_report_path_required=1
 replacement_front_product_activation_blockers=...
 ```
 
@@ -164,6 +172,13 @@ rollback / opt-out plan is documented
 ```
 
 Until then, the product route remains a descriptor candidate only.
+
+Rollback / opt-out plan v0 is a control-plane contract, not product activation.
+It reserves the default-off and per-process-disable controls that a future
+activation row must implement before flipping any hook/global allocator claim.
+After this plan is present, `no_rollback_optout_plan` must no longer be listed
+as an activation blocker; remaining blockers are product-gate and activation-row
+decisions.
 
 Interpretation rule:
 

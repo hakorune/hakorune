@@ -115,6 +115,23 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         values,
         ("replacement_front_product_activation_blockers",),
     )
+    replacement_front_rollback_optout_plan = pick(
+        values,
+        ("replacement_front_rollback_optout_plan_v0",),
+        default="0",
+    )
+    replacement_front_rollback_optout_env = pick(
+        values,
+        ("replacement_front_rollback_optout_env",),
+    )
+    replacement_front_activation_mode = pick(
+        values,
+        ("replacement_front_activation_mode",),
+    )
+    replacement_front_activation_default = pick(
+        values,
+        ("replacement_front_activation_default",),
+    )
 
     if (
         replacement_front_execution_route == "replacement_front_benchmark"
@@ -161,6 +178,12 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         f"replacement_front_product_claim={replacement_front_product_claim}",
         "replacement_front_product_activation_contract_v0="
         f"{replacement_front_product_activation_contract}",
+        "replacement_front_rollback_optout_plan_v0="
+        f"{replacement_front_rollback_optout_plan}",
+        "replacement_front_rollback_optout_env="
+        f"{replacement_front_rollback_optout_env}",
+        f"replacement_front_activation_mode={replacement_front_activation_mode}",
+        f"replacement_front_activation_default={replacement_front_activation_default}",
         "replacement_front_product_activation_blockers="
         f"{replacement_front_product_activation_blockers}",
         "summary=ok",

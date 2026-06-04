@@ -662,7 +662,7 @@ replacement_front_product_activation_contract_2026_06_05:
   requires_cross_thread_policy=1
   requires_remote_abandoned_counters=1
   requires_rollback_optout_plan=1
-  activation_blockers=benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan
+  activation_blockers_initial=benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan
   changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
   selected_next_owner=product_replacement_front_smoke_pack
   selected_next_action=add_non_activating_malloc_family_and_thread_safety_smokes
@@ -720,6 +720,29 @@ replacement_front_product_smoke_pack_long_quality_2026_06_05:
   global_allocator_product_claim=0
   selected_next_owner=product_replacement_rollback_optout_plan
   selected_next_action=document_rollback_optout_before_any_activation_row
+
+replacement_front_product_rollback_optout_plan_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-007
+  purpose=document_default_off_rollback_and_per_process_optout_before_any_product_activation_row
+  rollback_optout_plan_v0=1
+  rollback_optout_env=HAKORUNE_REPLACEMENT_FRONT_DISABLE
+  rollback_optout_env_value=1
+  per_process_disable=1
+  activation_mode=explicit_only
+  activation_default=off
+  activation_report_required=1
+  rollback_report_path_required=1
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  activation_blockers=benchmark_only,product_gate_closed,no_activation_row
+  removed_activation_blocker=no_rollback_optout_plan
+  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
+  selected_next_owner=product_replacement_activation_preflight
+  selected_next_action=add_non_activating_preflight_report
 
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
