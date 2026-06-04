@@ -1,5 +1,6 @@
 // Box helper exports.
 
+use crate::c_string::c_string_text;
 use nyash_rust::{
     box_trait::{BoolBox, NyashBox, StringBox},
     boxes::FloatBox,
@@ -54,15 +55,10 @@ pub(crate) fn string_literal_handle_from_text(text: &str) -> i64 {
 // Helper: build a StringBox from i8* and return a handle for AOT marshalling
 #[export_name = "nyash.box.from_i8_string"]
 pub extern "C" fn nyash_box_from_i8_string(ptr: *const i8) -> i64 {
-    use std::ffi::CStr;
-    if ptr.is_null() {
+    let Some(s) = c_string_text(ptr) else {
         return 0;
-    }
-    let c = unsafe { CStr::from_ptr(ptr) };
-    let s = match c.to_str() {
-        Ok(v) => v.to_string(),
-        Err(_) => return 0,
     };
+    let s = s.to_string();
     let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(StringBox::new(s.clone()));
     nyash_rust::runtime::global_hooks::gc_alloc(s.len() as u64);
     let h = handles::to_handle_arc(arc) as i64;
@@ -74,14 +70,8 @@ pub extern "C" fn nyash_box_from_i8_string(ptr: *const i8) -> i64 {
 // Used only from opt-in LLVM fast lowering.
 #[export_name = "nyash.box.from_i8_string_const"]
 pub extern "C" fn nyash_box_from_i8_string_const(ptr: *const i8) -> i64 {
-    use std::ffi::CStr;
-    if ptr.is_null() {
+    let Some(s) = c_string_text(ptr) else {
         return 0;
-    }
-    let c = unsafe { CStr::from_ptr(ptr) };
-    let s = match c.to_str() {
-        Ok(v) => v,
-        Err(_) => return 0,
     };
     string_literal_handle_from_text(s)
 }

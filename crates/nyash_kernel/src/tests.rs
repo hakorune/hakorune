@@ -1,5 +1,5 @@
 use super::*;
-use crate::test_support::{with_env_var, with_env_vars};
+use crate::test_support::{handle_registry_test_lock, with_env_var, with_env_vars};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     boxes::file::FileBox,
@@ -7,7 +7,6 @@ use nyash_rust::{
     runtime::{host_handles as handles, plugin_loader_v2::make_plugin_box_v2},
     value::NyashValue,
 };
-use std::ffi::CString;
 use std::sync::Arc;
 
 fn decode_string_like_handle(handle: i64) -> Option<String> {
@@ -130,8 +129,8 @@ unsafe extern "C" fn fake_str(
 
 #[path = "tests/filebox.rs"]
 mod filebox;
-#[path = "tests/mimalloc_parallel_substrate.rs"]
-mod mimalloc_parallel_substrate;
+#[path = "tests/mimalloc_parallel_stress.rs"]
+mod mimalloc_parallel_stress;
 #[path = "tests/string.rs"]
 mod string;
 
@@ -182,7 +181,7 @@ fn runtime_data_dispatch_array_negative_index_contract() {
     assert_eq!(nyash_runtime_data_push_hh(array_handle, -11), 1);
     assert_eq!(nyash_runtime_data_get_hh(array_handle, 0), -11);
 
-    // Legacy contract: negative index is immediate 0 (no handle allocation / no mutation).
+    // Compat contract: negative index is immediate 0 (no handle allocation / no mutation).
     assert_eq!(nyash_runtime_data_get_hh(array_handle, -1), 0);
     assert_eq!(nyash_runtime_data_has_hh(array_handle, -1), 0);
     assert_eq!(nyash_runtime_data_set_hhh(array_handle, -1, 99), 0);
@@ -357,13 +356,13 @@ fn array_get_hi_bool_returns_i64_contract() {
 }
 
 #[test]
-fn array_set_h_legacy_return_code_contract() {
+fn array_set_h_compat_return_code_contract() {
     use nyash_rust::boxes::array::ArrayBox;
 
     let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
     let array_handle = handles::to_handle_arc(array) as i64;
 
-    // Legacy ABI: set_h always reports completion via return=0.
+    // Compat ABI: set_h always reports completion via return=0.
     assert_eq!(nyash_array_set_h(array_handle, 0, 41), 0);
     assert_eq!(nyash_array_get_h(array_handle, 0), 41);
     assert_eq!(nyash_array_length_h(array_handle), 1);
@@ -516,6 +515,7 @@ fn handle_lifecycle_retain_h_zero_is_noop() {
 
 #[test]
 fn handle_lifecycle_retain_release_h_roundtrip() {
+    let _guard = handle_registry_test_lock();
     let object: Arc<dyn NyashBox> = Arc::new(StringBox::new("phase29y".to_string()));
     let handle = handles::to_handle_arc(object) as i64;
     assert!(handle > 0);
@@ -543,8 +543,9 @@ fn handle_lifecycle_retain_release_h_roundtrip() {
 }
 
 #[test]
-fn handle_lifecycle_legacy_release_alias_drops_handle() {
-    let object: Arc<dyn NyashBox> = Arc::new(StringBox::new("legacy".to_string()));
+fn handle_lifecycle_compat_release_alias_drops_handle() {
+    let _guard = handle_registry_test_lock();
+    let object: Arc<dyn NyashBox> = Arc::new(StringBox::new("compat".to_string()));
     let handle = handles::to_handle_arc(object) as i64;
     assert!(handles::get(handle as u64).is_some());
 
@@ -554,6 +555,7 @@ fn handle_lifecycle_legacy_release_alias_drops_handle() {
 
 #[test]
 fn handle_abi_borrowed_owned_conformance() {
+    let _guard = handle_registry_test_lock();
     // SSOT: args borrowed / return owned
     // - borrowed arg remains valid during callee execution
     // - return value must be independently releasable by caller
@@ -593,6 +595,7 @@ fn handle_abi_borrowed_owned_conformance() {
 
 #[test]
 fn handle_abi_borrowed_owned_multi_escape_conformance() {
+    let _guard = handle_registry_test_lock();
     // Matrix case: returned-owned handle can be re-borrowed/re-escaped and released independently.
     let object: Arc<dyn NyashBox> = Arc::new(StringBox::new("borrowed-owned-chain".to_string()));
     let borrowed_handle = handles::to_handle_arc(object) as i64;
@@ -620,6 +623,7 @@ fn handle_abi_borrowed_owned_multi_escape_conformance() {
 
 #[test]
 fn handle_abi_borrowed_owned_invalid_handles_are_noop() {
+    let _guard = handle_registry_test_lock();
     // Matrix case: invalid handle inputs never produce owned escapes and must not drop unrelated handles.
     let anchor: Arc<dyn NyashBox> = Arc::new(StringBox::new("borrowed-owned-anchor".to_string()));
     let anchor_handle = handles::to_handle_arc(anchor) as i64;

@@ -1,4 +1,5 @@
 use super::*;
+use crate::c_string::cstring;
 
 #[test]
 fn decode_i32_and_string_returns() {
@@ -20,7 +21,7 @@ fn decode_i32_and_string_returns() {
 
 #[test]
 fn env_box_new_i64x_creates_array_box() {
-    let type_name = CString::new("ArrayBox").expect("CString");
+    let type_name = cstring("ArrayBox");
     let handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(handle > 0, "expected ArrayBox handle");
     let object = handles::get(handle as u64).expect("handle must exist");
@@ -30,7 +31,7 @@ fn env_box_new_i64x_creates_array_box() {
 #[test]
 fn env_box_new_i64x_creates_file_box() {
     ensure_test_ring0();
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(handle > 0, "expected FileBox handle");
     let object = handles::get(handle as u64).expect("handle must exist");
@@ -44,7 +45,7 @@ fn filebox_direct_open_read_roundtrip() {
     let tmp_path = "/tmp/nyash_kernel_filebox_read_roundtrip.txt";
     std::fs::write(tmp_path, "kernel-filebox-read").expect("seed file");
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -71,7 +72,7 @@ fn filebox_direct_open_write_roundtrip() {
     let tmp_path = "/tmp/nyash_kernel_filebox_write_roundtrip.txt";
     let _ = std::fs::remove_file(tmp_path);
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -98,7 +99,7 @@ fn filebox_open_hhh_succeeds_with_explicit_read_mode() {
     let tmp_path = "/tmp/nyash_kernel_filebox_open_hhh_read.txt";
     std::fs::write(tmp_path, "kernel-filebox-open-hhh-read").expect("seed file");
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -129,7 +130,7 @@ fn filebox_open_hhh_succeeds_with_explicit_write_mode() {
     let tmp_path = "/tmp/nyash_kernel_filebox_open_hhh_write.txt";
     let _ = std::fs::remove_file(tmp_path);
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -165,7 +166,7 @@ fn filebox_open_hhh_returns_zero_for_invalid_receiver() {
 fn filebox_open_hhh_returns_zero_for_invalid_string_handles() {
     ensure_test_ring0();
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -188,7 +189,7 @@ fn filebox_read_h_returns_string_handle_after_open() {
     let tmp_path = "/tmp/nyash_kernel_filebox_read_h_roundtrip.txt";
     std::fs::write(tmp_path, "kernel-filebox-read-h").expect("seed file");
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -222,7 +223,7 @@ fn filebox_read_h_returns_zero_for_invalid_receiver() {
 fn filebox_read_h_returns_zero_when_not_opened() {
     ensure_test_ring0();
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
     assert_eq!(nyash_file_read_h_export(filebox_handle), 0);
@@ -235,7 +236,7 @@ fn filebox_close_h_closes_open_file() {
     let tmp_path = "/tmp/nyash_kernel_filebox_close_h_roundtrip.txt";
     std::fs::write(tmp_path, "kernel-filebox-close-h").expect("seed file");
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -264,7 +265,7 @@ fn filebox_read_bytes_h_returns_array_handle_after_open() {
     let tmp_path = "/tmp/nyash_kernel_filebox_read_bytes_h_roundtrip.bin";
     std::fs::write(tmp_path, [65u8, 66u8, 67u8]).expect("seed bytes");
 
-    let type_name = CString::new("FileBox").expect("CString");
+    let type_name = cstring("FileBox");
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -304,11 +305,11 @@ fn filebox_by_name_open_is_retired() {
     ensure_test_ring0();
 
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
-        let type_name = CString::new("FileBox").expect("CString");
+        let type_name = cstring("FileBox");
         let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
         assert!(filebox_handle > 0, "expected FileBox handle");
 
-        let method = CString::new("open").expect("CString");
+        let method = cstring("open");
         let path_handle = string_handle("/tmp/nyash_kernel_filebox_by_name_open_retired.txt");
         let mode_handle = string_handle("r");
         let result = nyash_plugin_invoke_by_name_i64(
@@ -330,7 +331,7 @@ fn filebox_by_name_read_bytes_is_retired() {
         let tmp_path = "/tmp/nyash_kernel_filebox_by_name_read_bytes_retired.bin";
         std::fs::write(tmp_path, [65u8, 66u8]).expect("seed bytes");
 
-        let type_name = CString::new("FileBox").expect("CString");
+        let type_name = cstring("FileBox");
         let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
         assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -341,7 +342,7 @@ fn filebox_by_name_read_bytes_is_retired() {
             1
         );
 
-        let method = CString::new("readBytes").expect("CString");
+        let method = cstring("readBytes");
         let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
         assert_eq!(
             result, 0,
@@ -363,7 +364,7 @@ fn filebox_by_name_write_is_retired() {
         let tmp_path = "/tmp/nyash_kernel_filebox_by_name_write_retired.txt";
         let _ = std::fs::remove_file(tmp_path);
 
-        let type_name = CString::new("FileBox").expect("CString");
+        let type_name = cstring("FileBox");
         let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
         assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -374,7 +375,7 @@ fn filebox_by_name_write_is_retired() {
             1
         );
 
-        let method = CString::new("write").expect("CString");
+        let method = cstring("write");
         let data_handle = string_handle("kernel-filebox-by-name-write");
         let result =
             nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 1, data_handle, 0);
@@ -395,7 +396,7 @@ fn filebox_by_name_close_is_retired() {
         let tmp_path = "/tmp/nyash_kernel_filebox_by_name_close_retired.txt";
         std::fs::write(tmp_path, "kernel-filebox-by-name-close").expect("seed file");
 
-        let type_name = CString::new("FileBox").expect("CString");
+        let type_name = cstring("FileBox");
         let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
         assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -406,7 +407,7 @@ fn filebox_by_name_close_is_retired() {
             1
         );
 
-        let method = CString::new("close").expect("CString");
+        let method = cstring("close");
         let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
         assert_eq!(result, 0, "close should no longer use builtin by_name keep");
 
@@ -422,7 +423,7 @@ fn filebox_by_name_read_is_retired() {
         let tmp_path = "/tmp/nyash_kernel_filebox_by_name_read_retired.txt";
         std::fs::write(tmp_path, "kernel-filebox-by-name-read").expect("seed file");
 
-        let type_name = CString::new("FileBox").expect("CString");
+        let type_name = cstring("FileBox");
         let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
         assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -433,7 +434,7 @@ fn filebox_by_name_read_is_retired() {
             1
         );
 
-        let method = CString::new("read").expect("CString");
+        let method = cstring("read");
         let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
         assert_eq!(result, 0, "read should no longer use builtin by_name keep");
 
@@ -452,7 +453,7 @@ fn filebox_by_name_write_bytes_is_retired() {
         let tmp_path = "/tmp/nyash_kernel_filebox_write_bytes_retired.bin";
         let _ = std::fs::remove_file(tmp_path);
 
-        let type_name = CString::new("FileBox").expect("CString");
+        let type_name = cstring("FileBox");
         let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
         assert!(filebox_handle > 0, "expected FileBox handle");
 
@@ -466,7 +467,7 @@ fn filebox_by_name_write_bytes_is_retired() {
         bytes.push(Box::new(StringBox::new("A".to_string())));
         let bytes_handle = handles::to_handle_arc(Arc::new(bytes)) as i64;
 
-        let method = CString::new("writeBytes").expect("CString");
+        let method = cstring("writeBytes");
         let result =
             nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 1, bytes_handle, 0);
         assert_eq!(
@@ -487,7 +488,7 @@ fn instancebox_by_name_get_field_is_retired() {
 
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let inst_handle = instancebox_handle_with_field("x", NyashValue::Integer(42));
-        let method = CString::new("getField").expect("CString");
+        let method = cstring("getField");
         let field_handle = string_handle("x");
         let result =
             nyash_plugin_invoke_by_name_i64(inst_handle, method.as_ptr(), 1, field_handle, 0);
@@ -504,7 +505,7 @@ fn instancebox_by_name_set_field_is_retired() {
 
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let inst_handle = instancebox_handle_with_field("x", NyashValue::Integer(1));
-        let method = CString::new("setField").expect("CString");
+        let method = cstring("setField");
         let field_handle = string_handle("x");
         let value_handle =
             handles::to_handle_arc(Arc::new(nyash_rust::box_trait::IntegerBox::new(99))) as i64;

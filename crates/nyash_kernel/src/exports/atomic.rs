@@ -1,7 +1,7 @@
 // hako.atomic exports for pure-first EXE lowering.
 //
-// This is a narrow allocator-substrate seam. It owns fixed i64 atomic slots and
-// the first native pointer store/load/CAS routes only; generic atomics and
+// This is a narrow allocator route. It owns fixed i64 atomic slots and the
+// first native pointer store/load/CAS routes only; generic atomics and
 // allocator policy remain above it.
 
 use std::ffi::c_void;

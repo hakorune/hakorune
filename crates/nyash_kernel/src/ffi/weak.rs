@@ -1,5 +1,5 @@
 // Weak reference FFI functions
-// Phase 287 P4: Extracted from lib.rs for modularization
+// Extracted from lib.rs for modularization.
 
 /// nyrt_weak_new: Create weak reference from strong handle
 ///
@@ -12,7 +12,6 @@
 ///
 /// # SSOT
 /// - docs/reference/language/lifecycle.md:179
-/// - docs/development/current/main/phases/phase-285/phase-285llvm-1-design.md
 #[no_mangle]
 pub extern "C" fn nyrt_weak_new(strong_handle: i64) -> i64 {
     use nyash_rust::runtime::host_handles as handles;

@@ -3,8 +3,9 @@
 
 pub(crate) type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 pub(crate) type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
+#[cfg(test)]
+use parking_lot::ReentrantMutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
-#[cfg(not(test))]
 use std::sync::OnceLock;
 
 static FUTURE_SPAWN_INSTANCE_FN: AtomicUsize = AtomicUsize::new(0);
@@ -36,45 +37,9 @@ pub(crate) mod string_ops {
     pub const FROM_U64X2: i64 = 10;
 }
 
-fn stage1_string_dispatch_trace_enabled() -> bool {
-    #[cfg(test)]
-    {
-        std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
-            || std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
-                .ok()
-                .as_deref()
-                == Some("1")
-    }
-    #[cfg(not(test))]
-    {
-        static TRACE_ENABLED: OnceLock<bool> = OnceLock::new();
-        *TRACE_ENABLED.get_or_init(|| {
-            std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
-                || std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
-                    .ok()
-                    .as_deref()
-                    == Some("1")
-        })
-    }
-}
-
-fn string_op_name(op: i64) -> &'static str {
-    match op {
-        string_ops::LEN_H => "len_h",
-        string_ops::CHARCODE_AT_H => "charcode_at_h",
-        string_ops::CONCAT_HH => "concat_hh",
-        string_ops::CONCAT3_HHH => "concat3_hhh",
-        string_ops::EQ_HH => "eq_hh",
-        string_ops::SUBSTRING_HII => "substring_hii",
-        string_ops::INDEXOF_HH => "indexof_hh",
-        string_ops::LASTINDEXOF_HH => "lastindexof_hh",
-        string_ops::LT_HH => "lt_hh",
-        string_ops::FROM_U64X2 => "from_u64x2",
-        _ => "unknown",
-    }
-}
-
 pub(crate) fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -> Option<i64> {
+    #[cfg(test)]
+    let _guard = TEST_FORWARD_LOCK.lock();
     let raw = FUTURE_SPAWN_INSTANCE_FN.load(Ordering::Acquire);
     if raw == 0 {
         return None;
@@ -85,17 +50,35 @@ pub(crate) fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -
 
 #[inline(always)]
 pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
-    let dispatch = string_dispatch_fn()?;
+    #[cfg(test)]
+    let _guard = TEST_FORWARD_LOCK.lock();
+    let raw = string_dispatch_raw();
+    if raw == 0 {
+        return None;
+    }
+    let dispatch: HakoStringDispatchFn = unsafe { std::mem::transmute(raw) };
     let out = dispatch(op, a0, a1, a2);
-    if stage1_string_dispatch_trace_enabled() {
+    static TRACE_ENABLED: OnceLock<bool> = OnceLock::new();
+    if crate::env_flags::flag_any_on_cached(
+        &TRACE_ENABLED,
+        &["STAGE1_CLI_DEBUG", "HAKO_STAGE1_MODULE_DISPATCH_TRACE"],
+    ) {
+        let op_name = match op {
+            string_ops::LEN_H => "len_h",
+            string_ops::CHARCODE_AT_H => "charcode_at_h",
+            string_ops::CONCAT_HH => "concat_hh",
+            string_ops::CONCAT3_HHH => "concat3_hhh",
+            string_ops::EQ_HH => "eq_hh",
+            string_ops::SUBSTRING_HII => "substring_hii",
+            string_ops::INDEXOF_HH => "indexof_hh",
+            string_ops::LASTINDEXOF_HH => "lastindexof_hh",
+            string_ops::LT_HH => "lt_hh",
+            string_ops::FROM_U64X2 => "from_u64x2",
+            _ => "unknown",
+        };
         eprintln!(
             "[stage1/string_dispatch] op={}({}) a0={} a1={} a2={} out={}",
-            string_op_name(op),
-            op,
-            a0,
-            a1,
-            a2,
-            out
+            op_name, op, a0, a1, a2, out
         );
     }
     Some(out)
@@ -103,6 +86,8 @@ pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option
 
 #[inline(always)]
 pub(crate) fn string_dispatch_raw() -> usize {
+    #[cfg(test)]
+    let _guard = TEST_FORWARD_LOCK.lock();
     #[cfg(test)]
     {
         let raw = STRING_DISPATCH_FN.load(Ordering::Relaxed);
@@ -122,22 +107,9 @@ pub(crate) fn string_dispatch_raw() -> usize {
     }
 }
 
-#[inline(always)]
-pub(crate) fn string_len_dispatch_probe_raw() -> usize {
-    STRING_DISPATCH_FN.load(Ordering::Relaxed)
-}
-
-#[inline(always)]
-pub(crate) fn string_dispatch_fn() -> Option<HakoStringDispatchFn> {
-    let raw = string_dispatch_raw();
-    if raw == 0 {
-        None
-    } else {
-        Some(unsafe { std::mem::transmute(raw) })
-    }
-}
-
 pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn>) -> i64 {
+    #[cfg(test)]
+    let _guard = TEST_FORWARD_LOCK.lock();
     let raw = f.map(|fp| fp as usize).unwrap_or(0);
     FUTURE_SPAWN_INSTANCE_FN.store(raw, Ordering::Release);
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
@@ -145,24 +117,14 @@ pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn
 }
 
 pub(crate) fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
+    #[cfg(test)]
+    let _guard = TEST_FORWARD_LOCK.lock();
     let raw = f.map(|fp| fp as usize).unwrap_or(0);
     STRING_DISPATCH_FN.store(raw, Ordering::Release);
     #[cfg(not(test))]
     STRING_DISPATCH_STATE.store(if raw == 0 { 1 } else { 2 }, Ordering::Release);
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_string_dispatch(f) }
-}
-
-/// Mainline host-service fallback policy shared by hookable entrypoints.
-///
-/// This is the kernel/runtime-side Rust fallback policy.
-/// It is distinct from the runner-side `vm-compat-fallback` interpreter lane.
-///
-/// `NYASH_VM_USE_FALLBACK=0` means "do not execute Rust fallback routes"
-/// when a `.hako` hook is not registered.
-#[inline]
-pub(crate) fn rust_fallback_allowed() -> bool {
-    nyash_rust::config::env::vm_compat_fallback_allowed()
 }
 
 #[inline]
@@ -208,11 +170,11 @@ pub(crate) fn reset_for_tests() {
 }
 
 #[cfg(test)]
-static TEST_FORWARD_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+static TEST_FORWARD_LOCK: ReentrantMutex<()> = ReentrantMutex::new(());
 
 #[cfg(test)]
 pub(crate) fn with_test_reset<F: FnOnce()>(f: F) {
-    let _guard = TEST_FORWARD_LOCK.lock().expect("forward lock");
+    let _guard = TEST_FORWARD_LOCK.lock();
     reset_for_tests();
     f();
     reset_for_tests();

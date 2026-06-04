@@ -1,7 +1,7 @@
 // hako.tls cache-slot exports for pure-first EXE lowering.
 //
-// This is a narrow allocator-substrate seam. It owns per-thread i64 storage
-// only; language-level TLS cells and allocator policy remain above this layer.
+// This is a narrow allocator route. It owns per-thread i64 storage only;
+// language-level TLS cells and allocator policy remain above this layer.
 
 use std::cell::RefCell;
 

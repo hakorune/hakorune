@@ -8,7 +8,7 @@ observe counter, sink, or trace hook.
 
 ## Module Split
 
-- `mod.rs` owns the public in-crate recording facade. Callers should use these
+- `mod.rs` owns the public in-crate recording helpers. Callers should use these
   `record_*` helpers instead of reaching into backends or sinks.
 - `contract.rs` is the SSOT for counter family names, field names, snapshot
   ordering, and sink/test projection helpers.
@@ -24,7 +24,7 @@ When adding or moving a counter family:
 
 1. Add names and projection policy in `contract.rs`.
 2. Add storage and increment/flush behavior in the backend.
-3. Expose only the narrow `record_*` facade needed by call sites.
+3. Expose only the narrow `record_*` helpers needed by call sites.
 4. Format through `contract.rs` projections in sinks and tests.
 
 Do not let a sink, test, or call site become a second owner of snapshot layout.

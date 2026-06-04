@@ -59,6 +59,5 @@ pub(crate) fn flush_trace() {
     trace::flush();
 }
 
-#[cfg(not(feature = "perf-trace"))]
-#[allow(dead_code)] // Phase 291x-126: no-perf trace shim is intentionally callable only with perf-trace.
+#[cfg(all(not(test), not(feature = "perf-trace")))]
 pub(crate) fn flush_trace() {}

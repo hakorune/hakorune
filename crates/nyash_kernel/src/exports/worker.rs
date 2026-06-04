@@ -1,4 +1,4 @@
-//! hako.worker substrate exports for allocator-internal worker identity.
+//! hako.worker route exports for allocator-internal worker identity.
 //!
 //! This is a single-worker proof seam. It does not expose source-level worker
 //! identity semantics or a native thread pool.

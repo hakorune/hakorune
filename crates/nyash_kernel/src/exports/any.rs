@@ -1,6 +1,7 @@
 // Any box helpers.
 
 use super::string::{string_is_empty_from_handle, string_len_from_handle};
+use crate::c_string::c_string_text;
 
 #[export_name = "nyash.any.handle_live_h"]
 pub extern "C" fn nyash_any_handle_live_h_export(handle: i64) -> i64 {
@@ -19,7 +20,7 @@ pub extern "C" fn nyash_any_handle_live_h_export(handle: i64) -> i64 {
 #[export_name = "nyash.any.length_h"]
 pub extern "C" fn nyash_any_length_h_export(handle: i64) -> i64 {
     use nyash_rust::runtime::host_handles as handles;
-    if std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1") {
+    if crate::env_flags::jit_trace_len_enabled() {
         let present = if handle > 0 {
             handles::get(handle as u64).is_some()
         } else {
@@ -108,7 +109,7 @@ pub extern "C" fn nyash_any_is_empty_h_export(handle: i64) -> i64 {
     1
 }
 
-// ---- Type introspection (Phase 274 P2) ----
+// ---- Type introspection ----
 
 /// Runtime type check for TypeOp implementation
 /// Returns 1 if handle's runtime type matches type_name, 0 otherwise
@@ -122,14 +123,8 @@ pub extern "C" fn nyash_any_is_type_h(handle: i64, type_name_ptr: *const i8) -> 
     }
 
     // Parse type_name from C string
-    let type_name = unsafe {
-        if type_name_ptr.is_null() {
-            return 0;
-        }
-        match std::ffi::CStr::from_ptr(type_name_ptr).to_str() {
-            Ok(s) => s,
-            Err(_) => return 0,
-        }
+    let Some(type_name) = c_string_text(type_name_ptr) else {
+        return 0;
     };
 
     // Get object from handle registry

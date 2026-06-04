@@ -9,10 +9,16 @@ extern "C" {
     fn ny_core_array_len(type_id: i32, instance_id: u32) -> c_int;
 }
 
+#[inline]
+fn cstring_or_fallback(text: &str, fallback: &str) -> std::ffi::CString {
+    std::ffi::CString::new(text)
+        .unwrap_or_else(|_| std::ffi::CString::new(fallback).expect("fallback CString"))
+}
+
 /// Safe wrapper for core probe invoke (design-stage)
 pub fn core_probe_invoke(target: &str, method: &str, argc: i32) -> i32 {
-    let t = std::ffi::CString::new(target).unwrap_or_else(|_| std::ffi::CString::new("?").unwrap());
-    let m = std::ffi::CString::new(method).unwrap_or_else(|_| std::ffi::CString::new("?").unwrap());
+    let t = cstring_or_fallback(target, "?");
+    let m = cstring_or_fallback(method, "?");
     unsafe {
         ny_core_probe_invoke(
             t.as_ptr() as *const u8,
@@ -24,8 +30,8 @@ pub fn core_probe_invoke(target: &str, method: &str, argc: i32) -> i32 {
 
 /// MapBox.set stub (design-stage): returns 0 on success
 pub fn core_map_set(type_id: i32, instance_id: u32, key: &str, val: &str) -> i32 {
-    let k = std::ffi::CString::new(key).unwrap_or_else(|_| std::ffi::CString::new("").unwrap());
-    let v = std::ffi::CString::new(val).unwrap_or_else(|_| std::ffi::CString::new("").unwrap());
+    let k = cstring_or_fallback(key, "");
+    let v = cstring_or_fallback(val, "");
     unsafe {
         ny_core_map_set(
             type_id as i32,

@@ -1,9 +1,7 @@
-//! Phase 29y.1 Task 1: Handle ABI shim for lifecycle operations
+//! Handle ABI shim for lifecycle operations.
 //!
 //! This module provides unified handle lifecycle FFI functions.
 //! The naming uses `_h` suffix to distinguish from NyBox structure ABI.
-//!
-//! SSOT: docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md
 //!
 //! Handle ABI contract:
 //! - retain_h(h): h == 0 → return 0 (no-op), else return new handle to same object
@@ -56,16 +54,7 @@ pub extern "C" fn nyrt_handle_release_h(handle: i64) {
     }
 }
 
-// ============================================================================
-// Legacy name (backward compatibility)
-// ============================================================================
-
-/// ny_release_strong: Legacy name (backward compatibility)
-///
-/// Original name from Phase 287. Kept for backward compatibility with existing
-/// LLVM lowering code. Equivalent to nyrt_handle_release_h.
-///
-/// New code should prefer nyrt_handle_release_h for clarity.
+/// LLVM alias.
 #[no_mangle]
 pub extern "C" fn ny_release_strong(handle: i64) {
     nyrt_handle_release_h(handle);

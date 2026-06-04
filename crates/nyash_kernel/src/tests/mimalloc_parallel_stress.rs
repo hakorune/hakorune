@@ -76,7 +76,7 @@ fn drain_remote_free_stack(head: &AtomicUsize) -> (usize, usize) {
 }
 
 fn emit_stress_report(observed_remote_free_count: i64, drained_nodes: usize, payload_sum: usize) {
-    println!("mimalloc_parallel_substrate_stress=1");
+    println!("mimalloc_parallel_stress=1");
     println!("worker_count={WORKER_COUNT}");
     println!("iterations_per_worker={ITERATIONS_PER_WORKER}");
     println!(
@@ -120,7 +120,7 @@ fn pop_remote_free(head: &AtomicUsize) -> *mut c_void {
 }
 
 #[test]
-fn mimalloc_parallel_substrate_stress_exercises_native_worker_tls_atomic_and_remote_free() {
+fn mimalloc_parallel_stress_exercises_native_worker_tls_atomic_and_remote_free() {
     assert_eq!(
         hako_atomic_slot_store_i64(REMOTE_FREE_COUNT_SLOT, 0),
         HAKO_OK
@@ -133,9 +133,7 @@ fn mimalloc_parallel_substrate_stress_exercises_native_worker_tls_atomic_and_rem
     }
 
     for worker in workers {
-        worker
-            .join()
-            .expect("native substrate stress worker must finish");
+        worker.join().expect("native stress worker must finish");
     }
 
     let expected_count = (WORKER_COUNT * ITERATIONS_PER_WORKER) as i64;

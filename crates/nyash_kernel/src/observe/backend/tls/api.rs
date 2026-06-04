@@ -9,6 +9,28 @@ macro_rules! tls_zero_arg_api {
     };
 }
 
+macro_rules! tls_one_arg_api {
+    ($($name:ident => $method:ident : $ty:ty,)+) => {
+        $(
+            #[inline(always)]
+            pub(crate) fn $name(value: $ty) {
+                with_tls(|tls| tls.$method(value));
+            }
+        )+
+    };
+}
+
+macro_rules! tls_one_arg_bool_api {
+    ($($name:ident => $method:ident : $ty:ty,)+) => {
+        $(
+            #[inline(always)]
+            pub(crate) fn $name(value: $ty) -> bool {
+                TLS_COUNTERS.with(|tls| tls.$method(value))
+            }
+        )+
+    };
+}
+
 tls_zero_arg_api! {
     store_array_str_enter => store_array_str_enter,
     store_array_str_retarget_hit => store_array_str_retarget_hit,
@@ -135,104 +157,33 @@ tls_zero_arg_api! {
     borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any => borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any,
 }
 
-#[inline(always)]
-pub(crate) fn store_array_str_cache_probe(kind: CacheProbeKind) {
-    with_tls(|tls| tls.store_array_str_cache_probe(kind));
+tls_one_arg_api! {
+    store_array_str_cache_probe => store_array_str_cache_probe: CacheProbeKind,
+    birth_backend_materialize_owned => birth_backend_materialize_owned: u64,
+    birth_backend_string_box_new => birth_backend_string_box_new: u64,
+    birth_backend_string_box_ctor => birth_backend_string_box_ctor: u64,
+    birth_backend_objectize_stable_box_now => birth_backend_objectize_stable_box_now: u64,
+    birth_backend_gc_alloc => birth_backend_gc_alloc: u64,
+    birth_backend_site_string_concat_hh_materialize_owned => birth_backend_site_string_concat_hh_materialize_owned: u64,
+    birth_backend_site_string_substring_concat_hhii_materialize_owned => birth_backend_site_string_substring_concat_hhii_materialize_owned: u64,
+    birth_backend_site_const_suffix_materialize_owned => birth_backend_site_const_suffix_materialize_owned: u64,
+    birth_backend_site_freeze_text_plan_pieces3_materialize_owned => birth_backend_site_freeze_text_plan_pieces3_materialize_owned: u64,
+    mark_latest_fresh_handle => mark_latest_fresh_handle: i64,
 }
 
-#[inline(always)]
-pub(crate) fn birth_backend_materialize_owned(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_materialize_owned(bytes));
+tls_zero_arg_api! {
+    birth_backend_site_string_concat_hh_objectize_box => birth_backend_site_string_concat_hh_objectize_box,
+    birth_backend_site_string_concat_hh_publish_handle => birth_backend_site_string_concat_hh_publish_handle,
+    birth_backend_site_string_substring_concat_hhii_objectize_box => birth_backend_site_string_substring_concat_hhii_objectize_box,
+    birth_backend_site_string_substring_concat_hhii_publish_handle => birth_backend_site_string_substring_concat_hhii_publish_handle,
+    birth_backend_site_const_suffix_objectize_box => birth_backend_site_const_suffix_objectize_box,
+    birth_backend_site_const_suffix_publish_handle => birth_backend_site_const_suffix_publish_handle,
+    birth_backend_site_freeze_text_plan_pieces3_objectize_box => birth_backend_site_freeze_text_plan_pieces3_objectize_box,
+    birth_backend_site_freeze_text_plan_pieces3_publish_handle => birth_backend_site_freeze_text_plan_pieces3_publish_handle,
 }
 
-#[inline(always)]
-pub(crate) fn birth_backend_string_box_new(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_string_box_new(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_string_box_ctor(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_string_box_ctor(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_objectize_stable_box_now(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_objectize_stable_box_now(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_gc_alloc(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_gc_alloc(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_string_concat_hh_materialize_owned(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_site_string_concat_hh_materialize_owned(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_string_concat_hh_objectize_box() {
-    with_tls(ThreadCounters::birth_backend_site_string_concat_hh_objectize_box);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_string_concat_hh_publish_handle() {
-    with_tls(ThreadCounters::birth_backend_site_string_concat_hh_publish_handle);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_string_substring_concat_hhii_materialize_owned(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_site_string_substring_concat_hhii_materialize_owned(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_string_substring_concat_hhii_objectize_box() {
-    with_tls(ThreadCounters::birth_backend_site_string_substring_concat_hhii_objectize_box);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_string_substring_concat_hhii_publish_handle() {
-    with_tls(ThreadCounters::birth_backend_site_string_substring_concat_hhii_publish_handle);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_const_suffix_materialize_owned(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_site_const_suffix_materialize_owned(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_const_suffix_objectize_box() {
-    with_tls(ThreadCounters::birth_backend_site_const_suffix_objectize_box);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_const_suffix_publish_handle() {
-    with_tls(ThreadCounters::birth_backend_site_const_suffix_publish_handle);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_freeze_text_plan_pieces3_materialize_owned(bytes: u64) {
-    with_tls(|tls| tls.birth_backend_site_freeze_text_plan_pieces3_materialize_owned(bytes));
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_freeze_text_plan_pieces3_objectize_box() {
-    with_tls(ThreadCounters::birth_backend_site_freeze_text_plan_pieces3_objectize_box);
-}
-
-#[inline(always)]
-pub(crate) fn birth_backend_site_freeze_text_plan_pieces3_publish_handle() {
-    with_tls(ThreadCounters::birth_backend_site_freeze_text_plan_pieces3_publish_handle);
-}
-
-#[inline(always)]
-pub(crate) fn mark_latest_fresh_handle(handle: i64) {
-    with_tls(|tls| tls.mark_latest_fresh_handle(handle));
-}
-
-#[inline(always)]
-pub(crate) fn matches_latest_fresh_handle(handle: i64) -> bool {
-    TLS_COUNTERS.with(|tls| tls.matches_latest_fresh_handle(handle))
+tls_one_arg_bool_api! {
+    matches_latest_fresh_handle => matches_latest_fresh_handle: i64,
 }
 
 macro_rules! load {

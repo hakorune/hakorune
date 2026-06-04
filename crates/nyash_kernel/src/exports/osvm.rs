@@ -1,6 +1,6 @@
 // hako.osvm native virtual-memory exports for pure-first EXE lowering.
 //
-// These exports own only the narrow OSVM ABI used by substrate proof rows.
+// These exports own only the narrow OSVM ABI used by proof rows.
 // MIR owns route facts; allocator policy and pointer proof remain above this layer.
 
 use std::ffi::{c_int, c_void};

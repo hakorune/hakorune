@@ -46,8 +46,8 @@ pub extern "C" fn nyash_float_get_bits_h_export(h: i64) -> i64 {
     0
 }
 
-// Phase 275 C2: Float unbox helper for LLVM harness (Int+Float addition)
-// Returns f64 value from Float handle
+// Float unbox helper for LLVM harness (Int+Float addition).
+// Returns f64 value from a Float handle.
 #[export_name = "nyash.float.unbox_to_f64"]
 pub extern "C" fn nyash_float_unbox_to_f64(float_handle: i64) -> f64 {
     use nyash_rust::runtime::host_handles as handles;

@@ -2,26 +2,12 @@ use super::super::backend;
 use super::super::contract;
 use std::fmt::Write as _;
 
-fn append_counter_value(line: &mut String, name: &str, value: u64) {
-    let _ = write!(line, " {}={}", name, value);
-}
-
 fn append_counter_values(
     line: &mut String,
     values: impl IntoIterator<Item = contract::SnapshotCounterValue>,
 ) {
     for value in values {
-        append_counter_value(line, value.name, value.value);
-    }
-}
-
-fn append_snapshot_fields(
-    line: &mut String,
-    snapshot: &[u64],
-    fields: impl IntoIterator<Item = contract::SnapshotCounterField>,
-) {
-    for field in fields {
-        append_counter_value(line, field.name, field.read(snapshot));
+        let _ = write!(line, " {}={}", value.name, value.value);
     }
 }
 
@@ -77,41 +63,66 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::CONST_SUFFIX,
         contract::CONST_SUFFIX_TOTAL_FIELD.read(&snapshot)
     );
-    append_snapshot_fields(
+    append_counter_values(
         &mut const_suffix_line,
-        &snapshot,
-        contract::CONST_SUFFIX_SUMMARY_FIELDS.into_iter().skip(1),
+        contract::CONST_SUFFIX_SUMMARY_FIELDS
+            .into_iter()
+            .skip(1)
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     eprintln!("{}", const_suffix_line);
     let mut birth_placement_line = format!("[perf/counter][{}]", contract::BIRTH_PLACEMENT);
-    append_snapshot_fields(
+    append_counter_values(
         &mut birth_placement_line,
-        &snapshot,
-        contract::BIRTH_PLACEMENT_SUMMARY_FIELDS,
+        contract::BIRTH_PLACEMENT_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     eprintln!("{}", birth_placement_line);
     let mut birth_backend_line = format!("[perf/counter][{}]", contract::BIRTH_BACKEND);
-    append_snapshot_fields(
+    append_counter_values(
         &mut birth_backend_line,
-        &snapshot,
-        contract::BIRTH_BACKEND_CORE_SUMMARY_FIELDS,
+        contract::BIRTH_BACKEND_CORE_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
-    append_snapshot_fields(
+    append_counter_values(
         &mut birth_backend_line,
-        &snapshot,
-        contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_SUMMARY_FIELDS,
+        contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
-    append_snapshot_fields(
+    append_counter_values(
         &mut birth_backend_line,
-        &snapshot,
-        contract::BIRTH_BACKEND_SITE_SUMMARY_FIELDS,
+        contract::BIRTH_BACKEND_SITE_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     eprintln!("{}", birth_backend_line);
     let mut str_concat2_route_line = format!("[perf/counter][{}]", contract::STR_CONCAT2_ROUTE);
-    append_snapshot_fields(
+    append_counter_values(
         &mut str_concat2_route_line,
-        &snapshot,
-        contract::STR_CONCAT2_ROUTE_SUMMARY_FIELDS,
+        contract::STR_CONCAT2_ROUTE_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     append_counter_value(
         &mut str_concat2_route_line,
@@ -120,10 +131,14 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     eprintln!("{}", str_concat2_route_line);
     let mut str_len_route_line = format!("[perf/counter][{}]", contract::STR_LEN_ROUTE);
-    append_snapshot_fields(
+    append_counter_values(
         &mut str_len_route_line,
-        &snapshot,
-        contract::STR_LEN_ROUTE_SUMMARY_FIELDS,
+        contract::STR_LEN_ROUTE_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     append_counter_value(
         &mut str_len_route_line,
@@ -132,10 +147,14 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     eprintln!("{}", str_len_route_line);
     let mut str_substring_route_line = format!("[perf/counter][{}]", contract::STR_SUBSTRING_ROUTE);
-    append_snapshot_fields(
+    append_counter_values(
         &mut str_substring_route_line,
-        &snapshot,
-        contract::STR_SUBSTRING_ROUTE_SUMMARY_FIELDS,
+        contract::STR_SUBSTRING_ROUTE_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     append_counter_value(
         &mut str_substring_route_line,
@@ -144,10 +163,14 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     eprintln!("{}", str_substring_route_line);
     let mut piecewise_subrange_line = format!("[perf/counter][{}]", contract::PIECEWISE_SUBRANGE);
-    append_snapshot_fields(
+    append_counter_values(
         &mut piecewise_subrange_line,
-        &snapshot,
-        contract::PIECEWISE_SUBRANGE_SUMMARY_FIELDS,
+        contract::PIECEWISE_SUBRANGE_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     append_counter_value(
         &mut piecewise_subrange_line,
@@ -164,10 +187,14 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     eprintln!("{}", stable_box_demand_line);
     let mut borrowed_alias_line = format!("[perf/counter][{}]", contract::BORROWED_ALIAS);
-    append_snapshot_fields(
+    append_counter_values(
         &mut borrowed_alias_line,
-        &snapshot,
-        contract::BORROWED_ALIAS_SUMMARY_FIELDS,
+        contract::BORROWED_ALIAS_SUMMARY_FIELDS
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
     );
     eprintln!("{}", borrowed_alias_line);
 }
@@ -183,15 +210,19 @@ mod tests {
         contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.write_for_tests(&mut snapshot, 3);
 
         let mut line = String::from("[perf/counter][unit]");
-        append_snapshot_fields(
+        append_counter_values(
             &mut line,
-            &snapshot,
             [
                 contract::CONST_SUFFIX_TOTAL_FIELD,
                 contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD,
-            ],
+            ]
+            .into_iter()
+            .map(|field| contract::SnapshotCounterValue {
+                name: field.name,
+                value: field.read(&snapshot),
+            }),
         );
-        append_counter_value(&mut line, "tail", 11);
+        let _ = write!(line, " {}={}", "tail", 11);
 
         assert_eq!(
             line,

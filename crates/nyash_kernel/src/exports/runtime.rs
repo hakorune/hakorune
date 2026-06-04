@@ -58,11 +58,7 @@ fn backend_modes_error(flags: i64) -> Option<String> {
 // Exported as: nyash.rt.checkpoint
 #[export_name = "nyash.rt.checkpoint"]
 pub extern "C" fn nyash_rt_checkpoint_export() -> i64 {
-    if std::env::var("NYASH_RUNTIME_CHECKPOINT_TRACE")
-        .ok()
-        .as_deref()
-        == Some("1")
-    {
+    if crate::env_flags::flag_on("NYASH_RUNTIME_CHECKPOINT_TRACE") {
         eprintln!("[nyrt] nyash.rt.checkpoint reached");
     }
     0
@@ -72,7 +68,7 @@ pub extern "C" fn nyash_rt_checkpoint_export() -> i64 {
 #[export_name = "nyash.gc.barrier_write"]
 pub extern "C" fn nyash_gc_barrier_write_export(handle_or_ptr: i64) -> i64 {
     let _ = handle_or_ptr;
-    if std::env::var("NYASH_GC_BARRIER_TRACE").ok().as_deref() == Some("1") {
+    if crate::env_flags::flag_on("NYASH_GC_BARRIER_TRACE") {
         eprintln!("[nyrt] nyash.gc.barrier_write h=0x{:x}", handle_or_ptr);
     }
     // Forward to runtime GC hooks when available (Write barrier)

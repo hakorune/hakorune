@@ -1,8 +1,9 @@
 use super::*;
+use crate::c_string::cstring;
 
 #[test]
 fn box_from_i8_string_const_reuses_handle() {
-    let s = CString::new("phase21_5_fast").expect("CString");
+    let s = cstring("phase21_5_fast");
     let h1 = nyash_box_from_i8_string_const(s.as_ptr());
     let h2 = nyash_box_from_i8_string_const(s.as_ptr());
     assert!(h1 > 0);
@@ -64,13 +65,13 @@ fn string_concat3_hhh_repeated_triplet_route_roundtrip() {
 #[test]
 fn string_concat_hs_contract() {
     let lhs_h = string_handle("line-seed");
-    let suffix = CString::new("ln").expect("CString");
+    let suffix = cstring("ln");
     let out_h = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
     assert!(out_h > 0);
     let out = decode_string_like_handle(out_h).expect("concat_hs result");
     assert_eq!(out, "line-seedln");
 
-    let empty = CString::new("").expect("CString");
+    let empty = cstring("");
     let same_h = nyash_string_concat_hs_export(lhs_h, empty.as_ptr());
     assert_eq!(same_h, lhs_h, "empty suffix should reuse lhs handle");
 }
@@ -78,7 +79,7 @@ fn string_concat_hs_contract() {
 #[test]
 fn string_concat_hs_repeated_suffix_reuses_handle_for_same_source_text() {
     let lhs_h = string_handle("xyxyxyxyxyxyxyxy");
-    let suffix = CString::new("xy").expect("CString");
+    let suffix = cstring("xy");
 
     let out_h1 = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
     let out_h2 = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
@@ -99,7 +100,7 @@ fn string_concat_hs_repeated_suffix_reuses_handle_for_same_source_text() {
 fn string_kernel_slot_concat_hs_len_publish_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let lhs_h = string_handle("line-seed");
-        let suffix = CString::new("::tail").expect("CString");
+        let suffix = cstring("::tail");
         let direct_h = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
@@ -129,7 +130,7 @@ fn string_kernel_slot_concat_hs_len_publish_contract() {
 fn string_concat_hs_different_sources_do_not_share_global_const_handle() {
     let lhs_h1 = string_handle("phase21_5_concat_hs_source");
     let lhs_h2 = string_handle("phase21_5_concat_hs_source");
-    let suffix = CString::new("::tail").expect("CString");
+    let suffix = cstring("::tail");
 
     assert_ne!(lhs_h1, lhs_h2, "fixture needs distinct source handles");
 
@@ -178,7 +179,7 @@ fn string_concat_hh_repeated_pair_keeps_fresh_handles_and_text() {
 #[test]
 fn string_insert_hsi_contract() {
     let source_h = string_handle("line-seed");
-    let middle = CString::new("xx").expect("CString");
+    let middle = cstring("xx");
     let out_h = nyash_string_insert_hsi_export(source_h, middle.as_ptr(), 4);
     assert!(out_h > 0);
     let out = decode_string_like_handle(out_h).expect("insert_hsi result");
@@ -189,7 +190,7 @@ fn string_insert_hsi_contract() {
     let invalid_out = decode_string_like_handle(invalid_mid).expect("insert_hsi invalid boundary");
     assert_eq!(invalid_out, "xx");
 
-    let empty = CString::new("").expect("CString");
+    let empty = cstring("");
     let same_h = nyash_string_insert_hsi_export(source_h, empty.as_ptr(), 4);
     assert_eq!(same_h, source_h, "empty middle should reuse source handle");
 }
@@ -198,7 +199,7 @@ fn string_insert_hsi_contract() {
 fn string_kernel_slot_insert_hsi_len_publish_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let source_h = string_handle("line-seed");
-        let middle = CString::new("xx").expect("CString");
+        let middle = cstring("xx");
         let direct_h = nyash_string_insert_hsi_export(source_h, middle.as_ptr(), 4);
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
@@ -317,7 +318,7 @@ fn string_substring_concat3_publish_need_stable_owned_materializes_string_box() 
 fn string_piecewise_subrange_hsiii_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let source_h = string_handle("prefix-suffix");
-        let middle = CString::new("::mid::").expect("CString");
+        let middle = cstring("::mid::");
         let inserted_h = nyash_string_insert_hsi_export(source_h, middle.as_ptr(), 6);
         let direct_h = nyash_string_substring_hii_export(inserted_h, 3, 16);
         let helper_h =
@@ -336,7 +337,7 @@ fn string_piecewise_subrange_hsiii_contract() {
 fn string_kernel_slot_piecewise_substring_publish_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let source_h = string_handle("prefix-suffix");
-        let middle = CString::new("::mid::").expect("CString");
+        let middle = cstring("::mid::");
         let direct_h = nyash_string_substring_hii_export(
             nyash_string_piecewise_subrange_hsiii_export(source_h, middle.as_ptr(), 6, 3, 16),
             1,
@@ -376,7 +377,7 @@ fn string_kernel_slot_piecewise_subrange_store_contract() {
         let array: Arc<dyn NyashBox> = Arc::new(nyash_rust::boxes::array::ArrayBox::new());
         let handle = handles::to_handle_arc(array) as i64;
         let source_h = string_handle("prefix-suffix");
-        let middle = CString::new("::mid::").expect("CString");
+        let middle = cstring("::mid::");
         let direct_h =
             nyash_string_piecewise_subrange_hsiii_export(source_h, middle.as_ptr(), 6, 3, 16);
         let mut slot = crate::plugin::KernelTextSlot::empty();
@@ -444,7 +445,7 @@ fn string_kernel_slot_concat_hs_store_contract() {
         let array: Arc<dyn NyashBox> = Arc::new(nyash_rust::boxes::array::ArrayBox::new());
         let handle = handles::to_handle_arc(array) as i64;
         let lhs_h = string_handle("line-seed");
-        let suffix = CString::new("xy").expect("CString");
+        let suffix = cstring("xy");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(
@@ -467,7 +468,7 @@ fn string_kernel_slot_insert_hsi_store_contract() {
         let array: Arc<dyn NyashBox> = Arc::new(nyash_rust::boxes::array::ArrayBox::new());
         let handle = handles::to_handle_arc(array) as i64;
         let source_h = string_handle("line-seed");
-        let middle = CString::new("xx").expect("CString");
+        let middle = cstring("xx");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(
@@ -486,9 +487,10 @@ fn string_kernel_slot_insert_hsi_store_contract() {
 
 #[test]
 fn string_kernel_slot_capture_piecewise_loop_publish_contract() {
+    let _guard = crate::test_support::handle_registry_test_lock();
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let source_h = string_handle("line-seed-abcdef");
-        let middle = CString::new("xx").expect("CString");
+        let middle = cstring("xx");
         let middle_text = middle.to_str().expect("middle text");
         let split = 8;
         let start = 1;
@@ -656,18 +658,18 @@ fn string_exports_disable_rust_fallback_when_policy_is_off() {
 
 #[test]
 fn string_to_i8p_h_fallback_contract() {
-    use std::ffi::CStr;
+    use crate::c_string::c_string_text;
 
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let c0 = nyash_string_to_i8p_h(0);
         assert!(!c0.is_null());
-        let s0 = unsafe { CStr::from_ptr(c0) }.to_str().expect("utf8");
+        let s0 = c_string_text(c0).expect("utf8");
         assert_eq!(s0, "0");
 
         let missing = 9_876_543_210_i64;
         let c_missing = nyash_string_to_i8p_h(missing);
         assert!(!c_missing.is_null());
-        let s_missing = unsafe { CStr::from_ptr(c_missing) }.to_str().expect("utf8");
+        let s_missing = c_string_text(c_missing).expect("utf8");
         assert_eq!(s_missing, missing.to_string());
     });
 }
@@ -719,8 +721,8 @@ fn substring_hii_repeated_same_input_reuses_handle_for_view_contract() {
 
 #[test]
 fn substring_hii_short_slice_materializes_under_fast_contract() {
+    use crate::c_string::c_string_text;
     use nyash_rust::boxes::array::ArrayBox;
-    use std::ffi::CStr;
 
     with_env_var("NYASH_LLVM_FAST", "1", || {
         let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("hakorune".to_string()));
@@ -742,9 +744,7 @@ fn substring_hii_short_slice_materializes_under_fast_contract() {
 
         let c_ptr = nyash_string_to_i8p_h(sub_handle);
         assert!(!c_ptr.is_null());
-        let c_view = unsafe { CStr::from_ptr(c_ptr) }
-            .to_str()
-            .expect("substring utf8");
+        let c_view = c_string_text(c_ptr).expect("substring utf8");
         assert_eq!(c_view, "akor");
 
         // Persistent container boundary still stores owned StringBox.
@@ -782,9 +782,7 @@ fn substring_hii_short_nested_slice_materializes_under_fast_contract() {
         assert_eq!(nyash_string_len_h(nested_handle), 2);
         let c_ptr = nyash_string_to_i8p_h(nested_handle);
         assert!(!c_ptr.is_null());
-        let c_view = unsafe { std::ffi::CStr::from_ptr(c_ptr) }
-            .to_str()
-            .expect("nested substring utf8");
+        let c_view = crate::c_string::c_string_text(c_ptr).expect("nested substring utf8");
         assert_eq!(c_view, "ak");
     });
 }
@@ -891,7 +889,7 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
     );
     assert!(
         box_names.contains("Stage1ProgramJsonCompatBox"),
-        "source authority route should preserve explicit compat box decls for same-file closure"
+        "source authority route should preserve explicit same-file closure box decls"
     );
 }
 
@@ -906,7 +904,7 @@ fn invoke_by_name_export_accepts_stage1_mir_builder_source_route_for_stage1_cli_
             let recv_handle = handles::to_handle_arc(Arc::new(StringBox::new(
                 "lang.mir.builder.MirBuilderBox".to_string(),
             ))) as i64;
-            let method = CString::new("emit_from_source_v0").expect("CString");
+            let method = cstring("emit_from_source_v0");
             let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(
                 include_str!("../../../../lang/src/runner/stage1_cli_env.hako").to_string(),
             ))) as i64;
@@ -941,7 +939,7 @@ fn invoke_by_name_export_accepts_stage1_mir_builder_source_route_for_stage1_cli_
             );
             assert!(
                 box_names.contains("Stage1ProgramJsonCompatBox"),
-                "source authority route should preserve explicit compat box decls for same-file closure"
+                "source authority route should preserve explicit same-file closure box decls"
             );
         },
     );

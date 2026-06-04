@@ -6,7 +6,10 @@
 use std::collections::BTreeMap;
 use std::sync::{Mutex, OnceLock};
 
-use super::typed_object_store;
+use super::typed_object_store_backend::{
+    exact_slot_record_alloc_success, exact_slot_record_release_success, exact_slot_rmw_add_u64,
+    exact_slot_set4_i64, new_typed_object as backend_new_typed_object, with_field, with_field_mut,
+};
 
 const MAX_TYPED_OBJECT_FIELDS: i64 = 4096;
 
@@ -71,7 +74,7 @@ impl TypedSlotStorage {
         }
     }
 
-    fn is_legacy_i64_compatible(self) -> bool {
+    fn supports_compat_i64(self) -> bool {
         matches!(self, Self::I64 | Self::Handle)
     }
 
@@ -138,8 +141,16 @@ impl TypedSlot {
         }
     }
 
-    pub(crate) fn set_legacy_i64(&mut self, value: i64) -> bool {
-        if !self.storage.is_legacy_i64_compatible() {
+    pub(crate) fn set_i64_exact(&mut self, value: i64) -> bool {
+        if self.storage != TypedSlotStorage::I64 {
+            return false;
+        }
+        self.value = TypedSlotValue::I64(value);
+        true
+    }
+
+    pub(crate) fn set_compat_i64(&mut self, value: i64) -> bool {
+        if !self.storage.supports_compat_i64() {
             return false;
         }
         self.value = match self.storage {
@@ -147,6 +158,16 @@ impl TypedSlot {
             _ => TypedSlotValue::I64(value),
         };
         true
+    }
+
+    pub(crate) fn as_compat_i64(&self) -> Option<i64> {
+        if !self.storage.supports_compat_i64() {
+            return None;
+        }
+        match self.value {
+            TypedSlotValue::I64(value) | TypedSlotValue::Handle(value) => Some(value),
+            _ => None,
+        }
     }
 
     pub(crate) fn as_exact_unsigned_u64(&self) -> Option<u64> {
@@ -192,6 +213,17 @@ impl TypedSlot {
         };
         true
     }
+
+    pub(crate) fn rmw_add_exact_unsigned_u64(&mut self, delta: u128) -> Option<i64> {
+        let value = self.as_exact_unsigned_u64()?;
+        let next = u128::from(value).checked_add(delta)?;
+        let next_i64 = i64::try_from(next).ok()?;
+        let next_u64 = u64::try_from(next).ok()?;
+        if !self.set_exact_unsigned_u64(next_u64) {
+            return None;
+        }
+        Some(next_i64)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -201,7 +233,6 @@ struct TypedSlotLayout {
 
 #[derive(Debug, Clone)]
 pub(crate) struct TypedSlotObject {
-    #[allow(dead_code)]
     pub(crate) type_id: i64,
     pub(crate) fields: Vec<TypedSlot>,
 }
@@ -318,7 +349,7 @@ pub extern "C" fn nyash_object_new_typed_hi(type_id: i64, field_count: i64) -> i
         .into_iter()
         .map(TypedSlot::new)
         .collect();
-    typed_object_store::new_typed_object(TypedSlotObject { type_id, fields }).unwrap_or(0)
+    backend_new_typed_object(TypedSlotObject { type_id, fields }).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.new_typed_h"]
@@ -332,7 +363,7 @@ pub extern "C" fn nyash_object_field_get_hii(handle: i64, slot: i64) -> i64 {
         return 0;
     }
     let slot = slot as usize;
-    typed_object_store::get_legacy_i64(handle, slot).unwrap_or(0)
+    get_compat_i64(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_hii"]
@@ -341,7 +372,7 @@ pub extern "C" fn nyash_object_field_set_hii(handle: i64, slot: i64, value: i64)
         return;
     }
     let slot = slot as usize;
-    let _ = typed_object_store::set_legacy_i64(handle, slot, value);
+    let _ = set_compat_i64(handle, slot, value);
 }
 
 #[export_name = "nyash.object.field_storage_hii"]
@@ -349,7 +380,7 @@ pub extern "C" fn nyash_object_field_storage_hii(handle: i64, slot: i64) -> i64 
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    typed_object_store::field_storage_tag(handle, slot).unwrap_or(0)
+    field_storage_tag(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_get_u64_hii"]
@@ -357,7 +388,7 @@ pub extern "C" fn nyash_object_field_get_u64_hii(handle: i64, slot: i64) -> u64 
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    typed_object_store::get_exact_unsigned_u64(handle, slot).unwrap_or(0)
+    get_exact_unsigned_u64(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_u64_hiu"]
@@ -365,9 +396,7 @@ pub extern "C" fn nyash_object_field_set_u64_hiu(handle: i64, slot: i64, value: 
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    i64::from(typed_object_store::set_exact_unsigned_u64(
-        handle, slot, value,
-    ))
+    i64::from(set_exact_unsigned_u64(handle, slot, value))
 }
 
 #[export_name = "nyash.object.field_get_i64_hii"]
@@ -375,7 +404,7 @@ pub extern "C" fn nyash_object_field_get_i64_hii(handle: i64, slot: i64) -> i64 
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    typed_object_store::get_exact_signed_i64(handle, slot).unwrap_or(0)
+    get_exact_signed_i64(handle, slot).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_set_i64_hii"]
@@ -383,9 +412,7 @@ pub extern "C" fn nyash_object_field_set_i64_hii(handle: i64, slot: i64, value: 
     let Some(slot) = normalize_slot(slot) else {
         return 0;
     };
-    i64::from(typed_object_store::set_exact_signed_i64(
-        handle, slot, value,
-    ))
+    i64::from(set_exact_signed_i64(handle, slot, value))
 }
 
 #[export_name = "nyash.exact_numeric.assert_i64_min_ii"]
@@ -415,110 +442,183 @@ fn exact_slot_index(slot: i64) -> Option<usize> {
     usize::try_from(slot).ok()
 }
 
-#[export_name = "nyash.object.exact_slot_get_i64_hii"]
-pub extern "C" fn nyash_object_exact_slot_get_i64_hii(handle: i64, slot: i64) -> i64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return 0;
-    };
-    typed_object_store::exact_slot_get_i64(handle, slot).unwrap_or(0)
+pub(crate) fn get_compat_i64(handle: i64, slot: usize) -> Option<i64> {
+    with_field(handle, slot, |field| {
+        Some(field.as_compat_i64().unwrap_or(0))
+    })?
 }
 
-#[export_name = "nyash.object.exact_slot_set_i64_hii"]
-pub extern "C" fn nyash_object_exact_slot_set_i64_hii(handle: i64, slot: i64, value: i64) -> i64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return 0;
-    };
-    i64::from(typed_object_store::exact_slot_set_i64(handle, slot, value))
+pub(crate) fn set_compat_i64(handle: i64, slot: usize, value: i64) -> bool {
+    with_field_mut(handle, slot, |field| field.set_compat_i64(value)).unwrap_or(false)
 }
 
-#[export_name = "nyash.object.exact_slot_set4_i64_hiiiii"]
-pub extern "C" fn nyash_object_exact_slot_set4_i64_hiiiii(
-    handle: i64,
+pub(crate) fn field_storage_tag(handle: i64, slot: usize) -> Option<i64> {
+    with_field(handle, slot, |field| field.storage.tag())
+}
+
+pub(crate) fn get_exact_unsigned_u64(handle: i64, slot: usize) -> Option<u64> {
+    with_field(handle, slot, |field| field.as_exact_unsigned_u64())?
+}
+
+pub(crate) fn set_exact_unsigned_u64(handle: i64, slot: usize, value: u64) -> bool {
+    with_field_mut(handle, slot, |field| field.set_exact_unsigned_u64(value)).unwrap_or(false)
+}
+
+pub(crate) fn get_exact_signed_i64(handle: i64, slot: usize) -> Option<i64> {
+    with_field(handle, slot, |field| field.as_exact_signed_i64())?
+}
+
+pub(crate) fn set_exact_signed_i64(handle: i64, slot: usize, value: i64) -> bool {
+    with_field_mut(handle, slot, |field| field.set_exact_signed_i64(value)).unwrap_or(false)
+}
+
+macro_rules! typed_object_exact_slot_export {
+    (
+        $fn_name:ident,
+        $export_name:literal,
+        $slot_name:ident : i64
+        $(, $arg_name:ident : $arg_ty:ty )*
+        ; -> $ret:ty;
+        fallback = $fallback:expr;
+        body = $body:expr
+    ) => {
+        #[export_name = $export_name]
+        pub extern "C" fn $fn_name(
+            handle: i64,
+            $slot_name: i64,
+            $( $arg_name : $arg_ty, )*
+        ) -> $ret {
+            let Some($slot_name) = exact_slot_index($slot_name) else {
+                return $fallback;
+            };
+            $body(handle, $slot_name $(, $arg_name )*)
+        }
+    };
+}
+
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_get_i64_hii,
+    "nyash.object.exact_slot_get_i64_hii",
+    slot: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot| get_exact_signed_i64(handle, slot).unwrap_or(0)
+);
+
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_set_i64_hii,
+    "nyash.object.exact_slot_set_i64_hii",
+    slot: i64,
+    value: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot, value| {
+        i64::from(set_exact_signed_i64(handle, slot, value))
+    }
+);
+
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_set4_i64_hiiiii,
+    "nyash.object.exact_slot_set4_i64_hiiiii",
     start_slot: i64,
     value0: i64,
     value1: i64,
     value2: i64,
-    value3: i64,
-) -> i64 {
-    let Some(start_slot) = exact_slot_index(start_slot) else {
-        return 0;
-    };
-    i64::from(typed_object_store::exact_slot_set4_i64(
-        handle, start_slot, value0, value1, value2, value3,
-    ))
-}
+    value3: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, start_slot, value0, value1, value2, value3| {
+        i64::from(exact_slot_set4_i64(
+            handle, start_slot, value0, value1, value2, value3,
+        ))
+    }
+);
 
-#[export_name = "nyash.object.exact_slot_record_alloc_success_hii"]
-pub extern "C" fn nyash_object_exact_slot_record_alloc_success_hii(
-    handle: i64,
-    selected_kind: i64,
-) -> i64 {
-    i64::from(typed_object_store::exact_slot_record_alloc_success(
-        handle,
-        selected_kind,
-    ))
-}
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_record_alloc_success_hii,
+    "nyash.object.exact_slot_record_alloc_success_hii",
+    slot: i64,
+    selected_kind: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, _slot, selected_kind| {
+        i64::from(exact_slot_record_alloc_success(
+            handle,
+            selected_kind,
+        ))
+    }
+);
 
-#[export_name = "nyash.object.exact_slot_record_release_success_hiii"]
-pub extern "C" fn nyash_object_exact_slot_record_release_success_hiii(
-    handle: i64,
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_record_release_success_hiii,
+    "nyash.object.exact_slot_record_release_success_hiii",
+    slot: i64,
     page_id: i64,
-    block_id: i64,
-) -> i64 {
-    i64::from(typed_object_store::exact_slot_record_release_success(
-        handle, page_id, block_id,
-    ))
-}
+    block_id: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, _slot, page_id, block_id| {
+        i64::from(exact_slot_record_release_success(
+            handle, page_id, block_id,
+        ))
+    }
+);
 
-#[export_name = "nyash.object.exact_slot_get_u64_hii"]
-pub extern "C" fn nyash_object_exact_slot_get_u64_hii(handle: i64, slot: i64) -> u64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return 0;
-    };
-    typed_object_store::exact_slot_get_u64(handle, slot).unwrap_or(0)
-}
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_get_u64_hii,
+    "nyash.object.exact_slot_get_u64_hii",
+    slot: i64;
+    -> u64;
+    fallback = 0;
+    body = |handle, slot| {
+        get_exact_unsigned_u64(handle, slot).unwrap_or(0)
+    }
+);
 
-#[export_name = "nyash.object.exact_slot_set_u64_hiu"]
-pub extern "C" fn nyash_object_exact_slot_set_u64_hiu(handle: i64, slot: i64, value: u64) -> i64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return 0;
-    };
-    i64::from(typed_object_store::exact_slot_set_u64(handle, slot, value))
-}
-
-#[export_name = "nyash.object.exact_slot_rmw_add_u64_hiii"]
-pub extern "C" fn nyash_object_exact_slot_rmw_add_u64_hiii(
-    handle: i64,
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_set_u64_hiu,
+    "nyash.object.exact_slot_set_u64_hiu",
     slot: i64,
-    delta: i64,
-) -> i64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return -1;
-    };
-    typed_object_store::exact_slot_rmw_add_u64(handle, slot, delta).unwrap_or(-1)
-}
+    value: u64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot, value| {
+        i64::from(set_exact_unsigned_u64(handle, slot, value))
+    }
+);
 
-#[export_name = "nyash.object.exact_slot_get_handle_hii"]
-pub extern "C" fn nyash_object_exact_slot_get_handle_hii(handle: i64, slot: i64) -> i64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return 0;
-    };
-    typed_object_store::exact_slot_get_handle(handle, slot).unwrap_or(0)
-}
-
-#[export_name = "nyash.object.exact_slot_set_handle_hii"]
-pub extern "C" fn nyash_object_exact_slot_set_handle_hii(
-    handle: i64,
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_rmw_add_u64_hiii,
+    "nyash.object.exact_slot_rmw_add_u64_hiii",
     slot: i64,
-    value: i64,
-) -> i64 {
-    let Some(slot) = exact_slot_index(slot) else {
-        return 0;
-    };
-    i64::from(typed_object_store::exact_slot_set_handle(
-        handle, slot, value,
-    ))
-}
+    delta: i64;
+    -> i64;
+    fallback = -1;
+    body = |handle, slot, delta| {
+        exact_slot_rmw_add_u64(handle, slot, delta).unwrap_or(-1)
+    }
+);
+
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_get_handle_hii,
+    "nyash.object.exact_slot_get_handle_hii",
+    slot: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot| get_compat_i64(handle, slot).unwrap_or(0)
+);
+
+typed_object_exact_slot_export!(
+    nyash_object_exact_slot_set_handle_hii,
+    "nyash.object.exact_slot_set_handle_hii",
+    slot: i64,
+    value: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot, value| {
+        i64::from(set_compat_i64(handle, slot, value))
+    }
+);
 
 #[cfg(test)]
 mod tests {
@@ -561,7 +661,7 @@ mod tests {
     }
 
     #[test]
-    fn legacy_i64_helpers_do_not_mutate_exact_numeric_slots() {
+    fn compat_i64_helpers_do_not_mutate_exact_numeric_slots() {
         let type_id = 294_019_002;
         assert_eq!(nyash_object_register_typed_layout_hi(type_id, 2), 1);
         assert_eq!(
@@ -638,7 +738,7 @@ mod tests {
     }
 
     #[test]
-    fn exact_unsigned_abi_rejects_legacy_i64_slots() {
+    fn exact_unsigned_abi_rejects_compat_i64_slots() {
         let object = nyash_object_new_typed_hi(294_019_102, 1);
         assert!(object < 0);
 

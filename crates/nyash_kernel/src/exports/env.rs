@@ -1,5 +1,6 @@
 // Environment and box creation exports.
 
+use crate::c_string::c_string_text;
 use crate::user_box_registry::get_user_box_fields;
 
 fn handle_to_env_string(handle: i64) -> Option<String> {
@@ -14,14 +15,6 @@ fn handle_to_env_string(handle: i64) -> Option<String> {
         return Some(sb.value.clone());
     }
     Some(obj.to_string_box().value)
-}
-
-fn env_string_to_handle(value: &str) -> i64 {
-    use nyash_rust::box_trait::{NyashBox, StringBox};
-    use nyash_rust::runtime::host_handles as handles;
-
-    let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(StringBox::new(value.to_string()));
-    handles::to_handle_arc(arc) as i64
 }
 
 fn new_filebox_handle() -> i64 {
@@ -46,7 +39,13 @@ pub extern "C" fn nyash_env_get(key_handle: i64) -> i64 {
         return 0;
     };
     match std::env::var(key) {
-        Ok(v) => env_string_to_handle(&v),
+        Ok(v) => {
+            use nyash_rust::box_trait::{NyashBox, StringBox};
+            use nyash_rust::runtime::host_handles as handles;
+
+            let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(StringBox::new(v));
+            handles::to_handle_arc(arc) as i64
+        }
         Err(_) => 0,
     }
 }
@@ -71,22 +70,6 @@ pub extern "C" fn nyash_env_now_ms() -> i64 {
         Ok(duration) => duration.as_millis() as i64,
         Err(_) => 0,
     }
-}
-
-// Legacy aliases for builders that still reference env.get/env.set directly.
-#[export_name = "env.get"]
-pub extern "C" fn env_get_legacy_alias(key_handle: i64) -> i64 {
-    nyash_env_get(key_handle)
-}
-
-#[export_name = "env.set"]
-pub extern "C" fn env_set_legacy_alias(key_handle: i64, value_handle: i64) -> i64 {
-    nyash_env_set(key_handle, value_handle)
-}
-
-#[export_name = "env.now_ms"]
-pub extern "C" fn env_now_ms_legacy_alias() -> i64 {
-    nyash_env_now_ms()
 }
 
 // Build ArrayBox from process argv (excluding program name)
@@ -119,14 +102,8 @@ pub extern "C" fn nyash_env_box_new(type_name: *const i8) -> i64 {
         box_trait::NyashBox,
         runtime::{box_registry::get_global_registry, host_handles as handles},
     };
-    use std::ffi::CStr;
-    if type_name.is_null() {
+    let Some(ty) = c_string_text(type_name) else {
         return 0;
-    }
-    let cstr = unsafe { CStr::from_ptr(type_name) };
-    let ty = match cstr.to_str() {
-        Ok(s) => s,
-        Err(_) => return 0,
     };
     // Core-first special cases: construct built-in boxes directly
     if ty == "MapBox" {
@@ -138,7 +115,7 @@ pub extern "C" fn nyash_env_box_new(type_name: *const i8) -> i64 {
         use nyash_rust::boxes::array::ArrayBox;
         let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(ArrayBox::new());
         let h = handles::to_handle_arc(arc) as i64;
-        if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+        if crate::env_flags::cli_verbose_enabled() {
             eprintln!("nyrt: env.box.new ArrayBox -> handle={}", h);
         }
         return h;
@@ -171,14 +148,8 @@ pub extern "C" fn nyash_env_box_new_i64x(
         box_trait::{IntegerBox, NyashBox},
         runtime::{box_registry::get_global_registry, host_handles as handles},
     };
-    use std::ffi::CStr;
-    if type_name.is_null() {
+    let Some(ty) = c_string_text(type_name) else {
         return 0;
-    }
-    let cstr = unsafe { CStr::from_ptr(type_name) };
-    let ty = match cstr.to_str() {
-        Ok(s) => s,
-        Err(_) => return 0,
     };
 
     if ty == "MapBox" {
@@ -219,7 +190,7 @@ pub extern "C" fn nyash_env_box_new_i64x(
         push_val(&mut argv, a4);
     }
 
-    // Phase 285LLVM-1.1: Check if this is a user-defined box in the field registry
+    // Check if this is a user-defined box in the field registry.
     if let Some(fields) = get_user_box_fields(ty) {
         // Create InstanceBox with the registered fields
         use nyash_rust::instance_v2::InstanceBox;
@@ -245,7 +216,7 @@ pub extern "C" fn nyash_env_box_new_i64x(
             handles::to_handle_arc(arc) as i64
         }
         Err(e) => {
-            // Phase 285LLVM-1.1: Improved error message
+            // Improved error message.
             eprintln!("[nyrt_error] Failed to create box '{}': {}", ty, e);
             eprintln!("[nyrt_hint] User-defined boxes must be registered via nyrt_register_user_box_decl()");
             eprintln!("[nyrt_hint] Check MIR JSON user_box_decls or box declaration metadata");

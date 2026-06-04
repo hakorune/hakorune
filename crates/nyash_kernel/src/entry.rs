@@ -5,7 +5,7 @@
 #[no_mangle]
 pub extern "C" fn main() -> i32 {
     crate::rss_observe::checkpoint("entry_start");
-    // Phase 88: AOT 実行器でも Ring0Context は必須（PluginHost/ログなどが依存する）。
+    // AOT 実行器でも Ring0Context は必須（PluginHost/ログなどが依存する）。
     // EXE 直起動では host 側の init が存在しないため、ここで先に初期化する。
     if nyash_rust::runtime::ring0::GLOBAL_RING0.get().is_none() {
         nyash_rust::runtime::ring0::init_global_ring0(nyash_rust::runtime::ring0::default_ring0());
@@ -83,7 +83,7 @@ pub extern "C" fn main() -> i32 {
     }
     crate::rss_observe::checkpoint("after_plugin_host");
     // Optional verbosity
-    if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+    if crate::env_flags::cli_verbose_enabled() {
         println!(
             "🔌 nyrt: plugin host init attempted (exe_dir={}, cwd={})",
             exe_dir
@@ -123,17 +123,16 @@ pub extern "C" fn main() -> i32 {
             }
         };
         // Print standardized result line for golden comparisons (can be silenced for tests)
-        let silent = std::env::var("NYASH_NYRT_SILENT_RESULT").ok().as_deref() == Some("1");
+        let silent = crate::env_flags::flag_on("NYASH_NYRT_SILENT_RESULT");
         if !silent {
             println!("Result: {}", exit_code);
         }
         // Optional GC metrics after program completes
-        let want_json = std::env::var("NYASH_GC_METRICS_JSON").ok().as_deref() == Some("1");
-        let want_text = std::env::var("NYASH_GC_METRICS").ok().as_deref() == Some("1");
+        let want_json = crate::env_flags::flag_on("NYASH_GC_METRICS_JSON");
+        let want_text = crate::env_flags::flag_on("NYASH_GC_METRICS");
         if want_json || want_text {
             let (sp, br, bw) = rt_hooks.gc.snapshot_counters().unwrap_or((0, 0, 0));
-            // ✂️ REMOVED: Legacy JIT handles::len() - part of 42% deletable functions
-            let handles = 0u64; // Placeholder: handles tracking removed with JIT archival
+            let handles = 0u64; // Handles tracking is not available in this kernel entry path.
             let gc_mode_s = gc_mode.as_str();
             // Include allocation totals if controller is used
             let any_gc: &dyn std::any::Any = &*rt_hooks.gc;
@@ -160,18 +159,9 @@ pub extern "C" fn main() -> i32 {
                 (0, 0, 0, 0, 0, 0, 0, 0, 0)
             };
             // Settings snapshot (env)
-            let sp_interval = std::env::var("NYASH_GC_COLLECT_SP")
-                .ok()
-                .and_then(|s| s.parse::<u64>().ok())
-                .unwrap_or(0);
-            let alloc_thresh = std::env::var("NYASH_GC_COLLECT_ALLOC")
-                .ok()
-                .and_then(|s| s.parse::<u64>().ok())
-                .unwrap_or(0);
-            let auto_sp = std::env::var("NYASH_LLVM_AUTO_SAFEPOINT")
-                .ok()
-                .map(|v| v == "1")
-                .unwrap_or(true);
+            let sp_interval = crate::env_flags::u64_or("NYASH_GC_COLLECT_SP", 0);
+            let alloc_thresh = crate::env_flags::u64_or("NYASH_GC_COLLECT_ALLOC", 0);
+            let auto_sp = crate::env_flags::flag_default_on("NYASH_LLVM_AUTO_SAFEPOINT");
             if want_json {
                 // Minimal JSON assembly to avoid extra deps in nyrt
                 println!(
@@ -185,21 +175,15 @@ pub extern "C" fn main() -> i32 {
                 );
             }
             // Threshold warning
-            if let Ok(s) = std::env::var("NYASH_GC_ALLOC_THRESHOLD") {
-                if let Ok(th) = s.parse::<u64>() {
-                    if alloc_bytes > th {
-                        eprintln!(
-                            "[GC][warn] allocation bytes {} exceeded threshold {}",
-                            alloc_bytes, th
-                        );
-                    }
-                }
+            let alloc_warn_threshold = crate::env_flags::u64_or("NYASH_GC_ALLOC_THRESHOLD", 0);
+            if alloc_warn_threshold > 0 && alloc_bytes > alloc_warn_threshold {
+                eprintln!(
+                    "[GC][warn] allocation bytes {} exceeded threshold {}",
+                    alloc_bytes, alloc_warn_threshold
+                );
             }
         }
 
-        // ✂️ REMOVED: Legacy JIT leak diagnostics - part of 42% deletable functions
-        // Leak diagnostics functionality removed with JIT archival
-        // handles::type_tally() no longer available in Plugin-First architecture
         crate::observe::flush();
         crate::observe::flush_trace();
         exit_code as i32
