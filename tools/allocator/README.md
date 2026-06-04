@@ -97,6 +97,10 @@ provider_package_ldpreload_replacement_tracking_source.py:
   provider-backed LD_PRELOAD pointer-tracking and report raw C chunk only; no
   runner logic or report rendering
 
+provider_package_ldpreload_replacement_runtime_source.py:
+  provider-backed LD_PRELOAD provider bootstrap and malloc/free wrappers only;
+  no runner logic or report rendering
+
 provider_package_rust_global_allocator_smoke_source.py:
   provider-backed Rust global-allocator smoke source only; no runner logic or report rendering
 
