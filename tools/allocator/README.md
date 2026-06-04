@@ -130,6 +130,10 @@ replacement_front_shim_templates.py:
   benchmark-only replacement-front shim raw C source only; no runner logic or
   report fields
 
+replacement_front_shim_report_source.py:
+  benchmark-only replacement-front shim report/emission raw C source only; no
+  runner logic or allocator behavior changes
+
 hakozuna_mixed_ws_report_support.py:
   manifest decoding, route classification, and report-only math helpers;
   no benchmark execution logic
