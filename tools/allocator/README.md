@@ -29,6 +29,9 @@ hakozuna_mixed_ws_report_render.py:
 hakozuna_mixed_ws_report_smoke_fields.py:
   replacement-front smoke pack report fields only; no benchmark execution logic
 
+hakozuna_mixed_ws_gap_summary.py:
+  gap-ladder summary fields only; no compare execution logic
+
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
