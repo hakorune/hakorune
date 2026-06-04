@@ -126,6 +126,10 @@ replacement_front_bins_templates.py:
   benchmark-only multi-bin replacement-front C template generation; no runner
   logic or report fields
 
+replacement_front_bins_report_source.py:
+  benchmark-only multi-bin replacement-front report/emission raw C source only;
+  no runner logic or allocator behavior changes
+
 replacement_front_shim_templates.py:
   benchmark-only replacement-front shim raw C source only; no runner logic or
   report fields
