@@ -93,6 +93,10 @@ provider_package_ldpreload_replacement_smoke_sources.py:
 provider_package_ldpreload_replacement_shim_source.py:
   provider-backed LD_PRELOAD shim raw C source only; no runner logic or report rendering
 
+provider_package_ldpreload_replacement_tracking_source.py:
+  provider-backed LD_PRELOAD pointer-tracking and report raw C chunk only; no
+  runner logic or report rendering
+
 provider_package_rust_global_allocator_smoke_source.py:
   provider-backed Rust global-allocator smoke source only; no runner logic or report rendering
 
