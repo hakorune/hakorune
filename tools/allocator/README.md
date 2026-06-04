@@ -27,9 +27,13 @@ replacement_front_smoke_templates.py:
   focused non-activating replacement-front C smoke source text only;
   no runner logic, no report fields
 
+replacement_front_support.py:
+  shared replacement-front helper math and size-class/workload classification;
+  no C template text and no process execution logic
+
 replacement_front_templates.py:
-  benchmark-only replacement-front fixed-slot shim template, deterministic
-  workload helpers, and .hako SizeClassBox mirror helpers
+  benchmark-only replacement-front fixed-slot shim template and smoke/support
+  re-export facade
 ```
 
 Before claiming that an allocator benchmark is measuring the full `.hako`

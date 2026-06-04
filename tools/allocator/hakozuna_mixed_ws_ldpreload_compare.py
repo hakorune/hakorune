@@ -23,17 +23,19 @@ OPS_RE = re.compile(r"ops/s=([0-9]+(?:\.[0-9]+)?)")
 TIME_RE = re.compile(r"time=([0-9]+(?:\.[0-9]+)?)")
 
 
-from replacement_front_templates import (
-    REPLACEMENT_FRONT_SHIM_C,
+from replacement_front_support import (
     WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS,
     counter_value,
-    generate_replacement_front_bins_shim_c,
     hako_good_size,
     hako_size_class_bin_size,
     hako_size_to_bin,
     median_float,
     mixed_ws_workload_histogram,
     positive_int,
+)
+from replacement_front_templates import (
+    REPLACEMENT_FRONT_SHIM_C,
+    generate_replacement_front_bins_shim_c,
 )
 from replacement_front_report import (
     ReplacementFrontPreflight,
