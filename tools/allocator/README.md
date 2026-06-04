@@ -38,6 +38,10 @@ hako_mimalloc_perf_attribution_report.py:
 hako_mimalloc_algorithm_coverage_render.py:
   coverage text rendering only; no coverage computation or CLI orchestration
 
+provider_package_ldpreload_replacement_smoke_report.py:
+  provider-backed LD_PRELOAD smoke report rendering only; no shim build or
+  smoke process orchestration
+
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
