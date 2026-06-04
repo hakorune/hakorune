@@ -35,6 +35,9 @@ hakozuna_mixed_ws_gap_summary.py:
 hako_mimalloc_perf_attribution_report.py:
   perf attribution report rendering only; no perf parsing or CLI orchestration
 
+hako_mimalloc_algorithm_coverage_render.py:
+  coverage text rendering only; no coverage computation or CLI orchestration
+
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
