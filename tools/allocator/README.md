@@ -87,6 +87,10 @@ hako_mimalloc_algorithm_coverage_model_fields.py:
   coverage model / hotcore / record-state report fields only; no report I/O
   or CLI orchestration
 
+hako_mimalloc_algorithm_coverage_source_state.py:
+  coverage source-observation derivation only; no report I/O or CLI
+  orchestration
+
 hako_mimalloc_algorithm_coverage_rows.py:
   coverage row refinement only; no report I/O or CLI orchestration
 
