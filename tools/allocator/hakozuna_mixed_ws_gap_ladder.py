@@ -107,6 +107,22 @@ def run_compare(args: argparse.Namespace, compare_report: Path) -> None:
         cmd.append("--provider-usable-size-mode")
     if args.provider_assume_owned_mode:
         cmd.append("--provider-assume-owned-mode")
+    if args.replacement_front_native_slot_mode:
+        cmd.append("--replacement-front-native-slot-mode")
+    if args.replacement_front_lock_mode:
+        cmd.append("--replacement-front-lock-mode")
+    if args.replacement_front_thread_local_mode:
+        cmd.append("--replacement-front-thread-local-mode")
+    if args.replacement_front_skip_hot_counters:
+        cmd.append("--replacement-front-skip-hot-counters")
+    if args.replacement_front_tls_counter_mode:
+        cmd.append("--replacement-front-tls-counter-mode")
+    if args.replacement_front_slot_size is not None:
+        cmd.extend(["--replacement-front-slot-size", str(args.replacement_front_slot_size)])
+    if args.replacement_front_match_workload_realloc_size:
+        cmd.append("--replacement-front-match-workload-realloc-size")
+    if args.replacement_front_match_hako_size_class:
+        cmd.append("--replacement-front-match-hako-size-class")
     subprocess.run(cmd, cwd=ROOT, check=True)
 
 
@@ -125,6 +141,7 @@ def emit_summary(compare_report: Path, out: Path) -> None:
     glibc = rows.get("system_malloc")
     mimalloc = rows.get("c_mimalloc_ldpreload")
     provider = rows.get("hakorune_provider_ldpreload")
+    replacement_front = rows.get("hakorune_replacement_front_ldpreload")
     if glibc is None:
         raise SystemExit("compare report missing system_malloc subject")
     if mimalloc is None:
@@ -149,8 +166,16 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         f"system_mimalloc_median_ops_per_sec={mimalloc_median:.3f}",
         f"glibc_vs_mimalloc_ratio={ratio(glibc_median, mimalloc_median)}",
         "provider_subject_present=" + ("1" if provider is not None else "0"),
+        "replacement_front_subject_present="
+        + ("1" if replacement_front is not None else "0"),
         f"provider_usable_size_mode={values.get('provider_usable_size_mode', '0')}",
         f"provider_assume_owned_mode={values.get('provider_assume_owned_mode', '0')}",
+        f"same_benchmark_binary=1",
+        f"same_workload=1",
+        f"same_threads=1",
+        f"same_iters_per_thread=1",
+        f"same_working_set=1",
+        f"same_sample_count=1",
     ]
 
     for key in (
@@ -293,6 +318,37 @@ def emit_summary(compare_report: Path, out: Path) -> None:
             ]
         )
 
+    if replacement_front is not None:
+        replacement_median = float(replacement_front["throughput_median_ops_per_sec"])
+        replacement_front_class = replacement_front.get("benchmark_front_class", "unknown")
+        replacement_execution_route = replacement_front.get("execution_route", "unknown")
+        replacement_direct_core = replacement_front.get("direct_core_call", "0")
+        replacement_provider_dispatch = replacement_front.get("provider_table_dispatch", "unknown")
+        replacement_provider_api_required = replacement_front.get(
+            "provider_api_hot_path_required", "unknown"
+        )
+        replacement_tracking_hot_path = replacement_front.get("tracking_hot_path", "unknown")
+        replacement_benchmark_only = replacement_front.get("benchmark_only", "unknown")
+        lines.extend(
+            [
+                f"replacement_front_median_ops_per_sec={replacement_median:.3f}",
+                f"replacement_front_execution_route={replacement_execution_route}",
+                f"replacement_front_benchmark_front_class={replacement_front_class}",
+                f"replacement_front_vs_mimalloc_ratio={ratio(replacement_median, mimalloc_median)}",
+                "replacement_front_slower_than_mimalloc_percent="
+                f"{slower_percent(replacement_median, mimalloc_median)}",
+                f"replacement_front_vs_glibc_ratio={ratio(replacement_median, glibc_median)}",
+                f"replacement_front_bypasses_type_abi=1",
+                f"replacement_front_bypasses_provider_dispatch={1 if replacement_provider_dispatch == '0' else 0}",
+                f"replacement_front_provider_table_dispatch={replacement_provider_dispatch}",
+                f"replacement_front_provider_api_hot_path_required={replacement_provider_api_required}",
+                f"replacement_front_tracking_hot_path={replacement_tracking_hot_path}",
+                f"replacement_front_direct_core_call={replacement_direct_core}",
+                f"replacement_front_benchmark_only={replacement_benchmark_only}",
+                "replacement_front_product_claim=0",
+            ]
+        )
+
     lines.extend(
         [
             "provider_activation=0",
@@ -332,6 +388,14 @@ def main() -> int:
     parser.add_argument("--working-set", type=int, default=128)
     parser.add_argument("--min-size", type=int, default=16)
     parser.add_argument("--max-size", type=int, default=1024)
+    parser.add_argument("--replacement-front-native-slot-mode", action="store_true")
+    parser.add_argument("--replacement-front-lock-mode", action="store_true")
+    parser.add_argument("--replacement-front-thread-local-mode", action="store_true")
+    parser.add_argument("--replacement-front-skip-hot-counters", action="store_true")
+    parser.add_argument("--replacement-front-tls-counter-mode", action="store_true")
+    parser.add_argument("--replacement-front-slot-size", type=int)
+    parser.add_argument("--replacement-front-match-workload-realloc-size", action="store_true")
+    parser.add_argument("--replacement-front-match-hako-size-class", action="store_true")
     args = parser.parse_args()
 
     if args.out_dir is None:

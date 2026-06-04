@@ -574,6 +574,36 @@ provider_registration_benchmark_refresh_2026_06_05:
   selected_next_owner=thread_local_or_pure_provider_allocator_thread_shape
   selected_next_action=measure_thread_local_replacement_front_or_pure_provider_boundary_before_more_host_backed_C_shape_work
 
+bench_route_equivalence_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-001
+  purpose=compare_C_mimalloc_LD_PRELOAD_with_hako_replacement_front_under_same_benchmark_conditions
+  frontdoor_tool=tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+  required_same_condition_fields=same_benchmark_binary,same_workload,same_threads,same_iters_per_thread,same_working_set,same_sample_count
+  subject_reference=c_mimalloc_ldpreload
+  subject_candidate=hakorune_replacement_front_ldpreload
+  candidate_execution_route=replacement_front_benchmark
+  candidate_benchmark_front_class=replacement_front_c_shim
+  provider_abi_execution_in_comparison=0
+  replacement_front_bypasses_type_abi=1
+  replacement_front_bypasses_provider_dispatch=1
+  type_abi_hot_path_lookup_count=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_claim=0
+  winner_claim=0
+  report_t1=target/bench-route-equiv-t1.out
+  report_t4_tls=target/bench-route-equiv-t4-tls.out
+  t1_replacement_front_median_ops_per_sec=24,898,409.505
+  t1_replacement_front_vs_mimalloc_ratio=0.899
+  t1_replacement_front_slower_than_mimalloc_percent=11.3
+  t4_tls_replacement_front_median_ops_per_sec=11,545,260.218
+  t4_tls_replacement_front_vs_mimalloc_ratio=0.385
+  t4_tls_replacement_front_slower_than_mimalloc_percent=159.7
+  t4_tls_interpretation=threaded_replacement_front_still_weak_against_C_mimalloc
+  selected_next_owner=thread_local_replacement_front_thread_shape
+  selected_next_action=profile_thread_local_replacement_front_before_any_provider_host_C_shape_work
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
