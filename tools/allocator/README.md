@@ -38,6 +38,10 @@ hakozuna_mixed_ws_report_subjects.py:
   Hakozuna mixed-ws per-subject report line assembly only; no benchmark
   execution logic
 
+hakozuna_mixed_ws_report_replacement_front_subjects.py:
+  Hakozuna mixed-ws replacement-front per-subject report line assembly only;
+  no benchmark execution logic
+
 hakozuna_mixed_ws_report_smoke_fields.py:
   replacement-front smoke pack report fields only; no benchmark execution logic
 

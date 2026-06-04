@@ -13,15 +13,13 @@ import subprocess
 from pathlib import Path
 
 from hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot import read_kv
-from replacement_front_templates import (
-    counter_value,
-)
 from replacement_front_smoke_templates import (
     REPLACEMENT_FRONT_ABANDONED_OWNER_SMOKE_C,
     REPLACEMENT_FRONT_CROSS_THREAD_FREE_SMOKE_C,
     REPLACEMENT_FRONT_CROSS_THREAD_REALLOC_SMOKE_C,
     REPLACEMENT_FRONT_MALLOC_FAMILY_SMOKE_C,
 )
+from replacement_front_support import counter_value
 
 
 def build_c_smoke(out_dir: Path, *, name: str, source_text: str) -> Path:
