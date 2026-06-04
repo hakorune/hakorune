@@ -5,12 +5,11 @@ Purpose
 - Reduce regression surface by centralizing invariants and repeated patterns.
 - Keep behavior unchanged (default-off for any new diagnostics). Adopt gradually.
 
-Status (2025-09-28)
-- S-tier (landed skeletons):
+Status (current catalog; originally split out on 2025-09-28)
+- S-tier helpers:
   - MetadataPropagationBox — type/origin propagation.
   - ConstantEmissionBox — Const emission helpers.
   - TypeAnnotationBox — minimal return-type annotation for known calls.
-- S-tier (new in this pass):
   - RouterPolicyBox — route decision (Unified vs BoxCall).
   - EmitGuardBox — emit-time invariants (LocalSSA finalize + schedule verify).
   - NameConstBox — string Const for function names.
@@ -19,7 +18,10 @@ Status (2025-09-28)
 Call Routing — Unification (2025‑09‑28)
 - Standard method calls now delegate to `emit_unified_call` (single entry).
   - Receiver class hint (origin/type) is resolved inside unified; handlers no longer duplicate it.
-  - RouterPolicy decides Unified vs BoxCall. Unknown/core/user‑instance → BoxCall (behavior‑preserving).
+  - RouterPolicy decides Unified vs BoxCall. Unknown receivers and user instances stay BoxCall;
+    core boxes use Unified only for catalog-backed value-path method families.
+  - `router/catalog.rs` owns the catalog-backed core-box value-path rows; `router/policy.rs`
+    owns only the route decision and logging.
   - Rewrites apply centrally: `rewrite::special` (toString/stringify→str, equals/1) and `rewrite::known` (Known→function).
   - LocalSSA + BlockSchedule + EmitGuard enforce PHI→Copy→Call ordering and in‑block materialization.
 
@@ -28,10 +30,11 @@ Structure
 src/mir/builder/
 ├── metadata/propagate.rs         # MetadataPropagationBox
 ├── emission/constant.rs          # ConstantEmissionBox
-├── emission/compare.rs           # CompareEmissionBox (new)
-├── emission/branch.rs            # BranchEmissionBox (new)
+├── emission/compare.rs           # CompareEmissionBox
+├── emission/branch.rs            # BranchEmissionBox
 ├── types/annotation.rs           # TypeAnnotationBox
-├── router/policy.rs              # RouterPolicyBox
+├── router/policy.rs              # RouterPolicyBox decision entry
+├── router/catalog.rs             # RouterPolicyBox catalog rows
 ├── emit_guard/mod.rs             # EmitGuardBox
 └── name_const.rs                 # NameConstBox
 ```
@@ -51,7 +54,7 @@ Adoption Plan (behavior-preserving)
 1) Replace representative Const sites with `emission::constant`.
 2) Replace ad-hoc type/origin copy with `metadata::propagate`.
 3) Call `types::annotation` where return type is clearly known (string length/size/str etc.).
-4) Use `router::policy::choose_route` in unified call path; later migrate utils’ prefer_legacy to it.
+4) Keep both unified and BoxCall helper paths routed through `router::policy::choose_route`.
 5) Use `emit_guard` to centralize LocalSSA finalize + schedule verify around calls; later extend to branch/compare.
 6) Use `name_const` in rewrite paths to reduce duplication.
 
