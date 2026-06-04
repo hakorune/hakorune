@@ -95,6 +95,10 @@ hako_mimalloc_algorithm_coverage_source_state.py:
   coverage source-observation derivation only; no report I/O or CLI
   orchestration
 
+hako_mimalloc_algorithm_coverage_summary_fields.py:
+  coverage top-level summary report fields only; no report I/O or CLI
+  orchestration
+
 hako_mimalloc_algorithm_coverage_rows.py:
   coverage row refinement only; no report I/O or CLI orchestration
 

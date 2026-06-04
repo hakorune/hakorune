@@ -6,12 +6,8 @@ from pathlib import Path
 
 from hako_mimalloc_algorithm_coverage_support import (
     CoverageRow,
-    ROOT,
-    HAKO_ALLOC,
-    int_field,
     read_fastpath_counts,
     read_kv_report,
-    str_field,
 )
 from hako_mimalloc_algorithm_coverage_field_state import (
     CoverageFieldStateInputs,
@@ -24,6 +20,7 @@ from hako_mimalloc_algorithm_coverage_measurement_state import (
 from hako_mimalloc_algorithm_coverage_model_fields import build_model_report_fields
 from hako_mimalloc_algorithm_coverage_perf_fields import build_perf_report_fields
 from hako_mimalloc_algorithm_coverage_source_state import derive_source_state
+from hako_mimalloc_algorithm_coverage_summary_fields import build_summary_report_fields
 from hako_mimalloc_algorithm_coverage_owner_state import (
     CoverageOwnerStateInputs,
     derive_owner_state,
@@ -302,171 +299,7 @@ def report_dict(
         hotcore_next_bridge=hotcore_next_bridge,
     )
     return {
-        "output_contract": "hako-mimalloc-algorithm-coverage-v0",
-        "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),
-        "replacement_front": str(REPLACEMENT_FRONT.relative_to(ROOT)),
-        "replacement_front_is_full_hako_algorithm": replacement_full_hako,
-        "provider_activation": 0,
-        "production_replacement_active": 0,
-        "winner_claim": 0,
-        "benchmark_report": str(benchmark_report) if benchmark_report is not None else "none",
-        "benchmark_report_consumed": benchmark_report_consumed,
-        "benchmark_replacement_subject": benchmark_subject,
-        "fastpath_report": str(fastpath_report) if fastpath_report is not None else "none",
-        "fastpath_report_consumed": fastpath_report_consumed,
-        "state_report": str(state_report) if state_report is not None else "none",
-        "state_report_consumed": state_report_consumed,
-        "perf_attribution_report": str(perf_attribution_report)
-        if perf_attribution_report is not None
-        else "none",
-        "perf_attribution_report_consumed": perf_attribution_report_consumed,
-        "accumulator_report": str(accumulator_report)
-        if accumulator_report is not None
-        else "none",
-        "accumulator_report_consumed": accumulator_report_consumed,
-        "requested_bytes_accumulator_contract_v0": accumulator_contract_ready,
-        "requested_bytes_accumulator_expected_no_overflow": int_field(
-            accumulator, "expected_no_overflow", 0
-        ),
-        "requested_bytes_accumulator_observed_no_overflow": int_field(
-            accumulator, "observed_no_overflow", 0
-        ),
-        "requested_bytes_accumulator_general_no_overflow_proof": int_field(
-            accumulator, "general_no_overflow_proof", 0
-        ),
-        "requested_bytes_accumulator_source_reorder_allowed": int_field(
-            accumulator, "source_reorder_allowed", 0
-        ),
-        "requested_bytes_accumulator_next_bridge": str_field(
-            accumulator,
-            "next_bridge",
-            "add_public_proof_accumulator_overflow_policy_before_source_reorder",
-        ),
-        "area_count": len(rows),
-        "hako_model_area_count": sum(row.hako_model for row in rows),
-        "replacement_front_area_count": sum(row.replacement_front for row in rows),
-        "model_only_area_count": sum(1 for row in rows if row.status == "model_only"),
-        "split_model_and_fixed_front_area_count": sum(
-            1 for row in rows if row.status == "split_model_and_fixed_front"
-        ),
-        "open_area_count": sum(1 for row in rows if row.status == "open"),
-        "size_class_policy_bridge_plan_v0": 1,
-        "size_class_policy_product_bins_connected": product_bins_consumer_enabled,
-        "size_class_policy_single_class_benchmark_bridge_supported": int(
-            size_class_single_bridge_supported
-        ),
-        "size_class_policy_single_class_bridge_mode": "hako_good_size_request_ceiling"
-        if size_class_single_bridge_supported
-        else "none",
-        "size_class_policy_next_bridge": "product_replacement_bins_pages",
-        "replacement_front_page_bins_plan_v0": 1,
-        "replacement_front_page_bins_supported": int(page_bins_bridge_supported),
-        "replacement_front_page_bins_consumer_enabled": page_bins_consumer_enabled,
-        "replacement_front_page_bins_route": page_bins_route,
-        "replacement_front_page_bins_lookup_route": page_bins_lookup_route,
-        "replacement_front_page_bins_owner": "benchmark_only",
-        "replacement_front_page_bins_product_claim": 0,
-        "replacement_front_benchmark_algorithm_shape": algorithm_shape,
-        "replacement_front_product_bins_consumer_enabled": product_bins_consumer_enabled,
-        "replacement_front_product_bins_route": product_bins_route,
-        "replacement_front_product_pages_bridge_plan_v0": 1,
-        "replacement_front_product_pages_bridge_report_only": 1,
-        "replacement_front_product_pages_consumer_enabled": product_pages_consumer_enabled,
-        "replacement_front_product_pages_route": product_pages_route,
-        "replacement_front_product_pages_source_ready": product_pages_source_ready,
-        "replacement_front_product_pages_full_source_ready": product_pages_full_source_ready,
-        "replacement_front_product_pages_bridge_blocker": product_pages_bridge_blocker,
-        "replacement_front_product_pages_next_bridge": product_pages_next_bridge,
-        "replacement_front_product_pages_non_linear_lookup_plan_v0": product_pages_non_linear_lookup_plan,
-        "replacement_front_product_pages_linear_probe_closed": product_pages_linear_probe_closed,
-        "replacement_front_product_pages_non_linear_lookup_probe_closed": product_pages_non_linear_lookup_probe_closed,
-        "replacement_front_product_pages_non_linear_lookup_decision": product_pages_non_linear_lookup_decision,
-        "replacement_front_product_pages_non_linear_lookup_strategy": product_pages_non_linear_lookup_strategy,
-        "replacement_front_product_pages_non_linear_next_bridge": product_pages_non_linear_next_bridge,
-        "page_map_source_ready": page_map_source_ready,
-        "page_map_release_source_ready": page_map_release_source_ready,
-        "realloc_same_class_source_ready": realloc_same_class_source_ready,
-        "realloc_grow_copy_release_source_ready": realloc_grow_copy_release_source_ready,
-        "huge_page_source_ready": huge_page_source_ready,
-        "osvm_page_source_pilot_ready": osvm_page_source_pilot_ready,
-        "replacement_front_locked_global_multithread_supported": int(locked_front),
-        "replacement_front_thread_local_multithread_supported": int(tls_front),
-        "replacement_front_multithread_claim": 0,
-        "structural_owner_selection_plan_v0": 1,
-        "structural_owner_refresh_required": structural_owner_refresh_required,
-        "structural_owner_selected": structural_owner_selected,
-        "structural_owner_selected_reason": structural_owner_reason,
-        "structural_owner_next_action": structural_owner_next_action,
-        "structural_owner_candidate_0": "page_model_hot_array_source_route_measurement",
-        "structural_owner_candidate_0_ready": page_model_hot_array_measurement_ready,
-        "structural_owner_candidate_1": "product_pages_bridge_non_linear_owner_lookup",
-        "structural_owner_candidate_1_ready": product_pages_non_linear_owner_candidate_ready,
-        "next_perf_owner_selection_plan_v0": next_perf_owner_selection_plan,
-        "next_perf_owner_selected": next_perf_owner_selected,
-        "next_perf_owner_selected_reason": next_perf_owner_reason,
-        "next_perf_owner_next_bridge": next_perf_owner_next_bridge,
-        "page_model_hot_array_bridge_plan_v0": 1,
-        "page_model_hot_array_access_plan_v0": 1,
-        "page_model_hot_array_access_static_scan": 1,
-        "page_model_hot_array_source_migration_selected": hot_array_source_migration_selected,
-        "page_model_hot_array_source_type_ready": hot_array_source_type_ready,
-        "page_model_hot_array_birth_contract_ready": hot_array_birth_contract_ready,
-        "page_model_hot_array_source_migration_blocker": migration_blocker,
-        "page_model_hot_array_next_bridge": "directarray_i64_field_type_and_birth_fixture"
-        if migration_blocker != "none"
-        else "source_migration_measurement",
-        "page_model_hot_array_candidate_type": "DirectArrayI64",
-        "page_model_hot_array_directarray_supported_ops": "get,set",
-        "page_model_hot_array_directarray_missing_ops": "push_or_birth_with_initialized_len"
-        if hot_array_push_count
-        else "none",
-        "page_model_hot_array_source_route_measurement_plan_v0": 1,
-        "page_model_hot_array_source_route_measured": page_model_hot_array_source_route_measured,
-        "page_model_hot_array_source_route_measurement_blocker": hot_array_route_measurement_blocker,
-        "page_model_hot_array_source_route_next_bridge": hot_array_route_next_bridge,
-        "page_model_hot_array_fastpath_direct_array_plan_count": fastpath_direct_array_plan_count,
-        "page_model_hot_array_fastpath_route_decision_count": fastpath_route_decision_count,
-        "page_model_hot_array_fastpath_fast_selected_count": fastpath_fast_selected_count,
-        "page_model_hot_array_fastpath_slow_selected_count": fastpath_slow_selected_count,
-        "page_model_hot_array_perf_delta_measurement_plan_v0": perf_delta_plan,
-        "page_model_hot_array_perf_delta_ready": perf_delta_ready,
-        "page_model_hot_array_perf_delta_blocker": perf_delta_blocker,
-        "page_model_hot_array_perf_delta_next_bridge": perf_delta_next_bridge,
-        "page_model_hot_field_traffic_plan_v0": 1,
-        "page_model_hot_field_traffic_ready": hot_field_plan_ready,
-        "page_model_hot_field_top": hot_field_top,
-        "page_model_hot_field_top_bucket": hot_field_top_bucket,
-        "page_model_hot_field_buckets": field_state.hot_field_buckets,
-        "page_model_hot_field_primitive_hot_state_count": primitive_hot_state_field_count,
-        "page_model_hot_field_public_or_proof_count": public_or_proof_field_count,
-        "page_model_hot_field_observer_counter_count": observer_counter_field_count,
-        "page_model_hot_field_counter_deletion_allowed": 0,
-        "page_model_hot_field_next_bridge": hot_field_next_bridge,
-        "record_state_residence_plan_v0": 1,
-        "record_state_residence_report_only": 1,
-        "record_state_residence_ready": record_state_report_ready,
-        "record_state_field_access_plan_count": record_state_field_access_plan_count,
-        "record_state_field_access_ready": record_state_field_access_ready,
-        "record_state_field_access_lowering_enabled": int_field(
-            state, "record_state_field_access_lowering_enabled", 0
-        ),
-        "record_state_route_decision_enabled": 0,
-        "record_state_lowering_owner_selected": record_state_lowering_owner_selected,
-        "record_state_access_exact_slot_covered_count": record_state_access_exact_slot_covered_count,
-        "record_state_access_exact_slot_missing_count": record_state_access_exact_slot_missing_count,
-        "record_state_lowering_owner_next_bridge": record_state_lowering_owner_next_bridge,
-        "record_state_representation_delta_plan_v0": 1,
-        "record_state_representation_delta_ready": record_state_representation_delta_ready,
-        "record_state_representation_delta_positive_candidate": record_state_representation_delta_positive_candidate,
-        "record_state_representation_delta_blocker": record_state_representation_delta_blocker,
-        "record_state_representation_delta_next_bridge": record_state_representation_delta_next_bridge,
-        "record_state_residence_owner_box": "HakoAllocPageModel",
-        "record_state_residence_candidate_record": "PageState",
-        "record_state_residence_static_candidate_fields": record_state_static_candidates,
-        "record_state_residence_observed_candidate_fields": record_state_observed_candidates,
-        "record_state_residence_rejected_observed_fields": record_state_observed_rejections,
-        "record_state_residence_source_migration_allowed": 0,
-        "record_state_residence_next_bridge": record_state_next_bridge,
+        **build_summary_report_fields(context=locals()),
         **build_perf_report_fields(measurement_state, perf_attribution),
         **build_model_report_fields(context=locals()),
     }
