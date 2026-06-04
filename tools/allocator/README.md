@@ -88,6 +88,10 @@ hako_mimalloc_algorithm_coverage_measurement_state.py:
   coverage benchmark/fastpath/perf measurement derivation only; no report I/O
   or CLI orchestration
 
+hako_mimalloc_algorithm_coverage_perf_fields.py:
+  coverage perf-attribution report field rendering only; no report I/O or CLI
+  orchestration
+
 hako_mimalloc_algorithm_coverage_support.py:
   shared coverage helpers and path/constants only; no CLI orchestration
 
