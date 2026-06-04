@@ -8,6 +8,7 @@ from ctypes import byref, c_size_t, c_void_p
 from pathlib import Path
 
 from provider_package_api_bind_smoke import emit as emit_bind
+from provider_package_api_bind_smoke import init_host_allocator_if_enabled
 from provider_package_api_bind_smoke import load_api, run
 
 
@@ -20,6 +21,7 @@ def emit(
     realloc_claim_pointer_nonzero: int,
     usable_size_claim_result: int,
     usable_size_claim_value: int,
+    host_allocator_init_result: int,
     size: int,
     align: int,
 ) -> str:
@@ -47,6 +49,7 @@ def emit(
         "provider_usable_size_claim_executed=1",
         f"provider_usable_size_claim_result={usable_size_claim_result}",
         f"provider_usable_size_claim_value={usable_size_claim_value}",
+        f"host_allocator_init_result={host_allocator_init_result}",
         f"provider_owns_result={owns_result}",
         "allocation_count=1",
         "free_count=1",
@@ -72,6 +75,9 @@ def main() -> int:
     manifest_path = args.manifest.resolve()
     fields, descriptor, api_info, binary_path = run(manifest_path)
     api = load_api(binary_path)
+    host_allocator_init_result = init_host_allocator_if_enabled(api, fields)
+    if fields.get("host_allocator_vtable_init") == "1" and host_allocator_init_result != 1:
+        raise SystemExit("[provider-package-metadata-preflight] host allocator init failed")
     ptr = int(api.alloc(args.size, args.align) or 0)
     if ptr == 0:
         raise SystemExit("[provider-package-metadata-preflight] provider alloc returned null")
@@ -113,6 +119,7 @@ def main() -> int:
         realloc_claim_pointer_nonzero,
         usable_size_claim_result,
         usable_size_claim_value,
+        host_allocator_init_result,
         args.size,
         args.align,
     )

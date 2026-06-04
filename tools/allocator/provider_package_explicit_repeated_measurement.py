@@ -8,7 +8,7 @@ import resource
 import time
 from pathlib import Path
 
-from provider_package_api_bind_smoke import load_api, run
+from provider_package_api_bind_smoke import init_host_allocator_if_enabled, load_api, run
 
 
 def median_int(values: list[int]) -> int:
@@ -57,6 +57,9 @@ def main() -> int:
     manifest_path = args.manifest.resolve()
     fields, descriptor, api_info, binary_path = run(manifest_path)
     api = load_api(binary_path)
+    host_allocator_init_result = init_host_allocator_if_enabled(api, fields)
+    if fields.get("host_allocator_vtable_init") == "1" and host_allocator_init_result != 1:
+        raise SystemExit("[provider-package-metadata-preflight] host allocator init failed")
 
     sample_elapsed_ns: list[int] = []
     sample_rss_bytes: list[int] = []
@@ -83,6 +86,9 @@ def main() -> int:
         f"descriptor_provider_kind={descriptor['provider_kind']}",
         f"api_abi_major={api_info['api_abi_major']}",
         f"api_table_size={api_info['api_table_size']}",
+        f"host_allocator_vtable_init={fields.get('host_allocator_vtable_init', '0')}",
+        f"host_allocator_init_bound={api_info.get('host_allocator_init_bound', '0')}",
+        f"host_allocator_init_result={host_allocator_init_result}",
         f"warmup_count={args.warmup_count}",
         f"sample_count={args.sample_count}",
         f"operation_repeat={args.operation_repeat}",

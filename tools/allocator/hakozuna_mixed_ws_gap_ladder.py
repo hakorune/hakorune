@@ -189,6 +189,14 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         usable_size_claim_bound = as_int(
             provider, "shim_provider_usable_size_claim_bound_total"
         )
+        host_allocator_init_bound = as_int(provider, "shim_host_allocator_init_bound_total")
+        host_allocator_init_result = as_int(provider, "shim_host_allocator_init_result_total")
+        host_allocator_vtable_init = as_int(
+            provider, "shim_host_allocator_vtable_init_count_total"
+        )
+        host_allocator_usable_size_bound = as_int(
+            provider, "shim_host_allocator_usable_size_bound_total"
+        )
         tracking_insert = as_int(provider, "shim_track_probe_total_total")
         tracking_lookup = as_int(provider, "shim_find_probe_total_total")
         next_owner = provider.get("next_owner_family", "unknown")
@@ -214,6 +222,10 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_usable_size_claim_count_total={usable_size_claim}",
                 f"provider_usable_size_not_owned_count_total={usable_size_not_owned}",
                 f"provider_usable_size_claim_bound_total={usable_size_claim_bound}",
+                f"provider_host_allocator_init_bound_total={host_allocator_init_bound}",
+                f"provider_host_allocator_init_result_total={host_allocator_init_result}",
+                f"provider_host_allocator_vtable_init_count_total={host_allocator_vtable_init}",
+                f"provider_host_allocator_usable_size_bound_total={host_allocator_usable_size_bound}",
                 f"shim_tracking_insert_probe_total={tracking_insert}",
                 f"shim_tracking_lookup_probe_total={tracking_lookup}",
                 "shim_provider_owned_truth=0",

@@ -115,6 +115,7 @@ struct HakoProviderApiV1 {
   int (*free_claim)(void* ptr);
   int (*usable_size_claim)(void* ptr, size_t* out_size);
   int (*realloc_claim)(void* ptr, size_t new_size, void** out_ptr);
+  int (*init_host_allocator)(const HakoHostAllocatorV0* host);
 };
 ```
 
@@ -132,6 +133,7 @@ ABI field order:
 8 free_claim
 9 usable_size_claim
 10 realloc_claim
+11 init_host_allocator
 ```
 
 Tail bind semantics:
@@ -153,14 +155,33 @@ Current allocator-provider route examples:
 ```text
 host_backed_adapter:
   free_claim bound=1 enabled=1 for provider-allocated wrapper pointers
-  usable_size_claim bound=1 enabled=0 until HostAllocatorV0
-  realloc_claim bound=1 enabled=0 until HostAllocatorV0
+  usable_size_claim bound=1 enabled=1 with HostAllocatorV0
+  realloc_claim bound=1 enabled=1 with HostAllocatorV0
 
 pure_allocator / native-slot:
   free_claim bound=1 enabled=1
   usable_size_claim bound=1 enabled=1
   realloc_claim bound=1 enabled=1
 ```
+
+Host allocator vtable layout:
+
+```c
+struct HakoHostAllocatorV0 {
+  uint32_t abi_major;
+  uint32_t struct_size;
+  void* ctx;
+  void* (*malloc_fn)(void* ctx, size_t size);
+  void* (*calloc_fn)(void* ctx, size_t count, size_t size);
+  void* (*realloc_fn)(void* ctx, void* ptr, size_t size);
+  void (*free_fn)(void* ctx, void* ptr);
+  size_t (*usable_size_fn)(void* ctx, void* ptr);
+};
+```
+
+`usable_size_fn` is optional and may be null. The vtable is an explicit host
+allocator dependency; providers must not rediscover host allocator symbols by
+name.
 
 API constants:
 

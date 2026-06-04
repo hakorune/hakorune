@@ -99,10 +99,9 @@ truth. `realloc_claim` follows the same route rule. Current route status:
 
 ```text
 host_backed_adapter:
-  provider_usable_size_claim_enabled=0 until HostAllocatorV0 supplies host
+  provider_usable_size_claim_enabled=1 with HostAllocatorV0 host
   usable-size truth
-  provider_realloc_claim_enabled=0 until HostAllocatorV0 supplies host
-  realloc truth
+  provider_realloc_claim_enabled=1 with HostAllocatorV0 host realloc truth
 
 pure_allocator / native-slot:
   provider_usable_size_claim_enabled=1
@@ -111,7 +110,7 @@ pure_allocator / native-slot:
 
 ## Host Allocator Vtable
 
-Future host-backed adapters use:
+Host-backed adapters use:
 
 ```text
 HostAllocatorV0:
@@ -125,6 +124,9 @@ HostAllocatorV0:
 
 This prevents provider-internal host allocation from re-entering LD_PRELOAD
 symbols and avoids direct dependencies on symbols such as `__libc_malloc`.
+The shim resolves the real host allocator and passes it through
+`init_host_allocator`; the provider stores the vtable pointer and never calls
+`malloc` / `free` symbols directly.
 
 ## Acceptance Fields
 
@@ -139,7 +141,7 @@ compat_alloc_free_owns_still_supported=1
 compat_owns_free_mainline=0
 shim_provider_owned_truth=0
 shim_owns_precheck_hot_path=0
-host_allocator_vtable_init=0
+host_allocator_vtable_init=0|1
 provider_direct_libc_symbol_dependency=0
 ld_preload_reentry_for_host_alloc=0
 product_activation=0
@@ -182,13 +184,16 @@ PROV-ABI-002:
 PROV-ABI-003:
   usable_size_claim optional API tail entry
   native-slot route reports provider_usable_size_claim_enabled=1
-  host-backed route stays provider_usable_size_claim_enabled=0 until HostAllocatorV0
+  host-backed route reports provider_usable_size_claim_enabled=1 after HostAllocatorV0
 
 PROV-ABI-004:
   realloc_claim provider-owned realloc lifecycle
   native-slot route reports provider_realloc_claim_enabled=1
-  host-backed route stays provider_realloc_claim_enabled=0 until HostAllocatorV0
+  host-backed route reports provider_realloc_claim_enabled=1 after HostAllocatorV0
 
 PROV-ABI-005:
   HostAllocatorV0 init for host-backed adapters
+  host-backed route reports host_allocator_vtable_init=1
+  provider direct libc/private symbol dependency remains 0
+  landed as the host-backed vtable implementation slice
 ```

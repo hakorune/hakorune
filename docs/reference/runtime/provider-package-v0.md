@@ -499,10 +499,15 @@ must return `not_owned` / disabled semantics.
 size for provider-owned slots.
 
 `realloc_claim` is route-specific for the same reason. Host-backed adapters
-currently return `not_owned` until `HostAllocatorV0` supplies host realloc
-truth. Native-slot generated providers handle provider-owned pointers in place
-when the new size still fits the fixed slot, return null handled for size zero,
-and report failed for oversized provider-owned realloc requests.
+use `HostAllocatorV0` for host realloc truth. Native-slot generated providers
+handle provider-owned pointers in place when the new size still fits the fixed
+slot, return null handled for size zero, and report failed for oversized
+provider-owned realloc requests.
+
+`HostAllocatorV0` is passed through the optional `init_host_allocator` API tail.
+Host-backed providers must use that vtable for host allocation operations and
+must not resolve libc-private symbols or re-enter LD_PRELOAD malloc/free
+symbols internally.
 
 Report fields:
 
@@ -514,12 +519,12 @@ provider_realloc_claim_enabled=0|1
 provider_usable_size_claim_enabled=0|1
 compat_alloc_free_owns_still_supported=1
 compat_owns_free_mainline=0
-host_allocator_vtable_init=0
+host_allocator_vtable_init=0|1
 ```
 
-`HostAllocatorV0` is a future row. Host-backed adapters must eventually receive
-host allocator operations through an explicit vtable instead of depending on
-LD_PRELOAD symbol reentry or nonportable libc-private symbols.
+Native-slot pure providers do not require a host vtable. Host-backed adapters
+must receive host allocator operations through the explicit vtable instead of
+depending on LD_PRELOAD symbol reentry or nonportable libc-private symbols.
 
 ## v0 Stop Line
 

@@ -344,16 +344,23 @@ provider_abi_claim_boundary:
   provider_usable_size_host_gap=target/prov-abi/usable-size-host-gap-s3.out
   provider_usable_size_native_ladder=target/prov-abi/usable-size-native-ladder.out
   provider_usable_size_native_gap=target/prov-abi/usable-size-native-gap-t1-s3.out
-  provider_usable_size_claim_host_backed=disabled_until_HostAllocatorV0
+  provider_usable_size_claim_host_backed=enabled_with_HostAllocatorV0
   provider_usable_size_claim_native_slot=enabled
   provider_realloc_claim=implemented_narrow
   provider_realloc_host_ladder=target/prov-abi/realloc-claim-host-ladder.out
   provider_realloc_host_gap=target/prov-abi/realloc-claim-host-gap-s3.out
   provider_realloc_native_ladder=target/prov-abi/realloc-claim-native-ladder.out
   provider_realloc_native_gap=target/prov-abi/realloc-claim-native-gap-t1-s3.out
-  provider_realloc_claim_host_backed=disabled_until_HostAllocatorV0
+  provider_realloc_claim_host_backed=enabled_with_HostAllocatorV0
   provider_realloc_claim_native_slot=enabled
-  host_allocator_vtable=next
+  host_allocator_vtable=implemented_for_host_backed
+  host_allocator_host_ladder=target/prov-abi/host-vtable-host-ladder.out
+  host_allocator_native_ladder=target/prov-abi/host-vtable-native-ladder.out
+  host_allocator_host_gap=target/prov-abi/host-vtable-host-gap-s3.out
+  host_allocator_host_usable_gap=target/prov-abi/host-vtable-host-usable-gap-s3.out
+  host_allocator_vtable_init_host_backed=enabled
+  provider_direct_libc_symbol_dependency=0
+  ld_preload_reentry_for_host_alloc=0
   product_activation=0
   global_allocator_claim=0
   hook_installed=0
@@ -934,12 +941,17 @@ PROV-ABI-002:
 PROV-ABI-003:
   add optional usable_size_claim API tail entry
   native-slot route owns usable-size truth
-  host-backed route stays disabled until HostAllocatorV0
+  host-backed route was deferred until PROV-ABI-005 HostAllocatorV0
 
 PROV-ABI-004:
   add optional realloc_claim API tail entry
   native-slot route handles provider-owned realloc lifecycle
-  host-backed route stays disabled until HostAllocatorV0
+  host-backed route was deferred until PROV-ABI-005 HostAllocatorV0
+
+PROV-ABI-005:
+  add HostAllocatorV0 init tail entry
+  host-backed route receives explicit host malloc/free/realloc/usable_size vtable
+  provider direct libc/private symbol dependency remains closed
 ```
 
 PROV-ABI-002 landed as a narrow ABI-boundary cleanup:

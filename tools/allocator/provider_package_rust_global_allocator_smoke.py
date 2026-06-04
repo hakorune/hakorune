@@ -25,6 +25,18 @@ const API_MAJOR: u16 = 1;
 const TRACK_CAP: usize = 65536;
 
 #[repr(C)]
+struct HakoHostAllocatorV0 {
+    abi_major: u32,
+    struct_size: u32,
+    ctx: *mut c_void,
+    malloc_fn: Option<unsafe extern "C" fn(*mut c_void, usize) -> *mut c_void>,
+    calloc_fn: Option<unsafe extern "C" fn(*mut c_void, usize, usize) -> *mut c_void>,
+    realloc_fn: Option<unsafe extern "C" fn(*mut c_void, *mut c_void, usize) -> *mut c_void>,
+    free_fn: Option<unsafe extern "C" fn(*mut c_void, *mut c_void)>,
+    usable_size_fn: Option<unsafe extern "C" fn(*mut c_void, *mut c_void) -> usize>,
+}
+
+#[repr(C)]
 struct HakoProviderApiV1 {
     magic: u32,
     abi_major: u16,
@@ -34,6 +46,10 @@ struct HakoProviderApiV1 {
     alloc: Option<unsafe extern "C" fn(usize, usize) -> *mut c_void>,
     free: Option<unsafe extern "C" fn(*mut c_void)>,
     owns: Option<unsafe extern "C" fn(*mut c_void) -> c_int>,
+    free_claim: Option<unsafe extern "C" fn(*mut c_void) -> c_int>,
+    usable_size_claim: Option<unsafe extern "C" fn(*mut c_void, *mut usize) -> c_int>,
+    realloc_claim: Option<unsafe extern "C" fn(*mut c_void, usize, *mut *mut c_void) -> c_int>,
+    init_host_allocator: Option<unsafe extern "C" fn(*const HakoHostAllocatorV0) -> c_int>,
 }
 
 type GetApi = unsafe extern "C" fn() -> *mut HakoProviderApiV1;
@@ -43,8 +59,10 @@ unsafe extern "C" {
     fn dlopen(filename: *const c_char, flags: c_int) -> *mut c_void;
     fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
     fn malloc(size: usize) -> *mut c_void;
+    fn calloc(count: usize, size: usize) -> *mut c_void;
     fn free(ptr: *mut c_void);
     fn realloc(ptr: *mut c_void, size: usize) -> *mut c_void;
+    fn malloc_usable_size(ptr: *mut c_void) -> usize;
 }
 
 struct ProviderGlobalAlloc;
@@ -64,7 +82,37 @@ static RUNTIME_FALLBACK_COUNT: AtomicUsize = AtomicUsize::new(0);
 static INIT_FALLBACK_COUNT: AtomicUsize = AtomicUsize::new(0);
 static POINTER_TABLE_OVERFLOW: AtomicUsize = AtomicUsize::new(0);
 static mut API: *mut HakoProviderApiV1 = ptr::null_mut();
+static mut HOST_ALLOCATOR: HakoHostAllocatorV0 = HakoHostAllocatorV0 {
+    abi_major: 0,
+    struct_size: std::mem::size_of::<HakoHostAllocatorV0>() as u32,
+    ctx: ptr::null_mut(),
+    malloc_fn: Some(host_malloc),
+    calloc_fn: Some(host_calloc),
+    realloc_fn: Some(host_realloc),
+    free_fn: Some(host_free),
+    usable_size_fn: Some(host_usable_size),
+};
 static mut TRACKED_PTRS: [usize; TRACK_CAP] = [0; TRACK_CAP];
+
+unsafe extern "C" fn host_malloc(_ctx: *mut c_void, size: usize) -> *mut c_void {
+    malloc(size)
+}
+
+unsafe extern "C" fn host_calloc(_ctx: *mut c_void, count: usize, size: usize) -> *mut c_void {
+    calloc(count, size)
+}
+
+unsafe extern "C" fn host_realloc(_ctx: *mut c_void, ptr: *mut c_void, size: usize) -> *mut c_void {
+    realloc(ptr, size)
+}
+
+unsafe extern "C" fn host_free(_ctx: *mut c_void, ptr: *mut c_void) {
+    free(ptr)
+}
+
+unsafe extern "C" fn host_usable_size(_ctx: *mut c_void, ptr: *mut c_void) -> usize {
+    malloc_usable_size(ptr)
+}
 
 unsafe fn track_ptr(ptr: *mut u8) {
     if ptr.is_null() {
@@ -152,6 +200,22 @@ unsafe fn ensure_provider() -> bool {
         return false;
     }
     API = api;
+    let host_allocator_required =
+        !getenv(b"HAKORUNE_PROVIDER_HOST_ALLOCATOR_REQUIRED\0".as_ptr().cast()).is_null();
+    if let Some(init_host_allocator) = (*api).init_host_allocator {
+        let init_result = init_host_allocator(ptr::addr_of!(HOST_ALLOCATOR));
+        if host_allocator_required && init_result != 1 {
+            PROVIDER_BIND_FAILURE.fetch_add(1, Ordering::Relaxed);
+            API = ptr::null_mut();
+            IN_PROVIDER_INIT.store(false, Ordering::Release);
+            return false;
+        }
+    } else if host_allocator_required {
+        PROVIDER_BIND_FAILURE.fetch_add(1, Ordering::Relaxed);
+        API = ptr::null_mut();
+        IN_PROVIDER_INIT.store(false, Ordering::Release);
+        return false;
+    }
     PROVIDER_BIND_SUCCESS.fetch_add(1, Ordering::Relaxed);
     PROVIDER_READY.store(true, Ordering::Release);
     IN_PROVIDER_INIT.store(false, Ordering::Release);
@@ -248,7 +312,7 @@ def main() -> int:
     args = parser.parse_args()
 
     manifest_path = args.manifest.resolve()
-    _fields, _descriptor, _api, binary_path = run(manifest_path)
+    fields, _descriptor, _api, binary_path = run(manifest_path)
 
     out_dir = args.out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -264,6 +328,8 @@ def main() -> int:
 
     env = os.environ.copy()
     env["HAKORUNE_PROVIDER_LIBRARY"] = str(binary_path)
+    if fields.get("host_allocator_vtable_init") == "1":
+        env["HAKORUNE_PROVIDER_HOST_ALLOCATOR_REQUIRED"] = "1"
     completed = subprocess.run(
         [str(rust_binary)],
         env=env,

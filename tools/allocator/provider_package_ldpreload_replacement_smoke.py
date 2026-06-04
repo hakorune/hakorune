@@ -33,11 +33,30 @@ typedef int (*hako_provider_owns_fn)(void*);
 typedef int (*hako_provider_free_claim_fn)(void*);
 typedef int (*hako_provider_usable_size_claim_fn)(void*, size_t*);
 typedef int (*hako_provider_realloc_claim_fn)(void*, size_t, void**);
+struct HakoHostAllocatorV0;
+typedef int (*hako_provider_init_host_allocator_fn)(const struct HakoHostAllocatorV0*);
 typedef size_t (*hako_provider_usable_size_fn)(void*);
 typedef void* (*hako_malloc_fn)(size_t);
 typedef void* (*hako_calloc_fn)(size_t, size_t);
 typedef void* (*hako_realloc_fn)(void*, size_t);
 typedef void (*hako_free_fn)(void*);
+typedef size_t (*hako_malloc_usable_size_fn)(void*);
+typedef void* (*hako_host_malloc_fn)(void*, size_t);
+typedef void* (*hako_host_calloc_fn)(void*, size_t, size_t);
+typedef void* (*hako_host_realloc_fn)(void*, void*, size_t);
+typedef void (*hako_host_free_fn)(void*, void*);
+typedef size_t (*hako_host_usable_size_fn)(void*, void*);
+
+struct HakoHostAllocatorV0 {
+  uint32_t abi_major;
+  uint32_t struct_size;
+  void* ctx;
+  hako_host_malloc_fn malloc_fn;
+  hako_host_calloc_fn calloc_fn;
+  hako_host_realloc_fn realloc_fn;
+  hako_host_free_fn free_fn;
+  hako_host_usable_size_fn usable_size_fn;
+};
 
 struct HakoProviderApiV1 {
   uint32_t magic;
@@ -51,6 +70,7 @@ struct HakoProviderApiV1 {
   hako_provider_free_claim_fn free_claim;
   hako_provider_usable_size_claim_fn usable_size_claim;
   hako_provider_realloc_claim_fn realloc_claim;
+  hako_provider_init_host_allocator_fn init_host_allocator;
 };
 
 typedef struct HakoProviderApiV1* (*hako_get_api_fn)(void);
@@ -71,7 +91,9 @@ static hako_provider_owns_fn provider_owns_fn = 0;
 static hako_provider_free_claim_fn provider_free_claim_fn = 0;
 static hako_provider_usable_size_claim_fn provider_usable_size_claim_fn = 0;
 static hako_provider_realloc_claim_fn provider_realloc_claim_fn = 0;
+static hako_provider_init_host_allocator_fn provider_init_host_allocator_fn = 0;
 static hako_provider_usable_size_fn provider_usable_size_fn = 0;
+static hako_malloc_usable_size_fn real_malloc_usable_size_fn = 0;
 static int resolving_real = 0;
 static int loading_provider = 0;
 static int provider_load_attempted = 0;
@@ -80,6 +102,33 @@ static int provider_usable_size_mode = 0;
 static int provider_assume_owned_mode = 0;
 static int in_provider_call = 0;
 static struct HakoTrackedPtr tracked[HAKO_POINTER_TABLE_CAP];
+
+static void* hako_host_malloc(void* ctx, size_t size) {
+  (void)ctx;
+  return real_malloc_fn ? real_malloc_fn(size) : 0;
+}
+
+static void* hako_host_calloc(void* ctx, size_t count, size_t size) {
+  (void)ctx;
+  return real_calloc_fn ? real_calloc_fn(count, size) : 0;
+}
+
+static void* hako_host_realloc(void* ctx, void* ptr, size_t size) {
+  (void)ctx;
+  return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
+}
+
+static void hako_host_free(void* ctx, void* ptr) {
+  (void)ctx;
+  if (real_free_fn) {
+    real_free_fn(ptr);
+  }
+}
+
+static size_t hako_host_usable_size(void* ctx, void* ptr) {
+  (void)ctx;
+  return real_malloc_usable_size_fn ? real_malloc_usable_size_fn(ptr) : 0u;
+}
 
 static unsigned long long provider_alloc_count = 0;
 static unsigned long long provider_calloc_count = 0;
@@ -95,6 +144,10 @@ static unsigned long long provider_realloc_claim_count = 0;
 static unsigned long long provider_realloc_not_owned_count = 0;
 static unsigned long long provider_realloc_failed_count = 0;
 static unsigned long long provider_realloc_claim_bound = 0;
+static unsigned long long host_allocator_init_bound = 0;
+static unsigned long long host_allocator_init_result = 0;
+static unsigned long long host_allocator_vtable_init_count = 0;
+static unsigned long long host_allocator_usable_size_bound = 0;
 static unsigned long long runtime_real_fallback_count = 0;
 static unsigned long long init_real_fallback_count = 0;
 static unsigned long long host_passthrough_count = 0;
@@ -159,6 +212,13 @@ static void hako_resolve_real(void) {
   }
   if (!real_free_fn) {
     real_free_fn = (hako_free_fn)dlsym(RTLD_NEXT, "free");
+  }
+  if (!real_malloc_usable_size_fn) {
+    real_malloc_usable_size_fn =
+        (hako_malloc_usable_size_fn)dlsym(RTLD_NEXT, "malloc_usable_size");
+    if (real_malloc_usable_size_fn) {
+      host_allocator_usable_size_bound = 1;
+    }
   }
   resolving_real = 0;
 }
@@ -313,6 +373,10 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_provider_realloc_not_owned_count", provider_realloc_not_owned_count);
   hako_write_kv(fd, "shim_provider_realloc_failed_count", provider_realloc_failed_count);
   hako_write_kv(fd, "shim_provider_realloc_claim_bound", provider_realloc_claim_bound);
+  hako_write_kv(fd, "shim_host_allocator_init_bound", host_allocator_init_bound);
+  hako_write_kv(fd, "shim_host_allocator_init_result", host_allocator_init_result);
+  hako_write_kv(fd, "shim_host_allocator_vtable_init_count", host_allocator_vtable_init_count);
+  hako_write_kv(fd, "shim_host_allocator_usable_size_bound", host_allocator_usable_size_bound);
   hako_write_kv(fd, "shim_runtime_real_fallback_count", runtime_real_fallback_count);
   hako_write_kv(fd, "shim_init_real_fallback_count", init_real_fallback_count);
   hako_write_kv(fd, "shim_init_fallback_loading_provider_count", init_fallback_loading_provider_count);
@@ -411,6 +475,27 @@ static int hako_ensure_provider(void) {
       api->realloc_claim) {
     provider_realloc_claim_fn = api->realloc_claim;
     provider_realloc_claim_bound = 1;
+  }
+  if (api->api_table_size >=
+          offsetof(struct HakoProviderApiV1, init_host_allocator) + sizeof(api->init_host_allocator) &&
+      api->init_host_allocator) {
+    provider_init_host_allocator_fn = api->init_host_allocator;
+    host_allocator_init_bound = 1;
+  }
+  if (provider_init_host_allocator_fn) {
+    static struct HakoHostAllocatorV0 host_allocator;
+    host_allocator.abi_major = 0u;
+    host_allocator.struct_size = sizeof(struct HakoHostAllocatorV0);
+    host_allocator.ctx = 0;
+    host_allocator.malloc_fn = hako_host_malloc;
+    host_allocator.calloc_fn = hako_host_calloc;
+    host_allocator.realloc_fn = hako_host_realloc;
+    host_allocator.free_fn = hako_host_free;
+    host_allocator.usable_size_fn = real_malloc_usable_size_fn ? hako_host_usable_size : 0;
+    in_provider_call = 1;
+    host_allocator_init_result = provider_init_host_allocator_fn(&host_allocator);
+    in_provider_call = 0;
+    host_allocator_vtable_init_count++;
   }
   if (provider_usable_size_mode) {
     if (provider_usable_size_claim_fn) {
