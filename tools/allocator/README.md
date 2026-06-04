@@ -24,7 +24,11 @@ replacement_front_report.py:
   no shim generation, no Provider ABI calls, no allocator behavior changes
 
 hakozuna_mixed_ws_report_render.py:
-  Hakozuna mixed-ws report line assembly only; no benchmark execution logic
+  Hakozuna mixed-ws report preamble assembly only; no benchmark execution logic
+
+hakozuna_mixed_ws_report_subjects.py:
+  Hakozuna mixed-ws per-subject report line assembly only; no benchmark
+  execution logic
 
 hakozuna_mixed_ws_report_smoke_fields.py:
   replacement-front smoke pack report fields only; no benchmark execution logic
