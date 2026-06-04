@@ -34,6 +34,10 @@ replacement_front_report.py:
 hakozuna_mixed_ws_report_render.py:
   Hakozuna mixed-ws report preamble assembly only; no benchmark execution logic
 
+hakozuna_mixed_ws_report_preamble.py:
+  Hakozuna mixed-ws report preamble and metadata line assembly only; no
+  benchmark execution logic
+
 hakozuna_mixed_ws_report_subjects.py:
   Hakozuna mixed-ws per-subject report line assembly only; no benchmark
   execution logic
