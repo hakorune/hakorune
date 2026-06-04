@@ -23,9 +23,13 @@ replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
 
+replacement_front_smoke_templates.py:
+  focused non-activating replacement-front C smoke source text only;
+  no runner logic, no report fields
+
 replacement_front_templates.py:
-  benchmark-only replacement-front C templates, deterministic workload helpers,
-  and .hako SizeClassBox mirror helpers
+  benchmark-only replacement-front fixed-slot shim template, deterministic
+  workload helpers, and .hako SizeClassBox mirror helpers
 ```
 
 Before claiming that an allocator benchmark is measuring the full `.hako`

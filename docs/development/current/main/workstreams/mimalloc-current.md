@@ -812,6 +812,27 @@ allocator_tool_smoke_runner_split_2026_06_05:
   selected_next_owner=allocator_tool_smoke_template_split
   selected_next_action=move_smoke_c_templates_behind_reexport_facade_without_behavior_change
 
+allocator_tool_smoke_template_split_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-CLEAN-003
+  purpose=move_focused_smoke_c_source_text_to_dedicated_module_without_behavior_change
+  cleanup_kind=BoxShape
+  behavior_change=0
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  target_primary=tools/allocator/replacement_front_templates.py
+  target_primary_lines_before=1663
+  target_primary_lines_after=1512
+  new_module=tools/allocator/replacement_front_smoke_templates.py
+  keep_in_templates=benchmark-only fixed-slot shim template,deterministic workload helpers,SizeClassBox mirror helpers
+  move_out=focused_smoke_c_source_text
+  changed_tools=tools/allocator/replacement_front_smoke_templates.py,tools/allocator/replacement_front_templates.py,tools/allocator/replacement_front_smokes.py,tools/allocator/README.md,tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh
+  selected_next_owner=allocator_tool_sizeclass_split
+  selected_next_action=move_size_class_helpers_into_dedicated_module_without_behavior_change
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out
