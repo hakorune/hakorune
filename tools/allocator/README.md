@@ -890,6 +890,31 @@ subject_N_shim_init_real_fallback_per_provider_operation=...
 subject_N_next_owner_family=provider_alloc_free_internal_real_malloc_boundary
 ```
 
+For the short "why is provider-backed replacement cold against C mimalloc?"
+front door, use the gap ladder. It runs the same compare tool and emits only the
+decision fields needed for owner selection:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_gap_ladder.py \
+  --allow-ldconfig-discovery \
+  --manifest target/.../provider/pkg/hakorune_provider.json \
+  --out target/hakozuna-mixed-ws-gap/report.out \
+  --out-dir target/hakozuna-mixed-ws-gap/artifacts \
+  --sample-count 5 \
+  --threads 4
+```
+
+The summary keeps winner and production replacement claims closed while exposing
+the cold-path tax directly:
+
+```text
+provider_vs_mimalloc_ratio=...
+provider_init_real_fallback_per_provider_operation=...
+provider_runtime_real_fallback_count_total=0
+provider_pointer_table_overflow_total=0
+provider_next_owner_family=provider_alloc_free_internal_real_malloc_boundary
+```
+
 Use those fields to avoid reading the current provider LD_PRELOAD bridge as a
 direct `.hako` allocator-core speed claim.
 
