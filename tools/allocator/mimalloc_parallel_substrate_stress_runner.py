@@ -9,7 +9,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-TEST_FILTER = "mimalloc_parallel_substrate_stress"
+TEST_FILTER = "mimalloc_parallel_stress"
+REPORT_MARKER = "mimalloc_parallel_stress"
 PACKAGE = "nyash_kernel"
 
 
@@ -57,7 +58,7 @@ def main() -> int:
 
     values = read_kv_lines(completed.stdout)
     for key in (
-        "mimalloc_parallel_substrate_stress",
+        REPORT_MARKER,
         "worker_count",
         "iterations_per_worker",
         "expected_remote_free_count",
@@ -69,7 +70,7 @@ def main() -> int:
         if key not in values:
             raise SystemExit(f"missing stress report field: {key}")
 
-    if values.get("mimalloc_parallel_substrate_stress") != "1":
+    if values.get(REPORT_MARKER) != "1":
         raise SystemExit("stress report marker missing")
     if values.get("summary") != "ok":
         raise SystemExit("stress report did not finish cleanly")
@@ -94,7 +95,7 @@ def main() -> int:
         "mimalloc_parallel_substrate_stress_runner=1",
         "output_contract=mimalloc-comparison-par-stress-evidence-v0",
         "cargo_test_target=nyash_kernel",
-        "cargo_test_filter=mimalloc_parallel_substrate_stress",
+        f"cargo_test_filter={TEST_FILTER}",
         "cargo_test_passed=1",
         f"worker_count={worker_count}",
         f"iterations_per_worker={iterations_per_worker}",

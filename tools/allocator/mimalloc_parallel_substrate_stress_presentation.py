@@ -41,7 +41,7 @@ def main() -> int:
     report = read_kv(args.report)
     require(report, "output_contract", "mimalloc-comparison-par-stress-evidence-v0")
     require(report, "cargo_test_target", "nyash_kernel")
-    require(report, "cargo_test_filter", "mimalloc_parallel_substrate_stress")
+    require(report, "cargo_test_filter", "mimalloc_parallel_stress")
     require(report, "cargo_test_passed", "1")
     require(report, "summary", "ok")
     require(report, "winner_claim", "0")
