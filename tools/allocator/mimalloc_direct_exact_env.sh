@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Canonical environment for current mimalloc direct-exact measurements.
+# Canonical environment for current mimalloc direct-exact measurements and
+# parity proofs.
 #
-# Source this file before direct-exact mimalloc perf work:
+# Source this file before direct-exact mimalloc perf/proof work:
 #   source tools/allocator/mimalloc_direct_exact_env.sh
 #
 # Or execute it as a small wrapper:
@@ -81,9 +82,9 @@ usage:
   tools/allocator/mimalloc_direct_exact_env.sh --check
   tools/allocator/mimalloc_direct_exact_env.sh -- <command> [args...]
 
-This is the canonical direct-exact mimalloc measurement environment.
+This is the canonical direct-exact mimalloc measurement/proof environment.
 Do not hand-type HAKO_TYPED_OBJECT_STORE / HAKO_ARRAY_SLOT_STORE for current
-mimalloc parity measurements.
+mimalloc parity measurements or guards.
 USAGE
       ;;
     *)

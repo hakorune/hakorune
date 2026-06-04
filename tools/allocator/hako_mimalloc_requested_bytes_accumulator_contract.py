@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Emit the representative requested-bytes accumulator contract.
 
-This is workload evidence, not a broad compiler proof. It fixes the arithmetic
-for the current representative object-lifecycle workload so source/backend
-probes can distinguish:
+This fixes the arithmetic for the current representative object-lifecycle
+workload and reports whether the source-side accumulator policy is present, so
+source/backend probes can distinguish:
 
 * observed no-overflow for this benchmark shape
-* missing general no-overflow proof for arbitrary `.hako` code
+* source-side reject-before-accumulate overflow policy for arbitrary page-model
+  requested_bytes updates
 """
 
 from __future__ import annotations
@@ -16,9 +17,11 @@ from pathlib import Path
 
 
 I64_SIGNED_MAX = (1 << 63) - 1
+SOURCE_ACCUMULATOR_LIMIT = 536_870_911
 ALLOCATIONS_PER_RUN = 64
 PER_RUN_REQUESTED_BYTES = 33254
 MAX_REQUESTED_SIZE = 528
+PAGE_BOX = Path("lang/src/hako_alloc/memory/page_box.hako")
 
 
 def read_kv(path: Path | None) -> dict[str, str]:
@@ -38,6 +41,27 @@ def positive_int(value: int, name: str) -> int:
     if value < 1:
         raise SystemExit(f"{name} must be >= 1")
     return value
+
+
+def source_overflow_policy_ready(root: Path) -> bool:
+    page_box = root / PAGE_BOX
+    if not page_box.exists():
+        return False
+    text = page_box.read_text(encoding="utf-8")
+    required = [
+        "requestedBytesAccumulatorLimit",
+        "canAccumulateRequestedBytes",
+        "recordRequestedBytes",
+        str(SOURCE_ACCUMULATOR_LIMIT),
+        "limit - me.requested_bytes",
+        "requested_size > remaining",
+        "if me.recordRequestedBytes(requested_size) == 0",
+        "me.reject_count = me.reject_count + 1",
+        "me.requested_bytes = me.requested_bytes + requested_size",
+    ]
+    return all(item in text for item in required) and text.count(
+        "if me.recordRequestedBytes(requested_size) == 0"
+    ) >= 3
 
 
 def main() -> int:
@@ -63,15 +87,28 @@ def main() -> int:
     per_run_no_overflow = int(PER_RUN_REQUESTED_BYTES <= I64_SIGNED_MAX)
     observed_no_overflow = int(0 <= observed_requested <= I64_SIGNED_MAX)
     expected_no_overflow = int(0 <= expected_requested <= I64_SIGNED_MAX)
-    source_reorder_allowed = 0
-    general_no_overflow_proof = 0
+    source_policy_ready = int(source_overflow_policy_ready(Path.cwd()))
+    expected_within_source_limit = int(expected_requested <= SOURCE_ACCUMULATOR_LIMIT)
+    observed_within_source_limit = int(observed_requested <= SOURCE_ACCUMULATOR_LIMIT)
+    source_reorder_allowed = int(
+        source_policy_ready and expected_within_source_limit and observed_within_source_limit
+    )
+    general_no_overflow_proof = source_reorder_allowed
+    next_bridge = (
+        "source_reorder_probe_after_requested_bytes_overflow_policy"
+        if source_policy_ready
+        else "add_public_proof_accumulator_overflow_policy_before_source_reorder"
+    )
 
     lines = [
         "output_contract=hako-mimalloc-requested-bytes-accumulator-contract-v0",
         "workload=representative-object-lifecycle-small-block-v0",
         "accumulator_field=requested_bytes",
         "accumulator_kind=public_semantics_proof_evidence",
-        "accumulator_update=checked_add_sign_guard",
+        "accumulator_update=reject_before_accumulate_source_limit",
+        f"source_overflow_policy_ready={source_policy_ready}",
+        "source_overflow_policy=reject_before_accumulate",
+        f"source_overflow_limit={SOURCE_ACCUMULATOR_LIMIT}",
         f"operation_repeat={operation_repeat}",
         f"observed_operation_repeat={observed_repeat}",
         f"operation_repeat_matches={repeat_matches}",
@@ -84,10 +121,12 @@ def main() -> int:
         f"requested_bytes_matches_workload_formula={requested_matches}",
         f"expected_no_overflow={expected_no_overflow}",
         f"observed_no_overflow={observed_no_overflow}",
+        f"expected_within_source_overflow_limit={expected_within_source_limit}",
+        f"observed_within_source_overflow_limit={observed_within_source_limit}",
         f"observed_i64_margin={I64_SIGNED_MAX - observed_requested}",
         f"general_no_overflow_proof={general_no_overflow_proof}",
         f"source_reorder_allowed={source_reorder_allowed}",
-        "next_bridge=add_public_proof_accumulator_overflow_policy_before_source_reorder",
+        f"next_bridge={next_bridge}",
         "winner_claim=0",
         "provider_active=0",
         "replacement_active=0",

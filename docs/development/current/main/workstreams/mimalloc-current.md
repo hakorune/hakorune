@@ -447,18 +447,12 @@ the dominant context is `acquireFreshSmall`-like
 (`requested_bytes/free_top/peak_used`). The next source/backend slice should
 therefore focus on this acquire-like body before reopening
 release/init/store-layout probes. However, the same context also shows the
-`requested_bytes` public/proof accumulator protected by a checked overflow
-branch before the primitive `free_top` store. Do not reorder or sink that
-store until an explicit overflow policy / proof is added. The
-`public_proof_accumulator_plan_v0` report names this as
-`requested_bytes` with `checked_add_sign_guard`, and keeps
-`source_reorder_allowed=0`. The direct perf tool can also pass observed
-`requested_bytes` from the benchmark run and report observed no-overflow, but
-that is measurement evidence only; the general compiler/source proof remains
-`0` until an explicit accumulator overflow contract is added. The weighted
-store classifier says the store owner is primitive hot-state dominant, so do
-not misread the current evidence as primarily a public/proof counter deletion
-opportunity.
+`requested_bytes` public/proof accumulator. That accumulator now has an
+explicit reject-before-accumulate source cap before the primitive `free_top`
+store, so the representative 8192-repeat workload can provide source-side
+overflow-policy proof for that cap. The weighted store classifier still says
+the store owner is primitive hot-state dominant, so do not misread the current
+evidence as primarily a public/proof counter deletion opportunity.
 
 The workload arithmetic is now available as a separate requested-bytes
 accumulator contract:
@@ -466,17 +460,39 @@ accumulator contract:
 ```text
 output_contract=hako-mimalloc-requested-bytes-accumulator-contract-v0
 accumulator_field=requested_bytes
+accumulator_update=reject_before_accumulate_source_limit
+source_overflow_policy_ready=1
+source_overflow_limit=536870911
 per_run_requested_bytes=33254
 expected_no_overflow=1
 observed_no_overflow=1
-general_no_overflow_proof=0
-source_reorder_allowed=0
+expected_within_source_overflow_limit=1
+observed_within_source_overflow_limit=1
+general_no_overflow_proof=1
+source_reorder_allowed=1
 ```
 
-This narrows the next implementation decision without changing source
-semantics: a benchmark-specific probe may use the bounded workload evidence,
-but a general source/backend reorder still needs an explicit no-overflow
-contract.
+The source now routes allocation paths through
+`recordRequestedBytes(requested_size)`, which rejects accumulation before
+mutating allocation state when the update would exceed the source policy cap.
+The VM page-model proof was recovered first (`shape=14`, current
+DirectArrayI64/i64 field contract, and selected
+`HakoAllocPageModel.acquire_usize/1` shim allowance). Then an exact-numeric
+helper-field mutation regression was fixed across VM and pure-first EXE and
+pinned with
+`tools/checks/k2_wide_vm_exact_numeric_helper_field_mutation_guard.sh`, so the
+policy can stay in a helper instead of being pulled back into callers for VM
+reasons. The LLVM main-lane page-model proof is pinned separately by
+`tools/checks/k2_wide_mimalloc_page_model_guard.sh`, which now runs the
+pure-first EXE through `tools/allocator/mimalloc_direct_exact_env.sh` so
+`DirectArrayI64` free-stack semantics are tested on the direct-exact front, not
+the public ArrayBox compatibility path. Direct-exact mimalloc guards should
+source that preset and call `mimalloc_direct_exact_env_check`, rather than
+hand-typing `HAKO_ARRAY_SLOT_STORE` / `HAKO_TYPED_OBJECT_STORE`. The
+representative 8192-repeat workload is within the cap and may proceed to a
+source-reorder probe; the repeat-amplified 65536 workload is outside this cap
+and still reports `source_reorder_allowed=0` until a broader cap/contract is
+explicitly accepted.
 
 A `.hako` acquire-family store-order probe was measured and closed as a
 nonkeeper:

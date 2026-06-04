@@ -1,0 +1,40 @@
+// vm-helper-exact-numeric-field-mutation-proof
+// Purpose: prove VM receiver field mutation through a helper for exact-numeric usize fields.
+
+box HelperFieldMutationCounter {
+    value: usize = 0
+    write_count: i64 = 0
+
+    birth(seed: usize) {
+        me.value = seed
+    }
+
+    addViaHelper(delta: usize): usize {
+        return me.applyAdd(delta)
+    }
+
+    applyAdd(delta: usize): usize {
+        me.value = me.value + delta
+        me.write_count = me.write_count + 1
+        return me.value
+    }
+}
+
+static box Main {
+    main(args) {
+        local counter = new HelperFieldMutationCounter(5)
+        local first = counter.addViaHelper(7)
+        local second = counter.addViaHelper(11)
+
+        print("vm-helper-exact-numeric-field-mutation-proof")
+        print("values=" + first + "," + second + "," + counter.value + "," + counter.write_count)
+
+        if first == 12 && second == 23 && counter.value == 23 && counter.write_count == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

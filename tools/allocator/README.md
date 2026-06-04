@@ -421,8 +421,7 @@ separate workload contract:
 
 ```bash
 python3 tools/allocator/hako_mimalloc_requested_bytes_accumulator_contract.py \
-  --operation-repeat 65536 \
-  --measurement-report target/mimalloc-store-shape-repeat65536.asm.txt
+  --operation-repeat 8192
 ```
 
 Expected handoff fields:
@@ -430,24 +429,43 @@ Expected handoff fields:
 ```text
 output_contract=hako-mimalloc-requested-bytes-accumulator-contract-v0
 accumulator_field=requested_bytes
+accumulator_update=reject_before_accumulate_source_limit
+source_overflow_policy_ready=1
+source_overflow_limit=536870911
 per_run_requested_bytes=33254
 expected_no_overflow=1
 observed_no_overflow=1
-general_no_overflow_proof=0
-source_reorder_allowed=0
+expected_within_source_overflow_limit=1
+observed_within_source_overflow_limit=1
+general_no_overflow_proof=1
+source_reorder_allowed=1
 ```
 
 `hako_mimalloc_algorithm_coverage.py` accepts this via
-`--accumulator-report`. Keep the distinction: workload bounded evidence is
-useful for probe selection, but it does not authorize a general compiler
-source reorder.
+`--accumulator-report`. Keep the cap distinction: the representative 8192-repeat
+workload is inside the source policy cap and can authorize the next
+source-reorder probe. The repeat-amplified 65536 workload remains outside this
+cap and still reports `source_reorder_allowed=0` unless a broader cap/contract
+is explicitly accepted. In source, allocation paths must call
+`recordRequestedBytes(requested_size)` rather than inlining the
+`requested_bytes` update at each caller; this keeps the overflow policy in one
+helper and relies on the exact-numeric helper field mutation guard covering both
+VM and pure-first EXE.
+
+The page-model proof guard also runs the LLVM pure-first EXE front through
+`tools/allocator/mimalloc_direct_exact_env.sh`. That preset is part of the
+current direct-exact mimalloc front: without it, the proof can fall back to the
+public ArrayBox-compatible array path and fail to prove the `DirectArrayI64`
+free-stack semantics that the allocator model relies on. Do not hand-type
+`HAKO_ARRAY_SLOT_STORE` / `HAKO_TYPED_OBJECT_STORE` in current mimalloc parity
+guards; source the preset and call `mimalloc_direct_exact_env_check`.
 
 The acquire-family `.hako` store-order probe is closed as a nonkeeper. Moving
 the `free_top` store before the `requested_bytes` accumulator changed the fused
 hot instruction mix (`store_like` dropped from 68.59% to 22.41%), but the short
-body timing moved from 18ms to 19ms and the report still emitted
-`source_reorder_allowed=0`. Keep `page_box.hako` in semantic order until the
-public/proof accumulator overflow contract is explicit.
+body timing moved from 18ms to 19ms. Keep that nonkeeper closed; use the new
+requested-bytes contract for a fresh source-reorder probe instead of reviving
+that patch.
 
 `page_model_hot_array_access_plan_v0` is a source-readiness scan. It reports
 `free` / `local_free` / `block_used` `get` / `set` / `push` calls separately.

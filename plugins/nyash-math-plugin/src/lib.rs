@@ -119,11 +119,23 @@ pub struct NyashTypeBoxFfi {
 unsafe impl Sync for NyashTypeBoxFfi {}
 
 use std::ffi::CStr;
-extern "C" fn mathbox_resolve(name: *const std::os::raw::c_char) -> u32 {
+
+#[inline]
+fn name_text(name: *const std::os::raw::c_char) -> Option<String> {
     if name.is_null() {
-        return 0;
+        return None;
     }
-    let s = unsafe { CStr::from_ptr(name) }.to_string_lossy();
+    Some(
+        unsafe { CStr::from_ptr(name) }
+            .to_string_lossy()
+            .to_string(),
+    )
+}
+
+extern "C" fn mathbox_resolve(name: *const std::os::raw::c_char) -> u32 {
+    let Some(s) = name_text(name) else {
+        return 0;
+    };
     match s.as_ref() {
         "sqrt" => M_SQRT,
         "sin" => M_SIN,
@@ -135,10 +147,9 @@ extern "C" fn mathbox_resolve(name: *const std::os::raw::c_char) -> u32 {
     }
 }
 extern "C" fn timebox_resolve(name: *const std::os::raw::c_char) -> u32 {
-    if name.is_null() {
+    let Some(s) = name_text(name) else {
         return 0;
-    }
-    let s = unsafe { CStr::from_ptr(name) }.to_string_lossy();
+    };
     match s.as_ref() {
         "now" => T_NOW,
         "birth" => M_BIRTH,

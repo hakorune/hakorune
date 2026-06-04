@@ -4,6 +4,7 @@
 PURE_FIRST_EXE_GUARD_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PURE_FIRST_EXE_GUARD_ROOT="$(cd "${PURE_FIRST_EXE_GUARD_LIB_DIR}/../../.." && pwd)"
 source "${PURE_FIRST_EXE_GUARD_LIB_DIR}/guard_common.sh"
+source "${PURE_FIRST_EXE_GUARD_LIB_DIR}/proof_output_assert.sh"
 source "${PURE_FIRST_EXE_GUARD_ROOT}/tools/selfhost/lib/selfhost_progress.sh"
 
 pure_first_guard_build_toolchain() {

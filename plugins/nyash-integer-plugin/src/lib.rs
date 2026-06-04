@@ -31,6 +31,18 @@ struct IntInstance {
 static INST: Lazy<Mutex<HashMap<u32, IntInstance>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 static NEXT_ID: AtomicU32 = AtomicU32::new(1);
 
+#[inline]
+fn resolve_name(name: *const c_char) -> Option<String> {
+    if name.is_null() {
+        return None;
+    }
+    Some(
+        unsafe { CStr::from_ptr(name) }
+            .to_string_lossy()
+            .to_string(),
+    )
+}
+
 // ===== TypeBox FFI (resolve/invoke_id) =====
 #[repr(C)]
 pub struct NyashTypeBoxFfi {
@@ -45,10 +57,9 @@ pub struct NyashTypeBoxFfi {
 unsafe impl Sync for NyashTypeBoxFfi {}
 
 extern "C" fn intcell_resolve(name: *const c_char) -> u32 {
-    if name.is_null() {
+    let Some(s) = resolve_name(name) else {
         return 0;
-    }
-    let s = unsafe { CStr::from_ptr(name) }.to_string_lossy();
+    };
     match s.as_ref() {
         "get" => M_GET,
         "set" => M_SET,

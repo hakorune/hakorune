@@ -1022,7 +1022,8 @@
                view->return_shape &&
                !strcmp(view->return_shape, "scalar_i64") &&
                view->value_demand &&
-               !strcmp(view->value_demand, "scalar_i64");
+               (!strcmp(view->value_demand, "scalar_i64") ||
+                !strcmp(view->value_demand, "runtime_i64_or_handle"));
       }
 
       auto int lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(

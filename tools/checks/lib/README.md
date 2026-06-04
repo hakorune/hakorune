@@ -12,7 +12,10 @@ Shared helpers for check guards.
     process allocator replacement, and `.inc` matcher leaks.
 - `pure_first_exe_guard.sh`
   - Shared pure-first EXE guard helpers for build, MIR emit, EXE build,
-    clean-build-log checks, and EXE run checks.
+    clean-build-log checks, EXE run checks, and fixed-line proof output
+    assertions.
+  - `proof_output_assert.sh`
+    - Shared fixed-line log assertions for proof and guard scripts.
 - `perf_guard_common.sh`
   - Shared perf regression helpers:
   - percent/ratio math (`perf_guard_calc_*`)

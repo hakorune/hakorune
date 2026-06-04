@@ -39,7 +39,7 @@ static box Main {
         print("counts=" + page.alloc_count + "," + page.local_free_count + "," + page.reject_count + "," + page.peak_used + "," + page.requested_bytes)
         print("shape=" + shape)
 
-        if shape == 13 && page.alloc_count == 4 && page.local_free_count == 1 && page.reject_count == 3 && page.peak_used == 3 && page.requested_bytes == 56 {
+        if shape == 14 && page.alloc_count == 4 && page.local_free_count == 1 && page.reject_count == 3 && page.peak_used == 3 && page.requested_bytes == 56 {
             print("summary=ok")
             return 0
         }

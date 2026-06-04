@@ -9,11 +9,27 @@ use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_void};
 use std::sync::{atomic::Ordering, Arc};
 
-pub extern "C" fn jsonnode_resolve(name: *const c_char) -> u32 {
+#[inline]
+fn c_name_text(name: *const c_char) -> Option<String> {
     if name.is_null() {
-        return 0;
+        return None;
     }
-    let s = unsafe { CStr::from_ptr(name) }.to_string_lossy();
+    Some(
+        unsafe { CStr::from_ptr(name) }
+            .to_string_lossy()
+            .to_string(),
+    )
+}
+
+#[inline]
+fn value_key_cstring() -> CString {
+    CString::new("value").expect("static key")
+}
+
+pub extern "C" fn jsonnode_resolve(name: *const c_char) -> u32 {
+    let Some(s) = c_name_text(name) else {
+        return 0;
+    };
     match s.as_ref() {
         "birth" => JN_BIRTH,
         "kind" => JN_KIND,
@@ -277,18 +293,18 @@ pub extern "C" fn jsonnode_invoke_id(
                         if s.is_null() {
                             write_tlv_string("", result, result_len)
                         } else {
-                            let rs = CStr::from_ptr(s).to_string_lossy().to_string();
+                            let rs = c_name_text(s).unwrap_or_default();
                             write_tlv_string(&rs, result, result_len)
                         }
                     } else if !v.is_null() && nyjson_is_obj(v) != 0 {
-                        let key = CString::new("value").unwrap();
+                        let key = value_key_cstring();
                         let child = nyjson_obj_get_key(v, key.as_ptr());
                         if !child.is_null() && nyjson_is_str(child) != 0 {
                             let s = nyjson_get_str_val(child);
                             if s.is_null() {
                                 write_tlv_string("", result, result_len)
                             } else {
-                                let rs = CStr::from_ptr(s).to_string_lossy().to_string();
+                                let rs = c_name_text(s).unwrap_or_default();
                                 write_tlv_string(&rs, result, result_len)
                             }
                         } else {
@@ -328,7 +344,7 @@ pub extern "C" fn jsonnode_invoke_id(
                     if !v.is_null() && nyjson_is_int(v) != 0 {
                         write_tlv_i64(nyjson_get_sint_val(v) as i64, result, result_len)
                     } else if !v.is_null() && nyjson_is_obj(v) != 0 {
-                        let key = CString::new("value").unwrap();
+                        let key = value_key_cstring();
                         let child = nyjson_obj_get_key(v, key.as_ptr());
                         if !child.is_null() && nyjson_is_int(child) != 0 {
                             write_tlv_i64(nyjson_get_sint_val(child) as i64, result, result_len)

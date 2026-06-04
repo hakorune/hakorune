@@ -127,7 +127,7 @@ pub fn autodecode(cpy: &CPython, obj: *mut PyObject) -> Option<DecodedValue> {
 
         let u = (cpy.PyUnicode_AsUTF8)(obj);
         if (cpy.PyErr_Occurred)().is_null() && !u.is_null() {
-            let s = CStr::from_ptr(u).to_string_lossy().to_string();
+            let s = cstr_to_string(u).unwrap_or_default();
             return Some(DecodedValue::Str(s));
         }
         (cpy.PyErr_Clear)();
@@ -147,6 +147,10 @@ pub fn autodecode(cpy: &CPython, obj: *mut PyObject) -> Option<DecodedValue> {
 
 pub fn cstring_from_str(s: &str) -> Result<CString, ()> {
     CString::new(s).map_err(|_| ())
+}
+
+pub fn cstring_from_bytes(bytes: &[u8]) -> Result<CString, ()> {
+    CString::new(bytes).map_err(|_| ())
 }
 
 pub unsafe fn cstr_to_string(ptr: *const c_char) -> Option<String> {
@@ -182,11 +186,7 @@ pub fn take_py_error_string(cpy: &CPython) -> Option<String> {
                 return Some("Python error".to_string());
             }
             let cstr = (cpy.PyUnicode_AsUTF8)(sobj);
-            let msg = if cstr.is_null() {
-                "Python error".to_string()
-            } else {
-                CStr::from_ptr(cstr).to_string_lossy().to_string()
-            };
+            let msg = cstr_to_string(cstr).unwrap_or_else(|| "Python error".to_string());
             (cpy.Py_DecRef)(sobj);
             msg
         } else {
@@ -301,7 +301,7 @@ pub fn fill_tuple_from_tlv(
                     obj = (cpy.PyFloat_FromDouble)(f64::from_le_bytes(b));
                 }
                 6 => {
-                    let c = match CString::new(payload) {
+                    let c = match cstring_from_bytes(payload) {
                         Ok(c) => c,
                         Err(_) => return false,
                     };
@@ -369,7 +369,7 @@ pub fn fill_kwargs_from_tlv(
             return false;
         }
         let key_slice = &buf[off + 4..off + 4 + key_size];
-        let key_c = match CString::new(key_slice) {
+        let key_c = match cstring_from_bytes(key_slice) {
             Ok(c) => c,
             Err(_) => return false,
         };
@@ -420,7 +420,7 @@ pub fn fill_kwargs_from_tlv(
                     obj = (cpy.PyFloat_FromDouble)(f64::from_le_bytes(b));
                 }
                 6 => {
-                    let c = match CString::new(val_payload) {
+                    let c = match cstring_from_bytes(val_payload) {
                         Ok(c) => c,
                         Err(_) => return false,
                     };

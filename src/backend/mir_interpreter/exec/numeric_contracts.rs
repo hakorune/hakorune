@@ -127,6 +127,7 @@ mod tests {
         let mut function = MirFunction::new(signature, entry);
         let value_param = function.params[0];
         let object = function.next_value_id();
+        let stored = function.next_value_id();
 
         function
             .metadata
@@ -152,7 +153,15 @@ mod tests {
             value: value_param,
             declared_type: Some(MirType::Integer),
         });
-        block.add_instruction(MirInstruction::Return { value: None });
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: stored,
+            base: object,
+            field: "capacity".to_string(),
+            declared_type: Some(MirType::Integer),
+        });
+        block.add_instruction(MirInstruction::Return {
+            value: Some(stored),
+        });
 
         let mut module = MirModule::new("numeric_runtime_contract_test".to_string());
         module
@@ -178,7 +187,10 @@ mod tests {
 
         let result = vm.execute_function_with_args(&module, "Main.main/1", &[VMValue::Integer(42)]);
 
-        assert!(result.is_ok());
+        assert_eq!(
+            result.expect("usize contract input must succeed"),
+            VMValue::Integer(42)
+        );
     }
 
     #[test]
@@ -194,7 +206,10 @@ mod tests {
             ))],
         );
 
-        assert!(result.is_ok());
+        assert_eq!(
+            result.expect("matching exact numeric contract input must succeed"),
+            VMValue::Integer(42)
+        );
     }
 
     #[test]

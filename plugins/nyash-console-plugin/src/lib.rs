@@ -114,6 +114,18 @@ fn format_first_any(args: &[u8]) -> Option<String> {
     }
 }
 
+#[inline]
+fn resolve_name(name: *const c_char) -> Option<String> {
+    if name.is_null() {
+        return None;
+    }
+    Some(
+        unsafe { CStr::from_ptr(name) }
+            .to_string_lossy()
+            .to_string(),
+    )
+}
+
 unsafe fn write_tlv_void(out: *mut u8, out_len: *mut usize) -> i32 {
     let need = 4 + 4; // header + entry
     if *out_len < need {
@@ -144,10 +156,9 @@ pub struct NyashTypeBoxFfi {
 unsafe impl Sync for NyashTypeBoxFfi {}
 
 extern "C" fn console_resolve(name: *const c_char) -> u32 {
-    if name.is_null() {
+    let Some(s) = resolve_name(name) else {
         return 0;
-    }
-    let s = unsafe { CStr::from_ptr(name) }.to_string_lossy();
+    };
     match s.as_ref() {
         "log" => METHOD_LOG,
         "println" => METHOD_PRINTLN,

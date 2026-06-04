@@ -1,5 +1,39 @@
 use super::*;
 
+fn vm_to_nv(v: &VMValue) -> Result<crate::value::NyashValue, VMError> {
+    use super::VMValue as VV;
+    use crate::value::NyashValue as NV;
+    match v {
+        VV::Integer(i) => Ok(NV::Integer(*i)),
+        VV::ExactNumeric(v) => i64::try_from(v.value).map(NV::Integer).map_err(|_| {
+            VMError::InvalidValue(format!(
+                "[vm/exact_numeric_field_store_range] source_type={} value={} exceeds InstanceBox scalar i64 storage",
+                v.source_name, v.value
+            ))
+        }),
+        VV::Float(f) => Ok(NV::Float(*f)),
+        VV::Bool(b) => Ok(NV::Bool(*b)),
+        VV::String(s) => Ok(NV::String(s.clone())),
+        VV::Void => Ok(NV::Void),
+        VV::Future(_) => Ok(NV::Void), // not expected in fields
+        VV::BoxRef(_) => Ok(NV::Void), // store minimal; complex object fields are not required here
+        VV::WeakBox(_) => Ok(NV::Void), // Phase 285A0: WeakBox not expected in this context
+    }
+}
+
+fn nv_to_vm(v: &crate::value::NyashValue) -> VMValue {
+    use super::VMValue as VV;
+    use crate::value::NyashValue as NV;
+    match v {
+        NV::Integer(i) => VV::Integer(*i),
+        NV::Float(f) => VV::Float(*f),
+        NV::Bool(b) => VV::Bool(*b),
+        NV::String(s) => VV::String(s.clone()),
+        NV::Null | NV::Void => VV::Void,
+        NV::Array(_) | NV::Map(_) | NV::Box(_) | NV::WeakBox(_) => VV::Void,
+    }
+}
+
 pub(super) fn try_handle_object_fields(
     this: &mut MirInterpreter,
     dst: Option<ValueId>,
@@ -7,35 +41,6 @@ pub(super) fn try_handle_object_fields(
     method: &str,
     args: &[ValueId],
 ) -> Result<bool, VMError> {
-    // Local helpers to bridge NyashValue <-> VMValue for InstanceBox fields
-    fn vm_to_nv(v: &VMValue) -> crate::value::NyashValue {
-        use super::VMValue as VV;
-        use crate::value::NyashValue as NV;
-        match v {
-            VV::Integer(i) => NV::Integer(*i),
-            VV::ExactNumeric(v) => i64::try_from(v.value).map(NV::Integer).unwrap_or(NV::Void),
-            VV::Float(f) => NV::Float(*f),
-            VV::Bool(b) => NV::Bool(*b),
-            VV::String(s) => NV::String(s.clone()),
-            VV::Void => NV::Void,
-            VV::Future(_) => NV::Void,  // not expected in fields
-            VV::BoxRef(_) => NV::Void, // store minimal; complex object fields are not required here
-            VV::WeakBox(_) => NV::Void, // Phase 285A0: WeakBox not expected in this context
-        }
-    }
-    fn nv_to_vm(v: &crate::value::NyashValue) -> VMValue {
-        use super::VMValue as VV;
-        use crate::value::NyashValue as NV;
-        match v {
-            NV::Integer(i) => VV::Integer(*i),
-            NV::Float(f) => VV::Float(*f),
-            NV::Bool(b) => VV::Bool(*b),
-            NV::String(s) => VV::String(s.clone()),
-            NV::Null | NV::Void => VV::Void,
-            NV::Array(_) | NV::Map(_) | NV::Box(_) | NV::WeakBox(_) => VV::Void,
-        }
-    }
-
     match method {
         "getField" => {
             this.validate_args_exact("getField", args, 1)?;
@@ -482,12 +487,13 @@ pub(super) fn try_handle_object_fields(
                     if matches!(
                         valv,
                         VMValue::Integer(_)
+                            | VMValue::ExactNumeric(_)
                             | VMValue::Float(_)
                             | VMValue::Bool(_)
                             | VMValue::String(_)
                             | VMValue::Void
                     ) {
-                        let _ = inst.set_field_ng(fname.clone(), vm_to_nv(&valv));
+                        let _ = inst.set_field_ng(fname.clone(), vm_to_nv(&valv)?);
                         return Ok(true);
                     }
                     // BoxRef のうち、Integer/Float/Bool/String はプリミティブに剥がして内部保存
