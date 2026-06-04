@@ -104,13 +104,7 @@ def build_subject_lines(ctx: dict[str, Any]) -> list[str]:
                 build_replacement_front_subject_lines(
                     ctx,
                     index=index,
-                    samples=samples,
-                    sample_seconds=sample_seconds,
                     counters=counters,
-                    front_class=front_class,
-                    hako_hot_path_claim=hako_hot_path_claim,
-                    declared_route=declared_route,
-                    execution_route=execution_route,
                     tls_initial_exec_model_enabled=tls_initial_exec_enabled,
                 )
             )
