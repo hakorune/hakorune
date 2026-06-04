@@ -88,6 +88,9 @@ provider_package_ldpreload_replacement_shim_source.py:
 provider_package_rust_global_allocator_smoke_source.py:
   provider-backed Rust global-allocator smoke source only; no runner logic or report rendering
 
+hako_mimalloc_expression_materialization_copy_origin_analysis.py:
+  expression-materialization copy-origin analysis only; no CLI orchestration or file I/O
+
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
