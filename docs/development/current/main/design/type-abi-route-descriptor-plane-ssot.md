@@ -218,11 +218,13 @@ TYPEROUTE-001:
   docs/report-only descriptor plane
   define HakoRouteDescriptorV0 / descriptor-vs-execution vocabulary
   behavior change: none
+  status: landed 2026-06-04
 
 TYPEROUTE-002:
   add type_abi_route_descriptor_present and
   type_abi_hot_path_lookup_count to hakozuna compare/gap reports
   behavior change: none
+  status: landed 2026-06-05
 
 TYPEROUTE-003:
   add declared_route vs execution_route fields
@@ -239,6 +241,7 @@ TYPEROUTE-005:
 
 ## Current Next Action
 
-The next active work should land `TYPEROUTE-001` as documentation and report
-contract only. Do not modify Provider ABI execution, replacement-front hot path,
-or allocator behavior in the same slice.
+The next active work is `TYPEROUTE-003`: add declared-route vs execution-route
+report fields and guard that `host_backed_adapter` cannot claim the `.hako`
+hot path. Do not modify Provider ABI execution, replacement-front hot path, or
+allocator behavior in that slice.

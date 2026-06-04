@@ -1099,6 +1099,9 @@ def main() -> int:
             replacement_front_correctness_smoke = int(args.replacement_front_cross_thread_smoke)
     lines = [
         "output_contract=hakozuna-mixed-ws-ldpreload-compare-v0",
+        "type_abi_route_descriptor_present=1",
+        "type_abi_descriptor_plane=route_descriptor_control_plane",
+        "type_abi_hot_path_lookup_count=0",
         "benchmark_id=bench_mixed_ws_crt",
         f"benchmark_path={bench}",
         f"hakozuna_root={root}",

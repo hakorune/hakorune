@@ -464,7 +464,7 @@ provider_host_claim_mainline_thread_refresh_2026_06_04:
   selected_next_action=do_not_chase_host_backed_provider_C_shape_for_thread_perf; measure thread-local replacement front or pure-provider allocator boundary next
 
 type_abi_route_descriptor_plane_task_2026_06_04:
-  status=planned
+  status=landed
   task_id=TYPEROUTE-001
   ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   descriptor_plane=Type_ABI
@@ -480,6 +480,20 @@ type_abi_route_descriptor_plane_task_2026_06_04:
   required_split=declared_route_vs_execution_route
   required_guard_next=host_backed_adapter_must_not_claim_hako_hot_path
   selected_next_action=add_type_abi_route_descriptor_report_boundary_without_changing_allocator_execution
+
+type_abi_route_descriptor_report_boundary_2026_06_05:
+  status=landed
+  task_id=TYPEROUTE-002
+  ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+  touched_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+  behavior_change=0
+  provider_abi_execution_change=0
+  replacement_front_hot_path_change=0
+  type_abi_route_descriptor_present=1
+  type_abi_descriptor_plane=route_descriptor_control_plane
+  type_abi_hot_path_lookup_count=0
+  selected_next_task=TYPEROUTE-003
+  selected_next_action=add_declared_route_vs_execution_route_and_guard_host_backed_adapter_hot_path_claim
 
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
