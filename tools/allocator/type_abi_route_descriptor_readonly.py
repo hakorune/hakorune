@@ -84,6 +84,36 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         values,
         ("host_allocator_vtable_init", "provider_host_allocator_vtable_init_count_total"),
     )
+    replacement_front_execution_route = pick(
+        values,
+        ("replacement_front_execution_route",),
+    )
+    replacement_front_ordinary_app_route_candidate = pick(
+        values,
+        ("replacement_front_ordinary_app_route_candidate",),
+    )
+    replacement_front_product_gate = pick(
+        values,
+        ("replacement_front_product_gate",),
+    )
+    replacement_front_product_activation_ready = pick(
+        values,
+        ("replacement_front_product_activation_ready",),
+        default="0",
+    )
+    replacement_front_product_claim = pick(
+        values,
+        ("replacement_front_product_claim",),
+        default="0",
+    )
+
+    if (
+        replacement_front_execution_route == "replacement_front_benchmark"
+        and replacement_front_product_claim == "1"
+    ):
+        raise SystemExit(
+            "benchmark replacement-front route must not claim product replacement"
+        )
 
     if (
         provider_execution_route == "provider_host_adapter_ldpreload"
@@ -113,6 +143,13 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         f"provider_hako_hot_path_claim={provider_hako_hot_path_claim}",
         f"provider_kind={provider_kind}",
         f"host_allocator_vtable_init={host_allocator_vtable_init}",
+        f"replacement_front_execution_route={replacement_front_execution_route}",
+        "replacement_front_ordinary_app_route_candidate="
+        f"{replacement_front_ordinary_app_route_candidate}",
+        f"replacement_front_product_gate={replacement_front_product_gate}",
+        "replacement_front_product_activation_ready="
+        f"{replacement_front_product_activation_ready}",
+        f"replacement_front_product_claim={replacement_front_product_claim}",
         "summary=ok",
     ]
 

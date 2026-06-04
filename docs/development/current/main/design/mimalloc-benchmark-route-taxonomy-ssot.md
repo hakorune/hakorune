@@ -61,6 +61,13 @@ replacement_front_benchmark:
   `replacement_front_is_full_hako_algorithm=0` means it is not the full
   product `.hako` mimalloc algorithm
 
+replacement_front_product_ldpreload:
+  future ordinary-application malloc/free replacement route
+  LD_PRELOAD or equivalent process allocator replacement enters the
+  replacement front directly, without Type ABI lookup or Provider ABI dispatch
+  this route may claim product replacement only after a dedicated activation
+  row accepts hooks/global allocator/process replacement risk
+
 c_mimalloc_ldpreload:
   same-machine C mimalloc LD_PRELOAD baseline
 ```
@@ -111,6 +118,28 @@ subject_N_benchmark_front_class=
   | unknown
 
 subject_N_hako_hot_path_claim=0|1
+```
+
+Replacement-front reports must expose both the executed benchmark route and the
+ordinary-application candidate route:
+
+```text
+replacement_front_execution_route=replacement_front_benchmark
+replacement_front_ordinary_app_route_candidate=replacement_front_product_ldpreload
+replacement_front_product_gate=closed
+replacement_front_product_activation_ready=0
+replacement_front_benchmark_only=1
+replacement_front_product_claim=0
+```
+
+The current replacement-front benchmark may prove that the hot boundary can be
+thin. It must not be interpreted as product allocator replacement until:
+
+```text
+production_replacement_active=1
+hook_installed=1 or global_allocator_product_claim=1
+replacement_front_benchmark_only=0
+replacement_front_product_claim=1
 ```
 
 Interpretation rule:

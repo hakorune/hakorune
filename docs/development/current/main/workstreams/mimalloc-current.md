@@ -629,6 +629,23 @@ bench_route_equivalence_quality_refresh_2026_06_05:
   selected_next_owner=route_equivalent_long_sample_thread_profile
   selected_next_action=use_long_quality_ok_reports_before_more_replacement_front_thread_shape_work
 
+replacement_front_ordinary_app_route_descriptor_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-003
+  purpose=separate_current_benchmark_replacement_front_from_future_ordinary_app_product_replacement_route
+  descriptor_plane=type_abi_route_descriptor_control_plane
+  execution_route_now=replacement_front_benchmark
+  ordinary_app_route_candidate=replacement_front_product_ldpreload
+  product_gate=closed
+  product_activation_ready=0
+  benchmark_only=1
+  product_claim=0
+  provider_dispatch_hot_path=0
+  type_abi_hot_path_lookup_count=0
+  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
+  selected_next_owner=product_replacement_front_activation_contract
+  selected_next_action=keep_activation_closed_until_dedicated_product_replacement_row
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out

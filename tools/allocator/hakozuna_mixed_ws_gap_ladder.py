@@ -338,10 +338,24 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         )
         replacement_tracking_hot_path = replacement_front.get("tracking_hot_path", "unknown")
         replacement_benchmark_only = replacement_front.get("benchmark_only", "unknown")
+        replacement_ordinary_app_route = replacement_front.get(
+            "replacement_front_ordinary_app_route_candidate", "unknown"
+        )
+        replacement_product_gate = replacement_front.get(
+            "replacement_front_product_gate", "unknown"
+        )
+        replacement_product_activation_ready = replacement_front.get(
+            "replacement_front_product_activation_ready", "unknown"
+        )
         lines.extend(
             [
                 f"replacement_front_median_ops_per_sec={replacement_median:.3f}",
                 f"replacement_front_execution_route={replacement_execution_route}",
+                "replacement_front_ordinary_app_route_candidate="
+                f"{replacement_ordinary_app_route}",
+                f"replacement_front_product_gate={replacement_product_gate}",
+                "replacement_front_product_activation_ready="
+                f"{replacement_product_activation_ready}",
                 f"replacement_front_benchmark_front_class={replacement_front_class}",
                 f"replacement_front_vs_mimalloc_ratio={ratio(replacement_median, mimalloc_median)}",
                 "replacement_front_slower_than_mimalloc_percent="

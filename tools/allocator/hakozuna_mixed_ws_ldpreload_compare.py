@@ -1204,6 +1204,9 @@ def main() -> int:
         "replacement_front_product_pages_nonlinear_mode="
         f"{1 if args.replacement_front_product_pages_nonlinear_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
+        "replacement_front_ordinary_app_route_candidate=replacement_front_product_ldpreload",
+        "replacement_front_product_gate=closed",
+        "replacement_front_product_activation_ready=0",
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
         "replacement_front_size_class_bridge_report_only=1",
@@ -1484,6 +1487,11 @@ def main() -> int:
                     f"subject_{index}_activation=0",
                     f"subject_{index}_benchmark_only=1",
                     f"subject_{index}_replacement_front_is_full_hako_algorithm=0",
+                    "subject_"
+                    f"{index}_replacement_front_ordinary_app_route_candidate="
+                    "replacement_front_product_ldpreload",
+                    f"subject_{index}_replacement_front_product_gate=closed",
+                    f"subject_{index}_replacement_front_product_activation_ready=0",
                     f"subject_{index}_replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
                     f"subject_{index}_replacement_front_evidence_owner="
                     f"{replacement_front_evidence_owner}",
