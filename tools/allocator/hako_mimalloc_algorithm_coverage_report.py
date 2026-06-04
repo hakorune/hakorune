@@ -27,6 +27,10 @@ from hako_mimalloc_algorithm_coverage_support import (
     read_text,
     str_field,
 )
+from hako_mimalloc_algorithm_coverage_owner_state import (
+    CoverageOwnerStateInputs,
+    derive_owner_state,
+)
 from hako_mimalloc_algorithm_coverage_rows import refine_rows
 
 
@@ -487,9 +491,6 @@ def report_dict(
         for field in hot_field_names
         if bucket_for_field(field) != "primitive_hot_state"
     ]
-    record_state_report_ready = int(
-        hot_field_plan_ready and bool(record_state_observed_candidates)
-    )
     record_state_field_access_plan_count = int_field(
         state, "record_state_field_access_plan_count", 0
     )
@@ -510,126 +511,62 @@ def report_dict(
         "record_state_lowering_owner_next_bridge",
         "select_record_state_lowering_owner",
     )
-    record_state_representation_delta_ready = int(
-        record_state_field_access_ready
-        and record_state_lowering_owner_selected == "typed_object_exact_slot_existing"
-        and record_state_access_exact_slot_missing_count == 0
+    record_state_report_ready = int(
+        hot_field_plan_ready and bool(record_state_observed_candidates)
     )
-    record_state_representation_delta_positive_candidate = 0
+    owner_state = derive_owner_state(
+        CoverageOwnerStateInputs(
+            page_model_hot_array_measurement_ready=page_model_hot_array_measurement_ready,
+            page_model_hot_array_source_route_measured=page_model_hot_array_source_route_measured,
+            perf_attribution_report_consumed=perf_attribution_report_consumed,
+            perf_delta_ready=perf_delta_ready,
+            perf_delta_next_bridge=perf_delta_next_bridge,
+            structural_owner_refresh_required=structural_owner_refresh_required,
+            product_pages_source_ready=product_pages_source_ready,
+            product_pages_consumer_enabled=product_pages_consumer_enabled,
+            product_pages_non_linear_lookup_probe_closed=product_pages_non_linear_lookup_probe_closed,
+            record_state_report_ready=record_state_report_ready,
+            record_state_field_access_ready=record_state_field_access_ready,
+            record_state_lowering_owner_selected=record_state_lowering_owner_selected,
+            record_state_access_exact_slot_missing_count=record_state_access_exact_slot_missing_count,
+            record_state_lowering_owner_next_bridge=record_state_lowering_owner_next_bridge,
+            hot_field_plan_ready=hot_field_plan_ready,
+            hot_field_next_bridge=hot_field_next_bridge,
+            backend_store_shape_ready=backend_store_shape_ready,
+            backend_store_shape_selected=backend_store_shape_selected,
+            backend_store_shape_next_bridge=backend_store_shape_next_bridge,
+            inlined_hot_body_selected=inlined_hot_body_selected,
+            inlined_hot_body_split_next_bridge=inlined_hot_body_split_next_bridge,
+            directarray_owner_instruction_shape_selected=directarray_owner_instruction_shape_selected,
+            directarray_owner_instruction_shape_next_bridge=directarray_owner_instruction_shape_next_bridge,
+            instruction_attribution_available=instruction_attribution_available,
+            primitive_hot_state_field_count=primitive_hot_state_field_count,
+            direct_array_owner_field_count=direct_array_owner_field_count,
+        )
+    )
+    record_state_representation_delta_ready = (
+        owner_state.record_state_representation_delta_ready
+    )
+    record_state_representation_delta_positive_candidate = (
+        owner_state.record_state_representation_delta_positive_candidate
+    )
     record_state_representation_delta_blocker = (
-        "typed_object_exact_slot_already_covers_record_state_access"
-        if record_state_representation_delta_ready
-        else "record_state_lowering_owner_not_selected"
+        owner_state.record_state_representation_delta_blocker
     )
     record_state_representation_delta_next_bridge = (
-        "select_next_perf_owner"
-        if record_state_representation_delta_ready
-        else record_state_lowering_owner_next_bridge
+        owner_state.record_state_representation_delta_next_bridge
     )
-    record_state_next_bridge = (
-        "record_state_field_access_site_measurement"
-        if record_state_report_ready
-        and not record_state_field_access_ready
-        else record_state_representation_delta_next_bridge
-        if record_state_field_access_ready
-        else hot_field_next_bridge
+    record_state_next_bridge = owner_state.record_state_next_bridge
+    next_perf_owner_selection_plan = owner_state.next_perf_owner_selection_plan
+    next_perf_owner_selected = owner_state.next_perf_owner_selected
+    next_perf_owner_reason = owner_state.next_perf_owner_reason
+    next_perf_owner_next_bridge = owner_state.next_perf_owner_next_bridge
+    product_pages_non_linear_owner_candidate_ready = (
+        owner_state.product_pages_non_linear_owner_candidate_ready
     )
-    next_perf_owner_selection_plan = int(
-        structural_owner_refresh_required
-        and product_pages_non_linear_lookup_probe_closed
-        and record_state_representation_delta_ready
-    )
-    if not perf_attribution_report_consumed:
-        next_perf_owner_selected = "perf_attribution_collection"
-        next_perf_owner_reason = "perf_attribution_report_not_consumed"
-        next_perf_owner_next_bridge = "run_hako_mimalloc_direct_exact_app_perf_asm"
-    elif perf_delta_ready:
-        next_perf_owner_selected = "owner_delta_measurement"
-        next_perf_owner_reason = "symbol_attribution_available"
-        next_perf_owner_next_bridge = "measure_owner_delta"
-    elif backend_store_shape_ready:
-        next_perf_owner_selected = backend_store_shape_selected
-        next_perf_owner_reason = "backend_store_shape_classifier_ready"
-        if (
-            backend_store_shape_selected == "primitive_dominant_mixed_store_shape"
-            and inlined_hot_body_selected != "none"
-        ):
-            next_perf_owner_next_bridge = inlined_hot_body_split_next_bridge
-        elif (
-            backend_store_shape_selected == "direct_array_dominant_mixed_store_shape"
-            and directarray_owner_instruction_shape_selected != "none"
-        ):
-            next_perf_owner_next_bridge = directarray_owner_instruction_shape_next_bridge
-        else:
-            next_perf_owner_next_bridge = backend_store_shape_next_bridge
-    elif primitive_hot_state_field_count > 0 and record_state_representation_delta_ready:
-        next_perf_owner_selected = "asm_symbol_split_or_backend_store_shape"
-        next_perf_owner_reason = (
-            "primitive_state_store_like_hot_but_exact_slot_already_covers_record_state"
-        )
-        next_perf_owner_next_bridge = "split_symbol_or_classify_backend_store_shape"
-    elif direct_array_owner_field_count > 0:
-        next_perf_owner_selected = "directarray_owner_instruction_shape"
-        next_perf_owner_reason = "direct_array_owner_field_hints_present"
-        next_perf_owner_next_bridge = directarray_owner_instruction_shape_next_bridge
-    elif instruction_attribution_available:
-        next_perf_owner_selected = perf_delta_next_bridge
-        next_perf_owner_reason = "instruction_attribution_without_known_owner"
-        next_perf_owner_next_bridge = perf_delta_next_bridge
-    else:
-        next_perf_owner_selected = "none"
-        next_perf_owner_reason = "missing_perf_instruction_attribution"
-        next_perf_owner_next_bridge = "rerun_perf_with_higher_repeat_or_symbol"
-    product_pages_non_linear_owner_candidate_ready = int(
-        structural_owner_refresh_required
-        and product_pages_source_ready
-        and not product_pages_consumer_enabled
-        and not product_pages_non_linear_lookup_probe_closed
-    )
-    if (
-        page_model_hot_array_measurement_ready
-        and record_state_representation_delta_ready
-        and product_pages_non_linear_owner_candidate_ready
-    ):
-        structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
-        structural_owner_reason = (
-            "record_state_delta_closed_and_product_pages_source_ready"
-        )
-        structural_owner_next_action = "design_non_linear_product_pages_bridge"
-    elif page_model_hot_array_measurement_ready:
-        structural_owner_selected = "page_model_hot_array_source_route_measurement"
-        structural_owner_reason = "hotcore_measured_and_directarray_source_ready"
-        structural_owner_next_action = (
-            "measure_page_model_hot_array_perf_delta"
-            if page_model_hot_array_source_route_measured
-            else "measure_page_model_hot_array_source_route"
-        )
-        if page_model_hot_array_source_route_measured and perf_attribution_report_consumed:
-            if perf_delta_ready:
-                structural_owner_next_action = "select_next_perf_owner"
-            elif record_state_report_ready:
-                structural_owner_next_action = record_state_next_bridge
-            elif hot_field_plan_ready:
-                structural_owner_next_action = hot_field_next_bridge
-            else:
-                structural_owner_next_action = perf_delta_next_bridge
-        if (
-            structural_owner_next_action == "select_next_perf_owner"
-            and next_perf_owner_selection_plan
-        ):
-            structural_owner_next_action = next_perf_owner_next_bridge
-    elif product_pages_non_linear_owner_candidate_ready:
-        structural_owner_selected = "product_pages_bridge_non_linear_owner_lookup"
-        structural_owner_reason = "hotcore_measured_and_product_pages_source_ready"
-        structural_owner_next_action = "design_non_linear_product_pages_bridge"
-    elif structural_owner_refresh_required:
-        structural_owner_selected = "none"
-        structural_owner_reason = "no_source_ready_structural_owner"
-        structural_owner_next_action = "fix_source_shape_before_next_probe"
-    else:
-        structural_owner_selected = "none"
-        structural_owner_reason = "hotcore_measurement_not_reported"
-        structural_owner_next_action = "measure_hotcore_replacement_consumer"
+    structural_owner_selected = owner_state.structural_owner_selected
+    structural_owner_reason = owner_state.structural_owner_reason
+    structural_owner_next_action = owner_state.structural_owner_next_action
     rows = refine_rows(
         rows,
         product_bins_consumer_enabled=product_bins_consumer_enabled,
