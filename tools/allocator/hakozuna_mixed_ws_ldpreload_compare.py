@@ -575,6 +575,16 @@ def provider_front_class(route: str) -> str:
     return "provider_unknown"
 
 
+def provider_kind_from_route(route: str) -> str:
+    if route == "provider_host_adapter_ldpreload":
+        return "host_backed_adapter"
+    if route == "provider_hako_object_lifecycle_ldpreload":
+        return "object_lifecycle_bridge"
+    if route == "provider_pure_allocator_ldpreload":
+        return "pure_allocator"
+    return "unknown"
+
+
 def format_per_operation(numerator: int, denominator: int) -> str:
     if denominator <= 0:
         return "0.000000"
@@ -1327,13 +1337,26 @@ def main() -> int:
     for key in sorted(provider_route_metadata):
         lines.append(f"{key}={provider_route_metadata[key]}")
     if args.manifest is not None:
+        provider_execution_route = provider_route_metadata.get(
+            "provider_ldpreload_measurement_route", ""
+        )
         lines.extend(
             [
                 "provider_ldpreload_benchmark_front_class="
-                f"{provider_front_class(provider_route_metadata.get('provider_ldpreload_measurement_route', ''))}",
+                f"{provider_front_class(provider_execution_route)}",
                 "provider_ldpreload_measurement_interpretation=provider_abi_wrapper_and_shim_bridge",
                 "provider_ldpreload_is_product_allocator_claim=0",
                 "provider_ldpreload_is_hako_core_speed_claim=0",
+                "provider_registration_v1_present=1",
+                "provider_registration_descriptor_plane=type_abi_route_descriptor",
+                "provider_registration_ops_plane=provider_abi_execution_ops",
+                "provider_registration_descriptor_ops_pairing=1",
+                "provider_registration_hot_path_uses=provider_ops_only",
+                "provider_registration_type_abi_hot_path_lookup_count=0",
+                "provider_ops_version=1",
+                "provider_claim_ops_enabled="
+                f"{provider_manifest_metadata.get('provider_manifest_provider_abi_claim_ops_v1', '0')}",
+                f"provider_kind={provider_kind_from_route(provider_execution_route)}",
             ]
         )
     for index, (subject, _ld_preload, _provider, replacement_front_mode) in enumerate(subject_specs):

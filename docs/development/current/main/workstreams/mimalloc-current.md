@@ -527,6 +527,26 @@ type_abi_route_descriptor_readonly_consumption_2026_06_05:
   selected_next_task=TYPEROUTE-005
   selected_next_action=add_provider_registration_report_pairing_descriptor_and_ops
 
+provider_registration_report_pairing_2026_06_05:
+  status=landed
+  task_id=TYPEROUTE-005
+  ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+  touched_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+  provider_registration_v1_present=1
+  provider_registration_descriptor_plane=type_abi_route_descriptor
+  provider_registration_ops_plane=provider_abi_execution_ops
+  provider_registration_descriptor_ops_pairing=1
+  provider_registration_hot_path_uses=provider_ops_only
+  provider_registration_type_abi_hot_path_lookup_count=0
+  behavior_change=0
+  provider_abi_execution_change=0
+  replacement_front_hot_path_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_claim=0
+  winner_claim=0
+  selected_next_action=refresh_provider_host_benchmark_with_descriptor_and_registration_fields
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

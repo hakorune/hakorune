@@ -240,6 +240,8 @@ TYPEROUTE-004:
 TYPEROUTE-005:
   ProviderRegistrationV1 report pairs descriptor + ops, but hot path uses ops
   only
+  execution change: none
+  status: landed 2026-06-05
 ```
 
 ## Declared Vs Execution Route Fields
@@ -285,8 +287,31 @@ The adapter must not run a benchmark, call Provider ABI operations, activate a
 provider, install hooks, replace the process allocator, or read Type ABI from
 allocator hot paths.
 
+## Provider Registration Report Pairing
+
+Allocator reports expose a ProviderRegistrationV1-style pairing so descriptor
+truth and execution ops are visible together without mixing their duties.
+
+Required fields:
+
+```text
+provider_registration_v1_present=1
+provider_registration_descriptor_plane=type_abi_route_descriptor
+provider_registration_ops_plane=provider_abi_execution_ops
+provider_registration_descriptor_ops_pairing=1
+provider_registration_hot_path_uses=provider_ops_only
+provider_registration_type_abi_hot_path_lookup_count=0
+provider_ops_version=1
+provider_kind=host_backed_adapter|object_lifecycle_bridge|pure_allocator|unknown
+provider_claim_ops_enabled=0|1
+```
+
+The pairing is report/registration evidence only. It must not make Type ABI an
+allocator dispatcher, and it must not make Provider ABI slower by consulting
+descriptor data from malloc/free/realloc/usable_size hot paths.
+
 ## Current Next Action
 
-The next active work is `TYPEROUTE-005`: add ProviderRegistrationV1-style
-report pairing for descriptor + ops while keeping allocator hot paths on ops
-only. Do not route malloc/free/realloc/usable_size execution through Type ABI.
+The next active work is provider-host benchmark refresh using the new route
+descriptor and registration fields. Do not open product allocator activation,
+hook installation, global allocator replacement, or benchmark winner claims.

@@ -154,6 +154,15 @@ def emit_summary(compare_report: Path, out: Path) -> None:
     ]
 
     for key in (
+        "provider_registration_v1_present",
+        "provider_registration_descriptor_plane",
+        "provider_registration_ops_plane",
+        "provider_registration_descriptor_ops_pairing",
+        "provider_registration_hot_path_uses",
+        "provider_registration_type_abi_hot_path_lookup_count",
+        "provider_ops_version",
+        "provider_kind",
+        "provider_claim_ops_enabled",
         "provider_ldpreload_declared_package_origin",
         "provider_ldpreload_declared_route",
         "provider_ldpreload_execution_route",
@@ -189,6 +198,16 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         provider_execution_route = provider.get("execution_route", "unknown")
         provider_front_class = provider.get("benchmark_front_class", "unknown")
         provider_hako_hot_path_claim = provider.get("hako_hot_path_claim", "0")
+        provider_registration_present = values.get("provider_registration_v1_present", "0")
+        provider_registration_hot_path_uses = values.get(
+            "provider_registration_hot_path_uses", "unknown"
+        )
+        provider_registration_type_lookup_count = values.get(
+            "provider_registration_type_abi_hot_path_lookup_count", "unknown"
+        )
+        provider_ops_version = values.get("provider_ops_version", "unknown")
+        provider_kind = values.get("provider_kind", "unknown")
+        provider_claim_ops_enabled = values.get("provider_claim_ops_enabled", "0")
         provider_ops = as_int(provider, "shim_provider_operation_count_total")
         init_fallback = as_int(provider, "shim_init_real_fallback_count_total")
         init_fallback_in_provider = as_int(
@@ -230,6 +249,13 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_execution_route={provider_execution_route}",
                 f"provider_benchmark_front_class={provider_front_class}",
                 f"provider_hako_hot_path_claim={provider_hako_hot_path_claim}",
+                f"provider_registration_v1_present={provider_registration_present}",
+                f"provider_registration_hot_path_uses={provider_registration_hot_path_uses}",
+                "provider_registration_type_abi_hot_path_lookup_count="
+                f"{provider_registration_type_lookup_count}",
+                f"provider_ops_version={provider_ops_version}",
+                f"provider_kind={provider_kind}",
+                f"provider_claim_ops_enabled={provider_claim_ops_enabled}",
                 f"provider_vs_mimalloc_ratio={ratio(provider_median, mimalloc_median)}",
                 "provider_slower_than_mimalloc_percent="
                 f"{slower_percent(provider_median, mimalloc_median)}",
