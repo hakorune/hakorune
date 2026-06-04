@@ -91,6 +91,9 @@ provider_package_rust_global_allocator_smoke_source.py:
 hako_mimalloc_expression_materialization_copy_origin_analysis.py:
   expression-materialization copy-origin analysis only; no CLI orchestration or file I/O
 
+typed_object_helper_lock_cost_probe_source.py:
+  typed-object helper lock probe Rust benchmark source only; no CLI orchestration or report rendering
+
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
