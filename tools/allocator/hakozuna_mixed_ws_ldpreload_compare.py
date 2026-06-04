@@ -4,20 +4,15 @@
 from __future__ import annotations
 
 import argparse
-import os
-import subprocess
-import sys
 from pathlib import Path
 
-from hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot import read_kv
 from hakozuna_mixed_ws_build_support import (
     build_replacement_front_bins_shim,
     build_replacement_front_shim,
     find_mimalloc_library,
-    run_subject,
 )
 from hakozuna_mixed_ws_report_render import render_hakozuna_mixed_ws_report
-from replacement_front_smokes import run_replacement_front_cross_thread_smokes
+from hakozuna_mixed_ws_subject_runner import run_hakozuna_mixed_ws_subjects
 from replacement_front_support import (
     hako_good_size,
     hako_size_to_bin,
@@ -27,7 +22,6 @@ from replacement_front_support import (
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_HAKOZUNA_ROOT = ROOT / "benchmarks" / "external" / "hakozuna" / "mixed-ws" / "build"
-SMOKE_TOOL = Path(__file__).resolve().with_name("provider_package_ldpreload_replacement_smoke.py")
 
 
 def main() -> int:
@@ -371,29 +365,7 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     mimalloc_library = find_mimalloc_library(args.mimalloc_library, args.allow_ldconfig_discovery)
 
-    provider_shim: Path | None = None
-    provider_binary: Path | None = None
     replacement_front_shim: Path | None = None
-    if args.manifest is not None:
-        smoke_report = out_dir / "provider-ldpreload-smoke.out"
-        smoke_cmd = [
-            sys.executable,
-            str(SMOKE_TOOL),
-            "--manifest",
-            str(args.manifest.resolve()),
-            "--out-dir",
-            str(out_dir / "provider-ldpreload-smoke"),
-            "--out",
-            str(smoke_report),
-        ]
-        if args.provider_usable_size_mode:
-            smoke_cmd.append("--use-provider-usable-size")
-        if args.provider_assume_owned_mode:
-            smoke_cmd.append("--assume-provider-owned")
-        subprocess.run(smoke_cmd, check=True)
-        smoke = read_kv(smoke_report)
-        provider_shim = Path(smoke["shim_artifact_path"])
-        provider_binary = Path(smoke["provider_binary_path"])
     if args.replacement_front_native_slot_mode:
         replacement_front_shim = build_replacement_front_shim(
             out_dir,
@@ -423,50 +395,14 @@ def main() -> int:
             eager_init=args.replacement_front_eager_init_mode,
             product_pages_nonlinear_lookup=args.replacement_front_product_pages_nonlinear_mode,
         )
-    replacement_front_smokes: dict[str, dict[str, str]] = {}
-    if args.replacement_front_cross_thread_smoke:
-        if replacement_front_shim is None:
-            raise SystemExit("--replacement-front-cross-thread-smoke requires a replacement front")
-        replacement_front_smokes = run_replacement_front_cross_thread_smokes(
-            out_dir=out_dir,
-            replacement_front_shim=replacement_front_shim,
-        )
-
-    subject_specs: list[tuple[str, Path | None, Path | None, bool]] = [
-        ("system_malloc", None, None, False),
-        ("c_mimalloc_ldpreload", mimalloc_library, None, False),
-    ]
-    if provider_shim is not None and provider_binary is not None:
-        subject_specs.append(("hakorune_provider_ldpreload", provider_shim, provider_binary, False))
-    if replacement_front_shim is not None:
-        subject_specs.append(
-            ("hakorune_replacement_front_ldpreload", replacement_front_shim, None, True)
-        )
-
-    reports: dict[str, tuple[list[float], list[float], dict[str, int]]] = {}
-    for subject, ld_preload, provider, replacement_front_mode in subject_specs:
-        reports[subject] = run_subject(
-            bench=bench,
-            root=root,
-            out_dir=out_dir,
-            subject=subject,
-            warmup_count=args.warmup_count,
-            sample_count=args.sample_count,
-            threads=args.threads,
-            iters_per_thread=args.iters_per_thread,
-            working_set=args.working_set,
-            min_size=args.min_size,
-            max_size=args.max_size,
-            ld_preload=ld_preload,
-            provider_binary=provider,
-            provider_usable_size_mode=(
-                args.provider_usable_size_mode and subject == "hakorune_provider_ldpreload"
-            ),
-            provider_assume_owned_mode=(
-                args.provider_assume_owned_mode and subject == "hakorune_provider_ldpreload"
-            ),
-            replacement_front_mode=replacement_front_mode,
-        )
+    subject_specs, reports, replacement_front_smokes = run_hakozuna_mixed_ws_subjects(
+        args=args,
+        bench=bench,
+        root=root,
+        out_dir=out_dir,
+        replacement_front_shim=replacement_front_shim,
+        mimalloc_library=mimalloc_library,
+    )
     report = render_hakozuna_mixed_ws_report(
         args=args,
         bench=bench,
