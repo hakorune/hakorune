@@ -24,6 +24,9 @@ FREE_CLAIM_FN = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
 USABLE_SIZE_CLAIM_FN = ctypes.CFUNCTYPE(
     ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t)
 )
+REALLOC_CLAIM_FN = ctypes.CFUNCTYPE(
+    ctypes.c_int, ctypes.c_void_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_void_p)
+)
 
 
 class HakoProviderApiV1Base(ctypes.Structure):
@@ -51,9 +54,20 @@ class HakoProviderApiV1UsableSize(ctypes.Structure):
     ]
 
 
+class HakoProviderApiV1Realloc(ctypes.Structure):
+    _fields_ = HakoProviderApiV1UsableSize._fields_ + [
+        ("realloc_claim", REALLOC_CLAIM_FN),
+    ]
+
+
 def load_api(
     binary_path: Path,
-) -> HakoProviderApiV1Base | HakoProviderApiV1Claim | HakoProviderApiV1UsableSize:
+) -> (
+    HakoProviderApiV1Base
+    | HakoProviderApiV1Claim
+    | HakoProviderApiV1UsableSize
+    | HakoProviderApiV1Realloc
+):
     lib = ctypes.CDLL(str(binary_path))
     try:
         fn = getattr(lib, GET_API_EXPORT_NAME)
@@ -65,6 +79,8 @@ def load_api(
     if not ptr:
         fail("provider API export returned null")
     base = ptr.contents
+    if base.api_table_size >= ctypes.sizeof(HakoProviderApiV1Realloc):
+        return ctypes.cast(ptr, ctypes.POINTER(HakoProviderApiV1Realloc)).contents
     if base.api_table_size >= ctypes.sizeof(HakoProviderApiV1UsableSize):
         return ctypes.cast(ptr, ctypes.POINTER(HakoProviderApiV1UsableSize)).contents
     if base.api_table_size >= ctypes.sizeof(HakoProviderApiV1Claim):
@@ -73,7 +89,12 @@ def load_api(
 
 
 def validate_api(
-    api: HakoProviderApiV1Base | HakoProviderApiV1Claim | HakoProviderApiV1UsableSize,
+    api: (
+        HakoProviderApiV1Base
+        | HakoProviderApiV1Claim
+        | HakoProviderApiV1UsableSize
+        | HakoProviderApiV1Realloc
+    ),
 ) -> dict[str, str]:
     if api.magic != API_MAGIC:
         fail("api.magic mismatch")
@@ -85,12 +106,14 @@ def validate_api(
         fail("api table function pointers must be non-null")
     free_claim = getattr(api, "free_claim", None)
     usable_size_claim = getattr(api, "usable_size_claim", None)
+    realloc_claim = getattr(api, "realloc_claim", None)
     return {
         "api_abi_major": str(api.abi_major),
         "api_abi_minor": str(api.abi_minor),
         "api_table_size": str(api.api_table_size),
         "provider_free_claim_bound": "1" if free_claim else "0",
         "provider_usable_size_claim_bound": "1" if usable_size_claim else "0",
+        "provider_realloc_claim_bound": "1" if realloc_claim else "0",
     }
 
 
@@ -124,9 +147,10 @@ def emit(
         f"provider_allocator_kind={fields['provider_allocator_kind']}",
         f"provider_free_claim_bound={api['provider_free_claim_bound']}",
         f"provider_usable_size_claim_bound={api['provider_usable_size_claim_bound']}",
+        f"provider_realloc_claim_bound={api['provider_realloc_claim_bound']}",
         "provider_abi_claim_ops_v1=1",
         "provider_free_claim_enabled=1",
-        "provider_realloc_claim_enabled=0",
+        f"provider_realloc_claim_enabled={fields['provider_realloc_claim_enabled']}",
         f"provider_usable_size_claim_enabled={fields['provider_usable_size_claim_enabled']}",
         "compat_alloc_free_owns_still_supported=1",
         "compat_owns_free_mainline=0",
@@ -158,6 +182,9 @@ def run(manifest_path: Path) -> tuple[dict[str, str], dict[str, str], dict[str, 
     if not isinstance(build, dict):
         build = {}
     fields["provider_allocator_kind"] = str(build.get("provider_allocator_kind", "unknown"))
+    fields["provider_realloc_claim_enabled"] = (
+        "1" if build.get("provider_realloc_claim_enabled") is True else "0"
+    )
     fields["provider_usable_size_claim_enabled"] = (
         "1" if build.get("provider_usable_size_claim_enabled") is True else "0"
     )

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from ctypes import byref, c_size_t
+from ctypes import byref, c_size_t, c_void_p
 from pathlib import Path
 
 from provider_package_api_bind_smoke import emit as emit_bind
@@ -16,6 +16,8 @@ def emit(
     ptr: int,
     owns_result: int,
     free_claim_result: int,
+    realloc_claim_result: int,
+    realloc_claim_pointer_nonzero: int,
     usable_size_claim_result: int,
     usable_size_claim_value: int,
     size: int,
@@ -39,6 +41,9 @@ def emit(
         "provider_free_executed=1",
         "provider_free_claim_executed=1",
         f"provider_free_claim_result={free_claim_result}",
+        "provider_realloc_claim_executed=1",
+        f"provider_realloc_claim_result={realloc_claim_result}",
+        f"provider_realloc_claim_pointer_nonzero={realloc_claim_pointer_nonzero}",
         "provider_usable_size_claim_executed=1",
         f"provider_usable_size_claim_result={usable_size_claim_result}",
         f"provider_usable_size_claim_value={usable_size_claim_value}",
@@ -79,6 +84,16 @@ def main() -> int:
     else:
         usable_size_claim_result = 0
         usable_size_claim_value = 0
+    realloc_claim = getattr(api, "realloc_claim", None)
+    if realloc_claim is not None:
+        next_out = c_void_p(0)
+        realloc_claim_result = int(realloc_claim(c_void_p(ptr), args.size * 2, byref(next_out)))
+        if realloc_claim_result == 1:
+            ptr = int(next_out.value or 0)
+        realloc_claim_pointer_nonzero = 1 if next_out.value else 0
+    else:
+        realloc_claim_result = 0
+        realloc_claim_pointer_nonzero = 0
     free_claim = getattr(api, "free_claim", None)
     if free_claim is not None:
         free_claim_result = int(free_claim(ptr))
@@ -94,6 +109,8 @@ def main() -> int:
         ptr,
         owns_result,
         free_claim_result,
+        realloc_claim_result,
+        realloc_claim_pointer_nonzero,
         usable_size_claim_result,
         usable_size_claim_value,
         args.size,

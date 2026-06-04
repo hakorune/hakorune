@@ -344,8 +344,14 @@ provider_abi_claim_boundary:
   provider_usable_size_native_gap=target/prov-abi/usable-size-native-gap-t1-s3.out
   provider_usable_size_claim_host_backed=disabled_until_HostAllocatorV0
   provider_usable_size_claim_native_slot=enabled
-  provider_realloc_claim=next
-  host_allocator_vtable=next_after_realloc_claim
+  provider_realloc_claim=implemented_narrow
+  provider_realloc_host_ladder=target/prov-abi/realloc-claim-host-ladder.out
+  provider_realloc_host_gap=target/prov-abi/realloc-claim-host-gap-s3.out
+  provider_realloc_native_ladder=target/prov-abi/realloc-claim-native-ladder.out
+  provider_realloc_native_gap=target/prov-abi/realloc-claim-native-gap-t1-s3.out
+  provider_realloc_claim_host_backed=disabled_until_HostAllocatorV0
+  provider_realloc_claim_native_slot=enabled
+  host_allocator_vtable=next
   product_activation=0
   global_allocator_claim=0
   hook_installed=0
@@ -922,6 +928,16 @@ PROV-ABI-002:
   LD_PRELOAD shim free path prefers provider.free_claim
   keep alloc/free/owns compatibility surface
   do not add realloc_claim or HostAllocatorV0 in this slice
+
+PROV-ABI-003:
+  add optional usable_size_claim API tail entry
+  native-slot route owns usable-size truth
+  host-backed route stays disabled until HostAllocatorV0
+
+PROV-ABI-004:
+  add optional realloc_claim API tail entry
+  native-slot route handles provider-owned realloc lifecycle
+  host-backed route stays disabled until HostAllocatorV0
 ```
 
 PROV-ABI-002 landed as a narrow ABI-boundary cleanup:

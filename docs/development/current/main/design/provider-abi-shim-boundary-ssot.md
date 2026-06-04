@@ -64,10 +64,10 @@ First claim operation:
 free_claim(ptr) -> handled | not_owned
 ```
 
-Future claim operations:
+Implemented claim operations:
 
 ```text
-realloc_claim(ptr, new_size) -> handled(ptr) | not_owned | failed
+realloc_claim(ptr, new_size, out_ptr) -> handled(ptr) | not_owned | failed
 usable_size_claim(ptr) -> owned(size) | not_owned
 ```
 
@@ -109,7 +109,7 @@ Docs/report-only rows should expose:
 ```text
 provider_abi_claim_ops_v1=1
 provider_free_claim_enabled=1
-provider_realloc_claim_enabled=0
+provider_realloc_claim_enabled=0|1
 provider_usable_size_claim_enabled=0|1
 compat_alloc_free_owns_still_supported=1
 compat_owns_free_mainline=0
@@ -129,6 +129,9 @@ Counter rows should expose:
 ```text
 shim_provider_free_claim_count
 shim_provider_free_not_owned_count
+shim_provider_realloc_claim_count
+shim_provider_realloc_not_owned_count
+shim_provider_realloc_failed_count
 shim_provider_usable_size_claim_count
 shim_provider_usable_size_not_owned_count
 shim_tracking_lookup_count
@@ -159,6 +162,8 @@ PROV-ABI-003:
 
 PROV-ABI-004:
   realloc_claim provider-owned realloc lifecycle
+  native-slot route reports provider_realloc_claim_enabled=1
+  host-backed route stays provider_realloc_claim_enabled=0 until HostAllocatorV0
 
 PROV-ABI-005:
   HostAllocatorV0 init for host-backed adapters

@@ -178,6 +178,10 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         free_claim = as_int(provider, "shim_provider_free_claim_count_total")
         free_not_owned = as_int(provider, "shim_provider_free_not_owned_count_total")
         free_claim_bound = as_int(provider, "shim_provider_free_claim_bound_total")
+        realloc_claim = as_int(provider, "shim_provider_realloc_claim_count_total")
+        realloc_not_owned = as_int(provider, "shim_provider_realloc_not_owned_count_total")
+        realloc_failed = as_int(provider, "shim_provider_realloc_failed_count_total")
+        realloc_claim_bound = as_int(provider, "shim_provider_realloc_claim_bound_total")
         usable_size_claim = as_int(provider, "shim_provider_usable_size_claim_count_total")
         usable_size_not_owned = as_int(
             provider, "shim_provider_usable_size_not_owned_count_total"
@@ -203,6 +207,10 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_free_claim_count_total={free_claim}",
                 f"provider_free_not_owned_count_total={free_not_owned}",
                 f"provider_free_claim_bound_total={free_claim_bound}",
+                f"provider_realloc_claim_count_total={realloc_claim}",
+                f"provider_realloc_not_owned_count_total={realloc_not_owned}",
+                f"provider_realloc_failed_count_total={realloc_failed}",
+                f"provider_realloc_claim_bound_total={realloc_claim_bound}",
                 f"provider_usable_size_claim_count_total={usable_size_claim}",
                 f"provider_usable_size_not_owned_count_total={usable_size_not_owned}",
                 f"provider_usable_size_claim_bound_total={usable_size_claim_bound}",

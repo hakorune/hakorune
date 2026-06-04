@@ -32,6 +32,7 @@ typedef void (*hako_provider_free_fn)(void*);
 typedef int (*hako_provider_owns_fn)(void*);
 typedef int (*hako_provider_free_claim_fn)(void*);
 typedef int (*hako_provider_usable_size_claim_fn)(void*, size_t*);
+typedef int (*hako_provider_realloc_claim_fn)(void*, size_t, void**);
 typedef size_t (*hako_provider_usable_size_fn)(void*);
 typedef void* (*hako_malloc_fn)(size_t);
 typedef void* (*hako_calloc_fn)(size_t, size_t);
@@ -49,6 +50,7 @@ struct HakoProviderApiV1 {
   hako_provider_owns_fn owns;
   hako_provider_free_claim_fn free_claim;
   hako_provider_usable_size_claim_fn usable_size_claim;
+  hako_provider_realloc_claim_fn realloc_claim;
 };
 
 typedef struct HakoProviderApiV1* (*hako_get_api_fn)(void);
@@ -68,6 +70,7 @@ static hako_provider_free_fn provider_free_fn = 0;
 static hako_provider_owns_fn provider_owns_fn = 0;
 static hako_provider_free_claim_fn provider_free_claim_fn = 0;
 static hako_provider_usable_size_claim_fn provider_usable_size_claim_fn = 0;
+static hako_provider_realloc_claim_fn provider_realloc_claim_fn = 0;
 static hako_provider_usable_size_fn provider_usable_size_fn = 0;
 static int resolving_real = 0;
 static int loading_provider = 0;
@@ -88,6 +91,10 @@ static unsigned long long provider_free_claim_bound = 0;
 static unsigned long long provider_usable_size_claim_count = 0;
 static unsigned long long provider_usable_size_not_owned_count = 0;
 static unsigned long long provider_usable_size_claim_bound = 0;
+static unsigned long long provider_realloc_claim_count = 0;
+static unsigned long long provider_realloc_not_owned_count = 0;
+static unsigned long long provider_realloc_failed_count = 0;
+static unsigned long long provider_realloc_claim_bound = 0;
 static unsigned long long runtime_real_fallback_count = 0;
 static unsigned long long init_real_fallback_count = 0;
 static unsigned long long host_passthrough_count = 0;
@@ -302,6 +309,10 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_provider_usable_size_claim_count", provider_usable_size_claim_count);
   hako_write_kv(fd, "shim_provider_usable_size_not_owned_count", provider_usable_size_not_owned_count);
   hako_write_kv(fd, "shim_provider_usable_size_claim_bound", provider_usable_size_claim_bound);
+  hako_write_kv(fd, "shim_provider_realloc_claim_count", provider_realloc_claim_count);
+  hako_write_kv(fd, "shim_provider_realloc_not_owned_count", provider_realloc_not_owned_count);
+  hako_write_kv(fd, "shim_provider_realloc_failed_count", provider_realloc_failed_count);
+  hako_write_kv(fd, "shim_provider_realloc_claim_bound", provider_realloc_claim_bound);
   hako_write_kv(fd, "shim_runtime_real_fallback_count", runtime_real_fallback_count);
   hako_write_kv(fd, "shim_init_real_fallback_count", init_real_fallback_count);
   hako_write_kv(fd, "shim_init_fallback_loading_provider_count", init_fallback_loading_provider_count);
@@ -383,13 +394,23 @@ static int hako_ensure_provider(void) {
   provider_alloc_fn = api->alloc;
   provider_free_fn = api->free;
   provider_owns_fn = api->owns;
-  if (api->api_table_size >= sizeof(struct HakoProviderApiV1) && api->free_claim) {
+  if (api->api_table_size >=
+          offsetof(struct HakoProviderApiV1, free_claim) + sizeof(api->free_claim) &&
+      api->free_claim) {
     provider_free_claim_fn = api->free_claim;
     provider_free_claim_bound = 1;
   }
-  if (api->api_table_size >= sizeof(struct HakoProviderApiV1) && api->usable_size_claim) {
+  if (api->api_table_size >=
+          offsetof(struct HakoProviderApiV1, usable_size_claim) + sizeof(api->usable_size_claim) &&
+      api->usable_size_claim) {
     provider_usable_size_claim_fn = api->usable_size_claim;
     provider_usable_size_claim_bound = 1;
+  }
+  if (api->api_table_size >=
+          offsetof(struct HakoProviderApiV1, realloc_claim) + sizeof(api->realloc_claim) &&
+      api->realloc_claim) {
+    provider_realloc_claim_fn = api->realloc_claim;
+    provider_realloc_claim_bound = 1;
   }
   if (provider_usable_size_mode) {
     if (provider_usable_size_claim_fn) {
@@ -506,6 +527,31 @@ void* realloc(void* ptr, size_t size) {
     realloc_init_fallback_count++;
     hako_resolve_real();
     return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
+  }
+  if ((provider_ready || hako_ensure_provider()) && provider_realloc_claim_fn) {
+    void* next = 0;
+    in_provider_call = 1;
+    int handled = provider_realloc_claim_fn(ptr, size, &next);
+    in_provider_call = 0;
+    provider_realloc_claim_count++;
+    if (handled == 1) {
+      if (!provider_usable_size_mode) {
+        int claim_index = hako_find_tracked(ptr);
+        if (claim_index >= 0) {
+          hako_untrack_index(claim_index);
+        }
+        if (next) {
+          hako_track_ptr(next, size);
+        }
+      }
+      provider_realloc_count++;
+      return next;
+    }
+    if (handled < 0) {
+      provider_realloc_failed_count++;
+      return 0;
+    }
+    provider_realloc_not_owned_count++;
   }
   int index = provider_usable_size_mode ? -1 : hako_find_tracked(ptr);
   if (index < 0) {
