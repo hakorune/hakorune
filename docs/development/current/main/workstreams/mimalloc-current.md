@@ -495,6 +495,22 @@ type_abi_route_descriptor_report_boundary_2026_06_05:
   selected_next_task=TYPEROUTE-003
   selected_next_action=add_declared_route_vs_execution_route_and_guard_host_backed_adapter_hot_path_claim
 
+type_abi_declared_execution_route_split_2026_06_05:
+  status=landed
+  task_id=TYPEROUTE-003
+  ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+  touched_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+  behavior_change=0
+  provider_abi_execution_change=0
+  replacement_front_hot_path_change=0
+  declared_route_field=subject_N_declared_route
+  execution_route_field=subject_N_execution_route
+  provider_declared_route_field=provider_declared_route
+  provider_execution_route_field=provider_execution_route
+  host_backed_adapter_hako_hot_path_claim_guard=1
+  selected_next_task=TYPEROUTE-004
+  selected_next_action=wire_hako_check_or_python_readonly_descriptor_consumption
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

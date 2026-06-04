@@ -154,6 +154,9 @@ def emit_summary(compare_report: Path, out: Path) -> None:
     ]
 
     for key in (
+        "provider_ldpreload_declared_package_origin",
+        "provider_ldpreload_declared_route",
+        "provider_ldpreload_execution_route",
         "provider_ldpreload_measurement_route",
         "provider_ldpreload_provider_allocator_kind",
         "provider_ldpreload_alloc_free_route",
@@ -182,6 +185,8 @@ def emit_summary(compare_report: Path, out: Path) -> None:
 
     if provider is not None:
         provider_median = float(provider["throughput_median_ops_per_sec"])
+        provider_declared_route = provider.get("declared_route", "unknown")
+        provider_execution_route = provider.get("execution_route", "unknown")
         provider_front_class = provider.get("benchmark_front_class", "unknown")
         provider_hako_hot_path_claim = provider.get("hako_hot_path_claim", "0")
         provider_ops = as_int(provider, "shim_provider_operation_count_total")
@@ -221,6 +226,8 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         lines.extend(
             [
                 f"provider_median_ops_per_sec={provider_median:.3f}",
+                f"provider_declared_route={provider_declared_route}",
+                f"provider_execution_route={provider_execution_route}",
                 f"provider_benchmark_front_class={provider_front_class}",
                 f"provider_hako_hot_path_claim={provider_hako_hot_path_claim}",
                 f"provider_vs_mimalloc_ratio={ratio(provider_median, mimalloc_median)}",

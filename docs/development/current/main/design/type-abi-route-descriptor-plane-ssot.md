@@ -229,6 +229,7 @@ TYPEROUTE-002:
 TYPEROUTE-003:
   add declared_route vs execution_route fields
   fail if host_backed_adapter claims .hako hot path
+  status: landed 2026-06-05
 
 TYPEROUTE-004:
   hako_check / Python introspection consumes route descriptor as read-only
@@ -239,9 +240,29 @@ TYPEROUTE-005:
   only
 ```
 
+## Declared Vs Execution Route Fields
+
+Hakozuna compare and gap ladder reports expose:
+
+```text
+provider_ldpreload_declared_package_origin=hako_derived|unknown
+provider_ldpreload_declared_route=...
+provider_ldpreload_execution_route=...
+
+subject_N_declared_route=...
+subject_N_execution_route=...
+
+provider_declared_route=...
+provider_execution_route=...
+```
+
+`declared_route` comes from package/descriptor metadata. `execution_route`
+comes from the measured hot route. A host-backed adapter must not claim the
+`.hako` hot path.
+
 ## Current Next Action
 
-The next active work is `TYPEROUTE-003`: add declared-route vs execution-route
-report fields and guard that `host_backed_adapter` cannot claim the `.hako`
-hot path. Do not modify Provider ABI execution, replacement-front hot path, or
-allocator behavior in that slice.
+The next active work is `TYPEROUTE-004`: make hako_check / Python
+introspection consume route descriptors as read-only descriptor data. Do not
+modify Provider ABI execution, replacement-front hot path, or allocator
+behavior in that slice.
