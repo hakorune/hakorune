@@ -3,12 +3,19 @@ Nyash GC Modes — Design and Usage
 Overview
 - Nyash adopts a pragmatic GC strategy that balances safety, performance, and simplicity.
 - Current operational contract is fixed by Phase 29y RC/GC alignment gates.
-- Semantics invariance is pinned between `rc+cycle` and `off` (GC ON/OFF).
+- Semantics invariance is pinned between `rc+cycle` and `off` (diagnostic GC hooks ON/OFF).
+- Current runtime ownership is reference-counted. The active `rc+cycle`
+  spelling is a compatibility label for RC-backed diagnostics and
+  reachability trials; it does not currently detect or reclaim strong cycles.
 
 Operationally pinned modes (current SSOT)
 - rc+cycle (default, safe)
-  - Reference counting with periodic cycle detection/collection.
+  - Reference counting with optional safepoint/allocation-triggered
+    reachability diagnostics.
   - Beginner/safe profile for day-to-day operation.
+  - Compatibility note: the mode name remains `rc+cycle` because gates and CLI
+    contracts are pinned to that spelling. It must not be read as a current
+    cycle-collection claim.
 - off (expert, self‑responsibility)
   - GC hooks are disabled; strong cycles may leak.
   - Expert profile used by ON/OFF invariance gates.
@@ -19,12 +26,16 @@ Selection & Precedence
 - nyash.toml [env] applies last
 
 Instrumentation & Diagnostics
-- `NYASH_GC_METRICS=1`: print brief metrics (allocs/bytes/cycles/pauses)
+- `NYASH_GC_METRICS=1`: print brief metrics (safepoints, barriers,
+  allocs/bytes, reachability-trial counters/timing)
 - Optional lane diag tag (metrics ON only): `[gc/optional:mode] mode=<...> collect_sp=<...> collect_alloc=<...>`
 
 Operational Guidance
 - Default: rc+cycle for stable operations.
 - Validate semantics equivalence with `rc+cycle` and `off` via G-RC-5/G-RC-2 gates.
+- Do not rely on cycle reclamation in any mode. Strong cycles are allowed by
+  the language but may leak; use weak references for back-pointers and parent
+  links.
 
 Implementation status and lane direction
 1) Boundary lock (done)
@@ -38,6 +49,9 @@ Implementation status and lane direction
 Current status note
 - The runtime currently guarantees operational contracts through `rc+cycle/off` invariance gates.
 - Unsupported modes fail-fast (`NYASH_GC_MODE` must be `auto|rc+cycle|off`).
+- `GcMode::RcDiagnostic` is the code-side active mode for the external
+  `rc+cycle` label. The controller records reachability and collection-attempt
+  counters, but does not free unreachable cycles.
 
 Notes
 - Safepoint and barrier MIR ops already exist and are reused as GC coordination hooks.

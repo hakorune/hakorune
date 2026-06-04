@@ -371,17 +371,21 @@ Nyash allows object graphs; strong cycles can exist unless the program avoids th
 
 Policy:
 - Programs should use **weak** references for back-pointers / parent links to avoid strong cycles.
-- If a strong cycle exists, memory reclamation is not guaranteed (it may leak). This is allowed behavior in “no cycle collector” mode.
+- If a strong cycle exists, memory reclamation is not guaranteed (it may leak).
+  This is allowed behavior. Current implementations must be treated as
+  no-cycle-collector for language reasoning.
 
 Important: weak references themselves do not require tracing GC.
 - They require a runtime liveness mechanism (e.g., an `Rc/Weak`-style control block) so that “weak_to_strong” can succeed/fail safely.
 
 ### GC modes
 
-GC is treated as an optimization/diagnostics facility, not as a semantic requirement. In practice, this means “cycle collection / tracing”, not “basic refcount drop”.
+GC is treated as an optimization/diagnostics facility, not as a semantic requirement. In practice, this means optional tracing/diagnostics and possible future cycle collection, not “basic refcount drop”.
 
 - **GC off**: reference-counted reclamation still applies for non-cyclic ownership graphs; strong cycles may leak.
-- **GC on**: the runtime may additionally reclaim unreachable cycles eventually; timing is not guaranteed.
+- **GC on / diagnostic mode**: the runtime may add safepoint/barrier/allocation
+  diagnostics and reachability trials. Current runtime modes do not guarantee
+  cycle detection or cycle reclamation.
 
 Invariant:
 - Whether GC is on or off must not change *program meaning*, except for observability related to resource/memory timing (which must not be relied upon for correctness).
@@ -389,10 +393,14 @@ Invariant:
 ### Operational profiles (non-normative)
 
 The runtime may provide two operating profiles while keeping the same language semantics:
-- **Beginner mode**: cycle collector enabled (diagnostics/safety oriented).
-- **Expert mode**: cycle collector disabled (design relies on weak references to avoid cycles).
+- **Beginner mode**: diagnostics enabled (currently `rc+cycle`, an external
+  compatibility label; not a current cycle-collection guarantee).
+- **Expert mode**: diagnostics/hooks disabled (design relies on weak references
+  to avoid cycles).
 
-Both profiles must preserve the same program meaning; only reclamation timing and leak tolerance differ.
+Both profiles must preserve the same program meaning. Current implementations
+may differ only in diagnostics/observability hooks; future collectors may also
+differ in reclamation timing and leak tolerance.
 
 ## 6) ByRef (`RefGet/RefSet`) — borrowed slot references (non-owning)
 

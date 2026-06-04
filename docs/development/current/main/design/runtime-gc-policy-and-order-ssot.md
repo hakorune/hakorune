@@ -34,7 +34,8 @@ Related:
 
 - `fini` は資源解放の決定的契約（論理終端）。
 - 物理解放タイミングは runtime 実装責務であり、言語意味論の外側。
-- GC ON/OFF で意味論を変えない（変わってよいのは回収タイミングのみ）。
+- GC ON/OFF で意味論を変えない（現行差分は診断/観測のみ。将来 collector
+  を足す場合も、変わってよいのは回収タイミングとリーク耐性だけ）。
 
 ## 3. ABI Contract
 
@@ -68,6 +69,7 @@ Related:
 
 ## 8. Operational Interpretation (non-normative)
 
-- Beginner mode: cycle collector あり（診断/安全寄り）。
-- Expert mode: cycle collector なし（weak 運用を設計で徹底）。
-- どちらのモードでも意味論は同じ。違いは回収タイミングとリーク耐性のみ。
+- Beginner mode: 診断あり（現行 `rc+cycle` ラベル。reachability trial /
+  metrics はあるが、cycle 回収の実装済み主張ではない）。
+- Expert mode: 診断/hooks なし（weak 運用を設計で徹底）。
+- どちらのモードでも意味論は同じ。現行実装の違いは診断/観測フックであり、将来 collector を足す場合も差分は回収タイミングとリーク耐性に閉じる。

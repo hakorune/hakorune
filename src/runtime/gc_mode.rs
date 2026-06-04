@@ -7,7 +7,7 @@ pub const GC_MODE_CLI_VALUE_NAME: &str = "{auto,rc+cycle,off}";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GcMode {
-    RcCycle,
+    RcDiagnostic,
     Off,
 }
 
@@ -32,7 +32,7 @@ impl GcModeParseError {
 impl GcMode {
     pub fn parse(raw: &str) -> Result<Self, GcModeParseError> {
         match raw.trim().to_ascii_lowercase().as_str() {
-            "" | "auto" | "rc+cycle" => Ok(GcMode::RcCycle),
+            "" | "auto" | "rc+cycle" => Ok(GcMode::RcDiagnostic),
             "off" => Ok(GcMode::Off),
             _ => Err(GcModeParseError::new(raw)),
         }
@@ -61,7 +61,10 @@ impl GcMode {
 
     pub fn as_str(&self) -> &'static str {
         match self {
-            GcMode::RcCycle => "rc+cycle",
+            // External spelling stays `rc+cycle` for CLI/env/gate compatibility.
+            // The current implementation is RC-backed diagnostics/reachability
+            // trial only; it does not reclaim strong cycles.
+            GcMode::RcDiagnostic => "rc+cycle",
             GcMode::Off => "off",
         }
     }

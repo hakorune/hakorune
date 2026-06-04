@@ -46,7 +46,7 @@ pub struct CountingGc {
 
 impl CountingGc {
     pub fn new() -> Self {
-        Self::new_with_mode(crate::runtime::gc_mode::GcMode::RcCycle)
+        Self::new_with_mode(crate::runtime::gc_mode::GcMode::RcDiagnostic)
     }
     pub fn new_with_mode(mode: crate::runtime::gc_mode::GcMode) -> Self {
         Self {

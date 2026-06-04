@@ -196,9 +196,10 @@ impl GcController {
 
     fn run_trial_collection(&self) {
         self.reset_collection_windows();
-        // Only run for the active GC mode (rc+cycle). Off mode is handled above.
+        // Only run for the active diagnostic mode (`rc+cycle` externally).
+        // This is reachability/metrics only; strong cycles are not reclaimed here.
         match self.mode {
-            GcMode::RcCycle => {
+            GcMode::RcDiagnostic => {
                 let started = std::time::Instant::now();
                 let roots = self.snapshot_roots();
                 let summary = self.trace_reachability(roots);
@@ -275,7 +276,7 @@ mod tests {
     #[test]
     fn gc_controller_triggers_collection_on_safepoint_threshold() {
         with_gc_trigger_env(Some("1"), None, || {
-            let controller = GcController::new(GcMode::RcCycle);
+            let controller = GcController::new(GcMode::RcDiagnostic);
             controller.safepoint();
             assert_eq!(controller.collection_totals(), (1, 1, 0));
             assert_eq!(controller.trial_reason_last_bits(), 1);
@@ -285,7 +286,7 @@ mod tests {
     #[test]
     fn gc_controller_triggers_collection_on_alloc_threshold_after_safepoint() {
         with_gc_trigger_env(None, Some("64"), || {
-            let controller = GcController::new(GcMode::RcCycle);
+            let controller = GcController::new(GcMode::RcDiagnostic);
             controller.alloc(64);
             controller.safepoint();
             assert_eq!(controller.collection_totals(), (1, 0, 1));
@@ -296,7 +297,7 @@ mod tests {
     #[test]
     fn gc_controller_triggers_collection_on_both_thresholds() {
         with_gc_trigger_env(Some("1"), Some("64"), || {
-            let controller = GcController::new(GcMode::RcCycle);
+            let controller = GcController::new(GcMode::RcDiagnostic);
             controller.alloc(64);
             controller.safepoint();
             assert_eq!(controller.collection_totals(), (1, 1, 1));

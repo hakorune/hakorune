@@ -9,7 +9,7 @@ Scope: “脱Rustランタイム（NyRT/.hako）” を進める前提で、life
 
 - backend（VM/LLVM/wasm/others）が “同じ意味” を実装できる最小 ABI を定義する
 - “言語意味論” と “実装都合（VMのregs等）” を切り離し、hidden root を再発しにくくする
-- cycle collector（GC）の ON/OFF で ABI 意味を変えない（差分は回収タイミングのみ）
+- GC/diagnostic hooks の ON/OFF で ABI 意味を変えない（現行差分は診断/観測のみ。将来 collector を足す場合も差分は回収タイミングとリーク耐性に閉じる）
 
 ## 1. 前提（言語意味論）
 

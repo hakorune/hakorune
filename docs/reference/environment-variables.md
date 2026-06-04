@@ -374,7 +374,7 @@ NYASH_CLI_VERBOSE=2 \
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `NYASH_GC_MODE={auto|rc+cycle|off}` | `rc+cycle` | Any | GC モード選択。運用SSOTで固定されている比較対象は `rc+cycle/off`（意味論不変ゲート）。その他の値は fail-fast。 |
+| `NYASH_GC_MODE={auto|rc+cycle|off}` | `rc+cycle` | Any | GC モード選択。運用SSOTで固定されている比較対象は `rc+cycle/off`（意味論不変ゲート）。現行 `rc+cycle` は互換ラベルで、RC-backed 診断/reachability trial を有効にするが cycle 回収は保証しない。その他の値は fail-fast。 |
 | `NYASH_GC_TRACE=1` | OFF | Any | GC トレース出力 (0-3) |
 | `NYASH_GC_METRICS=1` | OFF | Any | GC メトリクス (text)。`rc+cycle` 時は optional GC 診断タグ（`[gc/optional:mode]`）も出力。 |
 | `NYASH_VM_TRACE=1` | OFF | Any | VM 実行トレース |

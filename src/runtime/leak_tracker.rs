@@ -262,7 +262,7 @@ pub fn emit_leak_report() {
     if crate::config::env::gc_metrics() {
         if matches!(
             crate::config::env::gc_mode_typed(),
-            Ok(crate::runtime::gc_mode::GcMode::RcCycle)
+            Ok(crate::runtime::gc_mode::GcMode::RcDiagnostic)
         ) {
             let collect_sp = crate::config::env::gc_collect_sp_interval()
                 .map(|v| v.to_string())

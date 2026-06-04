@@ -164,7 +164,7 @@ still belongs to the substrate capability ladder.
   - reachability trace
   - collection metrics accumulation
   - logging
-  - mode dispatch (`RcCycle` / `Off`)
+  - mode dispatch (`RcDiagnostic` / `Off`; external label remains `rc+cycle`)
 
 ### VM-only page/free-list policy-state prototype
 
