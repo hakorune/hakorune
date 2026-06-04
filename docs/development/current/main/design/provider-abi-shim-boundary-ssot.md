@@ -73,6 +73,18 @@ usable_size_claim(ptr) -> owned(size) | not_owned
 
 `owns(ptr)` stays diagnostic / compatibility / cold query only.
 
+`usable_size_claim` is enabled only when the provider route owns usable-size
+truth. Current route status:
+
+```text
+host_backed_adapter:
+  provider_usable_size_claim_enabled=0 until HostAllocatorV0 supplies host
+  usable-size truth
+
+pure_allocator / native-slot:
+  provider_usable_size_claim_enabled=1
+```
+
 ## Host Allocator Vtable
 
 Future host-backed adapters use:
@@ -98,7 +110,7 @@ Docs/report-only rows should expose:
 provider_abi_claim_ops_v1=1
 provider_free_claim_enabled=1
 provider_realloc_claim_enabled=0
-provider_usable_size_claim_enabled=0
+provider_usable_size_claim_enabled=0|1
 compat_alloc_free_owns_still_supported=1
 compat_owns_free_mainline=0
 shim_provider_owned_truth=0
@@ -117,6 +129,8 @@ Counter rows should expose:
 ```text
 shim_provider_free_claim_count
 shim_provider_free_not_owned_count
+shim_provider_usable_size_claim_count
+shim_provider_usable_size_not_owned_count
 shim_tracking_lookup_count
 shim_tracking_insert_count
 shim_tracking_remove_count
@@ -139,7 +153,9 @@ PROV-ABI-002:
   landed as the first implementation slice
 
 PROV-ABI-003:
-  usable_size_claim report and provider-owned usable-size truth
+  usable_size_claim optional API tail entry
+  native-slot route reports provider_usable_size_claim_enabled=1
+  host-backed route stays provider_usable_size_claim_enabled=0 until HostAllocatorV0
 
 PROV-ABI-004:
   realloc_claim provider-owned realloc lifecycle

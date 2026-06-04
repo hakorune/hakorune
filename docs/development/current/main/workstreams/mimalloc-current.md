@@ -334,6 +334,22 @@ provider_gap_refresh_2026_06_04:
   selected_next_owner=provider_alloc_free_internal_real_malloc_boundary
   selected_next_action=split provider ABI/shim boundary before another host-wrapper C-shape probe
 
+provider_abi_claim_boundary:
+  provider_kind_split=accepted
+  provider_free_claim=implemented
+  provider_usable_size_claim=implemented_narrow
+  provider_usable_size_host_ladder=target/prov-abi/usable-size-host-ladder.out
+  provider_usable_size_host_gap=target/prov-abi/usable-size-host-gap-s3.out
+  provider_usable_size_native_ladder=target/prov-abi/usable-size-native-ladder.out
+  provider_usable_size_native_gap=target/prov-abi/usable-size-native-gap-t1-s3.out
+  provider_usable_size_claim_host_backed=disabled_until_HostAllocatorV0
+  provider_usable_size_claim_native_slot=enabled
+  provider_realloc_claim=next
+  host_allocator_vtable=next_after_realloc_claim
+  product_activation=0
+  global_allocator_claim=0
+  hook_installed=0
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

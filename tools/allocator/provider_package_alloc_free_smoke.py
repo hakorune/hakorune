@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from ctypes import byref, c_size_t
 from pathlib import Path
 
 from provider_package_api_bind_smoke import emit as emit_bind
@@ -15,6 +16,8 @@ def emit(
     ptr: int,
     owns_result: int,
     free_claim_result: int,
+    usable_size_claim_result: int,
+    usable_size_claim_value: int,
     size: int,
     align: int,
 ) -> str:
@@ -36,6 +39,9 @@ def emit(
         "provider_free_executed=1",
         "provider_free_claim_executed=1",
         f"provider_free_claim_result={free_claim_result}",
+        "provider_usable_size_claim_executed=1",
+        f"provider_usable_size_claim_result={usable_size_claim_result}",
+        f"provider_usable_size_claim_value={usable_size_claim_value}",
         f"provider_owns_result={owns_result}",
         "allocation_count=1",
         "free_count=1",
@@ -65,6 +71,14 @@ def main() -> int:
     if ptr == 0:
         raise SystemExit("[provider-package-metadata-preflight] provider alloc returned null")
     owns_result = int(api.owns(ptr))
+    usable_size_claim = getattr(api, "usable_size_claim", None)
+    if usable_size_claim is not None:
+        size_out = c_size_t(0)
+        usable_size_claim_result = int(usable_size_claim(ptr, byref(size_out)))
+        usable_size_claim_value = int(size_out.value)
+    else:
+        usable_size_claim_result = 0
+        usable_size_claim_value = 0
     free_claim = getattr(api, "free_claim", None)
     if free_claim is not None:
         free_claim_result = int(free_claim(ptr))
@@ -75,7 +89,16 @@ def main() -> int:
         api.free(ptr)
 
     base = emit_bind(fields, descriptor, api_info, manifest_path, binary_path)
-    report = emit(base, ptr, owns_result, free_claim_result, args.size, args.align)
+    report = emit(
+        base,
+        ptr,
+        owns_result,
+        free_claim_result,
+        usable_size_claim_result,
+        usable_size_claim_value,
+        args.size,
+        args.align,
+    )
     if args.out is None:
         print(report, end="")
     else:

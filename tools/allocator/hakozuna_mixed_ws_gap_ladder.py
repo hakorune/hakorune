@@ -178,6 +178,13 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         free_claim = as_int(provider, "shim_provider_free_claim_count_total")
         free_not_owned = as_int(provider, "shim_provider_free_not_owned_count_total")
         free_claim_bound = as_int(provider, "shim_provider_free_claim_bound_total")
+        usable_size_claim = as_int(provider, "shim_provider_usable_size_claim_count_total")
+        usable_size_not_owned = as_int(
+            provider, "shim_provider_usable_size_not_owned_count_total"
+        )
+        usable_size_claim_bound = as_int(
+            provider, "shim_provider_usable_size_claim_bound_total"
+        )
         tracking_insert = as_int(provider, "shim_track_probe_total_total")
         tracking_lookup = as_int(provider, "shim_find_probe_total_total")
         next_owner = provider.get("next_owner_family", "unknown")
@@ -196,6 +203,9 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_free_claim_count_total={free_claim}",
                 f"provider_free_not_owned_count_total={free_not_owned}",
                 f"provider_free_claim_bound_total={free_claim_bound}",
+                f"provider_usable_size_claim_count_total={usable_size_claim}",
+                f"provider_usable_size_not_owned_count_total={usable_size_not_owned}",
+                f"provider_usable_size_claim_bound_total={usable_size_claim_bound}",
                 f"shim_tracking_insert_probe_total={tracking_insert}",
                 f"shim_tracking_lookup_probe_total={tracking_lookup}",
                 "shim_provider_owned_truth=0",

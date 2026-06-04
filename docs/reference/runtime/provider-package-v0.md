@@ -473,12 +473,18 @@ claim-style operations where the provider owns provider-pointer lifecycle truth:
 
 ```text
 free_claim(ptr) -> handled | not_owned
+usable_size_claim(ptr, out_size) -> owned(size) | not_owned
 ```
 
-Current generated providers append `free_claim` as an optional tail entry after
-the compatibility fields. Existing `alloc/free/owns` remain supported for
-compatibility, while LD_PRELOAD shim mainline may prefer `free_claim` when the
-tail entry is present.
+Current generated providers append `free_claim` and `usable_size_claim` as
+optional tail entries after the compatibility fields. Existing
+`alloc/free/owns` remain supported for compatibility, while LD_PRELOAD shim
+mainline may prefer claim operations when the tail entries are present.
+
+`usable_size_claim` is route-specific. Host-backed adapters currently return
+`not_owned` because they do not own host usable-size truth until a future
+`HostAllocatorV0` row. Native-slot generated providers return owned requested
+size for provider-owned slots.
 
 Report fields:
 
@@ -487,16 +493,16 @@ provider_allocator_kind=pure_allocator|host_backed_adapter
 provider_abi_claim_ops_v1=1
 provider_free_claim_enabled=1
 provider_realloc_claim_enabled=0
-provider_usable_size_claim_enabled=0
+provider_usable_size_claim_enabled=0|1
 compat_alloc_free_owns_still_supported=1
 compat_owns_free_mainline=0
 host_allocator_vtable_init=0
 ```
 
-`realloc_claim`, `usable_size_claim`, and `HostAllocatorV0` are future rows.
-Host-backed adapters must eventually receive host allocator operations through
-an explicit vtable instead of depending on LD_PRELOAD symbol reentry or
-nonportable libc-private symbols.
+`realloc_claim` and `HostAllocatorV0` are future rows. Host-backed adapters
+must eventually receive host allocator operations through an explicit vtable
+instead of depending on LD_PRELOAD symbol reentry or nonportable libc-private
+symbols.
 
 ## v0 Stop Line
 

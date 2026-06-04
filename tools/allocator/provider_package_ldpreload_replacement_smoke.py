@@ -31,6 +31,7 @@ typedef void* (*hako_provider_alloc_fn)(size_t, size_t);
 typedef void (*hako_provider_free_fn)(void*);
 typedef int (*hako_provider_owns_fn)(void*);
 typedef int (*hako_provider_free_claim_fn)(void*);
+typedef int (*hako_provider_usable_size_claim_fn)(void*, size_t*);
 typedef size_t (*hako_provider_usable_size_fn)(void*);
 typedef void* (*hako_malloc_fn)(size_t);
 typedef void* (*hako_calloc_fn)(size_t, size_t);
@@ -47,6 +48,7 @@ struct HakoProviderApiV1 {
   hako_provider_free_fn free;
   hako_provider_owns_fn owns;
   hako_provider_free_claim_fn free_claim;
+  hako_provider_usable_size_claim_fn usable_size_claim;
 };
 
 typedef struct HakoProviderApiV1* (*hako_get_api_fn)(void);
@@ -65,6 +67,7 @@ static hako_provider_alloc_fn provider_alloc_fn = 0;
 static hako_provider_free_fn provider_free_fn = 0;
 static hako_provider_owns_fn provider_owns_fn = 0;
 static hako_provider_free_claim_fn provider_free_claim_fn = 0;
+static hako_provider_usable_size_claim_fn provider_usable_size_claim_fn = 0;
 static hako_provider_usable_size_fn provider_usable_size_fn = 0;
 static int resolving_real = 0;
 static int loading_provider = 0;
@@ -82,6 +85,9 @@ static unsigned long long provider_free_count = 0;
 static unsigned long long provider_free_claim_count = 0;
 static unsigned long long provider_free_not_owned_count = 0;
 static unsigned long long provider_free_claim_bound = 0;
+static unsigned long long provider_usable_size_claim_count = 0;
+static unsigned long long provider_usable_size_not_owned_count = 0;
+static unsigned long long provider_usable_size_claim_bound = 0;
 static unsigned long long runtime_real_fallback_count = 0;
 static unsigned long long init_real_fallback_count = 0;
 static unsigned long long host_passthrough_count = 0;
@@ -293,6 +299,9 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_provider_free_claim_count", provider_free_claim_count);
   hako_write_kv(fd, "shim_provider_free_not_owned_count", provider_free_not_owned_count);
   hako_write_kv(fd, "shim_provider_free_claim_bound", provider_free_claim_bound);
+  hako_write_kv(fd, "shim_provider_usable_size_claim_count", provider_usable_size_claim_count);
+  hako_write_kv(fd, "shim_provider_usable_size_not_owned_count", provider_usable_size_not_owned_count);
+  hako_write_kv(fd, "shim_provider_usable_size_claim_bound", provider_usable_size_claim_bound);
   hako_write_kv(fd, "shim_runtime_real_fallback_count", runtime_real_fallback_count);
   hako_write_kv(fd, "shim_init_real_fallback_count", init_real_fallback_count);
   hako_write_kv(fd, "shim_init_fallback_loading_provider_count", init_fallback_loading_provider_count);
@@ -378,18 +387,30 @@ static int hako_ensure_provider(void) {
     provider_free_claim_fn = api->free_claim;
     provider_free_claim_bound = 1;
   }
+  if (api->api_table_size >= sizeof(struct HakoProviderApiV1) && api->usable_size_claim) {
+    provider_usable_size_claim_fn = api->usable_size_claim;
+    provider_usable_size_claim_bound = 1;
+  }
   if (provider_usable_size_mode) {
-    provider_usable_size_fn =
-        (hako_provider_usable_size_fn)dlsym(handle, "hakorune_provider_usable_size_v0");
-    if (provider_usable_size_fn) {
+    if (provider_usable_size_claim_fn) {
       usable_size_symbol_bound = 1;
       usable_size_mode_enabled = 1;
       if (provider_assume_owned_mode) {
         assume_owned_mode_enabled = 1;
       }
     } else {
-      provider_usable_size_mode = 0;
-      provider_assume_owned_mode = 0;
+      provider_usable_size_fn =
+          (hako_provider_usable_size_fn)dlsym(handle, "hakorune_provider_usable_size_v0");
+      if (provider_usable_size_fn) {
+        usable_size_symbol_bound = 1;
+        usable_size_mode_enabled = 1;
+        if (provider_assume_owned_mode) {
+          assume_owned_mode_enabled = 1;
+        }
+      } else {
+        provider_usable_size_mode = 0;
+        provider_assume_owned_mode = 0;
+      }
     }
   }
   provider_ready = 1;
@@ -488,15 +509,26 @@ void* realloc(void* ptr, size_t size) {
   }
   int index = provider_usable_size_mode ? -1 : hako_find_tracked(ptr);
   if (index < 0) {
-    if (!provider_usable_size_mode || !provider_owns_fn || !provider_usable_size_fn) {
+    if (!provider_usable_size_mode ||
+        (!provider_usable_size_claim_fn && (!provider_owns_fn || !provider_usable_size_fn))) {
       realloc_host_passthrough_count++;
       host_passthrough_count++;
       hako_resolve_real();
       return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
     }
+    int owned = 0;
+    size_t old_size = 0u;
     in_provider_call = 1;
-    int owned = provider_assume_owned_mode ? 1 : provider_owns_fn(ptr);
-    size_t old_size = owned == 1 ? provider_usable_size_fn(ptr) : 0u;
+    if (provider_usable_size_claim_fn) {
+      owned = provider_usable_size_claim_fn(ptr, &old_size);
+      provider_usable_size_claim_count++;
+      if (owned != 1) {
+        provider_usable_size_not_owned_count++;
+      }
+    } else {
+      owned = provider_assume_owned_mode ? 1 : provider_owns_fn(ptr);
+      old_size = owned == 1 ? provider_usable_size_fn(ptr) : 0u;
+    }
     in_provider_call = 0;
     usable_size_lookup_count++;
     if (provider_assume_owned_mode) {
