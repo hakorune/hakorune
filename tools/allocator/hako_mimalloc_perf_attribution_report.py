@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from hako_mimalloc_perf_attribution import (
+from hako_mimalloc_perf_attribution_support import (
     I64_SIGNED_MAX,
     INLINE_OWNER_NEXT_BRIDGE,
     PerfSymbol,
