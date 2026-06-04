@@ -197,6 +197,10 @@ replacement_front_shim_report_source.py:
   benchmark-only replacement-front shim report/emission raw C source only; no
   runner logic or allocator behavior changes
 
+replacement_front_tls_asm_probe.py:
+  report-only objdump classifier for replacement-front TLS malloc/free asm
+  shape; no build, preload, activation, or allocator behavior changes
+
 hakozuna_mixed_ws_report_support.py:
   manifest decoding, route classification, and report-only math helpers;
   no benchmark execution logic

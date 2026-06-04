@@ -925,6 +925,26 @@ thread_local_replacement_front_profile_2026_06_05:
   current_baseline_replacement_front_slower_than_mimalloc_percent=145.8
   selected_next_action=inspect_malloc_free_generated_asm_for_TLS_metadata_store_shape_before_new_probe
 
+thread_local_replacement_front_tls_asm_probe_2026_06_05:
+  status=landed
+  task_kind=report_only
+  tool=tools/allocator/replacement_front_tls_asm_probe.py
+  report=target/thread-local-front-tls-asm-probe.out
+  malloc_instruction_count=86
+  free_instruction_count=186
+  malloc_fs_ref_count=14
+  free_fs_ref_count=19
+  malloc_requested_size_store=1
+  free_requested_size_clear=1
+  free_slot_index_magic_division=1
+  free_remote_registry_path=1
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  selected_owner=thread_local_replacement_front_free_slot_index_decode
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
