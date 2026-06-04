@@ -54,6 +54,9 @@ provider_package_ldpreload_replacement_smoke_report.py:
 provider_package_ldpreload_replacement_smoke_sources.py:
   provider-backed LD_PRELOAD raw C sources only; no runner logic or report rendering
 
+provider_package_rust_global_allocator_smoke_source.py:
+  provider-backed Rust global-allocator smoke source only; no runner logic or report rendering
+
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
   no product activation report fields, no subject orchestration
