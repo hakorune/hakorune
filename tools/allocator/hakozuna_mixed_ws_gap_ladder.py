@@ -115,6 +115,8 @@ def run_compare(args: argparse.Namespace, compare_report: Path) -> None:
         cmd.append("--replacement-front-lock-mode")
     if args.replacement_front_thread_local_mode:
         cmd.append("--replacement-front-thread-local-mode")
+    if args.replacement_front_cross_thread_smoke:
+        cmd.append("--replacement-front-cross-thread-smoke")
     if args.replacement_front_skip_hot_counters:
         cmd.append("--replacement-front-skip-hot-counters")
     if args.replacement_front_tls_counter_mode:
@@ -188,6 +190,22 @@ def emit_summary(compare_report: Path, out: Path) -> None:
     ]
 
     for key in (
+        "replacement_front_product_smoke_pack_v0",
+        "replacement_front_product_smoke_pack_non_activating",
+        "replacement_front_malloc_family_smoke_ok",
+        "replacement_front_malloc_family_null_free_smoke_ok",
+        "replacement_front_malloc_family_host_passthrough_count",
+        "replacement_front_cross_thread_free_smoke_ok",
+        "replacement_front_abandoned_owner_smoke_ok",
+        "replacement_front_cross_thread_realloc_smoke_ok",
+        "replacement_front_cross_thread_free_policy",
+        "replacement_front_cross_thread_realloc_policy",
+        "replacement_front_cross_thread_free_remote_free_push_count",
+        "replacement_front_cross_thread_free_remote_free_drain_count",
+        "replacement_front_abandoned_owner_abandoned_arena_count",
+        "replacement_front_abandoned_owner_abandoned_remote_free_count",
+        "replacement_front_cross_thread_realloc_unsupported_count",
+        "replacement_front_cross_thread_realloc_host_passthrough_count",
         "provider_registration_v1_present",
         "provider_registration_descriptor_plane",
         "provider_registration_ops_plane",
@@ -452,6 +470,7 @@ def main() -> int:
     parser.add_argument("--replacement-front-native-slot-mode", action="store_true")
     parser.add_argument("--replacement-front-lock-mode", action="store_true")
     parser.add_argument("--replacement-front-thread-local-mode", action="store_true")
+    parser.add_argument("--replacement-front-cross-thread-smoke", action="store_true")
     parser.add_argument("--replacement-front-skip-hot-counters", action="store_true")
     parser.add_argument("--replacement-front-tls-counter-mode", action="store_true")
     parser.add_argument("--replacement-front-slot-size", type=int)

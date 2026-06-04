@@ -26,6 +26,7 @@ from replacement_front_templates import (
     REPLACEMENT_FRONT_ABANDONED_OWNER_SMOKE_C,
     REPLACEMENT_FRONT_CROSS_THREAD_FREE_SMOKE_C,
     REPLACEMENT_FRONT_CROSS_THREAD_REALLOC_SMOKE_C,
+    REPLACEMENT_FRONT_MALLOC_FAMILY_SMOKE_C,
     REPLACEMENT_FRONT_SHIM_C,
     WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS,
     counter_value,
@@ -215,6 +216,27 @@ def run_replacement_front_cross_thread_smokes(
     out_dir: Path,
     replacement_front_shim: Path,
 ) -> dict[str, dict[str, str]]:
+    malloc_family = run_replacement_front_focused_smoke(
+        out_dir=out_dir,
+        replacement_front_shim=replacement_front_shim,
+        name="malloc_family",
+        source_text=REPLACEMENT_FRONT_MALLOC_FAMILY_SMOKE_C,
+    )
+    if counter_value(malloc_family, "replacement_front_alloc_count") < 1:
+        raise SystemExit("malloc_family smoke did not count malloc")
+    if counter_value(malloc_family, "replacement_front_calloc_count") < 1:
+        raise SystemExit("malloc_family smoke did not count calloc")
+    if counter_value(malloc_family, "replacement_front_realloc_count") < 1:
+        raise SystemExit("malloc_family smoke did not count realloc")
+    if counter_value(malloc_family, "replacement_front_free_count") < 2:
+        raise SystemExit("malloc_family smoke did not count frees")
+    if counter_value(malloc_family, "replacement_front_realloc_inplace_count") < 1:
+        raise SystemExit("malloc_family smoke did not count in-place realloc")
+    if counter_value(malloc_family, "replacement_front_calloc_zero_bytes") < 64:
+        raise SystemExit("malloc_family smoke did not count calloc zero bytes")
+    if counter_value(malloc_family, "replacement_front_host_passthrough_count") != 0:
+        raise SystemExit("malloc_family smoke used host passthrough")
+
     cross_thread_free = run_replacement_front_focused_smoke(
         out_dir=out_dir,
         replacement_front_shim=replacement_front_shim,
@@ -259,6 +281,7 @@ def run_replacement_front_cross_thread_smokes(
         raise SystemExit("cross_thread_realloc smoke used host realloc/free fallback")
 
     return {
+        "malloc_family": malloc_family,
         "cross_thread_free": cross_thread_free,
         "abandoned_owner": abandoned_owner,
         "cross_thread_realloc": cross_thread_realloc,
@@ -1352,14 +1375,33 @@ def main() -> int:
         f"{workload_histogram['request_gt_1024']}",
     ]
     if replacement_front_smokes:
+        malloc_family = replacement_front_smokes["malloc_family"]
         cross_thread_free = replacement_front_smokes["cross_thread_free"]
         abandoned_owner = replacement_front_smokes["abandoned_owner"]
         cross_thread_realloc = replacement_front_smokes["cross_thread_realloc"]
         lines.extend(
             [
+                "replacement_front_product_smoke_pack_v0=1",
+                "replacement_front_product_smoke_pack_non_activating=1",
+                "replacement_front_malloc_family_smoke_ok=1",
                 "replacement_front_cross_thread_free_smoke_ok=1",
                 "replacement_front_abandoned_owner_smoke_ok=1",
                 "replacement_front_cross_thread_realloc_smoke_ok=1",
+                "replacement_front_malloc_family_null_free_smoke_ok=1",
+                "replacement_front_malloc_family_alloc_count="
+                f"{counter_value(malloc_family, 'replacement_front_alloc_count')}",
+                "replacement_front_malloc_family_calloc_count="
+                f"{counter_value(malloc_family, 'replacement_front_calloc_count')}",
+                "replacement_front_malloc_family_realloc_count="
+                f"{counter_value(malloc_family, 'replacement_front_realloc_count')}",
+                "replacement_front_malloc_family_free_count="
+                f"{counter_value(malloc_family, 'replacement_front_free_count')}",
+                "replacement_front_malloc_family_realloc_inplace_count="
+                f"{counter_value(malloc_family, 'replacement_front_realloc_inplace_count')}",
+                "replacement_front_malloc_family_calloc_zero_bytes="
+                f"{counter_value(malloc_family, 'replacement_front_calloc_zero_bytes')}",
+                "replacement_front_malloc_family_host_passthrough_count="
+                f"{counter_value(malloc_family, 'replacement_front_host_passthrough_count')}",
                 "replacement_front_cross_thread_free_policy=remote_queue",
                 "replacement_front_abandoned_owner_policy=mark_abandoned_no_host_free",
                 "replacement_front_cross_thread_realloc_policy=unsupported_counted",

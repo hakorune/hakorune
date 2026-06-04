@@ -667,6 +667,35 @@ replacement_front_product_activation_contract_2026_06_05:
   selected_next_owner=product_replacement_front_smoke_pack
   selected_next_action=add_non_activating_malloc_family_and_thread_safety_smokes
 
+replacement_front_product_smoke_pack_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-005
+  purpose=prove_product_candidate_replacement_front_malloc_family_and_thread_safety_without_activation
+  product_smoke_pack_v0=1
+  product_smoke_pack_non_activating=1
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  malloc_family_smoke=malloc,calloc,realloc,free,null_free
+  malloc_family_host_passthrough_count=0
+  cross_thread_free_policy=remote_queue
+  cross_thread_realloc_policy=unsupported_counted
+  abandoned_owner_policy=mark_abandoned_no_host_free
+  smoke_pack_report=target/replacement-front-product-smoke-pack-gap.out
+  smoke_pack_malloc_family_smoke_ok=1
+  smoke_pack_malloc_family_host_passthrough_count=0
+  smoke_pack_cross_thread_free_remote_free_push_count=1
+  smoke_pack_cross_thread_free_remote_free_drain_count=1
+  smoke_pack_abandoned_owner_abandoned_arena_count=1
+  smoke_pack_abandoned_owner_abandoned_remote_free_count=1
+  smoke_pack_cross_thread_realloc_unsupported_count=1
+  smoke_pack_cross_thread_realloc_host_passthrough_count=0
+  changed_tools=tools/allocator/replacement_front_templates.py,tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+  selected_next_owner=product_replacement_front_long_quality_smoke_route
+  selected_next_action=run_quality_ok_product_candidate_smoke_pack_with_long_route_equivalent_benchmark
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out

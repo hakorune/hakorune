@@ -1436,6 +1436,46 @@ int main(void) {
 """
 
 
+REPLACEMENT_FRONT_MALLOC_FAMILY_SMOKE_C = r"""
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(void) {
+  void* p = malloc(64);
+  if (!p) {
+    fputs("malloc failed\n", stderr);
+    return 1;
+  }
+  memset(p, 0x5a, 64);
+
+  void* z = calloc(4, 16);
+  if (!z) {
+    fputs("calloc failed\n", stderr);
+    return 2;
+  }
+  for (size_t i = 0; i < 64; i++) {
+    if (((unsigned char*)z)[i] != 0) {
+      fputs("calloc did not zero\n", stderr);
+      return 3;
+    }
+  }
+
+  void* r = realloc(p, 80);
+  if (!r) {
+    fputs("realloc failed\n", stderr);
+    return 4;
+  }
+  p = r;
+  free(0);
+  free(z);
+  free(p);
+  return 0;
+}
+"""
+
+
 def median_float(values: list[float]) -> float:
     ordered = sorted(values)
     return ordered[len(ordered) // 2]
