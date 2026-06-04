@@ -6,6 +6,7 @@ Scope: common Hakorune provider ABI v1 vocabulary shared by package artifacts an
 Related:
   - docs/development/current/main/design/provider-package-artifact-ssot.md
   - docs/development/current/main/design/provider-runtime-load-ssot.md
+  - docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
   - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
 ---
 
@@ -94,6 +95,9 @@ The load-only smoke must not resolve either symbol.
 
 API bind smoke may resolve and call `hakorune_provider_get_api_v1` to obtain
 the table shape. It must not call any function pointer in the returned table.
+The field order below is the ABI layout SSOT for generated C providers,
+Python `ctypes` bind smokes, and LD_PRELOAD shim probes. Optional tail fields
+are detected by `api_table_size`; new fields may only append at the end.
 
 ```c
 struct HakoProviderApiV1 {
@@ -106,7 +110,56 @@ struct HakoProviderApiV1 {
   void* (*alloc)(size_t size, size_t align);
   void (*free)(void* ptr);
   int (*owns)(void* ptr);
+
+  /* optional tail: provider-owned lifecycle claims */
+  int (*free_claim)(void* ptr);
+  int (*usable_size_claim)(void* ptr, size_t* out_size);
+  int (*realloc_claim)(void* ptr, size_t new_size, void** out_ptr);
 };
+```
+
+ABI field order:
+
+```text
+0 magic
+1 abi_major
+2 abi_minor
+3 api_table_size
+4 ping
+5 alloc
+6 free
+7 owns
+8 free_claim
+9 usable_size_claim
+10 realloc_claim
+```
+
+Tail bind semantics:
+
+```text
+bound=1:
+  the function pointer exists in this provider API table and is non-null
+
+enabled=1:
+  this provider route owns the truth needed to use the operation as mainline
+
+bound=1 enabled=0:
+  compatibility tail exists, but the route must return not_owned / disabled
+  semantics until the required truth source exists
+```
+
+Current allocator-provider route examples:
+
+```text
+host_backed_adapter:
+  free_claim bound=1 enabled=1 for provider-allocated wrapper pointers
+  usable_size_claim bound=1 enabled=0 until HostAllocatorV0
+  realloc_claim bound=1 enabled=0 until HostAllocatorV0
+
+pure_allocator / native-slot:
+  free_claim bound=1 enabled=1
+  usable_size_claim bound=1 enabled=1
+  realloc_claim bound=1 enabled=1
 ```
 
 API constants:
@@ -188,8 +241,13 @@ host-owned pointer -> host free only
 provider free miss -> fail-fast or explicit error
 ```
 
-An allocator provider API must eventually expose `owns(ptr)` before replacement
-can be considered.
+`owns(ptr)` is compatibility / diagnostic ownership observation. The
+replacement-shim mainline must prefer claim operations once the relevant route
+reports them as enabled. Claim operation semantics are defined in:
+
+```text
+docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
+```
 
 ## Always Closed In v0
 

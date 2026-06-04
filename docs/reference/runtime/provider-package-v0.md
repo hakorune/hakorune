@@ -482,6 +482,17 @@ Current generated providers append `free_claim`, `usable_size_claim`, and
 `alloc/free/owns` remain supported for compatibility, while LD_PRELOAD shim
 mainline may prefer claim operations when the tail entries are present.
 
+The API table field order and `bound` / `enabled` terminology are defined in:
+
+```text
+docs/development/current/main/design/provider-abi-v1-ssot.md
+```
+
+In reports, `*_bound=1` means the ABI function pointer exists. `*_enabled=1`
+means the selected provider route owns the truth needed to use that function as
+mainline. `*_bound=1` with `*_enabled=0` is valid for compatibility tails and
+must return `not_owned` / disabled semantics.
+
 `usable_size_claim` is route-specific. Host-backed adapters currently return
 `not_owned` because they do not own host usable-size truth until a future
 `HostAllocatorV0` row. Native-slot generated providers return owned requested

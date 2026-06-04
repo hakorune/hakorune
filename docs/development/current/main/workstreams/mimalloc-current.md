@@ -336,6 +336,8 @@ provider_gap_refresh_2026_06_04:
 
 provider_abi_claim_boundary:
   provider_kind_split=accepted
+  provider_api_layout_ssot=docs/development/current/main/design/provider-abi-v1-ssot.md
+  provider_bound_enabled_terms=documented
   provider_free_claim=implemented
   provider_usable_size_claim=implemented_narrow
   provider_usable_size_host_ladder=target/prov-abi/usable-size-host-ladder.out

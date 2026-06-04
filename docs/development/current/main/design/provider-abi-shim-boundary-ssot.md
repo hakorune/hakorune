@@ -4,6 +4,7 @@ Date: 2026-06-04
 Scope: Provider ABI / LD_PRELOAD shim ownership boundary for allocator-provider measurements.
 Related:
   - docs/development/current/main/workstreams/mimalloc-current.md
+  - docs/development/current/main/design/provider-abi-v1-ssot.md
   - docs/reference/runtime/provider-package-v0.md
   - tools/allocator/hakozuna_mixed_ws_gap_ladder.py
   - tools/allocator/provider_package_ldpreload_replacement_smoke.py
@@ -58,6 +59,26 @@ provider_allocator_kind=pure_allocator|host_backed_adapter
 The provider is the truth source for provider-owned pointers. The shim should
 not maintain a second provider-owned pointer table for the mainline path.
 
+Provider API field order and optional tail detection are owned by:
+
+```text
+docs/development/current/main/design/provider-abi-v1-ssot.md
+```
+
+Terminology:
+
+```text
+bound:
+  the optional ABI tail function exists and is non-null
+
+enabled:
+  the provider route owns enough truth to use the operation as mainline
+
+bound=1 enabled=0:
+  valid compatibility shape; the function must report not_owned / disabled
+  semantics instead of manufacturing ownership truth
+```
+
 First claim operation:
 
 ```text
@@ -74,15 +95,18 @@ usable_size_claim(ptr) -> owned(size) | not_owned
 `owns(ptr)` stays diagnostic / compatibility / cold query only.
 
 `usable_size_claim` is enabled only when the provider route owns usable-size
-truth. Current route status:
+truth. `realloc_claim` follows the same route rule. Current route status:
 
 ```text
 host_backed_adapter:
   provider_usable_size_claim_enabled=0 until HostAllocatorV0 supplies host
   usable-size truth
+  provider_realloc_claim_enabled=0 until HostAllocatorV0 supplies host
+  realloc truth
 
 pure_allocator / native-slot:
   provider_usable_size_claim_enabled=1
+  provider_realloc_claim_enabled=1
 ```
 
 ## Host Allocator Vtable
