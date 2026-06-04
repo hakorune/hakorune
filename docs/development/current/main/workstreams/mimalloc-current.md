@@ -696,6 +696,31 @@ replacement_front_product_smoke_pack_2026_06_05:
   selected_next_owner=product_replacement_front_long_quality_smoke_route
   selected_next_action=run_quality_ok_product_candidate_smoke_pack_with_long_route_equivalent_benchmark
 
+replacement_front_product_smoke_pack_long_quality_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-006
+  purpose=prove_product_candidate_smoke_pack_survives_quality_ok_route_equivalent_thread_benchmark
+  report=target/replacement-front-product-smoke-pack-long-quality.out
+  measurement_quality=ok
+  min_sample_seconds_required=0.050000
+  min_observed_sample_seconds=0.067000
+  median_observed_sample_seconds=0.096000
+  threads=4
+  iters_per_thread=20,000,000
+  sample_count=3
+  warmup_count=1
+  replacement_front_product_smoke_pack_v0=1
+  replacement_front_product_smoke_pack_non_activating=1
+  replacement_front_vs_mimalloc_ratio=1.402
+  replacement_front_slower_than_mimalloc_percent=-28.7
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  selected_next_owner=product_replacement_rollback_optout_plan
+  selected_next_action=document_rollback_optout_before_any_activation_row
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out
