@@ -125,6 +125,35 @@ summary=ok
 - Stop line: this surface never rewrites source, changes MIR, activates a
   provider, replaces the process allocator, installs hooks, or makes benchmark
   winner claims.
+
+Route Descriptor Read-Only Consumption
+- Type ABI route descriptors are descriptor/control-plane data. hako_check may
+  display or validate an existing descriptor report, but must not use it to run
+  allocator operations or select hot-path routes.
+- The first stable Python adapter is:
+
+```bash
+python3 tools/allocator/type_abi_route_descriptor_readonly.py \
+  --report target/type-abi-declared-execution-route-smoke.out
+```
+
+- Contract:
+
+```text
+output_contract=type-abi-route-descriptor-readonly-v0
+readonly_descriptor_consumption=1
+python_introspection_adapter=1
+hako_check_core_change=0
+provider_abi_execution_change=0
+replacement_front_hot_path_change=0
+type_abi_hot_path_lookup_count=0
+summary=ok
+```
+
+- Stop line: this adapter reads existing key-value reports only. It does not
+  run benchmarks, call Provider ABI ops, activate providers, replace
+  allocators, install hooks, infer ownership from Type ABI, or touch
+  replacement-front hot paths.
 - Minimal v1 source surface is emitted by
   `bash tools/hako_check.sh perf-surface --contract-version v1`.
   It keeps the same stop line and adds:

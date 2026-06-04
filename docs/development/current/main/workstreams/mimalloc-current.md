@@ -511,6 +511,22 @@ type_abi_declared_execution_route_split_2026_06_05:
   selected_next_task=TYPEROUTE-004
   selected_next_action=wire_hako_check_or_python_readonly_descriptor_consumption
 
+type_abi_route_descriptor_readonly_consumption_2026_06_05:
+  status=landed
+  task_id=TYPEROUTE-004
+  ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+  touched_tools=tools/allocator/type_abi_route_descriptor_readonly.py
+  output_contract=type-abi-route-descriptor-readonly-v0
+  readonly_descriptor_consumption=1
+  python_introspection_adapter=1
+  hako_check_core_change=0
+  behavior_change=0
+  provider_abi_execution_change=0
+  replacement_front_hot_path_change=0
+  type_abi_hot_path_lookup_count=0
+  selected_next_task=TYPEROUTE-005
+  selected_next_action=add_provider_registration_report_pairing_descriptor_and_ops
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

@@ -234,6 +234,8 @@ TYPEROUTE-003:
 TYPEROUTE-004:
   hako_check / Python introspection consumes route descriptor as read-only
   descriptor data
+  provider/replacement execution change: none
+  status: landed 2026-06-05
 
 TYPEROUTE-005:
   ProviderRegistrationV1 report pairs descriptor + ops, but hot path uses ops
@@ -260,9 +262,31 @@ provider_execution_route=...
 comes from the measured hot route. A host-backed adapter must not claim the
 `.hako` hot path.
 
+## Read-Only Descriptor Consumption
+
+`tools/allocator/type_abi_route_descriptor_readonly.py` is the first Python
+introspection adapter for route descriptors. It reads an existing key-value
+report, validates the Type ABI descriptor/control-plane fields, and re-emits
+route identity evidence.
+
+Required output:
+
+```text
+output_contract=type-abi-route-descriptor-readonly-v0
+readonly_descriptor_consumption=1
+python_introspection_adapter=1
+hako_check_core_change=0
+provider_abi_execution_change=0
+replacement_front_hot_path_change=0
+type_abi_hot_path_lookup_count=0
+```
+
+The adapter must not run a benchmark, call Provider ABI operations, activate a
+provider, install hooks, replace the process allocator, or read Type ABI from
+allocator hot paths.
+
 ## Current Next Action
 
-The next active work is `TYPEROUTE-004`: make hako_check / Python
-introspection consume route descriptors as read-only descriptor data. Do not
-modify Provider ABI execution, replacement-front hot path, or allocator
-behavior in that slice.
+The next active work is `TYPEROUTE-005`: add ProviderRegistrationV1-style
+report pairing for descriptor + ops while keeping allocator hot paths on ops
+only. Do not route malloc/free/realloc/usable_size execution through Type ABI.
