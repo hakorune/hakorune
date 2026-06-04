@@ -8,6 +8,7 @@ Related:
   - lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako
   - docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
+  - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
 ---
 
 # 296x-415 Mimalloc Source-Level Owner Selection
@@ -88,6 +89,15 @@ hako_mimalloc_thread_hot_path_claim=0
 
 This is provider ABI / shim / host-backed adapter evidence, not `.hako`
 mimalloc object-lifecycle thread hot-path evidence.
+
+Next docs/report task:
+
+```text
+task_id=TYPEROUTE-001
+ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+behavior_change=0
+selected_next_action=add_type_abi_route_descriptor_report_boundary_without_changing_allocator_execution
+```
 
 ## Forbidden
 

@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/current-docs-archive-policy-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
+  - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
   - docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md
@@ -461,6 +462,24 @@ provider_host_claim_mainline_thread_refresh_2026_06_04:
   decision=tls_guard_is_keeper_but_host_backed_provider_is_not_threaded_mimalloc_keeper
   selected_next_owner=thread_local_or_pure_provider_allocator_thread_shape
   selected_next_action=do_not_chase_host_backed_provider_C_shape_for_thread_perf; measure thread-local replacement front or pure-provider allocator boundary next
+
+type_abi_route_descriptor_plane_task_2026_06_04:
+  status=planned
+  task_id=TYPEROUTE-001
+  ssot=docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+  descriptor_plane=Type_ABI
+  execution_plane=Provider_ABI
+  hot_replacement_plane=Replacement_front
+  host_escape_plane=HostAllocator_vtable
+  behavior_change=0
+  provider_abi_execution_change=0
+  replacement_front_hot_path_change=0
+  type_abi_hot_path_lookup_allowed=0
+  required_field_next_0=type_abi_route_descriptor_present=1
+  required_field_next_1=type_abi_hot_path_lookup_count=0
+  required_split=declared_route_vs_execution_route
+  required_guard_next=host_backed_adapter_must_not_claim_hako_hot_path
+  selected_next_action=add_type_abi_route_descriptor_report_boundary_without_changing_allocator_execution
 
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with

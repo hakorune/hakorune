@@ -5,6 +5,7 @@ Scope: Provider ABI / LD_PRELOAD shim ownership boundary for allocator-provider 
 Related:
   - docs/development/current/main/workstreams/mimalloc-current.md
   - docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
+  - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/provider-abi-v1-ssot.md
   - docs/reference/runtime/provider-package-v0.md
   - tools/allocator/hakozuna_mixed_ws_gap_ladder.py
@@ -40,6 +41,13 @@ docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
 Loading a `.hako`-derived provider package is not enough to claim `.hako`
 mimalloc hot-path timing. A host-backed adapter route with
 `provider_ldpreload_hako_hot_path_claim=0` is provider ABI / shim evidence.
+
+Type ABI descriptors may be read during init/report/check/introspection. The
+LD_PRELOAD malloc/free hot path must not consult Type ABI descriptors:
+
+```text
+type_abi_hot_path_lookup_count=0
+```
 
 `alloc/free/owns` remains compatibility surface, but it is not the mainline
 replacement-shim ownership model. The mainline model moves ownership decisions

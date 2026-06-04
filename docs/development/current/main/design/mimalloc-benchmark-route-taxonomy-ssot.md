@@ -4,6 +4,7 @@ Date: 2026-06-04
 Scope: Mimalloc benchmark route taxonomy and report keys.
 Related:
   - docs/development/current/main/workstreams/mimalloc-current.md
+  - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
   - docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
   - tools/allocator/hako_mimalloc_direct_exact_pair.sh
@@ -18,6 +19,17 @@ Related:
 Mimalloc evidence must name the measured hot route explicitly. A report must
 not be interpreted as `.hako` mimalloc hot-path evidence just because it loaded
 a `.hako`-derived provider package.
+
+Long-term owner:
+
+```text
+docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
+```
+
+This taxonomy is the current report vocabulary. Type ABI is the descriptor
+plane that should eventually publish the same route identity and capability
+metadata for manifest/report/hako_check/Python introspection. Provider ABI and
+replacement-front execution must remain separate.
 
 ## Routes
 

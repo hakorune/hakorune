@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/provider-package-artifact-ssot.md
   - docs/development/current/main/design/provider-runtime-load-ssot.md
   - docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
+  - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md
 ---
 
@@ -149,6 +150,21 @@ bound=1 enabled=0:
   compatibility tail exists, but the route must return not_owned / disabled
   semantics until the required truth source exists
 ```
+
+Type ABI descriptor metadata may describe that a provider supports claim
+operations, but the execution truth belongs to Provider ABI:
+
+```text
+Type ABI:
+  provider supports free_claim / realloc_claim / usable_size_claim
+
+Provider ABI:
+  free_claim(ptr) returned handled / not_owned
+  realloc_claim(ptr, size) returned handled / not_owned / failed
+  usable_size_claim(ptr) returned owned(size) / not_owned
+```
+
+Do not use Type ABI as a per-call ownership dispatcher.
 
 Current allocator-provider route examples:
 
