@@ -604,6 +604,35 @@ bench_route_equivalence_2026_06_05:
   selected_next_owner=thread_local_replacement_front_thread_shape
   selected_next_action=profile_thread_local_replacement_front_before_any_provider_host_C_shape_work
 
+thread_local_replacement_front_profile_2026_06_05:
+  status=landed
+  input_report=target/bench-route-equiv-t4-tls.out
+  perf_data=target/bench-route-equiv-thread-owner-perf/perf-long.data
+  perf_report=target/bench-route-equiv-thread-owner-perf/perf-long-report.txt
+  perf_primary_symbol=malloc
+  perf_primary_symbol_pct=52.56
+  perf_secondary_symbol=free
+  perf_secondary_symbol_pct=11.49
+  perf_memset_pct_total=9.29
+  replacement_front_direct_core_call_count=8,003,592
+  replacement_front_remote_free_push_count=0
+  replacement_front_remote_free_drain_count=0
+  replacement_front_arena_registry_overflow_count=0
+  selected_owner=thread_local_replacement_front_malloc_free_hot_metadata_path
+  selected_reason=perf_points_at_same_thread_malloc_free_not_remote_free
+  slot2048_probe_report=target/thread-local-front-slot2048-t4.out
+  slot2048_probe_decision=nonkeeper_worse_than_slot1040
+  slot1024_probe_report=target/thread-local-front-slot1024-t4.out
+  slot1024_probe_decision=nonkeeper_worse_than_slot1040
+  hako_sizeclass_probe_report=target/thread-local-front-hako-sizeclass-t4.out
+  hako_sizeclass_probe_decision=nonkeeper_worse_than_slot1040
+  no_requested_size_probe_report=target/thread-local-front-no-requested-size-t4-s5.out
+  no_requested_size_probe_decision=nonkeeper_reverted
+  current_baseline_report=target/thread-local-front-slot1040-t4-s5.out
+  current_baseline_replacement_front_vs_mimalloc_ratio=0.407
+  current_baseline_replacement_front_slower_than_mimalloc_percent=145.8
+  selected_next_action=inspect_malloc_free_generated_asm_for_TLS_metadata_store_shape_before_new_probe
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
