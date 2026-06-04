@@ -24,6 +24,10 @@ from hako_mimalloc_algorithm_coverage_field_state import (
     CoverageFieldStateInputs,
     derive_field_state,
 )
+from hako_mimalloc_algorithm_coverage_measurement_state import (
+    CoverageMeasurementStateInputs,
+    derive_measurement_state,
+)
 from hako_mimalloc_algorithm_coverage_owner_state import (
     CoverageOwnerStateInputs,
     derive_owner_state,
@@ -178,110 +182,39 @@ def report_dict(
         str_field(accumulator, "output_contract", "")
         == "hako-mimalloc-requested-bytes-accumulator-contract-v0"
     )
-    benchmark_subject = "none"
-    benchmark_subject_prefix = ""
-    for prefix in ("subject_2", "subject_3", "subject_4"):
-        subject_id = benchmark.get(f"{prefix}_id") or benchmark.get(f"{prefix}_name")
-        if subject_id == "hakorune_replacement_front_ldpreload":
-            benchmark_subject = subject_id
-            benchmark_subject_prefix = prefix
-            break
-    if (
-        benchmark_report_consumed
-        and benchmark_subject == "none"
-        and int_field(benchmark, "replacement_front_page_bins_consumer_enabled", 0)
-    ):
-        benchmark_subject = "hakorune_replacement_front_ldpreload"
-    page_bins_consumer_enabled = int_field(
-        benchmark,
-        f"{benchmark_subject_prefix}_replacement_front_page_bins_consumer_enabled"
-        if benchmark_subject_prefix
-        else "replacement_front_page_bins_consumer_enabled",
-        0,
+    measurement_state = derive_measurement_state(
+        CoverageMeasurementStateInputs(
+            benchmark=benchmark,
+            fastpath=fastpath,
+            perf_attribution=perf_attribution,
+            accumulator=accumulator,
+            benchmark_report_consumed=benchmark_report_consumed,
+            fastpath_report_consumed=fastpath_report_consumed,
+            perf_attribution_report_consumed=perf_attribution_report_consumed,
+            accumulator_report_consumed=accumulator_report_consumed,
+        )
     )
-    page_bins_route = benchmark.get(
-        f"{benchmark_subject_prefix}_replacement_front_page_bins_route"
-        if benchmark_subject_prefix
-        else "replacement_front_page_bins_route",
-        "not_consumed",
-    )
-    page_bins_lookup_route = benchmark.get(
-        f"{benchmark_subject_prefix}_replacement_front_page_bins_lookup_route"
-        if benchmark_subject_prefix
-        else "replacement_front_page_bins_lookup_route",
-        "not_recorded" if page_bins_consumer_enabled else "not_consumed",
-    )
-    product_bins_consumer_enabled = int_field(
-        benchmark,
-        f"{benchmark_subject_prefix}_replacement_front_product_bins_consumer_enabled"
-        if benchmark_subject_prefix
-        else "replacement_front_product_bins_consumer_enabled",
-        0,
-    )
-    product_bins_route = benchmark.get(
-        f"{benchmark_subject_prefix}_replacement_front_product_bins_route"
-        if benchmark_subject_prefix
-        else "replacement_front_product_bins_route",
-        "not_consumed",
-    )
-    product_pages_consumer_enabled = int_field(
-        benchmark,
-        f"{benchmark_subject_prefix}_replacement_front_product_pages_consumer_enabled"
-        if benchmark_subject_prefix
-        else "replacement_front_product_pages_consumer_enabled",
-        0,
-    )
-    product_pages_route = benchmark.get(
-        f"{benchmark_subject_prefix}_replacement_front_product_pages_route"
-        if benchmark_subject_prefix
-        else "replacement_front_product_pages_route",
-        "not_consumed",
-    )
-    algorithm_shape = benchmark.get(
-        f"{benchmark_subject_prefix}_replacement_front_algorithm_shape"
-        if benchmark_subject_prefix
-        else "replacement_front_algorithm_shape",
-        "not_consumed",
-    )
-    hotcore_consumer_enabled = int_field(
-        benchmark,
-        f"{benchmark_subject_prefix}_replacement_front_hotcore_consumer_enabled"
-        if benchmark_subject_prefix
-        else "replacement_front_hotcore_consumer_enabled",
-        0,
-    )
-    hotcore_route = benchmark.get(
-        f"{benchmark_subject_prefix}_replacement_front_hotcore_route"
-        if benchmark_subject_prefix
-        else "replacement_front_hotcore_route",
-        "not_consumed_by_replacement_front",
-    )
-    hotcore_median_ops_per_sec = str_field(
-        benchmark,
-        f"{benchmark_subject_prefix}_throughput_median_ops_per_sec"
-        if benchmark_subject_prefix
-        else "throughput_median_ops_per_sec",
-        "0",
-    )
-    hotcore_measurement_reported = int(
-        hotcore_consumer_enabled and hotcore_median_ops_per_sec != "0"
-    )
-    fastpath_direct_array_plan_count = int_field(
-        fastpath, "direct_array_access_plan_count", 0
-    )
-    fastpath_route_decision_count = int_field(fastpath, "route_decision_count", 0)
-    fastpath_fast_selected_count = int_field(
-        fastpath, "route_decision_fast_selected_count", 0
-    )
-    fastpath_slow_selected_count = int_field(
-        fastpath, "route_decision_slow_selected_count", 0
-    )
-    fastpath_generic_dispatch_count = int_field(
-        fastpath, "generic_method_dispatch_count", 0
-    )
-    fastpath_dynamic_route_count = int_field(fastpath, "dynamic_route_count", 0)
-    fastpath_boxed_fallback_count = int_field(fastpath, "boxed_fallback_count", 0)
-    fastpath_clean = int_field(fastpath, "clean", 0)
+    benchmark_subject = measurement_state.benchmark_replacement_subject
+    page_bins_consumer_enabled = measurement_state.page_bins_consumer_enabled
+    page_bins_route = measurement_state.page_bins_route
+    page_bins_lookup_route = measurement_state.page_bins_lookup_route
+    product_bins_consumer_enabled = measurement_state.product_bins_consumer_enabled
+    product_bins_route = measurement_state.product_bins_route
+    product_pages_consumer_enabled = measurement_state.product_pages_consumer_enabled
+    product_pages_route = measurement_state.product_pages_route
+    algorithm_shape = measurement_state.algorithm_shape
+    hotcore_consumer_enabled = measurement_state.hotcore_consumer_enabled
+    hotcore_route = measurement_state.hotcore_route
+    hotcore_median_ops_per_sec = measurement_state.hotcore_median_ops_per_sec
+    hotcore_measurement_reported = measurement_state.hotcore_measurement_reported
+    fastpath_direct_array_plan_count = measurement_state.fastpath_direct_array_plan_count
+    fastpath_route_decision_count = measurement_state.fastpath_route_decision_count
+    fastpath_fast_selected_count = measurement_state.fastpath_fast_selected_count
+    fastpath_slow_selected_count = measurement_state.fastpath_slow_selected_count
+    fastpath_generic_dispatch_count = measurement_state.fastpath_generic_dispatch_count
+    fastpath_dynamic_route_count = measurement_state.fastpath_dynamic_route_count
+    fastpath_boxed_fallback_count = measurement_state.fastpath_boxed_fallback_count
+    fastpath_clean = measurement_state.fastpath_clean
     route_state = derive_route_state(
         CoverageRouteStateInputs(
             hotcore_consumer_enabled=hotcore_consumer_enabled,
@@ -334,69 +267,27 @@ def report_dict(
     page_model_hot_array_measurement_ready = (
         route_state.page_model_hot_array_measurement_ready
     )
-    perf_delta_plan = int_field(
-        perf_attribution, "page_model_hot_array_perf_delta_measurement_plan_v0", 0
+    perf_delta_plan = measurement_state.perf_delta_plan
+    perf_delta_ready = measurement_state.perf_delta_ready
+    perf_delta_blocker = measurement_state.perf_delta_blocker
+    perf_delta_next_bridge = measurement_state.perf_delta_next_bridge
+    instruction_attribution_available = measurement_state.instruction_attribution_available
+    perf_top_instruction_field_hints = measurement_state.perf_top_instruction_field_hints
+    perf_hot_instruction_0_field_hints = measurement_state.perf_hot_instruction_0_field_hints
+    perf_hot_instruction_0_context = measurement_state.perf_hot_instruction_0_context
+    backend_store_shape_ready = measurement_state.backend_store_shape_ready
+    backend_store_shape_selected = measurement_state.backend_store_shape_selected
+    backend_store_shape_next_bridge = measurement_state.backend_store_shape_next_bridge
+    directarray_owner_instruction_shape_selected = (
+        measurement_state.directarray_owner_instruction_shape_selected
     )
-    perf_delta_ready = int_field(
-        perf_attribution, "page_model_hot_array_perf_delta_ready", 0
+    directarray_owner_instruction_shape_next_bridge = (
+        measurement_state.directarray_owner_instruction_shape_next_bridge
     )
-    perf_delta_blocker = str_field(
-        perf_attribution,
-        "page_model_hot_array_perf_delta_blocker",
-        "perf_attribution_report_not_consumed"
-        if not perf_attribution_report_consumed
-        else "unknown",
-    )
-    perf_delta_next_bridge = str_field(
-        perf_attribution,
-        "page_model_hot_array_perf_delta_next_bridge",
-        "run_hako_mimalloc_direct_exact_app_perf_asm"
-        if not perf_attribution_report_consumed
-        else "inspect_perf_attribution",
-    )
-    instruction_attribution_available = int_field(
-        perf_attribution, "instruction_attribution_available", 0
-    )
-    perf_top_instruction_field_hints = str_field(
-        perf_attribution, "top_instruction_field_hints", "none"
-    )
-    perf_hot_instruction_0_field_hints = str_field(
-        perf_attribution, "hot_instruction_0_field_hints", "none"
-    )
-    perf_hot_instruction_0_context = str_field(
-        perf_attribution, "hot_instruction_0_context", "none"
-    )
-    backend_store_shape_ready = int_field(
-        perf_attribution, "backend_store_shape_ready", 0
-    )
-    backend_store_shape_selected = str_field(
-        perf_attribution, "backend_store_shape_selected", "none"
-    )
-    backend_store_shape_next_bridge = str_field(
-        perf_attribution,
-        "backend_store_shape_next_bridge",
-        "split_symbol_or_classify_backend_store_shape",
-    )
-    directarray_owner_instruction_shape_selected = str_field(
-        perf_attribution, "directarray_owner_instruction_shape_selected", "none"
-    )
-    directarray_owner_instruction_shape_next_bridge = str_field(
-        perf_attribution,
-        "directarray_owner_instruction_shape_next_bridge",
-        "collect_directarray_owner_instruction",
-    )
-    inlined_hot_body_selected = str_field(
-        perf_attribution, "inlined_hot_body_selected", "none"
-    )
-    inlined_hot_body_next_bridge = str_field(
-        perf_attribution,
-        "inlined_hot_body_next_bridge",
-        "rerun_perf_with_wider_context_or_symbol_split",
-    )
-    inlined_hot_body_split_next_bridge = str_field(
-        perf_attribution,
-        "inlined_hot_body_split_next_bridge",
-        inlined_hot_body_next_bridge,
+    inlined_hot_body_selected = measurement_state.inlined_hot_body_selected
+    inlined_hot_body_next_bridge = measurement_state.inlined_hot_body_next_bridge
+    inlined_hot_body_split_next_bridge = (
+        measurement_state.inlined_hot_body_split_next_bridge
     )
     field_state = derive_field_state(
         CoverageFieldStateInputs(
