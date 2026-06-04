@@ -19,6 +19,7 @@ pub(crate) mod string;
 pub(crate) mod string_birth_placement;
 pub(crate) mod string_debug;
 pub(crate) mod string_plan;
+pub(crate) mod string_route_policy;
 pub(crate) mod string_search;
 pub(crate) mod string_span_cache;
 pub(crate) mod string_trace;
@@ -27,10 +28,16 @@ pub(crate) mod tls;
 pub(crate) mod typed_object;
 pub(crate) mod typed_object_direct_slot_backend;
 pub(crate) mod typed_object_pinned_arena;
+#[cfg(test)]
 pub(crate) mod typed_object_store;
+pub(crate) mod typed_object_store_backend;
 pub(crate) mod user_box;
 pub(crate) mod worker;
 
+// Public ABI re-export inventory.
+// Keep glob exports here until each symbol family has an explicit crate-root
+// owner test. New public export families should add a README inventory note
+// before widening this list.
 pub use any::*;
 pub use atomic::*;
 pub use birth::*;

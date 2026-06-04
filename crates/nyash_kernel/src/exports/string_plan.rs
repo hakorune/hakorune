@@ -55,13 +55,6 @@ impl<'a> TextPiece<'a> {
             }
         }
     }
-
-    #[inline(always)]
-    #[allow(dead_code)] // Phase 291x-127: fallback multi-piece materializer is test-pinned for rare arity paths.
-    fn append_to(&self, out: &mut String) {
-        out.reserve(self.len());
-        self.append_to_reserved(out);
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -89,6 +82,17 @@ pub(crate) enum TextPlan<'a> {
 }
 
 impl<'a> TextPlan<'a> {
+    #[inline(always)]
+    pub(crate) fn trace_shape(&self) -> (&'static str, usize, usize) {
+        match self {
+            Self::View1(span) => ("view1", 1usize, span.len()),
+            Self::Pieces2 { total_len, .. } => ("pieces2", 2usize, *total_len),
+            Self::Pieces3 { total_len, .. } => ("pieces3", 3usize, *total_len),
+            Self::Pieces4 { total_len, .. } => ("pieces4", 4usize, *total_len),
+            Self::OwnedTmp(text) => ("owned_tmp", 1usize, text.len()),
+        }
+    }
+
     #[inline(always)]
     pub(crate) fn from_span(span: StringSpan) -> Self {
         Self::View1(span)
@@ -154,51 +158,6 @@ impl<'a> TextPlan<'a> {
             (false, false, false) => {
                 let total_len = a.len() + b.len() + c.len();
                 Self::Pieces3 { a, b, c, total_len }
-            }
-        }
-    }
-
-    #[cfg(test)]
-    pub(crate) fn from_pieces(pieces: Vec<TextPiece<'a>>) -> Self {
-        let mut pieces = pieces
-            .into_iter()
-            .filter(|piece| !piece.is_empty())
-            .collect::<Vec<_>>();
-        match pieces.len() {
-            0 => Self::OwnedTmp(String::new()),
-            1 => match pieces
-                .pop()
-                .expect("normalized piece list should have one element")
-            {
-                TextPiece::Span(span) => Self::View1(span),
-                TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
-            },
-            2 => {
-                let mut iter = pieces.into_iter();
-                Self::from_two(
-                    iter.next()
-                        .expect("normalized piece list should have two elements"),
-                    iter.next()
-                        .expect("normalized piece list should have two elements"),
-                )
-            }
-            3 => {
-                let mut iter = pieces.into_iter();
-                Self::from_three(
-                    iter.next()
-                        .expect("normalized piece list should have three elements"),
-                    iter.next()
-                        .expect("normalized piece list should have three elements"),
-                    iter.next()
-                        .expect("normalized piece list should have three elements"),
-                )
-            }
-            _ => {
-                let mut out = String::new();
-                for piece in pieces {
-                    piece.append_to(&mut out);
-                }
-                Self::OwnedTmp(out)
             }
         }
     }
@@ -360,7 +319,7 @@ mod tests {
 
     #[test]
     fn normalized_piece_list_flattens_into_owned_text() {
-        let plan = TextPlan::from_pieces(vec![TextPiece::Inline("ab"), TextPiece::Inline("cd")]);
+        let plan = TextPlan::from_two(TextPiece::Inline("ab"), TextPiece::Inline("cd"));
         assert_eq!(plan.into_owned(), "abcd");
     }
 

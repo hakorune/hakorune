@@ -2,8 +2,10 @@
 // Exposes C ABI entry points used by AOT/JIT-emitted objects.
 
 mod backend_env;
+mod c_string;
 mod encode;
 mod entry;
+mod env_flags;
 mod exports;
 mod ffi;
 mod hako_forward;

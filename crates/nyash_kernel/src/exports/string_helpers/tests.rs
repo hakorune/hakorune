@@ -3,24 +3,24 @@ use super::cache::{
     concat_pair_fast_cache_lookup, concat_pair_fast_cache_store, string_len_fast_cache_lookup,
     string_len_fast_cache_store, substring_fast_cache_lookup, substring_fast_cache_store,
 };
-use super::concat::{
-    piecewise_subrange_hsiii_into_slot, piecewise_subrange_kernel_text_slot_into_slot,
-    substring_kernel_text_slot_in_place, substring_kernel_text_slot_into_slot,
-};
-use super::materialize::string_handle_from_owned;
-use super::{
-    string_len_fast_export_impl, string_len_from_handle, string_substring_hii_export_impl,
-    string_substring_publish_explicit_api_view_hii_export_impl,
-};
+use super::concat::piecewise;
+use super::materialize::string_handle_from_owned_with_site;
+use super::{string_len_from_handle, substring_fast_route};
+use crate::c_string::cstring;
+use crate::exports::string::nyash_string_substring_publish_explicit_api_view_hii_export;
+use crate::exports::string_view::clamp_i64_range;
+use crate::plugin::StringPublishSite;
 use crate::plugin::{
     freeze_owned_string_into_slot, with_kernel_text_slot_text, KernelTextSlot, KernelTextSlotState,
 };
+use crate::test_support::handle_registry_test_lock;
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
-use std::{ffi::CString, sync::Arc};
+use std::sync::Arc;
 
 #[test]
 fn concat_pair_fast_cache_invalidates_on_drop_epoch() {
+    let _guard = handle_registry_test_lock();
     let lhs: Arc<dyn NyashBox> = Arc::new(StringBox::new("lhs-cache".to_string()));
     let rhs: Arc<dyn NyashBox> = Arc::new(StringBox::new("rhs-cache".to_string()));
     let result: Arc<dyn NyashBox> = Arc::new(StringBox::new("out-cache".to_string()));
@@ -36,9 +36,10 @@ fn concat_pair_fast_cache_invalidates_on_drop_epoch() {
 
 #[test]
 fn const_suffix_fast_cache_invalidates_on_drop_epoch() {
+    let _guard = handle_registry_test_lock();
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("source-cache".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let suffix = CString::new("xy").expect("CString");
+    let suffix = cstring("xy");
     let suffix_ptr = suffix.as_ptr();
 
     concat_const_suffix_fast_cache_store(source_h, suffix_ptr, 77);
@@ -56,6 +57,7 @@ fn const_suffix_fast_cache_invalidates_on_drop_epoch() {
 
 #[test]
 fn substring_fast_cache_invalidates_on_drop_epoch() {
+    let _guard = handle_registry_test_lock();
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("substring-cache".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
 
@@ -94,7 +96,7 @@ fn string_len_fast_cache_keeps_two_recent_handles_hot() {
 
 #[test]
 fn string_handle_from_owned_seeds_len_cache() {
-    let handle = string_handle_from_owned("abcd".to_string());
+    let handle = string_handle_from_owned_with_site("abcd".to_string(), StringPublishSite::Generic);
 
     assert_eq!(string_len_fast_cache_lookup(handle), Some(4));
     assert_eq!(string_len_from_handle(handle), Some(4));
@@ -105,7 +107,7 @@ fn string_len_fast_export_reads_string_without_seeding_len_cache() {
     let handle = handles::to_handle_arc(Arc::new(StringBox::new("abcd".to_string()))) as i64;
 
     assert_eq!(string_len_fast_cache_lookup(handle), None);
-    assert_eq!(string_len_fast_export_impl(handle), 4);
+    assert_eq!(crate::nyash_string_len_fast_h(handle), 4);
     assert_eq!(string_len_fast_cache_lookup(handle), None);
 }
 
@@ -113,7 +115,7 @@ fn string_len_fast_export_reads_string_without_seeding_len_cache() {
 fn substring_view_result_seeds_len_cache() {
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("substring-cache".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let result = string_substring_hii_export_impl(source_h, 0, 12);
+    let result = substring_fast_route(source_h, 0, 12);
 
     assert!(result > 0);
     assert_eq!(string_len_fast_cache_lookup(result), Some(12));
@@ -122,14 +124,15 @@ fn substring_view_result_seeds_len_cache() {
 
 #[test]
 fn substring_view_arc_cache_reissues_same_view_object_after_drop_epoch() {
+    let _guard = handle_registry_test_lock();
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdefxy".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
 
-    let view_h1 = string_substring_hii_export_impl(source_h, 2, 18);
+    let view_h1 = substring_fast_route(source_h, 2, 18);
     let view_obj1 = handles::get(view_h1 as u64).expect("first substring view object");
     handles::drop_handle(view_h1 as u64);
 
-    let view_h2 = string_substring_hii_export_impl(source_h, 2, 18);
+    let view_h2 = substring_fast_route(source_h, 2, 18);
     let view_obj2 = handles::get(view_h2 as u64).expect("reissued substring view object");
 
     assert!(
@@ -142,14 +145,15 @@ fn substring_view_arc_cache_reissues_same_view_object_after_drop_epoch() {
 
 #[test]
 fn substring_publish_explicit_api_view_reissues_same_view_object_after_drop_epoch() {
+    let _guard = handle_registry_test_lock();
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdefxy".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
 
-    let view_h1 = string_substring_publish_explicit_api_view_hii_export_impl(source_h, 2, 18);
+    let view_h1 = nyash_string_substring_publish_explicit_api_view_hii_export(source_h, 2, 18);
     let view_obj1 = handles::get(view_h1 as u64).expect("first explicit view object");
     handles::drop_handle(view_h1 as u64);
 
-    let view_h2 = string_substring_publish_explicit_api_view_hii_export_impl(source_h, 2, 18);
+    let view_h2 = nyash_string_substring_publish_explicit_api_view_hii_export(source_h, 2, 18);
     let view_obj2 = handles::get(view_h2 as u64).expect("reissued explicit view object");
 
     assert_eq!(view_obj2.type_name(), "StringViewBox");
@@ -165,10 +169,10 @@ fn substring_publish_explicit_api_view_reissues_same_view_object_after_drop_epoc
 fn piecewise_slot_and_slot_substring_roundtrip() {
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("prefix-suffix".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let middle = CString::new("::mid::").expect("CString");
+    let middle = cstring("::mid::");
 
     let mut slot = KernelTextSlot::empty();
-    assert!(piecewise_subrange_hsiii_into_slot(
+    assert!(piecewise::piecewise_subrange_hsiii_into_slot(
         &mut slot,
         source_h,
         middle.as_ptr(),
@@ -178,7 +182,7 @@ fn piecewise_slot_and_slot_substring_roundtrip() {
     ));
     assert_eq!(slot.state(), KernelTextSlotState::OwnedBytes);
     let direct_h =
-        super::concat::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
+        piecewise::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
     let direct_text = handles::with_text_read_session(|session| {
         session.str_handle(direct_h as u64, |text| text.to_string())
     })
@@ -189,12 +193,35 @@ fn piecewise_slot_and_slot_substring_roundtrip() {
     );
 
     let mut next = KernelTextSlot::empty();
-    assert!(substring_kernel_text_slot_into_slot(
-        &mut next, &slot, 1, 10
-    ));
+    next.clear();
+    assert!(match slot.state() {
+        KernelTextSlotState::Empty => true,
+        KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix => {
+            with_kernel_text_slot_text(&slot, |text| {
+                let (slice_start, slice_end) = clamp_i64_range(text.len(), 1, 10);
+                if slice_start == slice_end {
+                    next.clear();
+                    true
+                } else {
+                    match text.get(slice_start..slice_end) {
+                        Some(slice) => {
+                            freeze_owned_string_into_slot(&mut next, slice.to_string());
+                            true
+                        }
+                        None => {
+                            next.clear();
+                            false
+                        }
+                    }
+                }
+            })
+            .unwrap_or(false)
+        }
+        KernelTextSlotState::Published => false,
+    });
     assert_eq!(next.state(), KernelTextSlotState::OwnedBytes);
 
-    let next_direct_h = string_substring_hii_export_impl(direct_h, 1, 10);
+    let next_direct_h = substring_fast_route(direct_h, 1, 10);
     let next_direct_text = handles::with_text_read_session(|session| {
         session.str_handle(next_direct_h as u64, |text| text.to_string())
     })
@@ -209,10 +236,10 @@ fn piecewise_slot_and_slot_substring_roundtrip() {
 fn piecewise_slot_substring_in_place_roundtrip() {
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("prefix-suffix".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let middle = CString::new("::mid::").expect("CString");
+    let middle = cstring("::mid::");
 
     let mut slot = KernelTextSlot::empty();
-    assert!(piecewise_subrange_hsiii_into_slot(
+    assert!(piecewise::piecewise_subrange_hsiii_into_slot(
         &mut slot,
         source_h,
         middle.as_ptr(),
@@ -221,14 +248,16 @@ fn piecewise_slot_substring_in_place_roundtrip() {
         16,
     ));
     let direct_h =
-        super::concat::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
-    let next_direct_h = string_substring_hii_export_impl(direct_h, 1, 10);
+        piecewise::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
+    let next_direct_h = substring_fast_route(direct_h, 1, 10);
     let next_direct_text = handles::with_text_read_session(|session| {
         session.str_handle(next_direct_h as u64, |text| text.to_string())
     })
     .expect("next direct text");
 
-    assert!(substring_kernel_text_slot_in_place(&mut slot, 1, 10));
+    assert!(piecewise::substring_kernel_text_slot_in_place(
+        &mut slot, 1, 10
+    ));
     assert_eq!(slot.state(), KernelTextSlotState::OwnedBytes);
     assert_eq!(
         with_kernel_text_slot_text(&slot, |text| text.to_string()).as_deref(),
@@ -240,13 +269,13 @@ fn piecewise_slot_substring_in_place_roundtrip() {
 fn piecewise_slot_source_into_slot_roundtrip() {
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("prefix-suffix".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let middle = CString::new("::mid::").expect("CString");
+    let middle = cstring("::mid::");
 
     let mut current = KernelTextSlot::empty();
-    assert!(super::string_handle_into_slot(&mut current, source_h));
+    assert!(crate::nyash_string_kernel_slot_capture_h_export(&mut current, source_h) != 0);
 
     let mut next = KernelTextSlot::empty();
-    assert!(piecewise_subrange_kernel_text_slot_into_slot(
+    assert!(piecewise::piecewise_subrange_kernel_text_slot_into_slot(
         &mut next,
         &current,
         middle.as_ptr(),
@@ -256,7 +285,7 @@ fn piecewise_slot_source_into_slot_roundtrip() {
     ));
 
     let direct_h =
-        super::concat::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
+        piecewise::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
     let direct_text = handles::with_text_read_session(|session| {
         session.str_handle(direct_h as u64, |text| text.to_string())
     })
@@ -273,7 +302,7 @@ fn piecewise_slot_source_into_slot_roundtrip() {
 fn piecewise_slot_loop_chain_matches_direct_handle_chain() {
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdef".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let middle = CString::new("xx").expect("CString");
+    let middle = cstring("xx");
     let middle_text = middle.to_str().expect("middle text");
     let split = 8;
     let start = 1;
@@ -281,7 +310,7 @@ fn piecewise_slot_loop_chain_matches_direct_handle_chain() {
 
     let mut current = KernelTextSlot::empty();
     let mut next = KernelTextSlot::empty();
-    assert!(super::string_handle_into_slot(&mut current, source_h));
+    assert!(crate::nyash_string_kernel_slot_capture_h_export(&mut current, source_h) != 0);
 
     let mut expected = "line-seed-abcdef".to_string();
     for _ in 0..4 {
@@ -293,7 +322,7 @@ fn piecewise_slot_loop_chain_matches_direct_handle_chain() {
         let (slice_start, slice_end) =
             crate::exports::string_view::clamp_i64_range(inserted.len(), start, end);
         expected = inserted[slice_start..slice_end].to_string();
-        assert!(piecewise_subrange_kernel_text_slot_into_slot(
+        assert!(piecewise::piecewise_subrange_kernel_text_slot_into_slot(
             &mut next,
             &current,
             middle.as_ptr(),
@@ -314,11 +343,11 @@ fn piecewise_slot_loop_chain_matches_direct_handle_chain() {
 fn piecewise_slot_matches_direct_across_piece_shapes() {
     let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("prefix-suffix".to_string()));
     let source_h = handles::to_handle_arc(source) as i64;
-    let middle = CString::new("::mid::").expect("CString");
+    let middle = cstring("::mid::");
 
     for (start, end) in [(0, 3), (6, 13), (13, 20), (4, 12), (9, 18)] {
         let mut slot = KernelTextSlot::empty();
-        assert!(piecewise_subrange_hsiii_into_slot(
+        assert!(piecewise::piecewise_subrange_hsiii_into_slot(
             &mut slot,
             source_h,
             middle.as_ptr(),
@@ -326,13 +355,8 @@ fn piecewise_slot_matches_direct_across_piece_shapes() {
             start,
             end,
         ));
-        let direct_h = super::concat::piecewise_subrange_hsiii_fallback(
-            source_h,
-            middle.as_ptr(),
-            6,
-            start,
-            end,
-        );
+        let direct_h =
+            piecewise::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, start, end);
         let direct_text = handles::with_text_read_session(|session| {
             session.str_handle(direct_h as u64, |text| text.to_string())
         })
@@ -349,7 +373,9 @@ fn substring_kernel_text_slot_in_place_clears_slot_on_invalid_boundary() {
     let mut slot = KernelTextSlot::empty();
     freeze_owned_string_into_slot(&mut slot, "éclair".to_string());
 
-    assert!(!substring_kernel_text_slot_in_place(&mut slot, 1, 4));
+    assert!(!piecewise::substring_kernel_text_slot_in_place(
+        &mut slot, 1, 4
+    ));
     assert_eq!(slot.state(), KernelTextSlotState::Empty);
     assert!(with_kernel_text_slot_text(&slot, |text| text.len()).is_none());
 }

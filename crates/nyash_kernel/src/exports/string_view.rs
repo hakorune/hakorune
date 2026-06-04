@@ -8,13 +8,13 @@ use nyash_rust::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
 use std::any::Any;
 use std::sync::Arc;
 
-// Lifetime-sensitive string substrate.
+// Lifetime-sensitive string view helpers.
 // Keep borrowed view/span ownership in Rust even if higher-level String semantics move toward
-// `.hako` owner code. This file is native substrate, not a semantic owner.
+// `.hako` owner code. This file is a native bridge, not a semantic owner.
 
 /// Object-boundary stable substring view.
 /// Internal semantic read carriers should prefer `StringSpan` / `TextRef`; this box
-/// exists for object-world API/compat behavior and materializes on clone/share.
+/// exists for object-world API behavior and materializes on clone/share.
 #[derive(Clone)]
 pub(crate) struct StringViewBox {
     pub(crate) base_handle: i64,

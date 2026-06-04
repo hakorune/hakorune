@@ -3,32 +3,29 @@ use crate::exports::string_plan::TextPlan;
 use crate::exports::string_trace;
 use crate::exports::string_view::{
     resolve_string_span_from_handle, string_is_empty_from_handle as string_is_empty_impl,
-    string_len_from_handle as string_len_impl, StringSpan, StringViewBox,
+    string_len_from_handle as string_len_impl, StringViewBox,
 };
 use crate::observe;
 use crate::plugin::{
-    freeze_owned_bytes_with_site, materialize_owned_string_explicit_api_boundary_for_site,
-    materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
-    materialize_owned_string_need_stable_object_boundary_for_site,
-    publish_existing_view_arc_explicit_api_boundary,
-    publish_owned_bytes_generic_fallback_boundary_for_site, OwnedText, StringPublishSite,
+    freeze_owned_bytes_with_site, publish_owned_bytes_with_reason_and_site, PublishReason,
+    StringPublishSite,
 };
-use nyash_rust::box_trait::{NyashBox, StringBox};
+use nyash_rust::box_trait::StringBox;
 use nyash_rust::runtime::host_handles as handles;
-use std::{ptr, sync::Arc};
-
-struct FrozenTextPlan {
-    bytes: OwnedText,
-    site: StringPublishSite,
-}
+use std::ptr;
 
 #[inline(always)]
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
         observe::record_str_len_route_miss();
-        trace_observer_resolution("observer", handle, "none", "invalid_handle", || {
-            "invalid_handle".to_string()
-        });
+        trace_observer_resolution_enabled(
+            string_trace::enabled(),
+            "observer",
+            handle,
+            "none",
+            "invalid_handle",
+            || "invalid_handle".to_string(),
+        );
         return None;
     }
     let trace_enabled = string_trace::enabled();
@@ -119,9 +116,14 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
 #[inline(always)]
 pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     if handle <= 0 {
-        trace_observer_resolution("observer", handle, "none", "invalid_handle", || {
-            "invalid_handle".to_string()
-        });
+        trace_observer_resolution_enabled(
+            string_trace::enabled(),
+            "observer",
+            handle,
+            "none",
+            "invalid_handle",
+            || "invalid_handle".to_string(),
+        );
         return None;
     }
     let trace_enabled = string_trace::enabled();
@@ -191,50 +193,25 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     fallback
 }
 
-#[cold]
-#[inline(never)]
-pub(super) fn string_handle_from_owned(value: String) -> i64 {
-    string_handle_from_owned_with_site(value, StringPublishSite::Generic)
-}
-
-#[cold]
-#[inline(never)]
-pub(super) fn string_handle_from_owned_concat_hh(value: String) -> i64 {
-    string_handle_from_owned_with_site(value, StringPublishSite::StringConcatHh)
-}
-
-#[cold]
-#[inline(never)]
-pub(super) fn string_handle_from_owned_substring_concat_hhii(value: String) -> i64 {
-    string_handle_from_owned_with_site(value, StringPublishSite::StringSubstringConcatHhii)
-}
-
-#[cold]
-#[inline(never)]
-pub(super) fn string_handle_from_owned_const_suffix(value: String) -> i64 {
-    string_handle_from_owned_with_site(value, StringPublishSite::ConstSuffix)
-}
-
 #[inline(always)]
-fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) -> i64 {
-    string_handle_from_owned_with_publish(value, site, |value, site| match site {
-        StringPublishSite::Generic => materialize_owned_string_generic_fallback(value),
-        _ => materialize_owned_string_generic_fallback_for_site(value, site),
-    })
-}
-
-#[inline(always)]
-fn string_handle_from_owned_with_publish(
-    value: String,
-    site: StringPublishSite,
-    publish: impl FnOnce(String, StringPublishSite) -> i64,
-) -> i64 {
+pub(crate) fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) -> i64 {
     let len = value.len();
     if len == 0 {
         return shared_empty_string_handle();
     }
     observe::record_birth_placement_fresh_handle();
-    let handle = publish(value, site);
+    let handle = match site {
+        StringPublishSite::Generic => publish_owned_bytes_with_reason_and_site(
+            freeze_owned_bytes_with_site(value, StringPublishSite::Generic),
+            PublishReason::GenericFallback,
+            StringPublishSite::Generic,
+        ),
+        _ => publish_owned_bytes_with_reason_and_site(
+            freeze_owned_bytes_with_site(value, site),
+            PublishReason::GenericFallback,
+            site,
+        ),
+    };
     string_len_fast_cache_store(handle, len as i64);
     if string_trace::enabled() {
         string_trace::emit(
@@ -247,108 +224,8 @@ fn string_handle_from_owned_with_publish(
     handle
 }
 
-#[cold]
-#[inline(never)]
-pub(super) fn string_handle_from_owned_substring_concat_hhii_explicit_api_owned(
-    value: String,
-) -> i64 {
-    string_handle_from_owned_with_publish(
-        value,
-        StringPublishSite::StringSubstringConcatHhii,
-        |value, site| materialize_owned_string_explicit_api_boundary_for_site(value, site),
-    )
-}
-
-#[cold]
-#[inline(never)]
-pub(super) fn string_handle_from_owned_substring_concat_hhii_need_stable_owned(
-    value: String,
-) -> i64 {
-    string_handle_from_owned_with_publish(
-        value,
-        StringPublishSite::StringSubstringConcatHhii,
-        |value, site| materialize_owned_string_need_stable_object_boundary_for_site(value, site),
-    )
-}
-
-#[inline(always)]
-pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
-    let source = span.as_text();
-    if source.is_empty() {
-        if string_trace::enabled() {
-            string_trace::emit(
-                "sink",
-                "shared_empty",
-                "span_empty",
-                format_args!(
-                    "source=span len=0 base_handle={} range={}..{}",
-                    span.base_handle(),
-                    span.start(),
-                    span.end()
-                ),
-            );
-        }
-        return shared_empty_string_handle();
-    }
-    observe::record_birth_placement_materialize_owned();
-    let len = source.len();
-    let mut out = String::with_capacity(len);
-    unsafe {
-        let buf = out.as_mut_vec();
-        buf.set_len(len);
-        ptr::copy_nonoverlapping(source.as_ptr(), buf.as_mut_ptr(), len);
-    }
-    let handle = string_handle_from_owned(out);
-    if string_trace::enabled() {
-        string_trace::emit(
-            "sink",
-            "fresh_handle",
-            "span_materialize",
-            format_args!(
-                "source=span len={} base_handle={} range={}..{} handle={}",
-                len,
-                span.base_handle(),
-                span.start(),
-                span.end(),
-                handle
-            ),
-        );
-    }
-    handle
-}
-
-#[inline(always)]
-pub(super) fn publish_view_span_handle_explicit_api(span: StringSpan) -> (Arc<dyn NyashBox>, i64) {
-    let result_obj: Arc<dyn NyashBox> = Arc::new(span.into_view_box());
-    let handle = publish_existing_view_arc_explicit_api_boundary(result_obj.clone());
-    if string_trace::enabled() {
-        let len = result_obj.as_ref().as_str_fast().map_or(0, str::len);
-        string_trace::emit(
-            "sink",
-            "fresh_handle",
-            "view_span_publish_explicit_api",
-            format_args!("source=view_span len={} handle={}", len, handle),
-        );
-    }
-    (result_obj, handle)
-}
-
-#[inline(always)]
-pub(super) fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
-    freeze_text_plan_with_site(plan, StringPublishSite::Generic)
-}
-
 #[inline(always)]
 pub(super) fn freeze_text_plan_with_site<'a>(plan: TextPlan<'a>, site: StringPublishSite) -> i64 {
-    let FrozenTextPlan { bytes, site } = freeze_text_plan_outcome_with_site(plan, site);
-    publish_owned_bytes_generic_fallback_boundary_for_site(bytes, site)
-}
-
-#[inline(always)]
-fn freeze_text_plan_outcome_with_site<'a>(
-    plan: TextPlan<'a>,
-    site: StringPublishSite,
-) -> FrozenTextPlan {
     observe::record_birth_placement_freeze_owned();
     let pieces3_site = matches!(&plan, TextPlan::Pieces3 { .. });
     match &plan {
@@ -359,17 +236,14 @@ fn freeze_text_plan_outcome_with_site<'a>(
         TextPlan::OwnedTmp(_) => observe::record_birth_backend_freeze_text_plan_owned_tmp(),
     }
     if string_trace::enabled() {
-        let piece_count = text_plan_piece_count(&plan);
-        let total_len = text_plan_total_len(&plan);
+        let (shape, piece_count, total_len) = plan.trace_shape();
         string_trace::emit(
             "sink",
             "freeze_plan",
             "freeze_text_plan",
             format_args!(
                 "plan_shape={} piece_count={} total_len={}",
-                text_plan_shape(&plan),
-                piece_count,
-                total_len
+                shape, piece_count, total_len
             ),
         );
     }
@@ -377,14 +251,15 @@ fn freeze_text_plan_outcome_with_site<'a>(
         StringPublishSite::Generic if pieces3_site => StringPublishSite::FreezeTextPlanPieces3,
         other => other,
     };
-    FrozenTextPlan {
-        bytes: freeze_owned_bytes_with_site(plan.into_owned(), site),
+    publish_owned_bytes_with_reason_and_site(
+        freeze_owned_bytes_with_site(plan.into_owned(), site),
+        PublishReason::GenericFallback,
         site,
-    }
+    )
 }
 
 #[inline(always)]
-pub(super) fn concat_two_str(a: &str, b: &str) -> String {
+pub(crate) fn concat_two_str(a: &str, b: &str) -> String {
     let a_len = a.len();
     let total = a_len + b.len();
     let mut out = String::with_capacity(total);
@@ -398,26 +273,10 @@ pub(super) fn concat_two_str(a: &str, b: &str) -> String {
 }
 
 #[inline(always)]
-pub(super) fn concat_three_str(a: &str, b: &str, c: &str) -> String {
-    let a_len = a.len();
-    let b_len = b.len();
-    let total = a_len + b_len + c.len();
-    let mut out = String::with_capacity(total);
-    unsafe {
-        let buf = out.as_mut_vec();
-        buf.set_len(total);
-        ptr::copy_nonoverlapping(a.as_ptr(), buf.as_mut_ptr(), a_len);
-        ptr::copy_nonoverlapping(b.as_ptr(), buf.as_mut_ptr().add(a_len), b_len);
-        ptr::copy_nonoverlapping(c.as_ptr(), buf.as_mut_ptr().add(a_len + b_len), c.len());
-    }
-    out
-}
-
-#[inline(always)]
-pub(super) fn shared_empty_string_handle() -> i64 {
+pub(crate) fn shared_empty_string_handle() -> i64 {
     #[cfg(test)]
     {
-        string_handle_from_owned(String::new())
+        string_handle_from_owned_with_site(String::new(), StringPublishSite::Generic)
     }
     #[cfg(not(test))]
     {
@@ -429,58 +288,7 @@ pub(super) fn shared_empty_string_handle() -> i64 {
 }
 
 #[inline(always)]
-pub(super) fn text_plan_shape(plan: &TextPlan<'_>) -> &'static str {
-    match plan {
-        TextPlan::View1(_) => "view1",
-        TextPlan::Pieces2 { .. } => "pieces2",
-        TextPlan::Pieces3 { .. } => "pieces3",
-        TextPlan::Pieces4 { .. } => "pieces4",
-        TextPlan::OwnedTmp(_) => "owned_tmp",
-    }
-}
-
-#[inline(always)]
-pub(super) fn text_plan_piece_count(plan: &TextPlan<'_>) -> usize {
-    match plan {
-        TextPlan::View1(_) => 1,
-        TextPlan::Pieces2 { .. } => 2,
-        TextPlan::Pieces3 { .. } => 3,
-        TextPlan::Pieces4 { .. } => 4,
-        TextPlan::OwnedTmp(_) => 1,
-    }
-}
-
-#[inline(always)]
-pub(super) fn text_plan_total_len(plan: &TextPlan<'_>) -> usize {
-    match plan {
-        TextPlan::View1(span) => span.len(),
-        TextPlan::Pieces2 { total_len, .. }
-        | TextPlan::Pieces3 { total_len, .. }
-        | TextPlan::Pieces4 { total_len, .. } => *total_len,
-        TextPlan::OwnedTmp(text) => text.len(),
-    }
-}
-
-#[inline(always)]
-fn trace_observer_resolution(
-    stage: &str,
-    handle: i64,
-    result: &str,
-    reason: &str,
-    extra: impl FnOnce() -> String,
-) {
-    trace_observer_resolution_enabled(
-        string_trace::enabled(),
-        stage,
-        handle,
-        result,
-        reason,
-        extra,
-    );
-}
-
-#[inline(always)]
-pub(super) fn trace_observer_resolution_enabled(
+pub(crate) fn trace_observer_resolution_enabled(
     trace_enabled: bool,
     stage: &str,
     handle: i64,
@@ -499,25 +307,6 @@ pub(super) fn trace_observer_resolution_enabled(
     );
 }
 
-pub(super) fn concat_to_string_handle(parts: &[&str]) -> i64 {
-    match parts.len() {
-        0 => return string_handle_from_owned(String::new()),
-        1 => return string_handle_from_owned(parts[0].to_string()),
-        2 => return string_handle_from_owned(concat_two_str(parts[0], parts[1])),
-        3 => return string_handle_from_owned(concat_three_str(parts[0], parts[1], parts[2])),
-        _ => {}
-    }
-    let mut total = 0usize;
-    for p in parts {
-        total += p.len();
-    }
-    let mut out = String::with_capacity(total);
-    for p in parts {
-        out.push_str(p);
-    }
-    string_handle_from_owned(out)
-}
-
 #[inline(always)]
 pub(crate) fn to_owned_string_handle_arg(h: i64) -> String {
     resolve_string_span_from_handle(h)
@@ -532,31 +321,52 @@ mod tests {
 
     #[test]
     fn freeze_text_plan_outcome_keeps_owned_bytes_before_publish() {
-        let outcome = freeze_text_plan_outcome_with_site(
-            TextPlan::from_three(
-                TextPiece::Inline("ab"),
-                TextPiece::Inline("cd"),
-                TextPiece::Inline("ef"),
-            ),
-            StringPublishSite::Generic,
+        let plan = TextPlan::from_three(
+            TextPiece::Inline("ab"),
+            TextPiece::Inline("cd"),
+            TextPiece::Inline("ef"),
         );
-
-        assert_eq!(outcome.bytes.as_str(), "abcdef");
-        assert!(matches!(
-            outcome.site,
+        observe::record_birth_placement_freeze_owned();
+        let pieces3_site = matches!(&plan, TextPlan::Pieces3 { .. });
+        match &plan {
+            TextPlan::View1(_) => observe::record_birth_backend_freeze_text_plan_view1(),
+            TextPlan::Pieces2 { .. } => observe::record_birth_backend_freeze_text_plan_pieces2(),
+            TextPlan::Pieces3 { .. } => observe::record_birth_backend_freeze_text_plan_pieces3(),
+            TextPlan::Pieces4 { .. } => observe::record_birth_backend_freeze_text_plan_pieces4(),
+            TextPlan::OwnedTmp(_) => observe::record_birth_backend_freeze_text_plan_owned_tmp(),
+        }
+        let site = if pieces3_site {
             StringPublishSite::FreezeTextPlanPieces3
-        ));
+        } else {
+            StringPublishSite::Generic
+        };
+        let bytes = freeze_owned_bytes_with_site(plan.into_owned(), site);
+
+        assert_eq!(bytes.as_str(), "abcdef");
+        assert!(matches!(site, StringPublishSite::FreezeTextPlanPieces3));
     }
 
     #[test]
     fn freeze_text_plan_outcome_preserves_non_pieces3_site() {
-        let outcome = freeze_text_plan_outcome_with_site(
-            TextPlan::from_owned("owned".to_owned()),
-            StringPublishSite::ConstSuffix,
-        );
+        let plan = TextPlan::from_owned("owned".to_owned());
+        observe::record_birth_placement_freeze_owned();
+        let pieces3_site = matches!(&plan, TextPlan::Pieces3 { .. });
+        match &plan {
+            TextPlan::View1(_) => observe::record_birth_backend_freeze_text_plan_view1(),
+            TextPlan::Pieces2 { .. } => observe::record_birth_backend_freeze_text_plan_pieces2(),
+            TextPlan::Pieces3 { .. } => observe::record_birth_backend_freeze_text_plan_pieces3(),
+            TextPlan::Pieces4 { .. } => observe::record_birth_backend_freeze_text_plan_pieces4(),
+            TextPlan::OwnedTmp(_) => observe::record_birth_backend_freeze_text_plan_owned_tmp(),
+        }
+        let site = if pieces3_site {
+            StringPublishSite::FreezeTextPlanPieces3
+        } else {
+            StringPublishSite::ConstSuffix
+        };
+        let bytes = freeze_owned_bytes_with_site(plan.into_owned(), site);
 
-        assert_eq!(outcome.bytes.as_str(), "owned");
-        assert!(matches!(outcome.site, StringPublishSite::ConstSuffix));
+        assert_eq!(bytes.as_str(), "owned");
+        assert!(matches!(site, StringPublishSite::ConstSuffix));
     }
 
     #[test]

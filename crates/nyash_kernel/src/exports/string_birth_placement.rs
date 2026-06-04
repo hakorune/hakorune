@@ -1,13 +1,8 @@
 use super::string_trace;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[allow(dead_code)]
 pub(crate) enum BoundaryKind {
-    ObserverOnly,
     Store,
-    LoopCarry,
-    AbiVisible,
-    CloneShare,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -43,34 +38,6 @@ fn trace_retained_form(
     string_trace::emit(stage, retained_form_label(form), reason, extra);
 }
 
-#[cold]
-#[inline(never)]
-fn trace_substring_retained_form_cold(
-    view_enabled: bool,
-    slice_len: usize,
-    placement: RetainedForm,
-) {
-    if !string_trace::enabled() {
-        return;
-    }
-    let reason = if !view_enabled {
-        "view_disabled"
-    } else if slice_len < SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-        "slice_len_lt_threshold"
-    } else {
-        "retain_view"
-    };
-    string_trace::emit(
-        "placement",
-        retained_form_label(placement),
-        reason,
-        format_args!(
-            "view_enabled={} slice_len={} threshold={}",
-            view_enabled, slice_len, SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES
-        ),
-    );
-}
-
 #[inline(always)]
 pub(crate) fn substring_retention_class(view_enabled: bool, slice_len: usize) -> RetainedForm {
     let placement = if !view_enabled || slice_len < SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
@@ -79,7 +46,22 @@ pub(crate) fn substring_retention_class(view_enabled: bool, slice_len: usize) ->
         RetainedForm::RetainView
     };
     if string_trace::enabled() {
-        trace_substring_retained_form_cold(view_enabled, slice_len, placement);
+        let reason = if !view_enabled {
+            "view_disabled"
+        } else if slice_len < SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
+            "slice_len_lt_threshold"
+        } else {
+            "retain_view"
+        };
+        string_trace::emit(
+            "placement",
+            retained_form_label(placement),
+            reason,
+            format_args!(
+                "view_enabled={} slice_len={} threshold={}",
+                view_enabled, slice_len, SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES
+            ),
+        );
     }
     placement
 }

@@ -1,13 +1,13 @@
+use crate::c_string::c_string_bytes;
 use crate::observe;
 use nyash_rust::box_trait::NyashBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::{
     cell::{Cell, RefCell},
-    ffi::CStr,
     sync::Arc,
 };
 
-pub(super) enum SubstringViewCacheHit {
+pub(crate) enum SubstringViewCacheHit {
     Handle(i64),
     Reissue {
         result_obj: Arc<dyn NyashBox>,
@@ -340,7 +340,7 @@ pub(super) fn with_cached_const_suffix_text<R>(ptr: *const i8, f: impl FnOnce(&s
     let addr = ptr as usize;
     CONST_SUFFIX_TEXT_CACHE.with(|cache| {
         if cache.ptr.get() != addr || cache.text.borrow().is_none() {
-            let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
+            let bytes = c_string_bytes(ptr);
             let text = String::from_utf8_lossy(bytes).into_owned();
             observe::record_const_suffix_text_cache_reload();
             cache.ptr.set(addr);
@@ -378,7 +378,7 @@ pub(super) fn concat_pair_fast_cache_store(a_h: i64, b_h: i64, result: Arc<dyn N
 }
 
 #[inline(always)]
-pub(super) fn concat3_fast_cache_lookup(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
+pub(crate) fn concat3_fast_cache_lookup(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     let drop_epoch = handles::drop_epoch();
     CONCAT3_FAST_CACHE.with(|cache| {
         if cache.drop_epoch.get() == drop_epoch
@@ -395,7 +395,7 @@ pub(super) fn concat3_fast_cache_lookup(a_h: i64, b_h: i64, c_h: i64) -> Option<
 }
 
 #[inline(always)]
-pub(super) fn concat3_fast_cache_store(a_h: i64, b_h: i64, c_h: i64, result_handle: i64) {
+pub(crate) fn concat3_fast_cache_store(a_h: i64, b_h: i64, c_h: i64, result_handle: i64) {
     let drop_epoch = handles::drop_epoch();
     CONCAT3_FAST_CACHE.with(|cache| {
         cache.drop_epoch.set(drop_epoch);
@@ -441,7 +441,7 @@ pub(super) fn concat_const_suffix_fast_cache_store(
 }
 
 #[inline(always)]
-pub(super) fn substring_fast_cache_lookup(
+pub(crate) fn substring_fast_cache_lookup(
     source_handle: i64,
     start: i64,
     end: i64,
@@ -473,7 +473,7 @@ pub(super) fn substring_fast_cache_lookup(
 }
 
 #[inline(always)]
-pub(super) fn substring_fast_cache_store(
+pub(crate) fn substring_fast_cache_store(
     source_handle: i64,
     start: i64,
     end: i64,
@@ -500,7 +500,7 @@ pub(super) fn substring_fast_cache_store(
 }
 
 #[inline(always)]
-pub(super) fn substring_view_arc_cache_lookup(
+pub(crate) fn substring_view_arc_cache_lookup(
     source_handle: i64,
     start: i64,
     end: i64,
@@ -509,7 +509,7 @@ pub(super) fn substring_view_arc_cache_lookup(
 }
 
 #[inline(always)]
-pub(super) fn substring_view_arc_cache_store(
+pub(crate) fn substring_view_arc_cache_store(
     source_handle: i64,
     source_box_id: u64,
     start: i64,
@@ -532,7 +532,7 @@ pub(super) fn substring_view_arc_cache_store(
 }
 
 #[inline(always)]
-pub(super) fn substring_view_arc_cache_refresh_handle(
+pub(crate) fn substring_view_arc_cache_refresh_handle(
     source_handle: i64,
     start: i64,
     end: i64,
@@ -544,7 +544,7 @@ pub(super) fn substring_view_arc_cache_refresh_handle(
 }
 
 #[inline(always)]
-pub(super) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
+pub(crate) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
     STRING_LEN_FAST_CACHE.with(|cache| {
         let current_drop_epoch = handles::drop_epoch();
         if cache.handle.get() == handle {
@@ -561,7 +561,7 @@ pub(super) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
 }
 
 #[inline(always)]
-pub(super) fn string_len_fast_cache_store(handle: i64, len: i64) {
+pub(crate) fn string_len_fast_cache_store(handle: i64, len: i64) {
     let drop_epoch = handles::drop_epoch();
     STRING_LEN_FAST_CACHE.with(|cache| {
         let prev_handle = cache.handle.replace(handle);
