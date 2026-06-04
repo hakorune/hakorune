@@ -908,12 +908,43 @@ The summary keeps winner and production replacement claims closed while exposing
 the cold-path tax directly:
 
 ```text
+provider_usable_size_mode=0
+provider_assume_owned_mode=0
+provider_manifest_hako_provider_alloc_free_route=host_malloc_free_wrapper
+provider_manifest_hako_provider_alloc_free_uses_host_malloc=1
 provider_vs_mimalloc_ratio=...
 provider_init_real_fallback_per_provider_operation=...
 provider_runtime_real_fallback_count_total=0
 provider_pointer_table_overflow_total=0
 provider_next_owner_family=provider_alloc_free_internal_real_malloc_boundary
 ```
+
+To split provider shim tracking tax from the provider internal alloc/free route,
+rerun the same ladder with the measurement-only tracking bypass modes:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_gap_ladder.py \
+  --allow-ldconfig-discovery \
+  --manifest target/.../provider/pkg/hakorune_provider.json \
+  --provider-usable-size-mode \
+  --out target/hakozuna-mixed-ws-gap-usable-size/report.out \
+  --out-dir target/hakozuna-mixed-ws-gap-usable-size/artifacts
+
+python3 tools/allocator/hakozuna_mixed_ws_gap_ladder.py \
+  --allow-ldconfig-discovery \
+  --manifest target/.../provider/pkg/hakorune_provider.json \
+  --provider-usable-size-mode \
+  --provider-assume-owned-mode \
+  --out target/hakozuna-mixed-ws-gap-assume-owned/report.out \
+  --out-dir target/hakozuna-mixed-ws-gap-assume-owned/artifacts
+```
+
+Compare `provider_vs_mimalloc_ratio`,
+`provider_init_real_fallback_per_provider_operation`, and
+`provider_next_owner_family` across the normal and bypass reports. A large win
+only in the bypass reports points at shim ownership/usable-size tracking. A
+flat result keeps the next owner at the provider internal host malloc/free
+wrapper boundary.
 
 Use those fields to avoid reading the current provider LD_PRELOAD bridge as a
 direct `.hako` allocator-core speed claim.

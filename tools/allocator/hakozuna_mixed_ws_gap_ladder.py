@@ -103,7 +103,17 @@ def run_compare(args: argparse.Namespace, compare_report: Path) -> None:
         cmd.extend(["--mimalloc-library", str(args.mimalloc_library)])
     if args.manifest is not None:
         cmd.extend(["--manifest", str(args.manifest)])
+    if args.provider_usable_size_mode:
+        cmd.append("--provider-usable-size-mode")
+    if args.provider_assume_owned_mode:
+        cmd.append("--provider-assume-owned-mode")
     subprocess.run(cmd, cwd=ROOT, check=True)
+
+
+def append_if_present(lines: list[str], values: dict[str, str], key: str) -> None:
+    value = values.get(key)
+    if value is not None:
+        lines.append(f"{key}={value}")
 
 
 def emit_summary(compare_report: Path, out: Path) -> None:
@@ -136,7 +146,19 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         f"system_mimalloc_median_ops_per_sec={mimalloc_median:.3f}",
         f"glibc_vs_mimalloc_ratio={ratio(glibc_median, mimalloc_median)}",
         "provider_subject_present=" + ("1" if provider is not None else "0"),
+        f"provider_usable_size_mode={values.get('provider_usable_size_mode', '0')}",
+        f"provider_assume_owned_mode={values.get('provider_assume_owned_mode', '0')}",
     ]
+
+    for key in (
+        "provider_manifest_hako_semantic_provider_codegen",
+        "provider_manifest_hako_provider_object_lifecycle_entrypoint_verified",
+        "provider_manifest_hako_provider_alloc_free_route",
+        "provider_manifest_hako_provider_alloc_free_uses_host_malloc",
+        "provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle",
+        "provider_manifest_hako_provider_object_lifecycle_entrypoint_usage",
+    ):
+        append_if_present(lines, values, key)
 
     if provider is not None:
         provider_median = float(provider["throughput_median_ops_per_sec"])
@@ -188,6 +210,16 @@ def main() -> int:
     parser.add_argument("--mimalloc-library", type=Path)
     parser.add_argument("--allow-ldconfig-discovery", action="store_true")
     parser.add_argument("--manifest", type=Path)
+    parser.add_argument(
+        "--provider-usable-size-mode",
+        action="store_true",
+        help="measurement-only: bypass provider shim tracking through private usable_size symbol",
+    )
+    parser.add_argument(
+        "--provider-assume-owned-mode",
+        action="store_true",
+        help="measurement-only: with usable-size mode, skip provider owns checks before free/realloc",
+    )
     parser.add_argument("--sample-count", type=int, default=5)
     parser.add_argument("--warmup-count", type=int, default=1)
     parser.add_argument("--threads", type=int, default=4)
