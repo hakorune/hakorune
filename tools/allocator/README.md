@@ -41,6 +41,9 @@ hako_mimalloc_perf_attribution_support.py:
 provider_package_export_bundle_render.py:
   provider package bundle README/script rendering only; no package assembly or file I/O
 
+provider_package_api_bind_smoke_report.py:
+  provider API bind smoke report rendering only; no API loading or runner logic
+
 hako_mimalloc_algorithm_coverage_render.py:
   coverage text rendering only; no coverage computation or CLI orchestration
 
