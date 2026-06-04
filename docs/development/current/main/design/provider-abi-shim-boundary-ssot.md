@@ -160,14 +160,17 @@ shim_provider_realloc_not_owned_count
 shim_provider_realloc_failed_count
 shim_provider_usable_size_claim_count
 shim_provider_usable_size_not_owned_count
+shim_claim_mainline_mode_enabled
 shim_tracking_lookup_count
 shim_tracking_insert_count
 shim_tracking_remove_count
 ```
 
-`shim_tracking_*` may be nonzero while compatibility tracking remains present,
-but the next keeper must drive the mainline free path through
-`provider.free_claim` instead of `owns + shim table`.
+For providers with `free_claim`, `realloc_claim`, and `usable_size_claim`
+bound, the LD_PRELOAD shim uses claim-mainline mode: malloc does not insert into
+the shim tracking table, free uses `provider.free_claim`, and realloc uses
+`provider.realloc_claim`. `shim_tracking_*` remains only as compatibility
+evidence for older/non-claim providers.
 
 ## Implementation Order
 
@@ -196,4 +199,9 @@ PROV-ABI-005:
   host-backed route reports host_allocator_vtable_init=1
   provider direct libc/private symbol dependency remains 0
   landed as the host-backed vtable implementation slice
+
+PROV-ABI-006:
+  claim-mainline shim path for providers with free/realloc/usable claims
+  shim tracking table stays as compatibility fallback only
+  mainline reports shim_claim_mainline_mode_enabled=1 and tracking probes=0
 ```

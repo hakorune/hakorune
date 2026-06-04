@@ -68,10 +68,10 @@ closed.
 ## Current Workstream Note
 
 HostAllocatorV0 provider-host refresh is recorded in the active workstream.
-The provider-host normal route is now close to C mimalloc, while the
-usable-size / tracking-bypass route is faster in the same sample shape. The
-next provider-boundary owner is shim pointer tracking removal for the
-provider-host mainline, without opening provider activation, product
+The provider-host normal route now uses claim-mainline mode when free/realloc/
+usable-size claims are bound, leaving shim pointer tracking as a compatibility
+fallback only. The next provider-boundary owner is threaded provider
+claim-mainline evidence, without opening provider activation, product
 replacement, hooks, global allocator, or winner claims.
 
 ## Forbidden

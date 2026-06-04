@@ -397,6 +397,31 @@ provider_host_vtable_refresh_2026_06_04:
   selected_next_owner=shim_pointer_tracking_removal_for_provider_host_mainline
   selected_next_action=turn_provider_usable_size_claim_into_the_normal_owned-pointer_query_path_before_any_new_provider_C_shape_probe
 
+provider_host_claim_mainline_refresh_2026_06_04:
+  report=target/mimalloc-opt-refresh/provider-host-claim-mainline-gap-s5.out
+  algorithm_coverage_report=target/mimalloc-opt-refresh/algorithm-coverage-provider-host-claim-mainline-gap-s5.out
+  provider_median_ops_per_sec=8,950,548.221
+  provider_vs_mimalloc_ratio=1.160
+  provider_slower_than_mimalloc_percent=-13.8
+  provider_claim_mainline_mode_enabled_total=6
+  shim_tracking_insert_probe_total=0
+  shim_tracking_lookup_probe_total=0
+  provider_host_allocator_init_result_total=6
+  provider_host_allocator_vtable_init_count_total=6
+  provider_host_passthrough_count_total=0
+  provider_runtime_real_fallback_count_total=0
+  provider_init_real_fallback_per_provider_operation=0.007
+  replacement_front_is_full_hako_algorithm=0
+  replacement_front_multithread_claim=0
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  decision=claim_mainline_is_keeper
+  selected_next_owner=threaded_provider_claim_mainline_evidence
+  selected_next_action=measure_provider_claim_mainline_under_threaded_workload_before_any_product_activation_or_winner_claim
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

@@ -100,6 +100,7 @@ static int provider_load_attempted = 0;
 static int provider_ready = 0;
 static int provider_usable_size_mode = 0;
 static int provider_assume_owned_mode = 0;
+static int provider_claim_mainline_mode = 0;
 static int in_provider_call = 0;
 static struct HakoTrackedPtr tracked[HAKO_POINTER_TABLE_CAP];
 
@@ -179,6 +180,7 @@ static unsigned long long usable_size_symbol_bound = 0;
 static unsigned long long usable_size_lookup_count = 0;
 static unsigned long long usable_size_lookup_failure_count = 0;
 static unsigned long long tracking_bypassed_count = 0;
+static unsigned long long claim_mainline_mode_enabled = 0;
 static unsigned long long assume_owned_mode_enabled = 0;
 static unsigned long long assume_owned_free_count = 0;
 static unsigned long long assume_owned_realloc_count = 0;
@@ -406,6 +408,7 @@ static void hako_write_report(void) {
   hako_write_kv(fd, "shim_usable_size_lookup_count", usable_size_lookup_count);
   hako_write_kv(fd, "shim_usable_size_lookup_failure_count", usable_size_lookup_failure_count);
   hako_write_kv(fd, "shim_tracking_bypassed_count", tracking_bypassed_count);
+  hako_write_kv(fd, "shim_claim_mainline_mode_enabled", claim_mainline_mode_enabled);
   hako_write_kv(fd, "shim_assume_owned_mode_enabled", assume_owned_mode_enabled);
   hako_write_kv(fd, "shim_assume_owned_free_count", assume_owned_free_count);
   hako_write_kv(fd, "shim_assume_owned_realloc_count", assume_owned_realloc_count);
@@ -497,6 +500,12 @@ static int hako_ensure_provider(void) {
     in_provider_call = 0;
     host_allocator_vtable_init_count++;
   }
+  provider_claim_mainline_mode =
+      provider_free_claim_fn && provider_realloc_claim_fn && provider_usable_size_claim_fn;
+  if (provider_claim_mainline_mode) {
+    claim_mainline_mode_enabled = 1;
+    provider_usable_size_mode = 1;
+  }
   if (provider_usable_size_mode) {
     if (provider_usable_size_claim_fn) {
       usable_size_symbol_bound = 1;
@@ -516,6 +525,7 @@ static int hako_ensure_provider(void) {
       } else {
         provider_usable_size_mode = 0;
         provider_assume_owned_mode = 0;
+        provider_claim_mainline_mode = 0;
       }
     }
   }
@@ -847,7 +857,7 @@ def emit_report(
         "global_allocator=0",
         "winner_claim=0",
         "thread_safety=single-thread-pilot",
-        "usable_size_tracking_bypass_mode=measurement_only",
+        "usable_size_tracking_bypass_mode=claim_mainline_or_measurement",
         f"smoke_exit_code={smoke_exit_code}",
     ]
     for key in sorted(shim_fields):

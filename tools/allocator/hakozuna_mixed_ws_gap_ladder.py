@@ -197,6 +197,7 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         host_allocator_usable_size_bound = as_int(
             provider, "shim_host_allocator_usable_size_bound_total"
         )
+        claim_mainline = as_int(provider, "shim_claim_mainline_mode_enabled_total")
         tracking_insert = as_int(provider, "shim_track_probe_total_total")
         tracking_lookup = as_int(provider, "shim_find_probe_total_total")
         next_owner = provider.get("next_owner_family", "unknown")
@@ -226,6 +227,7 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_host_allocator_init_result_total={host_allocator_init_result}",
                 f"provider_host_allocator_vtable_init_count_total={host_allocator_vtable_init}",
                 f"provider_host_allocator_usable_size_bound_total={host_allocator_usable_size_bound}",
+                f"provider_claim_mainline_mode_enabled_total={claim_mainline}",
                 f"shim_tracking_insert_probe_total={tracking_insert}",
                 f"shim_tracking_lookup_probe_total={tracking_lookup}",
                 "shim_provider_owned_truth=0",
