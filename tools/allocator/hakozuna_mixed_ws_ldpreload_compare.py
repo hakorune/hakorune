@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_HAKOZUNA_ROOT = ROOT / "benchmarks" / "external" / "hakozuna" / "mixed-ws" / "build"
 SMOKE_TOOL = Path(__file__).resolve().with_name("provider_package_ldpreload_replacement_smoke.py")
 OPS_RE = re.compile(r"ops/s=([0-9]+(?:\.[0-9]+)?)")
+TIME_RE = re.compile(r"time=([0-9]+(?:\.[0-9]+)?)")
 
 
 from replacement_front_templates import (
@@ -305,7 +306,7 @@ def run_one(
     provider_usable_size_mode: bool,
     provider_assume_owned_mode: bool,
     replacement_front_mode: bool,
-) -> tuple[float, dict[str, str], int]:
+) -> tuple[float, float, dict[str, str], int]:
     run_dir = out_dir / subject / f"{kind}_{run_index}"
     run_dir.mkdir(parents=True, exist_ok=True)
     stdout_path = run_dir / "bench.stdout"
@@ -349,8 +350,11 @@ def run_one(
     match = OPS_RE.search(completed.stdout)
     if match is None:
         raise SystemExit(f"{subject} {kind} run {run_index} output missing ops/s line")
+    time_match = TIME_RE.search(completed.stdout)
+    if time_match is None:
+        raise SystemExit(f"{subject} {kind} run {run_index} output missing time line")
     counts = read_kv(counts_path) if counts_path.exists() else {}
-    return float(match.group(1)), counts, completed.returncode
+    return float(match.group(1)), float(time_match.group(1)), counts, completed.returncode
 
 
 def run_subject(
@@ -371,13 +375,14 @@ def run_subject(
     provider_usable_size_mode: bool,
     provider_assume_owned_mode: bool,
     replacement_front_mode: bool,
-) -> tuple[list[float], dict[str, int]]:
+) -> tuple[list[float], list[float], dict[str, int]]:
     sample_throughputs: list[float] = []
+    sample_seconds: list[float] = []
     counter_totals: dict[str, int] = {}
     total_runs = warmup_count + sample_count
     for run_index in range(total_runs):
         kind = "warmup" if run_index < warmup_count else "sample"
-        throughput, counts, _exit_code = run_one(
+        throughput, elapsed_seconds, counts, _exit_code = run_one(
             bench=bench,
             root=root,
             out_dir=out_dir,
@@ -400,7 +405,8 @@ def run_subject(
                 counter_totals[key] = counter_totals.get(key, 0) + int(value)
         if kind == "sample":
             sample_throughputs.append(throughput)
-    return sample_throughputs, counter_totals
+            sample_seconds.append(elapsed_seconds)
+    return sample_throughputs, sample_seconds, counter_totals
 
 
 def format_ratio(value: float, base: float) -> str:
@@ -608,6 +614,16 @@ def main() -> int:
     parser.add_argument("--out", type=Path)
     parser.add_argument("--sample-count", type=int, default=3)
     parser.add_argument("--warmup-count", type=int, default=1)
+    parser.add_argument(
+        "--min-sample-seconds",
+        type=float,
+        default=0.0,
+        help=(
+            "mark measurement_quality=too_short if any sampled bench run is "
+            "shorter than this many seconds; default 0 keeps legacy smoke-sized "
+            "probes accepted"
+        ),
+    )
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--iters-per-thread", type=int, default=1000)
     parser.add_argument("--working-set", type=int, default=128)
@@ -729,6 +745,8 @@ def main() -> int:
     positive_int(args.sample_count, "--sample-count")
     if args.warmup_count < 0:
         raise SystemExit("--warmup-count must be non-negative")
+    if args.min_sample_seconds < 0.0:
+        raise SystemExit("--min-sample-seconds must be non-negative")
     positive_int(args.threads, "--threads")
     positive_int(args.iters_per_thread, "--iters-per-thread")
     positive_int(args.working_set, "--working-set")
@@ -1003,7 +1021,7 @@ def main() -> int:
             ("hakorune_replacement_front_ldpreload", replacement_front_shim, None, True)
         )
 
-    reports: dict[str, tuple[list[float], dict[str, int]]] = {}
+    reports: dict[str, tuple[list[float], list[float], dict[str, int]]] = {}
     for subject, ld_preload, provider, replacement_front_mode in subject_specs:
         reports[subject] = run_subject(
             bench=bench,
@@ -1029,6 +1047,21 @@ def main() -> int:
         )
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
+    all_sample_seconds = [
+        elapsed
+        for _samples, elapsed_samples, _counters in reports.values()
+        for elapsed in elapsed_samples
+    ]
+    min_observed_sample_seconds = min(all_sample_seconds) if all_sample_seconds else 0.0
+    median_observed_sample_seconds = (
+        median_float(all_sample_seconds) if all_sample_seconds else 0.0
+    )
+    measurement_quality = (
+        "ok"
+        if args.min_sample_seconds <= 0.0
+        or min_observed_sample_seconds >= args.min_sample_seconds
+        else "too_short"
+    )
     replacement_front_size_class_policy_source = (
         "hako_size_class_box_report_mirror"
         if args.replacement_front_match_hako_size_class
@@ -1141,6 +1174,10 @@ def main() -> int:
         f"provider_manifest={args.manifest.resolve() if args.manifest is not None else 'none'}",
         f"sample_count={args.sample_count}",
         f"warmup_count={args.warmup_count}",
+        f"min_sample_seconds_required={args.min_sample_seconds:.6f}",
+        f"min_observed_sample_seconds={min_observed_sample_seconds:.6f}",
+        f"median_observed_sample_seconds={median_observed_sample_seconds:.6f}",
+        f"measurement_quality={measurement_quality}",
         f"benchmark_threads={args.threads}",
         f"benchmark_iters_per_thread={args.iters_per_thread}",
         f"benchmark_working_set={args.working_set}",
@@ -1360,7 +1397,7 @@ def main() -> int:
             ]
         )
     for index, (subject, _ld_preload, _provider, replacement_front_mode) in enumerate(subject_specs):
-        samples, counters = reports[subject]
+        samples, sample_seconds, counters = reports[subject]
         median = median_float(samples)
         if subject == "system_malloc":
             front_class = "system_malloc"
@@ -1405,6 +1442,9 @@ def main() -> int:
                 f"subject_{index}_throughput_median_ops_per_sec={median:.3f}",
                 f"subject_{index}_throughput_max_ops_per_sec={max(samples):.3f}",
                 f"subject_{index}_throughput_vs_c_mimalloc={format_ratio(median, c_mimalloc_median)}",
+                f"subject_{index}_sample_seconds_min={min(sample_seconds):.6f}",
+                f"subject_{index}_sample_seconds_median={median_float(sample_seconds):.6f}",
+                f"subject_{index}_sample_seconds_max={max(sample_seconds):.6f}",
                 f"subject_{index}_winner_claim=0",
             ]
         )

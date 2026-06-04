@@ -580,6 +580,7 @@ bench_route_equivalence_2026_06_05:
   purpose=compare_C_mimalloc_LD_PRELOAD_with_hako_replacement_front_under_same_benchmark_conditions
   frontdoor_tool=tools/allocator/hakozuna_mixed_ws_gap_ladder.py
   required_same_condition_fields=same_benchmark_binary,same_workload,same_threads,same_iters_per_thread,same_working_set,same_sample_count
+  required_measurement_quality_fields=min_sample_seconds_required,min_observed_sample_seconds,measurement_quality
   subject_reference=c_mimalloc_ldpreload
   subject_candidate=hakorune_replacement_front_ldpreload
   candidate_execution_route=replacement_front_benchmark
@@ -594,15 +595,39 @@ bench_route_equivalence_2026_06_05:
   winner_claim=0
   report_t1=target/bench-route-equiv-t1.out
   report_t4_tls=target/bench-route-equiv-t4-tls.out
+  report_t4_tls_quality_status=too_short_after_measurement_quality_guard
   t1_replacement_front_median_ops_per_sec=24,898,409.505
   t1_replacement_front_vs_mimalloc_ratio=0.899
   t1_replacement_front_slower_than_mimalloc_percent=11.3
   t4_tls_replacement_front_median_ops_per_sec=11,545,260.218
   t4_tls_replacement_front_vs_mimalloc_ratio=0.385
   t4_tls_replacement_front_slower_than_mimalloc_percent=159.7
-  t4_tls_interpretation=threaded_replacement_front_still_weak_against_C_mimalloc
-  selected_next_owner=thread_local_replacement_front_thread_shape
-  selected_next_action=profile_thread_local_replacement_front_before_any_provider_host_C_shape_work
+  t4_tls_interpretation=superseded_by_quality_guard_too_short_sample
+  selected_next_owner=benchmark_measurement_quality_gate
+  selected_next_action=require_min_sample_seconds_before_threaded_keeper_or_nonkeeper_claim
+
+bench_route_equivalence_quality_refresh_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-002
+  purpose=prevent_sub_50ms_Hakozuna_mixed_ws_samples_from_selecting_threaded_keeper_or_nonkeeper
+  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py
+  new_report_fields=min_sample_seconds_required,min_observed_sample_seconds,median_observed_sample_seconds,measurement_quality
+  short_sample_guard_report=target/bench-route-equiv-short-quality-fail.out
+  short_sample_guard_summary=measurement_too_short
+  short_sample_guard_exit_status=1
+  long_sample_report=target/bench-route-equiv-long-quality-s3.out
+  long_sample_measurement_quality=ok
+  long_sample_min_observed_sample_seconds=0.070000
+  long_sample_median_observed_sample_seconds=0.100000
+  long_sample_threads=4
+  long_sample_iters_per_thread=20,000,000
+  long_sample_sample_count=3
+  long_sample_warmup_count=1
+  long_sample_replacement_front_vs_mimalloc_ratio=1.392
+  long_sample_replacement_front_slower_than_mimalloc_percent=-28.1
+  corrected_interpretation=previous_8192_iter_threaded_gap_was_measurement_quality_too_short_not_thread_shape_evidence
+  selected_next_owner=route_equivalent_long_sample_thread_profile
+  selected_next_action=use_long_quality_ok_reports_before_more_replacement_front_thread_shape_work
 
 thread_local_replacement_front_profile_2026_06_05:
   status=landed

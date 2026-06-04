@@ -84,6 +84,8 @@ def run_compare(args: argparse.Namespace, compare_report: Path) -> None:
         str(args.sample_count),
         "--warmup-count",
         str(args.warmup_count),
+        "--min-sample-seconds",
+        str(args.min_sample_seconds),
         "--threads",
         str(args.threads),
         "--iters-per-thread",
@@ -162,6 +164,13 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         f"benchmark_working_set={values.get('benchmark_working_set', 'unknown')}",
         f"sample_count={values.get('sample_count', 'unknown')}",
         f"warmup_count={values.get('warmup_count', 'unknown')}",
+        "min_sample_seconds_required="
+        f"{values.get('min_sample_seconds_required', 'unknown')}",
+        "min_observed_sample_seconds="
+        f"{values.get('min_observed_sample_seconds', 'unknown')}",
+        "median_observed_sample_seconds="
+        f"{values.get('median_observed_sample_seconds', 'unknown')}",
+        f"measurement_quality={values.get('measurement_quality', 'unknown')}",
         f"glibc_median_ops_per_sec={glibc_median:.3f}",
         f"system_mimalloc_median_ops_per_sec={mimalloc_median:.3f}",
         f"glibc_vs_mimalloc_ratio={ratio(glibc_median, mimalloc_median)}",
@@ -356,11 +365,18 @@ def emit_summary(compare_report: Path, out: Path) -> None:
             "hook_installed=0",
             "global_allocator_product_claim=0",
             "winner_claim=0",
-            "summary=ok",
+            "summary="
+            f"{'ok' if values.get('measurement_quality', 'ok') == 'ok' else 'measurement_too_short'}",
         ]
     )
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(out.read_text(encoding="utf-8"), end="")
+    if values.get("measurement_quality", "ok") != "ok":
+        raise SystemExit(
+            "measurement quality is too short for keeper comparison; "
+            f"min_observed_sample_seconds={values.get('min_observed_sample_seconds', 'unknown')}, "
+            f"required={values.get('min_sample_seconds_required', 'unknown')}"
+        )
 
 
 def main() -> int:
@@ -383,6 +399,15 @@ def main() -> int:
     )
     parser.add_argument("--sample-count", type=int, default=5)
     parser.add_argument("--warmup-count", type=int, default=1)
+    parser.add_argument(
+        "--min-sample-seconds",
+        type=float,
+        default=0.0,
+        help=(
+            "require every sampled bench run to last at least this many seconds; "
+            "0 preserves legacy smoke-sized probes"
+        ),
+    )
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--iters-per-thread", type=int, default=1000)
     parser.add_argument("--working-set", type=int, default=128)
@@ -397,6 +422,8 @@ def main() -> int:
     parser.add_argument("--replacement-front-match-workload-realloc-size", action="store_true")
     parser.add_argument("--replacement-front-match-hako-size-class", action="store_true")
     args = parser.parse_args()
+    if args.min_sample_seconds < 0.0:
+        raise SystemExit("--min-sample-seconds must be non-negative")
 
     if args.out_dir is None:
         args.out_dir = Path(f"{args.out}.artifacts.d")
