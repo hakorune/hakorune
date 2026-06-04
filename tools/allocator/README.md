@@ -38,6 +38,9 @@ hako_mimalloc_perf_attribution_report.py:
 hako_mimalloc_perf_attribution_support.py:
   shared perf attribution parsing/classification helpers only; no CLI or report rendering
 
+provider_package_export_bundle_render.py:
+  provider package bundle README/script rendering only; no package assembly or file I/O
+
 hako_mimalloc_algorithm_coverage_render.py:
   coverage text rendering only; no coverage computation or CLI orchestration
 
