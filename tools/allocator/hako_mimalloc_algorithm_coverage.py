@@ -640,6 +640,14 @@ def report_dict(
         "backend_store_shape_next_bridge",
         "split_symbol_or_classify_backend_store_shape",
     )
+    directarray_owner_instruction_shape_selected = str_field(
+        perf_attribution, "directarray_owner_instruction_shape_selected", "none"
+    )
+    directarray_owner_instruction_shape_next_bridge = str_field(
+        perf_attribution,
+        "directarray_owner_instruction_shape_next_bridge",
+        "collect_directarray_owner_instruction",
+    )
     inlined_hot_body_selected = str_field(
         perf_attribution, "inlined_hot_body_selected", "none"
     )
@@ -780,6 +788,11 @@ def report_dict(
             and inlined_hot_body_selected != "none"
         ):
             next_perf_owner_next_bridge = inlined_hot_body_split_next_bridge
+        elif (
+            backend_store_shape_selected == "direct_array_dominant_mixed_store_shape"
+            and directarray_owner_instruction_shape_selected != "none"
+        ):
+            next_perf_owner_next_bridge = directarray_owner_instruction_shape_next_bridge
         else:
             next_perf_owner_next_bridge = backend_store_shape_next_bridge
     elif primitive_hot_state_field_count > 0 and record_state_representation_delta_ready:
@@ -1121,6 +1134,17 @@ def report_dict(
             "backend_store_shape_observer_counter_store_percent",
             "0.00",
         ),
+        "perf_directarray_owner_instruction_shape_classifier_v0": int_field(
+            perf_attribution, "directarray_owner_instruction_shape_classifier_v0", 0
+        ),
+        "perf_directarray_owner_instruction_shape_selected": str_field(
+            perf_attribution, "directarray_owner_instruction_shape_selected", "none"
+        ),
+        "perf_directarray_owner_instruction_shape_next_bridge": str_field(
+            perf_attribution,
+            "directarray_owner_instruction_shape_next_bridge",
+            "collect_directarray_owner_instruction",
+        ),
         "perf_inlined_hot_body_classifier_v0": int_field(
             perf_attribution, "inlined_hot_body_classifier_v0", 0
         ),
@@ -1378,6 +1402,9 @@ def emit_text(data: dict[str, object]) -> None:
         "perf_backend_store_shape_public_or_proof_store_percent",
         "perf_backend_store_shape_direct_array_owner_store_percent",
         "perf_backend_store_shape_observer_counter_store_percent",
+        "perf_directarray_owner_instruction_shape_classifier_v0",
+        "perf_directarray_owner_instruction_shape_selected",
+        "perf_directarray_owner_instruction_shape_next_bridge",
         "perf_inlined_hot_body_classifier_v0",
         "perf_inlined_hot_body_selected",
         "perf_inlined_hot_body_next_bridge",

@@ -449,6 +449,21 @@ def _select_backend_store_shape(
     primitive = _count_bucket(fields, "primitive_hot_state")
     public_or_proof = _count_public_or_proof(fields)
     direct_array = _count_bucket(fields, "direct_array_owner")
+    if direct_array > 0 and primitive > 0:
+        if weighted_dominant_bucket == "direct_array_owner":
+            return (
+                "direct_array_dominant_mixed_store_shape",
+                "classify_directarray_owner_instruction_shape",
+            )
+        if weighted_dominant_bucket == "primitive_hot_state":
+            return (
+                "primitive_dominant_directarray_mixed_store_shape",
+                "classify_backend_store_shape_for_state_write_elision",
+            )
+        return (
+            "mixed_primitive_and_directarray_store_shape",
+            "split_directarray_owner_stores_from_primitive_hot_state_stores",
+        )
     if primitive > 0 and public_or_proof > 0:
         if weighted_dominant_bucket == "primitive_hot_state":
             return (
@@ -475,6 +490,33 @@ def _select_backend_store_shape(
             "classify_directarray_owner_instruction_shape",
         )
     return "unknown_store_shape", "rerun_perf_with_wider_context"
+
+
+def _select_directarray_owner_instruction_shape(
+    instruction: AnnotatedInstruction | None,
+    field_offsets: dict[int, str],
+) -> tuple[str, str]:
+    if instruction is None:
+        return "none", "collect_directarray_owner_instruction"
+    fields = fields_from_hint(_field_hints_for_asm(instruction.asm, field_offsets))
+    if not fields or not any(
+        bucket_for_field(field) == "direct_array_owner" for field in fields
+    ):
+        return "none", "collect_directarray_owner_instruction"
+    if instruction.mnemonic in {"incq", "decq"}:
+        return (
+            "directarray_owner_handle_field_refcount_like",
+            "classify_handle_field_materialization_or_owner_handle_loads",
+        )
+    if _is_store_like(instruction):
+        return (
+            "directarray_owner_handle_field_store_like",
+            "classify_directarray_owner_handle_store_site",
+        )
+    return (
+        "directarray_owner_field_access_like",
+        "classify_directarray_owner_field_access_site",
+    )
 
 
 def _sum_matching(
@@ -694,6 +736,9 @@ def emit_report(args: argparse.Namespace) -> str:
             hot_store_dominant_bucket,
         )
     )
+    directarray_owner_instruction_shape, directarray_owner_next_bridge = (
+        _select_directarray_owner_instruction_shape(top_instruction, field_offsets)
+    )
 
     symbol_attribution_available = (
         direct_array_symbol_pct > 0.0 or page_model_symbol_pct > 0.0
@@ -758,6 +803,9 @@ def emit_report(args: argparse.Namespace) -> str:
         f"backend_store_shape_direct_array_owner_store_percent={hot_store_bucket_weights.get('direct_array_owner', 0.0):.2f}",
         f"backend_store_shape_observer_counter_store_percent={hot_store_bucket_weights.get('observer_counter', 0.0):.2f}",
         f"backend_store_shape_unknown_store_percent={hot_store_bucket_weights.get('unknown', 0.0):.2f}",
+        "directarray_owner_instruction_shape_classifier_v0=1",
+        f"directarray_owner_instruction_shape_selected={directarray_owner_instruction_shape}",
+        f"directarray_owner_instruction_shape_next_bridge={directarray_owner_next_bridge}",
         "inlined_hot_body_classifier_v0=1",
         f"inlined_hot_body_selected={hot_inline_owner}",
         f"inlined_hot_body_next_bridge={hot_inline_owner_next_bridge}",
