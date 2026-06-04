@@ -47,6 +47,10 @@ hakozuna_mixed_ws_gap_summary.py:
 hakozuna_mixed_ws_gap_summary_report.py:
   gap-ladder report rendering only; no CLI orchestration or file writing
 
+hakozuna_mixed_ws_gap_summary_support.py:
+  gap-ladder KV parsing, ratio math, and subject row extraction only; no
+  CLI orchestration or file writing
+
 hako_mimalloc_perf_attribution_report.py:
   perf attribution report rendering only; no perf parsing or CLI orchestration
 
