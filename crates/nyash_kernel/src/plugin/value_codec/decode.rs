@@ -1,6 +1,8 @@
 use super::borrowed_handle::maybe_borrow_string_handle;
+#[cfg(test)]
+use crate::plugin::value_demand::CODEC_GENERIC;
 use crate::plugin::value_demand::{
-    DemandSet, CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING, CODEC_GENERIC,
+    DemandSet, CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING,
     CODEC_MAP_KEY_BORROW_STRING, CODEC_MAP_VALUE_BORROW_STRING,
 };
 use nyash_rust::{
@@ -11,8 +13,7 @@ use nyash_rust::{
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub(crate) enum CodecProfile {
-    #[allow(dead_code)]
-    // Phase 291x-127: generic profile is retained for test/compat decode entrypoints.
+    #[cfg(test)]
     Generic,
     ArrayFastBorrowString,
     ArrayBorrowStringOnly,
@@ -24,6 +25,7 @@ impl CodecProfile {
     #[inline(always)]
     pub(crate) const fn demand(self) -> DemandSet {
         match self {
+            #[cfg(test)]
             Self::Generic => CODEC_GENERIC,
             Self::ArrayFastBorrowString => CODEC_ARRAY_FAST_BORROW_STRING,
             Self::ArrayBorrowStringOnly => CODEC_ARRAY_BORROW_STRING_ONLY,
@@ -38,7 +40,7 @@ impl CodecProfile {
     }
 }
 
-// Internal-only carrier for array fast decode.
+// Internal-only decoded value for array fast-path decode.
 // Public ABI rows must use canonical value classes from docs, not this enum directly.
 pub(crate) enum ArrayFastDecodedValue {
     ImmediateI64(i64),
@@ -122,8 +124,6 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                 },
             );
         }
-        // Phase-29cc route lock: map keys intentionally share the scalar-prefer
-        // string-alias contract, but keep their own profile name at the call site.
         let scalar_prefer = profile.keeps_string_alias_and_prefers_scalar();
         return handles::with_handle_caller(
             arg as u64,

@@ -1,7 +1,7 @@
-//! Runtime-private bridge from named demand to executor lane action.
+//! Runtime-private selector from named demand to a concrete storage action.
 //!
 //! MIR/lowering owns legality and provenance. This module only turns an already
-//! selected `DemandSet` into the concrete runtime action used by executor code.
+//! selected `DemandSet` into the concrete runtime action used by storage code.
 
 use super::value_demand::{
     DemandSet, StorageDemand, ValueDemand, ARRAY_TEXT_DEGRADE_GENERIC, ARRAY_TEXT_OWNED_CELL,

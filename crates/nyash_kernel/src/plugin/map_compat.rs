@@ -1,32 +1,31 @@
-use super::map_debug::map_debug_enabled;
+use super::map_key_codec::{map_key_string_from_any, map_key_string_from_i64};
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
-use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
+use super::map_slot_load::map_slot_load_str;
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
+use std::sync::OnceLock;
 
-// Compat-only exports consumed by historical pure/legacy surfaces.
-// Keep this file as quarantine for the legacy `nyash.map.*` ABI names; current
-// MapBox surface authoring lives in `src/boxes/map_surface_catalog.rs` and the
-// active source owners stay in the vm-hako/selfhost-runtime lanes.
-// entry_count_h: compatibility alias for historical callers.
-#[export_name = "nyash.map.entry_count_h"]
-pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
-    super::map_substrate::map_entry_count_raw(handle)
-}
+static DEBUG_ENABLED: OnceLock<bool> = OnceLock::new();
 
-// size: compatibility observer (handle) -> i64
-#[export_name = "nyash.map.size_h"]
-pub extern "C" fn nyash_map_size_h(handle: i64) -> i64 {
-    super::map_substrate::map_entry_count_raw(handle)
-}
+// entry_count_h / size_h: historical alias pair.
+crate::nyash_export_i64_alias!(nyash_map_entry_count_h, "nyash.map.entry_count_h", (handle: i64), {
+    super::map_aliases::map_entry_count_raw(handle)
+});
+
+// size: handle -> entry count
+crate::nyash_export_i64_alias!(nyash_map_size_h, "nyash.map.size_h", (handle: i64), {
+    super::map_aliases::map_entry_count_raw(handle)
+});
 
 // get_h: (map_handle, key_i64) -> value_handle
 #[export_name = "nyash.map.get_h"]
 pub extern "C" fn nyash_map_get_h(handle: i64, key: i64) -> i64 {
-    if map_debug_enabled() {
+    let enabled = crate::env_flags::flag_on_cached(&DEBUG_ENABLED, "NYASH_LLVM_MAP_DEBUG");
+    if enabled {
         eprintln!("[MAP] get_h(handle={}, key={})", handle, key);
     }
-    let out = map_slot_load_i64(handle, key);
-    if map_debug_enabled() {
+    let key_str = map_key_string_from_i64(key);
+    let out = map_slot_load_str(handle, &key_str);
+    if enabled {
         eprintln!("[MAP] get_h => handle {}", out);
     }
     out
@@ -35,11 +34,13 @@ pub extern "C" fn nyash_map_get_h(handle: i64, key: i64) -> i64 {
 // get_hh: (map_handle, key_handle) -> value_handle
 #[export_name = "nyash.map.get_hh"]
 pub extern "C" fn nyash_map_get_hh(handle: i64, key_any: i64) -> i64 {
-    if map_debug_enabled() {
+    let enabled = crate::env_flags::flag_on_cached(&DEBUG_ENABLED, "NYASH_LLVM_MAP_DEBUG");
+    if enabled {
         eprintln!("[MAP] get_hh(handle={}, key_any={})", handle, key_any);
     }
-    let out = map_slot_load_any(handle, key_any);
-    if map_debug_enabled() {
+    let key_str = map_key_string_from_any(key_any);
+    let out = map_slot_load_str(handle, &key_str);
+    if enabled {
         eprintln!("[MAP] get_hh => handle {}", out);
     }
     out
@@ -48,12 +49,13 @@ pub extern "C" fn nyash_map_get_hh(handle: i64, key_any: i64) -> i64 {
 // set_h: (map_handle, key_i64, val) -> i64 (ignored/0)
 #[export_name = "nyash.map.set_h"]
 pub extern "C" fn nyash_map_set_h(handle: i64, key: i64, val: i64) -> i64 {
-    if map_debug_enabled() {
+    let enabled = crate::env_flags::flag_on_cached(&DEBUG_ENABLED, "NYASH_LLVM_MAP_DEBUG");
+    if enabled {
         eprintln!("[MAP] set_h(handle={}, key={}, val={})", handle, key, val);
     }
     let applied = map_slot_store_i64_any(handle, key, val);
-    if map_debug_enabled() {
-        let size = super::map_substrate::map_entry_count_raw(handle);
+    if enabled {
+        let size = super::map_aliases::map_entry_count_raw(handle);
         eprintln!("[MAP] set_h applied={} size={}", applied, size);
     }
     0
@@ -106,35 +108,35 @@ mod tests {
     }
 
     #[test]
-    fn map_set_h_legacy_completion_code_and_mutation_roundtrip() {
+    fn map_set_h_compat_completion_code_and_mutation_roundtrip() {
         let map_handle = new_map_handle();
         let key = -70001;
-        let value_handle = string_handle("legacy-set-h");
+        let value_handle = string_handle("compat-set-h");
 
         assert_eq!(nyash_map_set_h(map_handle, key, value_handle), 0);
         assert_eq!(nyash_map_has_hh(map_handle, key), 1);
 
         let got_handle = nyash_map_get_hh(map_handle, key);
         assert!(got_handle > 0, "map get_hh must return a value handle");
-        assert_eq!(decode_string_from_handle(got_handle), "legacy-set-h");
+        assert_eq!(decode_string_from_handle(got_handle), "compat-set-h");
     }
 
     #[test]
-    fn map_set_hh_legacy_completion_code_and_mutation_roundtrip() {
+    fn map_set_hh_compat_completion_code_and_mutation_roundtrip() {
         let map_handle = new_map_handle();
-        let key_handle = string_handle("legacy-key-hh");
-        let value_handle = string_handle("legacy-value-hh");
+        let key_handle = string_handle("compat-key-hh");
+        let value_handle = string_handle("compat-value-hh");
 
         assert_eq!(nyash_map_set_hh(map_handle, key_handle, value_handle), 0);
         assert_eq!(nyash_map_has_hh(map_handle, key_handle), 1);
 
         let got_handle = nyash_map_get_hh(map_handle, key_handle);
         assert!(got_handle > 0, "map get_hh must return a value handle");
-        assert_eq!(decode_string_from_handle(got_handle), "legacy-value-hh");
+        assert_eq!(decode_string_from_handle(got_handle), "compat-value-hh");
     }
 
     #[test]
-    fn map_get_h_legacy_reads_integer_key_storage() {
+    fn map_get_h_compat_reads_integer_key_storage() {
         let map_handle = new_map_handle();
         let value_handle = string_handle("compat-hi");
 
@@ -146,7 +148,7 @@ mod tests {
     }
 
     #[test]
-    fn map_get_hh_legacy_reads_handle_key_storage() {
+    fn map_get_hh_compat_reads_handle_key_storage() {
         let map_handle = new_map_handle();
         let key_handle = string_handle("compat-key");
         let value_handle = string_handle("compat-value");
@@ -159,7 +161,7 @@ mod tests {
     }
 
     #[test]
-    fn map_size_h_legacy_alias_reads_entry_count() {
+    fn map_size_h_compat_alias_reads_entry_count() {
         let map_handle = new_map_handle();
         let key_a = string_handle("size-a");
         let key_b = string_handle("size-b");
@@ -171,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn map_entry_count_h_legacy_alias_reads_entry_count() {
+    fn map_entry_count_h_compat_alias_reads_entry_count() {
         let map_handle = new_map_handle();
         let key_a = string_handle("entry-a");
         let key_b = string_handle("entry-b");

@@ -1,12 +1,9 @@
 // ---- Instance field helpers for LLVM lowering (handle-based) ----
 use super::handle_cache::with_instance_box;
+use crate::c_string::c_string_text;
 
 fn instance_field_name(name: *const i8) -> Option<String> {
-    if name.is_null() {
-        return None;
-    }
-    let name = unsafe { std::ffi::CStr::from_ptr(name) };
-    Some(name.to_str().ok()?.to_string())
+    c_string_text(name).map(str::to_string)
 }
 
 fn instance_integer_field_value(
@@ -99,13 +96,14 @@ pub extern "C" fn nyash_instance_get_field_h(handle: i64, name: *const i8) -> i6
     if handle <= 0 || name.is_null() {
         return 0;
     }
-    let name = unsafe { std::ffi::CStr::from_ptr(name) };
-    let Ok(field) = name.to_str() else { return 0 };
+    let Some(field) = instance_field_name(name) else {
+        return 0;
+    };
     with_instance_box(handle, |inst| {
         if inst.is_finalized() {
             return 0;
         }
-        if let Some(shared) = inst.get_field(field) {
+        if let Some(shared) = inst.get_field(&field) {
             let arc: std::sync::Arc<dyn nyash_rust::box_trait::NyashBox> =
                 std::sync::Arc::from(shared);
             let h = nyash_rust::runtime::host_handles::to_handle_arc(arc) as u64;
@@ -180,8 +178,9 @@ pub extern "C" fn nyash_instance_set_field_h(handle: i64, name: *const i8, val_h
     if handle <= 0 || name.is_null() {
         return 0;
     }
-    let name = unsafe { std::ffi::CStr::from_ptr(name) };
-    let Ok(field) = name.to_str() else { return 0 };
+    let Some(field) = instance_field_name(name) else {
+        return 0;
+    };
     with_instance_box(handle, |inst| {
         if inst.is_finalized() {
             return 0;
@@ -189,7 +188,7 @@ pub extern "C" fn nyash_instance_set_field_h(handle: i64, name: *const i8, val_h
         if val_h > 0 {
             if let Some(val) = nyash_rust::runtime::host_handles::get(val_h as u64) {
                 let shared: nyash_rust::box_trait::SharedNyashBox = std::sync::Arc::clone(&val);
-                let _ = inst.set_field(field, shared);
+                let _ = inst.set_field(&field, shared);
             }
         }
         0
@@ -264,26 +263,26 @@ pub extern "C" fn nyash_instance_set_float_field_h(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::c_string::cstring;
     use nyash_rust::instance_v2::InstanceBox;
     use nyash_rust::runtime::host_handles;
     use nyash_rust::{
         box_trait::{BoolBox, IntegerBox, NyashBox},
         boxes::FloatBox,
     };
-    use std::ffi::CString;
     use std::sync::Arc;
 
     #[test]
     fn instance_get_field_invalid_input_returns_zero() {
         assert_eq!(nyash_instance_get_field_h(0, std::ptr::null()), 0);
-        let name = CString::new("x").unwrap();
+        let name = cstring("x");
         assert_eq!(nyash_instance_get_field_h(0, name.as_ptr()), 0);
     }
 
     #[test]
     fn instance_set_field_invalid_input_returns_zero() {
         assert_eq!(nyash_instance_set_field_h(0, std::ptr::null(), 0), 0);
-        let name = CString::new("x").unwrap();
+        let name = cstring("x");
         assert_eq!(nyash_instance_set_field_h(0, name.as_ptr(), 0), 0);
     }
 
@@ -304,7 +303,7 @@ mod tests {
 
         let value_arc: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(7));
         let value_h = host_handles::to_handle_arc(value_arc) as i64;
-        let name = CString::new("x").unwrap();
+        let name = cstring("x");
 
         assert_eq!(
             nyash_instance_set_field_h(inst_h, name.as_ptr(), value_h),
@@ -319,7 +318,7 @@ mod tests {
         let _ = inst.set_field_ng("x".to_string(), nyash_rust::value::NyashValue::Integer(42));
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("x").unwrap();
+        let name = cstring("x");
 
         assert_eq!(nyash_instance_get_i64_field_h(inst_h, name.as_ptr()), 42);
     }
@@ -329,7 +328,7 @@ mod tests {
         let inst = InstanceBox::new("T".to_string(), vec!["x".to_string()], Default::default());
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("x").unwrap();
+        let name = cstring("x");
 
         assert_eq!(nyash_instance_set_i64_field_h(inst_h, name.as_ptr(), 77), 0);
         let stored = with_instance_box(inst_h, |inst| inst.get_field_ng("x")).flatten();
@@ -352,7 +351,7 @@ mod tests {
         );
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("flag").unwrap();
+        let name = cstring("flag");
 
         assert_eq!(nyash_instance_get_bool_field_h(inst_h, name.as_ptr()), 1);
     }
@@ -371,7 +370,7 @@ mod tests {
         );
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("flag").unwrap();
+        let name = cstring("flag");
 
         assert_eq!(nyash_instance_get_bool_field_h(inst_h, name.as_ptr()), 1);
     }
@@ -385,7 +384,7 @@ mod tests {
         );
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("flag").unwrap();
+        let name = cstring("flag");
 
         assert_eq!(nyash_instance_set_bool_field_h(inst_h, name.as_ptr(), 7), 0);
         let stored = with_instance_box(inst_h, |inst| inst.get_field_ng("flag")).flatten();
@@ -408,7 +407,7 @@ mod tests {
         );
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("value").unwrap();
+        let name = cstring("value");
 
         assert!(
             (nyash_instance_get_float_field_h(inst_h, name.as_ptr()) - 3.5).abs() < f64::EPSILON
@@ -429,7 +428,7 @@ mod tests {
         );
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("value").unwrap();
+        let name = cstring("value");
 
         assert!(
             (nyash_instance_get_float_field_h(inst_h, name.as_ptr()) - 1.25).abs() < f64::EPSILON
@@ -445,7 +444,7 @@ mod tests {
         );
         let inst_arc: Arc<dyn NyashBox> = Arc::new(inst);
         let inst_h = host_handles::to_handle_arc(inst_arc) as i64;
-        let name = CString::new("value").unwrap();
+        let name = cstring("value");
 
         assert_eq!(
             nyash_instance_set_float_field_h(inst_h, name.as_ptr(), 6.25),

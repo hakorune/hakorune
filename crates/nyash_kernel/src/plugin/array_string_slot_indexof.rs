@@ -1,5 +1,5 @@
-use super::super::array_guard::valid_handle_idx;
 use super::super::array_handle_cache::with_array_box;
+use super::super::handle_cache::valid_handle_idx;
 use super::array_string_slot_helpers::{
     array_text_read_ref_demand, string_indexof_fast_str, with_compiler_const_utf8_ptr_len,
     CachedNeedle, ARRAY_STRING_INDEXOF_NEEDLE_CACHE,

@@ -1,9 +1,9 @@
-use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::with_array_box;
 use super::array_slot_backend;
 use super::array_string_slot::{
     array_string_store_handle_at, array_string_store_kernel_text_slot_at,
 };
+use super::handle_cache::valid_handle_idx;
 use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
 use super::value_demand::ARRAY_GENERIC_STORE_ANY;
 use super::KernelTextSlot;
@@ -75,9 +75,6 @@ pub(super) fn array_slot_store_f64(handle: i64, idx: i64, value_f64: f64) -> i64
 
 #[inline(always)]
 pub(super) fn array_slot_store_string_handle(handle: i64, idx: i64, value_h: i64) -> i64 {
-    // phase-151x visibility lock:
-    // executor leaf for the current concrete `nyash.array.set_his` path that
-    // reads as canonical `store.array.str`.
     array_string_store_handle_at(handle, idx, value_h)
 }
 

@@ -1,8 +1,8 @@
-use super::super::array_guard::valid_handle_idx;
+use super::super::handle_cache::valid_handle_idx;
 use super::super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::super::value_codec::{
-    maybe_store_non_string_box_from_verified_source, with_array_store_str_source,
-    ArrayStoreStrSource, KernelTextSlot, StringHandleSourceKind, StringLikeProof,
+    int_arg_to_box, with_array_store_str_source, ArrayStoreStrSource, KernelTextSlot,
+    StringHandleSourceKind, StringLikeProof,
 };
 use super::super::value_lane::{
     array_text_cell_store_lane_plan, array_text_degrade_generic_lane_plan, ValueLaneAction,
@@ -14,12 +14,6 @@ use super::array_string_slot_helpers::{
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use nyash_rust::{boxes::array::ArrayBox, runtime::host_handles as handles};
-
-#[cfg_attr(feature = "perf-observe", inline(never))]
-#[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn capture_store_array_str_source(value_h: i64) -> (StringHandleSourceKind, ArrayStoreStrSource) {
-    with_array_store_str_source(value_h, |source_kind, source| (source_kind, source))
-}
 
 #[inline(always)]
 fn store_array_str_plan_source_kind(
@@ -103,18 +97,6 @@ fn record_store_array_str_contract(
     }
 }
 
-#[inline(always)]
-fn owned_text_from_array_store_source(source: ArrayStoreStrSource) -> Option<String> {
-    match source {
-        ArrayStoreStrSource::StringLike(source_text) => Some(
-            source_text
-                .with_text(|text| text.as_str().to_owned())
-                .unwrap_or_else(|| source_text.copy_owned_text_cold()),
-        ),
-        ArrayStoreStrSource::OtherObject | ArrayStoreStrSource::Missing => None,
-    }
-}
-
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
 fn execute_store_array_str_contract_on_array(
@@ -124,7 +106,6 @@ fn execute_store_array_str_contract_on_array(
     source_kind: StringHandleSourceKind,
     lane_action: ValueLaneAction,
     source: ArrayStoreStrSource,
-    drop_epoch: u64,
 ) -> i64 {
     let idx_usize = idx as usize;
     let len = arr.len();
@@ -134,7 +115,14 @@ fn execute_store_array_str_contract_on_array(
     record_store_array_str_contract(idx_usize, len, value_h, source_kind, lane_action, &source);
     match lane_action {
         ValueLaneAction::TextCellResidence => {
-            let Some(value) = owned_text_from_array_store_source(source) else {
+            let Some(value) = (match source {
+                ArrayStoreStrSource::StringLike(source_text) => Some(
+                    source_text
+                        .with_text(|text| text.as_str().to_owned())
+                        .expect("string-like array store source should materialize"),
+                ),
+                ArrayStoreStrSource::OtherObject | ArrayStoreStrSource::Missing => None,
+            }) else {
                 return 0;
             };
             if arr.slot_store_text_raw(idx, value) {
@@ -144,7 +132,7 @@ fn execute_store_array_str_contract_on_array(
             }
         }
         ValueLaneAction::GenericBoxResidence => {
-            let value = maybe_store_non_string_box_from_verified_source(value_h, drop_epoch);
+            let value = int_arg_to_box(value_h);
             if arr.slot_store_box_raw(idx, value) {
                 1
             } else {
@@ -170,61 +158,28 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
         };
         observe::record_store_array_str_cache_probe(kind);
     }
-    let (source_kind, source) = capture_store_array_str_source(value_h);
-    let lane_plan = select_store_array_str_lane_plan(source_kind);
-    super::super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
-        execute_store_array_str_contract_on_array(
-            arr,
-            idx,
-            value_h,
-            source_kind,
-            lane_plan.action,
-            source,
-            drop_epoch,
-        )
+    with_array_store_str_source(value_h, |source_kind, source| {
+        let lane_plan = select_store_array_str_lane_plan(source_kind);
+        super::super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
+            execute_store_array_str_contract_on_array(
+                arr,
+                idx,
+                value_h,
+                source_kind,
+                lane_plan.action,
+                source,
+            )
+        })
+        .unwrap_or(0)
     })
-    .unwrap_or(0)
 }
 
 #[inline(always)]
 pub(in super::super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) -> i64 {
     // The MIR-level `store.array.str` contract chooses the text source and
-    // publication boundary. Runtime only stores text residence or degrades
+    // storage action. Runtime only stores text residence or degrades
     // mixed/generic arrays back to Boxed.
     execute_store_array_str_contract(handle, idx, value_h)
-}
-
-#[cfg_attr(feature = "perf-observe", inline(never))]
-#[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn execute_store_array_str_kernel_text_slot_boundary(
-    arr: &ArrayBox,
-    idx: i64,
-    slot: &mut KernelTextSlot,
-) -> i64 {
-    let idx_usize = idx as usize;
-    let len = arr.len();
-    if idx_usize > len {
-        return 0;
-    }
-    let Some(value) = slot
-        .take_materialized_owned_bytes()
-        .map(|bytes| bytes.into_string())
-    else {
-        return 0;
-    };
-    if observe::enabled() {
-        if idx_usize < len {
-            observe::record_store_array_str_existing_slot();
-        } else {
-            observe::record_store_array_str_append_slot();
-        }
-        observe::record_store_array_str_source_store();
-    }
-    if arr.slot_store_text_raw(idx, value) {
-        1
-    } else {
-        0
-    }
 }
 
 #[inline(always)]
@@ -239,9 +194,32 @@ pub(in super::super) fn array_string_store_kernel_text_slot_at(
     }
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx_usize = idx as usize;
+        let len = arr.len();
+        if idx_usize > len {
+            return 0;
+        }
+        let Some(value) = slot
+            .take_materialized_owned_bytes()
+            .map(|bytes| bytes.into_string())
+        else {
+            return 0;
+        };
         let lane_plan = array_text_cell_store_lane_plan();
         debug_assert_eq!(lane_plan.action, ValueLaneAction::TextCellResidence);
-        execute_store_array_str_kernel_text_slot_boundary(arr, idx, slot)
+        if observe::enabled() {
+            if idx_usize < len {
+                observe::record_store_array_str_existing_slot();
+            } else {
+                observe::record_store_array_str_append_slot();
+            }
+            observe::record_store_array_str_source_store();
+        }
+        if arr.slot_store_text_raw(idx, value) {
+            1
+        } else {
+            0
+        }
     })
     .unwrap_or(0)
 }

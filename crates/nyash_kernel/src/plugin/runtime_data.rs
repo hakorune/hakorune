@@ -1,13 +1,11 @@
-// RuntimeDataBox-compatible dynamic dispatch helpers.
+// RuntimeDataBox dynamic dispatch helpers.
 //
 // These exports bridge RuntimeDataBox method calls in AOT/LLVM to concrete
 // host boxes (ArrayBox/MapBox) without relying on static box-name guesses.
-// Manifest reading: all `nyash.runtime_data.*` rows are runtime-facade only.
+// Manifest reading: all `nyash.runtime_data.*` rows are route-only.
 
-use super::array_runtime_any::{
-    array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
-};
-use super::array_runtime_substrate::array_runtime_push_any;
+use super::array_slot_append::array_slot_append_any;
+use super::handle_cache::valid_handle;
 use super::handle_cache::{with_array_or_map, ArrayOrMapBoxKind};
 use super::map_runtime_data::{
     map_runtime_data_get_any_key, map_runtime_data_has_any_key, map_runtime_data_set_any_key,
@@ -21,12 +19,42 @@ enum RuntimeDataReceiverKind {
 
 #[inline(always)]
 fn classify_runtime_data_receiver(recv_h: i64) -> Option<RuntimeDataReceiverKind> {
-    // RuntimeData stays facade-only: it owns the Array/Map branch decision here,
-    // then delegates behavior to the array/map runtime facades.
+    // RuntimeData stays route-only: it owns the Array/Map branch decision here,
+    // then delegates behavior to the array/map handlers.
     with_array_or_map(recv_h, |kind| match kind {
         ArrayOrMapBoxKind::Array => RuntimeDataReceiverKind::Array,
         ArrayOrMapBoxKind::Map => RuntimeDataReceiverKind::Map,
     })
+}
+
+pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
+    if !valid_handle(handle) {
+        return 0;
+    }
+    let Some(idx) = super::value_codec::any_arg_to_index(key_any) else {
+        return 0;
+    };
+    super::array_slot_load::array_slot_load_encoded_i64(handle, idx)
+}
+
+pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64) -> i64 {
+    if !valid_handle(handle) {
+        return 0;
+    }
+    let Some(idx) = super::value_codec::any_arg_to_index(key_any) else {
+        return 0;
+    };
+    super::array_slot_store::array_slot_store_any(handle, idx, val_any)
+}
+
+pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
+    if !valid_handle(handle) {
+        return 0;
+    }
+    let Some(idx) = super::value_codec::any_arg_to_index(key_any) else {
+        return 0;
+    };
+    super::array_slot_load::array_slot_has_index(handle, idx)
 }
 
 // nyash.runtime_data.get_hh(recv_h, key_any) -> mixed runtime i64/handle value (or 0)
@@ -52,7 +80,7 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 }
 
 // nyash.runtime_data.has_hh(recv_h, key_any) -> 0/1
-// K2-core keeps array `has` on the runtime facade until a narrower raw seam is
+// K2-core keeps array `has` on the runtime route until a narrower raw seam is
 // explicitly accepted. Array bounds/missing-key remain fail-safe here.
 #[export_name = "nyash.runtime_data.has_hh"]
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
@@ -67,7 +95,7 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
 #[export_name = "nyash.runtime_data.push_hh"]
 pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
     match classify_runtime_data_receiver(recv_h) {
-        Some(RuntimeDataReceiverKind::Array) => array_runtime_push_any(recv_h, val_any),
+        Some(RuntimeDataReceiverKind::Array) => array_slot_append_any(recv_h, val_any),
         Some(RuntimeDataReceiverKind::Map) | None => 0,
     }
 }
@@ -75,6 +103,7 @@ pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::handle_registry_test_lock;
     use nyash_rust::box_trait::NyashBox;
     use nyash_rust::boxes::array::ArrayBox;
     use nyash_rust::boxes::basic::IntegerBox;
@@ -126,7 +155,7 @@ mod tests {
     }
 
     #[test]
-    fn runtime_data_array_has_keeps_runtime_facade_fail_safe_contract() {
+    fn runtime_data_array_has_keeps_route_fail_safe_contract() {
         let handle = new_array_handle();
         let string_key = new_string_handle("not-an-index");
 
@@ -147,7 +176,7 @@ mod tests {
 
         assert_eq!(nyash_runtime_data_push_hh(handle, original_h), 1);
 
-        // K2-core keeps non-i64 array keys on the runtime-data facade.
+        // K2-core keeps non-i64 array keys on the runtime route.
         // The current fallback contract remains fail-safe and must not mutate
         // the array when the key cannot be treated as an index.
         assert_eq!(nyash_runtime_data_get_hh(handle, string_key), 0);
@@ -156,7 +185,7 @@ mod tests {
     }
 
     #[test]
-    fn runtime_data_scalar_handle_keeps_facade_only_contract() {
+    fn runtime_data_scalar_handle_keeps_route_only_contract() {
         let scalar_h = new_int_handle(7);
 
         assert_eq!(nyash_runtime_data_get_hh(scalar_h, 0), 0);
@@ -180,7 +209,7 @@ mod tests {
     }
 
     #[test]
-    fn runtime_data_map_any_key_keeps_shared_facade_contract() {
+    fn runtime_data_map_any_key_keeps_shared_route_contract() {
         let handle = new_map_handle();
         let key = new_string_handle("map-any-key");
         let value = new_int_handle(77);
@@ -207,6 +236,7 @@ mod tests {
 
     #[test]
     fn runtime_data_map_string_value_reuses_cached_handle_after_source_drop() {
+        let _guard = handle_registry_test_lock();
         let handle = new_map_handle();
         let key = new_string_handle("map-string-cached-key");
         let value = new_string_handle("map-string-cached");
@@ -233,6 +263,7 @@ mod tests {
     #[test]
     fn runtime_data_map_read_records_cached_handle_hit_for_map_lane() {
         crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let _guard = handle_registry_test_lock();
             let handle = new_map_handle();
             let key = new_string_handle("map-observe-cached-key");
             let value = new_string_handle("map-observe-cached");
@@ -294,6 +325,7 @@ mod tests {
     #[test]
     fn runtime_data_map_read_records_cold_fallback_for_map_lane() {
         crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let _guard = handle_registry_test_lock();
             let handle = new_map_handle();
             let key = new_string_handle("map-observe-fallback-key");
             let value = new_string_handle("map-observe-fallback");
@@ -327,7 +359,7 @@ mod tests {
     }
 
     #[test]
-    fn runtime_data_map_immediate_zero_key_keeps_shared_facade_contract() {
+    fn runtime_data_map_immediate_zero_key_keeps_shared_route_contract() {
         let handle = new_map_handle();
         let value = new_int_handle(88);
 

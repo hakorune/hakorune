@@ -1,9 +1,11 @@
+use super::string_classify::VerifiedTextSource;
 use super::*;
 use crate::exports::string_view::StringViewBox;
 use crate::plugin::value_demand::{
     BORROWED_ALIAS_ENCODE, CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING,
     CODEC_GENERIC, CODEC_MAP_KEY_BORROW_STRING, CODEC_MAP_VALUE_BORROW_STRING,
 };
+use crate::test_support::handle_registry_test_lock;
 use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{IntegerBox, NyashBox, StringBox},
@@ -68,7 +70,7 @@ fn any_arg_to_box_string_handle_preserves_handle_semantics_in_runtime_i64() {
     let value_h = handles::to_handle_arc(value) as i64;
 
     let boxed = any_arg_to_box(value_h);
-    let out = box_to_runtime_i64(boxed);
+    let out = runtime_i64_from_box_ref(boxed.as_ref());
     assert!(out > 0);
 
     let out_obj = handles::get(out as u64).expect("runtime handle");
@@ -104,6 +106,7 @@ fn borrowed_alias_caches_runtime_handle_for_unpublished_keep() {
 
 #[test]
 fn retarget_borrowed_alias_invalidates_cached_runtime_handle() {
+    let _guard = handle_registry_test_lock();
     let old_value: Arc<dyn NyashBox> = Arc::new(StringBox::new("cached-old".to_string()));
     let mut alias = maybe_borrow_string_keep_with_epoch(
         SourceLifetimeKeep::string_box(old_value),
@@ -122,10 +125,10 @@ fn retarget_borrowed_alias_invalidates_cached_runtime_handle() {
         }
     });
 
-    assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
+    assert!(try_retarget_borrowed_string_slot_take_keep(
         &mut alias,
         new_h,
-        source_text,
+        source_text.into_keep(),
         handles::drop_epoch(),
     )
     .is_ok());
@@ -149,7 +152,7 @@ fn any_arg_to_box_integer_handle_keeps_immediate_runtime_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(77));
     let value_h = handles::to_handle_arc(value) as i64;
     let boxed = any_arg_to_box(value_h);
-    assert_eq!(box_to_runtime_i64(boxed), 77);
+    assert_eq!(runtime_i64_from_box_ref(boxed.as_ref()), 77);
 }
 
 #[test]
@@ -157,18 +160,19 @@ fn any_arg_to_box_array_fast_profile_reuses_live_source_handle_for_string() {
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("array-live".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;
     let boxed = any_arg_to_box_with_profile(value_h, CodecProfile::ArrayFastBorrowString);
-    assert_eq!(box_to_runtime_i64(boxed), value_h);
+    assert_eq!(runtime_i64_from_box_ref(boxed.as_ref()), value_h);
 }
 
 #[test]
 fn any_arg_to_box_array_fast_profile_recreates_handle_when_source_was_dropped() {
+    let _guard = handle_registry_test_lock();
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("array-recreate".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;
     let boxed = any_arg_to_box_with_profile(value_h, CodecProfile::ArrayFastBorrowString);
 
     handles::drop_handle(value_h as u64);
 
-    let out_h = box_to_runtime_i64(boxed);
+    let out_h = runtime_i64_from_box_ref(boxed.as_ref());
     assert!(out_h > 0);
     let out_obj = handles::get(out_h as u64).expect("runtime handle after source drop");
     let out_sb = out_obj
@@ -184,7 +188,7 @@ fn any_arg_to_box_with_profile_array_fast_contract() {
     let value_h = handles::to_handle_arc(value) as i64;
 
     let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::ArrayFastBorrowString);
-    assert_eq!(box_to_runtime_i64(via_profile), value_h);
+    assert_eq!(runtime_i64_from_box_ref(via_profile.as_ref()), value_h);
 }
 
 #[test]
@@ -215,7 +219,7 @@ fn any_arg_to_box_map_key_profile_keeps_scalar_prefer_contract() {
     let value_h = handles::to_handle_arc(value) as i64;
 
     let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::MapKeyBorrowString);
-    assert_eq!(box_to_runtime_i64(via_profile), 77);
+    assert_eq!(runtime_i64_from_box_ref(via_profile.as_ref()), 77);
 }
 
 #[test]
@@ -248,7 +252,7 @@ fn any_arg_to_box_map_value_profile_keeps_non_string_handle_semantics() {
     let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::MapValueBorrowString);
     assert!(via_profile.borrowed_handle_source_fast().is_none());
 
-    let out_h = box_to_runtime_i64(via_profile);
+    let out_h = runtime_i64_from_box_ref(via_profile.as_ref());
     assert!(out_h > 0);
     let out_obj = handles::get(out_h as u64).expect("map profile object handle");
     assert!(out_obj.as_any().downcast_ref::<ArrayBox>().is_some());
@@ -256,6 +260,7 @@ fn any_arg_to_box_map_value_profile_keeps_non_string_handle_semantics() {
 
 #[test]
 fn any_arg_to_index_missing_handle_falls_back_to_immediate() {
+    let _guard = handle_registry_test_lock();
     with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
         let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(314));
         let h = handles::to_handle_arc(value) as i64;
@@ -266,6 +271,7 @@ fn any_arg_to_index_missing_handle_falls_back_to_immediate() {
 
 #[test]
 fn any_arg_to_box_with_profile_missing_handle_keeps_immediate_contract() {
+    let _guard = handle_registry_test_lock();
     with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
         let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("drop-me".to_string()));
         let h = handles::to_handle_arc(value) as i64;
@@ -275,10 +281,10 @@ fn any_arg_to_box_with_profile_missing_handle_keeps_immediate_contract() {
         let via_array_fast = any_arg_to_box_with_profile(h, CodecProfile::ArrayFastBorrowString);
         let via_map_key = any_arg_to_box_with_profile(h, CodecProfile::MapKeyBorrowString);
         let via_map_value = any_arg_to_box_with_profile(h, CodecProfile::MapValueBorrowString);
-        assert_eq!(box_to_runtime_i64(via_generic), h);
-        assert_eq!(box_to_runtime_i64(via_array_fast), h);
-        assert_eq!(box_to_runtime_i64(via_map_key), h);
-        assert_eq!(box_to_runtime_i64(via_map_value), h);
+        assert_eq!(runtime_i64_from_box_ref(via_generic.as_ref()), h);
+        assert_eq!(runtime_i64_from_box_ref(via_array_fast.as_ref()), h);
+        assert_eq!(runtime_i64_from_box_ref(via_map_key.as_ref()), h);
+        assert_eq!(runtime_i64_from_box_ref(via_map_value.as_ref()), h);
     });
 }
 
@@ -352,7 +358,11 @@ fn kernel_text_slot_objectize_boundary_consumes_owned_bytes_and_clears_slot() {
     let mut slot = KernelTextSlot::empty();
     freeze_owned_string_into_slot(&mut slot, "slot-objectize".to_string());
 
-    let arc = objectize_kernel_text_slot_stable_box(&mut slot).expect("stable box");
+    let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(
+        slot.take_materialized_owned_bytes()
+            .expect("stable bytes")
+            .into_string(),
+    ));
     let sb = arc
         .as_any()
         .downcast_ref::<StringBox>()
@@ -374,6 +384,7 @@ fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
 
 #[test]
 fn with_array_store_str_source_missing_handle_uses_missing_contract() {
+    let _guard = handle_registry_test_lock();
     with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
         let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(12));
         let value_h = handles::to_handle_arc(value) as i64;
@@ -402,10 +413,10 @@ fn retarget_borrowed_alias_from_verified_text_source_updates_slot() {
         }
     });
 
-    assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
+    assert!(try_retarget_borrowed_string_slot_take_keep(
         &mut slot,
         new_h,
-        source_text,
+        source_text.into_keep(),
         handles::drop_epoch(),
     )
     .is_ok());
@@ -414,7 +425,7 @@ fn retarget_borrowed_alias_from_verified_text_source_updates_slot() {
             .equals(&StringBox::new("retarget-new".to_string()))
             .value
     );
-    assert_eq!(box_to_runtime_i64(slot), new_h);
+    assert_eq!(runtime_i64_from_box_ref(slot.as_ref()), new_h);
 }
 
 #[test]
@@ -435,14 +446,17 @@ fn repeated_retarget_borrowed_alias_from_verified_text_source_keeps_latest_value
             }
         });
 
-        assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
+        assert!(try_retarget_borrowed_string_slot_take_keep(
             &mut slot,
             next_h,
-            source_text,
+            source_text.into_keep(),
             handles::drop_epoch(),
         )
         .is_ok());
-        assert_eq!(box_to_runtime_i64(slot.as_ref().clone_box()), next_h);
+        assert_eq!(
+            runtime_i64_from_box_ref(slot.as_ref().clone_box().as_ref()),
+            next_h
+        );
         assert!(
             slot.as_ref()
                 .equals(&StringBox::new(format!("retarget-{idx}")))
@@ -466,15 +480,18 @@ fn verified_text_source_err_keeps_string_view_semantics() {
     });
     let mut slot: Box<dyn NyashBox> = Box::new(IntegerBox::new(7));
 
-    let source_text = try_retarget_borrowed_string_slot_take_verified_text_source(
+    let proof = source_text.proof();
+    let source_text = match try_retarget_borrowed_string_slot_take_keep(
         &mut slot,
         view_h,
-        source_text,
+        source_text.into_keep(),
         handles::drop_epoch(),
-    )
-    .expect_err("non-borrowed slot should return source text");
+    ) {
+        Ok(()) => panic!("non-borrowed slot should return source text"),
+        Err(source_keep) => VerifiedTextSource::new(proof, source_keep),
+    };
     let boxed =
-        store_string_box_from_verified_text_source(view_h, source_text, handles::drop_epoch());
+        maybe_borrow_string_keep_with_epoch(source_text.into_keep(), view_h, handles::drop_epoch());
     let sb = boxed
         .as_any()
         .downcast_ref::<StringBox>()
@@ -496,12 +513,16 @@ fn verified_text_source_with_text_and_proof_preserves_string_view_context() {
         }
     });
 
-    let observed = source_text.with_text_and_proof(|text, proof| (text.to_string(), proof));
+    let proof = source_text.proof();
+    let observed = source_text.with_text(|text| (text.to_string(), proof));
     assert_eq!(
         observed,
         Some(("proof".to_string(), StringLikeProof::StringView))
     );
-    assert_eq!(source_text.copy_owned_text_cold(), "proof");
+    assert_eq!(
+        source_text.with_text(|text| text.to_string()),
+        Some("proof".to_string())
+    );
 }
 
 #[test]
@@ -516,12 +537,16 @@ fn verified_text_source_with_text_and_proof_preserves_string_box_context() {
         }
     });
 
-    let observed = source_text.with_text_and_proof(|text, proof| (text.to_string(), proof));
+    let proof = source_text.proof();
+    let observed = source_text.with_text(|text| (text.to_string(), proof));
     assert_eq!(
         observed,
         Some(("box-proof".to_string(), StringLikeProof::StringBox))
     );
-    assert_eq!(source_text.copy_owned_text_cold(), "box-proof");
+    assert_eq!(
+        source_text.with_text(|text| text.to_string()),
+        Some("box-proof".to_string())
+    );
 }
 
 #[test]
@@ -529,12 +554,12 @@ fn store_string_box_from_source_keep_owned_keeps_borrowed_alias_for_string_handl
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-owned-keep".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;
     let source_obj = handles::get(value_h as u64).expect("source string handle");
-    let boxed = store_string_box_from_source_keep_owned(
-        value_h,
+    let boxed = maybe_borrow_string_keep_with_epoch(
         SourceLifetimeKeep::string_box(source_obj),
+        value_h,
         handles::drop_epoch(),
     );
-    assert_eq!(box_to_runtime_i64(boxed), value_h);
+    assert_eq!(runtime_i64_from_box_ref(boxed.as_ref()), value_h);
 }
 
 #[test]
@@ -556,7 +581,7 @@ fn store_string_box_from_source_prefers_borrowed_alias_for_string_handles() {
             .equals(&StringBox::new("store-alias-miss".to_string()))
             .value
     );
-    assert_eq!(box_to_runtime_i64(boxed), value_h);
+    assert_eq!(runtime_i64_from_box_ref(boxed.as_ref()), value_h);
 }
 
 #[test]
@@ -565,8 +590,8 @@ fn store_string_box_from_source_keep_keeps_borrowed_alias_for_string_handles() {
     let value_h = handles::to_handle_arc(value) as i64;
     let source_obj = handles::get(value_h as u64).expect("source string handle");
     let keep = SourceLifetimeKeep::string_box(source_obj);
-    let boxed = store_string_box_from_source_keep(value_h, &keep, handles::drop_epoch());
-    assert_eq!(box_to_runtime_i64(boxed), value_h);
+    let boxed = maybe_borrow_string_keep_with_epoch(keep.clone(), value_h, handles::drop_epoch());
+    assert_eq!(runtime_i64_from_box_ref(boxed.as_ref()), value_h);
 }
 
 #[test]
@@ -594,7 +619,7 @@ fn store_string_box_from_source_keep_materializes_string_view_sources() {
         "view-materialize".len(),
     ));
     let keep = SourceLifetimeKeep::string_view(view);
-    let boxed = store_string_box_from_source_keep(base_h, &keep, handles::drop_epoch());
+    let boxed = maybe_borrow_string_keep_with_epoch(keep.clone(), base_h, handles::drop_epoch());
     let sb = boxed
         .as_any()
         .downcast_ref::<StringBox>()
@@ -608,5 +633,5 @@ fn store_string_box_from_source_keeps_immediate_contract_for_non_string_sources(
     let value_h = handles::to_handle_arc(value) as i64;
     let source_obj = handles::get(value_h as u64).expect("source integer handle");
     let boxed = store_string_box_from_source(value_h, Some(&source_obj), handles::drop_epoch());
-    assert_eq!(box_to_runtime_i64(boxed), value_h);
+    assert_eq!(runtime_i64_from_box_ref(boxed.as_ref()), value_h);
 }

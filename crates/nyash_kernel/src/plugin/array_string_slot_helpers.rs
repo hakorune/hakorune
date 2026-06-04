@@ -1,4 +1,5 @@
 use super::super::value_demand::{DemandSet, ARRAY_TEXT_OWNED_CELL, ARRAY_TEXT_READ_REF};
+use crate::c_string::c_string_text;
 use crate::observe;
 use memchr::{memchr, memmem};
 use std::cell::RefCell;
@@ -16,12 +17,12 @@ thread_local! {
 }
 
 #[inline(always)]
-pub(super) fn array_text_read_ref_demand() -> DemandSet {
+pub(crate) fn array_text_read_ref_demand() -> DemandSet {
     ARRAY_TEXT_READ_REF
 }
 
 #[inline(always)]
-pub(super) fn array_text_owned_cell_demand() -> DemandSet {
+pub(crate) fn array_text_owned_cell_demand() -> DemandSet {
     ARRAY_TEXT_OWNED_CELL
 }
 
@@ -39,6 +40,45 @@ pub(super) fn with_compiler_const_utf8_ptr_len<R>(
     // Runtime-private direct lowering passes compiler-emitted UTF-8 string
     // constants with explicit length. The CStr public aliases keep validation.
     Some(f(unsafe { std::str::from_utf8_unchecked(bytes) }))
+}
+
+#[inline(always)]
+pub(crate) fn with_cstr_utf8_ptr<R>(ptr: *const i8, f: impl FnOnce(&str) -> R) -> Option<R> {
+    c_string_text(ptr).map(f)
+}
+
+#[inline(always)]
+pub(crate) fn with_cstr_utf8_ptr2<R>(
+    a: *const i8,
+    b: *const i8,
+    f: impl FnOnce(&str, &str) -> R,
+) -> Option<R> {
+    let Some(a) = c_string_text(a) else {
+        return None;
+    };
+    let Some(b) = c_string_text(b) else {
+        return None;
+    };
+    Some(f(a, b))
+}
+
+#[inline(always)]
+pub(crate) fn with_cstr_utf8_ptr3<R>(
+    a: *const i8,
+    b: *const i8,
+    c: *const i8,
+    f: impl FnOnce(&str, &str, &str) -> R,
+) -> Option<R> {
+    let Some(a) = c_string_text(a) else {
+        return None;
+    };
+    let Some(b) = c_string_text(b) else {
+        return None;
+    };
+    let Some(c) = c_string_text(c) else {
+        return None;
+    };
+    Some(f(a, b, c))
 }
 
 #[inline(always)]

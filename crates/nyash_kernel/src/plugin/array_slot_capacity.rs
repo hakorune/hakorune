@@ -1,5 +1,5 @@
-use super::array_guard::{valid_handle, valid_handle_idx};
 use super::array_handle_cache::with_array_box;
+use super::handle_cache::{valid_handle, valid_handle_idx};
 
 #[inline(always)]
 pub(super) fn array_slot_cap_i64(handle: i64) -> i64 {

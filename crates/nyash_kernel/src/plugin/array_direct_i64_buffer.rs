@@ -1,19 +1,21 @@
-//! Stable direct i64 Array storage substrate for future NativeDirect lowering.
+//! Stable direct i64 Array storage for future NativeDirect lowering.
 //!
 //! This module is storage-only. It does not change `ArrayBox`, does not export
 //! helper ABI symbols, and does not open LLVM lowering. The goal is to prove a
 //! compiler-consumable `repr(C)` header plus trailing i64 data layout.
 
-#![allow(dead_code)]
-
 use std::alloc::{alloc, dealloc, handle_alloc_error, Layout};
 use std::cell::RefCell;
 use std::mem;
 use std::ptr::{self, NonNull};
+#[cfg(test)]
 use std::sync::Arc;
 
+#[cfg(test)]
 use nyash_rust::box_trait::NyashBox;
+#[cfg(test)]
 use nyash_rust::boxes::array::ArrayBox;
+#[cfg(test)]
 use nyash_rust::runtime::host_handles;
 
 pub(crate) const DIRECT_ARRAY_I64_KIND_V0: u32 = 1;
@@ -71,6 +73,7 @@ impl DirectArrayI64BufferV0Box {
         Some(Self { ptr, layout })
     }
 
+    #[cfg(test)]
     pub(crate) fn as_ptr(&self) -> *const DirectArrayI64BufferV0 {
         self.ptr.as_ptr()
     }
@@ -127,6 +130,7 @@ impl DirectArrayI64BufferV0Box {
         true
     }
 
+    #[cfg(test)]
     pub(crate) fn materialize_public_arraybox_snapshot(&self) -> Option<ArrayBox> {
         if !self.header_is_supported() || self.len() > self.capacity() {
             return None;
@@ -140,6 +144,7 @@ impl DirectArrayI64BufferV0Box {
         Some(snapshot)
     }
 
+    #[cfg(test)]
     pub(crate) fn materialize_public_arraybox_snapshot_handle(&self) -> Option<i64> {
         let snapshot: Arc<dyn NyashBox> = Arc::new(self.materialize_public_arraybox_snapshot()?);
         Some(host_handles::to_handle_arc(snapshot) as i64)

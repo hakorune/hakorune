@@ -1,5 +1,8 @@
 use super::array_handle_cache::with_array_box;
 
+// Text-slot write transactions stay here so string-slot write routes can
+// share a single resident/fallback transaction boundary instead of
+// duplicating update policy.
 pub(crate) enum ArrayTextWriteTxnOutcome<R> {
     Resident(R),
     Fallback(R),

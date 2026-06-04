@@ -14,8 +14,8 @@ use crate::backend_env::{cached_env_choice, panic_unsupported_env_value};
 #[cfg(test)]
 use super::array_direct_i64_buffer::DirectArrayI64BufferV0Box;
 use super::array_direct_i64_buffer::{direct_array_i64_load_i64, direct_array_i64_store_i64};
-use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::{array_get_index_encoded_i64, with_array_box};
+use super::handle_cache::valid_handle_idx;
 
 const ARRAY_SLOT_STORE_ENV: &str = "HAKO_ARRAY_SLOT_STORE";
 
@@ -169,6 +169,22 @@ pub(super) fn load_encoded_i64(handle: i64, idx: i64) -> i64 {
             direct_array_i64_exact_load_encoded_i64(handle, idx)
         }
     }
+}
+
+/// Fused ArrayBox direct-slot helper for selected exact-EXE hot paths.
+///
+/// This stays as a narrow ABI helper. Storage remains delegated to the slot
+/// backend seam so the backend modes keep one owner.
+#[export_name = "nyash.array.slot_load_store_i64_hihi"]
+pub extern "C" fn nyash_array_slot_load_store_i64_hihi(
+    src_handle: i64,
+    src_idx: i64,
+    dst_handle: i64,
+    value_i64: i64,
+) -> i64 {
+    let loaded_idx = load_encoded_i64(src_handle, src_idx);
+    let _stored = store_i64(dst_handle, loaded_idx, value_i64);
+    loaded_idx
 }
 
 #[cfg(test)]

@@ -111,16 +111,12 @@ impl NyashBox for IntArrayCore {
 
 // --- Extern API (handle-based) ---
 
-fn get_core(handle: i64) -> Option<std::sync::Arc<dyn NyashBox>> {
+#[inline]
+fn with_intarray_core<R>(handle: i64, f: impl FnOnce(&IntArrayCore) -> R) -> Option<R> {
     if handle <= 0 {
         return None;
     }
-    handles::get(handle as u64)
-}
-
-#[inline]
-fn with_intarray_core<R>(handle: i64, f: impl FnOnce(&IntArrayCore) -> R) -> Option<R> {
-    let obj = get_core(handle)?;
+    let obj = handles::get(handle as u64)?;
     let core = obj.as_any().downcast_ref::<IntArrayCore>()?;
     Some(f(core))
 }
@@ -130,7 +126,7 @@ pub extern "C" fn nyash_intarray_new_h(len: i64) -> i64 {
     let core = IntArrayCore::new(len);
     let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(core);
     let h = handles::to_handle_arc(arc) as i64;
-    if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+    if crate::env_flags::cli_verbose_enabled() {
         eprintln!("[INTARRAY] new_h(len={}) -> handle={}", len, h);
     }
     h

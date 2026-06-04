@@ -1,6 +1,6 @@
-use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::with_array_box;
 use super::array_slot_backend;
+use super::handle_cache::valid_handle_idx;
 use super::value_demand::ARRAY_GENERIC_GET_ENCODED;
 
 #[inline(always)]

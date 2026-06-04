@@ -21,19 +21,8 @@ pub struct NamedReceiver {
     pub invoke: InvokeFn,
 }
 
-#[inline]
-fn plugin_shim_invoke() -> InvokeFn {
-    nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
-}
-
 pub type InvokeFn =
     unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32;
-
-#[inline]
-fn compat_fallback_allowed() -> bool {
-    // Keep host-side fallback policy SSOT aligned with runtime route contracts.
-    crate::hako_forward_bridge::rust_fallback_allowed()
-}
 
 /// Resolve route for a plugin object returned as TLV handle(tag=8).
 ///
@@ -52,17 +41,22 @@ pub fn resolve_invoke_route_for_type(
         if meta.invoke_box_fn.is_none() && nyash_rust::config::env::fail_fast() {
             return None;
         }
-        return Some((meta.box_type, plugin_shim_invoke(), meta.fini_method_id));
+        return Some((
+            meta.box_type,
+            nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim,
+            meta.fini_method_id,
+        ));
     }
-    if nyash_rust::config::env::fail_fast() || !compat_fallback_allowed() {
+    if nyash_rust::config::env::fail_fast()
+        || !nyash_rust::config::env::vm_compat_fallback_allowed()
+    {
         return None;
     }
-    super::compat_invoke_core::resolve_generic_fallback_route(fallback_invoke)
+    Some(("PluginBox".to_string(), fallback_invoke, None))
 }
 
-/// Resolve receiver from a0: handle registry only (legacy VM receiver fallback removed).
+/// Resolve receiver from a0 via the handle registry only.
 pub fn resolve_receiver_for_a0(a0: i64) -> Option<Receiver> {
-    // 1) Handle registry (preferred)
     if a0 > 0 {
         if let Some(obj) = nyash_rust::runtime::host_handles::get(a0 as u64) {
             if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
@@ -74,33 +68,7 @@ pub fn resolve_receiver_for_a0(a0: i64) -> Option<Receiver> {
             }
         }
     }
-    // ✂️ REMOVED: Legacy VM argument receiver resolution
-    // Plugin-First architecture requires explicit handle-based receiver resolution only
     None
-}
-
-/// Resolve a plugin receiver for name-based invoke shims.
-/// This includes the concrete box_type string used by method resolution.
-pub fn resolve_named_receiver_for_handle(recv_handle: i64) -> Option<NamedReceiver> {
-    if recv_handle <= 0 {
-        return None;
-    }
-    let obj = nyash_rust::runtime::host_handles::get(recv_handle as u64)?;
-    let p = obj.as_any().downcast_ref::<PluginBoxV2>()?;
-    Some(NamedReceiver {
-        instance_id: p.instance_id(),
-        real_type_id: p.inner.type_id,
-        box_type: p.box_type.clone(),
-        invoke: p.inner.invoke_fn,
-    })
-}
-
-/// Resolve method id by name for a plugin receiver route.
-pub fn resolve_method_id_for_named_receiver(receiver: &NamedReceiver, method: &str) -> Option<u32> {
-    let host = nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host();
-    let guard = host.read().ok()?;
-    let handle = guard.resolve_method(&receiver.box_type, method).ok()?;
-    Some(handle.method_id as u32)
 }
 
 /// Resolve receiver + method id together for name-based invoke routes.
@@ -109,9 +77,21 @@ pub fn resolve_named_method_for_handle(
     recv_handle: i64,
     method: &str,
 ) -> Option<(NamedReceiver, u32)> {
-    let receiver = resolve_named_receiver_for_handle(recv_handle)?;
-    let method_id = resolve_method_id_for_named_receiver(&receiver, method)?;
-    Some((receiver, method_id))
+    if recv_handle <= 0 {
+        return None;
+    }
+    let obj = nyash_rust::runtime::host_handles::get(recv_handle as u64)?;
+    let p = obj.as_any().downcast_ref::<PluginBoxV2>()?;
+    let receiver = NamedReceiver {
+        instance_id: p.instance_id(),
+        real_type_id: p.inner.type_id,
+        box_type: p.box_type.clone(),
+        invoke: p.inner.invoke_fn,
+    };
+    let host = nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host();
+    let guard = host.read().ok()?;
+    let handle = guard.resolve_method(&receiver.box_type, method).ok()?;
+    Some((receiver, handle.method_id as u32))
 }
 
 /// Call plugin invoke with dynamic buffer growth, returning first TLV entry on success.
@@ -165,46 +145,51 @@ pub fn plugin_invoke_call(
     Some((tag_ret, sz_ret, payload_ret))
 }
 
-/// Invoke a named receiver/method and decode first TLV entry to i64.
+/// Build the common two-payload TLV used by by-id / by-name invoke shims.
 #[inline]
-pub fn invoke_named_receiver_to_i64(
-    receiver: &NamedReceiver,
-    method_id: u32,
-    tlv_args: &[u8],
-) -> Option<i64> {
-    let (tag, sz, payload) = plugin_invoke_call(
-        receiver.invoke,
-        receiver.real_type_id,
-        method_id,
-        receiver.instance_id,
-        tlv_args,
-    )?;
-    decode_entry_to_i64(tag, sz, payload.as_slice(), receiver.invoke)
+pub fn build_two_payload_tlv(argc: i64, a1: i64, a2: i64) -> Option<Vec<u8>> {
+    let nargs = argc.max(0) as usize;
+    if nargs > 2 && nyash_rust::config::env::fail_fast() {
+        return None;
+    }
+    let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
+    if nargs >= 1 {
+        crate::encode::nyrt_encode_arg(&mut buf, a1);
+    }
+    if nargs >= 2 {
+        crate::encode::nyrt_encode_arg(&mut buf, a2);
+    }
+    Some(buf)
 }
 
-/// Decode a single TLV entry to i64 with side-effects (handle registration) when applicable.
-pub fn decode_entry_to_i64(
-    tag: u8,
-    sz: usize,
-    payload: &[u8],
-    fallback_invoke: InvokeFn,
+/// Invoke a resolved receiver and decode first TLV entry to i64.
+#[inline]
+pub fn invoke_receiver_to_i64(
+    invoke: InvokeFn,
+    type_id: u32,
+    method_id: u32,
+    instance_id: u32,
+    tlv_args: &[u8],
 ) -> Option<i64> {
+    let (tag, sz, payload) = plugin_invoke_call(invoke, type_id, method_id, instance_id, tlv_args)?;
     match tag {
-        2 => nyash_rust::runtime::plugin_ffi_common::decode::i32(payload).map(|v| v as i64),
+        2 => nyash_rust::runtime::plugin_ffi_common::decode::i32(payload.as_slice())
+            .map(|v| v as i64),
         3 => {
-            if let Some(v) = nyash_rust::runtime::plugin_ffi_common::decode::i32(payload) {
+            if let Some(v) = nyash_rust::runtime::plugin_ffi_common::decode::i32(payload.as_slice())
+            {
                 return Some(v as i64);
             }
             if payload.len() == 8 {
                 let mut b = [0u8; 8];
-                b.copy_from_slice(payload);
+                b.copy_from_slice(payload.as_slice());
                 return Some(i64::from_le_bytes(b));
             }
             None
         }
         6 | 7 => {
             use nyash_rust::box_trait::{NyashBox, StringBox};
-            let s = nyash_rust::runtime::plugin_ffi_common::decode::string(payload);
+            let s = nyash_rust::runtime::plugin_ffi_common::decode::string(payload.as_slice());
             let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(StringBox::new(s));
             let h = nyash_rust::runtime::host_handles::to_handle_arc(arc) as u64;
             Some(h as i64)
@@ -218,7 +203,7 @@ pub fn decode_entry_to_i64(
                 let r_type = u32::from_le_bytes(t);
                 let r_inst = u32::from_le_bytes(i);
                 let (box_type_name, invoke_ptr, _fini_id) =
-                    resolve_invoke_route_for_type(r_type, fallback_invoke)?;
+                    resolve_invoke_route_for_type(r_type, invoke)?;
                 let pb = nyash_rust::runtime::plugin_loader_v2::make_plugin_box_v2(
                     box_type_name,
                     r_type,
@@ -232,14 +217,17 @@ pub fn decode_entry_to_i64(
             }
             None
         }
-        1 => {
-            nyash_rust::runtime::plugin_ffi_common::decode::bool(payload)
-                .map(|b| if b { 1 } else { 0 })
-        }
+        1 => nyash_rust::runtime::plugin_ffi_common::decode::bool(payload.as_slice()).map(|b| {
+            if b {
+                1
+            } else {
+                0
+            }
+        }),
         5 => {
-            if std::env::var("NYASH_JIT_NATIVE_F64").ok().as_deref() == Some("1") && sz == 8 {
+            if crate::env_flags::flag_on("NYASH_JIT_NATIVE_F64") && sz == 8 {
                 let mut b = [0u8; 8];
-                b.copy_from_slice(payload);
+                b.copy_from_slice(payload.as_slice());
                 let f = f64::from_le_bytes(b);
                 return Some(f as i64);
             }
@@ -249,30 +237,39 @@ pub fn decode_entry_to_i64(
     }
 }
 
-/// Decode a single TLV entry to f64 when possible.
-pub fn decode_entry_to_f64(tag: u8, sz: usize, payload: &[u8]) -> Option<f64> {
+/// Invoke a resolved receiver and decode first TLV entry to f64.
+#[inline]
+pub fn invoke_receiver_to_f64(
+    invoke: InvokeFn,
+    type_id: u32,
+    method_id: u32,
+    instance_id: u32,
+    tlv_args: &[u8],
+) -> Option<f64> {
+    let (tag, sz, payload) = plugin_invoke_call(invoke, type_id, method_id, instance_id, tlv_args)?;
     match tag {
         5 => {
             if sz == 8 {
                 let mut b = [0u8; 8];
-                b.copy_from_slice(payload);
+                b.copy_from_slice(payload.as_slice());
                 Some(f64::from_le_bytes(b))
             } else {
                 None
             }
         }
         3 => {
-            if let Some(v) = nyash_rust::runtime::plugin_ffi_common::decode::i32(payload) {
+            if let Some(v) = nyash_rust::runtime::plugin_ffi_common::decode::i32(payload.as_slice())
+            {
                 return Some(v as f64);
             }
             if payload.len() == 8 {
                 let mut b = [0u8; 8];
-                b.copy_from_slice(payload);
+                b.copy_from_slice(payload.as_slice());
                 return Some((i64::from_le_bytes(b)) as f64);
             }
             None
         }
-        1 => nyash_rust::runtime::plugin_ffi_common::decode::bool(payload).map(|b| {
+        1 => nyash_rust::runtime::plugin_ffi_common::decode::bool(payload.as_slice()).map(|b| {
             if b {
                 1.0
             } else {
@@ -281,38 +278,6 @@ pub fn decode_entry_to_f64(tag: u8, sz: usize, payload: &[u8]) -> Option<f64> {
         }),
         _ => None,
     }
-}
-
-#[inline]
-pub fn jit_args_handle_only_enabled() -> bool {
-    std::env::var("NYASH_JIT_ARGS_HANDLE_ONLY").ok().as_deref() == Some("1")
-}
-
-#[inline]
-pub fn encode_legacy_vm_args_range(dst: &mut Vec<u8>, start_pos: usize, end_pos_inclusive: usize) {
-    if nyash_rust::config::env::fail_fast()
-        || start_pos > end_pos_inclusive
-        || jit_args_handle_only_enabled()
-    {
-        return;
-    }
-    super::compat_invoke_core::encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);
-}
-
-#[inline]
-pub fn encode_legacy_args_with_failfast_policy(
-    dst: &mut Vec<u8>,
-    start_pos: usize,
-    end_pos_inclusive: usize,
-) -> bool {
-    if start_pos > end_pos_inclusive {
-        return true;
-    }
-    if nyash_rust::config::env::fail_fast() {
-        return false;
-    }
-    encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);
-    true
 }
 
 #[cfg(test)]

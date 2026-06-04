@@ -3,11 +3,9 @@
 // contracts, not collection or module semantics.
 //
 // Spawn a plugin instance method asynchronously and return a Future handle (i64).
+use crate::c_string::c_string_text;
 
 fn build_spawn_method_tlv(argc: i64, vals: *const i64, tags: *const i64) -> Vec<u8> {
-    use nyash_rust::box_trait::{IntegerBox, StringBox};
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
-
     let nargs = argc.saturating_sub(1).max(0) as usize;
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
     let vals_slice = if !vals.is_null() && nargs > 0 {
@@ -25,117 +23,14 @@ fn build_spawn_method_tlv(argc: i64, vals: *const i64, tags: *const i64) -> Vec<
     for i in 0..nargs {
         let v = vals_slice.get(i).copied().unwrap_or(0);
         let t = tags_slice.get(i).copied().unwrap_or(3); // default i64
-        match t {
-            3 => nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, v),
-            5 => {
-                let bits = v as u64;
-                let f = f64::from_bits(bits);
-                nyash_rust::runtime::plugin_ffi_common::encode::f64(&mut buf, f);
-            }
-            8 => {
-                if v > 0 {
-                    if let Some(obj) = nyash_rust::runtime::host_handles::get(v as u64) {
-                        if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                            // Try common coercions: String/Integer to TLV primitives.
-                            let host = nyash_rust::runtime::get_global_plugin_host();
-                            if let Ok(hg) = host.read() {
-                                if p.box_type == "StringBox" {
-                                    if let Ok(Some(sb)) = hg.invoke_instance_method(
-                                        "StringBox",
-                                        "toUtf8",
-                                        p.instance_id(),
-                                        &[],
-                                    ) {
-                                        if let Some(s) = sb.as_any().downcast_ref::<StringBox>() {
-                                            nyash_rust::runtime::plugin_ffi_common::encode::string(
-                                                &mut buf, &s.value,
-                                            );
-                                            continue;
-                                        }
-                                    }
-                                } else if p.box_type == "IntegerBox" {
-                                    if let Ok(Some(ibx)) = hg.invoke_instance_method(
-                                        "IntegerBox",
-                                        "get",
-                                        p.instance_id(),
-                                        &[],
-                                    ) {
-                                        if let Some(i) = ibx.as_any().downcast_ref::<IntegerBox>() {
-                                            nyash_rust::runtime::plugin_ffi_common::encode::i64(
-                                                &mut buf, i.value,
-                                            );
-                                            continue;
-                                        }
-                                    }
-                                }
-                            }
-                            nyash_rust::runtime::plugin_ffi_common::encode::plugin_handle(
-                                &mut buf,
-                                p.inner.type_id,
-                                p.instance_id(),
-                            );
-                        } else {
-                            let s = obj.to_string_box().value;
-                            nyash_rust::runtime::plugin_ffi_common::encode::string(&mut buf, &s);
-                        }
-                    } else {
-                        nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, v);
-                    }
-                } else {
-                    nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, 0);
-                }
-            }
-            _ => nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, v),
-        }
+        crate::plugin::encode_tagged_value(
+            &mut buf,
+            v,
+            t,
+            crate::plugin::MissingHandleEncoding::RawI64,
+        );
     }
     buf
-}
-
-fn resolve_method_name_from_arg(a1: i64) -> Option<String> {
-    use nyash_rust::box_trait::StringBox;
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
-
-    if a1 <= 0 {
-        return None;
-    }
-    if let Some(obj) = nyash_rust::runtime::host_handles::get(a1 as u64) {
-        if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-            if p.box_type == "StringBox" {
-                if let Ok(hg) = nyash_rust::runtime::get_global_plugin_host().read() {
-                    if let Ok(Some(sb)) =
-                        hg.invoke_instance_method("StringBox", "toUtf8", p.instance_id(), &[])
-                    {
-                        if let Some(s) = sb.as_any().downcast_ref::<StringBox>() {
-                            return Some(s.value.clone());
-                        }
-                    }
-                }
-            }
-        }
-    }
-    let cptr = a1 as *const i8;
-    if cptr.is_null() {
-        return None;
-    }
-    // SAFETY: caller passes C string pointer in LLVM path.
-    unsafe {
-        std::ffi::CStr::from_ptr(cptr)
-            .to_str()
-            .ok()
-            .map(|s| s.to_string())
-    }
-}
-
-fn append_spawn_instance_payload_tlv(buf: &mut Vec<u8>, nargs_payload: usize, a2: i64) -> bool {
-    if nargs_payload >= 1 {
-        crate::encode::nyrt_encode_arg(buf, a2);
-    }
-    if nargs_payload > 1 {
-        if !super::invoke_core::encode_legacy_args_with_failfast_policy(buf, 3, nargs_payload) {
-            return false;
-        }
-    }
-    true
 }
 
 fn parse_plugin_handle_payload(payload: &[u8]) -> Option<(u32, u32)> {
@@ -147,6 +42,23 @@ fn parse_plugin_handle_payload(payload: &[u8]) -> Option<(u32, u32)> {
     let mut i = [0u8; 4];
     i.copy_from_slice(&payload[4..8]);
     Some((u32::from_le_bytes(t), u32::from_le_bytes(i)))
+}
+
+fn boxed_value_or_integer(value: i64) -> Box<dyn nyash_rust::box_trait::NyashBox> {
+    use nyash_rust::box_trait::IntegerBox;
+    use nyash_rust::runtime::host_handles;
+
+    match host_handles::get(value as u64) {
+        Some(obj) => obj.clone_box(),
+        None => Box::new(IntegerBox::new(value)),
+    }
+}
+
+fn future_box_handle(fut_box: &std::sync::Arc<nyash_rust::boxes::future::FutureBox>) -> i64 {
+    use nyash_rust::box_trait::NyashBox;
+
+    nyash_rust::runtime::host_handles::to_handle_arc(fut_box.clone() as std::sync::Arc<dyn NyashBox>)
+        as i64
 }
 
 fn set_future_result_from_tlv<F>(
@@ -226,7 +138,7 @@ pub extern "C" fn nyash_future_spawn_method_h(
     vals: *const i64,
     tags: *const i64,
 ) -> i64 {
-    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use nyash_rust::box_trait::StringBox;
 
     if recv_h <= 0 {
         return 0;
@@ -237,9 +149,7 @@ pub extern "C" fn nyash_future_spawn_method_h(
     let tlv = build_spawn_method_tlv(argc, vals, tags);
 
     let fut_box = std::sync::Arc::new(nyash_rust::boxes::future::FutureBox::new());
-    let handle = nyash_rust::runtime::host_handles::to_handle_arc(
-        fut_box.clone() as std::sync::Arc<dyn NyashBox>
-    );
+    let handle = future_box_handle(&fut_box);
     let invoke = receiver.invoke;
     nyash_rust::runtime::global_hooks::spawn_task(
         "nyash.future.spawn_method_h",
@@ -283,23 +193,70 @@ pub extern "C" fn nyash_future_spawn_method_h(
 }
 
 // Simpler spawn shim for JIT: pass argc(total explicit args incl. method_name),
-// receiver handle (a0), method name (a1), and first payload (a2). Extra args
-// are read from legacy VM args, same as plugin_invoke3_*.
+// receiver handle (a0), method name (a1), and first payload (a2). Additional
+// payloads are bridged through the same VM-side argument path.
 // Returns a handle (i64) to FutureBox.
 #[export_name = "nyash.future.spawn_instance3_i64"]
 pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, argc: i64) -> i64 {
-    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use nyash_rust::box_trait::StringBox;
 
     if let Some(v) = crate::hako_forward_bridge::call_future_spawn_instance(a0, a1, a2, argc) {
         return v;
     }
-    if !crate::hako_forward_bridge::rust_fallback_allowed() {
+    if !nyash_rust::config::env::vm_compat_fallback_allowed() {
         return crate::hako_forward_bridge::hook_miss_freeze_handle("future.spawn_instance3");
     }
     if a0 <= 0 {
         return 0;
     }
-    let Some(method_name) = resolve_method_name_from_arg(a1) else {
+    let method_name = {
+        let resolve_cstr = || {
+            let cptr = a1 as *const i8;
+            c_string_text(cptr).map(str::to_string)
+        };
+
+        if a1 <= 0 {
+            None
+        } else if let Some(obj) = nyash_rust::runtime::host_handles::get(a1 as u64) {
+            if let Some(p) = obj
+                .as_any()
+                .downcast_ref::<nyash_rust::runtime::plugin_loader_v2::PluginBoxV2>()
+            {
+                if p.box_type == "StringBox" {
+                    use nyash_rust::box_trait::StringBox;
+                    let maybe_value = {
+                        let host = nyash_rust::runtime::get_global_plugin_host();
+                        let x = if let Ok(hg) = host.read() {
+                            if let Ok(Some(value)) = hg.invoke_instance_method(
+                                "StringBox",
+                                "toUtf8",
+                                p.instance_id(),
+                                &[],
+                            ) {
+                                value
+                                    .as_any()
+                                    .downcast_ref::<StringBox>()
+                                    .map(|sb| sb.value.clone())
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        };
+                        x
+                    };
+                    maybe_value.or_else(resolve_cstr)
+                } else {
+                    resolve_cstr()
+                }
+            } else {
+                resolve_cstr()
+            }
+        } else {
+            resolve_cstr()
+        }
+    };
+    let Some(method_name) = method_name else {
         return 0;
     };
     let Some((receiver, method_id)) =
@@ -316,14 +273,15 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
     let nargs_total = argc.max(0) as usize; // includes method_name
     let nargs_payload = nargs_total.saturating_sub(1);
     let mut tlv = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs_payload as u16);
-    if !append_spawn_instance_payload_tlv(&mut tlv, nargs_payload, a2) {
+    if nargs_payload >= 1 {
+        crate::encode::nyrt_encode_arg(&mut tlv, a2);
+    }
+    if nargs_payload >= 3 && nyash_rust::config::env::fail_fast() {
         return 0;
     }
 
     let fut_box = std::sync::Arc::new(nyash_rust::boxes::future::FutureBox::new());
-    let handle = nyash_rust::runtime::host_handles::to_handle_arc(
-        fut_box.clone() as std::sync::Arc<dyn NyashBox>
-    );
+    let handle = future_box_handle(&fut_box);
     nyash_rust::runtime::global_hooks::spawn_task(
         "nyash.future.spawn_instance3_i64",
         Box::new(move || {
@@ -385,31 +343,20 @@ pub extern "C" fn env_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64
 
 #[export_name = "env.future.new"]
 pub extern "C" fn env_future_new(value: i64) -> i64 {
-    use nyash_rust::box_trait::{IntegerBox, NyashBox};
-    use nyash_rust::runtime::host_handles;
-
     let fut_box = nyash_rust::boxes::future::FutureBox::new();
-    let handle = host_handles::to_handle_arc(
-        std::sync::Arc::new(fut_box.clone()) as std::sync::Arc<dyn NyashBox>
-    ) as i64;
+    let fut_box = std::sync::Arc::new(fut_box);
+    let handle = future_box_handle(&fut_box);
 
-    let boxed: Box<dyn NyashBox> = match host_handles::get(value as u64) {
-        Some(obj) => obj.clone_box(),
-        None => Box::new(IntegerBox::new(value)),
-    };
+    let boxed = boxed_value_or_integer(value);
     fut_box.set_result(boxed);
     handle
 }
 
 #[export_name = "env.future.set"]
 pub extern "C" fn env_future_set(fut_handle: i64, value: i64) -> i64 {
-    use nyash_rust::box_trait::{IntegerBox, NyashBox};
     use nyash_rust::runtime::host_handles;
 
-    let boxed: Box<dyn NyashBox> = match host_handles::get(value as u64) {
-        Some(obj) => obj.clone_box(),
-        None => Box::new(IntegerBox::new(value)),
-    };
+    let boxed = boxed_value_or_integer(value);
 
     if let Some(obj) = host_handles::get(fut_handle as u64) {
         if let Some(fut) = obj
@@ -456,14 +403,11 @@ pub extern "C" fn env_future_await(fut_handle: i64) -> i64 {
 // Lowered by the LLVM harness to `nyash.future.delay_i64` (see extern_normalize.py).
 #[export_name = "nyash.future.delay_i64"]
 pub extern "C" fn nyash_future_delay_i64(ms: i64) -> i64 {
-    use nyash_rust::box_trait::{NyashBox, VoidBox};
+    use nyash_rust::box_trait::VoidBox;
     use std::time::Duration;
 
-    let fut_box = nyash_rust::boxes::future::FutureBox::new();
-    let handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
-        fut_box.clone(),
-    )
-        as std::sync::Arc<dyn NyashBox>);
+    let fut_box = std::sync::Arc::new(nyash_rust::boxes::future::FutureBox::new());
+    let handle = future_box_handle(&fut_box);
     let fut = fut_box.clone();
     let ms_u64 = ms.max(0) as u64;
     std::thread::spawn(move || {

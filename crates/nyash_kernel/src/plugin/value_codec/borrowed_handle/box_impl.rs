@@ -1,6 +1,3 @@
-#![allow(dead_code)] // Phase 291x-127: borrowed alias cache mutation hooks are staged value-codec seams.
-
-use super::super::TextRef;
 use super::backing::{SourceLifetimeKeep, TextKeep};
 use crate::observe;
 use crate::plugin::value_demand::{
@@ -20,6 +17,7 @@ use std::{
 
 #[derive(Clone, Copy)]
 pub(crate) enum BorrowedAliasEncodeCaller {
+    #[cfg(test)]
     Generic,
     ArrayGetIndexEncoded,
     MapRuntimeDataGetAnyKey,
@@ -29,56 +27,51 @@ impl BorrowedAliasEncodeCaller {
     #[inline(always)]
     pub(crate) const fn demand(self) -> DemandSet {
         match self {
-            Self::Generic | Self::ArrayGetIndexEncoded | Self::MapRuntimeDataGetAnyKey => {
-                BORROWED_ALIAS_ENCODE
-            }
+            #[cfg(test)]
+            Self::Generic => BORROWED_ALIAS_ENCODE,
+            Self::ArrayGetIndexEncoded | Self::MapRuntimeDataGetAnyKey => BORROWED_ALIAS_ENCODE,
         }
     }
 
     #[inline(always)]
     fn record(self) {
-        match self {
-            Self::Generic => {}
-            Self::ArrayGetIndexEncoded => {
-                observe::record_borrowed_alias_encode_to_handle_arc_array_get_index();
-            }
-            Self::MapRuntimeDataGetAnyKey => {
-                observe::record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any();
-            }
-        }
+        self.record_metric(
+            observe::record_borrowed_alias_encode_to_handle_arc_array_get_index,
+            observe::record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any,
+        );
     }
 
     #[inline(always)]
     fn record_live_source_hit(self) {
-        match self {
-            Self::Generic => {}
-            Self::ArrayGetIndexEncoded => {
-                observe::record_borrowed_alias_encode_live_source_hit_array_get_index();
-            }
-            Self::MapRuntimeDataGetAnyKey => {
-                observe::record_borrowed_alias_encode_live_source_hit_map_runtime_data_get_any();
-            }
-        }
+        self.record_metric(
+            observe::record_borrowed_alias_encode_live_source_hit_array_get_index,
+            observe::record_borrowed_alias_encode_live_source_hit_map_runtime_data_get_any,
+        );
     }
 
     #[inline(always)]
     fn record_cached_handle_hit(self) {
+        self.record_metric(
+            observe::record_borrowed_alias_encode_cached_handle_hit_array_get_index,
+            observe::record_borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any,
+        );
+    }
+
+    #[inline(always)]
+    fn record_metric(self, array: fn(), map: fn()) {
         match self {
+            #[cfg(test)]
             Self::Generic => {}
-            Self::ArrayGetIndexEncoded => {
-                observe::record_borrowed_alias_encode_cached_handle_hit_array_get_index();
-            }
-            Self::MapRuntimeDataGetAnyKey => {
-                observe::record_borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any();
-            }
+            Self::ArrayGetIndexEncoded => array(),
+            Self::MapRuntimeDataGetAnyKey => map(),
         }
     }
 }
 
 #[derive(Debug, Clone, Copy)]
-struct AliasSourceMeta {
-    source_handle: i64,
-    source_drop_epoch: u64,
+pub(super) struct AliasSourceMeta {
+    pub(super) source_handle: i64,
+    pub(super) source_drop_epoch: u64,
 }
 
 impl AliasSourceMeta {
@@ -88,22 +81,6 @@ impl AliasSourceMeta {
             source_handle,
             source_drop_epoch,
         }
-    }
-
-    #[inline(always)]
-    fn source_handle(self) -> i64 {
-        self.source_handle
-    }
-
-    #[inline(always)]
-    fn source_drop_epoch(self) -> u64 {
-        self.source_drop_epoch
-    }
-
-    #[inline(always)]
-    fn replace(&mut self, source_handle: i64, source_drop_epoch: u64) {
-        self.source_handle = source_handle;
-        self.source_drop_epoch = source_drop_epoch;
     }
 
     #[inline(always)]
@@ -117,12 +94,11 @@ impl AliasSourceMeta {
 }
 
 #[derive(Debug)]
-/// Object-boundary/cache adapter for borrowed-alias encode.
-/// This wraps stable object-world text so hot read paths can reuse source handles or
-/// cached stable handles, but it is not the semantic `TextRef` carrier.
+/// Runtime-private borrowed-alias encode wrapper around stable object text.
+/// It feeds the read-only `TextRef` path, but does not own that view itself.
 pub(crate) struct BorrowedHandleBox {
-    text_keep: TextKeep,
-    source_meta: AliasSourceMeta,
+    pub(super) text_keep: TextKeep,
+    pub(super) source_meta: AliasSourceMeta,
     cached_runtime_handle: Arc<BorrowedHandleRuntimeCache>,
     base: BoxBase,
 }
@@ -172,34 +148,11 @@ impl BorrowedHandleBox {
             text_keep: TextKeep::new(keep),
             source_meta: AliasSourceMeta::new(source_handle, source_drop_epoch),
             cached_runtime_handle: Arc::new(BorrowedHandleRuntimeCache::new()),
-            // Fast path: borrowed wrapper is an alias view for an existing handle.
-            // Reuse source handle as stable id to avoid per-call id allocation churn.
             base: BoxBase {
                 id: stable_id,
                 parent_type_id: None,
             },
         }
-    }
-
-    #[cold]
-    #[inline(never)]
-    fn cold_stable_object_ref(&self) -> &Arc<dyn NyashBox> {
-        self.text_keep.cold_stable_object_ref()
-    }
-
-    #[inline(always)]
-    fn copy_owned_text_cold(&self) -> String {
-        self.text_keep.copy_owned_text_cold()
-    }
-
-    #[inline(always)]
-    fn source_handle(&self) -> i64 {
-        self.source_meta.source_handle()
-    }
-
-    #[inline(always)]
-    fn source_drop_epoch(&self) -> u64 {
-        self.source_meta.source_drop_epoch()
     }
 
     #[inline(always)]
@@ -257,6 +210,7 @@ impl BorrowedHandleBox {
     }
 
     #[inline(always)]
+    #[cfg(test)]
     pub(super) fn invalidate_cached_runtime_handle(&self) {
         self.cached_runtime_handle
             .handle
@@ -272,8 +226,8 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     fn source_is_latest_fresh(&self) -> bool {
-        self.source_handle() > 0
-            && observe::len_route_matches_latest_fresh_handle(self.source_handle())
+        self.source_meta.source_handle > 0
+            && observe::len_route_matches_latest_fresh_handle(self.source_meta.source_handle)
     }
 
     #[cold]
@@ -282,29 +236,25 @@ impl BorrowedHandleBox {
         if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
             return self
                 .text_keep
-                .cold_stable_object_ref()
+                .source_lifetime
+                .backing
+                .stable_box
                 .as_ref()
-                .equals(other_alias.text_keep.cold_stable_object_ref().as_ref());
+                .equals(
+                    other_alias
+                        .text_keep
+                        .source_lifetime
+                        .backing
+                        .stable_box
+                        .as_ref(),
+                );
         }
         self.text_keep
-            .cold_stable_object_ref()
+            .source_lifetime
+            .backing
+            .stable_box
             .as_ref()
             .equals(other)
-    }
-
-    #[inline(always)]
-    pub(super) fn ptr_eq_source_keep(&self, keep: &SourceLifetimeKeep) -> bool {
-        self.text_keep.ptr_eq_source_keep(keep)
-    }
-
-    #[inline(always)]
-    pub(super) fn replace_source_keep(&mut self, keep: SourceLifetimeKeep) {
-        self.text_keep.replace_source_lifetime(keep);
-    }
-
-    #[inline(always)]
-    pub(super) fn replace_source_alias(&mut self, source_handle: i64, source_drop_epoch: u64) {
-        self.source_meta.replace(source_handle, source_drop_epoch);
     }
 }
 
@@ -318,10 +268,27 @@ impl BoxCore for BorrowedHandleBox {
     }
 
     fn fmt_box(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        if let Some(result) = self.text_keep.with_text(|text| write!(f, "\"{}\"", text)) {
-            return result;
+        if let Some(text) = self
+            .text_keep
+            .source_lifetime
+            .backing
+            .stable_box
+            .as_ref()
+            .as_str_fast()
+        {
+            return write!(f, "\"{}\"", text);
         }
-        write!(f, "\"{}\"", self.copy_owned_text_cold())
+        write!(
+            f,
+            "\"{}\"",
+            self.text_keep
+                .source_lifetime
+                .backing
+                .stable_box
+                .as_ref()
+                .to_string_box()
+                .value
+        )
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -339,7 +306,15 @@ impl NyashBox for BorrowedHandleBox {
         if self.source_is_latest_fresh() {
             observe::record_borrowed_alias_to_string_box_latest_fresh();
         }
-        StringBox::new(self.copy_owned_text_cold())
+        StringBox::new(
+            self.text_keep
+                .source_lifetime
+                .backing
+                .stable_box
+                .as_ref()
+                .to_string_box()
+                .value,
+        )
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
@@ -351,7 +326,10 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn type_name(&self) -> &'static str {
-        self.text_keep.type_name()
+        match self.text_keep.source_lifetime.class {
+            super::backing::TextKeepClass::StringBox => "StringBox",
+            super::backing::TextKeepClass::StringView => "StringViewBox",
+        }
     }
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
@@ -378,8 +356,8 @@ impl NyashBox for BorrowedHandleBox {
     fn as_str_fast(&self) -> Option<&str> {
         observe::record_borrowed_alias_as_str_fast();
         if observe::enabled() {
-            if self.source_handle() > 0 {
-                if self.source_drop_epoch() == handles::drop_epoch() {
+            if self.source_meta.source_handle > 0 {
+                if self.source_meta.source_drop_epoch == handles::drop_epoch() {
                     observe::record_borrowed_alias_as_str_fast_live_source();
                 } else {
                     observe::record_borrowed_alias_as_str_fast_stale_source();
@@ -387,10 +365,13 @@ impl NyashBox for BorrowedHandleBox {
             }
         }
         // Object-boundary NyashBox still exposes `&str`, but the underlying read path
-        // stays in the runtime-private semantic carrier lane until this final projection.
+        // stays in the runtime-private borrowed-alias encode path until this final projection.
         self.text_keep
-            .stable_object_text_fast()
-            .map(TextRef::as_str)
+            .source_lifetime
+            .backing
+            .stable_box
+            .as_ref()
+            .as_str_fast()
     }
 }
 
@@ -434,7 +415,8 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
             observe::record_borrowed_alias_encode_to_handle_arc();
             caller.record();
             let handle =
-                handles::to_handle_arc(alias.text_keep.clone_stable_box_cold_fallback()) as i64;
+                handles::to_handle_arc(alias.text_keep.source_lifetime.backing.stable_box.clone())
+                    as i64;
             alias.cache_runtime_handle(handle);
             handle
         }
@@ -444,9 +426,9 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
 #[inline(always)]
 fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEncodePlan {
     let current_epoch = handles::drop_epoch();
-    let source_handle = alias.source_handle();
+    let source_handle = alias.source_meta.source_handle;
     if source_handle > 0 {
-        if alias.source_drop_epoch() == current_epoch {
+        if alias.source_meta.source_drop_epoch == current_epoch {
             observe::record_borrowed_alias_encode_epoch_hit();
             alias.cache_validated_live_source_handle(source_handle, current_epoch);
             return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
@@ -462,7 +444,10 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
     }
     if source_handle > 0 {
         if let Some(source_obj) = handles::get(source_handle as u64) {
-            if Arc::ptr_eq(alias.cold_stable_object_ref(), &source_obj) {
+            if Arc::ptr_eq(
+                &alias.text_keep.source_lifetime.backing.stable_box,
+                &source_obj,
+            ) {
                 observe::record_borrowed_alias_encode_ptr_eq_hit();
                 alias.cache_validated_live_source_handle(source_handle, current_epoch);
                 return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
@@ -475,9 +460,11 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::handle_registry_test_lock;
 
     #[test]
     fn ptr_eq_validated_live_source_is_cached_for_current_epoch() {
+        let _guard = handle_registry_test_lock();
         let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("live-source-cache".to_string()));
         let source_handle = handles::to_handle_arc(source.clone()) as i64;
         let stale_epoch = handles::drop_epoch();

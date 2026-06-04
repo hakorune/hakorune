@@ -1,4 +1,3 @@
-use crate::encode::nyrt_encode_arg;
 use crate::plugin::invoke_core;
 
 #[no_mangle]
@@ -13,30 +12,17 @@ pub extern "C" fn nyash_plugin_invoke3_i64(
     let Some(recv) = invoke_core::resolve_receiver_for_a0(a0) else {
         return 0;
     };
-    let nargs = argc.max(0) as usize;
-    if nargs > 2 && nyash_rust::config::env::fail_fast() {
+    let Some(buf) = invoke_core::build_two_payload_tlv(argc, a1, a2) else {
         return 0;
-    }
-    let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
-    if nargs >= 1 {
-        nyrt_encode_arg(&mut buf, a1);
-    }
-    if nargs >= 2 {
-        nyrt_encode_arg(&mut buf, a2);
-    }
-    if nargs > 2 && !nyash_rust::config::env::fail_fast() {
-        invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs);
-    }
-    let Some((tag, sz, payload)) = invoke_core::plugin_invoke_call(
+    };
+    invoke_core::invoke_receiver_to_i64(
         recv.invoke,
         type_id as u32,
         method_id as u32,
         recv.instance_id,
         &buf,
-    ) else {
-        return 0;
-    };
-    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), recv.invoke).unwrap_or(0)
+    )
+    .unwrap_or(0)
 }
 
 #[no_mangle]
@@ -51,28 +37,15 @@ pub extern "C" fn nyash_plugin_invoke3_f64(
     let Some(recv) = invoke_core::resolve_receiver_for_a0(a0) else {
         return 0.0;
     };
-    let nargs = argc.max(0) as usize;
-    if nargs > 2 && nyash_rust::config::env::fail_fast() {
+    let Some(buf) = invoke_core::build_two_payload_tlv(argc, a1, a2) else {
         return 0.0;
-    }
-    let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
-    if nargs >= 1 {
-        nyrt_encode_arg(&mut buf, a1);
-    }
-    if nargs >= 2 {
-        nyrt_encode_arg(&mut buf, a2);
-    }
-    if nargs > 2 && !nyash_rust::config::env::fail_fast() {
-        invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs);
-    }
-    let Some((tag, sz, payload)) = invoke_core::plugin_invoke_call(
+    };
+    invoke_core::invoke_receiver_to_f64(
         recv.invoke,
         type_id as u32,
         method_id as u32,
         recv.instance_id,
         &buf,
-    ) else {
-        return 0.0;
-    };
-    invoke_core::decode_entry_to_f64(tag, sz, payload.as_slice()).unwrap_or(0.0)
+    )
+    .unwrap_or(0.0)
 }

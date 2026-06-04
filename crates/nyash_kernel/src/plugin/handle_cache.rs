@@ -94,6 +94,16 @@ pub(crate) fn clear_cache_slot() {
 }
 
 #[inline(always)]
+pub(crate) fn valid_handle(handle: i64) -> bool {
+    handle > 0
+}
+
+#[inline(always)]
+pub(crate) fn valid_handle_idx(handle: i64, idx: i64) -> bool {
+    valid_handle(handle) && idx >= 0
+}
+
+#[inline(always)]
 pub(super) fn with_cache_entry<R>(
     handle: i64,
     drop_epoch: u64,
@@ -251,10 +261,12 @@ pub(crate) fn with_instance_box<R>(handle: i64, f: impl FnOnce(&InstanceBox) -> 
 mod tests {
     use super::*;
     use crate::plugin::array_handle_cache::with_array_box;
+    use crate::test_support::handle_registry_test_lock;
     use nyash_rust::box_trait::IntegerBox;
 
     #[test]
     fn cache_invalidates_on_drop_epoch_when_handle_is_reused() {
+        let _guard = handle_registry_test_lock();
         clear_cache_slot();
 
         let arr_a: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());

@@ -1,26 +1,21 @@
 // Plugin-side runtime surface.
-// Keep public host-service glue visible here, but keep compat quarantine internal-only.
+// Keep public host-service glue visible here and keep route helpers local to
+// the modules that own them.
 
+mod alias_export;
 pub mod array;
 mod array_compat;
 mod array_direct_i64_buffer;
-mod array_direct_slot_op;
-mod array_guard;
 mod array_handle_cache;
 mod array_runtime_aliases;
-mod array_runtime_any;
-mod array_runtime_facade;
-mod array_runtime_substrate;
 mod array_slot_append;
 mod array_slot_backend;
 mod array_slot_capacity;
 mod array_slot_load;
 mod array_slot_store;
 mod array_string_slot;
-mod array_substrate;
 mod array_text_write_txn;
 pub mod birth;
-mod compat_invoke_core;
 pub mod console;
 pub mod future;
 mod handle_cache;
@@ -31,15 +26,14 @@ pub mod invoke_core;
 pub mod map;
 mod map_aliases;
 pub(crate) mod map_compat;
-mod map_debug;
 mod map_key_codec;
 mod map_probe;
 mod map_runtime_data;
 mod map_slot_load;
 mod map_slot_mutate;
 mod map_slot_store;
-mod map_substrate;
 pub(crate) mod module_string_dispatch;
+mod plugin_box_value;
 pub mod runtime_data;
 pub mod semantics;
 pub mod string;
@@ -47,6 +41,9 @@ mod value_codec;
 pub(crate) mod value_demand;
 pub(crate) mod value_lane;
 
+// Public plugin ABI re-export inventory.
+// These glob exports preserve crate-root ABI symbols. Do not prune them until
+// the target module has an explicit symbol inventory or wiring test.
 pub use array::*;
 pub use birth::*;
 pub use console::*;
@@ -56,20 +53,19 @@ pub use intarray::*;
 pub use invoke::*;
 pub use invoke_core::*;
 pub use map::*;
+pub(crate) use plugin_box_value::{
+    encode_plugin_box_value, encode_tagged_value, MissingHandleEncoding,
+};
 pub use runtime_data::*;
 pub use semantics::*;
 pub use string::*;
 pub use value_codec::KernelTextSlot;
-#[allow(unused_imports)]
 pub(crate) use value_codec::KernelTextSlotState;
 pub(crate) use value_codec::{
-    freeze_owned_bytes_with_site, freeze_owned_string_into_slot, materialize_owned_string,
-    materialize_owned_string_explicit_api_boundary_for_site,
-    materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
-    materialize_owned_string_need_stable_object_boundary_for_site, owned_string_from_handle,
-    publish_existing_view_arc_explicit_api_boundary, publish_kernel_text_slot,
-    publish_owned_bytes_generic_fallback_boundary_for_site, reissue_cached_handle_boundary,
-    with_kernel_text_slot_text, OwnedText, StringPublishSite, TextRef,
+    freeze_owned_bytes_with_site, freeze_owned_string_into_slot, issue_fresh_handle,
+    materialize_owned_string, owned_string_from_handle, publish_kernel_text_slot,
+    publish_owned_bytes_with_reason_and_site, with_kernel_text_slot_text, PublishReason,
+    StringPublishSite, TextRef,
 };
 
 #[cfg(test)]

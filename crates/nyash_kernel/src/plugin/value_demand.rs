@@ -1,10 +1,24 @@
-//! Runtime-private demand vocabulary for phase-289x.
+//! Runtime-private demand vocabulary.
 //!
 //! This module is intentionally structural first: it names the demand contract
 //! that existing helpers already implement, without changing exported ABI or
 //! lowering behavior.
-#![allow(dead_code)]
-
+//!
+//! Route-family map:
+//! - codec decode profiles:
+//!   `CODEC_*`
+//! - Array text cell / degrade paths:
+//!   `ARRAY_TEXT_*`
+//! - `KernelTextSlot` states:
+//!   `KERNEL_TEXT_SLOT_*`
+//! - Array generic get/store/append:
+//!   `ARRAY_GENERIC_*`
+//! - Map key/value runtime routes:
+//!   `MAP_*`
+//! - borrowed alias encode / publish:
+//!   `BORROWED_ALIAS_*`
+//! - publication boundaries:
+//!   `PUBLISH_*`
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum ValueDemand {
     ReadRef,
@@ -60,6 +74,7 @@ impl DemandSet {
     }
 }
 
+#[cfg(test)]
 pub(crate) const CODEC_GENERIC: DemandSet = DemandSet::new(
     &[ValueDemand::StableObject],
     &[StorageDemand::GenericResidence],

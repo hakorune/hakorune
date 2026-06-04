@@ -1,40 +1,41 @@
 # Stage1 Module Dispatch
 
-Status: runtime-boundary residue / shrink-only.
+Status: compiled-stage1 route table and route-local probes.
 
-Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel/src/plugin/module_string_dispatch/`.
+Scope: compiled-stage1 string-module dispatch helpers under
+`crates/nyash_kernel/src/plugin/module_string_dispatch/`.
 
 ## Placement Rule
 
-- this directory is a `runtime-boundary residue bucket`, not `Rust host microkernel`
-- it may stay temporarily, but it must not gain new semantic ownership
-- shrink or absorb it; do not widen it
+- this directory owns the compiled-stage1 route table and its route-local probes
+- keep route ownership local; do not widen it beyond the local routes
 
 ## Responsibility Split
 
 - `module_string_dispatch.rs`
-  - thin route table
-  - shared string-handle encode/decode helpers
-  - shared MirBuilder dispatch helpers
-  - shared MirBuilder gate/decode/freeze wrappers for the source and Program(JSON) routes
-  - probes `build_surrogate.rs` as an owner-local route before the shared table; it does not own `BuildBox.emit_program_json_v0` authority, only the residual runtime-boundary probe
+  - thin route table and route-local probe for using_resolver and MIR-builder routes
+  - local MIR-builder gate and freeze wrappers for the source and Program(JSON) routes
+  - does not own general string-handle encode/decode routes
 - `build_surrogate.rs`
-  - compiled-stage1 `BuildBox.emit_program_json_v0` dispatch shim only
-  - frozen exact owner for the build surrogate residue bucket; docs/inventory closeout only until caller-proof says removable
-  - owner of the surrogate route match/dispatch contract, typed source decode, and encoded result handoff
-  - build-box / launcher handoff regression coverage lives in `src/stage1/program_json_v0.rs` tests
-  - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
+  - compiled-stage1 `BuildBox.emit_program_json_v0` route helper only
+  - owner of the route match/dispatch contract, typed source decode,
+    and encoded result handoff
+  - build-box / launcher handoff regression coverage lives in
+    `src/stage1/program_json_v0.rs` tests
+  - parent modules probe it via `try_dispatch(...)`
 - `compat/llvm_backend_surrogate.rs`
-  - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
-  - frozen exact owner for the backend boundary residue bucket; docs/inventory closeout only until caller-proof says removable
-  - owner of the backend boundary route match/dispatch contract and its regression coverage
-  - compile side now loads MIR(JSON) locally and forwards the text into the shared no-helper compat text primitive; the surrogate owns only the file-path wrapper contract
-  - latest shrink keeps path decode / compile opts / link arg decode behind owner-local helpers; parent modules still probe only via `try_dispatch(...)`
-  - does not become the final backend owner; it remains a compiled-stage1 stop-gap until daily callers stop at the thin backend C boundary directly
+  - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` route helper only
+  - owner of the backend route match/dispatch contract and its regression coverage
+  - compile side loads MIR(JSON) locally and materializes the returned text handle locally; the helper owns only the file-path wrapper contract
+  - path decode / compile opts / link arg decode stay behind local helpers; parent modules probe it via `try_dispatch(...)`
 
 ## Retirement Note
 
-- do not mix `build_surrogate.rs` retirement with `stage1_bridge` or `.hako` live/bootstrap caller deletion
-- if the surrogate still cannot be removed, record that retreat in `phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
-- treat the shared `emit_from_program_json_v0` / `emit_from_source_v0` gate-decode helpers as thin runtime-boundary support code, not as a new authority owner
-- treat `build_surrogate.rs` and `compat/llvm_backend_surrogate.rs` as frozen exact owners; do not reopen either without caller-proof
+- do not mix `build_surrogate.rs` removal with `stage1_bridge` or `.hako`
+  live/bootstrap caller deletion
+- if a helper still cannot be removed, record that retreat in the current
+  module-dispatch inventory note
+- treat the shared `emit_from_program_json_v0` / `emit_from_source_v0`
+  gate-decode helpers as support code, not as a new authority owner
+- keep `build_surrogate.rs` and `compat/llvm_backend_surrogate.rs` local;
+  do not widen either without review

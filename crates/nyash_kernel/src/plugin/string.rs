@@ -1,4 +1,6 @@
 // ---- String helpers for LLVM lowering ----
+use crate::c_string::{c_string_bytes, c_string_text};
+
 #[inline]
 fn into_c_string_ptr(mut bytes: Vec<u8>) -> *mut i8 {
     bytes.push(0);
@@ -13,11 +15,20 @@ fn string_to_c_string_ptr(s: String) -> *mut i8 {
 }
 
 #[inline]
-fn c_string_bytes<'a>(ptr: *const i8) -> &'a [u8] {
-    if ptr.is_null() {
-        return &[];
+fn concat_mixed_string_and_i64(string_first: bool, string_ptr: *const i8, integer: i64) -> *mut i8 {
+    let mut s = String::new();
+    if string_first {
+        if let Some(text) = c_string_text(string_ptr) {
+            s.push_str(text);
+        }
+        s.push_str(&integer.to_string());
+    } else {
+        s.push_str(&integer.to_string());
+        if let Some(text) = c_string_text(string_ptr) {
+            s.push_str(text);
+        }
     }
-    unsafe { std::ffi::CStr::from_ptr(ptr).to_bytes() }
+    string_to_c_string_ptr(s)
 }
 
 // Exported as: nyash_string_new(i8* ptr, i32 len) -> i8*
@@ -50,36 +61,17 @@ pub extern "C" fn nyash_string_concat_ss(a: *const i8, b: *const i8) -> *mut i8 
 }
 
 // Exported as: nyash.string.concat_si(i8* a, i64 b) -> i8*
-// NOTE: Phase 131-15-P1 - Kept for diagnostic/compatibility purposes
-// LLVM backend now uses concat_hh(handle, handle) for all mixed concatenations
+// Compatibility ABI surface for mixed string/integer concatenation.
 #[export_name = "nyash.string.concat_si"]
 pub extern "C" fn nyash_string_concat_si(a: *const i8, b: i64) -> *mut i8 {
-    let mut s = String::new();
-    unsafe {
-        if !a.is_null() {
-            if let Ok(sa) = std::ffi::CStr::from_ptr(a).to_str() {
-                s.push_str(sa);
-            }
-        }
-    }
-    s.push_str(&b.to_string());
-    string_to_c_string_ptr(s)
+    concat_mixed_string_and_i64(true, a, b)
 }
 
 // Exported as: nyash.string.concat_is(i64 a, i8* b) -> i8*
-// NOTE: Phase 131-15-P1 - Kept for diagnostic/compatibility purposes
-// LLVM backend now uses concat_hh(handle, handle) for all mixed concatenations
+// Compatibility ABI surface for mixed integer/string concatenation.
 #[export_name = "nyash.string.concat_is"]
 pub extern "C" fn nyash_string_concat_is(a: i64, b: *const i8) -> *mut i8 {
-    let mut s = a.to_string();
-    unsafe {
-        if !b.is_null() {
-            if let Ok(sb) = std::ffi::CStr::from_ptr(b).to_str() {
-                s.push_str(sb);
-            }
-        }
-    }
-    string_to_c_string_ptr(s)
+    concat_mixed_string_and_i64(false, b, a)
 }
 
 // Exported as: nyash.string.substring_sii(i8* s, i64 start, i64 end) -> i8*
@@ -108,19 +100,11 @@ pub extern "C" fn nyash_string_substring_sii(s: *const i8, start: i64, end: i64)
 // Exported as: nyash.string.lastIndexOf_ss(i8* s, i8* needle) -> i64
 #[export_name = "nyash.string.lastIndexOf_ss"]
 pub extern "C" fn nyash_string_lastindexof_ss(s: *const i8, needle: *const i8) -> i64 {
-    use std::ffi::CStr;
-    if s.is_null() || needle.is_null() {
+    let Some(h) = c_string_text(s) else {
         return -1;
-    }
-    let hs = unsafe { CStr::from_ptr(s) };
-    let ns = unsafe { CStr::from_ptr(needle) };
-    let h = match hs.to_str() {
-        Ok(v) => v,
-        Err(_) => return -1,
     };
-    let n = match ns.to_str() {
-        Ok(v) => v,
-        Err(_) => return -1,
+    let Some(n) = c_string_text(needle) else {
+        return -1;
     };
     if n.is_empty() {
         return h.len() as i64;
@@ -135,19 +119,11 @@ pub extern "C" fn nyash_string_lastindexof_ss(s: *const i8, needle: *const i8) -
 // Exported as: nyash.string.indexOf_ss(i8* s, i8* needle) -> i64
 #[export_name = "nyash.string.indexOf_ss"]
 pub extern "C" fn nyash_string_indexof_ss(s: *const i8, needle: *const i8) -> i64 {
-    use std::ffi::CStr;
-    if s.is_null() || needle.is_null() {
+    let Some(h) = c_string_text(s) else {
         return -1;
-    }
-    let hs = unsafe { CStr::from_ptr(s) };
-    let ns = unsafe { CStr::from_ptr(needle) };
-    let h = match hs.to_str() {
-        Ok(v) => v,
-        Err(_) => return -1,
     };
-    let n = match ns.to_str() {
-        Ok(v) => v,
-        Err(_) => return -1,
+    let Some(n) = c_string_text(needle) else {
+        return -1;
     };
     if n.is_empty() {
         return 0;
@@ -163,13 +139,7 @@ pub extern "C" fn nyash_string_indexof_ss(s: *const i8, needle: *const i8) -> i6
 // mode: 0 = byte length (UTF-8 bytes), 1 = char length (Unicode scalar count)
 #[export_name = "nyash.string.length_si"]
 pub extern "C" fn nyash_string_length_si(s: *const i8, mode: i64) -> i64 {
-    use std::ffi::CStr;
-    if s.is_null() {
-        return 0;
-    }
-    let cs = unsafe { CStr::from_ptr(s) };
-    // Safe UTF-8 conversion; on failure, fall back to byte length scan
-    if let Ok(st) = cs.to_str() {
+    if let Some(st) = c_string_text(s) {
         if mode == 1 {
             // char count
             return st.chars().count() as i64;
@@ -210,13 +180,11 @@ pub extern "C" fn nyash_string_to_i8p_h(handle: i64) -> *mut i8 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::ffi::CStr;
+    use crate::c_string::c_string_text;
 
     fn to_string(ptr: *mut i8) -> String {
         assert!(!ptr.is_null());
-        unsafe { CStr::from_ptr(ptr) }
-            .to_string_lossy()
-            .into_owned()
+        c_string_text(ptr).expect("utf8").to_owned()
     }
 
     #[test]

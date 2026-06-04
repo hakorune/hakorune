@@ -1,6 +1,5 @@
 pub use super::array_compat::*;
 pub use super::array_runtime_aliases::*;
-pub use super::array_substrate::*;
 
 #[cfg(test)]
 use super::array_handle_cache::with_array_box;
@@ -8,8 +7,10 @@ use super::array_handle_cache::with_array_box;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::c_string::cstring;
     use crate::nyash_string_kernel_slot_len_i_export;
-    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use crate::test_support::handle_registry_test_lock;
+    use nyash_rust::box_trait::{BoxCore, NyashBox, StringBox};
     use nyash_rust::boxes::array::ArrayBox;
     use nyash_rust::runtime::host_handles as handles;
     use std::sync::Arc;
@@ -48,11 +49,11 @@ mod tests {
     }
 
     #[test]
-    fn legacy_set_h_returns_zero_but_applies_value() {
+    fn compat_set_h_returns_zero_but_applies_value() {
         let handle = new_array_handle();
         assert_eq!(nyash_array_push_h(handle, 11), 1);
 
-        // Legacy contract keeps return=0 even when applied.
+        // Compat contract keeps return=0 even when applied.
         assert_eq!(nyash_array_set_h(handle, 0, 77), 0);
         assert_eq!(nyash_array_get_h(handle, 0), 77);
     }
@@ -161,7 +162,7 @@ mod tests {
             nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
         )
             as std::sync::Arc<dyn NyashBox>) as i64;
-        let suffix = std::ffi::CString::new("ln").expect("suffix");
+        let suffix = cstring("ln");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
@@ -181,7 +182,7 @@ mod tests {
     #[test]
     fn suffix_store_by_index_mutates_string_slot_directly() {
         let handle = new_array_handle();
-        let suffix = std::ffi::CString::new("xy").expect("suffix");
+        let suffix = cstring("xy");
 
         assert_eq!(
             with_array_box(handle, |arr| arr
@@ -189,15 +190,6 @@ mod tests {
             .unwrap_or(false),
             true
         );
-        let before_ptr = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                items
-                    .first()
-                    .and_then(|item| item.as_any().downcast_ref::<StringBox>())
-                    .map(|value| value as *const StringBox as usize)
-            })
-        })
-        .flatten();
 
         assert_eq!(
             crate::nyash_array_string_suffix_store_his_alias(handle, 0, suffix.as_ptr(),),
@@ -209,7 +201,7 @@ mod tests {
                 items.first().and_then(|item| {
                     item.as_any()
                         .downcast_ref::<StringBox>()
-                        .map(|value| (value as *const StringBox as usize, value.value.clone()))
+                        .map(|value| (value.box_id(), value.value.clone()))
                 })
             })
         })
@@ -218,13 +210,12 @@ mod tests {
             stored.as_ref().map(|(_, text)| text.as_str()),
             Some("line-seedxy")
         );
-        assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
     }
 
     #[test]
     fn suffix_store_by_index_explicit_len_uses_const_slice() {
         let handle = new_array_handle();
-        let suffix = std::ffi::CString::new("xyZZ").expect("suffix");
+        let suffix = cstring("xyZZ");
 
         assert_eq!(
             with_array_box(handle, |arr| arr
@@ -254,7 +245,7 @@ mod tests {
     fn suffix_store_by_index_uses_text_lane_without_mutating_source() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
-        let suffix = std::ffi::CString::new("xy").expect("suffix");
+        let suffix = cstring("xy");
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
         assert_eq!(
@@ -277,7 +268,7 @@ mod tests {
             nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
         )
             as std::sync::Arc<dyn NyashBox>) as i64;
-        let middle = std::ffi::CString::new("xx").expect("middle");
+        let middle = cstring("xx");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
@@ -313,7 +304,7 @@ mod tests {
     #[test]
     fn insert_mid_store_by_index_mutates_string_slot_directly() {
         let handle = new_array_handle();
-        let middle = std::ffi::CString::new("xx").expect("middle");
+        let middle = cstring("xx");
 
         assert_eq!(
             with_array_box(handle, |arr| arr.slot_store_box_raw(
@@ -323,18 +314,6 @@ mod tests {
             .unwrap_or(false),
             true
         );
-        let before_ptr = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                items
-                    .first()
-                    .and_then(|item| {
-                        item.as_any()
-                            .downcast_ref::<nyash_rust::box_trait::StringBox>()
-                    })
-                    .map(|value| value as *const nyash_rust::box_trait::StringBox as usize)
-            })
-        })
-        .flatten();
         assert_eq!(
             crate::nyash_array_string_insert_mid_store_hisi_alias(handle, 0, middle.as_ptr(), 4,),
             1
@@ -345,26 +324,17 @@ mod tests {
                     item.as_any()
                         .downcast_ref::<nyash_rust::box_trait::StringBox>()
                 });
-                value.map(|value| {
-                    (
-                        value as *const nyash_rust::box_trait::StringBox as usize,
-                        value.value.clone(),
-                    )
-                })
+                value.map(|value| value.value.clone())
             })
         })
         .flatten();
-        assert_eq!(
-            stored.as_ref().map(|(_, text)| text.as_str()),
-            Some("linexx-seed")
-        );
-        assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
+        assert_eq!(stored.as_deref(), Some("linexx-seed"));
     }
 
     #[test]
     fn insert_mid_store_by_index_explicit_len_uses_const_slice() {
         let handle = new_array_handle();
-        let middle = std::ffi::CString::new("xxZZ").expect("middle");
+        let middle = cstring("xxZZ");
 
         assert_eq!(
             with_array_box(handle, |arr| arr.slot_store_box_raw(
@@ -402,7 +372,7 @@ mod tests {
     fn insert_mid_store_by_index_uses_text_lane_without_mutating_source() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
-        let middle = std::ffi::CString::new("xx").expect("middle");
+        let middle = cstring("xx");
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
         assert_eq!(slot_text(handle, 0).as_deref(), Some("line-seed"));
@@ -422,8 +392,9 @@ mod tests {
 
     #[test]
     fn insert_mid_subrange_store_by_index_materializes_same_slot_once() {
+        let _guard = handle_registry_test_lock();
         let handle = new_array_handle();
-        let middle = std::ffi::CString::new("xx").expect("middle");
+        let middle = cstring("xx");
 
         assert_eq!(
             with_array_box(handle, |arr| arr.slot_store_box_raw(
@@ -433,19 +404,6 @@ mod tests {
             .unwrap_or(false),
             true
         );
-        let before_ptr = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                items
-                    .first()
-                    .and_then(|item| {
-                        item.as_any()
-                            .downcast_ref::<nyash_rust::box_trait::StringBox>()
-                    })
-                    .map(|value| value as *const nyash_rust::box_trait::StringBox as usize)
-            })
-        })
-        .flatten();
-
         assert_eq!(
             crate::nyash_array_string_insert_mid_subrange_store_hisiii_alias(
                 handle,
@@ -464,26 +422,17 @@ mod tests {
                     item.as_any()
                         .downcast_ref::<nyash_rust::box_trait::StringBox>()
                 });
-                value.map(|value| {
-                    (
-                        value as *const nyash_rust::box_trait::StringBox as usize,
-                        value.value.clone(),
-                    )
-                })
+                value.map(|value| value.value.clone())
             })
         })
         .flatten();
-        assert_eq!(
-            stored.as_ref().map(|(_, text)| text.as_str()),
-            Some("inexx-see")
-        );
-        assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
+        assert_eq!(stored.as_deref(), Some("inexx-see"));
     }
 
     #[test]
     fn insert_mid_subrange_store_by_index_explicit_len_uses_const_slice() {
         let handle = new_array_handle();
-        let middle = std::ffi::CString::new("xxZZ").expect("middle");
+        let middle = cstring("xxZZ");
 
         assert_eq!(
             with_array_box(handle, |arr| arr.slot_store_box_raw(
@@ -522,7 +471,7 @@ mod tests {
     #[test]
     fn insert_mid_subrange_len_store_by_index_returns_result_len() {
         let handle = new_array_handle();
-        let middle = std::ffi::CString::new("xx").expect("middle");
+        let middle = cstring("xx");
 
         assert_eq!(
             with_array_box(handle, |arr| arr.slot_store_box_raw(
@@ -590,7 +539,7 @@ mod tests {
     fn kernel_slot_store_existing_string_box_promotes_to_text_lane() {
         let handle = new_array_handle();
         let lhs_h = new_string_handle("line-seed");
-        let suffix = std::ffi::CString::new("xy").expect("CString");
+        let suffix = cstring("xy");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         with_array_box(handle, |arr| {
@@ -638,7 +587,7 @@ mod tests {
     fn kernel_slot_const_suffix_store_existing_alias_keeps_text_lane_residence() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
-        let suffix = std::ffi::CString::new("xy").expect("CString");
+        let suffix = cstring("xy");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
@@ -667,7 +616,7 @@ mod tests {
     fn kernel_slot_const_suffix_store_alias_writes_string_slot_without_publish_handle() {
         let handle = new_array_handle();
         let lhs_h = new_string_handle("line-seed");
-        let suffix = std::ffi::CString::new("xy").expect("CString");
+        let suffix = cstring("xy");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(

@@ -1,8 +1,8 @@
 use std::{fmt, ops::Deref};
 
-/// Runtime-private semantic read carrier for the current text corridor.
-/// `BorrowedHandleBox` and `StringViewBox` may provide or replay this view,
-/// but neither boundary adapter is the semantic carrier itself.
+/// Runtime-private read-only text view returned by borrowed-handle and
+/// string-view paths. `BorrowedHandleBox` and `StringViewBox` may provide or
+/// replay this view, but neither path owns the text itself.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) struct TextRef<'a> {
     text: &'a str,
@@ -36,9 +36,9 @@ impl Deref for TextRef<'_> {
     }
 }
 
-/// Runtime-private semantic owned carrier for unpublished text.
-/// `KernelTextSlot` remains the transport adapter/sink seed; future `TextCell`
-/// work stays separate from this carrier step.
+/// Runtime-private owned text buffer waiting to be published through
+/// `KernelTextSlot`. Future `TextCell` work stays separate from this buffered
+/// text state.
 pub(crate) struct OwnedText(String);
 
 impl OwnedText {

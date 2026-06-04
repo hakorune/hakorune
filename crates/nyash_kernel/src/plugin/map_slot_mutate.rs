@@ -5,6 +5,7 @@ use super::map_key_codec::map_key_string_from_any;
 pub(super) fn map_slot_clear(handle: i64) -> i64 {
     let _ = with_map_box(handle, |map| {
         map.clear_entries();
+        0
     });
     0
 }

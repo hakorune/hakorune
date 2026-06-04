@@ -15,51 +15,22 @@ pub extern "C" fn nyash_plugin_invoke3_tagged_i64(
     a4: i64,
     tag4: i64,
 ) -> i64 {
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
-
-    let mut instance_id: u32 = 0;
-    let mut real_type_id: u32 = type_id as u32;
-    let mut invoke: Option<invoke_core::InvokeFn> = None;
-    if a0 > 0 {
-        if let Some(obj) = nyash_rust::runtime::host_handles::get(a0 as u64) {
-            if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                instance_id = p.instance_id();
-                real_type_id = p.inner.type_id;
-                invoke = Some(p.inner.invoke_fn);
-            }
-        }
-    }
-    let Some(invoke) = invoke else {
+    let Some(recv) = invoke_core::resolve_receiver_for_a0(a0) else {
         return 0;
     };
+    let instance_id = recv.instance_id;
+    let real_type_id = recv.real_type_id;
+    let invoke = recv.invoke;
 
     let nargs = argc.max(0) as usize;
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
-    let mut enc = |val: i64, tag: i64| match tag {
-        3 => nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, val),
-        5 => {
-            let bits = val as u64;
-            nyash_rust::runtime::plugin_ffi_common::encode::f64(&mut buf, f64::from_bits(bits));
-        }
-        8 => {
-            if val > 0 {
-                if let Some(obj) = nyash_rust::runtime::host_handles::get(val as u64) {
-                    if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                        nyash_rust::runtime::plugin_ffi_common::encode::plugin_handle(
-                            &mut buf,
-                            p.inner.type_id,
-                            p.instance_id(),
-                        );
-                    } else {
-                        let s = obj.to_string_box().value;
-                        nyash_rust::runtime::plugin_ffi_common::encode::string(&mut buf, &s);
-                    }
-                }
-            } else {
-                nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, 0);
-            }
-        }
-        _ => nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, val),
+    let mut enc = |val: i64, tag: i64| {
+        crate::plugin::encode_tagged_value(
+            &mut buf,
+            val,
+            tag,
+            crate::plugin::MissingHandleEncoding::Zero,
+        )
     };
     if nargs >= 1 {
         enc(a1, tag1);
@@ -74,12 +45,8 @@ pub extern "C" fn nyash_plugin_invoke3_tagged_i64(
         enc(a4, tag4);
     }
 
-    let Some((tag, sz, payload)) =
-        invoke_core::plugin_invoke_call(invoke, real_type_id, method_id as u32, instance_id, &buf)
-    else {
-        return 0;
-    };
-    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), invoke).unwrap_or(0)
+    invoke_core::invoke_receiver_to_i64(invoke, real_type_id, method_id as u32, instance_id, &buf)
+        .unwrap_or(0)
 }
 
 #[export_name = "nyash.plugin.invoke_tagged_v_i64"]
@@ -91,24 +58,12 @@ pub extern "C" fn nyash_plugin_invoke_tagged_v_i64(
     vals: *const i64,
     tags: *const i64,
 ) -> i64 {
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
-    if recv_h <= 0 {
-        return 0;
-    }
-
-    let mut instance_id: u32 = 0;
-    let mut real_type_id: u32 = 0;
-    let mut invoke: Option<invoke_core::InvokeFn> = None;
-    if let Some(obj) = nyash_rust::runtime::host_handles::get(recv_h as u64) {
-        if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-            instance_id = p.instance_id();
-            real_type_id = p.inner.type_id;
-            invoke = Some(p.inner.invoke_fn);
-        }
-    }
-    let Some(invoke) = invoke else {
+    let Some(recv) = invoke_core::resolve_receiver_for_a0(recv_h) else {
         return 0;
     };
+    let instance_id = recv.instance_id;
+    let real_type_id = recv.real_type_id;
+    let invoke = recv.invoke;
 
     let nargs = argc.saturating_sub(1).max(0) as usize;
     let (vals, tags) = if nargs > 0 && !vals.is_null() && !tags.is_null() {
@@ -124,38 +79,14 @@ pub extern "C" fn nyash_plugin_invoke_tagged_v_i64(
 
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
     for i in 0..nargs {
-        match tags[i] {
-            3 => nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, vals[i]),
-            5 => {
-                nyash_rust::runtime::plugin_ffi_common::encode::f64(
-                    &mut buf,
-                    f64::from_bits(vals[i] as u64),
-                );
-            }
-            8 => {
-                if let Some(obj) = nyash_rust::runtime::host_handles::get(vals[i] as u64) {
-                    if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                        nyash_rust::runtime::plugin_ffi_common::encode::plugin_handle(
-                            &mut buf,
-                            p.inner.type_id,
-                            p.instance_id(),
-                        );
-                    } else {
-                        let s = obj.to_string_box().value;
-                        nyash_rust::runtime::plugin_ffi_common::encode::string(&mut buf, &s);
-                    }
-                } else {
-                    nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, 0);
-                }
-            }
-            _ => nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut buf, vals[i]),
-        }
+        crate::plugin::encode_tagged_value(
+            &mut buf,
+            vals[i],
+            tags[i],
+            crate::plugin::MissingHandleEncoding::Zero,
+        );
     }
 
-    let Some((tag, sz, payload)) =
-        invoke_core::plugin_invoke_call(invoke, real_type_id, method_id as u32, instance_id, &buf)
-    else {
-        return 0;
-    };
-    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), invoke).unwrap_or(0)
+    invoke_core::invoke_receiver_to_i64(invoke, real_type_id, method_id as u32, instance_id, &buf)
+        .unwrap_or(0)
 }
