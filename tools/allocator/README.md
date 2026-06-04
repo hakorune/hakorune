@@ -44,6 +44,9 @@ provider_package_export_bundle_render.py:
 provider_package_api_bind_smoke_report.py:
   provider API bind smoke report rendering only; no API loading or runner logic
 
+provider_replacement_decision_adapter_report.py:
+  provider replacement decision report rendering only; no validation or CLI orchestration
+
 hako_mimalloc_algorithm_coverage_render.py:
   coverage text rendering only; no coverage computation or CLI orchestration
 

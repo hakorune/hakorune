@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from provider_replacement_decision_adapter_report import render_report
+
 
 def read_kv(path: Path) -> dict[str, str]:
     values: dict[str, str] = {}
@@ -181,60 +183,17 @@ def main() -> int:
     validate_ldpreload(ldpreload)
     validate_rust_global(rust_global)
 
-    lines = [
-        "output_contract=hako-mimalloc-provider-replacement-decision-adapter-v0",
-        "input_contracts=mimalloc-comparison-repeated-measurement-v0,hakorune-provider-explicit-repeated-measurement-v0,hako-mimalloc-provider-backed-hakmem-ldpreload-repeated-measurement-v0|hako-mimalloc-provider-backed-hakmem-ldpreload-bench-pilot-v0|hako-mimalloc-provider-backed-hakozuna-mixed-ws-ldpreload-repeated-measurement-v0,hako-mimalloc-provider-backed-rust-global-allocator-smoke-v0",
-        "decision_scope=provider_replacement_pilots_without_winner_claim",
-        "measurement_domains=exact_exe_c_provider_explicit,external_ldpreload,generated_rust_global_allocator",
-        f"workload_id={workload}",
-        f"operation_family={operation_family}",
-        f"operation_repeat={operation_repeat}",
-        f"sample_count={sample_count}",
-        "subject_count=5",
-        "subject_0_id=hako_exact_exe",
-        f"subject_0_elapsed_median_ms={require_key(hako_c, f'workload_{args.workload_index}_hako_external_elapsed_median_ms', 'hako_c')}",
-        "subject_0_winner_claim=0",
-        "subject_1_id=c_mimalloc_explicit_runner",
-        f"subject_1_elapsed_median_ms={require_key(hako_c, f'workload_{args.workload_index}_c_external_elapsed_median_ms', 'hako_c')}",
-        "subject_1_winner_claim=0",
-        "subject_2_id=provider_package_explicit_alloc_free",
-        f"subject_2_elapsed_median_ns={require_key(provider, 'sample_elapsed_median_ns', 'provider')}",
-        "subject_2_replacement_active=0",
-        "subject_2_winner_claim=0",
-        "subject_3_id=provider_backed_external_ldpreload",
-        f"subject_3_benchmark_id={require_key(ldpreload, 'benchmark_id', 'ldpreload')}",
-        f"subject_3_timing_repeat_kind={ldpreload.get('timing_repeat_kind', 'single-process-pilot-v0')}",
-        f"subject_3_throughput_median_ops_per_sec={ldpreload.get('throughput_median_ops_per_sec', ldpreload.get('throughput_ops_per_sec', ''))}",
-        f"subject_3_shim_provider_alloc_count_total={ldpreload.get('shim_provider_alloc_count_total', ldpreload.get('shim_provider_alloc_count', ''))}",
-        f"subject_3_shim_provider_free_count_total={ldpreload.get('shim_provider_free_count_total', ldpreload.get('shim_provider_free_count', ''))}",
-        f"subject_3_shim_runtime_real_fallback_count_total={ldpreload.get('shim_runtime_real_fallback_count_total', ldpreload.get('shim_runtime_real_fallback_count', ''))}",
-        f"subject_3_shim_init_real_fallback_count_total={ldpreload.get('shim_init_real_fallback_count_total', ldpreload.get('shim_init_real_fallback_count', ''))}",
-        f"subject_3_shim_host_passthrough_count_total={ldpreload.get('shim_host_passthrough_count_total', ldpreload.get('shim_host_passthrough_count', ''))}",
-        f"subject_3_shim_pointer_table_overflow_total={ldpreload.get('shim_pointer_table_overflow_total', ldpreload.get('shim_pointer_table_overflow', ''))}",
-        "subject_3_shim_init_real_fallback_is_perf_diagnostic=1",
-        "subject_3_replacement_active=1",
-        "subject_3_replacement_product_claim=0",
-        "subject_3_winner_claim=0",
-        "subject_4_id=provider_backed_rust_global_allocator",
-        "subject_4_global_allocator=1",
-        "subject_4_global_allocator_scope=generated-rust-smoke-process-only",
-        "subject_4_global_allocator_product_claim=0",
-        "subject_4_winner_claim=0",
-        "provider_api_bound=1",
-        "provider_call_executed=1",
-        "allocator_entrypoint_called=1",
-        "external_process_replacement_pilot=1",
-        "generated_global_allocator_pilot=1",
-        "provider_activation=0",
-        "production_replacement_active=0",
-        "hook_installed=0",
-        "global_allocator_product_claim=0",
-        "winner_claim=0",
-        "decision=external_process_repeated_ready_no_product_default_change",
-        "next_step=compare_against_external_corpus_or_scale_sample_count_before_any_winner_claim",
-        "summary=ok",
-    ]
-    report = "\n".join(lines) + "\n"
+    report = render_report(
+        hako_c,
+        provider,
+        ldpreload,
+        rust_global,
+        workload=workload,
+        operation_family=operation_family,
+        operation_repeat=operation_repeat,
+        sample_count=sample_count,
+        workload_index=args.workload_index,
+    )
     if args.out is None:
         print(report, end="")
     else:
