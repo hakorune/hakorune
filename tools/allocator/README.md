@@ -38,6 +38,10 @@ hakozuna_mixed_ws_report_preamble.py:
   Hakozuna mixed-ws report preamble and metadata line assembly only; no
   benchmark execution logic
 
+hakozuna_mixed_ws_report_preamble_workload.py:
+  Hakozuna mixed-ws report workload and size-class preamble lines only; no
+  benchmark execution logic
+
 hakozuna_mixed_ws_report_subjects.py:
   Hakozuna mixed-ws per-subject report line assembly only; no benchmark
   execution logic
