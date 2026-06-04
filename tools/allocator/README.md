@@ -69,6 +69,9 @@ hako_mimalloc_algorithm_coverage_rows.py:
 hako_mimalloc_algorithm_coverage_owner_state.py:
   coverage owner-selection policy only; no report I/O or CLI orchestration
 
+hako_mimalloc_algorithm_coverage_route_state.py:
+  coverage route-state readiness only; no report I/O or CLI orchestration
+
 hako_mimalloc_algorithm_coverage_support.py:
   shared coverage helpers and path/constants only; no CLI orchestration
 

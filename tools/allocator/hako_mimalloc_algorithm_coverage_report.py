@@ -31,6 +31,10 @@ from hako_mimalloc_algorithm_coverage_owner_state import (
     CoverageOwnerStateInputs,
     derive_owner_state,
 )
+from hako_mimalloc_algorithm_coverage_route_state import (
+    CoverageRouteStateInputs,
+    derive_route_state,
+)
 from hako_mimalloc_algorithm_coverage_rows import refine_rows
 
 
@@ -63,7 +67,6 @@ def report_dict(
     }
     hot_array_get_count = sum(ops["get"] for ops in hot_array_ops.values())
     hot_array_set_count = sum(ops["set"] for ops in hot_array_ops.values())
-    hot_array_access_count = hot_array_get_count + hot_array_set_count
     hot_array_push_count = sum(ops["push"] for ops in hot_array_ops.values())
     hot_array_arraybox_fields = [
         name for name in hot_array_fields if f"{name}: ArrayBox" in page_box
@@ -282,91 +285,57 @@ def report_dict(
     fastpath_dynamic_route_count = int_field(fastpath, "dynamic_route_count", 0)
     fastpath_boxed_fallback_count = int_field(fastpath, "boxed_fallback_count", 0)
     fastpath_clean = int_field(fastpath, "clean", 0)
-    page_model_hot_array_source_route_measured = int(
-        fastpath_report_consumed
-        and hot_array_access_count > 0
-        and fastpath_direct_array_plan_count > 0
-        and fastpath_route_decision_count > 0
-        and fastpath_fast_selected_count == fastpath_route_decision_count
-        and fastpath_slow_selected_count == 0
-        and fastpath_generic_dispatch_count == 0
-        and fastpath_dynamic_route_count == 0
-        and fastpath_boxed_fallback_count == 0
-        and fastpath_clean == 1
-    )
-    if page_model_hot_array_source_route_measured:
-        hot_array_route_measurement_blocker = "none"
-        hot_array_route_next_bridge = "perf_delta_measurement"
-    elif fastpath_report_consumed:
-        hot_array_route_measurement_blocker = "directarray_route_not_clean"
-        hot_array_route_next_bridge = "fix_or_explain_directarray_route_miss"
-    else:
-        hot_array_route_measurement_blocker = "fastpath_report_not_consumed"
-        hot_array_route_next_bridge = "run_hako_check_fastpath_explain"
-    hotcore_page_model_source_ready = int(
-        len(hotcore_methods) == 2
-        and hotcore_small_alloc_calls_acquire_fresh_small
-        and hotcore_release_calls_release_local_known_live
-        and page_model_hot_methods_ready
-        and hot_array_source_migration_selected
-    )
-    hotcore_replacement_shape_ready = int(hotcore_page_model_source_ready)
-    if hotcore_consumer_enabled:
-        hotcore_bridge_blocker = "none"
-        hotcore_next_bridge = (
-            "select_next_structural_owner"
-            if hotcore_measurement_reported
-            else "measure_hotcore_replacement_consumer"
+    route_state = derive_route_state(
+        CoverageRouteStateInputs(
+            hotcore_consumer_enabled=hotcore_consumer_enabled,
+            hotcore_measurement_reported=hotcore_measurement_reported,
+            hot_array_source_migration_selected=hot_array_source_migration_selected,
+            page_model_hot_methods_ready=page_model_hot_methods_ready,
+            fastpath_report_consumed=fastpath_report_consumed,
+            fastpath_direct_array_plan_count=fastpath_direct_array_plan_count,
+            fastpath_route_decision_count=fastpath_route_decision_count,
+            fastpath_fast_selected_count=fastpath_fast_selected_count,
+            fastpath_slow_selected_count=fastpath_slow_selected_count,
+            fastpath_generic_dispatch_count=fastpath_generic_dispatch_count,
+            fastpath_dynamic_route_count=fastpath_dynamic_route_count,
+            fastpath_boxed_fallback_count=fastpath_boxed_fallback_count,
+            fastpath_clean=fastpath_clean,
+            page_map_source_ready=page_map_source_ready,
+            page_map_release_source_ready=page_map_release_source_ready,
+            realloc_same_class_source_ready=realloc_same_class_source_ready,
+            realloc_grow_copy_release_source_ready=realloc_grow_copy_release_source_ready,
+            huge_page_source_ready=huge_page_source_ready,
+            osvm_page_source_pilot_ready=osvm_page_source_pilot_ready,
         )
-    elif hotcore_replacement_shape_ready:
-        hotcore_bridge_blocker = "consumer_not_enabled"
-        hotcore_next_bridge = "replacement_front_consume_hotcore_page_model"
-    else:
-        hotcore_bridge_blocker = "source_shape_not_ready"
-        hotcore_next_bridge = "fix_hotcore_page_model_source_shape"
-    product_pages_source_ready = int(
-        page_map_source_ready
-        and page_map_release_source_ready
-        and realloc_same_class_source_ready
-        and page_model_hot_methods_ready
     )
-    product_pages_full_source_ready = int(
-        product_pages_source_ready
-        and realloc_grow_copy_release_source_ready
-        and huge_page_source_ready
-        and osvm_page_source_pilot_ready
+    page_model_hot_array_source_route_measured = (
+        route_state.page_model_hot_array_source_route_measured
     )
-    product_pages_non_linear_lookup_probe_closed = 1
-    product_pages_non_linear_lookup_decision = "nonkeeper"
-    if product_pages_consumer_enabled:
-        product_pages_bridge_blocker = "non_linear_probe_measured_nonkeeper"
-        product_pages_next_bridge = "select_next_perf_owner"
-    elif product_pages_source_ready:
-        product_pages_bridge_blocker = "non_linear_probe_closed_nonkeeper"
-        product_pages_next_bridge = "select_next_perf_owner"
-    else:
-        product_pages_bridge_blocker = "source_shape_not_ready"
-        product_pages_next_bridge = "fix_product_pages_source_shape"
-    product_pages_non_linear_lookup_plan = int(
-        product_pages_source_ready and not product_pages_consumer_enabled
+    hot_array_route_measurement_blocker = route_state.hot_array_route_measurement_blocker
+    hot_array_route_next_bridge = route_state.hot_array_route_next_bridge
+    hotcore_page_model_source_ready = route_state.hotcore_page_model_source_ready
+    hotcore_replacement_shape_ready = route_state.hotcore_replacement_shape_ready
+    hotcore_bridge_blocker = route_state.hotcore_bridge_blocker
+    hotcore_next_bridge = route_state.hotcore_next_bridge
+    product_pages_source_ready = route_state.product_pages_source_ready
+    product_pages_full_source_ready = route_state.product_pages_full_source_ready
+    product_pages_bridge_blocker = route_state.product_pages_bridge_blocker
+    product_pages_next_bridge = route_state.product_pages_next_bridge
+    product_pages_non_linear_lookup_probe_closed = (
+        route_state.product_pages_non_linear_lookup_probe_closed
     )
-    product_pages_linear_probe_closed = int(product_pages_non_linear_lookup_plan)
+    product_pages_non_linear_lookup_decision = (
+        route_state.product_pages_non_linear_lookup_decision
+    )
+    product_pages_non_linear_lookup_plan = route_state.product_pages_non_linear_lookup_plan
+    product_pages_linear_probe_closed = route_state.product_pages_linear_probe_closed
     product_pages_non_linear_lookup_strategy = (
-        "range_decision_tree_or_indexed_page_table"
-        if product_pages_non_linear_lookup_plan
-        else "none"
+        route_state.product_pages_non_linear_lookup_strategy
     )
-    product_pages_non_linear_next_bridge = (
-        "replacement_front_product_pages_non_linear_plan"
-        if product_pages_non_linear_lookup_plan
-        else product_pages_next_bridge
-    )
-    structural_owner_refresh_required = int(
-        hotcore_measurement_reported
-        and hotcore_next_bridge == "select_next_structural_owner"
-    )
-    page_model_hot_array_measurement_ready = int(
-        structural_owner_refresh_required and hot_array_source_migration_selected
+    product_pages_non_linear_next_bridge = route_state.product_pages_non_linear_next_bridge
+    structural_owner_refresh_required = route_state.structural_owner_refresh_required
+    page_model_hot_array_measurement_ready = (
+        route_state.page_model_hot_array_measurement_ready
     )
     perf_delta_plan = int_field(
         perf_attribution, "page_model_hot_array_perf_delta_measurement_plan_v0", 0
