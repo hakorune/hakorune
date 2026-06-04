@@ -17,42 +17,6 @@ import argparse
 from pathlib import Path
 
 from hako_mimalloc_perf_attribution_report import emit_report
-from hako_mimalloc_perf_attribution_support import (
-    I64_SIGNED_MAX,
-    INLINE_OWNER_NEXT_BRIDGE,
-    AnnotatedInstruction,
-    ObjdumpInstruction,
-    PerfSymbol,
-    _append_unique,
-    _context_fields_for_address,
-    _context_for_address,
-    _count_bucket,
-    _count_public_or_proof,
-    _dominant_inline_owner,
-    _dominant_store_bucket,
-    _field_hints_for_asm,
-    _field_names_for_asm,
-    _has_checked_public_accumulator_barrier,
-    _instruction_category,
-    _is_arithmetic_or_compare,
-    _is_branch,
-    _is_call,
-    _is_memory,
-    _is_store_like,
-    _kv_bool,
-    _select_backend_store_shape,
-    _select_directarray_owner_instruction_shape,
-    _select_inline_owner_for_fields,
-    _store_bucket_weights,
-    _inline_owner_weights,
-    _public_proof_accumulator_fields,
-    _sum_matching,
-    _read,
-    parse_annotated_instructions,
-    parse_layout_field_offsets,
-    parse_objdump_instructions,
-    parse_perf_symbols,
-)
 
 
 def main() -> int:

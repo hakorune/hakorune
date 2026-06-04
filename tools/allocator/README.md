@@ -42,6 +42,9 @@ hakozuna_mixed_ws_gap_summary_report.py:
 hako_mimalloc_perf_attribution_report.py:
   perf attribution report rendering only; no perf parsing or CLI orchestration
 
+hako_mimalloc_perf_attribution_selection.py:
+  perf attribution owner/shape selection only; no perf parsing or CLI orchestration
+
 hako_mimalloc_perf_attribution_support.py:
   shared perf attribution parsing/classification helpers only; no CLI or report rendering
 
