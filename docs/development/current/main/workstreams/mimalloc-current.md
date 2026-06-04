@@ -547,6 +547,33 @@ provider_registration_report_pairing_2026_06_05:
   winner_claim=0
   selected_next_action=refresh_provider_host_benchmark_with_descriptor_and_registration_fields
 
+provider_registration_benchmark_refresh_2026_06_05:
+  status=landed
+  report_t1=target/type-abi-provider-registration-refresh-t1.out
+  report_t4=target/type-abi-provider-registration-refresh-t4.out
+  descriptor_fields_present=1
+  provider_registration_v1_present=1
+  provider_registration_hot_path_uses=provider_ops_only
+  provider_registration_type_abi_hot_path_lookup_count=0
+  provider_kind=host_backed_adapter
+  provider_declared_route=provider_hako_object_lifecycle_ldpreload
+  provider_execution_route=provider_host_adapter_ldpreload
+  provider_hako_hot_path_claim=0
+  t1_provider_median_ops_per_sec=25,337,519.138
+  t1_provider_vs_mimalloc_ratio=0.582
+  t1_provider_slower_than_mimalloc_percent=71.7
+  t4_provider_median_ops_per_sec=9,970,115.213
+  t4_provider_vs_mimalloc_ratio=0.144
+  t4_provider_slower_than_mimalloc_percent=596.7
+  shim_tracking_insert_probe_total=0
+  shim_tracking_lookup_probe_total=0
+  provider_activation=0
+  hook_installed=0
+  global_allocator_claim=0
+  winner_claim=0
+  selected_next_owner=thread_local_or_pure_provider_allocator_thread_shape
+  selected_next_action=measure_thread_local_replacement_front_or_pure_provider_boundary_before_more_host_backed_C_shape_work
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
