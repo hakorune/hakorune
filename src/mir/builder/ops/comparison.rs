@@ -28,7 +28,7 @@ impl super::super::MirBuilder {
     /// 2. If operator box enabled & not in guard:
     ///    - Emit CompareOperator.apply/3(op_string, lhs, rhs)
     ///    - Annotate result as Bool
-    /// 3. Otherwise (legacy path):
+    /// 3. Otherwise (direct MIR path):
     ///    - Detect IntegerBox operands → insert TypeOp::Cast
     ///    - Finalize operands via LocalSSA (finalize_compare)
     ///    - Emit Compare instruction via emission::compare::emit_to

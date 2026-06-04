@@ -11,7 +11,7 @@ fn trace_tostring(msg: impl std::fmt::Display) {
 /// Phase 287 P4: toString/stringify/str → Call(Method) normalization (SSOT)
 ///
 /// Root cause fix: toString is a universal display method that should always use
-/// canonical Method callee (not Global fallback). This ensures:
+/// canonical Method callee (not Global reinterpretation). This ensures:
 /// - VM/LLVM/JoinIR consistent behavior
 /// - Primitive types (Integer/Float/Bool/String) work correctly
 /// - No receiver type inference errors

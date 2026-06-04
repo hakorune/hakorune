@@ -10,8 +10,10 @@ Out of scope
 Contract
 - Builder must populate `MirInstruction::Call` with a concrete `Callee` whenever possible.
 - Arity and canonical names are normalized here so runtimes can be simple routers.
+- Unresolved global calls may use builder-side additional resolvers (direct module lookup,
+  unique static method recovery, dev-only tail resolver). Runtime by-name lookup must not be
+  treated as the normal recovery path.
 
 Phase-3 alignment
 - VM call resolver is treated as legacy-only. Default runtime disables by-name fallback.
 - Extern interface normalization aligns with `handlers/calls/externs.rs` (runtime SSOT for extern dispatch).
-

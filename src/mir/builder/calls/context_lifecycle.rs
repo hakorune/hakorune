@@ -75,7 +75,7 @@ impl MirBuilder {
         } else {
             None
         };
-        // ValueId は関数ローカルなので、legacy mode では type_ctx も関数境界で必ず分離する。
+        // ValueId は関数ローカルなので、snapshot path では type_ctx も関数境界で必ず分離する。
         // そうしないと別関数の ValueId と衝突し、box_name 推論がランダムに壊れる（phase29aq flake 根因）。
         let saved_type_ctx = if !context_active {
             Some(self.type_ctx.take_snapshot())

@@ -57,7 +57,7 @@ impl UnifiedCallEmitterBox {
 
         // Check environment variable for unified call usage
         let result = if !call_unified::is_unified_call_enabled() {
-            // Fall back to legacy implementation
+            // Use the compatibility call entry when unified calls are disabled.
             builder.emit_legacy_call(dst, target, args)
         } else {
             Self::emit_unified_call_impl(builder, dst, target, args)
@@ -174,7 +174,7 @@ impl UnifiedCallEmitterBox {
 
         // Convert CallTarget to Callee using CalleeResolverBox
         if let CallTarget::Global(ref _n) = target { /* dev trace removed */ }
-        // Fallback: if Global target is unknown, try unique static-method mapping (name/arity)
+        // If a Global target is unresolved, try the additional global resolvers.
         let resolver = super::resolver::CalleeResolverBox::new(
             &builder.type_ctx.value_origin_newbox,
             &builder.type_ctx.value_types,
@@ -184,9 +184,9 @@ impl UnifiedCallEmitterBox {
             Ok(c) => c,
             Err(e) => {
                 if let CallTarget::Global(ref name) = target {
-                    // Try fallback handlers (via CallMaterializerBox)
+                    // Try additional resolvers (via CallMaterializerBox)
                     if let Some(result) =
-                        super::materializer::CallMaterializerBox::try_global_fallback_handlers(
+                        super::materializer::CallMaterializerBox::try_global_additional_resolvers(
                             builder, dst, name, &args,
                         )?
                     {
@@ -376,7 +376,7 @@ impl UnifiedCallEmitterBox {
                 {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
-                        "[router-guard] {}.{} → BoxCall fallback (recv=%{})",
+                        "[router-guard] {}.{} -> BoxCall route (recv=%{})",
                         box_name, method, r.0
                     ));
                 }
@@ -492,16 +492,16 @@ impl UnifiedCallEmitterBox {
             None
         };
 
-        // For Phase 2: Convert to legacy Call instruction with new callee field (use finalized operands)
-        let legacy_call = MirInstruction::Call {
+        // Build the MIR Call instruction with a concrete Callee and finalized operands.
+        let call_inst = MirInstruction::Call {
             dst: mir_call.dst,
-            func: ValueId::INVALID, // Dummy value for legacy compatibility (not a real SSA use)
+            func: ValueId::INVALID, // Compatibility field; Callee is the call target SSOT.
             callee: Some(callee),
             args: args_local,
             effects: mir_call.effects,
         };
 
-        let res = builder.emit_instruction(legacy_call);
+        let res = builder.emit_instruction(call_inst);
 
         // Annotate call result with return type from module signature
         if let Some((dst, func_name)) = annotation_info {
@@ -526,7 +526,7 @@ impl UnifiedCallEmitterBox {
         res
     }
 
-    /// Emit global call with name constant (public for legacy compatibility)
+    /// Emit global call with name constant (public compatibility entry).
     pub fn emit_global_unified(
         builder: &mut MirBuilder,
         dst: Option<ValueId>,
@@ -555,7 +555,7 @@ impl UnifiedCallEmitterBox {
         Ok(())
     }
 
-    /// Emit value call (first-class function, public for legacy compatibility)
+    /// Emit value call (first-class function, public compatibility entry).
     pub fn emit_value_unified(
         builder: &mut MirBuilder,
         dst: Option<ValueId>,

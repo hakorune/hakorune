@@ -5,7 +5,7 @@
 //! Responsibilities:
 //! - Annotate Call result types from function signatures
 //! - Annotate Constructor Callee with value_origin_newbox
-//! - Provide Unknown fallback for unknown targets
+//! - Register explicit Unknown for unresolved targets
 //!
 //! Called by: `finalize_module()` in module_lifecycle.rs
 //!
@@ -24,7 +24,7 @@ use crate::mir::{MirFunction, MirModule, MirType};
 /// - `Await`: Unwrap Future<T> → T
 /// - `Call`: Lookup function signature return type
 /// - `Call(Constructor)`: Register Box type + value_origin_newbox
-/// - `Call(Method/Extern/Value/etc)`: Unknown fallback
+/// - `Call(Method/Extern/Value/etc)`: register explicit Unknown
 ///
 /// # Arguments
 /// - `builder`: MirBuilder with type_ctx for registration

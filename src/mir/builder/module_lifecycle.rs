@@ -109,7 +109,7 @@ impl super::MirBuilder {
     /// 3. AST lowering (build_expression, etc.)
     pub(super) fn lower_root(&mut self, ast: ASTNode) -> Result<ValueId, String> {
         // ===== Step 1: Declaration Indexing (delegation to declaration_indexer) =====
-        // Pre-index static methods to enable safe fallback for bare calls in using-prepended code
+        // Pre-index static methods to enable safe bare-call recovery in using-prepended code.
         let snapshot = ast.clone();
         // Phase A: collect declarations in one pass (symbols available to lowering)
         declaration_indexer::index_declarations(self, &snapshot);
@@ -205,7 +205,7 @@ impl super::MirBuilder {
                         } else {
                             // Instance box: register type and lower instance methods/ctors as functions
                             // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                            self.comp_ctx.register_user_box_surface_fields(
+                            self.comp_ctx.register_user_box_declared_fields(
                                 name.clone(),
                                 fields,
                                 field_decls,
@@ -286,7 +286,7 @@ impl super::MirBuilder {
                     if let Some((box_name, methods)) = main_static {
                         self.build_static_main_box(box_name, methods)
                     } else {
-                        // 理論上は起こりにくいが、安全のため Script モードと同じフォールバックにする
+                        // 理論上は起こりにくいが、安全のため Script モードと同じ lowering にする
                         self.cf_block(statements)
                     }
                 } else {
@@ -359,7 +359,7 @@ impl super::MirBuilder {
 
         // ===== Step 3: PHI Type Inference (delegation to phi_type_inference) =====
         // Phase 29bq+: PHI type inference delegated to phi_type_inference module
-        // Multi-phase fallback chain (P3-A/B/C/D/P4) for return type resolution
+        // Multi-phase resolver chain (P3-A/B/C/D/P4) for return type resolution
         if let Some(inferred_type) =
             phi_type_inference::infer_return_type_from_phi(self, &mut function)
         {

@@ -259,7 +259,13 @@ impl CompilationContext {
         self.user_box_field_decls.insert(name, Vec::new());
     }
 
-    pub fn register_user_box_surface_fields(
+    /// Register declared fields for a user box from parser-emitted field surfaces.
+    ///
+    /// This is the normalization boundary for `fields`, `field_decls`,
+    /// `init_fields`, and `weak_fields`: after this point builder code should
+    /// read `user_defined_boxes`, `user_box_field_decls`, and
+    /// `weak_fields_by_box` instead of recomputing parser-side field views.
+    pub fn register_user_box_declared_fields(
         &mut self,
         name: String,
         fields: &[String],

@@ -1,3 +1,9 @@
+//! Field/property fact helpers.
+//!
+//! This module observes already-lowered receiver values and builder registries.
+//! It must not lower receiver ASTs or re-run semantic calls; `fields.rs` owns
+//! field emission order and `property_reads.rs` owns property getter lowering.
+
 use super::ValueId;
 
 impl super::MirBuilder {

@@ -67,16 +67,16 @@ reach into route-specific plan internals. The current boundary SSOT is
   - ID 生成器（ValueId/BlockId/BindingId 等）と最小の共通コア状態。
 - `crates/hakorune_mir_builder/src/type_context.rs`
   - ValueId → 型/種別/起源（NewBox 由来など）の追跡。
-- `scope_context.rs`
+- `src/mir/builder/scope_context.rs`
   - lexical scope / loop/if/try のスタックと、`current_function` / `current_block` の実行文脈。
-  - `MirFunction` / lexical-scope seam がまだ結合しているので、packaging は保留中。
+  - `MirFunction` と lexical-scope state がまだ同じ実行文脈にあるため、packaging は保留中。
 - `crates/hakorune_mir_builder/src/binding_context.rs`
   - 変数名 ↔ BindingId の対応（shadowing の復元を含む）。
 - `crates/hakorune_mir_builder/src/variable_context.rs`
   - 変数解決（variable_map 等）。
 - `crates/hakorune_mir_builder/src/metadata_context.rs`
   - span/source_hint/region（観測）などのメタ情報。
-- `compilation_context.rs`
+- `src/mir/builder/compilation_context.rs`
   - コンパイル全体のレジストリ（Box/型レジストリ、reserved ids 等）。
   - `ASTNode` / `FunctionSlotRegistry` / `TypeRegistry` がまだ混在しているため packaging は保留中。
 - `crates/hakorune_mir_builder/src/context.rs`
@@ -99,9 +99,10 @@ reach into route-specific plan internals. The current boundary SSOT is
   - `src/mir/builder/calls/function_preflight.rs`
   - `src/mir/builder/calls/special_method_handlers.rs`
 - field/property receiver facts
-  - `src/mir/builder/field_facts.rs`
+  - `src/mir/builder/field_facts.rs` (observation only; no receiver AST re-lowering)
   - `src/mir/builder/fields.rs`
-  - `src/mir/builder/property_reads.rs`
+  - `src/mir/builder/property_reads.rs` (property getter lowering)
+  - `src/mir/builder/properties.rs` (MIR-side property getter naming/registry)
 - JoinIR merge（契約検証を含む）
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
   - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
@@ -114,12 +115,12 @@ reach into route-specific plan internals. The current boundary SSOT is
 
 - `crates/hakorune_mir_builder/src/core_context.rs`: ID 生成器と最小の共通コア状態。
 - `crates/hakorune_mir_builder/src/type_context.rs`: ValueId → 型/種別/起源の追跡。
-- `scope_context.rs`: lexical scope / loop / if / try の実行文脈。
-  - packaging は `MirFunction` seam がさらに分かれてから。
+- `src/mir/builder/scope_context.rs`: lexical scope / loop / if / try の実行文脈。
+  - packaging は `MirFunction` と lexical-scope state がさらに分かれてから。
 - `crates/hakorune_mir_builder/src/binding_context.rs`: 変数名 ↔ BindingId の対応。
 - `crates/hakorune_mir_builder/src/variable_context.rs`: 変数解決（variable_map 等）。
 - `crates/hakorune_mir_builder/src/metadata_context.rs`: span / source_hint / region の観測。
-- `compilation_context.rs`: Box / 型レジストリと reserved ids。mixed ownership のため packaging は保留中。
+- `src/mir/builder/compilation_context.rs`: Box / 型レジストリと reserved ids。AST node / function-slot / type-registry state が残るため packaging は保留中。
 - `crates/hakorune_mir_builder/src/context.rs`: 上記 Context を束ねる入れ物。
 
 ## 追加ルール（将来の変更者向け）
@@ -145,9 +146,9 @@ SSOT:
 
 Prep rule:
 
-- public surface は `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
+- public entry は `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
 - helper を増やす前に、Context の責務境界を README に書く
-- split は docs-first で seam が固定されてから行う
+- split は docs-first で境界が固定されてから行う
 - member call は「route selection を 1 回、emit を 1 回」の順に保つ。
   static receiver / env method / this-me normalization は `calls/*` の classifier
   helper で決め、`build.rs` から重複判定しない

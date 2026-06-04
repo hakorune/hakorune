@@ -92,6 +92,13 @@ impl ParamDecl {
         param_decls.iter().map(|decl| decl.name.clone()).collect()
     }
 
+    /// Return the richer parameter declarations when present, or synthesize a
+    /// names-only declaration view for older AST v0 inputs that only populated
+    /// `params`.
+    ///
+    /// This keeps the compatibility boundary local to AST data shaping. Callers
+    /// should consume the returned `ParamDecl` view instead of reimplementing
+    /// their own `param_decls`/`params` selection policy.
     pub fn with_name_fallback<'a>(
         param_decls: &'a [ParamDecl],
         params: &'a [String],

@@ -2,7 +2,7 @@
 //!
 //! 責務: MIR Call命令の発行のみ
 //! - emit_unified_call: 統一Call発行（Phase 3対応）
-//! - emit_legacy_call: レガシーCall発行（既存互換）
+//! - emit_legacy_call: 互換Call入口（RouterPolicyがBoxCallを選んだ経路を含む）
 //! - emit_global_call/emit_method_call/emit_constructor_call: 便利ラッパー
 
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
@@ -21,7 +21,7 @@ impl MirBuilder {
         super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call(self, dst, target, args)
     }
 
-    /// Legacy call fallback - preserves existing behavior
+    /// Compatibility call entry used by older lowering sites and RouterPolicy BoxCall routes.
     pub fn emit_legacy_call(
         &mut self,
         dst: Option<ValueId>,
@@ -34,11 +34,10 @@ impl MirBuilder {
                 method,
                 box_type: _,
             } => {
-                // LEGACY PATH (after unified migration):
+                // BoxCall-compatible path (after unified migration):
                 // Instance→Function rewrite is centralized in unified call path.
-                // Legacy path no longer functionizes; always use Box/Plugin call here.
-                // CRITICAL FIX: Prevent bouncing back to emit_unified_call
-                // Set flag to prevent emit_box_or_plugin_call from calling emit_unified_call
+                // This path no longer functionizes; always use Box/Plugin call here.
+                // Prevent bouncing back to emit_unified_call after RouterPolicy chose BoxCall.
                 let prev_flag = self.in_unified_boxcall_fallback;
                 self.in_unified_boxcall_fallback = true;
                 let result =

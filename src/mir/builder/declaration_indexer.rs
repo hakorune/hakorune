@@ -1,11 +1,11 @@
 //! Declaration Indexer - Pre-indexing symbols before lowering
 //!
-//! Purpose: Collect user-defined boxes and static methods for fallback resolution
+//! Purpose: Collect user-defined boxes and static methods for additional resolution
 //!
 //! Responsibilities:
 //! - Detect static box Main with main() method (app vs script mode)
 //! - Index user-defined boxes and static methods before AST lowering
-//! - Enable safe fallback for bare calls in using-prepended code
+//! - Enable safe bare-call recovery in using-prepended code
 //!
 //! Called by: `lower_root()` in module_lifecycle.rs
 
@@ -46,7 +46,7 @@ pub(super) fn has_main_static(ast: &ASTNode) -> bool {
 ///
 /// Pre-indexes:
 /// - user_defined_boxes: non-static Box names (for NewBox birth() skip)
-/// - static_method_index: name -> [(BoxName, arity)] (for bare-call fallback)
+/// - static_method_index: name -> [(BoxName, arity)] (for bare-call recovery)
 ///
 /// # Arguments
 /// - `builder`: MirBuilder with comp_ctx for registration
@@ -105,7 +105,7 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
             }
             if !*is_static {
                 // Phase 285LLVM-1.1: Register instance box with field information
-                builder.comp_ctx.register_user_box_surface_fields(
+                builder.comp_ctx.register_user_box_declared_fields(
                     name.clone(),
                     fields,
                     field_decls,

@@ -44,7 +44,7 @@ impl MirBuilder {
                     // Use pre-allocated ValueId from MirFunction::new()
                     f.params[param_idx]
                 } else {
-                    // Allocate new ValueId (fallback for non-static methods)
+                    // Allocate new ValueId when MirFunction was not pre-populated.
                     let new_pid = f.next_value_id();
                     f.params.push(new_pid);
                     new_pid

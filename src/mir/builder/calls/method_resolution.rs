@@ -55,8 +55,8 @@ pub fn resolve_call_target(
     }
 
     // 5. Do not assume bare `name()` refers to current static box.
-    //    Leave it unresolved so caller can try static_method_index fallback
-    //    or report a clear unresolved error.
+    //    Leave it unresolved so the caller can try builder-side additional
+    //    resolvers or report a clear unresolved error.
 
     // 6. Resolution failed - prevent runtime string-based resolution
     Err(format!(
@@ -108,8 +108,10 @@ pub fn suggest_resolution(name: &str) -> String {
     }
 }
 
-/// Check if current static box has the specified method
-/// TODO: Replace with proper method registry lookup
+/// Check whether the known static-receiver catalog accepts this method.
+///
+/// This is intentionally conservative: unknown boxes are rejected here so the
+/// caller can keep unresolved-call recovery and diagnostics explicit.
 pub fn has_method(box_name: &str, method: &str) -> bool {
     match box_name {
         "ConsoleStd" => matches!(method, "print" | "println" | "log"),

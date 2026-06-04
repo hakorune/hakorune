@@ -55,9 +55,9 @@ fn rewrite_enabled() -> bool {
         if s == "1" || s == "true" || s == "on" {
             return true;
         }
-        // fallthrough to legacy if malformed
+        // Malformed primary value: consult the compatibility flag below.
     }
-    // Legacy flag (kept for compatibility): NYASH_BUILDER_REWRITE_INSTANCE (default ON)
+    // Compatibility flag: NYASH_BUILDER_REWRITE_INSTANCE (default ON)
     match crate::config::env::builder_rewrite_instance_mode()
         .as_deref()
         .map(|v| v.to_ascii_lowercase())
@@ -392,7 +392,7 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     Some(Ok(actual_dst))
 }
 
-/// Unified entry: try Known rewrite first, then unique-suffix fallback.
+/// Unified entry: try Known rewrite first, then unique-suffix recovery.
 #[allow(dead_code)]
 pub(crate) fn try_known_or_unique(
     builder: &mut MirBuilder,

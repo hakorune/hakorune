@@ -330,7 +330,7 @@ impl super::MirBuilder {
                 } else {
                     // Instance box: register type and lower instance methods/ctors as functions
                     // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                    self.comp_ctx.register_user_box_surface_fields(
+                    self.comp_ctx.register_user_box_declared_fields(
                         name.clone(),
                         &fields,
                         &field_decls,

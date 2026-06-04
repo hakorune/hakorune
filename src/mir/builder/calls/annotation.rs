@@ -95,7 +95,7 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
             || crate::config::env::builder_debug_enabled()
         {
             super::super::utils::builder_debug_log(&format!(
-                "annotate call (fallback) dst={} from {} -> Box(JsonNode)",
+                "annotate call (known-heuristic) dst={} from {} -> Box(JsonNode)",
                 dst.0, name
             ));
         }
@@ -109,7 +109,7 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
             || crate::config::env::builder_debug_enabled()
         {
             super::super::utils::builder_debug_log(&format!(
-                "annotate call (fallback) dst={} from {} -> Box(JsonToken)",
+                "annotate call (known-heuristic) dst={} from {} -> Box(JsonToken)",
                 dst.0, name
             ));
         }
@@ -124,12 +124,12 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
             || crate::config::env::builder_debug_enabled()
         {
             super::super::utils::builder_debug_log(&format!(
-                "annotate call (fallback) dst={} from {} -> Box(ArrayBox)",
+                "annotate call (known-heuristic) dst={} from {} -> Box(ArrayBox)",
                 dst.0, name
             ));
         }
     } else if name == "JsonParserModule.create_parser/0" {
-        // Fallback path for parser factory
+        // Known parser factory heuristic when no module signature is available.
         let ret = MirType::Box("JsonParser".into());
         builder.type_ctx.value_types.insert(dst, ret.clone());
         if let MirType::Box(bx) = ret {
@@ -139,7 +139,7 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
             || crate::config::env::builder_debug_enabled()
         {
             super::super::utils::builder_debug_log(&format!(
-                "annotate call (fallback) dst={} from {} -> Box(JsonParser)",
+                "annotate call (known-heuristic) dst={} from {} -> Box(JsonParser)",
                 dst.0, name
             ));
         }

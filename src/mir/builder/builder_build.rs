@@ -355,10 +355,10 @@ impl MirBuilder {
                 argv.extend(arg_values.iter().copied());
                 self.emit_legacy_call(None, CallTarget::Global(lowered), argv)?;
             } else {
-                // Fallback policy:
+                // Constructor dispatch policy:
                 // - For user-defined boxes (no explicit constructor), do NOT emit BoxCall("birth").
                 //   VM will treat plain NewBox as constructed; dev verify warns if needed.
-                // - For builtins/plugins, keep BoxCall("birth") fallback to preserve legacy init.
+                // - For builtins/plugins, keep BoxCall("birth") for compatibility with built-in/plugin initialization.
                 let is_user_box = self.comp_ctx.user_defined_boxes.contains_key(&class); // Phase 285LLVM-1.1: HashMap
                                                                                          // Dev safety: allow disabling birth() injection for builtins to avoid
                                                                                          // unified-call method dispatch issues while migrating. Off by default unless explicitly enabled.

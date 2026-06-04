@@ -30,7 +30,7 @@ impl MirBuilder {
         self.metadata_ctx.clear_source_file();
     }
 
-    /// Resolve current source file hint (builder field or env fallback).
+    /// Resolve current source file hint from metadata_ctx, then explicit env hint.
     /// Phase 136 Step 6/7: Delegate to metadata_ctx
     pub(super) fn current_source_file(&self) -> Option<String> {
         self.metadata_ctx

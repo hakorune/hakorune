@@ -119,7 +119,7 @@ impl MeCallPolicyBox {
                 }
             }
 
-            // Fallback 1: if `me` is bound, keep instance semantics.
+            // Route 1: if `me` is bound, keep instance semantics.
             // This avoids silently turning `me.method(...)` into a static call.
             if let Some(me_id) = me_value {
                 let dst =
@@ -127,7 +127,7 @@ impl MeCallPolicyBox {
                 return Ok(Some(dst));
             }
 
-            // Fallback 2: static helper context (no bound `me`) keeps legacy static lowering.
+            // Route 2: static helper context (no bound `me`) keeps static lowering.
             // This path is mainly for static-box helper code where receiver is intentionally absent.
             let static_dst = builder.handle_static_method_call(cls, method, arguments)?;
             return Ok(Some(static_dst));
@@ -224,7 +224,7 @@ impl MirBuilder {
         MeCallPolicyBox::resolve_me_call(self, method, arguments)
     }
 
-    /// Handle standard Box/Plugin method calls (fallback)
+    /// Handle standard Box/Plugin method calls.
     pub(super) fn handle_standard_method_call(
         &mut self,
         object_value: ValueId,

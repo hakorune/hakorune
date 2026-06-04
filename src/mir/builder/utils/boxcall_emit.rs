@@ -1,11 +1,11 @@
 //! BoxCall emission utilities
 //!
 //! Phase 87: CoreMethodId-based type inference (reduced 75 lines to 25 lines)
-//! Phase 84-4-B: Builtin Box method return type inference fallback
+//! Phase 84-4-B: Builtin Box method return type inference via CoreMethodId
 //!
 //! Complex routing logic:
 //! - RouterPolicyBox: Centralized route decision (Unified vs BoxCall)
-//! - Type inference: plugin_method_sigs → CoreMethodId → Unknown fallback
+//! - Type inference: plugin_method_sigs -> CoreMethodId -> Unknown
 //! - LocalSSA: Ensures receiver and args have in-block definitions
 
 impl super::super::MirBuilder {
@@ -86,8 +86,8 @@ impl super::super::MirBuilder {
         args: Vec<super::super::ValueId>,
         effects: super::super::EffectMask,
     ) -> Result<(), String> {
-        let semantic_box_val = box_val;
-        let semantic_args = args.clone();
+        let observed_receiver = box_val;
+        let observed_args = args.clone();
 
         // Ensure receiver has a definition in the current block to avoid undefined use across
         // block boundaries (LoopForm/header, if-joins, etc.).
@@ -120,32 +120,32 @@ impl super::super::MirBuilder {
         );
         if bx_name == "ArrayBox" {
             let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
-            let semantic_callee = crate::mir::Callee::Method {
+            let observed_callee = crate::mir::Callee::Method {
                 box_name: bx_name.clone(),
                 method: method.clone(),
-                receiver: Some(semantic_box_val),
+                receiver: Some(observed_receiver),
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                 box_kind,
             };
             crate::mir::builder::types::array_element::observe_array_write_call(
                 self,
-                &semantic_callee,
-                &semantic_args,
+                &observed_callee,
+                &observed_args,
             );
         }
         if bx_name == "MapBox" {
             let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
-            let semantic_callee = crate::mir::Callee::Method {
+            let observed_callee = crate::mir::Callee::Method {
                 box_name: bx_name.clone(),
                 method: method.clone(),
-                receiver: Some(semantic_box_val),
+                receiver: Some(observed_receiver),
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                 box_kind,
             };
             crate::mir::builder::types::map_value::observe_map_write_call(
                 self,
-                &semantic_callee,
-                &semantic_args,
+                &observed_callee,
+                &observed_args,
             );
         }
         if super::builder_debug_enabled() || crate::config::env::builder_local_ssa_trace() {
@@ -155,7 +155,7 @@ impl super::super::MirBuilder {
             ) {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(
-                    "[boxcall-decision] method={} bb={:?} recv=%{} class_hint={:?} prefer_legacy={}",
+                    "[boxcall-decision] method={} bb={:?} recv=%{} class_hint={:?} route_boxcall={}",
                     method,
                     self.current_block,
                     box_val.0,
@@ -164,10 +164,10 @@ impl super::super::MirBuilder {
                 ));
             }
         }
-        // Unified path from BoxCall helper is only allowed when we are not
-        // already in a BoxCall fallback originating from emit_unified_call.
-        // in_unified_boxcall_fallback is set by emit_unified_call's RouterPolicy
-        // guard when it has already decided that this call must be a BoxCall.
+        // Unified path from BoxCall helper is allowed only when RouterPolicy has
+        // not already committed this call to the BoxCall route.
+        // in_unified_boxcall_fallback is the re-entry guard set by those
+        // RouterPolicy BoxCall route decisions.
         if use_unified_env
             && matches!(route, crate::mir::builder::router::policy::Route::Unified)
             && !self.in_unified_boxcall_fallback
@@ -225,8 +225,8 @@ impl super::super::MirBuilder {
                 {
                     self.type_ctx.value_types.insert(d, mt.clone());
                 } else {
-                    // Phase 84-4-B: ビルトイン Box のメソッド戻り値型推論
-                    // plugin_method_sigs に登録されていない場合のフォールバック
+                    // Phase 84-4-B: ビルトイン Box のメソッド戻り値型推論。
+                    // plugin_method_sigs に登録されていない場合は CoreMethodId で補完する。
                     if let Some(ret_ty) = self.infer_boxcall_return_type(box_val, &method) {
                         self.type_ctx.value_types.insert(d, ret_ty.clone());
 

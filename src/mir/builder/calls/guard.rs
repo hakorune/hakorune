@@ -151,7 +151,7 @@ impl<'a> CalleeGuardBox<'a> {
                         // for a static box call, pass through unchanged.
                         // The VM's static box singleton path will handle it.
                         //
-                        // 🎯 Phase 173-B Fix: Don't fallback to Global for using-imported static boxes
+                        // 🎯 Phase 173-B Fix: do not reinterpret using-imported static boxes as Global.
                         // Previously this converted to Global("JsonParserBox.parse") which failed
                         // because the function table expected "JsonParserBox.parse/1" with arity.
                         if trace_enabled {

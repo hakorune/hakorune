@@ -3,7 +3,7 @@
 //! 責務別に明確に分離された「箱」の集合：
 //! - lowering: 関数lowering（static/instance method → MIR function）
 //! - utils: ユーティリティ（resolve/parse/extract）
-//! - emit: Call命令発行（統一Call/Legacy Call） ✅ Phase 2完了
+//! - emit: Call命令発行（統一Call/互換Call入口） ✅ Phase 2完了
 //! - build: Call構築（function call/method call, route selection → emission） ✅ Phase 2完了
 //! - guard: 構造ガード（静的Box/ランタイムBox混線防止） ✅ Phase 25.1d完了
 //!
@@ -41,7 +41,7 @@ pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and bi
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)
-pub mod static_resolution; // Step 3: Static method resolution and fallback logic
+pub mod static_resolution; // Step 3: Static method resolution and unresolved-call recovery
 pub mod unified_emitter; // Phase 3-A: Unified call emitter (統一Call発行専用箱)
 pub mod utils; // Phase 3-C: Call materializer (Call前処理・準備専用箱)
 

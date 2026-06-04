@@ -1,14 +1,14 @@
-//! Static method resolution and fallback logic
+//! Static method resolution and unresolved-call recovery.
 //!
 //! Responsibilities:
 //! - Static receiver method call resolution (BoxName.method → static method)
-//! - Static method fallback (undefined function → unique static method)
-//! - Tail-based fallback (suffix matching with arity)
+//! - Unique static method recovery (undefined function → BoxName.method/Arity)
+//! - Dev-only tail resolver (suffix matching with arity)
 //!
 //! Key functions:
 //! - resolve_static_receiver_box_name: classify BoxName.method(args) syntax
-//! - try_static_method_fallback: Find unique static method by name+arity
-//! - try_tail_based_fallback: Experimental suffix-based resolution
+//! - try_unique_static_method_recovery: find unique static method by name+arity
+//! - try_tail_based_resolver: experimental dev-only suffix resolver
 
 use super::super::{MirBuilder, ValueId};
 use super::CallTarget;
@@ -48,13 +48,13 @@ impl MirBuilder {
         Some(obj_name.clone())
     }
 
-    /// Try static method fallback (name+arity)
+    /// Try unique static method recovery (name+arity).
     ///
     /// When a function call fails to resolve, attempt to find a unique static method
     /// with matching name and arity in comp_ctx.static_method_index.
     ///
     /// Example: foo(x, y) → BoxName.foo/2 if only one static method matches
-    pub(super) fn try_static_method_fallback(
+    pub(super) fn try_unique_static_method_recovery(
         &mut self,
         name: &str,
         arg_values: &[ValueId],
@@ -81,13 +81,13 @@ impl MirBuilder {
         Ok(None)
     }
 
-    /// Try tail-based fallback (disabled by default)
+    /// Try the dev-only tail resolver.
     ///
     /// Experimental: Match function calls by suffix .name/arity in current module.
     /// Requires NYASH_BUILDER_TAIL_RESOLVE=1 to enable.
     ///
     /// Example: foo(x) → SomeBox.foo/1 if only one function ends with ".foo/1"
-    pub(super) fn try_tail_based_fallback(
+    pub(super) fn try_tail_based_resolver(
         &mut self,
         name: &str,
         arg_values: &[ValueId],

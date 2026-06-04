@@ -61,13 +61,13 @@ impl MirBuilder {
             return self.build_str_normalization(arg_values[0]);
         }
 
-        // 3. Determine call route (unified vs legacy)
+        // 3. Determine call route (unified builtin/extern vs resolved global)
         let use_unified = super::call_unified::is_unified_call_enabled()
             && (super::super::call_resolution::is_builtin_function(&name)
                 || super::super::call_resolution::is_extern_function(&name));
 
         if !use_unified {
-            self.build_legacy_function_call(name, arg_values)
+            self.build_resolved_function_call(name, arg_values)
         } else {
             self.build_unified_function_call(name, arg_values)
         }
@@ -246,8 +246,8 @@ impl MirBuilder {
         Ok(())
     }
 
-    /// Build legacy function call
-    fn build_legacy_function_call(
+    /// Build a resolved global function call.
+    fn build_resolved_function_call(
         &mut self,
         name: String,
         arg_values: Vec<ValueId>,
@@ -258,12 +258,12 @@ impl MirBuilder {
         let callee = match self.resolve_call_target(&name) {
             Ok(c) => c,
             Err(_e) => {
-                // Fallback: unique static method
-                if let Some(result) = self.try_static_method_fallback(&name, &arg_values)? {
+                // Additional resolver: unique static method
+                if let Some(result) = self.try_unique_static_method_recovery(&name, &arg_values)? {
                     return Ok(result);
                 }
-                // Tail-based fallback (disabled by default)
-                if let Some(result) = self.try_tail_based_fallback(&name, &arg_values)? {
+                // Dev-only additional resolver: suffix match
+                if let Some(result) = self.try_tail_based_resolver(&name, &arg_values)? {
                     return Ok(result);
                 }
                 return Err(format!(
@@ -274,7 +274,7 @@ impl MirBuilder {
             }
         };
 
-        // Legacy compatibility: Create dummy func value for old systems
+        // Compatibility: keep func populated for older MIR consumers.
         let fun_val = crate::mir::builder::name_const::make_name_const_result(self, &name)?;
 
         // Emit new-style Call with type-safe callee

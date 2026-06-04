@@ -1,11 +1,11 @@
-//! PHI Type Inference - Multi-phase fallback chain for return type resolution
+//! PHI Type Inference - Multi-phase resolver chain for return type resolution
 //!
 //! Purpose: Infer return types for functions with Void/Unknown signatures
 //!
 //! Responsibilities:
 //! - Multi-phase PHI type resolution (P3-A/B/C/D/P4)
 //! - Return type inference from terminator Return values
-//! - Debug classification for fallback cases
+//! - Debug classification for resolver miss cases
 //!
 //! Called by: `finalize_module()` in module_lifecycle.rs
 //!
@@ -28,7 +28,7 @@ use crate::mir::join_ir::lowering::method_return_hint::MethodReturnHintBox;
 // Phase 84-3: PHI + Copy グラフ型推論箱（ChatGPT Pro設計）
 use crate::mir::phi_core::phi_type_resolver::PhiTypeResolver;
 
-/// Classify PHI fallback case for debug logging
+/// Classify PHI resolver miss case for debug logging
 ///
 /// Phase 82: dev guard helper - Case classification logic unified
 ///
@@ -38,11 +38,11 @@ use crate::mir::phi_core::phi_type_resolver::PhiTypeResolver;
 /// Case classification:
 /// - Case A: hint available (GenericTypeResolver not needed)
 /// - Case B: P1/P2/P3-A/B hint failure (theoretically impossible)
-/// - Case D: P3-C GenericTypeResolver failure (PHI scan fallback)
+/// - Case D: P3-C GenericTypeResolver failure (PHI scan resolver)
 ///
 /// Note: controlled by dev flag, no #[cfg] needed (env var controlled)
 #[allow(dead_code)]
-pub(super) fn classify_phi_fallback_case(
+pub(super) fn classify_phi_resolver_miss_case(
     hint: Option<&MirType>,
     function_name: &str,
 ) -> &'static str {
@@ -55,7 +55,7 @@ pub(super) fn classify_phi_fallback_case(
     }
 }
 
-/// Infer return type from PHI with multi-phase fallback chain
+/// Infer return type from PHI with multi-phase resolver chain
 ///
 /// Phase 82-5: lifecycle.rs bug fix - check terminator Return only
 ///   Problem: scanning instructions first incorrectly targets intermediate values (const void etc.)
@@ -169,7 +169,7 @@ pub(super) fn infer_return_type_from_phi(
             #[cfg(not(debug_assertions))]
             {
                 crate::runtime::get_global_ring0().log.warn(&format!(
-                    "[phase84-5/warning] Type inference failed for {:?} in {}, using Unknown fallback",
+                    "[phase84-5/warning] Type inference failed for {:?} in {}, using Unknown sentinel",
                     v, function.signature.name
                 ));
                 inferred = Some(MirType::Unknown);

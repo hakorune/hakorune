@@ -6,7 +6,7 @@
 //! - Detect isType/asType patterns in print expressions
 //! - Emit TypeOp instructions before ExternCall/Call
 //! - Support both function call and method call patterns
-//! - Handle fallback to expression builder for complex cases
+//! - Lower general print expressions through the expression builder
 //!
 //! Called by: `build_expression()` in expressions.rs (Print pattern)
 
@@ -19,7 +19,7 @@ use crate::mir::TypeOpKind;
 /// Handles three patterns:
 /// 1. `print(isType(val, "Type"))` / `print(asType(val, "Type"))` - function call pattern
 /// 2. `print(obj.is("Type"))` / `print(obj.as("Type"))` - method call pattern
-/// 3. `print(expression)` - fallback to expression builder
+/// 3. `print(expression)` - general expression path
 ///
 /// # Arguments
 /// - `builder`: MirBuilder for instruction emission
@@ -152,20 +152,20 @@ pub(in crate::mir::builder) fn build_print_statement(
     }
 
     let value = builder.build_expression(expression)?;
-    super::super::utils::builder_debug_log(&format!("fallback print value={}", value));
+    super::super::utils::builder_debug_log(&format!("general print value={}", value));
 
     // Phase 3.2: Use unified call for print statements
     let use_unified = super::super::calls::call_unified::is_unified_call_enabled();
 
     if use_unified {
-        // New unified path - treat print as global function
+        // Unified path: treat print as global function.
         builder.emit_unified_call(
             None, // print returns nothing
             super::super::CallTarget::Global("print".to_string()),
             vec![value],
         )?;
     } else {
-        // Legacy path - use ExternCall
+        // Compatibility path when unified calls are disabled.
         builder.emit_extern_call("env.console", "log", vec![value], None)?;
     }
     Ok(value)

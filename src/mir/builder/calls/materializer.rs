@@ -3,11 +3,11 @@
  *
  * 箱理論の実践:
  * - 箱にする: Call発行前の前処理を1箱に集約
- * - 境界を作る: フォールバック処理・receiver実体化を分離
+ * - 境界を作る: 未解決Global callの追加解決・receiver実体化を分離
  * - 状態最小: MirBuilderを引数として受け取る（所有しない）
  *
  * 責務:
- * - try_global_fallback_handlers: Global関数のフォールバック処理
+ * - try_global_additional_resolvers: 未解決Global callの追加解決
  * - materialize_receiver_in_callee: Receiverの実体化（pinning）
  * - Call発行前の準備処理全般
  */
@@ -24,13 +24,13 @@ use crate::mir::definitions::call_unified::Callee;
 pub struct CallMaterializerBox;
 
 impl CallMaterializerBox {
-    /// Try fallback handlers for global functions
+    /// Try additional resolvers for unresolved global functions.
     ///
-    /// フォールバック処理の優先順位:
+    /// 追加解決の優先順位:
     /// 1. Dev-only safety: condition_fn → always-true predicate
     /// 2. Direct module function: module内の関数を直接呼び出し
     /// 3. Unique static-method: name+arity → Box.name/Arity へ変換
-    pub fn try_global_fallback_handlers(
+    pub fn try_global_additional_resolvers(
         builder: &mut MirBuilder,
         dst: Option<ValueId>,
         name: &str,
@@ -59,7 +59,7 @@ impl CallMaterializerBox {
             return Ok(Some(()));
         }
 
-        // 1) Direct module function fallback: call by name if present
+        // 1) Direct module function resolver: call by name if present
         if let Some(ref module) = builder.current_module {
             if module.functions.contains_key(name) {
                 let dstv = dst.unwrap_or_else(|| builder.next_value_id());
@@ -77,7 +77,7 @@ impl CallMaterializerBox {
             }
         }
 
-        // 2) Unique static-method fallback: name+arity → Box.name/Arity
+        // 2) Unique static-method resolver: name+arity → Box.name/Arity
         if let Some(cands) = builder.comp_ctx.static_method_index.get(name) {
             let mut matches: Vec<(String, usize)> = cands
                 .iter()
@@ -87,7 +87,7 @@ impl CallMaterializerBox {
             if matches.len() == 1 {
                 let (bx, _arity) = matches.remove(0);
                 let func_name = format!("{}.{}{}", bx, name, format!("/{}", args.len()));
-                // Emit legacy call directly to preserve behavior
+                // Emit the resolved global call directly.
                 let dstv = dst.unwrap_or_else(|| builder.next_value_id());
                 let name_const =
                     crate::mir::builder::name_const::make_name_const_result(builder, &func_name)?;

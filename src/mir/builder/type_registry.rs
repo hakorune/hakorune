@@ -183,8 +183,11 @@ impl TypeRegistry {
         self.origins.get(&vid)
     }
 
-    /// クラス名を推論（フォールバック戦略付き）
-    pub fn infer_class(&self, vid: ValueId, fallback_context: Option<&str>) -> String {
+    /// クラス名を推論する。
+    ///
+    /// `context_hint` は呼び出し元が明示的に持つ近傍情報であり、origin/type の代替
+    /// truth ではない。origin/type が無い場合だけ使い、最後は UnknownBox sentinel を返す。
+    pub fn infer_class(&self, vid: ValueId, context_hint: Option<&str>) -> String {
         // 優先1: 起源情報から
         if let Some(cls) = self.origins.get(&vid) {
             return cls.clone();
@@ -195,18 +198,18 @@ impl TypeRegistry {
             return cls.clone();
         }
 
-        // フォールバック: コンテキスト名（警告付き）
-        if let Some(ctx) = fallback_context {
+        // 明示ヒント: コンテキスト名（警告付き）
+        if let Some(ctx) = context_hint {
             if self.trace_enabled {
                 get_global_ring0().log.warn(&format!(
-                    "[type-registry] WARNING: fallback to context '{}' for %{}",
+                    "[type-registry] WARNING: using context hint '{}' for %{}",
                     ctx, vid.0
                 ));
             }
             return ctx.to_string();
         }
 
-        // 最終フォールバック: UnknownBox
+        // 最終 sentinel: UnknownBox
         if self.trace_enabled {
             get_global_ring0().log.warn(&format!(
                 "[type-registry] WARNING: UnknownBox for %{}",
