@@ -23,6 +23,10 @@ hakozuna_mixed_ws_subject_runner.py:
   mixed-ws provider/replacement-front subject execution orchestration only;
   no report rendering or allocator behavior changes
 
+mimalloc_repeated_measurement_report.py:
+  repeated mimalloc evidence report rendering only; no benchmark execution or
+  validation logic
+
 replacement_front_report.py:
   replacement-front product activation/preflight report fields only;
   no shim generation, no Provider ABI calls, no allocator behavior changes

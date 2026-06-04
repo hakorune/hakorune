@@ -11,6 +11,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from mimalloc_repeated_measurement_report import render_repeated_measurement_report
+
 
 ROOT = Path(__file__).resolve().parents[2]
 HAKO_RUNNER = ROOT / "tools/allocator/hako_exe_memory_runner.sh"
@@ -250,29 +252,7 @@ def main() -> int:
             raise SystemExit(f"missing .hako workload app: {app}")
 
     hako_loadset_plan = load_hako_loadset_plan(args.hako_runtime_config)
-    lines = [
-        "mimalloc_repeated_measurement_runner=1",
-        "output_contract=mimalloc-comparison-repeated-measurement-v0",
-        "measurement_profile=phase295x-repeated-v0",
-        f"warmup_count={args.warmup_count}",
-        f"sample_count={args.sample_count}",
-        f"operation_repeat={args.operation_repeat}",
-        "timing_repeat_kind=process-invocation-v0",
-        f"workload_count={len(workloads)}",
-        "workloads=" + ",".join(workloads),
-        "summary_statistic=min,median,max",
-        "canonical_rss_collector=external-time",
-        "internal_rss_evidence=preserved",
-        f"hako_runtime_config_profile={args.hako_runtime_config}",
-        "hako_runtime_config_default=empty",
-        f"hako_selected_loadset={hako_loadset_plan['selected_loadset']}",
-        f"hako_plugin_load_policy={hako_loadset_plan['plugin_load_policy']}",
-        f"hako_selected_library_count={hako_loadset_plan['library_count']}",
-        f"hako_missing_library_count={hako_loadset_plan['missing_library_count']}",
-        f"hako_loadset_preflight_ok={hako_loadset_plan['preflight_ok']}",
-        f"c_library_path={args.c_library if args.c_library is not None else 'ldconfig-discovery'}",
-    ]
-
+    workload_records: list[dict[str, object]] = []
     with tempfile.TemporaryDirectory(prefix="hakorune_repeated_measurement.") as tmp:
         tmp_dir = Path(tmp)
         for workload_index, workload in enumerate(workloads):
@@ -323,55 +303,35 @@ def main() -> int:
                     sample_c_elapsed.append(as_int(c, "external_elapsed_ms"))
                     internal_hako_rss.append(as_int(hako, "peak_rss_bytes"))
                     internal_c_rss.append(as_int(c, "peak_rss_bytes"))
-                    prefix = f"sample_{workload_index}_{sample_index}"
-                    lines.extend(
-                        [
-                            f"{prefix}_workload={workload}",
-                            f"{prefix}_hako_external_peak_rss_bytes={sample_hako_rss[-1]}",
-                            f"{prefix}_c_external_peak_rss_bytes={sample_c_rss[-1]}",
-                            f"{prefix}_hako_external_elapsed_ms={sample_hako_elapsed[-1]}",
-                            f"{prefix}_c_external_elapsed_ms={sample_c_elapsed[-1]}",
-                            f"{prefix}_winner_claim=0",
-                        ]
-                    )
 
-            prefix = f"workload_{workload_index}"
-            lines.extend(
-                [
-                    f"{prefix}_id={workload}",
-                    f"{prefix}_operation_family={operation_family}",
-                    f"{prefix}_operation_repeat={args.operation_repeat}",
-                    f"{prefix}_timing_repeat_kind=process-invocation-v0",
-                    f"{prefix}_sample_count={args.sample_count}",
-                    f"{prefix}_hako_external_rss_min_bytes={min(sample_hako_rss)}",
-                    f"{prefix}_hako_external_rss_median_bytes={median_int(sample_hako_rss)}",
-                    f"{prefix}_hako_external_rss_max_bytes={max(sample_hako_rss)}",
-                    f"{prefix}_c_external_rss_min_bytes={min(sample_c_rss)}",
-                    f"{prefix}_c_external_rss_median_bytes={median_int(sample_c_rss)}",
-                    f"{prefix}_c_external_rss_max_bytes={max(sample_c_rss)}",
-                    f"{prefix}_hako_external_elapsed_min_ms={min(sample_hako_elapsed)}",
-                    f"{prefix}_hako_external_elapsed_median_ms={median_int(sample_hako_elapsed)}",
-                    f"{prefix}_hako_external_elapsed_max_ms={max(sample_hako_elapsed)}",
-                    f"{prefix}_c_external_elapsed_min_ms={min(sample_c_elapsed)}",
-                    f"{prefix}_c_external_elapsed_median_ms={median_int(sample_c_elapsed)}",
-                    f"{prefix}_c_external_elapsed_max_ms={max(sample_c_elapsed)}",
-                    f"{prefix}_hako_internal_rss_median_bytes={median_int(internal_hako_rss)}",
-                    f"{prefix}_c_internal_rss_median_bytes={median_int(internal_c_rss)}",
-                    f"{prefix}_winner_claim=0",
-                ]
+            workload_records.append(
+                {
+                    "workload": workload,
+                    "operation_family": operation_family,
+                    "hako_external_rss_min": min(sample_hako_rss),
+                    "hako_external_rss_median": median_int(sample_hako_rss),
+                    "hako_external_rss_max": max(sample_hako_rss),
+                    "c_external_rss_min": min(sample_c_rss),
+                    "c_external_rss_median": median_int(sample_c_rss),
+                    "c_external_rss_max": max(sample_c_rss),
+                    "hako_external_elapsed_min": min(sample_hako_elapsed),
+                    "hako_external_elapsed_median": median_int(sample_hako_elapsed),
+                    "hako_external_elapsed_max": max(sample_hako_elapsed),
+                    "c_external_elapsed_min": min(sample_c_elapsed),
+                    "c_external_elapsed_median": median_int(sample_c_elapsed),
+                    "c_external_elapsed_max": max(sample_c_elapsed),
+                    "hako_internal_rss_median": median_int(internal_hako_rss),
+                    "c_internal_rss_median": median_int(internal_c_rss),
+                }
             )
 
-    lines.extend(
-        [
-            "provider_activation=0",
-            "host_replacement=0",
-            "hook_installed=0",
-            "global_allocator_installed=0",
-            "winner_claim=0",
-            "summary=ok",
-        ]
+    report = render_repeated_measurement_report(
+        args=args,
+        workloads=workloads,
+        hako_loadset_plan=hako_loadset_plan,
+        workload_records=workload_records,
     )
-    args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    args.out.write_text(report, encoding="utf-8")
     print(args.out.read_text(encoding="utf-8"), end="")
     return 0
 
