@@ -113,6 +113,10 @@ Scope: current lane / next lane / restart order only.
 - Do not add new inventory-only rows or one-off row guards. Fold small
   inventories into the active workstream card or a single investigation note,
   and use reusable lane guards.
+- Before changing the LD_PRELOAD benchmark execution path again, keep the
+  allocator tool cleanup as BoxShape work: split report/control-plane emission
+  from runner/shim generation without changing product activation, hooks, or
+  benchmark behavior.
 - Detailed DirectArray / RuntimeDataBox / typed-object history lives in the
   phase cards and `CURRENT_STATE.toml` landed tail, not in this root pointer.
 

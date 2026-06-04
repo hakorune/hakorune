@@ -642,7 +642,7 @@ replacement_front_ordinary_app_route_descriptor_2026_06_05:
   product_claim=0
   provider_dispatch_hot_path=0
   type_abi_hot_path_lookup_count=0
-  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
+  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py,tools/allocator/replacement_front_report.py
   selected_next_owner=product_replacement_front_activation_contract
   selected_next_action=keep_activation_closed_until_dedicated_product_replacement_row
 
@@ -768,6 +768,28 @@ replacement_front_product_activation_preflight_2026_06_05:
   changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
   selected_next_owner=product_replacement_preflight_evidence_refresh
   selected_next_action=run_non_activating_preflight_smoke_and_readonly_descriptor_report
+
+allocator_tool_boxshape_cleanup_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-CLEAN-001
+  purpose=split_hakozuna_ldpreload_compare_report_control_plane_before_touching_execution_path_again
+  cleanup_kind=BoxShape
+  behavior_change=0
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  target_primary=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py
+  target_primary_lines_before=1862
+  target_primary_lines_after=1749
+  first_split=product_activation_and_preflight_report_fields
+  keep_in_compare=argparse,subject_orchestration,ldpreload_runner_invocation
+  move_out=report_control_plane_field_emission
+  new_module=tools/allocator/replacement_front_report.py
+  changed_tools=CURRENT_TASK.md,tools/allocator/README.md,tools/allocator/replacement_front_report.py,tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh
+  selected_next_owner=allocator_tool_smoke_runner_split
+  selected_next_action=extract_replacement_front_focused_smokes_without_behavior_change
 
 thread_local_replacement_front_profile_2026_06_05:
   status=landed

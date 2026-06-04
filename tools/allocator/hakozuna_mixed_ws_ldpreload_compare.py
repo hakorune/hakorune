@@ -38,6 +38,13 @@ from replacement_front_templates import (
     mixed_ws_workload_histogram,
     positive_int,
 )
+from replacement_front_report import (
+    ReplacementFrontPreflight,
+    product_activation_contract_fields,
+    product_activation_contract_subject_fields,
+    product_preflight_fields,
+    product_preflight_subject_fields,
+)
 
 
 def build_replacement_front_shim(
@@ -1130,48 +1137,16 @@ def main() -> int:
         if args.replacement_front_product_pages_nonlinear_mode
         else "not_selected"
     )
-    replacement_front_preflight_quality_ok = int(measurement_quality == "ok")
-    replacement_front_preflight_cross_thread_policy_ok = int(
-        bool(replacement_front_smokes)
-        and args.replacement_front_thread_local_mode
-        and args.replacement_front_cross_thread_smoke
-    )
-    replacement_front_preflight_remote_abandoned_counters_ok = int(
-        bool(replacement_front_smokes)
-    )
-    replacement_front_preflight_provider_dispatch_bypass_ok = int(
-        args.replacement_front_native_slot_mode
-        or args.replacement_front_native_bins_mode
-        or args.replacement_front_page_bins_mode
-    )
-    replacement_front_preflight_type_abi_hot_lookup_zero_ok = 1
-    replacement_front_preflight_rollback_optout_ok = 1
-    replacement_front_preflight_evidence_ready = int(
-        replacement_front_preflight_quality_ok
-        and replacement_front_preflight_provider_dispatch_bypass_ok
-        and replacement_front_preflight_type_abi_hot_lookup_zero_ok
-        and replacement_front_preflight_cross_thread_policy_ok
-        and replacement_front_preflight_remote_abandoned_counters_ok
-        and replacement_front_preflight_rollback_optout_ok
-    )
-    replacement_front_preflight_missing = [
-        "product_gate_open",
-        "activation_row",
-    ]
-    if not replacement_front_preflight_quality_ok:
-        replacement_front_preflight_missing.append("quality_ok_measurement")
-    if not replacement_front_preflight_provider_dispatch_bypass_ok:
-        replacement_front_preflight_missing.append("provider_dispatch_bypass")
-    if not replacement_front_preflight_type_abi_hot_lookup_zero_ok:
-        replacement_front_preflight_missing.append("type_abi_hot_lookup_zero")
-    if not replacement_front_preflight_cross_thread_policy_ok:
-        replacement_front_preflight_missing.append("cross_thread_policy")
-    if not replacement_front_preflight_remote_abandoned_counters_ok:
-        replacement_front_preflight_missing.append("remote_abandoned_counters")
-    if not replacement_front_preflight_rollback_optout_ok:
-        replacement_front_preflight_missing.append("rollback_optout_plan")
-    replacement_front_preflight_missing_fields = ",".join(
-        replacement_front_preflight_missing
+    replacement_front_preflight = ReplacementFrontPreflight.from_evidence(
+        measurement_quality=measurement_quality,
+        has_smoke_pack=bool(replacement_front_smokes),
+        thread_local_mode=args.replacement_front_thread_local_mode,
+        cross_thread_smoke=args.replacement_front_cross_thread_smoke,
+        provider_dispatch_bypass=(
+            args.replacement_front_native_slot_mode
+            or args.replacement_front_native_bins_mode
+            or args.replacement_front_page_bins_mode
+        ),
     )
     replacement_front_page_bins_route = (
         "benchmark_page_bins_hotcore_page_model"
@@ -1271,44 +1246,8 @@ def main() -> int:
         f"{1 if args.replacement_front_product_pages_nonlinear_mode else 0}",
         "replacement_front_is_full_hako_algorithm=0",
         "replacement_front_ordinary_app_route_candidate=replacement_front_product_ldpreload",
-        "replacement_front_product_gate=closed",
-        "replacement_front_product_activation_ready=0",
-        "replacement_front_product_activation_contract_v0=1",
-        "replacement_front_product_activation_requires_quality_ok=1",
-        "replacement_front_product_activation_requires_provider_dispatch_bypass=1",
-        "replacement_front_product_activation_requires_type_abi_hot_lookup_zero=1",
-        "replacement_front_product_activation_requires_cross_thread_policy=1",
-        "replacement_front_product_activation_requires_remote_abandoned_counters=1",
-        "replacement_front_product_activation_requires_rollback_optout_plan=1",
-        "replacement_front_rollback_optout_plan_v0=1",
-        "replacement_front_rollback_optout_env=HAKORUNE_REPLACEMENT_FRONT_DISABLE",
-        "replacement_front_rollback_optout_env_value=1",
-        "replacement_front_per_process_disable=1",
-        "replacement_front_activation_mode=explicit_only",
-        "replacement_front_activation_default=off",
-        "replacement_front_activation_report_required=1",
-        "replacement_front_rollback_report_path_required=1",
-        "replacement_front_product_activation_blockers="
-        "benchmark_only,product_gate_closed,no_activation_row",
-        "replacement_front_product_preflight_report_v0=1",
-        "replacement_front_product_preflight_non_activating=1",
-        "replacement_front_product_preflight_evidence_ready="
-        f"{replacement_front_preflight_evidence_ready}",
-        "replacement_front_product_preflight_activation_ready=0",
-        "replacement_front_product_preflight_quality_ok="
-        f"{replacement_front_preflight_quality_ok}",
-        "replacement_front_product_preflight_provider_dispatch_bypass_ok="
-        f"{replacement_front_preflight_provider_dispatch_bypass_ok}",
-        "replacement_front_product_preflight_type_abi_hot_lookup_zero_ok="
-        f"{replacement_front_preflight_type_abi_hot_lookup_zero_ok}",
-        "replacement_front_product_preflight_cross_thread_policy_ok="
-        f"{replacement_front_preflight_cross_thread_policy_ok}",
-        "replacement_front_product_preflight_remote_abandoned_counters_ok="
-        f"{replacement_front_preflight_remote_abandoned_counters_ok}",
-        "replacement_front_product_preflight_rollback_optout_ok="
-        f"{replacement_front_preflight_rollback_optout_ok}",
-        "replacement_front_product_preflight_missing="
-        f"{replacement_front_preflight_missing_fields}",
+        *product_activation_contract_fields(),
+        *product_preflight_fields(replacement_front_preflight),
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
         "replacement_front_size_class_bridge_report_only=1",
@@ -1611,62 +1550,10 @@ def main() -> int:
                     "subject_"
                     f"{index}_replacement_front_ordinary_app_route_candidate="
                     "replacement_front_product_ldpreload",
-                    f"subject_{index}_replacement_front_product_gate=closed",
-                    f"subject_{index}_replacement_front_product_activation_ready=0",
-                    f"subject_{index}_replacement_front_product_activation_contract_v0=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_requires_quality_ok=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_requires_provider_dispatch_bypass=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_requires_type_abi_hot_lookup_zero=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_requires_cross_thread_policy=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_requires_remote_abandoned_counters=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_requires_rollback_optout_plan=1",
-                    f"subject_{index}_replacement_front_rollback_optout_plan_v0=1",
-                    "subject_"
-                    f"{index}_replacement_front_rollback_optout_env="
-                    "HAKORUNE_REPLACEMENT_FRONT_DISABLE",
-                    f"subject_{index}_replacement_front_rollback_optout_env_value=1",
-                    f"subject_{index}_replacement_front_per_process_disable=1",
-                    f"subject_{index}_replacement_front_activation_mode=explicit_only",
-                    f"subject_{index}_replacement_front_activation_default=off",
-                    f"subject_{index}_replacement_front_activation_report_required=1",
-                    f"subject_{index}_replacement_front_rollback_report_path_required=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_activation_blockers="
-                    "benchmark_only,product_gate_closed,no_activation_row",
-                    f"subject_{index}_replacement_front_product_preflight_report_v0=1",
-                    f"subject_{index}_replacement_front_product_preflight_non_activating=1",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_evidence_ready="
-                    f"{replacement_front_preflight_evidence_ready}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_activation_ready=0",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_quality_ok="
-                    f"{replacement_front_preflight_quality_ok}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_provider_dispatch_bypass_ok="
-                    f"{replacement_front_preflight_provider_dispatch_bypass_ok}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_type_abi_hot_lookup_zero_ok="
-                    f"{replacement_front_preflight_type_abi_hot_lookup_zero_ok}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_cross_thread_policy_ok="
-                    f"{replacement_front_preflight_cross_thread_policy_ok}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_remote_abandoned_counters_ok="
-                    f"{replacement_front_preflight_remote_abandoned_counters_ok}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_rollback_optout_ok="
-                    f"{replacement_front_preflight_rollback_optout_ok}",
-                    "subject_"
-                    f"{index}_replacement_front_product_preflight_missing="
-                    f"{replacement_front_preflight_missing_fields}",
+                    *product_activation_contract_subject_fields(index),
+                    *product_preflight_subject_fields(
+                        index, replacement_front_preflight
+                    ),
                     f"subject_{index}_replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
                     f"subject_{index}_replacement_front_evidence_owner="
                     f"{replacement_front_evidence_owner}",
