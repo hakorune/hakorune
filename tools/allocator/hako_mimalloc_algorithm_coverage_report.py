@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
 from pathlib import Path
 
 from allocator_field_buckets import (
@@ -28,6 +27,7 @@ from hako_mimalloc_algorithm_coverage_support import (
     read_text,
     str_field,
 )
+from hako_mimalloc_algorithm_coverage_rows import refine_rows
 
 
 def report_dict(
@@ -630,28 +630,12 @@ def report_dict(
         structural_owner_selected = "none"
         structural_owner_reason = "hotcore_measurement_not_reported"
         structural_owner_next_action = "measure_hotcore_replacement_consumer"
-    refreshed_rows: list[CoverageRow] = []
-    for row in rows:
-        if row.area == "size_class_policy" and product_bins_consumer_enabled:
-            row = replace(
-                row,
-                replacement_front=1,
-                status="split_model_and_fixed_front",
-                evidence="size_class_box.hako + benchmark replacement-front size-class bridge",
-                next_bridge="measure current size-class bridge or connect product pages",
-            )
-        if row.area == "object_lifecycle_hot_core" and hotcore_consumer_enabled:
-            row = replace(
-                row,
-                replacement_front=1,
-                status="split_model_and_fixed_front",
-                evidence=(
-                    "object_lifecycle_hot_core_box.hako + benchmark HotCore/PageModel front"
-                ),
-                next_bridge=hotcore_next_bridge,
-            )
-        refreshed_rows.append(row)
-    rows = refreshed_rows
+    rows = refine_rows(
+        rows,
+        product_bins_consumer_enabled=product_bins_consumer_enabled,
+        hotcore_consumer_enabled=hotcore_consumer_enabled,
+        hotcore_next_bridge=hotcore_next_bridge,
+    )
     return {
         "output_contract": "hako-mimalloc-algorithm-coverage-v0",
         "hako_alloc_root": str(HAKO_ALLOC.relative_to(ROOT)),
