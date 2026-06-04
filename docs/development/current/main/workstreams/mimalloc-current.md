@@ -875,6 +875,27 @@ allocator_tool_compare_report_split_2026_06_05:
   selected_next_owner=allocator_tool_compare_report_assembly_split
   selected_next_action=move_report_assembly_line_building_out_of_compare_without_behavior_change
 
+allocator_tool_compare_report_render_split_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-CLEAN-006
+  purpose=move_hakozuna_mixed_ws_report_line_assembly_to_dedicated_module_without_behavior_change
+  cleanup_kind=BoxShape
+  behavior_change=0
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  target_primary=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py
+  target_primary_lines_before=1424
+  target_primary_lines_after=754
+  new_module=tools/allocator/hakozuna_mixed_ws_report_render.py
+  keep_in_compare=argparse,runner,subject orchestration,LD_PRELOAD subject setup
+  move_out=report assembly,manifest decoding,route classification,report-only math,subject report line generation
+  changed_tools=tools/allocator/hakozuna_mixed_ws_report_render.py,tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/README.md,tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh
+  selected_next_owner=allocator_tool_shim_build_split
+  selected_next_action=move_replacement_front_shim_build_helpers_out_of_compare_without_behavior_change
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out

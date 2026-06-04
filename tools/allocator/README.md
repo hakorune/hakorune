@@ -13,12 +13,14 @@ Tooling boundary:
 
 ```text
 hakozuna_mixed_ws_ldpreload_compare.py:
-  argparse, runner, subject orchestration, LD_PRELOAD subject setup, report
-  assembly
+  argparse, runner, subject orchestration, LD_PRELOAD subject setup
 
 replacement_front_report.py:
   replacement-front product activation/preflight report fields only;
   no shim generation, no Provider ABI calls, no allocator behavior changes
+
+hakozuna_mixed_ws_report_render.py:
+  Hakozuna mixed-ws report line assembly only; no benchmark execution logic
 
 replacement_front_smokes.py:
   focused non-activating replacement-front C smoke build/run/assert logic;
