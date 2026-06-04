@@ -28,6 +28,7 @@ from hako_mimalloc_algorithm_coverage_measurement_state import (
     CoverageMeasurementStateInputs,
     derive_measurement_state,
 )
+from hako_mimalloc_algorithm_coverage_model_fields import build_model_report_fields
 from hako_mimalloc_algorithm_coverage_perf_fields import build_perf_report_fields
 from hako_mimalloc_algorithm_coverage_owner_state import (
     CoverageOwnerStateInputs,
@@ -551,33 +552,5 @@ def report_dict(
         "record_state_residence_source_migration_allowed": 0,
         "record_state_residence_next_bridge": record_state_next_bridge,
         **build_perf_report_fields(measurement_state, perf_attribution),
-        "page_model_hot_array_seed_push_blocker": int(hot_array_push_count > 0),
-        "page_model_hot_array_field_count": len(hot_array_fields),
-        "page_model_hot_array_arraybox_field_count": len(hot_array_arraybox_fields),
-        "page_model_hot_array_directarray_field_count": len(hot_array_direct_fields),
-        "page_model_hot_array_arraybox_fields": ",".join(hot_array_arraybox_fields) or "none",
-        "page_model_hot_array_directarray_fields": ",".join(hot_array_direct_fields) or "none",
-        "page_model_hot_array_get_count": hot_array_get_count,
-        "page_model_hot_array_set_count": hot_array_set_count,
-        "page_model_hot_array_push_count": hot_array_push_count,
-        "page_model_hot_array_op_summary": ",".join(
-            f"{name}:get={ops['get']}:set={ops['set']}:push={ops['push']}"
-            for name, ops in hot_array_ops.items()
-        ),
-        "hotcore_replacement_bridge_plan_v0": 1,
-        "hotcore_replacement_bridge_report_only": 1,
-        "hotcore_replacement_consumer_enabled": hotcore_consumer_enabled,
-        "hotcore_replacement_shape_ready": hotcore_replacement_shape_ready,
-        "hotcore_replacement_bridge_blocker": hotcore_bridge_blocker,
-        "hotcore_replacement_next_bridge": hotcore_next_bridge,
-        "hotcore_replacement_measurement_reported": hotcore_measurement_reported,
-        "hotcore_replacement_median_ops_per_sec": hotcore_median_ops_per_sec,
-        "hotcore_page_model_source_ready": hotcore_page_model_source_ready,
-        "hotcore_small_alloc_calls_acquire_fresh_small": hotcore_small_alloc_calls_acquire_fresh_small,
-        "hotcore_release_calls_release_local_known_live": hotcore_release_calls_release_local_known_live,
-        "page_model_hot_methods_ready": page_model_hot_methods_ready,
-        "hotcore_source_method_count": len(hotcore_methods),
-        "hotcore_source_methods": ",".join(hotcore_methods) or "none",
-        "hotcore_replacement_route": hotcore_route,
-        "rows": [row.__dict__ for row in rows],
+        **build_model_report_fields(context=locals()),
     }
