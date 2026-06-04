@@ -14,6 +14,7 @@ from hakozuna_mixed_ws_report_support import (
     provider_kind_from_route,
     provider_ldpreload_route_metadata,
 )
+from hakozuna_mixed_ws_report_smoke_fields import replacement_front_smoke_pack_fields
 from replacement_front_report import (
     ReplacementFrontPreflight,
     product_activation_contract_fields,
@@ -23,7 +24,6 @@ from replacement_front_report import (
 )
 from replacement_front_support import (
     WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS,
-    counter_value,
     hako_good_size,
     hako_size_class_bin_size,
     hako_size_to_bin,
@@ -360,55 +360,7 @@ def render_hakozuna_mixed_ws_report(
         "workload_request_gt_1024="
         f"{workload_histogram['request_gt_1024']}",
     ]
-    if replacement_front_smokes:
-        malloc_family = replacement_front_smokes["malloc_family"]
-        cross_thread_free = replacement_front_smokes["cross_thread_free"]
-        abandoned_owner = replacement_front_smokes["abandoned_owner"]
-        cross_thread_realloc = replacement_front_smokes["cross_thread_realloc"]
-        lines.extend(
-            [
-                "replacement_front_product_smoke_pack_v0=1",
-                "replacement_front_product_smoke_pack_non_activating=1",
-                "replacement_front_malloc_family_smoke_ok=1",
-                "replacement_front_cross_thread_free_smoke_ok=1",
-                "replacement_front_abandoned_owner_smoke_ok=1",
-                "replacement_front_cross_thread_realloc_smoke_ok=1",
-                "replacement_front_malloc_family_null_free_smoke_ok=1",
-                "replacement_front_malloc_family_alloc_count="
-                f"{counter_value(malloc_family, 'replacement_front_alloc_count')}",
-                "replacement_front_malloc_family_calloc_count="
-                f"{counter_value(malloc_family, 'replacement_front_calloc_count')}",
-                "replacement_front_malloc_family_realloc_count="
-                f"{counter_value(malloc_family, 'replacement_front_realloc_count')}",
-                "replacement_front_malloc_family_free_count="
-                f"{counter_value(malloc_family, 'replacement_front_free_count')}",
-                "replacement_front_malloc_family_realloc_inplace_count="
-                f"{counter_value(malloc_family, 'replacement_front_realloc_inplace_count')}",
-                "replacement_front_malloc_family_calloc_zero_bytes="
-                f"{counter_value(malloc_family, 'replacement_front_calloc_zero_bytes')}",
-                "replacement_front_malloc_family_host_passthrough_count="
-                f"{counter_value(malloc_family, 'replacement_front_host_passthrough_count')}",
-                "replacement_front_cross_thread_free_policy=remote_queue",
-                "replacement_front_abandoned_owner_policy=mark_abandoned_no_host_free",
-                "replacement_front_cross_thread_realloc_policy=unsupported_counted",
-                "replacement_front_cross_thread_free_remote_free_push_count="
-                f"{counter_value(cross_thread_free, 'replacement_front_remote_free_push_count')}",
-                "replacement_front_cross_thread_free_remote_free_drain_count="
-                f"{counter_value(cross_thread_free, 'replacement_front_remote_free_drain_count')}",
-                "replacement_front_cross_thread_free_arena_registry_overflow_count="
-                f"{counter_value(cross_thread_free, 'replacement_front_arena_registry_overflow_count')}",
-                "replacement_front_abandoned_owner_abandoned_arena_count="
-                f"{counter_value(abandoned_owner, 'replacement_front_abandoned_arena_count')}",
-                "replacement_front_abandoned_owner_abandoned_remote_free_count="
-                f"{counter_value(abandoned_owner, 'replacement_front_abandoned_remote_free_count')}",
-                "replacement_front_abandoned_owner_host_passthrough_count="
-                f"{counter_value(abandoned_owner, 'replacement_front_host_passthrough_count')}",
-                "replacement_front_cross_thread_realloc_unsupported_count="
-                f"{counter_value(cross_thread_realloc, 'replacement_front_cross_thread_realloc_unsupported_count')}",
-                "replacement_front_cross_thread_realloc_host_passthrough_count="
-                f"{counter_value(cross_thread_realloc, 'replacement_front_host_passthrough_count')}",
-            ]
-        )
+    lines.extend(replacement_front_smoke_pack_fields(replacement_front_smokes))
     for key in sorted(provider_manifest_metadata):
         lines.append(f"{key}={provider_manifest_metadata[key]}")
     for key in sorted(provider_route_metadata):
