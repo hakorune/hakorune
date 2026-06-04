@@ -422,6 +422,34 @@ provider_host_claim_mainline_refresh_2026_06_04:
   selected_next_owner=threaded_provider_claim_mainline_evidence
   selected_next_action=measure_provider_claim_mainline_under_threaded_workload_before_any_product_activation_or_winner_claim
 
+provider_host_claim_mainline_thread_refresh_2026_06_04:
+  tls_guard_change=provider_ldpreload_in_provider_call_guard_is_thread_local
+  thread2_report=target/mimalloc-opt-refresh/provider-host-claim-mainline-tls-guard-thread2-gap-s5.out
+  thread2_provider_median_ops_per_sec=11,056,504.265
+  thread2_provider_vs_mimalloc_ratio=1.077
+  thread2_provider_slower_than_mimalloc_percent=-7.2
+  thread2_provider_init_fallback_in_provider_call_count_total=0
+  thread4_report=target/mimalloc-opt-refresh/provider-host-claim-mainline-tls-guard-thread4-gap-s5-i100k.out
+  thread4_provider_median_ops_per_sec=61,968,455.887
+  thread4_provider_vs_mimalloc_ratio=0.266
+  thread4_provider_slower_than_mimalloc_percent=276.5
+  thread4_provider_init_fallback_in_provider_call_count_total=0
+  provider_claim_mainline_mode_enabled_total=6
+  shim_tracking_insert_probe_total=0
+  shim_tracking_lookup_probe_total=0
+  provider_host_passthrough_count_total=0
+  provider_runtime_real_fallback_count_total=0
+  replacement_front_is_full_hako_algorithm=0
+  replacement_front_multithread_claim=0
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  decision=tls_guard_is_keeper_but_host_backed_provider_is_not_threaded_mimalloc_keeper
+  selected_next_owner=thread_local_or_pure_provider_allocator_thread_shape
+  selected_next_action=do_not_chase_host_backed_provider_C_shape_for_thread_perf; measure thread-local replacement front or pure-provider allocator boundary next
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

@@ -172,6 +172,9 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         provider_median = float(provider["throughput_median_ops_per_sec"])
         provider_ops = as_int(provider, "shim_provider_operation_count_total")
         init_fallback = as_int(provider, "shim_init_real_fallback_count_total")
+        init_fallback_in_provider = as_int(
+            provider, "shim_init_fallback_in_provider_call_count_total"
+        )
         host_passthrough = as_int(provider, "shim_host_passthrough_count_total")
         runtime_fallback = as_int(provider, "shim_runtime_real_fallback_count_total")
         pointer_overflow = as_int(provider, "shim_pointer_table_overflow_total")
@@ -210,6 +213,7 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_vs_glibc_ratio={ratio(provider_median, glibc_median)}",
                 f"provider_operation_count_total={provider_ops}",
                 f"provider_init_real_fallback_count_total={init_fallback}",
+                f"provider_init_fallback_in_provider_call_count_total={init_fallback_in_provider}",
                 f"provider_host_passthrough_count_total={host_passthrough}",
                 f"provider_runtime_real_fallback_count_total={runtime_fallback}",
                 f"provider_pointer_table_overflow_total={pointer_overflow}",

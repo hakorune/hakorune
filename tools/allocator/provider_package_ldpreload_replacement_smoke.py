@@ -101,7 +101,7 @@ static int provider_ready = 0;
 static int provider_usable_size_mode = 0;
 static int provider_assume_owned_mode = 0;
 static int provider_claim_mainline_mode = 0;
-static int in_provider_call = 0;
+static __thread int in_provider_call = 0;
 static struct HakoTrackedPtr tracked[HAKO_POINTER_TABLE_CAP];
 
 static void* hako_host_malloc(void* ctx, size_t size) {

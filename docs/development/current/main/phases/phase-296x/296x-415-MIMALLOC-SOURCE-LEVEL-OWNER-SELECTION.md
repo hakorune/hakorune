@@ -71,8 +71,11 @@ HostAllocatorV0 provider-host refresh is recorded in the active workstream.
 The provider-host normal route now uses claim-mainline mode when free/realloc/
 usable-size claims are bound, leaving shim pointer tracking as a compatibility
 fallback only. The next provider-boundary owner is threaded provider
-claim-mainline evidence, without opening provider activation, product
-replacement, hooks, global allocator, or winner claims.
+claim-mainline evidence. That evidence keeps the TLS recursion guard as a
+keeper but does not select host-backed provider C-shape work for thread
+performance; the next threaded owner is thread-local or pure-provider allocator
+shape. Provider activation, product replacement, hooks, global allocator, and
+winner claims remain closed.
 
 ## Forbidden
 
