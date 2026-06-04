@@ -744,6 +744,31 @@ replacement_front_product_rollback_optout_plan_2026_06_05:
   selected_next_owner=product_replacement_activation_preflight
   selected_next_action=add_non_activating_preflight_report
 
+replacement_front_product_activation_preflight_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-008
+  purpose=add_non_activating_product_candidate_preflight_report_before_any_activation_row
+  product_preflight_report_v0=1
+  product_preflight_non_activating=1
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  preflight_evidence_ready_reported=1
+  preflight_activation_ready=0
+  preflight_quality_ok_reported=1
+  preflight_provider_dispatch_bypass_ok_reported=1
+  preflight_type_abi_hot_lookup_zero_ok_reported=1
+  preflight_cross_thread_policy_ok_reported=1
+  preflight_remote_abandoned_counters_ok_reported=1
+  preflight_rollback_optout_ok_reported=1
+  preflight_missing_always_includes=product_gate_open,activation_row
+  activation_blockers=benchmark_only,product_gate_closed,no_activation_row
+  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
+  selected_next_owner=product_replacement_preflight_evidence_refresh
+  selected_next_action=run_non_activating_preflight_smoke_and_readonly_descriptor_report
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out

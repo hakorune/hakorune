@@ -412,6 +412,28 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"{replacement_front.get('replacement_front_rollback_report_path_required', 'unknown')}",
                 "replacement_front_product_activation_blockers="
                 f"{replacement_product_activation_blockers}",
+                "replacement_front_product_preflight_report_v0="
+                f"{replacement_front.get('replacement_front_product_preflight_report_v0', 'unknown')}",
+                "replacement_front_product_preflight_non_activating="
+                f"{replacement_front.get('replacement_front_product_preflight_non_activating', 'unknown')}",
+                "replacement_front_product_preflight_evidence_ready="
+                f"{replacement_front.get('replacement_front_product_preflight_evidence_ready', 'unknown')}",
+                "replacement_front_product_preflight_activation_ready="
+                f"{replacement_front.get('replacement_front_product_preflight_activation_ready', 'unknown')}",
+                "replacement_front_product_preflight_quality_ok="
+                f"{replacement_front.get('replacement_front_product_preflight_quality_ok', 'unknown')}",
+                "replacement_front_product_preflight_provider_dispatch_bypass_ok="
+                f"{replacement_front.get('replacement_front_product_preflight_provider_dispatch_bypass_ok', 'unknown')}",
+                "replacement_front_product_preflight_type_abi_hot_lookup_zero_ok="
+                f"{replacement_front.get('replacement_front_product_preflight_type_abi_hot_lookup_zero_ok', 'unknown')}",
+                "replacement_front_product_preflight_cross_thread_policy_ok="
+                f"{replacement_front.get('replacement_front_product_preflight_cross_thread_policy_ok', 'unknown')}",
+                "replacement_front_product_preflight_remote_abandoned_counters_ok="
+                f"{replacement_front.get('replacement_front_product_preflight_remote_abandoned_counters_ok', 'unknown')}",
+                "replacement_front_product_preflight_rollback_optout_ok="
+                f"{replacement_front.get('replacement_front_product_preflight_rollback_optout_ok', 'unknown')}",
+                "replacement_front_product_preflight_missing="
+                f"{replacement_front.get('replacement_front_product_preflight_missing', 'unknown')}",
                 f"replacement_front_benchmark_front_class={replacement_front_class}",
                 f"replacement_front_vs_mimalloc_ratio={ratio(replacement_median, mimalloc_median)}",
                 "replacement_front_slower_than_mimalloc_percent="

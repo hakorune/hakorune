@@ -146,6 +146,17 @@ replacement_front_activation_default=off
 replacement_front_activation_report_required=1
 replacement_front_rollback_report_path_required=1
 replacement_front_product_activation_blockers=...
+replacement_front_product_preflight_report_v0=1
+replacement_front_product_preflight_non_activating=1
+replacement_front_product_preflight_evidence_ready=0|1
+replacement_front_product_preflight_activation_ready=0
+replacement_front_product_preflight_quality_ok=0|1
+replacement_front_product_preflight_provider_dispatch_bypass_ok=0|1
+replacement_front_product_preflight_type_abi_hot_lookup_zero_ok=0|1
+replacement_front_product_preflight_cross_thread_policy_ok=0|1
+replacement_front_product_preflight_remote_abandoned_counters_ok=0|1
+replacement_front_product_preflight_rollback_optout_ok=0|1
+replacement_front_product_preflight_missing=...
 ```
 
 The current replacement-front benchmark may prove that the hot boundary can be
@@ -172,6 +183,13 @@ rollback / opt-out plan is documented
 ```
 
 Until then, the product route remains a descriptor candidate only.
+
+Product preflight is a report-only checklist for the ordinary-app route
+candidate. It may show that quality, dispatch bypass, Type ABI hot lookup,
+thread policy, remote/abandoned counters, and rollback/opt-out evidence are
+present in a benchmark report. `replacement_front_product_preflight_activation_ready`
+must remain `0`, and the missing list must include `product_gate_open` and
+`activation_row` while the product gate is closed.
 
 Rollback / opt-out plan v0 is a control-plane contract, not product activation.
 It reserves the default-off and per-process-disable controls that a future

@@ -132,6 +132,25 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         values,
         ("replacement_front_activation_default",),
     )
+    replacement_front_product_preflight = pick(
+        values,
+        ("replacement_front_product_preflight_report_v0",),
+        default="0",
+    )
+    replacement_front_product_preflight_evidence_ready = pick(
+        values,
+        ("replacement_front_product_preflight_evidence_ready",),
+        default="0",
+    )
+    replacement_front_product_preflight_activation_ready = pick(
+        values,
+        ("replacement_front_product_preflight_activation_ready",),
+        default="0",
+    )
+    replacement_front_product_preflight_missing = pick(
+        values,
+        ("replacement_front_product_preflight_missing",),
+    )
 
     if (
         replacement_front_execution_route == "replacement_front_benchmark"
@@ -186,6 +205,14 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         f"replacement_front_activation_default={replacement_front_activation_default}",
         "replacement_front_product_activation_blockers="
         f"{replacement_front_product_activation_blockers}",
+        "replacement_front_product_preflight_report_v0="
+        f"{replacement_front_product_preflight}",
+        "replacement_front_product_preflight_evidence_ready="
+        f"{replacement_front_product_preflight_evidence_ready}",
+        "replacement_front_product_preflight_activation_ready="
+        f"{replacement_front_product_preflight_activation_ready}",
+        "replacement_front_product_preflight_missing="
+        f"{replacement_front_product_preflight_missing}",
         "summary=ok",
     ]
 
