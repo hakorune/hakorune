@@ -646,6 +646,27 @@ replacement_front_ordinary_app_route_descriptor_2026_06_05:
   selected_next_owner=product_replacement_front_activation_contract
   selected_next_action=keep_activation_closed_until_dedicated_product_replacement_row
 
+replacement_front_product_activation_contract_2026_06_05:
+  status=landed
+  task_id=BENCH-ROUTE-EQUIV-004
+  purpose=define_required_report_contract_before_replacement_front_product_activation_can_open
+  product_gate=closed
+  product_activation_ready=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  replacement_front_product_activation_contract_v0=1
+  requires_quality_ok=1
+  requires_provider_dispatch_bypass=1
+  requires_type_abi_hot_lookup_zero=1
+  requires_cross_thread_policy=1
+  requires_remote_abandoned_counters=1
+  requires_rollback_optout_plan=1
+  activation_blockers=benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan
+  changed_tools=tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py,tools/allocator/hakozuna_mixed_ws_gap_ladder.py,tools/allocator/type_abi_route_descriptor_readonly.py
+  selected_next_owner=product_replacement_front_smoke_pack
+  selected_next_action=add_non_activating_malloc_family_and_thread_safety_smokes
+
 thread_local_replacement_front_profile_2026_06_05:
   status=landed
   input_report=target/bench-route-equiv-t4-tls.out

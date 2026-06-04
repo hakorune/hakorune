@@ -347,6 +347,12 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         replacement_product_activation_ready = replacement_front.get(
             "replacement_front_product_activation_ready", "unknown"
         )
+        replacement_product_activation_contract = replacement_front.get(
+            "replacement_front_product_activation_contract_v0", "unknown"
+        )
+        replacement_product_activation_blockers = replacement_front.get(
+            "replacement_front_product_activation_blockers", "unknown"
+        )
         lines.extend(
             [
                 f"replacement_front_median_ops_per_sec={replacement_median:.3f}",
@@ -356,6 +362,22 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"replacement_front_product_gate={replacement_product_gate}",
                 "replacement_front_product_activation_ready="
                 f"{replacement_product_activation_ready}",
+                "replacement_front_product_activation_contract_v0="
+                f"{replacement_product_activation_contract}",
+                "replacement_front_product_activation_requires_quality_ok="
+                f"{replacement_front.get('replacement_front_product_activation_requires_quality_ok', 'unknown')}",
+                "replacement_front_product_activation_requires_provider_dispatch_bypass="
+                f"{replacement_front.get('replacement_front_product_activation_requires_provider_dispatch_bypass', 'unknown')}",
+                "replacement_front_product_activation_requires_type_abi_hot_lookup_zero="
+                f"{replacement_front.get('replacement_front_product_activation_requires_type_abi_hot_lookup_zero', 'unknown')}",
+                "replacement_front_product_activation_requires_cross_thread_policy="
+                f"{replacement_front.get('replacement_front_product_activation_requires_cross_thread_policy', 'unknown')}",
+                "replacement_front_product_activation_requires_remote_abandoned_counters="
+                f"{replacement_front.get('replacement_front_product_activation_requires_remote_abandoned_counters', 'unknown')}",
+                "replacement_front_product_activation_requires_rollback_optout_plan="
+                f"{replacement_front.get('replacement_front_product_activation_requires_rollback_optout_plan', 'unknown')}",
+                "replacement_front_product_activation_blockers="
+                f"{replacement_product_activation_blockers}",
                 f"replacement_front_benchmark_front_class={replacement_front_class}",
                 f"replacement_front_vs_mimalloc_ratio={ratio(replacement_median, mimalloc_median)}",
                 "replacement_front_slower_than_mimalloc_percent="

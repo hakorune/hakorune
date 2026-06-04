@@ -106,6 +106,15 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         ("replacement_front_product_claim",),
         default="0",
     )
+    replacement_front_product_activation_contract = pick(
+        values,
+        ("replacement_front_product_activation_contract_v0",),
+        default="0",
+    )
+    replacement_front_product_activation_blockers = pick(
+        values,
+        ("replacement_front_product_activation_blockers",),
+    )
 
     if (
         replacement_front_execution_route == "replacement_front_benchmark"
@@ -150,6 +159,10 @@ def build_descriptor(values: dict[str, str], source_report: Path) -> list[str]:
         "replacement_front_product_activation_ready="
         f"{replacement_front_product_activation_ready}",
         f"replacement_front_product_claim={replacement_front_product_claim}",
+        "replacement_front_product_activation_contract_v0="
+        f"{replacement_front_product_activation_contract}",
+        "replacement_front_product_activation_blockers="
+        f"{replacement_front_product_activation_blockers}",
         "summary=ok",
     ]
 

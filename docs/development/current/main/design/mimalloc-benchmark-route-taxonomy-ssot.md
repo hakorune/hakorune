@@ -130,6 +130,14 @@ replacement_front_product_gate=closed
 replacement_front_product_activation_ready=0
 replacement_front_benchmark_only=1
 replacement_front_product_claim=0
+replacement_front_product_activation_contract_v0=1
+replacement_front_product_activation_requires_quality_ok=1
+replacement_front_product_activation_requires_provider_dispatch_bypass=1
+replacement_front_product_activation_requires_type_abi_hot_lookup_zero=1
+replacement_front_product_activation_requires_cross_thread_policy=1
+replacement_front_product_activation_requires_remote_abandoned_counters=1
+replacement_front_product_activation_requires_rollback_optout_plan=1
+replacement_front_product_activation_blockers=...
 ```
 
 The current replacement-front benchmark may prove that the hot boundary can be
@@ -141,6 +149,21 @@ hook_installed=1 or global_allocator_product_claim=1
 replacement_front_benchmark_only=0
 replacement_front_product_claim=1
 ```
+
+The activation contract is intentionally stricter than the benchmark route. A
+future activation row must prove, in the same report family, all of:
+
+```text
+measurement_quality=ok
+replacement_front_bypasses_provider_dispatch=1
+type_abi_hot_path_lookup_count=0
+subject_N_cross_thread_free_policy=...
+replacement_front_remote_free_push_count / drain_count are reported
+replacement_front_abandoned_arena_count is reported
+rollback / opt-out plan is documented
+```
+
+Until then, the product route remains a descriptor candidate only.
 
 Interpretation rule:
 

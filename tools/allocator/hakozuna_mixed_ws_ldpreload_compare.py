@@ -1207,6 +1207,15 @@ def main() -> int:
         "replacement_front_ordinary_app_route_candidate=replacement_front_product_ldpreload",
         "replacement_front_product_gate=closed",
         "replacement_front_product_activation_ready=0",
+        "replacement_front_product_activation_contract_v0=1",
+        "replacement_front_product_activation_requires_quality_ok=1",
+        "replacement_front_product_activation_requires_provider_dispatch_bypass=1",
+        "replacement_front_product_activation_requires_type_abi_hot_lookup_zero=1",
+        "replacement_front_product_activation_requires_cross_thread_policy=1",
+        "replacement_front_product_activation_requires_remote_abandoned_counters=1",
+        "replacement_front_product_activation_requires_rollback_optout_plan=1",
+        "replacement_front_product_activation_blockers="
+        "benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan",
         f"replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
         "replacement_front_size_class_bridge_plan_v0=1",
         "replacement_front_size_class_bridge_report_only=1",
@@ -1492,6 +1501,22 @@ def main() -> int:
                     "replacement_front_product_ldpreload",
                     f"subject_{index}_replacement_front_product_gate=closed",
                     f"subject_{index}_replacement_front_product_activation_ready=0",
+                    f"subject_{index}_replacement_front_product_activation_contract_v0=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_requires_quality_ok=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_requires_provider_dispatch_bypass=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_requires_type_abi_hot_lookup_zero=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_requires_cross_thread_policy=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_requires_remote_abandoned_counters=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_requires_rollback_optout_plan=1",
+                    "subject_"
+                    f"{index}_replacement_front_product_activation_blockers="
+                    "benchmark_only,product_gate_closed,no_activation_row,no_rollback_optout_plan",
                     f"subject_{index}_replacement_front_algorithm_shape={replacement_front_algorithm_shape}",
                     f"subject_{index}_replacement_front_evidence_owner="
                     f"{replacement_front_evidence_owner}",
