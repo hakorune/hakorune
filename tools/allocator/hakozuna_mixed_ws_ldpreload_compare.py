@@ -448,6 +448,30 @@ def load_manifest_metadata(path: Path | None) -> dict[str, str]:
         "provider_manifest_hako_provider_alloc_free_route": manifest_string(
             build, "hako_provider_alloc_free_route", "unknown"
         ),
+        "provider_manifest_provider_allocator_kind": manifest_string(
+            build, "provider_allocator_kind", "unknown"
+        ),
+        "provider_manifest_provider_abi_claim_ops_v1": manifest_string(
+            build, "provider_abi_claim_ops_v1", "0"
+        ),
+        "provider_manifest_provider_free_claim_enabled": manifest_string(
+            build, "provider_free_claim_enabled", "0"
+        ),
+        "provider_manifest_provider_realloc_claim_enabled": manifest_string(
+            build, "provider_realloc_claim_enabled", "0"
+        ),
+        "provider_manifest_provider_usable_size_claim_enabled": manifest_string(
+            build, "provider_usable_size_claim_enabled", "0"
+        ),
+        "provider_manifest_compat_alloc_free_owns_still_supported": manifest_string(
+            build, "compat_alloc_free_owns_still_supported", "1"
+        ),
+        "provider_manifest_compat_owns_free_mainline": manifest_string(
+            build, "compat_owns_free_mainline", "1"
+        ),
+        "provider_manifest_host_allocator_vtable_init": manifest_string(
+            build, "host_allocator_vtable_init", "0"
+        ),
         "provider_manifest_hako_provider_alloc_free_uses_host_malloc": manifest_string(
             build, "hako_provider_alloc_free_uses_host_malloc", "unknown"
         ),

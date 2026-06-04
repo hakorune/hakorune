@@ -888,6 +888,52 @@ owner hint:
   dominates provider operations
 ```
 
+Provider ABI / shim boundary cleanup is now documented in:
+
+```text
+docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
+```
+
+Current task order:
+
+```text
+PROV-ABI-001:
+  docs/report-only boundary for provider kinds, claim ops, and future
+  HostAllocatorV0
+
+PROV-ABI-002:
+  add optional free_claim API tail entry
+  LD_PRELOAD shim free path prefers provider.free_claim
+  keep alloc/free/owns compatibility surface
+  do not add realloc_claim or HostAllocatorV0 in this slice
+```
+
+PROV-ABI-002 landed as a narrow ABI-boundary cleanup:
+
+```text
+provider API:
+  appended optional free_claim tail entry
+  alloc/free/owns compatibility surface remains
+
+manifest/report:
+  provider_allocator_kind=host_backed_adapter|pure_allocator
+  provider_abi_claim_ops_v1=1
+  provider_free_claim_enabled=1
+  provider_realloc_claim_enabled=0
+  provider_usable_size_claim_enabled=0
+  compat_owns_free_mainline=0
+
+smoke evidence:
+  host-backed smoke free_claim_bound=1 free_claim_count=2 summary=ok
+  native-slot smoke free_claim_bound=1 free_claim_count=2 summary=ok
+
+gap evidence:
+  host-backed report=target/prov-abi/free-claim-host-gap-s3.out
+  native-slot single-thread report=target/prov-abi/free-claim-native-gap-t1-s3.out
+  shim tracking remains present for realloc/size compatibility
+  next boundary=usable_size_claim_or_realloc_claim_before_tracking_removal
+```
+
 Provider package route split:
 
 ```text

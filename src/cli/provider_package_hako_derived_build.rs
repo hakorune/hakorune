@@ -18,12 +18,15 @@ const OBJECT_LIFECYCLE_MODE: &str = "object-lifecycle-small-alloc-release-v0";
 const OBJECT_LIFECYCLE_NATIVE_SLOT_MODE: &str = "object-lifecycle-native-slot-bridge-v0";
 const HOST_ALLOC_FREE_ROUTE: &str = "host_malloc_free_wrapper";
 const HOST_OBJECT_LIFECYCLE_USAGE: &str = "metadata_verification_only";
+const HOST_BACKED_ADAPTER_KIND: &str = "host_backed_adapter";
 const NATIVE_SLOT_ALLOC_FREE_ROUTE: &str = "native_static_slot_bridge_from_object_lifecycle_shape";
 const NATIVE_SLOT_OBJECT_LIFECYCLE_USAGE: &str = "native_shape_codegen";
+const PURE_PROVIDER_KIND: &str = "pure_allocator";
 
 #[derive(Clone, Copy)]
 struct AllocFreeRoute {
     route: &'static str,
+    allocator_kind: &'static str,
     uses_host_malloc: bool,
     uses_hako_object_lifecycle: bool,
     object_lifecycle_usage: &'static str,
@@ -33,6 +36,7 @@ fn alloc_free_route(semantic_codegen: &str) -> AllocFreeRoute {
     if semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE {
         AllocFreeRoute {
             route: NATIVE_SLOT_ALLOC_FREE_ROUTE,
+            allocator_kind: PURE_PROVIDER_KIND,
             uses_host_malloc: false,
             uses_hako_object_lifecycle: true,
             object_lifecycle_usage: NATIVE_SLOT_OBJECT_LIFECYCLE_USAGE,
@@ -40,6 +44,7 @@ fn alloc_free_route(semantic_codegen: &str) -> AllocFreeRoute {
     } else {
         AllocFreeRoute {
             route: HOST_ALLOC_FREE_ROUTE,
+            allocator_kind: HOST_BACKED_ADAPTER_KIND,
             uses_host_malloc: true,
             uses_hako_object_lifecycle: false,
             object_lifecycle_usage: HOST_OBJECT_LIFECYCLE_USAGE,
@@ -218,6 +223,14 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         "hako_provider_owns_value": semantic_owns_value,
         "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
         "hako_provider_alloc_free_route": alloc_route.route,
+        "provider_allocator_kind": alloc_route.allocator_kind,
+        "provider_abi_claim_ops_v1": true,
+        "provider_free_claim_enabled": true,
+        "provider_realloc_claim_enabled": false,
+        "provider_usable_size_claim_enabled": false,
+        "compat_alloc_free_owns_still_supported": true,
+        "compat_owns_free_mainline": false,
+        "host_allocator_vtable_init": false,
         "hako_provider_alloc_free_uses_host_malloc": alloc_route.uses_host_malloc,
         "hako_provider_alloc_free_uses_hako_object_lifecycle": alloc_route.uses_hako_object_lifecycle,
         "hako_provider_object_lifecycle_entrypoint_usage": alloc_route.object_lifecycle_usage,
@@ -288,6 +301,14 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             "hako_provider_owns_value": semantic_owns_value,
             "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
             "hako_provider_alloc_free_route": alloc_route.route,
+            "provider_allocator_kind": alloc_route.allocator_kind,
+            "provider_abi_claim_ops_v1": true,
+            "provider_free_claim_enabled": true,
+            "provider_realloc_claim_enabled": false,
+            "provider_usable_size_claim_enabled": false,
+            "compat_alloc_free_owns_still_supported": true,
+            "compat_owns_free_mainline": false,
+            "host_allocator_vtable_init": false,
             "hako_provider_alloc_free_uses_host_malloc": alloc_route.uses_host_malloc,
             "hako_provider_alloc_free_uses_hako_object_lifecycle": alloc_route.uses_hako_object_lifecycle,
             "hako_provider_object_lifecycle_entrypoint_usage": alloc_route.object_lifecycle_usage,
@@ -330,6 +351,14 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
          hako_provider_object_lifecycle_codegen={}\n\
          hako_provider_object_lifecycle_entrypoint_verified={}\n\
          hako_provider_alloc_free_route={}\n\
+         provider_allocator_kind={}\n\
+         provider_abi_claim_ops_v1=1\n\
+         provider_free_claim_enabled=1\n\
+         provider_realloc_claim_enabled=0\n\
+         provider_usable_size_claim_enabled=0\n\
+         compat_alloc_free_owns_still_supported=1\n\
+         compat_owns_free_mainline=0\n\
+         host_allocator_vtable_init=0\n\
          hako_provider_alloc_free_uses_host_malloc={}\n\
          hako_provider_alloc_free_uses_hako_object_lifecycle={}\n\
          hako_provider_object_lifecycle_entrypoint_usage={}\n\
@@ -383,6 +412,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             0
         },
         alloc_route.route,
+        alloc_route.allocator_kind,
         bool_i32(alloc_route.uses_host_malloc),
         bool_i32(alloc_route.uses_hako_object_lifecycle),
         alloc_route.object_lifecycle_usage,
@@ -659,8 +689,16 @@ fn hako_derived_function_table_hash(
     let contract = json!({
         "abi_version": ABI_VERSION,
         "api_table_schema_version": "hakorune-provider-api-v1",
-        "entrypoints": ["ping", "alloc", "free", "owns"],
+        "entrypoints": ["ping", "alloc", "free", "owns", "free_claim"],
         "provider_kind": provider_kind,
+        "provider_allocator_kind": alloc_route.allocator_kind,
+        "provider_abi_claim_ops_v1": true,
+        "provider_free_claim_enabled": true,
+        "provider_realloc_claim_enabled": false,
+        "provider_usable_size_claim_enabled": false,
+        "compat_alloc_free_owns_still_supported": true,
+        "compat_owns_free_mainline": false,
+        "host_allocator_vtable_init": false,
         "hako_source_hash": hako_source_hash,
         "hako_mir_json_hash": hako_mir_json_hash,
         "hako_semantic_provider_codegen": semantic_codegen,
@@ -738,6 +776,7 @@ typedef struct HakoProviderApiV1 {
   void* (*alloc)(size_t size, size_t align);
   void (*free)(void* ptr);
   int (*owns)(void* ptr);
+  int (*free_claim)(void* ptr);
 } HakoProviderApiV1;
 
 static int hako_ping(void) { return __PING_VALUE__; }
@@ -752,10 +791,17 @@ static int hako_owns(void* ptr) {
   }
   return __OWNS_VALUE__;
 }
+static int hako_free_claim(void* ptr) {
+  if (ptr == NULL || !hako_owns(ptr)) {
+    return 0;
+  }
+  hako_free(ptr);
+  return 1;
+}
 
 static const HakoProviderApiV1 API = {
   0x484B5241u, 1, 0, sizeof(HakoProviderApiV1),
-  hako_ping, hako_alloc, hako_free, hako_owns
+  hako_ping, hako_alloc, hako_free, hako_owns, hako_free_claim
 };
 
 static const HakoProviderDescriptorV1 DESCRIPTOR = {
@@ -816,6 +862,7 @@ typedef struct HakoProviderApiV1 {
   void* (*alloc)(size_t size, size_t align);
   void (*free)(void* ptr);
   int (*owns)(void* ptr);
+  int (*free_claim)(void* ptr);
 } HakoProviderApiV1;
 
 static HakoProviderSlot HAKO_PROVIDER_SLOTS[HAKO_PROVIDER_SLOT_COUNT];
@@ -898,10 +945,17 @@ static int hako_owns(void* ptr) {
   }
   return HAKO_PROVIDER_USED[(uint32_t)index] ? __OWNS_VALUE__ : 0;
 }
+static int hako_free_claim(void* ptr) {
+  if (!hako_owns(ptr)) {
+    return 0;
+  }
+  hako_free(ptr);
+  return 1;
+}
 
 static const HakoProviderApiV1 API = {
   0x484B5241u, 1, 0, sizeof(HakoProviderApiV1),
-  hako_ping, hako_alloc, hako_free, hako_owns
+  hako_ping, hako_alloc, hako_free, hako_owns, hako_free_claim
 };
 
 static const HakoProviderDescriptorV1 DESCRIPTOR = {

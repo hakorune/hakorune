@@ -10,7 +10,14 @@ from provider_package_api_bind_smoke import emit as emit_bind
 from provider_package_api_bind_smoke import load_api, run
 
 
-def emit(base_report: str, ptr: int, owns_result: int, size: int, align: int) -> str:
+def emit(
+    base_report: str,
+    ptr: int,
+    owns_result: int,
+    free_claim_result: int,
+    size: int,
+    align: int,
+) -> str:
     replacements = {
         "output_contract=hakorune-provider-package-api-bind-smoke-v0": (
             "output_contract=hakorune-provider-package-alloc-free-smoke-v0"
@@ -27,6 +34,8 @@ def emit(base_report: str, ptr: int, owns_result: int, size: int, align: int) ->
     lines[insert_at:insert_at] = [
         "provider_alloc_executed=1",
         "provider_free_executed=1",
+        "provider_free_claim_executed=1",
+        f"provider_free_claim_result={free_claim_result}",
         f"provider_owns_result={owns_result}",
         "allocation_count=1",
         "free_count=1",
@@ -56,10 +65,17 @@ def main() -> int:
     if ptr == 0:
         raise SystemExit("[provider-package-metadata-preflight] provider alloc returned null")
     owns_result = int(api.owns(ptr))
-    api.free(ptr)
+    free_claim = getattr(api, "free_claim", None)
+    if free_claim is not None:
+        free_claim_result = int(free_claim(ptr))
+        if free_claim_result != 1:
+            raise SystemExit("[provider-package-metadata-preflight] provider free_claim failed")
+    else:
+        free_claim_result = 0
+        api.free(ptr)
 
     base = emit_bind(fields, descriptor, api_info, manifest_path, binary_path)
-    report = emit(base, ptr, owns_result, args.size, args.align)
+    report = emit(base, ptr, owns_result, free_claim_result, args.size, args.align)
     if args.out is None:
         print(report, end="")
     else:

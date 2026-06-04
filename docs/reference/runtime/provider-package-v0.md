@@ -457,6 +457,47 @@ winner claim. The bridge is intentionally narrow: it provides a fixed native
 slot arena for provider API smoke and LD_PRELOAD bridge evidence before the
 full `.hako` object-lifecycle lowering is connected.
 
+## Provider ABI Claim Operations
+
+The v0 compatibility API still exposes:
+
+```text
+alloc
+free
+owns
+```
+
+Allocator-provider measurements should not treat `owns + free` plus shim-side
+tracking as the long-term hot ownership boundary. The forward ABI direction is
+claim-style operations where the provider owns provider-pointer lifecycle truth:
+
+```text
+free_claim(ptr) -> handled | not_owned
+```
+
+Current generated providers append `free_claim` as an optional tail entry after
+the compatibility fields. Existing `alloc/free/owns` remain supported for
+compatibility, while LD_PRELOAD shim mainline may prefer `free_claim` when the
+tail entry is present.
+
+Report fields:
+
+```text
+provider_allocator_kind=pure_allocator|host_backed_adapter
+provider_abi_claim_ops_v1=1
+provider_free_claim_enabled=1
+provider_realloc_claim_enabled=0
+provider_usable_size_claim_enabled=0
+compat_alloc_free_owns_still_supported=1
+compat_owns_free_mainline=0
+host_allocator_vtable_init=0
+```
+
+`realloc_claim`, `usable_size_claim`, and `HostAllocatorV0` are future rows.
+Host-backed adapters must eventually receive host allocator operations through
+an explicit vtable instead of depending on LD_PRELOAD symbol reentry or
+nonportable libc-private symbols.
+
 ## v0 Stop Line
 
 Provider package v0 is complete when the CLI creates the package and metadata

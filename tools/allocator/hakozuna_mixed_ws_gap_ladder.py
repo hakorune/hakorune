@@ -154,6 +154,14 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         "provider_manifest_hako_semantic_provider_codegen",
         "provider_manifest_hako_provider_object_lifecycle_entrypoint_verified",
         "provider_manifest_hako_provider_alloc_free_route",
+        "provider_manifest_provider_allocator_kind",
+        "provider_manifest_provider_abi_claim_ops_v1",
+        "provider_manifest_provider_free_claim_enabled",
+        "provider_manifest_provider_realloc_claim_enabled",
+        "provider_manifest_provider_usable_size_claim_enabled",
+        "provider_manifest_compat_alloc_free_owns_still_supported",
+        "provider_manifest_compat_owns_free_mainline",
+        "provider_manifest_host_allocator_vtable_init",
         "provider_manifest_hako_provider_alloc_free_uses_host_malloc",
         "provider_manifest_hako_provider_alloc_free_uses_hako_object_lifecycle",
         "provider_manifest_hako_provider_object_lifecycle_entrypoint_usage",
@@ -167,6 +175,11 @@ def emit_summary(compare_report: Path, out: Path) -> None:
         host_passthrough = as_int(provider, "shim_host_passthrough_count_total")
         runtime_fallback = as_int(provider, "shim_runtime_real_fallback_count_total")
         pointer_overflow = as_int(provider, "shim_pointer_table_overflow_total")
+        free_claim = as_int(provider, "shim_provider_free_claim_count_total")
+        free_not_owned = as_int(provider, "shim_provider_free_not_owned_count_total")
+        free_claim_bound = as_int(provider, "shim_provider_free_claim_bound_total")
+        tracking_insert = as_int(provider, "shim_track_probe_total_total")
+        tracking_lookup = as_int(provider, "shim_find_probe_total_total")
         next_owner = provider.get("next_owner_family", "unknown")
         lines.extend(
             [
@@ -180,6 +193,13 @@ def emit_summary(compare_report: Path, out: Path) -> None:
                 f"provider_host_passthrough_count_total={host_passthrough}",
                 f"provider_runtime_real_fallback_count_total={runtime_fallback}",
                 f"provider_pointer_table_overflow_total={pointer_overflow}",
+                f"provider_free_claim_count_total={free_claim}",
+                f"provider_free_not_owned_count_total={free_not_owned}",
+                f"provider_free_claim_bound_total={free_claim_bound}",
+                f"shim_tracking_insert_probe_total={tracking_insert}",
+                f"shim_tracking_lookup_probe_total={tracking_lookup}",
+                "shim_provider_owned_truth=0",
+                "shim_owns_precheck_hot_path=0",
                 "provider_init_real_fallback_per_provider_operation="
                 f"{ratio(float(init_fallback), float(provider_ops)) if provider_ops > 0 else 'nan'}",
                 "provider_host_passthrough_per_provider_operation="

@@ -20,9 +20,10 @@ PING_FN = ctypes.CFUNCTYPE(ctypes.c_int)
 ALLOC_FN = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t)
 FREE_FN = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
 OWNS_FN = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+FREE_CLAIM_FN = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
 
 
-class HakoProviderApiV1(ctypes.Structure):
+class HakoProviderApiV1Base(ctypes.Structure):
     _fields_ = [
         ("magic", ctypes.c_uint32),
         ("abi_major", ctypes.c_uint16),
@@ -35,33 +36,44 @@ class HakoProviderApiV1(ctypes.Structure):
     ]
 
 
-def load_api(binary_path: Path) -> HakoProviderApiV1:
+class HakoProviderApiV1Claim(ctypes.Structure):
+    _fields_ = HakoProviderApiV1Base._fields_ + [
+        ("free_claim", FREE_CLAIM_FN),
+    ]
+
+
+def load_api(binary_path: Path) -> HakoProviderApiV1Base | HakoProviderApiV1Claim:
     lib = ctypes.CDLL(str(binary_path))
     try:
         fn = getattr(lib, GET_API_EXPORT_NAME)
     except AttributeError:
         fail(f"missing required export: {GET_API_EXPORT_NAME}")
     fn.argtypes = []
-    fn.restype = ctypes.POINTER(HakoProviderApiV1)
+    fn.restype = ctypes.POINTER(HakoProviderApiV1Base)
     ptr = fn()
     if not ptr:
         fail("provider API export returned null")
-    return ptr.contents
+    base = ptr.contents
+    if base.api_table_size >= ctypes.sizeof(HakoProviderApiV1Claim):
+        return ctypes.cast(ptr, ctypes.POINTER(HakoProviderApiV1Claim)).contents
+    return base
 
 
-def validate_api(api: HakoProviderApiV1) -> dict[str, str]:
+def validate_api(api: HakoProviderApiV1Base | HakoProviderApiV1Claim) -> dict[str, str]:
     if api.magic != API_MAGIC:
         fail("api.magic mismatch")
     if api.abi_major != API_MAJOR:
         fail("api.abi_major mismatch")
-    if api.api_table_size < ctypes.sizeof(HakoProviderApiV1):
+    if api.api_table_size < ctypes.sizeof(HakoProviderApiV1Base):
         fail("api.api_table_size too small")
     if not api.ping or not api.alloc or not api.free or not api.owns:
         fail("api table function pointers must be non-null")
+    free_claim = getattr(api, "free_claim", None)
     return {
         "api_abi_major": str(api.abi_major),
         "api_abi_minor": str(api.abi_minor),
         "api_table_size": str(api.api_table_size),
+        "provider_free_claim_bound": "1" if free_claim else "0",
     }
 
 
@@ -92,6 +104,13 @@ def emit(
         f"api_abi_major={api['api_abi_major']}",
         f"api_abi_minor={api['api_abi_minor']}",
         f"api_table_size={api['api_table_size']}",
+        f"provider_free_claim_bound={api['provider_free_claim_bound']}",
+        "provider_abi_claim_ops_v1=1",
+        "provider_free_claim_enabled=1",
+        "provider_realloc_claim_enabled=0",
+        "provider_usable_size_claim_enabled=0",
+        "compat_alloc_free_owns_still_supported=1",
+        "compat_owns_free_mainline=0",
         "manifest_ready=1",
         "descriptor_ready=1",
         "binary_hash_ready=1",
