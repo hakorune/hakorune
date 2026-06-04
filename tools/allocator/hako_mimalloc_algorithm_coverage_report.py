@@ -4,12 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from allocator_field_buckets import (
-    bucket_for_field,
-    fields_from_context,
-    fields_from_hint,
-    format_field_buckets,
-)
 from hako_mimalloc_algorithm_coverage_support import (
     CoverageRow,
     ROOT,
@@ -21,11 +15,14 @@ from hako_mimalloc_algorithm_coverage_support import (
     has_file,
     hako_file,
     int_field,
-    page_model_field_names,
     read_fastpath_counts,
     read_kv_report,
     read_text,
     str_field,
+)
+from hako_mimalloc_algorithm_coverage_field_state import (
+    CoverageFieldStateInputs,
+    derive_field_state,
 )
 from hako_mimalloc_algorithm_coverage_owner_state import (
     CoverageOwnerStateInputs,
@@ -401,71 +398,29 @@ def report_dict(
         "inlined_hot_body_split_next_bridge",
         inlined_hot_body_next_bridge,
     )
-    hot_field_names: list[str] = []
-    for field in fields_from_hint(perf_top_instruction_field_hints):
-        if field not in hot_field_names:
-            hot_field_names.append(field)
-    for field in fields_from_hint(perf_hot_instruction_0_field_hints):
-        if field not in hot_field_names:
-            hot_field_names.append(field)
-    for field in fields_from_context(perf_hot_instruction_0_context):
-        if field not in hot_field_names:
-            hot_field_names.append(field)
-    hot_field_bucket_names = [bucket_for_field(field) for field in hot_field_names]
-    primitive_hot_state_field_count = sum(
-        1 for bucket in hot_field_bucket_names if bucket == "primitive_hot_state"
-    )
-    public_or_proof_field_count = sum(
-        1
-        for bucket in hot_field_bucket_names
-        if "public_semantics" in bucket or "proof_evidence" in bucket
-    )
-    observer_counter_field_count = sum(
-        1 for bucket in hot_field_bucket_names if bucket == "observer_counter"
-    )
-    direct_array_owner_field_count = sum(
-        1 for bucket in hot_field_bucket_names if bucket == "direct_array_owner"
-    )
-    hot_field_top = hot_field_names[0] if hot_field_names else "none"
-    hot_field_top_bucket = (
-        bucket_for_field(hot_field_top) if hot_field_top != "none" else "none"
-    )
-    hot_field_plan_ready = int(
-        perf_attribution_report_consumed
-        and instruction_attribution_available
-        and primitive_hot_state_field_count > 0
-    )
-    hot_field_next_bridge = (
-        "record_state_residence_plan_report"
-        if hot_field_plan_ready
-        else (
-            "collect_perf_field_hints"
-            if perf_attribution_report_consumed
-            else "run_hako_mimalloc_direct_exact_app_perf_asm"
+    field_state = derive_field_state(
+        CoverageFieldStateInputs(
+            page_box=page_box,
+            perf_attribution=perf_attribution,
+            perf_attribution_report_consumed=perf_attribution_report_consumed,
+            state=state,
+            state_report_consumed=state_report_consumed,
         )
     )
-    page_model_fields = page_model_field_names(page_box)
-    record_state_static_candidates = [
-        field
-        for field in page_model_fields
-        if bucket_for_field(field) == "primitive_hot_state"
-    ]
-    record_state_observed_candidates = [
-        field
-        for field in hot_field_names
-        if bucket_for_field(field) == "primitive_hot_state"
-    ]
-    record_state_observed_rejections = [
-        field
-        for field in hot_field_names
-        if bucket_for_field(field) != "primitive_hot_state"
-    ]
+    hot_field_top = field_state.hot_field_top
+    hot_field_top_bucket = field_state.hot_field_top_bucket
+    primitive_hot_state_field_count = field_state.hot_field_primitive_hot_state_count
+    public_or_proof_field_count = field_state.hot_field_public_or_proof_count
+    observer_counter_field_count = field_state.hot_field_observer_counter_count
+    hot_field_plan_ready = field_state.hot_field_plan_ready
+    hot_field_next_bridge = field_state.hot_field_next_bridge
+    record_state_static_candidates = field_state.record_state_static_candidate_fields
+    record_state_observed_candidates = field_state.record_state_observed_candidate_fields
+    record_state_observed_rejections = field_state.record_state_rejected_observed_fields
     record_state_field_access_plan_count = int_field(
         state, "record_state_field_access_plan_count", 0
     )
-    record_state_field_access_ready = int(
-        state_report_consumed and record_state_field_access_plan_count > 0
-    )
+    record_state_field_access_ready = field_state.record_state_field_access_ready
     record_state_lowering_owner_selected = str_field(
         state, "record_state_lowering_owner_selected", "none"
     )
@@ -480,9 +435,7 @@ def report_dict(
         "record_state_lowering_owner_next_bridge",
         "select_record_state_lowering_owner",
     )
-    record_state_report_ready = int(
-        hot_field_plan_ready and bool(record_state_observed_candidates)
-    )
+    record_state_report_ready = field_state.record_state_report_ready
     owner_state = derive_owner_state(
         CoverageOwnerStateInputs(
             page_model_hot_array_measurement_ready=page_model_hot_array_measurement_ready,
@@ -677,7 +630,7 @@ def report_dict(
         "page_model_hot_field_traffic_ready": hot_field_plan_ready,
         "page_model_hot_field_top": hot_field_top,
         "page_model_hot_field_top_bucket": hot_field_top_bucket,
-        "page_model_hot_field_buckets": format_field_buckets(hot_field_names),
+        "page_model_hot_field_buckets": field_state.hot_field_buckets,
         "page_model_hot_field_primitive_hot_state_count": primitive_hot_state_field_count,
         "page_model_hot_field_public_or_proof_count": public_or_proof_field_count,
         "page_model_hot_field_observer_counter_count": observer_counter_field_count,
@@ -703,17 +656,9 @@ def report_dict(
         "record_state_representation_delta_next_bridge": record_state_representation_delta_next_bridge,
         "record_state_residence_owner_box": "HakoAllocPageModel",
         "record_state_residence_candidate_record": "PageState",
-        "record_state_residence_static_candidate_fields": ",".join(
-            record_state_static_candidates
-        )
-        or "none",
-        "record_state_residence_observed_candidate_fields": ",".join(
-            record_state_observed_candidates
-        )
-        or "none",
-        "record_state_residence_rejected_observed_fields": format_field_buckets(
-            record_state_observed_rejections
-        ),
+        "record_state_residence_static_candidate_fields": record_state_static_candidates,
+        "record_state_residence_observed_candidate_fields": record_state_observed_candidates,
+        "record_state_residence_rejected_observed_fields": record_state_observed_rejections,
         "record_state_residence_source_migration_allowed": 0,
         "record_state_residence_next_bridge": record_state_next_bridge,
         "perf_top_symbol": str_field(perf_attribution, "top_symbol", "none"),

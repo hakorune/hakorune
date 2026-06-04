@@ -72,6 +72,10 @@ hako_mimalloc_algorithm_coverage_owner_state.py:
 hako_mimalloc_algorithm_coverage_route_state.py:
   coverage route-state readiness only; no report I/O or CLI orchestration
 
+hako_mimalloc_algorithm_coverage_field_state.py:
+  coverage hot-field and record-state field derivation only; no report I/O or
+  CLI orchestration
+
 hako_mimalloc_algorithm_coverage_support.py:
   shared coverage helpers and path/constants only; no CLI orchestration
 
