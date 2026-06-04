@@ -15,6 +15,10 @@ Tooling boundary:
 hakozuna_mixed_ws_ldpreload_compare.py:
   argparse, runner, subject orchestration, LD_PRELOAD subject setup
 
+hakozuna_mixed_ws_compare_plan.py:
+  Hakozuna mixed-ws compare argument validation and derived plan only; no
+  benchmark execution logic
+
 hakozuna_mixed_ws_build_support.py:
   benchmark build/discovery helpers for mixed-ws compare probes; no report
   assembly, no smoke orchestration, no allocator behavior changes
