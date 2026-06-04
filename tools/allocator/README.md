@@ -30,7 +30,10 @@ hakozuna_mixed_ws_report_smoke_fields.py:
   replacement-front smoke pack report fields only; no benchmark execution logic
 
 hakozuna_mixed_ws_gap_summary.py:
-  gap-ladder summary fields only; no compare execution logic
+  gap-ladder CLI wrapper only; no report rendering or compare execution logic
+
+hakozuna_mixed_ws_gap_summary_report.py:
+  gap-ladder report rendering only; no CLI orchestration or file writing
 
 hako_mimalloc_perf_attribution_report.py:
   perf attribution report rendering only; no perf parsing or CLI orchestration
