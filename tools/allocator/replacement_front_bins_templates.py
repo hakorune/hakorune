@@ -410,6 +410,13 @@ static unsigned long long page_index_overflow_count = 0;
         else "  init_bins();"
     )
     constructor_init_line = "  init_bins();" if eager_init else ""
+    constructor_init_source = ""
+    if eager_init:
+        constructor_init_source = f"""
+__attribute__((constructor)) static void replacement_front_bins_preinit(void) {{
+{constructor_init_line}
+}}
+"""
 
     return f"""
 #define _GNU_SOURCE
@@ -496,6 +503,8 @@ static void init_bins(void) {{
 {chr(10).join(page_index_register_cases) if product_pages_nonlinear_lookup else ""}
   init_done = 1u;
 }}
+
+{constructor_init_source}
 
 {chr(10).join(helper_defs)}
 

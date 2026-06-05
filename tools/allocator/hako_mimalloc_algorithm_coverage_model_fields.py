@@ -100,13 +100,15 @@ def build_model_report_fields(
     hotcore_measurement_reported = measurement_state.hotcore_measurement_reported
     hotcore_median_ops_per_sec = measurement_state.hotcore_median_ops_per_sec
     hotcore_page_model_source_ready = route_state.hotcore_page_model_source_ready
-    hotcore_small_alloc_calls_acquire_fresh_small = (
-        measurement_state.hotcore_small_alloc_calls_acquire_fresh_small
+    hotcore_small_alloc_calls_acquire_fresh_small = cast(
+        int,
+        context["hotcore_small_alloc_calls_acquire_fresh_small"],
     )
-    hotcore_release_calls_release_local_known_live = (
-        measurement_state.hotcore_release_calls_release_local_known_live
+    hotcore_release_calls_release_local_known_live = cast(
+        int,
+        context["hotcore_release_calls_release_local_known_live"],
     )
-    page_model_hot_methods_ready = measurement_state.page_model_hot_methods_ready
+    page_model_hot_methods_ready = cast(int, context["page_model_hot_methods_ready"])
     hotcore_methods = [
         method
         for method in ("objectLifecycleSmallAlloc", "objectLifecycleReleaseBlock")

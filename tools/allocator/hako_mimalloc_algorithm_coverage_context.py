@@ -292,6 +292,21 @@ def build_coverage_report_context(
     structural_owner_selected = owner_state.structural_owner_selected
     structural_owner_reason = owner_state.structural_owner_reason
     structural_owner_next_action = owner_state.structural_owner_next_action
+    hot_core_source = hot_core
+    page_model_hot_array_source_migration_selected = hot_array_source_migration_selected
+    page_model_hot_array_source_type_ready = hot_array_source_type_ready
+    page_model_hot_array_birth_contract_ready = hot_array_birth_contract_ready
+    page_model_hot_array_source_migration_blocker = migration_blocker
+    page_model_hot_array_source_route_measurement_blocker = hot_array_route_measurement_blocker
+    page_model_hot_array_source_route_next_bridge = hot_array_route_next_bridge
+    page_model_hot_array_fastpath_direct_array_plan_count = fastpath_direct_array_plan_count
+    page_model_hot_array_fastpath_route_decision_count = fastpath_route_decision_count
+    page_model_hot_array_fastpath_fast_selected_count = fastpath_fast_selected_count
+    page_model_hot_array_fastpath_slow_selected_count = fastpath_slow_selected_count
+    page_model_hot_array_perf_delta_measurement_plan_v0 = perf_delta_plan
+    page_model_hot_array_perf_delta_ready = perf_delta_ready
+    page_model_hot_array_perf_delta_blocker = perf_delta_blocker
+    page_model_hot_array_perf_delta_next_bridge = perf_delta_next_bridge
     rows = refine_rows(
         rows,
         product_bins_consumer_enabled=product_bins_consumer_enabled,

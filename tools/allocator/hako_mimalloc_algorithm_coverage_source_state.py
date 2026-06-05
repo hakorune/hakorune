@@ -42,6 +42,7 @@ def derive_source_state(rows: list[CoverageRow]) -> dict[str, object]:
     hot_array_direct_fields = [
         name for name in hot_array_fields if f"{name}: DirectArrayI64" in page_box
     ]
+    direct_array_owner_field_count = len(hot_array_direct_fields)
     hot_array_source_type_ready = int(
         not hot_array_arraybox_fields and len(hot_array_direct_fields) == len(hot_array_fields)
     )
@@ -153,6 +154,7 @@ def derive_source_state(rows: list[CoverageRow]) -> dict[str, object]:
         "hot_array_push_count": hot_array_push_count,
         "hot_array_arraybox_fields": hot_array_arraybox_fields,
         "hot_array_direct_fields": hot_array_direct_fields,
+        "direct_array_owner_field_count": direct_array_owner_field_count,
         "hot_array_source_type_ready": hot_array_source_type_ready,
         "hot_array_birth_contract_ready": hot_array_birth_contract_ready,
         "hot_array_source_migration_selected": hot_array_source_migration_selected,

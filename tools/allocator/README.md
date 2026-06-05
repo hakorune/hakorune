@@ -952,6 +952,12 @@ replacement_front_is_full_hako_algorithm=0
 This is still a benchmark-only replacement-front lowering probe. It is not a
 new source syntax, product page bridge, allocator activation, or winner claim.
 
+For the locked global multithread route, do not assume the single-thread keeper
+also wins. The June 5, 2026 refresh keeps the HotCore/PageModel route selected
+for locked page-bin evidence, but treats size-class-table plus eager-init as a
+regression under that lock contract until a wider stability run proves
+otherwise.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
