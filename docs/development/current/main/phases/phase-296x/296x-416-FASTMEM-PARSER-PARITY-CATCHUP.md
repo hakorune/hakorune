@@ -84,20 +84,20 @@ PARSER-FMEM-001:
 
 PARSER-FMEM-002:
   parser parity gate surface
-  status=current
+  status=done
   output=one reusable smoke/probe route for Rust parser and .hako parser
   behavior_change=0
   gate=tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
 
 PARSER-FMEM-003:
   general bitwise/shift expression parity
-  status=next
+  status=done
   scope=<< >> & | ^ parse parity for ordinary expressions
   reason=fastmem PageKey examples need shift/mask without externcall escape
 
 PARSER-FMEM-004:
   rune contract-name parity
-  status=pending
+  status=next
   scope=Gate/Inline/FastMemory names as metadata parse-only where applicable
   reason=do not let Rust-only rune metadata become the accepted source truth
 

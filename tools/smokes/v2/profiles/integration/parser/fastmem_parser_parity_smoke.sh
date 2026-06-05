@@ -32,6 +32,7 @@ cat >"$RUST_SRC" <<'HK'
 static box Main {
   main() {
     local x = 1 + 2
+    local y = (1 << 3) & 7 | (8 >> 1) ^ 2
     return x
   }
 }
@@ -60,8 +61,11 @@ def walk(node):
         for item in node:
             yield from walk(item)
 
-if not any(node.get("kind") == "BinaryOp" and node.get("op") == "+" for node in walk(data)):
-    print("missing Rust parser baseline BinaryOp(+)", file=sys.stderr)
+ops = {node.get("op") for node in walk(data) if node.get("kind") == "BinaryOp"}
+expected = {"+", "<<", ">>", "&", "|", "^"}
+missing = expected - ops
+if missing:
+    print(f"missing Rust parser BinaryOp ops: {sorted(missing)}", file=sys.stderr)
     sys.exit(1)
 PY
 
@@ -69,6 +73,7 @@ cat >"$HAKO_DRIVER" <<'HK'
 static box Main {
   main() {
     local x = 1 + 2
+    local y = (1 << 3) & 7 | (8 >> 1) ^ 2
     return x
   }
 }
@@ -89,12 +94,14 @@ if ! grep -Fq '"kind":"Program"' "$HAKO_JSON"; then
   exit 1
 fi
 
-if ! grep -Fq '"type":"Binary"' "$HAKO_JSON" || ! grep -Fq '"op":"+"' "$HAKO_JSON"; then
-  log_error ".hako ParserBox baseline missing Binary(+)"
-  cat "$HAKO_JSON" >&2 || true
-  tail -n 120 "$HAKO_LOG" >&2 || true
-  exit 1
-fi
+for op in "+" "<<" ">>" "&" "|" "^"; do
+  if ! grep -Fq '"type":"Binary"' "$HAKO_JSON" || ! grep -Fq "\"op\":\"$op\"" "$HAKO_JSON"; then
+    log_error ".hako ParserBox baseline missing Binary($op)"
+    cat "$HAKO_JSON" >&2 || true
+    tail -n 120 "$HAKO_LOG" >&2 || true
+    exit 1
+  fi
+done
 
 if [ ! -s "$HAKO_JSON" ]; then
   log_error ".hako ParserBox baseline produced empty Program(JSON)"

@@ -117,7 +117,7 @@ fastmem syntax.
 
 ```text
 next_task:
-  PARSER-FMEM-002 parser parity gate surface
+  PARSER-FMEM-004 rune contract-name parity
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -139,6 +139,8 @@ completed_this_slice:
   MIM-FMEM-007 PageMapBridge plan
   296x-416 Fastmem parser parity catch-up phase cut
   PARSER-FMEM-001 parser parity inventory contract
+  PARSER-FMEM-002 parser parity gate surface
+  PARSER-FMEM-003 bitwise/shift expression parity
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
