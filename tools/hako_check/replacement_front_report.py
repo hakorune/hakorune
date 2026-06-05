@@ -1,0 +1,328 @@
+#!/usr/bin/env python3
+"""Explain replacement-front benchmark reports without changing execution."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+
+def read_kv(path: Path) -> dict[str, str]:
+    if not path.is_file():
+        raise SystemExit(f"missing report file: {path}")
+    rows: dict[str, str] = {}
+    for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        rows[key.strip()] = value.strip()
+    return rows
+
+
+def first_value(rows: dict[str, str], keys: list[str], default: str = "") -> str:
+    for key in keys:
+        value = rows.get(key)
+        if value is not None and value != "":
+            return value
+    return default
+
+
+def int_value(rows: dict[str, str], keys: list[str], default: int = 0) -> int:
+    value = first_value(rows, keys)
+    if value == "":
+        return default
+    try:
+        return int(float(value))
+    except ValueError:
+        return default
+
+
+def float_value(rows: dict[str, str], keys: list[str], default: float = 0.0) -> float:
+    value = first_value(rows, keys)
+    if value == "":
+        return default
+    try:
+        return float(value)
+    except ValueError:
+        return default
+
+
+def subject_indices(rows: dict[str, str]) -> list[int]:
+    indices: set[int] = set()
+    for key in rows:
+        if not key.startswith("subject_"):
+            continue
+        parts = key.split("_", 2)
+        if len(parts) < 3:
+            continue
+        try:
+            indices.add(int(parts[1]))
+        except ValueError:
+            continue
+    return sorted(indices)
+
+
+def find_subject(rows: dict[str, str], front_class: str, fallback: int) -> int:
+    for idx in subject_indices(rows):
+        if rows.get(f"subject_{idx}_benchmark_front_class") == front_class:
+            return idx
+    return fallback
+
+
+def prefixed(rows: dict[str, str], subject_idx: int, suffix: str, default: str = "") -> str:
+    return first_value(rows, [f"subject_{subject_idx}_{suffix}", suffix], default)
+
+
+def prefixed_int(rows: dict[str, str], subject_idx: int, suffix: str, default: int = 0) -> int:
+    return int_value(rows, [f"subject_{subject_idx}_{suffix}", suffix], default)
+
+
+def prefixed_float(
+    rows: dict[str, str],
+    subject_idx: int,
+    suffix: str,
+    default: float = 0.0,
+) -> float:
+    return float_value(rows, [f"subject_{subject_idx}_{suffix}", suffix], default)
+
+
+def ratio(numerator: float, denominator: float) -> float:
+    if denominator == 0.0:
+        return 0.0
+    return numerator / denominator
+
+
+def classify_next_owner(report: dict[str, Any]) -> str:
+    if report["global_lock_hot_path_count_total"] > 0:
+        return "global_lock_hot_path"
+    if report["remote_free_push_count_total"] > 0 or report["remote_free_drain_count_total"] > 0:
+        return "remote_free_queue"
+    if report["page_from_ptr_range_scan_count_total"] > 0:
+        return "range_scan_page_lookup"
+    if (
+        report["page_from_ptr_count_total"] > 0
+        or report["page_index_probe_count_total"] > 0
+        or report["owner_thread_id_lookup_count_total"] > 0
+    ):
+        return "free_path_page_lookup"
+    if report["replacement_median_ops_per_sec"] > 0:
+        return "perf_asm_owner_refresh"
+    return "missing_replacement_front_subject"
+
+
+def counter_gap_class(replacement_median: float, skip_median: float) -> tuple[str, float]:
+    if replacement_median <= 0.0 or skip_median <= 0.0:
+        return ("unknown", 0.0)
+    gap = ratio(skip_median, replacement_median)
+    if gap < 1.05:
+        return ("low", gap)
+    if gap < 1.15:
+        return ("medium", gap)
+    return ("high", gap)
+
+
+def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict[str, Any]:
+    replacement_idx = find_subject(rows, "replacement_front_c_shim", 2)
+    mimalloc_idx = find_subject(rows, "c_mimalloc_ldpreload", 1)
+
+    c_mimalloc_median = prefixed_float(rows, mimalloc_idx, "throughput_median_ops_per_sec")
+    replacement_median = prefixed_float(rows, replacement_idx, "throughput_median_ops_per_sec")
+    reported_vs_mimalloc = prefixed_float(rows, replacement_idx, "throughput_vs_c_mimalloc")
+    throughput_vs_mimalloc = reported_vs_mimalloc or ratio(replacement_median, c_mimalloc_median)
+
+    report: dict[str, Any] = {
+        "output_contract": "hako-check-replacement-front-report-v0",
+        "input_kind": "benchmark_kv_report",
+        "tool_surface": "hako_check_replacement_front_report",
+        "observation_only": 1,
+        "rewrite_executed": 0,
+        "source_rewrite_executed": 0,
+        "provider_activation": 0,
+        "global_allocator_product_claim": 0,
+        "hook_installed": 0,
+        "keeper_selection": 0,
+        "benchmark_subject_index": replacement_idx,
+        "c_mimalloc_subject_index": mimalloc_idx,
+        "benchmark_threads": int_value(rows, ["benchmark_threads", "threads"]),
+        "benchmark_thread_origin": first_value(rows, ["benchmark_thread_origin"], "c_pthread"),
+        "benchmark_front_class": prefixed(rows, replacement_idx, "benchmark_front_class"),
+        "hako_hot_path_claim": prefixed_int(rows, replacement_idx, "hako_hot_path_claim"),
+        "hako_source_thread_support_claim": int_value(rows, ["hako_source_thread_support_claim"], 0),
+        "hako_source_hot_path_claim": 0,
+        "mir_builder_hot_path_claim": 0,
+        "type_abi_hot_path_lookup_count": int_value(rows, ["type_abi_hot_path_lookup_count"], 0),
+        "provider_dispatch_hot_path": int_value(rows, ["provider_dispatch_hot_path"], 0),
+        "replacement_front_product_activation_ready": prefixed_int(
+            rows, replacement_idx, "replacement_front_product_activation_ready"
+        ),
+        "replacement_front_is_full_hako_algorithm": int_value(
+            rows, ["replacement_front_is_full_hako_algorithm"], 0
+        ),
+        "c_mimalloc_median_ops_per_sec": c_mimalloc_median,
+        "replacement_median_ops_per_sec": replacement_median,
+        "throughput_vs_c_mimalloc": throughput_vs_mimalloc,
+        "remote_free_push_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_cross_thread_free_remote_push_count_total"
+        ),
+        "remote_free_drain_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_remote_free_drain_count_total"
+        ),
+        "remote_free_cas_retry_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_remote_free_cas_retry_count_total"
+        ),
+        "same_thread_free_local_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_same_thread_free_local_count_total"
+        ),
+        "same_thread_alloc_local_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_same_thread_alloc_local_count_total"
+        ),
+        "page_from_ptr_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_page_from_ptr_count_total"
+        ),
+        "page_from_ptr_range_scan_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_page_from_ptr_range_scan_count_total"
+        ),
+        "page_from_ptr_miss_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_page_from_ptr_miss_count_total"
+        ),
+        "owner_thread_id_lookup_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_owner_thread_id_lookup_count_total"
+        ),
+        "owner_thread_id_remote_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_owner_thread_id_remote_count_total"
+        ),
+        "page_index_probe_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_page_index_probe_count_total"
+        ),
+        "global_lock_hot_path_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_global_lock_hot_path_count_total"
+        ),
+        "global_lock_refill_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_global_lock_refill_count_total"
+        ),
+        "host_passthrough_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_host_passthrough_count_total"
+        ),
+    }
+
+    generated_c_front = report["benchmark_front_class"] == "replacement_front_c_shim"
+    report["measured_hot_path_owner"] = (
+        "generated_c_replacement_front" if generated_c_front else "unknown"
+    )
+    report["api_boundary_gap_suspect"] = (
+        0 if generated_c_front and report["hako_hot_path_claim"] == 0 else 1
+    )
+    report["remote_free_workload"] = int(
+        report["remote_free_push_count_total"] > 0 or report["remote_free_drain_count_total"] > 0
+    )
+    report["same_thread_workload"] = int(
+        report["same_thread_free_local_count_total"] > 0 and report["remote_free_workload"] == 0
+    )
+    report["likely_next_owner"] = classify_next_owner(report)
+
+    if skip_rows is not None:
+        skip_replacement_idx = find_subject(skip_rows, "replacement_front_c_shim", replacement_idx)
+        skip_median = prefixed_float(skip_rows, skip_replacement_idx, "throughput_median_ops_per_sec")
+        gap_class, gap_ratio = counter_gap_class(replacement_median, skip_median)
+        report["skip_hot_counters_median_ops_per_sec"] = skip_median
+        report["skip_hot_counter_gap_ratio"] = gap_ratio
+        report["skip_hot_counter_gap_class"] = gap_class
+    else:
+        report["skip_hot_counters_median_ops_per_sec"] = 0.0
+        report["skip_hot_counter_gap_ratio"] = 0.0
+        report["skip_hot_counter_gap_class"] = "unknown"
+
+    report["clean"] = int(
+        generated_c_front
+        and report["hako_hot_path_claim"] == 0
+        and report["provider_activation"] == 0
+        and report["hook_installed"] == 0
+    )
+    report["summary"] = "ok" if report["benchmark_front_class"] else "failed"
+    return report
+
+
+def format_value(value: Any) -> str:
+    if isinstance(value, float):
+        return f"{value:.6f}"
+    return str(value)
+
+
+def emit_kv(report: dict[str, Any]) -> str:
+    return "\n".join(f"{key}={format_value(value)}" for key, value in report.items()) + "\n"
+
+
+def emit_summary(report: dict[str, Any]) -> str:
+    lines = [
+        f"contract: {report['output_contract']}",
+        f"front: {report['benchmark_front_class']} threads={report['benchmark_threads']}",
+        (
+            "throughput: "
+            f"replacement={report['replacement_median_ops_per_sec']:.3f} "
+            f"c_mimalloc={report['c_mimalloc_median_ops_per_sec']:.3f} "
+            f"ratio={report['throughput_vs_c_mimalloc']:.6f}"
+        ),
+        (
+            "claims: "
+            f"hako_hot_path={report['hako_hot_path_claim']} "
+            f"mir_builder_hot_path={report['mir_builder_hot_path_claim']} "
+            f"provider_activation={report['provider_activation']}"
+        ),
+        (
+            "hot counts: "
+            f"page_from_ptr={report['page_from_ptr_count_total']} "
+            f"owner_lookup={report['owner_thread_id_lookup_count_total']} "
+            f"page_index_probe={report['page_index_probe_count_total']} "
+            f"global_hot_lock={report['global_lock_hot_path_count_total']} "
+            f"remote_push={report['remote_free_push_count_total']}"
+        ),
+        f"next_owner: {report['likely_next_owner']}",
+        f"summary: {report['summary']}",
+    ]
+    if report["skip_hot_counter_gap_class"] != "unknown":
+        lines.insert(
+            3,
+            (
+                "skip-counter gap: "
+                f"class={report['skip_hot_counter_gap_class']} "
+                f"ratio={report['skip_hot_counter_gap_ratio']:.6f}"
+            ),
+        )
+    return "\n".join(lines) + "\n"
+
+
+def write_output(text: str, out: Path | None) -> None:
+    if out is None:
+        print(text, end="")
+        return
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text, encoding="utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report", required=True, type=Path)
+    parser.add_argument("--baseline-skip-report", type=Path)
+    parser.add_argument("--format", choices=("kv", "summary", "json"), default="kv")
+    parser.add_argument("--out", type=Path)
+    args = parser.parse_args()
+
+    rows = read_kv(args.report)
+    skip_rows = read_kv(args.baseline_skip_report) if args.baseline_skip_report else None
+    report = build_report(rows, skip_rows)
+
+    if args.format == "json":
+        text = json.dumps(report, indent=2, sort_keys=True) + "\n"
+    elif args.format == "summary":
+        text = emit_summary(report)
+    else:
+        text = emit_kv(report)
+    write_output(text, args.out)
+    return 0 if report["summary"] == "ok" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

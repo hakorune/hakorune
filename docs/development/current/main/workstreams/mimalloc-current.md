@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
+  - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
   - docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md
 ---
 
@@ -88,6 +89,13 @@ algorithm-port coverage:
   execution coverage are different surfaces. Do not read the fixed-slot
   replacement front as proof that the full `.hako` mimalloc algorithm is wired
   into LD_PRELOAD/product replacement.
+
+capability gap:
+  current evidence does not point at missing syntax alone. Bitwise/shift syntax
+  exists; the missing pieces are allocator-safe capability/lowering substrate
+  such as no-escape address tokens, exact page-key arithmetic, page-map bridge
+  storage, worker-local owner state, and atomic remote-free semantics. SSOT:
+  `docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md`
 ```
 
 ## Algorithm Port Coverage

@@ -13,6 +13,7 @@ Usage:
   $0 [--format text|dot|json-lsp] <file-or-dir|file> [more...]
   $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]
   $0 perf-surface-contract [--out report.txt]
+  $0 replacement-front-report --report target/.../report.out [options]
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
@@ -22,6 +23,8 @@ Tool surfaces:
   perf-surface        source-level allocator hot-path risk inventory
   perf-surface-contract
                       report vocabulary for perf-surface
+  replacement-front-report
+                      read-only replacement-front benchmark report explanation
   fastpath-explain    read-only FastPath / RouteDecision metadata explanation
                       with optional --profile / --group report scoping
   fastpath-check      CI-style RouteDecision profile check for current
@@ -64,6 +67,11 @@ fi
 if [ "${1:-}" = "perf-surface-contract" ]; then
   shift
   exec python3 "$ROOT/tools/hako_check/perf_surface_contract.py" "$@"
+fi
+
+if [ "${1:-}" = "replacement-front-report" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/replacement_front_report.py" "$@"
 fi
 
 if [ ! -x "$BIN" ]; then

@@ -13,6 +13,7 @@ Canonical helpers
 - `bash tools/hako_check/run_tests.sh`
 - `bash tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/deadblocks_smoke.sh`
+- `bash tools/hako_check/replacement_front_report_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -125,6 +126,98 @@ summary=ok
 - Stop line: this surface never rewrites source, changes MIR, activates a
   provider, replaces the process allocator, installs hooks, or makes benchmark
   winner claims.
+
+Replacement Front Report
+- `hako_check replacement-front-report` is an observation-only adapter for
+  replacement-front benchmark `report.out` files. It explains which benchmark
+  subject is the replacement-front LD_PRELOAD path, which thread/workload
+  evidence is present, and which counter family should be inspected next.
+- Use this surface after a benchmark run, before touching Provider ABI,
+  Type ABI, MIR builder, or `.hako` source shape. It is a report reader only.
+- Stable v0 entry:
+
+```bash
+bash tools/hako_check.sh replacement-front-report \
+  --report target/hakozuna-page-index-counter-macro-1m/report.out \
+  --baseline-skip-report target/hakozuna-page-index-counter-macro-skip-1m/report.out
+```
+
+- Compact human summary:
+
+```bash
+bash tools/hako_check.sh replacement-front-report \
+  --report target/hakozuna-page-index-counter-macro-1m/report.out \
+  --format summary
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-replacement-front-report-v0
+input_kind=benchmark_kv_report
+tool_surface=hako_check_replacement_front_report
+observation_only=1
+rewrite_executed=0
+source_rewrite_executed=0
+provider_activation=0
+global_allocator_product_claim=0
+hook_installed=0
+keeper_selection=0
+benchmark_subject_index
+c_mimalloc_subject_index
+benchmark_threads
+benchmark_thread_origin
+benchmark_front_class
+hako_hot_path_claim
+hako_source_thread_support_claim
+hako_source_hot_path_claim=0
+mir_builder_hot_path_claim=0
+type_abi_hot_path_lookup_count
+provider_dispatch_hot_path
+replacement_front_product_activation_ready
+replacement_front_is_full_hako_algorithm
+c_mimalloc_median_ops_per_sec
+replacement_median_ops_per_sec
+throughput_vs_c_mimalloc
+remote_free_push_count_total
+remote_free_drain_count_total
+remote_free_cas_retry_count_total
+same_thread_free_local_count_total
+same_thread_alloc_local_count_total
+page_from_ptr_count_total
+page_from_ptr_range_scan_count_total
+page_from_ptr_miss_count_total
+owner_thread_id_lookup_count_total
+owner_thread_id_remote_count_total
+page_index_probe_count_total
+global_lock_hot_path_count_total
+global_lock_refill_count_total
+host_passthrough_count_total
+measured_hot_path_owner
+api_boundary_gap_suspect
+remote_free_workload
+same_thread_workload
+likely_next_owner
+skip_hot_counters_median_ops_per_sec
+skip_hot_counter_gap_ratio
+skip_hot_counter_gap_class
+clean=0|1
+summary=ok|failed
+```
+
+- Interpretation:
+  - `benchmark_front_class=replacement_front_c_shim` with
+    `hako_hot_path_claim=0` means the measured hot path is generated C
+    replacement-front execution, not `.hako` source or MIR builder execution.
+  - `remote_free_workload=0` means the report does not prove cross-thread free
+    behavior; it is still valid same-thread allocator evidence.
+  - `likely_next_owner=free_path_page_lookup` means the report counters point
+    at `free(ptr)` page lookup / owner lookup work before Provider ABI or
+    Type ABI changes.
+- Stop line: this adapter reads existing key-value reports only. It does not
+  run benchmarks, rewrite source, change MIR, choose keepers, activate
+  providers, replace allocators, install hooks, claim product readiness, or
+  infer ownership from Type ABI descriptors.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

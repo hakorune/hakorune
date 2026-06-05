@@ -43,7 +43,6 @@ def generate_replacement_front_bins_shim_c(
     alloc_cases: list[str] = []
     find_cases: list[str] = []
     helper_defs: list[str] = []
-    release_cases: list[str] = []
     bin_sizes: list[tuple[int, int]] = []
     for bin_index in required_bins:
         bin_size = hako_size_class_bin_size(bin_index)
@@ -144,19 +143,6 @@ static inline void* hako_page_acquire_fresh_small_{tag}(size_t size) {{
   return {slot_expr}[index].bytes;
 }}
 
-static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
-  if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT || {used_expr}[index] != 1u) return 0;
-  {used_expr}[index] = 0u;
-  {requested_expr}[index] = 0u;
-  if ({free_top_expr} < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
-    {free_stack_expr}[{free_top_expr}++] = index;
-  }}
-  HAKO_COUNTER_ADD(direct_core_call_count, 1);
-#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
-  HAKO_COUNTER_ADD(same_thread_free_local_count, 1);
-#endif
-  return 1;
-}}
 """
             )
         init_cases.append(
@@ -202,12 +188,6 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
                 f"""
     case {bin_index}:
       return hako_page_acquire_fresh_small_{tag}(size);
-"""
-            )
-            release_cases.append(
-                f"""
-    case {bin_index}:
-      return hako_page_release_local_known_live_{tag}(index);
 """
             )
         else:
@@ -289,26 +269,7 @@ static int size_to_bin(size_t size) {{
 """
 
     release_from_bin_source = ""
-    if hotcore_page_model:
-        release_from_bin_source = f"""
-static int release_from_bin(int bin, uint32_t index) {{
-  switch (bin) {{
-{chr(10).join(release_cases)}
-    default:
-      return 0;
-  }}
-}}
-"""
-    if hotcore_page_model:
-        free_owned_body = """    (void)slot_size;
-    (void)used;
-    (void)requested;
-    (void)free_stack;
-    (void)free_top;
-    (void)release_from_bin(bin, index);
-"""
-    else:
-        free_owned_body = """    (void)bin;
+    free_owned_body = """    (void)bin;
     (void)slot_size;
     if (used[index] == 1u) {
       used[index] = 0u;
@@ -317,6 +278,9 @@ static int release_from_bin(int bin, uint32_t index) {{
         free_stack[(*free_top)++] = index;
       }
       HAKO_COUNTER_ADD(direct_core_call_count, 1);
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+      HAKO_COUNTER_ADD(same_thread_free_local_count, 1);
+#endif
     }
 """
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
