@@ -77,6 +77,12 @@ Provider ABI:
 
 FastMemoryContract:
   compile-time / lowering-time memory contract; not a runtime dispatch table
+
+Parser parity:
+  required before `fastmem ContractName { ... }` is accepted as active source
+  syntax. Rust-only parser support is not enough for this lane because the
+  selfhost parser is a current migration target and source syntax must not
+  fork silently.
 ```
 
 ## Current Facts
@@ -463,26 +469,36 @@ is exposed through source syntax. Source-level wrappers are later
    - Keep Type ABI as descriptor/control plane only.
    - Keep Provider ABI as execution boundary only.
 
-7. **Source fastmem syntax**
-   - Add `fastmem ContractName { ... }` or method annotation only after the
-     MemOp/verifier contract and first bridge plan are stable.
-   - Contract name is mandatory.
+7. **Parser parity catch-up**
+   - Catch up the `.hako` parser with the Rust parser for the subset needed by
+     fastmem before accepting source syntax.
+   - First parity subset: general bitwise/shift expression parse, rune
+     contract-name metadata, and `fastmem IDENT { ... }` parse-only.
+   - Rust-only active grammar is rejected.
 
-8. **Worker-local arena and remote-free capability**
+8. **Source fastmem syntax**
+   - Add `fastmem ContractName { ... }` or method annotation only after the
+     MemOp/verifier contract, first bridge plan, and parser parity gate are
+     stable.
+   - Contract name is mandatory.
+   - Initial row is parse-only; lowering/execution stays closed until a later
+     implementation row.
+
+9. **Worker-local arena and remote-free capability**
    - Bind allocator owner identity to runtime worker/thread registry.
    - Add `AtomicRemoteHead` push/drain semantics with counters.
    - Keep source-level concurrency claims separate from C pthread benchmark
      evidence.
 
-9. **Remote-free pilot**
+10. **Remote-free pilot**
    - Pilot `AtomicRemoteHead` only after the plan and owner-state rows are
      visible.
 
-10. **Capability wrappers**
+11. **Capability wrappers**
    - Add `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, and
      `AtomicRemoteHead` as safer wrappers over the same MemOps.
 
-11. **Product allocator bridge**
+12. **Product allocator bridge**
    - Only after the above, connect `.hako` policy/state to a product-shaped
      replacement front.
    - Activation, hooks, global allocator claims, and winner claims remain
@@ -503,7 +519,13 @@ keeper work in one task.
 | `MIM-FMEM-005 PageKey exact route docs/report lock` | done | Name `PageKeyExactRoutePlanV0`: exact `usize/u64` logical shift, mask, shift-count trap, address-width facts. | Report vocabulary and fail-fast expectations are documented before code; plain `>>` semantics remain unchanged outside fastmem. |
 | `MIM-FMEM-006 PageKey exact route implementation` | done | Implement the narrow exact numeric route needed for allocator page-key derivation. | Route facts and backend/reference behavior agree; invalid shift/range traps are observable. |
 | `MIM-FMEM-007 PageMapBridge plan` | done | Define `PageMapBridgePlanV0`: fastmem/PageKey -> PageMetaHandle via typed side-table/table route. | Type ABI hot lookup count is zero; Provider ABI hot dispatch count is zero; range-scan replacement is explicit. |
-| `MIM-FMEM-008 fastmem source syntax pilot` | next | Add `fastmem ContractName { ... }` or equivalent annotation after MemOp/verifier rows and the first bridge plan exist. | Contract-less `unsafe` / `fastmem` remains rejected; region-local MemAddr/MemRef cannot escape. |
+| `PARSER-FMEM-001 parser parity inventory contract` | next | Freeze the Rust/.hako parser gap list that blocks fastmem source syntax. | No source syntax behavior change; Rust-only active grammar remains rejected. |
+| `PARSER-FMEM-002 parser parity gate surface` | pending | Define one reusable probe/smoke entry for Rust parser and `.hako` parser parse-only parity. | Gate is reusable and does not add lowering/runtime behavior. |
+| `PARSER-FMEM-003 general bitwise/shift expression parity` | pending | Catch up `.hako` parser expression parse for `<< >> & | ^` outside static const-only use. | Fastmem examples can parse shift/mask expressions without externcall escape. |
+| `PARSER-FMEM-004 rune contract-name parity` | pending | Catch up `.hako` parser rune metadata names needed by current Rust parser surfaces. | Rune metadata remains parse/noop unless a separate consumer row opens behavior. |
+| `PARSER-FMEM-005 fastmem block parse-only dual parser pilot` | pending | Add `fastmem IDENT { ... }` parse-only surface to both parsers. | Execution/lowering stay closed; contract name is mandatory. |
+| `PARSER-FMEM-006 fastmem contractless fail-fast parity` | pending | Reject `fastmem { ... }` and `unsafe { ... }` in both parsers. | Contract-less unsafe escape remains closed. |
+| `MIM-FMEM-008 fastmem source syntax pilot` | blocked by parser parity | Reopen after `PARSER-FMEM-005/006`, then connect parser output to MIR MemOp region metadata. | Contract-less `unsafe` / `fastmem` remains rejected; region-local MemAddr/MemRef cannot escape; Rust/.hako parser parity is already proven. |
 | `MIM-FMEM-009 PageMapBridge benchmark-front pilot` | pending | Replace the current free-path page lookup shape with the selected bridge in generated C replacement-front evidence. | `free_path_page_lookup_route != range_scan`; report keeps product activation and hako algorithm claim closed. |
 | `MIM-FMEM-010 TypedPageMetaHandle plan` | pending | Define metadata capability for owner, size, free/local_free/remote_head access. | Page metadata stays layout-verified; unverified offset loads are counted and rejected for keeper work. |
 | `MIM-FMEM-011 WorkerId / TLS arena owner state` | pending | Bind allocator owner identity to runtime worker/thread registry and thread-exit flush counters. | Source-level thread support claims remain separate from C pthread benchmark evidence. |

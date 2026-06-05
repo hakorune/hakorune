@@ -36,8 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001:
-  Attempt the selected-method DirectSlot NativeDirect lowering pilot behind the row334 guard.
+FASTMEM-PARSER-PARITY-CATCHUP-296X-001:
+  Catch up the `.hako` parser with the Rust parser before accepting
+  `fastmem ContractName { ... }` as active source syntax.
 ```
 
 ## Queue
@@ -381,6 +382,7 @@ DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001:
 | 334 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define the selected-method DirectSlot NativeDirect lowering guard surface before implementation. |
 | 335 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-OWNER-SELECTION-296X-001` | Landed | Select the narrow owner for selected-method DirectSlot NativeDirect lowering implementation. |
 | 336 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001` | Planned | Attempt the selected-method DirectSlot NativeDirect lowering pilot behind the row334 guard. |
+| 416 | `FASTMEM-PARSER-PARITY-CATCHUP-296X-001` | Current | Cut a parser parity phase before fastmem source syntax; Rust-only active grammar is rejected and parse-only dual parser parity is required. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -40,6 +40,7 @@ provider/DLL benchmark bridge
 same-machine C mimalloc comparison
 next owner selection from local evidence
 algorithm-port coverage separation
+fastmem parser parity before source syntax
 ```
 
 ## Stop Line
@@ -54,6 +55,7 @@ algorithm-port coverage separation
 - no production `#[global_allocator]` claim
 - no winner claim
 - no source syntax expansion unless a tracked reference decision accepts it
+- no Rust-only `fastmem` active grammar; `.hako` parser parity is required
 
 ## Current Decisions
 
@@ -98,16 +100,24 @@ capability gap:
   safe wrappers such as AddressToken/PageKey/PageMapBridge may sit on top of
   the same MemOps. SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md`
+
+parser parity:
+  `fastmem ContractName { ... }` is source syntax, not only report vocabulary.
+  The next phase is parser parity catch-up, not Rust-only fastmem parsing.
+  `.hako` parser catch-up must prove the parse-only surface before any
+  lowering, runtime behavior, or replacement-front behavior changes.
+  Phase card:
+  `docs/development/current/main/phases/phase-296x/296x-416-FASTMEM-PARSER-PARITY-CATCHUP.md`
 ```
 
 ## Current Task Order
 
-The current next task is documentation/report inventory before adding new
-fastmem/capability code.
+The current next task is parser parity catch-up before adding source-level
+fastmem syntax.
 
 ```text
 next_task:
-  MIM-FMEM-008 fastmem source syntax pilot
+  PARSER-FMEM-001 parser parity inventory contract
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -115,7 +125,9 @@ why:
   MIM-FMEM-004 added the inventory verifier; MIM-FMEM-005 locked PageKey
   exact-route docs/report vocabulary; MIM-FMEM-006 connected existing exact
   shift route evidence to the PageKey report; MIM-FMEM-007 locked the
-  PageMapBridge plan. The next step is a narrow source syntax pilot.
+  PageMapBridge plan. A worker/parser inventory found that the `.hako`
+  selfhost parser is behind the Rust parser, so fastmem source syntax must
+  wait for dual-parser parse-only parity.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -125,6 +137,7 @@ completed_this_slice:
   MIM-FMEM-005 PageKey exact route docs/report lock
   MIM-FMEM-006 PageKey exact route implementation
   MIM-FMEM-007 PageMapBridge plan
+  296x-416 Fastmem parser parity catch-up phase cut
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -134,7 +147,14 @@ task_order:
   MIM-FMEM-005 PageKey exact route docs/report lock
   MIM-FMEM-006 PageKey exact route implementation
   MIM-FMEM-007 PageMapBridge plan
-  MIM-FMEM-008 fastmem source syntax pilot
+  PARSER-FMEM-001 parser parity inventory contract
+  PARSER-FMEM-002 parser parity gate surface
+  PARSER-FMEM-003 general bitwise/shift expression parity
+  PARSER-FMEM-004 rune contract-name parity
+  PARSER-FMEM-005 fastmem block parse-only dual parser pilot
+  PARSER-FMEM-006 fastmem contractless fail-fast parity
+  PARSER-FMEM-007 remaining Rust-parser catch-up backlog split
+  MIM-FMEM-008 fastmem source syntax pilot after parser parity
   MIM-FMEM-009 PageMapBridge benchmark-front pilot
   MIM-FMEM-010 TypedPageMetaHandle plan
   MIM-FMEM-011 WorkerId / TLS arena owner state
