@@ -1,3 +1,4 @@
+use crate::mir::instruction::FastMemRegionId;
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
@@ -312,6 +313,26 @@ pub struct FastPathObligation {
     pub failure_reason: Option<&'static str>,
 }
 
+/// Function-local metadata for a source `fastmem ContractName { ... }` region.
+///
+/// This is side-table contract metadata, not an executable begin/end marker.
+/// Executable fast-memory operations point back here through
+/// `MirInstruction::MemOp.region`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FastMemRegionMetadata {
+    pub id: FastMemRegionId,
+    pub contract: String,
+    pub source_span: crate::ast::Span,
+    pub origin: FastMemRegionOrigin,
+    pub body_statement_count: usize,
+    pub emitted_memop_count: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemRegionOrigin {
+    SourceFastMemBlock,
+}
+
 /// Lower-bound extent proof for a DirectArray receiver value.
 ///
 /// This is intentionally separate from `RangeIndexFact`: range facts prove the
@@ -415,6 +436,12 @@ pub struct FunctionMetadata {
 
     /// Per-site obligations derived from required fast-path regions.
     pub fastpath_obligations: Vec<FastPathObligation>,
+
+    /// Contract-bound fast-memory source regions.
+    ///
+    /// Region truth lives here. MIR instruction streams carry only `MemOp`
+    /// executable operations with a `FastMemRegionId` back-reference.
+    pub fastmem_regions: Vec<FastMemRegionMetadata>,
 
     /// Metadata-only helper effect summaries.
     ///

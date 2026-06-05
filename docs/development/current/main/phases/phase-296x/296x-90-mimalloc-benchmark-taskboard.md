@@ -77,8 +77,11 @@ MIR-FMEM-001 landed the representation decision:
   normal MIR instructions.
 MIR-FMEM-002 landed the code-side vocabulary:
   MemOp is in the kept MIR instruction vocabulary, MemOpKind V0 has a contracts
-  allowlist, and JSON/VM/LLVM/C support remains closed. MIR-FMEM-003 opens
-  MIRBuilder source lowering to FastMemRegion/MemOp metadata next.
+  allowlist, and JSON/VM/LLVM/C support remains closed.
+MIR-FMEM-003 landed MIRBuilder source lowering:
+  parsed fastmem source now records FunctionMetadata.fastmem_regions and emits
+  MemOp instructions for the V0 source vocabulary. JSON/VM/LLVM/C support
+  remains closed. MIR-FMEM-004 opens verifier gates next.
 ```
 
 ## Queue

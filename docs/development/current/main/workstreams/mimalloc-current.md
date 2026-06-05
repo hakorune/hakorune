@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
+  MIR-FMEM-004 verifier gates for fastmem escape/layout/ABI boundaries
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -147,8 +147,10 @@ why:
   `MemOpKind` is the dialect vocabulary, and `FastMemRegion` is side-table
   metadata rather than begin/end instructions. MIR-FMEM-002 added the code-side
   vocabulary and contracts allowlist while keeping JSON/VM/LLVM/C support
-  closed. The next task is to connect parsed fastmem source to the new MIR
-  representation metadata.
+  closed. MIR-FMEM-003 connected parsed fastmem source to function-local
+  FastMemRegion metadata and MemOp instructions without opening backend
+  execution. The next task is to add verifier gates for escape/layout/
+  safepoint/allocation/ABI boundaries.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -183,6 +185,7 @@ completed_this_slice:
   LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
   MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
   MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary
+  MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
