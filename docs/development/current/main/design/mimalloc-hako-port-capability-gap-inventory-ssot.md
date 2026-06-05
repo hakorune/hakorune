@@ -202,14 +202,25 @@ runtime.table_v0
 `fastmem` must be explicit:
 
 ```text
-accepted:
+canonical boundary:
   fastmem PageMapV0 { ... }
-  @rune FastMemory(PageMapV0)
 
 rejected:
   unsafe { ... }
   fastmem { ... }
+  @rune FastMemory(PageMapV0) as a region boundary
+  method-wide fastmem by annotation only
 ```
+
+The contract name is mandatory even while v0 checks do not branch per contract.
+In v0, `PageMapV0` is a stable report/discovery id and future allowlist key,
+not a broad type-system feature. Do not infer it from the enclosing method name:
+renames must not silently change the memory contract.
+
+`@rune FastMemory(PageMapV0)` may remain as optional declaration metadata only.
+It can say that a method/package participates in FastMemory work, but it does
+not create a `FastMemRegion`, does not widen the method body into a fastmem
+region, and is not a substitute for `fastmem ContractName { ... }`.
 
 The region may use convenient memory-shaped operations, but only if the
 compiler can classify them:
@@ -677,10 +688,11 @@ remote owner enters local_free
    - Rust-only active grammar is rejected.
 
 8. **Source fastmem syntax**
-   - Add `fastmem ContractName { ... }` or method annotation only after the
-     MemOp/verifier contract, first bridge plan, and parser parity gate are
-     stable.
+   - Add `fastmem ContractName { ... }` only after the MemOp/verifier contract,
+     first bridge plan, and parser parity gate are stable.
    - Contract name is mandatory.
+   - `@rune FastMemory(ContractName)` is metadata-only and never a region
+     boundary.
    - Initial row is parse-only; lowering/execution stays closed until a later
      implementation row.
 

@@ -101,6 +101,9 @@ PARSER-FMEM-004:
   scope=Gate/Inline/FastMemory names as metadata parse-only where applicable
   reason=do not let Rust-only rune metadata become the accepted source truth
   note=@rune Gate(...) remains top-level build-gate sugar, not a normal RuneAttr name; this row aligns Inline/FastMemory metadata names.
+  note_fastmemory=@rune FastMemory(...) is metadata-only. It is not a
+    fastmem region boundary and does not make the enclosing method a fastmem
+    region.
 
 PARSER-FMEM-005:
   fastmem block parse-only dual parser pilot

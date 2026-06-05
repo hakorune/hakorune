@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-06-05"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIM-FMEM-011A landed AllocOwnerId / TLS owner-state schema fields; next is MIM-FMEM-011B fastmem-check owner-state gates with execution/product activation still closed."
+active_lane_status = "FastMemory source docs now make named fastmem blocks the only canonical region boundary; next remains MIM-FMEM-011B fastmem-check owner-state gates with execution/product activation still closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-421-ALLOC-OWNER-ID-SCHEMA.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-422-FASTMEM-NAMED-BLOCK-CANONICAL.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-421-ALLOC-OWNER-ID-SCHEMA"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-421-ALLOC-OWNER-ID-SCHEMA.md"
-latest_card_summary = "Landed MIM-FMEM-011A: fastmem inventory exposes AllocOwnerId/TLS arena owner-state schema fields while source thread support and product activation claims remain closed."
+latest_card = "296x-422-FASTMEM-NAMED-BLOCK-CANONICAL"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-422-FASTMEM-NAMED-BLOCK-CANONICAL.md"
+latest_card_summary = "Documented fastmem ContractName blocks as the only canonical FastMemory region boundary; FastMemory rune remains metadata-only and current blocker stays MIM-FMEM-011B."
 current_blocker_token = "MIM-FMEM-011B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-05: 296x-422 documented named fastmem blocks as the only canonical FastMemory region boundary; @rune FastMemory remains metadata-only and MIM-FMEM-011B stays next.",
   "2026-06-05: 296x-421 landed MIM-FMEM-011A AllocOwnerId / TLS arena owner-state schema fields; MIM-FMEM-011B fastmem-check owner-state gates opens next.",
   "2026-06-05: 296x-420 documented AllocOwnerId as allocator arena owner identity and split MIM-FMEM-011 into 011A schema, 011B checks, and 011C shadow counters.",
   "2026-06-05: 296x-419 landed MIM-FMEM-010 TypedPageMetaHandle report evidence and missing required PageMeta field rejection; MIM-FMEM-011 WorkerId / TLS arena owner state opens next.",

@@ -31,8 +31,11 @@ visible MemOp counts instead of prose.
 ```text
 fastmem_source_syntax_active=1
 fastmem_source_inventory_input=1
+fastmem_canonical_boundary=fastmem_named_block
 fastmem_contract_name_required=1
 fastmem_contractless_region_allowed=0
+fastmemory_rune_region_boundary=0
+fastmemory_rune_metadata_only=1
 unsafe_block_allowed=0
 
 fastmem_execution_open=0
@@ -52,6 +55,8 @@ Accepted in this row:
 source/AST or Program(JSON v0) input to hako_check fastmem inventory
 FastMemRegion begin/end counts from parsed source
 contract id / contract family metadata from parsed source
+canonical source boundary is `fastmem ContractName { ... }`
+`@rune FastMemory(ContractName)` is not a region boundary
 basic MemOp classification for source expressions inside fastmem:
   mem.addr(...) -> MemAddrOf
   >>            -> MemLogicalShr
