@@ -339,6 +339,7 @@ Landed behavior:
 ```text
 ThreadApi::detach removes handle from the registry without joining
 spawn_task_after fallback creates ThreadExit::Ok after delayed closure returns
+spawn_task_after fallback success returns true
 thread_spawn_failed_tag=[freeze:contract][thread/spawn_failed]
 thread_detach_failed_tag=[freeze:contract][thread/detach_failed]
 direct_std_thread_spawn_total_after=5
@@ -416,7 +417,8 @@ WorkerPoolScheduler default_enabled=0
 WorkerPoolScheduler source_route_enabled=0
 WorkerPoolScheduler uses ThreadApi::spawn=1
 WorkerPoolScheduler joins workers on drop=1
-WorkerPoolScheduler spawn_after route=worker_sleep_then_task
+WorkerPoolScheduler spawn_after route=delayed_queue_poll
+WorkerPoolScheduler delayed tasks occupy worker while waiting=0
 source_syntax_exposure=0
 nowait_os_thread_spawn=0
 worker_pool_enabled_by_default=0

@@ -349,7 +349,7 @@ pub fn spawn_task_after(delay_ms: u64, name: &str, f: Box<dyn FnOnce() + Send + 
             );
         }
     }
-    false
+    true
 }
 
 /// Forward a GC barrier event to the currently registered GC hooks (if any).
@@ -366,7 +366,10 @@ mod tests {
     use super::*;
     use crate::box_trait::NyashBox;
     use crate::boxes::basic::ErrorBox;
+    use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
+    use std::sync::Arc;
     use std::sync::Mutex as TestMutex;
+    use std::time::{Duration, Instant};
 
     static TEST_GUARD: TestMutex<()> = TestMutex::new(());
 
@@ -385,6 +388,31 @@ mod tests {
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
         pop_task_scope().expect("scope exit must succeed");
+        reset_for_tests();
+    }
+
+    #[test]
+    fn spawn_task_after_fallback_returns_true_when_thread_is_scheduled() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ran = Arc::new(AtomicBool::new(false));
+        let ran_for_task = ran.clone();
+
+        let scheduled = spawn_task_after(
+            0,
+            "global-hooks-spawn-task-after-fallback-test",
+            Box::new(move || {
+                ran_for_task.store(true, AtomicOrdering::Release);
+            }),
+        );
+
+        assert!(scheduled);
+        let deadline = Instant::now() + Duration::from_secs(2);
+        while !ran.load(AtomicOrdering::Acquire) {
+            assert!(Instant::now() < deadline, "fallback task did not run");
+            crate::runtime::ring0::get_global_ring0().thread.yield_now();
+        }
         reset_for_tests();
     }
 

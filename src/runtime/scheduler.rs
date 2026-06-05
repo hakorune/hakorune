@@ -130,6 +130,7 @@ impl Scheduler for SingleThreadScheduler {
 }
 
 type SchedulerTask = Box<dyn FnOnce() + Send + 'static>;
+type DelayedSchedulerTask = (Instant, String, SchedulerTask);
 
 enum WorkerMessage {
     Task(SchedulerTask),
@@ -142,6 +143,7 @@ enum WorkerMessage {
 /// `.hako` source-level `nowait` semantics by default.
 pub struct WorkerPoolScheduler {
     tx: Mutex<Option<Sender<WorkerMessage>>>,
+    delayed: Mutex<Vec<DelayedSchedulerTask>>,
     handles: Mutex<Vec<ThreadHandle>>,
     ring0: Arc<Ring0Context>,
     pending_hint: Arc<AtomicUsize>,
@@ -199,6 +201,7 @@ impl WorkerPoolScheduler {
 
         Ok(Self {
             tx: Mutex::new(Some(tx)),
+            delayed: Mutex::new(Vec::new()),
             handles: Mutex::new(handles),
             ring0,
             pending_hint: Arc::new(AtomicUsize::new(0)),
@@ -218,45 +221,78 @@ impl WorkerPoolScheduler {
         };
         tx.send(message).map_err(|err| err.0)
     }
-}
 
-impl Scheduler for WorkerPoolScheduler {
-    fn spawn(&self, name: &str, f: SchedulerTask) {
-        self.pending_hint.fetch_add(1, Ordering::Release);
+    fn wrap_counted_task(&self, f: SchedulerTask) -> SchedulerTask {
         let pending = self.pending_hint.clone();
-        let task = Box::new(move || {
+        Box::new(move || {
             f();
             let _ = pending.fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
                 Some(n.saturating_sub(1))
             });
-        });
+        })
+    }
+
+    fn decrement_pending_hint(&self) {
+        let _ = self
+            .pending_hint
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
+                Some(n.saturating_sub(1))
+            });
+    }
+
+    fn enqueue_counted_task(&self, name: &str, task: SchedulerTask) {
         if self.send_message(WorkerMessage::Task(task)).is_err() {
-            let _ = self
-                .pending_hint
-                .fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
-                    Some(n.saturating_sub(1))
-                });
+            self.decrement_pending_hint();
             self.ring0.log.error(&format!(
                 "WorkerPoolScheduler failed to enqueue task {name}"
             ));
         }
     }
+}
 
-    fn spawn_after(&self, delay_ms: u64, name: &str, f: SchedulerTask) {
-        let name = name.to_string();
-        self.spawn(
-            &name,
-            Box::new({
-                let ring0 = self.ring0.clone();
-                move || {
-                    ring0.thread.sleep(Duration::from_millis(delay_ms));
-                    f();
-                }
-            }),
-        );
+impl Scheduler for WorkerPoolScheduler {
+    fn spawn(&self, name: &str, f: SchedulerTask) {
+        self.pending_hint.fetch_add(1, Ordering::Release);
+        let task = self.wrap_counted_task(f);
+        self.enqueue_counted_task(name, task);
     }
 
-    fn poll(&self) {}
+    fn spawn_after(&self, delay_ms: u64, name: &str, f: SchedulerTask) {
+        let when = Instant::now() + Duration::from_millis(delay_ms);
+        self.pending_hint.fetch_add(1, Ordering::Release);
+        let task = self.wrap_counted_task(f);
+        if let Ok(mut delayed) = self.delayed.lock() {
+            delayed.push((when, name.to_string(), task));
+        } else {
+            self.decrement_pending_hint();
+            self.ring0.log.error(&format!(
+                "WorkerPoolScheduler failed to enqueue delayed task {name}"
+            ));
+        }
+    }
+
+    fn poll(&self) {
+        if self.pending_hint.load(Ordering::Acquire) == 0 {
+            return;
+        }
+
+        let now = Instant::now();
+        let mut due = Vec::new();
+        if let Ok(mut delayed) = self.delayed.lock() {
+            let mut i = 0;
+            while i < delayed.len() {
+                if delayed[i].0 <= now {
+                    due.push(delayed.remove(i));
+                } else {
+                    i += 1;
+                }
+            }
+        }
+
+        for (_when, name, task) in due {
+            self.enqueue_counted_task(&name, task);
+        }
+    }
 
     fn yield_now(&self) {
         self.ring0.thread.yield_now();
@@ -349,7 +385,21 @@ mod tests {
             }),
         );
 
-        assert_eq!(rx.recv_timeout(Duration::from_secs(2)), Ok("done"));
+        let deadline = Instant::now() + Duration::from_secs(2);
+        let mut received = None;
+        while Instant::now() < deadline {
+            scheduler.poll();
+            match rx.recv_timeout(Duration::from_millis(10)) {
+                Ok(value) => {
+                    received = Some(value);
+                    break;
+                }
+                Err(mpsc::RecvTimeoutError::Timeout) => {}
+                Err(err) => panic!("worker pool delay test channel failed: {err:?}"),
+            }
+        }
+
+        assert_eq!(received, Some("done"));
         wait_for_no_pending(&scheduler);
     }
 }

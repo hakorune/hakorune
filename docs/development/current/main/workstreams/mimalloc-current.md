@@ -1033,6 +1033,7 @@ thread_api_detach_spawn_task_after_2026_06_05:
   nowait_os_thread_spawn=0
   worker_pool_enabled=0
   hako_source_thread_support_claim=0
+  spawn_task_after_fallback_success_returns_true=1
   thread_spawn_failed_tag=[freeze:contract][thread/spawn_failed]
   thread_detach_failed_tag=[freeze:contract][thread/detach_failed]
   next_thread_task=THREAD-REG-002
@@ -1091,7 +1092,8 @@ worker_pool_scheduler_substrate_2026_06_05:
   worker_pool_source_route_enabled=0
   worker_pool_thread_api_spawn=1
   worker_pool_join_on_drop=1
-  worker_pool_spawn_after_route=worker_sleep_then_task
+  worker_pool_spawn_after_route=delayed_queue_poll
+  worker_pool_delayed_tasks_occupy_worker_while_waiting=0
   source_syntax_exposure=0
   nowait_os_thread_spawn=0
   hako_source_thread_support_claim=0
