@@ -178,9 +178,6 @@ ThreadApi. Runtime policy and delayed Future substrate calls are routed through
 ThreadApi before opening worker-pool execution:
 
 ```text
-src/boxes/p2p_box.rs:
-  std::thread::spawn
-
 crates/nyash_kernel/src/exports/mem.rs:
   std::thread::spawn for native/kernel stress
 
@@ -278,7 +275,7 @@ Direct `std::thread::spawn` classification:
 | `src/runtime/global_hooks.rs` `spawn_task_after` fallback | runtime substrate leak | landed in `THREAD-REG-001`: `ThreadApi::spawn` + `detach` |
 | `crates/nyash_kernel/src/plugin/future.rs` `nyash_future_delay_i64` | runtime/plugin delayed future substrate | landed in `THREAD-REG-002`: `ThreadApi::spawn` + `detach` |
 | `src/boxes/http_server_box.rs` client handler | box-specific server workaround | landed in `THREAD-REG-003`: `ThreadApi::spawn` + `detach` |
-| `src/boxes/p2p_box.rs` async reply helpers | box-specific async workaround | later P2P/task route cleanup; not generic ThreadApi proof |
+| `src/boxes/p2p_box.rs` async reply helpers | box-specific async workaround | landed in `P2P-THREAD-001`: `ThreadApi::spawn` + `detach` |
 | `crates/nyash_kernel/src/exports/mem.rs` thread-safe mem test | kernel native stress/test | keep as native execution evidence |
 | `crates/nyash_kernel/src/tests/mimalloc_parallel_stress.rs` | allocator native stress/test | keep as native execution evidence |
 
@@ -395,6 +392,31 @@ runtime_substrate_spawn_candidate_count_after=0
 box_specific_spawn_workaround_count_after=2
 kernel_native_stress_spawn_count_after=2
 http_server_active_connections_unbounded_growth=0
+```
+
+### P2P-THREAD-001: P2P async reply helper cleanup
+
+Status: landed.
+
+Scope:
+
+```text
+P2PBox sys.ping async reply uses ThreadApi::spawn
+P2PBox debug async reply uses ThreadApi::spawn
+P2PBox async reply sleeps through ThreadApi::sleep
+P2PBox async reply detaches fire-and-forget handles
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+```
+
+Landed behavior:
+
+```text
+direct_std_thread_spawn_total_after=2
+runtime_substrate_spawn_candidate_count_after=0
+box_specific_spawn_workaround_count_after=0
+kernel_native_stress_spawn_count_after=2
+p2p_async_reply_threadapi_route=1
 ```
 
 ### THREAD-SCHED-001: WorkerPoolScheduler route

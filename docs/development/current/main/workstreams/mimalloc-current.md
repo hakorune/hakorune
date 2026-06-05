@@ -1159,6 +1159,26 @@ thread_capability_descriptor_v0_2026_06_05:
   next_thread_task_scope=inventory_or_route_p2p_async_reply_helpers_through_ThreadApi
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+p2p_threadapi_async_reply_cleanup_2026_06_05:
+  status=landed
+  task_kind=box_specific_substrate_cleanup
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/boxes/p2p_box.rs
+  routed_box_callsite=P2PBox_sys_ping_reply,P2PBox_debug_async_reply
+  routed_thread_api=spawn,detach,sleep
+  direct_spawn_callsite_rewrite_count=2
+  direct_std_thread_spawn_total_after=2
+  runtime_substrate_spawn_candidate_count_after=0
+  box_specific_spawn_workaround_count_after=0
+  kernel_native_stress_spawn_count_after=2
+  p2p_async_reply_threadapi_route=1
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  hako_source_thread_support_claim=0
+  next_thread_task=MIMALLOC-THREAD-EVIDENCE-REFRESH
+  next_thread_task_scope=refresh_replacement_front_thread_evidence_before_product_impl
+  selected_next_action=run_replacement_front_thread_evidence_refresh
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

@@ -103,6 +103,42 @@ impl std::str::FromStr for TransportKind {
 }
 
 impl P2PBox {
+    fn spawn_delayed_transport_send(
+        task_name: &'static str,
+        delay_ms: u64,
+        transport_arc: Arc<RwLock<Box<dyn Transport>>>,
+        to: String,
+        intent: IntentBox,
+    ) {
+        let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ring0_for_thread = ring0.clone();
+        match ring0.thread.spawn(
+            crate::runtime::ring0::ThreadSpawnSpec::named(task_name),
+            Box::new(move || {
+                ring0_for_thread
+                    .thread
+                    .sleep(std::time::Duration::from_millis(delay_ms));
+                if let Ok(transport) = transport_arc.read() {
+                    let _ = transport.send(&to, intent, Default::default());
+                }
+                crate::runtime::ring0::ThreadExit::Ok
+            }),
+        ) {
+            Ok(handle) => {
+                if let Err(err) = ring0.thread.detach(handle) {
+                    ring0
+                        .log
+                        .error(&format!("P2P async reply detach failed: {:?}", err));
+                }
+            }
+            Err(err) => {
+                ring0
+                    .log
+                    .error(&format!("P2P async reply spawn failed: {}", err.message));
+            }
+        }
+    }
+
     /// 新しいP2PBoxを作成
     pub fn new(node_id: String, transport_kind: TransportKind) -> Self {
         // Create transport and attach receive callback before boxing
@@ -152,13 +188,14 @@ impl P2PBox {
                                 serde_json::json!({}),
                             );
                             let transport_arc = Arc::clone(&transport_arc_for_cb);
-                            std::thread::spawn(move || {
-                                // slight delay to avoid lock contention and ordering races
-                                std::thread::sleep(std::time::Duration::from_millis(3));
-                                if let Ok(transport) = transport_arc.read() {
-                                    let _ = transport.send(&to, reply, Default::default());
-                                }
-                            });
+                            // slight delay to avoid lock contention and ordering races
+                            Self::spawn_delayed_transport_send(
+                                "P2PBox.sys_ping_reply",
+                                3,
+                                transport_arc,
+                                to,
+                                reply,
+                            );
                         }),
                     );
                 };
@@ -623,14 +660,15 @@ mod tests {
                         if let Some(rn) = reply_name.clone() {
                             let to = env.from.clone();
                             let transport_arc = Arc::clone(&transport_arc);
-                            std::thread::spawn(move || {
-                                // slight delay to avoid lock contention
-                                std::thread::sleep(std::time::Duration::from_millis(5));
-                                let intent = IntentBox::new(rn, serde_json::json!({}));
-                                if let Ok(transport) = transport_arc.read() {
-                                    let _ = transport.send(&to, intent, Default::default());
-                                }
-                            });
+                            let intent = IntentBox::new(rn, serde_json::json!({}));
+                            // slight delay to avoid lock contention
+                            Self::spawn_delayed_transport_send(
+                                "P2PBox.debug_async_reply",
+                                5,
+                                transport_arc,
+                                to,
+                                intent,
+                            );
                         }
                     }),
                 );
