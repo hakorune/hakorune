@@ -96,9 +96,13 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
 
     if args.provider_assume_owned_mode and not args.provider_usable_size_mode:
         raise SystemExit("--provider-assume-owned-mode requires --provider-usable-size-mode")
-    if args.replacement_front_lock_mode and not args.replacement_front_native_slot_mode:
+    if args.replacement_front_lock_mode and not (
+        args.replacement_front_native_slot_mode
+        or args.replacement_front_native_bins_mode
+        or args.replacement_front_page_bins_mode
+    ):
         raise SystemExit(
-            "--replacement-front-lock-mode requires --replacement-front-native-slot-mode"
+            "--replacement-front-lock-mode requires a replacement-front mode"
         )
     if args.replacement_front_thread_local_mode and not args.replacement_front_native_slot_mode:
         raise SystemExit(
@@ -188,14 +192,14 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     )
     if replacement_front_bins_mode:
-        if args.threads != 1:
+        if args.threads != 1 and not args.replacement_front_lock_mode:
             raise SystemExit(
                 "--replacement-front-native-bins-mode and "
-                "--replacement-front-page-bins-mode are v0 single-thread only"
+                "--replacement-front-page-bins-mode require "
+                "--replacement-front-lock-mode when --threads > 1"
             )
         if (
-            args.replacement_front_lock_mode
-            or args.replacement_front_thread_local_mode
+            args.replacement_front_thread_local_mode
             or args.replacement_front_cross_thread_smoke
             or args.replacement_front_skip_hot_counters
             or args.replacement_front_tls_counter_mode
@@ -204,7 +208,7 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
             raise SystemExit(
                 "--replacement-front-native-bins-mode and "
                 "--replacement-front-page-bins-mode cannot be combined with "
-                "slot/thread/counter replacement-front modifiers in v0"
+                "slot/thread-local/counter replacement-front modifiers in v0"
             )
 
     workload_histogram = mixed_ws_workload_histogram(

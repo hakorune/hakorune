@@ -1219,6 +1219,36 @@ mimalloc_thread_evidence_refresh_2026_06_05:
   next_thread_task_scope=turn_locked_global_multithread_front_evidence_into_next_benchmark_only_impl_slice_without_product_activation
   selected_next_action=select_locked_global_multithread_front_impl_slice
 
+mimalloc_locked_global_bins_impl_slice_2026_06_05:
+  status=landed
+  task_kind=benchmark_only_impl_slice
+  scope=allow_locked_global_multithread_route_for_native_bins_and_page_bins_replacement_fronts
+  report=target/hakozuna-mixed-ws-locked-bins/report.out
+  sample_count=3
+  benchmark_threads=2
+  measurement_quality=ok
+  activation=0
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  hako_source_thread_support_claim=0
+  accepted_route=locked_global_multithread_front
+  rejected_route=thread_local_or_remote_free_for_bins
+  replacement_front_native_bins_mode=1
+  replacement_front_lock_mode=1
+  replacement_front_evidence_owner=locked_global_multithread_front
+  replacement_front_multithread_perf_candidate=1
+  subject_2_thread_safety_claim=measured
+  subject_2_replacement_front_lock_mode_enabled_total=4
+  subject_2_replacement_front_lock_enter_count_total=8332
+  subject_2_replacement_front_realloc_inplace_count_total=48
+  subject_2_throughput_median_ops_per_sec=15393140.816
+  subject_2_throughput_vs_c_mimalloc=1.444462
+  next_thread_task=MIM-PAGE-BINS-LOCKED-001
+  next_thread_task_scope=measure_locked_page_bins_and_hotcore_page_model_under_same_multithread_contract_before_product_pages
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

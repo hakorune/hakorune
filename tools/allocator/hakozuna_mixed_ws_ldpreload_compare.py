@@ -197,6 +197,7 @@ def main() -> int:
         replacement_front_shim = build_replacement_front_bins_shim(
             out_dir,
             required_bins=compare_plan.required_regular_bins,
+            locked=args.replacement_front_lock_mode,
             page_shaped=args.replacement_front_page_bins_mode,
             hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
             size_class_table=args.replacement_front_size_class_table_mode,

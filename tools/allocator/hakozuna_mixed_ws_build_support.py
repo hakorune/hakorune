@@ -68,6 +68,7 @@ def build_replacement_front_bins_shim(
     out_dir: Path,
     *,
     required_bins: list[int],
+    locked: bool = False,
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
     size_class_table: bool = False,
@@ -77,6 +78,8 @@ def build_replacement_front_bins_shim(
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
     if hotcore_page_model:
         front_name = f"{front_name}-hotcore-page-model"
+    if locked:
+        front_name = f"{front_name}-locked"
     if size_class_table:
         front_name = f"{front_name}-size-table"
     if eager_init:
@@ -100,6 +103,7 @@ def build_replacement_front_bins_shim(
     source.write_text(
         generate_replacement_front_bins_shim_c(
             required_bins,
+            locked=locked,
             page_shaped=page_shaped,
             hotcore_page_model=hotcore_page_model,
             size_class_table=size_class_table,
@@ -108,21 +112,14 @@ def build_replacement_front_bins_shim(
         ).lstrip(),
         encoding="utf-8",
     )
-    subprocess.run(
-        [
-            "cc",
-            "-shared",
-            "-fPIC",
-            "-O3",
-            "-Wall",
-            "-Wextra",
-            str(source),
-            "-ldl",
-            "-o",
-            str(binary),
-        ],
-        check=True,
-    )
+    cmd = ["cc", "-shared", "-fPIC", "-O3", "-Wall", "-Wextra"]
+    if locked:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_LOCKED=1")
+    cmd.extend([str(source), "-ldl"])
+    if locked:
+        cmd.append("-pthread")
+    cmd.extend(["-o", str(binary)])
+    subprocess.run(cmd, check=True)
     return binary
 
 

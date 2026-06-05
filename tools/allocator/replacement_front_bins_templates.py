@@ -10,6 +10,7 @@ from replacement_front_support import hako_size_class_bin_size
 def generate_replacement_front_bins_shim_c(
     required_bins: list[int],
     *,
+    locked: bool = False,
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
     size_class_table: bool = False,
@@ -18,9 +19,9 @@ def generate_replacement_front_bins_shim_c(
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
-    This is intentionally narrower than the fixed-slot front: single-thread,
-    no remote-free bridge, and no product allocator claim. It exists to prove
-    the next size-class bridge shape without weakening ProviderFront.
+    This is intentionally narrower than the fixed-slot front: no remote-free
+    bridge and no product allocator claim. The optional locked route is a
+    benchmark-only multithread evidence slice, not allocator activation.
     """
 
     bin_defs: list[str] = []
@@ -89,7 +90,7 @@ static inline void* hako_page_acquire_fresh_small_{tag}(size_t size) {{
   uint32_t index = {free_stack_expr}[--{free_top_expr}];
   {used_expr}[index] = 1u;
   {requested_expr}[index] = size;
-  direct_core_call_count++;
+  add_counter(&direct_core_call_count, 1);
   return {slot_expr}[index].bytes;
 }}
 
@@ -100,7 +101,7 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
   if ({free_top_expr} < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
     {free_stack_expr}[{free_top_expr}++] = index;
   }}
-  direct_core_call_count++;
+  add_counter(&direct_core_call_count, 1);
   return 1;
 }}
 """
@@ -151,7 +152,7 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
       index = {free_stack_expr}[--{free_top_expr}];
       {used_expr}[index] = 1u;
       {requested_expr}[index] = size;
-      direct_core_call_count++;
+      add_counter(&direct_core_call_count, 1);
       return {slot_expr}[index].bytes;
 """
             )
@@ -244,7 +245,7 @@ static int release_from_bin(int bin, uint32_t index) {{
       if (*free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {
         free_stack[(*free_top)++] = index;
       }
-      direct_core_call_count++;
+      add_counter(&direct_core_call_count, 1);
     }
 """
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
@@ -420,6 +421,10 @@ static unsigned long long page_index_overflow_count = 0;
 #include <string.h>
 #include <unistd.h>
 
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+#include <pthread.h>
+#endif
+
 #define HAKO_REPLACEMENT_BIN_SLOT_COUNT 8192u
 
 typedef void* (*hako_malloc_fn)(size_t);
@@ -445,6 +450,33 @@ static unsigned long long direct_core_call_count = 0;
 static unsigned long long realloc_copy_bytes = 0;
 static unsigned long long realloc_inplace_count = 0;
 static unsigned long long calloc_zero_bytes = 0;
+static unsigned long long lock_mode_enabled = 0;
+static unsigned long long lock_enter_count = 0;
+
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
+static inline void add_counter(unsigned long long* counter, unsigned long long delta) {{
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+  __sync_fetch_and_add(counter, delta);
+#else
+  *counter += delta;
+#endif
+}}
+
+static inline void lock_arena(void) {{
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+  pthread_mutex_lock(&arena_lock);
+  add_counter(&lock_enter_count, 1);
+#endif
+}}
+
+static inline void unlock_arena(void) {{
+#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+  pthread_mutex_unlock(&arena_lock);
+#endif
+}}
 
 {page_index_source}
 
@@ -483,20 +515,25 @@ static void* alloc_from_bin(int bin, size_t size) {{
 {release_from_bin_source}
 
 void* malloc(size_t size) {{
-  alloc_count++;
+  add_counter(&alloc_count, 1);
+  lock_arena();
 {malloc_init_line}
   int bin = size_to_bin(size);
   if (bin >= 0) {{
     void* ptr = alloc_from_bin(bin, size);
-    if (ptr) return ptr;
+    if (ptr) {{
+      unlock_arena();
+      return ptr;
+    }}
   }}
-  host_passthrough_count++;
+  add_counter(&host_passthrough_count, 1);
+  unlock_arena();
   resolve_real();
   return real_malloc_fn ? real_malloc_fn(size) : 0;
 }}
 
 void free(void* ptr) {{
-  free_count++;
+  add_counter(&free_count, 1);
   if (!ptr) return;
   int bin = 0;
   uint32_t index = 0u;
@@ -505,19 +542,22 @@ void free(void* ptr) {{
   size_t* requested = 0;
   uint32_t* free_stack = 0;
   uint32_t* free_top = 0;
+  lock_arena();
   if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
 {free_owned_body}
+    unlock_arena();
     return;
   }}
-  host_passthrough_count++;
+  add_counter(&host_passthrough_count, 1);
+  unlock_arena();
   resolve_real();
   if (real_free_fn) real_free_fn(ptr);
 }}
 
 void* calloc(size_t nmemb, size_t size) {{
-  calloc_count++;
+  add_counter(&calloc_count, 1);
   if (size != 0 && nmemb > ((size_t)-1) / size) {{
-    host_passthrough_count++;
+    add_counter(&host_passthrough_count, 1);
     resolve_real();
     return real_calloc_fn ? real_calloc_fn(nmemb, size) : 0;
   }}
@@ -525,13 +565,13 @@ void* calloc(size_t nmemb, size_t size) {{
   void* ptr = malloc(total);
   if (ptr) {{
     memset(ptr, 0, total);
-    calloc_zero_bytes += total;
+    add_counter(&calloc_zero_bytes, total);
   }}
   return ptr;
 }}
 
 void* realloc(void* ptr, size_t size) {{
-  realloc_count++;
+  add_counter(&realloc_count, 1);
   if (!ptr) return malloc(size);
   if (size == 0) {{
     free(ptr);
@@ -544,26 +584,30 @@ void* realloc(void* ptr, size_t size) {{
   size_t* requested = 0;
   uint32_t* free_stack = 0;
   uint32_t* free_top = 0;
+  lock_arena();
   if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
     (void)bin;
     (void)free_stack;
     (void)free_top;
     if (used[index] == 1u && size <= slot_size) {{
       requested[index] = size;
-      realloc_inplace_count++;
-      direct_core_call_count++;
+      add_counter(&realloc_inplace_count, 1);
+      add_counter(&direct_core_call_count, 1);
+      unlock_arena();
       return ptr;
     }}
     size_t old_size = requested[index];
+    unlock_arena();
     void* next = malloc(size);
     if (!next) return 0;
     size_t copy_size = old_size < size ? old_size : size;
     memcpy(next, ptr, copy_size);
-    realloc_copy_bytes += copy_size;
+    add_counter(&realloc_copy_bytes, copy_size);
     free(ptr);
     return next;
   }}
-  host_passthrough_count++;
+  add_counter(&host_passthrough_count, 1);
+  unlock_arena();
   resolve_real();
   return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;
 }}

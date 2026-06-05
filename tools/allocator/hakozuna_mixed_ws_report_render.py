@@ -143,7 +143,22 @@ def render_hakozuna_mixed_ws_report(
     replacement_front_multithread_perf_candidate = 0
     replacement_front_thread_local_perf_candidate = 0
     replacement_front_correctness_smoke = 0
-    if args.replacement_front_page_bins_mode:
+    if (
+        args.threads > 1
+        and args.replacement_front_lock_mode
+        and (
+            args.replacement_front_native_slot_mode
+            or args.replacement_front_native_bins_mode
+            or args.replacement_front_page_bins_mode
+        )
+    ):
+        replacement_front_evidence_owner = "locked_global_multithread_front"
+        replacement_front_multithread_perf_candidate = int(
+            args.replacement_front_native_bins_mode
+            or args.replacement_front_page_bins_mode
+            or args.replacement_front_skip_hot_counters
+        )
+    elif args.replacement_front_page_bins_mode:
         replacement_front_evidence_owner = (
             "single_thread_page_bins_hotcore_page_model"
             if args.replacement_front_hotcore_page_model_mode
@@ -153,11 +168,7 @@ def render_hakozuna_mixed_ws_report(
         replacement_front_evidence_owner = "single_thread_native_bins"
     elif args.replacement_front_native_slot_mode:
         replacement_front_evidence_owner = "fixed_slot_native_front"
-        if args.threads > 1 and args.replacement_front_lock_mode:
-            replacement_front_evidence_owner = "locked_global_multithread_front"
-            if args.replacement_front_skip_hot_counters:
-                replacement_front_multithread_perf_candidate = 1
-        elif args.threads > 1 and args.replacement_front_thread_local_mode:
+        if args.threads > 1 and args.replacement_front_thread_local_mode:
             replacement_front_evidence_owner = "thread_local_multithread_front"
             replacement_front_thread_local_perf_candidate = int(
                 args.replacement_front_skip_hot_counters
