@@ -55,6 +55,7 @@ FAIL_FIELDS = [
     "page_owner_stale_generation_count",
     "page_owner_unowned_count",
     "hako_source_thread_support_claim",
+    "replacement_front_cross_thread_free_arena_registry_overflow_count",
 ]
 
 FAIL_STRING_FIELDS = {
@@ -75,6 +76,13 @@ def owner_state_profile(rows: dict[str, str]) -> bool:
         int_count(rows, "alloc_owner_id_capability") > 0
         or int_count(rows, "worker_id_capability") > 0
         or int_count(rows, "page_owner_check_enabled") > 0
+    )
+
+
+def atomic_remote_profile(rows: dict[str, str]) -> bool:
+    return (
+        int_count(rows, "atomic_remote_head_pilot_enabled") > 0
+        or int_count(rows, "atomic_remote_head_enabled") > 0
     )
 
 
@@ -120,6 +128,21 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             reasons.append("page_owner_check_route")
         if int_count(rows, "page_owner_check_count") <= 0:
             reasons.append("page_owner_check_count")
+    if atomic_remote_profile(rows):
+        if int_count(rows, "atomic_remote_head_plan") <= 0:
+            reasons.append("atomic_remote_head_plan")
+        if rows.get("atomic_remote_head_route") != "page_remote_head_cas":
+            reasons.append("atomic_remote_head_route")
+        if rows.get("remote_free_memory_order") not in {"acq_rel", "release_acquire"}:
+            reasons.append("remote_free_memory_order")
+        if int_count(rows, "remote_owner_free_remote_candidate_count") <= 0:
+            reasons.append("remote_owner_free_remote_candidate_count")
+        if int_count(rows, "remote_owner_free_remote_push_count") <= 0:
+            reasons.append("remote_owner_free_remote_push_count")
+        if int_count(rows, "remote_free_push_count") <= 0:
+            reasons.append("remote_free_push_count")
+        if int_count(rows, "remote_free_drain_count") <= 0:
+            reasons.append("remote_free_drain_count")
     return reasons
 
 

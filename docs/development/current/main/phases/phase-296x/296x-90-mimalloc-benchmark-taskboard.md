@@ -49,9 +49,9 @@ only when a new execution boundary would otherwise be unguarded.
 ## Current Blocker
 
 ```text
-MIM-FMEM-014:
-  Start AtomicRemoteHead pilot after MIM-FMEM-013 fixed plan vocabulary without
-  opening remote push/drain behavior or product activation.
+MIM-FMEM-015:
+  Start the safe capability wrapper plan after MIM-FMEM-014 connected
+  non-activating AtomicRemoteHead push/drain smoke evidence.
 ```
 
 ## Queue

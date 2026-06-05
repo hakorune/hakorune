@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-05"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIM-FMEM-013 landed AtomicRemoteHead plan vocabulary without remote push/drain behavior; next is MIM-FMEM-014 AtomicRemoteHead pilot with product activation still closed."
+active_lane_status = "MIM-FMEM-014 landed AtomicRemoteHead pilot evidence from the non-activating cross-thread smoke pack; next is MIM-FMEM-015 safe capability wrapper plan with product activation still closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-426-ATOMIC-REMOTE-HEAD-PLAN.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-427-ATOMIC-REMOTE-HEAD-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-426-ATOMIC-REMOTE-HEAD-PLAN"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-426-ATOMIC-REMOTE-HEAD-PLAN.md"
-latest_card_summary = "Landed MIM-FMEM-013: AtomicRemoteHead plan vocabulary is visible in fastmem inventory while remote push/drain behavior stays closed."
-current_blocker_token = "MIM-FMEM-014"
+latest_card = "296x-427-ATOMIC-REMOTE-HEAD-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-427-ATOMIC-REMOTE-HEAD-PILOT.md"
+latest_card_summary = "Landed MIM-FMEM-014: AtomicRemoteHead pilot evidence is visible from the non-activating cross-thread smoke pack while product activation stays closed."
+current_blocker_token = "MIM-FMEM-015"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-05: 296x-427 landed MIM-FMEM-014 AtomicRemoteHead pilot evidence from the non-activating cross-thread smoke pack; MIM-FMEM-015 safe capability wrapper plan opens next.",
   "2026-06-05: 296x-426 landed MIM-FMEM-013 AtomicRemoteHead plan vocabulary without remote push/drain behavior; MIM-FMEM-014 AtomicRemoteHead pilot opens next.",
   "2026-06-05: 296x-425 landed MIM-FMEM-012 same-owner local-free route evidence and extended the existing owner shadow smoke; MIM-FMEM-013 AtomicRemoteHead plan opens next.",
   "2026-06-05: 296x-424 landed MIM-FMEM-011C replacement-front owner shadow-counter evidence; MIM-FMEM-012 same-owner local-free route opens next.",

@@ -41,7 +41,7 @@ same-machine C mimalloc comparison
 next owner selection from local evidence
 algorithm-port coverage separation
 fastmem parser parity before source syntax
-same-owner local-free route evidence before remote AtomicRemoteHead
+AtomicRemoteHead pilot evidence before safe capability wrappers
 ```
 
 ## Stop Line
@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-014 AtomicRemoteHead pilot
+  MIM-FMEM-015 safe capability wrapper plan
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -159,6 +159,7 @@ completed_this_slice:
   MIM-FMEM-011 AllocOwnerId / TLS arena owner state
   MIM-FMEM-012 same-owner local-free route evidence
   MIM-FMEM-013 AtomicRemoteHead plan
+  MIM-FMEM-014 AtomicRemoteHead pilot
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -215,13 +216,15 @@ fastmem_execution_open=0
 fastmem_product_lowering_open=0
 ```
 
-`MIM-FMEM-008` through `MIM-FMEM-012` are landed. They promoted fastmem source
+`MIM-FMEM-008` through `MIM-FMEM-014` are landed. They promoted fastmem source
 inventory, PageMapBridge evidence, TypedPageMetaHandle, AllocOwnerId/TLS
-owner-state, and same-owner local-free route evidence while keeping product
-activation closed.
+owner-state, same-owner local-free route evidence, AtomicRemoteHead plan
+vocabulary, and non-activating remote push/drain pilot evidence while keeping
+product activation closed.
 
-The next implementation owner is `MIM-FMEM-014`, which should pilot remote
-AtomicRemoteHead push/drain evidence without reopening product activation.
+The next implementation owner is `MIM-FMEM-015`, which should plan the safe
+capability wrapper surface above the now-observed AtomicRemoteHead pilot
+evidence without reopening product activation.
 
 ## Algorithm Port Coverage
 

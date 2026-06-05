@@ -77,4 +77,36 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/atomic_remote_head_pilot_report.kv" \
+  >"$OUT"
+
+grep -q '^replacement_front_owner_shadow_counters=1$' "$OUT"
+grep -q '^page_owner_check_count=1000$' "$OUT"
+grep -q '^page_owner_same_count=990$' "$OUT"
+grep -q '^page_owner_remote_count=10$' "$OUT"
+grep -q '^remote_owner_free_remote_candidate_count=10$' "$OUT"
+grep -q '^remote_owner_free_remote_push_count=10$' "$OUT"
+grep -q '^remote_owner_free_fallback_lock_count=0$' "$OUT"
+grep -q '^atomic_remote_head_plan=1$' "$OUT"
+grep -q '^atomic_remote_head_route=page_remote_head_cas$' "$OUT"
+grep -q '^atomic_remote_head_pilot_enabled=1$' "$OUT"
+grep -q '^atomic_remote_head_enabled=1$' "$OUT"
+grep -q '^remote_free_push_count=10$' "$OUT"
+grep -q '^remote_free_drain_count=10$' "$OUT"
+grep -q '^remote_free_cas_retry_count=0$' "$OUT"
+grep -q '^remote_free_memory_order=acq_rel$' "$OUT"
+grep -q '^replacement_front_cross_thread_free_smoke_ok=1$' "$OUT"
+grep -q '^replacement_front_cross_thread_free_arena_registry_overflow_count=0$' "$OUT"
+grep -q '^hako_source_thread_support_claim=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --report "$FIXTURE_DIR/atomic_remote_head_pilot_report.kv" \
+  --format kv \
+  >"$OUT"
+
+grep -q '^failure_count=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
 echo "[TEST/OK] fastmem_alloc_owner_shadow_counter"

@@ -55,7 +55,8 @@ def classify_remote_memory_order(rows: dict[str, str], replacement: dict[str, An
     if explicit:
         return explicit
     remote_route = route_value(rows, idx, "replacement_front_remote_free_route")
-    if remote_route == "atomic_page_remote_head":
+    smoke_policy = first_value(rows, ["replacement_front_cross_thread_free_policy"])
+    if remote_route == "atomic_page_remote_head" or smoke_policy == "remote_queue":
         return "acq_rel"
     return "missing"
 
@@ -479,6 +480,8 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "remote_free_drain_count": 0,
         "remote_free_cas_retry_count": 0,
         "remote_free_memory_order": "missing",
+        "replacement_front_cross_thread_free_smoke_ok": 0,
+        "replacement_front_cross_thread_free_arena_registry_overflow_count": 0,
         "mimalloc_shape_page_free_lists": "missing",
         "mimalloc_shape_thread_local_heap": 0,
         "mimalloc_shape_segment_slice_lookup": 0,
@@ -512,6 +515,21 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "same_owner_free_local_route_enabled",
         int_subject_value(rows, idx, "replacement_front_same_owner_local_free_route_enabled", 0),
     )
+    smoke_remote_push_count = int_value(
+        rows, ["replacement_front_cross_thread_free_remote_free_push_count"], 0
+    )
+    smoke_remote_drain_count = int_value(
+        rows, ["replacement_front_cross_thread_free_remote_free_drain_count"], 0
+    )
+    smoke_remote_overflow_count = int_value(
+        rows, ["replacement_front_cross_thread_free_arena_registry_overflow_count"], 0
+    )
+    remote_free_push_count = max(
+        replacement["remote_free_push_count_total"], smoke_remote_push_count
+    )
+    remote_free_drain_count = max(
+        replacement["remote_free_drain_count_total"], smoke_remote_drain_count
+    )
     atomic_remote_head_plan = int_subject_value(
         rows,
         idx,
@@ -520,8 +538,8 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     )
     atomic_remote_enabled = int(
         remote_route == "atomic_page_remote_head"
-        or replacement["remote_free_push_count_total"] > 0
-        or replacement["remote_free_drain_count_total"] > 0
+        or remote_free_push_count > 0
+        or remote_free_drain_count > 0
     )
     page_map_bridge_present = int(free_path_route == "page_map_bridge")
     typed_meta_handle = int_subject_value(rows, idx, "typed_page_meta_handle", 0)
@@ -632,6 +650,8 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "page_owner_remote_count",
         replacement["owner_thread_id_remote_count_total"],
     )
+    if page_owner_remote_count == 0 and remote_free_push_count > 0:
+        page_owner_remote_count = remote_free_push_count
     page_owner_unowned_count = int_subject_value(rows, idx, "page_owner_unowned_count", 0)
     page_owner_stale_count = int_subject_value(
         rows, idx, "page_owner_stale_generation_count", 0
@@ -667,6 +687,13 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         if same_owner_route_enabled
         else 0
     )
+    remote_owner_candidate_default = page_owner_remote_count
+    remote_owner_push_default = remote_free_push_count if atomic_remote_enabled else 0
+    remote_owner_fallback_default = (
+        max(0, remote_owner_candidate_default - remote_owner_push_default)
+        if atomic_remote_enabled
+        else 0
+    )
 
     shape_score = 0
     shape_score += 20 if allocator_tls_enabled else 0
@@ -674,11 +701,14 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     shape_score += 20 if atomic_remote_enabled else 0
     shape_score += 20 if replacement["global_lock_hot_path_count_total"] == 0 else 0
     shape_score += 20 if replacement["replacement_front_is_full_hako_algorithm"] == 1 else 0
+    replacement_subowner = (
+        "remote_free_queue" if atomic_remote_enabled else replacement["likely_next_owner"]
+    )
 
     report: dict[str, Any] = base_inventory("benchmark_kv_report")
     report.update({
         "measured_hot_path_owner": replacement["measured_hot_path_owner"],
-        "replacement_front_subowner": replacement["likely_next_owner"],
+        "replacement_front_subowner": replacement_subowner,
         "benchmark_subject_index": replacement["benchmark_subject_index"],
         "benchmark_front_class": replacement["benchmark_front_class"],
         "benchmark_threads": replacement["benchmark_threads"],
@@ -829,13 +859,19 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
             rows, idx, "same_owner_free_local_fallback_count", same_owner_fallback_default
         ),
         "remote_owner_free_remote_candidate_count": int_subject_value(
-            rows, idx, "remote_owner_free_remote_candidate_count", page_owner_remote_count
+            rows,
+            idx,
+            "remote_owner_free_remote_candidate_count",
+            remote_owner_candidate_default,
         ),
         "remote_owner_free_remote_push_count": int_subject_value(
-            rows, idx, "remote_owner_free_remote_push_count", 0
+            rows, idx, "remote_owner_free_remote_push_count", remote_owner_push_default
         ),
         "remote_owner_free_fallback_lock_count": int_subject_value(
-            rows, idx, "remote_owner_free_fallback_lock_count", 0
+            rows,
+            idx,
+            "remote_owner_free_fallback_lock_count",
+            remote_owner_fallback_default,
         ),
         "atomic_remote_head_plan": atomic_remote_head_plan,
         "atomic_remote_head_route": first_subject_value(
@@ -846,10 +882,16 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         ),
         "atomic_remote_head_pilot_enabled": atomic_remote_enabled,
         "atomic_remote_head_enabled": atomic_remote_enabled,
-        "remote_free_push_count": replacement["remote_free_push_count_total"],
-        "remote_free_drain_count": replacement["remote_free_drain_count_total"],
+        "remote_free_push_count": remote_free_push_count,
+        "remote_free_drain_count": remote_free_drain_count,
         "remote_free_cas_retry_count": replacement["remote_free_cas_retry_count_total"],
         "remote_free_memory_order": classify_remote_memory_order(rows, replacement),
+        "replacement_front_cross_thread_free_smoke_ok": int_value(
+            rows, ["replacement_front_cross_thread_free_smoke_ok"], 0
+        ),
+        "replacement_front_cross_thread_free_arena_registry_overflow_count": (
+            smoke_remote_overflow_count
+        ),
         "mimalloc_shape_page_free_lists": (
             "free_local_remote" if atomic_remote_enabled else "free_only"
         ),
