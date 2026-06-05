@@ -16,6 +16,7 @@ def generate_replacement_front_bins_shim_c(
     size_class_table: bool = False,
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
+    skip_hot_counters: bool = False,
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
@@ -459,13 +460,17 @@ static unsigned long long realloc_inplace_count = 0;
 static unsigned long long calloc_zero_bytes = 0;
 static unsigned long long lock_mode_enabled = 0;
 static unsigned long long lock_enter_count = 0;
+static unsigned long long skip_hot_counters_enabled = 0;
 
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 static inline void add_counter(unsigned long long* counter, unsigned long long delta) {{
-#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+#ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
+  (void)counter;
+  (void)delta;
+#elif defined(HAKO_REPLACEMENT_FRONT_LOCKED)
   __sync_fetch_and_add(counter, delta);
 #else
   *counter += delta;

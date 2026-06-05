@@ -49,6 +49,7 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_calloc_zero_bytes", calloc_zero_bytes);
   write_kv(fd, "replacement_front_lock_mode_enabled", lock_mode_enabled);
   write_kv(fd, "replacement_front_lock_enter_count", lock_enter_count);
+  write_kv(fd, "replacement_front_skip_hot_counters_enabled", skip_hot_counters_enabled);
   write_kv(fd, "replacement_front_page_index_insert_count", page_index_insert_count);
   write_kv(fd, "replacement_front_page_index_probe_count", page_index_probe_count);
   write_kv(fd, "replacement_front_page_index_collision_count", page_index_collision_count);
@@ -60,6 +61,9 @@ __attribute__((constructor)) static void replacement_front_init(void) {
   resolve_real();
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
   lock_mode_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
+  skip_hot_counters_enabled = 1;
 #endif
   atexit(write_report);
 }

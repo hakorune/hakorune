@@ -1351,6 +1351,58 @@ locked_hotcore_stability_refresh_2026_06_05:
   next_thread_task=MIM-LOCKED-OWNER-ATTRIBUTION-001
   next_thread_task_scope=attribute_locked_global_hotcore_cost_before_product_pages_or_thread_local_reopen
 
+mimalloc_locked_owner_attribution_plan_2026_06_05:
+  status=accepted
+  task_kind=benchmark_only_owner_attribution
+  scope=split_locked_global_hotcore_cost_before_product_pages_or_thread_local_reopen
+  baseline_report=target/hakozuna-mixed-ws-locked-hotcore-page-model-quality-7/report.out
+  baseline_route=benchmark_page_bins_hotcore_page_model
+  baseline_measurement_quality=ok
+  baseline_median_ops_per_sec=16022119.206
+  c_mimalloc_median_ops_per_sec=503655734.785
+  product_pages_consumer_enabled=0
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  first_slice=MIM-LOCKED-OWNER-ATTRIBUTION-001A
+  first_slice_scope=enable_bins_skip_hot_counters_and_measure_locked_hotcore_counter_cost
+  first_slice_safety=keep_global_lock_enabled;do_not_add_no_lock_multithread_claim
+  parked_probe=unsafe_no_lock_bins_multithread_attribution_until_counter_probe_result
+
+mimalloc_locked_hot_counter_attribution_2026_06_05:
+  status=landed
+  task_kind=benchmark_only_owner_attribution
+  scope=enable_bins_skip_hot_counters_and_measure_locked_hotcore_counter_cost
+  baseline_report=target/hakozuna-mixed-ws-locked-hotcore-page-model-quality-7/report.out
+  skip_counter_report=target/hakozuna-mixed-ws-locked-hotcore-skip-counters-quality-7/report.out
+  t1_nolock_skip_counter_report=target/hakozuna-mixed-ws-t1-hotcore-skip-counters-nolock-7/report.out
+  t1_locked_skip_counter_report=target/hakozuna-mixed-ws-t1-hotcore-skip-counters-locked-7/report.out
+  sample_count=7
+  benchmark_iters_per_thread=15000000
+  min_sample_seconds_required=0.050000
+  measurement_quality=ok
+  product_pages_consumer_enabled=0
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  bins_skip_hot_counters_supported=1
+  bins_skip_hot_counters_scope=benchmark_only_attribution
+  skip_counter_safety=global_lock_still_enabled
+  baseline_locked_hotcore_median_ops_per_sec=16022119.206
+  locked_hotcore_skip_counter_median_ops_per_sec=16954382.797
+  locked_hotcore_counter_tax_decision=non_dominant
+  locked_hotcore_counter_tax_ratio=1.058182
+  t1_hotcore_skip_counter_nolock_median_ops_per_sec=77975049.512
+  t1_hotcore_skip_counter_locked_median_ops_per_sec=66563145.001
+  t1_uncontended_lock_tax_ratio=0.853650
+  decision=lock_contention_or_critical_section_shape_remains_primary_owner_candidate
+  next_thread_task=MIM-LOCKED-OWNER-ATTRIBUTION-001B
+  next_thread_task_scope=attribute_locked_global_critical_section_or_reopen_thread_local_bins_without_product_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

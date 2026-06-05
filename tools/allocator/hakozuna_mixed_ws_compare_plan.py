@@ -117,10 +117,14 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
             "--replacement-front-cross-thread-smoke requires "
             "--replacement-front-thread-local-mode"
         )
-    if args.replacement_front_skip_hot_counters and not args.replacement_front_native_slot_mode:
+    if args.replacement_front_skip_hot_counters and not (
+        args.replacement_front_native_slot_mode
+        or args.replacement_front_native_bins_mode
+        or args.replacement_front_page_bins_mode
+    ):
         raise SystemExit(
             "--replacement-front-skip-hot-counters requires "
-            "--replacement-front-native-slot-mode"
+            "a replacement-front mode"
         )
     if args.replacement_front_tls_counter_mode and not args.replacement_front_thread_local_mode:
         raise SystemExit(
@@ -201,7 +205,6 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
         if (
             args.replacement_front_thread_local_mode
             or args.replacement_front_cross_thread_smoke
-            or args.replacement_front_skip_hot_counters
             or args.replacement_front_tls_counter_mode
             or args.replacement_front_slot_size is not None
         ):

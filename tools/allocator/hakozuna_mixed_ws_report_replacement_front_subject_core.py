@@ -56,6 +56,20 @@ def build_replacement_front_subject_static_lines(
     replacement_front_correctness_smoke = ctx["replacement_front_correctness_smoke"]
     replacement_front_preflight = ctx["replacement_front_preflight"]
     workload_histogram = ctx["workload_histogram"]
+    hot_atomic_rmw = int(
+        (
+            replacement_front_bins_mode
+            and args.replacement_front_lock_mode
+            and not args.replacement_front_skip_hot_counters
+        )
+        or (
+            not replacement_front_bins_mode
+            and not (
+                args.replacement_front_skip_hot_counters
+                or args.replacement_front_tls_counter_mode
+            )
+        )
+    )
 
     return [
         f"subject_{index}_provider_table_dispatch=0",
@@ -202,9 +216,7 @@ def build_replacement_front_subject_static_lines(
         f"subject_{index}_replacement_front_hotpath_plan_v0=1",
         f"subject_{index}_replacement_front_hotpath_report_only=1",
         f"subject_{index}_tls_get_addr_hot_path={1 if args.replacement_front_thread_local_mode and not tls_initial_exec_model_enabled else 0}",
-        "subject_"
-        f"{index}_hot_atomic_rmw="
-        f"{1 if ((replacement_front_bins_mode and args.replacement_front_lock_mode) or (not replacement_front_bins_mode and not (args.replacement_front_skip_hot_counters or args.replacement_front_tls_counter_mode))) else 0}",
+        f"subject_{index}_hot_atomic_rmw={hot_atomic_rmw}",
         "subject_"
         f"{index}_remote_free_drain_hot_path=0",
         "subject_"

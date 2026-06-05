@@ -958,6 +958,13 @@ for locked page-bin evidence, but treats size-class-table plus eager-init as a
 regression under that lock contract until a wider stability run proves
 otherwise.
 
+`--replacement-front-skip-hot-counters` is also available on native-bins and
+page-bins as an attribution-only probe. It leaves the selected front and global
+lock route intact, but compiles hot counter increments to no-ops so the locked
+HotCore/PageModel route can separate counter tax from mutex/critical-section
+cost. It remains benchmark-only and must not be used for product activation or
+winner claims.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \
