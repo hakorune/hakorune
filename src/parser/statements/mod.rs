@@ -350,6 +350,9 @@ impl NyashParser {
 
             // Assignment or function call
             TokenType::IDENTIFIER(_) | TokenType::THIS | TokenType::ME => {
+                if self.is_unsafe_block_statement_start() {
+                    return self.parse_unsafe_block_statement_error();
+                }
                 if self.is_fastmem_region_statement_start() {
                     return self.parse_fastmem_region_statement();
                 }

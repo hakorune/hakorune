@@ -112,12 +112,11 @@ parser parity:
 
 ## Current Task Order
 
-The current next task is parser parity catch-up before adding source-level
-fastmem syntax.
+The parser parity catch-up is complete for the fastmem source-syntax pilot.
 
 ```text
 next_task:
-  PARSER-FMEM-006 fastmem contractless fail-fast parity
+  MIM-FMEM-008 fastmem source syntax pilot after parser parity
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -126,8 +125,9 @@ why:
   exact-route docs/report vocabulary; MIM-FMEM-006 connected existing exact
   shift route evidence to the PageKey report; MIM-FMEM-007 locked the
   PageMapBridge plan. A worker/parser inventory found that the `.hako`
-  selfhost parser is behind the Rust parser, so fastmem source syntax must
-  wait for dual-parser parse-only parity.
+  selfhost parser was behind the Rust parser. PARSER-FMEM-001 through
+  PARSER-FMEM-006 now prove the narrow dual-parser parse-only parity needed
+  before reopening the fastmem source syntax pilot.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -143,6 +143,7 @@ completed_this_slice:
   PARSER-FMEM-003 bitwise/shift expression parity
   PARSER-FMEM-004 rune contract-name parity
   PARSER-FMEM-005 fastmem block parse-only dual parser pilot
+  PARSER-FMEM-006 fastmem contractless fail-fast parity
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock

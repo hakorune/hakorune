@@ -9,6 +9,23 @@ use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
 impl NyashParser {
+    pub(super) fn is_unsafe_block_statement_start(&self) -> bool {
+        matches!(
+            (&self.current_token().token_type, self.peek_token()),
+            (TokenType::IDENTIFIER(name), TokenType::LBRACE) if name == "unsafe"
+        )
+    }
+
+    pub(super) fn parse_unsafe_block_statement_error(&mut self) -> Result<ASTNode, ParseError> {
+        Err(ParseError::UnexpectedToken {
+            found: self.current_token().token_type.clone(),
+            expected:
+                "[freeze:contract][parser/unsafe] unsafe block is not supported; use fastmem ContractName { ... }"
+                    .to_string(),
+            line: self.current_token().line,
+        })
+    }
+
     pub(super) fn is_fastmem_region_statement_start(&self) -> bool {
         matches!(
             &self.current_token().token_type,

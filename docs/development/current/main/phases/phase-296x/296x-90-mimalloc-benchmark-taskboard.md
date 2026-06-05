@@ -36,9 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-FASTMEM-PARSER-PARITY-CATCHUP-296X-001:
-  Catch up the `.hako` parser with the Rust parser before accepting
-  `fastmem ContractName { ... }` as active source syntax.
+MIM-FMEM-008:
+  Reopen the fastmem source syntax pilot now that PARSER-FMEM-001 through
+  PARSER-FMEM-006 proved narrow Rust/.hako parser parse-only parity.
 ```
 
 ## Queue
@@ -382,7 +382,7 @@ FASTMEM-PARSER-PARITY-CATCHUP-296X-001:
 | 334 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-GUARD-SURFACE-296X-001` | Landed | Define the selected-method DirectSlot NativeDirect lowering guard surface before implementation. |
 | 335 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-OWNER-SELECTION-296X-001` | Landed | Select the narrow owner for selected-method DirectSlot NativeDirect lowering implementation. |
 | 336 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001` | Planned | Attempt the selected-method DirectSlot NativeDirect lowering pilot behind the row334 guard. |
-| 416 | `FASTMEM-PARSER-PARITY-CATCHUP-296X-001` | Current | Cut a parser parity phase before fastmem source syntax; Rust-only active grammar is rejected and parse-only dual parser parity is required. |
+| 416 | `FASTMEM-PARSER-PARITY-CATCHUP-296X-001` | Done | Parser parity catch-up through PARSER-FMEM-006 proved dual Rust/.hako parse-only parity for fastmem source syntax. |
 
 ## Hako Mimalloc Performance Parity Plan
 

@@ -112,7 +112,7 @@ PARSER-FMEM-005:
 
 PARSER-FMEM-006:
   fastmem contractless fail-fast parity
-  status=next
+  status=done
   scope=fastmem { ... } and unsafe { ... } are rejected by both parsers
 
 PARSER-FMEM-007:

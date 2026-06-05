@@ -27,6 +27,54 @@ RUST_LOG="$TMPDIR/rust_baseline.log"
 HAKO_DRIVER="$TMPDIR/hako_parser_baseline.hako"
 HAKO_LOG="$TMPDIR/hako_parser_baseline.log"
 HAKO_JSON="$TMPDIR/hako_parser_baseline.program.json"
+RUST_BAD_FASTMEM="$TMPDIR/rust_bad_fastmem.hako"
+RUST_BAD_UNSAFE="$TMPDIR/rust_bad_unsafe.hako"
+HAKO_BAD_FASTMEM="$TMPDIR/hako_bad_fastmem.hako"
+HAKO_BAD_UNSAFE="$TMPDIR/hako_bad_unsafe.hako"
+
+expect_rust_parse_fail() {
+  local src_path="$1"
+  local expect="$2"
+  local label="$3"
+  local out_path="$TMPDIR/${label}.ast.json"
+  local log_path="$TMPDIR/${label}.rust.log"
+
+  if NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$out_path" "$src_path" \
+    >"$log_path" 2>&1; then
+    log_error "Rust parser unexpectedly accepted $label"
+    cat "$out_path" >&2 || true
+    exit 1
+  fi
+
+  if ! grep -Fq "$expect" "$log_path"; then
+    log_error "Rust parser missing expected fail-fast tag for $label"
+    tail -n 120 "$log_path" >&2 || true
+    exit 1
+  fi
+}
+
+expect_hako_parse_fail() {
+  local src_path="$1"
+  local expect="$2"
+  local label="$3"
+  local out_path="$TMPDIR/${label}.program.json"
+  local log_path="$TMPDIR/${label}.hako.log"
+
+  if NYASH_FEATURES="$FEATURES" \
+    bash "$NYASH_ROOT/tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh" \
+      --in "$src_path" --out "$out_path" \
+    >"$log_path" 2>&1; then
+    log_error ".hako ParserBox unexpectedly accepted $label"
+    cat "$out_path" >&2 || true
+    exit 1
+  fi
+
+  if ! grep -Fq "$expect" "$log_path"; then
+    log_error ".hako ParserBox missing expected fail-fast tag for $label"
+    tail -n 120 "$log_path" >&2 || true
+    exit 1
+  fi
+}
 
 cat >"$RUST_SRC" <<'HK'
 static box Main {
@@ -142,5 +190,50 @@ if [ ! -s "$HAKO_JSON" ]; then
   tail -n 120 "$HAKO_LOG" >&2 || true
   exit 1
 fi
+
+cat >"$RUST_BAD_FASTMEM" <<'HK'
+static box Main {
+  main() {
+    fastmem {
+      local x = 1
+    }
+    return 0
+  }
+}
+HK
+
+cat >"$RUST_BAD_UNSAFE" <<'HK'
+static box Main {
+  main() {
+    unsafe {
+      local x = 1
+    }
+    return 0
+  }
+}
+HK
+
+cp "$RUST_BAD_FASTMEM" "$HAKO_BAD_FASTMEM"
+cp "$RUST_BAD_UNSAFE" "$HAKO_BAD_UNSAFE"
+
+expect_rust_parse_fail \
+  "$RUST_BAD_FASTMEM" \
+  "[freeze:contract][parser/fastmem] contract name after fastmem" \
+  "rust_bad_fastmem"
+
+expect_rust_parse_fail \
+  "$RUST_BAD_UNSAFE" \
+  "[freeze:contract][parser/unsafe] unsafe block is not supported; use fastmem ContractName { ... }" \
+  "rust_bad_unsafe"
+
+expect_hako_parse_fail \
+  "$HAKO_BAD_FASTMEM" \
+  "[freeze:contract][parser/fastmem] contract name after fastmem" \
+  "hako_bad_fastmem"
+
+expect_hako_parse_fail \
+  "$HAKO_BAD_UNSAFE" \
+  "[freeze:contract][parser/unsafe] unsafe block is not supported; use fastmem ContractName { ... }" \
+  "hako_bad_unsafe"
 
 log_success "fastmem_parser_parity_smoke"

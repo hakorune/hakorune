@@ -8,8 +8,8 @@
 status = "Active"
 date = "2026-06-05"
 
-active_lane = "mimalloc fastmem parser parity catch-up"
-active_lane_status = "FastMemory docs/report/verifier/PageKey/PageMapBridge rows are in place; before accepting `fastmem ContractName { ... }` as source syntax, catch up the .hako selfhost parser with the Rust parser and prove dual-parser parse-only parity."
+active_lane = "mimalloc fastmem source syntax pilot"
+active_lane_status = "PARSER-FMEM-001 through PARSER-FMEM-006 proved narrow Rust/.hako parser parse-only parity for `fastmem ContractName { ... }`; MIM-FMEM-008 can now reopen without execution, lowering, provider, replacement, hook, or product activation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-416-FASTMEM-PARSER-PARITY-CATCHUP.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
@@ -18,8 +18,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-416-FASTMEM-PARSER-PARITY-CATCHUP"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-416-FASTMEM-PARSER-PARITY-CATCHUP.md"
-latest_card_summary = "Cut a parser parity catch-up phase before fastmem source syntax: Rust-only fastmem grammar is rejected, .hako parser parity is required, and MIM-FMEM-008 is blocked until parse-only parity is proven."
-current_blocker_token = "FASTMEM-PARSER-PARITY-CATCHUP-296X-001"
+latest_card_summary = "Completed the fastmem parser parity catch-up through PARSER-FMEM-006: Rust and .hako parsers now share bitwise/shift, FastMemory rune, fastmem region parse-only, and contractless/unsafe fail-fast proof."
+current_blocker_token = "MIM-FMEM-008"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,7 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-06-05: 296x-416 opened the fastmem parser parity catch-up phase; MIM-FMEM-008 waits for dual Rust/.hako parser parse-only parity.",
+  "2026-06-05: 296x-416 completed the fastmem parser parity catch-up through PARSER-FMEM-006; MIM-FMEM-008 can reopen with dual parser parse-only proof.",
   "2026-06-01: LANG-CFG-006 optional @rune Gate(...) sugar landed, and the build-conditional lane returned control to mimalloc source-level owner refresh.",
   "296x-414 Landed the mimalloc source-level owner refresh: object_lifecycle_facade remains the top source-level owner surface, and the mimalloc source-level owner selection opened next.",
   "296x-413 Landed the post-DirectArray remaining direct-path surface check: remaining fast-path candidates stayed closed, and mimalloc source-level owner refresh opened next.",

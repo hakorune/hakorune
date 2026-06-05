@@ -275,6 +275,16 @@ static box ParserStmtCoreBox {
       }
     }
 
+    if ctx.starts_with_kw(src, j, "unsafe") == 1 {
+      local k_unsafe = j + 6
+      k_unsafe = ParserStringUtilsBox.skip_ws(src, k_unsafe)
+      if k_unsafe < src.length() && src.substring(k_unsafe, k_unsafe+1) == "{" {
+        ctx.gpos_set(k_unsafe)
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return "[freeze:contract][parser/unsafe] unsafe block is not supported; use fastmem ContractName { ... }"
+      }
+    }
+
     if ctx.starts_with_kw(src, j, "fastmem") == 1 {
       local k_fastmem = j + 7
       k_fastmem = ParserStringUtilsBox.skip_ws(src, k_fastmem)
