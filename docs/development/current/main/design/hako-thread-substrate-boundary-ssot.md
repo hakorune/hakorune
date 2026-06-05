@@ -9,6 +9,7 @@ allocator threading evidence, and benchmark report claims.
 Related:
 - `docs/reference/concurrency/semantics.md`
 - `docs/reference/concurrency/lock_scoped_worker_local.md`
+- `docs/reference/runtime/threading.md`
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 - `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 - `docs/development/current/main/workstreams/mimalloc-current.md`

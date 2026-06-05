@@ -1622,6 +1622,19 @@ mimalloc_replacement_front_owner_token_fast_path_2026_06_05:
   next_thread_task=MIM-OWNER-ID-PERF-REFRESH-001
   next_thread_task_scope=refresh_same_run_remote_free_owner_token_perf_before_next_shape_change
 
+thread_substrate_reference_docs_sync_2026_06_05:
+  status=landed
+  task_kind=docs_reference_sync
+  scope=drop_runtime_thread_substrate_inventory_into_docs_reference
+  new_reference=docs/reference/runtime/threading.md
+  linked_from=docs/reference/README.md;docs/reference/concurrency/semantics.md;docs/reference/runtime/substrate-capabilities.md;docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  implementation_behavior_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  source_level_thread_syntax=0
+  nowait_os_thread_spawn=0
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

@@ -13,6 +13,11 @@ The design SSOT is:
 - `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md`
 - `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 
+Runtime substrate companions:
+
+- `docs/reference/runtime/threading.md`
+- `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
+
 ## Core Rule
 
 Hakorune does not add a broad C-style `unsafe` language surface for allocator

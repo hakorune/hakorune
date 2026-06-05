@@ -22,6 +22,8 @@
 ### runtime/
 - runtime/kernel/substrate reference manuals
 - current substrate capability manual: `docs/reference/runtime/substrate-capabilities.md`
+- runtime threading substrate reference:
+  `docs/reference/runtime/threading.md`
 - runtime plugin loadset selection:
   `docs/reference/runtime/plugin-loadsets.md`
 - standalone EXE route vocabulary:
@@ -50,6 +52,8 @@ Concurrency note:
 
 Runtime substrate note:
 - current capability manual owner は `docs/reference/runtime/substrate-capabilities.md`
+- runtime ThreadApi / Scheduler / ThreadRegistry reference owner は
+  `docs/reference/runtime/threading.md`
 - language-facing low-level capability entry は
   `docs/reference/language/low-level-capabilities.md`
 

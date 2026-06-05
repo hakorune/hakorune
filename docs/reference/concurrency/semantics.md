@@ -7,6 +7,7 @@ See also:
 - `docs/reference/concurrency/boundary-model.md` (new Boundary-model design SSOT)
 - `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md` (implementation rows and compatibility archive rule)
 - `docs/reference/concurrency/lock_scoped_worker_local.md` (`lock` / `scoped` / `worker_local` historical/provisional state-model notes)
+- `docs/reference/runtime/threading.md` (runtime ThreadApi / Scheduler / ThreadRegistry substrate reference)
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md` (VM+LLVM execution ledger and historical phase provenance)
 - `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md` (`nowait` vs OS thread substrate and benchmark claim boundary)
 
@@ -33,6 +34,8 @@ Mimalloc reading:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`.
 - Runtime/thread benchmark claim boundaries are owned by
   `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`.
+- Runtime ThreadApi / Scheduler / ThreadRegistry implementation reference is
+  `docs/reference/runtime/threading.md`.
 - Internal worker-local/TLS cache slots, atomics, OSVM, and thread-safe
   `hako_mem` ABI are runtime/backend substrate rows; they do not imply that
   source-level `worker_local`, `lock<T>`, channels, task scopes, or true
