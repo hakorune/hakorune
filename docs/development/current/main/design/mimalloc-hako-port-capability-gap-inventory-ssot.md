@@ -1264,7 +1264,7 @@ keeper work in one task.
 | `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | done | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | `MemOp` is the single executable instruction, `MemOpKind` is the dialect, and `FastMemRegion` is side-table metadata. |
 | `MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary` | done | Add `MemOp` to MIR instruction contracts and add a `MemOpKind` allowlist surface. | Backend adapters cannot keep hidden MemOpKind allowlists; JSON/VM/LLVM/C support remains closed until dedicated rows. |
 | `MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata` | done | Connect parsed fastmem source to the new MIR representation metadata. | Function metadata now owns FastMemRegion rows; MIR instruction streams carry only MemOp operations. Backend support remains closed. |
-| `MIR-FMEM-004 verifier gates for fastmem escape/layout/ABI boundaries` | next | Add verifier gates for no-escape, layout verification, safepoint/allocation bans, and Type ABI / Provider ABI boundary bans. | Verifier guards; Lowering remains closed until dedicated producer rows. |
+| `MIR-FMEM-004 verifier gates for fastmem escape/layout/ABI boundaries` | done | Add verifier gates for no-escape, region metadata, MemOp kind/arity/effect shape, and ABI boundary escape bans. | Verifier guards landed; lowering remains closed until dedicated producer rows. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`

@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-004 verifier gates for fastmem escape/layout/ABI boundaries
+  MIR-FMEM-005 MIR-to-C backend artifact producer
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -163,8 +163,10 @@ why:
   execution. 296x-440 then fixed the identity boundary: `hako_alloc` is the
   `.hako` mimalloc-port body, Python-template C is the temporary execution
   bridge, and runtime/bootstrap allocation remains separate from
-  application/product allocator activation. The next task is still to add
-  verifier gates for escape/layout/safepoint/allocation/ABI boundaries.
+  application/product allocator activation. MIR-FMEM-004 then added verifier
+  gates for FastMemRegion metadata, MemOp kind/arity/effect shape, and
+  no-escape before any backend support opens. The next task is to add the
+  MIR-to-C backend artifact producer without making C semantic SSOT.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -201,6 +203,7 @@ completed_this_slice:
   MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
   296x-440 hako_alloc mimalloc port identity boundary docs
+  MIR-FMEM-004 FastMem verifier gates over MIR MemOps
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock

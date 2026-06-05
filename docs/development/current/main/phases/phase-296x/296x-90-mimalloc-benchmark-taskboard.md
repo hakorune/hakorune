@@ -88,6 +88,10 @@ MIR-FMEM-003 landed MIRBuilder source lowering:
   execution bridge for the same port, and runtime/bootstrap allocation remains
   separate from application/product allocator activation. MIR-FMEM-004 remains
   the next implementation blocker.
+MIR-FMEM-004 landed verifier gates:
+  FastMemRegion metadata, MemOp kind/arity/effect shape, and no-escape are now
+  checked before backend support opens. MIR-FMEM-005 opens the MIR-to-C backend
+  artifact producer next; JSON/VM/LLVM/product activation remain closed.
 ```
 
 ## Queue

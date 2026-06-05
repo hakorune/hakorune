@@ -11,6 +11,7 @@ mod awaits;
 mod barrier;
 mod cfg;
 mod dom;
+mod fastmem;
 mod hako_alloc_metadata;
 mod hako_alloc_page_lifecycle;
 mod inline_required;
@@ -275,6 +276,12 @@ impl MirVerifier {
             local_errors.append(&mut inline_required_errors);
         }
 
+        // 14. FastMemory MemOp region contract verification before any backend
+        // may consume the dialect.
+        if let Err(mut fastmem_errors) = self.verify_fastmem_regions(function) {
+            local_errors.append(&mut fastmem_errors);
+        }
+
         if local_errors.is_empty() {
             Ok(())
         } else {
@@ -485,6 +492,10 @@ impl MirVerifier {
         function: &MirFunction,
     ) -> Result<(), Vec<VerificationError>> {
         inline_required::check_required_inline_plans(function)
+    }
+
+    fn verify_fastmem_regions(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
+        fastmem::check_fastmem_regions(function)
     }
 
     /// Reject legacy instructions that should be rewritten to Core-15 equivalents

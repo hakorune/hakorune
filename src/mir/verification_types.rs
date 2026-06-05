@@ -146,6 +146,16 @@ pub enum VerificationError {
         owner: String,
         reason: String,
     },
+    /// FastMemory MemOp / region side-table contract violation before any
+    /// backend may consume the fastmem dialect.
+    FastMemContractViolation {
+        function: String,
+        block: Option<BasicBlockId>,
+        instruction_index: Option<usize>,
+        region: Option<u32>,
+        contract: Option<String>,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -416,6 +426,31 @@ impl std::fmt::Display for VerificationError {
                     f,
                     "[mir/verify:module_metadata] key={} owner={} reason={}",
                     key, owner, reason
+                )
+            }
+            VerificationError::FastMemContractViolation {
+                function,
+                block,
+                instruction_index,
+                region,
+                contract,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "[mir/verify:fastmem] function={} block={} instruction={} region={} contract={} reason={}",
+                    function,
+                    block
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "none".to_string()),
+                    instruction_index
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "none".to_string()),
+                    region
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "none".to_string()),
+                    contract.as_deref().unwrap_or("none"),
+                    reason
                 )
             }
         }
