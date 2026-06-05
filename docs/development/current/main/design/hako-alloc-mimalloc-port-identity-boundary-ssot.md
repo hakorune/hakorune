@@ -211,12 +211,14 @@ MIR-FMEM-004:
 MIR-FMEM-005:
   MIR -> LLVM/object primary producer.
   C is not required on the primary path.
+  The Python-template C bridge remains only as comparison baseline.
 
 MIR-FMEM-006:
   producer-neutral parity against the current python_template_c_bridge.
 
 MIR-FMEM-007:
   retire python_template_c_bridge after producer-neutral parity is proven.
+  No hidden fallback to the Python-template C bridge may remain.
 
 MIR-FMEM-C-ARTIFACT:
   optional MIR -> C debug/diff/bootstrap artifact producer.

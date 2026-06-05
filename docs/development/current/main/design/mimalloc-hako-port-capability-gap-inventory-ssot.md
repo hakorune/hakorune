@@ -836,6 +836,8 @@ python_template_c_bridge:
   must be tied to .hako source truth by bridge evidence
   must not become semantic SSOT
   retirement required
+  retained through MIR-FMEM-005 as baseline evidence
+  retired only after MIR-FMEM-006 producer-neutral parity
 
 mir_to_c_lowering:
   optional debug/diff/bootstrap artifact producer
@@ -858,6 +860,9 @@ replacement_front_backend_artifact=c|llvm_ir|object|exe
 replacement_front_source_truth=hako_fastmem|hako_alloc.size_class_box|hako_alloc.page_box|unknown
 replacement_front_python_template_c_semantic_ssot=0
 replacement_front_python_template_c_retirement_required=0|1
+python_template_c_bridge_runtime_dependency_count
+producer_neutral_report_schema=0|1
+producer_neutral_parity_pass=0|1
 replacement_front_mir_memop_enabled=0|1
 replacement_front_mir_fastmem_region_enabled=0|1
 replacement_front_mirbuilder_representation_only=1
@@ -963,12 +968,14 @@ MIR-FMEM-004:
 
 MIR-FMEM-005:
   MIR -> LLVM/object primary producer.
+  Keep python_template_c_bridge as comparison baseline.
 
 MIR-FMEM-006:
   Producer-neutral parity against the current python_template_c_bridge.
 
 MIR-FMEM-007:
   Retire python_template_c_bridge after producer-neutral parity is proven.
+  Do not leave a hidden fallback to the Python-template C producer.
 
 MIR-FMEM-C-ARTIFACT:
   Optional MIR -> C debug/diff/bootstrap artifact producer.

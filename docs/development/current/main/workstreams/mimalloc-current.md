@@ -168,7 +168,9 @@ why:
   no-escape before any backend support opens. 296x-442 then realigned the
   producer order: the next required task is the MIR-to-LLVM/object primary
   producer. MIR-to-C is deferred to an optional debug/diff/bootstrap artifact
-  lane and must not become semantic SSOT.
+  lane and must not become semantic SSOT. 296x-443 then fixed the removal
+  timing: MIR-FMEM-005 keeps the Python-template C bridge as baseline,
+  MIR-FMEM-006 proves producer-neutral parity, and MIR-FMEM-007 retires it.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -207,6 +209,7 @@ completed_this_slice:
   296x-440 hako_alloc mimalloc port identity boundary docs
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
   296x-442 FastMemory producer task order realignment
+  296x-443 Python-template C bridge retirement gate
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -248,6 +251,14 @@ task_order:
   MIR-FMEM-006 producer-neutral parity against python_template_c_bridge
   MIR-FMEM-007 Python template C bridge retirement
   MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff/bootstrap artifact producer
+
+retirement_gate:
+  MIR-FMEM-005 does not delete python_template_c_bridge.
+  MIR-FMEM-006 must prove producer-neutral parity with the same report.kv /
+  hako_check contract.
+  MIR-FMEM-007 deletes the Python-template C semantic bridge and forbids hidden
+  fallback. Optional MIR-to-C artifact support is a separate generated-backend
+  lane.
 
 closed_by_default:
   RawPtr<T>

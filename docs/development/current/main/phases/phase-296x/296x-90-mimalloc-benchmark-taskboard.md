@@ -62,6 +62,9 @@ Producer transition:
   Add producer-neutral fields before MIR lowering work:
   primary path: python_template_c_bridge -> mir_to_llvm_lowering -> bridge retirement.
   optional artifact path: mir_to_c_lowering for debug/diff/bootstrap only.
+  MIR-FMEM-005 keeps the Python-template C bridge as baseline evidence.
+  MIR-FMEM-006 proves producer-neutral parity.
+  MIR-FMEM-007 retires the bridge and must not leave hidden fallback.
   MIRBuilder design consultation is a separate representation-boundary task;
   MIRBuilder represents FastMemRegion/MemOp, Planner selects, Verifier guards,
   Lowering emits.
