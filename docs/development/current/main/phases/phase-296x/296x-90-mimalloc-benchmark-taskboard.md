@@ -54,7 +54,8 @@ MIM-FMEM-016:
   capability wrappers as FastMemory MemOp aliases.
 MIM-FMEM-017:
   MIM-FMEM-017A landed non-activating product-shaped bridge report
-  normalization. MIM-FMEM-017B starts SizeClassBox bridge evidence next.
+  normalization. MIM-FMEM-017B landed SizeClassBox bridge evidence.
+  MIM-FMEM-017C starts Page-local state bridge evidence next.
 ```
 
 ## Queue

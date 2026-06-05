@@ -5,8 +5,32 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SIZE_CLASS_BOX_SOURCE = Path("lang/src/hako_alloc/memory/size_class_box.hako")
+SIZE_CLASS_REQUIRED_METHODS = (
+    "word_size",
+    "max_regular_bin",
+    "huge_bin",
+    "normalize_size",
+    "bin_size",
+    "size_to_bin",
+    "size_to_bin_usize",
+    "good_size",
+    "good_size_usize",
+    "bin_size_usize",
+    "accepts",
+    "accepts_usize",
+)
+SIZE_CLASS_USIZE_FACADES = (
+    "size_to_bin_usize",
+    "good_size_usize",
+    "bin_size_usize",
+    "accepts_usize",
+)
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -127,6 +151,85 @@ def normalized_product_bridge_source(source: str) -> str:
     if source in {"hako_alloc.size_class_box", "hako_size_class_box_report_mirror"}:
         return "hako_alloc.size_class_box"
     return "unknown"
+
+
+def method_names(source: str) -> set[str]:
+    return set(re.findall(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(", source, re.MULTILINE))
+
+
+def source_int_constant(source: str, method: str) -> int | None:
+    pattern = rf"\b{re.escape(method)}\s*\(\)\s*\{{\s*return\s+(-?\d+)\b"
+    match = re.search(pattern, source, re.MULTILINE)
+    if match is None:
+        return None
+    return int(match.group(1))
+
+
+def size_class_box_evidence(mirror_source: str) -> dict[str, Any]:
+    source_path = REPO_ROOT / SIZE_CLASS_BOX_SOURCE
+    source_text = (
+        source_path.read_text(encoding="utf-8", errors="replace")
+        if source_path.is_file()
+        else ""
+    )
+    methods = method_names(source_text)
+    missing_methods = [
+        method for method in SIZE_CLASS_REQUIRED_METHODS if method not in methods
+    ]
+    word_size = source_int_constant(source_text, "word_size")
+    max_regular_bin = source_int_constant(source_text, "max_regular_bin")
+    huge_bin = source_int_constant(source_text, "huge_bin")
+    huge_sentinel = -1 if re.search(r"\breturn\s+-1\b", source_text) else 0
+    methods_present = int(not missing_methods and source_path.is_file())
+    constants_covered = int(word_size == 8 and max_regular_bin == 72 and huge_bin == 73)
+    huge_sentinel_covered = int(huge_sentinel == -1)
+    usize_facades_present = int(all(method in methods for method in SIZE_CLASS_USIZE_FACADES))
+    source_truth = normalized_product_bridge_source(mirror_source)
+    mirror_matches_source = int(source_truth == "hako_alloc.size_class_box")
+    missing_parts = [
+        part
+        for part, missing in [
+            ("source_file", not source_path.is_file()),
+            ("methods", not methods_present),
+            ("constants", not constants_covered),
+            ("huge_sentinel", not huge_sentinel_covered),
+            ("usize_facades", not usize_facades_present),
+            ("mirror_source", not mirror_matches_source),
+        ]
+        if missing
+    ]
+    bridge_enabled = int(bool(mirror_source))
+    return {
+        "replacement_front_size_class_bridge_v0": bridge_enabled,
+        "replacement_front_size_class_bridge_report_only": 1,
+        "replacement_front_size_class_bridge_source_truth": source_truth,
+        "replacement_front_size_class_bridge_source_file": str(SIZE_CLASS_BOX_SOURCE),
+        "replacement_front_size_class_bridge_mirror_source": mirror_source or "unknown",
+        "replacement_front_size_class_bridge_bound": int(bridge_enabled and not missing_parts),
+        "replacement_front_size_class_bridge_missing": (
+            ",".join(missing_parts) if missing_parts else "none"
+        ),
+        "replacement_front_size_class_required_method_count": len(
+            SIZE_CLASS_REQUIRED_METHODS
+        ),
+        "replacement_front_size_class_required_methods_present": methods_present,
+        "replacement_front_size_class_missing_methods": (
+            ",".join(missing_methods) if missing_methods else "none"
+        ),
+        "replacement_front_size_class_word_size": word_size or 0,
+        "replacement_front_size_class_max_regular_bin": max_regular_bin or 0,
+        "replacement_front_size_class_huge_bin": huge_bin or 0,
+        "replacement_front_size_class_huge_sentinel": huge_sentinel,
+        "replacement_front_size_class_usize_facades_present": usize_facades_present,
+        "replacement_front_size_class_policy_methods_covered": methods_present,
+        "replacement_front_size_class_policy_constants_covered": constants_covered,
+        "replacement_front_size_class_policy_huge_sentinel_covered": (
+            huge_sentinel_covered
+        ),
+        "replacement_front_size_class_policy_mirror_matches_source": (
+            mirror_matches_source
+        ),
+    }
 
 
 def classify_next_owner(report: dict[str, Any]) -> str:
@@ -291,9 +394,11 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         and report["page_map_bridge_type_abi_hot_lookup_count"] == 0
         and report["page_map_bridge_provider_abi_hot_dispatch_count"] == 0
     )
-    product_source = normalized_product_bridge_source(
-        prefixed(rows, replacement_idx, "replacement_front_size_class_policy_source")
+    product_mirror_source = prefixed(
+        rows, replacement_idx, "replacement_front_size_class_policy_source"
     )
+    size_class_evidence = size_class_box_evidence(product_mirror_source)
+    product_source = size_class_evidence["replacement_front_size_class_bridge_source_truth"]
     product_preflight_report = prefixed_int(
         rows, replacement_idx, "replacement_front_product_preflight_report_v0"
     )
@@ -351,7 +456,11 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         and product_preflight_rollback_ok
     )
     product_no_host_passthrough = int(report["host_passthrough_count_total"] == 0)
-    product_coverage_ok = int(product_source != "unknown" and product_preflight_ok)
+    product_coverage_ok = int(
+        product_source != "unknown"
+        and product_preflight_ok
+        and size_class_evidence["replacement_front_size_class_bridge_bound"]
+    )
     product_missing_parts = [
         part
         for part, missing in [
@@ -406,6 +515,7 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         if report["replacement_front_product_shaped_bridge_evidence_ready"]
         else "missing_bridge_evidence"
     )
+    report.update(size_class_evidence)
 
     if skip_rows is not None:
         skip_replacement_idx = find_subject(skip_rows, "replacement_front_c_shim", replacement_idx)

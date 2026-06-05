@@ -102,6 +102,10 @@ def product_shaped_bridge_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "replacement_front_product_shaped_bridge_v0") > 0
 
 
+def size_class_bridge_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "replacement_front_size_class_bridge_v0") > 0
+
+
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
     if int_count(rows, "mimalloc_shape_score") < int_count(rows, "mimalloc_shape_threshold"):
         return "shape_below_threshold"
@@ -239,6 +243,39 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
                 "activation_row_required"
             ):
                 reasons.append("replacement_front_product_shaped_bridge_block_reason")
+    if size_class_bridge_profile(rows):
+        if int_count(rows, "replacement_front_size_class_bridge_report_only") != 1:
+            reasons.append("replacement_front_size_class_bridge_report_only")
+        if rows.get("replacement_front_size_class_bridge_source_truth") != (
+            "hako_alloc.size_class_box"
+        ):
+            reasons.append("replacement_front_size_class_bridge_source_truth")
+        if rows.get("replacement_front_size_class_bridge_source_file") != (
+            "lang/src/hako_alloc/memory/size_class_box.hako"
+        ):
+            reasons.append("replacement_front_size_class_bridge_source_file")
+        if int_count(rows, "replacement_front_size_class_bridge_bound") != 1:
+            reasons.append("replacement_front_size_class_bridge_bound")
+        if rows.get("replacement_front_size_class_bridge_missing") != "none":
+            reasons.append("replacement_front_size_class_bridge_missing")
+        for key in [
+            "replacement_front_size_class_required_methods_present",
+            "replacement_front_size_class_usize_facades_present",
+            "replacement_front_size_class_policy_methods_covered",
+            "replacement_front_size_class_policy_constants_covered",
+            "replacement_front_size_class_policy_huge_sentinel_covered",
+            "replacement_front_size_class_policy_mirror_matches_source",
+        ]:
+            if int_count(rows, key) != 1:
+                reasons.append(key)
+        for key, expected in [
+            ("replacement_front_size_class_word_size", 8),
+            ("replacement_front_size_class_max_regular_bin", 72),
+            ("replacement_front_size_class_huge_bin", 73),
+            ("replacement_front_size_class_huge_sentinel", -1),
+        ]:
+            if int_count(rows, key) != expected:
+                reasons.append(key)
     return reasons
 
 

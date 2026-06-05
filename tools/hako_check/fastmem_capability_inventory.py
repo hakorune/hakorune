@@ -566,6 +566,27 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "replacement_front_product_shaped_bridge_no_host_passthrough": 0,
         "replacement_front_product_shaped_bridge_requires_activation_row": 1,
         "replacement_front_product_shaped_bridge_requires_product_gate_open": 1,
+        "replacement_front_size_class_bridge_v0": 0,
+        "replacement_front_size_class_bridge_report_only": 1,
+        "replacement_front_size_class_bridge_source_truth": "unknown",
+        "replacement_front_size_class_bridge_source_file": (
+            "lang/src/hako_alloc/memory/size_class_box.hako"
+        ),
+        "replacement_front_size_class_bridge_mirror_source": "unknown",
+        "replacement_front_size_class_bridge_bound": 0,
+        "replacement_front_size_class_bridge_missing": "source_file,mirror_source",
+        "replacement_front_size_class_required_method_count": 0,
+        "replacement_front_size_class_required_methods_present": 0,
+        "replacement_front_size_class_missing_methods": "unknown",
+        "replacement_front_size_class_word_size": 0,
+        "replacement_front_size_class_max_regular_bin": 0,
+        "replacement_front_size_class_huge_bin": 0,
+        "replacement_front_size_class_huge_sentinel": 0,
+        "replacement_front_size_class_usize_facades_present": 0,
+        "replacement_front_size_class_policy_methods_covered": 0,
+        "replacement_front_size_class_policy_constants_covered": 0,
+        "replacement_front_size_class_policy_huge_sentinel_covered": 0,
+        "replacement_front_size_class_policy_mirror_matches_source": 0,
         "replacement_front_is_full_hako_algorithm": 0,
         "hako_mimalloc_algorithm_claim": 0,
         "product_activation_ready": 0,
@@ -1276,6 +1297,63 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         ],
         "replacement_front_product_shaped_bridge_requires_product_gate_open": replacement[
             "replacement_front_product_shaped_bridge_requires_product_gate_open"
+        ],
+        "replacement_front_size_class_bridge_v0": replacement[
+            "replacement_front_size_class_bridge_v0"
+        ],
+        "replacement_front_size_class_bridge_report_only": replacement[
+            "replacement_front_size_class_bridge_report_only"
+        ],
+        "replacement_front_size_class_bridge_source_truth": replacement[
+            "replacement_front_size_class_bridge_source_truth"
+        ],
+        "replacement_front_size_class_bridge_source_file": replacement[
+            "replacement_front_size_class_bridge_source_file"
+        ],
+        "replacement_front_size_class_bridge_mirror_source": replacement[
+            "replacement_front_size_class_bridge_mirror_source"
+        ],
+        "replacement_front_size_class_bridge_bound": replacement[
+            "replacement_front_size_class_bridge_bound"
+        ],
+        "replacement_front_size_class_bridge_missing": replacement[
+            "replacement_front_size_class_bridge_missing"
+        ],
+        "replacement_front_size_class_required_method_count": replacement[
+            "replacement_front_size_class_required_method_count"
+        ],
+        "replacement_front_size_class_required_methods_present": replacement[
+            "replacement_front_size_class_required_methods_present"
+        ],
+        "replacement_front_size_class_missing_methods": replacement[
+            "replacement_front_size_class_missing_methods"
+        ],
+        "replacement_front_size_class_word_size": replacement[
+            "replacement_front_size_class_word_size"
+        ],
+        "replacement_front_size_class_max_regular_bin": replacement[
+            "replacement_front_size_class_max_regular_bin"
+        ],
+        "replacement_front_size_class_huge_bin": replacement[
+            "replacement_front_size_class_huge_bin"
+        ],
+        "replacement_front_size_class_huge_sentinel": replacement[
+            "replacement_front_size_class_huge_sentinel"
+        ],
+        "replacement_front_size_class_usize_facades_present": replacement[
+            "replacement_front_size_class_usize_facades_present"
+        ],
+        "replacement_front_size_class_policy_methods_covered": replacement[
+            "replacement_front_size_class_policy_methods_covered"
+        ],
+        "replacement_front_size_class_policy_constants_covered": replacement[
+            "replacement_front_size_class_policy_constants_covered"
+        ],
+        "replacement_front_size_class_policy_huge_sentinel_covered": replacement[
+            "replacement_front_size_class_policy_huge_sentinel_covered"
+        ],
+        "replacement_front_size_class_policy_mirror_matches_source": replacement[
+            "replacement_front_size_class_policy_mirror_matches_source"
         ],
         "replacement_front_is_full_hako_algorithm": replacement[
             "replacement_front_is_full_hako_algorithm"
