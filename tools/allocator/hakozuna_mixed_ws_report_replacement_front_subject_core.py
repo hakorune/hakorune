@@ -239,6 +239,12 @@ def build_replacement_front_subject_static_lines(
         f"{index}_replacement_front_thread_local_hotcore_route="
         f"{thread_local_hotcore_route_name}",
         "subject_"
+        f"{index}_replacement_front_same_owner_local_free_route="
+        f"{'page_meta_owner_local_free' if tls_page_arena else 'disabled'}",
+        "subject_"
+        f"{index}_same_owner_free_local_route_enabled="
+        f"{1 if tls_page_arena else 0}",
+        "subject_"
         f"{index}_replacement_front_page_from_ptr_bridge_mode="
         f"{1 if args.replacement_front_page_from_ptr_bridge_mode else 0}",
         "subject_"

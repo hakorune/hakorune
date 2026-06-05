@@ -41,6 +41,7 @@ same-machine C mimalloc comparison
 next owner selection from local evidence
 algorithm-port coverage separation
 fastmem parser parity before source syntax
+same-owner local-free route evidence before remote AtomicRemoteHead
 ```
 
 ## Stop Line
@@ -56,6 +57,7 @@ fastmem parser parity before source syntax
 - no winner claim
 - no source syntax expansion unless a tracked reference decision accepts it
 - no Rust-only `fastmem` active grammar; `.hako` parser parity is required
+- no new report-only smoke scripts unless a new execution boundary opens
 
 ## Current Decisions
 
@@ -108,15 +110,22 @@ parser parity:
   lowering, runtime behavior, or replacement-front behavior changes.
   Phase card:
   `docs/development/current/main/phases/phase-296x/296x-416-FASTMEM-PARSER-PARITY-CATCHUP.md`
+
+smoke growth brake:
+  `MIM-FMEM-011A/B/C` completed the owner-state foundation. Future report-only
+  rows should not add one-off smoke scripts. Behavior rows may extend the
+  existing fastmem smoke family, but the next priority is `.hako` mimalloc
+  fastmem migration body work, not per-row report-smoke growth.
 ```
 
 ## Current Task Order
 
-The parser parity catch-up is complete for the fastmem source-syntax pilot.
+The parser parity catch-up and owner-state foundation are complete for the
+fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-010 TypedPageMetaHandle plan
+  MIM-FMEM-013 AtomicRemoteHead plan
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -146,6 +155,9 @@ completed_this_slice:
   PARSER-FMEM-006 fastmem contractless fail-fast parity
   MIM-FMEM-008 fastmem source syntax pilot after parser parity
   MIM-FMEM-009 PageMapBridge benchmark-front pilot
+  MIM-FMEM-010 TypedPageMetaHandle plan
+  MIM-FMEM-011 AllocOwnerId / TLS arena owner state
+  MIM-FMEM-012 same-owner local-free route evidence
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -165,12 +177,13 @@ task_order:
   MIM-FMEM-008 fastmem source syntax pilot after parser parity
   MIM-FMEM-009 PageMapBridge benchmark-front pilot
   MIM-FMEM-010 TypedPageMetaHandle plan
-  MIM-FMEM-011 WorkerId / TLS arena owner state
-  MIM-FMEM-012 AtomicRemoteHead plan
-  MIM-FMEM-013 AtomicRemoteHead pilot
-  MIM-FMEM-014 safe capability wrapper plan
-  MIM-FMEM-015 Mimalloc shape coverage score
-  MIM-FMEM-016 Product-shaped replacement front bridge
+  MIM-FMEM-011 AllocOwnerId / TLS arena owner state
+  MIM-FMEM-012 same-owner local-free route evidence
+  MIM-FMEM-013 AtomicRemoteHead plan
+  MIM-FMEM-014 AtomicRemoteHead pilot
+  MIM-FMEM-015 safe capability wrapper plan
+  MIM-FMEM-016 Mimalloc shape coverage score
+  MIM-FMEM-017 Product-shaped replacement front bridge
 
 closed_by_default:
   RawPtr<T>
@@ -201,19 +214,13 @@ fastmem_execution_open=0
 fastmem_product_lowering_open=0
 ```
 
-`MIM-FMEM-008` is landed. The next implementation owner is
-`MIM-FMEM-009`, which should use the now-visible fastmem/source inventory
-metadata while keeping product activation closed.
+`MIM-FMEM-008` through `MIM-FMEM-012` are landed. They promoted fastmem source
+inventory, PageMapBridge evidence, TypedPageMetaHandle, AllocOwnerId/TLS
+owner-state, and same-owner local-free route evidence while keeping product
+activation closed.
 
-`MIM-FMEM-009` row card:
-
-```text
-docs/development/current/main/phases/phase-296x/296x-418-PAGEMAPBRIDGE-BENCHMARK-FRONT-PILOT.md
-```
-
-`MIM-FMEM-009` is landed. The next implementation owner is
-`MIM-FMEM-010 TypedPageMetaHandle plan`, which should define the typed metadata
-handle surface before adding WorkerId/TLS or AtomicRemoteHead behavior.
+The next implementation owner is `MIM-FMEM-013`, which should plan remote
+AtomicRemoteHead without reopening product activation.
 
 ## Algorithm Port Coverage
 

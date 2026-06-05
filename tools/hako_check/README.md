@@ -373,6 +373,8 @@ page_owner_stale_generation_count
 page_owner_invalid_count
 page_owner_count_mismatch
 same_owner_free_local_candidate_count
+same_owner_free_local_route_enabled
+replacement_front_same_owner_local_free_route
 same_owner_free_local_push_count
 same_owner_free_local_fallback_count
 remote_owner_free_remote_candidate_count
@@ -469,9 +471,12 @@ FastMemory AllocOwnerId Shadow Counter Smoke
   `replacement_front_owner_thread_id_*_count_total` and
   `replacement_front_tls_arena_*_count_total` rows are normalized into
   `AllocOwnerId` / TLS arena / page-owner check inventory fields.
-- This remains observation-only. It does not switch same-owner frees to
-  local-free routing, perform remote `AtomicRemoteHead` pushes, or activate
-  product allocator replacement.
+- The same script also fixes the first same-owner local-free route evidence:
+  `same_owner_free_local_route_enabled=1` maps existing
+  `replacement_front_same_thread_free_local_count_total` evidence into
+  `same_owner_free_local_push_count`.
+- This remains benchmark-front evidence only. It does not perform remote
+  `AtomicRemoteHead` pushes or activate product allocator replacement.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

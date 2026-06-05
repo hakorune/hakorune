@@ -19,6 +19,19 @@ Benchmark contract work comes before DLL/provider work. Do not use this phase
 to activate a provider, replace the process allocator, install hooks, or make
 winner claims.
 
+Smoke growth brake:
+
+```text
+report_only_rows_should_not_add_new_smoke_scripts=1
+behavior_rows_may_extend_one_existing_fastmem_smoke=1
+new_smoke_script_requires_new_execution_boundary=1
+fastmem_migration_body_work_must_not_wait_for_per_row_report_smokes=1
+```
+
+Keep the daily gate compact. Prefer extending the existing FastMemory smoke
+family when a row only promotes report/check evidence. Add a new smoke script
+only when a new execution boundary would otherwise be unguarded.
+
 ## Current Truth
 
 - Phase-295x landed the first `.hako` mimalloc comparison/remote-free pass.
@@ -36,10 +49,10 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIM-FMEM-010:
-  Start the TypedPageMetaHandle plan after MIM-FMEM-009 promoted
-  PageMapBridge benchmark-front report evidence and rejected hot range_scan
-  inventories.
+MIM-FMEM-013:
+  Start AtomicRemoteHead plan after MIM-FMEM-012 promoted same-owner
+  local-free route evidence without opening remote push/drain behavior or
+  product activation.
 ```
 
 ## Queue

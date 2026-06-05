@@ -464,6 +464,8 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "page_owner_invalid_count": 0,
         "page_owner_count_mismatch": 0,
         "same_owner_free_local_candidate_count": 0,
+        "same_owner_free_local_route_enabled": 0,
+        "replacement_front_same_owner_local_free_route": "disabled",
         "same_owner_free_local_push_count": 0,
         "same_owner_free_local_fallback_count": 0,
         "remote_owner_free_remote_candidate_count": 0,
@@ -501,6 +503,12 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         or replacement["same_thread_free_local_count_total"] > 0
     )
     owner_shadow_counters = int(replacement["owner_thread_id_lookup_count_total"] > 0)
+    same_owner_route_enabled = int_subject_value(
+        rows,
+        idx,
+        "same_owner_free_local_route_enabled",
+        int_subject_value(rows, idx, "replacement_front_same_owner_local_free_route_enabled", 0),
+    )
     atomic_remote_enabled = int(
         remote_route == "atomic_page_remote_head"
         or replacement["remote_free_push_count_total"] > 0
@@ -636,6 +644,19 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         + page_owner_unowned_count
         + page_owner_stale_count
         + page_owner_invalid_count
+    )
+    same_owner_push_default = (
+        min(page_owner_same_count, replacement["same_thread_free_local_count_total"])
+        if same_owner_route_enabled
+        else 0
+    )
+    same_owner_push_count = int_subject_value(
+        rows, idx, "same_owner_free_local_push_count", same_owner_push_default
+    )
+    same_owner_fallback_default = (
+        max(0, page_owner_same_count - same_owner_push_count)
+        if same_owner_route_enabled
+        else 0
     )
 
     shape_score = 0
@@ -787,11 +808,16 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "same_owner_free_local_candidate_count": int_subject_value(
             rows, idx, "same_owner_free_local_candidate_count", page_owner_same_count
         ),
-        "same_owner_free_local_push_count": int_subject_value(
-            rows, idx, "same_owner_free_local_push_count", 0
+        "same_owner_free_local_route_enabled": same_owner_route_enabled,
+        "replacement_front_same_owner_local_free_route": first_subject_value(
+            rows,
+            idx,
+            "replacement_front_same_owner_local_free_route",
+            "page_meta_owner_local_free" if same_owner_route_enabled else "disabled",
         ),
+        "same_owner_free_local_push_count": same_owner_push_count,
         "same_owner_free_local_fallback_count": int_subject_value(
-            rows, idx, "same_owner_free_local_fallback_count", 0
+            rows, idx, "same_owner_free_local_fallback_count", same_owner_fallback_default
         ),
         "remote_owner_free_remote_candidate_count": int_subject_value(
             rows, idx, "remote_owner_free_remote_candidate_count", page_owner_remote_count
