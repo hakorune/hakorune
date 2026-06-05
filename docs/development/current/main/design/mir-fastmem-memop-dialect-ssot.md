@@ -410,6 +410,64 @@ FastMemRegion + MemOp + MemOpKind
 The general form is a planned abstraction path, not a reason to widen the v0
 memory dialect before it is implemented and verified.
 
+### Multiple Contract Idea
+
+Future syntax idea:
+
+```hako
+fastpath PageMapV0, VectorOpV0 {
+    ...
+}
+```
+
+This is possible as syntax, but it is not accepted for v0.
+
+Reason:
+
+```text
+comma syntax would make the source grammar own contract composition semantics:
+  contract ordering
+  profile conflict resolution
+  effective flags when contracts disagree
+  cross-profile value bridges
+  report region_id ownership
+  verifier blame assignment
+```
+
+Preferred future shape if a combined region is needed:
+
+```hako
+fastpath PageMapVectorProbeV0 {
+    ...
+}
+```
+
+The composite contract descriptor owns the merge:
+
+```text
+PageMapVectorProbeV0:
+  includes:
+    PageMapV0
+    VectorOpV0
+
+  effective_flags:
+    stricter-wins / intersection
+
+  allowed_bridges:
+    memory.load_to_simd_vector
+```
+
+Guidance:
+
+```text
+v0:
+  use adjacent or nested regions
+  reject `fastpath A, B { ... }`
+
+future:
+  prefer named composite contracts over comma-list source semantics
+```
+
 ## Selfhost Timing
 
 Do not rename or generalize the source spelling before the current
