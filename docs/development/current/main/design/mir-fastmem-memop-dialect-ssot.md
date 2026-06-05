@@ -531,13 +531,17 @@ MIR-FMEM-004:
   ABI boundaries
 
 MIR-FMEM-005:
-  MIR -> C backend artifact producer
+  MIR -> LLVM/object primary producer
 
 MIR-FMEM-006:
-  MIR -> LLVM/object primary producer
+  producer-neutral parity against python_template_c_bridge
 
 MIR-FMEM-007:
   retire python_template_c_bridge once producer-neutral parity is proven
+
+MIR-FMEM-C-ARTIFACT:
+  optional MIR -> C debug/diff/bootstrap artifact producer
+  not required before the LLVM/object primary path
 ```
 
 ## Acceptance For MIR-FMEM-001

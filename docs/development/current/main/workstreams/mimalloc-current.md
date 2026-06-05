@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-005 MIR-to-C backend artifact producer
+  MIR-FMEM-005 MIR-to-LLVM/object primary producer
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -165,8 +165,10 @@ why:
   bridge, and runtime/bootstrap allocation remains separate from
   application/product allocator activation. MIR-FMEM-004 then added verifier
   gates for FastMemRegion metadata, MemOp kind/arity/effect shape, and
-  no-escape before any backend support opens. The next task is to add the
-  MIR-to-C backend artifact producer without making C semantic SSOT.
+  no-escape before any backend support opens. 296x-442 then realigned the
+  producer order: the next required task is the MIR-to-LLVM/object primary
+  producer. MIR-to-C is deferred to an optional debug/diff/bootstrap artifact
+  lane and must not become semantic SSOT.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -204,6 +206,7 @@ completed_this_slice:
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
   296x-440 hako_alloc mimalloc port identity boundary docs
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
+  296x-442 FastMemory producer task order realignment
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -241,9 +244,10 @@ task_order:
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
   296x-440 hako_alloc mimalloc port identity boundary docs
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
-  MIR-FMEM-005 MIR-to-C backend artifact producer
-  MIR-FMEM-006 MIR-to-LLVM/object primary producer
+  MIR-FMEM-005 MIR-to-LLVM/object primary producer
+  MIR-FMEM-006 producer-neutral parity against python_template_c_bridge
   MIR-FMEM-007 Python template C bridge retirement
+  MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff/bootstrap artifact producer
 
 closed_by_default:
   RawPtr<T>

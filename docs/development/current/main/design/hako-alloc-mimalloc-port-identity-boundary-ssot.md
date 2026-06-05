@@ -209,14 +209,18 @@ MIR-FMEM-004:
   verifier gates for fastmem escape/layout/safepoint/allocation/ABI boundaries.
 
 MIR-FMEM-005:
-  MIR -> C backend artifact producer.
-  C is generated from MIR MemOps, not hand-maintained semantic truth.
+  MIR -> LLVM/object primary producer.
+  C is not required on the primary path.
 
 MIR-FMEM-006:
-  MIR -> LLVM/object primary producer.
+  producer-neutral parity against the current python_template_c_bridge.
 
 MIR-FMEM-007:
   retire python_template_c_bridge after producer-neutral parity is proven.
+
+MIR-FMEM-C-ARTIFACT:
+  optional MIR -> C debug/diff/bootstrap artifact producer.
+  C is generated from MIR MemOps, not hand-maintained semantic truth.
 ```
 
 Do not use these rows to open:

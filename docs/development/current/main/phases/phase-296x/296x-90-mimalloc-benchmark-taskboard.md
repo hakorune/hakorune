@@ -60,7 +60,8 @@ MIM-FMEM-017:
 Producer transition:
   Python-template C is a temporary bridge producer, not semantic SSOT.
   Add producer-neutral fields before MIR lowering work:
-  python_template_c_bridge -> mir_to_c_lowering -> mir_to_llvm_lowering.
+  primary path: python_template_c_bridge -> mir_to_llvm_lowering -> bridge retirement.
+  optional artifact path: mir_to_c_lowering for debug/diff/bootstrap only.
   MIRBuilder design consultation is a separate representation-boundary task;
   MIRBuilder represents FastMemRegion/MemOp, Planner selects, Verifier guards,
   Lowering emits.
@@ -90,8 +91,10 @@ MIR-FMEM-003 landed MIRBuilder source lowering:
   the next implementation blocker.
 MIR-FMEM-004 landed verifier gates:
   FastMemRegion metadata, MemOp kind/arity/effect shape, and no-escape are now
-  checked before backend support opens. MIR-FMEM-005 opens the MIR-to-C backend
-  artifact producer next; JSON/VM/LLVM/product activation remain closed.
+  checked before backend support opens. 296x-442 realigned the producer order:
+  MIR-FMEM-005 opens the MIR-to-LLVM/object primary producer next, while
+  MIR-to-C is deferred to an optional debug/diff/bootstrap artifact lane.
+  JSON/VM/product activation remain closed.
 ```
 
 ## Queue

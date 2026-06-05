@@ -48,7 +48,11 @@ product_activation=0
 
 ```text
 MIR-FMEM-005:
-  MIR -> C backend artifact producer
+  MIR -> LLVM/object primary producer
+  C is not required on the primary path
+
+MIR-FMEM-C-ARTIFACT:
+  optional MIR -> C debug/diff/bootstrap artifact producer
   C is generated from MIR MemOps and remains an optional artifact producer
 ```
 

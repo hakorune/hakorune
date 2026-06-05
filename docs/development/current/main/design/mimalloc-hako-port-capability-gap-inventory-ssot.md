@@ -838,12 +838,13 @@ python_template_c_bridge:
   retirement required
 
 mir_to_c_lowering:
-  formal transition producer
+  optional debug/diff/bootstrap artifact producer
   C may exist, but only as backend artifact from MIR/FastMem lowering
   semantics live in .hako fastmem/capability surface and MIR MemOps
+  not required before the primary LLVM/object producer
 
 mir_to_llvm_lowering:
-  final primary product producer
+  primary product producer
   no C in the primary execution path
   same counters/report.kv contract as other producers
 ```
@@ -861,7 +862,7 @@ replacement_front_mir_memop_enabled=0|1
 replacement_front_mir_fastmem_region_enabled=0|1
 replacement_front_mirbuilder_representation_only=1
 replacement_front_mirbuilder_route_decision_count=0
-replacement_front_producer_transition_state=current_bridge|transition_backend_artifact|final_primary
+replacement_front_producer_transition_state=current_bridge|primary_llvm_transition|optional_c_artifact|final_primary
 hako_alloc_mimalloc_port_identity=hako_alloc_is_mimalloc_hako_body
 runtime_allocator_role=bootstrap_host_allocator
 application_allocator_role=hako_alloc_mimalloc_port
@@ -961,13 +962,17 @@ MIR-FMEM-004:
   Verifier gates for fastmem escape/layout/ABI boundaries.
 
 MIR-FMEM-005:
-  MIR -> C backend artifact producer.
+  MIR -> LLVM/object primary producer.
 
 MIR-FMEM-006:
-  MIR -> LLVM/object primary producer.
+  Producer-neutral parity against the current python_template_c_bridge.
 
 MIR-FMEM-007:
   Retire python_template_c_bridge after producer-neutral parity is proven.
+
+MIR-FMEM-C-ARTIFACT:
+  Optional MIR -> C debug/diff/bootstrap artifact producer.
+  C remains a backend artifact, not a required product path.
 ```
 
 Required blocker semantics while activation is closed:
@@ -1265,6 +1270,10 @@ keeper work in one task.
 | `MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary` | done | Add `MemOp` to MIR instruction contracts and add a `MemOpKind` allowlist surface. | Backend adapters cannot keep hidden MemOpKind allowlists; JSON/VM/LLVM/C support remains closed until dedicated rows. |
 | `MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata` | done | Connect parsed fastmem source to the new MIR representation metadata. | Function metadata now owns FastMemRegion rows; MIR instruction streams carry only MemOp operations. Backend support remains closed. |
 | `MIR-FMEM-004 verifier gates for fastmem escape/layout/ABI boundaries` | done | Add verifier gates for no-escape, region metadata, MemOp kind/arity/effect shape, and ABI boundary escape bans. | Verifier guards landed; lowering remains closed until dedicated producer rows. |
+| `MIR-FMEM-005 MIR-to-LLVM/object primary producer` | next | Lower verified FastMemory MemOps to the primary LLVM/object producer path. | No C layer is required on the primary path; product activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIR-FMEM-006 producer-neutral parity against python_template_c_bridge` | pending | Compare MIR-to-LLVM evidence with the current temporary bridge using the same report.kv / hako_check contract. | Parity is evidence-only; Python-template C remains bridge until this passes. |
+| `MIR-FMEM-007 Python template C bridge retirement` | pending | Remove the Python-template C semantic bridge after producer-neutral parity is proven. | Retirement must not remove optional MIR-to-C debug/diff artifact support if that lane is later added. |
+| `MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff artifact` | deferred | Optionally emit C from MIR MemOps for debug, diff, or bootstrap inspection. | This is not a required product path and must not become semantic SSOT. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`
