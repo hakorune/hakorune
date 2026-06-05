@@ -474,6 +474,165 @@ TypedPageMetaHandle does not escape fastmem/replacement-front metadata scope.
 TypedPageMetaHandle does not imply product allocator activation.
 ```
 
+## AllocOwnerId / TLS Arena Owner State Plan
+
+The next owner-state boundary is `AllocOwnerId`, not a source-level thread
+identity.
+
+```text
+Host thread / pthread:
+  host execution source
+
+RuntimeWorkerId:
+  future .hako scheduler/worker identity
+
+AllocOwnerId:
+  allocator-local TLS arena / page owner identity
+```
+
+`AllocOwnerId` is the semantic name for the value currently reported through
+legacy-compatible `worker_id_*` fields. `PageMeta.owner_worker_id` stores an
+`AllocOwnerId`; the field name stays for layout compatibility, but the meaning
+is allocator arena owner identity.
+
+Identity invariants:
+
+```text
+AllocOwnerId:
+  allocator-local
+  process-local
+  run-stable claim = 0
+  OS thread id claim = 0
+  runtime worker id claim = 0
+  .hako task id claim = 0
+  no-escape
+  equality check only on the hot path
+
+0:
+  unowned / invalid owner
+
+nonzero:
+  allocator TLS arena owner
+```
+
+Preferred representation:
+
+```text
+AllocOwnerId:
+  slot: u32
+  generation: u32
+```
+
+The generation is part of the plan from the beginning so arena reuse does not
+silently look like the same owner.
+
+MIM-FMEM-011 introduces owner truth, not remote-free behavior:
+
+```text
+free(ptr)
+  -> PageMapBridge
+  -> TypedPageMetaHandle
+  -> current AllocOwnerId
+  -> compare page.owner_worker_id
+  -> count same / remote / unowned / stale / invalid
+```
+
+Actual same-owner local-free routing and remote `AtomicRemoteHead` mutation are
+later rows. If remote owner is observed before `AtomicRemoteHead` is ready, it
+must not be pushed to `local_free`; it remains a candidate/fallback observation.
+
+Report vocabulary:
+
+```text
+alloc_owner_id_capability=0|1
+alloc_owner_id_kind=allocator_arena_owner|unknown
+alloc_owner_id_source=benchmark_c_pthread_tls|hako_runtime_worker_tls|unknown
+alloc_owner_id_width_bits=64
+alloc_owner_id_generation_enabled=0|1
+alloc_owner_id_zero_is_unowned=1
+alloc_owner_id_escape_count
+
+worker_id_capability=0|1
+worker_id_kind=allocator_arena_owner|unknown
+worker_id_source=benchmark_c_pthread_tls|hako_runtime_worker_tls|unknown
+worker_id_equals_os_thread_id_claim=0
+worker_id_equals_runtime_worker_id_claim=0
+worker_id_equals_hako_task_id_claim=0
+worker_id_escape_count
+
+allocator_tls_arena_enabled=0|1
+allocator_tls_arena_mode=benchmark_c_tls|hako_runtime_tls|unknown
+allocator_tls_arena_init_count
+allocator_tls_arena_live_count
+allocator_tls_arena_peak_count
+allocator_tls_arena_reuse_count
+allocator_tls_arena_init_fail_count
+allocator_tls_arena_fallback_count
+allocator_thread_exit_flush_supported=0|1
+allocator_thread_exit_flush_count
+allocator_abandoned_owner_count
+
+page_owner_check_enabled=0|1
+page_owner_check_route=page_meta_owner_worker_id|none
+page_owner_check_count
+page_owner_same_count
+page_owner_remote_count
+page_owner_unowned_count
+page_owner_stale_generation_count
+page_owner_invalid_count
+
+same_owner_free_local_candidate_count
+same_owner_free_local_push_count
+same_owner_free_local_fallback_count
+remote_owner_free_remote_candidate_count
+remote_owner_free_remote_push_count
+remote_owner_free_fallback_lock_count
+```
+
+Consistency invariant:
+
+```text
+page_owner_check_count
+  == page_owner_same_count
+   + page_owner_remote_count
+   + page_owner_unowned_count
+   + page_owner_stale_generation_count
+   + page_owner_invalid_count
+```
+
+Boundary invariants:
+
+```text
+benchmark_thread_origin=c_pthread
+hako_source_thread_support_claim=0
+type_abi_hot_lookup_count=0
+provider_abi_hot_dispatch_count=0
+product_activation=0
+hook_installed=0
+global_allocator_product_claim=0
+winner_claim=0
+hako_mimalloc_algorithm_claim=0
+replacement_front_is_full_hako_algorithm=0
+```
+
+Fail-fast conditions for keeper work:
+
+```text
+worker_id_kind != allocator_arena_owner
+worker_id_escape_count > 0
+worker_id_equals_os_thread_id_claim != 0
+worker_id_equals_runtime_worker_id_claim != 0
+worker_id_equals_hako_task_id_claim != 0
+allocator_tls_arena_enabled=1 and allocator_tls_arena_init_count=0
+allocator_tls_arena_init_fail_count > 0
+page_owner_check_enabled != 1 for owner-state profiles
+page_owner_check_count == 0 for mixed-ws/free-path profiles
+page_owner_check_count != same + remote + unowned + stale + invalid
+page_owner_unowned_count > 0 unless route explicitly permits bootstrap pages
+page_owner_stale_generation_count > 0
+remote owner enters local_free
+```
+
 ## Recommended Implementation Order
 
 1. **FastMemory docs/report lock**
@@ -525,15 +684,18 @@ TypedPageMetaHandle does not imply product allocator activation.
    - Initial row is parse-only; lowering/execution stays closed until a later
      implementation row.
 
-9. **Worker-local arena and remote-free capability**
-   - Bind allocator owner identity to runtime worker/thread registry.
-   - Add `AtomicRemoteHead` push/drain semantics with counters.
+9. **AllocOwnerId / TLS arena owner state**
+   - Bind allocator owner identity to TLS arena/page ownership.
+   - Keep `AllocOwnerId`, OS thread id, runtime worker id, and `.hako` task id
+     separate.
+   - Count same/remote/unowned/stale/invalid owner-check outcomes before
+     changing local/remote free behavior.
    - Keep source-level concurrency claims separate from C pthread benchmark
      evidence.
 
-10. **Remote-free pilot**
-   - Pilot `AtomicRemoteHead` only after the plan and owner-state rows are
-     visible.
+10. **Remote-free plan and pilot**
+   - Define `AtomicRemoteHead` push/drain semantics with counters.
+   - Pilot `AtomicRemoteHead` only after owner-state rows are visible.
 
 11. **Capability wrappers**
    - Add `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, and
@@ -569,12 +731,16 @@ keeper work in one task.
 | `MIM-FMEM-008 fastmem source syntax pilot` | done | Connect parser output to MIR MemOp region metadata after `PARSER-FMEM-001..006` proved dual parser parse-only parity. | Source-derived fastmem inventory/check works; contract-less `unsafe` / `fastmem` remains rejected; execution/lowering beyond metadata stays closed. |
 | `MIM-FMEM-009 PageMapBridge benchmark-front pilot` | done | Replace the current free-path page lookup shape with the selected bridge in generated C replacement-front evidence. | `free_path_page_lookup_route != range_scan`; report keeps product activation and hako algorithm claim closed. |
 | `MIM-FMEM-010 TypedPageMetaHandle plan` | done | Define metadata capability for owner, size, free/local_free/remote_head access. | Page metadata stays layout-verified; unverified offset loads are counted and rejected for keeper work. |
-| `MIM-FMEM-011 WorkerId / TLS arena owner state` | next | Bind allocator owner identity to runtime worker/thread registry and thread-exit flush counters. | Source-level thread support claims remain separate from C pthread benchmark evidence. |
-| `MIM-FMEM-012 AtomicRemoteHead plan` | pending | Define remote-free push/drain contract, memory-order vocabulary, and counters. | Remote-free is a page/fastmem capability, not a general `AtomicPtr<T>` surface. |
-| `MIM-FMEM-013 AtomicRemoteHead pilot` | pending | Pilot the remote-free push/drain route after owner-state and plan rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
-| `MIM-FMEM-014 safe capability wrapper plan` | pending | Layer `AddressToken`, `PageKey`, `PageMapBridge`, and `PageMetaHandle` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
-| `MIM-FMEM-015 Mimalloc shape coverage score` | pending | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
-| `MIM-FMEM-016 Product-shaped replacement front bridge` | pending | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIM-FMEM-011A AllocOwnerId / TLS owner-state schema` | next | Define `AllocOwnerIdV0`, compatibility `worker_id_*` report fields, TLS arena owner-state fields, and page-owner check fields. | Owner identity is allocator-local; OS thread/runtime worker/.hako task equality claims stay zero. |
+| `MIM-FMEM-011B fastmem-check owner-state gates` | pending | Add fail-fast checks for owner identity kind/escape, TLS arena init failures, page-owner count consistency, and boundary claims. | Owner-state profiles cannot pass with missing owner checks, stale generation, unowned pages, Type ABI hot lookup, Provider ABI hot dispatch, or source thread-support claims. |
+| `MIM-FMEM-011C replacement-front owner shadow counters` | pending | Add generated C replacement-front shadow evidence for current `AllocOwnerId`, TLS arena init, page owner assignment, and same/remote/unowned/stale owner comparison counts. | Behavior remains observation-first; product activation, hooks, winner claims, remote CAS push, and full `.hako` algorithm claims stay closed. |
+| `MIM-FMEM-012 same-owner local-free route` | pending | Use owner truth to route same-owner frees to local-free where safe, while remote-owner frees stay fallback/locked until AtomicRemoteHead exists. | Same-owner local push counters are observable; remote-owner never enters local_free. |
+| `MIM-FMEM-013 AtomicRemoteHead plan` | pending | Define remote-free push/drain contract, memory-order vocabulary, and counters. | Remote-free is a page/fastmem capability, not a general `AtomicPtr<T>` surface. |
+| `MIM-FMEM-014 AtomicRemoteHead pilot` | pending | Pilot the remote-free push/drain route after owner-state and same-owner rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
+| `MIM-FMEM-015 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
+| `MIM-FMEM-016 safe capability wrapper plan` | pending | Layer `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, `AllocOwnerId`, and `AtomicRemoteHead` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
+| `MIM-FMEM-017 Mimalloc shape coverage score` | pending | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
+| `MIM-FMEM-018 Product-shaped replacement front bridge` | pending | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
 
 ## Report Fields For `MIM-FMEM-002`
 
@@ -650,11 +816,49 @@ typed_page_meta_field_capacity=0|1
 typed_page_meta_field_used=0|1
 typed_page_table_mode=none|side_table|segment_slices|compressed_index
 
+alloc_owner_id_capability=0|1
+alloc_owner_id_kind=allocator_arena_owner|unknown
+alloc_owner_id_source=benchmark_c_pthread_tls|hako_runtime_worker_tls|unknown
+alloc_owner_id_width_bits=64
+alloc_owner_id_generation_enabled=0|1
+alloc_owner_id_zero_is_unowned=1
+alloc_owner_id_escape_count
+
 worker_id_capability=0|1
+worker_id_kind=allocator_arena_owner|unknown
+worker_id_source=benchmark_c_pthread_tls|hako_runtime_worker_tls|unknown
+worker_id_equals_os_thread_id_claim=0
+worker_id_equals_runtime_worker_id_claim=0
+worker_id_equals_hako_task_id_claim=0
+worker_id_escape_count
+
 allocator_tls_arena_enabled=0|1
+allocator_tls_arena_mode=benchmark_c_tls|hako_runtime_tls|unknown
+allocator_tls_arena_init_count
+allocator_tls_arena_live_count
+allocator_tls_arena_peak_count
+allocator_tls_arena_reuse_count
+allocator_tls_arena_init_fail_count
+allocator_tls_arena_fallback_count
 allocator_tls_arena_count
+allocator_thread_exit_flush_supported=0|1
 allocator_thread_exit_flush_count
 allocator_abandoned_owner_count
+
+page_owner_check_enabled=0|1
+page_owner_check_route=page_meta_owner_worker_id|none
+page_owner_check_count
+page_owner_same_count
+page_owner_remote_count
+page_owner_unowned_count
+page_owner_stale_generation_count
+page_owner_invalid_count
+same_owner_free_local_candidate_count
+same_owner_free_local_push_count
+same_owner_free_local_fallback_count
+remote_owner_free_remote_candidate_count
+remote_owner_free_remote_push_count
+remote_owner_free_fallback_lock_count
 
 atomic_remote_head_enabled=0|1
 remote_free_push_count
