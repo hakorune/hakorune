@@ -700,6 +700,124 @@ remote-free behavior is complete
 the replacement front is a full .hako mimalloc algorithm
 ```
 
+## Replacement Front Producer Transition Plan
+
+The current replacement front is a safe bridge, not the final producer. The
+long-term goal is to remove Python-template C as a semantic producer while
+keeping the producer-neutral `report.kv` / `hako_check` contract.
+
+Producer roles:
+
+```text
+python_template_c_bridge:
+  current bridge
+  allowed only while product activation is closed
+  must be tied to .hako source truth by bridge evidence
+  must not become semantic SSOT
+  retirement required
+
+mir_to_c_lowering:
+  formal transition producer
+  C may exist, but only as backend artifact from MIR/FastMem lowering
+  semantics live in .hako fastmem/capability surface and MIR MemOps
+
+mir_to_llvm_lowering:
+  final primary product producer
+  no C in the primary execution path
+  same counters/report.kv contract as other producers
+```
+
+Producer-neutral fields:
+
+```text
+replacement_front_producer=python_template_c_bridge|mir_to_c_lowering|mir_to_llvm_lowering
+replacement_front_backend_artifact=c|llvm_ir|object|exe
+replacement_front_source_truth=hako_fastmem|hako_alloc.size_class_box|unknown
+replacement_front_python_template_c_semantic_ssot=0
+replacement_front_python_template_c_retirement_required=0|1
+replacement_front_mir_memop_enabled=0|1
+replacement_front_mir_fastmem_region_enabled=0|1
+replacement_front_mirbuilder_representation_only=1
+replacement_front_mirbuilder_route_decision_count=0
+```
+
+Allowed C:
+
+```text
+MIR / FastMem lowering -> C backend artifact
+debug/bootstrap/diff C backend
+```
+
+Rejected C:
+
+```text
+Python template C as allocator semantic truth
+C-only sizeclass/page/remote-free policy
+C-only keeper route without .hako/MIR source evidence
+producer-specific report.kv schema
+```
+
+MIRBuilder boundary:
+
+```text
+MIRBuilder:
+  emits FastMemRegion / MemOp / contract id / origin metadata
+  preserves source span and region identity
+  does not choose C vs LLVM
+  does not choose page-map route
+  does not claim product readiness
+
+Planner:
+  chooses producer/route plan
+
+Verifier:
+  enforces fastmem contract, layout, escape, and ABI boundaries
+
+Lowering:
+  consumes the selected plan and emits C/LLVM/object artifacts
+
+hako_check:
+  verifies producer-neutral evidence from report.kv
+```
+
+MIRBuilder design consultation should happen before adding FastMem/MemOp
+execution lowering. The consultation question is not whether Python-template C
+is final; that is rejected. The question is how to represent FastMemRegion /
+MemOp in MIR without letting MIRBuilder choose routes.
+
+Candidate task split:
+
+```text
+MIM-FMEM-017C:
+  Page-local state bridge evidence on the current python_template_c_bridge.
+
+MIM-FMEM-017D:
+  Add replacement_front_producer fields to report/check.
+  No execution behavior change.
+
+MIR-FMEM-001:
+  MIRBuilder FastMemRegion/MemOp design consultation and docs.
+  Representation only; no lowering behavior.
+
+MIR-FMEM-002:
+  mir/contracts tag and JSON vocabulary for FastMemRegion/MemOp.
+
+MIR-FMEM-003:
+  MIRBuilder source lowering to FastMemRegion/MemOp metadata.
+
+MIR-FMEM-004:
+  Verifier gates for fastmem escape/layout/ABI boundaries.
+
+MIR-FMEM-005:
+  MIR -> C backend artifact producer.
+
+MIR-FMEM-006:
+  MIR -> LLVM/object primary producer.
+
+MIR-FMEM-007:
+  Retire python_template_c_bridge after producer-neutral parity is proven.
+```
+
 Required blocker semantics while activation is closed:
 
 ```text
@@ -987,6 +1105,8 @@ keeper work in one task.
 | `MIM-FMEM-017A Product-shaped bridge report normalization` | done | Normalize non-activating product-shaped bridge evidence and bind the first source truth to `SizeClassBox`. | Report/check only; activation, hook install, global allocator claim, and winner claim remain closed. |
 | `MIM-FMEM-017B SizeClassBox bridge evidence` | done | Prove the replacement-front size-class mirror is formally tied to `.hako` `SizeClassBox` policy. | Product bins/pages execution remains benchmark-only; no page metadata or remote-free behavior change. |
 | `MIM-FMEM-017C Page-local state bridge evidence` | next | Start connecting `PageBox` page-local shape to product-shaped metadata evidence after size-class truth is bound. | No activation; page-map/TLS/remote-free semantics remain explicit later rows. |
+| `MIM-FMEM-017D Replacement-front producer taxonomy` | pending | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
+| `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | pending | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | MIRBuilder represents; Planner selects; Verifier guards; Lowering emits. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`

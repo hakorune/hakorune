@@ -192,6 +192,14 @@ task_order:
   MIM-FMEM-017A Product-shaped bridge report normalization
   MIM-FMEM-017B SizeClassBox bridge evidence
   MIM-FMEM-017C Page-local state bridge evidence
+  MIM-FMEM-017D Replacement-front producer taxonomy
+  MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
+  MIR-FMEM-002 mir/contracts FastMemRegion/MemOp vocabulary
+  MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
+  MIR-FMEM-004 FastMem verifier gates over MIR MemOps
+  MIR-FMEM-005 MIR-to-C backend artifact producer
+  MIR-FMEM-006 MIR-to-LLVM/object primary producer
+  MIR-FMEM-007 Python template C bridge retirement
 
 closed_by_default:
   RawPtr<T>
@@ -233,6 +241,37 @@ keeping product activation closed.
 
 The next implementation owner is `MIM-FMEM-017C`, which should start connecting
 page-local state bridge evidence after size-class truth is bound.
+
+Producer transition direction:
+
+```text
+current producer:
+  replacement_front_producer=python_template_c_bridge
+  status=bridge_only
+  semantic_ssot=0
+  retirement_required=1
+
+transition producer:
+  replacement_front_producer=mir_to_c_lowering
+  C remains only as backend artifact
+
+final primary producer:
+  replacement_front_producer=mir_to_llvm_lowering
+  primary path has no intermediate C
+```
+
+MIRBuilder design consultation is a separate task after the page-local bridge
+evidence is visible. The consultation should lock:
+
+```text
+MIRBuilder emits FastMemRegion/MemOp/contract/origin metadata.
+MIRBuilder does not choose C vs LLVM.
+MIRBuilder does not choose page-map or remote-free routes.
+Planner selects route/producer.
+Verifier guards contract/layout/escape/ABI boundary.
+Lowering emits C/LLVM/object artifacts.
+report.kv and hako_check stay producer-neutral.
+```
 
 `MIM-FMEM-017B` landed as report/check-only:
 
