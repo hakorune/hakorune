@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/workstreams/mimalloc-current.md
   - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
+  - docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
   - docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
   - tools/allocator/hako_mimalloc_direct_exact_pair.sh
   - tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py
@@ -183,6 +184,30 @@ rollback / opt-out plan is documented
 ```
 
 Until then, the product route remains a descriptor candidate only.
+
+## Mimalloc Fidelity Guard
+
+Replacement-front benchmark routes must also obey:
+
+```text
+docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
+```
+
+This route taxonomy names what was measured. The fidelity guard decides whether
+that measured route is mimalloc-shaped enough to become a keeper. A fast route
+is not a mimalloc keeper if it relies on:
+
+```text
+global lock on malloc/free hot path
+one global per-bin free stack as final route
+range_scan pointer ownership on hot free path
+product claim before remote/abandoned counters
+```
+
+The current locked global page-bins/HotCore reports are valid benchmark
+evidence, but they must remain non-product, non-full-algorithm evidence until
+they show thread-local page/arena ownership, a remote-free seam, and zero
+global-lock hot-path count.
 
 Product preflight is a report-only checklist for the ordinary-app route
 candidate. It may show that quality, dispatch bypass, Type ABI hot lookup,

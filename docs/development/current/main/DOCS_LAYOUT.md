@@ -55,6 +55,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/hako-thread-substrate-boundary-ssot.md`
   - `.hako` source-level concurrency, runtime ThreadApi substrate, and
     allocator pthread benchmark claim boundary owner
+- `design/mimalloc-replacement-front-fidelity-ssot.md`
+  - mimalloc fidelity guard for replacement-front execution shape; prevents
+    accepting a fast but non-mimalloc-shaped allocator route as keeper
 - `design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - pure-first/selfhost MIR artifact exactness, route preflight, and no-output diagnostics owner
 - `design/hakorune-provider-package-abi-v1-future-ssot.md`
@@ -117,6 +120,7 @@ Rule:
   - Substrate Capability Ladder（allocator/collection/runtime substrate parent SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
+  - Mimalloc Replacement-Front Fidelity（mimalloc-shaped execution keeper guard）: `docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 

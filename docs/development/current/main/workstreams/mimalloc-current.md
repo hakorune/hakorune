@@ -1403,6 +1403,38 @@ mimalloc_locked_hot_counter_attribution_2026_06_05:
   next_thread_task=MIM-LOCKED-OWNER-ATTRIBUTION-001B
   next_thread_task_scope=attribute_locked_global_critical_section_or_reopen_thread_local_bins_without_product_activation
 
+mimalloc_replacement_front_fidelity_guard_2026_06_05:
+  status=accepted
+  task_kind=design_guard
+  owner_doc=docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
+  scope=prevent_fast_non_mimalloc_allocator_routes_from_becoming_keepers
+  current_reading=.hako_model_yes;generated_c_replacement_front_not_yet_full_mimalloc_execution
+  language_cost_primary=0
+  replacement_front_execution_shape_primary=1
+  mimalloc_fidelity_guard=1
+  required_keeper_shape=thread_local_page_arena;page_local_free;local_free;remote_free;owner_drain
+  forbidden_keeper_shape=global_lock_hot_path;global_per_bin_stack_final;range_scan_hot_ownership;product_claim_before_remote_abandoned_counters
+  next_thread_task=MIM-TLS-PAGE-ARENA-001
+  next_thread_task_scope=docs_then_benchmark_only_ReplacementFrontTlsPageArenaPlanV0_without_product_activation
+
+mimalloc_tls_page_arena_task_2026_06_05:
+  status=accepted
+  task_kind=benchmark_only_impl_plan
+  owner_doc=docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
+  route_name=BenchmarkPageBinsHotCoreTlsRouteV0
+  plan_name=ReplacementFrontTlsPageArenaPlanV0
+  product_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  first_slice=report_and_generator_flags
+  first_slice_fields=replacement_front_thread_local_page_bins_mode,replacement_front_thread_local_hotcore_route,replacement_front_global_lock_hot_path_count
+  second_slice=same_thread_tls_active_page_alloc_free
+  third_slice=BenchmarkPageFromPtrBridgeV0_to_remove_range_scan_from_hot_free
+  fourth_slice=remote_free_queue_and_abandoned_counters
+  keeper_rule=fast_and_mimalloc_fidelity_guard_passed
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
