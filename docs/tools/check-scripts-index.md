@@ -188,6 +188,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/hako_check/fastmem_source_syntax_smoke.sh` | hako_check FastMemory source syntax smoke。source parser JSON が FastMemory inventory/check metadata に接続され、execution/rewrite/activation を開かないことを固定する。 |
 | `tools/hako_check/fastmem_page_map_bridge_smoke.sh` | hako_check FastMemory PageMapBridge smoke。benchmark-front report が page_map_bridge route を出し、hot range_scan inventory を verifier が拒否することを固定する。 |
 | `tools/hako_check/fastmem_typed_page_meta_smoke.sh` | hako_check FastMemory TypedPageMetaHandle smoke。PageMetaLayoutV0 の必須7フィールドが report に出て、欠落時に fastmem-check が fail-fast することを固定する。 |
+| `tools/hako_check/fastmem_alloc_owner_schema_smoke.sh` | hako_check FastMemory AllocOwnerId schema smoke。allocator owner identity が OS thread / runtime worker / .hako task claim と混ざらず report に出ることを固定する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_perf_release_known_page_fast_path_guard.sh` | 296x-78 の release known-page fast path keeper guard。object lifecycle release が cached page lookup を使い、fallback scan と proof app を保つことを固定する。 |
 | `tools/allocator/hako_mimalloc_release_known_page_fast_path.py` | 296x release known-page fast path tool。facade source surface を検証し、keeper report を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_perf_post_release_keeper_measurement_guard.sh` | 296x-79 の post-release keeper measurement guard。object-lifecycle facade exact-EXE を 8192 in-process repeat で測り、fast-path count と non-comparable checkpoint 境界を固定する。 |

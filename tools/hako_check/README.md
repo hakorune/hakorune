@@ -19,6 +19,7 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_source_syntax_smoke.sh`
 - `bash tools/hako_check/fastmem_page_map_bridge_smoke.sh`
 - `bash tools/hako_check/fastmem_typed_page_meta_smoke.sh`
+- `bash tools/hako_check/fastmem_alloc_owner_schema_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -337,7 +338,44 @@ fastmem_layout_verified
 fastmem_layout_id
 fastmem_layout_hash
 fastmem_unverified_offset_load_count
+alloc_owner_id_capability
+alloc_owner_id_kind
+alloc_owner_id_source
+alloc_owner_id_width_bits
+alloc_owner_id_generation_enabled
+alloc_owner_id_zero_is_unowned
+alloc_owner_id_escape_count
+worker_id_capability
+worker_id_kind
+worker_id_source
+worker_id_equals_os_thread_id_claim
+worker_id_equals_runtime_worker_id_claim
+worker_id_equals_hako_task_id_claim
+worker_id_escape_count
 allocator_tls_arena_enabled
+allocator_tls_arena_mode
+allocator_tls_arena_init_count
+allocator_tls_arena_live_count
+allocator_tls_arena_peak_count
+allocator_tls_arena_reuse_count
+allocator_tls_arena_init_fail_count
+allocator_tls_arena_fallback_count
+allocator_thread_exit_flush_supported
+page_owner_check_enabled
+page_owner_check_route
+page_owner_check_count
+page_owner_same_count
+page_owner_remote_count
+page_owner_unowned_count
+page_owner_stale_generation_count
+page_owner_invalid_count
+page_owner_count_mismatch
+same_owner_free_local_candidate_count
+same_owner_free_local_push_count
+same_owner_free_local_fallback_count
+remote_owner_free_remote_candidate_count
+remote_owner_free_remote_push_count
+remote_owner_free_fallback_lock_count
 atomic_remote_head_enabled
 mimalloc_shape_score
 replacement_front_is_full_hako_algorithm
@@ -405,6 +443,15 @@ FastMemory TypedPageMeta Smoke
   fields fail `fastmem-check`.
 - This remains report metadata only; it does not add product allocator
   activation, generated-C behavior changes, or broad raw pointer semantics.
+
+FastMemory AllocOwnerId Schema Smoke
+- `fastmem_alloc_owner_schema_smoke.sh` fixes the first
+  `AllocOwnerId`/TLS owner-state schema surface. It proves that the report says
+  allocator owner identity, not OS thread id, runtime worker id, or `.hako`
+  task id.
+- This is schema/report evidence only. It does not add owner-state fail-fast
+  gates, generated-C owner shadow counters, same-owner local-free routing, or
+  remote `AtomicRemoteHead` behavior.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

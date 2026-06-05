@@ -418,11 +418,47 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "typed_page_meta_field_capacity": 0,
         "typed_page_meta_field_used": 0,
         "typed_page_table_mode": "none",
+        "alloc_owner_id_capability": 0,
+        "alloc_owner_id_kind": "unknown",
+        "alloc_owner_id_source": "unknown",
+        "alloc_owner_id_width_bits": 0,
+        "alloc_owner_id_generation_enabled": 0,
+        "alloc_owner_id_zero_is_unowned": 1,
+        "alloc_owner_id_escape_count": 0,
         "worker_id_capability": 0,
+        "worker_id_kind": "unknown",
+        "worker_id_source": "unknown",
+        "worker_id_equals_os_thread_id_claim": 0,
+        "worker_id_equals_runtime_worker_id_claim": 0,
+        "worker_id_equals_hako_task_id_claim": 0,
+        "worker_id_escape_count": 0,
         "allocator_tls_arena_enabled": 0,
+        "allocator_tls_arena_mode": "unknown",
+        "allocator_tls_arena_init_count": 0,
+        "allocator_tls_arena_live_count": 0,
+        "allocator_tls_arena_peak_count": 0,
+        "allocator_tls_arena_reuse_count": 0,
+        "allocator_tls_arena_init_fail_count": 0,
+        "allocator_tls_arena_fallback_count": 0,
         "allocator_tls_arena_count": 0,
+        "allocator_thread_exit_flush_supported": 0,
         "allocator_thread_exit_flush_count": 0,
         "allocator_abandoned_owner_count": 0,
+        "page_owner_check_enabled": 0,
+        "page_owner_check_route": "none",
+        "page_owner_check_count": 0,
+        "page_owner_same_count": 0,
+        "page_owner_remote_count": 0,
+        "page_owner_unowned_count": 0,
+        "page_owner_stale_generation_count": 0,
+        "page_owner_invalid_count": 0,
+        "page_owner_count_mismatch": 0,
+        "same_owner_free_local_candidate_count": 0,
+        "same_owner_free_local_push_count": 0,
+        "same_owner_free_local_fallback_count": 0,
+        "remote_owner_free_remote_candidate_count": 0,
+        "remote_owner_free_remote_push_count": 0,
+        "remote_owner_free_fallback_lock_count": 0,
         "atomic_remote_head_enabled": 0,
         "remote_free_push_count": 0,
         "remote_free_drain_count": 0,
@@ -490,6 +526,82 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         idx,
         "typed_page_meta_layout_hash",
         first_subject_value(rows, idx, "fastmem_layout_hash", "unknown"),
+    )
+    alloc_owner_id_capability = int_subject_value(rows, idx, "alloc_owner_id_capability", 0)
+    alloc_owner_id_kind = first_subject_value(
+        rows, idx, "alloc_owner_id_kind", "unknown"
+    )
+    alloc_owner_id_source = first_subject_value(
+        rows, idx, "alloc_owner_id_source", "unknown"
+    )
+    alloc_owner_id_width_bits = int_subject_value(rows, idx, "alloc_owner_id_width_bits", 0)
+    alloc_owner_id_generation_enabled = int_subject_value(
+        rows, idx, "alloc_owner_id_generation_enabled", 0
+    )
+    alloc_owner_id_zero_is_unowned = int_subject_value(
+        rows, idx, "alloc_owner_id_zero_is_unowned", 1
+    )
+    worker_id_capability = int_subject_value(
+        rows, idx, "worker_id_capability", alloc_owner_id_capability
+    )
+    worker_id_kind = first_subject_value(
+        rows,
+        idx,
+        "worker_id_kind",
+        alloc_owner_id_kind,
+    )
+    worker_id_source = first_subject_value(
+        rows,
+        idx,
+        "worker_id_source",
+        alloc_owner_id_source,
+    )
+    tls_arena_init_count = int_subject_value(
+        rows, idx, "allocator_tls_arena_init_count", allocator_tls_enabled
+    )
+    tls_arena_live_count = int_subject_value(
+        rows, idx, "allocator_tls_arena_live_count", 0
+    )
+    tls_arena_peak_count = int_subject_value(
+        rows,
+        idx,
+        "allocator_tls_arena_peak_count",
+        int_route_flag(rows, replacement, "replacement_front_tls_arena_peak_count"),
+    )
+    page_owner_same_count = int_subject_value(
+        rows,
+        idx,
+        "page_owner_same_count",
+        replacement["owner_thread_id_lookup_count_total"]
+        - replacement["owner_thread_id_remote_count_total"],
+    )
+    page_owner_remote_count = int_subject_value(
+        rows,
+        idx,
+        "page_owner_remote_count",
+        replacement["owner_thread_id_remote_count_total"],
+    )
+    page_owner_unowned_count = int_subject_value(rows, idx, "page_owner_unowned_count", 0)
+    page_owner_stale_count = int_subject_value(
+        rows, idx, "page_owner_stale_generation_count", 0
+    )
+    page_owner_invalid_count = int_subject_value(rows, idx, "page_owner_invalid_count", 0)
+    page_owner_check_count = int_subject_value(
+        rows,
+        idx,
+        "page_owner_check_count",
+        page_owner_same_count
+        + page_owner_remote_count
+        + page_owner_unowned_count
+        + page_owner_stale_count
+        + page_owner_invalid_count,
+    )
+    page_owner_sum = (
+        page_owner_same_count
+        + page_owner_remote_count
+        + page_owner_unowned_count
+        + page_owner_stale_count
+        + page_owner_invalid_count
     )
 
     shape_score = 0
@@ -568,15 +680,84 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
             rows, idx, "fastmem_unverified_offset_load_count", 0
         ),
         "typed_page_table_mode": "side_table" if page_map_bridge_present else "none",
+        "alloc_owner_id_capability": alloc_owner_id_capability,
+        "alloc_owner_id_kind": alloc_owner_id_kind,
+        "alloc_owner_id_source": alloc_owner_id_source,
+        "alloc_owner_id_width_bits": alloc_owner_id_width_bits,
+        "alloc_owner_id_generation_enabled": alloc_owner_id_generation_enabled,
+        "alloc_owner_id_zero_is_unowned": alloc_owner_id_zero_is_unowned,
+        "alloc_owner_id_escape_count": int_subject_value(
+            rows, idx, "alloc_owner_id_escape_count", 0
+        ),
+        "worker_id_capability": worker_id_capability,
+        "worker_id_kind": worker_id_kind,
+        "worker_id_source": worker_id_source,
+        "worker_id_equals_os_thread_id_claim": int_subject_value(
+            rows, idx, "worker_id_equals_os_thread_id_claim", 0
+        ),
+        "worker_id_equals_runtime_worker_id_claim": int_subject_value(
+            rows, idx, "worker_id_equals_runtime_worker_id_claim", 0
+        ),
+        "worker_id_equals_hako_task_id_claim": int_subject_value(
+            rows, idx, "worker_id_equals_hako_task_id_claim", 0
+        ),
+        "worker_id_escape_count": int_subject_value(rows, idx, "worker_id_escape_count", 0),
         "allocator_tls_arena_enabled": allocator_tls_enabled,
+        "allocator_tls_arena_mode": first_subject_value(
+            rows, idx, "allocator_tls_arena_mode", "unknown"
+        ),
+        "allocator_tls_arena_init_count": tls_arena_init_count,
+        "allocator_tls_arena_live_count": tls_arena_live_count,
+        "allocator_tls_arena_peak_count": tls_arena_peak_count,
+        "allocator_tls_arena_reuse_count": int_subject_value(
+            rows, idx, "allocator_tls_arena_reuse_count", 0
+        ),
+        "allocator_tls_arena_init_fail_count": int_subject_value(
+            rows, idx, "allocator_tls_arena_init_fail_count", 0
+        ),
+        "allocator_tls_arena_fallback_count": int_subject_value(
+            rows, idx, "allocator_tls_arena_fallback_count", 0
+        ),
         "allocator_tls_arena_count": int_route_flag(
             rows, replacement, "replacement_front_tls_arena_count"
+        ),
+        "allocator_thread_exit_flush_supported": int_subject_value(
+            rows, idx, "allocator_thread_exit_flush_supported", 0
         ),
         "allocator_thread_exit_flush_count": int_route_flag(
             rows, replacement, "replacement_front_thread_exit_arena_flush_count"
         ),
         "allocator_abandoned_owner_count": int_route_flag(
             rows, replacement, "replacement_front_abandoned_owner_count"
+        ),
+        "page_owner_check_enabled": int_subject_value(rows, idx, "page_owner_check_enabled", 0),
+        "page_owner_check_route": first_subject_value(
+            rows, idx, "page_owner_check_route", "none"
+        ),
+        "page_owner_check_count": page_owner_check_count,
+        "page_owner_same_count": page_owner_same_count,
+        "page_owner_remote_count": page_owner_remote_count,
+        "page_owner_unowned_count": page_owner_unowned_count,
+        "page_owner_stale_generation_count": page_owner_stale_count,
+        "page_owner_invalid_count": page_owner_invalid_count,
+        "page_owner_count_mismatch": int(page_owner_check_count != page_owner_sum),
+        "same_owner_free_local_candidate_count": int_subject_value(
+            rows, idx, "same_owner_free_local_candidate_count", page_owner_same_count
+        ),
+        "same_owner_free_local_push_count": int_subject_value(
+            rows, idx, "same_owner_free_local_push_count", 0
+        ),
+        "same_owner_free_local_fallback_count": int_subject_value(
+            rows, idx, "same_owner_free_local_fallback_count", 0
+        ),
+        "remote_owner_free_remote_candidate_count": int_subject_value(
+            rows, idx, "remote_owner_free_remote_candidate_count", page_owner_remote_count
+        ),
+        "remote_owner_free_remote_push_count": int_subject_value(
+            rows, idx, "remote_owner_free_remote_push_count", 0
+        ),
+        "remote_owner_free_fallback_lock_count": int_subject_value(
+            rows, idx, "remote_owner_free_fallback_lock_count", 0
         ),
         "atomic_remote_head_enabled": atomic_remote_enabled,
         "remote_free_push_count": replacement["remote_free_push_count_total"],
