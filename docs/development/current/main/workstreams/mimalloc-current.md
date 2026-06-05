@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
+  MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -140,8 +140,10 @@ why:
   same/remote-free evidence, safe wrappers, shape scoring, product-shaped
   bridge evidence, and producer taxonomy without product activation.
   LLVM-PIPE-001 made the current LLVM runner debt visible as static hako_check
-  inventory, and LLVM-PIPE-002 added opt-in dynamic pipeline/executor report
-  fields. LLVM-PIPE-003 can now start cleanup with evidence in place.
+  inventory, LLVM-PIPE-002 added opt-in dynamic pipeline/executor report
+  fields, and LLVM-PIPE-003 moved the current runner defaults behind named
+  `CompileOptions` / `PipelinePlan` boxes. The next task is MIRBuilder
+  FastMemRegion/MemOp design consultation before adding MIR vocabulary.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -173,6 +175,7 @@ completed_this_slice:
   MIM-FMEM-017D Replacement-front producer taxonomy
   LLVM-PIPE-001 LLVM runner pipeline debt inventory
   LLVM-PIPE-002 LLVM runner pipeline report fields
+  LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -315,8 +318,8 @@ LLVM-PIPE-002:
   landed opt-in runtime report fields for pipeline/executor/fallback evidence.
 
 LLVM-PIPE-003:
-  move env side effects and ad-hoc runner stages toward
-  CompileOptions / PipelinePlan / LoweringPlan.
+  landed named CompileOptions / PipelinePlan boxes for the current runner
+  defaults. LoweringPlan remains future cleanup.
 ```
 
 `MIM-FMEM-017D` landed as report/check-only:
@@ -362,6 +365,17 @@ llvm_fallback_used=1
 llvm_fallback_reason=harness_unavailable_or_not_requested
 mock_fallback_used=1
 product_activation=0
+```
+
+`LLVM-PIPE-003` landed runner plan cleanup:
+
+```text
+pipeline_plan_v0=1
+compile_options_v0=1
+mir_future_rewrite_option=env_future_externs
+method_id_injector_plan_enabled=1
+joinir_experiment_hook_plan_enabled=1
+runner_behavior_change=0
 ```
 
 `MIM-FMEM-017B` landed as report/check-only:

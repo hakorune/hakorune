@@ -69,8 +69,9 @@ LLVM-PIPE-001 landed separate runner cleanup inventory:
   JoinIR experiment hook, and PyVM/harness/mock fallback visibility without
   executing any runner route.
   LLVM-PIPE-002 landed opt-in dynamic pipeline/executor report fields.
-  LLVM-PIPE-003 moves env side effects and ad-hoc runner stages toward
-  CompileOptions / PipelinePlan / LoweringPlan.
+  LLVM-PIPE-003 landed named CompileOptions / PipelinePlan boxes for current
+  runner defaults. MIR-FMEM-001 opens MIRBuilder FastMemRegion/MemOp design
+  consultation next.
 ```
 
 ## Queue

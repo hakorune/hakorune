@@ -104,8 +104,13 @@ LLVM-PIPE-003:
 ```text
 output_contract=hako-llvm-pipeline-runtime-report-v0
 mir_future_rewrite_route=env_forced_llvm_future_externs
+pipeline_plan_v0=1
+compile_options_v0=1
+mir_future_rewrite_option=env_future_externs
 pipeline_joinir_experiment_enabled=0
+method_id_injector_plan_enabled=1
 method_id_injector_mutation_count=0
+joinir_experiment_hook_plan_enabled=1
 execution_backend=mock
 llvm_fallback_used=1
 llvm_fallback_reason=harness_unavailable_or_not_requested

@@ -4,6 +4,8 @@
 
 use nyash_rust::{ast::ASTNode, mir::MirCompiler, mir::MirModule};
 
+use super::compile_options::{FutureRewriteRoute, LlvmCompileOptions};
+
 /// MIR compiler Box
 ///
 /// **Responsibility**: Compile AST to MIR
@@ -37,8 +39,16 @@ impl MirCompilerBox {
     /// Compile AST to MIR
     ///
     /// This function compiles the AST to MIR using source hint for better error messages.
-    pub fn compile(ast: ASTNode, filename: Option<&str>) -> Result<MirModule, String> {
-        let _rw_future = EnvVarRestore::set("NYASH_REWRITE_FUTURE", "1");
+    pub fn compile(
+        ast: ASTNode,
+        filename: Option<&str>,
+        options: LlvmCompileOptions,
+    ) -> Result<MirModule, String> {
+        let _rw_future = match options.future_rewrite_route {
+            FutureRewriteRoute::EnvFutureExterns => {
+                Some(EnvVarRestore::set("NYASH_REWRITE_FUTURE", "1"))
+            }
+        };
         let mut mir_compiler = MirCompiler::new();
 
         let compile_result =

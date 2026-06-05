@@ -3,6 +3,7 @@ use nyash_rust::parser::NyashParser;
 use std::fs;
 
 // Modularized boxes for LLVM mode
+mod compile_options;
 mod error;
 mod exit_reporter;
 mod fallback_executor;
@@ -10,6 +11,7 @@ mod harness_executor;
 mod joinir_experiment;
 mod method_id_injector;
 mod mir_compiler;
+mod pipeline_plan;
 mod pipeline_report;
 mod plugin_init;
 mod pyvm_executor;
@@ -18,6 +20,7 @@ mod using_resolver;
 
 // Re-export error types for convenience
 use self::error::LlvmRunError;
+use self::pipeline_plan::LlvmPipelinePlan;
 use self::pipeline_report::{LlvmPipelineReport, PipelineReportBox};
 
 impl NyashRunner {
@@ -94,10 +97,15 @@ impl NyashRunner {
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
         let ast = crate::runner::modes::macro_child::normalize_core_pass(&ast);
 
-        let mut pipeline_report = LlvmPipelineReport::new();
+        let pipeline_plan = LlvmPipelinePlan::current_default();
+        let mut pipeline_report = LlvmPipelineReport::new(&pipeline_plan);
 
         // Compile to MIR
-        let mut module = match mir_compiler::MirCompilerBox::compile(ast, Some(filename)) {
+        let mut module = match compile_options::CompileOptionsBox::compile(
+            ast,
+            Some(filename),
+            pipeline_plan.compile_options,
+        ) {
             Ok(m) => m,
             Err(e) => {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
@@ -106,11 +114,19 @@ impl NyashRunner {
 
         // Inject method_id for BoxCall where resolvable (by-id path)
         #[allow(unused_mut)]
-        let _injected = method_id_injector::MethodIdInjectorBox::inject(&mut module);
+        let _injected = if pipeline_plan.method_id_injector_enabled {
+            method_id_injector::MethodIdInjectorBox::inject(&mut module)
+        } else {
+            0
+        };
         pipeline_report.method_id_injector_mutation_count = _injected;
 
         // Phase 32 L-4.3a: JoinIR LLVM experiment hook
-        let module = joinir_experiment::JoinIrExperimentBox::apply(module);
+        let module = if pipeline_plan.joinir_experiment_hook_enabled {
+            joinir_experiment::JoinIrExperimentBox::apply(module)
+        } else {
+            module
+        };
 
         // Dev/Test helper: allow executing via PyVM harness when requested
         match pyvm_executor::PyVmExecutorBox::try_execute(&module) {

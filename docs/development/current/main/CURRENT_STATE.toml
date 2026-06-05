@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "LLVM-PIPE-002 landed opt-in LLVM runner runtime pipeline report fields; next is LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup with product activation still closed."
+active_lane_status = "LLVM-PIPE-003 landed named CompileOptions / PipelinePlan boxes for the current LLVM runner defaults; next is MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-435-LLVM-RUNNER-PIPELINE-REPORT-FIELDS.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-436-LLVM-RUNNER-COMPILE-OPTIONS-PIPELINE-PLAN-CLEANUP.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-435-LLVM-RUNNER-PIPELINE-REPORT-FIELDS"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-435-LLVM-RUNNER-PIPELINE-REPORT-FIELDS.md"
-latest_card_summary = "Landed LLVM-PIPE-002: opt-in NYASH_LLVM_PIPELINE_REPORT_OUT runtime kv fields for future rewrite route, JoinIR experiment, method-id mutation count, execution backend, and fallback reason without runner behavior changes."
-current_blocker_token = "LLVM-PIPE-003"
+latest_card = "296x-436-LLVM-RUNNER-COMPILE-OPTIONS-PIPELINE-PLAN-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-436-LLVM-RUNNER-COMPILE-OPTIONS-PIPELINE-PLAN-CLEANUP.md"
+latest_card_summary = "Landed LLVM-PIPE-003: current LLVM runner future rewrite, method-id, and JoinIR hook defaults now flow through named CompileOptions/PipelinePlan boxes without executor behavior changes."
+current_blocker_token = "MIR-FMEM-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-436 landed LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup; MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation opens next.",
   "2026-06-06: 296x-435 landed LLVM-PIPE-002 opt-in LLVM runner runtime pipeline report fields; LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup opens next.",
   "2026-06-06: 296x-434 landed LLVM-PIPE-001 static LLVM runner pipeline debt inventory; LLVM-PIPE-002 dynamic pipeline/executor report fields opens next.",
   "2026-06-06: 296x-433 landed MIM-FMEM-017D Replacement-front producer taxonomy; LLVM-PIPE-001 runner pipeline debt inventory opens next.",

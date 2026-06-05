@@ -5,10 +5,17 @@
 
 use std::fmt::Write as _;
 
+use super::pipeline_plan::LlvmPipelinePlan;
+
 #[derive(Clone, Debug)]
 pub struct LlvmPipelineReport {
+    pub pipeline_plan_v0: bool,
+    pub compile_options_v0: bool,
+    pub mir_future_rewrite_option: &'static str,
     pub mir_future_rewrite_route: &'static str,
+    pub method_id_injector_plan_enabled: bool,
     pub method_id_injector_mutation_count: usize,
+    pub joinir_experiment_hook_plan_enabled: bool,
     pub pipeline_joinir_experiment_enabled: bool,
     pub execution_backend: &'static str,
     pub llvm_fallback_used: bool,
@@ -19,10 +26,18 @@ pub struct LlvmPipelineReport {
 }
 
 impl LlvmPipelineReport {
-    pub fn new() -> Self {
+    pub fn new(plan: &LlvmPipelinePlan) -> Self {
         Self {
-            mir_future_rewrite_route: "env_forced_llvm_future_externs",
+            pipeline_plan_v0: true,
+            compile_options_v0: true,
+            mir_future_rewrite_option: plan
+                .compile_options
+                .future_rewrite_route
+                .option_value(),
+            mir_future_rewrite_route: plan.compile_options.future_rewrite_route.report_value(),
+            method_id_injector_plan_enabled: plan.method_id_injector_enabled,
             method_id_injector_mutation_count: 0,
+            joinir_experiment_hook_plan_enabled: plan.joinir_experiment_hook_enabled,
             pipeline_joinir_experiment_enabled: joinir_experiment_enabled_for_llvm(),
             execution_backend: "not_selected",
             llvm_fallback_used: false,
@@ -65,6 +80,14 @@ fn write_report(path: &str, report: &LlvmPipelineReport) -> std::io::Result<()> 
     writeln!(out, "tool_surface=llvm_runner_pipeline_report").unwrap();
     writeln!(out, "observation_only=1").unwrap();
     writeln!(out, "behavior_change=0").unwrap();
+    writeln!(out, "pipeline_plan_v0={}", report.pipeline_plan_v0 as u8).unwrap();
+    writeln!(out, "compile_options_v0={}", report.compile_options_v0 as u8).unwrap();
+    writeln!(
+        out,
+        "mir_future_rewrite_option={}",
+        report.mir_future_rewrite_option
+    )
+    .unwrap();
     writeln!(
         out,
         "mir_future_rewrite_route={}",
@@ -73,8 +96,20 @@ fn write_report(path: &str, report: &LlvmPipelineReport) -> std::io::Result<()> 
     .unwrap();
     writeln!(
         out,
+        "method_id_injector_plan_enabled={}",
+        report.method_id_injector_plan_enabled as u8
+    )
+    .unwrap();
+    writeln!(
+        out,
         "pipeline_joinir_experiment_enabled={}",
         report.pipeline_joinir_experiment_enabled as u8
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "joinir_experiment_hook_plan_enabled={}",
+        report.joinir_experiment_hook_plan_enabled as u8
     )
     .unwrap();
     writeln!(

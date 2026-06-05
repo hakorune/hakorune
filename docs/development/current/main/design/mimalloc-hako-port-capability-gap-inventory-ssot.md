@@ -1183,8 +1183,8 @@ keeper work in one task.
 | `MIM-FMEM-017D Replacement-front producer taxonomy` | done | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
 | `LLVM-PIPE-001 LLVM runner pipeline debt inventory` | done | Report the current env rewrite, method-id seam, JoinIR experiment hook, and PyVM/harness/mock fallback visibility risks. | Static hako_check inventory only; PyVM remains diagnostic-reachable but daily route stays zero. |
 | `LLVM-PIPE-002 LLVM runner pipeline report fields` | done | Add explicit pipeline report fields for future rewrite route, JoinIR experiment, method-id mutation count, backend executor, and fallback reason. | Opt-in runtime report via `NYASH_LLVM_PIPELINE_REPORT_OUT`; no route change. |
-| `LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup` | next | Move env side effects and runner ad-hoc stages toward explicit plan objects. | Implementation cleanup after report evidence exists. |
-| `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | pending | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | MIRBuilder represents; Planner selects; Verifier guards; Lowering emits. |
+| `LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup` | done | Move env side effects and runner ad-hoc stages toward explicit plan objects. | Current defaults flow through named `LlvmCompileOptions` / `LlvmPipelinePlan`; executor behavior unchanged. |
+| `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | next | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | MIRBuilder represents; Planner selects; Verifier guards; Lowering emits. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`
