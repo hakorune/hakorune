@@ -790,13 +790,19 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     safe_wrapper_deref_surface = int_subject_value(
         rows, idx, "safe_capability_wrapper_deref_surface", 0
     )
+    address_token_escape_count = int(
+        address_token_escape_check != "pass" and address_token_capability > 0
+    )
+    alloc_owner_escape_count = int_subject_value(rows, idx, "alloc_owner_id_escape_count", 0)
+    worker_id_escape_count = int_subject_value(rows, idx, "worker_id_escape_count", 0)
+    safe_wrapper_escape_default = (
+        address_token_escape_count + alloc_owner_escape_count + worker_id_escape_count
+    )
     safe_wrapper_escape_count = int_subject_value(
         rows,
         idx,
         "safe_capability_wrapper_escape_count",
-        int(address_token_escape_check != "pass" and address_token_capability > 0)
-        + int_subject_value(rows, idx, "alloc_owner_id_escape_count", 0)
-        + int_subject_value(rows, idx, "worker_id_escape_count", 0),
+        safe_wrapper_escape_default,
     )
     safe_wrapper_memop_equivalence = int_subject_value(
         rows,
