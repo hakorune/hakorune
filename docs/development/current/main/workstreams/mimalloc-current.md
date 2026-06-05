@@ -117,7 +117,7 @@ fastmem syntax.
 
 ```text
 next_task:
-  PARSER-FMEM-005 fastmem block parse-only dual parser pilot
+  PARSER-FMEM-006 fastmem contractless fail-fast parity
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -142,6 +142,7 @@ completed_this_slice:
   PARSER-FMEM-002 parser parity gate surface
   PARSER-FMEM-003 bitwise/shift expression parity
   PARSER-FMEM-004 rune contract-name parity
+  PARSER-FMEM-005 fastmem block parse-only dual parser pilot
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock

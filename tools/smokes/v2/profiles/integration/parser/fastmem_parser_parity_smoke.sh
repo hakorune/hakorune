@@ -35,6 +35,9 @@ static box Main {
   main() {
     local x = 1 + 2
     local y = (1 << 3) & 7 | (8 >> 1) ^ 2
+    fastmem PageMapV0 {
+      local z = (y >> 1) & 3
+    }
     return x
   }
 }
@@ -79,6 +82,13 @@ for name in ("Inline", "FastMemory"):
     if name not in rune_names:
         print(f"missing Rust parser rune metadata: {name}", file=sys.stderr)
         sys.exit(1)
+
+if not any(
+    node.get("kind") == "FastMemRegion" and node.get("contract") == "PageMapV0"
+    for node in walk(data)
+):
+    print("missing Rust parser FastMemRegion(PageMapV0)", file=sys.stderr)
+    sys.exit(1)
 PY
 
 cat >"$HAKO_DRIVER" <<'HK'
@@ -88,6 +98,9 @@ static box Main {
   main() {
     local x = 1 + 2
     local y = (1 << 3) & 7 | (8 >> 1) ^ 2
+    fastmem PageMapV0 {
+      local z = (y >> 1) & 3
+    }
     return x
   }
 }
@@ -116,6 +129,13 @@ for op in "+" "<<" ">>" "&" "|" "^"; do
     exit 1
   fi
 done
+
+if ! grep -Fq '"type":"FastMemRegion"' "$HAKO_JSON" || ! grep -Fq '"contract":"PageMapV0"' "$HAKO_JSON"; then
+  log_error ".hako ParserBox baseline missing FastMemRegion(PageMapV0)"
+  cat "$HAKO_JSON" >&2 || true
+  tail -n 120 "$HAKO_LOG" >&2 || true
+  exit 1
+fi
 
 if [ ! -s "$HAKO_JSON" ]; then
   log_error ".hako ParserBox baseline produced empty Program(JSON)"

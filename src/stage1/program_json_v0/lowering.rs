@@ -361,6 +361,9 @@ fn statement_to_json_v0(
             source_keyword,
             ..
         } => task_scope_statement_to_json_v0(body, source_keyword, context, local_types),
+        ASTNode::FastMemRegion { contract, body, .. } => {
+            fastmem_region_statement_to_json_v0(contract, body, context, local_types)
+        }
         ASTNode::ContextScope {
             source_keyword,
             name,
@@ -388,6 +391,19 @@ fn statement_to_json_v0(
         ),
         _ => expression_statement_to_json_v0(statement, context, local_types),
     }
+}
+
+fn fastmem_region_statement_to_json_v0(
+    contract: &str,
+    body: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    Ok(serde_json::json!({
+        "type": "FastMemRegion",
+        "contract": contract,
+        "body": statements_to_json_v0(body, context, local_types)?,
+    }))
 }
 
 fn assignment_statement_to_json_v0(

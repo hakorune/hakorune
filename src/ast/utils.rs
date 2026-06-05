@@ -20,6 +20,9 @@ impl ASTNode {
             }
             | ASTNode::TaskScope {
                 body: statements, ..
+            }
+            | ASTNode::FastMemRegion {
+                body: statements, ..
             } => {
                 for statement in statements {
                     visitor(statement);
@@ -557,6 +560,9 @@ impl ASTNode {
                     body.len()
                 )
             }
+            ASTNode::FastMemRegion { contract, body, .. } => {
+                format!("FastMemRegion({}, {} statements)", contract, body.len())
+            }
             ASTNode::Arrow { .. } => "Arrow(>>)".to_string(),
             ASTNode::TryCatch {
                 try_body,
@@ -645,6 +651,7 @@ impl ASTNode {
             ASTNode::Nowait { span, .. } => *span,
             ASTNode::TaskScope { span, .. } => *span,
             ASTNode::ContextScope { span, .. } => *span,
+            ASTNode::FastMemRegion { span, .. } => *span,
             ASTNode::Arrow { span, .. } => *span,
             ASTNode::TryCatch { span, .. } => *span,
             ASTNode::Throw { span, .. } => *span,

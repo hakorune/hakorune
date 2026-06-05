@@ -115,6 +115,17 @@ impl NyashParser {
                         span,
                     });
                 }
+                ASTNode::FastMemRegion {
+                    contract,
+                    body,
+                    span,
+                } => {
+                    out.push(ASTNode::FastMemRegion {
+                        contract,
+                        body: self.prune_build_gate_items(body)?,
+                        span,
+                    });
+                }
                 ASTNode::If {
                     condition,
                     then_body,
@@ -332,6 +343,15 @@ impl NyashParser {
                 value,
                 body: self.prune_build_gate_items(body)?,
                 source_keyword,
+                span,
+            }),
+            ASTNode::FastMemRegion {
+                contract,
+                body,
+                span,
+            } => Ok(ASTNode::FastMemRegion {
+                contract,
+                body: self.prune_build_gate_items(body)?,
                 span,
             }),
             ASTNode::If {

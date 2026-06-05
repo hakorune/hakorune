@@ -48,6 +48,7 @@ impl ASTNode {
             ASTNode::Nowait { .. } => "Nowait",
             ASTNode::TaskScope { .. } => "TaskScope",
             ASTNode::ContextScope { .. } => "ContextScope",
+            ASTNode::FastMemRegion { .. } => "FastMemRegion",
             ASTNode::Arrow { .. } => "Arrow",
             ASTNode::TryCatch { .. } => "TryCatch",
             ASTNode::Throw { .. } => "Throw",

@@ -180,6 +180,12 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "value": ast_to_json(&value),
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
         }),
+        ASTNode::FastMemRegion { contract, body, .. } => json!({
+            "kind": "FastMemRegion",
+            "type": "FastMemRegion",
+            "contract": contract,
+            "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
+        }),
         // Phase 54: Print with JoinIR-compatible fields
         ASTNode::Print { expression, .. } => json!({
             "kind": "Print",

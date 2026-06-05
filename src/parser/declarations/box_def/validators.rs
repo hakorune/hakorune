@@ -138,6 +138,9 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
             }
             | ASTNode::TaskScope {
                 body: statements, ..
+            }
+            | ASTNode::FastMemRegion {
+                body: statements, ..
             } => scan_body(statements, out),
             ASTNode::ContextScope { value, body, .. } => {
                 scan_node(value, out);

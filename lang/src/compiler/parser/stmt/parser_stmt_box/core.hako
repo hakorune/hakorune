@@ -275,6 +275,39 @@ static box ParserStmtCoreBox {
       }
     }
 
+    if ctx.starts_with_kw(src, j, "fastmem") == 1 {
+      local k_fastmem = j + 7
+      k_fastmem = ParserStringUtilsBox.skip_ws(src, k_fastmem)
+      local contract_pair = ctx.read_ident2(src, k_fastmem)
+      local contract_at = contract_pair.lastIndexOf("@")
+      if contract_at <= 0 {
+        ctx.gpos_set(k_fastmem)
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return "[freeze:contract][parser/fastmem] contract name after fastmem"
+      }
+      local contract_name = contract_pair.substring(0, contract_at)
+      k_fastmem = ctx.to_int(contract_pair.substring(contract_at+1, contract_pair.length()))
+      k_fastmem = ParserStringUtilsBox.skip_ws(src, k_fastmem)
+      local fastmem_body_pair = ctx.parse_block2(src, k_fastmem)
+      local fastmem_at = fastmem_body_pair.lastIndexOf("@")
+      if ParserStringUtilsBox.starts_with("" + fastmem_body_pair, 0, "[freeze:contract]") == 1 {
+        local err_text = "" + fastmem_body_pair
+        if fastmem_at > 0 { err_text = err_text.substring(0, fastmem_at) }
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return err_text
+      }
+      if fastmem_at <= 0 {
+        ctx.gpos_set(k_fastmem)
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return "[freeze:contract][parser/fastmem] block after contract name"
+      }
+      local fastmem_body = fastmem_body_pair.substring(0, fastmem_at)
+      k_fastmem = ctx.to_int(fastmem_body_pair.substring(fastmem_at+1, fastmem_body_pair.length()))
+      ctx.gpos_set(k_fastmem)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return "{\"type\":\"FastMemRegion\",\"contract\":\"" + ctx.esc_json(contract_name) + "\",\"body\":" + fastmem_body + "}"
+    }
+
     // assignment: IDENT '=' expr（キーワードより後段に配置して、'loop' などを誤認しないようにする）
     if j < src.length() && ctx.is_alpha(src.substring(j, j+1)) {
       {
@@ -335,4 +368,3 @@ static box ParserStmtCoreBox {
     return "{\"type\":\"Expr\",\"expr\":" + e + "}"
   }
 }
-

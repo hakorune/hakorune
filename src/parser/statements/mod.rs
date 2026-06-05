@@ -19,6 +19,7 @@ pub mod variables;
 
 // I/O and async statements
 pub mod context_scope;
+pub mod fastmem;
 pub mod io_async;
 pub mod task_scope;
 
@@ -349,6 +350,9 @@ impl NyashParser {
 
             // Assignment or function call
             TokenType::IDENTIFIER(_) | TokenType::THIS | TokenType::ME => {
+                if self.is_fastmem_region_statement_start() {
+                    return self.parse_fastmem_region_statement();
+                }
                 if self.is_task_scope_statement_start() {
                     return self.parse_task_scope_statement();
                 }

@@ -382,6 +382,16 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect::<Vec<_>>(),
             span: Span::unknown(),
         },
+        "FastMemRegion" => ASTNode::FastMemRegion {
+            contract: v.get("contract")?.as_str()?.to_string(),
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect::<Vec<_>>(),
+            span: Span::unknown(),
+        },
         "Print" => ASTNode::Print {
             expression: Box::new(json_to_ast(v.get("expression")?)?),
             span: Span::unknown(),

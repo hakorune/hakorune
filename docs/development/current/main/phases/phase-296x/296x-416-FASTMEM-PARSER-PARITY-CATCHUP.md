@@ -104,7 +104,7 @@ PARSER-FMEM-004:
 
 PARSER-FMEM-005:
   fastmem block parse-only dual parser pilot
-  status=next
+  status=done
   scope=fastmem IDENT { ... } parses in Rust and .hako parser
   behavior_change=0
   execution=0
@@ -112,7 +112,7 @@ PARSER-FMEM-005:
 
 PARSER-FMEM-006:
   fastmem contractless fail-fast parity
-  status=pending
+  status=next
   scope=fastmem { ... } and unsafe { ... } are rejected by both parsers
 
 PARSER-FMEM-007:

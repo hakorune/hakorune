@@ -466,6 +466,16 @@ pub enum ASTNode {
         span: Span,
     },
 
+    /// Contract-bound memory fast-path region.
+    ///
+    /// `fastmem ContractName { ... }` is parse-only in the parser parity lane:
+    /// execution/lowering remain closed until a dedicated FastMemory row opens.
+    FastMemRegion {
+        contract: String,
+        body: Vec<ASTNode>,
+        span: Span,
+    },
+
     /// await式: await expression
     AwaitExpression {
         expression: Box<ASTNode>,
