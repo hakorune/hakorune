@@ -101,7 +101,7 @@ impl TaskGroupInner {
                 return true;
             }
             crate::runtime::global_hooks::safepoint_and_poll();
-            std::thread::yield_now();
+            crate::runtime::ring0::get_global_ring0().thread.yield_now();
         }
     }
 

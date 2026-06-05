@@ -209,7 +209,7 @@ pub fn join_all_registered_futures(timeout_ms: u64) {
             break;
         }
         safepoint_and_poll();
-        std::thread::yield_now();
+        crate::runtime::ring0::get_global_ring0().thread.yield_now();
     }
     // Final sweep
     if let Ok(mut st) = state().write() {

@@ -2,6 +2,8 @@
 
 use super::errors::{IoError, TimeError};
 use super::traits::*;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::SystemTime;
@@ -225,6 +227,16 @@ pub struct StdThread;
 impl ThreadApi for StdThread {
     fn sleep(&self, duration: std::time::Duration) {
         std::thread::sleep(duration);
+    }
+
+    fn yield_now(&self) {
+        std::thread::yield_now();
+    }
+
+    fn current_thread_id(&self) -> HostThreadId {
+        let mut hasher = DefaultHasher::new();
+        std::thread::current().id().hash(&mut hasher);
+        hasher.finish()
     }
 }
 

@@ -9,7 +9,7 @@ mod traits;
 pub use errors::{IoError, TimeError};
 pub use std_impls::{NoFsApi, NoopMem, StdFs, StdIo, StdLog, StdMem, StdThread, StdTime};
 pub use traits::{
-    FsApi, FsMetadata, IoApi, LogApi, LogLevel, MemApi, MemStats, ThreadApi, TimeApi,
+    FsApi, FsMetadata, HostThreadId, IoApi, LogApi, LogLevel, MemApi, MemStats, ThreadApi, TimeApi,
 };
 
 use crate::runtime::runtime_profile::RuntimeProfile;

@@ -408,15 +408,16 @@ fn handle_future_await(args: &[Box<dyn NyashBox>]) -> BidResult<Option<Box<dyn N
         {
             let max_ms: u64 = crate::config::env::await_max_ms();
             let start = std::time::Instant::now();
+            let ring0 = crate::runtime::ring0::get_global_ring0();
             let mut spins = 0usize;
 
             while !fut.ready() {
                 global_hooks::safepoint_and_poll();
-                std::thread::yield_now();
+                ring0.thread.yield_now();
                 spins += 1;
 
                 if spins % 1024 == 0 {
-                    std::thread::sleep(std::time::Duration::from_millis(1));
+                    ring0.thread.sleep(std::time::Duration::from_millis(1));
                 }
 
                 if start.elapsed() >= std::time::Duration::from_millis(max_ms) {

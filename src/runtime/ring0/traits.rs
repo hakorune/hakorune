@@ -121,9 +121,15 @@ pub trait FsApi: Send + Sync {
     fn canonicalize(&self, path: &Path) -> Result<PathBuf, IoError>;
 }
 
+pub type HostThreadId = u64;
+
 /// スレッド API (Phase 90-D)
 pub trait ThreadApi: Send + Sync {
     /// 指定時間スリープ
     fn sleep(&self, duration: std::time::Duration);
+    /// 現在のホストスレッドを実行可能状態に戻すヒント
+    fn yield_now(&self);
+    /// 現在のホストスレッドIDを診断/registry用の opaque id に丸める
+    fn current_thread_id(&self) -> HostThreadId;
     // spawn は Phase 91 以降で追加予定
 }

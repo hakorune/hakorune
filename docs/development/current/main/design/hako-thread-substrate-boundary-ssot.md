@@ -259,6 +259,8 @@ No behavior change. No source syntax expansion.
 
 ### THREAD-API-001: yield/current-id substrate
 
+Status: landed.
+
 Scope:
 
 ```text
@@ -268,6 +270,15 @@ replace runtime-policy direct std::thread::yield_now calls with ThreadApi
 ```
 
 No worker pool. No `spawn`/`join` yet.
+
+Landed behavior:
+
+```text
+HostThreadId=u64
+StdThread::yield_now wraps std::thread::yield_now
+StdThread::current_thread_id hashes std::thread::ThreadId into an opaque diagnostic/registry id
+runtime_policy_direct_yield_now_count=0 outside Ring0 StdThread
+```
 
 ### THREAD-API-002: spawn/join substrate
 

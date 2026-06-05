@@ -967,6 +967,23 @@ thread_substrate_boundary_docs_2026_06_05:
   next_thread_task_scope=add_ThreadApi_yield_now_current_thread_id_and_route_runtime_policy_yields_through_ThreadApi
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+thread_api_yield_current_id_2026_06_05:
+  status=landed
+  task_kind=runtime_substrate_cleanup
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/runtime/ring0/traits.rs
+  added_thread_api=yield_now,current_thread_id
+  host_thread_id_shape=u64
+  runtime_policy_direct_yield_now_count=0
+  worker_pool_enabled=0
+  thread_spawn_join_added=0
+  hako_source_thread_support_claim=0
+  nowait_os_thread_spawn=0
+  behavior_change=intended_none
+  next_thread_task=THREAD-API-002
+  next_thread_task_scope=inventory_and_classify_direct_std_thread_spawn_before_spawn_join_substrate
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

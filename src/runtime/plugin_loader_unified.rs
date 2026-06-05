@@ -354,7 +354,7 @@ impl PluginHost {
                     let mut spins = 0usize;
                     while !fut.ready() {
                         crate::runtime::global_hooks::safepoint_and_poll();
-                        std::thread::yield_now();
+                        ring0.thread.yield_now();
                         spins += 1;
                         if spins % 1024 == 0 {
                             ring0.thread.sleep(std::time::Duration::from_millis(1));
