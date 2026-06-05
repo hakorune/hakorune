@@ -20,6 +20,8 @@ from replacement_front_report import (
     first_value,
     format_value,
     int_value,
+    page_lookup_route,
+    page_map_bridge_kind,
     prefixed,
     read_kv,
 )
@@ -27,40 +29,6 @@ from replacement_front_report import (
 
 def route_value(rows: dict[str, str], subject_idx: int, suffix: str, default: str = "") -> str:
     return prefixed(rows, subject_idx, suffix, default)
-
-
-def classify_page_lookup_route(rows: dict[str, str], replacement: dict[str, Any]) -> str:
-    idx = int(replacement["benchmark_subject_index"])
-    lookup_route = route_value(rows, idx, "replacement_front_page_bins_lookup_route")
-    page_from_ptr_route = route_value(rows, idx, "replacement_front_page_from_ptr_route")
-
-    if lookup_route == "range_scan" or replacement["page_from_ptr_range_scan_count_total"] > 0:
-        return "range_scan"
-    if lookup_route in {"page_from_ptr_bridge", "indexed_page_table", "page_map_lookup"}:
-        return "page_map_bridge"
-    if page_from_ptr_route in {"side_table_direct", "page_base_mask", "header_backptr"}:
-        return "page_map_bridge"
-    if replacement["page_index_probe_count_total"] > 0:
-        return "page_index_side_table"
-    if replacement["page_from_ptr_count_total"] > 0:
-        return "page_index_side_table"
-    return "unknown"
-
-
-def classify_page_map_bridge_kind(rows: dict[str, str], replacement: dict[str, Any]) -> str:
-    idx = int(replacement["benchmark_subject_index"])
-    page_from_ptr_route = route_value(rows, idx, "replacement_front_page_from_ptr_route")
-    lookup_route = route_value(rows, idx, "replacement_front_page_bins_lookup_route")
-
-    if page_from_ptr_route == "page_base_mask":
-        return "page_base_mask"
-    if page_from_ptr_route == "header_backptr":
-        return "header_backptr"
-    if page_from_ptr_route == "side_table_direct":
-        return "flat_side_table"
-    if lookup_route in {"indexed_page_table", "page_map_lookup", "page_from_ptr_bridge"}:
-        return "flat_side_table"
-    return "none"
 
 
 def classify_remote_memory_order(rows: dict[str, str], replacement: dict[str, Any]) -> str:
@@ -430,8 +398,8 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     replacement = build_replacement_report(rows, None)
     idx = int(replacement["benchmark_subject_index"])
 
-    free_path_route = classify_page_lookup_route(rows, replacement)
-    bridge_kind = classify_page_map_bridge_kind(rows, replacement)
+    free_path_route = page_lookup_route(rows, idx, replacement)
+    bridge_kind = page_map_bridge_kind(rows, idx)
     remote_route = route_value(rows, idx, "replacement_front_remote_free_route")
 
     allocator_tls_enabled = int(
