@@ -3,9 +3,12 @@
 use super::errors::{IoError, TimeError};
 use super::traits::*;
 use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
+use std::thread::JoinHandle;
 use std::time::SystemTime;
 
 /// noop メモリ実装（Phase 88: 将来 hakmem に接続）
@@ -224,6 +227,23 @@ impl FsApi for StdFs {
 /// std::thread ベースのスレッド実装 (Phase 90-D)
 pub struct StdThread;
 
+static NEXT_THREAD_HANDLE: AtomicU64 = AtomicU64::new(1);
+static THREAD_HANDLES: OnceLock<Mutex<HashMap<u64, JoinHandle<ThreadExit>>>> = OnceLock::new();
+
+fn thread_handles() -> &'static Mutex<HashMap<u64, JoinHandle<ThreadExit>>> {
+    THREAD_HANDLES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn panic_payload_to_string(payload: Box<dyn std::any::Any + Send + 'static>) -> String {
+    if let Some(message) = payload.downcast_ref::<&str>() {
+        return (*message).to_string();
+    }
+    if let Some(message) = payload.downcast_ref::<String>() {
+        return message.clone();
+    }
+    "thread panicked with non-string payload".to_string()
+}
+
 impl ThreadApi for StdThread {
     fn sleep(&self, duration: std::time::Duration) {
         std::thread::sleep(duration);
@@ -237,6 +257,86 @@ impl ThreadApi for StdThread {
         let mut hasher = DefaultHasher::new();
         std::thread::current().id().hash(&mut hasher);
         hasher.finish()
+    }
+
+    fn spawn(
+        &self,
+        spec: ThreadSpawnSpec,
+        f: Box<dyn FnOnce() -> ThreadExit + Send + 'static>,
+    ) -> Result<ThreadHandle, ThreadSpawnError> {
+        let id = NEXT_THREAD_HANDLE.fetch_add(1, Ordering::Relaxed);
+        let mut builder = std::thread::Builder::new();
+        if let Some(name) = spec.name {
+            builder = builder.name(name);
+        }
+        let mut handles = thread_handles()
+            .lock()
+            .map_err(|_| ThreadSpawnError::new("thread handle registry poisoned"))?;
+        let join = builder
+            .spawn(move || f())
+            .map_err(|err| ThreadSpawnError::new(err.to_string()))?;
+        handles.insert(id, join);
+        Ok(ThreadHandle::new(id))
+    }
+
+    fn join(&self, handle: ThreadHandle) -> Result<ThreadExit, ThreadJoinError> {
+        let join = {
+            let mut handles = thread_handles()
+                .lock()
+                .map_err(|_| ThreadJoinError::RegistryPoisoned)?;
+            handles
+                .remove(&handle.id())
+                .ok_or(ThreadJoinError::UnknownHandle(handle))?
+        };
+        match join.join() {
+            Ok(exit) => Ok(exit),
+            Err(payload) => Ok(ThreadExit::Panic(panic_payload_to_string(payload))),
+        }
+    }
+}
+
+#[cfg(test)]
+mod thread_tests {
+    use super::*;
+
+    #[test]
+    fn std_thread_spawn_join_returns_ok() {
+        let thread = StdThread;
+        let handle = thread
+            .spawn(
+                ThreadSpawnSpec::named("ring0-thread-ok-test"),
+                Box::new(|| ThreadExit::Ok),
+            )
+            .expect("thread spawn should succeed");
+
+        assert_eq!(thread.join(handle), Ok(ThreadExit::Ok));
+    }
+
+    #[test]
+    fn std_thread_join_unknown_handle_fails() {
+        let thread = StdThread;
+        let handle = ThreadHandle::new(u64::MAX);
+
+        assert_eq!(
+            thread.join(handle),
+            Err(ThreadJoinError::UnknownHandle(handle))
+        );
+    }
+
+    #[test]
+    fn std_thread_join_returns_panic_exit() {
+        let thread = StdThread;
+        let handle = thread
+            .spawn(
+                ThreadSpawnSpec::named("ring0-thread-panic-exit-test"),
+                Box::new(|| ThreadExit::Panic("reported panic".to_string())),
+            )
+            .expect("thread spawn should succeed");
+
+        assert_eq!(
+            thread.join(handle),
+            Ok(ThreadExit::Panic("reported panic".to_string()))
+        );
     }
 }
 

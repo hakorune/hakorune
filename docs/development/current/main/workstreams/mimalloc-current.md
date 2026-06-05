@@ -1000,6 +1000,25 @@ thread_api_spawn_inventory_2026_06_05:
   next_thread_task_scope=add_opaque_ThreadHandle_and_ThreadExit_without_exposing_to_hako_source
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+thread_api_spawn_join_substrate_2026_06_05:
+  status=landed
+  task_kind=runtime_substrate
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/runtime/ring0/traits.rs
+  added_thread_api=spawn,join
+  thread_handle_shape=u64_opaque
+  thread_exit_shape=Ok|Panic(String)
+  thread_spawn_spec_shape=optional_name
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  worker_pool_enabled=0
+  direct_std_thread_spawn_total=6
+  direct_spawn_callsite_rewrite_count=0
+  hako_source_thread_support_claim=0
+  next_thread_task=THREAD-REG-001
+  next_thread_task_scope=route_runtime_delayed_thread_candidates_or_add_thread_registry_cleanup_without_source_exposure
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

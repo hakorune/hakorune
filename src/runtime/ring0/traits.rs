@@ -123,6 +123,61 @@ pub trait FsApi: Send + Sync {
 
 pub type HostThreadId = u64;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ThreadHandle(u64);
+
+impl ThreadHandle {
+    pub fn new(id: u64) -> Self {
+        Self(id)
+    }
+
+    pub fn id(self) -> u64 {
+        self.0
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ThreadSpawnSpec {
+    pub name: Option<String>,
+}
+
+impl ThreadSpawnSpec {
+    pub fn anonymous() -> Self {
+        Self { name: None }
+    }
+
+    pub fn named(name: impl Into<String>) -> Self {
+        Self {
+            name: Some(name.into()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ThreadExit {
+    Ok,
+    Panic(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ThreadSpawnError {
+    pub message: String,
+}
+
+impl ThreadSpawnError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ThreadJoinError {
+    UnknownHandle(ThreadHandle),
+    RegistryPoisoned,
+}
+
 /// スレッド API (Phase 90-D)
 pub trait ThreadApi: Send + Sync {
     /// 指定時間スリープ
@@ -131,5 +186,12 @@ pub trait ThreadApi: Send + Sync {
     fn yield_now(&self);
     /// 現在のホストスレッドIDを診断/registry用の opaque id に丸める
     fn current_thread_id(&self) -> HostThreadId;
-    // spawn は Phase 91 以降で追加予定
+    /// ホストスレッドを substrate として起動する。`.hako` source へは公開しない。
+    fn spawn(
+        &self,
+        spec: ThreadSpawnSpec,
+        f: Box<dyn FnOnce() -> ThreadExit + Send + 'static>,
+    ) -> Result<ThreadHandle, ThreadSpawnError>;
+    /// `spawn` で得た opaque handle を join する。
+    fn join(&self, handle: ThreadHandle) -> Result<ThreadExit, ThreadJoinError>;
 }

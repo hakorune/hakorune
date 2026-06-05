@@ -153,7 +153,7 @@ v0:
 
 v1:
   spawn(spec, closure) -> ThreadHandle
-  join(handle) -> ThreadExit
+  join(handle) -> Result<ThreadExit>
 
 v2:
   ThreadRegistry registration/unregistration
@@ -307,6 +307,8 @@ hako_source_thread_support_claim=0
 
 ### THREAD-API-003: spawn/join substrate
 
+Status: landed as ThreadApi substrate only.
+
 Scope:
 
 ```text
@@ -317,6 +319,19 @@ spawn/join not exposed to `.hako` source
 ```
 
 Do not move `NyashBox` values across threads in this row.
+
+Landed behavior:
+
+```text
+ThreadHandle=u64 opaque id
+ThreadSpawnSpec.name=optional
+ThreadExit=Ok|Panic(String)
+ThreadApi::spawn stores JoinHandle in the ThreadApi registry
+ThreadApi::join removes and joins the registered handle
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+worker_pool_enabled=0
+```
 
 ### THREAD-SCHED-001: WorkerPoolScheduler route
 
