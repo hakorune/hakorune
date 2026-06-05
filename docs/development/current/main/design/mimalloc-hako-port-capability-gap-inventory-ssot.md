@@ -165,6 +165,39 @@ mimalloc algorithm claim.
 backed by `FastMemoryContract`, and is not an allocator-only unsafe island or a
 general unsafe escape hatch.
 
+Naming note:
+
+```text
+fastmem:
+  accepted near-term memory-profile pilot spelling
+
+fastpath:
+  reserved future general spelling for contract-bound fast-path regions
+  across memory / io / simd / other profiles
+```
+
+Do not introduce `fastio`, `fastsimd`, or similar per-domain keywords. If a
+second profile opens later, prefer the general form:
+
+```hako
+fastpath ContractName { ... }
+```
+
+with the profile selected by contract metadata.
+
+Selfhost timing:
+
+```text
+before selfhost parser/MIRBuilder stability:
+  keep `fastmem ContractName { ... }`
+  document `fastpath` only
+  avoid parser churn
+
+after selfhost parser/MIRBuilder stability:
+  consider whether `fastpath` becomes canonical and `fastmem` becomes a
+  compatibility alias for profile=memory
+```
+
 ```text
 normal .hako:
   safe Box-centered language surface

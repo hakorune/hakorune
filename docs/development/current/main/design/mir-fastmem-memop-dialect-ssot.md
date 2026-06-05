@@ -328,6 +328,116 @@ rejected:
   lowering that searches for string names like PageKey.from
 ```
 
+## Future FastPath Generalization
+
+`fastmem ContractName { ... }` is the accepted near-term spelling for the
+memory-profile pilot. It should not force the language to grow one keyword per
+future low-level domain.
+
+Future generalization candidate:
+
+```hako
+fastpath PageMapV0 { ... }
+fastpath SocketBufferV0 { ... }
+fastpath VectorOpV0 { ... }
+```
+
+Conceptual model:
+
+```text
+left side:
+  one common contract-bound fast-path region syntax
+
+right side:
+  contract id / profile selector
+```
+
+Examples:
+
+```text
+PageMapV0:
+  profile=memory
+
+SocketBufferV0:
+  profile=io
+
+VectorOpV0:
+  profile=simd
+```
+
+MIR direction if this opens:
+
+```rust
+struct ContractRegion {
+    id: ContractRegionId,
+    profile: ContractProfile,
+    contract: ContractId,
+    source_span: Span,
+    origin: ContractRegionOrigin,
+    flags: ContractRegionFlags,
+}
+
+MirInstruction::ContractOp {
+    region: ContractRegionId,
+    profile: ContractProfile,
+    kind: ContractOpKind,
+    dst: Option<ValueId>,
+    operands: Vec<ValueId>,
+    effects: EffectMask,
+}
+```
+
+Profile-specific dialects stay separate:
+
+```text
+profile=memory:
+  MemOpKind
+
+profile=simd:
+  SimdOpKind
+
+profile=io:
+  IoOpKind
+```
+
+This is not accepted as active syntax in `MIR-FMEM-001`. The current accepted
+MIR row remains:
+
+```text
+FastMemRegion + MemOp + MemOpKind
+```
+
+The general form is a planned abstraction path, not a reason to widen the v0
+memory dialect before it is implemented and verified.
+
+## Selfhost Timing
+
+Do not rename or generalize the source spelling before the current
+selfhosting-sensitive parser/MIRBuilder lanes are stable.
+
+Current order:
+
+```text
+before selfhost stabilization:
+  keep `fastmem ContractName { ... }` as the memory-profile pilot
+  document `fastpath` as the future general spelling only
+  do not add fastio / fastsimd keywords
+  do not add `fastpath` parser behavior
+
+after selfhost parser/MIRBuilder stability:
+  consider `fastpath ContractName { ... }` as the canonical general spelling
+  decide whether `fastmem` remains a memory-profile alias or migrates through a
+  compatibility window
+```
+
+Early exception:
+
+```text
+Only open `fastpath` before selfhost stabilization if a non-memory profile
+becomes an active blocker and a phase card explicitly accepts the grammar and
+dual-parser parity work.
+```
+
 ## Report Fields
 
 Producer-neutral evidence should include:
