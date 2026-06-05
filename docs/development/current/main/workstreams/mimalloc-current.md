@@ -116,7 +116,7 @@ The parser parity catch-up is complete for the fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-009 PageMapBridge benchmark-front pilot
+  MIM-FMEM-010 TypedPageMetaHandle plan
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -145,6 +145,7 @@ completed_this_slice:
   PARSER-FMEM-005 fastmem block parse-only dual parser pilot
   PARSER-FMEM-006 fastmem contractless fail-fast parity
   MIM-FMEM-008 fastmem source syntax pilot after parser parity
+  MIM-FMEM-009 PageMapBridge benchmark-front pilot
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -203,6 +204,16 @@ fastmem_product_lowering_open=0
 `MIM-FMEM-008` is landed. The next implementation owner is
 `MIM-FMEM-009`, which should use the now-visible fastmem/source inventory
 metadata while keeping product activation closed.
+
+`MIM-FMEM-009` row card:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-418-PAGEMAPBRIDGE-BENCHMARK-FRONT-PILOT.md
+```
+
+`MIM-FMEM-009` is landed. The next implementation owner is
+`MIM-FMEM-010 TypedPageMetaHandle plan`, which should define the typed metadata
+handle surface before adding WorkerId/TLS or AtomicRemoteHead behavior.
 
 ## Algorithm Port Coverage
 

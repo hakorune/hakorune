@@ -17,6 +17,7 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_capability_inventory_smoke.sh`
 - `bash tools/hako_check/fastmem_check_smoke.sh`
 - `bash tools/hako_check/fastmem_source_syntax_smoke.sh`
+- `bash tools/hako_check/fastmem_page_map_bridge_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -201,6 +202,14 @@ api_boundary_gap_suspect
 remote_free_workload
 same_thread_workload
 likely_next_owner
+replacement_front_page_bins_lookup_route
+replacement_front_page_from_ptr_route
+free_path_page_lookup_route
+free_path_page_lookup_range_scan_count
+page_map_bridge_kind
+page_map_bridge_type_abi_hot_lookup_count
+page_map_bridge_provider_abi_hot_dispatch_count
+page_map_bridge_benchmark_front_pilot
 skip_hot_counters_median_ops_per_sec
 skip_hot_counter_gap_ratio
 skip_hot_counter_gap_class
@@ -217,6 +226,9 @@ summary=ok|failed
   - `likely_next_owner=free_path_page_lookup` means the report counters point
     at `free(ptr)` page lookup / owner lookup work before Provider ABI or
     Type ABI changes.
+  - `page_map_bridge_benchmark_front_pilot=1` means the benchmark-front report
+    has a non-range-scan page lookup bridge with Type ABI and Provider ABI hot
+    path counts still at zero. It is not a product allocator activation claim.
 - Stop line: this adapter reads existing key-value reports only. It does not
   run benchmarks, rewrite source, change MIR, choose keepers, activate
   providers, replace allocators, install hooks, claim product readiness, or
@@ -358,6 +370,14 @@ summary=ok|failed
 - Stop line: this check validates existing inventory fields only. It does not
   infer fastmem regions from source, rewrite MIR, choose keepers, or activate
   product allocator replacement.
+
+FastMemory PageMapBridge Smoke
+- `fastmem_page_map_bridge_smoke.sh` fixes the benchmark-front PageMapBridge
+  acceptance surface. It proves that the bridge fixture reports
+  `free_path_page_lookup_route=page_map_bridge`, while a hot `range_scan`
+  fixture fails `fastmem-check`.
+- This remains benchmark/report metadata only; it does not change generated C,
+  run a benchmark, or activate replacement.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

@@ -43,7 +43,12 @@ FAIL_FIELDS = [
     "provider_dispatch_hot_path",
     "page_map_bridge_type_abi_hot_lookup_count",
     "page_map_bridge_provider_abi_hot_dispatch_count",
+    "free_path_page_lookup_range_scan_count",
 ]
+
+FAIL_STRING_FIELDS = {
+    "free_path_page_lookup_route": {"range_scan"},
+}
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -77,6 +82,9 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
     reasons: list[str] = []
     for key in FAIL_FIELDS:
         if int_count(rows, key) > 0:
+            reasons.append(key)
+    for key, forbidden_values in FAIL_STRING_FIELDS.items():
+        if rows.get(key) in forbidden_values:
             reasons.append(key)
     return reasons
 

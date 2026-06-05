@@ -95,6 +95,34 @@ def ratio(numerator: float, denominator: float) -> float:
     return numerator / denominator
 
 
+def page_lookup_route(rows: dict[str, str], subject_idx: int, report: dict[str, Any]) -> str:
+    lookup_route = prefixed(rows, subject_idx, "replacement_front_page_bins_lookup_route")
+    page_from_ptr_route = prefixed(rows, subject_idx, "replacement_front_page_from_ptr_route")
+    if lookup_route == "range_scan" or report["page_from_ptr_range_scan_count_total"] > 0:
+        return "range_scan"
+    if lookup_route in {"page_from_ptr_bridge", "indexed_page_table", "page_map_lookup"}:
+        return "page_map_bridge"
+    if page_from_ptr_route in {"side_table_direct", "page_base_mask", "header_backptr"}:
+        return "page_map_bridge"
+    if report["page_index_probe_count_total"] > 0 or report["page_from_ptr_count_total"] > 0:
+        return "page_index_side_table"
+    return "unknown"
+
+
+def page_map_bridge_kind(rows: dict[str, str], subject_idx: int) -> str:
+    page_from_ptr_route = prefixed(rows, subject_idx, "replacement_front_page_from_ptr_route")
+    lookup_route = prefixed(rows, subject_idx, "replacement_front_page_bins_lookup_route")
+    if page_from_ptr_route == "page_base_mask":
+        return "page_base_mask"
+    if page_from_ptr_route == "header_backptr":
+        return "header_backptr"
+    if page_from_ptr_route == "side_table_direct":
+        return "flat_side_table"
+    if lookup_route in {"indexed_page_table", "page_map_lookup", "page_from_ptr_bridge"}:
+        return "flat_side_table"
+    return "none"
+
+
 def classify_next_owner(report: dict[str, Any]) -> str:
     if report["global_lock_hot_path_count_total"] > 0:
         return "global_lock_hot_path"
@@ -222,6 +250,29 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         report["same_thread_free_local_count_total"] > 0 and report["remote_free_workload"] == 0
     )
     report["likely_next_owner"] = classify_next_owner(report)
+    report["replacement_front_page_bins_lookup_route"] = prefixed(
+        rows, replacement_idx, "replacement_front_page_bins_lookup_route", "unknown"
+    )
+    report["replacement_front_page_from_ptr_route"] = prefixed(
+        rows, replacement_idx, "replacement_front_page_from_ptr_route", "unknown"
+    )
+    report["free_path_page_lookup_route"] = page_lookup_route(rows, replacement_idx, report)
+    report["free_path_page_lookup_range_scan_count"] = report[
+        "page_from_ptr_range_scan_count_total"
+    ]
+    report["page_map_bridge_kind"] = page_map_bridge_kind(rows, replacement_idx)
+    report["page_map_bridge_type_abi_hot_lookup_count"] = report[
+        "type_abi_hot_path_lookup_count"
+    ]
+    report["page_map_bridge_provider_abi_hot_dispatch_count"] = report[
+        "provider_dispatch_hot_path"
+    ]
+    report["page_map_bridge_benchmark_front_pilot"] = int(
+        report["free_path_page_lookup_route"] == "page_map_bridge"
+        and report["free_path_page_lookup_range_scan_count"] == 0
+        and report["page_map_bridge_type_abi_hot_lookup_count"] == 0
+        and report["page_map_bridge_provider_abi_hot_dispatch_count"] == 0
+    )
 
     if skip_rows is not None:
         skip_replacement_idx = find_subject(skip_rows, "replacement_front_c_shim", replacement_idx)
@@ -278,6 +329,12 @@ def emit_summary(report: dict[str, Any]) -> str:
             f"page_index_probe={report['page_index_probe_count_total']} "
             f"global_hot_lock={report['global_lock_hot_path_count_total']} "
             f"remote_push={report['remote_free_push_count_total']}"
+        ),
+        (
+            "page lookup: "
+            f"route={report['free_path_page_lookup_route']} "
+            f"bridge={report['page_map_bridge_kind']} "
+            f"range_scan={report['free_path_page_lookup_range_scan_count']}"
         ),
         f"next_owner: {report['likely_next_owner']}",
         f"summary: {report['summary']}",

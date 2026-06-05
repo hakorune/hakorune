@@ -36,9 +36,10 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIM-FMEM-009:
-  Start the PageMapBridge benchmark-front pilot after MIM-FMEM-008 connected
-  parsed fastmem source regions to source-facing inventory/check metadata.
+MIM-FMEM-010:
+  Start the TypedPageMetaHandle plan after MIM-FMEM-009 promoted
+  PageMapBridge benchmark-front report evidence and rejected hot range_scan
+  inventories.
 ```
 
 ## Queue
@@ -384,6 +385,7 @@ MIM-FMEM-009:
 | 336 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001` | Planned | Attempt the selected-method DirectSlot NativeDirect lowering pilot behind the row334 guard. |
 | 416 | `FASTMEM-PARSER-PARITY-CATCHUP-296X-001` | Done | Parser parity catch-up through PARSER-FMEM-006 proved dual Rust/.hako parse-only parity for fastmem source syntax. |
 | 417 | `FASTMEM-SOURCE-SYNTAX-PILOT-296X-001` | Done | MIM-FMEM-008 connected parsed fastmem source regions to hako_check inventory/check metadata without opening execution or product activation. |
+| 418 | `PAGEMAPBRIDGE-BENCHMARK-FRONT-PILOT-296X-001` | Done | MIM-FMEM-009 promoted PageMapBridge benchmark-front report fields and made hot range_scan inventories fail fastmem-check. |
 
 ## Hako Mimalloc Performance Parity Plan
 
