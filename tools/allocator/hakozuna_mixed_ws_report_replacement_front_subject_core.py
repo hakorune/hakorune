@@ -56,6 +56,33 @@ def build_replacement_front_subject_static_lines(
     replacement_front_correctness_smoke = ctx["replacement_front_correctness_smoke"]
     replacement_front_preflight = ctx["replacement_front_preflight"]
     workload_histogram = ctx["workload_histogram"]
+    tls_page_arena = args.replacement_front_tls_page_arena_mode
+    has_thread_local_arena = args.replacement_front_thread_local_mode or tls_page_arena
+    has_multithread_safe_route = args.replacement_front_lock_mode or has_thread_local_arena
+    cross_thread_free_policy = (
+        "disabled"
+        if tls_page_arena
+        else "remote_queue"
+        if args.replacement_front_thread_local_mode
+        else "global_lock_or_not_applicable"
+    )
+    hotcore_route = (
+        "benchmark_page_bins_hotcore_tls"
+        if tls_page_arena
+        else "benchmark_page_bins_hotcore_page_model"
+        if args.replacement_front_hotcore_page_model_mode
+        else "not_consumed_by_replacement_front"
+    )
+    thread_local_hotcore_route = (
+        "benchmark_page_bins_hotcore_tls" if tls_page_arena else "not_consumed"
+    )
+    global_lock_hot_path_expected: int | str = (
+        0
+        if tls_page_arena
+        else "lock_enter_count"
+        if args.replacement_front_lock_mode
+        else 0
+    )
     hot_atomic_rmw = int(
         (
             replacement_front_bins_mode
@@ -80,13 +107,11 @@ def build_replacement_front_subject_static_lines(
         f"subject_{index}_single_thread_replacement_front_smoke={1 if args.threads == 1 else 0}",
         "subject_"
         f"{index}_multithread_replacement_front_smoke="
-        f"{1 if args.threads > 1 and (args.replacement_front_lock_mode or args.replacement_front_thread_local_mode) else 0}",
-        f"subject_{index}_thread_local_replacement_front_smoke={1 if args.threads > 1 and args.replacement_front_thread_local_mode else 0}",
-        f"subject_{index}_thread_safety_claim={'measured' if (args.threads > 1 and (args.replacement_front_lock_mode or args.replacement_front_thread_local_mode)) else 'none'}",
-        f"subject_{index}_thread_local_arena={1 if args.replacement_front_thread_local_mode else 0}",
-        "subject_"
-        f"{index}_cross_thread_free_policy="
-        f"{'remote_queue' if args.replacement_front_thread_local_mode else 'global_lock_or_not_applicable'}",
+        f"{1 if args.threads > 1 and has_multithread_safe_route else 0}",
+        f"subject_{index}_thread_local_replacement_front_smoke={1 if args.threads > 1 and has_thread_local_arena else 0}",
+        f"subject_{index}_thread_safety_claim={'measured' if (args.threads > 1 and has_multithread_safe_route) else 'none'}",
+        f"subject_{index}_thread_local_arena={1 if has_thread_local_arena else 0}",
+        f"subject_{index}_cross_thread_free_policy={cross_thread_free_policy}",
         f"subject_{index}_provider_api_hot_path_required=0",
         f"subject_{index}_activation=0",
         f"subject_{index}_benchmark_only=1",
@@ -211,11 +236,25 @@ def build_replacement_front_subject_static_lines(
         f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
         "subject_"
         f"{index}_replacement_front_hotcore_route="
-        f"{'benchmark_page_bins_hotcore_page_model' if args.replacement_front_hotcore_page_model_mode else 'not_consumed_by_replacement_front'}",
+        f"{hotcore_route}",
         f"subject_{index}_hako_mimalloc_algorithm_claim=0",
+        f"subject_{index}_mimalloc_fidelity_guard=1",
+        f"subject_{index}_mimalloc_fidelity_guard_passed=0",
+        "subject_"
+        f"{index}_replacement_front_thread_local_page_bins_mode="
+        f"{1 if tls_page_arena else 0}",
+        "subject_"
+        f"{index}_replacement_front_thread_local_hotcore_route="
+        f"{thread_local_hotcore_route}",
+        "subject_"
+        f"{index}_replacement_front_remote_free_route="
+        f"{cross_thread_free_policy}",
+        "subject_"
+        f"{index}_replacement_front_global_lock_hot_path_expected="
+        f"{global_lock_hot_path_expected}",
         f"subject_{index}_replacement_front_hotpath_plan_v0=1",
         f"subject_{index}_replacement_front_hotpath_report_only=1",
-        f"subject_{index}_tls_get_addr_hot_path={1 if args.replacement_front_thread_local_mode and not tls_initial_exec_model_enabled else 0}",
+        f"subject_{index}_tls_get_addr_hot_path={1 if has_thread_local_arena and not tls_initial_exec_model_enabled else 0}",
         f"subject_{index}_hot_atomic_rmw={hot_atomic_rmw}",
         "subject_"
         f"{index}_remote_free_drain_hot_path=0",

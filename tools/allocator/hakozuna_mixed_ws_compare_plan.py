@@ -169,6 +169,28 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
             "--replacement-front-hotcore-page-model-mode requires "
             "--replacement-front-page-bins-mode"
         )
+    if args.replacement_front_tls_page_arena_mode and not (
+        args.replacement_front_page_bins_mode
+        and args.replacement_front_hotcore_page_model_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-tls-page-arena-mode requires "
+            "--replacement-front-page-bins-mode and "
+            "--replacement-front-hotcore-page-model-mode"
+        )
+    if args.replacement_front_tls_page_arena_mode and args.replacement_front_lock_mode:
+        raise SystemExit(
+            "--replacement-front-tls-page-arena-mode and "
+            "--replacement-front-lock-mode are exclusive"
+        )
+    if (
+        args.replacement_front_tls_page_arena_mode
+        and args.replacement_front_product_pages_nonlinear_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-tls-page-arena-mode cannot be combined with "
+            "--replacement-front-product-pages-nonlinear-mode in this slice"
+        )
     if (
         args.replacement_front_product_pages_nonlinear_mode
         and not args.replacement_front_page_bins_mode
@@ -196,11 +218,16 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     )
     if replacement_front_bins_mode:
-        if args.threads != 1 and not args.replacement_front_lock_mode:
+        if (
+            args.threads != 1
+            and not args.replacement_front_lock_mode
+            and not args.replacement_front_tls_page_arena_mode
+        ):
             raise SystemExit(
                 "--replacement-front-native-bins-mode and "
                 "--replacement-front-page-bins-mode require "
-                "--replacement-front-lock-mode when --threads > 1"
+                "--replacement-front-lock-mode or "
+                "--replacement-front-tls-page-arena-mode when --threads > 1"
             )
         if (
             args.replacement_front_thread_local_mode
@@ -211,7 +238,9 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
             raise SystemExit(
                 "--replacement-front-native-bins-mode and "
                 "--replacement-front-page-bins-mode cannot be combined with "
-                "slot/thread-local/counter replacement-front modifiers in v0"
+                "slot/thread-local/counter replacement-front modifiers in v0; "
+                "use --replacement-front-tls-page-arena-mode for the page-bins "
+                "TLS arena route"
             )
 
     workload_histogram = mixed_ws_workload_histogram(

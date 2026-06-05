@@ -965,6 +965,34 @@ HotCore/PageModel route can separate counter tax from mutex/critical-section
 cost. It remains benchmark-only and must not be used for product activation or
 winner claims.
 
+For the mimalloc-fidelity TLS page-arena slice, use the page-bins HotCore route
+with the dedicated TLS mode:
+
+```bash
+python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
+  --allow-ldconfig-discovery \
+  --out-dir target/hakozuna-mixed-ws-tls-page-arena/artifacts \
+  --out target/hakozuna-mixed-ws-tls-page-arena/report.out \
+  --sample-count 1 \
+  --warmup-count 1 \
+  --threads 2 \
+  --iters-per-thread 100000 \
+  --working-set 128 \
+  --min-size 16 \
+  --max-size 1024 \
+  --replacement-front-page-bins-mode \
+  --replacement-front-hotcore-page-model-mode \
+  --replacement-front-tls-page-arena-mode \
+  --replacement-front-size-class-table-mode
+```
+
+This route reports `benchmark_page_bins_hotcore_tls` and must keep product
+activation, product pages, and winner claims closed. It removes the global
+arena lock from the same-thread page-bin hot path, but still reports
+`replacement_front_page_bins_lookup_route=range_scan` and
+`replacement_front_remote_free_route=disabled` until the next bridge slices
+land.
+
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \
   --app apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako \

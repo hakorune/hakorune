@@ -50,6 +50,22 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_lock_mode_enabled", lock_mode_enabled);
   write_kv(fd, "replacement_front_lock_enter_count", lock_enter_count);
   write_kv(fd, "replacement_front_skip_hot_counters_enabled", skip_hot_counters_enabled);
+  write_kv(fd, "replacement_front_thread_local_page_bins_mode_enabled", thread_local_page_bins_mode_enabled);
+  write_kv(fd, "replacement_front_malloc_tls_fast_count", malloc_tls_fast_count);
+  write_kv(fd, "replacement_front_malloc_tls_refill_slow_count", malloc_tls_refill_slow_count);
+  write_kv(fd, "replacement_front_same_thread_alloc_local_count", same_thread_alloc_local_count);
+  write_kv(fd, "replacement_front_same_thread_free_local_count", same_thread_free_local_count);
+  write_kv(fd, "replacement_front_cross_thread_free_remote_push_count", cross_thread_free_remote_push_count);
+  write_kv(fd, "replacement_front_remote_free_drain_count", remote_free_drain_count);
+  write_kv(fd, "replacement_front_remote_free_cas_retry_count", remote_free_cas_retry_count);
+  write_kv(fd, "replacement_front_global_lock_hot_path_count", global_lock_hot_path_count);
+  write_kv(fd, "replacement_front_global_lock_refill_count", global_lock_refill_count);
+  write_kv(fd, "replacement_front_global_lock_reclaim_count", global_lock_reclaim_count);
+  write_kv(fd, "replacement_front_tls_arena_count", tls_arena_count);
+  write_kv(fd, "replacement_front_tls_arena_peak_count", tls_arena_peak_count);
+  write_kv(fd, "replacement_front_thread_exit_arena_flush_count", thread_exit_arena_flush_count);
+  write_kv(fd, "replacement_front_abandoned_owner_count", abandoned_owner_count);
+  write_kv(fd, "replacement_front_abandoned_remote_free_count", abandoned_remote_free_count);
   write_kv(fd, "replacement_front_page_index_insert_count", page_index_insert_count);
   write_kv(fd, "replacement_front_page_index_probe_count", page_index_probe_count);
   write_kv(fd, "replacement_front_page_index_collision_count", page_index_collision_count);
@@ -64,6 +80,9 @@ __attribute__((constructor)) static void replacement_front_init(void) {
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
   skip_hot_counters_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+  thread_local_page_bins_mode_enabled = 1;
 #endif
   atexit(write_report);
 }

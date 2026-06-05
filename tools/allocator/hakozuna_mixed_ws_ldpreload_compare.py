@@ -85,6 +85,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--replacement-front-tls-page-arena-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: with page-bins HotCore mode, use per-thread "
+            "page-bin arenas for same-thread alloc/free; remote-free remains "
+            "closed for this slice"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-product-pages-nonlinear-mode",
         action="store_true",
         help=(
@@ -200,6 +209,7 @@ def main() -> int:
             locked=args.replacement_front_lock_mode,
             page_shaped=args.replacement_front_page_bins_mode,
             hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
+            thread_local_page_arena=args.replacement_front_tls_page_arena_mode,
             size_class_table=args.replacement_front_size_class_table_mode,
             eager_init=args.replacement_front_eager_init_mode,
             product_pages_nonlinear_lookup=args.replacement_front_product_pages_nonlinear_mode,

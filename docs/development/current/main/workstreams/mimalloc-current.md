@@ -1435,6 +1435,40 @@ mimalloc_tls_page_arena_task_2026_06_05:
   fourth_slice=remote_free_queue_and_abandoned_counters
   keeper_rule=fast_and_mimalloc_fidelity_guard_passed
 
+mimalloc_tls_page_arena_impl_2026_06_05:
+  status=landed
+  task_kind=benchmark_only_impl_slice
+  owner_doc=docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
+  route_name=BenchmarkPageBinsHotCoreTlsRouteV0
+  plan_name=ReplacementFrontTlsPageArenaPlanV0
+  cli_flag=--replacement-front-tls-page-arena-mode
+  generated_route=benchmark_page_bins_hotcore_tls
+  product_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  implemented_slice=report_and_generator_flags;same_thread_tls_active_page_alloc_free
+  report=target/hakozuna-mixed-ws-tls-page-arena-smoke-long/report.out
+  smoke_threads=2
+  smoke_iters_per_thread=100000
+  median_ops_per_sec=20,490,585.600
+  c_mimalloc_median_ops_per_sec=93,318,620.098
+  throughput_vs_c_mimalloc=0.219577
+  replacement_front_thread_local_page_bins_mode=1
+  replacement_front_thread_local_hotcore_route=benchmark_page_bins_hotcore_tls
+  replacement_front_remote_free_route=disabled
+  replacement_front_page_bins_lookup_route=range_scan
+  replacement_front_global_lock_hot_path_count_total=0
+  replacement_front_lock_enter_count_total=0
+  replacement_front_malloc_tls_fast_count_total=201126
+  replacement_front_same_thread_alloc_local_count_total=201126
+  replacement_front_same_thread_free_local_count_total=201126
+  mimalloc_fidelity_guard_passed=0
+  decision=nonkeeper_until_page_from_ptr_bridge_and_remote_free_queue_land
+  next_thread_task=MIM-PAGE-FROM-PTR-BRIDGE-001
+  next_thread_task_scope=BenchmarkPageFromPtrBridgeV0_remove_range_scan_from_hot_free_without_product_pages_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

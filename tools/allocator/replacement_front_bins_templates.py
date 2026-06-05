@@ -13,6 +13,7 @@ def generate_replacement_front_bins_shim_c(
     locked: bool = False,
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
+    thread_local_page_arena: bool = False,
     size_class_table: bool = False,
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
@@ -65,7 +66,7 @@ def generate_replacement_front_bins_shim_c(
                     "  uint32_t free_stack[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
                     "  uint32_t free_top;",
                     f"}} HakoReplacement{type_tag}Page;",
-                    f"static HakoReplacement{type_tag}Page {tag}_page;",
+                    f"static HAKO_BIN_STORAGE HakoReplacement{type_tag}Page {tag}_page;",
                 ]
             )
             slot_expr = f"{tag}_page.slots"
@@ -76,11 +77,11 @@ def generate_replacement_front_bins_shim_c(
         else:
             bin_defs.extend(
                 [
-                    f"static HakoReplacement{type_tag}Slot {slot_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                    f"static unsigned char {used_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                    f"static size_t {requested_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                    f"static uint32_t {free_stack_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
-                    f"static uint32_t {free_top_expr} = 0u;",
+                    f"static HAKO_BIN_STORAGE HakoReplacement{type_tag}Slot {slot_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static HAKO_BIN_STORAGE unsigned char {used_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static HAKO_BIN_STORAGE size_t {requested_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static HAKO_BIN_STORAGE uint32_t {free_stack_expr}[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    f"static HAKO_BIN_STORAGE uint32_t {free_top_expr} = 0u;",
                 ]
             )
         if hotcore_page_model:
@@ -92,6 +93,10 @@ static inline void* hako_page_acquire_fresh_small_{tag}(size_t size) {{
   {used_expr}[index] = 1u;
   {requested_expr}[index] = size;
   add_counter(&direct_core_call_count, 1);
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+  add_counter(&malloc_tls_fast_count, 1);
+  add_counter(&same_thread_alloc_local_count, 1);
+#endif
   return {slot_expr}[index].bytes;
 }}
 
@@ -103,6 +108,9 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
     {free_stack_expr}[{free_top_expr}++] = index;
   }}
   add_counter(&direct_core_call_count, 1);
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+  add_counter(&same_thread_free_local_count, 1);
+#endif
   return 1;
 }}
 """
@@ -406,7 +414,9 @@ static unsigned long long page_index_overflow_count = 0;
 """
 
     malloc_init_line = (
-        "  if (!init_done) return real_malloc_fn ? real_malloc_fn(size) : 0;"
+        "  if (!init_done) init_bins();"
+        if thread_local_page_arena
+        else "  if (!init_done) return real_malloc_fn ? real_malloc_fn(size) : 0;"
         if eager_init
         else "  init_bins();"
     )
@@ -446,9 +456,19 @@ static hako_realloc_fn real_realloc_fn = 0;
 static hako_free_fn real_free_fn = 0;
 static int resolving_real = 0;
 
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+#if defined(__GNUC__)
+#define HAKO_BIN_STORAGE _Thread_local __attribute__((tls_model("initial-exec")))
+#else
+#define HAKO_BIN_STORAGE _Thread_local
+#endif
+#else
+#define HAKO_BIN_STORAGE
+#endif
+
 {chr(10).join(bin_defs)}
 
-static unsigned char init_done = 0u;
+static HAKO_BIN_STORAGE unsigned char init_done = 0u;
 static unsigned long long alloc_count = 0;
 static unsigned long long calloc_count = 0;
 static unsigned long long realloc_count = 0;
@@ -461,6 +481,22 @@ static unsigned long long calloc_zero_bytes = 0;
 static unsigned long long lock_mode_enabled = 0;
 static unsigned long long lock_enter_count = 0;
 static unsigned long long skip_hot_counters_enabled = 0;
+static unsigned long long thread_local_page_bins_mode_enabled = 0;
+static unsigned long long malloc_tls_fast_count = 0;
+static unsigned long long malloc_tls_refill_slow_count = 0;
+static unsigned long long same_thread_alloc_local_count = 0;
+static unsigned long long same_thread_free_local_count = 0;
+static unsigned long long cross_thread_free_remote_push_count = 0;
+static unsigned long long remote_free_drain_count = 0;
+static unsigned long long remote_free_cas_retry_count = 0;
+static unsigned long long global_lock_hot_path_count = 0;
+static unsigned long long global_lock_refill_count = 0;
+static unsigned long long global_lock_reclaim_count = 0;
+static unsigned long long tls_arena_count = 0;
+static unsigned long long tls_arena_peak_count = 0;
+static unsigned long long thread_exit_arena_flush_count = 0;
+static unsigned long long abandoned_owner_count = 0;
+static unsigned long long abandoned_remote_free_count = 0;
 
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -470,7 +506,7 @@ static inline void add_counter(unsigned long long* counter, unsigned long long d
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
   (void)counter;
   (void)delta;
-#elif defined(HAKO_REPLACEMENT_FRONT_LOCKED)
+#elif defined(HAKO_REPLACEMENT_FRONT_LOCKED) || defined(HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA)
   __sync_fetch_and_add(counter, delta);
 #else
   *counter += delta;
@@ -481,6 +517,7 @@ static inline void lock_arena(void) {{
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
   pthread_mutex_lock(&arena_lock);
   add_counter(&lock_enter_count, 1);
+  add_counter(&global_lock_hot_path_count, 1);
 #endif
 }}
 
@@ -507,6 +544,16 @@ static void init_bins(void) {{
 {chr(10).join(init_cases)}
 {chr(10).join(page_index_register_cases) if product_pages_nonlinear_lookup else ""}
   init_done = 1u;
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+  unsigned long long count = __sync_add_and_fetch(&tls_arena_count, 1);
+  unsigned long long peak = tls_arena_peak_count;
+  for (unsigned int attempt = 0; count > peak && attempt < 4u; attempt++) {{
+    if (__sync_bool_compare_and_swap(&tls_arena_peak_count, peak, count)) {{
+      break;
+    }}
+    peak = tls_arena_peak_count;
+  }}
+#endif
 }}
 
 {constructor_init_source}

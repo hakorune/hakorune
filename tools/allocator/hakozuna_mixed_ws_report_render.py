@@ -61,7 +61,9 @@ def render_hakozuna_mixed_ws_report(
     replacement_front_product_pages_consumer_enabled = int(
         args.replacement_front_product_pages_nonlinear_mode
     )
-    if (
+    if args.replacement_front_tls_page_arena_mode:
+        replacement_front_algorithm_shape = "page_bin_hotcore_tls_page_arena_benchmark_front"
+    elif (
         args.replacement_front_product_pages_nonlinear_mode
         and args.replacement_front_hotcore_page_model_mode
     ):
@@ -79,6 +81,9 @@ def render_hakozuna_mixed_ws_report(
     else:
         replacement_front_algorithm_shape = "fixed_slot_native_benchmark_front"
     replacement_front_product_bins_route = (
+        "benchmark_page_bins_hotcore_tls"
+        if args.replacement_front_tls_page_arena_mode
+        else
         "benchmark_page_bins_hotcore_page_model"
         if args.replacement_front_hotcore_page_model_mode
         else "benchmark_page_bins"
@@ -100,7 +105,10 @@ def render_hakozuna_mixed_ws_report(
     replacement_front_preflight = ReplacementFrontPreflight.from_evidence(
         measurement_quality=measurement_quality,
         has_smoke_pack=bool(replacement_front_smokes),
-        thread_local_mode=args.replacement_front_thread_local_mode,
+        thread_local_mode=(
+            args.replacement_front_thread_local_mode
+            or args.replacement_front_tls_page_arena_mode
+        ),
         cross_thread_smoke=args.replacement_front_cross_thread_smoke,
         provider_dispatch_bypass=(
             args.replacement_front_native_slot_mode
@@ -109,6 +117,9 @@ def render_hakozuna_mixed_ws_report(
         ),
     )
     replacement_front_page_bins_route = (
+        "benchmark_page_bins_hotcore_tls"
+        if args.replacement_front_tls_page_arena_mode
+        else
         "benchmark_page_bins_hotcore_page_model"
         if args.replacement_front_hotcore_page_model_mode
         else "benchmark_page_bins"
@@ -158,6 +169,10 @@ def render_hakozuna_mixed_ws_report(
             or args.replacement_front_page_bins_mode
             or args.replacement_front_skip_hot_counters
         )
+    elif args.replacement_front_tls_page_arena_mode:
+        replacement_front_evidence_owner = "thread_local_page_bins_hotcore_tls"
+        replacement_front_multithread_perf_candidate = int(args.threads > 1)
+        replacement_front_thread_local_perf_candidate = 1
     elif args.replacement_front_page_bins_mode:
         replacement_front_evidence_owner = (
             "single_thread_page_bins_hotcore_page_model"
