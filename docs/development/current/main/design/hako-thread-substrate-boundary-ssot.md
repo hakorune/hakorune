@@ -395,6 +395,8 @@ kernel_native_stress_spawn_count_after=2
 
 ### THREAD-SCHED-001: WorkerPoolScheduler route
 
+Status: landed as runtime substrate only.
+
 Scope:
 
 ```text
@@ -405,6 +407,20 @@ route decision report for inline_resolved_future/cooperative_task/worker_pool_ta
 
 Requires capture/thread-root safety before routing user tasks to workers by
 default.
+
+Landed behavior:
+
+```text
+WorkerPoolScheduler implemented=1
+WorkerPoolScheduler default_enabled=0
+WorkerPoolScheduler source_route_enabled=0
+WorkerPoolScheduler uses ThreadApi::spawn=1
+WorkerPoolScheduler joins workers on drop=1
+WorkerPoolScheduler spawn_after route=worker_sleep_then_task
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+worker_pool_enabled_by_default=0
+```
 
 ### THREAD-SAFETY-001: send/share/root capability
 

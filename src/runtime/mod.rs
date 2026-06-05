@@ -72,7 +72,7 @@ pub use runtime_profile::RuntimeProfile; // Phase 109: RuntimeProfile enum
 pub mod cache_versions;
 pub use gc::{BarrierKind, GcHooks};
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
-pub use scheduler::{Scheduler, SingleThreadScheduler};
+pub use scheduler::{Scheduler, SingleThreadScheduler, WorkerPoolScheduler};
 pub use unified_registry::{
     get_global_unified_registry, init_global_unified_registry, register_user_defined_factory,
 };

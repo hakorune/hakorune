@@ -1081,6 +1081,24 @@ thread_api_detach_http_server_client_2026_06_05:
   next_thread_task_scope=design_worker_pool_route_after_thread_registry_and_capture_safety_boundary_check
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+worker_pool_scheduler_substrate_2026_06_05:
+  status=landed
+  task_kind=runtime_scheduler_substrate
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/runtime/scheduler.rs
+  added_scheduler=WorkerPoolScheduler
+  worker_pool_default_enabled=0
+  worker_pool_source_route_enabled=0
+  worker_pool_thread_api_spawn=1
+  worker_pool_join_on_drop=1
+  worker_pool_spawn_after_route=worker_sleep_then_task
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  hako_source_thread_support_claim=0
+  next_thread_task=THREAD-SAFETY-001
+  next_thread_task_scope=send_share_thread_root_boundary_before_source_worker_routes
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
