@@ -83,6 +83,15 @@ def build_replacement_front_subject_static_lines(
         if args.replacement_front_lock_mode
         else 0
     )
+    page_from_ptr_route = (
+        "side_table_direct"
+        if args.replacement_front_page_from_ptr_bridge_mode
+        else "indexed_page_table"
+        if args.replacement_front_product_pages_nonlinear_mode
+        else "range_scan"
+        if replacement_front_bins_mode
+        else "not_consumed"
+    )
     hot_atomic_rmw = int(
         (
             replacement_front_bins_mode
@@ -246,6 +255,12 @@ def build_replacement_front_subject_static_lines(
         "subject_"
         f"{index}_replacement_front_thread_local_hotcore_route="
         f"{thread_local_hotcore_route}",
+        "subject_"
+        f"{index}_replacement_front_page_from_ptr_bridge_mode="
+        f"{1 if args.replacement_front_page_from_ptr_bridge_mode else 0}",
+        "subject_"
+        f"{index}_replacement_front_page_from_ptr_route="
+        f"{page_from_ptr_route}",
         "subject_"
         f"{index}_replacement_front_remote_free_route="
         f"{cross_thread_free_policy}",

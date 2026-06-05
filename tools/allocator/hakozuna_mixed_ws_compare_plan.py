@@ -192,6 +192,22 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
             "--replacement-front-product-pages-nonlinear-mode in this slice"
         )
     if (
+        args.replacement_front_page_from_ptr_bridge_mode
+        and not args.replacement_front_page_bins_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-page-from-ptr-bridge-mode requires "
+            "--replacement-front-page-bins-mode"
+        )
+    if (
+        args.replacement_front_page_from_ptr_bridge_mode
+        and args.replacement_front_product_pages_nonlinear_mode
+    ):
+        raise SystemExit(
+            "--replacement-front-page-from-ptr-bridge-mode and "
+            "--replacement-front-product-pages-nonlinear-mode are exclusive"
+        )
+    if (
         args.replacement_front_product_pages_nonlinear_mode
         and not args.replacement_front_page_bins_mode
     ):

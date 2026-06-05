@@ -70,6 +70,10 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_page_index_probe_count", page_index_probe_count);
   write_kv(fd, "replacement_front_page_index_collision_count", page_index_collision_count);
   write_kv(fd, "replacement_front_page_index_overflow_count", page_index_overflow_count);
+  write_kv(fd, "replacement_front_page_from_ptr_count", page_from_ptr_count);
+  write_kv(fd, "replacement_front_page_from_ptr_miss_count", page_from_ptr_miss_count);
+  write_kv(fd, "replacement_front_page_from_ptr_invalid_count", page_from_ptr_invalid_count);
+  write_kv(fd, "replacement_front_page_from_ptr_range_scan_count", page_from_ptr_range_scan_count);
   close(fd);
 }
 

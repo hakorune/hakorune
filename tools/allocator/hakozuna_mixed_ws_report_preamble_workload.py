@@ -32,6 +32,15 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
         if args.replacement_front_lock_mode
         else 0
     )
+    page_from_ptr_route = (
+        "side_table_direct"
+        if args.replacement_front_page_from_ptr_bridge_mode
+        else "indexed_page_table"
+        if args.replacement_front_product_pages_nonlinear_mode
+        else "range_scan"
+        if replacement_front_bins_mode
+        else "not_consumed"
+    )
 
     return [
         "replacement_front_size_class_bridge_plan_v0=1",
@@ -104,6 +113,9 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
         f"{1 if args.replacement_front_tls_page_arena_mode else 0}",
         "replacement_front_thread_local_hotcore_route="
         f"{'benchmark_page_bins_hotcore_tls' if args.replacement_front_tls_page_arena_mode else 'not_consumed'}",
+        "replacement_front_page_from_ptr_bridge_mode="
+        f"{1 if args.replacement_front_page_from_ptr_bridge_mode else 0}",
+        f"replacement_front_page_from_ptr_route={page_from_ptr_route}",
         f"replacement_front_remote_free_route={remote_free_route}",
         "replacement_front_global_lock_hot_path_expected="
         f"{global_lock_hot_path_expected}",

@@ -1469,6 +1469,40 @@ mimalloc_tls_page_arena_impl_2026_06_05:
   next_thread_task=MIM-PAGE-FROM-PTR-BRIDGE-001
   next_thread_task_scope=BenchmarkPageFromPtrBridgeV0_remove_range_scan_from_hot_free_without_product_pages_activation
 
+mimalloc_page_from_ptr_bridge_impl_2026_06_05:
+  status=landed
+  task_kind=benchmark_only_impl_slice
+  owner_doc=docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
+  route_name=BenchmarkPageFromPtrBridgeV0
+  cli_flag=--replacement-front-page-from-ptr-bridge-mode
+  bridge_route=side_table_direct
+  generated_route=benchmark_page_bins_hotcore_tls
+  product_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  product_pages_consumer_enabled=0
+  implemented_slice=side_table_ptr_to_page_bridge_without_product_pages_activation
+  report=target/hakozuna-mixed-ws-page-from-ptr-smoke-long/report.out
+  smoke_threads=2
+  smoke_iters_per_thread=100000
+  median_ops_per_sec=14,443,878.886
+  c_mimalloc_median_ops_per_sec=115,858,140.975
+  throughput_vs_c_mimalloc=0.124669
+  replacement_front_page_bins_lookup_route=page_from_ptr_bridge
+  replacement_front_page_from_ptr_route=side_table_direct
+  replacement_front_page_from_ptr_count_total=204254
+  replacement_front_page_from_ptr_range_scan_count_total=0
+  replacement_front_page_from_ptr_invalid_count_total=0
+  replacement_front_page_from_ptr_miss_count_total=0
+  replacement_front_global_lock_hot_path_count_total=0
+  replacement_front_remote_free_route=disabled
+  mimalloc_fidelity_guard_passed=0
+  decision=nonkeeper_until_remote_free_queue_and_abandoned_counters_land
+  next_thread_task=MIM-REMOTE-FREE-QUEUE-001
+  next_thread_task_scope=RemoteFreeQueuePlanV0_atomic_page_remote_head_owner_drain_without_product_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

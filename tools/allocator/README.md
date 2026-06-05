@@ -983,15 +983,24 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --replacement-front-page-bins-mode \
   --replacement-front-hotcore-page-model-mode \
   --replacement-front-tls-page-arena-mode \
+  --replacement-front-page-from-ptr-bridge-mode \
   --replacement-front-size-class-table-mode
 ```
 
 This route reports `benchmark_page_bins_hotcore_tls` and must keep product
 activation, product pages, and winner claims closed. It removes the global
-arena lock from the same-thread page-bin hot path, but still reports
-`replacement_front_page_bins_lookup_route=range_scan` and
-`replacement_front_remote_free_route=disabled` until the next bridge slices
-land.
+arena lock from the same-thread page-bin hot path. With
+`--replacement-front-page-from-ptr-bridge-mode`, it also reports:
+
+```text
+replacement_front_page_bins_lookup_route=page_from_ptr_bridge
+replacement_front_page_from_ptr_route=side_table_direct
+replacement_front_page_from_ptr_range_scan_count_total=0
+replacement_front_product_pages_consumer_enabled=0
+```
+
+Remote free is still closed for this slice:
+`replacement_front_remote_free_route=disabled`.
 
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \

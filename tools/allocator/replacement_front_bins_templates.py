@@ -14,6 +14,7 @@ def generate_replacement_front_bins_shim_c(
     page_shaped: bool = False,
     hotcore_page_model: bool = False,
     thread_local_page_arena: bool = False,
+    page_from_ptr_bridge: bool = False,
     size_class_table: bool = False,
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
@@ -260,6 +261,7 @@ static int release_from_bin(int bin, uint32_t index) {{
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
 
     page_index_source = ""
+    side_table_lookup = product_pages_nonlinear_lookup or page_from_ptr_bridge
     find_owned_source = f"""
 static int find_owned(
     void* ptr,
@@ -271,6 +273,8 @@ static int find_owned(
     uint32_t** free_stack_out,
     uint32_t** free_top_out) {{
   if (!ptr) return 0;
+  add_counter(&page_from_ptr_count, 1);
+  add_counter(&page_from_ptr_range_scan_count, 1);
   uintptr_t value = (uintptr_t)ptr;
   uintptr_t base = 0u;
   uintptr_t end = 0u;
@@ -278,17 +282,21 @@ static int find_owned(
   uintptr_t stride = 0u;
   uint32_t index = 0u;
 {chr(10).join(find_cases)}
+  add_counter(&page_from_ptr_miss_count, 1);
   return 0;
 }}
 """
-    if product_pages_nonlinear_lookup:
+    if side_table_lookup:
         find_owned_source = ""
         page_index_source = f"""
-/* Benchmark-only ownership index for the page-bins front. This is not the
- * product PageMap, allocator activation, or a full .hako mimalloc algorithm
- * claim. */
+/* Benchmark-only ownership index for the page-bins front. This may be used as
+ * a narrow hot ptr-to-page bridge, but it is not allocator activation or a full
+ * .hako mimalloc algorithm claim. */
 #define HAKO_PAGE_INDEX_TABLE_CAP 65536u
 #define HAKO_PAGE_INDEX_SHIFT 12u
+#define HAKO_PAGE_INDEX_EMPTY 0u
+#define HAKO_PAGE_INDEX_WRITING 1u
+#define HAKO_PAGE_INDEX_READY 2u
 
 typedef struct HakoReplacementPageIndexEntry {{
   uintptr_t page_key;
@@ -301,7 +309,7 @@ typedef struct HakoReplacementPageIndexEntry {{
   size_t* requested;
   uint32_t* free_stack;
   uint32_t* free_top;
-  unsigned char occupied;
+  unsigned char state;
 }} HakoReplacementPageIndexEntry;
 
 static HakoReplacementPageIndexEntry page_index_table[HAKO_PAGE_INDEX_TABLE_CAP];
@@ -330,7 +338,9 @@ static void page_index_insert(
   for (unsigned int probe = 0; probe < HAKO_PAGE_INDEX_TABLE_CAP; probe++) {{
     HakoReplacementPageIndexEntry* entry =
         &page_index_table[(slot + probe) & (HAKO_PAGE_INDEX_TABLE_CAP - 1u)];
-    if (!entry->occupied) {{
+    unsigned char state = entry->state;
+    if (state == HAKO_PAGE_INDEX_EMPTY &&
+        __sync_bool_compare_and_swap(&entry->state, HAKO_PAGE_INDEX_EMPTY, HAKO_PAGE_INDEX_WRITING)) {{
       entry->page_key = page_key;
       entry->base = base;
       entry->end = end;
@@ -341,11 +351,12 @@ static void page_index_insert(
       entry->requested = requested;
       entry->free_stack = free_stack;
       entry->free_top = free_top;
-      entry->occupied = 1u;
+      __sync_synchronize();
+      entry->state = HAKO_PAGE_INDEX_READY;
       page_index_insert_count++;
       return;
     }}
-    if (entry->page_key == page_key) {{
+    if (state == HAKO_PAGE_INDEX_READY) {{
       page_index_collision_count++;
     }}
   }}
@@ -379,20 +390,35 @@ static int find_owned(
     uint32_t** free_stack_out,
     uint32_t** free_top_out) {{
   if (!ptr) return 0;
+  add_counter(&page_from_ptr_count, 1);
   uintptr_t value = (uintptr_t)ptr;
   uintptr_t page_key = value >> HAKO_PAGE_INDEX_SHIFT;
   unsigned int slot = page_index_slot(page_key);
   for (unsigned int probe = 0; probe < HAKO_PAGE_INDEX_TABLE_CAP; probe++) {{
     HakoReplacementPageIndexEntry* entry =
         &page_index_table[(slot + probe) & (HAKO_PAGE_INDEX_TABLE_CAP - 1u)];
-    if (!entry->occupied) return 0;
+    unsigned char state = entry->state;
+    if (state == HAKO_PAGE_INDEX_EMPTY) {{
+      add_counter(&page_from_ptr_miss_count, 1);
+      return 0;
+    }}
+    if (state != HAKO_PAGE_INDEX_READY) continue;
     if (entry->page_key != page_key) continue;
     page_index_probe_count++;
-    if (value < entry->base || value >= entry->end) continue;
+    if (value < entry->base || value >= entry->end) {{
+      add_counter(&page_from_ptr_invalid_count, 1);
+      continue;
+    }}
     uintptr_t delta = value - entry->base;
-    if ((delta % entry->stride) != 0) continue;
+    if ((delta % entry->stride) != 0) {{
+      add_counter(&page_from_ptr_invalid_count, 1);
+      continue;
+    }}
     uintptr_t index = delta / entry->stride;
-    if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) continue;
+    if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
+      add_counter(&page_from_ptr_invalid_count, 1);
+      continue;
+    }}
     *bin_out = entry->bin;
     *index_out = (uint32_t)index;
     *slot_size_out = entry->slot_size;
@@ -402,6 +428,7 @@ static int find_owned(
     *free_top_out = entry->free_top;
     return 1;
   }}
+  add_counter(&page_from_ptr_miss_count, 1);
   return 0;
 }}
 """
@@ -497,6 +524,10 @@ static unsigned long long tls_arena_peak_count = 0;
 static unsigned long long thread_exit_arena_flush_count = 0;
 static unsigned long long abandoned_owner_count = 0;
 static unsigned long long abandoned_remote_free_count = 0;
+static unsigned long long page_from_ptr_count = 0;
+static unsigned long long page_from_ptr_miss_count = 0;
+static unsigned long long page_from_ptr_invalid_count = 0;
+static unsigned long long page_from_ptr_range_scan_count = 0;
 
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -542,7 +573,7 @@ static void resolve_real(void) {{
 static void init_bins(void) {{
   if (init_done) return;
 {chr(10).join(init_cases)}
-{chr(10).join(page_index_register_cases) if product_pages_nonlinear_lookup else ""}
+{chr(10).join(page_index_register_cases) if side_table_lookup else ""}
   init_done = 1u;
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
   unsigned long long count = __sync_add_and_fetch(&tls_arena_count, 1);
