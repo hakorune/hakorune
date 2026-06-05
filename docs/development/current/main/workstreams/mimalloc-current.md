@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-017D Replacement-front producer taxonomy
+  LLVM-PIPE-002 LLVM runner pipeline report fields
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -133,10 +133,15 @@ why:
   MIM-FMEM-004 added the inventory verifier; MIM-FMEM-005 locked PageKey
   exact-route docs/report vocabulary; MIM-FMEM-006 connected existing exact
   shift route evidence to the PageKey report; MIM-FMEM-007 locked the
-  PageMapBridge plan. A worker/parser inventory found that the `.hako`
-  selfhost parser was behind the Rust parser. PARSER-FMEM-001 through
-  PARSER-FMEM-006 now prove the narrow dual-parser parse-only parity needed
-  before reopening the fastmem source syntax pilot.
+  PageMapBridge plan. PARSER-FMEM-001 through PARSER-FMEM-006 proved the
+  narrow dual-parser parse-only parity needed before reopening fastmem source
+  syntax. MIM-FMEM-008 through MIM-FMEM-017D then connected source syntax,
+  PageMapBridge, typed page metadata, AllocOwnerId/TLS owner state,
+  same/remote-free evidence, safe wrappers, shape scoring, product-shaped
+  bridge evidence, and producer taxonomy without product activation.
+  LLVM-PIPE-001 has now made the current LLVM runner debt visible as static
+  hako_check inventory, so LLVM-PIPE-002 can add dynamic pipeline/executor
+  report fields before any cleanup.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -165,6 +170,8 @@ completed_this_slice:
   MIM-FMEM-017A Product-shaped bridge report normalization
   MIM-FMEM-017B SizeClassBox bridge evidence
   MIM-FMEM-017C Page-local state bridge evidence
+  MIM-FMEM-017D Replacement-front producer taxonomy
+  LLVM-PIPE-001 LLVM runner pipeline debt inventory
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -194,6 +201,9 @@ task_order:
   MIM-FMEM-017B SizeClassBox bridge evidence
   MIM-FMEM-017C Page-local state bridge evidence
   MIM-FMEM-017D Replacement-front producer taxonomy
+  LLVM-PIPE-001 LLVM runner pipeline debt inventory
+  LLVM-PIPE-002 LLVM runner pipeline report fields
+  LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
   MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
   MIR-FMEM-002 mir/contracts FastMemRegion/MemOp vocabulary
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
@@ -294,14 +304,14 @@ Runner cleanup phase split:
 
 ```text
 LLVM-PIPE-001:
-  inventory/report current LLVM runner debt:
+  landed static inventory/report for current LLVM runner debt:
     NYASH_REWRITE_FUTURE env forcing
     method_id_injector no-op mutation seam
     joinir_experiment hook/fallback
     pyvm/harness/mock fallback route visibility
 
 LLVM-PIPE-002:
-  add explicit report fields for pipeline/executor/fallback evidence.
+  add dynamic report fields for pipeline/executor/fallback evidence.
 
 LLVM-PIPE-003:
   move env side effects and ad-hoc runner stages toward
@@ -322,6 +332,21 @@ replacement_front_mirbuilder_representation_only=1
 replacement_front_mirbuilder_route_decision_count=0
 replacement_front_producer_transition_state=current_bridge
 product_activation_ready=0
+```
+
+`LLVM-PIPE-001` landed as static hako_check inventory:
+
+```text
+output_contract=hako-check-llvm-pipeline-inventory-v0
+mir_future_rewrite_forced=1
+method_id_injector_mutation_count=0
+joinir_experiment_fallback_policy=original_mir
+pyvm_reachable=1
+pyvm_daily_route=0
+execution_backend_order=pyvm,obj_out,ny_llvmc_exe,mock
+llvm_fallback_used=0
+llvm_fallback_reason=static_inventory_only
+product_activation=0
 ```
 
 `MIM-FMEM-017B` landed as report/check-only:

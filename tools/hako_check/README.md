@@ -14,6 +14,7 @@ Canonical helpers
 - `bash tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/deadblocks_smoke.sh`
 - `bash tools/hako_check/replacement_front_report_smoke.sh`
+- `bash tools/hako_check/llvm_pipeline_inventory_smoke.sh`
 - `bash tools/hako_check/fastmem_capability_inventory_smoke.sh`
 - `bash tools/hako_check/fastmem_check_smoke.sh`
 - `bash tools/hako_check/fastmem_source_syntax_smoke.sh`
@@ -321,6 +322,83 @@ summary=ok|failed
   run benchmarks, rewrite source, change MIR, choose keepers, activate
   providers, replace allocators, install hooks, claim product readiness, or
   infer ownership from Type ABI descriptors.
+
+LLVM Pipeline Inventory
+- `hako_check llvm-pipeline-inventory` is an observation-only static inventory
+  for the current LLVM runner pipeline seams. It reads repository source files
+  only; it does not compile, execute LLVM, call PyVM, emit objects, or choose a
+  backend.
+- Use this before changing LLVM runner structure so `NYASH_REWRITE_FUTURE`,
+  `method_id_injector`, `joinir_experiment`, PyVM, harness, and mock fallback
+  visibility are explicit.
+- Stable v0 entry:
+
+```bash
+bash tools/hako_check.sh llvm-pipeline-inventory
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-llvm-pipeline-inventory-v0
+tool_surface=hako_check_llvm_pipeline_inventory
+observation_only=1
+rewrite_executed=0
+source_rewrite_executed=0
+benchmark_run_executed=0
+behavior_change=0
+mir_future_rewrite_forced
+mir_future_rewrite_env_key=NYASH_REWRITE_FUTURE
+mir_future_rewrite_env_restore_guard
+mir_future_rewrite_consumed_by_normalize
+mir_future_rewrite_route
+method_id_injector_stage_present
+method_id_injector_called
+method_id_injector_noop_stub
+method_id_injector_mutation_count
+joinir_experiment_hook_called
+joinir_experiment_feature_gate
+joinir_experiment_env_gate
+joinir_experiment_fallback_policy
+pyvm_executor_stage_present
+pyvm_reachable
+pyvm_gate=SMOKES_USE_PYVM
+pyvm_daily_route=0
+pyvm_withdrawn_policy=diagnostic_only
+llvm_obj_out_stage_present
+llvm_harness_stage_present
+llvm_harness_default_enabled
+llvmlite_daily_owner=0
+mock_fallback_stage_present
+mock_fallback_reachable
+mock_fallback_blocked_when_harness_explicit
+execution_backend_order
+execution_backend_runtime_sample=0
+llvm_fallback_used=0
+llvm_fallback_reason=static_inventory_only
+type_abi_hot_lookup_count=0
+provider_abi_hot_dispatch_count=0
+product_activation=0
+hook_installed=0
+global_allocator_product_claim=0
+winner_claim=0
+summary=ok
+```
+
+- Interpretation:
+  - `mir_future_rewrite_forced=1` means LLVM compile currently changes
+    `NYASH_REWRITE_FUTURE` through an env restore guard. This is inventory for
+    future `CompileOptions` cleanup, not a behavior change.
+  - `method_id_injector_mutation_count=0` means the stage remains present in
+    the runner, but the pass is currently a retired compatibility no-op.
+  - `joinir_experiment_fallback_policy=original_mir` means the experiment hook
+    can return the original MIR when disabled or when the narrow JoinIR route
+    does not apply.
+  - `pyvm_reachable=1` and `pyvm_daily_route=0` means PyVM is withdrawn from
+    the daily/product owner path but still reachable by `SMOKES_USE_PYVM=1`
+    diagnostic smokes.
+- Stop line: this surface does not run LLVM/PyVM/harness/mock fallback, does
+  not rewrite MIR, and does not decide whether fallback routes are acceptable.
 
 FastMemory Capability Inventory
 - `hako_check fastmem-capability-inventory` is an observation-only adapter for

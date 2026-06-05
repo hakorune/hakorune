@@ -14,6 +14,7 @@ Usage:
   $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]
   $0 perf-surface-contract [--out report.txt]
   $0 replacement-front-report --report target/.../report.out [options]
+  $0 llvm-pipeline-inventory [--repo-root repo] [--format kv|summary]
   $0 fastmem-capability-inventory (--report target/.../report.out | --ast-json ast.json | --program-json program.json) [options]
   $0 fastmem-check (--report target/.../report.out | --inventory report.kv | --ast-json ast.json | --program-json program.json) [options]
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
@@ -27,6 +28,8 @@ Tool surfaces:
                       report vocabulary for perf-surface
   replacement-front-report
                       read-only replacement-front benchmark report explanation
+  llvm-pipeline-inventory
+                      read-only LLVM runner pipeline debt inventory
   fastmem-capability-inventory
                       read-only fastmem / memory fast-path capability inventory
   fastmem-check       CI-style verifier over fastmem inventory fields
@@ -77,6 +80,11 @@ fi
 if [ "${1:-}" = "replacement-front-report" ]; then
   shift
   exec python3 "$ROOT/tools/hako_check/replacement_front_report.py" "$@"
+fi
+
+if [ "${1:-}" = "llvm-pipeline-inventory" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/llvm_pipeline_inventory.py" "$@"
 fi
 
 if [ "${1:-}" = "fastmem-capability-inventory" ]; then

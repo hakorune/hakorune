@@ -64,10 +64,11 @@ Producer transition:
   MIRBuilder design consultation is a separate representation-boundary task;
   MIRBuilder represents FastMemRegion/MemOp, Planner selects, Verifier guards,
   Lowering emits.
-LLVM-PIPE-001 starts separate runner cleanup inventory next:
-  LLVM-PIPE-001 inventory/report current env rewrite, method-id seam, JoinIR
-  experiment hook, and PyVM/harness/mock fallback visibility.
-  LLVM-PIPE-002 adds explicit pipeline/executor report fields.
+LLVM-PIPE-001 landed separate runner cleanup inventory:
+  Static hako_check inventory now reports env future rewrite, method-id seam,
+  JoinIR experiment hook, and PyVM/harness/mock fallback visibility without
+  executing any runner route.
+  LLVM-PIPE-002 adds dynamic pipeline/executor report fields.
   LLVM-PIPE-003 moves env side effects and ad-hoc runner stages toward
   CompileOptions / PipelinePlan / LoweringPlan.
 ```

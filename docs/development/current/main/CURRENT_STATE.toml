@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIM-FMEM-017D landed Replacement-front producer taxonomy; next is LLVM-PIPE-001 runner pipeline debt inventory with product activation still closed."
+active_lane_status = "LLVM-PIPE-001 landed static LLVM runner pipeline debt inventory; next is LLVM-PIPE-002 dynamic pipeline/executor report fields with product activation still closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-433-REPLACEMENT-FRONT-PRODUCER-TAXONOMY.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-434-LLVM-RUNNER-PIPELINE-DEBT-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-433-REPLACEMENT-FRONT-PRODUCER-TAXONOMY"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-433-REPLACEMENT-FRONT-PRODUCER-TAXONOMY.md"
-latest_card_summary = "Landed MIM-FMEM-017D: replacement-front producer taxonomy distinguishes python_template_c_bridge, mir_to_c_lowering, and mir_to_llvm_lowering without behavior or activation changes."
-current_blocker_token = "LLVM-PIPE-001"
+latest_card = "296x-434-LLVM-RUNNER-PIPELINE-DEBT-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-434-LLVM-RUNNER-PIPELINE-DEBT-INVENTORY.md"
+latest_card_summary = "Landed LLVM-PIPE-001: static hako_check inventory for NYASH_REWRITE_FUTURE, method_id_injector, joinir_experiment, and PyVM/harness/mock fallback visibility without runner behavior changes."
+current_blocker_token = "LLVM-PIPE-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-434 landed LLVM-PIPE-001 static LLVM runner pipeline debt inventory; LLVM-PIPE-002 dynamic pipeline/executor report fields opens next.",
   "2026-06-06: 296x-433 landed MIM-FMEM-017D Replacement-front producer taxonomy; LLVM-PIPE-001 runner pipeline debt inventory opens next.",
   "2026-06-05: 296x-432 landed MIM-FMEM-017C Page-local state bridge evidence tying replacement-front page-local metadata/same-owner evidence to .hako HakoAllocPageModel; MIM-FMEM-017D producer taxonomy opens next.",
   "2026-06-05: 296x-431 landed MIM-FMEM-017B SizeClassBox bridge evidence tying the replacement-front size-class mirror to .hako SizeClassBox policy; MIM-FMEM-017C Page-local state bridge evidence opens next.",
