@@ -1179,6 +1179,46 @@ p2p_threadapi_async_reply_cleanup_2026_06_05:
   next_thread_task_scope=refresh_replacement_front_thread_evidence_before_product_impl
   selected_next_action=run_replacement_front_thread_evidence_refresh
 
+mimalloc_thread_evidence_refresh_2026_06_05:
+  status=landed
+  task_kind=benchmark_evidence_refresh
+  smoke_report=target/hakozuna-mixed-ws-replacement-smoke/report.out
+  perf_report=target/hakozuna-mixed-ws-replacement-perf/report.out
+  smoke_sample_count=3
+  perf_sample_count=7
+  benchmark_threads=2
+  replacement_front_smoke_route=thread_local_cross_thread_smoke
+  replacement_front_perf_route=locked_global_multithread_front
+  replacement_front_cross_thread_free_smoke_ok=1
+  replacement_front_cross_thread_free_remote_free_push_count=1
+  replacement_front_cross_thread_free_remote_free_drain_count=1
+  replacement_front_cross_thread_free_arena_registry_overflow_count=0
+  replacement_front_abandoned_owner_smoke_ok=1
+  replacement_front_abandoned_owner_abandoned_arena_count=1
+  replacement_front_abandoned_owner_abandoned_remote_free_count=1
+  replacement_front_abandoned_owner_host_passthrough_count=0
+  replacement_front_cross_thread_realloc_smoke_ok=1
+  replacement_front_cross_thread_realloc_unsupported_count=1
+  replacement_front_cross_thread_realloc_host_passthrough_count=0
+  replacement_front_evidence_owner=locked_global_multithread_front
+  replacement_front_multithread_perf_candidate=1
+  replacement_front_thread_local_perf_candidate=0
+  c_mimalloc_median_ops_per_sec=11362345.188
+  replacement_front_median_ops_per_sec=11490686.798
+  replacement_front_throughput_vs_c_mimalloc=1.011295
+  replacement_front_is_full_hako_algorithm=0
+  replacement_front_product_activation_ready=0
+  replacement_front_product_activation_blockers=benchmark_only,product_gate_closed,no_activation_row
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  hako_source_thread_support_claim=0
+  next_thread_task=MIM-LOCKED-GLOBAL-001
+  next_thread_task_scope=turn_locked_global_multithread_front_evidence_into_next_benchmark_only_impl_slice_without_product_activation
+  selected_next_action=select_locked_global_multithread_front_impl_slice
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
