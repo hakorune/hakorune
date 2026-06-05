@@ -20,6 +20,7 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_page_map_bridge_smoke.sh`
 - `bash tools/hako_check/fastmem_typed_page_meta_smoke.sh`
 - `bash tools/hako_check/fastmem_alloc_owner_schema_smoke.sh`
+- `bash tools/hako_check/fastmem_alloc_owner_check_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -452,6 +453,14 @@ FastMemory AllocOwnerId Schema Smoke
 - This is schema/report evidence only. It does not add owner-state fail-fast
   gates, generated-C owner shadow counters, same-owner local-free routing, or
   remote `AtomicRemoteHead` behavior.
+
+FastMemory AllocOwnerId Check Smoke
+- `fastmem_alloc_owner_check_smoke.sh` fixes the first owner-state fail-fast
+  gates. It rejects owner ids that claim OS thread / runtime worker / `.hako`
+  task identity, stale generation evidence, page owner count mismatch, missing
+  TLS arena init, and non-`page_meta_owner_worker_id` owner-check routes.
+- This check still validates existing inventory fields only. It does not add
+  generated-C owner shadow counters or route same-owner/remote frees.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

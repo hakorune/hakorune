@@ -45,6 +45,16 @@ FAIL_FIELDS = [
     "page_map_bridge_type_abi_hot_lookup_count",
     "page_map_bridge_provider_abi_hot_dispatch_count",
     "free_path_page_lookup_range_scan_count",
+    "alloc_owner_id_escape_count",
+    "worker_id_escape_count",
+    "worker_id_equals_os_thread_id_claim",
+    "worker_id_equals_runtime_worker_id_claim",
+    "worker_id_equals_hako_task_id_claim",
+    "allocator_tls_arena_init_fail_count",
+    "page_owner_count_mismatch",
+    "page_owner_stale_generation_count",
+    "page_owner_unowned_count",
+    "hako_source_thread_support_claim",
 ]
 
 FAIL_STRING_FIELDS = {
@@ -58,6 +68,14 @@ def int_count(rows: dict[str, Any], key: str) -> int:
         return int(float(str(value)))
     except (TypeError, ValueError):
         return 0
+
+
+def owner_state_profile(rows: dict[str, str]) -> bool:
+    return (
+        int_count(rows, "alloc_owner_id_capability") > 0
+        or int_count(rows, "worker_id_capability") > 0
+        or int_count(rows, "page_owner_check_enabled") > 0
+    )
 
 
 def run_inventory(source_flag: str, source_path: Path) -> dict[str, str]:
@@ -87,6 +105,21 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
     for key, forbidden_values in FAIL_STRING_FIELDS.items():
         if rows.get(key) in forbidden_values:
             reasons.append(key)
+    if owner_state_profile(rows):
+        if rows.get("alloc_owner_id_kind") != "allocator_arena_owner":
+            reasons.append("alloc_owner_id_kind")
+        if rows.get("worker_id_kind") != "allocator_arena_owner":
+            reasons.append("worker_id_kind")
+        if int_count(rows, "allocator_tls_arena_enabled") <= 0:
+            reasons.append("allocator_tls_arena_enabled")
+        if int_count(rows, "allocator_tls_arena_init_count") <= 0:
+            reasons.append("allocator_tls_arena_init_count")
+        if int_count(rows, "page_owner_check_enabled") <= 0:
+            reasons.append("page_owner_check_enabled")
+        if rows.get("page_owner_check_route") != "page_meta_owner_worker_id":
+            reasons.append("page_owner_check_route")
+        if int_count(rows, "page_owner_check_count") <= 0:
+            reasons.append("page_owner_check_count")
     return reasons
 
 
