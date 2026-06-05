@@ -4,7 +4,7 @@
 
 use crate::runtime::get_global_ring0;
 use crate::runtime::ring0::{Ring0Context, ThreadExit, ThreadHandle, ThreadSpawnError};
-use crate::runtime::thread_registry::{global_thread_registry, ThreadRegistryRole};
+use crate::runtime::thread_registry::{global_thread_registry, ThreadRegistry, ThreadRegistryRole};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Sender};
 
@@ -131,11 +131,35 @@ impl Scheduler for SingleThreadScheduler {
 }
 
 type SchedulerTask = Box<dyn FnOnce() + Send + 'static>;
-type DelayedSchedulerTask = (Instant, String, SchedulerTask);
 
 enum WorkerMessage {
     Task(SchedulerTask),
     Shutdown,
+}
+
+struct WorkerThreadRegistration {
+    registry: Arc<ThreadRegistry>,
+    host_thread_id: crate::runtime::ring0::HostThreadId,
+}
+
+impl Drop for WorkerThreadRegistration {
+    fn drop(&mut self) {
+        let _ = self.registry.unregister_current_thread(self.host_thread_id);
+    }
+}
+
+struct PendingHintGuard {
+    pending: Arc<AtomicUsize>,
+}
+
+impl Drop for PendingHintGuard {
+    fn drop(&mut self) {
+        let _ = self
+            .pending
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
+                Some(n.saturating_sub(1))
+            });
+    }
 }
 
 /// Worker-pool scheduler substrate.
@@ -144,7 +168,6 @@ enum WorkerMessage {
 /// `.hako` source-level `nowait` semantics by default.
 pub struct WorkerPoolScheduler {
     tx: Mutex<Option<Sender<WorkerMessage>>>,
-    delayed: Mutex<Vec<DelayedSchedulerTask>>,
     handles: Mutex<Vec<ThreadHandle>>,
     ring0: Arc<Ring0Context>,
     pending_hint: Arc<AtomicUsize>,
@@ -188,6 +211,10 @@ impl WorkerPoolScheduler {
                             "worker pool thread registry register failed".to_string(),
                         );
                     }
+                    let _registration = WorkerThreadRegistration {
+                        registry,
+                        host_thread_id,
+                    };
 
                     let exit = loop {
                         let message = {
@@ -203,11 +230,6 @@ impl WorkerPoolScheduler {
                             Ok(WorkerMessage::Shutdown) | Err(_) => break ThreadExit::Ok,
                         }
                     };
-                    if registry.unregister_current_thread(host_thread_id).is_err() {
-                        return ThreadExit::Panic(
-                            "worker pool thread registry unregister failed".to_string(),
-                        );
-                    }
                     exit
                 }),
             ) {
@@ -227,7 +249,6 @@ impl WorkerPoolScheduler {
 
         Ok(Self {
             tx: Mutex::new(Some(tx)),
-            delayed: Mutex::new(Vec::new()),
             handles: Mutex::new(handles),
             ring0,
             pending_hint: Arc::new(AtomicUsize::new(0)),
@@ -248,22 +269,27 @@ impl WorkerPoolScheduler {
         tx.send(message).map_err(|err| err.0)
     }
 
+    fn task_sender(&self) -> Option<Sender<WorkerMessage>> {
+        let tx = self.tx.lock().ok()?;
+        tx.as_ref().cloned()
+    }
+
     fn wrap_counted_task(&self, f: SchedulerTask) -> SchedulerTask {
         let pending = self.pending_hint.clone();
         Box::new(move || {
+            let _pending_guard = PendingHintGuard { pending };
             f();
-            let _ = pending.fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
-                Some(n.saturating_sub(1))
-            });
         })
     }
 
     fn decrement_pending_hint(&self) {
-        let _ = self
-            .pending_hint
-            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
-                Some(n.saturating_sub(1))
-            });
+        Self::decrement_pending_hint_for(&self.pending_hint);
+    }
+
+    fn decrement_pending_hint_for(pending_hint: &AtomicUsize) {
+        let _ = pending_hint.fetch_update(Ordering::AcqRel, Ordering::Acquire, |n| {
+            Some(n.saturating_sub(1))
+        });
     }
 
     fn enqueue_counted_task(&self, name: &str, task: SchedulerTask) {
@@ -284,39 +310,50 @@ impl Scheduler for WorkerPoolScheduler {
     }
 
     fn spawn_after(&self, delay_ms: u64, name: &str, f: SchedulerTask) {
-        let when = Instant::now() + Duration::from_millis(delay_ms);
         self.pending_hint.fetch_add(1, Ordering::Release);
         let task = self.wrap_counted_task(f);
-        if let Ok(mut delayed) = self.delayed.lock() {
-            delayed.push((when, name.to_string(), task));
-        } else {
+
+        let Some(tx) = self.task_sender() else {
             self.decrement_pending_hint();
             self.ring0.log.error(&format!(
-                "WorkerPoolScheduler failed to enqueue delayed task {name}"
+                "WorkerPoolScheduler failed to schedule delayed task {name}"
             ));
-        }
-    }
-
-    fn poll(&self) {
-        if self.pending_hint.load(Ordering::Acquire) == 0 {
             return;
-        }
+        };
 
-        let now = Instant::now();
-        let mut due = Vec::new();
-        if let Ok(mut delayed) = self.delayed.lock() {
-            let mut i = 0;
-            while i < delayed.len() {
-                if delayed[i].0 <= now {
-                    due.push(delayed.remove(i));
-                } else {
-                    i += 1;
+        let pending = self.pending_hint.clone();
+        let ring0_for_timer = self.ring0.clone();
+        let task_name = name.to_string();
+        let timer_name = format!("hako-worker-delay-{task_name}");
+        match self.ring0.thread.spawn(
+            crate::runtime::ring0::ThreadSpawnSpec::named(timer_name),
+            Box::new(move || {
+                ring0_for_timer
+                    .thread
+                    .sleep(Duration::from_millis(delay_ms));
+                if tx.send(WorkerMessage::Task(task)).is_err() {
+                    WorkerPoolScheduler::decrement_pending_hint_for(&pending);
+                    ring0_for_timer.log.error(&format!(
+                        "WorkerPoolScheduler failed to enqueue delayed task {task_name}"
+                    ));
+                }
+                ThreadExit::Ok
+            }),
+        ) {
+            Ok(handle) => {
+                if let Err(err) = self.ring0.thread.detach(handle) {
+                    self.ring0.log.error(&format!(
+                        "WorkerPoolScheduler failed to detach delayed task timer {name}: {err:?}"
+                    ));
                 }
             }
-        }
-
-        for (_when, name, task) in due {
-            self.enqueue_counted_task(&name, task);
+            Err(err) => {
+                self.decrement_pending_hint();
+                self.ring0.log.error(&format!(
+                    "WorkerPoolScheduler failed to spawn delayed task timer {name}: {}",
+                    err.message
+                ));
+            }
         }
     }
 
@@ -406,7 +443,7 @@ mod tests {
     }
 
     #[test]
-    fn worker_pool_scheduler_spawn_after_runs_task() {
+    fn worker_pool_scheduler_spawn_after_runs_task_without_external_poll() {
         let _guard = WORKER_REGISTRY_TEST_GUARD.lock().unwrap();
         reset_global_thread_registry_for_tests();
         let scheduler = WorkerPoolScheduler::new(1).expect("worker pool should start");
@@ -420,21 +457,7 @@ mod tests {
             }),
         );
 
-        let deadline = Instant::now() + Duration::from_secs(2);
-        let mut received = None;
-        while Instant::now() < deadline {
-            scheduler.poll();
-            match rx.recv_timeout(Duration::from_millis(10)) {
-                Ok(value) => {
-                    received = Some(value);
-                    break;
-                }
-                Err(mpsc::RecvTimeoutError::Timeout) => {}
-                Err(err) => panic!("worker pool delay test channel failed: {err:?}"),
-            }
-        }
-
-        assert_eq!(received, Some("done"));
+        assert_eq!(rx.recv_timeout(Duration::from_secs(2)), Ok("done"));
         wait_for_no_pending(&scheduler);
     }
 
@@ -471,5 +494,43 @@ mod tests {
             .snapshot()
             .expect("snapshot should succeed")
             .is_empty());
+    }
+
+    #[test]
+    fn worker_pool_scheduler_unregisters_worker_after_task_panic() {
+        let _guard = WORKER_REGISTRY_TEST_GUARD.lock().unwrap();
+        reset_global_thread_registry_for_tests();
+        let registry = global_thread_registry();
+        let scheduler = WorkerPoolScheduler::new(1).expect("worker pool should start");
+
+        let deadline = Instant::now() + Duration::from_secs(2);
+        while registry.snapshot().expect("snapshot should succeed").len() != 1 {
+            assert!(
+                Instant::now() < deadline,
+                "worker pool thread did not register"
+            );
+            scheduler.yield_now();
+        }
+
+        scheduler.spawn(
+            "worker-pool-panic-test",
+            Box::new(move || {
+                panic!("worker pool panic cleanup test");
+            }),
+        );
+
+        let deadline = Instant::now() + Duration::from_secs(2);
+        while !registry
+            .snapshot()
+            .expect("snapshot should succeed")
+            .is_empty()
+        {
+            assert!(
+                Instant::now() < deadline,
+                "worker pool thread did not unregister after panic"
+            );
+            scheduler.yield_now();
+        }
+        wait_for_no_pending(&scheduler);
     }
 }

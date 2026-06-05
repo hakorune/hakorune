@@ -140,7 +140,6 @@ pub(crate) fn reset_global_thread_registry_for_tests() {
         if let Ok(mut registrations) = registry.registrations.lock() {
             registrations.clear();
         }
-        registry.next_worker_id.store(1, Ordering::Relaxed);
     }
 }
 
