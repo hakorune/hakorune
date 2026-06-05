@@ -42,6 +42,7 @@ impl MirInstruction {
 
             // Function calls use provided effect mask
             MirInstruction::Call { effects, .. } => *effects,
+            MirInstruction::MemOp { effects, .. } => *effects,
 
             // Control flow (pure but affects execution)
             MirInstruction::Branch { .. }
@@ -109,6 +110,7 @@ impl MirInstruction {
             MirInstruction::NewClosure { dst, .. } => Some(*dst),
 
             MirInstruction::Call { dst, .. } => *dst,
+            MirInstruction::MemOp { dst, .. } => *dst,
 
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
@@ -259,6 +261,7 @@ impl MirInstruction {
             MirInstruction::FutureNew { value, .. } => vec![*value],
             MirInstruction::FutureSet { future, value } => vec![*future, *value],
             MirInstruction::Await { future, .. } => vec![*future],
+            MirInstruction::MemOp { operands, .. } => operands.clone(),
         }
     }
 }

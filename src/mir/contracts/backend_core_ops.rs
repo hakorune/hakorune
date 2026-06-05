@@ -15,6 +15,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::VariantProject { .. } => "VariantProject",
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
+        MirInstruction::MemOp { .. } => "MemOp",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",
@@ -68,6 +69,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Jump",
     "KeepAlive",
     "Load",
+    "MemOp",
     "NewBox",
     "NewClosure",
     "Phi",
@@ -132,6 +134,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::Jump { .. }
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Load { .. }
+        | MirInstruction::MemOp { .. }
         | MirInstruction::NewBox { .. }
         | MirInstruction::NewClosure { .. }
         | MirInstruction::Phi { .. }
@@ -295,6 +298,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Select { .. } => &["select"],
 
         MirInstruction::Load { .. }
+        | MirInstruction::MemOp { .. }
         | MirInstruction::Store { .. }
         | MirInstruction::NewClosure { .. }
         | MirInstruction::Debug { .. }
@@ -345,6 +349,7 @@ pub fn is_supported_llvm_json_op(op: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::instruction::{FastMemRegionId, MemOpKind};
     use crate::mir::{ConstValue, EffectMask, ValueId};
     use std::collections::BTreeSet;
     use std::fs;
@@ -572,11 +577,27 @@ mod tests {
     }
 
     #[test]
+    fn memop_is_kept_but_not_backend_supported_yet() {
+        let inst = MirInstruction::MemOp {
+            region: FastMemRegionId::new(1),
+            kind: MemOpKind::AddrOf,
+            dst: Some(ValueId::new(10)),
+            operands: vec![ValueId::new(1)],
+            effects: EffectMask::READ,
+        };
+        assert_eq!(instruction_tag(&inst), "MemOp");
+        assert_eq!(instruction_diet_cohort(&inst), InstructionDietCohort::Kept);
+        assert!(!is_supported_mir_json_instruction(&inst));
+        assert!(!is_supported_vm_instruction(&inst));
+        assert_eq!(llvm_json_ops_for_instruction(&inst), &[] as &[&str]);
+    }
+
+    #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 34);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 35);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 50);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 51);
     }
 
     #[test]

@@ -13,6 +13,39 @@ use crate::mir::types::{
 
 // (unused imports removed)
 
+/// Function-local FastMemory region metadata id.
+///
+/// Region truth lives outside the instruction stream. `MemOp` instructions
+/// carry this id to point at their contract metadata.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct FastMemRegionId(pub u32);
+
+impl FastMemRegionId {
+    pub const INVALID: Self = Self(u32::MAX);
+
+    pub const fn new(id: u32) -> Self {
+        Self(id)
+    }
+}
+
+/// V0 memory fast-path operation dialect.
+///
+/// Keep this vocabulary aligned with
+/// `src/mir/contracts/fastmem_ops.rs`; backend support is contract-driven.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MemOpKind {
+    AddrOf,
+    LogicalShr,
+    BitAnd,
+    Add,
+    Sub,
+    TableIndex,
+    FieldLoad,
+    FieldStore,
+    CurrentAllocOwnerId,
+    OwnerEq,
+}
+
 /// MIR instruction types (full enum; backend allowlists are contract-driven)
 #[derive(Debug, Clone, PartialEq)]
 pub enum MirInstruction {
@@ -69,6 +102,18 @@ pub enum MirInstruction {
     /// Store to memory/variable
     /// `store %value -> %ptr`
     Store { value: ValueId, ptr: ValueId },
+
+    /// Contract-bound fast memory dialect operation.
+    ///
+    /// `region` points to side-table FastMemRegion metadata. The instruction
+    /// itself carries only executable operation vocabulary and operands.
+    MemOp {
+        region: FastMemRegionId,
+        kind: MemOpKind,
+        dst: Option<ValueId>,
+        operands: Vec<ValueId>,
+        effects: EffectMask,
+    },
 
     /// Canonical object field read.
     /// `%dst = field.get %base .field`

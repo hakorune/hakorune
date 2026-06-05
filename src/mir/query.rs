@@ -70,6 +70,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             Load { ptr, .. } => vec![*ptr],
             StaticDataLoad { index, .. } => vec![*index],
             Store { ptr, value } => vec![*ptr, *value],
+            MemOp { operands, .. } => operands.clone(),
             Call {
                 callee, func, args, ..
             } => {
@@ -137,6 +138,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | VariantProject { dst, .. }
             | Load { dst, .. }
             | StaticDataLoad { dst, .. }
+            | MemOp { dst: Some(dst), .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }
             | NewBox { dst, .. }
@@ -149,6 +151,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
             // No writes
             Store { .. }
+            | MemOp { dst: None, .. }
             | FieldSet { .. }
             | Call { dst: None, .. }
             | Return { .. }

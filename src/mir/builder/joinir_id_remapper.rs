@@ -73,6 +73,12 @@ impl JoinIrIdRemapper {
             Load { dst, ptr } => vec![*dst, *ptr],
             StaticDataLoad { dst, index, .. } => vec![*dst, *index],
             Store { value, ptr } => vec![*value, *ptr],
+            MemOp { dst, operands, .. } => {
+                let mut vals = Vec::new();
+                vals.extend(dst.iter().copied());
+                vals.extend(operands.iter().copied());
+                vals
+            }
             FieldGet { dst, base, .. } => vec![*dst, *base],
             FieldSet { base, value, .. } => vec![*base, *value],
             VariantMake { dst, payload, .. } => {
@@ -264,6 +270,19 @@ impl JoinIrIdRemapper {
             Store { value, ptr } => Store {
                 value: remap(*value),
                 ptr: remap(*ptr),
+            },
+            MemOp {
+                region,
+                kind,
+                dst,
+                operands,
+                effects,
+            } => MemOp {
+                region: *region,
+                kind: *kind,
+                dst: dst.map(remap),
+                operands: operands.iter().map(|&v| remap(v)).collect(),
+                effects: *effects,
             },
             FieldGet {
                 dst,

@@ -73,6 +73,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Load { .. } => "Load",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::Store { .. } => "Store",
+        MirInstruction::MemOp { .. } => "MemOp",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",

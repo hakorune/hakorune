@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIR-FMEM-001 landed the FastMemory MIR representation decision: MemOp single instruction, MemOpKind dialect, and FastMemRegion side-table metadata; next is MIR-FMEM-002 mir/contracts vocabulary."
+active_lane_status = "MIR-FMEM-002 landed the FastMemory MIR MemOp vocabulary and contracts allowlist with JSON/VM/LLVM/C support still closed; next is MIR-FMEM-003 MIRBuilder source lowering to metadata."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-437-MIRBUILDER-FASTMEM-MEMOP-DIALECT-DECISION.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-438-MIR-CONTRACTS-FASTMEM-MEMOP-VOCABULARY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-437-MIRBUILDER-FASTMEM-MEMOP-DIALECT-DECISION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-437-MIRBUILDER-FASTMEM-MEMOP-DIALECT-DECISION.md"
-latest_card_summary = "Landed MIR-FMEM-001: FastMemory MIR representation is MemOp single instruction plus MemOpKind dialect with FastMemRegion side-table metadata; Begin/End instruction markers are rejected."
-current_blocker_token = "MIR-FMEM-002"
+latest_card = "296x-438-MIR-CONTRACTS-FASTMEM-MEMOP-VOCABULARY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-438-MIR-CONTRACTS-FASTMEM-MEMOP-VOCABULARY.md"
+latest_card_summary = "Landed MIR-FMEM-002: added MirInstruction::MemOp, FastMemRegionId, MemOpKind V0, and contracts allowlist while keeping JSON/VM/LLVM/C support closed."
+current_blocker_token = "MIR-FMEM-003"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-438 landed MIR-FMEM-002 MemOp instruction vocabulary and MemOpKind contracts allowlist with JSON/VM/LLVM/C support closed; MIR-FMEM-003 MIRBuilder source lowering opens next.",
   "2026-06-06: 296x-437 landed MIR-FMEM-001 FastMemory MIR representation decision: MemOp single instruction, MemOpKind dialect, FastMemRegion side-table metadata; MIR-FMEM-002 mir/contracts vocabulary opens next.",
   "2026-06-06: 296x-436 landed LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup; MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation opens next.",
   "2026-06-06: 296x-435 landed LLVM-PIPE-002 opt-in LLVM runner runtime pipeline report fields; LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup opens next.",

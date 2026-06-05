@@ -411,6 +411,11 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
     match instruction {
         MirInstruction::Const { .. } | MirInstruction::Catch { .. } | MirInstruction::Safepoint => {
         }
+        MirInstruction::MemOp { operands, .. } => {
+            for operand in operands {
+                rewrite_value_use(operand, from, to);
+            }
+        }
         MirInstruction::BinOp { lhs, rhs, .. } | MirInstruction::Compare { lhs, rhs, .. } => {
             rewrite_value_use(lhs, from, to);
             rewrite_value_use(rhs, from, to);

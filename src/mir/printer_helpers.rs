@@ -73,6 +73,35 @@ pub fn format_instruction(
             format!("store {} -> {}", value, ptr)
         }
 
+        MirInstruction::MemOp {
+            region,
+            kind,
+            dst,
+            operands,
+            effects,
+        } => {
+            let args = operands
+                .iter()
+                .map(|v| format!("{}", v))
+                .collect::<Vec<_>>()
+                .join(", ");
+            if let Some(dst) = dst {
+                format!(
+                    "{} memop {:?} r{}({}); effects: {}",
+                    format_dst(dst, types),
+                    kind,
+                    region.0,
+                    args,
+                    effects
+                )
+            } else {
+                format!(
+                    "memop {:?} r{}({}); effects: {}",
+                    kind, region.0, args, effects
+                )
+            }
+        }
+
         MirInstruction::FieldGet {
             dst,
             base,

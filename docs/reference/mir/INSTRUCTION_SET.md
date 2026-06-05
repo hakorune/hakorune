@@ -23,10 +23,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=34
+DOC_SYNC_MIR_KEPT_COUNT=35
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=50
+DOC_SYNC_MIR_VOCABULARY_COUNT=51
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -45,6 +45,9 @@ Transition Note
 - Core-14 安定後に本ドキュメントの「Core Instructions」を14命令へ更新し、マッピング表を併記する。
 - Phase 285–287: lifecycle conformance のため `KeepAlive` / `ReleaseStrong` を追加（語彙の明確化）。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
+- MIR-FMEM-002: FastMemory dialect vocabulary のため `MemOp` を追加。`MemOp`
+  は kept instruction vocabulary だが、VM / MIR JSON / LLVM lowering support
+  は後続 row まで closed/fail-fast。
 
 ## Canonical Enum Op Lane (kept vocabulary; Core profile out-of-count)
 
@@ -52,7 +55,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（34）
+## Current Kept Vocabulary（35）
 
 This is the current executable kept vocabulary from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -66,6 +69,7 @@ allowlists are being updated.
 - Load
 - StaticDataLoad
 - Store
+- MemOp
 - UnaryOp
 - BinOp
 - Compare

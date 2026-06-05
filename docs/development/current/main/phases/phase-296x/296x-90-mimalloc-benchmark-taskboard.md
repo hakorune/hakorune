@@ -74,7 +74,11 @@ LLVM-PIPE-001 landed separate runner cleanup inventory:
 MIR-FMEM-001 landed the representation decision:
   MemOp is the single executable instruction, MemOpKind is the dialect, and
   FastMemRegion is side-table metadata. FastMemRegionBegin/End are rejected as
-  normal MIR instructions. MIR-FMEM-002 opens mir/contracts vocabulary next.
+  normal MIR instructions.
+MIR-FMEM-002 landed the code-side vocabulary:
+  MemOp is in the kept MIR instruction vocabulary, MemOpKind V0 has a contracts
+  allowlist, and JSON/VM/LLVM/C support remains closed. MIR-FMEM-003 opens
+  MIRBuilder source lowering to FastMemRegion/MemOp metadata next.
 ```
 
 ## Queue
