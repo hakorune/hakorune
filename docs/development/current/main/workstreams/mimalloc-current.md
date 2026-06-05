@@ -1119,6 +1119,27 @@ thread_safety_registry_task_boundary_2026_06_05:
   worker_pool_source_route_enabled=0
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+thread_registry_v0_2026_06_05:
+  status=landed
+  task_kind=runtime_thread_registry_substrate
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/runtime/thread_registry.rs
+  scheduler_owner=src/runtime/scheduler.rs
+  thread_registry_v0=1
+  worker_id_shape=u64_opaque
+  worker_id_distinct_from_host_thread_id=1
+  thread_registry_snapshot_available=1
+  worker_pool_threads_registered=1
+  worker_pool_threads_unregistered_on_exit=1
+  thread_registry_gc_roots_enabled=0
+  hako_send_share_enforced=0
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  worker_pool_source_route_enabled=0
+  next_thread_task=THREAD-SAFETY-001D
+  next_thread_task_scope=descriptor_only_send_share_thread_root_capability_before_worker_route
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

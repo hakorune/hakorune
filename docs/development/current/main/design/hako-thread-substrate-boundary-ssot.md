@@ -429,8 +429,7 @@ worker_pool_enabled_by_default=0
 
 ### THREAD-SAFETY-001: send/share/root capability
 
-Status: accepted task boundary. Implementation starts with ThreadRegistry v0
-only; Box send/share capability remains closed.
+Status: ThreadRegistry v0 landed. Box send/share capability remains closed.
 
 Scope:
 
@@ -478,6 +477,22 @@ thread_registry_v0=1
 worker_id_distinct_from_host_thread_id=1
 worker_pool_threads_registered=1
 worker_pool_threads_unregistered_on_exit=1
+thread_registry_snapshot_available=1
+thread_registry_gc_roots_enabled=0
+hako_send_share_enforced=0
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+worker_pool_source_route_enabled=0
+```
+
+Landed behavior:
+
+```text
+ThreadRegistry module=src/runtime/thread_registry.rs
+WorkerId shape=u64_opaque
+ThreadRegistryRole=RuntimeWorker|HostThread|Test
+WorkerPoolScheduler registers worker thread on entry=1
+WorkerPoolScheduler unregisters worker thread on exit=1
 thread_registry_snapshot_available=1
 thread_registry_gc_roots_enabled=0
 hako_send_share_enforced=0

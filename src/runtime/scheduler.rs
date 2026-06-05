@@ -4,6 +4,7 @@
 
 use crate::runtime::get_global_ring0;
 use crate::runtime::ring0::{Ring0Context, ThreadExit, ThreadHandle, ThreadSpawnError};
+use crate::runtime::thread_registry::{global_thread_registry, ThreadRegistryRole};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Sender};
 
@@ -168,21 +169,46 @@ impl WorkerPoolScheduler {
 
         for idx in 0..worker_count {
             let rx = rx.clone();
+            let ring0_for_worker = ring0.clone();
+            let worker_name = format!("hako-worker-pool-{idx}");
             let handle = match ring0.thread.spawn(
-                crate::runtime::ring0::ThreadSpawnSpec::named(format!("hako-worker-pool-{idx}")),
-                Box::new(move || loop {
-                    let message = {
-                        let Ok(rx) = rx.lock() else {
-                            return ThreadExit::Panic(
-                                "worker pool receiver lock poisoned".to_string(),
-                            );
-                        };
-                        rx.recv()
-                    };
-                    match message {
-                        Ok(WorkerMessage::Task(task)) => task(),
-                        Ok(WorkerMessage::Shutdown) | Err(_) => return ThreadExit::Ok,
+                crate::runtime::ring0::ThreadSpawnSpec::named(worker_name.clone()),
+                Box::new(move || {
+                    let registry = global_thread_registry();
+                    let host_thread_id = ring0_for_worker.thread.current_thread_id();
+                    if registry
+                        .register_current_thread(
+                            host_thread_id,
+                            ThreadRegistryRole::RuntimeWorker,
+                            Some(worker_name),
+                        )
+                        .is_err()
+                    {
+                        return ThreadExit::Panic(
+                            "worker pool thread registry register failed".to_string(),
+                        );
                     }
+
+                    let exit = loop {
+                        let message = {
+                            let Ok(rx) = rx.lock() else {
+                                break ThreadExit::Panic(
+                                    "worker pool receiver lock poisoned".to_string(),
+                                );
+                            };
+                            rx.recv()
+                        };
+                        match message {
+                            Ok(WorkerMessage::Task(task)) => task(),
+                            Ok(WorkerMessage::Shutdown) | Err(_) => break ThreadExit::Ok,
+                        }
+                    };
+                    if registry.unregister_current_thread(host_thread_id).is_err() {
+                        return ThreadExit::Panic(
+                            "worker pool thread registry unregister failed".to_string(),
+                        );
+                    }
+                    exit
                 }),
             ) {
                 Ok(handle) => handle,
@@ -342,8 +368,13 @@ impl CancellationToken {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::mpsc;
+    use crate::runtime::thread_registry::{
+        global_thread_registry, reset_global_thread_registry_for_tests, ThreadRegistryRole,
+    };
+    use std::sync::{mpsc, Mutex};
     use std::time::Duration;
+
+    static WORKER_REGISTRY_TEST_GUARD: Mutex<()> = Mutex::new(());
 
     fn wait_for_no_pending(scheduler: &WorkerPoolScheduler) {
         let deadline = Instant::now() + Duration::from_secs(2);
@@ -358,6 +389,8 @@ mod tests {
 
     #[test]
     fn worker_pool_scheduler_runs_task() {
+        let _guard = WORKER_REGISTRY_TEST_GUARD.lock().unwrap();
+        reset_global_thread_registry_for_tests();
         let scheduler = WorkerPoolScheduler::new(2).expect("worker pool should start");
         let (tx, rx) = mpsc::channel();
 
@@ -374,6 +407,8 @@ mod tests {
 
     #[test]
     fn worker_pool_scheduler_spawn_after_runs_task() {
+        let _guard = WORKER_REGISTRY_TEST_GUARD.lock().unwrap();
+        reset_global_thread_registry_for_tests();
         let scheduler = WorkerPoolScheduler::new(1).expect("worker pool should start");
         let (tx, rx) = mpsc::channel();
 
@@ -401,5 +436,40 @@ mod tests {
 
         assert_eq!(received, Some("done"));
         wait_for_no_pending(&scheduler);
+    }
+
+    #[test]
+    fn worker_pool_scheduler_registers_and_unregisters_workers() {
+        let _guard = WORKER_REGISTRY_TEST_GUARD.lock().unwrap();
+        reset_global_thread_registry_for_tests();
+        let registry = global_thread_registry();
+
+        {
+            let scheduler = WorkerPoolScheduler::new(2).expect("worker pool should start");
+            let deadline = Instant::now() + Duration::from_secs(2);
+            loop {
+                let snapshot = registry.snapshot().expect("snapshot should succeed");
+                if snapshot.len() == 2 {
+                    assert!(
+                        snapshot
+                            .registrations
+                            .iter()
+                            .all(|registration| registration.role
+                                == ThreadRegistryRole::RuntimeWorker)
+                    );
+                    break;
+                }
+                assert!(
+                    Instant::now() < deadline,
+                    "worker pool threads did not register"
+                );
+                scheduler.yield_now();
+            }
+        }
+
+        assert!(registry
+            .snapshot()
+            .expect("snapshot should succeed")
+            .is_empty());
     }
 }
