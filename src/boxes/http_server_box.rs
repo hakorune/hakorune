@@ -46,7 +46,6 @@ use crate::boxes::SocketBox;
 use std::any::Any;
 use std::collections::HashMap;
 use std::sync::RwLock;
-use std::thread;
 
 /// HTTP サーバーを提供するBox
 #[derive(Debug)]
@@ -227,10 +226,30 @@ impl HTTPServerBox {
                     Err(_) => continue, // Skip this connection if we can't read routes
                 };
 
-                thread::spawn(move || {
-                    Self::handle_client_request_with_routes(client_socket, routes_snapshot);
-                    // Note: Connection cleanup is handled separately to avoid complex lifetime issues
-                });
+                let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+                match ring0.thread.spawn(
+                    crate::runtime::ring0::ThreadSpawnSpec::named("HTTPServerBox.client"),
+                    Box::new(move || {
+                        Self::handle_client_request_with_routes(client_socket, routes_snapshot);
+                        // Note: Connection cleanup is handled separately to avoid complex lifetime issues
+                        crate::runtime::ring0::ThreadExit::Ok
+                    }),
+                ) {
+                    Ok(handle) => {
+                        if let Err(err) = ring0.thread.detach(handle) {
+                            ring0.log.error(&format!(
+                                "HTTPServerBox client handler detach failed: {:?}",
+                                err
+                            ));
+                        }
+                    }
+                    Err(err) => {
+                        ring0.log.error(&format!(
+                            "HTTPServerBox client handler spawn failed: {}",
+                            err.message
+                        ));
+                    }
+                }
             }
 
             Box::new(BoolBox::new(true))

@@ -1047,12 +1047,32 @@ thread_api_detach_future_delay_2026_06_05:
   routed_runtime_callsite=nyash_future_delay_i64
   routed_thread_api=spawn,detach,sleep
   direct_spawn_callsite_rewrite_count=1
+  direct_std_thread_spawn_total_after=5
+  runtime_substrate_spawn_candidate_count_after=0
+  box_specific_spawn_workaround_count_after=3
+  kernel_native_stress_spawn_count_after=2
+  future_delay_spawn_failed_sets_failed_future=1
+  future_delay_detach_failed_sets_failed_future=1
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  worker_pool_enabled=0
+  hako_source_thread_support_claim=0
+  next_thread_task=THREAD-REG-003
+  next_thread_task_scope=route_http_server_client_handler_spawn_through_ThreadApi
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
+thread_api_detach_http_server_client_2026_06_05:
+  status=landed
+  task_kind=box_specific_substrate_cleanup
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/boxes/http_server_box.rs
+  routed_box_callsite=HTTPServerBox_client_handler
+  routed_thread_api=spawn,detach
+  direct_spawn_callsite_rewrite_count=1
   direct_std_thread_spawn_total_after=4
   runtime_substrate_spawn_candidate_count_after=0
   box_specific_spawn_workaround_count_after=2
   kernel_native_stress_spawn_count_after=2
-  future_delay_spawn_failed_sets_failed_future=1
-  future_delay_detach_failed_sets_failed_future=1
   source_syntax_exposure=0
   nowait_os_thread_spawn=0
   worker_pool_enabled=0

@@ -277,6 +277,7 @@ Direct `std::thread::spawn` classification:
 | --- | --- | --- |
 | `src/runtime/global_hooks.rs` `spawn_task_after` fallback | runtime substrate leak | landed in `THREAD-REG-001`: `ThreadApi::spawn` + `detach` |
 | `crates/nyash_kernel/src/plugin/future.rs` `nyash_future_delay_i64` | runtime/plugin delayed future substrate | landed in `THREAD-REG-002`: `ThreadApi::spawn` + `detach` |
+| `src/boxes/http_server_box.rs` client handler | box-specific server workaround | landed in `THREAD-REG-003`: `ThreadApi::spawn` + `detach` |
 | `src/boxes/p2p_box.rs` async reply helpers | box-specific async workaround | later P2P/task route cleanup; not generic ThreadApi proof |
 | `crates/nyash_kernel/src/exports/mem.rs` thread-safe mem test | kernel native stress/test | keep as native execution evidence |
 | `crates/nyash_kernel/src/tests/mimalloc_parallel_stress.rs` | allocator native stress/test | keep as native execution evidence |
@@ -364,6 +365,28 @@ Landed behavior:
 ```text
 future_delay_spawn_failed_sets_failed_future=1
 future_delay_detach_failed_sets_failed_future=1
+direct_std_thread_spawn_total_after=5
+runtime_substrate_spawn_candidate_count_after=0
+box_specific_spawn_workaround_count_after=3
+kernel_native_stress_spawn_count_after=2
+```
+
+### THREAD-REG-003: HTTP server client handler substrate cleanup
+
+Status: landed.
+
+Scope:
+
+```text
+HTTPServerBox client handler uses ThreadApi::spawn
+HTTPServerBox client handler uses ThreadApi::detach
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+```
+
+Landed behavior:
+
+```text
 direct_std_thread_spawn_total_after=4
 runtime_substrate_spawn_candidate_count_after=0
 box_specific_spawn_workaround_count_after=2
