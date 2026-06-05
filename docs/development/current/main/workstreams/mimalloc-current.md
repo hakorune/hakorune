@@ -1019,6 +1019,26 @@ thread_api_spawn_join_substrate_2026_06_05:
   next_thread_task_scope=route_runtime_delayed_thread_candidates_or_add_thread_registry_cleanup_without_source_exposure
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+thread_api_detach_spawn_task_after_2026_06_05:
+  status=landed
+  task_kind=runtime_substrate_cleanup
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  code_owner=src/runtime/global_hooks.rs
+  added_thread_api=detach
+  routed_runtime_callsite=spawn_task_after_fallback
+  direct_spawn_callsite_rewrite_count=1
+  direct_std_thread_spawn_total_after=5
+  runtime_substrate_spawn_candidate_count_after=1
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  worker_pool_enabled=0
+  hako_source_thread_support_claim=0
+  thread_spawn_failed_tag=[freeze:contract][thread/spawn_failed]
+  thread_detach_failed_tag=[freeze:contract][thread/detach_failed]
+  next_thread_task=THREAD-REG-002
+  next_thread_task_scope=route_or_park_nyash_future_delay_i64_before_worker_pool
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

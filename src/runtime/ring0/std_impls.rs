@@ -5,6 +5,7 @@ use super::traits::*;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
@@ -273,7 +274,10 @@ impl ThreadApi for StdThread {
             .lock()
             .map_err(|_| ThreadSpawnError::new("thread handle registry poisoned"))?;
         let join = builder
-            .spawn(move || f())
+            .spawn(move || match catch_unwind(AssertUnwindSafe(f)) {
+                Ok(exit) => exit,
+                Err(payload) => ThreadExit::Panic(panic_payload_to_string(payload)),
+            })
             .map_err(|err| ThreadSpawnError::new(err.to_string()))?;
         handles.insert(id, join);
         Ok(ThreadHandle::new(id))
@@ -292,6 +296,16 @@ impl ThreadApi for StdThread {
             Ok(exit) => Ok(exit),
             Err(payload) => Ok(ThreadExit::Panic(panic_payload_to_string(payload))),
         }
+    }
+
+    fn detach(&self, handle: ThreadHandle) -> Result<(), ThreadJoinError> {
+        let mut handles = thread_handles()
+            .lock()
+            .map_err(|_| ThreadJoinError::RegistryPoisoned)?;
+        handles
+            .remove(&handle.id())
+            .map(|_| ())
+            .ok_or(ThreadJoinError::UnknownHandle(handle))
     }
 }
 
@@ -336,6 +350,23 @@ mod thread_tests {
         assert_eq!(
             thread.join(handle),
             Ok(ThreadExit::Panic("reported panic".to_string()))
+        );
+    }
+
+    #[test]
+    fn std_thread_detach_removes_handle() {
+        let thread = StdThread;
+        let handle = thread
+            .spawn(
+                ThreadSpawnSpec::named("ring0-thread-detach-test"),
+                Box::new(|| ThreadExit::Ok),
+            )
+            .expect("thread spawn should succeed");
+
+        assert_eq!(thread.detach(handle), Ok(()));
+        assert_eq!(
+            thread.join(handle),
+            Err(ThreadJoinError::UnknownHandle(handle))
         );
     }
 }

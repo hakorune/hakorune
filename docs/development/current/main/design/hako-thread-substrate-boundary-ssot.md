@@ -289,7 +289,7 @@ Direct `std::thread::spawn` classification:
 
 | Path | Classification | Next owner |
 | --- | --- | --- |
-| `src/runtime/global_hooks.rs` `spawn_task_after` fallback | runtime substrate leak | `THREAD-API-003` should route through `ThreadApi::spawn` |
+| `src/runtime/global_hooks.rs` `spawn_task_after` fallback | runtime substrate leak | landed in `THREAD-REG-001`: `ThreadApi::spawn` + `detach` |
 | `crates/nyash_kernel/src/plugin/future.rs` `nyash_future_delay_i64` | runtime/plugin delayed future substrate | `THREAD-API-003` or future timer scheduler row |
 | `src/boxes/p2p_box.rs` async reply helpers | box-specific async workaround | later P2P/task route cleanup; not generic ThreadApi proof |
 | `crates/nyash_kernel/src/exports/mem.rs` thread-safe mem test | kernel native stress/test | keep as native execution evidence |
@@ -331,6 +331,31 @@ ThreadApi::join removes and joins the registered handle
 source_syntax_exposure=0
 nowait_os_thread_spawn=0
 worker_pool_enabled=0
+```
+
+### THREAD-REG-001: detached runtime delayed fallback cleanup
+
+Status: landed.
+
+Scope:
+
+```text
+ThreadApi::detach(handle)
+spawn_task_after fallback uses ThreadApi::spawn
+spawn_task_after fallback detaches fire-and-forget handle
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+```
+
+Landed behavior:
+
+```text
+ThreadApi::detach removes handle from the registry without joining
+spawn_task_after fallback creates ThreadExit::Ok after delayed closure returns
+thread_spawn_failed_tag=[freeze:contract][thread/spawn_failed]
+thread_detach_failed_tag=[freeze:contract][thread/detach_failed]
+direct_std_thread_spawn_total_after=5
+runtime_substrate_spawn_candidate_count_after=1
 ```
 
 ### THREAD-SCHED-001: WorkerPoolScheduler route

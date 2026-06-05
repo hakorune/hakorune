@@ -325,16 +325,30 @@ pub fn spawn_task_after(delay_ms: u64, name: &str, f: Box<dyn FnOnce() + Send + 
             return true;
         }
     }
-    // Fallback: run inline after blocking sleep
-    // Phase 90-D: thread 系移行
     let ring0 = crate::runtime::ring0::get_global_ring0();
     let ring0_clone = ring0.clone();
-    std::thread::spawn(move || {
-        ring0_clone
-            .thread
-            .sleep(std::time::Duration::from_millis(delay_ms));
-        f();
-    });
+    match ring0.thread.spawn(
+        crate::runtime::ring0::ThreadSpawnSpec::named(name),
+        Box::new(move || {
+            ring0_clone
+                .thread
+                .sleep(std::time::Duration::from_millis(delay_ms));
+            f();
+            crate::runtime::ring0::ThreadExit::Ok
+        }),
+    ) {
+        Ok(handle) => {
+            if let Err(err) = ring0.thread.detach(handle) {
+                panic!("[freeze:contract][thread/detach_failed] {:?}", err);
+            }
+        }
+        Err(err) => {
+            panic!(
+                "[freeze:contract][thread/spawn_failed] spawn_task_after fallback failed: {}",
+                err.message
+            );
+        }
+    }
     false
 }
 

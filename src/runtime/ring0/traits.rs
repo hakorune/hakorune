@@ -194,4 +194,6 @@ pub trait ThreadApi: Send + Sync {
     ) -> Result<ThreadHandle, ThreadSpawnError>;
     /// `spawn` で得た opaque handle を join する。
     fn join(&self, handle: ThreadHandle) -> Result<ThreadExit, ThreadJoinError>;
+    /// `spawn` で得た handle を registry から外し、join せず detached にする。
+    fn detach(&self, handle: ThreadHandle) -> Result<(), ThreadJoinError>;
 }
