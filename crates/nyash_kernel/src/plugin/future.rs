@@ -403,17 +403,43 @@ pub extern "C" fn env_future_await(fut_handle: i64) -> i64 {
 // Lowered by the LLVM harness to `nyash.future.delay_i64` (see extern_normalize.py).
 #[export_name = "nyash.future.delay_i64"]
 pub extern "C" fn nyash_future_delay_i64(ms: i64) -> i64 {
-    use nyash_rust::box_trait::VoidBox;
+    use nyash_rust::box_trait::{StringBox, VoidBox};
+    use nyash_rust::runtime::ring0::{ThreadExit, ThreadSpawnSpec};
     use std::time::Duration;
 
     let fut_box = std::sync::Arc::new(nyash_rust::boxes::future::FutureBox::new());
     let handle = future_box_handle(&fut_box);
-    let fut = fut_box.clone();
+    let ring0 = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
+    let fut_for_thread = fut_box.clone();
+    let fut_for_error = fut_box.clone();
     let ms_u64 = ms.max(0) as u64;
-    std::thread::spawn(move || {
-        std::thread::sleep(Duration::from_millis(ms_u64));
-        fut.set_result(Box::new(VoidBox::new()));
-    });
+
+    match ring0.thread.spawn(
+        ThreadSpawnSpec::named("nyash.future.delay_i64"),
+        Box::new({
+            let ring0 = ring0.clone();
+            move || {
+                ring0.thread.sleep(Duration::from_millis(ms_u64));
+                fut_for_thread.set_result(Box::new(VoidBox::new()));
+                ThreadExit::Ok
+            }
+        }),
+    ) {
+        Ok(thread_handle) => {
+            if let Err(err) = ring0.thread.detach(thread_handle) {
+                fut_for_error.set_failed(Box::new(StringBox::new(format!(
+                    "thread detach failed: {:?}",
+                    err
+                ))));
+            }
+        }
+        Err(err) => {
+            fut_for_error.set_failed(Box::new(StringBox::new(format!(
+                "thread spawn failed: {}",
+                err.message
+            ))));
+        }
+    }
     handle as i64
 }
 
@@ -439,6 +465,14 @@ mod tests {
     fn env_future_invalid_handle_paths_return_zero() {
         assert_eq!(env_future_set(0, 1), 0);
         assert_eq!(env_future_await(0), 0);
+    }
+
+    #[test]
+    fn future_delay_i64_resolves_via_thread_api() {
+        let handle = nyash_future_delay_i64(1);
+
+        assert!(handle > 0);
+        assert_eq!(env_future_await(handle), 0);
     }
 
     #[test]

@@ -173,26 +173,11 @@ thread roots, and handle safety are pinned.
 
 ## Direct std::thread Cleanup Inventory
 
-The current tree has direct host-thread calls that should be cleaned behind
-ThreadApi/substrate rows before opening worker-pool execution:
+The current tree keeps only non-runtime-substrate direct spawn sites outside
+ThreadApi. Runtime policy and delayed Future substrate calls are routed through
+ThreadApi before opening worker-pool execution:
 
 ```text
-src/runtime/global_hooks.rs:
-  std::thread::yield_now
-  std::thread::spawn in spawn_task_after fallback
-
-src/boxes/task_group_box.rs:
-  std::thread::yield_now in join_pending_with_timeout
-
-src/runtime/plugin_loader_unified.rs:
-  std::thread::yield_now
-
-src/runtime/plugin_loader_v2/enabled/extern_functions.rs:
-  std::thread::yield_now
-
-crates/nyash_kernel/src/plugin/future.rs:
-  std::thread::spawn
-
 src/boxes/p2p_box.rs:
   std::thread::spawn
 
@@ -203,9 +188,10 @@ crates/nyash_kernel/src/tests/mimalloc_parallel_stress.rs:
   std::thread::spawn in tests only
 ```
 
-This inventory is not a request to rewrite all callers in one change. Start
-with scheduler/global-hooks/task-group surfaces where OS-thread dependency leaks
-into runtime policy.
+This inventory is not a request to rewrite all callers in one change. Runtime
+policy and runtime/plugin delayed Future surfaces are closed behind ThreadApi;
+P2P async reply helpers need a separate P2P/task-route cleanup, and native
+stress/test files stay native evidence.
 
 ## Context, Worker Local, and Sync Boundaries
 
@@ -290,7 +276,7 @@ Direct `std::thread::spawn` classification:
 | Path | Classification | Next owner |
 | --- | --- | --- |
 | `src/runtime/global_hooks.rs` `spawn_task_after` fallback | runtime substrate leak | landed in `THREAD-REG-001`: `ThreadApi::spawn` + `detach` |
-| `crates/nyash_kernel/src/plugin/future.rs` `nyash_future_delay_i64` | runtime/plugin delayed future substrate | `THREAD-API-003` or future timer scheduler row |
+| `crates/nyash_kernel/src/plugin/future.rs` `nyash_future_delay_i64` | runtime/plugin delayed future substrate | landed in `THREAD-REG-002`: `ThreadApi::spawn` + `detach` |
 | `src/boxes/p2p_box.rs` async reply helpers | box-specific async workaround | later P2P/task route cleanup; not generic ThreadApi proof |
 | `crates/nyash_kernel/src/exports/mem.rs` thread-safe mem test | kernel native stress/test | keep as native execution evidence |
 | `crates/nyash_kernel/src/tests/mimalloc_parallel_stress.rs` | allocator native stress/test | keep as native execution evidence |
@@ -356,6 +342,32 @@ thread_spawn_failed_tag=[freeze:contract][thread/spawn_failed]
 thread_detach_failed_tag=[freeze:contract][thread/detach_failed]
 direct_std_thread_spawn_total_after=5
 runtime_substrate_spawn_candidate_count_after=1
+```
+
+### THREAD-REG-002: delayed Future substrate cleanup
+
+Status: landed.
+
+Scope:
+
+```text
+nyash_future_delay_i64 uses ensure_global_ring0_initialized
+nyash_future_delay_i64 uses ThreadApi::spawn
+nyash_future_delay_i64 uses ThreadApi::detach
+nyash_future_delay_i64 sleeps through ThreadApi::sleep
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+```
+
+Landed behavior:
+
+```text
+future_delay_spawn_failed_sets_failed_future=1
+future_delay_detach_failed_sets_failed_future=1
+direct_std_thread_spawn_total_after=4
+runtime_substrate_spawn_candidate_count_after=0
+box_specific_spawn_workaround_count_after=2
+kernel_native_stress_spawn_count_after=2
 ```
 
 ### THREAD-SCHED-001: WorkerPoolScheduler route
