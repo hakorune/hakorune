@@ -30,6 +30,8 @@ HAKO_JSON="$TMPDIR/hako_parser_baseline.program.json"
 
 cat >"$RUST_SRC" <<'HK'
 static box Main {
+  @rune Inline(prefer)
+  @rune FastMemory(PageMapV0)
   main() {
     local x = 1 + 2
     local y = (1 << 3) & 7 | (8 >> 1) ^ 2
@@ -67,10 +69,22 @@ missing = expected - ops
 if missing:
     print(f"missing Rust parser BinaryOp ops: {sorted(missing)}", file=sys.stderr)
     sys.exit(1)
+
+rune_names = {
+    node.get("name")
+    for node in walk(data)
+    if isinstance(node.get("args"), list)
+}
+for name in ("Inline", "FastMemory"):
+    if name not in rune_names:
+        print(f"missing Rust parser rune metadata: {name}", file=sys.stderr)
+        sys.exit(1)
 PY
 
 cat >"$HAKO_DRIVER" <<'HK'
 static box Main {
+  @rune Inline(prefer)
+  @rune FastMemory(PageMapV0)
   main() {
     local x = 1 + 2
     local y = (1 << 3) & 7 | (8 >> 1) ^ 2

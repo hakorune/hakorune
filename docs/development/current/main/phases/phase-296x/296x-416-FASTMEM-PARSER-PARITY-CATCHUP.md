@@ -97,13 +97,14 @@ PARSER-FMEM-003:
 
 PARSER-FMEM-004:
   rune contract-name parity
-  status=next
+  status=done
   scope=Gate/Inline/FastMemory names as metadata parse-only where applicable
   reason=do not let Rust-only rune metadata become the accepted source truth
+  note=@rune Gate(...) remains top-level build-gate sugar, not a normal RuneAttr name; this row aligns Inline/FastMemory metadata names.
 
 PARSER-FMEM-005:
   fastmem block parse-only dual parser pilot
-  status=pending
+  status=next
   scope=fastmem IDENT { ... } parses in Rust and .hako parser
   behavior_change=0
   execution=0

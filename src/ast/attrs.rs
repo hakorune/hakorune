@@ -5,7 +5,7 @@ pub struct RuneAttr {
 }
 
 pub const RUNE_SUPPORTED_NAMES_MSG: &str =
-    "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Inline|Contract|IntrinsicCandidate|Lowering|Profile";
+    "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Inline|Contract|IntrinsicCandidate|Lowering|Profile|FastMemory";
 
 impl RuneAttr {
     pub fn supported_names_msg() -> &'static str {
@@ -29,6 +29,7 @@ impl RuneAttr {
                 | "IntrinsicCandidate"
                 | "Lowering"
                 | "Profile"
+                | "FastMemory"
         )
     }
 
@@ -49,6 +50,7 @@ impl RuneAttr {
                 | "IntrinsicCandidate"
                 | "Lowering"
                 | "Profile"
+                | "FastMemory"
         )
     }
 
@@ -86,6 +88,10 @@ impl RuneAttr {
                 "[freeze:contract][parser/rune] Profile({})",
                 crate::rune_profile_registry::SUPPORTED_PROFILE_NAMES_MSG
             )),
+            "FastMemory" if arg0.is_empty() => Some(
+                "[freeze:contract][parser/rune] FastMemory(\"contract\") with non-empty contract"
+                    .to_string(),
+            ),
             _ => None,
         }
     }
