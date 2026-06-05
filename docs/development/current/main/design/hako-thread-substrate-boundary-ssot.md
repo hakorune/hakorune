@@ -282,6 +282,31 @@ runtime_policy_direct_yield_now_count=0 outside Ring0 StdThread
 
 ### THREAD-API-002: spawn/join substrate
 
+Status: landed as spawn-inventory/report-only. Substrate implementation remains
+THREAD-API-003.
+
+Direct `std::thread::spawn` classification:
+
+| Path | Classification | Next owner |
+| --- | --- | --- |
+| `src/runtime/global_hooks.rs` `spawn_task_after` fallback | runtime substrate leak | `THREAD-API-003` should route through `ThreadApi::spawn` |
+| `crates/nyash_kernel/src/plugin/future.rs` `nyash_future_delay_i64` | runtime/plugin delayed future substrate | `THREAD-API-003` or future timer scheduler row |
+| `src/boxes/p2p_box.rs` async reply helpers | box-specific async workaround | later P2P/task route cleanup; not generic ThreadApi proof |
+| `crates/nyash_kernel/src/exports/mem.rs` thread-safe mem test | kernel native stress/test | keep as native execution evidence |
+| `crates/nyash_kernel/src/tests/mimalloc_parallel_stress.rs` | allocator native stress/test | keep as native execution evidence |
+
+Report fields:
+
+```text
+direct_std_thread_spawn_total=6
+runtime_substrate_spawn_candidate_count=2
+box_specific_spawn_workaround_count=2
+kernel_native_stress_spawn_count=2
+hako_source_thread_support_claim=0
+```
+
+### THREAD-API-003: spawn/join substrate
+
 Scope:
 
 ```text
