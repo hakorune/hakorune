@@ -304,6 +304,7 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 | `NYASH_LLVM_NYRT` | `crates/nyash_kernel/target/release` | Nyash Kernel runtime パス |
 | `NYASH_LLVM_LIBS` | (empty) | 追加リンクライブラリ |
 | `NYASH_LLVM_USE_HARNESS` | explicit keep only | Python llvmlite の explicit compat/probe keep lane を要求する legacy hint。daily object emit の current owner ではない |
+| `NYASH_LLVM_PIPELINE_REPORT_OUT` | unset | LLVM runner の pipeline/executor 診断 kv report 出力先。既定OFF。`LLVM-PIPE-002` の観測専用で、backend 選択や fallback 許可を変更しない |
 
 ### LLVM harness debug（Python llvmlite）
 

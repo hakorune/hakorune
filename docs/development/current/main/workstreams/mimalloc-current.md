@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  LLVM-PIPE-002 LLVM runner pipeline report fields
+  LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -139,9 +139,9 @@ why:
   PageMapBridge, typed page metadata, AllocOwnerId/TLS owner state,
   same/remote-free evidence, safe wrappers, shape scoring, product-shaped
   bridge evidence, and producer taxonomy without product activation.
-  LLVM-PIPE-001 has now made the current LLVM runner debt visible as static
-  hako_check inventory, so LLVM-PIPE-002 can add dynamic pipeline/executor
-  report fields before any cleanup.
+  LLVM-PIPE-001 made the current LLVM runner debt visible as static hako_check
+  inventory, and LLVM-PIPE-002 added opt-in dynamic pipeline/executor report
+  fields. LLVM-PIPE-003 can now start cleanup with evidence in place.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -172,6 +172,7 @@ completed_this_slice:
   MIM-FMEM-017C Page-local state bridge evidence
   MIM-FMEM-017D Replacement-front producer taxonomy
   LLVM-PIPE-001 LLVM runner pipeline debt inventory
+  LLVM-PIPE-002 LLVM runner pipeline report fields
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -311,7 +312,7 @@ LLVM-PIPE-001:
     pyvm/harness/mock fallback route visibility
 
 LLVM-PIPE-002:
-  add dynamic report fields for pipeline/executor/fallback evidence.
+  landed opt-in runtime report fields for pipeline/executor/fallback evidence.
 
 LLVM-PIPE-003:
   move env side effects and ad-hoc runner stages toward
@@ -346,6 +347,20 @@ pyvm_daily_route=0
 execution_backend_order=pyvm,obj_out,ny_llvmc_exe,mock
 llvm_fallback_used=0
 llvm_fallback_reason=static_inventory_only
+product_activation=0
+```
+
+`LLVM-PIPE-002` landed as opt-in runtime runner report:
+
+```text
+output_contract=hako-llvm-pipeline-runtime-report-v0
+mir_future_rewrite_route=env_forced_llvm_future_externs
+pipeline_joinir_experiment_enabled=0
+method_id_injector_mutation_count=0
+execution_backend=mock
+llvm_fallback_used=1
+llvm_fallback_reason=harness_unavailable_or_not_requested
+mock_fallback_used=1
 product_activation=0
 ```
 

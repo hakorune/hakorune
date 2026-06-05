@@ -24,6 +24,13 @@ pub fn llvm_use_harness() -> bool {
     true // legacy default remains ON for surviving harness keep callers
 }
 
+/// Optional dynamic LLVM pipeline report output path.
+///
+/// This is diagnostic-only and unset by default.
+pub fn llvm_pipeline_report_out() -> Option<String> {
+    super::env_string("NYASH_LLVM_PIPELINE_REPORT_OUT")
+}
+
 /// LLVM opt level (primary: NYASH_LLVM_OPT_LEVEL; alias: HAKO_LLVM_OPT_LEVEL)
 /// Returns string level (e.g., "0", "1", ...). Default: "0" when unset.
 pub fn llvm_opt_level() -> String {

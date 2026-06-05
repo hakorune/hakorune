@@ -488,6 +488,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: Some("0"),
         },
         EnvVarMeta {
+            name: "NYASH_LLVM_PIPELINE_REPORT_OUT",
+            description: "Optional diagnostic LLVM runner pipeline report output path",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "HAKO_LLVM_OPT_LEVEL",
             description: "LLVM opt level (legacy alias)",
             applies_to: AppliesTo::Compiler,
