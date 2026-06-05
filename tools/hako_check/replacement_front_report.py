@@ -219,8 +219,17 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         "owner_thread_id_lookup_count_total": prefixed_int(
             rows, replacement_idx, "replacement_front_owner_thread_id_lookup_count_total"
         ),
+        "owner_thread_id_same_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_owner_thread_id_same_count_total"
+        ),
         "owner_thread_id_remote_count_total": prefixed_int(
             rows, replacement_idx, "replacement_front_owner_thread_id_remote_count_total"
+        ),
+        "tls_arena_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_tls_arena_count_total"
+        ),
+        "tls_arena_peak_count_total": prefixed_int(
+            rows, replacement_idx, "replacement_front_tls_arena_peak_count_total"
         ),
         "page_index_probe_count_total": prefixed_int(
             rows, replacement_idx, "replacement_front_page_index_probe_count_total"
@@ -248,6 +257,9 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
     )
     report["same_thread_workload"] = int(
         report["same_thread_free_local_count_total"] > 0 and report["remote_free_workload"] == 0
+    )
+    report["replacement_front_owner_shadow_counters"] = int(
+        report["owner_thread_id_lookup_count_total"] > 0
     )
     report["likely_next_owner"] = classify_next_owner(report)
     report["replacement_front_page_bins_lookup_route"] = prefixed(

@@ -62,7 +62,16 @@ def classify_remote_memory_order(rows: dict[str, str], replacement: dict[str, An
 
 def int_route_flag(rows: dict[str, str], replacement: dict[str, Any], suffix: str) -> int:
     idx = int(replacement["benchmark_subject_index"])
-    return int_value(rows, [f"subject_{idx}_{suffix}", suffix], 0)
+    return int_value(
+        rows,
+        [
+            f"subject_{idx}_{suffix}",
+            f"subject_{idx}_{suffix}_total",
+            suffix,
+            f"{suffix}_total",
+        ],
+        0,
+    )
 
 
 def first_subject_value(
@@ -444,6 +453,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "allocator_thread_exit_flush_supported": 0,
         "allocator_thread_exit_flush_count": 0,
         "allocator_abandoned_owner_count": 0,
+        "replacement_front_owner_shadow_counters": 0,
         "page_owner_check_enabled": 0,
         "page_owner_check_route": "none",
         "page_owner_check_count": 0,
@@ -490,6 +500,7 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         or replacement["same_thread_alloc_local_count_total"] > 0
         or replacement["same_thread_free_local_count_total"] > 0
     )
+    owner_shadow_counters = int(replacement["owner_thread_id_lookup_count_total"] > 0)
     atomic_remote_enabled = int(
         remote_route == "atomic_page_remote_head"
         or replacement["remote_free_push_count_total"] > 0
@@ -527,14 +538,24 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "typed_page_meta_layout_hash",
         first_subject_value(rows, idx, "fastmem_layout_hash", "unknown"),
     )
-    alloc_owner_id_capability = int_subject_value(rows, idx, "alloc_owner_id_capability", 0)
+    alloc_owner_id_capability = int_subject_value(
+        rows, idx, "alloc_owner_id_capability", owner_shadow_counters
+    )
     alloc_owner_id_kind = first_subject_value(
-        rows, idx, "alloc_owner_id_kind", "unknown"
+        rows,
+        idx,
+        "alloc_owner_id_kind",
+        "allocator_arena_owner" if alloc_owner_id_capability else "unknown",
     )
     alloc_owner_id_source = first_subject_value(
-        rows, idx, "alloc_owner_id_source", "unknown"
+        rows,
+        idx,
+        "alloc_owner_id_source",
+        "benchmark_c_pthread_tls" if alloc_owner_id_capability else "unknown",
     )
-    alloc_owner_id_width_bits = int_subject_value(rows, idx, "alloc_owner_id_width_bits", 0)
+    alloc_owner_id_width_bits = int_subject_value(
+        rows, idx, "alloc_owner_id_width_bits", 64 if alloc_owner_id_capability else 0
+    )
     alloc_owner_id_generation_enabled = int_subject_value(
         rows, idx, "alloc_owner_id_generation_enabled", 0
     )
@@ -556,24 +577,37 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "worker_id_source",
         alloc_owner_id_source,
     )
+    tls_arena_count = int_route_flag(rows, replacement, "replacement_front_tls_arena_count")
+    tls_arena_peak_reported = int_route_flag(
+        rows, replacement, "replacement_front_tls_arena_peak_count"
+    )
     tls_arena_init_count = int_subject_value(
-        rows, idx, "allocator_tls_arena_init_count", allocator_tls_enabled
+        rows,
+        idx,
+        "allocator_tls_arena_init_count",
+        tls_arena_count if tls_arena_count > 0 else allocator_tls_enabled,
     )
     tls_arena_live_count = int_subject_value(
-        rows, idx, "allocator_tls_arena_live_count", 0
+        rows, idx, "allocator_tls_arena_live_count", tls_arena_count
     )
     tls_arena_peak_count = int_subject_value(
         rows,
         idx,
         "allocator_tls_arena_peak_count",
-        int_route_flag(rows, replacement, "replacement_front_tls_arena_peak_count"),
+        tls_arena_peak_reported,
     )
+    owner_same_count = replacement["owner_thread_id_same_count_total"]
+    if owner_same_count == 0:
+        owner_same_count = max(
+            0,
+            replacement["owner_thread_id_lookup_count_total"]
+            - replacement["owner_thread_id_remote_count_total"],
+        )
     page_owner_same_count = int_subject_value(
         rows,
         idx,
         "page_owner_same_count",
-        replacement["owner_thread_id_lookup_count_total"]
-        - replacement["owner_thread_id_remote_count_total"],
+        owner_same_count,
     )
     page_owner_remote_count = int_subject_value(
         rows,
@@ -704,7 +738,10 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "worker_id_escape_count": int_subject_value(rows, idx, "worker_id_escape_count", 0),
         "allocator_tls_arena_enabled": allocator_tls_enabled,
         "allocator_tls_arena_mode": first_subject_value(
-            rows, idx, "allocator_tls_arena_mode", "unknown"
+            rows,
+            idx,
+            "allocator_tls_arena_mode",
+            "benchmark_c_tls" if alloc_owner_id_capability else "unknown",
         ),
         "allocator_tls_arena_init_count": tls_arena_init_count,
         "allocator_tls_arena_live_count": tls_arena_live_count,
@@ -730,9 +767,15 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "allocator_abandoned_owner_count": int_route_flag(
             rows, replacement, "replacement_front_abandoned_owner_count"
         ),
-        "page_owner_check_enabled": int_subject_value(rows, idx, "page_owner_check_enabled", 0),
+        "replacement_front_owner_shadow_counters": owner_shadow_counters,
+        "page_owner_check_enabled": int_subject_value(
+            rows, idx, "page_owner_check_enabled", owner_shadow_counters
+        ),
         "page_owner_check_route": first_subject_value(
-            rows, idx, "page_owner_check_route", "none"
+            rows,
+            idx,
+            "page_owner_check_route",
+            "page_meta_owner_worker_id" if owner_shadow_counters else "none",
         ),
         "page_owner_check_count": page_owner_check_count,
         "page_owner_same_count": page_owner_same_count,

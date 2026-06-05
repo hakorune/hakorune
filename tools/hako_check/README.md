@@ -21,6 +21,7 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_typed_page_meta_smoke.sh`
 - `bash tools/hako_check/fastmem_alloc_owner_schema_smoke.sh`
 - `bash tools/hako_check/fastmem_alloc_owner_check_smoke.sh`
+- `bash tools/hako_check/fastmem_alloc_owner_shadow_counter_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -461,6 +462,16 @@ FastMemory AllocOwnerId Check Smoke
   TLS arena init, and non-`page_meta_owner_worker_id` owner-check routes.
 - This check still validates existing inventory fields only. It does not add
   generated-C owner shadow counters or route same-owner/remote frees.
+
+FastMemory AllocOwnerId Shadow Counter Smoke
+- `fastmem_alloc_owner_shadow_counter_smoke.sh` fixes the first generated-C
+  replacement-front owner shadow-counter evidence. It proves that existing
+  `replacement_front_owner_thread_id_*_count_total` and
+  `replacement_front_tls_arena_*_count_total` rows are normalized into
+  `AllocOwnerId` / TLS arena / page-owner check inventory fields.
+- This remains observation-only. It does not switch same-owner frees to
+  local-free routing, perform remote `AtomicRemoteHead` pushes, or activate
+  product allocator replacement.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may
