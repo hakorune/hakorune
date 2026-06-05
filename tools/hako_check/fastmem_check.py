@@ -94,6 +94,10 @@ def safe_wrapper_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "safe_capability_wrapper_plan") > 0
 
 
+def mimalloc_keeper_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "mimalloc_keeper_candidate") > 0
+
+
 def run_inventory(source_flag: str, source_path: Path) -> dict[str, str]:
     cmd = [sys.executable, str(INVENTORY), source_flag, str(source_path)]
     proc = subprocess.run(cmd, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -168,6 +172,19 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         ]:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
+    if mimalloc_keeper_profile(rows):
+        if int_count(rows, "mimalloc_shape_score") < int_count(rows, "mimalloc_shape_threshold"):
+            reasons.append("mimalloc_shape_score")
+        if int_count(rows, "mimalloc_safety_score") < int_count(rows, "mimalloc_safety_threshold"):
+            reasons.append("mimalloc_safety_score")
+        if int_count(rows, "mimalloc_coverage_score") < int_count(
+            rows, "mimalloc_coverage_threshold"
+        ):
+            reasons.append("mimalloc_coverage_score")
+        if int_count(rows, "mimalloc_keeper_eligible") <= 0:
+            reasons.append("mimalloc_keeper_eligible")
+        if rows.get("mimalloc_keeper_block_reason") != "eligible":
+            reasons.append("mimalloc_keeper_block_reason")
     return reasons
 
 

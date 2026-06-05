@@ -6,7 +6,8 @@ FIXTURE_DIR="$ROOT/tools/hako_check/tests/fastmem_capability_inventory"
 GOOD_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_good.XXXXXX")"
 BAD_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad.XXXXXX")"
 BAD_SAFE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_safe.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT"' EXIT
+BAD_SHAPE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_shape.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -48,5 +49,20 @@ grep -q '^failure_count=2$' "$BAD_SAFE_OUT"
 grep -q '^failure_0_reason=safe_capability_wrapper_route$' "$BAD_SAFE_OUT"
 grep -q '^failure_1_reason=safe_capability_wrapper_memop_equivalence$' "$BAD_SAFE_OUT"
 grep -q '^summary=failed$' "$BAD_SAFE_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_shape_keeper_inventory.kv" \
+  --format kv \
+  >"$BAD_SHAPE_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad mimalloc shape keeper" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=4$' "$BAD_SHAPE_OUT"
+grep -q '^failure_0_reason=mimalloc_shape_score$' "$BAD_SHAPE_OUT"
+grep -q '^failure_1_reason=mimalloc_coverage_score$' "$BAD_SHAPE_OUT"
+grep -q '^failure_2_reason=mimalloc_keeper_eligible$' "$BAD_SHAPE_OUT"
+grep -q '^failure_3_reason=mimalloc_keeper_block_reason$' "$BAD_SHAPE_OUT"
+grep -q '^summary=failed$' "$BAD_SHAPE_OUT"
 
 echo "[TEST/OK] fastmem_check"

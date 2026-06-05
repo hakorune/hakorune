@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-016 Mimalloc shape coverage score
+  MIM-FMEM-017 Product-shaped replacement front bridge
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -161,6 +161,7 @@ completed_this_slice:
   MIM-FMEM-013 AtomicRemoteHead plan
   MIM-FMEM-014 AtomicRemoteHead pilot
   MIM-FMEM-015 safe capability wrapper plan
+  MIM-FMEM-016 Mimalloc shape coverage score
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -217,15 +218,16 @@ fastmem_execution_open=0
 fastmem_product_lowering_open=0
 ```
 
-`MIM-FMEM-008` through `MIM-FMEM-015` are landed. They promoted fastmem source
+`MIM-FMEM-008` through `MIM-FMEM-016` are landed. They promoted fastmem source
 inventory, PageMapBridge evidence, TypedPageMetaHandle, AllocOwnerId/TLS
 owner-state, same-owner local-free route evidence, AtomicRemoteHead plan
 vocabulary, non-activating remote push/drain pilot evidence, and safe
-capability wrapper plan evidence while keeping product activation closed.
+capability wrapper plan evidence, then separated speed/shape/safety/coverage
+keeper candidacy while keeping product activation closed.
 
-The next implementation owner is `MIM-FMEM-016`, which should separate
-Mimalloc shape coverage from speed/throughput evidence so fast but
-non-mimalloc-shaped routes cannot become keepers.
+The next implementation owner is `MIM-FMEM-017`, which should start the
+product-shaped replacement-front bridge only after the new shape keeper gate
+proves the route is mimalloc-shaped enough to continue.
 
 ## Algorithm Port Coverage
 

@@ -385,7 +385,32 @@ atomic_remote_head_route
 atomic_remote_head_pilot_enabled
 atomic_remote_head_enabled
 remote_free_memory_order
+mimalloc_shape_page_free_lists
+mimalloc_shape_thread_local_heap
+mimalloc_shape_segment_slice_lookup
+mimalloc_shape_component_count
+mimalloc_shape_component_page_map_bridge
+mimalloc_shape_component_typed_page_meta
+mimalloc_shape_component_tls_arena
+mimalloc_shape_component_alloc_owner
+mimalloc_shape_component_owner_check
+mimalloc_shape_component_same_owner_local_free
+mimalloc_shape_component_atomic_remote_head
+mimalloc_shape_component_safe_wrappers
+mimalloc_shape_component_no_global_lock_hot_path
+mimalloc_shape_component_no_range_scan_hot_path
+mimalloc_speed_score
 mimalloc_shape_score
+mimalloc_safety_score
+mimalloc_coverage_score
+mimalloc_shape_threshold
+mimalloc_safety_threshold
+mimalloc_coverage_threshold
+mimalloc_keeper_candidate
+mimalloc_keeper_eligible
+mimalloc_keeper_block_reason
+safety_score
+coverage_score
 replacement_front_is_full_hako_algorithm
 hako_mimalloc_algorithm_claim
 product_activation_ready
@@ -395,6 +420,9 @@ summary=ok|failed
 - Stop line: this adapter must not run benchmarks, rewrite source, change MIR,
   choose keepers, activate providers, install hooks, claim global allocator
   ownership, or use Type ABI / Provider ABI as a hot-path execution owner.
+- Keeper gating is opt-in. `fastmem-check` only applies the mimalloc
+  shape/safety/coverage thresholds when `mimalloc_keeper_candidate=1`; speed
+  alone never makes a report eligible.
 
 FastMemory Check
 - `hako_check fastmem-check` is a CI-style verifier over the FastMemory

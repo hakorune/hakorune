@@ -93,6 +93,24 @@ def int_subject_value(
     return int_value(rows, [f"subject_{subject_idx}_{suffix}", suffix], default)
 
 
+def speed_score_from_ratio(ratio: Any) -> int:
+    try:
+        value = float(ratio)
+    except (TypeError, ValueError):
+        return 0
+    if value >= 0.90:
+        return 100
+    if value >= 0.75:
+        return 80
+    if value >= 0.50:
+        return 60
+    if value >= 0.25:
+        return 40
+    if value > 0:
+        return 20
+    return 0
+
+
 def typed_page_meta_fields(rows: dict[str, str], subject_idx: int) -> dict[str, int]:
     return {
         field: int_subject_value(rows, subject_idx, f"typed_page_meta_field_{field}", 0)
@@ -500,7 +518,27 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "mimalloc_shape_page_free_lists": "missing",
         "mimalloc_shape_thread_local_heap": 0,
         "mimalloc_shape_segment_slice_lookup": 0,
+        "mimalloc_shape_component_count": 0,
+        "mimalloc_shape_component_page_map_bridge": 0,
+        "mimalloc_shape_component_typed_page_meta": 0,
+        "mimalloc_shape_component_tls_arena": 0,
+        "mimalloc_shape_component_alloc_owner": 0,
+        "mimalloc_shape_component_owner_check": 0,
+        "mimalloc_shape_component_same_owner_local_free": 0,
+        "mimalloc_shape_component_atomic_remote_head": 0,
+        "mimalloc_shape_component_safe_wrappers": 0,
+        "mimalloc_shape_component_no_global_lock_hot_path": 0,
+        "mimalloc_shape_component_no_range_scan_hot_path": 0,
+        "mimalloc_speed_score": 0,
         "mimalloc_shape_score": 0,
+        "mimalloc_safety_score": 100,
+        "mimalloc_coverage_score": 0,
+        "mimalloc_shape_threshold": 80,
+        "mimalloc_safety_threshold": 100,
+        "mimalloc_coverage_threshold": 80,
+        "mimalloc_keeper_candidate": 0,
+        "mimalloc_keeper_eligible": 0,
+        "mimalloc_keeper_block_reason": "not_candidate",
         "safety_score": 100,
         "coverage_score": 0,
         "replacement_front_is_full_hako_algorithm": 0,
@@ -710,12 +748,6 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         else 0
     )
 
-    shape_score = 0
-    shape_score += 20 if allocator_tls_enabled else 0
-    shape_score += 20 if page_map_bridge_present else 0
-    shape_score += 20 if atomic_remote_enabled else 0
-    shape_score += 20 if replacement["global_lock_hot_path_count_total"] == 0 else 0
-    shape_score += 20 if replacement["replacement_front_is_full_hako_algorithm"] == 1 else 0
     replacement_subowner = (
         "remote_free_queue" if atomic_remote_enabled else replacement["likely_next_owner"]
     )
@@ -818,6 +850,64 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
             and safe_wrapper_escape_count == 0
         ),
     )
+
+    safe_wrapper_shape_component = int(
+        safe_wrapper_plan
+        and safe_wrapper_memop_equivalence
+        and safe_wrapper_missing_count == 0
+    )
+    shape_components = {
+        "page_map_bridge": page_map_bridge_present,
+        "typed_page_meta": typed_meta_handle,
+        "tls_arena": allocator_tls_enabled,
+        "alloc_owner": alloc_owner_id_capability,
+        "owner_check": int(page_owner_check_count > 0),
+        "same_owner_local_free": int(same_owner_route_enabled and same_owner_push_count > 0),
+        "atomic_remote_head": atomic_remote_enabled,
+        "safe_wrappers": safe_wrapper_shape_component,
+        "no_global_lock_hot_path": int(replacement["global_lock_hot_path_count_total"] == 0),
+        "no_range_scan_hot_path": int(replacement["page_from_ptr_range_scan_count_total"] == 0),
+    }
+    shape_component_count = sum(1 for value in shape_components.values() if value)
+    shape_score = shape_component_count * 10
+    speed_score = speed_score_from_ratio(replacement["throughput_vs_c_mimalloc"])
+    safety_penalty_count = sum(
+        1
+        for failed in [
+            address_token_deref_allowed,
+            address_token_pointer_arithmetic_allowed,
+            address_token_escape_count,
+            alloc_owner_escape_count,
+            worker_id_escape_count,
+            page_owner_unowned_count,
+            page_owner_stale_count,
+            page_owner_invalid_count,
+            smoke_remote_overflow_count,
+            safe_wrapper_rawptr_surface,
+            safe_wrapper_deref_surface,
+            safe_wrapper_escape_count,
+            replacement["type_abi_hot_path_lookup_count"],
+            replacement["provider_dispatch_hot_path"],
+        ]
+        if failed
+    )
+    safety_score = max(0, 100 - safety_penalty_count * 20)
+    coverage_score = shape_score
+    shape_threshold = int_subject_value(rows, idx, "mimalloc_shape_threshold", 80)
+    safety_threshold = int_subject_value(rows, idx, "mimalloc_safety_threshold", 100)
+    coverage_threshold = int_subject_value(rows, idx, "mimalloc_coverage_threshold", 80)
+    keeper_candidate = int_subject_value(rows, idx, "mimalloc_keeper_candidate", 0)
+    if not keeper_candidate:
+        keeper_block_reason = "not_candidate"
+    elif shape_score < shape_threshold:
+        keeper_block_reason = "shape_below_threshold"
+    elif safety_score < safety_threshold:
+        keeper_block_reason = "safety_below_threshold"
+    elif coverage_score < coverage_threshold:
+        keeper_block_reason = "coverage_below_threshold"
+    else:
+        keeper_block_reason = "eligible"
+    keeper_eligible = int(keeper_candidate and keeper_block_reason == "eligible")
 
     report: dict[str, Any] = base_inventory("benchmark_kv_report")
     report.update({
@@ -1028,8 +1118,37 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         ),
         "mimalloc_shape_thread_local_heap": allocator_tls_enabled,
         "mimalloc_shape_segment_slice_lookup": int(bridge_kind == "two_level_segment_table"),
+        "mimalloc_shape_component_count": shape_component_count,
+        "mimalloc_shape_component_page_map_bridge": shape_components["page_map_bridge"],
+        "mimalloc_shape_component_typed_page_meta": shape_components["typed_page_meta"],
+        "mimalloc_shape_component_tls_arena": shape_components["tls_arena"],
+        "mimalloc_shape_component_alloc_owner": shape_components["alloc_owner"],
+        "mimalloc_shape_component_owner_check": shape_components["owner_check"],
+        "mimalloc_shape_component_same_owner_local_free": shape_components[
+            "same_owner_local_free"
+        ],
+        "mimalloc_shape_component_atomic_remote_head": shape_components[
+            "atomic_remote_head"
+        ],
+        "mimalloc_shape_component_safe_wrappers": shape_components["safe_wrappers"],
+        "mimalloc_shape_component_no_global_lock_hot_path": shape_components[
+            "no_global_lock_hot_path"
+        ],
+        "mimalloc_shape_component_no_range_scan_hot_path": shape_components[
+            "no_range_scan_hot_path"
+        ],
+        "mimalloc_speed_score": speed_score,
         "mimalloc_shape_score": shape_score,
-        "coverage_score": shape_score,
+        "mimalloc_safety_score": safety_score,
+        "mimalloc_coverage_score": coverage_score,
+        "mimalloc_shape_threshold": shape_threshold,
+        "mimalloc_safety_threshold": safety_threshold,
+        "mimalloc_coverage_threshold": coverage_threshold,
+        "mimalloc_keeper_candidate": keeper_candidate,
+        "mimalloc_keeper_eligible": keeper_eligible,
+        "mimalloc_keeper_block_reason": keeper_block_reason,
+        "safety_score": safety_score,
+        "coverage_score": coverage_score,
         "replacement_front_is_full_hako_algorithm": replacement[
             "replacement_front_is_full_hako_algorithm"
         ],

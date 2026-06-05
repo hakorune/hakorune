@@ -140,4 +140,37 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$CHECK_OUT"
 grep -q '^summary=ok$' "$CHECK_OUT"
 
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/shape_coverage_keeper_report.kv" \
+  >"$OUT"
+
+grep -q '^mimalloc_keeper_candidate=1$' "$OUT"
+grep -q '^mimalloc_keeper_eligible=1$' "$OUT"
+grep -q '^mimalloc_keeper_block_reason=eligible$' "$OUT"
+grep -q '^mimalloc_speed_score=100$' "$OUT"
+grep -q '^mimalloc_shape_score=100$' "$OUT"
+grep -q '^mimalloc_safety_score=100$' "$OUT"
+grep -q '^mimalloc_coverage_score=100$' "$OUT"
+grep -q '^mimalloc_shape_component_count=10$' "$OUT"
+grep -q '^mimalloc_shape_component_page_map_bridge=1$' "$OUT"
+grep -q '^mimalloc_shape_component_typed_page_meta=1$' "$OUT"
+grep -q '^mimalloc_shape_component_tls_arena=1$' "$OUT"
+grep -q '^mimalloc_shape_component_alloc_owner=1$' "$OUT"
+grep -q '^mimalloc_shape_component_owner_check=1$' "$OUT"
+grep -q '^mimalloc_shape_component_same_owner_local_free=1$' "$OUT"
+grep -q '^mimalloc_shape_component_atomic_remote_head=1$' "$OUT"
+grep -q '^mimalloc_shape_component_safe_wrappers=1$' "$OUT"
+grep -q '^mimalloc_shape_component_no_global_lock_hot_path=1$' "$OUT"
+grep -q '^mimalloc_shape_component_no_range_scan_hot_path=1$' "$OUT"
+grep -q '^product_activation_ready=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --report "$FIXTURE_DIR/shape_coverage_keeper_report.kv" \
+  --format kv \
+  >"$CHECK_OUT"
+
+grep -q '^failure_count=0$' "$CHECK_OUT"
+grep -q '^summary=ok$' "$CHECK_OUT"
+
 echo "[TEST/OK] fastmem_capability_inventory"

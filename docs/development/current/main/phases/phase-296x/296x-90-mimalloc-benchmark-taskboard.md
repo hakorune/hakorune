@@ -50,8 +50,11 @@ only when a new execution boundary would otherwise be unguarded.
 
 ```text
 MIM-FMEM-016:
-  Start Mimalloc shape coverage scoring after MIM-FMEM-015 fixed safe
+  Landed Mimalloc shape coverage scoring after MIM-FMEM-015 fixed safe
   capability wrappers as FastMemory MemOp aliases.
+MIM-FMEM-017:
+  Start the product-shaped replacement front bridge after shape/safety/coverage
+  keeper candidacy is separated from speed.
 ```
 
 ## Queue

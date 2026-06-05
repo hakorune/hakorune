@@ -534,6 +534,77 @@ Provider ABI replacement-front dispatch remains closed.
 Product allocator activation remains closed.
 ```
 
+## Mimalloc Shape Coverage Score Plan
+
+Speed is not enough to promote a replacement-front route. A route can be fast
+because it is a small native allocator or a shortcut, while still failing to
+match the mimalloc shape Hakorune is trying to port. `MIM-FMEM-016` therefore
+separates score families:
+
+```text
+mimalloc_speed_score:
+  throughput interpretation only
+
+mimalloc_shape_score:
+  structural mimalloc-shape evidence
+
+mimalloc_safety_score:
+  boundary/safety evidence
+
+mimalloc_coverage_score:
+  required coverage evidence for keeper candidacy
+```
+
+The shape score is component based. Each component is worth 10 points:
+
+```text
+mimalloc_shape_component_page_map_bridge
+mimalloc_shape_component_typed_page_meta
+mimalloc_shape_component_tls_arena
+mimalloc_shape_component_alloc_owner
+mimalloc_shape_component_owner_check
+mimalloc_shape_component_same_owner_local_free
+mimalloc_shape_component_atomic_remote_head
+mimalloc_shape_component_safe_wrappers
+mimalloc_shape_component_no_global_lock_hot_path
+mimalloc_shape_component_no_range_scan_hot_path
+```
+
+Keeper gating is explicit. Ordinary inventory reports do not fail just because
+the shape score is low; the stricter gate opens only when a report marks itself
+as a keeper candidate:
+
+```text
+mimalloc_keeper_candidate=0|1
+mimalloc_keeper_eligible=0|1
+mimalloc_keeper_block_reason=not_candidate|shape_below_threshold|safety_below_threshold|coverage_below_threshold|eligible
+mimalloc_shape_threshold=<0..100>
+mimalloc_safety_threshold=<0..100>
+mimalloc_coverage_threshold=<0..100>
+```
+
+Accepted default thresholds:
+
+```text
+mimalloc_shape_threshold=80
+mimalloc_safety_threshold=100
+mimalloc_coverage_threshold=80
+```
+
+Stop line:
+
+```text
+throughput alone cannot set mimalloc_keeper_eligible=1
+product activation remains closed
+hook install remains closed
+global allocator claim remains closed
+winner claim remains closed
+Type ABI hot lookup remains closed
+Provider ABI replacement-front dispatch remains closed
+source syntax remains unchanged in this row
+Rust-only parser behavior remains rejected
+```
+
 ## AllocOwnerId / TLS Arena Owner State Plan
 
 The next owner-state boundary is `AllocOwnerId`, not a source-level thread
@@ -799,8 +870,8 @@ keeper work in one task.
 | `MIM-FMEM-013 AtomicRemoteHead plan` | done | Define remote-free push/drain contract, memory-order vocabulary, and counters. | Remote-free is a page/fastmem capability, not a general `AtomicPtr<T>` surface. |
 | `MIM-FMEM-014 AtomicRemoteHead pilot` | done | Pilot the remote-free push/drain route after owner-state and same-owner rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
 | `MIM-FMEM-015 safe capability wrapper plan` | done | Layer `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, `AllocOwnerId`, and `AtomicRemoteHead` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
-| `MIM-FMEM-016 Mimalloc shape coverage score` | next | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
-| `MIM-FMEM-017 Product-shaped replacement front bridge` | pending | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIM-FMEM-016 Mimalloc shape coverage score` | done | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
+| `MIM-FMEM-017 Product-shaped replacement front bridge` | next | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`
@@ -930,7 +1001,27 @@ remote_free_memory_order=missing|acq_rel|release_acquire
 mimalloc_shape_page_free_lists=missing|free_only|free_local_remote
 mimalloc_shape_thread_local_heap=0|1
 mimalloc_shape_segment_slice_lookup=0|1
+mimalloc_shape_component_count=<0..10>
+mimalloc_shape_component_page_map_bridge=0|1
+mimalloc_shape_component_typed_page_meta=0|1
+mimalloc_shape_component_tls_arena=0|1
+mimalloc_shape_component_alloc_owner=0|1
+mimalloc_shape_component_owner_check=0|1
+mimalloc_shape_component_same_owner_local_free=0|1
+mimalloc_shape_component_atomic_remote_head=0|1
+mimalloc_shape_component_safe_wrappers=0|1
+mimalloc_shape_component_no_global_lock_hot_path=0|1
+mimalloc_shape_component_no_range_scan_hot_path=0|1
+mimalloc_speed_score=<0..100>
 mimalloc_shape_score=<0..100>
+mimalloc_safety_score=<0..100>
+mimalloc_coverage_score=<0..100>
+mimalloc_shape_threshold=<0..100>
+mimalloc_safety_threshold=<0..100>
+mimalloc_coverage_threshold=<0..100>
+mimalloc_keeper_candidate=0|1
+mimalloc_keeper_eligible=0|1
+mimalloc_keeper_block_reason=not_candidate|shape_below_threshold|safety_below_threshold|coverage_below_threshold|eligible
 safety_score=<0..100>
 coverage_score=<0..100>
 
