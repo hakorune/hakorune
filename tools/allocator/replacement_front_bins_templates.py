@@ -437,14 +437,14 @@ static void page_index_insert(
 #endif
       __sync_synchronize();
       entry->state = HAKO_PAGE_INDEX_READY;
-      page_index_insert_count++;
+      HAKO_COUNTER_ADD(page_index_insert_count, 1);
       return;
     }}
     if (state == HAKO_PAGE_INDEX_READY) {{
-      page_index_collision_count++;
+      HAKO_COUNTER_ADD(page_index_collision_count, 1);
     }}
   }}
-  page_index_overflow_count++;
+  HAKO_COUNTER_ADD(page_index_overflow_count, 1);
 }}
 
 static void page_index_register_range(
@@ -539,7 +539,7 @@ static int find_owned(
     }}
     if (state != HAKO_PAGE_INDEX_READY) continue;
     if (entry->page_key != page_key) continue;
-    page_index_probe_count++;
+    HAKO_COUNTER_ADD(page_index_probe_count, 1);
     if (value < entry->base || value >= entry->end) {{
       HAKO_COUNTER_ADD(page_from_ptr_invalid_count, 1);
       continue;

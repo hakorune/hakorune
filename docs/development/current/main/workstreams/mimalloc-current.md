@@ -1731,6 +1731,40 @@ mimalloc_replacement_front_bins_counter_literal_macro_2026_06_05:
   next_thread_task=MIM-HOT-PATH-ASM-OWNER-REFRESH-001
   next_thread_task_scope=refresh_hot_path_asm_owner_after_counter_instrumentation_removed
 
+mimalloc_replacement_front_page_index_counter_macro_2026_06_05:
+  status=landed
+  task_id=MIM-HOT-PATH-ASM-OWNER-REFRESH-001
+  task_kind=benchmark_front_instrumentation_cleanup
+  scope=move_page_index_probe_insert_collision_overflow_counters_behind_counter_macro
+  behavior_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  report=target/hakozuna-page-index-counter-macro-1m/report.out
+  skip_hot_counters_report=target/hakozuna-page-index-counter-macro-skip-1m/report.out
+  smoke_report=target/hakozuna-page-index-counter-macro-smoke/report.out
+  skip_hot_counters_smoke_report=target/hakozuna-page-index-counter-macro-skip-smoke/report.out
+  threads=2
+  iters_per_thread=1000000
+  sample_count=7
+  warmup_count=1
+  median_ops_per_sec=81,897,113.884
+  throughput_vs_c_mimalloc=0.234529
+  skip_hot_counters_median_ops_per_sec=82,941,025.737
+  skip_hot_counters_throughput_vs_c_mimalloc=0.238588
+  previous_counter_literal_macro_median_ops_per_sec=78,913,138.809
+  page_index_probe_count_total=8,163,984
+  skip_hot_counters_page_index_probe_count_total=0
+  owner_thread_id_lookup_count_total=8,163,984
+  page_from_ptr_count_total=8,163,984
+  remote_free_push_count_total=0
+  remote_free_drain_count_total=0
+  global_lock_hot_path_count_total=0
+  decision=keeper_for_counter_cleanup_counter_gap_now_near_zero
+  remaining_gap=free_path_page_lookup_and_layout_execution_shape
+  next_thread_task=MIM-FREE-PATH-BYPASS-PROBE-001
+  next_thread_task_scope=probe_free_path_bypass_or_slot_header_without_product_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
