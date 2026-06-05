@@ -36,6 +36,11 @@ PAGE_META_FIELDS = (
     "used",
 )
 
+MIMALLOC_SHAPE_COMPONENT_POINTS = 10
+MIMALLOC_SHAPE_DEFAULT_THRESHOLD = 80
+MIMALLOC_SAFETY_DEFAULT_THRESHOLD = 100
+MIMALLOC_COVERAGE_DEFAULT_THRESHOLD = 80
+
 
 def route_value(rows: dict[str, str], subject_idx: int, suffix: str, default: str = "") -> str:
     return prefixed(rows, subject_idx, suffix, default)
@@ -533,9 +538,9 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "mimalloc_shape_score": 0,
         "mimalloc_safety_score": 100,
         "mimalloc_coverage_score": 0,
-        "mimalloc_shape_threshold": 80,
-        "mimalloc_safety_threshold": 100,
-        "mimalloc_coverage_threshold": 80,
+        "mimalloc_shape_threshold": MIMALLOC_SHAPE_DEFAULT_THRESHOLD,
+        "mimalloc_safety_threshold": MIMALLOC_SAFETY_DEFAULT_THRESHOLD,
+        "mimalloc_coverage_threshold": MIMALLOC_COVERAGE_DEFAULT_THRESHOLD,
         "mimalloc_keeper_candidate": 0,
         "mimalloc_keeper_eligible": 0,
         "mimalloc_keeper_block_reason": "not_candidate",
@@ -869,7 +874,7 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "no_range_scan_hot_path": int(replacement["page_from_ptr_range_scan_count_total"] == 0),
     }
     shape_component_count = sum(1 for value in shape_components.values() if value)
-    shape_score = shape_component_count * 10
+    shape_score = shape_component_count * MIMALLOC_SHAPE_COMPONENT_POINTS
     speed_score = speed_score_from_ratio(replacement["throughput_vs_c_mimalloc"])
     safety_penalty_count = sum(
         1
@@ -893,9 +898,15 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     )
     safety_score = max(0, 100 - safety_penalty_count * 20)
     coverage_score = shape_score
-    shape_threshold = int_subject_value(rows, idx, "mimalloc_shape_threshold", 80)
-    safety_threshold = int_subject_value(rows, idx, "mimalloc_safety_threshold", 100)
-    coverage_threshold = int_subject_value(rows, idx, "mimalloc_coverage_threshold", 80)
+    shape_threshold = int_subject_value(
+        rows, idx, "mimalloc_shape_threshold", MIMALLOC_SHAPE_DEFAULT_THRESHOLD
+    )
+    safety_threshold = int_subject_value(
+        rows, idx, "mimalloc_safety_threshold", MIMALLOC_SAFETY_DEFAULT_THRESHOLD
+    )
+    coverage_threshold = int_subject_value(
+        rows, idx, "mimalloc_coverage_threshold", MIMALLOC_COVERAGE_DEFAULT_THRESHOLD
+    )
     keeper_candidate = int_subject_value(rows, idx, "mimalloc_keeper_candidate", 0)
     if not keeper_candidate:
         keeper_block_reason = "not_candidate"

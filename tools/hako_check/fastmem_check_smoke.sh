@@ -58,11 +58,10 @@ if bash "$ROOT/tools/hako_check.sh" fastmem-check \
   exit 1
 fi
 
-grep -q '^failure_count=4$' "$BAD_SHAPE_OUT"
+grep -q '^failure_count=3$' "$BAD_SHAPE_OUT"
 grep -q '^failure_0_reason=mimalloc_shape_score$' "$BAD_SHAPE_OUT"
 grep -q '^failure_1_reason=mimalloc_coverage_score$' "$BAD_SHAPE_OUT"
 grep -q '^failure_2_reason=mimalloc_keeper_eligible$' "$BAD_SHAPE_OUT"
-grep -q '^failure_3_reason=mimalloc_keeper_block_reason$' "$BAD_SHAPE_OUT"
 grep -q '^summary=failed$' "$BAD_SHAPE_OUT"
 
 echo "[TEST/OK] fastmem_check"
