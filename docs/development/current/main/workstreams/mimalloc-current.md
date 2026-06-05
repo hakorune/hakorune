@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
+  MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -142,8 +142,11 @@ why:
   LLVM-PIPE-001 made the current LLVM runner debt visible as static hako_check
   inventory, LLVM-PIPE-002 added opt-in dynamic pipeline/executor report
   fields, and LLVM-PIPE-003 moved the current runner defaults behind named
-  `CompileOptions` / `PipelinePlan` boxes. The next task is MIRBuilder
-  FastMemRegion/MemOp design consultation before adding MIR vocabulary.
+  `CompileOptions` / `PipelinePlan` boxes. MIR-FMEM-001 then accepted the
+  representation boundary: `MemOp` is the single executable instruction,
+  `MemOpKind` is the dialect vocabulary, and `FastMemRegion` is side-table
+  metadata rather than begin/end instructions. The next task is to add the MIR
+  contracts vocabulary without lowering behavior.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -176,6 +179,7 @@ completed_this_slice:
   LLVM-PIPE-001 LLVM runner pipeline debt inventory
   LLVM-PIPE-002 LLVM runner pipeline report fields
   LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
+  MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -209,7 +213,7 @@ task_order:
   LLVM-PIPE-002 LLVM runner pipeline report fields
   LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup
   MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
-  MIR-FMEM-002 mir/contracts FastMemRegion/MemOp vocabulary
+  MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
   MIR-FMEM-005 MIR-to-C backend artifact producer

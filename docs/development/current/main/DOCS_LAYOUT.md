@@ -121,6 +121,7 @@ Rule:
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
   - Mimalloc Replacement-Front Fidelity（mimalloc-shaped execution keeper guard）: `docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md`
+  - MIR FastMem MemOp Dialect（FastMemory MIR representation boundary）: `docs/development/current/main/design/mir-fastmem-memop-dialect-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 

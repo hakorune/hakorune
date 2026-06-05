@@ -70,8 +70,11 @@ LLVM-PIPE-001 landed separate runner cleanup inventory:
   executing any runner route.
   LLVM-PIPE-002 landed opt-in dynamic pipeline/executor report fields.
   LLVM-PIPE-003 landed named CompileOptions / PipelinePlan boxes for current
-  runner defaults. MIR-FMEM-001 opens MIRBuilder FastMemRegion/MemOp design
-  consultation next.
+  runner defaults.
+MIR-FMEM-001 landed the representation decision:
+  MemOp is the single executable instruction, MemOpKind is the dialect, and
+  FastMemRegion is side-table metadata. FastMemRegionBegin/End are rejected as
+  normal MIR instructions. MIR-FMEM-002 opens mir/contracts vocabulary next.
 ```
 
 ## Queue

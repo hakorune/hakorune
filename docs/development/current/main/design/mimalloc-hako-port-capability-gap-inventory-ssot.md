@@ -227,13 +227,13 @@ compiler can classify them:
 
 ```text
 allowed MemOp families:
-  MemAddrOf
-  MemAdd / MemSub
-  MemLogicalShr / MemAnd
-  MemTableIndex
-  MemFieldLoad / MemFieldStore
-  MemTypedLoad / MemTypedStore
-  MemAtomicCas / MemAtomicExchange / MemAtomicFetchAdd
+  MemOpKind::AddrOf
+  MemOpKind::Add / MemOpKind::Sub
+  MemOpKind::LogicalShr / MemOpKind::BitAnd
+  MemOpKind::TableIndex
+  MemOpKind::FieldLoad / MemOpKind::FieldStore
+  future MemOpKind::TypedLoad / MemOpKind::TypedStore
+  future MemOpKind::AtomicCas / MemOpKind::AtomicExchange / MemOpKind::AtomicFetchAdd
 
 forbidden in fastmem:
   arbitrary raw dereference
@@ -294,46 +294,60 @@ FastMemoryContract PageMapV0:
 ## MIR MemOp Region Plan
 
 `fastmem` source is not accepted until MIR can represent the region with
-explicit memory operations and report them. The v0 MIR/report vocabulary is:
+explicit memory operations and report them.
+
+Post `MIR-FMEM-001` decision:
 
 ```text
-FastMemRegionBegin:
-  contract_id
-  contract_family
-  source_span
+MemOp:
+  the single executable MIR instruction for fast memory dialect operations
 
-FastMemRegionEnd:
-  contract_id
+MemOpKind:
+  the dialect vocabulary
 
-MemAddrOf:
+FastMemRegion:
+  side-table metadata / contract truth
+
+MemOp.region:
+  carries FastMemRegionId
+```
+
+Do not model `FastMemRegionBegin` / `FastMemRegionEnd` as normal MIR
+instructions. They are presentation-only debug comments at most. The v0
+MIR/report vocabulary is:
+
+```text
+MemOpKind::AddrOf:
   user pointer -> MemAddr
 
-MemLogicalShr / MemAnd:
+MemOpKind::LogicalShr / MemOpKind::BitAnd:
   address/page-key arithmetic
   shift count and mask must be verifier-visible
 
-MemAdd / MemSub:
+MemOpKind::Add / MemOpKind::Sub:
   region-local address arithmetic only
 
-MemTableIndex:
+MemOpKind::TableIndex:
   verified table/key lookup
 
-MemFieldLoad / MemFieldStore:
+MemOpKind::FieldLoad / MemOpKind::FieldStore:
   verified layout field access
 
-MemTypedLoad / MemTypedStore:
-  typed load/store allowed only by contract
-
-MemAtomicCas / MemAtomicExchange / MemAtomicFetchAdd:
-  atomic operations with explicit memory order
+MemOpKind::CurrentAllocOwnerId / MemOpKind::OwnerEq:
+  allocator-local owner identity observation and equality check
 ```
 
-The report vocabulary must be present before source syntax is accepted:
+Atomic operations remain a later dialect extension. The report vocabulary must
+be present before execution lowering is accepted:
 
 ```text
-fastmem_memop_region_begin_count
-fastmem_memop_region_end_count
-fastmem_memop_unbalanced_region_count
+fastmem_region_metadata_table
+fastmem_region_instruction_markers
+fastmem_region_count
+fastmem_memop_instruction_enabled
+fastmem_memop_kind_allowlist_v0
+fastmem_memop_count
+fastmem_unknown_memop_kind_count
 fastmem_memop_unclassified_count
 fastmem_memop_addr_of_count
 fastmem_memop_add_count
@@ -815,8 +829,9 @@ MIRBuilder boundary:
 
 ```text
 MIRBuilder:
-  emits FastMemRegion / MemOp / contract id / origin metadata
+  emits MemOp instructions and FastMemRegion side-table metadata
   preserves source span and region identity
+  records contract id on the region metadata
   does not choose C vs LLVM
   does not choose page-map route
   does not claim product readiness
@@ -873,9 +888,12 @@ LLVM-PIPE-003:
 MIR-FMEM-001:
   MIRBuilder FastMemRegion/MemOp design consultation and docs.
   Representation only; no lowering behavior.
+  Decision: MemOp single instruction, MemOpKind dialect, FastMemRegion
+  side-table metadata. No FastMemRegionBegin/End MIR instructions.
 
 MIR-FMEM-002:
-  mir/contracts tag and JSON vocabulary for FastMemRegion/MemOp.
+  mir/contracts `MemOp` instruction tag, MemOpKind allowlist, and JSON
+  vocabulary for region metadata plus MemOp payloads.
 
 MIR-FMEM-003:
   MIRBuilder source lowering to FastMemRegion/MemOp metadata.
@@ -1087,8 +1105,8 @@ remote owner enters local_free
      executed.
 
 3. **MIR MemOp region plan**
-   - Add `FastMemRegionBegin/End` and explicit MemOp rows before product
-     source syntax broadening.
+   - Add `MemOp` as the single executable MIR instruction and keep
+     `FastMemRegion` as side-table metadata.
    - Document how unclassified memory behavior becomes verifier failure.
 
 4. **FastMem verifier implementation**
@@ -1155,7 +1173,7 @@ keeper work in one task.
 | --- | --- | --- | --- |
 | `MIM-FMEM-001 FastMemoryContract docs/report lock` | done | Define `fastmem` as the source spelling backed by the general FastMemory memory fast-path contract, with allocator as first consumer. | Contract id required; broad unsafe/raw pointer semantics stay rejected; Type ABI/Provider ABI hot path counts stay zero. |
 | `MIM-FMEM-002 hako_check fastmem capability inventory` | done | Add an observation-only report that joins replacement-front counters with fastmem/capability coverage. | Emits fastmem fields; no source rewrite, benchmark run, keeper selection, provider activation, hooks, global allocator claim, or product readiness claim. |
-| `MIM-FMEM-003 MIR MemOp region docs/report plan` | done | Name `FastMemRegionBegin/End` plus MemAddr/field/table/atomic MemOps. | Fail-fast vocabulary is documented; behavior change waits for verifier implementation. |
+| `MIM-FMEM-003 MIR MemOp region docs/report plan` | done | Name the early FastMemory MemOp report vocabulary. | Superseded by `MIR-FMEM-001` for final MIR representation: `MemOp` instruction + `MemOpKind` dialect + `FastMemRegion` side table. |
 | `MIM-FMEM-004 FastMem verifier implementation` | done | Implement region verifier for MemOp allowlist, no-escape values, and forbidden operations. | Unclassified memory behavior, allocation, safepoint, await/nowait, arbitrary calls, Type ABI lookup, and Provider ABI dispatch are rejected. |
 | `MIM-FMEM-005 PageKey exact route docs/report lock` | done | Name `PageKeyExactRoutePlanV0`: exact `usize/u64` logical shift, mask, shift-count trap, address-width facts. | Report vocabulary and fail-fast expectations are documented before code; plain `>>` semantics remain unchanged outside fastmem. |
 | `MIM-FMEM-006 PageKey exact route implementation` | done | Implement the narrow exact numeric route needed for allocator page-key derivation. | Route facts and backend/reference behavior agree; invalid shift/range traps are observable. |
@@ -1184,7 +1202,8 @@ keeper work in one task.
 | `LLVM-PIPE-001 LLVM runner pipeline debt inventory` | done | Report the current env rewrite, method-id seam, JoinIR experiment hook, and PyVM/harness/mock fallback visibility risks. | Static hako_check inventory only; PyVM remains diagnostic-reachable but daily route stays zero. |
 | `LLVM-PIPE-002 LLVM runner pipeline report fields` | done | Add explicit pipeline report fields for future rewrite route, JoinIR experiment, method-id mutation count, backend executor, and fallback reason. | Opt-in runtime report via `NYASH_LLVM_PIPELINE_REPORT_OUT`; no route change. |
 | `LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup` | done | Move env side effects and runner ad-hoc stages toward explicit plan objects. | Current defaults flow through named `LlvmCompileOptions` / `LlvmPipelinePlan`; executor behavior unchanged. |
-| `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | next | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | MIRBuilder represents; Planner selects; Verifier guards; Lowering emits. |
+| `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | done | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | `MemOp` is the single executable instruction, `MemOpKind` is the dialect, and `FastMemRegion` is side-table metadata. |
+| `MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary` | next | Add `MemOp` to MIR instruction contracts and add a `MemOpKind` allowlist surface. | Backend adapters cannot keep hidden MemOpKind allowlists; unknown MemOpKind fails fast. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`
@@ -1440,17 +1459,17 @@ allocator-internal .hako vocabulary:
   RemoteFreeToken
 
 MIR / plan only:
-  FastMemRegionBegin
-  FastMemRegionEnd
-  MemAddrOf
-  MemLogicalShr
-  MemAnd
-  MemTableIndex
-  MemFieldLoad
-  MemFieldStore
-  MemAtomicCas
-  MemAtomicExchange
-  MemAtomicFetchAdd
+  FastMemRegion metadata side table
+  MirInstruction::MemOp
+  MemOpKind::AddrOf
+  MemOpKind::LogicalShr
+  MemOpKind::BitAnd
+  MemOpKind::TableIndex
+  MemOpKind::FieldLoad
+  MemOpKind::FieldStore
+  future MemOpKind::AtomicCas
+  future MemOpKind::AtomicExchange
+  future MemOpKind::AtomicFetchAdd
   AddressToken
   PageKeyMake
   LogicalShrExact
