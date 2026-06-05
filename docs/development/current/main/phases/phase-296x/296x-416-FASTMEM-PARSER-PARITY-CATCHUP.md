@@ -84,13 +84,14 @@ PARSER-FMEM-001:
 
 PARSER-FMEM-002:
   parser parity gate surface
-  status=next
+  status=current
   output=one reusable smoke/probe route for Rust parser and .hako parser
   behavior_change=0
+  gate=tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
 
 PARSER-FMEM-003:
   general bitwise/shift expression parity
-  status=pending
+  status=next
   scope=<< >> & | ^ parse parity for ordinary expressions
   reason=fastmem PageKey examples need shift/mask without externcall escape
 
@@ -153,6 +154,7 @@ Proof should stay light:
 ```bash
 git status -sb
 bash tools/checks/current_state_pointer_guard.sh
+tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
 ```
 
 Add heavier selfhost parser gates only when `PARSER-FMEM-002` defines the
