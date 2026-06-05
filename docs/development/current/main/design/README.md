@@ -88,6 +88,7 @@
 - RawMap substrate（HashMap backend で深掘りしてよい substrate row SSOT）: `docs/development/current/main/design/raw-map-substrate-ssot.md`
 - GC/TLS/Atomic capability（allocator/runtime policy owner を深くする前の C4 SSOT）: `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
 - Hako Alloc Policy/State（allocator policy/state owner と native metal keep の stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+- Hako Alloc mimalloc port identity boundary（`hako_alloc` は mimalloc 移植の `.hako` 本体、Python-template C は暫定実行ブリッジという境界SSOT）: `docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md`
 - Mimalloc capability taskboard（C風unsafeではなく capability module + `@rune Contract` verifier で進める実装順SSOT）: `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - Mimalloc `.hako` port implementation plan（upstream mimalloc v3.3.2 解析から `.hako` / `hako_alloc` へ移す順序SSOT）: `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
 - Static const table syntax（M11b の source static table / MIR static_data_plans / parser rollout 順序SSOT）: `docs/development/current/main/design/static-const-table-syntax-ssot.md`

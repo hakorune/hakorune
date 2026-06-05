@@ -801,6 +801,28 @@ product allocator activation is open
 
 ## Replacement Front Producer Transition Plan
 
+Identity boundary:
+
+```text
+hako_alloc:
+  .hako body/source truth of the mimalloc port
+  not a separate allocator family
+
+replacement_front C shim:
+  temporary execution bridge for the same mimalloc port
+  not the final semantic producer
+
+runtime/bootstrap allocator:
+  allocator used to run/build Hakorune itself
+  separate from the application/product allocator under construction
+```
+
+Read the full naming and role split here:
+
+```text
+docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md
+```
+
 The current replacement front is a safe bridge, not the final producer. The
 long-term goal is to remove Python-template C as a semantic producer while
 keeping the producer-neutral `report.kv` / `hako_check` contract.
@@ -840,6 +862,10 @@ replacement_front_mir_fastmem_region_enabled=0|1
 replacement_front_mirbuilder_representation_only=1
 replacement_front_mirbuilder_route_decision_count=0
 replacement_front_producer_transition_state=current_bridge|transition_backend_artifact|final_primary
+hako_alloc_mimalloc_port_identity=hako_alloc_is_mimalloc_hako_body
+runtime_allocator_role=bootstrap_host_allocator
+application_allocator_role=hako_alloc_mimalloc_port
+hako_alloc_product_activation=0
 ```
 
 Allowed C:

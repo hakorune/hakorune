@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIR-FMEM-003 landed MIRBuilder source lowering from parsed fastmem blocks to FastMemRegion side-table metadata plus MemOp instructions; next is MIR-FMEM-004 verifier gates."
+active_lane_status = "296x-440 documented hako_alloc as the .hako body/source truth of the mimalloc port and replacement-front C as the temporary bridge; next is MIR-FMEM-004 verifier gates."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-439-MIRBUILDER-FASTMEM-SOURCE-LOWERING.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-440-HAKO-ALLOC-MIMALLOC-IDENTITY-BOUNDARY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-439-MIRBUILDER-FASTMEM-SOURCE-LOWERING"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-439-MIRBUILDER-FASTMEM-SOURCE-LOWERING.md"
-latest_card_summary = "Landed MIR-FMEM-003: parsed fastmem source now lowers to FunctionMetadata.fastmem_regions and MemOp instructions while backend support remains closed."
+latest_card = "296x-440-HAKO-ALLOC-MIMALLOC-IDENTITY-BOUNDARY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-440-HAKO-ALLOC-MIMALLOC-IDENTITY-BOUNDARY.md"
+latest_card_summary = "Documented hako_alloc as the .hako mimalloc-port body/source truth, replacement-front C as the temporary execution bridge, and runtime/bootstrap allocation as separate from product allocation."
 current_blocker_token = "MIR-FMEM-004"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-440 documented hako_alloc as the .hako body/source truth of the mimalloc port, replacement-front C as the temporary execution bridge, and runtime/bootstrap allocation as separate from application/product allocation; MIR-FMEM-004 remains next.",
   "2026-06-06: 296x-439 landed MIR-FMEM-003 MIRBuilder source lowering from parsed fastmem blocks to FastMemRegion side-table metadata plus MemOp instructions; MIR-FMEM-004 verifier gates opens next.",
   "2026-06-06: 296x-438 landed MIR-FMEM-002 MemOp instruction vocabulary and MemOpKind contracts allowlist with JSON/VM/LLVM/C support closed; MIR-FMEM-003 MIRBuilder source lowering opens next.",
   "2026-06-06: 296x-437 landed MIR-FMEM-001 FastMemory MIR representation decision: MemOp single instruction, MemOpKind dialect, FastMemRegion side-table metadata; MIR-FMEM-002 mir/contracts vocabulary opens next.",

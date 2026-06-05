@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
+  - docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
   - docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md
 ---
@@ -94,6 +95,16 @@ algorithm-port coverage:
   replacement front as proof that the full `.hako` mimalloc algorithm is wired
   into LD_PRELOAD/product replacement.
 
+hako_alloc identity:
+  `hako_alloc` is the `.hako` body/source truth of the mimalloc port, not a
+  separate allocator family. The current replacement-front C shim is a
+  temporary execution bridge for the same port. Bridge evidence exists to
+  prevent drift while this double management remains. The final direction is
+  `.hako hako_alloc/fastmem -> MIR MemOp -> LLVM/object`, with Python-template
+  C retired as semantic producer. Runtime/bootstrap allocation stays separate
+  from application/product allocator activation. SSOT:
+  `docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md`
+
 capability gap:
   current evidence does not point at missing syntax alone. Bitwise/shift syntax
   exists; the accepted next boundary is a contract-bound memory fast-path
@@ -149,8 +160,11 @@ why:
   vocabulary and contracts allowlist while keeping JSON/VM/LLVM/C support
   closed. MIR-FMEM-003 connected parsed fastmem source to function-local
   FastMemRegion metadata and MemOp instructions without opening backend
-  execution. The next task is to add verifier gates for escape/layout/
-  safepoint/allocation/ABI boundaries.
+  execution. 296x-440 then fixed the identity boundary: `hako_alloc` is the
+  `.hako` mimalloc-port body, Python-template C is the temporary execution
+  bridge, and runtime/bootstrap allocation remains separate from
+  application/product allocator activation. The next task is still to add
+  verifier gates for escape/layout/safepoint/allocation/ABI boundaries.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -186,6 +200,7 @@ completed_this_slice:
   MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
   MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
+  296x-440 hako_alloc mimalloc port identity boundary docs
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -221,6 +236,7 @@ task_order:
   MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation
   MIR-FMEM-002 mir/contracts FastMem MemOp vocabulary
   MIR-FMEM-003 MIRBuilder source lowering to FastMemRegion/MemOp metadata
+  296x-440 hako_alloc mimalloc port identity boundary docs
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
   MIR-FMEM-005 MIR-to-C backend artifact producer
   MIR-FMEM-006 MIR-to-LLVM/object primary producer

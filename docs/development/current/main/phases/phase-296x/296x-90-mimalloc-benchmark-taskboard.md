@@ -82,6 +82,12 @@ MIR-FMEM-003 landed MIRBuilder source lowering:
   parsed fastmem source now records FunctionMetadata.fastmem_regions and emits
   MemOp instructions for the V0 source vocabulary. JSON/VM/LLVM/C support
   remains closed. MIR-FMEM-004 opens verifier gates next.
+296x-440 documented the hako_alloc identity boundary:
+  hako_alloc is the .hako body/source truth of the mimalloc port, not a
+  separate allocator family. The replacement-front C shim is the temporary
+  execution bridge for the same port, and runtime/bootstrap allocation remains
+  separate from application/product allocator activation. MIR-FMEM-004 remains
+  the next implementation blocker.
 ```
 
 ## Queue
