@@ -29,6 +29,7 @@ def generate_replacement_front_bins_shim_c(
     not allocator activation.
     """
 
+    side_table_lookup = product_pages_nonlinear_lookup or page_from_ptr_bridge
     bin_defs: list[str] = []
     init_cases: list[str] = []
     page_index_register_cases: list[str] = []
@@ -217,8 +218,9 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
       return {slot_expr}[index].bytes;
 """
             )
-        find_cases.append(
-            f"""
+        if not side_table_lookup:
+            find_cases.append(
+                f"""
   base = (uintptr_t){slot_expr}[0].bytes;
   end = (uintptr_t)({slot_expr} + HAKO_REPLACEMENT_BIN_SLOT_COUNT);
   if (value >= base && value < end) {{
@@ -241,7 +243,7 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
     return 1;
   }}
 """
-        )
+            )
 
     size_to_bin_source = f"""
 static int size_to_bin(size_t size) {{
@@ -316,7 +318,6 @@ static int release_from_bin(int bin, uint32_t index) {{
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
 
     page_index_source = ""
-    side_table_lookup = product_pages_nonlinear_lookup or page_from_ptr_bridge
     find_owned_source = f"""
 static int find_owned(
     void* ptr,
@@ -583,13 +584,12 @@ static unsigned long long page_index_collision_count = 0;
 static unsigned long long page_index_overflow_count = 0;
 """
 
-    malloc_init_line = (
-        "  if (!init_done) init_bins();"
-        if thread_local_page_arena
-        else "  if (!init_done) return real_malloc_fn ? real_malloc_fn(size) : 0;"
-        if eager_init
-        else "  init_bins();"
-    )
+    if thread_local_page_arena:
+        malloc_init_line = "  if (!init_done) init_bins();"
+    elif eager_init:
+        malloc_init_line = "  if (!init_done) return real_malloc_fn ? real_malloc_fn(size) : 0;"
+    else:
+        malloc_init_line = "  init_bins();"
     constructor_init_line = "  init_bins();" if eager_init else ""
     constructor_init_source = ""
     if eager_init:

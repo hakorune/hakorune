@@ -1564,6 +1564,22 @@ mimalloc_replacement_front_route_plan_cleanup_2026_06_05:
   next_thread_task=MIM-OWNER-ID-FAST-PATH-001
   next_thread_task_scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token_without_product_activation
 
+mimalloc_replacement_front_small_cleanup_2026_06_05:
+  status=landed
+  task_kind=boxshape_cleanup
+  scope=control_plane_and_generator_cleanup
+  route_ssot_extended=product_bins_route;page_bins_route
+  generator_cleanup=find_cases_only_when_range_scan;malloc_init_line_if_elif_else
+  execution_behavior_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  remote_free_smoke=target/hakozuna-mixed-ws-cleanup-remote-free/report.out
+  range_scan_smoke=target/hakozuna-mixed-ws-cleanup-range-scan/report.out
+  product_pages_smoke=target/hakozuna-mixed-ws-cleanup-product-pages/report.out
+  next_thread_task=MIM-OWNER-ID-FAST-PATH-001
+  next_thread_task_scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token_without_product_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

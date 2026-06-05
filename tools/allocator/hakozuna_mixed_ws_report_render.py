@@ -11,7 +11,12 @@ from hakozuna_mixed_ws_report_support import (
     load_manifest_metadata,
     provider_ldpreload_route_metadata,
 )
-from replacement_front_route_plan import algorithm_shape, page_bins_lookup_route
+from replacement_front_route_plan import (
+    algorithm_shape,
+    page_bins_lookup_route,
+    page_bins_route,
+    product_bins_route,
+)
 from replacement_front_report import ReplacementFrontPreflight
 from replacement_front_support import median_float
 
@@ -63,18 +68,7 @@ def render_hakozuna_mixed_ws_report(
         args.replacement_front_product_pages_nonlinear_mode
     )
     replacement_front_algorithm_shape = algorithm_shape(args)
-    replacement_front_product_bins_route = (
-        "benchmark_page_bins_hotcore_tls"
-        if args.replacement_front_tls_page_arena_mode
-        else
-        "benchmark_page_bins_hotcore_page_model"
-        if args.replacement_front_hotcore_page_model_mode
-        else "benchmark_page_bins"
-        if args.replacement_front_page_bins_mode
-        else "benchmark_native_bins"
-        if args.replacement_front_native_bins_mode
-        else "not_consumed"
-    )
+    replacement_front_product_bins_route = product_bins_route(args)
     replacement_front_product_pages_route = (
         "benchmark_product_pages_indexed_page_table"
         if args.replacement_front_product_pages_nonlinear_mode
@@ -99,16 +93,7 @@ def render_hakozuna_mixed_ws_report(
             or args.replacement_front_page_bins_mode
         ),
     )
-    replacement_front_page_bins_route = (
-        "benchmark_page_bins_hotcore_tls"
-        if args.replacement_front_tls_page_arena_mode
-        else
-        "benchmark_page_bins_hotcore_page_model"
-        if args.replacement_front_hotcore_page_model_mode
-        else "benchmark_page_bins"
-        if args.replacement_front_page_bins_mode
-        else "not_consumed"
-    )
+    replacement_front_page_bins_route = page_bins_route(args)
     replacement_front_page_bins_lookup_route = page_bins_lookup_route(args)
     replacement_front_size_class_bridge_enabled = int(
         args.replacement_front_match_hako_size_class
