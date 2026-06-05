@@ -38,7 +38,9 @@ winner claims.
 ```text
 MIM-FMEM-008:
   Reopen the fastmem source syntax pilot now that PARSER-FMEM-001 through
-  PARSER-FMEM-006 proved narrow Rust/.hako parser parse-only parity.
+  PARSER-FMEM-006 proved narrow Rust/.hako parser parse-only parity. Current
+  row card:
+  `docs/development/current/main/phases/phase-296x/296x-417-FASTMEM-SOURCE-SYNTAX-PILOT.md`
 ```
 
 ## Queue

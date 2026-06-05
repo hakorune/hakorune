@@ -185,6 +185,20 @@ closed_by_default:
   winner claim
 ```
 
+`MIM-FMEM-008` row card:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-417-FASTMEM-SOURCE-SYNTAX-PILOT.md
+```
+
+Accepted scope for this row is source-facing inventory/check metadata only:
+
+```text
+fastmem_source_inventory_input=1
+fastmem_execution_open=0
+fastmem_product_lowering_open=0
+```
+
 ## Algorithm Port Coverage
 
 Use this section before selecting the next implementation owner.
