@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-05"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIM-FMEM-017B landed SizeClassBox bridge evidence; next is MIM-FMEM-017C Page-local state bridge evidence with product activation still closed."
+active_lane_status = "MIM-FMEM-017C landed Page-local state bridge evidence; next is MIM-FMEM-017D Replacement-front producer taxonomy with product activation still closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-431-SIZE-CLASS-BRIDGE-EVIDENCE.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-432-PAGE-LOCAL-BRIDGE-EVIDENCE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-431-SIZE-CLASS-BRIDGE-EVIDENCE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-431-SIZE-CLASS-BRIDGE-EVIDENCE.md"
-latest_card_summary = "Landed MIM-FMEM-017B: replacement-front size-class mirror evidence is bound to .hako SizeClassBox policy without activation."
-current_blocker_token = "MIM-FMEM-017C"
+latest_card = "296x-432-PAGE-LOCAL-BRIDGE-EVIDENCE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-432-PAGE-LOCAL-BRIDGE-EVIDENCE.md"
+latest_card_summary = "Landed MIM-FMEM-017C: replacement-front page-local state evidence is bound to .hako HakoAllocPageModel without activation or remote-free completion claims."
+current_blocker_token = "MIM-FMEM-017D"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-05: 296x-432 landed MIM-FMEM-017C Page-local state bridge evidence tying replacement-front page-local metadata/same-owner evidence to .hako HakoAllocPageModel; MIM-FMEM-017D producer taxonomy opens next.",
   "2026-06-05: 296x-431 landed MIM-FMEM-017B SizeClassBox bridge evidence tying the replacement-front size-class mirror to .hako SizeClassBox policy; MIM-FMEM-017C Page-local state bridge evidence opens next.",
   "2026-06-05: 296x-430 landed MIM-FMEM-017A non-activating product-shaped bridge report normalization with SizeClassBox as first source truth; MIM-FMEM-017B SizeClassBox bridge evidence opens next.",
   "2026-06-05: 296x-429 landed MIM-FMEM-016 mimalloc shape/speed/safety/coverage scoring and keeper-candidate gates; MIM-FMEM-017 Product-shaped replacement front bridge opens next.",

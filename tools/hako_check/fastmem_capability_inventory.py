@@ -587,6 +587,28 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "replacement_front_size_class_policy_constants_covered": 0,
         "replacement_front_size_class_policy_huge_sentinel_covered": 0,
         "replacement_front_size_class_policy_mirror_matches_source": 0,
+        "replacement_front_page_local_bridge_v0": 0,
+        "replacement_front_page_local_bridge_report_only": 1,
+        "replacement_front_page_local_bridge_source_truth": "unknown",
+        "replacement_front_page_local_bridge_source_file": (
+            "lang/src/hako_alloc/memory/page_box.hako"
+        ),
+        "replacement_front_page_local_bridge_mirror_source": "unknown",
+        "replacement_front_page_local_bridge_bound": 0,
+        "replacement_front_page_local_bridge_missing": "source_file,mirror_source",
+        "replacement_front_page_local_required_field_count": 0,
+        "replacement_front_page_local_required_fields_present": 0,
+        "replacement_front_page_local_missing_fields": "unknown",
+        "replacement_front_page_local_required_method_count": 0,
+        "replacement_front_page_local_required_methods_present": 0,
+        "replacement_front_page_local_missing_methods": "unknown",
+        "replacement_front_page_local_directarray_fields_present": 0,
+        "replacement_front_page_local_counter_fields_present": 0,
+        "replacement_front_page_local_acquire_release_methods_present": 0,
+        "replacement_front_page_local_lifecycle_methods_present": 0,
+        "replacement_front_page_local_typed_meta_matches_source": 0,
+        "replacement_front_page_local_same_owner_route_matches_source": 0,
+        "replacement_front_page_local_no_remote_free_claim": 1,
         "replacement_front_is_full_hako_algorithm": 0,
         "hako_mimalloc_algorithm_claim": 0,
         "product_activation_ready": 0,
@@ -1354,6 +1376,66 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         ],
         "replacement_front_size_class_policy_mirror_matches_source": replacement[
             "replacement_front_size_class_policy_mirror_matches_source"
+        ],
+        "replacement_front_page_local_bridge_v0": replacement[
+            "replacement_front_page_local_bridge_v0"
+        ],
+        "replacement_front_page_local_bridge_report_only": replacement[
+            "replacement_front_page_local_bridge_report_only"
+        ],
+        "replacement_front_page_local_bridge_source_truth": replacement[
+            "replacement_front_page_local_bridge_source_truth"
+        ],
+        "replacement_front_page_local_bridge_source_file": replacement[
+            "replacement_front_page_local_bridge_source_file"
+        ],
+        "replacement_front_page_local_bridge_mirror_source": replacement[
+            "replacement_front_page_local_bridge_mirror_source"
+        ],
+        "replacement_front_page_local_bridge_bound": replacement[
+            "replacement_front_page_local_bridge_bound"
+        ],
+        "replacement_front_page_local_bridge_missing": replacement[
+            "replacement_front_page_local_bridge_missing"
+        ],
+        "replacement_front_page_local_required_field_count": replacement[
+            "replacement_front_page_local_required_field_count"
+        ],
+        "replacement_front_page_local_required_fields_present": replacement[
+            "replacement_front_page_local_required_fields_present"
+        ],
+        "replacement_front_page_local_missing_fields": replacement[
+            "replacement_front_page_local_missing_fields"
+        ],
+        "replacement_front_page_local_required_method_count": replacement[
+            "replacement_front_page_local_required_method_count"
+        ],
+        "replacement_front_page_local_required_methods_present": replacement[
+            "replacement_front_page_local_required_methods_present"
+        ],
+        "replacement_front_page_local_missing_methods": replacement[
+            "replacement_front_page_local_missing_methods"
+        ],
+        "replacement_front_page_local_directarray_fields_present": replacement[
+            "replacement_front_page_local_directarray_fields_present"
+        ],
+        "replacement_front_page_local_counter_fields_present": replacement[
+            "replacement_front_page_local_counter_fields_present"
+        ],
+        "replacement_front_page_local_acquire_release_methods_present": replacement[
+            "replacement_front_page_local_acquire_release_methods_present"
+        ],
+        "replacement_front_page_local_lifecycle_methods_present": replacement[
+            "replacement_front_page_local_lifecycle_methods_present"
+        ],
+        "replacement_front_page_local_typed_meta_matches_source": replacement[
+            "replacement_front_page_local_typed_meta_matches_source"
+        ],
+        "replacement_front_page_local_same_owner_route_matches_source": replacement[
+            "replacement_front_page_local_same_owner_route_matches_source"
+        ],
+        "replacement_front_page_local_no_remote_free_claim": replacement[
+            "replacement_front_page_local_no_remote_free_claim"
         ],
         "replacement_front_is_full_hako_algorithm": replacement[
             "replacement_front_is_full_hako_algorithm"

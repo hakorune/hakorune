@@ -700,6 +700,58 @@ remote-free behavior is complete
 the replacement front is a full .hako mimalloc algorithm
 ```
 
+`MIM-FMEM-017C` adds page-local state bridge evidence. It is still
+report/check-only and proves that product-shaped page metadata / same-owner
+local-free evidence is tied to `.hako` `HakoAllocPageModel` page-local state.
+
+Page-local bridge fields:
+
+```text
+replacement_front_page_local_bridge_v0=0|1
+replacement_front_page_local_bridge_report_only=1
+replacement_front_page_local_bridge_source_truth=hako_alloc.page_box|unknown
+replacement_front_page_local_bridge_source_file=lang/src/hako_alloc/memory/page_box.hako
+replacement_front_page_local_bridge_mirror_source=hako_page_box_report_mirror|...
+replacement_front_page_local_bridge_bound=0|1
+replacement_front_page_local_bridge_missing=...
+
+replacement_front_page_local_required_field_count=<n>
+replacement_front_page_local_required_fields_present=0|1
+replacement_front_page_local_missing_fields=none|...
+replacement_front_page_local_required_method_count=<n>
+replacement_front_page_local_required_methods_present=0|1
+replacement_front_page_local_missing_methods=none|...
+
+replacement_front_page_local_directarray_fields_present=0|1
+replacement_front_page_local_counter_fields_present=0|1
+replacement_front_page_local_acquire_release_methods_present=0|1
+replacement_front_page_local_lifecycle_methods_present=0|1
+replacement_front_page_local_typed_meta_matches_source=0|1
+replacement_front_page_local_same_owner_route_matches_source=0|1
+replacement_front_page_local_no_remote_free_claim=1
+```
+
+`replacement_front_page_local_bridge_bound=1` means:
+
+```text
+source file exists
+required HakoAllocPageModel page-local fields are present
+free/local_free/block_used are DirectArrayI64-backed fields
+page-local counters/free heads are present
+acquire/releaseLocal/releaseLocalKnownLive methods are present
+typed page metadata exposes block_size/free/local_free/capacity/used evidence
+same-owner local-free route evidence maps to page-local release shape
+```
+
+It does not mean:
+
+```text
+remote-free execution is complete
+remote_head has .hako page-local source truth
+segment backing is connected
+product allocator activation is open
+```
+
 ## Replacement Front Producer Transition Plan
 
 The current replacement front is a safe bridge, not the final producer. The
@@ -1104,8 +1156,8 @@ keeper work in one task.
 | `MIM-FMEM-016 Mimalloc shape coverage score` | done | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
 | `MIM-FMEM-017A Product-shaped bridge report normalization` | done | Normalize non-activating product-shaped bridge evidence and bind the first source truth to `SizeClassBox`. | Report/check only; activation, hook install, global allocator claim, and winner claim remain closed. |
 | `MIM-FMEM-017B SizeClassBox bridge evidence` | done | Prove the replacement-front size-class mirror is formally tied to `.hako` `SizeClassBox` policy. | Product bins/pages execution remains benchmark-only; no page metadata or remote-free behavior change. |
-| `MIM-FMEM-017C Page-local state bridge evidence` | next | Start connecting `PageBox` page-local shape to product-shaped metadata evidence after size-class truth is bound. | No activation; page-map/TLS/remote-free semantics remain explicit later rows. |
-| `MIM-FMEM-017D Replacement-front producer taxonomy` | pending | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
+| `MIM-FMEM-017C Page-local state bridge evidence` | done | Start connecting `PageBox` page-local shape to product-shaped metadata evidence after size-class truth is bound. | No activation; page-map/TLS/remote-free semantics remain explicit later rows. |
+| `MIM-FMEM-017D Replacement-front producer taxonomy` | next | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
 | `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | pending | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | MIRBuilder represents; Planner selects; Verifier guards; Lowering emits. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
@@ -1300,6 +1352,27 @@ replacement_front_size_class_policy_methods_covered=0|1
 replacement_front_size_class_policy_constants_covered=0|1
 replacement_front_size_class_policy_huge_sentinel_covered=0|1
 replacement_front_size_class_policy_mirror_matches_source=0|1
+
+replacement_front_page_local_bridge_v0=0|1
+replacement_front_page_local_bridge_report_only=1
+replacement_front_page_local_bridge_source_truth=hako_alloc.page_box|unknown
+replacement_front_page_local_bridge_source_file=lang/src/hako_alloc/memory/page_box.hako
+replacement_front_page_local_bridge_mirror_source=hako_page_box_report_mirror|unknown
+replacement_front_page_local_bridge_bound=0|1
+replacement_front_page_local_bridge_missing=<comma list>
+replacement_front_page_local_required_field_count=<n>
+replacement_front_page_local_required_fields_present=0|1
+replacement_front_page_local_missing_fields=none|<comma list>
+replacement_front_page_local_required_method_count=<n>
+replacement_front_page_local_required_methods_present=0|1
+replacement_front_page_local_missing_methods=none|<comma list>
+replacement_front_page_local_directarray_fields_present=0|1
+replacement_front_page_local_counter_fields_present=0|1
+replacement_front_page_local_acquire_release_methods_present=0|1
+replacement_front_page_local_lifecycle_methods_present=0|1
+replacement_front_page_local_typed_meta_matches_source=0|1
+replacement_front_page_local_same_owner_route_matches_source=0|1
+replacement_front_page_local_no_remote_free_claim=1
 
 replacement_front_is_full_hako_algorithm=0
 hako_mimalloc_algorithm_claim=0

@@ -9,7 +9,8 @@ BAD_SAFE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_safe.XXXXXX")"
 BAD_SHAPE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_shape.XXXXXX")"
 BAD_BRIDGE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_bridge.XXXXXX")"
 BAD_SIZE_CLASS_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_size_class.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT"' EXIT
+BAD_PAGE_LOCAL_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_page_local.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -96,5 +97,20 @@ grep -q '^failure_1_reason=replacement_front_size_class_bridge_bound$' "$BAD_SIZ
 grep -q '^failure_2_reason=replacement_front_size_class_bridge_missing$' "$BAD_SIZE_CLASS_OUT"
 grep -q '^failure_3_reason=replacement_front_size_class_policy_mirror_matches_source$' "$BAD_SIZE_CLASS_OUT"
 grep -q '^summary=failed$' "$BAD_SIZE_CLASS_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_page_local_bridge_inventory.kv" \
+  --format kv \
+  >"$BAD_PAGE_LOCAL_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad Page-local bridge inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=4$' "$BAD_PAGE_LOCAL_OUT"
+grep -q '^failure_0_reason=replacement_front_page_local_bridge_source_truth$' "$BAD_PAGE_LOCAL_OUT"
+grep -q '^failure_1_reason=replacement_front_page_local_bridge_bound$' "$BAD_PAGE_LOCAL_OUT"
+grep -q '^failure_2_reason=replacement_front_page_local_bridge_missing$' "$BAD_PAGE_LOCAL_OUT"
+grep -q '^failure_3_reason=replacement_front_page_local_typed_meta_matches_source$' "$BAD_PAGE_LOCAL_OUT"
+grep -q '^summary=failed$' "$BAD_PAGE_LOCAL_OUT"
 
 echo "[TEST/OK] fastmem_check"

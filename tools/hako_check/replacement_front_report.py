@@ -31,6 +31,51 @@ SIZE_CLASS_USIZE_FACADES = (
     "bin_size_usize",
     "accepts_usize",
 )
+PAGE_BOX_SOURCE = Path("lang/src/hako_alloc/memory/page_box.hako")
+PAGE_LOCAL_REQUIRED_FIELDS = (
+    "free",
+    "local_free",
+    "block_used",
+    "used",
+    "free_top",
+    "local_free_top",
+    "capacity",
+    "reserved",
+    "block_size",
+)
+PAGE_LOCAL_DIRECTARRAY_FIELDS = ("free", "local_free", "block_used")
+PAGE_LOCAL_COUNTER_FIELDS = (
+    "used",
+    "free_top",
+    "local_free_top",
+    "capacity",
+    "reserved",
+    "block_size",
+)
+PAGE_LOCAL_REQUIRED_METHODS = (
+    "birth",
+    "seedFreeBlocks",
+    "acquire",
+    "acquire_usize",
+    "releaseLocal",
+    "releaseLocalKnownLive",
+    "reactivate",
+    "freeCount",
+    "localFreeCount",
+    "availableBlockCount",
+)
+PAGE_LOCAL_ACQUIRE_RELEASE_METHODS = (
+    "acquire",
+    "releaseLocal",
+    "releaseLocalKnownLive",
+)
+PAGE_LOCAL_LIFECYCLE_METHODS = (
+    "reactivate",
+    "isRetired",
+    "isDecommitted",
+    "canReuse",
+    "reuse",
+)
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -153,8 +198,28 @@ def normalized_product_bridge_source(source: str) -> str:
     return "unknown"
 
 
+def normalized_page_local_bridge_source(source: str) -> str:
+    if source in {"hako_alloc.page_box", "hako_page_box_report_mirror"}:
+        return "hako_alloc.page_box"
+    return "unknown"
+
+
 def method_names(source: str) -> set[str]:
     return set(re.findall(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(", source, re.MULTILINE))
+
+
+def field_names(source: str) -> set[str]:
+    return set(re.findall(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:", source, re.MULTILINE))
+
+
+def directarray_field_names(source: str) -> set[str]:
+    return set(
+        re.findall(
+            r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*DirectArrayI64\b",
+            source,
+            re.MULTILINE,
+        )
+    )
 
 
 def source_int_constant(source: str, method: str) -> int | None:
@@ -229,6 +294,105 @@ def size_class_box_evidence(mirror_source: str) -> dict[str, Any]:
         "replacement_front_size_class_policy_mirror_matches_source": (
             mirror_matches_source
         ),
+    }
+
+
+def page_local_bridge_evidence(
+    mirror_source: str,
+    report: dict[str, Any],
+) -> dict[str, Any]:
+    source_path = REPO_ROOT / PAGE_BOX_SOURCE
+    source_text = (
+        source_path.read_text(encoding="utf-8", errors="replace")
+        if source_path.is_file()
+        else ""
+    )
+    fields = field_names(source_text)
+    directarray_fields = directarray_field_names(source_text)
+    methods = method_names(source_text)
+    missing_fields = [
+        field for field in PAGE_LOCAL_REQUIRED_FIELDS if field not in fields
+    ]
+    missing_methods = [
+        method for method in PAGE_LOCAL_REQUIRED_METHODS if method not in methods
+    ]
+    directarray_present = int(
+        all(field in directarray_fields for field in PAGE_LOCAL_DIRECTARRAY_FIELDS)
+    )
+    counter_fields_present = int(
+        all(field in fields for field in PAGE_LOCAL_COUNTER_FIELDS)
+    )
+    acquire_release_present = int(
+        all(method in methods for method in PAGE_LOCAL_ACQUIRE_RELEASE_METHODS)
+    )
+    lifecycle_present = int(
+        all(method in methods for method in PAGE_LOCAL_LIFECYCLE_METHODS)
+    )
+    fields_present = int(not missing_fields and source_path.is_file())
+    methods_present = int(not missing_methods and source_path.is_file())
+    typed_meta_matches = int(
+        report["page_map_bridge_benchmark_front_pilot"]
+        and report.get("typed_page_meta_field_block_size", 0) == 1
+        and report.get("typed_page_meta_field_free_head", 0) == 1
+        and report.get("typed_page_meta_field_local_free_head", 0) == 1
+        and report.get("typed_page_meta_field_capacity", 0) == 1
+        and report.get("typed_page_meta_field_used", 0) == 1
+    )
+    same_owner_matches = int(
+        report["same_thread_free_local_count_total"] > 0
+        and report["same_thread_alloc_local_count_total"] > 0
+        and report["global_lock_hot_path_count_total"] == 0
+    )
+    source_truth = normalized_page_local_bridge_source(mirror_source)
+    mirror_matches_source = int(source_truth == "hako_alloc.page_box")
+    missing_parts = [
+        part
+        for part, missing in [
+            ("source_file", not source_path.is_file()),
+            ("fields", not fields_present),
+            ("methods", not methods_present),
+            ("directarray_fields", not directarray_present),
+            ("counter_fields", not counter_fields_present),
+            ("acquire_release", not acquire_release_present),
+            ("lifecycle", not lifecycle_present),
+            ("typed_meta", not typed_meta_matches),
+            ("same_owner_route", not same_owner_matches),
+            ("mirror_source", not mirror_matches_source),
+        ]
+        if missing
+    ]
+    bridge_enabled = int(bool(mirror_source))
+    return {
+        "replacement_front_page_local_bridge_v0": bridge_enabled,
+        "replacement_front_page_local_bridge_report_only": 1,
+        "replacement_front_page_local_bridge_source_truth": source_truth,
+        "replacement_front_page_local_bridge_source_file": str(PAGE_BOX_SOURCE),
+        "replacement_front_page_local_bridge_mirror_source": mirror_source or "unknown",
+        "replacement_front_page_local_bridge_bound": int(bridge_enabled and not missing_parts),
+        "replacement_front_page_local_bridge_missing": (
+            ",".join(missing_parts) if missing_parts else "none"
+        ),
+        "replacement_front_page_local_required_field_count": len(
+            PAGE_LOCAL_REQUIRED_FIELDS
+        ),
+        "replacement_front_page_local_required_fields_present": fields_present,
+        "replacement_front_page_local_missing_fields": (
+            ",".join(missing_fields) if missing_fields else "none"
+        ),
+        "replacement_front_page_local_required_method_count": len(
+            PAGE_LOCAL_REQUIRED_METHODS
+        ),
+        "replacement_front_page_local_required_methods_present": methods_present,
+        "replacement_front_page_local_missing_methods": (
+            ",".join(missing_methods) if missing_methods else "none"
+        ),
+        "replacement_front_page_local_directarray_fields_present": directarray_present,
+        "replacement_front_page_local_counter_fields_present": counter_fields_present,
+        "replacement_front_page_local_acquire_release_methods_present": acquire_release_present,
+        "replacement_front_page_local_lifecycle_methods_present": lifecycle_present,
+        "replacement_front_page_local_typed_meta_matches_source": typed_meta_matches,
+        "replacement_front_page_local_same_owner_route_matches_source": same_owner_matches,
+        "replacement_front_page_local_no_remote_free_claim": 1,
     }
 
 
@@ -352,6 +516,21 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         "host_passthrough_count_total": prefixed_int(
             rows, replacement_idx, "replacement_front_host_passthrough_count_total"
         ),
+        "typed_page_meta_field_block_size": prefixed_int(
+            rows, replacement_idx, "typed_page_meta_field_block_size"
+        ),
+        "typed_page_meta_field_free_head": prefixed_int(
+            rows, replacement_idx, "typed_page_meta_field_free_head"
+        ),
+        "typed_page_meta_field_local_free_head": prefixed_int(
+            rows, replacement_idx, "typed_page_meta_field_local_free_head"
+        ),
+        "typed_page_meta_field_capacity": prefixed_int(
+            rows, replacement_idx, "typed_page_meta_field_capacity"
+        ),
+        "typed_page_meta_field_used": prefixed_int(
+            rows, replacement_idx, "typed_page_meta_field_used"
+        ),
     }
 
     generated_c_front = report["benchmark_front_class"] == "replacement_front_c_shim"
@@ -399,6 +578,9 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
     )
     size_class_evidence = size_class_box_evidence(product_mirror_source)
     product_source = size_class_evidence["replacement_front_size_class_bridge_source_truth"]
+    page_local_mirror_source = prefixed(
+        rows, replacement_idx, "replacement_front_page_local_state_source"
+    )
     product_preflight_report = prefixed_int(
         rows, replacement_idx, "replacement_front_product_preflight_report_v0"
     )
@@ -516,6 +698,7 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         else "missing_bridge_evidence"
     )
     report.update(size_class_evidence)
+    report.update(page_local_bridge_evidence(page_local_mirror_source, report))
 
     if skip_rows is not None:
         skip_replacement_idx = find_subject(skip_rows, "replacement_front_c_shim", replacement_idx)

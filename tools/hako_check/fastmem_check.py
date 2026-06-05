@@ -106,6 +106,10 @@ def size_class_bridge_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "replacement_front_size_class_bridge_v0") > 0
 
 
+def page_local_bridge_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "replacement_front_page_local_bridge_v0") > 0
+
+
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
     if int_count(rows, "mimalloc_shape_score") < int_count(rows, "mimalloc_shape_threshold"):
         return "shape_below_threshold"
@@ -275,6 +279,32 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             ("replacement_front_size_class_huge_sentinel", -1),
         ]:
             if int_count(rows, key) != expected:
+                reasons.append(key)
+    if page_local_bridge_profile(rows):
+        if int_count(rows, "replacement_front_page_local_bridge_report_only") != 1:
+            reasons.append("replacement_front_page_local_bridge_report_only")
+        if rows.get("replacement_front_page_local_bridge_source_truth") != "hako_alloc.page_box":
+            reasons.append("replacement_front_page_local_bridge_source_truth")
+        if rows.get("replacement_front_page_local_bridge_source_file") != (
+            "lang/src/hako_alloc/memory/page_box.hako"
+        ):
+            reasons.append("replacement_front_page_local_bridge_source_file")
+        if int_count(rows, "replacement_front_page_local_bridge_bound") != 1:
+            reasons.append("replacement_front_page_local_bridge_bound")
+        if rows.get("replacement_front_page_local_bridge_missing") != "none":
+            reasons.append("replacement_front_page_local_bridge_missing")
+        for key in [
+            "replacement_front_page_local_required_fields_present",
+            "replacement_front_page_local_required_methods_present",
+            "replacement_front_page_local_directarray_fields_present",
+            "replacement_front_page_local_counter_fields_present",
+            "replacement_front_page_local_acquire_release_methods_present",
+            "replacement_front_page_local_lifecycle_methods_present",
+            "replacement_front_page_local_typed_meta_matches_source",
+            "replacement_front_page_local_same_owner_route_matches_source",
+            "replacement_front_page_local_no_remote_free_claim",
+        ]:
+            if int_count(rows, key) != 1:
                 reasons.append(key)
     return reasons
 

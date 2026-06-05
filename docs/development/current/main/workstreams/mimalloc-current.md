@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-017C Page-local state bridge evidence
+  MIM-FMEM-017D Replacement-front producer taxonomy
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -164,6 +164,7 @@ completed_this_slice:
   MIM-FMEM-016 Mimalloc shape coverage score
   MIM-FMEM-017A Product-shaped bridge report normalization
   MIM-FMEM-017B SizeClassBox bridge evidence
+  MIM-FMEM-017C Page-local state bridge evidence
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -230,17 +231,32 @@ fastmem_execution_open=0
 fastmem_product_lowering_open=0
 ```
 
-`MIM-FMEM-008` through `MIM-FMEM-017B` are landed. They promoted fastmem source
+`MIM-FMEM-008` through `MIM-FMEM-017C` are landed. They promoted fastmem source
 inventory, PageMapBridge evidence, TypedPageMetaHandle, AllocOwnerId/TLS
 owner-state, same-owner local-free route evidence, AtomicRemoteHead plan
 vocabulary, non-activating remote push/drain pilot evidence, and safe
 capability wrapper plan evidence, then separated speed/shape/safety/coverage
 keeper candidacy, normalized product-shaped bridge evidence, and tied the
-replacement-front size-class mirror to `.hako` `SizeClassBox` policy while
-keeping product activation closed.
+replacement-front size-class mirror and page-local state evidence to `.hako`
+`SizeClassBox` / `HakoAllocPageModel` policy while keeping product activation
+closed.
 
-The next implementation owner is `MIM-FMEM-017C`, which should start connecting
-page-local state bridge evidence after size-class truth is bound.
+The next implementation owner is `MIM-FMEM-017D`, which should add
+producer-neutral `replacement_front_producer` fields before MIR lowering work.
+
+`MIM-FMEM-017C` landed as report/check-only:
+
+```text
+replacement_front_page_local_bridge_v0=1
+replacement_front_page_local_bridge_bound=1
+replacement_front_page_local_bridge_source_truth=hako_alloc.page_box
+replacement_front_page_local_required_fields_present=1
+replacement_front_page_local_required_methods_present=1
+replacement_front_page_local_typed_meta_matches_source=1
+replacement_front_page_local_same_owner_route_matches_source=1
+replacement_front_page_local_no_remote_free_claim=1
+product_activation_ready=0
+```
 
 Producer transition direction:
 

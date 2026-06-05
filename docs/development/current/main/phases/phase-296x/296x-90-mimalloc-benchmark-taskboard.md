@@ -55,7 +55,8 @@ MIM-FMEM-016:
 MIM-FMEM-017:
   MIM-FMEM-017A landed non-activating product-shaped bridge report
   normalization. MIM-FMEM-017B landed SizeClassBox bridge evidence.
-  MIM-FMEM-017C starts Page-local state bridge evidence next.
+  MIM-FMEM-017C landed Page-local state bridge evidence.
+  MIM-FMEM-017D starts producer taxonomy next.
 Producer transition:
   Python-template C is a temporary bridge producer, not semantic SSOT.
   Add producer-neutral fields before MIR lowering work:
