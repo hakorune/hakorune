@@ -605,6 +605,69 @@ source syntax remains unchanged in this row
 Rust-only parser behavior remains rejected
 ```
 
+## Product-Shaped Replacement Front Bridge Plan
+
+`MIM-FMEM-017` starts as a report/check bridge, not a product activation row.
+The goal is to connect `.hako` allocator policy/state truth to the
+replacement-front descriptor surface without changing malloc/free execution.
+
+First source truth:
+
+```text
+hako_alloc_size_class_source=lang/src/hako_alloc/memory/size_class_box.hako
+```
+
+This is intentionally narrower than page metadata, TLS owner residence, remote
+free execution, or segment backing. `SizeClassBox` is the most stable first
+policy source because it owns `size_to_bin`, `bin_size`, `good_size`, regular
+bin count, and huge-bin classification.
+
+Normalized bridge fields:
+
+```text
+replacement_front_product_shaped_bridge_v0=0|1
+replacement_front_product_shaped_bridge_non_activating=1
+replacement_front_product_shaped_bridge_report_only=1
+replacement_front_product_shaped_bridge_route=replacement_front_benchmark_to_product_ldpreload_descriptor
+replacement_front_product_shaped_bridge_source_truth=hako_alloc.size_class_box|unknown
+replacement_front_product_shaped_bridge_evidence_ready=0|1
+replacement_front_product_shaped_bridge_activation_ready=0
+replacement_front_product_shaped_bridge_block_reason=...
+replacement_front_product_shaped_bridge_missing=...
+
+replacement_front_product_shaped_bridge_shape_ok=0|1
+replacement_front_product_shaped_bridge_safety_ok=0|1
+replacement_front_product_shaped_bridge_coverage_ok=0|1
+replacement_front_product_shaped_bridge_preflight_ok=0|1
+
+replacement_front_product_shaped_bridge_no_type_abi_hot_lookup=0|1
+replacement_front_product_shaped_bridge_no_provider_dispatch=0|1
+replacement_front_product_shaped_bridge_no_global_lock_hot_path=0|1
+replacement_front_product_shaped_bridge_no_range_scan_hot_path=0|1
+replacement_front_product_shaped_bridge_no_host_passthrough=0|1
+
+replacement_front_product_shaped_bridge_requires_activation_row=1
+replacement_front_product_shaped_bridge_requires_product_gate_open=1
+```
+
+Required blocker semantics while activation is closed:
+
+```text
+replacement_front_product_shaped_bridge_activation_ready=0
+replacement_front_product_shaped_bridge_missing includes product_gate_open
+replacement_front_product_shaped_bridge_missing includes activation_row
+```
+
+Stop line:
+
+```text
+MIM-FMEM-017A does not change generated C behavior.
+MIM-FMEM-017A does not add source syntax.
+MIM-FMEM-017A does not change the Rust parser or .hako parser.
+Product bins/pages may become described, but product activation stays closed.
+The bridge is not a full .hako mimalloc algorithm claim.
+```
+
 ## AllocOwnerId / TLS Arena Owner State Plan
 
 The next owner-state boundary is `AllocOwnerId`, not a source-level thread
@@ -871,7 +934,9 @@ keeper work in one task.
 | `MIM-FMEM-014 AtomicRemoteHead pilot` | done | Pilot the remote-free push/drain route after owner-state and same-owner rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
 | `MIM-FMEM-015 safe capability wrapper plan` | done | Layer `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, `AllocOwnerId`, and `AtomicRemoteHead` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
 | `MIM-FMEM-016 Mimalloc shape coverage score` | done | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
-| `MIM-FMEM-017 Product-shaped replacement front bridge` | next | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIM-FMEM-017A Product-shaped bridge report normalization` | done | Normalize non-activating product-shaped bridge evidence and bind the first source truth to `SizeClassBox`. | Report/check only; activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIM-FMEM-017B SizeClassBox bridge evidence` | next | Prove the replacement-front size-class mirror is formally tied to `.hako` `SizeClassBox` policy. | Product bins/pages execution remains benchmark-only; no page metadata or remote-free behavior change. |
+| `MIM-FMEM-017C Page-local state bridge evidence` | pending | Start connecting `PageBox` page-local shape to product-shaped metadata evidence after size-class truth is bound. | No activation; page-map/TLS/remote-free semantics remain explicit later rows. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`
@@ -1024,6 +1089,27 @@ mimalloc_keeper_eligible=0|1
 mimalloc_keeper_block_reason=not_candidate|shape_below_threshold|safety_below_threshold|coverage_below_threshold|eligible
 safety_score=<0..100>
 coverage_score=<0..100>
+
+replacement_front_product_shaped_bridge_v0=0|1
+replacement_front_product_shaped_bridge_non_activating=1
+replacement_front_product_shaped_bridge_report_only=1
+replacement_front_product_shaped_bridge_route=replacement_front_benchmark_to_product_ldpreload_descriptor|none
+replacement_front_product_shaped_bridge_source_truth=hako_alloc.size_class_box|unknown
+replacement_front_product_shaped_bridge_evidence_ready=0|1
+replacement_front_product_shaped_bridge_activation_ready=0
+replacement_front_product_shaped_bridge_block_reason=<stable reason>
+replacement_front_product_shaped_bridge_missing=<comma list>
+replacement_front_product_shaped_bridge_shape_ok=0|1
+replacement_front_product_shaped_bridge_safety_ok=0|1
+replacement_front_product_shaped_bridge_coverage_ok=0|1
+replacement_front_product_shaped_bridge_preflight_ok=0|1
+replacement_front_product_shaped_bridge_no_type_abi_hot_lookup=0|1
+replacement_front_product_shaped_bridge_no_provider_dispatch=0|1
+replacement_front_product_shaped_bridge_no_global_lock_hot_path=0|1
+replacement_front_product_shaped_bridge_no_range_scan_hot_path=0|1
+replacement_front_product_shaped_bridge_no_host_passthrough=0|1
+replacement_front_product_shaped_bridge_requires_activation_row=1
+replacement_front_product_shaped_bridge_requires_product_gate_open=1
 
 replacement_front_is_full_hako_algorithm=0
 hako_mimalloc_algorithm_claim=0

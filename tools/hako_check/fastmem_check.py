@@ -98,6 +98,10 @@ def mimalloc_keeper_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "mimalloc_keeper_candidate") > 0
 
 
+def product_shaped_bridge_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "replacement_front_product_shaped_bridge_v0") > 0
+
+
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
     if int_count(rows, "mimalloc_shape_score") < int_count(rows, "mimalloc_shape_threshold"):
         return "shape_below_threshold"
@@ -195,6 +199,46 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             reasons.append("mimalloc_keeper_eligible")
         if rows.get("mimalloc_keeper_block_reason") != expected_mimalloc_keeper_block_reason(rows):
             reasons.append("mimalloc_keeper_block_reason")
+    if product_shaped_bridge_profile(rows):
+        if int_count(rows, "replacement_front_product_shaped_bridge_non_activating") != 1:
+            reasons.append("replacement_front_product_shaped_bridge_non_activating")
+        if int_count(rows, "replacement_front_product_shaped_bridge_report_only") != 1:
+            reasons.append("replacement_front_product_shaped_bridge_report_only")
+        if int_count(rows, "replacement_front_product_shaped_bridge_activation_ready") != 0:
+            reasons.append("replacement_front_product_shaped_bridge_activation_ready")
+        if int_count(rows, "product_activation_ready") != 0:
+            reasons.append("product_activation_ready")
+        if int_count(rows, "replacement_front_product_shaped_bridge_requires_activation_row") != 1:
+            reasons.append("replacement_front_product_shaped_bridge_requires_activation_row")
+        if int_count(rows, "replacement_front_product_shaped_bridge_requires_product_gate_open") != 1:
+            reasons.append("replacement_front_product_shaped_bridge_requires_product_gate_open")
+        missing = rows.get("replacement_front_product_shaped_bridge_missing", "")
+        if "activation_row" not in missing:
+            reasons.append("replacement_front_product_shaped_bridge_missing_activation_row")
+        if "product_gate_open" not in missing:
+            reasons.append("replacement_front_product_shaped_bridge_missing_product_gate_open")
+        if int_count(rows, "replacement_front_product_shaped_bridge_evidence_ready") > 0:
+            for key in [
+                "replacement_front_product_shaped_bridge_shape_ok",
+                "replacement_front_product_shaped_bridge_safety_ok",
+                "replacement_front_product_shaped_bridge_coverage_ok",
+                "replacement_front_product_shaped_bridge_preflight_ok",
+                "replacement_front_product_shaped_bridge_no_type_abi_hot_lookup",
+                "replacement_front_product_shaped_bridge_no_provider_dispatch",
+                "replacement_front_product_shaped_bridge_no_global_lock_hot_path",
+                "replacement_front_product_shaped_bridge_no_range_scan_hot_path",
+                "replacement_front_product_shaped_bridge_no_host_passthrough",
+            ]:
+                if int_count(rows, key) != 1:
+                    reasons.append(key)
+            if rows.get("replacement_front_product_shaped_bridge_source_truth") != (
+                "hako_alloc.size_class_box"
+            ):
+                reasons.append("replacement_front_product_shaped_bridge_source_truth")
+            if rows.get("replacement_front_product_shaped_bridge_block_reason") != (
+                "activation_row_required"
+            ):
+                reasons.append("replacement_front_product_shaped_bridge_block_reason")
     return reasons
 
 

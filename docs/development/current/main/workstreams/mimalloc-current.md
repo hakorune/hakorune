@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-017 Product-shaped replacement front bridge
+  MIM-FMEM-017B SizeClassBox bridge evidence
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -162,6 +162,7 @@ completed_this_slice:
   MIM-FMEM-014 AtomicRemoteHead pilot
   MIM-FMEM-015 safe capability wrapper plan
   MIM-FMEM-016 Mimalloc shape coverage score
+  MIM-FMEM-017A Product-shaped bridge report normalization
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -187,7 +188,9 @@ task_order:
   MIM-FMEM-014 AtomicRemoteHead pilot
   MIM-FMEM-015 safe capability wrapper plan
   MIM-FMEM-016 Mimalloc shape coverage score
-  MIM-FMEM-017 Product-shaped replacement front bridge
+  MIM-FMEM-017A Product-shaped bridge report normalization
+  MIM-FMEM-017B SizeClassBox bridge evidence
+  MIM-FMEM-017C Page-local state bridge evidence
 
 closed_by_default:
   RawPtr<T>
@@ -218,16 +221,17 @@ fastmem_execution_open=0
 fastmem_product_lowering_open=0
 ```
 
-`MIM-FMEM-008` through `MIM-FMEM-016` are landed. They promoted fastmem source
+`MIM-FMEM-008` through `MIM-FMEM-017A` are landed. They promoted fastmem source
 inventory, PageMapBridge evidence, TypedPageMetaHandle, AllocOwnerId/TLS
 owner-state, same-owner local-free route evidence, AtomicRemoteHead plan
 vocabulary, non-activating remote push/drain pilot evidence, and safe
 capability wrapper plan evidence, then separated speed/shape/safety/coverage
-keeper candidacy while keeping product activation closed.
+keeper candidacy and normalized product-shaped bridge evidence while keeping
+product activation closed.
 
-The next implementation owner is `MIM-FMEM-017`, which should start the
-product-shaped replacement-front bridge only after the new shape keeper gate
-proves the route is mimalloc-shaped enough to continue.
+The next implementation owner is `MIM-FMEM-017B`, which should formally tie
+the replacement-front size-class mirror to `.hako` `SizeClassBox` policy
+before page metadata, TLS owner, or remote-free bridge work.
 
 ## Algorithm Port Coverage
 

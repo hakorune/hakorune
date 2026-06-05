@@ -123,6 +123,12 @@ def page_map_bridge_kind(rows: dict[str, str], subject_idx: int) -> str:
     return "none"
 
 
+def normalized_product_bridge_source(source: str) -> str:
+    if source in {"hako_alloc.size_class_box", "hako_size_class_box_report_mirror"}:
+        return "hako_alloc.size_class_box"
+    return "unknown"
+
+
 def classify_next_owner(report: dict[str, Any]) -> str:
     if report["global_lock_hot_path_count_total"] > 0:
         return "global_lock_hot_path"
@@ -284,6 +290,121 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         and report["free_path_page_lookup_range_scan_count"] == 0
         and report["page_map_bridge_type_abi_hot_lookup_count"] == 0
         and report["page_map_bridge_provider_abi_hot_dispatch_count"] == 0
+    )
+    product_source = normalized_product_bridge_source(
+        prefixed(rows, replacement_idx, "replacement_front_size_class_policy_source")
+    )
+    product_preflight_report = prefixed_int(
+        rows, replacement_idx, "replacement_front_product_preflight_report_v0"
+    )
+    product_preflight_evidence_ready = prefixed_int(
+        rows, replacement_idx, "replacement_front_product_preflight_evidence_ready"
+    )
+    product_preflight_quality_ok = prefixed_int(
+        rows, replacement_idx, "replacement_front_product_preflight_quality_ok"
+    )
+    product_preflight_provider_ok = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_product_preflight_provider_dispatch_bypass_ok",
+    )
+    product_preflight_type_abi_ok = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_product_preflight_type_abi_hot_lookup_zero_ok",
+    )
+    product_preflight_cross_thread_ok = prefixed_int(
+        rows, replacement_idx, "replacement_front_product_preflight_cross_thread_policy_ok"
+    )
+    product_preflight_remote_ok = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_product_preflight_remote_abandoned_counters_ok",
+    )
+    product_preflight_rollback_ok = prefixed_int(
+        rows, replacement_idx, "replacement_front_product_preflight_rollback_optout_ok"
+    )
+    product_preflight_missing = prefixed(
+        rows,
+        replacement_idx,
+        "replacement_front_product_preflight_missing",
+        "product_gate_open,activation_row",
+    )
+    product_shape_ok = int(
+        report["page_map_bridge_benchmark_front_pilot"]
+        and report["global_lock_hot_path_count_total"] == 0
+        and report["page_from_ptr_range_scan_count_total"] == 0
+    )
+    product_safety_ok = int(
+        report["replacement_front_product_activation_ready"] == 0
+        and report["type_abi_hot_path_lookup_count"] == 0
+        and report["provider_dispatch_hot_path"] == 0
+    )
+    product_preflight_ok = int(
+        product_preflight_report
+        and product_preflight_evidence_ready
+        and product_preflight_quality_ok
+        and product_preflight_provider_ok
+        and product_preflight_type_abi_ok
+        and product_preflight_cross_thread_ok
+        and product_preflight_remote_ok
+        and product_preflight_rollback_ok
+    )
+    product_no_host_passthrough = int(report["host_passthrough_count_total"] == 0)
+    product_coverage_ok = int(product_source != "unknown" and product_preflight_ok)
+    product_missing_parts = [
+        part
+        for part, missing in [
+            ("source_truth", product_source == "unknown"),
+            ("preflight", not product_preflight_ok),
+            ("shape", not product_shape_ok),
+            ("safety", not product_safety_ok),
+            ("host_passthrough_zero", not product_no_host_passthrough),
+        ]
+        if missing
+    ]
+    for blocker in product_preflight_missing.split(","):
+        if blocker and blocker not in product_missing_parts:
+            product_missing_parts.append(blocker)
+    report["replacement_front_product_shaped_bridge_v0"] = 1
+    report["replacement_front_product_shaped_bridge_non_activating"] = 1
+    report["replacement_front_product_shaped_bridge_report_only"] = 1
+    report["replacement_front_product_shaped_bridge_route"] = (
+        "replacement_front_benchmark_to_product_ldpreload_descriptor"
+    )
+    report["replacement_front_product_shaped_bridge_source_truth"] = product_source
+    report["replacement_front_product_shaped_bridge_shape_ok"] = product_shape_ok
+    report["replacement_front_product_shaped_bridge_safety_ok"] = product_safety_ok
+    report["replacement_front_product_shaped_bridge_coverage_ok"] = product_coverage_ok
+    report["replacement_front_product_shaped_bridge_preflight_ok"] = product_preflight_ok
+    report["replacement_front_product_shaped_bridge_no_type_abi_hot_lookup"] = int(
+        report["type_abi_hot_path_lookup_count"] == 0
+    )
+    report["replacement_front_product_shaped_bridge_no_provider_dispatch"] = int(
+        report["provider_dispatch_hot_path"] == 0
+    )
+    report["replacement_front_product_shaped_bridge_no_global_lock_hot_path"] = int(
+        report["global_lock_hot_path_count_total"] == 0
+    )
+    report["replacement_front_product_shaped_bridge_no_range_scan_hot_path"] = int(
+        report["page_from_ptr_range_scan_count_total"] == 0
+    )
+    report["replacement_front_product_shaped_bridge_no_host_passthrough"] = (
+        product_no_host_passthrough
+    )
+    report["replacement_front_product_shaped_bridge_requires_activation_row"] = 1
+    report["replacement_front_product_shaped_bridge_requires_product_gate_open"] = 1
+    report["replacement_front_product_shaped_bridge_activation_ready"] = 0
+    report["replacement_front_product_shaped_bridge_evidence_ready"] = int(
+        product_shape_ok and product_safety_ok and product_coverage_ok and product_no_host_passthrough
+    )
+    report["replacement_front_product_shaped_bridge_missing"] = (
+        ",".join(product_missing_parts) if product_missing_parts else "none"
+    )
+    report["replacement_front_product_shaped_bridge_block_reason"] = (
+        "activation_row_required"
+        if report["replacement_front_product_shaped_bridge_evidence_ready"]
+        else "missing_bridge_evidence"
     )
 
     if skip_rows is not None:

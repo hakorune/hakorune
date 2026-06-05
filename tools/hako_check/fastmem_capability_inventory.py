@@ -546,6 +546,26 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "mimalloc_keeper_block_reason": "not_candidate",
         "safety_score": 100,
         "coverage_score": 0,
+        "replacement_front_product_shaped_bridge_v0": 0,
+        "replacement_front_product_shaped_bridge_non_activating": 1,
+        "replacement_front_product_shaped_bridge_report_only": 1,
+        "replacement_front_product_shaped_bridge_route": "none",
+        "replacement_front_product_shaped_bridge_source_truth": "unknown",
+        "replacement_front_product_shaped_bridge_evidence_ready": 0,
+        "replacement_front_product_shaped_bridge_activation_ready": 0,
+        "replacement_front_product_shaped_bridge_block_reason": "missing_bridge_evidence",
+        "replacement_front_product_shaped_bridge_missing": "source_truth,preflight",
+        "replacement_front_product_shaped_bridge_shape_ok": 0,
+        "replacement_front_product_shaped_bridge_safety_ok": 0,
+        "replacement_front_product_shaped_bridge_coverage_ok": 0,
+        "replacement_front_product_shaped_bridge_preflight_ok": 0,
+        "replacement_front_product_shaped_bridge_no_type_abi_hot_lookup": 0,
+        "replacement_front_product_shaped_bridge_no_provider_dispatch": 0,
+        "replacement_front_product_shaped_bridge_no_global_lock_hot_path": 0,
+        "replacement_front_product_shaped_bridge_no_range_scan_hot_path": 0,
+        "replacement_front_product_shaped_bridge_no_host_passthrough": 0,
+        "replacement_front_product_shaped_bridge_requires_activation_row": 1,
+        "replacement_front_product_shaped_bridge_requires_product_gate_open": 1,
         "replacement_front_is_full_hako_algorithm": 0,
         "hako_mimalloc_algorithm_claim": 0,
         "product_activation_ready": 0,
@@ -919,6 +939,57 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     else:
         keeper_block_reason = "eligible"
     keeper_eligible = int(keeper_candidate and keeper_block_reason == "eligible")
+    product_bridge_shape_ok = int(
+        shape_score >= shape_threshold
+        and replacement["replacement_front_product_shaped_bridge_no_global_lock_hot_path"]
+        and replacement["replacement_front_product_shaped_bridge_no_range_scan_hot_path"]
+    )
+    product_bridge_safety_ok = int(
+        safety_score >= safety_threshold
+        and replacement["replacement_front_product_shaped_bridge_no_type_abi_hot_lookup"]
+        and replacement["replacement_front_product_shaped_bridge_no_provider_dispatch"]
+        and replacement["replacement_front_product_activation_ready"] == 0
+    )
+    product_bridge_preflight_ok = replacement[
+        "replacement_front_product_shaped_bridge_preflight_ok"
+    ]
+    product_bridge_coverage_ok = int(
+        coverage_score >= coverage_threshold
+        and replacement["replacement_front_product_shaped_bridge_source_truth"]
+        == "hako_alloc.size_class_box"
+    )
+    product_bridge_no_host_passthrough = replacement[
+        "replacement_front_product_shaped_bridge_no_host_passthrough"
+    ]
+    product_bridge_missing_parts = [
+        part
+        for part, missing in [
+            ("shape", not product_bridge_shape_ok),
+            ("safety", not product_bridge_safety_ok),
+            ("coverage", not product_bridge_coverage_ok),
+            ("preflight", not product_bridge_preflight_ok),
+            ("host_passthrough_zero", not product_bridge_no_host_passthrough),
+        ]
+        if missing
+    ]
+    for blocker in str(
+        replacement["replacement_front_product_shaped_bridge_missing"]
+    ).split(","):
+        if blocker and blocker != "none" and blocker not in product_bridge_missing_parts:
+            product_bridge_missing_parts.append(blocker)
+    product_bridge_evidence_ready = int(
+        product_bridge_shape_ok
+        and product_bridge_safety_ok
+        and product_bridge_coverage_ok
+        and product_bridge_preflight_ok
+        and product_bridge_no_host_passthrough
+    )
+    product_bridge_missing = (
+        ",".join(product_bridge_missing_parts) if product_bridge_missing_parts else "none"
+    )
+    product_bridge_block_reason = (
+        "activation_row_required" if product_bridge_evidence_ready else "missing_bridge_evidence"
+    )
 
     report: dict[str, Any] = base_inventory("benchmark_kv_report")
     report.update({
@@ -1160,6 +1231,52 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "mimalloc_keeper_block_reason": keeper_block_reason,
         "safety_score": safety_score,
         "coverage_score": coverage_score,
+        "replacement_front_product_shaped_bridge_v0": replacement[
+            "replacement_front_product_shaped_bridge_v0"
+        ],
+        "replacement_front_product_shaped_bridge_non_activating": replacement[
+            "replacement_front_product_shaped_bridge_non_activating"
+        ],
+        "replacement_front_product_shaped_bridge_report_only": replacement[
+            "replacement_front_product_shaped_bridge_report_only"
+        ],
+        "replacement_front_product_shaped_bridge_route": replacement[
+            "replacement_front_product_shaped_bridge_route"
+        ],
+        "replacement_front_product_shaped_bridge_source_truth": replacement[
+            "replacement_front_product_shaped_bridge_source_truth"
+        ],
+        "replacement_front_product_shaped_bridge_evidence_ready": (
+            product_bridge_evidence_ready
+        ),
+        "replacement_front_product_shaped_bridge_activation_ready": 0,
+        "replacement_front_product_shaped_bridge_block_reason": product_bridge_block_reason,
+        "replacement_front_product_shaped_bridge_missing": product_bridge_missing,
+        "replacement_front_product_shaped_bridge_shape_ok": product_bridge_shape_ok,
+        "replacement_front_product_shaped_bridge_safety_ok": product_bridge_safety_ok,
+        "replacement_front_product_shaped_bridge_coverage_ok": product_bridge_coverage_ok,
+        "replacement_front_product_shaped_bridge_preflight_ok": product_bridge_preflight_ok,
+        "replacement_front_product_shaped_bridge_no_type_abi_hot_lookup": replacement[
+            "replacement_front_product_shaped_bridge_no_type_abi_hot_lookup"
+        ],
+        "replacement_front_product_shaped_bridge_no_provider_dispatch": replacement[
+            "replacement_front_product_shaped_bridge_no_provider_dispatch"
+        ],
+        "replacement_front_product_shaped_bridge_no_global_lock_hot_path": replacement[
+            "replacement_front_product_shaped_bridge_no_global_lock_hot_path"
+        ],
+        "replacement_front_product_shaped_bridge_no_range_scan_hot_path": replacement[
+            "replacement_front_product_shaped_bridge_no_range_scan_hot_path"
+        ],
+        "replacement_front_product_shaped_bridge_no_host_passthrough": (
+            product_bridge_no_host_passthrough
+        ),
+        "replacement_front_product_shaped_bridge_requires_activation_row": replacement[
+            "replacement_front_product_shaped_bridge_requires_activation_row"
+        ],
+        "replacement_front_product_shaped_bridge_requires_product_gate_open": replacement[
+            "replacement_front_product_shaped_bridge_requires_product_gate_open"
+        ],
         "replacement_front_is_full_hako_algorithm": replacement[
             "replacement_front_is_full_hako_algorithm"
         ],

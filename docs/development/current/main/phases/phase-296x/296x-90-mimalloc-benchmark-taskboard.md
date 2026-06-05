@@ -53,8 +53,8 @@ MIM-FMEM-016:
   Landed Mimalloc shape coverage scoring after MIM-FMEM-015 fixed safe
   capability wrappers as FastMemory MemOp aliases.
 MIM-FMEM-017:
-  Start the product-shaped replacement front bridge after shape/safety/coverage
-  keeper candidacy is separated from speed.
+  MIM-FMEM-017A landed non-activating product-shaped bridge report
+  normalization. MIM-FMEM-017B starts SizeClassBox bridge evidence next.
 ```
 
 ## Queue

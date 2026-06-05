@@ -7,7 +7,8 @@ GOOD_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_good.XXXXXX")"
 BAD_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad.XXXXXX")"
 BAD_SAFE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_safe.XXXXXX")"
 BAD_SHAPE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_shape.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT"' EXIT
+BAD_BRIDGE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_bridge.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -63,5 +64,21 @@ grep -q '^failure_0_reason=mimalloc_shape_score$' "$BAD_SHAPE_OUT"
 grep -q '^failure_1_reason=mimalloc_coverage_score$' "$BAD_SHAPE_OUT"
 grep -q '^failure_2_reason=mimalloc_keeper_eligible$' "$BAD_SHAPE_OUT"
 grep -q '^summary=failed$' "$BAD_SHAPE_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_product_bridge_inventory.kv" \
+  --format kv \
+  >"$BAD_BRIDGE_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad product-shaped bridge inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=5$' "$BAD_BRIDGE_OUT"
+grep -q '^failure_0_reason=replacement_front_product_shaped_bridge_activation_ready$' "$BAD_BRIDGE_OUT"
+grep -q '^failure_1_reason=product_activation_ready$' "$BAD_BRIDGE_OUT"
+grep -q '^failure_2_reason=replacement_front_product_shaped_bridge_missing_activation_row$' "$BAD_BRIDGE_OUT"
+grep -q '^failure_3_reason=replacement_front_product_shaped_bridge_missing_product_gate_open$' "$BAD_BRIDGE_OUT"
+grep -q '^failure_4_reason=replacement_front_product_shaped_bridge_block_reason$' "$BAD_BRIDGE_OUT"
+grep -q '^summary=failed$' "$BAD_BRIDGE_OUT"
 
 echo "[TEST/OK] fastmem_check"
