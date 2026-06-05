@@ -1598,6 +1598,30 @@ mimalloc_replacement_front_counter_ssot_cleanup_2026_06_05:
   next_thread_task=MIM-OWNER-ID-FAST-PATH-001
   next_thread_task_scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token_without_product_activation
 
+mimalloc_replacement_front_owner_token_fast_path_2026_06_05:
+  status=landed
+  task_id=MIM-OWNER-ID-FAST-PATH-001
+  task_kind=benchmark_front_hot_path_cleanup
+  scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token
+  target_file=tools/allocator/replacement_front_bins_templates.py
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  owner_identity_route=cached_tls_owner_token
+  pthread_equal_hot_owner_check=0
+  pthread_self_hot_owner_check=0
+  generated_owner_thread_metadata=0
+  behavior_change=owner_local_check_uses_cached_tls_owner_token
+  product_behavior_change=0
+  remote_free_smoke=target/hakozuna-mixed-ws-owner-token-remote-free/report.out
+  range_scan_smoke=target/hakozuna-mixed-ws-owner-token-range-scan/report.out
+  product_pages_smoke=target/hakozuna-mixed-ws-owner-token-product-pages/report.out
+  remote_free_summary=ok
+  range_scan_summary=ok
+  product_pages_summary=ok
+  next_thread_task=MIM-OWNER-ID-PERF-REFRESH-001
+  next_thread_task_scope=refresh_same_run_remote_free_owner_token_perf_before_next_shape_change
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

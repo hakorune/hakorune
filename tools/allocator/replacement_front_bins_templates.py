@@ -53,7 +53,6 @@ def generate_replacement_front_bins_shim_c(
         free_top_expr = f"{tag}_free_top"
         remote_next_expr = f"{tag}_remote_next"
         remote_head_expr = f"{tag}_remote_head"
-        owner_thread_expr = f"{tag}_owner_thread"
         bin_defs.extend(
             [
                 f"#define HAKO_{tag.upper()}_SIZE {bin_size}u",
@@ -75,7 +74,7 @@ def generate_replacement_front_bins_shim_c(
                     "#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE",
                     "  uint32_t remote_next[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
                     "  int remote_head;",
-                    "  pthread_t owner_thread;",
+                    "  unsigned long long owner_token;",
                     "#endif",
                     f"}} HakoReplacement{type_tag}Page;",
                     f"static HAKO_BIN_STORAGE HakoReplacement{type_tag}Page {tag}_page;",
@@ -88,7 +87,6 @@ def generate_replacement_front_bins_shim_c(
             free_top_expr = f"{tag}_page.free_top"
             remote_next_expr = f"{tag}_page.remote_next"
             remote_head_expr = f"{tag}_page.remote_head"
-            owner_thread_expr = f"{tag}_page.owner_thread"
         else:
             bin_defs.extend(
                 [
@@ -168,7 +166,7 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
   {free_top_expr} = HAKO_REPLACEMENT_BIN_SLOT_COUNT;
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
   {remote_head_expr} = -1;
-  {owner_thread_expr} = pthread_self();
+  {tag}_page.owner_token = hako_current_owner_token;
 #endif
 """
         )
@@ -187,7 +185,7 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
       , {remote_next_expr},
       &{remote_head_expr},
-      {owner_thread_expr}
+      {tag}_page.owner_token
 #endif
       );
 """
@@ -372,7 +370,7 @@ typedef struct HakoReplacementPageIndexEntry {{
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
   uint32_t* remote_next;
   int* remote_head;
-  pthread_t owner_thread;
+  unsigned long long owner_token;
   unsigned char owner_active;
 #endif
   unsigned char state;
@@ -405,7 +403,7 @@ static void page_index_insert(
     ,
     uint32_t* remote_next,
     int* remote_head,
-    pthread_t owner_thread
+    unsigned long long owner_token
 #endif
     ) {{
   unsigned int slot = page_index_slot(page_key);
@@ -428,7 +426,7 @@ static void page_index_insert(
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
       entry->remote_next = remote_next;
       entry->remote_head = remote_head;
-      entry->owner_thread = owner_thread;
+      entry->owner_token = owner_token;
       entry->owner_active = 1u;
 #endif
       __sync_synchronize();
@@ -457,7 +455,7 @@ static void page_index_register_range(
     ,
     uint32_t* remote_next,
     int* remote_head,
-    pthread_t owner_thread
+    unsigned long long owner_token
 #endif
     ) {{
   uintptr_t first_page = base >> HAKO_PAGE_INDEX_SHIFT;
@@ -465,7 +463,7 @@ static void page_index_register_range(
   for (uintptr_t page = first_page; page <= last_page; page++) {{
     page_index_insert(page, base, end, stride, slot_size, bin, used, requested, free_stack, free_top
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
-        , remote_next, remote_head, owner_thread
+        , remote_next, remote_head, owner_token
 #endif
         );
   }}
@@ -474,13 +472,12 @@ static void page_index_register_range(
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
 static void page_arena_tls_destructor(void* value) {{
   if (!value) return;
-  pthread_t self = pthread_self();
   unsigned long long abandoned = 0;
   for (unsigned int slot = 0; slot < HAKO_PAGE_INDEX_TABLE_CAP; slot++) {{
     HakoReplacementPageIndexEntry* entry = &page_index_table[slot];
     if (entry->state == HAKO_PAGE_INDEX_READY &&
         entry->owner_active &&
-        pthread_equal(entry->owner_thread, self)) {{
+        entry->owner_token == hako_current_owner_token) {{
       entry->owner_active = 0u;
       abandoned++;
     }}
@@ -555,7 +552,7 @@ static int find_owned(
     *remote_next_out = entry->remote_next;
     *remote_head_out = entry->remote_head;
     *owner_active_out = entry->owner_active;
-    *owner_local_out = (unsigned char)pthread_equal(entry->owner_thread, pthread_self());
+    *owner_local_out = (unsigned char)(entry->owner_token == hako_current_owner_token);
     add_counter(&owner_thread_id_lookup_count, 1);
     add_counter(
         *owner_local_out ? &owner_thread_id_same_count : &owner_thread_id_remote_count,
@@ -630,6 +627,9 @@ static int resolving_real = 0;
 {chr(10).join(bin_defs)}
 
 static HAKO_BIN_STORAGE unsigned char init_done = 0u;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+static HAKO_BIN_STORAGE unsigned long long hako_current_owner_token = 0u;
+#endif
 {COUNTER_DECLS_C}
 
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
@@ -675,22 +675,25 @@ static void resolve_real(void) {{
 
 static void init_bins(void) {{
   if (init_done) return;
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
+  unsigned long long current_tls_arena_count = __sync_add_and_fetch(&tls_arena_count, 1);
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+  hako_current_owner_token = current_tls_arena_count;
+#endif
+  unsigned long long peak = tls_arena_peak_count;
+  for (unsigned int attempt = 0; current_tls_arena_count > peak && attempt < 4u; attempt++) {{
+    if (__sync_bool_compare_and_swap(&tls_arena_peak_count, peak, current_tls_arena_count)) {{
+      break;
+    }}
+    peak = tls_arena_peak_count;
+  }}
+#endif
 {chr(10).join(init_cases)}
 {chr(10).join(page_index_register_cases) if side_table_lookup else ""}
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
   register_page_arena_tls_destructor();
 #endif
   init_done = 1u;
-#ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
-  unsigned long long count = __sync_add_and_fetch(&tls_arena_count, 1);
-  unsigned long long peak = tls_arena_peak_count;
-  for (unsigned int attempt = 0; count > peak && attempt < 4u; attempt++) {{
-    if (__sync_bool_compare_and_swap(&tls_arena_peak_count, peak, count)) {{
-      break;
-    }}
-    peak = tls_arena_peak_count;
-  }}
-#endif
 }}
 
 {constructor_init_source}
