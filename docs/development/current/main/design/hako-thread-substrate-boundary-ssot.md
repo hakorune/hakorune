@@ -429,6 +429,9 @@ worker_pool_enabled_by_default=0
 
 ### THREAD-SAFETY-001: send/share/root capability
 
+Status: accepted task boundary. Implementation starts with ThreadRegistry v0
+only; Box send/share capability remains closed.
+
 Scope:
 
 ```text
@@ -439,6 +442,49 @@ thread exit cleanup
 ```
 
 Required before source-level worker/parallel surfaces.
+
+Subtasks:
+
+```text
+THREAD-SAFETY-001A:
+  docs/task boundary
+  define WorkerId separate from HostThreadId
+  define thread registry as runtime substrate
+  keep HakoSend/HakoShare as descriptor-only future capability
+
+THREAD-SAFETY-001B:
+  implement ThreadRegistry v0
+  register/unregister runtime worker threads
+  expose snapshot/count for diagnostics and tests
+  no GC root set yet
+  no Box move/share authorization yet
+
+THREAD-SAFETY-001C:
+  connect WorkerPoolScheduler workers to ThreadRegistry
+  register on worker entry
+  unregister on worker exit/drop shutdown
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+
+THREAD-SAFETY-001D:
+  future capability descriptors
+  HakoSend/HakoShare/ThreadRoot remain metadata until object/root safety lands
+```
+
+Acceptance fields:
+
+```text
+thread_registry_v0=1
+worker_id_distinct_from_host_thread_id=1
+worker_pool_threads_registered=1
+worker_pool_threads_unregistered_on_exit=1
+thread_registry_snapshot_available=1
+thread_registry_gc_roots_enabled=0
+hako_send_share_enforced=0
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+worker_pool_source_route_enabled=0
+```
 
 ### THREAD-SOURCE-001: structured worker source surface
 

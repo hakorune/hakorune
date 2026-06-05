@@ -1105,6 +1105,20 @@ worker_pool_scheduler_substrate_2026_06_05:
   next_thread_task_scope=send_share_thread_root_boundary_before_source_worker_routes
   selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
 
+thread_safety_registry_task_boundary_2026_06_05:
+  status=accepted
+  task_kind=docs_task_boundary
+  owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
+  next_thread_task=THREAD-SAFETY-001B
+  next_thread_task_scope=implement_ThreadRegistry_v0_without_send_share_or_source_worker_route
+  worker_id_distinct_from_host_thread_id=1
+  thread_registry_gc_roots_enabled=0
+  hako_send_share_enforced=0
+  source_syntax_exposure=0
+  nowait_os_thread_spawn=0
+  worker_pool_source_route_enabled=0
+  selected_next_action=probe_free_slot_index_decode_shape_before_retrying_metadata_store_changes
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
