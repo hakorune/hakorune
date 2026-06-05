@@ -26,6 +26,16 @@ from replacement_front_report import (
     read_kv,
 )
 
+PAGE_META_FIELDS = (
+    "owner_worker_id",
+    "block_size",
+    "free_head",
+    "local_free_head",
+    "remote_head",
+    "capacity",
+    "used",
+)
+
 
 def route_value(rows: dict[str, str], subject_idx: int, suffix: str, default: str = "") -> str:
     return prefixed(rows, subject_idx, suffix, default)
@@ -53,6 +63,31 @@ def classify_remote_memory_order(rows: dict[str, str], replacement: dict[str, An
 def int_route_flag(rows: dict[str, str], replacement: dict[str, Any], suffix: str) -> int:
     idx = int(replacement["benchmark_subject_index"])
     return int_value(rows, [f"subject_{idx}_{suffix}", suffix], 0)
+
+
+def first_subject_value(
+    rows: dict[str, str],
+    subject_idx: int,
+    suffix: str,
+    default: str = "",
+) -> str:
+    return first_value(rows, [f"subject_{subject_idx}_{suffix}", suffix], default)
+
+
+def int_subject_value(
+    rows: dict[str, str],
+    subject_idx: int,
+    suffix: str,
+    default: int = 0,
+) -> int:
+    return int_value(rows, [f"subject_{subject_idx}_{suffix}", suffix], default)
+
+
+def typed_page_meta_fields(rows: dict[str, str], subject_idx: int) -> dict[str, int]:
+    return {
+        field: int_subject_value(rows, subject_idx, f"typed_page_meta_field_{field}", 0)
+        for field in PAGE_META_FIELDS
+    }
 
 
 def contract_family(contract: str) -> str:
@@ -370,6 +405,18 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "page_map_bridge_type_abi_hot_lookup_count": 0,
         "page_map_bridge_provider_abi_hot_dispatch_count": 0,
         "typed_page_meta_handle": 0,
+        "typed_page_meta_layout_verified": 0,
+        "typed_page_meta_layout_id": "unknown",
+        "typed_page_meta_layout_hash": "unknown",
+        "typed_page_meta_field_count": 0,
+        "typed_page_meta_required_field_missing_count": 0,
+        "typed_page_meta_field_owner_worker_id": 0,
+        "typed_page_meta_field_block_size": 0,
+        "typed_page_meta_field_free_head": 0,
+        "typed_page_meta_field_local_free_head": 0,
+        "typed_page_meta_field_remote_head": 0,
+        "typed_page_meta_field_capacity": 0,
+        "typed_page_meta_field_used": 0,
         "typed_page_table_mode": "none",
         "worker_id_capability": 0,
         "allocator_tls_arena_enabled": 0,
@@ -413,6 +460,37 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         or replacement["remote_free_drain_count_total"] > 0
     )
     page_map_bridge_present = int(free_path_route == "page_map_bridge")
+    typed_meta_handle = int_subject_value(rows, idx, "typed_page_meta_handle", 0)
+    typed_meta_fields = typed_page_meta_fields(rows, idx)
+    typed_meta_field_count = int_subject_value(
+        rows,
+        idx,
+        "typed_page_meta_field_count",
+        sum(1 for present in typed_meta_fields.values() if present),
+    )
+    typed_meta_missing_count = (
+        sum(1 for present in typed_meta_fields.values() if not present)
+        if typed_meta_handle
+        else 0
+    )
+    typed_meta_layout_verified = int_subject_value(
+        rows,
+        idx,
+        "typed_page_meta_layout_verified",
+        int_subject_value(rows, idx, "fastmem_layout_verified", 0),
+    )
+    typed_meta_layout_id = first_subject_value(
+        rows,
+        idx,
+        "typed_page_meta_layout_id",
+        first_subject_value(rows, idx, "fastmem_layout_id", "unknown"),
+    )
+    typed_meta_layout_hash = first_subject_value(
+        rows,
+        idx,
+        "typed_page_meta_layout_hash",
+        first_subject_value(rows, idx, "fastmem_layout_hash", "unknown"),
+    )
 
     shape_score = 0
     shape_score += 20 if allocator_tls_enabled else 0
@@ -470,6 +548,25 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "page_map_bridge_provider_abi_hot_dispatch_count": replacement[
             "provider_dispatch_hot_path"
         ],
+        "typed_page_meta_handle": typed_meta_handle,
+        "typed_page_meta_layout_verified": typed_meta_layout_verified,
+        "typed_page_meta_layout_id": typed_meta_layout_id,
+        "typed_page_meta_layout_hash": typed_meta_layout_hash,
+        "typed_page_meta_field_count": typed_meta_field_count,
+        "typed_page_meta_required_field_missing_count": typed_meta_missing_count,
+        "typed_page_meta_field_owner_worker_id": typed_meta_fields["owner_worker_id"],
+        "typed_page_meta_field_block_size": typed_meta_fields["block_size"],
+        "typed_page_meta_field_free_head": typed_meta_fields["free_head"],
+        "typed_page_meta_field_local_free_head": typed_meta_fields["local_free_head"],
+        "typed_page_meta_field_remote_head": typed_meta_fields["remote_head"],
+        "typed_page_meta_field_capacity": typed_meta_fields["capacity"],
+        "typed_page_meta_field_used": typed_meta_fields["used"],
+        "fastmem_layout_verified": typed_meta_layout_verified,
+        "fastmem_layout_id": typed_meta_layout_id,
+        "fastmem_layout_hash": typed_meta_layout_hash,
+        "fastmem_unverified_offset_load_count": int_subject_value(
+            rows, idx, "fastmem_unverified_offset_load_count", 0
+        ),
         "typed_page_table_mode": "side_table" if page_map_bridge_present else "none",
         "allocator_tls_arena_enabled": allocator_tls_enabled,
         "allocator_tls_arena_count": int_route_flag(

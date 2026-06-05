@@ -29,6 +29,7 @@ FAIL_FIELDS = [
     "fastmem_box_field_store_count",
     "fastmem_array_store_count",
     "fastmem_unverified_offset_load_count",
+    "typed_page_meta_required_field_missing_count",
     "fastmem_contract_runtime_lookup_count",
     "fastmem_memop_unbalanced_region_count",
     "fastmem_memop_unclassified_count",

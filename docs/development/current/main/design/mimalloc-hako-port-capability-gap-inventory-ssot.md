@@ -433,6 +433,47 @@ The bridge can be consumed by generated C replacement-front evidence before it
 is exposed through source syntax. Source-level wrappers are later
 `AddressToken -> PageKey -> PageMapBridge -> PageMetaHandle`.
 
+## TypedPageMetaHandle Plan
+
+`TypedPageMetaHandle` is the layout-verified metadata capability returned by
+`PageMapBridge`. It is not a raw metadata pointer. It is the named handle that
+allows allocator fast paths to read owner/size metadata and operate on page-local
+free-list fields through a verified layout.
+
+The v0 layout contract is:
+
+```text
+PageMetaLayoutV0:
+  owner_worker_id
+  block_size
+  free_head
+  local_free_head
+  remote_head
+  capacity
+  used
+```
+
+Report invariants:
+
+```text
+typed_page_meta_handle=1
+typed_page_meta_layout_verified=1
+typed_page_meta_layout_id=PageMetaLayoutV0
+typed_page_meta_layout_hash=<hash>
+typed_page_meta_field_count=7
+typed_page_meta_required_field_missing_count=0
+fastmem_layout_verified=1
+fastmem_unverified_offset_load_count=0
+```
+
+Stop line:
+
+```text
+TypedPageMetaHandle does not allow arbitrary offset loads.
+TypedPageMetaHandle does not escape fastmem/replacement-front metadata scope.
+TypedPageMetaHandle does not imply product allocator activation.
+```
+
 ## Recommended Implementation Order
 
 1. **FastMemory docs/report lock**
@@ -527,8 +568,8 @@ keeper work in one task.
 | `PARSER-FMEM-006 fastmem contractless fail-fast parity` | done | Reject `fastmem { ... }` and `unsafe { ... }` in both parsers. | Contract-less unsafe escape remains closed. |
 | `MIM-FMEM-008 fastmem source syntax pilot` | done | Connect parser output to MIR MemOp region metadata after `PARSER-FMEM-001..006` proved dual parser parse-only parity. | Source-derived fastmem inventory/check works; contract-less `unsafe` / `fastmem` remains rejected; execution/lowering beyond metadata stays closed. |
 | `MIM-FMEM-009 PageMapBridge benchmark-front pilot` | done | Replace the current free-path page lookup shape with the selected bridge in generated C replacement-front evidence. | `free_path_page_lookup_route != range_scan`; report keeps product activation and hako algorithm claim closed. |
-| `MIM-FMEM-010 TypedPageMetaHandle plan` | next | Define metadata capability for owner, size, free/local_free/remote_head access. | Page metadata stays layout-verified; unverified offset loads are counted and rejected for keeper work. |
-| `MIM-FMEM-011 WorkerId / TLS arena owner state` | pending | Bind allocator owner identity to runtime worker/thread registry and thread-exit flush counters. | Source-level thread support claims remain separate from C pthread benchmark evidence. |
+| `MIM-FMEM-010 TypedPageMetaHandle plan` | done | Define metadata capability for owner, size, free/local_free/remote_head access. | Page metadata stays layout-verified; unverified offset loads are counted and rejected for keeper work. |
+| `MIM-FMEM-011 WorkerId / TLS arena owner state` | next | Bind allocator owner identity to runtime worker/thread registry and thread-exit flush counters. | Source-level thread support claims remain separate from C pthread benchmark evidence. |
 | `MIM-FMEM-012 AtomicRemoteHead plan` | pending | Define remote-free push/drain contract, memory-order vocabulary, and counters. | Remote-free is a page/fastmem capability, not a general `AtomicPtr<T>` surface. |
 | `MIM-FMEM-013 AtomicRemoteHead pilot` | pending | Pilot the remote-free push/drain route after owner-state and plan rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
 | `MIM-FMEM-014 safe capability wrapper plan` | pending | Layer `AddressToken`, `PageKey`, `PageMapBridge`, and `PageMetaHandle` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
@@ -595,6 +636,18 @@ page_map_bridge_type_abi_hot_lookup_count
 page_map_bridge_provider_abi_hot_dispatch_count
 
 typed_page_meta_handle=0|1
+typed_page_meta_layout_verified=0|1
+typed_page_meta_layout_id=PageMetaLayoutV0|unknown
+typed_page_meta_layout_hash=<hash|unknown>
+typed_page_meta_field_count=<int>
+typed_page_meta_required_field_missing_count
+typed_page_meta_field_owner_worker_id=0|1
+typed_page_meta_field_block_size=0|1
+typed_page_meta_field_free_head=0|1
+typed_page_meta_field_local_free_head=0|1
+typed_page_meta_field_remote_head=0|1
+typed_page_meta_field_capacity=0|1
+typed_page_meta_field_used=0|1
 typed_page_table_mode=none|side_table|segment_slices|compressed_index
 
 worker_id_capability=0|1

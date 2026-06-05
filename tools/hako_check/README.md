@@ -18,6 +18,7 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_check_smoke.sh`
 - `bash tools/hako_check/fastmem_source_syntax_smoke.sh`
 - `bash tools/hako_check/fastmem_page_map_bridge_smoke.sh`
+- `bash tools/hako_check/fastmem_typed_page_meta_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -319,6 +320,23 @@ free_path_page_lookup_route
 page_map_bridge_kind
 page_map_bridge_type_abi_hot_lookup_count
 page_map_bridge_provider_abi_hot_dispatch_count
+typed_page_meta_handle
+typed_page_meta_layout_verified
+typed_page_meta_layout_id
+typed_page_meta_layout_hash
+typed_page_meta_field_count
+typed_page_meta_required_field_missing_count
+typed_page_meta_field_owner_worker_id
+typed_page_meta_field_block_size
+typed_page_meta_field_free_head
+typed_page_meta_field_local_free_head
+typed_page_meta_field_remote_head
+typed_page_meta_field_capacity
+typed_page_meta_field_used
+fastmem_layout_verified
+fastmem_layout_id
+fastmem_layout_hash
+fastmem_unverified_offset_load_count
 allocator_tls_arena_enabled
 atomic_remote_head_enabled
 mimalloc_shape_score
@@ -378,6 +396,15 @@ FastMemory PageMapBridge Smoke
   fixture fails `fastmem-check`.
 - This remains benchmark/report metadata only; it does not change generated C,
   run a benchmark, or activate replacement.
+
+FastMemory TypedPageMeta Smoke
+- `fastmem_typed_page_meta_smoke.sh` fixes the `TypedPageMetaHandle` report
+  surface. It proves that `PageMetaLayoutV0` exposes the required
+  `owner_worker_id`, `block_size`, `free_head`, `local_free_head`,
+  `remote_head`, `capacity`, and `used` fields, and that missing required
+  fields fail `fastmem-check`.
+- This remains report metadata only; it does not add product allocator
+  activation, generated-C behavior changes, or broad raw pointer semantics.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may
