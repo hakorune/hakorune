@@ -110,6 +110,10 @@ def page_local_bridge_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "replacement_front_page_local_bridge_v0") > 0
 
 
+def producer_taxonomy_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "replacement_front_producer_taxonomy_v0") > 0
+
+
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
     if int_count(rows, "mimalloc_shape_score") < int_count(rows, "mimalloc_shape_threshold"):
         return "shape_below_threshold"
@@ -306,6 +310,47 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         ]:
             if int_count(rows, key) != 1:
                 reasons.append(key)
+    if producer_taxonomy_profile(rows):
+        producer = rows.get("replacement_front_producer", "unknown")
+        if producer not in {
+            "python_template_c_bridge",
+            "mir_to_c_lowering",
+            "mir_to_llvm_lowering",
+        }:
+            reasons.append("replacement_front_producer")
+        if int_count(rows, "replacement_front_python_template_c_semantic_ssot") != 0:
+            reasons.append("replacement_front_python_template_c_semantic_ssot")
+        if int_count(rows, "replacement_front_mirbuilder_representation_only") != 1:
+            reasons.append("replacement_front_mirbuilder_representation_only")
+        if int_count(rows, "replacement_front_mirbuilder_route_decision_count") != 0:
+            reasons.append("replacement_front_mirbuilder_route_decision_count")
+        if producer == "python_template_c_bridge":
+            if rows.get("replacement_front_backend_artifact") != "c":
+                reasons.append("replacement_front_backend_artifact")
+            if int_count(rows, "replacement_front_python_template_c_retirement_required") != 1:
+                reasons.append("replacement_front_python_template_c_retirement_required")
+            if int_count(rows, "replacement_front_mir_memop_enabled") != 0:
+                reasons.append("replacement_front_mir_memop_enabled")
+            if int_count(rows, "replacement_front_mir_fastmem_region_enabled") != 0:
+                reasons.append("replacement_front_mir_fastmem_region_enabled")
+            if rows.get("replacement_front_producer_transition_state") != "current_bridge":
+                reasons.append("replacement_front_producer_transition_state")
+        elif producer == "mir_to_c_lowering":
+            if rows.get("replacement_front_backend_artifact") != "c":
+                reasons.append("replacement_front_backend_artifact")
+            if rows.get("replacement_front_producer_transition_state") != (
+                "transition_backend_artifact"
+            ):
+                reasons.append("replacement_front_producer_transition_state")
+        elif producer == "mir_to_llvm_lowering":
+            if rows.get("replacement_front_backend_artifact") not in {
+                "llvm_ir",
+                "object",
+                "exe",
+            }:
+                reasons.append("replacement_front_backend_artifact")
+            if rows.get("replacement_front_producer_transition_state") != "final_primary":
+                reasons.append("replacement_front_producer_transition_state")
     return reasons
 
 

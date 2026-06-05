@@ -273,6 +273,17 @@ replacement_front_page_local_lifecycle_methods_present
 replacement_front_page_local_typed_meta_matches_source
 replacement_front_page_local_same_owner_route_matches_source
 replacement_front_page_local_no_remote_free_claim
+replacement_front_producer_taxonomy_v0
+replacement_front_producer
+replacement_front_backend_artifact
+replacement_front_source_truth
+replacement_front_python_template_c_semantic_ssot
+replacement_front_python_template_c_retirement_required
+replacement_front_mir_memop_enabled
+replacement_front_mir_fastmem_region_enabled
+replacement_front_mirbuilder_representation_only
+replacement_front_mirbuilder_route_decision_count
+replacement_front_producer_transition_state
 skip_hot_counters_median_ops_per_sec
 skip_hot_counter_gap_ratio
 skip_hot_counter_gap_class
@@ -302,6 +313,10 @@ summary=ok|failed
     page-local metadata/same-owner evidence is tied to `.hako`
     `HakoAllocPageModel`. It does not imply remote-free completion, segment
     backing, product activation, or full `.hako` mimalloc algorithm coverage.
+  - `replacement_front_producer=python_template_c_bridge` means the current C
+    front is a temporary bridge producer, not semantic SSOT. MIR/C and
+    MIR/LLVM producers use the same producer-neutral report fields before their
+    lowering implementations exist.
 - Stop line: this adapter reads existing key-value reports only. It does not
   run benchmarks, rewrite source, change MIR, choose keepers, activate
   providers, replace allocators, install hooks, claim product readiness, or
@@ -539,6 +554,17 @@ replacement_front_page_local_lifecycle_methods_present
 replacement_front_page_local_typed_meta_matches_source
 replacement_front_page_local_same_owner_route_matches_source
 replacement_front_page_local_no_remote_free_claim
+replacement_front_producer_taxonomy_v0
+replacement_front_producer
+replacement_front_backend_artifact
+replacement_front_source_truth
+replacement_front_python_template_c_semantic_ssot
+replacement_front_python_template_c_retirement_required
+replacement_front_mir_memop_enabled
+replacement_front_mir_fastmem_region_enabled
+replacement_front_mirbuilder_representation_only
+replacement_front_mirbuilder_route_decision_count
+replacement_front_producer_transition_state
 replacement_front_is_full_hako_algorithm
 hako_mimalloc_algorithm_claim
 product_activation_ready

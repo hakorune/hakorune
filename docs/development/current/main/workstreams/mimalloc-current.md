@@ -241,8 +241,9 @@ replacement-front size-class mirror and page-local state evidence to `.hako`
 `SizeClassBox` / `HakoAllocPageModel` policy while keeping product activation
 closed.
 
-The next implementation owner is `MIM-FMEM-017D`, which should add
-producer-neutral `replacement_front_producer` fields before MIR lowering work.
+`MIM-FMEM-017D` landed producer-neutral `replacement_front_producer` fields
+before MIR lowering work. LLVM runner cleanup is the next separate follow-up
+phase and must not be mixed into replacement-front producer taxonomy.
 
 `MIM-FMEM-017C` landed as report/check-only:
 
@@ -287,6 +288,40 @@ Planner selects route/producer.
 Verifier guards contract/layout/escape/ABI boundary.
 Lowering emits C/LLVM/object artifacts.
 report.kv and hako_check stay producer-neutral.
+```
+
+Runner cleanup phase split:
+
+```text
+LLVM-PIPE-001:
+  inventory/report current LLVM runner debt:
+    NYASH_REWRITE_FUTURE env forcing
+    method_id_injector no-op mutation seam
+    joinir_experiment hook/fallback
+    pyvm/harness/mock fallback route visibility
+
+LLVM-PIPE-002:
+  add explicit report fields for pipeline/executor/fallback evidence.
+
+LLVM-PIPE-003:
+  move env side effects and ad-hoc runner stages toward
+  CompileOptions / PipelinePlan / LoweringPlan.
+```
+
+`MIM-FMEM-017D` landed as report/check-only:
+
+```text
+replacement_front_producer_taxonomy_v0=1
+replacement_front_producer=python_template_c_bridge
+replacement_front_backend_artifact=c
+replacement_front_python_template_c_semantic_ssot=0
+replacement_front_python_template_c_retirement_required=1
+replacement_front_mir_memop_enabled=0
+replacement_front_mir_fastmem_region_enabled=0
+replacement_front_mirbuilder_representation_only=1
+replacement_front_mirbuilder_route_decision_count=0
+replacement_front_producer_transition_state=current_bridge
+product_activation_ready=0
 ```
 
 `MIM-FMEM-017B` landed as report/check-only:

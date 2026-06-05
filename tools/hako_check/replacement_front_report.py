@@ -76,6 +76,18 @@ PAGE_LOCAL_LIFECYCLE_METHODS = (
     "canReuse",
     "reuse",
 )
+REPLACEMENT_FRONT_PRODUCERS = {
+    "python_template_c_bridge",
+    "mir_to_c_lowering",
+    "mir_to_llvm_lowering",
+}
+REPLACEMENT_FRONT_BACKEND_ARTIFACTS = {"c", "llvm_ir", "object", "exe"}
+REPLACEMENT_FRONT_SOURCE_TRUTHS = {
+    "hako_fastmem",
+    "hako_alloc.size_class_box",
+    "hako_alloc.page_box",
+    "unknown",
+}
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -201,6 +213,41 @@ def normalized_product_bridge_source(source: str) -> str:
 def normalized_page_local_bridge_source(source: str) -> str:
     if source in {"hako_alloc.page_box", "hako_page_box_report_mirror"}:
         return "hako_alloc.page_box"
+    return "unknown"
+
+
+def normalized_replacement_front_producer(value: str, front_class: str) -> str:
+    if value in REPLACEMENT_FRONT_PRODUCERS:
+        return value
+    if front_class == "replacement_front_c_shim":
+        return "python_template_c_bridge"
+    return "unknown"
+
+
+def normalized_backend_artifact(value: str, producer: str) -> str:
+    if value in REPLACEMENT_FRONT_BACKEND_ARTIFACTS:
+        return value
+    if producer in {"python_template_c_bridge", "mir_to_c_lowering"}:
+        return "c"
+    if producer == "mir_to_llvm_lowering":
+        return "object"
+    return "unknown"
+
+
+def normalized_replacement_front_source_truth(value: str, fallback: str) -> str:
+    source = value or fallback
+    if source in REPLACEMENT_FRONT_SOURCE_TRUTHS:
+        return source
+    return "unknown"
+
+
+def producer_transition_state(producer: str) -> str:
+    if producer == "python_template_c_bridge":
+        return "current_bridge"
+    if producer == "mir_to_c_lowering":
+        return "transition_backend_artifact"
+    if producer == "mir_to_llvm_lowering":
+        return "final_primary"
     return "unknown"
 
 
@@ -578,6 +625,63 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
     )
     size_class_evidence = size_class_box_evidence(product_mirror_source)
     product_source = size_class_evidence["replacement_front_size_class_bridge_source_truth"]
+    producer = normalized_replacement_front_producer(
+        prefixed(rows, replacement_idx, "replacement_front_producer"),
+        report["benchmark_front_class"],
+    )
+    backend_artifact = normalized_backend_artifact(
+        prefixed(rows, replacement_idx, "replacement_front_backend_artifact"),
+        producer,
+    )
+    report["replacement_front_producer_taxonomy_v0"] = 1
+    report["replacement_front_producer"] = producer
+    report["replacement_front_backend_artifact"] = backend_artifact
+    report["replacement_front_source_truth"] = normalized_replacement_front_source_truth(
+        prefixed(rows, replacement_idx, "replacement_front_source_truth"),
+        product_source,
+    )
+    report["replacement_front_python_template_c_semantic_ssot"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_python_template_c_semantic_ssot",
+        0,
+    )
+    report["replacement_front_python_template_c_retirement_required"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_python_template_c_retirement_required",
+        int(producer == "python_template_c_bridge"),
+    )
+    report["replacement_front_mir_memop_enabled"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_mir_memop_enabled",
+        int(producer in {"mir_to_c_lowering", "mir_to_llvm_lowering"}),
+    )
+    report["replacement_front_mir_fastmem_region_enabled"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_mir_fastmem_region_enabled",
+        int(producer in {"mir_to_c_lowering", "mir_to_llvm_lowering"}),
+    )
+    report["replacement_front_mirbuilder_representation_only"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_mirbuilder_representation_only",
+        1,
+    )
+    report["replacement_front_mirbuilder_route_decision_count"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_mirbuilder_route_decision_count",
+        0,
+    )
+    report["replacement_front_producer_transition_state"] = prefixed(
+        rows,
+        replacement_idx,
+        "replacement_front_producer_transition_state",
+        producer_transition_state(producer),
+    )
     page_local_mirror_source = prefixed(
         rows, replacement_idx, "replacement_front_page_local_state_source"
     )

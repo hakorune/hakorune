@@ -782,15 +782,17 @@ mir_to_llvm_lowering:
 Producer-neutral fields:
 
 ```text
+replacement_front_producer_taxonomy_v0=1
 replacement_front_producer=python_template_c_bridge|mir_to_c_lowering|mir_to_llvm_lowering
 replacement_front_backend_artifact=c|llvm_ir|object|exe
-replacement_front_source_truth=hako_fastmem|hako_alloc.size_class_box|unknown
+replacement_front_source_truth=hako_fastmem|hako_alloc.size_class_box|hako_alloc.page_box|unknown
 replacement_front_python_template_c_semantic_ssot=0
 replacement_front_python_template_c_retirement_required=0|1
 replacement_front_mir_memop_enabled=0|1
 replacement_front_mir_fastmem_region_enabled=0|1
 replacement_front_mirbuilder_representation_only=1
 replacement_front_mirbuilder_route_decision_count=0
+replacement_front_producer_transition_state=current_bridge|transition_backend_artifact|final_primary
 ```
 
 Allowed C:
@@ -846,6 +848,27 @@ MIM-FMEM-017C:
 MIM-FMEM-017D:
   Add replacement_front_producer fields to report/check.
   No execution behavior change.
+
+LLVM-PIPE-001:
+  Inventory/report the current LLVM runner pipeline debt separately from
+  replacement-front producer taxonomy:
+    NYASH_REWRITE_FUTURE env forcing
+    method_id_injector no-op mutation seam
+    joinir_experiment hook/fallback
+    pyvm/harness/mock fallback route visibility
+
+LLVM-PIPE-002:
+  Add pipeline/report fields:
+    mir_future_rewrite_route
+    pipeline_joinir_experiment_enabled
+    method_id_injector_mutation_count
+    execution_backend
+    llvm_fallback_used
+    llvm_fallback_reason
+
+LLVM-PIPE-003:
+  Move env side effects and runner ad-hoc stages toward
+  CompileOptions / PipelinePlan / LoweringPlan.
 
 MIR-FMEM-001:
   MIRBuilder FastMemRegion/MemOp design consultation and docs.
@@ -1157,7 +1180,10 @@ keeper work in one task.
 | `MIM-FMEM-017A Product-shaped bridge report normalization` | done | Normalize non-activating product-shaped bridge evidence and bind the first source truth to `SizeClassBox`. | Report/check only; activation, hook install, global allocator claim, and winner claim remain closed. |
 | `MIM-FMEM-017B SizeClassBox bridge evidence` | done | Prove the replacement-front size-class mirror is formally tied to `.hako` `SizeClassBox` policy. | Product bins/pages execution remains benchmark-only; no page metadata or remote-free behavior change. |
 | `MIM-FMEM-017C Page-local state bridge evidence` | done | Start connecting `PageBox` page-local shape to product-shaped metadata evidence after size-class truth is bound. | No activation; page-map/TLS/remote-free semantics remain explicit later rows. |
-| `MIM-FMEM-017D Replacement-front producer taxonomy` | next | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
+| `MIM-FMEM-017D Replacement-front producer taxonomy` | done | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
+| `LLVM-PIPE-001 LLVM runner pipeline debt inventory` | next | Report the current env rewrite, method-id seam, JoinIR experiment hook, and PyVM/harness/mock fallback visibility risks. | Separate from 017D; no replacement-front behavior change. |
+| `LLVM-PIPE-002 LLVM runner pipeline report fields` | pending | Add explicit pipeline report fields for future rewrite route, JoinIR experiment, method-id mutation count, backend executor, and fallback reason. | Report-only; no route change. |
+| `LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup` | pending | Move env side effects and runner ad-hoc stages toward explicit plan objects. | Implementation cleanup after report evidence exists. |
 | `MIR-FMEM-001 MIRBuilder FastMemRegion/MemOp design consultation` | pending | Lock the MIRBuilder representation boundary before implementing FastMem execution lowering. | MIRBuilder represents; Planner selects; Verifier guards; Lowering emits. |
 | `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 

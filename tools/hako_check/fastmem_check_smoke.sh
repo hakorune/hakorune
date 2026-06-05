@@ -10,7 +10,8 @@ BAD_SHAPE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_shape.XXXXXX")"
 BAD_BRIDGE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_bridge.XXXXXX")"
 BAD_SIZE_CLASS_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_size_class.XXXXXX")"
 BAD_PAGE_LOCAL_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_page_local.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT"' EXIT
+BAD_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_producer.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -112,5 +113,24 @@ grep -q '^failure_1_reason=replacement_front_page_local_bridge_bound$' "$BAD_PAG
 grep -q '^failure_2_reason=replacement_front_page_local_bridge_missing$' "$BAD_PAGE_LOCAL_OUT"
 grep -q '^failure_3_reason=replacement_front_page_local_typed_meta_matches_source$' "$BAD_PAGE_LOCAL_OUT"
 grep -q '^summary=failed$' "$BAD_PAGE_LOCAL_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_producer_taxonomy_inventory.kv" \
+  --format kv \
+  >"$BAD_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad producer taxonomy inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=8$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_0_reason=replacement_front_python_template_c_semantic_ssot$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_1_reason=replacement_front_mirbuilder_representation_only$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_2_reason=replacement_front_mirbuilder_route_decision_count$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_3_reason=replacement_front_backend_artifact$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_4_reason=replacement_front_python_template_c_retirement_required$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_5_reason=replacement_front_mir_memop_enabled$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_6_reason=replacement_front_mir_fastmem_region_enabled$' "$BAD_PRODUCER_OUT"
+grep -q '^failure_7_reason=replacement_front_producer_transition_state$' "$BAD_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_PRODUCER_OUT"
 
 echo "[TEST/OK] fastmem_check"
