@@ -99,19 +99,20 @@ def render_hakozuna_mixed_ws_report(
         args.replacement_front_match_hako_size_class
         or replacement_front_bins_mode
     )
-    replacement_front_size_class_bridge_mode = (
-        "workload_regular_bins_page_shaped_hotcore_page_model_hako_size_class"
-        if args.replacement_front_hotcore_page_model_mode
-        else "workload_regular_bins_page_shaped_hako_size_class"
-        if args.replacement_front_page_bins_mode
-        else "workload_regular_bins_hako_size_class"
-        if args.replacement_front_native_bins_mode
-        else (
-            "hako_good_size_request_ceiling"
-            if args.replacement_front_match_hako_size_class
-            else "none"
+    if args.replacement_front_hotcore_page_model_mode:
+        replacement_front_size_class_bridge_mode = (
+            "workload_regular_bins_page_shaped_hotcore_page_model_hako_size_class"
         )
-    )
+    elif args.replacement_front_page_bins_mode:
+        replacement_front_size_class_bridge_mode = (
+            "workload_regular_bins_page_shaped_hako_size_class"
+        )
+    elif args.replacement_front_native_bins_mode:
+        replacement_front_size_class_bridge_mode = "workload_regular_bins_hako_size_class"
+    elif args.replacement_front_match_hako_size_class:
+        replacement_front_size_class_bridge_mode = "hako_good_size_request_ceiling"
+    else:
+        replacement_front_size_class_bridge_mode = "none"
     replacement_front_evidence_owner = "none"
     replacement_front_multithread_perf_candidate = 0
     replacement_front_thread_local_perf_candidate = 0

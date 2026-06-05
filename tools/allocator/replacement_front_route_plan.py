@@ -67,26 +67,24 @@ def page_bins_lookup_route(args: Any) -> str:
     return "not_consumed"
 
 
-def product_bins_route(args: Any) -> str:
+def _bins_route(args: Any, *, include_native_bins: bool) -> str:
     if args.replacement_front_tls_page_arena_mode:
         return "benchmark_page_bins_hotcore_tls"
     if args.replacement_front_hotcore_page_model_mode:
         return "benchmark_page_bins_hotcore_page_model"
     if args.replacement_front_page_bins_mode:
         return "benchmark_page_bins"
-    if args.replacement_front_native_bins_mode:
+    if include_native_bins and args.replacement_front_native_bins_mode:
         return "benchmark_native_bins"
     return "not_consumed"
 
 
+def product_bins_route(args: Any) -> str:
+    return _bins_route(args, include_native_bins=True)
+
+
 def page_bins_route(args: Any) -> str:
-    if args.replacement_front_tls_page_arena_mode:
-        return "benchmark_page_bins_hotcore_tls"
-    if args.replacement_front_hotcore_page_model_mode:
-        return "benchmark_page_bins_hotcore_page_model"
-    if args.replacement_front_page_bins_mode:
-        return "benchmark_page_bins"
-    return "not_consumed"
+    return _bins_route(args, include_native_bins=False)
 
 
 def algorithm_shape(args: Any) -> str:

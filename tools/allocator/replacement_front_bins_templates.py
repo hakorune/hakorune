@@ -5,7 +5,7 @@ from __future__ import annotations
 from replacement_front_bins_report_source import (
     COUNTER_DECLS_C,
     COUNTER_FLUSH_LINES_C,
-    COUNTER_LOCAL_ADD_BRANCHES_C,
+    COUNTER_TLS_DISPATCH_C,
     LOCAL_COUNTER_DECLS_C,
     REPORT_C,
 )
@@ -670,12 +670,7 @@ static inline void add_counter(unsigned long long* counter, unsigned long long d
   (void)counter;
   (void)delta;
 #elif defined(HAKO_REPLACEMENT_FRONT_TLS_COUNTERS)
-  if (!init_done) {{
-    __sync_fetch_and_add(counter, delta);
-{COUNTER_LOCAL_ADD_BRANCHES_C}
-  }} else {{
-    __sync_fetch_and_add(counter, delta);
-  }}
+{COUNTER_TLS_DISPATCH_C}
 #elif defined(HAKO_REPLACEMENT_FRONT_LOCKED) || defined(HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA)
   __sync_fetch_and_add(counter, delta);
 #else

@@ -73,12 +73,18 @@ COUNTER_FLUSH_LINES_C = "\n".join(
     for _report_key, symbol in BINS_COUNTERS
 )
 
-COUNTER_LOCAL_ADD_BRANCHES_C = "\n".join(
-    (
+COUNTER_TLS_DISPATCH_C = (
+    "  if (!init_done) {\n"
+    "    __sync_fetch_and_add(counter, delta);\n"
+    + "\n".join(
         f"  }} else if (counter == &{symbol}) {{\n"
         f"    local_{symbol} += delta;"
+        for _report_key, symbol in BINS_COUNTERS
     )
-    for _report_key, symbol in BINS_COUNTERS
+    + "\n"
+    "  } else {\n"
+    "    __sync_fetch_and_add(counter, delta);\n"
+    "  }"
 )
 
 
