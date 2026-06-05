@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from replacement_front_bins_report_source import REPORT_C
+from replacement_front_bins_report_source import COUNTER_DECLS_C, REPORT_C
 
 from replacement_front_support import hako_size_class_bin_size
 
@@ -379,10 +379,6 @@ typedef struct HakoReplacementPageIndexEntry {{
 }} HakoReplacementPageIndexEntry;
 
 static HakoReplacementPageIndexEntry page_index_table[HAKO_PAGE_INDEX_TABLE_CAP];
-static unsigned long long page_index_insert_count = 0;
-static unsigned long long page_index_probe_count = 0;
-static unsigned long long page_index_collision_count = 0;
-static unsigned long long page_index_overflow_count = 0;
 
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
 static pthread_key_t page_arena_tls_key;
@@ -577,12 +573,7 @@ static int find_owned(
 }}
 """
     else:
-        page_index_source = """
-static unsigned long long page_index_insert_count = 0;
-static unsigned long long page_index_probe_count = 0;
-static unsigned long long page_index_collision_count = 0;
-static unsigned long long page_index_overflow_count = 0;
-"""
+        page_index_source = ""
 
     if thread_local_page_arena:
         malloc_init_line = "  if (!init_done) init_bins();"
@@ -639,41 +630,7 @@ static int resolving_real = 0;
 {chr(10).join(bin_defs)}
 
 static HAKO_BIN_STORAGE unsigned char init_done = 0u;
-static unsigned long long alloc_count = 0;
-static unsigned long long calloc_count = 0;
-static unsigned long long realloc_count = 0;
-static unsigned long long free_count = 0;
-static unsigned long long host_passthrough_count = 0;
-static unsigned long long direct_core_call_count = 0;
-static unsigned long long realloc_copy_bytes = 0;
-static unsigned long long realloc_inplace_count = 0;
-static unsigned long long calloc_zero_bytes = 0;
-static unsigned long long lock_mode_enabled = 0;
-static unsigned long long lock_enter_count = 0;
-static unsigned long long skip_hot_counters_enabled = 0;
-static unsigned long long thread_local_page_bins_mode_enabled = 0;
-static unsigned long long malloc_tls_fast_count = 0;
-static unsigned long long malloc_tls_refill_slow_count = 0;
-static unsigned long long same_thread_alloc_local_count = 0;
-static unsigned long long same_thread_free_local_count = 0;
-static unsigned long long cross_thread_free_remote_push_count = 0;
-static unsigned long long remote_free_drain_count = 0;
-static unsigned long long remote_free_cas_retry_count = 0;
-static unsigned long long global_lock_hot_path_count = 0;
-static unsigned long long global_lock_refill_count = 0;
-static unsigned long long global_lock_reclaim_count = 0;
-static unsigned long long tls_arena_count = 0;
-static unsigned long long tls_arena_peak_count = 0;
-static unsigned long long thread_exit_arena_flush_count = 0;
-static unsigned long long abandoned_owner_count = 0;
-static unsigned long long abandoned_remote_free_count = 0;
-static unsigned long long owner_thread_id_lookup_count = 0;
-static unsigned long long owner_thread_id_same_count = 0;
-static unsigned long long owner_thread_id_remote_count = 0;
-static unsigned long long page_from_ptr_count = 0;
-static unsigned long long page_from_ptr_miss_count = 0;
-static unsigned long long page_from_ptr_invalid_count = 0;
-static unsigned long long page_from_ptr_range_scan_count = 0;
+{COUNTER_DECLS_C}
 
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;

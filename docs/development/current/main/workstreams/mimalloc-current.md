@@ -1580,6 +1580,24 @@ mimalloc_replacement_front_small_cleanup_2026_06_05:
   next_thread_task=MIM-OWNER-ID-FAST-PATH-001
   next_thread_task_scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token_without_product_activation
 
+mimalloc_replacement_front_counter_ssot_cleanup_2026_06_05:
+  status=landed
+  task_kind=boxshape_cleanup
+  scope=counter_definition_report_emission_ssot
+  counter_ssot=tools/allocator/replacement_front_bins_report_source.py::BINS_COUNTERS
+  generated_counter_decls=COUNTER_DECLS_C
+  generated_counter_report_lines=COUNTER_REPORT_LINES_C
+  cleaned_files=replacement_front_bins_report_source.py;replacement_front_bins_templates.py
+  execution_behavior_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  remote_free_smoke=target/hakozuna-mixed-ws-counter-ssot-remote-free/report.out
+  range_scan_smoke=target/hakozuna-mixed-ws-counter-ssot-range-scan/report.out
+  product_pages_smoke=target/hakozuna-mixed-ws-counter-ssot-product-pages/report.out
+  next_thread_task=MIM-OWNER-ID-FAST-PATH-001
+  next_thread_task_scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token_without_product_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
