@@ -1305,6 +1305,50 @@ locked_page_bins_hotcore_refresh_2026_06_05:
   next_thread_task=MIM-HOTCORE-LOCKED-STABILITY-001
   next_thread_task_scope=repeat_selected_locked_hotcore_page_model_route_with_7_samples_before_product_pages
 
+locked_hotcore_stability_refresh_2026_06_05:
+  status=landed
+  task_kind=measurement_quality_refresh
+  scope=repeat_selected_locked_hotcore_page_model_route_with_7_samples_and_min_sample_seconds_gate
+  short_report=target/hakozuna-mixed-ws-locked-hotcore-page-model-7/report.out
+  quality_report=target/hakozuna-mixed-ws-locked-hotcore-page-model-quality-7/report.out
+  coverage_report=target/hakozuna-mixed-ws-locked-hotcore-page-model-quality-7/coverage.out
+  sample_count=7
+  benchmark_threads=2
+  benchmark_iters_per_thread=15000000
+  min_sample_seconds_required=0.050000
+  min_observed_sample_seconds=0.059000
+  median_observed_sample_seconds=0.064000
+  measurement_quality=ok
+  provider_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  hako_source_thread_support_claim=0
+  replacement_front_lock_mode=1
+  replacement_front_evidence_owner=locked_global_multithread_front
+  replacement_front_multithread_perf_candidate=1
+  replacement_front_is_full_hako_algorithm=0
+  replacement_front_product_activation_ready=0
+  replacement_front_product_activation_blockers=benchmark_only,product_gate_closed,no_activation_row
+  selected_locked_page_route=benchmark_page_bins_hotcore_page_model
+  selected_locked_page_lookup_route=range_scan
+  selected_locked_page_median_ops_per_sec=16022119.206
+  selected_locked_page_vs_c_mimalloc=0.031812
+  c_mimalloc_median_ops_per_sec=503655734.785
+  system_malloc_median_ops_per_sec=471889829.580
+  subject_2_replacement_front_lock_enter_count_total=243012424
+  subject_2_replacement_front_realloc_inplace_count_total=1306856
+  product_pages_consumer_enabled=0
+  coverage_summary=ok
+  coverage_hotcore_replacement_consumer_enabled=1
+  coverage_hotcore_replacement_measurement_reported=1
+  coverage_structural_owner_selected=page_model_hot_array_source_route_measurement
+  decision=do_not_open_product_pages_from_locked_global_route_yet
+  decision_reason=quality_measurement_shows_locked_global_hotcore_correct_but_far_below_c_mimalloc
+  next_thread_task=MIM-LOCKED-OWNER-ATTRIBUTION-001
+  next_thread_task_scope=attribute_locked_global_hotcore_cost_before_product_pages_or_thread_local_reopen
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
