@@ -482,6 +482,21 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "remote_free_memory_order": "missing",
         "replacement_front_cross_thread_free_smoke_ok": 0,
         "replacement_front_cross_thread_free_arena_registry_overflow_count": 0,
+        "safe_capability_wrapper_plan": 0,
+        "safe_capability_wrapper_route": "none",
+        "safe_capability_wrapper_lowering_route": "none",
+        "safe_capability_wrapper_memop_equivalence": 0,
+        "safe_capability_wrapper_count": 0,
+        "safe_capability_wrapper_missing_count": 0,
+        "safe_capability_wrapper_rawptr_surface": 0,
+        "safe_capability_wrapper_deref_surface": 0,
+        "safe_capability_wrapper_escape_count": 0,
+        "address_token_wrapper": 0,
+        "page_key_wrapper": 0,
+        "page_map_bridge_wrapper": 0,
+        "page_meta_handle_wrapper": 0,
+        "alloc_owner_id_wrapper": 0,
+        "atomic_remote_head_wrapper": 0,
         "mimalloc_shape_page_free_lists": "missing",
         "mimalloc_shape_thread_local_heap": 0,
         "mimalloc_shape_segment_slice_lookup": 0,
@@ -704,6 +719,99 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     replacement_subowner = (
         "remote_free_queue" if atomic_remote_enabled else replacement["likely_next_owner"]
     )
+    address_token_capability = int_value(
+        rows, [f"subject_{idx}_address_token_capability", "address_token_capability"], 0
+    )
+    address_token_escape_check = first_value(
+        rows,
+        [f"subject_{idx}_address_token_escape_check", "address_token_escape_check"],
+        "pass" if address_token_capability else "missing",
+    )
+    address_token_deref_allowed = int_value(
+        rows,
+        [f"subject_{idx}_address_token_deref_allowed", "address_token_deref_allowed"],
+        0,
+    )
+    address_token_pointer_arithmetic_allowed = int_value(
+        rows,
+        [
+            f"subject_{idx}_address_token_pointer_arithmetic_allowed",
+            "address_token_pointer_arithmetic_allowed",
+        ],
+        0,
+    )
+    page_key_capability = int_value(
+        rows, [f"subject_{idx}_page_key_capability", "page_key_capability"], 0
+    )
+    safe_wrapper_plan = int_subject_value(rows, idx, "safe_capability_wrapper_plan", 0)
+    address_token_wrapper = int_subject_value(
+        rows, idx, "address_token_wrapper", address_token_capability
+    )
+    page_key_wrapper = int_subject_value(rows, idx, "page_key_wrapper", page_key_capability)
+    page_map_bridge_wrapper = int_subject_value(
+        rows, idx, "page_map_bridge_wrapper", page_map_bridge_present
+    )
+    page_meta_handle_wrapper = int_subject_value(
+        rows, idx, "page_meta_handle_wrapper", typed_meta_handle
+    )
+    alloc_owner_id_wrapper = int_subject_value(
+        rows, idx, "alloc_owner_id_wrapper", alloc_owner_id_capability
+    )
+    atomic_remote_head_wrapper = int_subject_value(
+        rows, idx, "atomic_remote_head_wrapper", atomic_remote_enabled
+    )
+    safe_wrapper_values = (
+        address_token_wrapper,
+        page_key_wrapper,
+        page_map_bridge_wrapper,
+        page_meta_handle_wrapper,
+        alloc_owner_id_wrapper,
+        atomic_remote_head_wrapper,
+    )
+    safe_wrapper_count = sum(1 for value in safe_wrapper_values if value)
+    safe_wrapper_missing_count = (
+        sum(1 for value in safe_wrapper_values if not value) if safe_wrapper_plan else 0
+    )
+    safe_wrapper_route = first_subject_value(
+        rows,
+        idx,
+        "safe_capability_wrapper_route",
+        "fastmem_memop_alias" if safe_wrapper_plan else "none",
+    )
+    safe_wrapper_lowering_route = first_subject_value(
+        rows,
+        idx,
+        "safe_capability_wrapper_lowering_route",
+        "fastmem_memop_alias" if safe_wrapper_plan else "none",
+    )
+    safe_wrapper_rawptr_surface = int_subject_value(
+        rows, idx, "safe_capability_wrapper_rawptr_surface", 0
+    )
+    safe_wrapper_deref_surface = int_subject_value(
+        rows, idx, "safe_capability_wrapper_deref_surface", 0
+    )
+    safe_wrapper_escape_count = int_subject_value(
+        rows,
+        idx,
+        "safe_capability_wrapper_escape_count",
+        int(address_token_escape_check != "pass" and address_token_capability > 0)
+        + int_subject_value(rows, idx, "alloc_owner_id_escape_count", 0)
+        + int_subject_value(rows, idx, "worker_id_escape_count", 0),
+    )
+    safe_wrapper_memop_equivalence = int_subject_value(
+        rows,
+        idx,
+        "safe_capability_wrapper_memop_equivalence",
+        int(
+            safe_wrapper_plan
+            and safe_wrapper_route == "fastmem_memop_alias"
+            and safe_wrapper_lowering_route == "fastmem_memop_alias"
+            and safe_wrapper_missing_count == 0
+            and safe_wrapper_rawptr_surface == 0
+            and safe_wrapper_deref_surface == 0
+            and safe_wrapper_escape_count == 0
+        ),
+    )
 
     report: dict[str, Any] = base_inventory("benchmark_kv_report")
     report.update({
@@ -717,9 +825,11 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "hako_source_thread_support_claim": replacement["hako_source_thread_support_claim"],
         "hako_source_hot_path_claim": 0,
         "mir_builder_hot_path_claim": 0,
-        "page_key_capability": int_value(
-            rows, [f"subject_{idx}_page_key_capability", "page_key_capability"], 0
-        ),
+        "address_token_capability": address_token_capability,
+        "address_token_escape_check": address_token_escape_check,
+        "address_token_deref_allowed": address_token_deref_allowed,
+        "address_token_pointer_arithmetic_allowed": address_token_pointer_arithmetic_allowed,
+        "page_key_capability": page_key_capability,
         "page_key_numeric_route": first_value(
             rows,
             [f"subject_{idx}_page_key_numeric_route", "page_key_numeric_route"],
@@ -892,6 +1002,21 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "replacement_front_cross_thread_free_arena_registry_overflow_count": (
             smoke_remote_overflow_count
         ),
+        "safe_capability_wrapper_plan": safe_wrapper_plan,
+        "safe_capability_wrapper_route": safe_wrapper_route,
+        "safe_capability_wrapper_lowering_route": safe_wrapper_lowering_route,
+        "safe_capability_wrapper_memop_equivalence": safe_wrapper_memop_equivalence,
+        "safe_capability_wrapper_count": safe_wrapper_count,
+        "safe_capability_wrapper_missing_count": safe_wrapper_missing_count,
+        "safe_capability_wrapper_rawptr_surface": safe_wrapper_rawptr_surface,
+        "safe_capability_wrapper_deref_surface": safe_wrapper_deref_surface,
+        "safe_capability_wrapper_escape_count": safe_wrapper_escape_count,
+        "address_token_wrapper": address_token_wrapper,
+        "page_key_wrapper": page_key_wrapper,
+        "page_map_bridge_wrapper": page_map_bridge_wrapper,
+        "page_meta_handle_wrapper": page_meta_handle_wrapper,
+        "alloc_owner_id_wrapper": alloc_owner_id_wrapper,
+        "atomic_remote_head_wrapper": atomic_remote_head_wrapper,
         "mimalloc_shape_page_free_lists": (
             "free_local_remote" if atomic_remote_enabled else "free_only"
         ),

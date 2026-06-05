@@ -56,6 +56,10 @@ FAIL_FIELDS = [
     "page_owner_unowned_count",
     "hako_source_thread_support_claim",
     "replacement_front_cross_thread_free_arena_registry_overflow_count",
+    "safe_capability_wrapper_missing_count",
+    "safe_capability_wrapper_rawptr_surface",
+    "safe_capability_wrapper_deref_surface",
+    "safe_capability_wrapper_escape_count",
 ]
 
 FAIL_STRING_FIELDS = {
@@ -84,6 +88,10 @@ def atomic_remote_profile(rows: dict[str, str]) -> bool:
         int_count(rows, "atomic_remote_head_pilot_enabled") > 0
         or int_count(rows, "atomic_remote_head_enabled") > 0
     )
+
+
+def safe_wrapper_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "safe_capability_wrapper_plan") > 0
 
 
 def run_inventory(source_flag: str, source_path: Path) -> dict[str, str]:
@@ -143,6 +151,23 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             reasons.append("remote_free_push_count")
         if int_count(rows, "remote_free_drain_count") <= 0:
             reasons.append("remote_free_drain_count")
+    if safe_wrapper_profile(rows):
+        if rows.get("safe_capability_wrapper_route") != "fastmem_memop_alias":
+            reasons.append("safe_capability_wrapper_route")
+        if rows.get("safe_capability_wrapper_lowering_route") != "fastmem_memop_alias":
+            reasons.append("safe_capability_wrapper_lowering_route")
+        if int_count(rows, "safe_capability_wrapper_memop_equivalence") <= 0:
+            reasons.append("safe_capability_wrapper_memop_equivalence")
+        for key in [
+            "address_token_wrapper",
+            "page_key_wrapper",
+            "page_map_bridge_wrapper",
+            "page_meta_handle_wrapper",
+            "alloc_owner_id_wrapper",
+            "atomic_remote_head_wrapper",
+        ]:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
     return reasons
 
 

@@ -49,9 +49,9 @@ only when a new execution boundary would otherwise be unguarded.
 ## Current Blocker
 
 ```text
-MIM-FMEM-015:
-  Start the safe capability wrapper plan after MIM-FMEM-014 connected
-  non-activating AtomicRemoteHead push/drain smoke evidence.
+MIM-FMEM-016:
+  Start Mimalloc shape coverage scoring after MIM-FMEM-015 fixed safe
+  capability wrappers as FastMemory MemOp aliases.
 ```
 
 ## Queue

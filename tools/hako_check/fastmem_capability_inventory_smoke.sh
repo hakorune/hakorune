@@ -4,7 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 FIXTURE_DIR="$ROOT/tools/hako_check/tests/fastmem_capability_inventory"
 OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_capability_inventory.XXXXXX")"
-trap 'rm -f "$OUT"' EXIT
+CHECK_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_capability_check.XXXXXX")"
+trap 'rm -f "$OUT" "$CHECK_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
   --report "$FIXTURE_DIR/report.kv" \
@@ -101,5 +102,42 @@ grep -q '^replacement_front_is_full_hako_algorithm=0$' "$OUT"
 grep -q '^hako_mimalloc_algorithm_claim=0$' "$OUT"
 grep -q '^product_activation_ready=0$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/safe_capability_wrapper_report.kv" \
+  >"$OUT"
+
+grep -q '^safe_capability_wrapper_plan=1$' "$OUT"
+grep -q '^safe_capability_wrapper_route=fastmem_memop_alias$' "$OUT"
+grep -q '^safe_capability_wrapper_lowering_route=fastmem_memop_alias$' "$OUT"
+grep -q '^safe_capability_wrapper_memop_equivalence=1$' "$OUT"
+grep -q '^safe_capability_wrapper_count=6$' "$OUT"
+grep -q '^safe_capability_wrapper_missing_count=0$' "$OUT"
+grep -q '^safe_capability_wrapper_rawptr_surface=0$' "$OUT"
+grep -q '^safe_capability_wrapper_deref_surface=0$' "$OUT"
+grep -q '^safe_capability_wrapper_escape_count=0$' "$OUT"
+grep -q '^address_token_capability=1$' "$OUT"
+grep -q '^address_token_escape_check=pass$' "$OUT"
+grep -q '^address_token_deref_allowed=0$' "$OUT"
+grep -q '^address_token_pointer_arithmetic_allowed=0$' "$OUT"
+grep -q '^address_token_wrapper=1$' "$OUT"
+grep -q '^page_key_wrapper=1$' "$OUT"
+grep -q '^page_map_bridge_wrapper=1$' "$OUT"
+grep -q '^page_meta_handle_wrapper=1$' "$OUT"
+grep -q '^alloc_owner_id_wrapper=1$' "$OUT"
+grep -q '^atomic_remote_head_wrapper=1$' "$OUT"
+grep -q '^atomic_remote_head_enabled=1$' "$OUT"
+grep -q '^type_abi_hot_path_lookup_count=0$' "$OUT"
+grep -q '^provider_dispatch_hot_path=0$' "$OUT"
+grep -q '^product_activation_ready=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --report "$FIXTURE_DIR/safe_capability_wrapper_report.kv" \
+  --format kv \
+  >"$CHECK_OUT"
+
+grep -q '^failure_count=0$' "$CHECK_OUT"
+grep -q '^summary=ok$' "$CHECK_OUT"
 
 echo "[TEST/OK] fastmem_capability_inventory"

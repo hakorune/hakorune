@@ -483,8 +483,25 @@ FastMemory AllocOwnerId Shadow Counter Smoke
   push/drain behavior: `atomic_remote_head_plan=1`,
   `atomic_remote_head_route=page_remote_head_cas`, and
   `atomic_remote_head_pilot_enabled=0`.
-- This remains benchmark-front evidence only. It does not perform remote
-  `AtomicRemoteHead` pushes or activate product allocator replacement.
+- The same smoke family now also fixes the first non-activating
+  `AtomicRemoteHead` pilot evidence by reading the cross-thread smoke pack:
+  `atomic_remote_head_pilot_enabled=1`, `remote_free_push_count>0`, and
+  `remote_free_drain_count>0`.
+- This remains benchmark-front evidence only. It does not claim `.hako`
+  source-level thread support or activate product allocator replacement.
+
+FastMemory Safe Capability Wrapper Evidence
+- `fastmem_capability_inventory_smoke.sh` also fixes the first safe capability
+  wrapper plan surface. It proves that `AddressToken`, `PageKey`,
+  `PageMapBridge`, `PageMetaHandle`, `AllocOwnerId`, and `AtomicRemoteHead`
+  can be reported as wrappers over the existing FastMemory MemOps.
+- The accepted wrapper route is `fastmem_memop_alias`. The smoke keeps
+  `safe_capability_wrapper_rawptr_surface=0`,
+  `safe_capability_wrapper_deref_surface=0`, and
+  `safe_capability_wrapper_escape_count=0`.
+- This is report/check evidence only. It does not add a general `RawPtr<T>`,
+  open pointer arithmetic outside `fastmem`, or activate product allocator
+  replacement.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

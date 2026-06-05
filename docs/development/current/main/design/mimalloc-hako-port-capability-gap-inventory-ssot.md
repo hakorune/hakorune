@@ -485,6 +485,55 @@ TypedPageMetaHandle does not escape fastmem/replacement-front metadata scope.
 TypedPageMetaHandle does not imply product allocator activation.
 ```
 
+## Safe Capability Wrapper Plan
+
+Safe capability wrappers are the readable, higher-level surface over the same
+FastMemory MemOps. They do not introduce a second execution path.
+
+```text
+AddressToken:
+  no-escape address fact
+  no dereference
+  no general pointer arithmetic
+
+PageKey:
+  exact address-width shift/mask result
+
+PageMapBridge:
+  PageKey / MemAddr-derived key -> typed page metadata
+
+PageMetaHandle:
+  layout-verified PageMeta capability
+
+AllocOwnerId:
+  allocator arena owner identity
+
+AtomicRemoteHead:
+  page-local remote-free atomic head capability
+```
+
+The wrapper route must lower to the same MemOps as the direct `fastmem` region:
+
+```text
+safe_capability_wrapper_route=fastmem_memop_alias
+safe_capability_wrapper_lowering_route=fastmem_memop_alias
+safe_capability_wrapper_memop_equivalence=1
+safe_capability_wrapper_rawptr_surface=0
+safe_capability_wrapper_deref_surface=0
+safe_capability_wrapper_escape_count=0
+```
+
+Stop line:
+
+```text
+RawPtr<T> remains closed.
+Pointer arithmetic outside fastmem remains closed.
+Address dereference syntax remains closed.
+Type ABI hot lookup remains closed.
+Provider ABI replacement-front dispatch remains closed.
+Product allocator activation remains closed.
+```
+
 ## AllocOwnerId / TLS Arena Owner State Plan
 
 The next owner-state boundary is `AllocOwnerId`, not a source-level thread
@@ -745,14 +794,14 @@ keeper work in one task.
 | `MIM-FMEM-010 TypedPageMetaHandle plan` | done | Define metadata capability for owner, size, free/local_free/remote_head access. | Page metadata stays layout-verified; unverified offset loads are counted and rejected for keeper work. |
 | `MIM-FMEM-011A AllocOwnerId / TLS owner-state schema` | done | Define `AllocOwnerIdV0`, compatibility `worker_id_*` report fields, TLS arena owner-state fields, and page-owner check fields. | Owner identity is allocator-local; OS thread/runtime worker/.hako task equality claims stay zero. |
 | `MIM-FMEM-011B fastmem-check owner-state gates` | done | Add fail-fast checks for owner identity kind/escape, TLS arena init failures, page-owner count consistency, and boundary claims. | Owner-state profiles cannot pass with missing owner checks, stale generation, unowned pages, Type ABI hot lookup, Provider ABI hot dispatch, or source thread-support claims. |
-| `MIM-FMEM-011C replacement-front owner shadow counters` | next | Add generated C replacement-front shadow evidence for current `AllocOwnerId`, TLS arena init, page owner assignment, and same/remote/unowned/stale owner comparison counts. | Behavior remains observation-first; product activation, hooks, winner claims, remote CAS push, and full `.hako` algorithm claims stay closed. |
-| `MIM-FMEM-012 same-owner local-free route` | pending | Use owner truth to route same-owner frees to local-free where safe, while remote-owner frees stay fallback/locked until AtomicRemoteHead exists. | Same-owner local push counters are observable; remote-owner never enters local_free. |
-| `MIM-FMEM-013 AtomicRemoteHead plan` | pending | Define remote-free push/drain contract, memory-order vocabulary, and counters. | Remote-free is a page/fastmem capability, not a general `AtomicPtr<T>` surface. |
-| `MIM-FMEM-014 AtomicRemoteHead pilot` | pending | Pilot the remote-free push/drain route after owner-state and same-owner rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
-| `MIM-FMEM-015 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
-| `MIM-FMEM-016 safe capability wrapper plan` | pending | Layer `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, `AllocOwnerId`, and `AtomicRemoteHead` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
-| `MIM-FMEM-017 Mimalloc shape coverage score` | pending | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
-| `MIM-FMEM-018 Product-shaped replacement front bridge` | pending | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIM-FMEM-011C replacement-front owner shadow counters` | done | Add generated C replacement-front shadow evidence for current `AllocOwnerId`, TLS arena init, page owner assignment, and same/remote/unowned/stale owner comparison counts. | Behavior remains observation-first; product activation, hooks, winner claims, remote CAS push, and full `.hako` algorithm claims stay closed. |
+| `MIM-FMEM-012 same-owner local-free route` | done | Use owner truth to route same-owner frees to local-free where safe, while remote-owner frees stay fallback/locked until AtomicRemoteHead exists. | Same-owner local push counters are observable; remote-owner never enters local_free. |
+| `MIM-FMEM-013 AtomicRemoteHead plan` | done | Define remote-free push/drain contract, memory-order vocabulary, and counters. | Remote-free is a page/fastmem capability, not a general `AtomicPtr<T>` surface. |
+| `MIM-FMEM-014 AtomicRemoteHead pilot` | done | Pilot the remote-free push/drain route after owner-state and same-owner rows exist. | Push/drain counters are observable; product activation and winner claims stay closed. |
+| `MIM-FMEM-015 safe capability wrapper plan` | done | Layer `AddressToken`, `PageKey`, `PageMapBridge`, `PageMetaHandle`, `AllocOwnerId`, and `AtomicRemoteHead` over MemOps. | Wrapper route lowers to the same MemOps as fastmem and does not reopen RawPtr. |
+| `MIM-FMEM-016 Mimalloc shape coverage score` | next | Add speed/shape/safety/coverage separation to report acceptance. | Fast but non-mimalloc-shaped routes cannot become keeper by throughput alone. |
+| `MIM-FMEM-017 Product-shaped replacement front bridge` | pending | Connect `.hako` policy/state to a product-shaped replacement front after fastmem/capabilities are present. | Activation, hook install, global allocator claim, and winner claim remain closed. |
+| `MIM-FMEM-018 thread-exit / abandoned owner lifecycle` | pending | Define thread-exit flush, abandoned owner mark, reclaim, and generation bump state machine. | Arena reuse cannot silently reuse stale owner identity. |
 
 ## Report Fields For `MIM-FMEM-002`
 
