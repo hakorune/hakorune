@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from replacement_front_bins_report_source import COUNTER_DECLS_C, REPORT_C
+from replacement_front_bins_report_source import (
+    COUNTER_DECLS_C,
+    COUNTER_FLUSH_LINES_C,
+    COUNTER_LOCAL_ADD_BRANCHES_C,
+    LOCAL_COUNTER_DECLS_C,
+    REPORT_C,
+)
 
 from replacement_front_support import hako_size_class_bin_size
 
@@ -20,6 +26,7 @@ def generate_replacement_front_bins_shim_c(
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
     skip_hot_counters: bool = False,
+    tls_counters: bool = False,
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
@@ -470,6 +477,10 @@ static void page_index_register_range(
 }}
 
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+static void flush_thread_counters(void);
+#endif
+
 static void page_arena_tls_destructor(void* value) {{
   if (!value) return;
   unsigned long long abandoned = 0;
@@ -486,6 +497,9 @@ static void page_arena_tls_destructor(void* value) {{
     add_counter(&thread_exit_arena_flush_count, 1);
     add_counter(&abandoned_owner_count, 1);
   }}
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+  flush_thread_counters();
+#endif
 }}
 
 static void make_page_arena_tls_key(void) {{
@@ -632,6 +646,21 @@ static HAKO_BIN_STORAGE unsigned long long hako_current_owner_token = 0u;
 #endif
 {COUNTER_DECLS_C}
 
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+{LOCAL_COUNTER_DECLS_C}
+
+static void flush_one_counter(unsigned long long* global, unsigned long long* local) {{
+  if (*local != 0) {{
+    __sync_fetch_and_add(global, *local);
+    *local = 0;
+  }}
+}}
+
+static void flush_thread_counters(void) {{
+{COUNTER_FLUSH_LINES_C}
+}}
+#endif
+
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -640,6 +669,13 @@ static inline void add_counter(unsigned long long* counter, unsigned long long d
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
   (void)counter;
   (void)delta;
+#elif defined(HAKO_REPLACEMENT_FRONT_TLS_COUNTERS)
+  if (!init_done) {{
+    __sync_fetch_and_add(counter, delta);
+{COUNTER_LOCAL_ADD_BRANCHES_C}
+  }} else {{
+    __sync_fetch_and_add(counter, delta);
+  }}
 #elif defined(HAKO_REPLACEMENT_FRONT_LOCKED) || defined(HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA)
   __sync_fetch_and_add(counter, delta);
 #else

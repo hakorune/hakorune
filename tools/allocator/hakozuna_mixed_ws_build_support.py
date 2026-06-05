@@ -78,6 +78,7 @@ def build_replacement_front_bins_shim(
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
     skip_hot_counters: bool = False,
+    tls_counters: bool = False,
 ) -> Path:
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
     if hotcore_page_model:
@@ -98,6 +99,8 @@ def build_replacement_front_bins_shim(
         front_name = f"{front_name}-product-pages-nonlinear"
     if skip_hot_counters:
         front_name = f"{front_name}-skip-hot-counters"
+    if tls_counters:
+        front_name = f"{front_name}-tls-counters"
     source_name = (
         "hako_alloc_replacement_front_page_bins.c"
         if page_shaped
@@ -125,6 +128,7 @@ def build_replacement_front_bins_shim(
             eager_init=eager_init,
             product_pages_nonlinear_lookup=product_pages_nonlinear_lookup,
             skip_hot_counters=skip_hot_counters,
+            tls_counters=tls_counters,
         ).lstrip(),
         encoding="utf-8",
     )
@@ -137,6 +141,8 @@ def build_replacement_front_bins_shim(
         cmd.append("-DHAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE=1")
     if skip_hot_counters:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS=1")
+    if tls_counters:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_TLS_COUNTERS=1")
     cmd.extend([str(source), "-ldl"])
     if locked or remote_free_queue:
         cmd.append("-pthread")

@@ -1635,6 +1635,65 @@ thread_substrate_reference_docs_sync_2026_06_05:
   source_level_thread_syntax=0
   nowait_os_thread_spawn=0
 
+mimalloc_replacement_front_owner_token_perf_refresh_2026_06_05:
+  status=landed
+  task_id=MIM-OWNER-ID-PERF-REFRESH-001
+  task_kind=perf_refresh
+  scope=refresh_same_run_remote_free_owner_token_perf_before_next_shape_change
+  threads=2
+  iters_per_thread=1000000
+  sample_count=7
+  warmup_count=1
+  remote_free_report=target/hakozuna-mixed-ws-owner-token-perf-refresh-1m/report.out
+  remote_free_median_ops_per_sec=26,606,082.134
+  remote_free_throughput_vs_c_mimalloc=0.072772
+  baseline_tls_report=target/hakozuna-mixed-ws-owner-token-baseline-tls-1m/report.out
+  baseline_tls_median_ops_per_sec=32,154,133.023
+  baseline_range_report=target/hakozuna-mixed-ws-owner-token-baseline-range-1m/report.out
+  baseline_range_median_ops_per_sec=31,326,409.518
+  skip_hot_counters_report=target/hakozuna-mixed-ws-owner-token-remote-free-skip-counters-1m/report.out
+  skip_hot_counters_median_ops_per_sec=79,929,153.995
+  owner_thread_id_lookup_count_total=8,163,984
+  remote_free_push_count_total=0
+  remote_free_drain_count_total=0
+  page_from_ptr_range_scan_count_total=0
+  global_lock_hot_path_count_total=0
+  decision=nonkeeper_hot_counter_atomic_cost_dominates_remote_free_same_thread_workload
+  next_thread_task=MIM-HOT-COUNTER-TLS-001
+  next_thread_task_scope=add_page_bins_tls_counter_mode_without_product_activation
+
+mimalloc_replacement_front_bins_tls_counter_mode_2026_06_05:
+  status=landed
+  task_id=MIM-HOT-COUNTER-TLS-001
+  task_kind=benchmark_front_instrumentation_cleanup
+  scope=add_page_bins_tls_counter_mode_for_tls_page_arena_route
+  behavior_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  report=target/hakozuna-mixed-ws-bins-tls-counters-1m/report.out
+  smoke_report=target/hakozuna-mixed-ws-bins-tls-counters-smoke/report.out
+  threads=2
+  iters_per_thread=1000000
+  sample_count=7
+  warmup_count=1
+  median_ops_per_sec=66,238,261.876
+  throughput_vs_c_mimalloc=0.187937
+  previous_remote_free_no_tls_counter_median_ops_per_sec=26,606,082.134
+  previous_remote_free_skip_hot_counters_median_ops_per_sec=79,929,153.995
+  tls_counter_mode_enabled_total=8
+  malloc_tls_fast_count_total=8,038,976
+  same_thread_free_local_count_total=8,038,976
+  owner_thread_id_lookup_count_total=8,163,984
+  remote_free_push_count_total=0
+  remote_free_drain_count_total=0
+  page_from_ptr_range_scan_count_total=0
+  global_lock_hot_path_count_total=0
+  decision=keeper_for_benchmark_instrumentation_atomic_counter_cost_removed
+  remaining_gap=generic_counter_pointer_dispatch_still_costs_vs_skip_hot_counters
+  next_thread_task=MIM-HOT-COUNTER-SPECIALIZE-001
+  next_thread_task_scope=specialize_hot_page_bins_counter_increments_or_confirm_owner_with_perf_asm
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

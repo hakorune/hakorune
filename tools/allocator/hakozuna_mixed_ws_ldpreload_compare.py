@@ -232,6 +232,7 @@ def main() -> int:
             eager_init=args.replacement_front_eager_init_mode,
             product_pages_nonlinear_lookup=args.replacement_front_product_pages_nonlinear_mode,
             skip_hot_counters=args.replacement_front_skip_hot_counters,
+            tls_counters=args.replacement_front_tls_counter_mode,
         )
     subject_specs, reports, replacement_front_smokes = run_hakozuna_mixed_ws_subjects(
         args=args,

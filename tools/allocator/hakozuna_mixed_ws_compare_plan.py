@@ -126,10 +126,14 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
             "--replacement-front-skip-hot-counters requires "
             "a replacement-front mode"
         )
-    if args.replacement_front_tls_counter_mode and not args.replacement_front_thread_local_mode:
+    if args.replacement_front_tls_counter_mode and not (
+        args.replacement_front_thread_local_mode
+        or args.replacement_front_tls_page_arena_mode
+    ):
         raise SystemExit(
             "--replacement-front-tls-counter-mode requires "
-            "--replacement-front-thread-local-mode"
+            "--replacement-front-thread-local-mode or "
+            "--replacement-front-tls-page-arena-mode"
         )
     if args.replacement_front_tls_counter_mode and args.replacement_front_skip_hot_counters:
         raise SystemExit(
@@ -257,13 +261,16 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
         if (
             args.replacement_front_thread_local_mode
             or args.replacement_front_cross_thread_smoke
-            or args.replacement_front_tls_counter_mode
+            or (
+                args.replacement_front_tls_counter_mode
+                and not args.replacement_front_tls_page_arena_mode
+            )
             or args.replacement_front_slot_size is not None
         ):
             raise SystemExit(
                 "--replacement-front-native-bins-mode and "
                 "--replacement-front-page-bins-mode cannot be combined with "
-                "slot/thread-local/counter replacement-front modifiers in v0; "
+                "slot/thread-local replacement-front modifiers in v0; "
                 "use --replacement-front-tls-page-arena-mode for the page-bins "
                 "TLS arena route"
             )

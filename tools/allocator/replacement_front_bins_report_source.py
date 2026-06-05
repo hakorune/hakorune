@@ -16,6 +16,7 @@ BINS_COUNTERS: tuple[tuple[str, str], ...] = (
     ("replacement_front_lock_mode_enabled", "lock_mode_enabled"),
     ("replacement_front_lock_enter_count", "lock_enter_count"),
     ("replacement_front_skip_hot_counters_enabled", "skip_hot_counters_enabled"),
+    ("replacement_front_tls_counter_mode_enabled", "tls_counter_mode_enabled"),
     (
         "replacement_front_thread_local_page_bins_mode_enabled",
         "thread_local_page_bins_mode_enabled",
@@ -62,6 +63,24 @@ COUNTER_REPORT_LINES_C = "\n".join(
     f'  write_kv(fd, "{report_key}", {symbol});' for report_key, symbol in BINS_COUNTERS
 )
 
+LOCAL_COUNTER_DECLS_C = "\n".join(
+    f"static HAKO_BIN_STORAGE unsigned long long local_{symbol} = 0;"
+    for _report_key, symbol in BINS_COUNTERS
+)
+
+COUNTER_FLUSH_LINES_C = "\n".join(
+    f"  flush_one_counter(&{symbol}, &local_{symbol});"
+    for _report_key, symbol in BINS_COUNTERS
+)
+
+COUNTER_LOCAL_ADD_BRANCHES_C = "\n".join(
+    (
+        f"  }} else if (counter == &{symbol}) {{\n"
+        f"    local_{symbol} += delta;"
+    )
+    for _report_key, symbol in BINS_COUNTERS
+)
+
 
 REPORT_C = (
     r"""
@@ -95,6 +114,9 @@ static void write_kv(int fd, const char* key, unsigned long long value) {
 }
 
 static void write_report(void) {
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+  flush_thread_counters();
+#endif
   const char* path = getenv("HAKORUNE_REPLACEMENT_FRONT_REPORT");
   if (!path || !path[0]) return;
   int fd = open(path, O_CREAT | O_TRUNC | O_WRONLY, 0644);
@@ -112,6 +134,9 @@ __attribute__((constructor)) static void replacement_front_init(void) {
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
   skip_hot_counters_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
+  tls_counter_mode_enabled = 1;
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
   thread_local_page_bins_mode_enabled = 1;
