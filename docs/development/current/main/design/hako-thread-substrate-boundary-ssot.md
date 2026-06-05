@@ -501,6 +501,48 @@ nowait_os_thread_spawn=0
 worker_pool_source_route_enabled=0
 ```
 
+### THREAD-SAFETY-001D: descriptor-only thread capability vocabulary
+
+Status: landed.
+
+Scope:
+
+```text
+define stable descriptor keys for future thread safety capabilities
+do not authorize Box movement across threads
+do not enable worker-pool source routing
+do not expose raw thread syntax
+do not make Type ABI a hot-path dispatcher
+```
+
+Capability descriptor keys:
+
+```text
+hako.thread.send:
+  future metadata that a Box value may be moved to another runtime worker
+
+hako.thread.share:
+  future metadata that a Box value may be shared by multiple runtime workers
+
+hako.thread.root:
+  future metadata that a thread participates in runtime root ownership
+```
+
+Landed behavior:
+
+```text
+ThreadCapabilityDescriptor module=src/runtime/thread_capability.rs
+hako_send_capability_descriptor_present=1
+hako_share_capability_descriptor_present=1
+hako_thread_root_descriptor_present=1
+hako_send_share_enforced=0
+thread_registry_gc_roots_enabled=0
+worker_pool_source_route_enabled=0
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+type_abi_hot_path_thread_lookup=0
+```
+
 ### THREAD-SOURCE-001: structured worker source surface
 
 Reserved future row. Prefer structured surfaces such as `worker_scope` /

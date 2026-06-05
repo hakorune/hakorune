@@ -49,6 +49,7 @@ pub mod rss_observe;
 pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
 pub mod semantics;
+pub mod thread_capability;
 pub mod thread_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;
@@ -74,6 +75,10 @@ pub mod cache_versions;
 pub use gc::{BarrierKind, GcHooks};
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
 pub use scheduler::{Scheduler, SingleThreadScheduler, WorkerPoolScheduler};
+pub use thread_capability::{
+    thread_capability_descriptors, thread_capability_enforcement_report_fields,
+    thread_capability_report_fields, HakoThreadCapability, ThreadCapabilityDescriptor,
+};
 pub use thread_registry::{
     global_thread_registry, ThreadRegistration, ThreadRegistry, ThreadRegistryRole,
     ThreadRegistrySnapshot, WorkerId,
