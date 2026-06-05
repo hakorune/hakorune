@@ -5,7 +5,6 @@ from __future__ import annotations
 from replacement_front_bins_report_source import (
     COUNTER_DECLS_C,
     COUNTER_FLUSH_LINES_C,
-    COUNTER_TLS_DISPATCH_C,
     LOCAL_COUNTER_DECLS_C,
     REPORT_C,
 )
@@ -115,7 +114,7 @@ static inline void hako_page_drain_remote_{tag}(void) {{
     uint32_t uhead = (uint32_t)head;
     int next = (int){remote_next_expr}[uhead];
     if (!__sync_bool_compare_and_swap(&{remote_head_expr}, head, next)) {{
-      add_counter(&remote_free_cas_retry_count, 1);
+      HAKO_COUNTER_ADD(remote_free_cas_retry_count, 1);
       continue;
     }}
     {remote_next_expr}[uhead] = (uint32_t)-1;
@@ -123,7 +122,7 @@ static inline void hako_page_drain_remote_{tag}(void) {{
     {requested_expr}[uhead] = 0u;
     if ({free_top_expr} < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
       {free_stack_expr}[{free_top_expr}++] = uhead;
-      add_counter(&remote_free_drain_count, 1);
+      HAKO_COUNTER_ADD(remote_free_drain_count, 1);
     }}
   }}
 }}
@@ -137,10 +136,10 @@ static inline void* hako_page_acquire_fresh_small_{tag}(size_t size) {{
   uint32_t index = {free_stack_expr}[--{free_top_expr}];
   {used_expr}[index] = 1u;
   {requested_expr}[index] = size;
-  add_counter(&direct_core_call_count, 1);
+  HAKO_COUNTER_ADD(direct_core_call_count, 1);
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
-  add_counter(&malloc_tls_fast_count, 1);
-  add_counter(&same_thread_alloc_local_count, 1);
+  HAKO_COUNTER_ADD(malloc_tls_fast_count, 1);
+  HAKO_COUNTER_ADD(same_thread_alloc_local_count, 1);
 #endif
   return {slot_expr}[index].bytes;
 }}
@@ -152,9 +151,9 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
   if ({free_top_expr} < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
     {free_stack_expr}[{free_top_expr}++] = index;
   }}
-  add_counter(&direct_core_call_count, 1);
+  HAKO_COUNTER_ADD(direct_core_call_count, 1);
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
-  add_counter(&same_thread_free_local_count, 1);
+  HAKO_COUNTER_ADD(same_thread_free_local_count, 1);
 #endif
   return 1;
 }}
@@ -219,7 +218,7 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
       index = {free_stack_expr}[--{free_top_expr}];
       {used_expr}[index] = 1u;
       {requested_expr}[index] = size;
-      add_counter(&direct_core_call_count, 1);
+      HAKO_COUNTER_ADD(direct_core_call_count, 1);
       return {slot_expr}[index].bytes;
 """
             )
@@ -317,7 +316,7 @@ static int release_from_bin(int bin, uint32_t index) {{
       if (*free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {
         free_stack[(*free_top)++] = index;
       }
-      add_counter(&direct_core_call_count, 1);
+      HAKO_COUNTER_ADD(direct_core_call_count, 1);
     }
 """
     alloc_index_decl = "" if hotcore_page_model else "  uint32_t index = 0u;\n"
@@ -338,8 +337,8 @@ static int find_owned(
     unsigned char* owner_active_out,
     unsigned char* owner_local_out) {{
   if (!ptr) return 0;
-  add_counter(&page_from_ptr_count, 1);
-  add_counter(&page_from_ptr_range_scan_count, 1);
+  HAKO_COUNTER_ADD(page_from_ptr_count, 1);
+  HAKO_COUNTER_ADD(page_from_ptr_range_scan_count, 1);
   uintptr_t value = (uintptr_t)ptr;
   uintptr_t base = 0u;
   uintptr_t end = 0u;
@@ -347,7 +346,7 @@ static int find_owned(
   uintptr_t stride = 0u;
   uint32_t index = 0u;
 {chr(10).join(find_cases)}
-  add_counter(&page_from_ptr_miss_count, 1);
+  HAKO_COUNTER_ADD(page_from_ptr_miss_count, 1);
   return 0;
 }}
 """
@@ -494,8 +493,8 @@ static void page_arena_tls_destructor(void* value) {{
     }}
   }}
   if (abandoned > 0) {{
-    add_counter(&thread_exit_arena_flush_count, 1);
-    add_counter(&abandoned_owner_count, 1);
+    HAKO_COUNTER_ADD(thread_exit_arena_flush_count, 1);
+    HAKO_COUNTER_ADD(abandoned_owner_count, 1);
   }}
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
   flush_thread_counters();
@@ -526,7 +525,7 @@ static int find_owned(
     unsigned char* owner_active_out,
     unsigned char* owner_local_out) {{
   if (!ptr) return 0;
-  add_counter(&page_from_ptr_count, 1);
+  HAKO_COUNTER_ADD(page_from_ptr_count, 1);
   uintptr_t value = (uintptr_t)ptr;
   uintptr_t page_key = value >> HAKO_PAGE_INDEX_SHIFT;
   unsigned int slot = page_index_slot(page_key);
@@ -535,24 +534,24 @@ static int find_owned(
         &page_index_table[(slot + probe) & (HAKO_PAGE_INDEX_TABLE_CAP - 1u)];
     unsigned char state = entry->state;
     if (state == HAKO_PAGE_INDEX_EMPTY) {{
-      add_counter(&page_from_ptr_miss_count, 1);
+      HAKO_COUNTER_ADD(page_from_ptr_miss_count, 1);
       return 0;
     }}
     if (state != HAKO_PAGE_INDEX_READY) continue;
     if (entry->page_key != page_key) continue;
     page_index_probe_count++;
     if (value < entry->base || value >= entry->end) {{
-      add_counter(&page_from_ptr_invalid_count, 1);
+      HAKO_COUNTER_ADD(page_from_ptr_invalid_count, 1);
       continue;
     }}
     uintptr_t delta = value - entry->base;
     if ((delta % entry->stride) != 0) {{
-      add_counter(&page_from_ptr_invalid_count, 1);
+      HAKO_COUNTER_ADD(page_from_ptr_invalid_count, 1);
       continue;
     }}
     uintptr_t index = delta / entry->stride;
     if (index >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
-      add_counter(&page_from_ptr_invalid_count, 1);
+      HAKO_COUNTER_ADD(page_from_ptr_invalid_count, 1);
       continue;
     }}
     *bin_out = entry->bin;
@@ -567,10 +566,12 @@ static int find_owned(
     *remote_head_out = entry->remote_head;
     *owner_active_out = entry->owner_active;
     *owner_local_out = (unsigned char)(entry->owner_token == hako_current_owner_token);
-    add_counter(&owner_thread_id_lookup_count, 1);
-    add_counter(
-        *owner_local_out ? &owner_thread_id_same_count : &owner_thread_id_remote_count,
-        1);
+    HAKO_COUNTER_ADD(owner_thread_id_lookup_count, 1);
+    if (*owner_local_out) {{
+      HAKO_COUNTER_ADD(owner_thread_id_same_count, 1);
+    }} else {{
+      HAKO_COUNTER_ADD(owner_thread_id_remote_count, 1);
+    }}
 #else
     *remote_next_out = 0;
     *remote_head_out = 0;
@@ -579,7 +580,7 @@ static int find_owned(
 #endif
     return 1;
   }}
-  add_counter(&page_from_ptr_miss_count, 1);
+  HAKO_COUNTER_ADD(page_from_ptr_miss_count, 1);
   return 0;
 }}
 """
@@ -665,24 +666,28 @@ static void flush_thread_counters(void) {{
 static pthread_mutex_t arena_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-static inline void add_counter(unsigned long long* counter, unsigned long long delta) {{
 #ifdef HAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS
-  (void)counter;
-  (void)delta;
+#define HAKO_COUNTER_ADD(symbol, delta) do {{ (void)(delta); }} while (0)
 #elif defined(HAKO_REPLACEMENT_FRONT_TLS_COUNTERS)
-{COUNTER_TLS_DISPATCH_C}
+#define HAKO_COUNTER_ADD(symbol, delta) \
+  do {{ \
+    if (!init_done) {{ \
+      __sync_fetch_and_add(&(symbol), (delta)); \
+    }} else {{ \
+      local_##symbol += (delta); \
+    }} \
+  }} while (0)
 #elif defined(HAKO_REPLACEMENT_FRONT_LOCKED) || defined(HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA)
-  __sync_fetch_and_add(counter, delta);
+#define HAKO_COUNTER_ADD(symbol, delta) __sync_fetch_and_add(&(symbol), (delta))
 #else
-  *counter += delta;
+#define HAKO_COUNTER_ADD(symbol, delta) do {{ (symbol) += (delta); }} while (0)
 #endif
-}}
 
 static inline void lock_arena(void) {{
 #ifdef HAKO_REPLACEMENT_FRONT_LOCKED
   pthread_mutex_lock(&arena_lock);
-  add_counter(&lock_enter_count, 1);
-  add_counter(&global_lock_hot_path_count, 1);
+  HAKO_COUNTER_ADD(lock_enter_count, 1);
+  HAKO_COUNTER_ADD(global_lock_hot_path_count, 1);
 #endif
 }}
 
@@ -747,7 +752,7 @@ static void* alloc_from_bin(int bin, size_t size) {{
 {release_from_bin_source}
 
 void* malloc(size_t size) {{
-  add_counter(&alloc_count, 1);
+  HAKO_COUNTER_ADD(alloc_count, 1);
   lock_arena();
 {malloc_init_line}
   int bin = size_to_bin(size);
@@ -758,14 +763,14 @@ void* malloc(size_t size) {{
       return ptr;
     }}
   }}
-  add_counter(&host_passthrough_count, 1);
+  HAKO_COUNTER_ADD(host_passthrough_count, 1);
   unlock_arena();
   resolve_real();
   return real_malloc_fn ? real_malloc_fn(size) : 0;
 }}
 
 void free(void* ptr) {{
-  add_counter(&free_count, 1);
+  HAKO_COUNTER_ADD(free_count, 1);
   if (!ptr) return;
   int bin = 0;
   uint32_t index = 0u;
@@ -782,8 +787,8 @@ void free(void* ptr) {{
   if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top, &remote_next, &remote_head, &owner_active, &owner_local)) {{
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
     if (!owner_active) {{
-      add_counter(&abandoned_remote_free_count, 1);
-      add_counter(&direct_core_call_count, 1);
+      HAKO_COUNTER_ADD(abandoned_remote_free_count, 1);
+      HAKO_COUNTER_ADD(direct_core_call_count, 1);
       unlock_arena();
       return;
     }}
@@ -794,12 +799,12 @@ void free(void* ptr) {{
           int old_head = *remote_head;
           remote_next[index] = (uint32_t)old_head;
           if (__sync_bool_compare_and_swap(remote_head, old_head, (int)index)) {{
-            add_counter(&cross_thread_free_remote_push_count, 1);
-            add_counter(&direct_core_call_count, 1);
+            HAKO_COUNTER_ADD(cross_thread_free_remote_push_count, 1);
+            HAKO_COUNTER_ADD(direct_core_call_count, 1);
             unlock_arena();
             return;
           }}
-          add_counter(&remote_free_cas_retry_count, 1);
+          HAKO_COUNTER_ADD(remote_free_cas_retry_count, 1);
         }}
       }}
       unlock_arena();
@@ -810,16 +815,16 @@ void free(void* ptr) {{
     unlock_arena();
     return;
   }}
-  add_counter(&host_passthrough_count, 1);
+  HAKO_COUNTER_ADD(host_passthrough_count, 1);
   unlock_arena();
   resolve_real();
   if (real_free_fn) real_free_fn(ptr);
 }}
 
 void* calloc(size_t nmemb, size_t size) {{
-  add_counter(&calloc_count, 1);
+  HAKO_COUNTER_ADD(calloc_count, 1);
   if (size != 0 && nmemb > ((size_t)-1) / size) {{
-    add_counter(&host_passthrough_count, 1);
+    HAKO_COUNTER_ADD(host_passthrough_count, 1);
     resolve_real();
     return real_calloc_fn ? real_calloc_fn(nmemb, size) : 0;
   }}
@@ -827,13 +832,13 @@ void* calloc(size_t nmemb, size_t size) {{
   void* ptr = malloc(total);
   if (ptr) {{
     memset(ptr, 0, total);
-    add_counter(&calloc_zero_bytes, total);
+    HAKO_COUNTER_ADD(calloc_zero_bytes, total);
   }}
   return ptr;
 }}
 
 void* realloc(void* ptr, size_t size) {{
-  add_counter(&realloc_count, 1);
+  HAKO_COUNTER_ADD(realloc_count, 1);
   if (!ptr) return malloc(size);
   if (size == 0) {{
     free(ptr);
@@ -859,7 +864,7 @@ void* realloc(void* ptr, size_t size) {{
     (void)remote_head;
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
     if (!owner_active) {{
-      add_counter(&abandoned_remote_free_count, 1);
+      HAKO_COUNTER_ADD(abandoned_remote_free_count, 1);
       unlock_arena();
       return 0;
     }}
@@ -870,8 +875,8 @@ void* realloc(void* ptr, size_t size) {{
 #endif
     if (used[index] == 1u && size <= slot_size) {{
       requested[index] = size;
-      add_counter(&realloc_inplace_count, 1);
-      add_counter(&direct_core_call_count, 1);
+      HAKO_COUNTER_ADD(realloc_inplace_count, 1);
+      HAKO_COUNTER_ADD(direct_core_call_count, 1);
       unlock_arena();
       return ptr;
     }}
@@ -881,11 +886,11 @@ void* realloc(void* ptr, size_t size) {{
     if (!next) return 0;
     size_t copy_size = old_size < size ? old_size : size;
     memcpy(next, ptr, copy_size);
-    add_counter(&realloc_copy_bytes, copy_size);
+    HAKO_COUNTER_ADD(realloc_copy_bytes, copy_size);
     free(ptr);
     return next;
   }}
-  add_counter(&host_passthrough_count, 1);
+  HAKO_COUNTER_ADD(host_passthrough_count, 1);
   unlock_arena();
   resolve_real();
   return real_realloc_fn ? real_realloc_fn(ptr, size) : 0;

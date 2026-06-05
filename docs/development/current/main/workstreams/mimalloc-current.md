@@ -1694,6 +1694,43 @@ mimalloc_replacement_front_bins_tls_counter_mode_2026_06_05:
   next_thread_task=MIM-HOT-COUNTER-SPECIALIZE-001
   next_thread_task_scope=specialize_hot_page_bins_counter_increments_or_confirm_owner_with_perf_asm
 
+mimalloc_replacement_front_bins_counter_literal_macro_2026_06_05:
+  status=landed
+  task_id=MIM-HOT-COUNTER-SPECIALIZE-001
+  task_kind=benchmark_front_instrumentation_cleanup
+  scope=replace_generated_counter_pointer_dispatch_with_literal_counter_macro
+  behavior_change=0
+  product_activation=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  asm_check=target/hakozuna-hot-counter-specialize-smoke/artifacts/replacement-front-page-bins-hotcore-page-model-tls-page-arena-page-from-ptr-remote-free-size-table-tls-counters/libhako_alloc_replacement_front_page_bins.so
+  report=target/hakozuna-hot-counter-specialize-1m/report.out
+  smoke_report=target/hakozuna-hot-counter-specialize-smoke/report.out
+  native_bins_smoke_report=target/hakozuna-hot-counter-specialize-native-bins-smoke/report.out
+  skip_hot_counters_smoke_report=target/hakozuna-hot-counter-specialize-skip-counters-smoke/report.out
+  threads=2
+  iters_per_thread=1000000
+  sample_count=7
+  warmup_count=1
+  median_ops_per_sec=78,913,138.809
+  throughput_vs_c_mimalloc=0.219606
+  previous_tls_counter_pointer_dispatch_median_ops_per_sec=66,238,261.876
+  previous_skip_hot_counters_median_ops_per_sec=79,929,153.995
+  tls_counter_mode_enabled_total=8
+  malloc_tls_fast_count_total=8,038,976
+  same_thread_free_local_count_total=8,038,976
+  owner_thread_id_lookup_count_total=8,163,984
+  page_index_probe_count_total=7,526,224
+  remote_free_push_count_total=0
+  remote_free_drain_count_total=0
+  page_from_ptr_range_scan_count_total=0
+  global_lock_hot_path_count_total=0
+  asm_result=hot_counter_calls_removed_hot_branch_uses_fs_tls_add
+  decision=keeper_counter_instrumentation_overhead_now_near_skip_hot_counters
+  remaining_gap=allocator_execution_shape_not_counter_instrumentation
+  next_thread_task=MIM-HOT-PATH-ASM-OWNER-REFRESH-001
+  next_thread_task_scope=refresh_hot_path_asm_owner_after_counter_instrumentation_removed
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table
