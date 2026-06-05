@@ -4,6 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from replacement_front_route_plan import (
+    global_lock_hot_path_expected,
+    hotcore_route,
+    page_from_ptr_route,
+    remote_free_route,
+)
 from replacement_front_support import WORKLOAD_HISTOGRAM_MAX_TOTAL_ITERS
 
 
@@ -11,37 +17,11 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
     args = ctx["args"]
     workload_histogram = ctx["workload_histogram"]
     replacement_front_bins_mode = ctx["replacement_front_bins_mode"]
-    hotcore_route = (
-        "benchmark_page_bins_hotcore_tls"
-        if args.replacement_front_tls_page_arena_mode
-        else "benchmark_page_bins_hotcore_page_model"
-        if args.replacement_front_hotcore_page_model_mode
-        else "not_consumed_by_replacement_front"
-    )
-    remote_free_route = (
-        "atomic_page_remote_head"
-        if args.replacement_front_remote_free_queue_mode
-        else "disabled"
-        if args.replacement_front_tls_page_arena_mode
-        else "atomic_page_remote_head"
-        if args.replacement_front_thread_local_mode
-        else "global_lock_or_not_applicable"
-    )
-    global_lock_hot_path_expected: int | str = (
-        0
-        if args.replacement_front_tls_page_arena_mode
-        else "lock_enter_count"
-        if args.replacement_front_lock_mode
-        else 0
-    )
-    page_from_ptr_route = (
-        "side_table_direct"
-        if args.replacement_front_page_from_ptr_bridge_mode
-        else "indexed_page_table"
-        if args.replacement_front_product_pages_nonlinear_mode
-        else "range_scan"
-        if replacement_front_bins_mode
-        else "not_consumed"
+    hotcore_route_name = hotcore_route(args)
+    remote_free_route_name = remote_free_route(args)
+    global_lock_expected = global_lock_hot_path_expected(args)
+    page_from_ptr_route_name = page_from_ptr_route(
+        args, replacement_front_bins_mode=replacement_front_bins_mode
     )
 
     return [
@@ -107,7 +87,7 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
         "replacement_front_hotcore_bridge_report_only=1",
         "replacement_front_hotcore_consumer_enabled="
         f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
-        f"replacement_front_hotcore_route={hotcore_route}",
+        f"replacement_front_hotcore_route={hotcore_route_name}",
         "hako_mimalloc_algorithm_claim=0",
         f"replacement_front_lock_mode={1 if args.replacement_front_lock_mode else 0}",
         f"replacement_front_thread_local_mode={1 if args.replacement_front_thread_local_mode else 0}",
@@ -117,14 +97,14 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
         f"{'benchmark_page_bins_hotcore_tls' if args.replacement_front_tls_page_arena_mode else 'not_consumed'}",
         "replacement_front_page_from_ptr_bridge_mode="
         f"{1 if args.replacement_front_page_from_ptr_bridge_mode else 0}",
-        f"replacement_front_page_from_ptr_route={page_from_ptr_route}",
+        f"replacement_front_page_from_ptr_route={page_from_ptr_route_name}",
         "replacement_front_remote_free_queue_plan_v0=1",
         "replacement_front_remote_free_queue_report_only=1",
         "replacement_front_remote_free_queue_mode="
         f"{1 if args.replacement_front_remote_free_queue_mode else 0}",
-        f"replacement_front_remote_free_route={remote_free_route}",
+        f"replacement_front_remote_free_route={remote_free_route_name}",
         "replacement_front_global_lock_hot_path_expected="
-        f"{global_lock_hot_path_expected}",
+        f"{global_lock_expected}",
         "mimalloc_fidelity_guard=1",
         "mimalloc_fidelity_guard_passed=0",
         f"replacement_front_evidence_owner={ctx['replacement_front_evidence_owner']}",

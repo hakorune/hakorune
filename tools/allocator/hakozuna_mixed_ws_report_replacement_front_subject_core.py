@@ -4,6 +4,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from replacement_front_route_plan import (
+    global_lock_hot_path_expected,
+    has_multithread_safe_route,
+    has_thread_local_arena,
+    hotcore_route,
+    page_from_ptr_route,
+    remote_free_route,
+    thread_local_hotcore_route,
+)
 from replacement_front_report import (
     product_activation_contract_subject_fields,
     product_preflight_subject_fields,
@@ -57,42 +66,14 @@ def build_replacement_front_subject_static_lines(
     replacement_front_preflight = ctx["replacement_front_preflight"]
     workload_histogram = ctx["workload_histogram"]
     tls_page_arena = args.replacement_front_tls_page_arena_mode
-    has_thread_local_arena = args.replacement_front_thread_local_mode or tls_page_arena
-    has_multithread_safe_route = args.replacement_front_lock_mode or has_thread_local_arena
-    cross_thread_free_policy = (
-        "atomic_page_remote_head"
-        if args.replacement_front_remote_free_queue_mode
-        else "disabled"
-        if tls_page_arena
-        else "remote_queue"
-        if args.replacement_front_thread_local_mode
-        else "global_lock_or_not_applicable"
-    )
-    hotcore_route = (
-        "benchmark_page_bins_hotcore_tls"
-        if tls_page_arena
-        else "benchmark_page_bins_hotcore_page_model"
-        if args.replacement_front_hotcore_page_model_mode
-        else "not_consumed_by_replacement_front"
-    )
-    thread_local_hotcore_route = (
-        "benchmark_page_bins_hotcore_tls" if tls_page_arena else "not_consumed"
-    )
-    global_lock_hot_path_expected: int | str = (
-        0
-        if tls_page_arena
-        else "lock_enter_count"
-        if args.replacement_front_lock_mode
-        else 0
-    )
-    page_from_ptr_route = (
-        "side_table_direct"
-        if args.replacement_front_page_from_ptr_bridge_mode
-        else "indexed_page_table"
-        if args.replacement_front_product_pages_nonlinear_mode
-        else "range_scan"
-        if replacement_front_bins_mode
-        else "not_consumed"
+    has_thread_local_arena_enabled = has_thread_local_arena(args)
+    has_multithread_safe_route_enabled = has_multithread_safe_route(args)
+    cross_thread_free_policy = remote_free_route(args)
+    hotcore_route_name = hotcore_route(args)
+    thread_local_hotcore_route_name = thread_local_hotcore_route(args)
+    global_lock_expected = global_lock_hot_path_expected(args)
+    page_from_ptr_route_name = page_from_ptr_route(
+        args, replacement_front_bins_mode=replacement_front_bins_mode
     )
     hot_atomic_rmw = int(
         (
@@ -118,10 +99,10 @@ def build_replacement_front_subject_static_lines(
         f"subject_{index}_single_thread_replacement_front_smoke={1 if args.threads == 1 else 0}",
         "subject_"
         f"{index}_multithread_replacement_front_smoke="
-        f"{1 if args.threads > 1 and has_multithread_safe_route else 0}",
-        f"subject_{index}_thread_local_replacement_front_smoke={1 if args.threads > 1 and has_thread_local_arena else 0}",
-        f"subject_{index}_thread_safety_claim={'measured' if (args.threads > 1 and has_multithread_safe_route) else 'none'}",
-        f"subject_{index}_thread_local_arena={1 if has_thread_local_arena else 0}",
+        f"{1 if args.threads > 1 and has_multithread_safe_route_enabled else 0}",
+        f"subject_{index}_thread_local_replacement_front_smoke={1 if args.threads > 1 and has_thread_local_arena_enabled else 0}",
+        f"subject_{index}_thread_safety_claim={'measured' if (args.threads > 1 and has_multithread_safe_route_enabled) else 'none'}",
+        f"subject_{index}_thread_local_arena={1 if has_thread_local_arena_enabled else 0}",
         f"subject_{index}_cross_thread_free_policy={cross_thread_free_policy}",
         f"subject_{index}_provider_api_hot_path_required=0",
         f"subject_{index}_activation=0",
@@ -247,7 +228,7 @@ def build_replacement_front_subject_static_lines(
         f"{1 if args.replacement_front_hotcore_page_model_mode else 0}",
         "subject_"
         f"{index}_replacement_front_hotcore_route="
-        f"{hotcore_route}",
+        f"{hotcore_route_name}",
         f"subject_{index}_hako_mimalloc_algorithm_claim=0",
         f"subject_{index}_mimalloc_fidelity_guard=1",
         f"subject_{index}_mimalloc_fidelity_guard_passed=0",
@@ -256,13 +237,13 @@ def build_replacement_front_subject_static_lines(
         f"{1 if tls_page_arena else 0}",
         "subject_"
         f"{index}_replacement_front_thread_local_hotcore_route="
-        f"{thread_local_hotcore_route}",
+        f"{thread_local_hotcore_route_name}",
         "subject_"
         f"{index}_replacement_front_page_from_ptr_bridge_mode="
         f"{1 if args.replacement_front_page_from_ptr_bridge_mode else 0}",
         "subject_"
         f"{index}_replacement_front_page_from_ptr_route="
-        f"{page_from_ptr_route}",
+        f"{page_from_ptr_route_name}",
         f"subject_{index}_replacement_front_remote_free_queue_plan_v0=1",
         f"subject_{index}_replacement_front_remote_free_queue_report_only=1",
         "subject_"
@@ -273,10 +254,10 @@ def build_replacement_front_subject_static_lines(
         f"{cross_thread_free_policy}",
         "subject_"
         f"{index}_replacement_front_global_lock_hot_path_expected="
-        f"{global_lock_hot_path_expected}",
+        f"{global_lock_expected}",
         f"subject_{index}_replacement_front_hotpath_plan_v0=1",
         f"subject_{index}_replacement_front_hotpath_report_only=1",
-        f"subject_{index}_tls_get_addr_hot_path={1 if has_thread_local_arena and not tls_initial_exec_model_enabled else 0}",
+        f"subject_{index}_tls_get_addr_hot_path={1 if has_thread_local_arena_enabled and not tls_initial_exec_model_enabled else 0}",
         f"subject_{index}_hot_atomic_rmw={hot_atomic_rmw}",
         "subject_"
         f"{index}_remote_free_drain_hot_path=0",

@@ -11,6 +11,7 @@ from hakozuna_mixed_ws_report_support import (
     load_manifest_metadata,
     provider_ldpreload_route_metadata,
 )
+from replacement_front_route_plan import algorithm_shape, page_bins_lookup_route
 from replacement_front_report import ReplacementFrontPreflight
 from replacement_front_support import median_float
 
@@ -61,40 +62,7 @@ def render_hakozuna_mixed_ws_report(
     replacement_front_product_pages_consumer_enabled = int(
         args.replacement_front_product_pages_nonlinear_mode
     )
-    if (
-        args.replacement_front_tls_page_arena_mode
-        and args.replacement_front_page_from_ptr_bridge_mode
-        and args.replacement_front_remote_free_queue_mode
-    ):
-        replacement_front_algorithm_shape = (
-            "page_bin_hotcore_tls_page_arena_page_from_ptr_remote_free_benchmark_front"
-        )
-    elif (
-        args.replacement_front_tls_page_arena_mode
-        and args.replacement_front_page_from_ptr_bridge_mode
-    ):
-        replacement_front_algorithm_shape = (
-            "page_bin_hotcore_tls_page_arena_page_from_ptr_benchmark_front"
-        )
-    elif args.replacement_front_tls_page_arena_mode:
-        replacement_front_algorithm_shape = "page_bin_hotcore_tls_page_arena_benchmark_front"
-    elif (
-        args.replacement_front_product_pages_nonlinear_mode
-        and args.replacement_front_hotcore_page_model_mode
-    ):
-        replacement_front_algorithm_shape = (
-            "page_bin_hotcore_page_model_product_pages_nonlinear_benchmark_front"
-        )
-    elif args.replacement_front_product_pages_nonlinear_mode:
-        replacement_front_algorithm_shape = "page_bin_product_pages_nonlinear_benchmark_front"
-    elif args.replacement_front_hotcore_page_model_mode:
-        replacement_front_algorithm_shape = "page_bin_hotcore_page_model_benchmark_front"
-    elif args.replacement_front_page_bins_mode:
-        replacement_front_algorithm_shape = "page_bin_benchmark_front"
-    elif args.replacement_front_native_bins_mode:
-        replacement_front_algorithm_shape = "multi_bin_native_benchmark_front"
-    else:
-        replacement_front_algorithm_shape = "fixed_slot_native_benchmark_front"
+    replacement_front_algorithm_shape = algorithm_shape(args)
     replacement_front_product_bins_route = (
         "benchmark_page_bins_hotcore_tls"
         if args.replacement_front_tls_page_arena_mode
@@ -141,16 +109,7 @@ def render_hakozuna_mixed_ws_report(
         if args.replacement_front_page_bins_mode
         else "not_consumed"
     )
-    replacement_front_page_bins_lookup_route = (
-        "page_from_ptr_bridge"
-        if args.replacement_front_page_from_ptr_bridge_mode
-        else
-        "indexed_page_table"
-        if args.replacement_front_product_pages_nonlinear_mode
-        else "range_scan"
-        if args.replacement_front_page_bins_mode
-        else "not_consumed"
-    )
+    replacement_front_page_bins_lookup_route = page_bins_lookup_route(args)
     replacement_front_size_class_bridge_enabled = int(
         args.replacement_front_match_hako_size_class
         or replacement_front_bins_mode
