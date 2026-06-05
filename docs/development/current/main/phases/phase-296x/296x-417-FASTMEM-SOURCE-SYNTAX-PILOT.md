@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Done
 Date: 2026-06-05
 Scope: connect `fastmem ContractName { ... }` parser output to FastMemory inventory/check metadata without opening execution.
 Blocker: MIM-FMEM-008
@@ -117,6 +117,37 @@ bash tools/hako_check/fastmem_check_smoke.sh
 
 Add a dedicated source-syntax smoke in this row and include it in the tools
 index when the implementation lands.
+
+## Landed Evidence
+
+```text
+fastmem_source_inventory_input=1
+fastmem_check_source_input=1
+fastmem_region_count_from_ast_json=1
+fastmem_contract_id_from_ast_json=PageMapV0
+fastmem_memop_addr_of_count_from_ast_json=1
+fastmem_memop_logical_shr_count_from_ast_json=1
+fastmem_memop_and_count_from_ast_json=1
+fastmem_forbidden_call_check_fails=1
+fastmem_execution_open=0
+fastmem_product_lowering_open=0
+```
+
+Proof:
+
+```bash
+tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
+bash tools/hako_check/fastmem_capability_inventory_smoke.sh
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Next row:
+
+```text
+MIM-FMEM-009 PageMapBridge benchmark-front pilot
+```
 
 ## Stop Line
 

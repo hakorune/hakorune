@@ -8,18 +8,18 @@
 status = "Active"
 date = "2026-06-05"
 
-active_lane = "mimalloc fastmem source syntax pilot"
-active_lane_status = "MIM-FMEM-008 reopened the fastmem source syntax pilot after dual parser parity; current work connects parsed `fastmem ContractName { ... }` regions to source-facing inventory/check metadata without execution, lowering, provider, replacement, hook, or product activation."
+active_lane = "mimalloc PageMapBridge benchmark-front pilot"
+active_lane_status = "MIM-FMEM-008 landed source-facing FastMemory inventory/check input for parsed `fastmem ContractName { ... }` regions; next is MIM-FMEM-009 PageMapBridge benchmark-front pilot with execution/product activation still closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-416-FASTMEM-PARSER-PARITY-CATCHUP.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-417-FASTMEM-SOURCE-SYNTAX-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
 latest_card = "296x-417-FASTMEM-SOURCE-SYNTAX-PILOT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-417-FASTMEM-SOURCE-SYNTAX-PILOT.md"
-latest_card_summary = "Opened MIM-FMEM-008: connect parsed fastmem regions to source-facing inventory/check metadata while keeping execution and product allocator activation closed."
-current_blocker_token = "MIM-FMEM-008"
+latest_card_summary = "Landed MIM-FMEM-008: source parser JSON now feeds fastmem inventory/check metadata, including MemAddrOf/logical shift/and counts and forbidden-call verifier failure, while execution and product activation stay closed."
+current_blocker_token = "MIM-FMEM-009"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-05: 296x-417 landed MIM-FMEM-008 source-facing fastmem inventory/check input from parser JSON; MIM-FMEM-009 PageMapBridge benchmark-front pilot opens next.",
   "2026-06-05: 296x-416 completed the fastmem parser parity catch-up through PARSER-FMEM-006; MIM-FMEM-008 can reopen with dual parser parse-only proof.",
   "2026-06-01: LANG-CFG-006 optional @rune Gate(...) sugar landed, and the build-conditional lane returned control to mimalloc source-level owner refresh.",
   "296x-414 Landed the mimalloc source-level owner refresh: object_lifecycle_facade remains the top source-level owner surface, and the mimalloc source-level owner selection opened next.",

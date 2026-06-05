@@ -116,7 +116,7 @@ The parser parity catch-up is complete for the fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-008 fastmem source syntax pilot after parser parity
+  MIM-FMEM-009 PageMapBridge benchmark-front pilot
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -144,6 +144,7 @@ completed_this_slice:
   PARSER-FMEM-004 rune contract-name parity
   PARSER-FMEM-005 fastmem block parse-only dual parser pilot
   PARSER-FMEM-006 fastmem contractless fail-fast parity
+  MIM-FMEM-008 fastmem source syntax pilot after parser parity
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -198,6 +199,10 @@ fastmem_source_inventory_input=1
 fastmem_execution_open=0
 fastmem_product_lowering_open=0
 ```
+
+`MIM-FMEM-008` is landed. The next implementation owner is
+`MIM-FMEM-009`, which should use the now-visible fastmem/source inventory
+metadata while keeping product activation closed.
 
 ## Algorithm Port Coverage
 

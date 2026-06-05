@@ -54,13 +54,8 @@ def int_count(rows: dict[str, Any], key: str) -> int:
         return 0
 
 
-def run_inventory(report: Path) -> dict[str, str]:
-    cmd = [
-        sys.executable,
-        str(INVENTORY),
-        "--report",
-        str(report),
-    ]
+def run_inventory(source_flag: str, source_path: Path) -> dict[str, str]:
+    cmd = [sys.executable, str(INVENTORY), source_flag, str(source_path)]
     proc = subprocess.run(cmd, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if proc.returncode != 0:
         if proc.stderr:
@@ -148,11 +143,20 @@ def main() -> int:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--report", type=Path, help="Read a benchmark report via inventory.")
     source.add_argument("--inventory", type=Path, help="Read an existing fastmem inventory kv file.")
+    source.add_argument("--ast-json", type=Path, help="Read Rust AST JSON via inventory.")
+    source.add_argument("--program-json", type=Path, help="Read Program(JSON v0) via inventory.")
     parser.add_argument("--format", choices=("kv", "text"), default="text")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 
-    rows = run_inventory(args.report) if args.report else read_kv(args.inventory)
+    if args.report:
+        rows = run_inventory("--report", args.report)
+    elif args.ast_json:
+        rows = run_inventory("--ast-json", args.ast_json)
+    elif args.program_json:
+        rows = run_inventory("--program-json", args.program_json)
+    else:
+        rows = read_kv(args.inventory)
     reasons = failure_reasons(rows)
     text = emit_kv(rows, reasons) if args.format == "kv" else render(rows, reasons)
     write_output(text, args.out)

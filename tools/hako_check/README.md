@@ -16,6 +16,7 @@ Canonical helpers
 - `bash tools/hako_check/replacement_front_report_smoke.sh`
 - `bash tools/hako_check/fastmem_capability_inventory_smoke.sh`
 - `bash tools/hako_check/fastmem_check_smoke.sh`
+- `bash tools/hako_check/fastmem_source_syntax_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -224,9 +225,9 @@ summary=ok|failed
 FastMemory Capability Inventory
 - `hako_check fastmem-capability-inventory` is an observation-only adapter for
   the `FastMemoryContract` / memory fast-path lane. It reads an existing
-  replacement-front benchmark report and emits which fastmem/capability
-  surfaces are present, missing, or only observed through generated C
-  replacement-front evidence.
+  replacement-front benchmark report or source parser JSON and emits which
+  fastmem/capability surfaces are present, missing, or only observed through
+  generated C replacement-front evidence.
 - Use this before adding more page lookup, source syntax, verifier, or product
   replacement code. It is a report reader only.
 - Stable v0 entry:
@@ -234,6 +235,21 @@ FastMemory Capability Inventory
 ```bash
 bash tools/hako_check.sh fastmem-capability-inventory \
   --report target/hakozuna-page-index-counter-macro-1m/report.out
+```
+
+Source syntax pilot entry:
+
+```bash
+bash tools/hako_check.sh fastmem-capability-inventory \
+  --ast-json target/fastmem.ast.json
+```
+
+Program(JSON v0) parser output is also accepted for the same observation-only
+contract:
+
+```bash
+bash tools/hako_check.sh fastmem-capability-inventory \
+  --program-json target/fastmem.program.json
 ```
 
 - Compact human summary:
@@ -248,7 +264,7 @@ bash tools/hako_check.sh fastmem-capability-inventory \
 
 ```text
 output_contract=hako-check-fastmem-capability-inventory-v0
-input_kind=benchmark_kv_report
+input_kind=benchmark_kv_report|ast_json|program_json_v0
 tool_surface=hako_check_fastmem_capability_inventory
 observation_only=1
 rewrite_executed=0
@@ -317,6 +333,9 @@ bash tools/hako_check.sh fastmem-check \
 
 bash tools/hako_check.sh fastmem-check \
   --inventory target/hako_check/fastmem_inventory.kv
+
+bash tools/hako_check.sh fastmem-check \
+  --ast-json target/fastmem.ast.json
 ```
 
 - Contract:

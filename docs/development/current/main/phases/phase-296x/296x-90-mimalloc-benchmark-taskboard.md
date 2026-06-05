@@ -36,11 +36,9 @@ winner claims.
 ## Current Blocker
 
 ```text
-MIM-FMEM-008:
-  Reopen the fastmem source syntax pilot now that PARSER-FMEM-001 through
-  PARSER-FMEM-006 proved narrow Rust/.hako parser parse-only parity. Current
-  row card:
-  `docs/development/current/main/phases/phase-296x/296x-417-FASTMEM-SOURCE-SYNTAX-PILOT.md`
+MIM-FMEM-009:
+  Start the PageMapBridge benchmark-front pilot after MIM-FMEM-008 connected
+  parsed fastmem source regions to source-facing inventory/check metadata.
 ```
 
 ## Queue
@@ -385,6 +383,7 @@ MIM-FMEM-008:
 | 335 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-OWNER-SELECTION-296X-001` | Landed | Select the narrow owner for selected-method DirectSlot NativeDirect lowering implementation. |
 | 336 | `DIRECT-SLOT-NATIVEDIRECT-LOWERING-SELECTED-METHOD-PILOT-296X-001` | Planned | Attempt the selected-method DirectSlot NativeDirect lowering pilot behind the row334 guard. |
 | 416 | `FASTMEM-PARSER-PARITY-CATCHUP-296X-001` | Done | Parser parity catch-up through PARSER-FMEM-006 proved dual Rust/.hako parse-only parity for fastmem source syntax. |
+| 417 | `FASTMEM-SOURCE-SYNTAX-PILOT-296X-001` | Done | MIM-FMEM-008 connected parsed fastmem source regions to hako_check inventory/check metadata without opening execution or product activation. |
 
 ## Hako Mimalloc Performance Parity Plan
 
