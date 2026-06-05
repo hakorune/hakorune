@@ -14,6 +14,8 @@ Usage:
   $0 perf-surface [--target file.hako] [--methods a,b] [--contract-version v1]
   $0 perf-surface-contract [--out report.txt]
   $0 replacement-front-report --report target/.../report.out [options]
+  $0 fastmem-capability-inventory --report target/.../report.out [options]
+  $0 fastmem-check (--report target/.../report.out | --inventory report.kv) [options]
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
@@ -25,6 +27,9 @@ Tool surfaces:
                       report vocabulary for perf-surface
   replacement-front-report
                       read-only replacement-front benchmark report explanation
+  fastmem-capability-inventory
+                      read-only fastmem / memory fast-path capability inventory
+  fastmem-check       CI-style verifier over fastmem inventory fields
   fastpath-explain    read-only FastPath / RouteDecision metadata explanation
                       with optional --profile / --group report scoping
   fastpath-check      CI-style RouteDecision profile check for current
@@ -72,6 +77,16 @@ fi
 if [ "${1:-}" = "replacement-front-report" ]; then
   shift
   exec python3 "$ROOT/tools/hako_check/replacement_front_report.py" "$@"
+fi
+
+if [ "${1:-}" = "fastmem-capability-inventory" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/fastmem_capability_inventory.py" "$@"
+fi
+
+if [ "${1:-}" = "fastmem-check" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/fastmem_check.py" "$@"
 fi
 
 if [ ! -x "$BIN" ]; then

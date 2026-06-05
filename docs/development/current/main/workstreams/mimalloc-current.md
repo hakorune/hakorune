@@ -92,10 +92,71 @@ algorithm-port coverage:
 
 capability gap:
   current evidence does not point at missing syntax alone. Bitwise/shift syntax
-  exists; the missing pieces are allocator-safe capability/lowering substrate
-  such as no-escape address tokens, exact page-key arithmetic, page-map bridge
-  storage, worker-local owner state, and atomic remote-free semantics. SSOT:
+  exists; the accepted next boundary is a contract-bound memory fast-path
+  sublanguage (`fastmem ContractName { ... }`) plus verifier/report inventory.
+  Allocator page maps are the first consumer, not the only consumer. Later
+  safe wrappers such as AddressToken/PageKey/PageMapBridge may sit on top of
+  the same MemOps. SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md`
+```
+
+## Current Task Order
+
+The current next task is documentation/report inventory before adding new
+fastmem/capability code.
+
+```text
+next_task:
+  MIM-FMEM-008 fastmem source syntax pilot
+
+why:
+  MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
+  hako_check report; MIM-FMEM-003 fixed MIR MemOp report vocabulary;
+  MIM-FMEM-004 added the inventory verifier; MIM-FMEM-005 locked PageKey
+  exact-route docs/report vocabulary; MIM-FMEM-006 connected existing exact
+  shift route evidence to the PageKey report; MIM-FMEM-007 locked the
+  PageMapBridge plan. The next step is a narrow source syntax pilot.
+
+completed_this_slice:
+  MIM-FMEM-001 FastMemoryContract docs/report lock
+  MIM-FMEM-002 hako_check fastmem capability inventory
+  MIM-FMEM-003 MIR MemOp region docs/report plan
+  MIM-FMEM-004 FastMem verifier implementation
+  MIM-FMEM-005 PageKey exact route docs/report lock
+  MIM-FMEM-006 PageKey exact route implementation
+  MIM-FMEM-007 PageMapBridge plan
+
+task_order:
+  MIM-FMEM-001 FastMemoryContract docs/report lock
+  MIM-FMEM-002 hako_check fastmem capability inventory
+  MIM-FMEM-003 MIR MemOp region docs/report plan
+  MIM-FMEM-004 FastMem verifier implementation
+  MIM-FMEM-005 PageKey exact route docs/report lock
+  MIM-FMEM-006 PageKey exact route implementation
+  MIM-FMEM-007 PageMapBridge plan
+  MIM-FMEM-008 fastmem source syntax pilot
+  MIM-FMEM-009 PageMapBridge benchmark-front pilot
+  MIM-FMEM-010 TypedPageMetaHandle plan
+  MIM-FMEM-011 WorkerId / TLS arena owner state
+  MIM-FMEM-012 AtomicRemoteHead plan
+  MIM-FMEM-013 AtomicRemoteHead pilot
+  MIM-FMEM-014 safe capability wrapper plan
+  MIM-FMEM-015 Mimalloc shape coverage score
+  MIM-FMEM-016 Product-shaped replacement front bridge
+
+closed_by_default:
+  RawPtr<T>
+  pointer arithmetic operators outside fastmem
+  address dereference syntax
+  implicit pointer-to-integer conversion
+  contract-less unsafe {}
+  contract-less fastmem {}
+  Type ABI hot lookup
+  Provider ABI replacement-front hot dispatch
+  product allocator activation
+  hook install
+  global allocator claim
+  winner claim
 ```
 
 ## Algorithm Port Coverage
@@ -1770,8 +1831,8 @@ mimalloc_replacement_front_page_index_counter_macro_2026_06_05:
   global_lock_hot_path_count_total=0
   decision=keeper_for_counter_cleanup_counter_gap_now_near_zero
   remaining_gap=free_path_page_lookup_and_layout_execution_shape
-  next_thread_task=MIM-FREE-PATH-BYPASS-PROBE-001
-  next_thread_task_scope=probe_free_path_bypass_or_slot_header_without_product_activation
+  next_thread_task=MIM-FMEM-008
+  next_thread_task_scope=fastmem_source_syntax_pilot_after_verifier_and_bridge_plan
 
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with

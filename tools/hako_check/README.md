@@ -14,6 +14,8 @@ Canonical helpers
 - `bash tools/hako_check/deadcode_smoke.sh`
 - `bash tools/hako_check/deadblocks_smoke.sh`
 - `bash tools/hako_check/replacement_front_report_smoke.sh`
+- `bash tools/hako_check/fastmem_capability_inventory_smoke.sh`
+- `bash tools/hako_check/fastmem_check_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
@@ -218,6 +220,125 @@ summary=ok|failed
   run benchmarks, rewrite source, change MIR, choose keepers, activate
   providers, replace allocators, install hooks, claim product readiness, or
   infer ownership from Type ABI descriptors.
+
+FastMemory Capability Inventory
+- `hako_check fastmem-capability-inventory` is an observation-only adapter for
+  the `FastMemoryContract` / memory fast-path lane. It reads an existing
+  replacement-front benchmark report and emits which fastmem/capability
+  surfaces are present, missing, or only observed through generated C
+  replacement-front evidence.
+- Use this before adding more page lookup, source syntax, verifier, or product
+  replacement code. It is a report reader only.
+- Stable v0 entry:
+
+```bash
+bash tools/hako_check.sh fastmem-capability-inventory \
+  --report target/hakozuna-page-index-counter-macro-1m/report.out
+```
+
+- Compact human summary:
+
+```bash
+bash tools/hako_check.sh fastmem-capability-inventory \
+  --report target/hakozuna-page-index-counter-macro-1m/report.out \
+  --format summary
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-fastmem-capability-inventory-v0
+input_kind=benchmark_kv_report
+tool_surface=hako_check_fastmem_capability_inventory
+observation_only=1
+rewrite_executed=0
+source_rewrite_executed=0
+benchmark_run_executed=0
+keeper_selection=0
+provider_activation=0
+hook_installed=0
+global_allocator_product_claim=0
+winner_claim=0
+measured_hot_path_owner
+replacement_front_subowner
+fastmem_region_count
+fastmem_contract_count
+fastmem_contract_runtime_lookup_count=0
+fastmem_memop_region_begin_count
+fastmem_memop_region_end_count
+fastmem_memop_unbalanced_region_count
+fastmem_memop_unclassified_count
+fastmem_memop_addr_of_count
+fastmem_memop_logical_shr_count
+fastmem_memop_table_index_count
+fastmem_memop_field_load_count
+fastmem_memop_field_store_count
+fastmem_memop_atomic_cas_count
+fastmem_memop_atomic_exchange_count
+fastmem_memop_atomic_fetch_add_count
+fastmem_forbidden_allocation_count
+fastmem_forbidden_safepoint_count
+fastmem_forbidden_await_count
+fastmem_forbidden_nowait_count
+fastmem_forbidden_call_count
+fastmem_type_abi_hot_lookup_count
+fastmem_provider_abi_crossing_count
+fastmem_general_rawptr_type=0
+fastmem_general_deref_outside_region=0
+fastmem_general_pointer_arithmetic_outside_region=0
+fastmem_escape_count
+free_path_page_lookup_route
+page_map_bridge_kind
+page_map_bridge_type_abi_hot_lookup_count
+page_map_bridge_provider_abi_hot_dispatch_count
+allocator_tls_arena_enabled
+atomic_remote_head_enabled
+mimalloc_shape_score
+replacement_front_is_full_hako_algorithm
+hako_mimalloc_algorithm_claim
+product_activation_ready
+summary=ok|failed
+```
+
+- Stop line: this adapter must not run benchmarks, rewrite source, change MIR,
+  choose keepers, activate providers, install hooks, claim global allocator
+  ownership, or use Type ABI / Provider ABI as a hot-path execution owner.
+
+FastMemory Check
+- `hako_check fastmem-check` is a CI-style verifier over the FastMemory
+  inventory fields. It fails on unclassified MemOps, forbidden operations,
+  region/local memory value escapes, runtime contract lookup, or Type ABI /
+  Provider ABI hot-path crossings.
+- Stable v0 entries:
+
+```bash
+bash tools/hako_check.sh fastmem-check \
+  --report target/hakozuna-page-index-counter-macro-1m/report.out
+
+bash tools/hako_check.sh fastmem-check \
+  --inventory target/hako_check/fastmem_inventory.kv
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-fastmem-check-v0
+input_kind=fastmem_inventory
+tool_surface=hako_check_fastmem_check
+observation_only=1
+rewrite_executed=0
+source_rewrite_executed=0
+benchmark_run_executed=0
+keeper_selection=0
+source_contract
+failure_count
+failure_N_reason
+summary=ok|failed
+```
+
+- Stop line: this check validates existing inventory fields only. It does not
+  infer fastmem regions from source, rewrite MIR, choose keepers, or activate
+  product allocator replacement.
 
 Route Descriptor Read-Only Consumption
 - Type ABI route descriptors are descriptor/control-plane data. hako_check may

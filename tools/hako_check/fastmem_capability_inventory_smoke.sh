@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+FIXTURE_DIR="$ROOT/tools/hako_check/tests/fastmem_capability_inventory"
+OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_capability_inventory.XXXXXX")"
+trap 'rm -f "$OUT"' EXIT
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/report.kv" \
+  >"$OUT"
+
+grep -q '^output_contract=hako-check-fastmem-capability-inventory-v0$' "$OUT"
+grep -q '^tool_surface=hako_check_fastmem_capability_inventory$' "$OUT"
+grep -q '^observation_only=1$' "$OUT"
+grep -q '^benchmark_run_executed=0$' "$OUT"
+grep -q '^keeper_selection=0$' "$OUT"
+grep -q '^provider_activation=0$' "$OUT"
+grep -q '^hook_installed=0$' "$OUT"
+grep -q '^global_allocator_product_claim=0$' "$OUT"
+grep -q '^winner_claim=0$' "$OUT"
+grep -q '^measured_hot_path_owner=generated_c_replacement_front$' "$OUT"
+grep -q '^fastmem_region_count=0$' "$OUT"
+grep -q '^fastmem_contract_count=0$' "$OUT"
+grep -q '^fastmem_contract_runtime_lookup_count=0$' "$OUT"
+grep -q '^fastmem_memop_region_begin_count=0$' "$OUT"
+grep -q '^fastmem_memop_region_end_count=0$' "$OUT"
+grep -q '^fastmem_memop_unclassified_count=0$' "$OUT"
+grep -q '^fastmem_forbidden_call_count=0$' "$OUT"
+grep -q '^fastmem_type_abi_hot_lookup_count=0$' "$OUT"
+grep -q '^fastmem_provider_abi_crossing_count=0$' "$OUT"
+grep -q '^fastmem_escape_count=0$' "$OUT"
+grep -q '^fastmem_general_rawptr_type=0$' "$OUT"
+grep -q '^fastmem_general_deref_outside_region=0$' "$OUT"
+grep -q '^fastmem_general_pointer_arithmetic_outside_region=0$' "$OUT"
+grep -q '^free_path_page_lookup_route=page_map_bridge$' "$OUT"
+grep -q '^page_map_bridge_kind=flat_side_table$' "$OUT"
+grep -q '^page_map_bridge_type_abi_hot_lookup_count=0$' "$OUT"
+grep -q '^page_map_bridge_provider_abi_hot_dispatch_count=0$' "$OUT"
+grep -q '^page_key_capability=1$' "$OUT"
+grep -q '^page_key_numeric_route=uintptr_exact_logical_shift_mask$' "$OUT"
+grep -q '^page_key_shift_count_trap=1$' "$OUT"
+grep -q '^page_key_segment_shift=25$' "$OUT"
+grep -q '^page_key_page_shift=16$' "$OUT"
+grep -q '^page_key_mask=0xffff$' "$OUT"
+grep -q '^allocator_tls_arena_enabled=1$' "$OUT"
+grep -q '^atomic_remote_head_enabled=0$' "$OUT"
+grep -q '^replacement_front_is_full_hako_algorithm=0$' "$OUT"
+grep -q '^hako_mimalloc_algorithm_claim=0$' "$OUT"
+grep -q '^product_activation_ready=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+echo "[TEST/OK] fastmem_capability_inventory"
