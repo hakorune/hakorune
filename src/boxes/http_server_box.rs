@@ -45,7 +45,7 @@ use crate::boxes::http_message_box::{HTTPRequestBox, HTTPResponseBox};
 use crate::boxes::SocketBox;
 use std::any::Any;
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 /// HTTP サーバーを提供するBox
 #[derive(Debug)]
@@ -57,7 +57,7 @@ pub struct HTTPServerBox {
     running: RwLock<bool>,
     static_path: RwLock<Option<String>>,
     timeout_seconds: RwLock<u64>,
-    active_connections: RwLock<Vec<Box<dyn NyashBox>>>,
+    active_connections: Arc<RwLock<Vec<u64>>>,
 }
 
 impl Clone for HTTPServerBox {
@@ -83,10 +83,7 @@ impl Clone for HTTPServerBox {
         let timeout_val = *self.timeout_seconds.read().unwrap();
 
         let connections_guard = self.active_connections.read().unwrap();
-        let connections_val: Vec<Box<dyn NyashBox>> = connections_guard
-            .iter()
-            .map(|item| item.clone_box())
-            .collect();
+        let connections_val = connections_guard.clone();
 
         Self {
             base: BoxBase::new(), // New unique ID for clone
@@ -96,7 +93,7 @@ impl Clone for HTTPServerBox {
             running: RwLock::new(running_val),
             static_path: RwLock::new(static_path_val),
             timeout_seconds: RwLock::new(timeout_val),
-            active_connections: RwLock::new(connections_val),
+            active_connections: Arc::new(RwLock::new(connections_val)),
         }
     }
 }
@@ -111,7 +108,27 @@ impl HTTPServerBox {
             running: RwLock::new(false),
             static_path: RwLock::new(None),
             timeout_seconds: RwLock::new(30),
-            active_connections: RwLock::new(Vec::new()),
+            active_connections: Arc::new(RwLock::new(Vec::new())),
+        }
+    }
+
+    fn register_active_connection(&self, connection_id: u64) -> bool {
+        if let Ok(mut connections) = self.active_connections.write() {
+            connections.push(connection_id);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn unregister_active_connection(
+        active_connections: &Arc<RwLock<Vec<u64>>>,
+        connection_id: u64,
+    ) {
+        if let Ok(mut connections) = active_connections.write() {
+            if let Some(index) = connections.iter().position(|id| *id == connection_id) {
+                connections.swap_remove(index);
+            }
         }
     }
 
@@ -207,10 +224,11 @@ impl HTTPServerBox {
                     Some(socket) => socket.clone(),
                     None => continue, // Skip invalid connections
                 };
+                let client_connection_id = client_socket.box_id();
 
-                // Add to active connections (with error handling)
-                if let Ok(mut connections) = self.active_connections.write() {
-                    connections.push(Box::new(client_socket.clone()));
+                if !self.register_active_connection(client_connection_id) {
+                    let _ = client_socket.close();
+                    continue;
                 }
 
                 // Handle client in separate thread (simulate nowait)
@@ -223,15 +241,26 @@ impl HTTPServerBox {
                             .collect();
                         routes_clone
                     }
-                    Err(_) => continue, // Skip this connection if we can't read routes
+                    Err(_) => {
+                        Self::unregister_active_connection(
+                            &self.active_connections,
+                            client_connection_id,
+                        );
+                        let _ = client_socket.close();
+                        continue;
+                    }
                 };
 
                 let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+                let active_connections = self.active_connections.clone();
                 match ring0.thread.spawn(
                     crate::runtime::ring0::ThreadSpawnSpec::named("HTTPServerBox.client"),
                     Box::new(move || {
                         Self::handle_client_request_with_routes(client_socket, routes_snapshot);
-                        // Note: Connection cleanup is handled separately to avoid complex lifetime issues
+                        Self::unregister_active_connection(
+                            &active_connections,
+                            client_connection_id,
+                        );
                         crate::runtime::ring0::ThreadExit::Ok
                     }),
                 ) {
@@ -244,6 +273,10 @@ impl HTTPServerBox {
                         }
                     }
                     Err(err) => {
+                        Self::unregister_active_connection(
+                            &self.active_connections,
+                            client_connection_id,
+                        );
                         ring0.log.error(&format!(
                             "HTTPServerBox client handler spawn failed: {}",
                             err.message
@@ -262,13 +295,9 @@ impl HTTPServerBox {
     pub fn stop(&self) -> Box<dyn NyashBox> {
         *self.running.write().unwrap() = false;
 
-        // Close all active connections
+        // Active client handlers own their SocketBox and close it on completion.
+        // The registry stores ids only, so stop clears the observable active count.
         let mut connections = self.active_connections.write().unwrap();
-        for connection in connections.iter() {
-            if let Some(socket) = connection.as_any().downcast_ref::<SocketBox>() {
-                let _ = socket.close();
-            }
-        }
         connections.clear();
 
         // Close server socket
@@ -465,6 +494,38 @@ impl BoxCore for HTTPServerBox {
 impl std::fmt::Display for HTTPServerBox {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.fmt_box(f)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn active_connection_registry_removes_completed_connection() {
+        let server = HTTPServerBox::new();
+
+        assert!(server.register_active_connection(10));
+        assert!(server.register_active_connection(20));
+        assert_eq!(server.get_active_connections().to_string_box().value, "2");
+
+        HTTPServerBox::unregister_active_connection(&server.active_connections, 10);
+
+        assert_eq!(server.get_active_connections().to_string_box().value, "1");
+        let connections = server.active_connections.read().unwrap();
+        assert_eq!(connections.as_slice(), &[20]);
+    }
+
+    #[test]
+    fn active_connection_registry_removes_one_duplicate_id() {
+        let server = HTTPServerBox::new();
+
+        assert!(server.register_active_connection(10));
+        assert!(server.register_active_connection(10));
+
+        HTTPServerBox::unregister_active_connection(&server.active_connections, 10);
+
+        assert_eq!(server.get_active_connections().to_string_box().value, "1");
     }
 }
 

@@ -381,6 +381,8 @@ Scope:
 ```text
 HTTPServerBox client handler uses ThreadApi::spawn
 HTTPServerBox client handler uses ThreadApi::detach
+HTTPServerBox active connection registry stores connection ids
+HTTPServerBox removes active connection id when handler completes
 source_syntax_exposure=0
 nowait_os_thread_spawn=0
 ```
@@ -392,6 +394,7 @@ direct_std_thread_spawn_total_after=4
 runtime_substrate_spawn_candidate_count_after=0
 box_specific_spawn_workaround_count_after=2
 kernel_native_stress_spawn_count_after=2
+http_server_active_connections_unbounded_growth=0
 ```
 
 ### THREAD-SCHED-001: WorkerPoolScheduler route

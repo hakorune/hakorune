@@ -1069,6 +1069,10 @@ thread_api_detach_http_server_client_2026_06_05:
   code_owner=src/boxes/http_server_box.rs
   routed_box_callsite=HTTPServerBox_client_handler
   routed_thread_api=spawn,detach
+  active_connection_registry=id_only
+  active_connection_unregister_on_handler_completion=1
+  active_connection_unregister_on_spawn_failure=1
+  http_server_active_connections_unbounded_growth=0
   direct_spawn_callsite_rewrite_count=1
   direct_std_thread_spawn_total_after=4
   runtime_substrate_spawn_candidate_count_after=0
