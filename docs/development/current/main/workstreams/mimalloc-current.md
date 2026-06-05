@@ -1503,6 +1503,50 @@ mimalloc_page_from_ptr_bridge_impl_2026_06_05:
   next_thread_task=MIM-REMOTE-FREE-QUEUE-001
   next_thread_task_scope=RemoteFreeQueuePlanV0_atomic_page_remote_head_owner_drain_without_product_activation
 
+mimalloc_remote_free_queue_impl_2026_06_05:
+  status=landed
+  task_kind=benchmark_only_impl_slice
+  owner_doc=docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
+  route_name=RemoteFreeQueuePlanV0
+  cli_flag=--replacement-front-remote-free-queue-mode
+  generated_route=benchmark_page_bins_hotcore_tls
+  remote_free_route=atomic_page_remote_head
+  product_activation=0
+  production_replacement_active=0
+  hook_installed=0
+  global_allocator_product_claim=0
+  winner_claim=0
+  product_pages_consumer_enabled=0
+  implemented_slice=atomic_page_remote_head_owner_drain_without_product_activation
+  report=target/hakozuna-mixed-ws-remote-free-smoke-long/report.out
+  focused_smoke_dir=target/hakozuna-mixed-ws-remote-free-focused-smoke-2
+  smoke_threads=2
+  smoke_iters_per_thread=100000
+  median_ops_per_sec=3,423,543.593
+  c_mimalloc_median_ops_per_sec=87,738,423.683
+  throughput_vs_c_mimalloc=0.039020
+  replacement_front_remote_free_queue_mode=1
+  replacement_front_remote_free_route=atomic_page_remote_head
+  replacement_front_cross_thread_free_remote_push_count_total=0
+  replacement_front_remote_free_drain_count_total=0
+  replacement_front_owner_thread_id_lookup_count_total=102066
+  replacement_front_owner_thread_id_same_count_total=102066
+  replacement_front_owner_thread_id_remote_count_total=0
+  replacement_front_page_from_ptr_range_scan_count_total=0
+  replacement_front_page_from_ptr_invalid_count_total=0
+  replacement_front_page_from_ptr_miss_count_total=0
+  replacement_front_global_lock_hot_path_count_total=0
+  focused_cross_thread_free_remote_push_count=1
+  focused_cross_thread_free_remote_drain_count=1
+  focused_cross_thread_free_host_passthrough_count=0
+  focused_abandoned_owner_count=1
+  focused_abandoned_remote_free_count=1
+  focused_abandoned_host_passthrough_count=0
+  mimalloc_fidelity_guard_passed=0
+  decision=nonkeeper_owner_thread_lookup_cost_is_now_visible
+  next_thread_task=MIM-OWNER-ID-FAST-PATH-001
+  next_thread_task_scope=replace_pthread_equal_hot_owner_check_with_cached_owner_token_without_product_activation
+
 product_pages_indexed_lookup_probe:
   attempted_change=replace the generated linear page-bins ownership scan with
     a benchmark-only page-key indexed ownership table

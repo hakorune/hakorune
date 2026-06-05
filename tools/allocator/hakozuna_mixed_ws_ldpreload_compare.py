@@ -102,6 +102,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--replacement-front-remote-free-queue-mode",
+        action="store_true",
+        help=(
+            "benchmark-only: with TLS page-bins and page-from-ptr bridge, "
+            "publish cross-thread frees to the owner page remote head"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-product-pages-nonlinear-mode",
         action="store_true",
         help=(
@@ -219,6 +227,7 @@ def main() -> int:
             hotcore_page_model=args.replacement_front_hotcore_page_model_mode,
             thread_local_page_arena=args.replacement_front_tls_page_arena_mode,
             page_from_ptr_bridge=args.replacement_front_page_from_ptr_bridge_mode,
+            remote_free_queue=args.replacement_front_remote_free_queue_mode,
             size_class_table=args.replacement_front_size_class_table_mode,
             eager_init=args.replacement_front_eager_init_mode,
             product_pages_nonlinear_lookup=args.replacement_front_product_pages_nonlinear_mode,

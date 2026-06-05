@@ -73,6 +73,7 @@ def build_replacement_front_bins_shim(
     hotcore_page_model: bool = False,
     thread_local_page_arena: bool = False,
     page_from_ptr_bridge: bool = False,
+    remote_free_queue: bool = False,
     size_class_table: bool = False,
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
@@ -85,6 +86,8 @@ def build_replacement_front_bins_shim(
         front_name = f"{front_name}-tls-page-arena"
     if page_from_ptr_bridge:
         front_name = f"{front_name}-page-from-ptr"
+    if remote_free_queue:
+        front_name = f"{front_name}-remote-free"
     if locked:
         front_name = f"{front_name}-locked"
     if size_class_table:
@@ -117,6 +120,7 @@ def build_replacement_front_bins_shim(
             hotcore_page_model=hotcore_page_model,
             thread_local_page_arena=thread_local_page_arena,
             page_from_ptr_bridge=page_from_ptr_bridge,
+            remote_free_queue=remote_free_queue,
             size_class_table=size_class_table,
             eager_init=eager_init,
             product_pages_nonlinear_lookup=product_pages_nonlinear_lookup,
@@ -129,10 +133,12 @@ def build_replacement_front_bins_shim(
         cmd.append("-DHAKO_REPLACEMENT_FRONT_LOCKED=1")
     if thread_local_page_arena:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA=1")
+    if remote_free_queue:
+        cmd.append("-DHAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE=1")
     if skip_hot_counters:
         cmd.append("-DHAKO_REPLACEMENT_FRONT_SKIP_HOT_COUNTERS=1")
     cmd.extend([str(source), "-ldl"])
-    if locked:
+    if locked or remote_free_queue:
         cmd.append("-pthread")
     cmd.extend(["-o", str(binary)])
     subprocess.run(cmd, check=True)

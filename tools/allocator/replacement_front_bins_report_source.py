@@ -66,6 +66,9 @@ static void write_report(void) {
   write_kv(fd, "replacement_front_thread_exit_arena_flush_count", thread_exit_arena_flush_count);
   write_kv(fd, "replacement_front_abandoned_owner_count", abandoned_owner_count);
   write_kv(fd, "replacement_front_abandoned_remote_free_count", abandoned_remote_free_count);
+  write_kv(fd, "replacement_front_owner_thread_id_lookup_count", owner_thread_id_lookup_count);
+  write_kv(fd, "replacement_front_owner_thread_id_same_count", owner_thread_id_same_count);
+  write_kv(fd, "replacement_front_owner_thread_id_remote_count", owner_thread_id_remote_count);
   write_kv(fd, "replacement_front_page_index_insert_count", page_index_insert_count);
   write_kv(fd, "replacement_front_page_index_probe_count", page_index_probe_count);
   write_kv(fd, "replacement_front_page_index_collision_count", page_index_collision_count);

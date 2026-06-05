@@ -984,6 +984,7 @@ python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --replacement-front-hotcore-page-model-mode \
   --replacement-front-tls-page-arena-mode \
   --replacement-front-page-from-ptr-bridge-mode \
+  --replacement-front-remote-free-queue-mode \
   --replacement-front-size-class-table-mode
 ```
 
@@ -996,11 +997,29 @@ arena lock from the same-thread page-bin hot path. With
 replacement_front_page_bins_lookup_route=page_from_ptr_bridge
 replacement_front_page_from_ptr_route=side_table_direct
 replacement_front_page_from_ptr_range_scan_count_total=0
+replacement_front_remote_free_queue_mode=1
+replacement_front_remote_free_route=atomic_page_remote_head
+replacement_front_cross_thread_free_remote_push_count_total=...
+replacement_front_remote_free_drain_count_total=...
 replacement_front_product_pages_consumer_enabled=0
 ```
 
-Remote free is still closed for this slice:
-`replacement_front_remote_free_route=disabled`.
+The remote-free queue route is still benchmark-only. It publishes
+cross-thread frees to the owner page remote head and lets the owner drain them
+on later allocation. It does not enable product pages, hooks, global allocator
+replacement, or a winner claim.
+
+The normal mixed-ws benchmark is mostly same-thread ownership, so
+`replacement_front_cross_thread_free_remote_push_count_total=0` can be normal
+there. Use a focused smoke when changing the remote path and require:
+
+```text
+replacement_front_cross_thread_free_remote_push_count>=1
+replacement_front_remote_free_drain_count>=1
+replacement_front_abandoned_owner_count>=1
+replacement_front_abandoned_remote_free_count>=1
+replacement_front_host_passthrough_count=0
+```
 
 ```bash
 tools/allocator/hako_mimalloc_direct_exact_app_perf_stat.sh \

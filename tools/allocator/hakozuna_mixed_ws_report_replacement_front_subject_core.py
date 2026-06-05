@@ -60,7 +60,9 @@ def build_replacement_front_subject_static_lines(
     has_thread_local_arena = args.replacement_front_thread_local_mode or tls_page_arena
     has_multithread_safe_route = args.replacement_front_lock_mode or has_thread_local_arena
     cross_thread_free_policy = (
-        "disabled"
+        "atomic_page_remote_head"
+        if args.replacement_front_remote_free_queue_mode
+        else "disabled"
         if tls_page_arena
         else "remote_queue"
         if args.replacement_front_thread_local_mode
@@ -261,6 +263,11 @@ def build_replacement_front_subject_static_lines(
         "subject_"
         f"{index}_replacement_front_page_from_ptr_route="
         f"{page_from_ptr_route}",
+        f"subject_{index}_replacement_front_remote_free_queue_plan_v0=1",
+        f"subject_{index}_replacement_front_remote_free_queue_report_only=1",
+        "subject_"
+        f"{index}_replacement_front_remote_free_queue_mode="
+        f"{1 if args.replacement_front_remote_free_queue_mode else 0}",
         "subject_"
         f"{index}_replacement_front_remote_free_route="
         f"{cross_thread_free_policy}",
@@ -275,7 +282,7 @@ def build_replacement_front_subject_static_lines(
         f"{index}_remote_free_drain_hot_path=0",
         "subject_"
         f"{index}_remote_owner_publication_after_local_fail="
-        f"{1 if args.replacement_front_thread_local_mode else 0}",
+        f"{1 if args.replacement_front_thread_local_mode or args.replacement_front_remote_free_queue_mode else 0}",
         f"subject_{index}_cold_init_in_hot_path=0",
         "subject_"
         f"{index}_register_thread_arena_hot_path=0",
@@ -283,8 +290,8 @@ def build_replacement_front_subject_static_lines(
         f"subject_{index}_tls_arena_fast_alloc_plan=1",
         f"subject_{index}_tls_arena_local_free_plan=1",
         f"subject_{index}_free_local_first=1",
-        f"subject_{index}_free_remote_path_after_local_fail={1 if args.replacement_front_thread_local_mode else 0}",
-        f"subject_{index}_free_hot_remote_queue_call=0",
+        f"subject_{index}_free_remote_path_after_local_fail={1 if args.replacement_front_thread_local_mode or args.replacement_front_remote_free_queue_mode else 0}",
+        f"subject_{index}_free_hot_remote_queue_call={1 if args.replacement_front_remote_free_queue_mode else 0}",
         f"subject_{index}_replacement_entry_inline_plan=1",
         f"subject_{index}_malloc_to_direct_alloc_boundary=always_inline",
         f"subject_{index}_free_to_direct_free_boundary=always_inline",

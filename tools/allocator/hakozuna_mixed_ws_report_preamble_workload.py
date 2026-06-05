@@ -19,7 +19,9 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
         else "not_consumed_by_replacement_front"
     )
     remote_free_route = (
-        "disabled"
+        "atomic_page_remote_head"
+        if args.replacement_front_remote_free_queue_mode
+        else "disabled"
         if args.replacement_front_tls_page_arena_mode
         else "atomic_page_remote_head"
         if args.replacement_front_thread_local_mode
@@ -116,6 +118,10 @@ def build_report_preamble_workload_lines(ctx: dict[str, Any]) -> list[str]:
         "replacement_front_page_from_ptr_bridge_mode="
         f"{1 if args.replacement_front_page_from_ptr_bridge_mode else 0}",
         f"replacement_front_page_from_ptr_route={page_from_ptr_route}",
+        "replacement_front_remote_free_queue_plan_v0=1",
+        "replacement_front_remote_free_queue_report_only=1",
+        "replacement_front_remote_free_queue_mode="
+        f"{1 if args.replacement_front_remote_free_queue_mode else 0}",
         f"replacement_front_remote_free_route={remote_free_route}",
         "replacement_front_global_lock_hot_path_expected="
         f"{global_lock_hot_path_expected}",

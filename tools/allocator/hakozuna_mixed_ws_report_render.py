@@ -64,6 +64,14 @@ def render_hakozuna_mixed_ws_report(
     if (
         args.replacement_front_tls_page_arena_mode
         and args.replacement_front_page_from_ptr_bridge_mode
+        and args.replacement_front_remote_free_queue_mode
+    ):
+        replacement_front_algorithm_shape = (
+            "page_bin_hotcore_tls_page_arena_page_from_ptr_remote_free_benchmark_front"
+        )
+    elif (
+        args.replacement_front_tls_page_arena_mode
+        and args.replacement_front_page_from_ptr_bridge_mode
     ):
         replacement_front_algorithm_shape = (
             "page_bin_hotcore_tls_page_arena_page_from_ptr_benchmark_front"

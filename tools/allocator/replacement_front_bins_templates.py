@@ -15,6 +15,7 @@ def generate_replacement_front_bins_shim_c(
     hotcore_page_model: bool = False,
     thread_local_page_arena: bool = False,
     page_from_ptr_bridge: bool = False,
+    remote_free_queue: bool = False,
     size_class_table: bool = False,
     eager_init: bool = False,
     product_pages_nonlinear_lookup: bool = False,
@@ -22,9 +23,10 @@ def generate_replacement_front_bins_shim_c(
 ) -> str:
     """Generate a benchmark-only multi-bin replacement front.
 
-    This is intentionally narrower than the fixed-slot front: no remote-free
-    bridge and no product allocator claim. The optional locked route is a
-    benchmark-only multithread evidence slice, not allocator activation.
+    This is intentionally narrower than the fixed-slot front: remote-free is a
+    benchmark-only page remote-head bridge and not a product allocator claim.
+    The optional locked route is a benchmark-only multithread evidence slice,
+    not allocator activation.
     """
 
     bin_defs: list[str] = []
@@ -48,6 +50,9 @@ def generate_replacement_front_bins_shim_c(
         requested_expr = f"{tag}_requested_size"
         free_stack_expr = f"{tag}_free_stack"
         free_top_expr = f"{tag}_free_top"
+        remote_next_expr = f"{tag}_remote_next"
+        remote_head_expr = f"{tag}_remote_head"
+        owner_thread_expr = f"{tag}_owner_thread"
         bin_defs.extend(
             [
                 f"#define HAKO_{tag.upper()}_SIZE {bin_size}u",
@@ -66,6 +71,11 @@ def generate_replacement_front_bins_shim_c(
                     "  size_t requested_size[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
                     "  uint32_t free_stack[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
                     "  uint32_t free_top;",
+                    "#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE",
+                    "  uint32_t remote_next[HAKO_REPLACEMENT_BIN_SLOT_COUNT];",
+                    "  int remote_head;",
+                    "  pthread_t owner_thread;",
+                    "#endif",
                     f"}} HakoReplacement{type_tag}Page;",
                     f"static HAKO_BIN_STORAGE HakoReplacement{type_tag}Page {tag}_page;",
                 ]
@@ -75,6 +85,9 @@ def generate_replacement_front_bins_shim_c(
             requested_expr = f"{tag}_page.requested_size"
             free_stack_expr = f"{tag}_page.free_stack"
             free_top_expr = f"{tag}_page.free_top"
+            remote_next_expr = f"{tag}_page.remote_next"
+            remote_head_expr = f"{tag}_page.remote_head"
+            owner_thread_expr = f"{tag}_page.owner_thread"
         else:
             bin_defs.extend(
                 [
@@ -88,7 +101,32 @@ def generate_replacement_front_bins_shim_c(
         if hotcore_page_model:
             helper_defs.append(
                 f"""
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+static inline void hako_page_drain_remote_{tag}(void) {{
+  for (;;) {{
+    int head = {remote_head_expr};
+    if (head < 0) return;
+    uint32_t uhead = (uint32_t)head;
+    int next = (int){remote_next_expr}[uhead];
+    if (!__sync_bool_compare_and_swap(&{remote_head_expr}, head, next)) {{
+      add_counter(&remote_free_cas_retry_count, 1);
+      continue;
+    }}
+    {remote_next_expr}[uhead] = (uint32_t)-1;
+    {used_expr}[uhead] = 0u;
+    {requested_expr}[uhead] = 0u;
+    if ({free_top_expr} < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
+      {free_stack_expr}[{free_top_expr}++] = uhead;
+      add_counter(&remote_free_drain_count, 1);
+    }}
+  }}
+}}
+#endif
+
 static inline void* hako_page_acquire_fresh_small_{tag}(size_t size) {{
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+  if ({remote_head_expr} >= 0) hako_page_drain_remote_{tag}();
+#endif
   if ({free_top_expr} == 0u) return 0;
   uint32_t index = {free_stack_expr}[--{free_top_expr}];
   {used_expr}[index] = 1u;
@@ -122,8 +160,15 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
     {free_stack_expr}[i] = HAKO_REPLACEMENT_BIN_SLOT_COUNT - i - 1u;
     {used_expr}[i] = 0u;
     {requested_expr}[i] = 0u;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+    {remote_next_expr}[i] = (uint32_t)-1;
+#endif
   }}
   {free_top_expr} = HAKO_REPLACEMENT_BIN_SLOT_COUNT;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+  {remote_head_expr} = -1;
+  {owner_thread_expr} = pthread_self();
+#endif
 """
         )
         page_index_register_cases.append(
@@ -137,7 +182,13 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
       {used_expr},
       {requested_expr},
       {free_stack_expr},
-      &{free_top_expr});
+      &{free_top_expr}
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+      , {remote_next_expr},
+      &{remote_head_expr},
+      {owner_thread_expr}
+#endif
+      );
 """
         )
         size_cases.append(f"  if (size <= HAKO_{tag.upper()}_SIZE) return {bin_index};")
@@ -183,6 +234,10 @@ static inline int hako_page_release_local_known_live_{tag}(uint32_t index) {{
     *requested_out = {requested_expr};
     *free_stack_out = {free_stack_expr};
     *free_top_out = &{free_top_expr};
+    *remote_next_out = 0;
+    *remote_head_out = 0;
+    *owner_active_out = 1u;
+    *owner_local_out = 1u;
     return 1;
   }}
 """
@@ -271,7 +326,11 @@ static int find_owned(
     unsigned char** used_out,
     size_t** requested_out,
     uint32_t** free_stack_out,
-    uint32_t** free_top_out) {{
+    uint32_t** free_top_out,
+    uint32_t** remote_next_out,
+    int** remote_head_out,
+    unsigned char* owner_active_out,
+    unsigned char* owner_local_out) {{
   if (!ptr) return 0;
   add_counter(&page_from_ptr_count, 1);
   add_counter(&page_from_ptr_range_scan_count, 1);
@@ -309,6 +368,12 @@ typedef struct HakoReplacementPageIndexEntry {{
   size_t* requested;
   uint32_t* free_stack;
   uint32_t* free_top;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+  uint32_t* remote_next;
+  int* remote_head;
+  pthread_t owner_thread;
+  unsigned char owner_active;
+#endif
   unsigned char state;
 }} HakoReplacementPageIndexEntry;
 
@@ -317,6 +382,11 @@ static unsigned long long page_index_insert_count = 0;
 static unsigned long long page_index_probe_count = 0;
 static unsigned long long page_index_collision_count = 0;
 static unsigned long long page_index_overflow_count = 0;
+
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+static pthread_key_t page_arena_tls_key;
+static pthread_once_t page_arena_tls_key_once = PTHREAD_ONCE_INIT;
+#endif
 
 static unsigned int page_index_slot(uintptr_t page_key) {{
   uintptr_t mixed = page_key * 11400714819323198485ull;
@@ -333,7 +403,14 @@ static void page_index_insert(
     unsigned char* used,
     size_t* requested,
     uint32_t* free_stack,
-    uint32_t* free_top) {{
+    uint32_t* free_top
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+    ,
+    uint32_t* remote_next,
+    int* remote_head,
+    pthread_t owner_thread
+#endif
+    ) {{
   unsigned int slot = page_index_slot(page_key);
   for (unsigned int probe = 0; probe < HAKO_PAGE_INDEX_TABLE_CAP; probe++) {{
     HakoReplacementPageIndexEntry* entry =
@@ -351,6 +428,12 @@ static void page_index_insert(
       entry->requested = requested;
       entry->free_stack = free_stack;
       entry->free_top = free_top;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+      entry->remote_next = remote_next;
+      entry->remote_head = remote_head;
+      entry->owner_thread = owner_thread;
+      entry->owner_active = 1u;
+#endif
       __sync_synchronize();
       entry->state = HAKO_PAGE_INDEX_READY;
       page_index_insert_count++;
@@ -372,13 +455,54 @@ static void page_index_register_range(
     unsigned char* used,
     size_t* requested,
     uint32_t* free_stack,
-    uint32_t* free_top) {{
+    uint32_t* free_top
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+    ,
+    uint32_t* remote_next,
+    int* remote_head,
+    pthread_t owner_thread
+#endif
+    ) {{
   uintptr_t first_page = base >> HAKO_PAGE_INDEX_SHIFT;
   uintptr_t last_page = (end - 1u) >> HAKO_PAGE_INDEX_SHIFT;
   for (uintptr_t page = first_page; page <= last_page; page++) {{
-    page_index_insert(page, base, end, stride, slot_size, bin, used, requested, free_stack, free_top);
+    page_index_insert(page, base, end, stride, slot_size, bin, used, requested, free_stack, free_top
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+        , remote_next, remote_head, owner_thread
+#endif
+        );
   }}
 }}
+
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+static void page_arena_tls_destructor(void* value) {{
+  if (!value) return;
+  pthread_t self = pthread_self();
+  unsigned long long abandoned = 0;
+  for (unsigned int slot = 0; slot < HAKO_PAGE_INDEX_TABLE_CAP; slot++) {{
+    HakoReplacementPageIndexEntry* entry = &page_index_table[slot];
+    if (entry->state == HAKO_PAGE_INDEX_READY &&
+        entry->owner_active &&
+        pthread_equal(entry->owner_thread, self)) {{
+      entry->owner_active = 0u;
+      abandoned++;
+    }}
+  }}
+  if (abandoned > 0) {{
+    add_counter(&thread_exit_arena_flush_count, 1);
+    add_counter(&abandoned_owner_count, 1);
+  }}
+}}
+
+static void make_page_arena_tls_key(void) {{
+  pthread_key_create(&page_arena_tls_key, page_arena_tls_destructor);
+}}
+
+static void register_page_arena_tls_destructor(void) {{
+  pthread_once(&page_arena_tls_key_once, make_page_arena_tls_key);
+  pthread_setspecific(page_arena_tls_key, (void*)1);
+}}
+#endif
 
 static int find_owned(
     void* ptr,
@@ -388,7 +512,11 @@ static int find_owned(
     unsigned char** used_out,
     size_t** requested_out,
     uint32_t** free_stack_out,
-    uint32_t** free_top_out) {{
+    uint32_t** free_top_out,
+    uint32_t** remote_next_out,
+    int** remote_head_out,
+    unsigned char* owner_active_out,
+    unsigned char* owner_local_out) {{
   if (!ptr) return 0;
   add_counter(&page_from_ptr_count, 1);
   uintptr_t value = (uintptr_t)ptr;
@@ -426,6 +554,21 @@ static int find_owned(
     *requested_out = entry->requested;
     *free_stack_out = entry->free_stack;
     *free_top_out = entry->free_top;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+    *remote_next_out = entry->remote_next;
+    *remote_head_out = entry->remote_head;
+    *owner_active_out = entry->owner_active;
+    *owner_local_out = (unsigned char)pthread_equal(entry->owner_thread, pthread_self());
+    add_counter(&owner_thread_id_lookup_count, 1);
+    add_counter(
+        *owner_local_out ? &owner_thread_id_same_count : &owner_thread_id_remote_count,
+        1);
+#else
+    *remote_next_out = 0;
+    *remote_head_out = 0;
+    *owner_active_out = 1u;
+    *owner_local_out = 1u;
+#endif
     return 1;
   }}
   add_counter(&page_from_ptr_miss_count, 1);
@@ -466,7 +609,7 @@ __attribute__((constructor)) static void replacement_front_bins_preinit(void) {{
 #include <string.h>
 #include <unistd.h>
 
-#ifdef HAKO_REPLACEMENT_FRONT_LOCKED
+#if defined(HAKO_REPLACEMENT_FRONT_LOCKED) || defined(HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE)
 #include <pthread.h>
 #endif
 
@@ -524,6 +667,9 @@ static unsigned long long tls_arena_peak_count = 0;
 static unsigned long long thread_exit_arena_flush_count = 0;
 static unsigned long long abandoned_owner_count = 0;
 static unsigned long long abandoned_remote_free_count = 0;
+static unsigned long long owner_thread_id_lookup_count = 0;
+static unsigned long long owner_thread_id_same_count = 0;
+static unsigned long long owner_thread_id_remote_count = 0;
 static unsigned long long page_from_ptr_count = 0;
 static unsigned long long page_from_ptr_miss_count = 0;
 static unsigned long long page_from_ptr_invalid_count = 0;
@@ -574,6 +720,9 @@ static void init_bins(void) {{
   if (init_done) return;
 {chr(10).join(init_cases)}
 {chr(10).join(page_index_register_cases) if side_table_lookup else ""}
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+  register_page_arena_tls_destructor();
+#endif
   init_done = 1u;
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
   unsigned long long count = __sync_add_and_fetch(&tls_arena_count, 1);
@@ -634,8 +783,38 @@ void free(void* ptr) {{
   size_t* requested = 0;
   uint32_t* free_stack = 0;
   uint32_t* free_top = 0;
+  uint32_t* remote_next = 0;
+  int* remote_head = 0;
+  unsigned char owner_active = 1u;
+  unsigned char owner_local = 1u;
   lock_arena();
-  if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
+  if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top, &remote_next, &remote_head, &owner_active, &owner_local)) {{
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+    if (!owner_active) {{
+      add_counter(&abandoned_remote_free_count, 1);
+      add_counter(&direct_core_call_count, 1);
+      unlock_arena();
+      return;
+    }}
+    if (!owner_local) {{
+      if (used[index] == 1u &&
+          __sync_bool_compare_and_swap(&used[index], 1u, 2u)) {{
+        for (;;) {{
+          int old_head = *remote_head;
+          remote_next[index] = (uint32_t)old_head;
+          if (__sync_bool_compare_and_swap(remote_head, old_head, (int)index)) {{
+            add_counter(&cross_thread_free_remote_push_count, 1);
+            add_counter(&direct_core_call_count, 1);
+            unlock_arena();
+            return;
+          }}
+          add_counter(&remote_free_cas_retry_count, 1);
+        }}
+      }}
+      unlock_arena();
+      return;
+    }}
+#endif
 {free_owned_body}
     unlock_arena();
     return;
@@ -676,11 +855,28 @@ void* realloc(void* ptr, size_t size) {{
   size_t* requested = 0;
   uint32_t* free_stack = 0;
   uint32_t* free_top = 0;
+  uint32_t* remote_next = 0;
+  int* remote_head = 0;
+  unsigned char owner_active = 1u;
+  unsigned char owner_local = 1u;
   lock_arena();
-  if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top)) {{
+  if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top, &remote_next, &remote_head, &owner_active, &owner_local)) {{
     (void)bin;
     (void)free_stack;
     (void)free_top;
+    (void)remote_next;
+    (void)remote_head;
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+    if (!owner_active) {{
+      add_counter(&abandoned_remote_free_count, 1);
+      unlock_arena();
+      return 0;
+    }}
+    if (!owner_local) {{
+      unlock_arena();
+      return 0;
+    }}
+#endif
     if (used[index] == 1u && size <= slot_size) {{
       requested[index] = size;
       add_counter(&realloc_inplace_count, 1);
