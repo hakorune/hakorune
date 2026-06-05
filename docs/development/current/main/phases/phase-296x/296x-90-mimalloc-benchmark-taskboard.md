@@ -49,10 +49,9 @@ only when a new execution boundary would otherwise be unguarded.
 ## Current Blocker
 
 ```text
-MIM-FMEM-013:
-  Start AtomicRemoteHead plan after MIM-FMEM-012 promoted same-owner
-  local-free route evidence without opening remote push/drain behavior or
-  product activation.
+MIM-FMEM-014:
+  Start AtomicRemoteHead pilot after MIM-FMEM-013 fixed plan vocabulary without
+  opening remote push/drain behavior or product activation.
 ```
 
 ## Queue

@@ -125,7 +125,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-013 AtomicRemoteHead plan
+  MIM-FMEM-014 AtomicRemoteHead pilot
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -158,6 +158,7 @@ completed_this_slice:
   MIM-FMEM-010 TypedPageMetaHandle plan
   MIM-FMEM-011 AllocOwnerId / TLS arena owner state
   MIM-FMEM-012 same-owner local-free route evidence
+  MIM-FMEM-013 AtomicRemoteHead plan
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -219,8 +220,8 @@ inventory, PageMapBridge evidence, TypedPageMetaHandle, AllocOwnerId/TLS
 owner-state, and same-owner local-free route evidence while keeping product
 activation closed.
 
-The next implementation owner is `MIM-FMEM-013`, which should plan remote
-AtomicRemoteHead without reopening product activation.
+The next implementation owner is `MIM-FMEM-014`, which should pilot remote
+AtomicRemoteHead push/drain evidence without reopening product activation.
 
 ## Algorithm Port Coverage
 

@@ -380,7 +380,11 @@ same_owner_free_local_fallback_count
 remote_owner_free_remote_candidate_count
 remote_owner_free_remote_push_count
 remote_owner_free_fallback_lock_count
+atomic_remote_head_plan
+atomic_remote_head_route
+atomic_remote_head_pilot_enabled
 atomic_remote_head_enabled
+remote_free_memory_order
 mimalloc_shape_score
 replacement_front_is_full_hako_algorithm
 hako_mimalloc_algorithm_claim
@@ -475,6 +479,10 @@ FastMemory AllocOwnerId Shadow Counter Smoke
   `same_owner_free_local_route_enabled=1` maps existing
   `replacement_front_same_thread_free_local_count_total` evidence into
   `same_owner_free_local_push_count`.
+- It also fixes the `AtomicRemoteHead` plan vocabulary without opening remote
+  push/drain behavior: `atomic_remote_head_plan=1`,
+  `atomic_remote_head_route=page_remote_head_cas`, and
+  `atomic_remote_head_pilot_enabled=0`.
 - This remains benchmark-front evidence only. It does not perform remote
   `AtomicRemoteHead` pushes or activate product allocator replacement.
 

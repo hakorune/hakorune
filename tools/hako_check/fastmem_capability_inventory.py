@@ -471,6 +471,9 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "remote_owner_free_remote_candidate_count": 0,
         "remote_owner_free_remote_push_count": 0,
         "remote_owner_free_fallback_lock_count": 0,
+        "atomic_remote_head_plan": 0,
+        "atomic_remote_head_route": "none",
+        "atomic_remote_head_pilot_enabled": 0,
         "atomic_remote_head_enabled": 0,
         "remote_free_push_count": 0,
         "remote_free_drain_count": 0,
@@ -508,6 +511,12 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         idx,
         "same_owner_free_local_route_enabled",
         int_subject_value(rows, idx, "replacement_front_same_owner_local_free_route_enabled", 0),
+    )
+    atomic_remote_head_plan = int_subject_value(
+        rows,
+        idx,
+        "atomic_remote_head_plan",
+        int_subject_value(rows, idx, "replacement_front_remote_free_queue_plan_v0", 0),
     )
     atomic_remote_enabled = int(
         remote_route == "atomic_page_remote_head"
@@ -828,6 +837,14 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "remote_owner_free_fallback_lock_count": int_subject_value(
             rows, idx, "remote_owner_free_fallback_lock_count", 0
         ),
+        "atomic_remote_head_plan": atomic_remote_head_plan,
+        "atomic_remote_head_route": first_subject_value(
+            rows,
+            idx,
+            "atomic_remote_head_route",
+            "page_remote_head_cas" if atomic_remote_head_plan else "none",
+        ),
+        "atomic_remote_head_pilot_enabled": atomic_remote_enabled,
         "atomic_remote_head_enabled": atomic_remote_enabled,
         "remote_free_push_count": replacement["remote_free_push_count_total"],
         "remote_free_drain_count": replacement["remote_free_drain_count_total"],

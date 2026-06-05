@@ -62,7 +62,11 @@ grep -q '^same_owner_free_local_candidate_count=1000$' "$OUT"
 grep -q '^same_owner_free_local_push_count=1000$' "$OUT"
 grep -q '^same_owner_free_local_fallback_count=0$' "$OUT"
 grep -q '^remote_owner_free_remote_push_count=0$' "$OUT"
+grep -q '^atomic_remote_head_plan=1$' "$OUT"
+grep -q '^atomic_remote_head_route=page_remote_head_cas$' "$OUT"
+grep -q '^atomic_remote_head_pilot_enabled=0$' "$OUT"
 grep -q '^atomic_remote_head_enabled=0$' "$OUT"
+grep -q '^remote_free_memory_order=acq_rel$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
