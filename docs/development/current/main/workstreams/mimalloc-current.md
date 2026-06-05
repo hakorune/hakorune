@@ -1110,9 +1110,11 @@ worker_pool_delayed_timer_cleanup_2026_06_05:
   task_kind=runtime_scheduler_cleanup
   owner_doc=docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md
   code_owner=src/runtime/scheduler.rs
-  worker_pool_spawn_after_route=threadapi_timer_enqueue
+  worker_pool_spawn_after_route=threadapi_single_timer_enqueue
   worker_pool_delayed_tasks_require_external_poll=0
   worker_pool_delayed_tasks_occupy_worker_while_waiting=0
+  worker_pool_delayed_timer_threads_per_scheduler=1
+  worker_pool_delayed_timer_threads_per_delayed_task=0
   worker_pool_thread_registry_unregister_guard=raii_drop
   worker_pool_threads_unregistered_on_panic_unwind=1
   test_reset_worker_id_reuse=0

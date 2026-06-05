@@ -6,7 +6,7 @@ use crate::runtime::get_global_ring0;
 use crate::runtime::ring0::{Ring0Context, ThreadExit, ThreadHandle, ThreadSpawnError};
 use crate::runtime::thread_registry::{global_thread_registry, ThreadRegistry, ThreadRegistryRole};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc::{self, Sender};
+use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
 
 pub trait Scheduler: Send + Sync {
     /// Spawn a task/closure. Default impl may run inline.
@@ -137,6 +137,15 @@ enum WorkerMessage {
     Shutdown,
 }
 
+enum DelayMessage {
+    Task {
+        when: Instant,
+        name: String,
+        task: SchedulerTask,
+    },
+    Shutdown,
+}
+
 struct WorkerThreadRegistration {
     registry: Arc<ThreadRegistry>,
     host_thread_id: crate::runtime::ring0::HostThreadId,
@@ -168,7 +177,9 @@ impl Drop for PendingHintGuard {
 /// `.hako` source-level `nowait` semantics by default.
 pub struct WorkerPoolScheduler {
     tx: Mutex<Option<Sender<WorkerMessage>>>,
+    delay_tx: Mutex<Option<Sender<DelayMessage>>>,
     handles: Mutex<Vec<ThreadHandle>>,
+    timer_handle: Mutex<Option<ThreadHandle>>,
     ring0: Arc<Ring0Context>,
     pending_hint: Arc<AtomicUsize>,
 }
@@ -189,6 +200,7 @@ impl WorkerPoolScheduler {
         let (tx, rx) = mpsc::channel::<WorkerMessage>();
         let rx = Arc::new(Mutex::new(rx));
         let mut handles = Vec::with_capacity(worker_count);
+        let pending_hint = Arc::new(AtomicUsize::new(0));
 
         for idx in 0..worker_count {
             let rx = rx.clone();
@@ -247,11 +259,40 @@ impl WorkerPoolScheduler {
             handles.push(handle);
         }
 
+        let (delay_tx, delay_rx) = mpsc::channel::<DelayMessage>();
+        let timer_worker_tx = tx.clone();
+        let timer_pending = pending_hint.clone();
+        let ring0_for_timer = ring0.clone();
+        let timer_handle = match ring0.thread.spawn(
+            crate::runtime::ring0::ThreadSpawnSpec::named("hako-worker-delay-timer"),
+            Box::new(move || {
+                WorkerPoolScheduler::run_delay_timer(
+                    delay_rx,
+                    timer_worker_tx,
+                    timer_pending,
+                    ring0_for_timer,
+                )
+            }),
+        ) {
+            Ok(handle) => handle,
+            Err(err) => {
+                for _ in 0..handles.len() {
+                    let _ = tx.send(WorkerMessage::Shutdown);
+                }
+                for handle in handles {
+                    let _ = ring0.thread.join(handle);
+                }
+                return Err(err);
+            }
+        };
+
         Ok(Self {
             tx: Mutex::new(Some(tx)),
+            delay_tx: Mutex::new(Some(delay_tx)),
             handles: Mutex::new(handles),
+            timer_handle: Mutex::new(Some(timer_handle)),
             ring0,
-            pending_hint: Arc::new(AtomicUsize::new(0)),
+            pending_hint,
         })
     }
 
@@ -269,8 +310,8 @@ impl WorkerPoolScheduler {
         tx.send(message).map_err(|err| err.0)
     }
 
-    fn task_sender(&self) -> Option<Sender<WorkerMessage>> {
-        let tx = self.tx.lock().ok()?;
+    fn delay_sender(&self) -> Option<Sender<DelayMessage>> {
+        let tx = self.delay_tx.lock().ok()?;
         tx.as_ref().cloned()
     }
 
@@ -300,6 +341,83 @@ impl WorkerPoolScheduler {
             ));
         }
     }
+
+    fn drain_due_delayed_tasks(
+        delayed: &mut Vec<(Instant, String, SchedulerTask)>,
+        tx: &Sender<WorkerMessage>,
+        pending_hint: &AtomicUsize,
+        ring0: &Ring0Context,
+    ) {
+        let now = Instant::now();
+        let mut index = 0usize;
+        while index < delayed.len() {
+            if delayed[index].0 <= now {
+                let (_when, name, task) = delayed.remove(index);
+                if tx.send(WorkerMessage::Task(task)).is_err() {
+                    Self::decrement_pending_hint_for(pending_hint);
+                    ring0.log.error(&format!(
+                        "WorkerPoolScheduler failed to enqueue delayed task {name}"
+                    ));
+                }
+            } else {
+                index += 1;
+            }
+        }
+    }
+
+    fn next_delay_timeout(delayed: &[(Instant, String, SchedulerTask)]) -> Option<Duration> {
+        let next_when = delayed.iter().map(|(when, _, _)| *when).min()?;
+        Some(next_when.saturating_duration_since(Instant::now()))
+    }
+
+    fn cancel_delayed_tasks(
+        delayed: &mut Vec<(Instant, String, SchedulerTask)>,
+        pending_hint: &AtomicUsize,
+    ) {
+        for _ in delayed.drain(..) {
+            Self::decrement_pending_hint_for(pending_hint);
+        }
+    }
+
+    fn run_delay_timer(
+        rx: Receiver<DelayMessage>,
+        tx: Sender<WorkerMessage>,
+        pending_hint: Arc<AtomicUsize>,
+        ring0: Arc<Ring0Context>,
+    ) -> ThreadExit {
+        let mut delayed: Vec<(Instant, String, SchedulerTask)> = Vec::new();
+        loop {
+            Self::drain_due_delayed_tasks(&mut delayed, &tx, &pending_hint, &ring0);
+            let message = match Self::next_delay_timeout(&delayed) {
+                Some(timeout) => match rx.recv_timeout(timeout) {
+                    Ok(message) => Some(message),
+                    Err(RecvTimeoutError::Timeout) => None,
+                    Err(RecvTimeoutError::Disconnected) => {
+                        Self::cancel_delayed_tasks(&mut delayed, &pending_hint);
+                        return ThreadExit::Ok;
+                    }
+                },
+                None => match rx.recv() {
+                    Ok(message) => Some(message),
+                    Err(_) => {
+                        Self::cancel_delayed_tasks(&mut delayed, &pending_hint);
+                        return ThreadExit::Ok;
+                    }
+                },
+            };
+
+            match message {
+                Some(DelayMessage::Task { when, name, task }) => {
+                    delayed.push((when, name, task));
+                }
+                Some(DelayMessage::Shutdown) => {
+                    Self::cancel_delayed_tasks(&mut delayed, &pending_hint);
+                    return ThreadExit::Ok;
+                }
+                None => {}
+            }
+        }
+    }
 }
 
 impl Scheduler for WorkerPoolScheduler {
@@ -313,7 +431,7 @@ impl Scheduler for WorkerPoolScheduler {
         self.pending_hint.fetch_add(1, Ordering::Release);
         let task = self.wrap_counted_task(f);
 
-        let Some(tx) = self.task_sender() else {
+        let Some(tx) = self.delay_sender() else {
             self.decrement_pending_hint();
             self.ring0.log.error(&format!(
                 "WorkerPoolScheduler failed to schedule delayed task {name}"
@@ -321,39 +439,19 @@ impl Scheduler for WorkerPoolScheduler {
             return;
         };
 
-        let pending = self.pending_hint.clone();
-        let ring0_for_timer = self.ring0.clone();
-        let task_name = name.to_string();
-        let timer_name = format!("hako-worker-delay-{task_name}");
-        match self.ring0.thread.spawn(
-            crate::runtime::ring0::ThreadSpawnSpec::named(timer_name),
-            Box::new(move || {
-                ring0_for_timer
-                    .thread
-                    .sleep(Duration::from_millis(delay_ms));
-                if tx.send(WorkerMessage::Task(task)).is_err() {
-                    WorkerPoolScheduler::decrement_pending_hint_for(&pending);
-                    ring0_for_timer.log.error(&format!(
-                        "WorkerPoolScheduler failed to enqueue delayed task {task_name}"
-                    ));
-                }
-                ThreadExit::Ok
-            }),
-        ) {
-            Ok(handle) => {
-                if let Err(err) = self.ring0.thread.detach(handle) {
-                    self.ring0.log.error(&format!(
-                        "WorkerPoolScheduler failed to detach delayed task timer {name}: {err:?}"
-                    ));
-                }
-            }
-            Err(err) => {
-                self.decrement_pending_hint();
-                self.ring0.log.error(&format!(
-                    "WorkerPoolScheduler failed to spawn delayed task timer {name}: {}",
-                    err.message
-                ));
-            }
+        let when = Instant::now() + Duration::from_millis(delay_ms);
+        if tx
+            .send(DelayMessage::Task {
+                when,
+                name: name.to_string(),
+                task,
+            })
+            .is_err()
+        {
+            self.decrement_pending_hint();
+            self.ring0.log.error(&format!(
+                "WorkerPoolScheduler failed to schedule delayed task {name}"
+            ));
         }
     }
 
@@ -364,6 +462,17 @@ impl Scheduler for WorkerPoolScheduler {
 
 impl Drop for WorkerPoolScheduler {
     fn drop(&mut self) {
+        if let Ok(mut delay_tx) = self.delay_tx.lock() {
+            if let Some(delay_tx) = delay_tx.take() {
+                let _ = delay_tx.send(DelayMessage::Shutdown);
+            }
+        }
+        if let Ok(mut timer_handle) = self.timer_handle.lock() {
+            if let Some(handle) = timer_handle.take() {
+                let _ = self.ring0.thread.join(handle);
+            }
+        }
+
         let worker_count = self
             .handles
             .lock()
@@ -458,6 +567,37 @@ mod tests {
         );
 
         assert_eq!(rx.recv_timeout(Duration::from_secs(2)), Ok("done"));
+        wait_for_no_pending(&scheduler);
+    }
+
+    #[test]
+    fn worker_pool_scheduler_spawn_after_handles_many_tasks_without_external_poll() {
+        let _guard = WORKER_REGISTRY_TEST_GUARD.lock().unwrap();
+        reset_global_thread_registry_for_tests();
+        let scheduler = WorkerPoolScheduler::new(2).expect("worker pool should start");
+        let (tx, rx) = mpsc::channel();
+
+        for value in 0..32 {
+            let tx = tx.clone();
+            scheduler.spawn_after(
+                1,
+                "worker-pool-many-delay-test",
+                Box::new(move || {
+                    tx.send(value).expect("test receiver should be alive");
+                }),
+            );
+        }
+        drop(tx);
+
+        let mut values = Vec::new();
+        for _ in 0..32 {
+            values.push(
+                rx.recv_timeout(Duration::from_secs(2))
+                    .expect("delayed task should run"),
+            );
+        }
+        values.sort_unstable();
+        assert_eq!(values, (0..32).collect::<Vec<_>>());
         wait_for_no_pending(&scheduler);
     }
 
