@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008B concrete layout/table contract resolution
+  MIR-FMEM-008C LLVM producer preflight for complete VerifiedTableAccess rows
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
@@ -215,7 +215,12 @@ why:
   deferring owner-runtime MemOps (`CurrentAllocOwnerId`, `OwnerEq`). The
   current reference sync records the accepted source/MIR/runtime reading, but a
   second closeout is intentionally parked until implementation completes so
-  stale bridge wording can be removed in one pass. MIR-FMEM-008B opens next.
+  stale bridge wording can be removed in one pass. MIR-FMEM-008B then landed
+  the concrete layout/table proof chain through complete TableIndex proof
+  evidence and `fastmem-check` rejection for incomplete proofs. MIR-FMEM-008C
+  now opens with an LLVM producer preflight: inspect the metadata/resolver/MemOp
+  lowering seam, then lower only complete VerifiedTableAccess rows if
+  pointer/value representation is unambiguous.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -318,9 +323,10 @@ next_mir_producer_rows:
   MIR-FMEM-008B layout/table producer pilot
     296x-456 symbolic MemOpAccess ids landed
     296x-457 VerifiedMemAccessPlan metadata skeleton landed
-    next: verify concrete layout/table offsets, representation, alignment, and bounds
-  MIR-FMEM-008C owner-runtime producer pilot
-  MIR-FMEM-008D producer-neutral parity/readiness
+    296x-472 complete TableIndex proof/check evidence landed
+  MIR-FMEM-008C layout/table LLVM producer preflight and lowering
+  MIR-FMEM-008D owner-runtime producer pilot
+  MIR-FMEM-008E producer-neutral parity/readiness
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.

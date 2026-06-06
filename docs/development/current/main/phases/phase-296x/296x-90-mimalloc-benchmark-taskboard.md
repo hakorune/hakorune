@@ -234,6 +234,21 @@ FMEM-TABLE-002 worker review:
   `FastMemTableLengthFact` in function metadata, refreshed by a new
   `fastmem_table_length_fact` module before access-plan refresh. Implementation
   should wait for design acceptance, then start with 002A carrier-only metadata.
+FMEM-TABLE-003B landed:
+  FastMemory table access plans now prove target-usize overflow and
+  offset-within-object from verifier-owned table length, bounds, stride,
+  linked field offset, field size, and element size. LLVM lowering stayed
+  closed.
+FMEM-TABLE-004 landed:
+  `fastmem-check` now fails incomplete FastMemory table access proofs through
+  explicit incomplete-proof and missing-overflow-proof fields.
+MIR-FMEM-008C handoff order active:
+  Start with LLVM producer preflight before opening lowering behavior. Worker
+  handoff order is Worker A LLVM producer inventory, Worker B report/check gap
+  inventory, Worker C optional verifier BoxShape sidecar after the next
+  lowering slice, and Worker D design-consult pack only if pointer/value
+  representation is ambiguous. SSOT card:
+  `docs/development/current/main/phases/phase-296x/296x-473-MIR-FMEM-008C-HANDOFF-ORDER.md`
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
@@ -244,14 +259,16 @@ MIR-FMEM-008 split:
   MIR-FMEM-008A producer-slice selection:
     landed; selection fields choose layout/table first and owner-runtime later.
   MIR-FMEM-008B layout/table producer pilot:
-    first preserve symbolic ids, then add verified access plans, then lower
-    verified TableIndex / FieldLoad / FieldStore style MemOps without owner
-    TLS/runtime behavior. The verified-plan metadata skeleton is landed; next
-    is concrete layout/table contract resolution before GEP/load/store lowering.
-  MIR-FMEM-008C owner-runtime producer pilot:
+    landed through complete TableIndex proof and report/check rejection for
+    incomplete access proofs. It did not open LLVM lowering.
+  MIR-FMEM-008C layout/table LLVM producer pilot:
+    first preflight the Python LLVM producer seam, then lower complete
+    VerifiedTableAccess rows only. CurrentAllocOwnerId / OwnerEq remain
+    deferred.
+  MIR-FMEM-008D owner-runtime producer pilot:
     lower CurrentAllocOwnerId / OwnerEq style MemOps and matching report
     counters without TLS backing transfer or owner slot reuse.
-  MIR-FMEM-008D producer-neutral parity/readiness:
+  MIR-FMEM-008E producer-neutral parity/readiness:
     prove MIR-to-LLVM evidence can replace the quarantined Python-template C
     diagnostic baseline before the reference closeout runs.
 ```
