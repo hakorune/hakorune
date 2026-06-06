@@ -120,6 +120,11 @@ MIR-FMEM-007C landed:
   allocator / hako_check tools from direct-importing retired Python-template C
   diagnostic payload modules. MIR-FMEM-007D opens the keep/archive decision for
   remaining diagnostic payloads.
+MIR-FMEM-007D landed:
+  Remaining Python-template C diagnostic payloads stay quarantined until
+  MIR-to-LLVM replacement-front layout/table/owner runtime coverage can replace
+  their baseline role. MIM-FMEM-018 thread-exit / abandoned owner lifecycle
+  opens next.
 ```
 
 ## Queue
