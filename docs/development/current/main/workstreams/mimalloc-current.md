@@ -136,14 +136,14 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008E producer-neutral parity/readiness
+  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
   MIR-FMEM-008D-A CurrentAllocOwnerId lowering (landed)
   MIR-FMEM-008D-B OwnerEq lowering (landed)
   MIR-FMEM-008D-C report/check closeout (landed)
-  MIR-FMEM-008E producer-neutral parity/readiness
+  MIR-FMEM-008E producer-neutral parity/readiness (landed)
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
   MIM-PORT-FMEM-001 first hako_alloc body migration pilot
 

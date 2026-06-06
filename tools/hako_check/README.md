@@ -814,6 +814,9 @@ observation_only=1
 benchmark_run_executed=0
 producer_neutral_report_schema=0|1
 producer_neutral_parity_pass=0|1
+fastmem_producer_readiness_v0=0|1
+fastmem_producer_readiness_pass=0|1
+fastmem_producer_readiness_scope=layout_table_owner_runtime|unknown
 producer_neutral_compared_field_count
 producer_neutral_mismatch_count
 producer_neutral_missing_field_count
@@ -824,6 +827,13 @@ summary=ok|failed
 - Stop line: this tool compares an explicit allowlist of structural fields. It
   does not compare timing/throughput, choose a keeper, run a benchmark, delete
   the bridge, activate replacement, or treat C as a final semantic producer.
+- `fastmem_producer_readiness_v0=1` is the MIR-FMEM-008E extension. It is only
+  valid for a `mir_to_llvm_lowering` candidate that reports complete
+  layout/table evidence and owner-runtime evidence:
+  `TableIndex`, `FieldLoad`, `FieldStore`, `CurrentAllocOwnerId`, and
+  `OwnerEq` must all have positive lowered-count evidence. It also keeps
+  TLS backing transfer, owner slot reuse, AtomicRemoteHead, Type ABI / Provider
+  ABI hot paths, hooks, global allocator claims, and winner claims closed.
 
 FastMemory PageMapBridge Smoke
 - `fastmem_page_map_bridge_smoke.sh` fixes the benchmark-front PageMapBridge

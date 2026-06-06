@@ -37,6 +37,30 @@ REQUIRED_ONE_FIELDS = (
     "replacement_front_mirbuilder_representation_only",
 )
 
+READINESS_POSITIVE_FIELDS = (
+    "mir_fmem_008b_layout_table_producer_pilot",
+    "fastmem_owner_runtime_producer_pilot",
+    "fastmem_verified_mem_access_plan_count",
+    "memop_table_index_lowered_count",
+    "memop_field_load_lowered_count",
+    "memop_field_store_lowered_count",
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+)
+
+READINESS_ZERO_FIELDS = (
+    "memop_atomic_remote_head_lowered_count",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "fastmem_layout_ref_escape_count",
+    "fastmem_lowering_recomputed_layout_offset_count",
+    "fastmem_table_index_unchecked_count",
+    "fastmem_table_access_proof_incomplete_count",
+    "fastmem_table_overflow_proof_missing_count",
+    "fastmem_unknown_alignment_count",
+    "fastmem_atomic_field_plain_store_count",
+)
+
 PARITY_FIELDS = (
     "replacement_front_source_truth",
     "replacement_front_python_template_c_semantic_ssot",
@@ -143,6 +167,26 @@ def validate_role(
             add_failure(reasons, prefix + key)
 
 
+def readiness_requested(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_producer_readiness_v0") > 0
+
+
+def validate_candidate_readiness(rows: dict[str, str], reasons: list[str]) -> None:
+    if not readiness_requested(rows):
+        return
+
+    if rows.get("fastmem_producer_readiness_scope") != "layout_table_owner_runtime":
+        add_failure(reasons, "candidate_fastmem_producer_readiness_scope")
+    if rows.get("fastmem_owner_runtime_current_owner_source") != "llvm_producer_intrinsic":
+        add_failure(reasons, "candidate_fastmem_owner_runtime_current_owner_source")
+    for key in READINESS_POSITIVE_FIELDS:
+        if int_count(rows, key) <= 0:
+            add_failure(reasons, "candidate_" + key)
+    for key in READINESS_ZERO_FIELDS:
+        if int_count(rows, key) != 0:
+            add_failure(reasons, "candidate_" + key)
+
+
 def parity_failures(
     baseline: dict[str, str],
     candidate: dict[str, str],
@@ -154,6 +198,7 @@ def parity_failures(
 
     validate_role(baseline, role="baseline", reasons=reasons)
     validate_role(candidate, role="candidate", reasons=reasons)
+    validate_candidate_readiness(candidate, reasons)
 
     for key in PARITY_FIELDS:
         baseline_has = key in baseline or key in INT_DEFAULTS
@@ -184,6 +229,8 @@ def render_kv(
 ) -> str:
     schema_ok = 0 if missing_count else 1
     parity_pass = 0 if reasons else 1
+    readiness_enabled = 1 if readiness_requested(candidate) else 0
+    readiness_pass = 1 if readiness_enabled and not reasons else 0
     runtime_dependency_count = 0 if parity_pass else 1
     lines = [
         "output_contract=hako-check-fastmem-producer-parity-v0",
@@ -199,6 +246,9 @@ def render_kv(
         f"candidate_replacement_front_backend_artifact={candidate.get('replacement_front_backend_artifact', 'unknown')}",
         f"producer_neutral_report_schema={schema_ok}",
         f"producer_neutral_parity_pass={parity_pass}",
+        f"fastmem_producer_readiness_v0={readiness_enabled}",
+        f"fastmem_producer_readiness_pass={readiness_pass}",
+        f"fastmem_producer_readiness_scope={candidate.get('fastmem_producer_readiness_scope', 'unknown')}",
         f"producer_neutral_compared_field_count={compared_count}",
         f"producer_neutral_mismatch_count={mismatch_count}",
         f"producer_neutral_missing_field_count={missing_count}",

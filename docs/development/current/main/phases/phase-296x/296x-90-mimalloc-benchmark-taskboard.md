@@ -324,8 +324,10 @@ MIR-FMEM-008 split:
     transfer, owner slot reuse, AtomicRemoteHead, ABI hot paths, and product
     activation closed.
   MIR-FMEM-008E producer-neutral parity/readiness:
-    prove MIR-to-LLVM evidence can replace the quarantined Python-template C
-    diagnostic baseline before the reference closeout runs.
+    landed. `fastmem-producer-parity` now requires candidate-only readiness
+    evidence for both layout/table and owner-runtime lowered counts before the
+    quarantined Python-template C diagnostic baseline can be treated as
+    replaceable. Reference closeout opens next.
   MIM-PORT-FMEM-001:
     first mimalloc-port body row after FastMemory substrate parity; migrate one
     narrow hako_alloc owner/layout path using existing substrate only.
