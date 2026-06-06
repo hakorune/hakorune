@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-024.
 Related:
@@ -49,6 +49,28 @@ AtomicRemoteHead remains closed
 product activation / hook / global allocator / winner claims remain 0
 ```
 
+## Landed Evidence
+
+```text
+Source:
+  lang/src/hako_alloc/memory/page_meta_same_owner_free_body_box.hako
+
+Body:
+  TableIndex(page_table, page_index)
+  FieldLoad(owner_worker_id)
+  CurrentAllocOwnerId
+  OwnerEq
+  assumeSameOwner
+  assumeLocalFreeBlockNext
+  LocalFreePush(page, block)
+  FieldLoad(used)
+  Sub(used, 1)
+  FieldStore(used)
+
+Smoke:
+  bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
 ## Still Closed
 
 ```text
@@ -60,4 +82,18 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next Row
+
+```text
+MIM-PORT-FMEM-025:
+  Page-local free route report surface
+
+Goal:
+  classify verified straight-line free route candidates separately from the
+  existing page-local allocation route report.
+
+Candidate:
+  same_owner_local_free
 ```

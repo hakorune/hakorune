@@ -1,0 +1,27 @@
+// page_meta_same_owner_free_body_box.hako -- page-local same-owner free body pilot
+// Responsibility: prove that .hako hako_alloc can compose same-owner free,
+// LocalFreePush, and the page used-count decrement as a straight-line
+// FastMemory body.
+// This does not open remote-owner routing, AtomicRemoteHead, TLS transfer,
+// branch CFG lowering, product allocator replacement, hooks, or winner claims.
+
+static box HakoAllocPageMetaSameOwnerFreeBody {
+    sameOwnerFreeBodyProbe(page_table, page_index, block) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local owner_worker_id = page.owner_worker_id
+            local current_owner_id = mem.currentAllocOwnerId()
+            local same_owner = mem.ownerEq(owner_worker_id, current_owner_id)
+            mem.assumeSameOwner(page, same_owner)
+            mem.assumeLocalFreeBlockNext(block)
+            mem.localFreePush(page, block)
+            local used = page.used
+            local next_used = used - 1
+            page.used = next_used
+            return next_used
+        }
+        return 0
+    }
+}
