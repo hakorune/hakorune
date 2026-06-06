@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-022.
 Related:
@@ -56,6 +56,30 @@ C. Minimal CFG branch pilot:
    dominance.
 ```
 
+## Decision
+
+Choose **B. Fastmem branch rejection gate** for the next implementation row.
+
+Current `.hako hako_alloc` fastmem body pilots are straight-line:
+
+```text
+PageMeta scalar/table pilots
+owner read / owner equality pilots
+local_free push/pop pilots
+free_head push/pop pilots
+local_free -> free refill pilots
+refill_then_free_head_alloc pilot
+```
+
+The active mimalloc port does not yet need a branch-shaped fastmem body to keep
+making progress. Opening CFG behavior now would require path-sensitive
+dominance, LayoutRef join rules, and route-exclusive proof envelopes in the
+same slice.
+
+Therefore the next row should fail fast on source fastmem `if` blocks while the
+allocator-route profiles remain straight-line. This converts the current
+linearized observation behavior into an explicit closed boundary.
+
 ## Selection Guard
 
 Prefer A or B unless a concrete branch fixture can prove:
@@ -80,4 +104,22 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next Row
+
+```text
+MIM-PORT-FMEM-023:
+  Fastmem branch rejection gate
+
+Goal:
+  source fastmem `if` blocks fail-fast with a stable contract reason until a
+  future CFG proof row explicitly opens branch semantics.
+
+Non-goals:
+  branch CFG lowering
+  route-exclusive proof envelopes
+  path-sensitive dominance
+  LayoutRef join / phi rules
+  backend branch redecision
 ```

@@ -146,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-022 branch proof preflight selection
+  MIM-PORT-FMEM-023 fastmem branch rejection gate
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -189,7 +189,8 @@ implementation_sequence:
     refill-then-free_head alloc body pilot (landed)
   MIM-PORT-FMEM-020 refill branch/route selection (landed)
   MIM-PORT-FMEM-021 page-local alloc route report surface (landed)
-  MIM-PORT-FMEM-022 branch proof preflight selection
+  MIM-PORT-FMEM-022 branch proof preflight selection (landed)
+  MIM-PORT-FMEM-023 fastmem branch rejection gate
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
