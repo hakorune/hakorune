@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-046.
 Related:
@@ -67,4 +67,35 @@ same/remote free full route body
 remote-heavy benchmark claim
 TLS backing transfer
 allocator activation
+```
+
+## Closeout
+
+`DrainRemoteListToLocal` is now a lowerable verified access-plan row. The plan
+resolves the owner-local `local_free_head` target and the
+`FreeBlockNodeLayoutV0.next` link used to splice the drained remote list.
+
+The MIR-to-LLVM producer consumes only that verified plan. It lowers
+`mem.drainRemoteListToLocal(page, remote_free_list_token)` by treating an empty
+token as a no-op, otherwise walking the drained remote list to its tail,
+linking that tail to the previous owner-local head, and publishing the token as
+the new `local_free_head`.
+
+Remote-owner branch routing, TLS backing transfer, owner slot reuse, abandoned
+reclaim behavior, product activation, hooks, global allocator claim, winner
+claim, and full `.hako` mimalloc algorithm claim remain closed.
+
+## Verification
+
+```text
+python3 -m py_compile \
+  tools/hako_check/fastmem_check.py \
+  tools/hako_check/fastmem_mir_to_llvm_producer_report.py \
+  tools/hako_check/fastmem_capability_inventory_common.py \
+  src/llvm_py/instructions/memop.py
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/hako_check/fastmem_check_smoke.sh
+cargo test -q --lib fastmem_
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```

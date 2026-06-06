@@ -675,6 +675,66 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                             json!(&drain.local_list_head_class),
                         );
                         map.insert(
+                            "local_free_head_layout_id".to_string(),
+                            json!(&drain.local_free_head_layout_id),
+                        );
+                        map.insert(
+                            "local_free_head_field_id".to_string(),
+                            json!(&drain.local_free_head_field_id),
+                        );
+                        map.insert(
+                            "local_free_head_field_class".to_string(),
+                            json!(&drain.local_free_head_field_class),
+                        );
+                        map.insert(
+                            "local_free_head_byte_offset".to_string(),
+                            json!(drain.local_free_head_byte_offset),
+                        );
+                        map.insert(
+                            "local_free_head_field_size".to_string(),
+                            json!(drain.local_free_head_field_size),
+                        );
+                        map.insert(
+                            "local_free_head_field_type".to_string(),
+                            json!(&drain.local_free_head_field_type),
+                        );
+                        map.insert(
+                            "local_free_head_alignment".to_string(),
+                            json!(drain.local_free_head_alignment),
+                        );
+                        map.insert(
+                            "block_next_layout_id".to_string(),
+                            json!(&drain.block_next_layout_id),
+                        );
+                        map.insert(
+                            "block_next_field_id".to_string(),
+                            json!(&drain.block_next_field_id),
+                        );
+                        map.insert(
+                            "block_next_field_class".to_string(),
+                            json!(&drain.block_next_field_class),
+                        );
+                        map.insert(
+                            "block_next_byte_offset".to_string(),
+                            json!(drain.block_next_byte_offset),
+                        );
+                        map.insert(
+                            "block_next_field_size".to_string(),
+                            json!(drain.block_next_field_size),
+                        );
+                        map.insert(
+                            "block_next_field_type".to_string(),
+                            json!(&drain.block_next_field_type),
+                        );
+                        map.insert(
+                            "block_next_alignment".to_string(),
+                            json!(drain.block_next_alignment),
+                        );
+                        map.insert(
+                            "block_next_access_resolved".to_string(),
+                            json!(drain.block_next_access_resolved),
+                        );
+                        map.insert(
                             "publication_order".to_string(),
                             json!(&drain.publication_order),
                         );

@@ -611,6 +611,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "drain_remote_list_to_local_head_class_resolved": 0,
         "drain_remote_list_to_local_lowerable_count": 0,
         "atomic_remote_head_drain_local_list_mutation_lowerable_count": 0,
+        "atomic_remote_head_drain_local_list_mutation_lowered_count": 0,
         "remote_free_push_count": 0,
         "remote_free_drain_count": 0,
         "remote_free_cas_retry_count": 0,

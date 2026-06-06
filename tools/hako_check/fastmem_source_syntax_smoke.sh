@@ -110,6 +110,8 @@ DRAIN_REMOTE_LIST_TO_LOCAL_INV="$TMPDIR/page_meta_drain_remote_list_to_local.inv
 DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV="$TMPDIR/page_meta_drain_remote_list_to_local.mir.inventory.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_REPORT="$TMPDIR/page_meta_drain_remote_list_to_local.report.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_CHECK="$TMPDIR/page_meta_drain_remote_list_to_local.check.kv"
+DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT="$TMPDIR/page_meta_drain_remote_list_to_local.lowering.report.kv"
+DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK="$TMPDIR/page_meta_drain_remote_list_to_local.lowering.check.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_LLVM_STDERR="$TMPDIR/page_meta_drain_remote_list_to_local.llvm.stderr"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
@@ -1143,8 +1145,8 @@ grep -q '^drain_remote_list_to_local_plan_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL
 grep -q '^drain_remote_list_to_local_token_provenance_valid=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^drain_remote_list_to_local_page_operand_valid=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^drain_remote_list_to_local_head_class_resolved=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
-grep -q '^drain_remote_list_to_local_lowerable_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
-grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^drain_remote_list_to_local_lowerable_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^summary=ok$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
@@ -1168,13 +1170,13 @@ grep -q '^drain_remote_list_to_local_page_operand_valid=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^drain_remote_list_to_local_head_class_resolved=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
-grep -q '^drain_remote_list_to_local_lowerable_count=0$' \
+grep -q '^drain_remote_list_to_local_lowerable_count=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^atomic_remote_head_drain_local_list_mutation_selected=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^atomic_remote_head_drain_local_list_mutation_open=0$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
-grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=0$' \
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^remote_owner_branch_routing_open=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^type_abi_hot_lookup_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
@@ -1191,15 +1193,57 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_CHECK"
 grep -q '^summary=ok$' "$DRAIN_REMOTE_LIST_TO_LOCAL_CHECK"
 
-if python3 "$ROOT/src/llvm_py/llvm_builder.py" \
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-drain-local-list-mutation-lowering \
+  --mir-json "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR" \
+  --out "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+
+grep -q '^fastmem_atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=DrainRemoteListToLocal$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^replacement_front_next_producer_slice=remote_owner_branch_routing_preflight$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^fastmem_memop_drain_remote_list_to_local_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^drain_remote_list_to_local_plan_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^drain_remote_list_to_local_token_provenance_valid=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^drain_remote_list_to_local_page_operand_valid=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^drain_remote_list_to_local_head_class_resolved=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^drain_remote_list_to_local_lowerable_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_selected=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_open=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowered_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^remote_owner_branch_routing_open=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^product_activation=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^global_allocator_claim=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+grep -q '^winner_claim=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT" \
+  --format kv \
+  --out "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK"
+
+grep -q '^failure_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK"
+grep -q '^summary=ok$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK"
+
+python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR" \
   -o "$TMPDIR/page_meta_drain_remote_list_to_local.direct.o" \
-  2>"$DRAIN_REMOTE_LIST_TO_LOCAL_LLVM_STDERR"; then
-  echo "[TEST/FAIL] drainRemoteListToLocal lowering opened before verifier plan" >&2
-  exit 1
-fi
-grep -q '\[llvm/fastmem:unsupported-kind\] drain_remote_list_to_local' \
-  "$DRAIN_REMOTE_LIST_TO_LOCAL_LLVM_STDERR"
+  2>"$DRAIN_REMOTE_LIST_TO_LOCAL_LLVM_STDERR"
+test -f "$TMPDIR/page_meta_drain_remote_list_to_local.direct.o"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_PUSH_PRECONDITION_AST" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_PUSH_PRECONDITION_MIR" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null

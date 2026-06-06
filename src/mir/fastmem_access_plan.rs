@@ -229,6 +229,21 @@ pub struct FastMemDrainRemoteListToLocalPlan {
     pub page_operand_valid: bool,
     pub head_class_resolved: bool,
     pub local_list_head_class: Option<String>,
+    pub local_free_head_layout_id: Option<String>,
+    pub local_free_head_field_id: Option<String>,
+    pub local_free_head_field_class: Option<String>,
+    pub local_free_head_byte_offset: Option<u32>,
+    pub local_free_head_field_size: Option<u32>,
+    pub local_free_head_field_type: Option<String>,
+    pub local_free_head_alignment: Option<u32>,
+    pub block_next_layout_id: Option<String>,
+    pub block_next_field_id: Option<String>,
+    pub block_next_field_class: Option<String>,
+    pub block_next_byte_offset: Option<u32>,
+    pub block_next_field_size: Option<u32>,
+    pub block_next_field_type: Option<String>,
+    pub block_next_alignment: Option<u32>,
+    pub block_next_access_resolved: bool,
     pub publication_order: String,
     pub lowerable: bool,
 }
@@ -288,6 +303,7 @@ impl FastMemAccessPlan {
 }
 
 struct FastMemFactStore<'a> {
+    regions: &'a [FastMemRegionMetadata],
     table_length_facts: &'a [FastMemTableLengthFact],
     same_owner_facts: &'a [FastMemSameOwnerFact],
     remote_owner_facts: &'a [FastMemRemoteOwnerFact],
@@ -440,6 +456,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 continue;
             };
             let fact_store = FastMemFactStore {
+                regions: &regions,
                 table_length_facts: &table_length_facts,
                 same_owner_facts: &same_owner_facts,
                 remote_owner_facts: &remote_owner_facts,
@@ -575,14 +592,9 @@ fn plan_from_memop(
             contract,
             facts,
         ),
-        MemOpKind::DrainRemoteListToLocal => drain_remote_list_to_local_plan(
-            block,
-            instruction_index,
-            region,
-            dst,
-            operands,
-            facts,
-        ),
+        MemOpKind::DrainRemoteListToLocal => {
+            drain_remote_list_to_local_plan(block, instruction_index, region, dst, operands, facts)
+        }
         _ => None,
     }
 }
@@ -1619,21 +1631,95 @@ fn drain_remote_list_to_local_plan(
     let token_fact = facts.remote_drain_token(region, page, token);
     let token_provenance_valid = token_fact.is_some();
     let page_operand_valid = token_provenance_valid;
-    let head_class_resolved = token_provenance_valid;
-    let local_list_head_class = head_class_resolved
-        .then(|| "owner_local_free_or_free_head".to_string());
+    let contract = region_contract(facts.regions, region);
+    let local_free_head_resolved = contract.and_then(|contract| {
+        resolve_fastmem_field_contract(contract, "local_free_head", FastMemFieldAccessMode::Store)
+            .ok()
+    });
+    let (
+        local_free_head_layout_id,
+        local_free_head_field_id,
+        local_free_head_field_class,
+        local_free_head_byte_offset,
+        local_free_head_field_size,
+        local_free_head_field_type,
+        local_free_head_alignment,
+    ) = if let Some(resolved) = local_free_head_resolved {
+        (
+            Some(resolved.layout_id),
+            Some(resolved.field_id),
+            Some(resolved.field_class),
+            Some(resolved.byte_offset),
+            Some(resolved.field_size),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+        )
+    } else {
+        (None, None, None, None, None, None, None)
+    };
+    let block_next_resolved =
+        contract.and_then(|contract| resolve_fastmem_block_next_contract(contract, "next").ok());
+    let (
+        block_next_layout_id,
+        block_next_field_id,
+        block_next_field_class,
+        block_next_byte_offset,
+        block_next_field_size,
+        block_next_field_type,
+        block_next_alignment,
+    ) = if let Some(resolved) = block_next_resolved {
+        (
+            Some(resolved.layout_id),
+            Some(resolved.field_id),
+            Some(resolved.field_class),
+            Some(resolved.byte_offset),
+            Some(resolved.field_size),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+        )
+    } else {
+        (None, None, None, None, None, None, None)
+    };
+    let head_class_resolved = token_provenance_valid
+        && local_free_head_layout_id.is_some()
+        && local_free_head_field_id.is_some()
+        && local_free_head_byte_offset.is_some()
+        && local_free_head_field_size.is_some()
+        && local_free_head_field_type.is_some()
+        && local_free_head_alignment.is_some();
+    let block_next_access_resolved = block_next_layout_id.is_some()
+        && block_next_field_id.is_some()
+        && block_next_byte_offset.is_some()
+        && block_next_field_size.is_some()
+        && block_next_field_type.is_some()
+        && block_next_alignment.is_some();
+    let local_list_head_class =
+        head_class_resolved.then(|| "owner_local_free_or_free_head".to_string());
     let publication_order = if head_class_resolved {
         "verifier_owned_acquire_then_owner_local"
     } else {
         "closed"
     }
     .to_string();
-    let failure_reason = if !token_provenance_valid {
+    let lowerable = token_provenance_valid
+        && page_operand_valid
+        && head_class_resolved
+        && block_next_access_resolved;
+    let status = if lowerable {
+        FastMemAccessPlanStatus::Verified
+    } else {
+        FastMemAccessPlanStatus::Rejected
+    };
+    let failure_reason = if lowerable {
+        None
+    } else if !token_provenance_valid {
         Some("drain-remote-list-token-provenance-missing".to_string())
     } else if !page_operand_valid {
         Some("drain-remote-list-page-operand-mismatch".to_string())
     } else if !head_class_resolved {
         Some("drain-remote-list-target-head-class-unresolved".to_string())
+    } else if !block_next_access_resolved {
+        Some("drain-remote-list-block-next-access-unresolved".to_string())
     } else {
         Some("drain-remote-list-to-local-lowering-closed".to_string())
     };
@@ -1643,7 +1729,7 @@ fn drain_remote_list_to_local_plan(
         instruction_index,
         region,
         kind: FastMemAccessPlanKind::DrainRemoteListToLocal,
-        status: FastMemAccessPlanStatus::Rejected,
+        status,
         failure_reason,
         payload: FastMemAccessPlanPayload::DrainRemoteListToLocal(
             FastMemDrainRemoteListToLocalPlan {
@@ -1655,8 +1741,23 @@ fn drain_remote_list_to_local_plan(
                 page_operand_valid,
                 head_class_resolved,
                 local_list_head_class,
+                local_free_head_layout_id,
+                local_free_head_field_id,
+                local_free_head_field_class,
+                local_free_head_byte_offset,
+                local_free_head_field_size,
+                local_free_head_field_type,
+                local_free_head_alignment,
+                block_next_layout_id,
+                block_next_field_id,
+                block_next_field_class,
+                block_next_byte_offset,
+                block_next_field_size,
+                block_next_field_type,
+                block_next_alignment,
+                block_next_access_resolved,
                 publication_order,
-                lowerable: false,
+                lowerable,
             },
         ),
     })
@@ -2282,11 +2383,8 @@ mod tests {
             drain_plan.kind,
             FastMemAccessPlanKind::DrainRemoteListToLocal
         );
-        assert_eq!(drain_plan.status, FastMemAccessPlanStatus::Rejected);
-        assert_eq!(
-            drain_plan.failure_reason.as_deref(),
-            Some("drain-remote-list-to-local-lowering-closed")
-        );
+        assert_eq!(drain_plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(drain_plan.failure_reason.as_deref(), None);
         let FastMemAccessPlanPayload::DrainRemoteListToLocal(drain) = &drain_plan.payload else {
             panic!("expected drain remote-list to local plan");
         };
@@ -2302,10 +2400,40 @@ mod tests {
             Some("owner_local_free_or_free_head")
         );
         assert_eq!(
+            drain.local_free_head_layout_id.as_deref(),
+            Some("PageMetaLayoutV0")
+        );
+        assert_eq!(
+            drain.local_free_head_field_id.as_deref(),
+            Some("local_free_head")
+        );
+        assert_eq!(
+            drain.local_free_head_field_class.as_deref(),
+            Some("local_free_head")
+        );
+        assert_eq!(drain.local_free_head_byte_offset, Some(24));
+        assert_eq!(drain.local_free_head_field_size, Some(8));
+        assert_eq!(drain.local_free_head_field_type.as_deref(), Some("usize"));
+        assert_eq!(drain.local_free_head_alignment, Some(8));
+        assert_eq!(
+            drain.block_next_layout_id.as_deref(),
+            Some("FreeBlockNodeLayoutV0")
+        );
+        assert_eq!(drain.block_next_field_id.as_deref(), Some("next"));
+        assert_eq!(
+            drain.block_next_field_class.as_deref(),
+            Some("local_free_block_next")
+        );
+        assert_eq!(drain.block_next_byte_offset, Some(0));
+        assert_eq!(drain.block_next_field_size, Some(8));
+        assert_eq!(drain.block_next_field_type.as_deref(), Some("usize"));
+        assert_eq!(drain.block_next_alignment, Some(8));
+        assert!(drain.block_next_access_resolved);
+        assert_eq!(
             drain.publication_order,
             "verifier_owned_acquire_then_owner_local"
         );
-        assert!(!drain.lowerable);
+        assert!(drain.lowerable);
     }
 
     #[test]

@@ -715,6 +715,94 @@ def _require_complete_atomic_remote_head_drain_plan(
     return plan
 
 
+def _require_complete_drain_remote_list_to_local_plan(
+    plan: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-drain-remote-list-to-local-plan]")
+    for key in (
+        "local_free_head_layout_id",
+        "local_free_head_field_id",
+        "local_free_head_field_class",
+        "local_free_head_byte_offset",
+        "local_free_head_field_size",
+        "local_free_head_field_type",
+        "local_free_head_alignment",
+        "block_next_layout_id",
+        "block_next_field_id",
+        "block_next_field_class",
+        "block_next_byte_offset",
+        "block_next_field_size",
+        "block_next_field_type",
+        "block_next_alignment",
+        "publication_order",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(
+                f"[llvm/fastmem:missing-drain-remote-list-to-local-plan-field] {key}"
+            )
+    if plan.get("lowerable") is not True:
+        raise RuntimeError("[llvm/fastmem:drain-remote-list-to-local-plan-not-lowerable]")
+    if plan.get("token_provenance_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:drain-remote-list-token-provenance-missing]")
+    if plan.get("page_operand_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:drain-remote-list-page-operand-invalid]")
+    if plan.get("head_class_resolved") is not True:
+        raise RuntimeError("[llvm/fastmem:drain-remote-list-head-class-unresolved]")
+    if plan.get("block_next_access_resolved") is not True:
+        raise RuntimeError("[llvm/fastmem:drain-remote-list-block-next-access-unresolved]")
+    if str(plan.get("local_free_head_field_class")) != _LOCAL_FREE_HEAD_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-local-head-class] "
+            f"{plan.get('local_free_head_field_class')}"
+        )
+    if str(plan.get("block_next_field_class")) != _LOCAL_FREE_BLOCK_NEXT_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-block-next-class] "
+            f"{plan.get('block_next_field_class')}"
+        )
+    if str(plan.get("publication_order")) != "verifier_owned_acquire_then_owner_local":
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-publication-order] "
+            f"{plan.get('publication_order')}"
+        )
+    for key in (
+        "local_free_head_field_size",
+        "local_free_head_alignment",
+        "block_next_field_size",
+        "block_next_alignment",
+    ):
+        try:
+            if int(plan.get(key)) <= 0:
+                raise RuntimeError(
+                    f"[llvm/fastmem:invalid-drain-remote-list-plan-number] {key}"
+                )
+        except ValueError as exc:
+            raise RuntimeError("[llvm/fastmem:invalid-drain-remote-list-plan-number]") from exc
+    if int(plan.get("local_free_head_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-local-head-size] "
+            f"{plan.get('local_free_head_field_size')}"
+        )
+    if int(plan.get("block_next_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-block-next-size] "
+            f"{plan.get('block_next_field_size')}"
+        )
+    if str(plan.get("local_free_head_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-local-head-type] "
+            f"{plan.get('local_free_head_field_type')}"
+        )
+    if str(plan.get("block_next_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-drain-remote-block-next-type] "
+            f"{plan.get('block_next_field_type')}"
+        )
+    return plan
+
+
 def _layout_refs(resolver) -> Dict[int, Dict[str, Any]]:
     refs = getattr(resolver, "fastmem_layout_refs", None)
     if not isinstance(refs, dict):
@@ -1202,6 +1290,94 @@ def _lower_atomic_remote_head_drain(
     )
 
 
+def _lower_drain_remote_list_to_local(
+    builder: ir.IRBuilder,
+    resolver,
+    operands: List[Any],
+    vmap: Dict[int, ir.Value],
+    current_block,
+    preds,
+    block_end_values,
+    bb_map,
+) -> None:
+    _require_operands("drain_remote_list_to_local", operands, 2)
+    plan = _require_complete_drain_remote_list_to_local_plan(
+        _current_fastmem_access_plan(
+            resolver, "drain_remote_list_to_local", None, operands
+        )
+    )
+    page_ref = _get_layout_ref(
+        resolver,
+        int(operands[0]),
+        str(plan["local_free_head_layout_id"]),
+    )
+    i64 = ir.IntType(64)
+    token_head = _resolve_i64_operand(
+        builder,
+        resolver,
+        int(operands[1]),
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+        name_hint=f"fastmem_drain_remote_token_{operands[1]}",
+    )
+    local_head_ptr = _gep_i64_field_ptr(
+        builder,
+        page_ref["ptr"],
+        int(plan["local_free_head_byte_offset"]),
+        name_prefix="fastmem_drain_remote_local_head",
+    )
+    old_local_head = builder.load(
+        local_head_ptr,
+        name="fastmem_drain_remote_old_local_head",
+    )
+
+    entry_bb = builder.block
+    done_bb = builder.function.append_basic_block("fastmem_drain_remote_done")
+    scan_bb = builder.function.append_basic_block("fastmem_drain_remote_scan")
+    tail_found_bb = builder.function.append_basic_block("fastmem_drain_remote_tail_found")
+    token_is_null = builder.icmp_unsigned(
+        "==",
+        token_head,
+        ir.Constant(i64, 0),
+        name="fastmem_drain_remote_token_is_null",
+    )
+    builder.cbranch(token_is_null, done_bb, scan_bb)
+
+    builder.position_at_end(scan_bb)
+    tail_addr = builder.phi(i64, name="fastmem_drain_remote_tail_addr")
+    tail_addr.add_incoming(token_head, entry_bb)
+    tail_ptr = builder.inttoptr(
+        tail_addr,
+        ir.IntType(8).as_pointer(),
+        name="fastmem_drain_remote_tail_ptr",
+    )
+    tail_next_ptr = _gep_i64_field_ptr(
+        builder,
+        tail_ptr,
+        int(plan["block_next_byte_offset"]),
+        name_prefix="fastmem_drain_remote_tail_next",
+    )
+    next_addr = builder.load(tail_next_ptr, name="fastmem_drain_remote_next_addr")
+    next_is_null = builder.icmp_unsigned(
+        "==",
+        next_addr,
+        ir.Constant(i64, 0),
+        name="fastmem_drain_remote_next_is_null",
+    )
+    tail_addr.add_incoming(next_addr, scan_bb)
+    builder.cbranch(next_is_null, tail_found_bb, scan_bb)
+
+    builder.position_at_end(tail_found_bb)
+    builder.store(old_local_head, tail_next_ptr)
+    builder.store(token_head, local_head_ptr)
+    builder.branch(done_bb)
+
+    builder.position_at_end(done_bb)
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -1316,6 +1492,20 @@ def lower_memop(
             result,
             "fastmem_atomic_remote_head_drain",
             resolver=resolver,
+        )
+        return
+    if kind == "drain_remote_list_to_local":
+        if dst is not None:
+            raise RuntimeError("[llvm/fastmem:drain-remote-list-to-local-has-dst]")
+        _lower_drain_remote_list_to_local(
+            builder,
+            resolver,
+            operands,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
         )
         return
     if kind == "current_alloc_owner_id":

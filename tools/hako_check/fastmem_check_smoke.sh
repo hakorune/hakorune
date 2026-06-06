@@ -630,13 +630,11 @@ if bash "$ROOT/tools/hako_check.sh" fastmem-check \
   exit 1
 fi
 
-grep -q '^failure_count=6$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
-grep -q '^failure_0_reason=drain_remote_list_to_local_lowerable_count$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
-grep -q '^failure_1_reason=atomic_remote_head_drain_local_list_mutation_lowerable_count$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
-grep -q '^failure_2_reason=drain_remote_list_to_local_plan_count$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
-grep -q '^failure_3_reason=drain_remote_list_to_local_token_provenance_valid$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
-grep -q '^failure_4_reason=drain_remote_list_to_local_page_operand_valid$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
-grep -q '^failure_5_reason=drain_remote_list_to_local_head_class_resolved$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
+grep -q '^failure_count=4$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
+grep -q '^failure_0_reason=drain_remote_list_to_local_plan_count$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
+grep -q '^failure_1_reason=drain_remote_list_to_local_token_provenance_valid$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
+grep -q '^failure_2_reason=drain_remote_list_to_local_page_operand_valid$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
+grep -q '^failure_3_reason=drain_remote_list_to_local_head_class_resolved$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
 grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
 
 echo "[TEST/OK] fastmem_check"
