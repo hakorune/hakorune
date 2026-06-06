@@ -74,6 +74,10 @@ class FunctionLowerContext:
         self.resolver_string_literals: Dict[int, str] = {}
         self.resolver_string_ptrs: Dict[int, ir.Value] = {}
         self.resolver_length_cache: Dict[int, ir.Value] = {}
+        # FastMemory LayoutRef lowering map (function-local).
+        # Raw metadata pointers are backend-private and must not enter the
+        # ordinary vmap. FieldLoad/FieldStore consume this map in later slices.
+        self.fastmem_layout_refs: Dict[int, Dict[str, Any]] = {}
 
         # NewBox→string-arg hints (function-local)
         self.resolver_newbox_string_args: Dict = {}

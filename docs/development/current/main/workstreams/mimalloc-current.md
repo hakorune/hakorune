@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008C TableIndex pointer/value representation design consult
+  MIR-FMEM-008C FieldLoad from LayoutRef pilot
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
@@ -219,8 +219,9 @@ why:
   the concrete layout/table proof chain through complete TableIndex proof
   evidence and `fastmem-check` rejection for incomplete proofs. MIR-FMEM-008C
   opened with an LLVM producer preflight. The metadata loader now preserves
-  `field_size` and `element_size`; actual lowering is stopped at the
-  TableIndex result pointer/value representation decision.
+  `field_size` and `element_size`; TableIndex result truth was accepted as
+  LayoutRef and the Python LLVM producer now stores raw metadata pointers only
+  in `fastmem_layout_refs`. FieldLoad / FieldStore remain closed.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -325,6 +326,7 @@ next_mir_producer_rows:
     296x-457 VerifiedMemAccessPlan metadata skeleton landed
     296x-472 complete TableIndex proof/check evidence landed
   MIR-FMEM-008C layout/table LLVM producer preflight and lowering
+    296x-476 TableIndex -> LayoutRef pilot landed
   MIR-FMEM-008D owner-runtime producer pilot
   MIR-FMEM-008E producer-neutral parity/readiness
 

@@ -79,6 +79,7 @@ class Resolver:
         self.value_types: Dict[int, Any] = {}
         self.thin_entry_selections = []
         self.fastmem_access_plans_by_site = {}
+        self.fastmem_layout_refs: Dict[int, Dict[str, Any]] = {}
         self.thin_entry_selection_by_value: Dict[int, Any] = {}
         self.thin_entry_selection_by_subject: Dict[Tuple[str, str], Any] = {}
         self.sum_local_aggregate_paths: Dict[int, str] = {}
@@ -128,6 +129,7 @@ class Resolver:
         self.string_literals = context.resolver_string_literals
         self.string_ptrs = context.resolver_string_ptrs
         self.length_cache = context.resolver_length_cache
+        self.fastmem_layout_refs = context.fastmem_layout_refs
         self.fast_branch_only_compare_dsts = context.fast_branch_only_compare_dsts
         self.entry_block_id = context.entry_block_id
         self.entry_block = context.entry_block

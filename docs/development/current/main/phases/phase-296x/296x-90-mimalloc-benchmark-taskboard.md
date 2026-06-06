@@ -254,6 +254,10 @@ MIR-FMEM-008C preflight metadata landed:
   from verified FastMemory access-plan rows. Actual TableIndex / FieldLoad /
   FieldStore lowering remains closed until the TableIndex result pointer/value
   representation is decided.
+MIR-FMEM-008C TableIndex LayoutRef pilot landed:
+  Verified TableIndex rows now lower to backend-private `fastmem_layout_refs`
+  rather than ordinary `vmap`. FieldLoad / FieldStore remain closed and open
+  next as LayoutRef consumers.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
