@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-035.
 Related:
@@ -84,4 +84,52 @@ MIM-033 direct LLVM object emission remains green
 product_activation=0
 global_allocator_claim=0
 winner_claim=0
+```
+
+## Landed
+
+The retry policy is now visible as a producer-neutral report/check preflight:
+
+```text
+--profile remote-free-retry-preflight
+
+fastmem_atomic_remote_head_retry_preflight=1
+atomic_remote_head_retry_policy_selected=1
+atomic_remote_head_retry_policy_open=0
+atomic_remote_head_retry_attempt_limit=3
+atomic_remote_head_retry_lowered_count=0
+atomic_remote_head_drain_open=0
+remote_owner_branch_routing_open=0
+atomic_remote_head_cas_lowering_open=1
+memop_atomic_remote_head_lowered_count=1
+```
+
+The MIM-033 single-attempt CAS producer evidence remains required and positive.
+Retry lowering, drain/exchange, branch routing, TLS transfer, and activation
+remain closed.
+
+## Verification
+
+```text
+python3 -m py_compile tools/hako_check/fastmem_mir_to_llvm_producer_report.py tools/hako_check/fastmem_check.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-036:
+  AtomicRemoteHead retry lowering producer pilot.
+
+Scope:
+  retry loop over the existing verified AtomicRemoteHeadPush CAS material.
+
+Still closed:
+  drain/exchange
+  remote-owner branch routing
+  TLS backing transfer
+  product activation / hook / global allocator claim / winner claim
 ```

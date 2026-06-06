@@ -22,7 +22,9 @@ ATOMIC_REMOTE_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_atomic
 BAD_ATOMIC_REMOTE_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_atomic_remote_preflight.XXXXXX")"
 ATOMIC_REMOTE_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_atomic_remote_producer.XXXXXX")"
 BAD_ATOMIC_REMOTE_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_atomic_remote_producer.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT" "$OWNER_RUNTIME_OUT" "$BAD_OWNER_RUNTIME_OUT" "$ATOMIC_REMOTE_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_PREFLIGHT_OUT" "$ATOMIC_REMOTE_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_PRODUCER_OUT"' EXIT
+ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_atomic_remote_retry_preflight.XXXXXX")"
+BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_atomic_remote_retry_preflight.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT" "$OWNER_RUNTIME_OUT" "$BAD_OWNER_RUNTIME_OUT" "$ATOMIC_REMOTE_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_PREFLIGHT_OUT" "$ATOMIC_REMOTE_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_PRODUCER_OUT" "$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -294,5 +296,36 @@ grep -q '^failure_2_reason=atomic_remote_head_cas_lowering_open$' "$BAD_ATOMIC_R
 grep -q '^failure_3_reason=atomic_remote_head_push_lowerable_count$' "$BAD_ATOMIC_REMOTE_PRODUCER_OUT"
 grep -q '^failure_4_reason=memop_atomic_remote_head_lowered_count$' "$BAD_ATOMIC_REMOTE_PRODUCER_OUT"
 grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_PRODUCER_OUT"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/atomic_remote_head_retry_preflight_inventory.kv" \
+  --format kv \
+  >"$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected AtomicRemoteHead retry preflight inventory" >&2
+  cat "$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_atomic_remote_head_retry_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad AtomicRemoteHead retry preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=8$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=replacement_front_next_producer_slice$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_1_reason=replacement_front_deferred_memop_kinds$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_2_reason=atomic_remote_head_retry_policy_open$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_3_reason=atomic_remote_head_retry_lowered_count$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_4_reason=atomic_remote_head_drain_open$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_5_reason=remote_owner_branch_routing_open$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_6_reason=atomic_remote_head_retry_policy_selected$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^failure_7_reason=atomic_remote_head_retry_attempt_limit$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT"
 
 echo "[TEST/OK] fastmem_check"

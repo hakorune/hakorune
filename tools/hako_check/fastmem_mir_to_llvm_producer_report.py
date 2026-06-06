@@ -369,31 +369,40 @@ def build_rows(
 
     free_route_candidate = "none"
 
-    if profile in {"remote-free-preflight", "remote-free"}:
-        remote_free_open = profile == "remote-free"
+    remote_free_open = False
+    remote_free_retry_preflight = profile == "remote-free-retry-preflight"
+    if profile in {"remote-free-preflight", "remote-free", "remote-free-retry-preflight"}:
+        remote_free_open = profile in {"remote-free", "remote-free-retry-preflight"}
         route_candidate = "none"
+        if profile == "remote-free-preflight":
+            next_slice = "atomic_remote_head_cas_lowering_preflight"
+            deferred_remote_kinds = (
+                "AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
+            )
+        elif remote_free_retry_preflight:
+            next_slice = "atomic_remote_head_retry_policy_preflight"
+            deferred_remote_kinds = (
+                "AtomicRemoteHeadRetryLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
+            )
+        else:
+            next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
+            deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
-            (
-                "replacement_front_next_producer_slice",
-                "atomic_remote_head_cas_lowering_producer_pilot"
-                if remote_free_open
-                else "atomic_remote_head_cas_lowering_preflight",
-            ),
+            ("replacement_front_next_producer_slice", next_slice),
             ("replacement_front_selected_memop_family", "remote_free"),
             ("replacement_front_selected_memop_kinds", "AtomicRemoteHeadPush"),
             ("replacement_front_deferred_memop_family", "remote_free_execution"),
-            (
-                "replacement_front_deferred_memop_kinds",
-                "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
-                if remote_free_open
-                else "AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
-            ),
+            ("replacement_front_deferred_memop_kinds", deferred_remote_kinds),
             ("mir_fmem_008b_layout_table_producer_pilot", "0"),
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_cas_preflight", str(int_flag(not remote_free_open))),
             ("fastmem_atomic_remote_head_cas_producer_pilot", str(int_flag(remote_free_open))),
+            (
+                "fastmem_atomic_remote_head_retry_preflight",
+                str(int_flag(remote_free_retry_preflight)),
+            ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
     elif profile == "owner-runtime":
@@ -410,6 +419,7 @@ def build_rows(
             ("fastmem_local_free_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
+            ("fastmem_atomic_remote_head_retry_preflight", "0"),
             (
                 "fastmem_owner_runtime_current_owner_source",
                 "llvm_producer_intrinsic",
@@ -445,6 +455,7 @@ def build_rows(
             ("fastmem_local_free_producer_pilot", "1"),
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
+            ("fastmem_atomic_remote_head_retry_preflight", "0"),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
@@ -462,6 +473,7 @@ def build_rows(
             ("fastmem_local_free_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
+            ("fastmem_atomic_remote_head_retry_preflight", "0"),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
@@ -504,9 +516,18 @@ def build_rows(
         ("fastmem_free_head_pop_plan_count", str(len(verified_free_head_pop))),
         (
             "atomic_remote_head_cas_lowering_selected",
-            str(int_flag(profile in {"remote-free-preflight", "remote-free"})),
+            str(
+                int_flag(
+                    profile
+                    in {
+                        "remote-free-preflight",
+                        "remote-free",
+                        "remote-free-retry-preflight",
+                    }
+                )
+            ),
         ),
-        ("atomic_remote_head_cas_lowering_open", str(int_flag(profile == "remote-free"))),
+        ("atomic_remote_head_cas_lowering_open", str(int_flag(remote_free_open))),
         ("atomic_remote_head_push_plan_count", str(len(atomic_remote_head_push_plans))),
         ("atomic_remote_head_push_lowerable_count", str(atomic_remote_head_push_lowerable)),
         (
@@ -539,6 +560,18 @@ def build_rows(
             "fastmem_remote_free_block_next_source_assume_count",
             str(remote_free_block_next_source_assume),
         ),
+        (
+            "atomic_remote_head_retry_policy_selected",
+            str(int_flag(remote_free_retry_preflight)),
+        ),
+        ("atomic_remote_head_retry_policy_open", "0"),
+        (
+            "atomic_remote_head_retry_attempt_limit",
+            "3" if remote_free_retry_preflight else "0",
+        ),
+        ("atomic_remote_head_retry_lowered_count", "0"),
+        ("atomic_remote_head_drain_open", "0"),
+        ("remote_owner_branch_routing_open", "0"),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
         ("page_local_alloc_route_candidate", route_candidate),
         (
@@ -590,7 +623,7 @@ def build_rows(
         ("memop_owner_eq_lowered_count", str(owner_eq_count)),
         (
             "memop_atomic_remote_head_lowered_count",
-            str(atomic_remote_head_push_lowerable if profile == "remote-free" else 0),
+            str(atomic_remote_head_push_lowerable if remote_free_open else 0),
         ),
         (
             "memop_atomic_remote_head_push_count",
@@ -694,6 +727,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "local-free",
             "remote-free-preflight",
             "remote-free",
+            "remote-free-retry-preflight",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
