@@ -290,6 +290,41 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         map.insert("length".to_string(), json!(table.length));
                         map.insert("alignment".to_string(), json!(table.alignment));
                         map.insert("index_policy".to_string(), json!(&table.index_policy));
+                        map.insert(
+                            "table_length_resolved".to_string(),
+                            json!(table.proof.table_length_resolved),
+                        );
+                        map.insert(
+                            "bounds_proof_valid".to_string(),
+                            json!(table.proof.bounds_proof_valid),
+                        );
+                        map.insert(
+                            "stride_resolved".to_string(),
+                            json!(table.proof.stride_resolved),
+                        );
+                        map.insert(
+                            "field_offset_resolved".to_string(),
+                            json!(table.proof.field_offset_resolved),
+                        );
+                        map.insert(
+                            "overflow_proof_valid".to_string(),
+                            json!(table.proof.overflow_proof_valid),
+                        );
+                        map.insert("alignment_valid".to_string(), json!(table.proof.alignment_valid));
+                        map.insert(
+                            "element_layout_verified".to_string(),
+                            json!(table.proof.element_layout_verified),
+                        );
+                        map.insert(
+                            "table_length_policy".to_string(),
+                            json!(&table.proof.table_length_policy),
+                        );
+                        map.insert("bounds_proof".to_string(), json!(&table.proof.bounds_proof));
+                        map.insert("overflow_proof".to_string(), json!(&table.proof.overflow_proof));
+                        map.insert(
+                            "table_access_proof_failure_reason".to_string(),
+                            json!(&table.proof.failure_reason),
+                        );
                     }
                 }
             }

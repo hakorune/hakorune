@@ -95,6 +95,34 @@ pub struct FastMemTableAccessPlan {
     pub length: Option<u64>,
     pub alignment: Option<u32>,
     pub index_policy: Option<String>,
+    pub proof: FastMemTableAccessProof,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemTableAccessProof {
+    pub table_length_resolved: bool,
+    pub bounds_proof_valid: bool,
+    pub stride_resolved: bool,
+    pub field_offset_resolved: bool,
+    pub overflow_proof_valid: bool,
+    pub alignment_valid: bool,
+    pub element_layout_verified: bool,
+    pub table_length_policy: Option<String>,
+    pub bounds_proof: Option<String>,
+    pub overflow_proof: Option<String>,
+    pub failure_reason: Option<String>,
+}
+
+impl FastMemTableAccessProof {
+    pub fn is_lowerable(&self) -> bool {
+        self.table_length_resolved
+            && self.bounds_proof_valid
+            && self.stride_resolved
+            && self.field_offset_resolved
+            && self.overflow_proof_valid
+            && self.alignment_valid
+            && self.element_layout_verified
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -277,6 +305,32 @@ fn table_plan(
             None,
         ),
     };
+    let proof = FastMemTableAccessProof {
+        table_length_resolved: length.is_some(),
+        bounds_proof_valid: false,
+        stride_resolved: element_stride.is_some(),
+        field_offset_resolved: false,
+        overflow_proof_valid: false,
+        alignment_valid: alignment.is_some(),
+        element_layout_verified: element_layout_id.is_some(),
+        table_length_policy: length.map(|value| format!("const_len:{value}")),
+        bounds_proof: None,
+        overflow_proof: None,
+        failure_reason: failure_reason.clone(),
+    };
+    let status = if status == FastMemAccessPlanStatus::Verified && !proof.is_lowerable() {
+        FastMemAccessPlanStatus::Rejected
+    } else {
+        status
+    };
+    let failure_reason = failure_reason.or_else(|| {
+        if status == FastMemAccessPlanStatus::Rejected && !proof.is_lowerable() {
+            Some("verified-table-access-proof-incomplete".to_string())
+        } else {
+            None
+        }
+    });
+
     Some(FastMemAccessPlan {
         block,
         instruction_index,
@@ -295,6 +349,7 @@ fn table_plan(
             length,
             alignment,
             index_policy,
+            proof,
         }),
     })
 }
@@ -516,6 +571,18 @@ mod tests {
         };
         assert_eq!(table.element_layout_id.as_deref(), Some("PageMetaLayoutV0"));
         assert_eq!(table.element_repr.as_deref(), Some("pointer_to_element"));
+        assert!(!table.proof.is_lowerable());
+        assert!(!table.proof.table_length_resolved);
+        assert!(!table.proof.bounds_proof_valid);
+        assert!(table.proof.stride_resolved);
+        assert!(!table.proof.field_offset_resolved);
+        assert!(!table.proof.overflow_proof_valid);
+        assert!(table.proof.alignment_valid);
+        assert!(table.proof.element_layout_verified);
+        assert_eq!(
+            table.proof.failure_reason.as_deref(),
+            Some("table-length-unresolved")
+        );
     }
 
     #[test]

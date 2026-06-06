@@ -217,6 +217,11 @@ ESCAPE-COMMON-001 implemented:
   and propagate MemOp origin through single-input Phi passthroughs. The next
   mainline task can return to VerifiedTableAccessProof / TableIndex bounds work;
   ESCAPE-COMMON-002 is optional test-only follow-up.
+FMEM-TABLE-001 implemented:
+  `FastMemTableAccessPlan` now carries explicit `FastMemTableAccessProof`
+  fields and MIR JSON emits them. `page_table` still reports
+  `table-length-unresolved` and remains non-lowerable; bounds and overflow proof
+  rows are next and lowering remains closed.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
