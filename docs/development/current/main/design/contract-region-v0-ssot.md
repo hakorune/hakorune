@@ -225,6 +225,53 @@ Current order:
 6. Extract a shared ContractRegionHeader only after it stops being speculative.
 ```
 
+## Commonization Boundary
+
+Commonization is useful only where it removes duplicated envelope mechanics.
+Do not genericize the memory dialect before the first memory producer is
+finished.
+
+Commonize now or soon:
+
+```text
+region header vocabulary
+contract id / profile / source origin
+obligation names
+verifier/report envelope
+shared escape-barrier classifier inputs
+small verifier traversal utilities when several verifiers need the same walk
+```
+
+Keep profile-specific:
+
+```text
+MemOpKind
+MemValueKind
+MemLayoutContract
+MemTableContract
+VerifiedMemAccessPlan
+FastMemory layout/table proofs
+LLVM GEP/load/store lowering
+memory-specific no-escape rules
+```
+
+Explicitly defer:
+
+```text
+generic AllowlistGate abstraction
+generic RegionOp
+generic VerifiedRegionAccessPlan
+owner concept unification across allocator / page / language ownership
+```
+
+Rationale:
+
+```text
+Envelope is generic.
+Payload is profile-specific.
+Owner words may rhyme across layers, but their invariants do not.
+```
+
 ## Non-Goals
 
 ```text
