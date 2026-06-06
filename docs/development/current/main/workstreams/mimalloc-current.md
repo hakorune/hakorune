@@ -146,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-025 page-local free route report surface
+  MIM-PORT-FMEM-026 remote-free substrate selection
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -192,7 +192,8 @@ implementation_sequence:
   MIM-PORT-FMEM-022 branch proof preflight selection (landed)
   MIM-PORT-FMEM-023 fastmem branch rejection gate (landed)
   MIM-PORT-FMEM-024 page-local same-owner free body (landed)
-  MIM-PORT-FMEM-025 page-local free route report surface
+  MIM-PORT-FMEM-025 page-local free route report surface (landed)
+  MIM-PORT-FMEM-026 remote-free substrate selection
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)

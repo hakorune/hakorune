@@ -129,6 +129,8 @@ LOCAL_FREE_PRODUCER_EXPECTED_ZERO = (
     "fastmem_free_head_plain_store_lowered_count",
     "page_local_alloc_route_branch_claim",
     "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_free_route_branch_claim",
+    "page_local_free_route_cfg_lowering_enabled",
     "tls_backing_transfer_enabled",
     "allocator_owner_slot_reuse_enabled",
     "type_abi_hot_lookup_count",

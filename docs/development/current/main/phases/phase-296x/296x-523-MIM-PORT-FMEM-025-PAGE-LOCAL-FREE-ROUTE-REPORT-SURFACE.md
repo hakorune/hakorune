@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-025.
 Related:
@@ -48,12 +48,27 @@ same_owner_local_free:
   FreeHeadPop absent
 
 mixed:
-  verified free-list plans exist but do not match the same-owner local-free
-  candidate.
+  LocalFreePush exists but the verified plan set does not match the
+  same-owner local-free candidate.
 ```
 
 The classifier must consume verified MemOp plans only. It must not inspect
 source file names or Box names.
+
+## Landed Evidence
+
+```text
+Report:
+  page_local_free_route_report_v0=1
+  page_local_free_route_candidate=same_owner_local_free
+  page_local_free_route_candidate_count=1
+  page_local_free_route_branch_claim=0
+  page_local_free_route_cfg_lowering_enabled=0
+  page_local_free_route_verified_plan_source=fastmem_access_plans
+
+Smoke:
+  bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
 
 ## Still Closed
 
@@ -67,4 +82,19 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next Row
+
+```text
+MIM-PORT-FMEM-026:
+  Remote-owner free substrate selection
+
+Goal:
+  choose the next narrow substrate before remote-owner free body migration.
+
+Candidates:
+  A. AtomicRemoteHead vocabulary/source preflight
+  B. remote-free route report vocabulary only
+  C. branch-proof row before any remote body
 ```

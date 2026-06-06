@@ -135,6 +135,25 @@ def page_local_alloc_route_candidate(
     return "mixed"
 
 
+def page_local_free_route_candidate(
+    *,
+    local_free_push_count: int,
+    local_free_pop_count: int,
+    free_head_push_count: int,
+    free_head_pop_count: int,
+) -> str:
+    if local_free_push_count == 0:
+        return "none"
+    if (
+        local_free_push_count == 1
+        and local_free_pop_count == 0
+        and free_head_push_count == 0
+        and free_head_pop_count == 0
+    ):
+        return "same_owner_local_free"
+    return "mixed"
+
+
 def run_llvm_builder(mir_json: Path, object_out: Path) -> None:
     proc = subprocess.run(
         [sys.executable, str(LLVM_BUILDER), str(mir_json), "-o", str(object_out)],
@@ -279,6 +298,8 @@ def build_rows(
         deferred_local_free_kinds.append("FreeHeadPop")
     deferred_local_free_kinds.append("AtomicRemoteHead")
 
+    free_route_candidate = "none"
+
     if profile == "owner-runtime":
         route_candidate = "none"
         slice_rows = [
@@ -298,6 +319,12 @@ def build_rows(
         ]
     elif profile == "local-free":
         route_candidate = page_local_alloc_route_candidate(
+            local_free_pop_count=len(verified_local_free_pop),
+            free_head_push_count=len(verified_free_head_push),
+            free_head_pop_count=len(verified_free_head_pop),
+        )
+        free_route_candidate = page_local_free_route_candidate(
+            local_free_push_count=len(verified_local_free_push),
             local_free_pop_count=len(verified_local_free_pop),
             free_head_push_count=len(verified_free_head_push),
             free_head_pop_count=len(verified_free_head_pop),
@@ -322,6 +349,7 @@ def build_rows(
         ]
     else:
         route_candidate = "none"
+        free_route_candidate = "none"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "1"),
             ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
@@ -381,6 +409,15 @@ def build_rows(
         ("page_local_alloc_route_branch_claim", "0"),
         ("page_local_alloc_route_cfg_lowering_enabled", "0"),
         ("page_local_alloc_route_verified_plan_source", "fastmem_access_plans"),
+        ("page_local_free_route_report_v0", str(int_flag(profile == "local-free"))),
+        ("page_local_free_route_candidate", free_route_candidate),
+        (
+            "page_local_free_route_candidate_count",
+            str(int_flag(free_route_candidate != "none")),
+        ),
+        ("page_local_free_route_branch_claim", "0"),
+        ("page_local_free_route_cfg_lowering_enabled", "0"),
+        ("page_local_free_route_verified_plan_source", "fastmem_access_plans"),
         (
             "fastmem_free_head_non_empty_source_assume_count",
             str(
