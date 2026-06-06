@@ -335,6 +335,18 @@ def build_rows(
     )
     if not atomic_remote_head_memory_order_policy:
         atomic_remote_head_memory_order_policy = "none"
+    atomic_remote_head_retry_attempt_limits = sorted(
+        {
+            string_value(plan.get("retry_attempt_limit"), "0")
+            for plan in atomic_remote_head_push_plans
+            if string_value(plan.get("retry_attempt_limit"), "0") != "0"
+        }
+    )
+    atomic_remote_head_retry_attempt_limit = (
+        atomic_remote_head_retry_attempt_limits[0]
+        if len(atomic_remote_head_retry_attempt_limits) == 1
+        else "0"
+    )
     remote_owner_source_assume = sum(
         1
         for fact in remote_owner_facts
@@ -371,8 +383,18 @@ def build_rows(
 
     remote_free_open = False
     remote_free_retry_preflight = profile == "remote-free-retry-preflight"
-    if profile in {"remote-free-preflight", "remote-free", "remote-free-retry-preflight"}:
-        remote_free_open = profile in {"remote-free", "remote-free-retry-preflight"}
+    remote_free_retry_producer = profile == "remote-free-retry"
+    if profile in {
+        "remote-free-preflight",
+        "remote-free",
+        "remote-free-retry-preflight",
+        "remote-free-retry",
+    }:
+        remote_free_open = profile in {
+            "remote-free",
+            "remote-free-retry-preflight",
+            "remote-free-retry",
+        }
         route_candidate = "none"
         if profile == "remote-free-preflight":
             next_slice = "atomic_remote_head_cas_lowering_preflight"
@@ -384,6 +406,9 @@ def build_rows(
             deferred_remote_kinds = (
                 "AtomicRemoteHeadRetryLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
             )
+        elif remote_free_retry_producer:
+            next_slice = "atomic_remote_head_retry_lowering_producer_pilot"
+            deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -403,6 +428,10 @@ def build_rows(
                 "fastmem_atomic_remote_head_retry_preflight",
                 str(int_flag(remote_free_retry_preflight)),
             ),
+            (
+                "fastmem_atomic_remote_head_retry_producer_pilot",
+                str(int_flag(remote_free_retry_producer)),
+            ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
     elif profile == "owner-runtime":
@@ -420,6 +449,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_retry_preflight", "0"),
+            ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
             (
                 "fastmem_owner_runtime_current_owner_source",
                 "llvm_producer_intrinsic",
@@ -456,6 +486,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_retry_preflight", "0"),
+            ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
@@ -474,6 +505,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_retry_preflight", "0"),
+            ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
@@ -523,6 +555,7 @@ def build_rows(
                         "remote-free-preflight",
                         "remote-free",
                         "remote-free-retry-preflight",
+                        "remote-free-retry",
                     }
                 )
             ),
@@ -562,14 +595,19 @@ def build_rows(
         ),
         (
             "atomic_remote_head_retry_policy_selected",
-            str(int_flag(remote_free_retry_preflight)),
+            str(int_flag(remote_free_retry_preflight or remote_free_retry_producer)),
         ),
-        ("atomic_remote_head_retry_policy_open", "0"),
+        ("atomic_remote_head_retry_policy_open", str(int_flag(remote_free_retry_producer))),
         (
             "atomic_remote_head_retry_attempt_limit",
-            "3" if remote_free_retry_preflight else "0",
+            atomic_remote_head_retry_attempt_limit
+            if remote_free_retry_preflight or remote_free_retry_producer
+            else "0",
         ),
-        ("atomic_remote_head_retry_lowered_count", "0"),
+        (
+            "atomic_remote_head_retry_lowered_count",
+            str(atomic_remote_head_push_lowerable if remote_free_retry_producer else 0),
+        ),
         ("atomic_remote_head_drain_open", "0"),
         ("remote_owner_branch_routing_open", "0"),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
@@ -728,6 +766,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "remote-free-preflight",
             "remote-free",
             "remote-free-retry-preflight",
+            "remote-free-retry",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
@@ -740,7 +779,7 @@ def main(argv: list[str] | None = None) -> int:
     mir_json = args.mir_json.resolve()
     mir = load_json(mir_json)
 
-    if args.profile == "remote-free-preflight":
+    if args.profile in {"remote-free-preflight", "remote-free-retry-preflight"}:
         object_out = (
             args.object_out.resolve()
             if args.object_out is not None

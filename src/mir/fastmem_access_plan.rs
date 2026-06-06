@@ -211,6 +211,7 @@ pub struct FastMemAtomicRemoteHeadPlan {
     pub block_next_required: bool,
     pub block_next_proof_valid: bool,
     pub memory_order_policy: String,
+    pub retry_attempt_limit: u32,
     pub lowerable: bool,
 }
 
@@ -1370,6 +1371,7 @@ fn atomic_remote_head_plan(
         .map_or(false, |fact| fact.same_owner_rejected);
     let block_next_required = true;
     let memory_order_policy = "acq_rel".to_string();
+    let retry_attempt_limit = 3;
     let lowerable =
         failure_reason.is_none() && remote_owner_proof_valid && block_next_proof_valid;
     let status = if lowerable {
@@ -1419,6 +1421,7 @@ fn atomic_remote_head_plan(
             block_next_required,
             block_next_proof_valid,
             memory_order_policy,
+            retry_attempt_limit,
             lowerable,
         }),
     })
@@ -2018,6 +2021,7 @@ mod tests {
         assert!(remote_head.block_next_required);
         assert!(!remote_head.block_next_proof_valid);
         assert_eq!(remote_head.memory_order_policy, "acq_rel");
+        assert_eq!(remote_head.retry_attempt_limit, 3);
         assert!(!remote_head.lowerable);
     }
 
@@ -2116,6 +2120,7 @@ mod tests {
         assert!(remote_head.block_next_required);
         assert!(remote_head.block_next_proof_valid);
         assert_eq!(remote_head.memory_order_policy, "acq_rel");
+        assert_eq!(remote_head.retry_attempt_limit, 3);
         assert!(remote_head.lowerable);
     }
 

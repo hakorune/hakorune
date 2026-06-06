@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-533 landed MIM-PORT-FMEM-035 AtomicRemoteHead retry policy preflight: remote-free-retry-preflight report/check now pins retry selected/open/lowered counters while preserving MIM-033 CAS producer evidence and keeping drain/routing/TLS/activation closed; MIM-PORT-FMEM-036 retry lowering producer pilot opens next."
+active_lane_status = "296x-534 landed MIM-PORT-FMEM-036 AtomicRemoteHead retry lowering producer pilot: AtomicRemoteHeadPush now carries retry_attempt_limit=3 through verified FastMemory access plans/MIR JSON and lowers through MIR-to-LLVM as a bounded retry CAS loop while drain/routing/TLS/activation stay closed; MIM-PORT-FMEM-037 AtomicRemoteHead drain preflight opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-533-MIM-PORT-FMEM-035-ATOMIC-REMOTE-HEAD-RETRY-POLICY-PREFLIGHT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-533-MIM-PORT-FMEM-035-ATOMIC-REMOTE-HEAD-RETRY-POLICY-PREFLIGHT.md"
-latest_card_summary = "AtomicRemoteHead retry-policy report/check preflight now requires retry selected/open/lowered evidence while preserving the MIM-033 CAS producer evidence and keeping drain/routing/TLS/activation closed."
-current_blocker_token = "MIM-PORT-FMEM-036"
+latest_card = "296x-534-MIM-PORT-FMEM-036-ATOMIC-REMOTE-HEAD-RETRY-LOWERING-PRODUCER-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-534-MIM-PORT-FMEM-036-ATOMIC-REMOTE-HEAD-RETRY-LOWERING-PRODUCER-PILOT.md"
+latest_card_summary = "AtomicRemoteHeadPush now carries retry_attempt_limit=3 through verified FastMemory access plans/MIR JSON and lowers through MIR-to-LLVM as a bounded retry CAS loop while drain, remote-owner branch routing, TLS transfer, and activation stay closed."
+current_blocker_token = "MIM-PORT-FMEM-037"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-534 landed MIM-PORT-FMEM-036 AtomicRemoteHead retry lowering producer pilot: AtomicRemoteHeadPush now carries retry_attempt_limit=3 through verified FastMemory access plans/MIR JSON and lowers through MIR-to-LLVM as a bounded retry CAS loop, while drain/exchange, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-037 AtomicRemoteHead drain preflight opens next.",
   "2026-06-07: 296x-533 landed MIM-PORT-FMEM-035 AtomicRemoteHead retry policy preflight: remote-free-retry-preflight report/check now pins retry selected/open/lowered counters, requires MIM-033 CAS producer evidence to remain positive, and keeps drain/exchange, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-036 retry lowering producer pilot opens next.",
   "2026-06-07: 296x-532 landed MIM-PORT-FMEM-034 AtomicRemoteHead route/drain selection: retry-policy report/check preflight is selected next because MIM-033 only emitted one cmpxchg attempt and publication correctness must be observable before drain/exchange or remote-owner branch routing opens; MIM-PORT-FMEM-035 retry policy preflight opens next.",
   "2026-06-07: 296x-531 landed MIM-PORT-FMEM-033 AtomicRemoteHead CAS lowering producer pilot: .hako hako_alloc AtomicRemoteHeadPush now consumes verified remote-owner/block-next evidence and lowers through MIR-to-LLVM/object as a single-attempt acq_rel CAS, while retry, drain, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-034 route/drain selection opens next.",

@@ -223,6 +223,7 @@ def _verified_atomic_remote_head_push_plan():
         "remote_owner_proof_valid": True,
         "block_next_proof_valid": True,
         "memory_order_policy": "acq_rel",
+        "retry_attempt_limit": 3,
         "lowerable": True,
     }
 
@@ -814,7 +815,10 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
         text = str(module)
         self.assertIn("fastmem_atomic_remote_old_head", text)
         self.assertIn("fastmem_atomic_remote_block_next_ptr", text)
+        self.assertIn("fastmem_atomic_remote_retry_1", text)
+        self.assertIn("extractvalue", text)
         self.assertIn("cmpxchg", text)
+        self.assertGreaterEqual(text.count("cmpxchg"), 3)
         self.assertIn("acq_rel", text)
         self.assertNotIn(12, vmap)
 

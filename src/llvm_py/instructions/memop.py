@@ -580,6 +580,7 @@ def _require_complete_atomic_remote_head_push_plan(
         "block_next_field_type",
         "block_next_alignment",
         "memory_order_policy",
+        "retry_attempt_limit",
         "region",
     ):
         if plan.get(key) is None:
@@ -622,6 +623,15 @@ def _require_complete_atomic_remote_head_push_plan(
             raise RuntimeError(
                 "[llvm/fastmem:invalid-atomic-remote-head-plan-number]"
             ) from exc
+    try:
+        if int(plan.get("retry_attempt_limit")) <= 0:
+            raise RuntimeError(
+                "[llvm/fastmem:invalid-atomic-remote-head-retry-attempt-limit]"
+            )
+    except ValueError as exc:
+        raise RuntimeError(
+            "[llvm/fastmem:invalid-atomic-remote-head-retry-attempt-limit]"
+        ) from exc
     if int(plan.get("remote_head_field_size")) != 8:
         raise RuntimeError(
             "[llvm/fastmem:unsupported-atomic-remote-head-size] "
@@ -1061,27 +1071,44 @@ def _lower_atomic_remote_head_push(
         int(plan["remote_head_byte_offset"]),
         name_prefix="fastmem_atomic_remote_head",
     )
-    old_head = builder.load_atomic(
-        head_ptr,
-        "acquire",
-        int(plan["remote_head_alignment"]),
-        name="fastmem_atomic_remote_old_head",
-    )
     block_next_ptr = _gep_i64_field_ptr(
         builder,
         block_ptr,
         int(plan["block_next_byte_offset"]),
         name_prefix="fastmem_atomic_remote_block_next",
     )
-    builder.store(old_head, block_next_ptr)
-    builder.cmpxchg(
-        head_ptr,
-        old_head,
-        block_addr,
-        "acq_rel",
-        "acquire",
-        name="fastmem_atomic_remote_head_cas",
-    )
+    retry_limit = int(plan["retry_attempt_limit"])
+    done_bb = builder.function.append_basic_block("fastmem_atomic_remote_retry_done")
+    for attempt in range(retry_limit):
+        old_head = builder.load_atomic(
+            head_ptr,
+            "acquire",
+            int(plan["remote_head_alignment"]),
+            name=f"fastmem_atomic_remote_old_head_{attempt}",
+        )
+        builder.store(old_head, block_next_ptr)
+        cas_result = builder.cmpxchg(
+            head_ptr,
+            old_head,
+            block_addr,
+            "acq_rel",
+            "acquire",
+            name=f"fastmem_atomic_remote_head_cas_{attempt}",
+        )
+        if attempt + 1 == retry_limit:
+            builder.branch(done_bb)
+            break
+        retry_bb = builder.function.append_basic_block(
+            f"fastmem_atomic_remote_retry_{attempt + 1}"
+        )
+        success = builder.extract_value(
+            cas_result,
+            1,
+            name=f"fastmem_atomic_remote_cas_success_{attempt}",
+        )
+        builder.cbranch(success, done_bb, retry_bb)
+        builder.position_at_end(retry_bb)
+    builder.position_at_end(done_bb)
 
 
 def lower_memop(

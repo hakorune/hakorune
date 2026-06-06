@@ -641,6 +641,10 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                             "memory_order_policy".to_string(),
                             json!(&remote_head.memory_order_policy),
                         );
+                        map.insert(
+                            "retry_attempt_limit".to_string(),
+                            json!(remote_head.retry_attempt_limit),
+                        );
                         map.insert("lowerable".to_string(), json!(remote_head.lowerable));
                     }
                 }
