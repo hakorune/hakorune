@@ -16,7 +16,9 @@ BAD_LAYOUT_TABLE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_layout_ta
 BAD_TABLE_PROOF_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_table_proof.XXXXXX")"
 LAYOUT_LOWERING_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_layout_lowering.XXXXXX")"
 BAD_LAYOUT_LOWERING_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_layout_lowering.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT"' EXIT
+OWNER_RUNTIME_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_owner_runtime.XXXXXX")"
+BAD_OWNER_RUNTIME_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_owner_runtime.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT" "$OWNER_RUNTIME_OUT" "$BAD_OWNER_RUNTIME_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -203,5 +205,34 @@ grep -q '^failure_count=2$' "$BAD_TABLE_PROOF_OUT"
 grep -q '^failure_0_reason=fastmem_table_access_proof_incomplete_count$' "$BAD_TABLE_PROOF_OUT"
 grep -q '^failure_1_reason=fastmem_table_overflow_proof_missing_count$' "$BAD_TABLE_PROOF_OUT"
 grep -q '^summary=failed$' "$BAD_TABLE_PROOF_OUT"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/owner_runtime_lowering_coverage_inventory.kv" \
+  --format kv \
+  >"$OWNER_RUNTIME_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected owner-runtime lowering coverage inventory" >&2
+  cat "$OWNER_RUNTIME_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$OWNER_RUNTIME_OUT"
+grep -q '^summary=ok$' "$OWNER_RUNTIME_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_owner_runtime_lowering_coverage_inventory.kv" \
+  --format kv \
+  >"$BAD_OWNER_RUNTIME_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad owner-runtime lowering coverage inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=6$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^failure_0_reason=fastmem_owner_runtime_current_owner_source$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^failure_1_reason=tls_backing_transfer_enabled$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^failure_2_reason=allocator_owner_slot_reuse_enabled$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^failure_3_reason=memop_atomic_remote_head_lowered_count$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^failure_4_reason=memop_current_alloc_owner_id_lowered_count$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^failure_5_reason=memop_owner_eq_lowered_count$' "$BAD_OWNER_RUNTIME_OUT"
+grep -q '^summary=failed$' "$BAD_OWNER_RUNTIME_OUT"
 
 echo "[TEST/OK] fastmem_check"

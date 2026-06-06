@@ -105,6 +105,21 @@ LAYOUT_TABLE_PRODUCER_EXPECTED_POSITIVE = (
     "memop_field_load_lowered_count",
     "memop_field_store_lowered_count",
 )
+OWNER_RUNTIME_PRODUCER_EXPECTED_ZERO = (
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "memop_atomic_remote_head_lowered_count",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE = (
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -171,6 +186,10 @@ def producer_slice_selection_profile(rows: dict[str, str]) -> bool:
 
 def layout_table_producer_pilot_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "mir_fmem_008b_layout_table_producer_pilot") > 0
+
+
+def owner_runtime_producer_pilot_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_owner_runtime_producer_pilot") > 0
 
 
 def complete_layout_table_lowering_candidate(rows: dict[str, str]) -> bool:
@@ -470,6 +489,25 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             for key in LAYOUT_TABLE_PRODUCER_EXPECTED_POSITIVE:
                 if int_count(rows, key) <= 0:
                     reasons.append(key)
+    if owner_runtime_producer_pilot_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("fastmem_owner_runtime_current_owner_source") != (
+            "llvm_producer_intrinsic"
+        ):
+            reasons.append("fastmem_owner_runtime_current_owner_source")
+        if rows.get("replacement_front_selected_memop_family") != "owner_runtime":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != (
+            "CurrentAllocOwnerId,OwnerEq"
+        ):
+            reasons.append("replacement_front_selected_memop_kinds")
+        for key in OWNER_RUNTIME_PRODUCER_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
     return reasons
 
 

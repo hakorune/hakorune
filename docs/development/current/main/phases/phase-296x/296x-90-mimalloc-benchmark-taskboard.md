@@ -318,6 +318,11 @@ MIR-FMEM-008 split:
     OwnerEq is now fixed as equality-only lowering over ordinary owner-id
     scalars. It does not choose same-owner or remote-owner allocation/free
     routing.
+  MIR-FMEM-008D-C landed:
+    `fastmem-check` now has a distinct owner-runtime producer profile requiring
+    positive CurrentAllocOwnerId and OwnerEq lowered counts while keeping TLS
+    transfer, owner slot reuse, AtomicRemoteHead, ABI hot paths, and product
+    activation closed.
   MIR-FMEM-008E producer-neutral parity/readiness:
     prove MIR-to-LLVM evidence can replace the quarantined Python-template C
     diagnostic baseline before the reference closeout runs.
