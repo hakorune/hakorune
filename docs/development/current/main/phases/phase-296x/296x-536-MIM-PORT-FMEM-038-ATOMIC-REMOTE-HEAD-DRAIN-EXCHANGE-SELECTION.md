@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-038.
 Related:
@@ -57,3 +57,52 @@ product_activation=0
 global_allocator_claim=0
 winner_claim=0
 ```
+
+## Landed
+
+MIM-038 adds a dedicated `remote-free-drain-exchange-selection` producer-report
+profile. It selects the next producer slice as an owner-side
+`AtomicRemoteHeadDrain` exchange lowering pilot while keeping the actual
+exchange lowering and all drain routing closed.
+
+The selected exchange shape is:
+
+```text
+AtomicRemoteHeadDrain(page):
+  remote_head := atomic_exchange(remote_head, 0, acquire)
+  result kind := remote_free_list_token
+```
+
+The row is report/check only:
+
+```text
+replacement_front_next_producer_slice=atomic_remote_head_drain_exchange_lowering_producer_pilot
+replacement_front_selected_memop_kinds=AtomicRemoteHeadDrain
+replacement_front_deferred_memop_kinds=AtomicRemoteHeadDrainLowering,DrainToLocalRoute,RemoteOwnerBranchRouting
+fastmem_atomic_remote_head_drain_exchange_selection=1
+atomic_remote_head_drain_exchange_selected=1
+atomic_remote_head_drain_exchange_order=acquire
+atomic_remote_head_drain_result_kind=remote_free_list_token
+atomic_remote_head_drain_open=0
+atomic_remote_head_drain_lowered_count=0
+atomic_remote_head_drain_to_local_route_open=0
+remote_owner_branch_routing_open=0
+```
+
+## Verification
+
+```bash
+python3 -m py_compile \
+  tools/hako_check/fastmem_check.py \
+  tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+Open MIM-PORT-FMEM-039 as the `AtomicRemoteHeadDrain` exchange lowering producer
+pilot. That row may lower the verified drain access plan to an atomic exchange,
+but must still keep drain-to-local/free routing, remote-owner branch routing,
+TLS transfer, product activation, global allocator claim, and winner claim
+closed.

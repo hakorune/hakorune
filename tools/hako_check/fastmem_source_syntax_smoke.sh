@@ -94,6 +94,8 @@ ATOMIC_REMOTE_HEAD_DRAIN_LLVM_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain
 ATOMIC_REMOTE_HEAD_DRAIN_LLVM_STDERR="$TMPDIR/page_meta_atomic_remote_head_drain.llvm.stderr"
 ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain.preflight.report.kv"
 ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK="$TMPDIR/page_meta_atomic_remote_head_drain.preflight.check.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain.exchange.report.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_CHECK="$TMPDIR/page_meta_atomic_remote_head_drain.exchange.check.kv"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -841,6 +843,48 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-drain-exchange-selection \
+  --mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+
+grep -q '^replacement_front_selected_memop_family=remote_free$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=AtomicRemoteHeadDrain$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^replacement_front_next_producer_slice=atomic_remote_head_drain_exchange_lowering_producer_pilot$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^fastmem_atomic_remote_head_drain_exchange_selection=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_drain_exchange_selected=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_drain_exchange_order=acquire$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_drain_result_kind=remote_free_list_token$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_drain_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_drain_lowered_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_drain_to_local_route_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^remote_owner_branch_routing_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_retry_policy_open=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^atomic_remote_head_retry_lowered_count=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+grep -q '^product_activation=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_REPORT" \
+  --format kv \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_CHECK"
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_CHECK"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_EXCHANGE_CHECK"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$ATOMIC_REMOTE_HEAD_DRAIN_AST" "$ATOMIC_REMOTE_HEAD_DRAIN_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$ATOMIC_REMOTE_HEAD_DRAIN_MIR" "$ATOMIC_REMOTE_HEAD_DRAIN_SRC" >/dev/null

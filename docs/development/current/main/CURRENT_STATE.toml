@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-536A landed MIM-PORT-FMEM-038A FastMem FactStore cleanup: fastmem access-plan construction now uses a single FastMemFactStore lookup seam for table/range, owner, block-next, local_free non-empty, free_head non-empty, and remote-owner facts before MIM-PORT-FMEM-038 drain exchange selection continues."
+active_lane_status = "296x-536 landed MIM-PORT-FMEM-038 AtomicRemoteHead drain exchange selection: report/check now selects atomic_exchange(remote_head, 0, acquire) with remote_free_list_token result as the next producer slice while keeping drain lowering, drain-to-local routing, remote-owner branch routing, TLS, and activation closed; MIM-PORT-FMEM-039 drain exchange lowering producer pilot opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-536A-MIM-PORT-FMEM-038A-FASTMEM-FACT-STORE-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-536A-MIM-PORT-FMEM-038A-FASTMEM-FACT-STORE-CLEANUP.md"
-latest_card_summary = "FastMemory access-plan construction now uses one FastMemFactStore lookup seam for table/range facts plus owner, block-next, local_free non-empty, free_head non-empty, and remote-owner facts before MIM-PORT-FMEM-038 drain exchange selection continues."
-current_blocker_token = "MIM-PORT-FMEM-038"
+latest_card = "296x-536-MIM-PORT-FMEM-038-ATOMIC-REMOTE-HEAD-DRAIN-EXCHANGE-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-536-MIM-PORT-FMEM-038-ATOMIC-REMOTE-HEAD-DRAIN-EXCHANGE-SELECTION.md"
+latest_card_summary = "AtomicRemoteHead drain exchange selection now pins atomic_exchange(remote_head, 0, acquire) with remote_free_list_token result as the next producer slice while keeping drain lowering, drain-to-local routing, remote-owner branch routing, TLS transfer, and activation closed."
+current_blocker_token = "MIM-PORT-FMEM-039"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-536 landed MIM-PORT-FMEM-038 AtomicRemoteHead drain exchange selection: report/check now pins atomic_exchange(remote_head, 0, acquire) with remote_free_list_token result as the next producer slice while keeping drain lowering, drain-to-local/free routing, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-039 drain exchange lowering producer pilot opens next.",
   "2026-06-07: 296x-536A landed MIM-PORT-FMEM-038A FastMem FactStore cleanup: fastmem access-plan construction now uses a single FastMemFactStore lookup seam for table/range, same-owner, remote-owner, block-next, local_free non-empty, and free_head non-empty facts; MIM-PORT-FMEM-038 drain exchange selection remains next.",
   "2026-06-07: 296x-535 landed MIM-PORT-FMEM-037 AtomicRemoteHead drain preflight: .hako hako_alloc can now name mem.atomicRemoteHeadDrain(page), MIR metadata emits a non-lowerable drain access-plan row over PageMeta.remote_head, and report/check selects drain while keeping exchange lowering, drain-to-local/free routing, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-038 drain exchange selection opens next.",
   "2026-06-07: 296x-534 landed MIM-PORT-FMEM-036 AtomicRemoteHead retry lowering producer pilot: AtomicRemoteHeadPush now carries retry_attempt_limit=3 through verified FastMemory access plans/MIR JSON and lowers through MIR-to-LLVM as a bounded retry CAS loop, while drain/exchange, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-037 AtomicRemoteHead drain preflight opens next.",
