@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-026.
 Related:
@@ -31,6 +31,25 @@ C. Branch-proof row:
    reopen CFG proof design before any same/remote route body can be expressed.
 ```
 
+## Decision
+
+Choose **A. AtomicRemoteHead vocabulary/source preflight**.
+
+Current inventory shows:
+
+```text
+diagnostic/report plane:
+  atomic_remote_head_plan / pilot evidence exists
+
+MIR/source fastmem plane:
+  no AtomicRemoteHead MemOpKind yet
+  no mem.atomicRemoteHeadPush-style source intrinsic yet
+```
+
+Remote-owner free should not be represented as ordinary `remote_head`
+FieldStore. It needs a dedicated publication primitive before remote route
+bodies or branch routing can open.
+
 ## Selection Guard
 
 Prefer A or B before C unless a concrete branch fixture proves:
@@ -53,4 +72,22 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next Row
+
+```text
+MIM-PORT-FMEM-027:
+  AtomicRemoteHead vocabulary/source preflight
+
+Goal:
+  add a transport-only AtomicRemoteHead push MemOp vocabulary and source
+  intrinsic observation while verifier plans and LLVM lowering stay closed.
+
+Non-goals:
+  CAS lowering
+  remote route behavior
+  branch CFG routing
+  TLS transfer
+  product activation
 ```
