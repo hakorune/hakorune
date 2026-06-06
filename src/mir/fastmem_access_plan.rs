@@ -11,7 +11,7 @@
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::{
     fastmem_layout_contract::{resolve_fastmem_field_contract, resolve_fastmem_table_contract},
-    function::{FastMemRegionMetadata, FastMemTableLengthFact},
+    function::{FastMemRegionMetadata, FastMemTableLengthFact, RangeIndexFact},
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
@@ -152,6 +152,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let mut plans = Vec::new();
     let regions = function.metadata.fastmem_regions.clone();
     let table_length_facts = function.metadata.fastmem_table_length_facts.clone();
+    let range_index_facts = function.metadata.range_index_facts.clone();
 
     for block_id in function.block_ids() {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -179,6 +180,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 access.as_ref(),
                 region_contract(&regions, *region),
                 &table_length_facts,
+                &range_index_facts,
             ) else {
                 continue;
             };
@@ -199,6 +201,7 @@ fn plan_from_memop(
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
     table_length_facts: &[FastMemTableLengthFact],
+    range_index_facts: &[RangeIndexFact],
 ) -> Option<FastMemAccessPlan> {
     match kind {
         MemOpKind::TableIndex => table_plan(
@@ -210,6 +213,7 @@ fn plan_from_memop(
             access,
             contract,
             table_length_facts,
+            range_index_facts,
         ),
         MemOpKind::FieldLoad => field_plan(
             block,
@@ -251,12 +255,15 @@ fn table_plan(
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
     table_length_facts: &[FastMemTableLengthFact],
+    range_index_facts: &[RangeIndexFact],
 ) -> Option<FastMemAccessPlan> {
     let access = access?;
     let table_id = access.table_id.as_ref()?.clone();
     let table = operands.first().copied()?;
     let index = operands.get(1).copied()?;
     let table_length_fact = table_length_fact(table_length_facts, region, &table_id, table);
+    let bounds_proof = table_length_fact
+        .and_then(|length_fact| range_bounds_proof(range_index_facts, block, index, length_fact));
     let resolved = contract.map(|contract| {
         resolve_fastmem_table_contract(contract, &table_id).map_err(|err| err.reason())
     });
@@ -318,14 +325,14 @@ fn table_plan(
     }
     let proof = FastMemTableAccessProof {
         table_length_resolved: table_length_fact.is_some(),
-        bounds_proof_valid: false,
+        bounds_proof_valid: bounds_proof.is_some(),
         stride_resolved: element_stride.is_some(),
         field_offset_resolved: false,
         overflow_proof_valid: false,
         alignment_valid: alignment.is_some(),
         element_layout_verified: element_layout_id.is_some(),
         table_length_policy,
-        bounds_proof: None,
+        bounds_proof,
         overflow_proof: None,
         failure_reason: failure_reason.clone(),
     };
@@ -362,6 +369,28 @@ fn table_plan(
             index_policy,
             proof,
         }),
+    })
+}
+
+fn range_bounds_proof(
+    facts: &[RangeIndexFact],
+    block: BasicBlockId,
+    index_value: ValueId,
+    length_fact: &FastMemTableLengthFact,
+) -> Option<String> {
+    facts.iter().find_map(|fact| {
+        if fact.index_value == index_value
+            && fact.upper_exclusive_value == length_fact.length_value
+            && fact.body_bb == block
+            && fact.step == 1
+            && fact.end_exclusive
+            && fact.index_body_read_only
+            && !fact.loop_carried_writes_supported
+        {
+            Some(format!("range_fact:{}", fact.fact_id))
+        } else {
+            None
+        }
     })
 }
 
@@ -474,7 +503,7 @@ mod tests {
     use crate::ast::Span;
     use crate::mir::function::{
         FastMemRegionMetadata, FastMemRegionOrigin, FastMemTableLengthFact,
-        FastMemTableLengthPolicyKind,
+        FastMemTableLengthPolicyKind, RangeIndexFact, RangeIndexFactOriginKind,
     };
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
@@ -533,6 +562,33 @@ mod tests {
             operands,
             access,
             effects: kind.effect_mask(),
+        }
+    }
+
+    fn table_length_fact() -> FastMemTableLengthFact {
+        FastMemTableLengthFact {
+            fact_id: 0,
+            region: FastMemRegionId::new(0),
+            table_id: "page_table".to_string(),
+            table_value: ValueId::new(1),
+            length_value: ValueId::new(50),
+            resolved_length: Some(64),
+            policy: FastMemTableLengthPolicyKind::ExplicitConstLen,
+        }
+    }
+
+    fn range_index_fact(fact_id: u32, index_value: ValueId) -> RangeIndexFact {
+        RangeIndexFact {
+            fact_id,
+            origin_kind: RangeIndexFactOriginKind::CountingLoop,
+            index_value,
+            lower_value: ValueId::new(40),
+            upper_exclusive_value: ValueId::new(50),
+            body_bb: BasicBlockId::new(0),
+            step: 1,
+            end_exclusive: true,
+            index_body_read_only: true,
+            loop_carried_writes_supported: false,
         }
     }
 
@@ -621,15 +677,7 @@ mod tests {
         function
             .metadata
             .fastmem_table_length_facts
-            .push(FastMemTableLengthFact {
-                fact_id: 0,
-                region: FastMemRegionId::new(0),
-                table_id: "page_table".to_string(),
-                table_value: ValueId::new(1),
-                length_value: ValueId::new(50),
-                resolved_length: Some(64),
-                policy: FastMemTableLengthPolicyKind::ExplicitConstLen,
-            });
+            .push(table_length_fact());
 
         refresh_function_fastmem_access_plans(&mut function);
 
@@ -654,6 +702,103 @@ mod tests {
                 .as_deref(),
             Some("verified-table-access-proof-incomplete")
         );
+    }
+
+    #[test]
+    fn refresh_consumes_range_index_fact_as_bounds_proof_after_length_fact() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(10)),
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(MemOpAccess::table("page_table")),
+        )]);
+        function
+            .metadata
+            .fastmem_table_length_facts
+            .push(table_length_fact());
+        function
+            .metadata
+            .range_index_facts
+            .push(range_index_fact(7, ValueId::new(2)));
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert!(table.proof.table_length_resolved);
+        assert!(table.proof.bounds_proof_valid);
+        assert_eq!(table.proof.bounds_proof.as_deref(), Some("range_fact:7"));
+        assert!(!table.proof.overflow_proof_valid);
+        assert!(!table.proof.is_lowerable());
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0]
+                .failure_reason
+                .as_deref(),
+            Some("verified-table-access-proof-incomplete")
+        );
+    }
+
+    #[test]
+    fn refresh_does_not_consume_range_index_fact_without_matching_length_fact() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(10)),
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(MemOpAccess::table("page_table")),
+        )]);
+        function
+            .metadata
+            .range_index_facts
+            .push(range_index_fact(7, ValueId::new(2)));
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert!(!table.proof.table_length_resolved);
+        assert!(!table.proof.bounds_proof_valid);
+        assert_eq!(table.proof.bounds_proof, None);
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0]
+                .failure_reason
+                .as_deref(),
+            Some("table-length-unresolved")
+        );
+    }
+
+    #[test]
+    fn refresh_rejects_range_index_fact_when_upper_does_not_match_length_value() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(10)),
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(MemOpAccess::table("page_table")),
+        )]);
+        let mut range = range_index_fact(7, ValueId::new(2));
+        range.upper_exclusive_value = ValueId::new(51);
+        function
+            .metadata
+            .fastmem_table_length_facts
+            .push(table_length_fact());
+        function.metadata.range_index_facts.push(range);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert!(table.proof.table_length_resolved);
+        assert!(!table.proof.bounds_proof_valid);
+        assert_eq!(table.proof.bounds_proof, None);
+        assert!(!table.proof.is_lowerable());
     }
 
     #[test]
