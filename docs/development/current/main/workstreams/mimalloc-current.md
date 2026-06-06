@@ -313,6 +313,8 @@ task_order:
   MIR-FMEM-008A producer-slice selection
 
 next_mir_producer_rows:
+  ContractRegionV0 docs-only
+    296x-458 landed: common envelope only; FastMemRegion remains memory wrapper
   MIR-FMEM-008B layout/table producer pilot
     296x-456 symbolic MemOpAccess ids landed
     296x-457 VerifiedMemAccessPlan metadata skeleton landed

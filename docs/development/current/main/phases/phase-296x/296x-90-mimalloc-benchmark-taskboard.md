@@ -172,6 +172,11 @@ MIR-FMEM-008B second slice landed:
   loads those rows by site for the future lowering consumer. Rows remain
   `symbolic_only` until canonical layout/table contracts verify offsets, table
   representation, alignment, and bounds.
+ContractRegionV0 docs-only landed:
+  The common region/contract/obligation/verifier-report envelope is documented
+  for future profiles, but `FastMemRegion` remains the current memory-profile
+  wrapper and `MemOp` / `VerifiedMemAccessPlan` remain memory-specific. This
+  row opens no rename, no generic RegionOp, no second profile, and no behavior.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

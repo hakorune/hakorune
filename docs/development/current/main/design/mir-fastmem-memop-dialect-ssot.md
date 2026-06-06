@@ -4,6 +4,7 @@ Decision: accepted
 Date: 2026-06-06
 Scope: MIR representation boundary for `.hako` fastmem regions and memory dialect operations.
 Related:
+  - docs/development/current/main/design/contract-region-v0-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
   - docs/development/current/main/workstreams/mimalloc-current.md
   - docs/development/current/main/phases/phase-296x/296x-437-MIRBUILDER-FASTMEM-MEMOP-DIALECT-DECISION.md
@@ -12,6 +13,36 @@ Related:
 ---
 
 # MIR FastMem MemOp Dialect
+
+## ContractRegionV0 Relationship
+
+`fastmem` is the memory-profile implementation of the future common
+`ContractRegionV0` envelope:
+
+```text
+ContractRegionV0:
+  common region / contract / obligation / verifier-report envelope
+
+FastMemRegion:
+  current memory-profile wrapper
+```
+
+This document remains the SSOT for memory-profile payloads:
+
+```text
+MemOp
+MemOpKind
+MemValueKind
+VerifiedMemAccessPlan
+memory layout/table lowering rules
+```
+
+Do not rename current `FastMemRegion` code or report fields merely because
+`ContractRegionV0` exists. Read:
+
+```text
+docs/development/current/main/design/contract-region-v0-ssot.md
+```
 
 ## Decision
 
