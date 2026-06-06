@@ -124,7 +124,9 @@ OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE = (
 LOCAL_FREE_PRODUCER_EXPECTED_ZERO = (
     "memop_atomic_remote_head_lowered_count",
     "fastmem_local_free_access_plan_incomplete_count",
+    "fastmem_free_head_access_plan_incomplete_count",
     "fastmem_local_free_head_plain_store_lowered_count",
+    "fastmem_free_head_plain_store_lowered_count",
     "tls_backing_transfer_enabled",
     "allocator_owner_slot_reuse_enabled",
     "type_abi_hot_lookup_count",
@@ -540,7 +542,11 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         if selected_local_free not in {
             "LocalFreePush",
             "LocalFreePop",
+            "FreeHeadPop",
             "LocalFreePush,LocalFreePop",
+            "LocalFreePop,FreeHeadPop",
+            "LocalFreePush,FreeHeadPop",
+            "LocalFreePush,LocalFreePop,FreeHeadPop",
         }:
             reasons.append("replacement_front_selected_memop_kinds")
         deferred_local_free = rows.get("replacement_front_deferred_memop_kinds", "")
@@ -568,6 +574,16 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
                 "memop_local_free_pop_layout_ref_consumed_count",
                 "fastmem_local_free_pop_lowering_uses_verified_plan",
                 "fastmem_local_free_pop_lowering_enabled",
+            ):
+                if int_count(rows, key) <= 0:
+                    reasons.append(key)
+        if selected_local_free and "FreeHeadPop" in selected_local_free:
+            for key in (
+                "fastmem_free_head_pop_plan_count",
+                "memop_free_head_pop_lowered_count",
+                "memop_free_head_pop_layout_ref_consumed_count",
+                "fastmem_free_head_pop_lowering_uses_verified_plan",
+                "fastmem_free_head_pop_lowering_enabled",
             ):
                 if int_count(rows, key) <= 0:
                     reasons.append(key)

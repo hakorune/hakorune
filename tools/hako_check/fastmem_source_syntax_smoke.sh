@@ -845,7 +845,7 @@ if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   cat "$FREE_HEAD_POP_LLVM_REPORT" >&2 || true
   exit 1
 fi
-grep -q '\[llvm/fastmem:unsupported-kind\] free_head_pop' \
+grep -q '\[llvm/fastmem:missing-verified-free-head-pop-plan\]' \
   "$FREE_HEAD_POP_LLVM_STDERR"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$FREE_HEAD_POP_PRECONDITION_AST" "$FREE_HEAD_POP_PRECONDITION_SRC" >/dev/null
@@ -906,17 +906,37 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^summary=ok$' "$FREE_HEAD_POP_PRECONDITION_LLVM_CHECK"
 grep -q '^failure_count=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_CHECK"
 
-if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile local-free \
   --mir-json "$FREE_HEAD_POP_PRECONDITION_MIR" \
   --out "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT" \
-  2>"$FREE_HEAD_POP_PRECONDITION_LLVM_STDERR"; then
-  echo "[TEST/FAIL] FreeHeadPop precondition unexpectedly lowered" >&2
-  cat "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT" >&2 || true
-  exit 1
-fi
-grep -q '\[llvm/fastmem:unsupported-kind\] free_head_pop' \
-  "$FREE_HEAD_POP_PRECONDITION_LLVM_STDERR"
+  2>"$FREE_HEAD_POP_PRECONDITION_LLVM_STDERR"
+
+grep -q '^replacement_front_producer=mir_to_llvm_lowering$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_family=local_free$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=FreeHeadPop$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^replacement_front_deferred_memop_kinds=LocalFreePush,LocalFreePop,AtomicRemoteHead$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^fastmem_local_free_producer_pilot=1$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^fastmem_free_head_pop_plan_count=1$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^memop_free_head_pop_lowered_count=1$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^memop_free_head_pop_layout_ref_consumed_count=1$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^fastmem_free_head_access_plan_incomplete_count=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^fastmem_free_head_plain_store_lowered_count=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^fastmem_free_head_pop_lowering_uses_verified_plan=1$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^fastmem_free_head_pop_lowering_enabled=1$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^product_activation=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^global_allocator_claim=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^winner_claim=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+grep -q '^summary=ok$' "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FREE_HEAD_POP_PRECONDITION_LLVM_REPORT" \
+  --format kv \
+  --out "$FREE_HEAD_POP_PRECONDITION_LLVM_CHECK"
+grep -q '^summary=ok$' "$FREE_HEAD_POP_PRECONDITION_LLVM_CHECK"
+grep -q '^failure_count=0$' "$FREE_HEAD_POP_PRECONDITION_LLVM_CHECK"
 
 cat >"$BAD_SRC" <<'HK'
 static box Main {
