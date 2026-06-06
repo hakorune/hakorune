@@ -203,6 +203,20 @@ Verifier hygiene split active:
   Narrow walker helper and verifier test_support extraction stay parked until
   after the next FastMemory proof slice, and must not mix with TableIndex
   proof vocabulary.
+MIR commonality taxonomy active:
+  Escape commonality is limited to `src/mir/escape_barrier.rs` cause
+  classification; FastMemory still owns no-escape policy, error/report shape,
+  and MemOp proof payloads. Allowlist/gate commonality stays at
+  `src/mir/contracts` / backend capability entries, and AllocOwnerId / page
+  owner / semantic owner remain separate axes. Next worker handoff order is
+  ESCAPE-COMMON-001, ESCAPE-COMMON-002, then resume FMEM-TABLE proof work.
+ESCAPE-COMMON-001 implemented:
+  FastMemory verifier escape checks now consume `classify_escape_uses()` for
+  shared cause labels, preserve the `memop-value-escapes` FastMemory violation
+  shape, keep ordinary unclassified MIR consumers rejected as `ordinary_use`,
+  and propagate MemOp origin through single-input Phi passthroughs. The next
+  mainline task can return to VerifiedTableAccessProof / TableIndex bounds work;
+  ESCAPE-COMMON-002 is optional test-only follow-up.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

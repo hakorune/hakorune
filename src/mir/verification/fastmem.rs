@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::contracts::fastmem_ops::is_fastmem_v0_memop_kind;
+use crate::mir::escape_barrier::{classify_escape_uses, EscapeBarrier};
 use crate::mir::function::MirFunction;
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::verification_types::VerificationError;
@@ -342,6 +343,7 @@ fn check_memop_escape(
             produced.insert(dst, (site.region, site.kind));
         }
     }
+    extend_single_input_phi_aliases(function, &mut produced);
     if produced.is_empty() {
         return;
     }
@@ -355,8 +357,8 @@ fn check_memop_escape(
             if is_memop {
                 continue;
             }
-            for used in sp.inst.used_values() {
-                let Some((region, kind)) = produced.get(&used).copied() else {
+            for escape_use in fastmem_escape_uses(sp.inst) {
+                let Some((region, kind)) = produced.get(&escape_use.value).copied() else {
                     continue;
                 };
                 push_region_error(
@@ -370,12 +372,90 @@ fn check_memop_escape(
                         .iter()
                         .find(|metadata| metadata.id == region)
                         .map(|metadata| metadata.contract.clone()),
-                    &format!("memop-value-escapes kind={}", kind.display_name()),
+                    &format!(
+                        "memop-value-escapes kind={} barrier={}",
+                        kind.display_name(),
+                        escape_use.barrier
+                    ),
                     errors,
                 );
             }
         }
     }
+}
+
+fn extend_single_input_phi_aliases(
+    function: &MirFunction,
+    produced: &mut BTreeMap<ValueId, (FastMemRegionId, MemOpKind)>,
+) {
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for block_id in function.block_ids() {
+            let Some(block) = function.blocks.get(&block_id) else {
+                continue;
+            };
+            for sp in block.all_spanned_instructions() {
+                let MirInstruction::Phi { dst, inputs, .. } = sp.inst else {
+                    continue;
+                };
+                if produced.contains_key(dst) || inputs.len() != 1 {
+                    continue;
+                }
+                let Some((_, input)) = inputs.first() else {
+                    continue;
+                };
+                let Some(origin) = produced.get(input).copied() else {
+                    continue;
+                };
+                produced.insert(*dst, origin);
+                changed = true;
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct FastMemEscapeUse {
+    value: ValueId,
+    barrier: FastMemEscapeBarrier,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum FastMemEscapeBarrier {
+    Shared(EscapeBarrier),
+    OrdinaryUse,
+}
+
+impl std::fmt::Display for FastMemEscapeBarrier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Shared(barrier) => write!(f, "{}", barrier),
+            Self::OrdinaryUse => f.write_str("ordinary_use"),
+        }
+    }
+}
+
+fn fastmem_escape_uses(inst: &MirInstruction) -> Vec<FastMemEscapeUse> {
+    let shared = classify_escape_uses(inst);
+    let mut uses: Vec<FastMemEscapeUse> = shared
+        .iter()
+        .map(|use_site| FastMemEscapeUse {
+            value: use_site.value,
+            barrier: FastMemEscapeBarrier::Shared(use_site.barrier),
+        })
+        .collect();
+    let shared_values: BTreeSet<ValueId> = shared.iter().map(|use_site| use_site.value).collect();
+    for value in inst.used_values() {
+        if shared_values.contains(&value) {
+            continue;
+        }
+        uses.push(FastMemEscapeUse {
+            value,
+            barrier: FastMemEscapeBarrier::OrdinaryUse,
+        });
+    }
+    uses
 }
 
 fn push_region_error(
@@ -402,6 +482,7 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::function::{FastMemRegionMetadata, FastMemRegionOrigin};
+    use crate::mir::types::BinaryOp;
     use crate::mir::{FunctionSignature, MirType};
 
     fn test_function(instructions: Vec<MirInstruction>) -> MirFunction {
@@ -511,6 +592,146 @@ mod tests {
 
         let text = error_text(&function);
         assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=return"), "{}", text);
+    }
+
+    #[test]
+    fn rejects_memop_value_escape_to_store_value() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::AddrOf,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::Store {
+                value: ValueId::new(1),
+                ptr: ValueId::new(9),
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=store_like"), "{}", text);
+    }
+
+    #[test]
+    fn rejects_memop_value_escape_to_call_arg() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::AddrOf,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::Call {
+                dst: None,
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Extern("env.test.sink".to_string())),
+                args: vec![ValueId::new(1)],
+                effects: EffectMask::IO,
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=call"), "{}", text);
+    }
+
+    #[test]
+    fn rejects_memop_value_escape_to_debug_observe() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::AddrOf,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::Debug {
+                value: ValueId::new(1),
+                message: "observe".to_string(),
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=debug_observe"), "{}", text);
+    }
+
+    #[test]
+    fn rejects_memop_value_escape_to_ordinary_use() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::AddrOf,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::BinOp {
+                dst: ValueId::new(2),
+                op: BinaryOp::Add,
+                lhs: ValueId::new(1),
+                rhs: ValueId::new(9),
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=ordinary_use"), "{}", text);
+    }
+
+    #[test]
+    fn single_input_phi_propagates_memop_escape_origin() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::AddrOf,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::Phi {
+                dst: ValueId::new(2),
+                inputs: vec![(BasicBlockId::new(0), ValueId::new(1))],
+                type_hint: None,
+            },
+            MirInstruction::Return {
+                value: Some(ValueId::new(2)),
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=return"), "{}", text);
+    }
+
+    #[test]
+    fn multi_input_phi_is_memop_escape_barrier() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::AddrOf,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::Phi {
+                dst: ValueId::new(3),
+                inputs: vec![
+                    (BasicBlockId::new(0), ValueId::new(1)),
+                    (BasicBlockId::new(1), ValueId::new(2)),
+                ],
+                type_hint: None,
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=phi_merge"), "{}", text);
     }
 
     #[test]
