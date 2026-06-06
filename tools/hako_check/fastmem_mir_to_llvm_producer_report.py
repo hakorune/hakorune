@@ -450,16 +450,19 @@ def build_rows(
     remote_owner_branch_route_body_preflight = (
         profile == "remote-owner-branch-route-body-preflight"
     )
+    fastmem_branch_cfg_preflight = profile == "fastmem-branch-cfg-preflight"
     remote_owner_branch_routing_any = (
         remote_owner_branch_routing_preflight
         or remote_owner_branch_routing_lowering_preflight
         or remote_owner_branch_routing_lowering_producer
         or remote_owner_branch_route_body_preflight
+        or fastmem_branch_cfg_preflight
     )
     remote_owner_branch_routing_lowering_any = (
         remote_owner_branch_routing_lowering_preflight
         or remote_owner_branch_routing_lowering_producer
         or remote_owner_branch_route_body_preflight
+        or fastmem_branch_cfg_preflight
     )
     if profile in {
         "remote-free-preflight",
@@ -480,6 +483,7 @@ def build_rows(
         "remote-owner-branch-routing-lowering-preflight",
         "remote-owner-branch-routing-lowering",
         "remote-owner-branch-route-body-preflight",
+        "fastmem-branch-cfg-preflight",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -499,6 +503,7 @@ def build_rows(
             "remote-owner-branch-routing-lowering-preflight",
             "remote-owner-branch-routing-lowering",
             "remote-owner-branch-route-body-preflight",
+            "fastmem-branch-cfg-preflight",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -566,6 +571,9 @@ def build_rows(
         elif remote_owner_branch_route_body_preflight:
             next_slice = "fastmem_branch_cfg_preflight"
             deferred_remote_kinds = "BranchCfgLowering,SameRemoteFreeBody"
+        elif fastmem_branch_cfg_preflight:
+            next_slice = "fastmem_branch_cfg_lowering_preflight"
+            deferred_remote_kinds = "BranchCfgLowering,SameRemoteFreeBody"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -594,18 +602,22 @@ def build_rows(
             ("replacement_front_producer_slice_selection_v0", "0"),
             (
                 "replacement_front_selected_route",
-                "remote_owner_branch_route_body_preflight"
-                if remote_owner_branch_route_body_preflight
+                "fastmem_branch_cfg_preflight"
+                if fastmem_branch_cfg_preflight
                 else (
-                    "remote_owner_branch_routing_lowering_producer_pilot"
-                    if remote_owner_branch_routing_lowering_producer
+                    "remote_owner_branch_route_body_preflight"
+                    if remote_owner_branch_route_body_preflight
                     else (
-                        "remote_owner_branch_routing_lowering_preflight"
-                        if remote_owner_branch_routing_lowering_preflight
+                        "remote_owner_branch_routing_lowering_producer_pilot"
+                        if remote_owner_branch_routing_lowering_producer
                         else (
-                            "remote_owner_branch_routing_preflight"
-                            if remote_owner_branch_routing_preflight
-                            else "none"
+                            "remote_owner_branch_routing_lowering_preflight"
+                            if remote_owner_branch_routing_lowering_preflight
+                            else (
+                                "remote_owner_branch_routing_preflight"
+                                if remote_owner_branch_routing_preflight
+                                else "none"
+                            )
                         )
                     )
                 ),
@@ -642,6 +654,7 @@ def build_rows(
                         and not remote_owner_branch_routing_lowering_preflight
                         and not remote_owner_branch_routing_lowering_producer
                         and not remote_owner_branch_route_body_preflight
+                        and not fastmem_branch_cfg_preflight
                     )
                 ),
             ),
@@ -708,6 +721,10 @@ def build_rows(
             (
                 "fastmem_remote_owner_branch_route_body_preflight",
                 str(int_flag(remote_owner_branch_route_body_preflight)),
+            ),
+            (
+                "fastmem_branch_cfg_preflight",
+                str(int_flag(fastmem_branch_cfg_preflight)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -1248,6 +1265,7 @@ def build_rows(
                 int_flag(
                     remote_owner_branch_routing_lowering_producer
                     or remote_owner_branch_route_body_preflight
+                    or fastmem_branch_cfg_preflight
                 )
             ),
         ),
@@ -1258,6 +1276,7 @@ def build_rows(
                     (
                         remote_owner_branch_routing_lowering_producer
                         or remote_owner_branch_route_body_preflight
+                        or fastmem_branch_cfg_preflight
                     )
                     and current_owner_count > 0
                     and owner_eq_count > 0
@@ -1272,15 +1291,32 @@ def build_rows(
                     not (
                         remote_owner_branch_routing_lowering_producer
                         or remote_owner_branch_route_body_preflight
+                        or fastmem_branch_cfg_preflight
                     )
                 )
             ),
         ),
         (
             "remote_owner_branch_route_body_selected",
-            str(int_flag(remote_owner_branch_route_body_preflight)),
+            str(
+                int_flag(
+                    remote_owner_branch_route_body_preflight
+                    or fastmem_branch_cfg_preflight
+                )
+            ),
         ),
         ("remote_owner_branch_route_body_open", "0"),
+        (
+            "fastmem_branch_cfg_selected",
+            str(int_flag(fastmem_branch_cfg_preflight)),
+        ),
+        ("fastmem_branch_cfg_open", "0"),
+        (
+            "fastmem_branch_cfg_closed_guard",
+            str(int_flag(fastmem_branch_cfg_preflight)),
+        ),
+        ("fastmem_branch_cfg_lowered_count", "0"),
+        ("fastmem_branch_cfg_source_guard", "branch_cfg_closed"),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
         ("page_local_alloc_route_candidate", route_candidate),
         (
@@ -1456,6 +1492,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "remote-owner-branch-routing-lowering-preflight",
             "remote-owner-branch-routing-lowering",
             "remote-owner-branch-route-body-preflight",
+            "fastmem-branch-cfg-preflight",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",

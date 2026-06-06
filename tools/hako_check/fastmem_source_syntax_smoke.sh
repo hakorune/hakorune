@@ -123,6 +123,8 @@ REMOTE_OWNER_BRANCH_ROUTING_LOWERING_CHECK="$TMPDIR/page_meta_remote_owner_branc
 REMOTE_OWNER_BRANCH_ROUTING_LOWERING_LLVM_STDERR="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.llvm.stderr"
 REMOTE_OWNER_BRANCH_ROUTE_BODY_PREFLIGHT_REPORT="$TMPDIR/page_meta_remote_owner_branch_route_body_preflight.report.kv"
 REMOTE_OWNER_BRANCH_ROUTE_BODY_PREFLIGHT_CHECK="$TMPDIR/page_meta_remote_owner_branch_route_body_preflight.check.kv"
+FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_preflight.report.kv"
+FASTMEM_BRANCH_CFG_PREFLIGHT_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_preflight.check.kv"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -1450,6 +1452,43 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^failure_count=0$' "$REMOTE_OWNER_BRANCH_ROUTE_BODY_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTE_BODY_PREFLIGHT_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile fastmem-branch-cfg-preflight \
+  --mir-json "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" \
+  --out "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_branch_cfg_preflight=1$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=fastmem_branch_cfg_preflight$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=fastmem_branch_cfg_lowering_preflight$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_routing_open=1$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_routing_lowered_count=1$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_route_body_selected=1$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_route_body_open=0$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^fastmem_branch_cfg_selected=1$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^fastmem_branch_cfg_open=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^fastmem_branch_cfg_closed_guard=1$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=0$' \
+  "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^product_activation=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$FASTMEM_BRANCH_CFG_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_PREFLIGHT_CHECK"
 
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" \
