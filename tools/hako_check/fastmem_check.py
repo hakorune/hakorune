@@ -54,6 +54,12 @@ FAIL_FIELDS = [
     "page_owner_count_mismatch",
     "page_owner_stale_generation_count",
     "page_owner_unowned_count",
+    "allocator_owner_invalid_transition_count",
+    "allocator_owner_stale_generation_count",
+    "allocator_owner_reuse_without_generation_bump_count",
+    "allocator_exiting_owner_page_claim_count",
+    "allocator_abandoned_owner_local_free_count",
+    "page_reclaimed_with_remote_candidates",
     "hako_source_thread_support_claim",
     "replacement_front_cross_thread_free_arena_registry_overflow_count",
     "safe_capability_wrapper_missing_count",
@@ -87,6 +93,17 @@ def atomic_remote_profile(rows: dict[str, str]) -> bool:
     return (
         int_count(rows, "atomic_remote_head_pilot_enabled") > 0
         or int_count(rows, "atomic_remote_head_enabled") > 0
+    )
+
+
+def owner_lifecycle_profile(rows: dict[str, str]) -> bool:
+    return (
+        int_count(rows, "allocator_owner_lifecycle_state_machine") > 0
+        or int_count(rows, "allocator_owner_exiting_flush_count") > 0
+        or int_count(rows, "allocator_owner_abandoned_count") > 0
+        or int_count(rows, "allocator_owner_reclaimed_count") > 0
+        or int_count(rows, "allocator_thread_exit_observed_count") > 0
+        or int_count(rows, "allocator_abandoned_reclaim_attempt_count") > 0
     )
 
 
@@ -166,6 +183,26 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             reasons.append("page_owner_check_route")
         if int_count(rows, "page_owner_check_count") <= 0:
             reasons.append("page_owner_check_count")
+    if owner_lifecycle_profile(rows):
+        if int_count(rows, "allocator_owner_lifecycle_state_machine") != 1:
+            reasons.append("allocator_owner_lifecycle_state_machine")
+        if int_count(rows, "allocator_owner_generation_enabled") != 1:
+            reasons.append("allocator_owner_generation_enabled")
+        if rows.get("allocator_owner_id_kind") != "arena_owner":
+            reasons.append("allocator_owner_id_kind")
+        if rows.get("allocator_owner_id_repr") != "packed_u64_slot_generation":
+            reasons.append("allocator_owner_id_repr")
+        if int_count(rows, "allocator_owner_slot_bits") != 32:
+            reasons.append("allocator_owner_slot_bits")
+        if int_count(rows, "allocator_owner_generation_bits") != 32:
+            reasons.append("allocator_owner_generation_bits")
+        if int_count(rows, "allocator_owner_zero_is_invalid") != 1:
+            reasons.append("allocator_owner_zero_is_invalid")
+        if (
+            int_count(rows, "allocator_abandoned_reclaim_success_count") > 0
+            and int_count(rows, "remote_free_drain_supported") <= 0
+        ):
+            reasons.append("allocator_abandoned_reclaim_success_without_remote_drain")
     if atomic_remote_profile(rows):
         if int_count(rows, "atomic_remote_head_plan") <= 0:
             reasons.append("atomic_remote_head_plan")

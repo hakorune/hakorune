@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-018B lifecycle report/check fields
+  MIM-FMEM-018C lifecycle shadow counters
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -192,9 +192,10 @@ why:
   runtime coverage can replace their baseline role. 296x-450 then split
   MIM-FMEM-018 into AllocOwner lifecycle truth first: Active / ExitingFlush /
   Abandoned / Reclaimed are the persistent states, ReclaimAttempt is transient,
-  and AllocOwnerId is generation-bearing from v0. MIM-FMEM-018B now opens
-  report/check fields for that lifecycle without enabling abandoned reclaim
-  behavior.
+  and AllocOwnerId is generation-bearing from v0. 296x-451 landed
+  MIM-FMEM-018B by adding lifecycle inventory fields and fastmem-check gates
+  without enabling abandoned reclaim behavior. MIM-FMEM-018C now opens
+  producer-side lifecycle shadow counters.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -236,6 +237,7 @@ completed_this_slice:
   296x-443 Python-template C bridge retirement gate
   MIR-FMEM-005 MIR-to-LLVM/object primary producer for value-only MemOps
   MIM-FMEM-018A AllocOwner lifecycle state machine
+  MIM-FMEM-018B lifecycle report/check fields
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock

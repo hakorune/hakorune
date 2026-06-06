@@ -250,6 +250,48 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         if atomic_remote_enabled
         else 0
     )
+    allocator_thread_exit_flush_count = int_subject_value(
+        rows,
+        idx,
+        "allocator_thread_exit_flush_count",
+        int_route_flag(rows, replacement, "replacement_front_thread_exit_arena_flush_count"),
+    )
+    allocator_abandoned_owner_count = int_subject_value(
+        rows,
+        idx,
+        "allocator_abandoned_owner_count",
+        int_route_flag(rows, replacement, "replacement_front_abandoned_owner_count"),
+    )
+    allocator_owner_lifecycle_state_machine = int_subject_value(
+        rows, idx, "allocator_owner_lifecycle_state_machine", 0
+    )
+    allocator_owner_generation_enabled = int_subject_value(
+        rows,
+        idx,
+        "allocator_owner_generation_enabled",
+        alloc_owner_id_generation_enabled,
+    )
+    allocator_owner_id_kind = first_subject_value(
+        rows,
+        idx,
+        "allocator_owner_id_kind",
+        "arena_owner" if alloc_owner_id_kind == "allocator_arena_owner" else "unknown",
+    )
+    allocator_owner_active_count = int_subject_value(
+        rows, idx, "allocator_owner_active_count", tls_arena_live_count
+    )
+    allocator_owner_exiting_flush_count = int_subject_value(
+        rows, idx, "allocator_owner_exiting_flush_count", 0
+    )
+    allocator_owner_abandoned_count = int_subject_value(
+        rows, idx, "allocator_owner_abandoned_count", allocator_abandoned_owner_count
+    )
+    allocator_owner_reclaimed_count = int_subject_value(
+        rows, idx, "allocator_owner_reclaimed_count", 0
+    )
+    remote_free_drain_supported = int_subject_value(
+        rows, idx, "remote_free_drain_supported", int(atomic_remote_enabled)
+    )
 
     replacement_subowner = (
         "remote_free_queue" if atomic_remote_enabled else replacement["likely_next_owner"]
@@ -549,6 +591,43 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "alloc_owner_id_escape_count": int_subject_value(
             rows, idx, "alloc_owner_id_escape_count", 0
         ),
+        "allocator_owner_lifecycle_state_machine": allocator_owner_lifecycle_state_machine,
+        "allocator_owner_generation_enabled": allocator_owner_generation_enabled,
+        "allocator_owner_id_kind": allocator_owner_id_kind,
+        "allocator_owner_id_repr": first_subject_value(
+            rows,
+            idx,
+            "allocator_owner_id_repr",
+            "packed_u64_slot_generation" if allocator_owner_generation_enabled else "unknown",
+        ),
+        "allocator_owner_slot_bits": int_subject_value(
+            rows, idx, "allocator_owner_slot_bits", 32 if allocator_owner_generation_enabled else 0
+        ),
+        "allocator_owner_generation_bits": int_subject_value(
+            rows,
+            idx,
+            "allocator_owner_generation_bits",
+            32 if allocator_owner_generation_enabled else 0,
+        ),
+        "allocator_owner_zero_is_invalid": int_subject_value(
+            rows, idx, "allocator_owner_zero_is_invalid", alloc_owner_id_zero_is_unowned
+        ),
+        "allocator_owner_active_count": allocator_owner_active_count,
+        "allocator_owner_exiting_flush_count": allocator_owner_exiting_flush_count,
+        "allocator_owner_abandoned_count": allocator_owner_abandoned_count,
+        "allocator_owner_reclaimed_count": allocator_owner_reclaimed_count,
+        "allocator_owner_invalid_transition_count": int_subject_value(
+            rows, idx, "allocator_owner_invalid_transition_count", 0
+        ),
+        "allocator_owner_stale_generation_count": int_subject_value(
+            rows, idx, "allocator_owner_stale_generation_count", page_owner_stale_count
+        ),
+        "allocator_owner_generation_bump_count": int_subject_value(
+            rows, idx, "allocator_owner_generation_bump_count", 0
+        ),
+        "allocator_owner_reuse_without_generation_bump_count": int_subject_value(
+            rows, idx, "allocator_owner_reuse_without_generation_bump_count", 0
+        ),
         "worker_id_capability": worker_id_capability,
         "worker_id_kind": worker_id_kind,
         "worker_id_source": worker_id_source,
@@ -584,14 +663,61 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "allocator_tls_arena_count": int_route_flag(
             rows, replacement, "replacement_front_tls_arena_count"
         ),
+        "allocator_thread_exit_observed_count": int_subject_value(
+            rows,
+            idx,
+            "allocator_thread_exit_observed_count",
+            int(allocator_thread_exit_flush_count > 0),
+        ),
         "allocator_thread_exit_flush_supported": int_subject_value(
             rows, idx, "allocator_thread_exit_flush_supported", 0
         ),
-        "allocator_thread_exit_flush_count": int_route_flag(
-            rows, replacement, "replacement_front_thread_exit_arena_flush_count"
+        "allocator_thread_exit_flush_count": allocator_thread_exit_flush_count,
+        "allocator_thread_exit_flush_page_count": int_subject_value(
+            rows, idx, "allocator_thread_exit_flush_page_count", 0
         ),
-        "allocator_abandoned_owner_count": int_route_flag(
-            rows, replacement, "replacement_front_abandoned_owner_count"
+        "allocator_thread_exit_local_free_drain_count": int_subject_value(
+            rows, idx, "allocator_thread_exit_local_free_drain_count", 0
+        ),
+        "allocator_thread_exit_remote_candidate_seen_count": int_subject_value(
+            rows, idx, "allocator_thread_exit_remote_candidate_seen_count", 0
+        ),
+        "allocator_abandoned_owner_count": allocator_abandoned_owner_count,
+        "allocator_abandoned_page_count": int_subject_value(
+            rows, idx, "allocator_abandoned_page_count", 0
+        ),
+        "allocator_abandoned_live_page_count": int_subject_value(
+            rows, idx, "allocator_abandoned_live_page_count", 0
+        ),
+        "allocator_abandoned_empty_page_count": int_subject_value(
+            rows, idx, "allocator_abandoned_empty_page_count", 0
+        ),
+        "allocator_abandoned_remote_candidate_count": int_subject_value(
+            rows, idx, "allocator_abandoned_remote_candidate_count", 0
+        ),
+        "allocator_abandoned_reclaim_attempt_count": int_subject_value(
+            rows, idx, "allocator_abandoned_reclaim_attempt_count", 0
+        ),
+        "allocator_abandoned_reclaim_success_count": int_subject_value(
+            rows, idx, "allocator_abandoned_reclaim_success_count", 0
+        ),
+        "allocator_abandoned_reclaim_blocked_count": int_subject_value(
+            rows, idx, "allocator_abandoned_reclaim_blocked_count", 0
+        ),
+        "allocator_abandoned_reclaim_blocked_remote_count": int_subject_value(
+            rows, idx, "allocator_abandoned_reclaim_blocked_remote_count", 0
+        ),
+        "remote_candidate_unhandled_reclaim_block_count": int_subject_value(
+            rows, idx, "remote_candidate_unhandled_reclaim_block_count", 0
+        ),
+        "page_reclaimed_with_remote_candidates": int_subject_value(
+            rows, idx, "page_reclaimed_with_remote_candidates", 0
+        ),
+        "allocator_exiting_owner_page_claim_count": int_subject_value(
+            rows, idx, "allocator_exiting_owner_page_claim_count", 0
+        ),
+        "allocator_abandoned_owner_local_free_count": int_subject_value(
+            rows, idx, "allocator_abandoned_owner_local_free_count", 0
         ),
         "replacement_front_owner_shadow_counters": owner_shadow_counters,
         "page_owner_check_enabled": int_subject_value(
@@ -650,6 +776,7 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "atomic_remote_head_enabled": atomic_remote_enabled,
         "remote_free_push_count": remote_free_push_count,
         "remote_free_drain_count": remote_free_drain_count,
+        "remote_free_drain_supported": remote_free_drain_supported,
         "remote_free_cas_retry_count": replacement["remote_free_cas_retry_count_total"],
         "remote_free_memory_order": classify_remote_memory_order(rows, replacement),
         "replacement_front_cross_thread_free_smoke_ok": int_value(

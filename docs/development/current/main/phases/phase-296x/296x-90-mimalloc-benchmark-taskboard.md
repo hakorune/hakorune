@@ -131,6 +131,12 @@ MIM-FMEM-018A landed:
   persistent states, ReclaimAttempt is transient, and AllocOwnerId is
   generation-bearing from v0. MIM-FMEM-018B opens report/check fields next
   without enabling abandoned reclaim behavior.
+MIM-FMEM-018B landed:
+  `hako_check` inventory now reports AllocOwner lifecycle state, generation,
+  thread-exit, abandoned-owner, and reclaim-block fields. `fastmem-check`
+  rejects invalid lifecycle transitions, stale generation, reuse without
+  generation bump, local_free misuse, and reclaim-with-remote-candidates.
+  MIM-FMEM-018C opens producer-side lifecycle shadow counters next.
 ```
 
 ## Queue
