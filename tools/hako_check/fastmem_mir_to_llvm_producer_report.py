@@ -99,6 +99,18 @@ def fastmem_free_head_non_empty_facts(mir: dict[str, Any]) -> list[dict[str, Any
     return facts
 
 
+def metadata_facts(mir: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    facts: list[dict[str, Any]] = []
+    for function in functions(mir):
+        metadata = function.get("metadata", {})
+        if not isinstance(metadata, dict):
+            continue
+        for fact in metadata.get(key, []):
+            if isinstance(fact, dict):
+                facts.append(fact)
+    return facts
+
+
 def is_verified(plan: dict[str, Any]) -> bool:
     return bool(plan.get("verified")) and plan.get("status") == "verified"
 
@@ -209,6 +221,11 @@ def build_rows(
         for plan in verified_plans
         if plan.get("kind") == "free_head_push" and bool(plan.get("lowerable"))
     ]
+    atomic_remote_head_push_plans = [
+        plan for plan in plans if plan.get("kind") == "atomic_remote_head_push"
+    ]
+    remote_owner_facts = metadata_facts(mir, "fastmem_remote_owner_facts")
+    block_next_facts = metadata_facts(mir, "fastmem_block_next_facts")
 
     contract_ids = sorted(
         {
@@ -278,6 +295,58 @@ def build_rows(
     )
     current_owner_count = count_memops(memops, "current_alloc_owner_id")
     owner_eq_count = count_memops(memops, "owner_eq")
+    atomic_remote_head_push_count = count_memops(memops, "atomic_remote_head_push")
+    atomic_remote_head_push_lowerable = sum(
+        1 for plan in atomic_remote_head_push_plans if bool(plan.get("lowerable"))
+    )
+    atomic_remote_head_remote_owner_required = int_flag(
+        any(bool(plan.get("remote_owner_required")) for plan in atomic_remote_head_push_plans)
+    )
+    atomic_remote_head_remote_owner_missing = sum(
+        1
+        for plan in atomic_remote_head_push_plans
+        if bool(plan.get("remote_owner_required"))
+        and not bool(plan.get("remote_owner_proof_valid"))
+    )
+    atomic_remote_head_block_next_required = int_flag(
+        any(bool(plan.get("block_next_required")) for plan in atomic_remote_head_push_plans)
+    )
+    atomic_remote_head_block_next_missing = sum(
+        1
+        for plan in atomic_remote_head_push_plans
+        if bool(plan.get("block_next_required"))
+        and not bool(plan.get("block_next_proof_valid"))
+    )
+    atomic_remote_head_access_resolved = sum(
+        1
+        for plan in atomic_remote_head_push_plans
+        if plan.get("remote_head_byte_offset") not in (None, "")
+        and plan.get("remote_head_field_size") not in (None, "")
+        and plan.get("remote_head_field_type") not in (None, "")
+        and plan.get("remote_head_alignment") not in (None, "")
+    )
+    atomic_remote_head_memory_order_policy = ",".join(
+        sorted(
+            {
+                string_value(plan.get("memory_order_policy"), "unknown")
+                for plan in atomic_remote_head_push_plans
+            }
+        )
+    )
+    if not atomic_remote_head_memory_order_policy:
+        atomic_remote_head_memory_order_policy = "none"
+    remote_owner_source_assume = sum(
+        1
+        for fact in remote_owner_facts
+        if string_value(fact.get("proof_kind")) == "source_assume_remote_owner"
+        and bool(fact.get("same_owner_rejected"))
+    )
+    remote_free_block_next_source_assume = sum(
+        1
+        for fact in block_next_facts
+        if string_value(fact.get("proof_kind"))
+        == "source_assume_remote_free_block_next"
+    )
     selected_local_free_kinds = []
     if verified_local_free_push:
         selected_local_free_kinds.append("LocalFreePush")
@@ -300,7 +369,25 @@ def build_rows(
 
     free_route_candidate = "none"
 
-    if profile == "owner-runtime":
+    if profile == "remote-free-preflight":
+        route_candidate = "none"
+        slice_rows = [
+            ("replacement_front_producer_slice_selection_v0", "0"),
+            ("replacement_front_next_producer_slice", "atomic_remote_head_cas_lowering_preflight"),
+            ("replacement_front_selected_memop_family", "remote_free"),
+            ("replacement_front_selected_memop_kinds", "AtomicRemoteHeadPush"),
+            ("replacement_front_deferred_memop_family", "remote_free_execution"),
+            (
+                "replacement_front_deferred_memop_kinds",
+                "AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
+            ),
+            ("mir_fmem_008b_layout_table_producer_pilot", "0"),
+            ("fastmem_owner_runtime_producer_pilot", "0"),
+            ("fastmem_local_free_producer_pilot", "0"),
+            ("fastmem_atomic_remote_head_cas_preflight", "1"),
+            ("fastmem_owner_runtime_current_owner_source", "closed"),
+        ]
+    elif profile == "owner-runtime":
         route_candidate = "none"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
@@ -312,6 +399,7 @@ def build_rows(
             ("mir_fmem_008b_layout_table_producer_pilot", "0"),
             ("fastmem_owner_runtime_producer_pilot", "1"),
             ("fastmem_local_free_producer_pilot", "0"),
+            ("fastmem_atomic_remote_head_cas_preflight", "0"),
             (
                 "fastmem_owner_runtime_current_owner_source",
                 "llvm_producer_intrinsic",
@@ -345,6 +433,7 @@ def build_rows(
             ("mir_fmem_008b_layout_table_producer_pilot", "0"),
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "1"),
+            ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
@@ -360,6 +449,7 @@ def build_rows(
             ("mir_fmem_008b_layout_table_producer_pilot", "1"),
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "0"),
+            ("fastmem_atomic_remote_head_cas_preflight", "0"),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
@@ -400,6 +490,40 @@ def build_rows(
         ("fastmem_local_free_pop_plan_count", str(len(verified_local_free_pop))),
         ("fastmem_free_head_push_plan_count", str(len(verified_free_head_push))),
         ("fastmem_free_head_pop_plan_count", str(len(verified_free_head_pop))),
+        ("atomic_remote_head_cas_lowering_selected", str(int_flag(profile == "remote-free-preflight"))),
+        ("atomic_remote_head_cas_lowering_open", "0"),
+        ("atomic_remote_head_push_plan_count", str(len(atomic_remote_head_push_plans))),
+        ("atomic_remote_head_push_lowerable_count", str(atomic_remote_head_push_lowerable)),
+        (
+            "atomic_remote_head_remote_owner_required",
+            str(atomic_remote_head_remote_owner_required),
+        ),
+        (
+            "atomic_remote_head_remote_owner_missing_count",
+            str(atomic_remote_head_remote_owner_missing),
+        ),
+        (
+            "atomic_remote_head_block_next_required",
+            str(atomic_remote_head_block_next_required),
+        ),
+        (
+            "atomic_remote_head_block_next_missing_count",
+            str(atomic_remote_head_block_next_missing),
+        ),
+        (
+            "atomic_remote_head_access_resolved_count",
+            str(atomic_remote_head_access_resolved),
+        ),
+        (
+            "atomic_remote_head_memory_order_policy",
+            atomic_remote_head_memory_order_policy,
+        ),
+        ("fastmem_remote_owner_fact_count", str(len(remote_owner_facts))),
+        ("fastmem_remote_owner_source_assume_count", str(remote_owner_source_assume)),
+        (
+            "fastmem_remote_free_block_next_source_assume_count",
+            str(remote_free_block_next_source_assume),
+        ),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
         ("page_local_alloc_route_candidate", route_candidate),
         (
@@ -450,6 +574,10 @@ def build_rows(
         ("memop_current_alloc_owner_id_lowered_count", str(current_owner_count)),
         ("memop_owner_eq_lowered_count", str(owner_eq_count)),
         ("memop_atomic_remote_head_lowered_count", "0"),
+        (
+            "memop_atomic_remote_head_push_count",
+            str(atomic_remote_head_push_count),
+        ),
         ("memop_table_index_layout_ref_created_count", str(len(verified_table))),
         ("memop_field_load_layout_ref_consumed_count", str(len(verified_field_load))),
         ("memop_field_store_layout_ref_consumed_count", str(len(verified_field_store))),
@@ -515,7 +643,12 @@ def build_rows(
         ("winner_claim", "0"),
         ("tls_backing_transfer_enabled", "0"),
         ("allocator_owner_slot_reuse_enabled", "0"),
-        ("llvm_object_path", str(object_out)),
+        (
+            "llvm_object_path",
+            "not_emitted_atomic_remote_head_cas_lowering_closed"
+            if profile == "remote-free-preflight"
+            else str(object_out),
+        ),
         ("summary", "ok"),
     ]
     return rows
@@ -537,7 +670,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--object-out", type=Path)
     parser.add_argument(
         "--profile",
-        choices=("layout-table", "owner-runtime", "local-free"),
+        choices=("layout-table", "owner-runtime", "local-free", "remote-free-preflight"),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
     )
@@ -548,6 +681,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
     mir_json = args.mir_json.resolve()
     mir = load_json(mir_json)
+
+    if args.profile == "remote-free-preflight":
+        object_out = (
+            args.object_out.resolve()
+            if args.object_out is not None
+            else Path("not_emitted_atomic_remote_head_cas_lowering_closed")
+        )
+        rows = build_rows(mir, object_out=object_out, profile=args.profile)
+        write_rows(rows, args.out)
+        return 0
 
     if args.object_out is not None:
         object_out = args.object_out.resolve()

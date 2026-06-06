@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-032.
 Related:
@@ -44,6 +44,36 @@ atomic_remote_head_memory_order_policy=closed
 memop_atomic_remote_head_lowered_count=0
 ```
 
+## Landed Evidence
+
+`fastmem-mir-to-llvm-producer-report` now has a
+`remote-free-preflight` profile. It does not invoke LLVM object emission for
+`AtomicRemoteHeadPush`; instead it reports the selected remote-free slice and
+the verified publication preconditions while keeping lowering closed:
+
+```text
+replacement_front_selected_memop_family=remote_free
+replacement_front_selected_memop_kinds=AtomicRemoteHeadPush
+fastmem_atomic_remote_head_cas_preflight=1
+atomic_remote_head_cas_lowering_selected=1
+atomic_remote_head_cas_lowering_open=0
+atomic_remote_head_push_plan_count=1
+atomic_remote_head_push_lowerable_count=0
+atomic_remote_head_remote_owner_missing_count=0
+atomic_remote_head_block_next_missing_count=0
+atomic_remote_head_memory_order_policy=closed
+memop_atomic_remote_head_lowered_count=0
+```
+
+`fastmem-check` now gates the preflight profile and rejects reports that claim
+CAS lowering opened, that mark `AtomicRemoteHeadPush` lowerable, or that miss
+the required remote-owner / block-next proofs. The source syntax smoke also
+keeps the direct LLVM builder fail-fast path:
+
+```text
+[llvm/fastmem:unsupported-kind] atomic_remote_head_push
+```
+
 The preflight must continue to prove that:
 
 ```text
@@ -74,4 +104,18 @@ winner claim
 fastmem_source_syntax_smoke covers the AtomicRemoteHead pilot report/check path
 fastmem-check rejects any report that claims CAS lowering opened before this row
 current_state_pointer_guard passes
+```
+
+## Verification
+
+```text
+python3 -m py_compile tools/hako_check/fastmem_mir_to_llvm_producer_report.py tools/hako_check/fastmem_check.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-033 AtomicRemoteHead CAS lowering producer pilot
 ```

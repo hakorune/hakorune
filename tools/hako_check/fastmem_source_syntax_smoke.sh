@@ -78,7 +78,9 @@ ATOMIC_REMOTE_HEAD_PUSH_MIR="$TMPDIR/page_meta_atomic_remote_head_push.mir.json"
 ATOMIC_REMOTE_HEAD_PUSH_INV="$TMPDIR/page_meta_atomic_remote_head_push.inventory.kv"
 ATOMIC_REMOTE_HEAD_PUSH_MIR_INV="$TMPDIR/page_meta_atomic_remote_head_push.mir.inventory.kv"
 ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT="$TMPDIR/page_meta_atomic_remote_head_push.llvm.report.kv"
+ATOMIC_REMOTE_HEAD_PUSH_LLVM_CHECK="$TMPDIR/page_meta_atomic_remote_head_push.llvm.check.kv"
 ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR="$TMPDIR/page_meta_atomic_remote_head_push.llvm.stderr"
+ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ="$TMPDIR/page_meta_atomic_remote_head_push.direct.o"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -665,13 +667,51 @@ grep -q '^fastmem_table_access_proof_incomplete_count=0$' "$ATOMIC_REMOTE_HEAD_P
 grep -q '^fastmem_table_overflow_proof_missing_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 
-if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile local-free \
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-preflight \
   --mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
-  --out "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT" \
+  --out "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+
+grep -q '^replacement_front_selected_memop_family=remote_free$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=AtomicRemoteHeadPush$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^fastmem_atomic_remote_head_cas_preflight=1$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_cas_lowering_selected=1$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_cas_lowering_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_push_plan_count=1$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_push_lowerable_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_remote_owner_missing_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_block_next_missing_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^atomic_remote_head_memory_order_policy=closed$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^memop_atomic_remote_head_lowered_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^fastmem_remote_owner_source_assume_count=1$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+grep -q '^fastmem_remote_free_block_next_source_assume_count=1$' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT" \
+  --format kv \
+  --out "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_CHECK"
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_CHECK"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_CHECK"
+
+if python3 "$ROOT/src/llvm_py/llvm_builder.py" \
+  "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
+  -o "$ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ" \
   2>"$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"; then
   echo "[TEST/FAIL] AtomicRemoteHeadPush vocabulary unexpectedly lowered" >&2
-  cat "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT" >&2 || true
   exit 1
 fi
 grep -q '\[llvm/fastmem:unsupported-kind\] atomic_remote_head_push' \

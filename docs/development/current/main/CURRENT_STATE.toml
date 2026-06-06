@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-529 landed MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection: split selection/report preflight before dedicated CAS lowering, keep AtomicRemoteHeadPush lowerable=0 and CAS lowering closed; MIM-PORT-FMEM-032 report/check preflight opens next."
+active_lane_status = "296x-530 landed MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight: remote-free preflight profile selects AtomicRemoteHeadPush, verifies preconditions, keeps lowerable=0 and direct LLVM fail-fast closed; MIM-PORT-FMEM-033 CAS lowering producer pilot opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-529-MIM-PORT-FMEM-031-ATOMIC-REMOTE-HEAD-CAS-LOWERING-PRODUCER-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-529-MIM-PORT-FMEM-031-ATOMIC-REMOTE-HEAD-CAS-LOWERING-PRODUCER-SELECTION.md"
-latest_card_summary = "AtomicRemoteHead CAS lowering will use a split path: report/check preflight first, then a dedicated CAS lowering row; CAS lowering remains closed."
-current_blocker_token = "MIM-PORT-FMEM-032"
+latest_card = "296x-530-MIM-PORT-FMEM-032-ATOMIC-REMOTE-HEAD-CAS-LOWERING-REPORT-CHECK-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-530-MIM-PORT-FMEM-032-ATOMIC-REMOTE-HEAD-CAS-LOWERING-REPORT-CHECK-PREFLIGHT.md"
+latest_card_summary = "AtomicRemoteHead remote-free preflight report/check profile now selects AtomicRemoteHeadPush and verifies its proofs while CAS lowering stays closed."
+current_blocker_token = "MIM-PORT-FMEM-033"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-530 landed MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight: remote-free preflight report selects AtomicRemoteHeadPush, verifies remote-owner/block-next proofs, keeps lowerable=0 and direct LLVM fail-fast closed; MIM-PORT-FMEM-033 CAS lowering producer pilot opens next.",
   "2026-06-07: 296x-529 landed MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection: split selection/report preflight before dedicated CAS lowering, with AtomicRemoteHeadPush still lowerable=0 and CAS lowering closed; MIM-PORT-FMEM-032 report/check preflight opens next.",
   "2026-06-07: 296x-528 landed MIM-PORT-FMEM-030 AtomicRemoteHead proof vocabulary source preflight: .hako now emits paired mem.assumeRemoteOwner(page) and mem.assumeRemoteFreeBlockNext(block) facts, AtomicRemoteHeadPush reports remote-owner/block-next missing counts at zero, lowerable remains 0, and CAS lowering/remote routing/TLS transfer/activation stay closed; MIM-PORT-FMEM-031 CAS lowering producer selection opens next.",
   "2026-06-07: 296x-527 landed MIM-PORT-FMEM-029 AtomicRemoteHead proof vocabulary selection: remote-owner proof and remote-free block-next proof are paired as one source/MIR vocabulary row before any CAS lowering, remote routing, TLS transfer, or activation opens; MIM-PORT-FMEM-030 source preflight opens next.",
