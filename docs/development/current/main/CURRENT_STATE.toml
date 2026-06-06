@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIR-FMEM-007 first slice retired Python-template C bridge from normal replacement-front runs by requiring an explicit diagnostic baseline flag; next is MIR-FMEM-007B remaining bridge quarantine/delete inventory."
+active_lane_status = "MIR-FMEM-007B quarantined remaining Python-template C bridge build helpers behind the shared explicit diagnostic baseline guard; next is MIR-FMEM-007C static import guard."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-446-PYTHON-TEMPLATE-C-BRIDGE-RETIREMENT-FIRST-SLICE.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-447-PYTHON-TEMPLATE-C-BRIDGE-QUARANTINE-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-446-PYTHON-TEMPLATE-C-BRIDGE-RETIREMENT-FIRST-SLICE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-446-PYTHON-TEMPLATE-C-BRIDGE-RETIREMENT-FIRST-SLICE.md"
-latest_card_summary = "Landed MIR-FMEM-007 first slice: replacement-front Python-template C generation now requires --allow-python-template-c-bridge-baseline and report producer inference no longer defaults replacement_front_c_shim to python_template_c_bridge."
-current_blocker_token = "MIR-FMEM-007B"
+latest_card = "296x-447-PYTHON-TEMPLATE-C-BRIDGE-QUARANTINE-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-447-PYTHON-TEMPLATE-C-BRIDGE-QUARANTINE-INVENTORY.md"
+latest_card_summary = "Landed MIR-FMEM-007B: Python-template C bridge build helpers now require the shared explicit diagnostic baseline guard, and remaining template payloads are classified as diagnostic implementation pending MIR-to-LLVM replacement-front coverage."
+current_blocker_token = "MIR-FMEM-007C"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-447 landed MIR-FMEM-007B quarantine inventory: Python-template C bridge generation helpers now require the shared explicit diagnostic baseline guard; MIR-FMEM-007C static import guard opens next.",
   "2026-06-06: 296x-446 landed MIR-FMEM-007 first retirement slice: Python-template C replacement-front generation is explicit baseline-only and report producer fallback inference was removed; MIR-FMEM-007B remaining bridge quarantine/delete inventory opens next.",
   "2026-06-06: 296x-445 landed MIR-FMEM-006 producer-neutral parity gate via hako_check fastmem-producer-parity; MIR-FMEM-007 Python-template C bridge retirement opens next.",
   "2026-06-06: 296x-444 landed MIR-FMEM-005 MIR-to-LLVM/object primary producer for value-only FastMemory MemOps; MIR-FMEM-006 producer-neutral parity against python_template_c_bridge opens next.",

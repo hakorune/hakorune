@@ -169,12 +169,17 @@ hako_mimalloc_expression_materialization_copy_origin_analysis.py:
 typed_object_helper_lock_cost_probe_source.py:
   typed-object helper lock probe Rust benchmark source only; no CLI orchestration or report rendering
 
+python_template_c_bridge.py:
+  shared retirement guard for the retired Python-template C replacement-front
+  bridge; owns the explicit diagnostic baseline flag and fail-fast message
+
 replacement_front_smokes.py:
-  focused non-activating replacement-front C smoke build/run/assert logic;
-  no product activation report fields, no subject orchestration
+  focused non-activating diagnostic-baseline replacement-front C smoke
+  build/run/assert logic; no product activation report fields, no subject
+  orchestration
 
 replacement_front_smoke_templates.py:
-  focused non-activating replacement-front C smoke source text only;
+  focused non-activating diagnostic-baseline replacement-front C smoke source text only;
   no runner logic, no report fields
 
 replacement_front_support.py:
@@ -182,20 +187,20 @@ replacement_front_support.py:
   no C template text and no process execution logic
 
 replacement_front_bins_templates.py:
-  benchmark-only multi-bin replacement-front C template generation; no runner
-  logic or report fields
+  diagnostic-baseline multi-bin replacement-front C template generation; no
+  runner logic or report fields
 
 replacement_front_bins_report_source.py:
-  benchmark-only multi-bin replacement-front report/emission raw C source only;
-  no runner logic or allocator behavior changes
+  diagnostic-baseline multi-bin replacement-front report/emission raw C source
+  only; no runner logic or allocator behavior changes
 
 replacement_front_shim_templates.py:
-  benchmark-only replacement-front shim raw C source only; no runner logic or
-  report fields
+  diagnostic-baseline replacement-front shim raw C source only; no runner logic
+  or report fields
 
 replacement_front_shim_report_source.py:
-  benchmark-only replacement-front shim report/emission raw C source only; no
-  runner logic or allocator behavior changes
+  diagnostic-baseline replacement-front shim report/emission raw C source only;
+  no runner logic or allocator behavior changes
 
 replacement_front_tls_asm_probe.py:
   report-only objdump classifier for replacement-front TLS malloc/free asm
@@ -206,8 +211,8 @@ hakozuna_mixed_ws_report_support.py:
   no benchmark execution logic
 
 replacement_front_templates.py:
-  benchmark-only replacement-front fixed-slot facade exports and smoke/support
-  re-exports; no raw shim source or multi-bin generation
+  diagnostic-baseline replacement-front fixed-slot facade exports and
+  smoke/support re-exports; no raw shim source or multi-bin generation
 ```
 
 Python-template C replacement fronts are retired from normal runs. Any command

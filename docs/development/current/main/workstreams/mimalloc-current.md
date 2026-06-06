@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-007B Remaining Python template C quarantine/delete inventory
+  MIR-FMEM-007C Python template C diagnostic import guard
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -181,7 +181,10 @@ why:
   first retirement slice: Python-template C replacement-front generation now
   requires `--allow-python-template-c-bridge-baseline`, and report producer
   inference no longer maps `replacement_front_c_shim` to
-  `python_template_c_bridge` unless the report declares that producer.
+  `python_template_c_bridge` unless the report declares that producer. 296x-447
+  landed MIR-FMEM-007B by moving the retirement guard into
+  `tools/allocator/python_template_c_bridge.py` and requiring that guard at
+  both CLI validation and bridge build-helper entrypoints.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -263,6 +266,7 @@ task_order:
   MIR-FMEM-006 producer-neutral parity against python_template_c_bridge
   MIR-FMEM-007 Python template C bridge retirement first slice
   MIR-FMEM-007B Remaining Python template C quarantine/delete inventory
+  MIR-FMEM-007C Python template C diagnostic import guard
   MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff/bootstrap artifact producer
 
 retirement_gate:
@@ -270,9 +274,15 @@ retirement_gate:
   MIR-FMEM-006 proved producer-neutral parity with the same report.kv /
   hako_check contract.
   MIR-FMEM-007 first slice makes Python-template C explicit baseline-only and
-  removes report-side hidden producer inference. MIR-FMEM-007B deletes or
-  quarantines remaining non-baseline runtime entrypoints. Optional MIR-to-C
-  artifact support is a separate generated-backend lane.
+  removes report-side hidden producer inference. MIR-FMEM-007B quarantined the
+  remaining build helpers behind the same explicit diagnostic baseline guard.
+  MIR-FMEM-007C adds a static import guard for remaining diagnostic payload
+  files. Optional MIR-to-C artifact support is a separate generated-backend
+  lane.
+  Historical command snippets before 296x-446 are archival. If re-run as a
+  diagnostic baseline, every Python-template C replacement-front mode must add
+  `--allow-python-template-c-bridge-baseline`; do not read older snippets as
+  normal runtime recipes.
 
 closed_by_default:
   RawPtr<T>

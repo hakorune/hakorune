@@ -8,13 +8,14 @@ import os
 from pathlib import Path
 
 from hakozuna_mixed_ws_build_support import (
-    build_replacement_front_bins_shim,
-    build_replacement_front_shim,
+    build_python_template_c_bridge_bins_baseline,
+    build_python_template_c_bridge_slot_baseline,
     find_mimalloc_library,
 )
 from hakozuna_mixed_ws_compare_plan import build_compare_plan
 from hakozuna_mixed_ws_report_render import render_hakozuna_mixed_ws_report
 from hakozuna_mixed_ws_subject_runner import run_hakozuna_mixed_ws_subjects
+from python_template_c_bridge import add_baseline_flag
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_HAKOZUNA_ROOT = ROOT / "benchmarks" / "external" / "hakozuna" / "mixed-ws" / "build"
@@ -60,14 +61,7 @@ def main() -> int:
         action="store_true",
         help="benchmark-only: add a thin native-slot malloc/free replacement front subject",
     )
-    parser.add_argument(
-        "--allow-python-template-c-bridge-baseline",
-        action="store_true",
-        help=(
-            "diagnostic-only: explicitly allow the retired Python-template C "
-            "replacement-front bridge as a comparison baseline"
-        ),
-    )
+    add_baseline_flag(parser)
     parser.add_argument(
         "--replacement-front-native-bins-mode",
         action="store_true",
@@ -208,13 +202,16 @@ def main() -> int:
 
     replacement_front_shim: Path | None = None
     if args.replacement_front_native_slot_mode:
-        replacement_front_shim = build_replacement_front_shim(
+        replacement_front_shim = build_python_template_c_bridge_slot_baseline(
             out_dir,
             locked=args.replacement_front_lock_mode,
             thread_local=args.replacement_front_thread_local_mode,
             skip_hot_counters=args.replacement_front_skip_hot_counters,
             tls_counters=args.replacement_front_tls_counter_mode,
             slot_size=compare_plan.replacement_slot_size,
+            allow_python_template_c_bridge_baseline=(
+                args.allow_python_template_c_bridge_baseline
+            ),
         )
     if compare_plan.replacement_front_bins_mode:
         if not compare_plan.required_regular_bins:
@@ -227,7 +224,7 @@ def main() -> int:
                 "--replacement-front-native-bins-mode/--replacement-front-page-bins-mode "
                 "v0 does not support huge bins"
             )
-        replacement_front_shim = build_replacement_front_bins_shim(
+        replacement_front_shim = build_python_template_c_bridge_bins_baseline(
             out_dir,
             required_bins=compare_plan.required_regular_bins,
             locked=args.replacement_front_lock_mode,
@@ -241,6 +238,9 @@ def main() -> int:
             product_pages_nonlinear_lookup=args.replacement_front_product_pages_nonlinear_mode,
             skip_hot_counters=args.replacement_front_skip_hot_counters,
             tls_counters=args.replacement_front_tls_counter_mode,
+            allow_python_template_c_bridge_baseline=(
+                args.allow_python_template_c_bridge_baseline
+            ),
         )
     subject_specs, reports, replacement_front_smokes = run_hakozuna_mixed_ws_subjects(
         args=args,

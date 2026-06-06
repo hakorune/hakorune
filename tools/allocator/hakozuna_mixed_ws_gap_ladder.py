@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from hakozuna_mixed_ws_gap_summary import emit_summary
+from python_template_c_bridge import add_baseline_flag
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -116,7 +117,7 @@ def main() -> int:
     parser.add_argument("--min-size", type=int, default=16)
     parser.add_argument("--max-size", type=int, default=1024)
     parser.add_argument("--replacement-front-native-slot-mode", action="store_true")
-    parser.add_argument("--allow-python-template-c-bridge-baseline", action="store_true")
+    add_baseline_flag(parser)
     parser.add_argument("--replacement-front-lock-mode", action="store_true")
     parser.add_argument("--replacement-front-thread-local-mode", action="store_true")
     parser.add_argument("--replacement-front-cross-thread-smoke", action="store_true")

@@ -1,4 +1,8 @@
-"""Build helpers for Hakozuna mixed-ws compare probes."""
+"""Build helpers for Hakozuna mixed-ws compare probes.
+
+Python-template C replacement-front builders are diagnostic-baseline helpers
+only. They intentionally require the shared bridge retirement guard.
+"""
 
 from __future__ import annotations
 
@@ -8,13 +12,14 @@ import re
 from pathlib import Path
 
 from hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot import read_kv
+from python_template_c_bridge import require_explicit_baseline
 from replacement_front_templates import (
     REPLACEMENT_FRONT_SHIM_C,
     generate_replacement_front_bins_shim_c,
 )
 
 
-def build_replacement_front_shim(
+def build_python_template_c_bridge_slot_baseline(
     out_dir: Path,
     *,
     locked: bool,
@@ -22,7 +27,9 @@ def build_replacement_front_shim(
     skip_hot_counters: bool,
     tls_counters: bool,
     slot_size: int | None,
+    allow_python_template_c_bridge_baseline: bool,
 ) -> Path:
+    require_explicit_baseline(allow_python_template_c_bridge_baseline)
     front_dir = out_dir / (
         "replacement-front-native-slot-locked" if locked else "replacement-front-native-slot"
     )
@@ -64,7 +71,7 @@ def build_replacement_front_shim(
     return binary
 
 
-def build_replacement_front_bins_shim(
+def build_python_template_c_bridge_bins_baseline(
     out_dir: Path,
     *,
     required_bins: list[int],
@@ -79,7 +86,9 @@ def build_replacement_front_bins_shim(
     product_pages_nonlinear_lookup: bool = False,
     skip_hot_counters: bool = False,
     tls_counters: bool = False,
+    allow_python_template_c_bridge_baseline: bool = False,
 ) -> Path:
+    require_explicit_baseline(allow_python_template_c_bridge_baseline)
     front_name = "replacement-front-page-bins" if page_shaped else "replacement-front-native-bins"
     if hotcore_page_model:
         front_name = f"{front_name}-hotcore-page-model"

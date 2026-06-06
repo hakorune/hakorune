@@ -110,6 +110,11 @@ MIR-FMEM-007 first slice landed:
   `--allow-python-template-c-bridge-baseline`, and report producer inference no
   longer defaults `replacement_front_c_shim` to `python_template_c_bridge`.
   MIR-FMEM-007B opens the remaining bridge quarantine/delete inventory.
+MIR-FMEM-007B landed:
+  Python-template C bridge build helpers now require the shared explicit
+  diagnostic baseline guard, and remaining template payloads are classified as
+  diagnostic implementation. MIR-FMEM-007C opens a static import guard so normal
+  allocator tools cannot import diagnostic payloads directly.
 ```
 
 ## Queue

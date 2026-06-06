@@ -12,10 +12,11 @@ from pathlib import Path
 
 from hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot import read_kv
 from hakozuna_mixed_ws_build_support import (
-    build_replacement_front_shim,
+    build_python_template_c_bridge_slot_baseline,
     find_mimalloc_library,
 )
 from hakozuna_mixed_ws_report_support import format_ratio
+from python_template_c_bridge import add_baseline_flag, require_explicit_baseline
 from replacement_front_support import median_float, positive_int
 
 
@@ -154,14 +155,7 @@ def main() -> int:
         action="store_true",
         help="benchmark-only: add a thin native-slot replacement front subject",
     )
-    parser.add_argument(
-        "--allow-python-template-c-bridge-baseline",
-        action="store_true",
-        help=(
-            "diagnostic-only: explicitly allow the retired Python-template C "
-            "replacement-front bridge as a comparison baseline"
-        ),
-    )
+    add_baseline_flag(parser)
     parser.add_argument(
         "--replacement-front-lock-mode",
         action="store_true",
@@ -200,11 +194,7 @@ def main() -> int:
         args.replacement_front_native_slot_mode
         and not args.allow_python_template_c_bridge_baseline
     ):
-        raise SystemExit(
-            "Python-template C replacement front is retired from normal runs; "
-            "pass --allow-python-template-c-bridge-baseline for an explicit "
-            "diagnostic baseline"
-        )
+        require_explicit_baseline(args.allow_python_template_c_bridge_baseline)
     if args.replacement_front_thread_local_mode and not args.replacement_front_native_slot_mode:
         raise SystemExit(
             "--replacement-front-thread-local-mode requires --replacement-front-native-slot-mode"
@@ -252,13 +242,16 @@ def main() -> int:
 
     replacement_front_shim: Path | None = None
     if args.replacement_front_native_slot_mode:
-        replacement_front_shim = build_replacement_front_shim(
+        replacement_front_shim = build_python_template_c_bridge_slot_baseline(
             out_dir,
             locked=args.replacement_front_lock_mode,
             thread_local=args.replacement_front_thread_local_mode,
             skip_hot_counters=args.replacement_front_skip_hot_counters,
             tls_counters=args.replacement_front_tls_counter_mode,
             slot_size=args.replacement_front_slot_size,
+            allow_python_template_c_bridge_baseline=(
+                args.allow_python_template_c_bridge_baseline
+            ),
         )
 
     subject_specs: list[tuple[str, Path | None, bool]] = [

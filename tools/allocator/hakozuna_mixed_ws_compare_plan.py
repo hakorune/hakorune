@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
+from python_template_c_bridge import require_explicit_baseline
 from replacement_front_support import (
     hako_good_size,
     hako_size_to_bin,
@@ -253,11 +254,7 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
         replacement_front_bridge_mode
         and not args.allow_python_template_c_bridge_baseline
     ):
-        raise SystemExit(
-            "Python-template C replacement front is retired from normal runs; "
-            "pass --allow-python-template-c-bridge-baseline for an explicit "
-            "diagnostic baseline"
-        )
+        require_explicit_baseline(args.allow_python_template_c_bridge_baseline)
     if replacement_front_bins_mode:
         if (
             args.threads != 1
