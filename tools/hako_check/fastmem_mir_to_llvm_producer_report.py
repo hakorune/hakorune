@@ -444,6 +444,18 @@ def build_rows(
     remote_owner_branch_routing_lowering_preflight = (
         profile == "remote-owner-branch-routing-lowering-preflight"
     )
+    remote_owner_branch_routing_lowering_producer = (
+        profile == "remote-owner-branch-routing-lowering"
+    )
+    remote_owner_branch_routing_any = (
+        remote_owner_branch_routing_preflight
+        or remote_owner_branch_routing_lowering_preflight
+        or remote_owner_branch_routing_lowering_producer
+    )
+    remote_owner_branch_routing_lowering_any = (
+        remote_owner_branch_routing_lowering_preflight
+        or remote_owner_branch_routing_lowering_producer
+    )
     if profile in {
         "remote-free-preflight",
         "remote-free",
@@ -461,6 +473,7 @@ def build_rows(
         "remote-free-drain-local-list-mutation-lowering",
         "remote-owner-branch-routing-preflight",
         "remote-owner-branch-routing-lowering-preflight",
+        "remote-owner-branch-routing-lowering",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -478,6 +491,7 @@ def build_rows(
             "remote-free-drain-local-list-mutation-lowering",
             "remote-owner-branch-routing-preflight",
             "remote-owner-branch-routing-lowering-preflight",
+            "remote-owner-branch-routing-lowering",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -539,6 +553,9 @@ def build_rows(
         elif remote_owner_branch_routing_lowering_preflight:
             next_slice = "remote_owner_branch_routing_lowering_producer_pilot"
             deferred_remote_kinds = "RemoteOwnerBranchRoutingLowering"
+        elif remote_owner_branch_routing_lowering_producer:
+            next_slice = "remote_owner_branch_route_body_preflight"
+            deferred_remote_kinds = "SameRemoteFreeBody,BranchCfgLowering"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -554,36 +571,35 @@ def build_rows(
             or remote_free_drain_local_list_mutation_vocabulary_preflight
             or remote_free_drain_local_list_mutation_verifier_preconditions
             or remote_free_drain_local_list_mutation_lowering_producer
-            or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
-            or remote_owner_branch_routing_lowering_preflight
+            or remote_owner_branch_routing_any
             else "AtomicRemoteHeadPush"
         )
         if remote_free_drain_local_list_mutation_verifier_preconditions or (
             remote_free_drain_local_list_mutation_lowering_producer
         ):
             selected_remote_kind = "DrainRemoteListToLocal"
-        if remote_owner_branch_routing_preflight or remote_owner_branch_routing_lowering_preflight:
+        if remote_owner_branch_routing_any:
             selected_remote_kind = "RemoteOwnerBranchRouting"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             (
                 "replacement_front_selected_route",
-                "remote_owner_branch_routing_lowering_preflight"
-                if remote_owner_branch_routing_lowering_preflight
+                "remote_owner_branch_routing_lowering_producer_pilot"
+                if remote_owner_branch_routing_lowering_producer
                 else (
-                    "remote_owner_branch_routing_preflight"
-                    if remote_owner_branch_routing_preflight
-                    else "none"
+                    "remote_owner_branch_routing_lowering_preflight"
+                    if remote_owner_branch_routing_lowering_preflight
+                    else (
+                        "remote_owner_branch_routing_preflight"
+                        if remote_owner_branch_routing_preflight
+                        else "none"
+                    )
                 ),
             ),
             ("replacement_front_next_producer_slice", next_slice),
             (
                 "replacement_front_selected_memop_family",
-                "remote_free_routing"
-                if remote_owner_branch_routing_preflight
-                or remote_owner_branch_routing_lowering_preflight
-                else "remote_free",
+                "remote_free_routing" if remote_owner_branch_routing_any else "remote_free",
             ),
             ("replacement_front_selected_memop_kinds", selected_remote_kind),
             ("replacement_front_deferred_memop_family", "remote_free_execution"),
@@ -610,6 +626,7 @@ def build_rows(
                         and not remote_free_drain_local_list_mutation_lowering_producer
                         and not remote_owner_branch_routing_preflight
                         and not remote_owner_branch_routing_lowering_preflight
+                        and not remote_owner_branch_routing_lowering_producer
                     )
                 ),
             ),
@@ -668,6 +685,10 @@ def build_rows(
             (
                 "fastmem_remote_owner_branch_routing_lowering_preflight",
                 str(int_flag(remote_owner_branch_routing_lowering_preflight)),
+            ),
+            (
+                "fastmem_remote_owner_branch_routing_lowering_producer_pilot",
+                str(int_flag(remote_owner_branch_routing_lowering_producer)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -891,8 +912,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
                     or remote_free_drain_local_list_mutation_verifier_preconditions
                     or remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -912,8 +932,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
                 or remote_free_drain_local_list_mutation_verifier_preconditions
                 or remote_free_drain_local_list_mutation_lowering_producer
-                or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                or remote_owner_branch_routing_any
             )
             else "0",
         ),
@@ -932,8 +951,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
                 or remote_free_drain_local_list_mutation_verifier_preconditions
                 or remote_free_drain_local_list_mutation_lowering_producer
-                or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                or remote_owner_branch_routing_any
                 else 0
             ),
         ),
@@ -951,8 +969,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
                     or remote_free_drain_local_list_mutation_verifier_preconditions
                     or remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -969,8 +986,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
                     or remote_free_drain_local_list_mutation_verifier_preconditions
                     or remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -987,8 +1003,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
                 or remote_free_drain_local_list_mutation_verifier_preconditions
                 or remote_free_drain_local_list_mutation_lowering_producer
-                or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                or remote_owner_branch_routing_any
             )
             else "closed",
         ),
@@ -1005,8 +1020,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
                 or remote_free_drain_local_list_mutation_verifier_preconditions
                 or remote_free_drain_local_list_mutation_lowering_producer
-                or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                or remote_owner_branch_routing_any
             )
             else "closed",
         ),
@@ -1021,8 +1035,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
                     or remote_free_drain_local_list_mutation_verifier_preconditions
                     or remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -1051,8 +1064,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
                     or remote_free_drain_local_list_mutation_verifier_preconditions
                     or remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -1061,8 +1073,7 @@ def build_rows(
             str(
                 int_flag(
                     remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -1085,11 +1096,7 @@ def build_rows(
                         and drain_remote_list_to_local_head_class_resolved > 0
                     )
                     or (
-                        remote_owner_branch_routing_preflight
-                        and drain_remote_list_to_local_head_class_resolved > 0
-                    )
-                    or (
-                        remote_owner_branch_routing_lowering_preflight
+                        remote_owner_branch_routing_any
                         and drain_remote_list_to_local_head_class_resolved > 0
                     )
                 )
@@ -1109,11 +1116,7 @@ def build_rows(
                 and drain_remote_list_to_local_head_class_resolved > 0
             )
             or (
-                remote_owner_branch_routing_preflight
-                and drain_remote_list_to_local_head_class_resolved > 0
-            )
-            or (
-                remote_owner_branch_routing_lowering_preflight
+                remote_owner_branch_routing_any
                 and drain_remote_list_to_local_head_class_resolved > 0
             )
             else "closed",
@@ -1132,11 +1135,7 @@ def build_rows(
                 and drain_remote_list_to_local_head_class_resolved > 0
             )
             or (
-                remote_owner_branch_routing_preflight
-                and drain_remote_list_to_local_head_class_resolved > 0
-            )
-            or (
-                remote_owner_branch_routing_lowering_preflight
+                remote_owner_branch_routing_any
                 and drain_remote_list_to_local_head_class_resolved > 0
             )
             else "closed",
@@ -1153,8 +1152,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
                     or remote_free_drain_local_list_mutation_verifier_preconditions
                     or remote_free_drain_local_list_mutation_lowering_producer
-                    or remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    or remote_owner_branch_routing_any
                 )
             ),
         ),
@@ -1172,8 +1170,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
                 or remote_free_drain_local_list_mutation_verifier_preconditions
                 or remote_free_drain_local_list_mutation_lowering_producer
-                or remote_owner_branch_routing_preflight
-                or remote_owner_branch_routing_lowering_preflight
+                or remote_owner_branch_routing_any
                 else 0
             ),
         ),
@@ -1210,8 +1207,7 @@ def build_rows(
             str(
                 drain_remote_list_to_local_lowerable
                 if remote_free_drain_local_list_mutation_lowering_producer
-                or remote_owner_branch_routing_preflight
-                or remote_owner_branch_routing_lowering_preflight
+                or remote_owner_branch_routing_any
                 else 0
             ),
         ),
@@ -1219,18 +1215,30 @@ def build_rows(
             "remote_owner_branch_routing_selected",
             str(
                 int_flag(
-                    remote_owner_branch_routing_preflight
-                    or remote_owner_branch_routing_lowering_preflight
+                    remote_owner_branch_routing_any
                 )
             ),
         ),
         (
             "remote_owner_branch_routing_lowering_selected",
-            str(int_flag(remote_owner_branch_routing_lowering_preflight)),
+            str(int_flag(remote_owner_branch_routing_lowering_any)),
         ),
-        ("remote_owner_branch_routing_open", "0"),
-        ("remote_owner_branch_routing_lowered_count", "0"),
-        ("remote_owner_branch_routing_preflight_requires_branch_cfg_row", "1"),
+        ("remote_owner_branch_routing_open", str(int_flag(remote_owner_branch_routing_lowering_producer))),
+        (
+            "remote_owner_branch_routing_lowered_count",
+            str(
+                int_flag(
+                    remote_owner_branch_routing_lowering_producer
+                    and current_owner_count > 0
+                    and owner_eq_count > 0
+                    and drain_remote_list_to_local_lowerable > 0
+                )
+            ),
+        ),
+        (
+            "remote_owner_branch_routing_preflight_requires_branch_cfg_row",
+            str(int_flag(not remote_owner_branch_routing_lowering_producer)),
+        ),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
         ("page_local_alloc_route_candidate", route_candidate),
         (
@@ -1404,6 +1412,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "remote-free-drain-local-list-mutation-lowering",
             "remote-owner-branch-routing-preflight",
             "remote-owner-branch-routing-lowering-preflight",
+            "remote-owner-branch-routing-lowering",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",

@@ -113,6 +113,14 @@ DRAIN_REMOTE_LIST_TO_LOCAL_CHECK="$TMPDIR/page_meta_drain_remote_list_to_local.c
 DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT="$TMPDIR/page_meta_drain_remote_list_to_local.lowering.report.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK="$TMPDIR/page_meta_drain_remote_list_to_local.lowering.check.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_LLVM_STDERR="$TMPDIR/page_meta_drain_remote_list_to_local.llvm.stderr"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_remote_owner_branch_routing_lowering_box.hako"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_AST="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.ast.json"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.mir.json"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.inventory.kv"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.mir.inventory.kv"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.report.kv"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_CHECK="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.check.kv"
+REMOTE_OWNER_BRANCH_ROUTING_LOWERING_LLVM_STDERR="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.llvm.stderr"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -1316,6 +1324,101 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^failure_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_PREFLIGHT_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_AST" "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_AST" \
+  --out "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+
+grep -q '^input_kind=ast_json$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_region_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_field_store_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_atomic_remote_head_drain_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_memop_drain_remote_list_to_local_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" \
+  --out "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_field_store_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_atomic_remote_head_drain_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_drain_remote_list_to_local_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^atomic_remote_head_drain_plan_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^atomic_remote_head_drain_lowerable_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^drain_remote_list_to_local_plan_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^drain_remote_list_to_local_token_provenance_valid=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^drain_remote_list_to_local_page_operand_valid=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^drain_remote_list_to_local_head_class_resolved=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^drain_remote_list_to_local_lowerable_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=1$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-owner-branch-routing-lowering \
+  --mir-json "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" \
+  --out "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+
+grep -q '^fastmem_remote_owner_branch_routing_lowering_producer_pilot=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^replacement_front_selected_route=remote_owner_branch_routing_lowering_producer_pilot$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=RemoteOwnerBranchRouting$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^replacement_front_next_producer_slice=remote_owner_branch_route_body_preflight$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^memop_current_alloc_owner_id_lowered_count=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^memop_owner_eq_lowered_count=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowered_count=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^remote_owner_branch_routing_selected=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^remote_owner_branch_routing_lowering_selected=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^remote_owner_branch_routing_open=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^remote_owner_branch_routing_lowered_count=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^remote_owner_branch_routing_preflight_requires_branch_cfg_row=0$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=0$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^product_activation=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^global_allocator_claim=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+grep -q '^winner_claim=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT" \
+  --format kv \
+  --out "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_CHECK"
+
+grep -q '^failure_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_CHECK"
+grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_CHECK"
+
+python3 "$ROOT/src/llvm_py/llvm_builder.py" \
+  "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" \
+  -o "$TMPDIR/page_meta_remote_owner_branch_routing_lowering.direct.o" \
+  2>"$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_LLVM_STDERR"
+test -f "$TMPDIR/page_meta_remote_owner_branch_routing_lowering.direct.o"
 
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR" \
