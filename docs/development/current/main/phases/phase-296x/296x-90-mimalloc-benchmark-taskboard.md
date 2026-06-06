@@ -305,6 +305,11 @@ MIR-FMEM-008 split:
     lower CurrentAllocOwnerId observation, then OwnerEq equality, then close
     report/check coverage. No TLS backing transfer, owner slot reuse,
     AtomicRemoteHead, or local/remote free routing.
+  MIR-FMEM-008D-PRE landed:
+    CurrentAllocOwnerId v0 is an LLVM-producer owner-id observation scalar,
+    not TLS backing transfer. OwnerEq is equality only and must not select
+    same/remote free routing. 008D-C owns the owner-runtime complete report
+    profile.
   MIR-FMEM-008E producer-neutral parity/readiness:
     prove MIR-to-LLVM evidence can replace the quarantined Python-template C
     diagnostic baseline before the reference closeout runs.

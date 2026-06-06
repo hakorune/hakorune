@@ -136,10 +136,10 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008D-PRE owner-runtime producer preflight
+  MIR-FMEM-008D-A CurrentAllocOwnerId lowering
 
 implementation_sequence:
-  MIR-FMEM-008D-PRE docs/inventory
+  MIR-FMEM-008D-PRE docs/inventory (landed)
   MIR-FMEM-008D-A CurrentAllocOwnerId lowering
   MIR-FMEM-008D-B OwnerEq lowering
   MIR-FMEM-008D-C report/check closeout
@@ -3187,6 +3187,10 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Parking Lot
 
+- `MIR-FMEM-008D-PRE` fixed owner-runtime scope: CurrentAllocOwnerId is an
+  observation scalar first, OwnerEq is equality only, and 008D must not open
+  local/remote free routing, TLS backing transfer, AtomicRemoteHead, or
+  mimalloc body migration.
 - `DIRECTARRAY-FMEM-COMMON-001` is queued as proof-envelope/report adapter
   work only. DirectArray access does not auto-generate a fastmem region in the
   current lane.
