@@ -74,6 +74,7 @@ pub enum MemOpKind {
     OwnerEq,
     LocalFreePush,
     LocalFreePop,
+    FreeHeadPop,
 }
 
 impl MemOpKind {
@@ -90,6 +91,7 @@ impl MemOpKind {
         Self::OwnerEq,
         Self::LocalFreePush,
         Self::LocalFreePop,
+        Self::FreeHeadPop,
     ];
 
     pub fn display_name(self) -> &'static str {
@@ -106,6 +108,7 @@ impl MemOpKind {
             Self::OwnerEq => "OwnerEq",
             Self::LocalFreePush => "LocalFreePush",
             Self::LocalFreePop => "LocalFreePop",
+            Self::FreeHeadPop => "FreeHeadPop",
         }
     }
 
@@ -123,6 +126,7 @@ impl MemOpKind {
             Self::OwnerEq => "owner_eq",
             Self::LocalFreePush => "local_free_push",
             Self::LocalFreePop => "local_free_pop",
+            Self::FreeHeadPop => "free_head_pop",
         }
     }
 
@@ -133,7 +137,7 @@ impl MemOpKind {
     pub fn operand_arity(self) -> usize {
         match self {
             Self::CurrentAllocOwnerId => 0,
-            Self::AddrOf | Self::FieldLoad | Self::LocalFreePop => 1,
+            Self::AddrOf | Self::FieldLoad | Self::LocalFreePop | Self::FreeHeadPop => 1,
             Self::LogicalShr
             | Self::BitAnd
             | Self::Add
@@ -148,7 +152,9 @@ impl MemOpKind {
     pub fn effect_mask(self) -> EffectMask {
         match self {
             Self::TableIndex | Self::FieldLoad => EffectMask::READ,
-            Self::FieldStore | Self::LocalFreePush | Self::LocalFreePop => EffectMask::WRITE,
+            Self::FieldStore | Self::LocalFreePush | Self::LocalFreePop | Self::FreeHeadPop => {
+                EffectMask::WRITE
+            }
             Self::AddrOf
             | Self::LogicalShr
             | Self::BitAnd

@@ -125,6 +125,7 @@ winner claim
 
 ```text
 MIM-PORT-FMEM-015A:
-  add FreeHeadPop MemOp vocabulary/source observation and fail-closed
-  verifier plan rows, with LLVM lowering still closed.
+  add FreeHeadPop MemOp vocabulary/source/MIR observation and fail-closed
+  LLVM producer evidence. Verifier-owned FreeHeadPop plans stay closed for
+  MIM-PORT-FMEM-015B.
 ```

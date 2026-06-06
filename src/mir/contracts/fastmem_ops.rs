@@ -37,8 +37,11 @@ pub const FASTMEM_LLVM_OWNER_RUNTIME_MEMOP_KINDS: &[MemOpKind] =
 ///
 /// These are visible in MIR/JSON as vocabulary, but LLVM lowering remains
 /// closed until verifier-owned local free-list plans land.
-pub const FASTMEM_FREE_LIST_MEMOP_KINDS: &[MemOpKind] =
-    &[MemOpKind::LocalFreePush, MemOpKind::LocalFreePop];
+pub const FASTMEM_FREE_LIST_MEMOP_KINDS: &[MemOpKind] = &[
+    MemOpKind::LocalFreePush,
+    MemOpKind::LocalFreePop,
+    MemOpKind::FreeHeadPop,
+];
 
 /// Complete MemOp set accepted by the current MIR-to-LLVM/object producer.
 ///
@@ -105,7 +108,7 @@ mod tests {
 
     #[test]
     fn fastmem_v0_memop_kind_count_is_intentional() {
-        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 12);
+        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 13);
     }
 
     #[test]
