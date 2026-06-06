@@ -224,18 +224,20 @@ pub struct FastMemSameOwnerFact {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FastMemBlockNextProofKind {
     SourceAssumeLocalFreeBlockNext,
+    SourceAssumeFreeHeadBlockNext,
 }
 
 impl FastMemBlockNextProofKind {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::SourceAssumeLocalFreeBlockNext => "source_assume_local_free_block_next",
+            Self::SourceAssumeFreeHeadBlockNext => "source_assume_free_head_block_next",
         }
     }
 }
 
 /// FastMemory-owned proof that a candidate block has the free-list `next`
-/// storage/provenance required by `LocalFreePush`.
+/// storage/provenance required by page-local free-list push routes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FastMemBlockNextFact {
     pub fact_id: u32,

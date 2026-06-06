@@ -294,7 +294,21 @@ fn lower_fastmem_function_call(
         "mem.assumeLocalFreeBlockNext" => {
             let arg =
                 single_fastmem_arg(builder, region, "mem.assumeLocalFreeBlockNext", arguments)?;
-            builder.add_fastmem_block_next_fact(region, arg)?;
+            builder.add_fastmem_block_next_fact(
+                region,
+                arg,
+                FastMemBlockNextProofKind::SourceAssumeLocalFreeBlockNext,
+            )?;
+            crate::mir::builder::emission::constant::emit_void(builder)
+        }
+        "mem.assumeFreeHeadBlockNext" => {
+            let arg =
+                single_fastmem_arg(builder, region, "mem.assumeFreeHeadBlockNext", arguments)?;
+            builder.add_fastmem_block_next_fact(
+                region,
+                arg,
+                FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext,
+            )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         "mem.assumeLocalFreeNonEmpty" => {
@@ -635,6 +649,7 @@ impl MirBuilder {
         &mut self,
         region: FastMemRegionId,
         block_value: ValueId,
+        proof_kind: FastMemBlockNextProofKind,
     ) -> Result<(), String> {
         let function = self
             .scope_ctx
@@ -650,7 +665,7 @@ impl MirBuilder {
                 region,
                 block_value,
                 next_field_id: "next".to_string(),
-                proof_kind: FastMemBlockNextProofKind::SourceAssumeLocalFreeBlockNext,
+                proof_kind,
                 writable: true,
                 provenance_valid: true,
             });
@@ -1075,6 +1090,11 @@ mod tests {
                         span: span(),
                     },
                     ASTNode::FunctionCall {
+                        name: "mem.assumeFreeHeadBlockNext".to_string(),
+                        arguments: vec![var("block")],
+                        span: span(),
+                    },
+                    ASTNode::FunctionCall {
                         name: "mem.assumeLocalFreeNonEmpty".to_string(),
                         arguments: vec![var("page")],
                         span: span(),
@@ -1097,7 +1117,7 @@ mod tests {
         super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
         let function = builder.scope_ctx.current_function.as_ref().unwrap();
         assert_eq!(function.metadata.fastmem_same_owner_facts.len(), 1);
-        assert_eq!(function.metadata.fastmem_block_next_facts.len(), 1);
+        assert_eq!(function.metadata.fastmem_block_next_facts.len(), 2);
         assert_eq!(
             function.metadata.fastmem_local_free_non_empty_facts.len(),
             1
@@ -1110,6 +1130,14 @@ mod tests {
         assert_eq!(
             function.metadata.fastmem_block_next_facts[0].next_field_id,
             "next"
+        );
+        assert_eq!(
+            function.metadata.fastmem_block_next_facts[0].proof_kind,
+            FastMemBlockNextProofKind::SourceAssumeLocalFreeBlockNext
+        );
+        assert_eq!(
+            function.metadata.fastmem_block_next_facts[1].proof_kind,
+            FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext
         );
         assert!(function.metadata.fastmem_local_free_non_empty_facts[0].non_empty);
         assert!(function.metadata.fastmem_free_head_non_empty_facts[0].non_empty);

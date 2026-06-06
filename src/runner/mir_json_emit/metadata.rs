@@ -465,6 +465,10 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                     FastMemAccessPlanPayload::FreeHead(free_head) => {
                         map.insert("page".to_string(), json!(free_head.page.as_u32()));
                         map.insert(
+                            "block_value".to_string(),
+                            json!(free_head.block.map(|value| value.as_u32())),
+                        );
+                        map.insert(
                             "result".to_string(),
                             json!(free_head.result.map(|value| value.as_u32())),
                         );
@@ -527,6 +531,10 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         map.insert(
                             "same_owner_proof_valid".to_string(),
                             json!(free_head.same_owner_proof_valid),
+                        );
+                        map.insert(
+                            "block_next_proof_valid".to_string(),
+                            json!(free_head.block_next_proof_valid),
                         );
                         map.insert(
                             "non_empty_proof_valid".to_string(),
