@@ -101,6 +101,8 @@ ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT="$TMPDIR/page_meta_atomic_remote_head_d
 ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_CHECK="$TMPDIR/page_meta_atomic_remote_head_drain.to_local.check.kv"
 ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PREFLIGHT_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain.local_list_mutation_preflight.report.kv"
 ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PREFLIGHT_CHECK="$TMPDIR/page_meta_atomic_remote_head_drain.local_list_mutation_preflight.check.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain.local_list_mutation_proof.report.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_CHECK="$TMPDIR/page_meta_atomic_remote_head_drain.local_list_mutation_proof.check.kv"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -1058,6 +1060,46 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PREFLIGHT_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-drain-local-list-mutation-proof \
+  --mir-json "$ATOMIC_REMOTE_HEAD_DRAIN_MIR" \
+  --object-out "$ATOMIC_REMOTE_HEAD_DRAIN_DIRECT_OBJ" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT" \
+  2>"$ATOMIC_REMOTE_HEAD_DRAIN_LLVM_STDERR"
+
+grep -q '^fastmem_atomic_remote_head_drain_local_list_mutation_proof=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^replacement_front_next_producer_slice=atomic_remote_head_drain_local_list_mutation_vocabulary_preflight$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_to_local_route_open=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_selected=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_token_escape_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_head_class_resolved=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_head_class=owner_local_free_or_free_head$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_publication_order=verifier_owned_acquire_then_owner_local$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^remote_owner_branch_routing_open=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^product_activation=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^global_allocator_claim=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+grep -q '^winner_claim=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_REPORT" \
+  --format kv \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_CHECK"
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_CHECK"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_CHECK"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_PUSH_PRECONDITION_AST" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_PUSH_PRECONDITION_MIR" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null

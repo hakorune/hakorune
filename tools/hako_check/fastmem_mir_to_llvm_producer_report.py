@@ -404,6 +404,9 @@ def build_rows(
     remote_free_drain_local_list_mutation_preflight = (
         profile == "remote-free-drain-local-list-mutation-preflight"
     )
+    remote_free_drain_local_list_mutation_proof = (
+        profile == "remote-free-drain-local-list-mutation-proof"
+    )
     if profile in {
         "remote-free-preflight",
         "remote-free",
@@ -415,6 +418,7 @@ def build_rows(
         "remote-free-drain-to-local-selection",
         "remote-free-drain-to-local",
         "remote-free-drain-local-list-mutation-preflight",
+        "remote-free-drain-local-list-mutation-proof",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -426,6 +430,7 @@ def build_rows(
             "remote-free-drain-to-local-selection",
             "remote-free-drain-to-local",
             "remote-free-drain-local-list-mutation-preflight",
+            "remote-free-drain-local-list-mutation-proof",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -463,6 +468,11 @@ def build_rows(
         elif remote_free_drain_local_list_mutation_preflight:
             next_slice = "atomic_remote_head_drain_local_list_mutation_proof"
             deferred_remote_kinds = "DrainLocalListMutation,RemoteOwnerBranchRouting"
+        elif remote_free_drain_local_list_mutation_proof:
+            next_slice = "atomic_remote_head_drain_local_list_mutation_vocabulary_preflight"
+            deferred_remote_kinds = (
+                "DrainLocalListMutationVocabulary,RemoteOwnerBranchRouting"
+            )
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -474,6 +484,7 @@ def build_rows(
             or remote_free_drain_to_local_selection
             or remote_free_drain_to_local_producer
             or remote_free_drain_local_list_mutation_preflight
+            or remote_free_drain_local_list_mutation_proof
             else "AtomicRemoteHeadPush"
         )
         slice_rows = [
@@ -499,6 +510,7 @@ def build_rows(
                         and not remote_free_drain_to_local_selection
                         and not remote_free_drain_to_local_producer
                         and not remote_free_drain_local_list_mutation_preflight
+                        and not remote_free_drain_local_list_mutation_proof
                     )
                 ),
             ),
@@ -534,6 +546,10 @@ def build_rows(
                 "fastmem_atomic_remote_head_drain_local_list_mutation_preflight",
                 str(int_flag(remote_free_drain_local_list_mutation_preflight)),
             ),
+            (
+                "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
+                str(int_flag(remote_free_drain_local_list_mutation_proof)),
+            ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
     elif profile == "owner-runtime":
@@ -558,6 +574,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
             ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
+            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
             (
                 "fastmem_owner_runtime_current_owner_source",
                 "llvm_producer_intrinsic",
@@ -601,6 +618,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
             ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
+            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
@@ -626,6 +644,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
             ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
+            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
@@ -682,6 +701,7 @@ def build_rows(
                         "remote-free-drain-to-local-selection",
                         "remote-free-drain-to-local",
                         "remote-free-drain-local-list-mutation-preflight",
+                        "remote-free-drain-local-list-mutation-proof",
                     }
                 )
             ),
@@ -734,6 +754,7 @@ def build_rows(
                     or remote_free_drain_to_local_selection
                     or remote_free_drain_to_local_producer
                     or remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
                 )
             ),
         ),
@@ -749,6 +770,7 @@ def build_rows(
                 or remote_free_drain_to_local_selection
                 or remote_free_drain_to_local_producer
                 or remote_free_drain_local_list_mutation_preflight
+                or remote_free_drain_local_list_mutation_proof
             )
             else "0",
         ),
@@ -763,6 +785,7 @@ def build_rows(
                 or remote_free_drain_to_local_selection
                 or remote_free_drain_to_local_producer
                 or remote_free_drain_local_list_mutation_preflight
+                or remote_free_drain_local_list_mutation_proof
                 else 0
             ),
         ),
@@ -776,6 +799,7 @@ def build_rows(
                     or remote_free_drain_to_local_selection
                     or remote_free_drain_to_local_producer
                     or remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
                 )
             ),
         ),
@@ -788,6 +812,7 @@ def build_rows(
                     or remote_free_drain_to_local_selection
                     or remote_free_drain_to_local_producer
                     or remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
                 )
             ),
         ),
@@ -800,6 +825,7 @@ def build_rows(
                 or remote_free_drain_to_local_selection
                 or remote_free_drain_to_local_producer
                 or remote_free_drain_local_list_mutation_preflight
+                or remote_free_drain_local_list_mutation_proof
             )
             else "closed",
         ),
@@ -812,6 +838,7 @@ def build_rows(
                 or remote_free_drain_to_local_selection
                 or remote_free_drain_to_local_producer
                 or remote_free_drain_local_list_mutation_preflight
+                or remote_free_drain_local_list_mutation_proof
             )
             else "closed",
         ),
@@ -822,6 +849,7 @@ def build_rows(
                     remote_free_drain_to_local_selection
                     or remote_free_drain_to_local_producer
                     or remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
                 )
             ),
         ),
@@ -835,16 +863,42 @@ def build_rows(
                 int_flag(
                     remote_free_drain_to_local_producer
                     or remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
                 )
             ),
         ),
         (
             "atomic_remote_head_drain_local_list_mutation_selected",
-            str(int_flag(remote_free_drain_local_list_mutation_preflight)),
+            str(
+                int_flag(
+                    remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
+                )
+            ),
         ),
         (
             "atomic_remote_head_drain_local_list_mutation_open",
             "0",
+        ),
+        (
+            "atomic_remote_head_drain_local_list_token_escape_count",
+            "0",
+        ),
+        (
+            "atomic_remote_head_drain_local_list_head_class_resolved",
+            str(int_flag(remote_free_drain_local_list_mutation_proof)),
+        ),
+        (
+            "atomic_remote_head_drain_local_list_head_class",
+            "owner_local_free_or_free_head"
+            if remote_free_drain_local_list_mutation_proof
+            else "closed",
+        ),
+        (
+            "atomic_remote_head_drain_local_list_publication_order",
+            "verifier_owned_acquire_then_owner_local"
+            if remote_free_drain_local_list_mutation_proof
+            else "closed",
         ),
         (
             "atomic_remote_head_drain_open",
@@ -854,6 +908,7 @@ def build_rows(
                     or remote_free_drain_to_local_selection
                     or remote_free_drain_to_local_producer
                     or remote_free_drain_local_list_mutation_preflight
+                    or remote_free_drain_local_list_mutation_proof
                 )
             ),
         ),
@@ -867,6 +922,7 @@ def build_rows(
                 or remote_free_drain_to_local_selection
                 or remote_free_drain_to_local_producer
                 or remote_free_drain_local_list_mutation_preflight
+                or remote_free_drain_local_list_mutation_proof
                 else 0
             ),
         ),
@@ -1038,6 +1094,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "remote-free-drain-to-local-selection",
             "remote-free-drain-to-local",
             "remote-free-drain-local-list-mutation-preflight",
+            "remote-free-drain-local-list-mutation-proof",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
