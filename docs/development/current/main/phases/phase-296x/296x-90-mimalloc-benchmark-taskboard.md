@@ -222,6 +222,12 @@ FMEM-TABLE-001 implemented:
   fields and MIR JSON emits them. `page_table` still reports
   `table-length-unresolved` and remains non-lowerable; bounds and overflow proof
   rows are next and lowering remains closed.
+FMEM-TABLE-002 design stop:
+  Before consuming `RangeIndexFact` as `BoundsProof::RangeFact`, decide the
+  FastMemory-owned table length fact owner. Current recommendation is a
+  memory-profile table length fact carrier now, with page-map strategy selection
+  deferred until the proof API is stable. Do not mark `TableIndex` lowerable or
+  choose one-level/two-level page-map shape in this stop.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
