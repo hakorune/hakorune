@@ -649,17 +649,17 @@ grep -q '^fastmem_memop_table_index_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_memop_field_load_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_memop_atomic_remote_head_push_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^atomic_remote_head_push_plan_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
-grep -q '^atomic_remote_head_push_lowerable_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^atomic_remote_head_push_lowerable_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^atomic_remote_head_remote_owner_required=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^atomic_remote_head_remote_owner_missing_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^atomic_remote_head_block_next_required=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^atomic_remote_head_block_next_missing_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^atomic_remote_head_access_resolved_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
-grep -q '^atomic_remote_head_memory_order_policy=closed$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^atomic_remote_head_memory_order_policy=acq_rel$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_remote_owner_fact_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_remote_owner_source_assume_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_remote_free_block_next_source_assume_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
-grep -q '^fastmem_verified_mem_access_plan_count=2$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_verified_mem_access_plan_count=3$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_verified_field_access_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_verified_table_access_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 grep -q '^fastmem_table_index_unchecked_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
@@ -668,7 +668,7 @@ grep -q '^fastmem_table_overflow_proof_missing_count=0$' "$ATOMIC_REMOTE_HEAD_PU
 grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile remote-free-preflight \
+  --profile remote-free \
   --mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
   --out "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 
@@ -676,23 +676,23 @@ grep -q '^replacement_front_selected_memop_family=remote_free$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 grep -q '^replacement_front_selected_memop_kinds=AtomicRemoteHeadPush$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
-grep -q '^fastmem_atomic_remote_head_cas_preflight=1$' \
+grep -q '^fastmem_atomic_remote_head_cas_producer_pilot=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 grep -q '^atomic_remote_head_cas_lowering_selected=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
-grep -q '^atomic_remote_head_cas_lowering_open=0$' \
+grep -q '^atomic_remote_head_cas_lowering_open=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 grep -q '^atomic_remote_head_push_plan_count=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
-grep -q '^atomic_remote_head_push_lowerable_count=0$' \
+grep -q '^atomic_remote_head_push_lowerable_count=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 grep -q '^atomic_remote_head_remote_owner_missing_count=0$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 grep -q '^atomic_remote_head_block_next_missing_count=0$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
-grep -q '^atomic_remote_head_memory_order_policy=closed$' \
+grep -q '^atomic_remote_head_memory_order_policy=acq_rel$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
-grep -q '^memop_atomic_remote_head_lowered_count=0$' \
+grep -q '^memop_atomic_remote_head_lowered_count=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
 grep -q '^fastmem_remote_owner_source_assume_count=1$' \
   "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT"
@@ -707,15 +707,11 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_CHECK"
 grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_CHECK"
 
-if python3 "$ROOT/src/llvm_py/llvm_builder.py" \
+python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
   -o "$ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ" \
-  2>"$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"; then
-  echo "[TEST/FAIL] AtomicRemoteHeadPush vocabulary unexpectedly lowered" >&2
-  exit 1
-fi
-grep -q '\[llvm/fastmem:unsupported-kind\] atomic_remote_head_push' \
-  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"
+  2>"$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"
+test -s "$ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_PUSH_PRECONDITION_AST" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_PUSH_PRECONDITION_MIR" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null

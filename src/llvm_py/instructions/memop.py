@@ -22,6 +22,7 @@ _FIELD_STORE_I64_TYPES = _FIELD_LOAD_I64_TYPES
 _LOCAL_FREE_HEAD_ALLOWED_CLASS = "local_free_head"
 _LOCAL_FREE_BLOCK_NEXT_ALLOWED_CLASS = "local_free_block_next"
 _FREE_HEAD_ALLOWED_CLASS = "plain_pointer"
+_ATOMIC_REMOTE_HEAD_ALLOWED_CLASS = "atomic_remote_head"
 _CURRENT_ALLOC_OWNER_HELPER = "hako_fastmem_current_alloc_owner_id"
 
 
@@ -135,6 +136,11 @@ def _current_fastmem_access_plan(
             if plan.get("page") != int(operands[0]):
                 continue
         if kind == "free_head_push":
+            if len(operands) < 2:
+                continue
+            if plan.get("page") != int(operands[0]) or plan.get("block_value") != int(operands[1]):
+                continue
+        if kind == "atomic_remote_head_push":
             if len(operands) < 2:
                 continue
             if plan.get("page") != int(operands[0]) or plan.get("block_value") != int(operands[1]):
@@ -553,6 +559,92 @@ def _require_complete_free_head_push_plan(plan: Optional[Dict[str, Any]]) -> Dic
     return plan
 
 
+def _require_complete_atomic_remote_head_push_plan(
+    plan: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-atomic-remote-head-push-plan]")
+    for key in (
+        "remote_head_layout_id",
+        "remote_head_field_id",
+        "remote_head_field_class",
+        "remote_head_byte_offset",
+        "remote_head_field_size",
+        "remote_head_field_type",
+        "remote_head_alignment",
+        "block_next_layout_id",
+        "block_next_field_id",
+        "block_next_field_class",
+        "block_next_byte_offset",
+        "block_next_field_size",
+        "block_next_field_type",
+        "block_next_alignment",
+        "memory_order_policy",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(
+                f"[llvm/fastmem:missing-atomic-remote-head-push-plan-field] {key}"
+            )
+    if plan.get("lowerable") is not True:
+        raise RuntimeError("[llvm/fastmem:atomic-remote-head-push-plan-not-lowerable]")
+    if plan.get("remote_owner_proof_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:atomic-remote-head-remote-owner-proof-missing]")
+    if plan.get("block_next_proof_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:atomic-remote-head-block-next-proof-missing]")
+    if str(plan.get("remote_head_field_class")) != _ATOMIC_REMOTE_HEAD_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-class] "
+            f"{plan.get('remote_head_field_class')}"
+        )
+    if str(plan.get("block_next_field_class")) != _LOCAL_FREE_BLOCK_NEXT_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-block-next-class] "
+            f"{plan.get('block_next_field_class')}"
+        )
+    if str(plan.get("memory_order_policy")) != "acq_rel":
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-memory-order] "
+            f"{plan.get('memory_order_policy')}"
+        )
+    for key in (
+        "remote_head_field_size",
+        "remote_head_alignment",
+        "block_next_field_size",
+        "block_next_alignment",
+    ):
+        try:
+            if int(plan.get(key)) <= 0:
+                raise RuntimeError(
+                    f"[llvm/fastmem:invalid-atomic-remote-head-plan-number] {key}"
+                )
+        except ValueError as exc:
+            raise RuntimeError(
+                "[llvm/fastmem:invalid-atomic-remote-head-plan-number]"
+            ) from exc
+    if int(plan.get("remote_head_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-size] "
+            f"{plan.get('remote_head_field_size')}"
+        )
+    if int(plan.get("block_next_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-block-next-size] "
+            f"{plan.get('block_next_field_size')}"
+        )
+    if str(plan.get("remote_head_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-type] "
+            f"{plan.get('remote_head_field_type')}"
+        )
+    if str(plan.get("block_next_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-block-next-type] "
+            f"{plan.get('block_next_field_type')}"
+        )
+    return plan
+
+
 def _layout_refs(resolver) -> Dict[int, Dict[str, Any]]:
     refs = getattr(resolver, "fastmem_layout_refs", None)
     if not isinstance(refs, dict):
@@ -928,6 +1020,70 @@ def _lower_free_head_push(
     builder.store(block_addr, head_ptr)
 
 
+def _lower_atomic_remote_head_push(
+    builder: ir.IRBuilder,
+    resolver,
+    operands: List[Any],
+    vmap: Dict[int, ir.Value],
+    current_block,
+    preds,
+    block_end_values,
+    bb_map,
+) -> None:
+    _require_operands("atomic_remote_head_push", operands, 2)
+    plan = _require_complete_atomic_remote_head_push_plan(
+        _current_fastmem_access_plan(resolver, "atomic_remote_head_push", None, operands)
+    )
+    page_ref = _get_layout_ref(
+        resolver,
+        int(operands[0]),
+        str(plan["remote_head_layout_id"]),
+    )
+    block_addr = _resolve_i64_operand(
+        builder,
+        resolver,
+        int(operands[1]),
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+        name_hint=f"fastmem_atomic_remote_block_{operands[1]}",
+    )
+    block_ptr = builder.inttoptr(
+        block_addr,
+        ir.IntType(8).as_pointer(),
+        name=f"fastmem_atomic_remote_block_ptr_{operands[1]}",
+    )
+    head_ptr = _gep_i64_field_ptr(
+        builder,
+        page_ref["ptr"],
+        int(plan["remote_head_byte_offset"]),
+        name_prefix="fastmem_atomic_remote_head",
+    )
+    old_head = builder.load_atomic(
+        head_ptr,
+        "acquire",
+        int(plan["remote_head_alignment"]),
+        name="fastmem_atomic_remote_old_head",
+    )
+    block_next_ptr = _gep_i64_field_ptr(
+        builder,
+        block_ptr,
+        int(plan["block_next_byte_offset"]),
+        name_prefix="fastmem_atomic_remote_block_next",
+    )
+    builder.store(old_head, block_next_ptr)
+    builder.cmpxchg(
+        head_ptr,
+        old_head,
+        block_addr,
+        "acq_rel",
+        "acquire",
+        name="fastmem_atomic_remote_head_cas",
+    )
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -1008,6 +1164,20 @@ def lower_memop(
         if dst is not None:
             raise RuntimeError("[llvm/fastmem:free-head-push-has-dst]")
         _lower_free_head_push(
+            builder,
+            resolver,
+            operands,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
+        )
+        return
+    if kind == "atomic_remote_head_push":
+        if dst is not None:
+            raise RuntimeError("[llvm/fastmem:atomic-remote-head-push-has-dst]")
+        _lower_atomic_remote_head_push(
             builder,
             resolver,
             operands,

@@ -1369,16 +1369,23 @@ fn atomic_remote_head_plan(
     let remote_owner_proof_valid = remote_owner_fact(remote_owner_facts, region, page)
         .map_or(false, |fact| fact.same_owner_rejected);
     let block_next_required = true;
-    let memory_order_policy = "closed".to_string();
-    let lowerable = false;
-    let status = FastMemAccessPlanStatus::Rejected;
+    let memory_order_policy = "acq_rel".to_string();
+    let lowerable =
+        failure_reason.is_none() && remote_owner_proof_valid && block_next_proof_valid;
+    let status = if lowerable {
+        FastMemAccessPlanStatus::Verified
+    } else {
+        FastMemAccessPlanStatus::Rejected
+    };
     let failure_reason = failure_reason.or_else(|| {
         if !remote_owner_proof_valid {
             Some("atomic-remote-head-remote-owner-proof-missing".to_string())
         } else if !block_next_proof_valid {
             Some("atomic-remote-head-block-next-proof-missing".to_string())
-        } else {
+        } else if !lowerable {
             Some("atomic-remote-head-cas-lowering-closed".to_string())
+        } else {
+            None
         }
     });
 
@@ -2010,7 +2017,7 @@ mod tests {
         assert!(!remote_head.remote_owner_proof_valid);
         assert!(remote_head.block_next_required);
         assert!(!remote_head.block_next_proof_valid);
-        assert_eq!(remote_head.memory_order_policy, "closed");
+        assert_eq!(remote_head.memory_order_policy, "acq_rel");
         assert!(!remote_head.lowerable);
     }
 
@@ -2064,7 +2071,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_observes_atomic_remote_head_proofs_but_keeps_cas_lowering_closed() {
+    fn refresh_observes_atomic_remote_head_proofs_and_verifies_cas_lowering_plan() {
         let mut function = make_function(vec![memop(
             MemOpKind::AtomicRemoteHeadPush,
             None,
@@ -2099,11 +2106,8 @@ mod tests {
         assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
         let plan = &function.metadata.fastmem_access_plans[0];
         assert_eq!(plan.kind, FastMemAccessPlanKind::AtomicRemoteHeadPush);
-        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
-        assert_eq!(
-            plan.failure_reason.as_deref(),
-            Some("atomic-remote-head-cas-lowering-closed")
-        );
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(plan.failure_reason, None);
         let FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) = &plan.payload else {
             panic!("expected atomic remote-head plan");
         };
@@ -2111,8 +2115,8 @@ mod tests {
         assert!(remote_head.remote_owner_proof_valid);
         assert!(remote_head.block_next_required);
         assert!(remote_head.block_next_proof_valid);
-        assert_eq!(remote_head.memory_order_policy, "closed");
-        assert!(!remote_head.lowerable);
+        assert_eq!(remote_head.memory_order_policy, "acq_rel");
+        assert!(remote_head.lowerable);
     }
 
     #[test]

@@ -369,22 +369,31 @@ def build_rows(
 
     free_route_candidate = "none"
 
-    if profile == "remote-free-preflight":
+    if profile in {"remote-free-preflight", "remote-free"}:
+        remote_free_open = profile == "remote-free"
         route_candidate = "none"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
-            ("replacement_front_next_producer_slice", "atomic_remote_head_cas_lowering_preflight"),
+            (
+                "replacement_front_next_producer_slice",
+                "atomic_remote_head_cas_lowering_producer_pilot"
+                if remote_free_open
+                else "atomic_remote_head_cas_lowering_preflight",
+            ),
             ("replacement_front_selected_memop_family", "remote_free"),
             ("replacement_front_selected_memop_kinds", "AtomicRemoteHeadPush"),
             ("replacement_front_deferred_memop_family", "remote_free_execution"),
             (
                 "replacement_front_deferred_memop_kinds",
-                "AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
+                "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
+                if remote_free_open
+                else "AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
             ),
             ("mir_fmem_008b_layout_table_producer_pilot", "0"),
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_cas_preflight", "1"),
+            ("fastmem_atomic_remote_head_cas_preflight", str(int_flag(not remote_free_open))),
+            ("fastmem_atomic_remote_head_cas_producer_pilot", str(int_flag(remote_free_open))),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
     elif profile == "owner-runtime":
@@ -400,6 +409,7 @@ def build_rows(
             ("fastmem_owner_runtime_producer_pilot", "1"),
             ("fastmem_local_free_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
+            ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
             (
                 "fastmem_owner_runtime_current_owner_source",
                 "llvm_producer_intrinsic",
@@ -434,6 +444,7 @@ def build_rows(
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "1"),
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
+            ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
@@ -450,6 +461,7 @@ def build_rows(
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_cas_preflight", "0"),
+            ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
@@ -490,8 +502,11 @@ def build_rows(
         ("fastmem_local_free_pop_plan_count", str(len(verified_local_free_pop))),
         ("fastmem_free_head_push_plan_count", str(len(verified_free_head_push))),
         ("fastmem_free_head_pop_plan_count", str(len(verified_free_head_pop))),
-        ("atomic_remote_head_cas_lowering_selected", str(int_flag(profile == "remote-free-preflight"))),
-        ("atomic_remote_head_cas_lowering_open", "0"),
+        (
+            "atomic_remote_head_cas_lowering_selected",
+            str(int_flag(profile in {"remote-free-preflight", "remote-free"})),
+        ),
+        ("atomic_remote_head_cas_lowering_open", str(int_flag(profile == "remote-free"))),
         ("atomic_remote_head_push_plan_count", str(len(atomic_remote_head_push_plans))),
         ("atomic_remote_head_push_lowerable_count", str(atomic_remote_head_push_lowerable)),
         (
@@ -573,7 +588,10 @@ def build_rows(
         ("memop_free_head_pop_lowered_count", str(len(verified_free_head_pop))),
         ("memop_current_alloc_owner_id_lowered_count", str(current_owner_count)),
         ("memop_owner_eq_lowered_count", str(owner_eq_count)),
-        ("memop_atomic_remote_head_lowered_count", "0"),
+        (
+            "memop_atomic_remote_head_lowered_count",
+            str(atomic_remote_head_push_lowerable if profile == "remote-free" else 0),
+        ),
         (
             "memop_atomic_remote_head_push_count",
             str(atomic_remote_head_push_count),
@@ -670,7 +688,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--object-out", type=Path)
     parser.add_argument(
         "--profile",
-        choices=("layout-table", "owner-runtime", "local-free", "remote-free-preflight"),
+        choices=(
+            "layout-table",
+            "owner-runtime",
+            "local-free",
+            "remote-free-preflight",
+            "remote-free",
+        ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
     )

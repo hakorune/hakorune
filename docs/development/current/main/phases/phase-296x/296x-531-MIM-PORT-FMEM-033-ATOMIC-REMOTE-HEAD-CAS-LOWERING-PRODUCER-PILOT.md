@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-033.
 Related:
@@ -33,12 +33,29 @@ AtomicRemoteHeadPush(page, block):
   old_head = atomic_load(remote_head_ptr)
   block.next = old_head
   cmpxchg remote_head_ptr old_head block
-  retry policy = bounded/report-only first
+  retry policy = deferred
 ```
 
 The exact LLVM helper shape is still implementation-owned by this row, but it
 must not recompute field offsets or route policy in the lowerer. Lowering reads
 the verified plan only.
+
+## Landed
+
+The first producer pilot is intentionally narrow:
+
+```text
+AtomicRemoteHeadPush(page, block):
+  page is consumed as a backend-private LayoutRef
+  block is consumed as a pointer-sized scalar
+  remote_head_ptr comes from the verified PageMeta.remote_head plan
+  old_head = atomic load acquire
+  block.next = old_head
+  cmpxchg remote_head old_head block with acq_rel / acquire
+```
+
+This is a single-attempt CAS evidence row. Retry loops, CAS result routing,
+remote-owner branch routing, and drain/exchange stay closed for the next row.
 
 ## Still Closed
 
@@ -65,4 +82,27 @@ provider_abi_hot_dispatch_count=0
 product_activation=0
 global_allocator_claim=0
 winner_claim=0
+```
+
+## Verification
+
+```text
+cargo build --release --bin hakorune
+cargo test -q --lib atomic_remote_head
+.venv/bin/pytest -q src/llvm_py/tests/test_fastmem_memop_layoutref.py
+python3 -m py_compile src/llvm_py/instructions/memop.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py tools/hako_check/fastmem_check.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-034:
+  select the next AtomicRemoteHead route slice after the single-attempt CAS
+  producer pilot. Candidate work: retry/drain/remote-owner routing selection
+  with TLS transfer, product activation, hooks, global allocator claim, and
+  winner claim still closed.
 ```
