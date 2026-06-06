@@ -228,6 +228,12 @@ FMEM-TABLE-002 design stop:
   memory-profile table length fact carrier now, with page-map strategy selection
   deferred until the proof API is stable. Do not mark `TableIndex` lowerable or
   choose one-level/two-level page-map shape in this stop.
+FMEM-TABLE-002 worker review:
+  B-now/C-later is accepted as the clean direction if "B" means FastMemory
+  semantic metadata, not MIRBuilder-invented length. Proposed owner is
+  `FastMemTableLengthFact` in function metadata, refreshed by a new
+  `fastmem_table_length_fact` module before access-plan refresh. Implementation
+  should wait for design acceptance, then start with 002A carrier-only metadata.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

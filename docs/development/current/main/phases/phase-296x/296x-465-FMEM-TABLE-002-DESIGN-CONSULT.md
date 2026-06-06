@@ -72,7 +72,20 @@ C. Strategy-owned length
 
 ## Current Recommendation
 
-Prefer **B now, C later**:
+Prefer **B now, C later**, with one tightening:
+
+```text
+B now means:
+  MIR semantic metadata / FastMemory verifier-owned fact
+
+B now does not mean:
+  MIRBuilder invents table length
+```
+
+MIRBuilder should only preserve symbolic ids and provenance. The length fact
+should be a FastMemory memory-profile fact consumed by `FastMemAccessPlan`.
+
+Implementation direction:
 
 ```text
 FMEM-TABLE-002:
@@ -98,6 +111,64 @@ C:
   ultimately needed, but selecting strategy now would mix proof-surface work
   with page-map/product-shape decisions.
 ```
+
+## Accepted Owner Split
+
+If this design is accepted, use this file ownership:
+
+```text
+src/mir/function/types.rs:
+  FastMemTableLengthFact
+  FastMemTableLengthPolicyKind
+  FunctionMetadata.fastmem_table_length_facts
+
+src/mir/fastmem_table_length_fact.rs:
+  FastMemory-specific semantic refresh owner
+  emits facts only from explicit memory-profile evidence
+  does not choose page-map strategy
+
+src/mir/mod.rs:
+  module registration
+
+src/mir/semantic_refresh.rs:
+  refresh table-length facts before refresh_function_fastmem_access_plans
+
+src/mir/fastmem_access_plan.rs:
+  consumes matching facts by region + table_id + table_value
+  sets length / table_length_resolved / table_length_policy
+  keeps bounds_proof_valid=false
+  keeps TableIndex non-lowerable
+
+src/mir/fastmem_layout_contract.rs:
+  non-owner for length truth
+  keeps table representation / stride / alignment / element-layout facts
+```
+
+JSON/report surface:
+
+```text
+src/runner/mir_json_emit/metadata.rs:
+  emits fastmem_table_length_facts[]
+
+tools/hako_check/*:
+  later check/report surface, only after Rust metadata shape lands
+```
+
+Recommended fact carrier:
+
+```text
+FastMemTableLengthFact:
+  fact_id
+  region
+  table_id
+  table_value
+  length_value
+  resolved_length: Option<u64>
+  policy
+```
+
+`length_value` is the primary proof identity. `resolved_length` is optional
+reporting / later overflow input only.
 
 ## Required Invariants
 
@@ -132,6 +203,8 @@ After design agreement:
 ```text
 1. FMEM-TABLE-002A worker
    Add FastMemory table length fact carrier.
+   Emit no facts unless explicit evidence exists.
+   Teach access plans to consume injected/explicit facts.
    No bounds proof consumption yet.
 
 2. FMEM-TABLE-002B worker
@@ -165,4 +238,5 @@ mark page_table lowerable
 consume RangeIndexFact without a FastMemory length fact
 choose one-level vs two-level page-map strategy
 open LLVM TableIndex lowering
+query Type ABI / Provider ABI / runtime provider for length
 ```
