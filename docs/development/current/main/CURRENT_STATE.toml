@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-515 landed MIM-PORT-FMEM-018B refill closeout slice selection; MIM-PORT-FMEM-019 refill counter field-group pilot opens next."
+active_lane_status = "296x-516 landed MIM-PORT-FMEM-019 refill counter field-group pilot; MIM-PORT-FMEM-019B post-counter refill slice selection opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-515-MIM-PORT-FMEM-018B-REFILL-CLOSEOUT-SLICE-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-515-MIM-PORT-FMEM-018B-REFILL-CLOSEOUT-SLICE-SELECTION.md"
-latest_card_summary = "The next refill closeout slice is MIM-PORT-FMEM-019: add the refill counter field-group for local_free_collect_count and local_free_collected_blocks to the landed single-block refill body, while branch routing, multi-block refill, refill-then-alloc, derived FreeHeadPush-to-FreeHeadPop proof transfer, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed."
-current_blocker_token = "MIM-PORT-FMEM-019"
+latest_card = "296x-516-MIM-PORT-FMEM-019-REFILL-COUNTER-FIELD-GROUP-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-516-MIM-PORT-FMEM-019-REFILL-COUNTER-FIELD-GROUP-PILOT.md"
+latest_card_summary = "PageMetaLayoutV0 now exposes mutable plain-scalar local_free_collect_count and local_free_collected_blocks fields, and a new .hako hako_alloc refill-counter body composes LocalFreePop, FreeHeadPush, and both counter increments through MIR-to-LLVM evidence while branch routing, multi-block refill, refill-then-alloc, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed."
+current_blocker_token = "MIM-PORT-FMEM-019B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-516 landed MIM-PORT-FMEM-019 refill counter field-group pilot: PageMetaLayoutV0 now exposes mutable plain-scalar local_free_collect_count and local_free_collected_blocks fields, and a new .hako hako_alloc refill-counter body composes LocalFreePop, FreeHeadPush, and both counter increments through MIR-to-LLVM evidence while branch routing, multi-block refill, refill-then-alloc, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-019B post-counter refill slice selection opens next.",
   "2026-06-07: 296x-515 landed MIM-PORT-FMEM-018B refill closeout slice selection: the next refill closeout slice is MIM-PORT-FMEM-019, adding the refill counter field-group for local_free_collect_count and local_free_collected_blocks to the landed single-block refill body while branch routing, multi-block refill, refill-then-alloc, derived FreeHeadPush-to-FreeHeadPop proof transfer, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed.",
   "2026-06-07: 296x-514 landed MIM-PORT-FMEM-018 local_free to free refill body pilot: the first single-block local_free -> free refill body now composes LocalFreePop and FreeHeadPush through .hako hako_alloc/MIR-to-LLVM evidence while multi-block transfer, counters, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-018B refill closeout slice selection opens next.",
   "2026-06-07: 296x-513 landed MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot: verified FreeHeadPush plans now lower through MIR-to-LLVM/object by storing old page.free_head into block.next and publishing block to page.free_head, while vocabulary-only FreeHeadPush fails closed with missing verified plan and refill composition, ordinary free_head FieldStore, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-018 local_free to free refill body pilot opens next.",

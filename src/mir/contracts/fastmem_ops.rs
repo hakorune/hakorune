@@ -109,7 +109,7 @@ mod tests {
 
     #[test]
     fn fastmem_v0_memop_kind_count_is_intentional() {
-        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 13);
+        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 14);
     }
 
     #[test]

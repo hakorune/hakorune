@@ -137,6 +137,13 @@ LOCAL_FREE_TO_FREE_REFILL_INV="$TMPDIR/page_meta_local_free_to_free_refill.inven
 LOCAL_FREE_TO_FREE_REFILL_MIR_INV="$TMPDIR/page_meta_local_free_to_free_refill.mir.inventory.kv"
 LOCAL_FREE_TO_FREE_REFILL_LLVM_REPORT="$TMPDIR/page_meta_local_free_to_free_refill.llvm.report.kv"
 LOCAL_FREE_TO_FREE_REFILL_LLVM_CHECK="$TMPDIR/page_meta_local_free_to_free_refill.llvm.check.kv"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_to_free_refill_counter_body_box.hako"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_AST="$TMPDIR/page_meta_local_free_to_free_refill_counter.ast.json"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR="$TMPDIR/page_meta_local_free_to_free_refill_counter.mir.json"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV="$TMPDIR/page_meta_local_free_to_free_refill_counter.inventory.kv"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV="$TMPDIR/page_meta_local_free_to_free_refill_counter.mir.inventory.kv"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT="$TMPDIR/page_meta_local_free_to_free_refill_counter.llvm.report.kv"
+LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_CHECK="$TMPDIR/page_meta_local_free_to_free_refill_counter.llvm.check.kv"
 
 cat >"$GOOD_SRC" <<'HK'
 static box Main {
@@ -1301,6 +1308,91 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --out "$LOCAL_FREE_TO_FREE_REFILL_LLVM_CHECK"
 grep -q '^summary=ok$' "$LOCAL_FREE_TO_FREE_REFILL_LLVM_CHECK"
 grep -q '^failure_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_LLVM_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_AST" "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR" "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_AST" \
+  --out "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+
+grep -q '^input_kind=ast_json$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_region_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_field_load_count=3$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_field_store_count=2$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_add_count=2$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_local_free_pop_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_memop_free_head_push_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+grep -q '^summary=ok$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR" \
+  --out "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=3$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_memop_field_store_count=2$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_verified_mem_access_plan_count=8$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_verified_field_access_count=5$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_verified_table_access_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_same_owner_fact_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_block_next_fact_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_local_free_pop_plan_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_local_free_pop_lowerable_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_local_free_access_plan_incomplete_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_fact_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_free_head_push_plan_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_free_head_push_lowerable_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_free_head_access_plan_incomplete_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_free_head_block_next_proof_missing_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_field_id_missing_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^fastmem_unknown_alignment_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+grep -q '^summary=ok$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile local-free \
+  --mir-json "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_MIR" \
+  --out "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+
+grep -q '^replacement_front_producer=mir_to_llvm_lowering$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_family=local_free$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=LocalFreePop,FreeHeadPush$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^replacement_front_deferred_memop_kinds=LocalFreePush,FreeHeadPop,AtomicRemoteHead$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_verified_mem_access_plan_count=8$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_field_load_plan_count=3$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_field_store_plan_count=2$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_local_free_pop_plan_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_free_head_push_plan_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_table_index_lowered_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_field_load_lowered_count=3$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_field_store_lowered_count=2$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_local_free_pop_lowered_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_free_head_push_lowered_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_local_free_pop_layout_ref_consumed_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^memop_free_head_push_layout_ref_consumed_count=1$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_local_free_access_plan_incomplete_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^fastmem_free_head_access_plan_incomplete_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^product_activation=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^global_allocator_claim=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^winner_claim=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+grep -q '^summary=ok$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_REPORT" \
+  --format kv \
+  --out "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_CHECK"
+grep -q '^summary=ok$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_CHECK"
+grep -q '^failure_count=0$' "$LOCAL_FREE_TO_FREE_REFILL_COUNTER_LLVM_CHECK"
 
 cat >"$BAD_SRC" <<'HK'
 static box Main {

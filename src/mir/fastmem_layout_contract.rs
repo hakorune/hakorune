@@ -21,6 +21,8 @@ const FIELD_LOCAL_FREE_HEAD: &str = "local_free_head";
 const FIELD_REMOTE_HEAD: &str = "remote_head";
 const FIELD_CAPACITY: &str = "capacity";
 const FIELD_USED: &str = "used";
+const FIELD_LOCAL_FREE_COLLECT_COUNT: &str = "local_free_collect_count";
+const FIELD_LOCAL_FREE_COLLECTED_BLOCKS: &str = "local_free_collected_blocks";
 const FIELD_NEXT: &str = "next";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -201,6 +203,8 @@ fn canonical_page_meta_field(field_id: &str) -> Option<&'static str> {
         FIELD_REMOTE_HEAD => Some(FIELD_REMOTE_HEAD),
         FIELD_CAPACITY => Some(FIELD_CAPACITY),
         FIELD_USED => Some(FIELD_USED),
+        FIELD_LOCAL_FREE_COLLECT_COUNT => Some(FIELD_LOCAL_FREE_COLLECT_COUNT),
+        FIELD_LOCAL_FREE_COLLECTED_BLOCKS => Some(FIELD_LOCAL_FREE_COLLECTED_BLOCKS),
         _ => None,
     }
 }
@@ -252,6 +256,18 @@ fn page_meta_field_specs() -> &'static [PageMetaFieldSpec] {
         },
         PageMetaFieldSpec {
             name: FIELD_USED,
+            type_name: "usize",
+            mutability: "mutable",
+            field_class: "plain_scalar",
+        },
+        PageMetaFieldSpec {
+            name: FIELD_LOCAL_FREE_COLLECT_COUNT,
+            type_name: "usize",
+            mutability: "mutable",
+            field_class: "plain_scalar",
+        },
+        PageMetaFieldSpec {
+            name: FIELD_LOCAL_FREE_COLLECTED_BLOCKS,
             type_name: "usize",
             mutability: "mutable",
             field_class: "plain_scalar",
