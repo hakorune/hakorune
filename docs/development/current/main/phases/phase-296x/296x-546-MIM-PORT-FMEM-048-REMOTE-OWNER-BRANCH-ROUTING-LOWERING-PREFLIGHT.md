@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-048.
 Related:
@@ -59,4 +59,28 @@ remote-heavy benchmark claim
 TLS backing transfer
 abandoned reclaim
 allocator activation
+```
+
+## Closeout
+
+Remote-owner branch routing lowering is now selected as the next producer
+slice without opening branch lowering. The report/check surface can emit
+`remote_owner_branch_routing_lowering_selected=1`,
+`remote_owner_branch_routing_open=0`, and
+`remote_owner_branch_routing_lowered_count=0` while preserving the prior
+`DrainRemoteListToLocal` lowering evidence.
+
+This remains preflight only. Branch CFG lowering, same/remote full free route,
+TLS backing transfer, abandoned reclaim, product activation, hooks, global
+allocator claim, winner claim, and full `.hako` mimalloc algorithm claim remain
+closed.
+
+## Verification
+
+```text
+python3 -m py_compile \
+  tools/hako_check/fastmem_check.py \
+  tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
 ```
