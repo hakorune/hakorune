@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-544 landed MIM-PORT-FMEM-046 AtomicRemoteHead drain local-list mutation lowering producer pilot: DrainRemoteListToLocal is now lowerable and lowers through MIR-to-LLVM by splicing the drained remote list into owner-local local_free_head, while remote-owner branch routing, TLS backing transfer, product activation, global allocator claim, and winner claim remain closed; MIM-PORT-FMEM-047 remote-owner branch routing preflight opens next."
+active_lane_status = "296x-545 landed MIM-PORT-FMEM-047 Remote-owner branch routing preflight: report/check now select remote_owner_branch_routing as the next route slice while keeping branch lowering, full same/remote free body, TLS backing transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-048 remote-owner branch routing lowering preflight opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-544-MIM-PORT-FMEM-046-ATOMIC-REMOTE-HEAD-DRAIN-LOCAL-LIST-MUTATION-LOWERING-PRODUCER-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-544-MIM-PORT-FMEM-046-ATOMIC-REMOTE-HEAD-DRAIN-LOCAL-LIST-MUTATION-LOWERING-PRODUCER-PILOT.md"
-latest_card_summary = "DrainRemoteListToLocal is now lowerable and lowers through MIR-to-LLVM by splicing the drained remote list into owner-local local_free_head, while remote-owner branch routing, TLS backing transfer, product activation, global allocator claim, and winner claim remain closed."
-current_blocker_token = "MIM-PORT-FMEM-047"
+latest_card = "296x-545-MIM-PORT-FMEM-047-REMOTE-OWNER-BRANCH-ROUTING-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-545-MIM-PORT-FMEM-047-REMOTE-OWNER-BRANCH-ROUTING-PREFLIGHT.md"
+latest_card_summary = "Report/check now select remote_owner_branch_routing as the next route slice while keeping branch lowering, full same/remote free body, TLS backing transfer, product activation, global allocator claim, and winner claim closed."
+current_blocker_token = "MIM-PORT-FMEM-048"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-545 landed MIM-PORT-FMEM-047 Remote-owner branch routing preflight: report/check now select remote_owner_branch_routing as the next route slice while keeping branch lowering, full same/remote free body, TLS backing transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-048 remote-owner branch routing lowering preflight opens next.",
   "2026-06-07: 296x-544 landed MIM-PORT-FMEM-046 AtomicRemoteHead drain local-list mutation lowering producer pilot: DrainRemoteListToLocal is now lowerable and lowers through MIR-to-LLVM by splicing the drained remote list into owner-local local_free_head, while remote-owner branch routing, TLS backing transfer, product activation, global allocator claim, and winner claim remain closed; MIM-PORT-FMEM-047 remote-owner branch routing preflight opens next.",
   "2026-06-07: 296x-543 landed MIM-PORT-FMEM-045 AtomicRemoteHead drain local-list mutation verifier preconditions: DrainRemoteListToLocal now has a rejected verifier-owned access-plan row proving same-region AtomicRemoteHeadDrain token provenance, page operand validity, owner-local head class resolution, and lowerable=0 while mutation lowering, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim remain closed; MIM-PORT-FMEM-046 lowering producer pilot opens next.",
   "2026-06-07: 296x-542 landed MIM-PORT-FMEM-044 AtomicRemoteHead drain local-list mutation vocabulary preflight: .hako hako_alloc can now name mem.drainRemoteListToLocal(page, token), MIR/AST inventory reports drain_remote_list_to_local, and LLVM lowering fails closed while mutation, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim remain closed; MIM-PORT-FMEM-045 verifier preconditions opens next.",

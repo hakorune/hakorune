@@ -1239,6 +1239,44 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK"
 grep -q '^summary=ok$' "$DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK"
 
+REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT="$TMPDIR/remote_owner_branch_routing_preflight_report.kv"
+REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_CHECK="$TMPDIR/remote_owner_branch_routing_preflight_check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-owner-branch-routing-preflight \
+  --mir-json "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR" \
+  --out "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_remote_owner_branch_routing_preflight=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=remote_owner_branch_routing_preflight$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=RemoteOwnerBranchRouting$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=remote_owner_branch_routing_lowering_preflight$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^atomic_remote_head_drain_local_list_mutation_lowered_count=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_routing_selected=1$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_routing_open=0$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_routing_lowered_count=0$' \
+  "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^product_activation=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR" \
   -o "$TMPDIR/page_meta_drain_remote_list_to_local.direct.o" \

@@ -637,4 +637,32 @@ grep -q '^failure_2_reason=drain_remote_list_to_local_page_operand_valid$' "$BAD
 grep -q '^failure_3_reason=drain_remote_list_to_local_head_class_resolved$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
 grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_DRAIN_LOCAL_LIST_MUTATION_VERIFIER_OUT"
 
+REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_remote_owner_branch_routing_preflight.XXXXXX")"
+BAD_REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_remote_owner_branch_routing_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/remote_owner_branch_routing_preflight_inventory.kv" \
+  --format kv \
+  >"$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected remote-owner branch routing preflight inventory" >&2
+  cat "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_remote_owner_branch_routing_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad remote-owner branch routing preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=remote_owner_branch_routing_open$' \
+  "$BAD_REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_REMOTE_OWNER_BRANCH_ROUTING_PREFLIGHT_OUT"
+
 echo "[TEST/OK] fastmem_check"
