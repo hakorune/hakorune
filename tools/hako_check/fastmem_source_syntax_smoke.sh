@@ -85,6 +85,14 @@ LOCAL_FREE_POP_PRECONDITION_MIR_INV="$TMPDIR/page_meta_local_free_pop_preconditi
 LOCAL_FREE_POP_PRECONDITION_LLVM_REPORT="$TMPDIR/page_meta_local_free_pop_precondition.llvm.report.kv"
 LOCAL_FREE_POP_PRECONDITION_LLVM_CHECK="$TMPDIR/page_meta_local_free_pop_precondition.llvm.check.kv"
 LOCAL_FREE_POP_PRECONDITION_LLVM_STDERR="$TMPDIR/page_meta_local_free_pop_precondition.llvm.stderr"
+LOCAL_FREE_ALLOC_BODY_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_alloc_body_box.hako"
+LOCAL_FREE_ALLOC_BODY_AST="$TMPDIR/page_meta_local_free_alloc_body.ast.json"
+LOCAL_FREE_ALLOC_BODY_MIR="$TMPDIR/page_meta_local_free_alloc_body.mir.json"
+LOCAL_FREE_ALLOC_BODY_INV="$TMPDIR/page_meta_local_free_alloc_body.inventory.kv"
+LOCAL_FREE_ALLOC_BODY_MIR_INV="$TMPDIR/page_meta_local_free_alloc_body.mir.inventory.kv"
+LOCAL_FREE_ALLOC_BODY_LLVM_REPORT="$TMPDIR/page_meta_local_free_alloc_body.llvm.report.kv"
+LOCAL_FREE_ALLOC_BODY_LLVM_CHECK="$TMPDIR/page_meta_local_free_alloc_body.llvm.check.kv"
+LOCAL_FREE_ALLOC_BODY_LLVM_STDERR="$TMPDIR/page_meta_local_free_alloc_body.llvm.stderr"
 
 cat >"$GOOD_SRC" <<'HK'
 static box Main {
@@ -677,6 +685,108 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --out "$LOCAL_FREE_POP_PRECONDITION_LLVM_CHECK"
 grep -q '^summary=ok$' "$LOCAL_FREE_POP_PRECONDITION_LLVM_CHECK"
 grep -q '^failure_count=0$' "$LOCAL_FREE_POP_PRECONDITION_LLVM_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_ALLOC_BODY_AST" "$LOCAL_FREE_ALLOC_BODY_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_ALLOC_BODY_MIR" "$LOCAL_FREE_ALLOC_BODY_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$LOCAL_FREE_ALLOC_BODY_AST" \
+  --out "$LOCAL_FREE_ALLOC_BODY_INV"
+
+grep -q '^input_kind=ast_json$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_region_count=1$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_field_load_count=2$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_field_store_count=1$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_add_count=2$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_local_free_push_count=0$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_memop_local_free_pop_count=1$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$LOCAL_FREE_ALLOC_BODY_INV"
+grep -q '^summary=ok$' "$LOCAL_FREE_ALLOC_BODY_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$LOCAL_FREE_ALLOC_BODY_MIR" \
+  --out "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=2$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_field_store_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_owner_eq_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_local_free_push_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_memop_local_free_pop_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_verified_mem_access_plan_count=5$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_verified_field_access_count=3$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_verified_table_access_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_list_plan=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_push_plan_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_pop_plan_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_nonlowerable_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_pop_lowerable_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_head_access_resolved_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_block_next_access_resolved_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_access_plan_incomplete_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_same_owner_fact_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_fact_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_same_owner_required=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_same_owner_missing_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_required=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_missing_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_remote_owner_rejected_count=1$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_local_free_block_next_proof_missing_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_table_index_unchecked_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_table_access_proof_incomplete_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_table_overflow_proof_missing_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_field_id_missing_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_table_id_missing_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^fastmem_unknown_alignment_count=0$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+grep -q '^summary=ok$' "$LOCAL_FREE_ALLOC_BODY_MIR_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile local-free \
+  --mir-json "$LOCAL_FREE_ALLOC_BODY_MIR" \
+  --out "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT" \
+  2>"$LOCAL_FREE_ALLOC_BODY_LLVM_STDERR"
+
+grep -q '^replacement_front_producer=mir_to_llvm_lowering$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_family=local_free$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=LocalFreePop$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_producer_pilot=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_verified_mem_access_plan_count=5$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_field_load_plan_count=2$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_field_store_plan_count=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_push_plan_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_pop_plan_count=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^memop_table_index_lowered_count=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^memop_field_load_lowered_count=2$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^memop_field_store_lowered_count=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^memop_local_free_push_lowered_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^memop_local_free_pop_lowered_count=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^memop_local_free_pop_layout_ref_consumed_count=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_access_plan_incomplete_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_head_plain_store_lowered_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_push_lowering_uses_verified_plan=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_pop_lowering_uses_verified_plan=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^fastmem_local_free_pop_lowering_enabled=1$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^product_activation=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^global_allocator_claim=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^winner_claim=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+grep -q '^summary=ok$' "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$LOCAL_FREE_ALLOC_BODY_LLVM_REPORT" \
+  --format kv \
+  --out "$LOCAL_FREE_ALLOC_BODY_LLVM_CHECK"
+grep -q '^summary=ok$' "$LOCAL_FREE_ALLOC_BODY_LLVM_CHECK"
+grep -q '^failure_count=0$' "$LOCAL_FREE_ALLOC_BODY_LLVM_CHECK"
 
 cat >"$BAD_SRC" <<'HK'
 static box Main {

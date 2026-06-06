@@ -1,0 +1,26 @@
+// page_meta_local_free_alloc_body_box.hako -- page-local alloc body pilot
+// Responsibility: prove that .hako hako_alloc can compose same-owner,
+// non-empty LocalFreePop with the first page-local allocation body update.
+// This does not open remote-owner routing, AtomicRemoteHead, TLS transfer,
+// owner reuse, product allocator replacement, hooks, or winner claims.
+
+static box HakoAllocPageMetaLocalFreeAllocBody {
+    localFreeAllocBodyProbe(page_table, page_index) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local owner_worker_id = page.owner_worker_id
+            local current_owner_id = mem.currentAllocOwnerId()
+            local same_owner = mem.ownerEq(owner_worker_id, current_owner_id)
+            mem.assumeSameOwner(page, same_owner)
+            mem.assumeLocalFreeNonEmpty(page)
+            local popped = mem.localFreePop(page)
+            local used = page.used
+            local next_used = used + 1
+            page.used = next_used
+            return popped + next_used
+        }
+        return 0
+    }
+}

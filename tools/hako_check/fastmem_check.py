@@ -137,8 +137,6 @@ LOCAL_FREE_PRODUCER_EXPECTED_POSITIVE = (
     "memop_table_index_lowered_count",
     "memop_field_load_lowered_count",
     "memop_field_store_lowered_count",
-    "memop_current_alloc_owner_id_lowered_count",
-    "memop_owner_eq_lowered_count",
 )
 
 
