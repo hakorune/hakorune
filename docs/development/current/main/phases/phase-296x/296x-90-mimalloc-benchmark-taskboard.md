@@ -197,6 +197,12 @@ MIR-FMEM-008B commonality boundary accepted:
   proof inputs, but not access-plan payloads. DirectArrayExtentFact remains
   DirectArray-specific; FastMemory gets its own VerifiedTableAccessProof,
   table-length, bounds, overflow, alignment, and provenance payload.
+Verifier hygiene split active:
+  Treat verifier walker / extern-name / test fixture cleanup as BoxShape work.
+  Only the low-risk `MirInstruction::extern_name()` utility is eligible now.
+  Narrow walker helper and verifier test_support extraction stay parked until
+  after the next FastMemory proof slice, and must not mix with TableIndex
+  proof vocabulary.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

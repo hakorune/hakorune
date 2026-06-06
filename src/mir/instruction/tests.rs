@@ -57,6 +57,27 @@ fn test_call_instruction() {
     assert_eq!(inst.effects(), EffectMask::IO);
 }
 
+#[test]
+fn test_call_instruction_extern_name() {
+    let inst = MirInstruction::Call {
+        dst: None,
+        func: ValueId::INVALID,
+        callee: Some(crate::mir::Callee::Extern(
+            "env.runtime.checkpoint".to_string(),
+        )),
+        args: vec![],
+        effects: EffectMask::IO,
+    };
+
+    assert_eq!(inst.extern_name(), Some("env.runtime.checkpoint"));
+
+    let non_extern = MirInstruction::Const {
+        dst: ValueId::new(0),
+        value: ConstValue::Integer(1),
+    };
+    assert_eq!(non_extern.extern_name(), None);
+}
+
 /*
 #[test]
 fn test_const_value_conversion() {

@@ -6,11 +6,23 @@
 //! - Used values collection (used_values())
 
 use super::super::{Effect, EffectMask, ValueId};
+use crate::mir::definitions::Callee;
 use crate::mir::instruction::MirInstruction;
 use crate::mir::instruction_kinds as inst_meta;
 use crate::mir::types::{BarrierOp, WeakRefOp};
 
 impl MirInstruction {
+    /// Get the external callee name for unified extern call instructions.
+    pub fn extern_name(&self) -> Option<&str> {
+        match self {
+            MirInstruction::Call {
+                callee: Some(Callee::Extern(name)),
+                ..
+            } => Some(name.as_str()),
+            _ => None,
+        }
+    }
+
     /// Get the effect mask for this instruction
     pub fn effects(&self) -> EffectMask {
         if let Some(eff) = inst_meta::effects_via_meta(self) {
