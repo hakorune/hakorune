@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-052.
 Related:
@@ -64,3 +64,30 @@ TLS backing transfer
 abandoned reclaim
 allocator activation
 ```
+
+## Result
+
+```text
+replacement_front_selected_route=fastmem_branch_cfg_lowering_preflight
+replacement_front_selected_memop_family=branch_cfg
+replacement_front_selected_memop_kinds=FastMemBranchCfg
+replacement_front_next_producer_slice=fastmem_branch_cfg_lowering_producer_pilot
+fastmem_branch_cfg_lowering_preflight=1
+fastmem_branch_cfg_selected=1
+fastmem_branch_cfg_open=0
+fastmem_branch_cfg_closed_guard=1
+fastmem_branch_cfg_lowered_count=0
+remote_owner_branch_route_body_selected=1
+remote_owner_branch_route_body_open=0
+page_local_free_route_cfg_lowering_enabled=0
+type_abi_hot_lookup_count=0
+provider_abi_hot_dispatch_count=0
+product_activation=0
+global_allocator_claim=0
+winner_claim=0
+```
+
+This row changes the selected report/check owner from remote-owner routing to
+branch CFG, but it still keeps source branch CFG lowering closed. The next row
+must decide the smallest producer pilot that opens branch CFG without opening
+the full same/remote free body.

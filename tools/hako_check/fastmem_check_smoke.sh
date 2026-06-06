@@ -777,4 +777,32 @@ grep -q '^failure_0_reason=fastmem_branch_cfg_open$' \
   "$BAD_FASTMEM_BRANCH_CFG_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_FASTMEM_BRANCH_CFG_PREFLIGHT_OUT"
 
+FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_branch_cfg_lowering_preflight.XXXXXX")"
+BAD_FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_branch_cfg_lowering_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/fastmem_branch_cfg_lowering_preflight_inventory.kv" \
+  --format kv \
+  >"$FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected branch CFG lowering preflight inventory" >&2
+  cat "$FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_fastmem_branch_cfg_lowering_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad branch CFG lowering preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=fastmem_branch_cfg_open$' \
+  "$BAD_FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_OUT"
+
 echo "[TEST/OK] fastmem_check"
