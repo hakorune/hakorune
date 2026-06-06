@@ -128,6 +128,89 @@ FieldStore:
 
 If symbolic ids are missing, lowering must stop before GEP/load/store.
 
+### Verified Layout/Table Access Plan
+
+`MemOpAccess` is only the symbolic bridge from source/MIR into the verifier.
+The executable lowering contract is a separate verified access-plan table:
+
+```text
+FunctionMetadata.fastmem_access_plans[]
+```
+
+The chain is:
+
+```text
+MemOpAccess:
+  symbolic layout_id / field_id / table_id
+
+VerifiedMemAccessPlan:
+  verifier-owned offset / type / alignment / bounds / mutability truth
+
+LLVM lowering:
+  consumes VerifiedMemAccessPlan only
+```
+
+Field plans carry:
+
+```text
+VerifiedFieldAccess:
+  site = function/block/instruction_index
+  region_id
+  layout_id
+  field_id
+  byte_offset
+  field_type
+  alignment
+  access = load | store
+  mutability
+  field_class
+```
+
+Table plans carry:
+
+```text
+VerifiedTableAccess:
+  site = function/block/instruction_index
+  region_id
+  table_id
+  element_layout_id
+  element_repr = inline_element | pointer_to_element
+  element_stride
+  length
+  alignment
+  index_policy = range_fact | mask_fact | explicit_check
+```
+
+Rules:
+
+```text
+MIRBuilder:
+  emits symbolic ids and source provenance only
+
+Verifier / contracts:
+  resolve ids into verified plans
+  reject unknown layout/table/field ids, unknown alignment, unchecked indexes,
+  immutable field stores, atomic fields written through plain FieldStore, and
+  pointer/LayoutRef escape
+
+Lowering:
+  reads verified plans
+  emits GEP/load/store
+  must not recompute offsets or infer table representation
+```
+
+Report/check evidence:
+
+```text
+fastmem_verified_mem_access_plan_count
+fastmem_verified_field_access_count
+fastmem_verified_table_access_count
+fastmem_lowering_recomputed_layout_offset_count=0
+fastmem_table_index_unchecked_count=0
+fastmem_atomic_field_plain_store_count=0
+fastmem_layout_ref_escape_count=0
+```
+
 Region metadata:
 
 ```rust

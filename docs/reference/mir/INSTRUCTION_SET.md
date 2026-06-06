@@ -47,9 +47,12 @@ Transition Note
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 - MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
   `MemOp` は kept instruction vocabulary。FastMemRegion metadata and
-  value-only MIR JSON / LLVM lowering are open for the accepted subset;
-  table/layout and allocator-owner TLS runtime MemOps remain closed until
-  dedicated producer rows.
+  value-only MIR JSON / LLVM lowering are open for the accepted subset.
+- MIR-FMEM-008B: table/layout MemOps are being opened only through a
+  verifier-owned `VerifiedMemAccessPlan`. Symbolic `MemOpAccess` ids are not
+  executable truth; LLVM lowering must consume verified layout/table plans and
+  must not infer offsets, table representation, alignment, or bounds.
+  allocator-owner TLS runtime MemOps remain closed until a dedicated owner row.
 
 ## Canonical Enum Op Lane (kept vocabulary; Core profile out-of-count)
 
@@ -202,7 +205,8 @@ value-only MemOps:
   MIR JSON transport and LLVM lowering are open for the selected subset
 
 table/layout MemOps:
-  closed until a dedicated layout/table producer row
+  symbolic layout/table ids are preserved in MIR/JSON
+  LLVM lowering is open only after a matching VerifiedMemAccessPlan exists
 
 allocator-owner TLS runtime MemOps:
   closed until a dedicated owner-runtime producer row
@@ -213,6 +217,21 @@ VM execution:
 
 Backends must not infer FastMemory behavior from contract names, source box
 names, helper names, or replacement-front producer names.
+
+Verified layout/table access plans are function metadata:
+
+```text
+fastmem_access_plans[]:
+  site = block + instruction_index
+  region
+  kind = field_load | field_store | table_index
+  layout_id / field_id / table_id
+  verified offset / type / alignment / mutability / bounds policy
+```
+
+Lowering may emit GEP/load/store only from those verified rows. If the row is
+missing, unverified, or requires backend-side offset reconstruction, the
+backend must fail before code emission.
 
 ## Core Instructions（26）
 - Const

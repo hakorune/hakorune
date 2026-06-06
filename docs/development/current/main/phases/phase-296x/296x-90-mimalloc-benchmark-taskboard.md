@@ -160,6 +160,12 @@ MIR-FMEM-008A landed:
   lowering behavior and keeps product activation, bridge retirement, hooks,
   global allocator claim, and winner claim closed. MIR-FMEM-008B opens the
   layout/table producer pilot next.
+MIR-FMEM-008B first slice landed:
+  `MemOpAccess` now preserves symbolic `field_id` / `table_id` in MIR and JSON,
+  and verifier rejects missing ids before lowering. The next 008B slice opens a
+  verifier-owned `VerifiedMemAccessPlan` table so LLVM GEP/load/store lowering
+  consumes accepted layout/table truth instead of recomputing offsets or table
+  representation.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
@@ -170,8 +176,9 @@ MIR-FMEM-008 split:
   MIR-FMEM-008A producer-slice selection:
     landed; selection fields choose layout/table first and owner-runtime later.
   MIR-FMEM-008B layout/table producer pilot:
-    lower verified TableIndex / FieldLoad / FieldStore style MemOps without
-    owner TLS/runtime behavior.
+    first preserve symbolic ids, then add verified access plans, then lower
+    verified TableIndex / FieldLoad / FieldStore style MemOps without owner
+    TLS/runtime behavior.
   MIR-FMEM-008C owner-runtime producer pilot:
     lower CurrentAllocOwnerId / OwnerEq style MemOps and matching report
     counters without TLS backing transfer or owner slot reuse.
