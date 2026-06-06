@@ -48,7 +48,10 @@ pub const FASTMEM_FREE_LIST_MEMOP_KINDS: &[MemOpKind] = &[
 ///
 /// The MemOp is transport-only in MIM-PORT-FMEM-027: MIR JSON can carry it,
 /// but verifier-owned AtomicRemoteHead plans and LLVM CAS lowering stay closed.
-pub const FASTMEM_REMOTE_FREE_MEMOP_KINDS: &[MemOpKind] = &[MemOpKind::AtomicRemoteHeadPush];
+pub const FASTMEM_REMOTE_FREE_MEMOP_KINDS: &[MemOpKind] = &[
+    MemOpKind::AtomicRemoteHeadPush,
+    MemOpKind::AtomicRemoteHeadDrain,
+];
 
 /// Complete MemOp set accepted by the current MIR-to-LLVM/object producer.
 ///
@@ -115,7 +118,7 @@ mod tests {
 
     #[test]
     fn fastmem_v0_memop_kind_count_is_intentional() {
-        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 15);
+        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 16);
     }
 
     #[test]

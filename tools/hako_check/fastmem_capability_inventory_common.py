@@ -211,6 +211,8 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             add_count(counts, "fastmem_memop_free_head_push_count")
         elif is_mem_method_call(expr, "atomicRemoteHeadPush"):
             add_count(counts, "fastmem_memop_atomic_remote_head_push_count")
+        elif is_mem_method_call(expr, "atomicRemoteHeadDrain"):
+            add_count(counts, "fastmem_memop_atomic_remote_head_drain_count")
         elif (
             is_mem_method_call(expr, "assumeTableLength")
             or is_mem_method_call(expr, "assumeIndexInRange")
@@ -253,6 +255,8 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             add_count(counts, "fastmem_memop_free_head_push_count")
         elif name == "mem.atomicRemoteHeadPush":
             add_count(counts, "fastmem_memop_atomic_remote_head_push_count")
+        elif name == "mem.atomicRemoteHeadDrain":
+            add_count(counts, "fastmem_memop_atomic_remote_head_drain_count")
         elif name in {
             "mem.assumeTableLength",
             "mem.assumeIndexInRange",
@@ -466,6 +470,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_memop_free_head_push_count": 0,
         "fastmem_memop_free_head_pop_count": 0,
         "fastmem_memop_atomic_remote_head_push_count": 0,
+        "fastmem_memop_atomic_remote_head_drain_count": 0,
         "fastmem_local_free_list_plan": 0,
         "fastmem_local_free_push_plan_count": 0,
         "fastmem_local_free_pop_plan_count": 0,
@@ -589,6 +594,8 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "atomic_remote_head_route": "none",
         "atomic_remote_head_pilot_enabled": 0,
         "atomic_remote_head_enabled": 0,
+        "atomic_remote_head_drain_plan_count": 0,
+        "atomic_remote_head_drain_lowerable_count": 0,
         "remote_free_push_count": 0,
         "remote_free_drain_count": 0,
         "remote_free_cas_retry_count": 0,

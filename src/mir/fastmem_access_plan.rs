@@ -32,6 +32,7 @@ pub enum FastMemAccessPlanKind {
     FreeHeadPush,
     FreeHeadPop,
     AtomicRemoteHeadPush,
+    AtomicRemoteHeadDrain,
 }
 
 impl FastMemAccessPlanKind {
@@ -45,6 +46,7 @@ impl FastMemAccessPlanKind {
             Self::FreeHeadPush => "free_head_push",
             Self::FreeHeadPop => "free_head_pop",
             Self::AtomicRemoteHeadPush => "atomic_remote_head_push",
+            Self::AtomicRemoteHeadDrain => "atomic_remote_head_drain",
         }
     }
 }
@@ -432,6 +434,18 @@ fn plan_from_memop(
             block,
             instruction_index,
             region,
+            FastMemAccessPlanKind::AtomicRemoteHeadPush,
+            dst,
+            operands,
+            contract,
+            remote_owner_facts,
+            block_next_facts,
+        ),
+        MemOpKind::AtomicRemoteHeadDrain => atomic_remote_head_plan(
+            block,
+            instruction_index,
+            region,
+            FastMemAccessPlanKind::AtomicRemoteHeadDrain,
             dst,
             operands,
             contract,
@@ -1280,6 +1294,7 @@ fn atomic_remote_head_plan(
     block: BasicBlockId,
     instruction_index: usize,
     region: FastMemRegionId,
+    kind: FastMemAccessPlanKind,
     dst: Option<ValueId>,
     operands: &[ValueId],
     contract: Option<&str>,
@@ -1287,7 +1302,11 @@ fn atomic_remote_head_plan(
     block_next_facts: &[FastMemBlockNextFact],
 ) -> Option<FastMemAccessPlan> {
     let page = operands.first().copied()?;
-    let block_value = operands.get(1).copied();
+    let block_value = if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
+        operands.get(1).copied()
+    } else {
+        None
+    };
     let resolved = contract.map(|contract| {
         resolve_fastmem_field_contract(contract, "remote_head", FastMemFieldAccessMode::Load)
             .map_err(|err| err.reason())
@@ -1366,21 +1385,37 @@ fn atomic_remote_head_plan(
         && block_next_field_size.is_some()
         && block_next_field_type.is_some()
         && block_next_alignment.is_some();
-    let remote_owner_required = true;
-    let remote_owner_proof_valid = remote_owner_fact(remote_owner_facts, region, page)
-        .map_or(false, |fact| fact.same_owner_rejected);
-    let block_next_required = true;
-    let memory_order_policy = "acq_rel".to_string();
-    let retry_attempt_limit = 3;
-    let lowerable =
-        failure_reason.is_none() && remote_owner_proof_valid && block_next_proof_valid;
+    let remote_owner_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
+    let remote_owner_proof_valid = if remote_owner_required {
+        remote_owner_fact(remote_owner_facts, region, page)
+            .map_or(false, |fact| fact.same_owner_rejected)
+    } else {
+        false
+    };
+    let block_next_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
+    let memory_order_policy = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
+        "acquire_exchange".to_string()
+    } else {
+        "acq_rel".to_string()
+    };
+    let retry_attempt_limit = if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
+        3
+    } else {
+        0
+    };
+    let lowerable = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush
+        && failure_reason.is_none()
+        && remote_owner_proof_valid
+        && block_next_proof_valid;
     let status = if lowerable {
         FastMemAccessPlanStatus::Verified
     } else {
         FastMemAccessPlanStatus::Rejected
     };
     let failure_reason = failure_reason.or_else(|| {
-        if !remote_owner_proof_valid {
+        if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
+            Some("atomic-remote-head-drain-lowering-closed".to_string())
+        } else if !remote_owner_proof_valid {
             Some("atomic-remote-head-remote-owner-proof-missing".to_string())
         } else if !block_next_proof_valid {
             Some("atomic-remote-head-block-next-proof-missing".to_string())
@@ -1395,7 +1430,7 @@ fn atomic_remote_head_plan(
         block,
         instruction_index,
         region,
-        kind: FastMemAccessPlanKind::AtomicRemoteHeadPush,
+        kind,
         status,
         failure_reason,
         payload: FastMemAccessPlanPayload::AtomicRemoteHead(FastMemAtomicRemoteHeadPlan {
@@ -2022,6 +2057,49 @@ mod tests {
         assert!(!remote_head.block_next_proof_valid);
         assert_eq!(remote_head.memory_order_policy, "acq_rel");
         assert_eq!(remote_head.retry_attempt_limit, 3);
+        assert!(!remote_head.lowerable);
+    }
+
+    #[test]
+    fn refresh_adds_nonlowerable_atomic_remote_head_drain_plan() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::AtomicRemoteHeadDrain,
+            Some(ValueId::new(12)),
+            vec![ValueId::new(10)],
+            None,
+        )]);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
+        let plan = &function.metadata.fastmem_access_plans[0];
+        assert_eq!(plan.kind, FastMemAccessPlanKind::AtomicRemoteHeadDrain);
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            plan.failure_reason.as_deref(),
+            Some("atomic-remote-head-drain-lowering-closed")
+        );
+        let FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) = &plan.payload else {
+            panic!("expected atomic remote-head plan");
+        };
+        assert_eq!(remote_head.page, ValueId::new(10));
+        assert_eq!(remote_head.block, None);
+        assert_eq!(remote_head.result, Some(ValueId::new(12)));
+        assert_eq!(
+            remote_head.remote_head_layout_id.as_deref(),
+            Some("PageMetaLayoutV0")
+        );
+        assert_eq!(
+            remote_head.remote_head_field_id.as_deref(),
+            Some("remote_head")
+        );
+        assert_eq!(remote_head.remote_head_byte_offset, Some(32));
+        assert!(!remote_head.remote_owner_required);
+        assert!(!remote_head.remote_owner_proof_valid);
+        assert!(!remote_head.block_next_required);
+        assert!(!remote_head.block_next_proof_valid);
+        assert_eq!(remote_head.memory_order_policy, "acquire_exchange");
+        assert_eq!(remote_head.retry_attempt_limit, 0);
         assert!(!remote_head.lowerable);
     }
 

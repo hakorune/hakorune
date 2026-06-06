@@ -1312,6 +1312,10 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     atomic_remote_head_push_plans = [
         plan for plan in plans if str(plan.get("kind")) == "atomic_remote_head_push"
     ]
+    atomic_remote_head_drain_plans = [
+        plan for plan in plans if str(plan.get("kind")) == "atomic_remote_head_drain"
+    ]
+    atomic_remote_head_plans = atomic_remote_head_push_plans + atomic_remote_head_drain_plans
     rejected_table_plans = [
         plan
         for plan in plans
@@ -1514,6 +1518,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     atomic_remote_head_push_lowerable = sum(
         1 for plan in atomic_remote_head_push_plans if bool(plan.get("lowerable"))
     )
+    atomic_remote_head_drain_lowerable = sum(
+        1 for plan in atomic_remote_head_drain_plans if bool(plan.get("lowerable"))
+    )
     atomic_remote_head_remote_owner_required = int(
         any(bool(plan.get("remote_owner_required")) for plan in atomic_remote_head_push_plans)
     )
@@ -1534,7 +1541,7 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     )
     atomic_remote_head_access_resolved = sum(
         1
-        for plan in atomic_remote_head_push_plans
+        for plan in atomic_remote_head_plans
         if plan.get("remote_head_byte_offset") not in (None, "")
         and plan.get("remote_head_field_size") not in (None, "")
         and plan.get("remote_head_field_type") not in (None, "")
@@ -1544,7 +1551,7 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         sorted(
             {
                 str(plan.get("memory_order_policy") or "unknown")
-                for plan in atomic_remote_head_push_plans
+                for plan in atomic_remote_head_plans
             }
         )
     )
@@ -1588,6 +1595,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_memop_free_head_pop_count": count_memop("free_head_pop"),
             "fastmem_memop_atomic_remote_head_push_count": count_memop(
                 "atomic_remote_head_push"
+            ),
+            "fastmem_memop_atomic_remote_head_drain_count": count_memop(
+                "atomic_remote_head_drain"
             ),
             "fastmem_local_free_list_plan": int(bool(local_free_plans)),
             "fastmem_local_free_push_plan_count": len(local_free_push_plans),
@@ -1634,6 +1644,8 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_free_head_block_next_proof_missing_count": free_head_block_next_missing,
             "atomic_remote_head_push_plan_count": len(atomic_remote_head_push_plans),
             "atomic_remote_head_push_lowerable_count": atomic_remote_head_push_lowerable,
+            "atomic_remote_head_drain_plan_count": len(atomic_remote_head_drain_plans),
+            "atomic_remote_head_drain_lowerable_count": atomic_remote_head_drain_lowerable,
             "atomic_remote_head_remote_owner_required": (
                 atomic_remote_head_remote_owner_required
             ),

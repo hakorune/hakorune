@@ -77,6 +77,7 @@ pub enum MemOpKind {
     FreeHeadPush,
     FreeHeadPop,
     AtomicRemoteHeadPush,
+    AtomicRemoteHeadDrain,
 }
 
 impl MemOpKind {
@@ -96,6 +97,7 @@ impl MemOpKind {
         Self::FreeHeadPush,
         Self::FreeHeadPop,
         Self::AtomicRemoteHeadPush,
+        Self::AtomicRemoteHeadDrain,
     ];
 
     pub fn display_name(self) -> &'static str {
@@ -115,6 +117,7 @@ impl MemOpKind {
             Self::FreeHeadPush => "FreeHeadPush",
             Self::FreeHeadPop => "FreeHeadPop",
             Self::AtomicRemoteHeadPush => "AtomicRemoteHeadPush",
+            Self::AtomicRemoteHeadDrain => "AtomicRemoteHeadDrain",
         }
     }
 
@@ -135,6 +138,7 @@ impl MemOpKind {
             Self::FreeHeadPush => "free_head_push",
             Self::FreeHeadPop => "free_head_pop",
             Self::AtomicRemoteHeadPush => "atomic_remote_head_push",
+            Self::AtomicRemoteHeadDrain => "atomic_remote_head_drain",
         }
     }
 
@@ -151,7 +155,11 @@ impl MemOpKind {
     pub fn operand_arity(self) -> usize {
         match self {
             Self::CurrentAllocOwnerId => 0,
-            Self::AddrOf | Self::FieldLoad | Self::LocalFreePop | Self::FreeHeadPop => 1,
+            Self::AddrOf
+            | Self::FieldLoad
+            | Self::LocalFreePop
+            | Self::FreeHeadPop
+            | Self::AtomicRemoteHeadDrain => 1,
             Self::LogicalShr
             | Self::BitAnd
             | Self::Add
@@ -173,7 +181,8 @@ impl MemOpKind {
             | Self::LocalFreePop
             | Self::FreeHeadPush
             | Self::FreeHeadPop
-            | Self::AtomicRemoteHeadPush => EffectMask::WRITE,
+            | Self::AtomicRemoteHeadPush
+            | Self::AtomicRemoteHeadDrain => EffectMask::WRITE,
             Self::AddrOf
             | Self::LogicalShr
             | Self::BitAnd

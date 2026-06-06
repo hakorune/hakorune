@@ -85,6 +85,15 @@ ATOMIC_REMOTE_HEAD_PUSH_RETRY_PRODUCER_REPORT="$TMPDIR/page_meta_atomic_remote_h
 ATOMIC_REMOTE_HEAD_PUSH_RETRY_PRODUCER_CHECK="$TMPDIR/page_meta_atomic_remote_head_push.retry_producer.check.kv"
 ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR="$TMPDIR/page_meta_atomic_remote_head_push.llvm.stderr"
 ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ="$TMPDIR/page_meta_atomic_remote_head_push.direct.o"
+ATOMIC_REMOTE_HEAD_DRAIN_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_atomic_remote_head_drain_vocabulary_box.hako"
+ATOMIC_REMOTE_HEAD_DRAIN_AST="$TMPDIR/page_meta_atomic_remote_head_drain.ast.json"
+ATOMIC_REMOTE_HEAD_DRAIN_MIR="$TMPDIR/page_meta_atomic_remote_head_drain.mir.json"
+ATOMIC_REMOTE_HEAD_DRAIN_INV="$TMPDIR/page_meta_atomic_remote_head_drain.inventory.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV="$TMPDIR/page_meta_atomic_remote_head_drain.mir.inventory.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_LLVM_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain.llvm.report.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_LLVM_STDERR="$TMPDIR/page_meta_atomic_remote_head_drain.llvm.stderr"
+ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT="$TMPDIR/page_meta_atomic_remote_head_drain.preflight.report.kv"
+ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK="$TMPDIR/page_meta_atomic_remote_head_drain.preflight.check.kv"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -796,6 +805,86 @@ python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   -o "$ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ" \
   2>"$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"
 test -s "$ATOMIC_REMOTE_HEAD_PUSH_DIRECT_OBJ"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-drain-preflight \
+  --mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+
+grep -q '^replacement_front_selected_memop_family=remote_free$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=AtomicRemoteHeadDrain$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=atomic_remote_head_drain_preflight$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^fastmem_atomic_remote_head_drain_preflight=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^atomic_remote_head_drain_selected=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^atomic_remote_head_drain_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^atomic_remote_head_drain_lowered_count=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^remote_owner_branch_routing_open=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^atomic_remote_head_retry_policy_open=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^atomic_remote_head_retry_lowered_count=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+grep -q '^product_activation=0$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$ATOMIC_REMOTE_HEAD_DRAIN_AST" "$ATOMIC_REMOTE_HEAD_DRAIN_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$ATOMIC_REMOTE_HEAD_DRAIN_MIR" "$ATOMIC_REMOTE_HEAD_DRAIN_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$ATOMIC_REMOTE_HEAD_DRAIN_AST" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+
+grep -q '^input_kind=ast_json$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^fastmem_region_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^fastmem_memop_atomic_remote_head_drain_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$ATOMIC_REMOTE_HEAD_DRAIN_MIR" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^fastmem_memop_atomic_remote_head_drain_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^atomic_remote_head_drain_plan_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^atomic_remote_head_drain_lowerable_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^atomic_remote_head_access_resolved_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^atomic_remote_head_memory_order_policy=acquire_exchange$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_MIR_INV"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-drain-preflight \
+  --mir-json "$ATOMIC_REMOTE_HEAD_DRAIN_MIR" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_LLVM_REPORT" \
+  2>"$ATOMIC_REMOTE_HEAD_DRAIN_LLVM_STDERR"; then
+  echo "[TEST/FAIL] AtomicRemoteHeadDrain vocabulary unexpectedly lowered" >&2
+  cat "$ATOMIC_REMOTE_HEAD_DRAIN_LLVM_REPORT" >&2 || true
+  exit 1
+fi
+grep -q '\[llvm/fastmem:unsupported-kind\] atomic_remote_head_drain' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_LLVM_STDERR"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_PUSH_PRECONDITION_AST" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_PUSH_PRECONDITION_MIR" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
