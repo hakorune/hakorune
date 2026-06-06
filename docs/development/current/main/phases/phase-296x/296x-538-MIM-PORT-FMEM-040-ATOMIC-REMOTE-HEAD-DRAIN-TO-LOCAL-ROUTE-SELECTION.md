@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-040.
 Related:
@@ -58,3 +58,42 @@ winner_claim=0
 
 This row should be selection/report/check only unless the route requires a
 smaller preflight. It must not mutate local/free lists yet.
+
+## Landed
+
+MIM-040 selects the next route after `AtomicRemoteHeadDrain(page)` exchange
+lowering. The selected next slice is:
+
+```text
+remote_free_list_token -> owner-local drain route producer pilot
+```
+
+This row is report/check selection only. It does not mutate `local_free`,
+`free_head`, or any owner-local list.
+
+## Evidence
+
+```text
+fastmem_atomic_remote_head_drain_to_local_route_selection=1
+replacement_front_next_producer_slice=atomic_remote_head_drain_to_local_route_producer_pilot
+atomic_remote_head_drain_open=1
+atomic_remote_head_drain_lowered_count=1
+atomic_remote_head_drain_to_local_route_selected=1
+atomic_remote_head_drain_to_local_route_open=0
+remote_owner_branch_routing_open=0
+```
+
+Verification:
+
+```text
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+MIM-PORT-FMEM-041 should open the first producer pilot for consuming a
+`remote_free_list_token` into owner-local drain evidence. It must keep
+remote-owner branch routing, TLS transfer, abandoned reclaim, product
+activation, hooks, global allocator claim, and winner claim closed.
