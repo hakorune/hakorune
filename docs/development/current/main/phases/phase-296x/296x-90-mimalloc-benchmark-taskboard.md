@@ -185,6 +185,13 @@ MIR-FMEM-008B contract-resolution slice landed:
   plans exist and no lowerer-side recomputation is needed. Field plans now
   verify through PageMetaLayoutV0, while page_table remains non-lowerable until
   a TableIndex bounds/length policy is selected.
+MIR-FMEM-008B proof direction accepted:
+  TableIndex requires a verifier-owned VerifiedTableAccess proof with
+  length/bounds/overflow evidence before it becomes lowerable. Layout verified
+  is not access verified. Optional short LLVM smoke may lower fields only from
+  VerifiedElementRef and must not lower page_table[index].field. Page-map
+  strategy / PageTableLengthV0 remain deferred until the proof surface is
+  stable.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

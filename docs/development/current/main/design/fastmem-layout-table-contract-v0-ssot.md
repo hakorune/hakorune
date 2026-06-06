@@ -183,3 +183,46 @@ winner_claim=0
 
 LLVM GEP/load/store lowering opens only after verified rows exist and table
 bounds/alignment policy is explicit.
+
+## TableIndex Proof Decision
+
+Decision:
+
+```text
+Main line:
+  VerifiedTableAccess proof row
+
+Optional short row:
+  VerifiedElementRef-only field GEP smoke
+
+Deferred:
+  page-map strategy / two-level table product shape
+```
+
+Rule:
+
+```text
+Layout verified != Access verified
+```
+
+`PageMetaLayoutV0` proves field offsets and alignment for an element layout. It
+does not prove that `page_table[index]` points to a valid element.
+
+`TableIndex` is lowerable only with a verifier-produced `VerifiedTableAccess`
+that proves:
+
+```text
+table_length_resolved
+bounds_proof_valid
+stride_resolved
+field_offset_resolved
+overflow_proof_valid
+alignment_valid
+element_layout_verified
+```
+
+Bounds and overflow are separate proofs. `index < len` does not by itself prove
+`index * stride + field_offset` cannot overflow target `usize`.
+
+The short LLVM smoke may lower fields only from `VerifiedElementRef`. It must
+not lower `page_table[index].field`.

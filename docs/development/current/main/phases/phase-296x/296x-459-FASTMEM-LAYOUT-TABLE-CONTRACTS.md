@@ -123,14 +123,34 @@ bash tools/checks/current_state_pointer_guard.sh
 Before LLVM GEP/load/store lowering opens, decide the `TableIndex` bounds policy:
 
 ```text
-Option A:
-  keep page_table length unresolved and lower only field-only verified rows
-
-Option B:
-  introduce an explicit PageTableLengthV0 contract
+Decision:
+  use Option C as the main line
 
 Option C:
-  require a MIR bounds proof row before TableIndex becomes lowerable
+  require a MIR/verifier-owned bounds proof row before TableIndex becomes
+  lowerable
+
+Optional A':
+  allow a VerifiedElementRef-only field GEP smoke that does not lower
+  page_table[index].field
+
+Option B:
+  defer explicit PageTableLengthV0 / page-map strategy until the proof surface
+  is stable
+```
+
+Short rule:
+
+```text
+Layout verified != Access verified
+TableIndex lowering requires VerifiedTableAccess
+field-only smoke requires VerifiedElementRef
+```
+
+Follow-up card:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md
 ```
 
 ## Stop Line
