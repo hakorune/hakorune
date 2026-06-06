@@ -1178,6 +1178,15 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "memop_atomic_remote_head_lowered_count": replacement[
             "memop_atomic_remote_head_lowered_count"
         ],
+        "fastmem_verified_mem_access_plan_count": replacement[
+            "fastmem_verified_mem_access_plan_count"
+        ],
+        "fastmem_verified_field_access_count": replacement[
+            "fastmem_verified_field_access_count"
+        ],
+        "fastmem_verified_table_access_count": replacement[
+            "fastmem_verified_table_access_count"
+        ],
         "fastmem_field_id_missing_count": replacement["fastmem_field_id_missing_count"],
         "fastmem_table_id_missing_count": replacement["fastmem_table_id_missing_count"],
         "fastmem_unverified_layout_access_count": replacement[

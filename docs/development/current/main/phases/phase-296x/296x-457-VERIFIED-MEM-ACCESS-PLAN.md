@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-06
 Scope: MIR-FMEM-008B verified layout/table access plan before LLVM GEP/load/store lowering.
 Blocker: MIR-FMEM-008B
@@ -201,6 +201,60 @@ Python-template C remains diagnostic baseline only
 
 The acceptance does not require production allocator activation or bridge
 retirement.
+
+## Landed
+
+```text
+src/mir/fastmem_access_plan.rs:
+  FastMemAccessPlan
+  FastMemFieldAccessPlan
+  FastMemTableAccessPlan
+  FastMemAccessPlanStatus
+  refresh_function_fastmem_access_plans
+
+FunctionMetadata:
+  fastmem_access_plans[]
+
+Semantic refresh:
+  refreshes fastmem_access_plans after FastMemory MemOps are present
+
+MIR JSON:
+  emits metadata.fastmem_access_plans[]
+
+Python LLVM metadata loader:
+  loads fastmem_access_plans_by_site for the future lowering consumer
+
+hako_check report vocabulary:
+  fastmem_verified_mem_access_plan_count
+  fastmem_verified_field_access_count
+  fastmem_verified_table_access_count
+```
+
+Current implementation state:
+
+```text
+plan status:
+  symbolic_only
+
+reason:
+  canonical layout/table contracts do not yet provide byte offsets, table
+  representation, alignment, or bounds policy
+
+lowering:
+  still closed
+```
+
+## Next
+
+Open the next `MIR-FMEM-008B` slice for concrete layout/table contract
+resolution:
+
+```text
+PageMetaLayoutV0 / table contracts
+Verified field offsets / types / alignment
+Verified table element representation / stride / bounds proof
+then LLVM GEP/load/store lowering from verified plans only
+```
 
 ## Stop Line
 

@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "MIR-FMEM-008B symbolic layout/table access metadata landed; VerifiedMemAccessPlan metadata is the next implementation slice before LLVM GEP/load/store lowering."
+active_lane_status = "MIR-FMEM-008B VerifiedMemAccessPlan metadata skeleton landed; canonical layout/table contract resolution remains before LLVM GEP/load/store lowering."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-457-VERIFIED-MEM-ACCESS-PLAN.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-457-VERIFIED-MEM-ACCESS-PLAN"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-457-VERIFIED-MEM-ACCESS-PLAN.md"
-latest_card_summary = "Opened the next MIR-FMEM-008B slice: VerifiedMemAccessPlan is the verifier-owned layout/table contract between symbolic MemOpAccess and LLVM GEP/load/store lowering; code should add plan metadata and positive hako_check evidence before opening lowering behavior."
+latest_card_summary = "Landed the next MIR-FMEM-008B slice: FunctionMetadata and MIR JSON now expose FastMemory access-plan rows for TableIndex / FieldLoad / FieldStore sites, Python LLVM metadata loads them by site, and hako_check vocabulary has positive plan counters; rows remain symbolic_only until canonical layout/table contracts can verify offsets, alignment, representation, and bounds before LLVM GEP/load/store lowering."
 current_blocker_token = "MIR-FMEM-008B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."

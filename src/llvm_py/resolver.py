@@ -78,6 +78,7 @@ class Resolver:
         self.integerish_ids: Set[int] = set()
         self.value_types: Dict[int, Any] = {}
         self.thin_entry_selections = []
+        self.fastmem_access_plans_by_site = {}
         self.thin_entry_selection_by_value: Dict[int, Any] = {}
         self.thin_entry_selection_by_subject: Dict[Tuple[str, str], Any] = {}
         self.sum_local_aggregate_paths: Dict[int, str] = {}

@@ -25,6 +25,7 @@ use crate::mir::{
     },
     exact_seed_backend_route::ExactSeedBackendRoute,
     extern_call_route_plan::ExternCallRoute,
+    fastmem_access_plan::FastMemAccessPlan,
     generic_method_route_plan::GenericMethodRoute,
     global_call_route_plan::GlobalCallRoute,
     hotcore_method_summary::HotCoreMethodSummary,
@@ -442,6 +443,13 @@ pub struct FunctionMetadata {
     /// Region truth lives here. MIR instruction streams carry only `MemOp`
     /// executable operations with a `FastMemRegionId` back-reference.
     pub fastmem_regions: Vec<FastMemRegionMetadata>,
+
+    /// Function-local FastMemory layout/table access plan rows.
+    ///
+    /// These rows connect symbolic `MemOpAccess` ids to the verifier-owned
+    /// access contract that later LLVM lowering may consume. Rows may remain
+    /// `symbolic_only` until canonical layout/table contracts are available.
+    pub fastmem_access_plans: Vec<FastMemAccessPlan>,
 
     /// Metadata-only helper effect summaries.
     ///

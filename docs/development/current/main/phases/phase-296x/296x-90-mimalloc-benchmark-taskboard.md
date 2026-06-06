@@ -166,6 +166,12 @@ MIR-FMEM-008B first slice landed:
   verifier-owned `VerifiedMemAccessPlan` table so LLVM GEP/load/store lowering
   consumes accepted layout/table truth instead of recomputing offsets or table
   representation.
+MIR-FMEM-008B second slice landed:
+  Function metadata and MIR JSON now expose FastMemory access-plan rows for
+  `TableIndex` / `FieldLoad` / `FieldStore` sites, and Python LLVM metadata
+  loads those rows by site for the future lowering consumer. Rows remain
+  `symbolic_only` until canonical layout/table contracts verify offsets, table
+  representation, alignment, and bounds.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
@@ -178,7 +184,8 @@ MIR-FMEM-008 split:
   MIR-FMEM-008B layout/table producer pilot:
     first preserve symbolic ids, then add verified access plans, then lower
     verified TableIndex / FieldLoad / FieldStore style MemOps without owner
-    TLS/runtime behavior.
+    TLS/runtime behavior. The verified-plan metadata skeleton is landed; next
+    is concrete layout/table contract resolution before GEP/load/store lowering.
   MIR-FMEM-008C owner-runtime producer pilot:
     lower CurrentAllocOwnerId / OwnerEq style MemOps and matching report
     counters without TLS backing transfer or owner slot reuse.

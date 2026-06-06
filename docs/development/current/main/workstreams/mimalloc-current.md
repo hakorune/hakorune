@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008B verified layout/table access plan
+  MIR-FMEM-008B concrete layout/table contract resolution
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
@@ -315,7 +315,8 @@ task_order:
 next_mir_producer_rows:
   MIR-FMEM-008B layout/table producer pilot
     296x-456 symbolic MemOpAccess ids landed
-    296x-457 VerifiedMemAccessPlan metadata opens next
+    296x-457 VerifiedMemAccessPlan metadata skeleton landed
+    next: verify concrete layout/table offsets, representation, alignment, and bounds
   MIR-FMEM-008C owner-runtime producer pilot
   MIR-FMEM-008D producer-neutral parity/readiness
 

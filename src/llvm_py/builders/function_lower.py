@@ -19,6 +19,7 @@ from cfg.utils import (
 from builders.function_metadata import (
     _load_direct_array_access_plan_metadata,
     _load_exact_numeric_route_metadata,
+    _load_fastmem_access_plan_metadata,
     _load_sum_placement_metadata,
     _load_thin_entry_selection_metadata,
     _load_user_box_local_aggregate_metadata,
@@ -741,6 +742,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     _load_user_box_local_aggregate_metadata(builder, func_data)
     _load_exact_numeric_route_metadata(builder, func_data)
     _load_direct_array_access_plan_metadata(builder, func_data)
+    _load_fastmem_access_plan_metadata(builder, func_data)
 
     # Conservative sign analysis for power-of-two modulo fast path.
     _seed_resolver_fact_sets(builder, context, blocks)

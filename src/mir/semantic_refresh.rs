@@ -35,6 +35,7 @@ use super::{
         refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
     },
     extern_call_route_plan::refresh_function_extern_call_routes,
+    fastmem_access_plan::refresh_function_fastmem_access_plans,
     fastpath_required_diagnostic::refresh_function_fastpath_obligations,
     function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
@@ -115,6 +116,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_span_access_plans(function);
     refresh_function_record_state_field_access_plans(function, module_metadata);
     refresh_function_fastpath_obligations(function);
+    refresh_function_fastmem_access_plans(function);
     refresh_function_effect_summaries(function);
     refresh_function_receiver_snapshot_publication_plans(function);
     refresh_function_extern_call_routes(function);
@@ -171,6 +173,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_span_access_plans(function);
         refresh_function_record_state_field_access_plans(function, &module_metadata);
         refresh_function_fastpath_obligations(function);
+        refresh_function_fastmem_access_plans(function);
         refresh_function_effect_summaries(function);
         refresh_function_receiver_snapshot_publication_plans(function);
         refresh_function_hotcore_method_summaries(function);

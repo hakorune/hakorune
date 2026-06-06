@@ -8,6 +8,7 @@ use super::route_json::{
     build_map_lookup_fusion_route_json, build_user_box_method_route_json,
     build_userbox_known_receiver_method_seed_route_json, build_userbox_loop_micro_seed_route_json,
 };
+use crate::mir::fastmem_access_plan::FastMemAccessPlanPayload;
 use crate::mir::userbox_local_scalar_seed_plan::{
     UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedSinglePayload,
 };
@@ -240,6 +241,59 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                     "column": region.source_span.column,
                 },
             })
+        }).collect::<Vec<_>>(),
+        "fastmem_access_plans": metadata.fastmem_access_plans.iter().map(|plan| {
+            let mut row = json!({
+                "block": plan.block.as_u32(),
+                "instruction_index": plan.instruction_index,
+                "region": plan.region.0,
+                "kind": plan.kind.as_str(),
+                "status": plan.status.as_str(),
+                "verified": plan.is_verified(),
+                "failure_reason": &plan.failure_reason,
+            });
+            if let serde_json::Value::Object(map) = &mut row {
+                match &plan.payload {
+                    FastMemAccessPlanPayload::Field(field) => {
+                        map.insert("layout_id".to_string(), json!(&field.layout_id));
+                        map.insert("field_id".to_string(), json!(&field.field_id));
+                        map.insert("base".to_string(), json!(field.base.as_u32()));
+                        map.insert(
+                            "value".to_string(),
+                            json!(field.value.map(|value| value.as_u32())),
+                        );
+                        map.insert(
+                            "result".to_string(),
+                            json!(field.result.map(|value| value.as_u32())),
+                        );
+                        map.insert("access".to_string(), json!(field.mode.as_str()));
+                        map.insert("byte_offset".to_string(), json!(field.byte_offset));
+                        map.insert("field_type".to_string(), json!(&field.field_type));
+                        map.insert("alignment".to_string(), json!(field.alignment));
+                        map.insert("mutability".to_string(), json!(&field.mutability));
+                        map.insert("field_class".to_string(), json!(&field.field_class));
+                    }
+                    FastMemAccessPlanPayload::Table(table) => {
+                        map.insert("table_id".to_string(), json!(&table.table_id));
+                        map.insert("table".to_string(), json!(table.table.as_u32()));
+                        map.insert("index".to_string(), json!(table.index.as_u32()));
+                        map.insert(
+                            "result".to_string(),
+                            json!(table.result.map(|value| value.as_u32())),
+                        );
+                        map.insert(
+                            "element_layout_id".to_string(),
+                            json!(&table.element_layout_id),
+                        );
+                        map.insert("element_repr".to_string(), json!(&table.element_repr));
+                        map.insert("element_stride".to_string(), json!(table.element_stride));
+                        map.insert("length".to_string(), json!(table.length));
+                        map.insert("alignment".to_string(), json!(table.alignment));
+                        map.insert("index_policy".to_string(), json!(&table.index_policy));
+                    }
+                }
+            }
+            row
         }).collect::<Vec<_>>(),
         "effect_summaries": metadata.effect_summaries.iter().map(|summary| {
             json!({
