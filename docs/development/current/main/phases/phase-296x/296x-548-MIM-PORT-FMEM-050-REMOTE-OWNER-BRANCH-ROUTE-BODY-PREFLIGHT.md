@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-050.
 Related:
@@ -64,4 +64,34 @@ remote-heavy benchmark claim
 TLS backing transfer
 abandoned reclaim
 allocator activation
+```
+
+## Landed Evidence
+
+```text
+report/check:
+  fastmem_remote_owner_branch_route_body_preflight=1
+  replacement_front_selected_route=remote_owner_branch_route_body_preflight
+  replacement_front_next_producer_slice=fastmem_branch_cfg_preflight
+  remote_owner_branch_routing_open=1
+  remote_owner_branch_routing_lowered_count=1
+  remote_owner_branch_route_body_selected=1
+  remote_owner_branch_route_body_open=0
+
+boundaries:
+  page_local_free_route_cfg_lowering_enabled=0
+  type_abi_hot_lookup_count=0
+  provider_abi_hot_dispatch_count=0
+  product_activation=0
+  hook_install=0
+  global_allocator_claim=0
+  winner_claim=0
+```
+
+## Verification
+
+```text
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
 ```
