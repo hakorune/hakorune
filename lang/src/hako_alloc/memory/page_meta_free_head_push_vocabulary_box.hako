@@ -1,0 +1,14 @@
+// page_meta_free_head_push_vocabulary_box.hako -- FreeHeadPush vocabulary pilot
+// Responsibility: prove that .hako hako_alloc can name ordinary page free-list
+// publication as a dedicated FastMemory MemOp. This does not lower
+// FreeHeadPush, mutate free_head through ordinary FieldStore, open refill,
+// route remote frees, transfer TLS backing, or activate product allocation.
+
+static box HakoAllocPageMetaFreeHeadPushVocabulary {
+    freeHeadPushVocabularyProbe(page, block) {
+        fastmem PageMapV0 {
+            local push_marker = mem.freeHeadPush(page, block)
+        }
+        return 0
+    }
+}

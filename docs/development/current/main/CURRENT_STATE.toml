@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-510 landed MIM-PORT-FMEM-016B refill-prerequisite slice selection; MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight opens next."
+active_lane_status = "296x-511 landed MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight; MIM-PORT-FMEM-017B FreeHeadPush verifier preconditions opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-510-MIM-PORT-FMEM-016B-NEXT-REFILL-PREREQUISITE-SLICE-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-510-MIM-PORT-FMEM-016B-NEXT-REFILL-PREREQUISITE-SLICE-SELECTION.md"
-latest_card_summary = "The next refill prerequisite is FreeHeadPush vocabulary/source preflight: LocalFreePop is already covered and refill needs a dedicated free_head publication primitive before composing local_free -> free refill, while counters, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed."
-current_blocker_token = "MIM-PORT-FMEM-017A"
+latest_card = "296x-511-MIM-PORT-FMEM-017A-FREE-HEAD-PUSH-VOCABULARY-SOURCE-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-511-MIM-PORT-FMEM-017A-FREE-HEAD-PUSH-VOCABULARY-SOURCE-PREFLIGHT.md"
+latest_card_summary = "FreeHeadPush is now FastMemory vocabulary/source/MIR observation only: .hako hako_alloc can name mem.freeHeadPush(page, block), hako_check reports fastmem_memop_free_head_push_count=1, and MIR-to-LLVM fails closed with unsupported-kind while verifier plans, lowering, refill composition, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed."
+current_blocker_token = "MIM-PORT-FMEM-017B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-511 landed MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight: .hako hako_alloc can now name mem.freeHeadPush(page, block), hako_check reports fastmem_memop_free_head_push_count=1, and MIR-to-LLVM fails closed with unsupported-kind while verifier plans, lowering, refill composition, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-017B FreeHeadPush verifier preconditions opens next.",
   "2026-06-07: 296x-510 landed MIM-PORT-FMEM-016B refill-prerequisite slice selection: the next refill prerequisite is FreeHeadPush vocabulary/source preflight because LocalFreePop is already covered and local_free -> free refill needs a dedicated free_head publication primitive before composing the refill body, while counters, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight opens next.",
   "2026-06-07: 296x-509 landed MIM-PORT-FMEM-016 Page-local free_head alloc body pilot: a new .hako hako_alloc pilot now composes same-owner proof, free_head non-empty proof, FreeHeadPop, and PageMeta.used load/increment/store through MIR-to-LLVM/object evidence while refill, counter field groups, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-016B next page-local route closeout slice selection opens next.",
   "2026-06-07: 296x-508 landed MIM-PORT-FMEM-015D FreeHeadPop route closeout selection: FreeHeadPop is now selected as a closed single-block page free-list route and MIM-PORT-FMEM-016 Page-local free_head alloc body pilot opens next to compose same-owner proof, free_head non-empty proof, FreeHeadPop, and PageMeta.used load/increment/store while refill, counter field groups, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed.",

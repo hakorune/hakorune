@@ -40,6 +40,7 @@ pub const FASTMEM_LLVM_OWNER_RUNTIME_MEMOP_KINDS: &[MemOpKind] =
 pub const FASTMEM_FREE_LIST_MEMOP_KINDS: &[MemOpKind] = &[
     MemOpKind::LocalFreePush,
     MemOpKind::LocalFreePop,
+    MemOpKind::FreeHeadPush,
     MemOpKind::FreeHeadPop,
 ];
 

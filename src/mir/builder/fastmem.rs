@@ -261,6 +261,17 @@ fn lower_fastmem_function_call(
             builder.emit_fastmem_memop(region, MemOpKind::LocalFreePush, None, args, None)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
+        "mem.freeHeadPush" => {
+            let args = lower_fastmem_args(builder, region, arguments)?;
+            if args.len() != 2 {
+                return Err(format!(
+                    "[freeze:contract][fastmem/arity] call=mem.freeHeadPush expected=2 actual={}",
+                    args.len()
+                ));
+            }
+            builder.emit_fastmem_memop(region, MemOpKind::FreeHeadPush, None, args, None)?;
+            crate::mir::builder::emission::constant::emit_void(builder)
+        }
         "mem.localFreePop" => {
             let arg = single_fastmem_arg(builder, region, "mem.localFreePop", arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::LocalFreePop, vec![arg])
@@ -1003,6 +1014,43 @@ mod tests {
             .collect();
 
         assert_eq!(kinds, vec![MemOpKind::TableIndex, MemOpKind::FreeHeadPop]);
+    }
+
+    #[test]
+    fn fastmem_source_emits_free_head_push_memop() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_free_head_push/0".to_string());
+        let body = vec![
+            local("page_table", int_lit(8192)),
+            local("key", int_lit(3)),
+            local("block", int_lit(12288)),
+            ASTNode::FastMemRegion {
+                contract: "PageMapV0".to_string(),
+                body: vec![
+                    local("page", index(var("page_table"), var("key"))),
+                    ASTNode::FunctionCall {
+                        name: "mem.freeHeadPush".to_string(),
+                        arguments: vec![var("page"), var("block")],
+                        span: span(),
+                    },
+                ],
+                span: span(),
+            },
+        ];
+
+        super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let kinds: Vec<MemOpKind> = function
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter_map(|inst| match inst {
+                MirInstruction::MemOp { kind, .. } => Some(*kind),
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(kinds, vec![MemOpKind::TableIndex, MemOpKind::FreeHeadPush]);
     }
 
     #[test]
