@@ -85,6 +85,19 @@ PRODUCER_SLICE_EXPECTED_ZERO = (
     "replacement_front_selection_product_activation",
     "replacement_front_selection_bridge_retirement_allowed",
 )
+LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO = (
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+    "memop_atomic_remote_head_lowered_count",
+    "fastmem_field_id_missing_count",
+    "fastmem_table_id_missing_count",
+    "fastmem_unverified_layout_access_count",
+    "fastmem_table_index_unchecked_count",
+    "fastmem_unknown_alignment_count",
+    "fastmem_atomic_field_plain_store_count",
+    "fastmem_layout_ref_escape_count",
+    "fastmem_lowering_recomputed_layout_offset_count",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -147,6 +160,10 @@ def producer_taxonomy_profile(rows: dict[str, str]) -> bool:
 
 def producer_slice_selection_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "replacement_front_producer_slice_selection_v0") > 0
+
+
+def layout_table_producer_pilot_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "mir_fmem_008b_layout_table_producer_pilot") > 0
 
 
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
@@ -418,6 +435,18 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             if rows.get(key) != expected:
                 reasons.append(key)
         for key in PRODUCER_SLICE_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+    if layout_table_producer_pilot_profile(rows):
+        if not producer_slice_selection_profile(rows):
+            reasons.append("replacement_front_producer_slice_selection_v0")
+        if rows.get("replacement_front_selected_memop_kinds") != (
+            "TableIndex,FieldLoad,FieldStore"
+        ):
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_deferred_memop_kinds") != "CurrentAllocOwnerId,OwnerEq":
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO:
             if int_count(rows, key) != 0:
                 reasons.append(key)
     return reasons

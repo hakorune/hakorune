@@ -9,7 +9,7 @@ use super::{MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::vars::assignment_resolver::AssignmentResolverBox;
 use crate::mir::function::{FastMemRegionMetadata, FastMemRegionOrigin};
-use crate::mir::instruction::{FastMemRegionId, MemOpKind};
+use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::MirType;
 
 pub(in crate::mir::builder) fn build_fastmem_region(
@@ -107,7 +107,7 @@ fn lower_fastmem_assignment(
             builder.variable_ctx.variable_map.insert(name, value_id);
             Ok(value_id)
         }
-        ASTNode::FieldAccess { object, .. } => {
+        ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
             let value_id = lower_fastmem_expr(builder, region, value)?;
             builder.emit_fastmem_memop(
@@ -115,6 +115,7 @@ fn lower_fastmem_assignment(
                 MemOpKind::FieldStore,
                 None,
                 vec![base, value_id],
+                Some(MemOpAccess::field(field)),
             )?;
             Ok(value_id)
         }
@@ -138,6 +139,7 @@ fn lower_fastmem_assignment(
                 MemOpKind::FieldStore,
                 None,
                 vec![slot, value_id],
+                None,
             )?;
             Ok(value_id)
         }
@@ -179,13 +181,24 @@ fn lower_fastmem_expr(
             ..
         } => lower_fastmem_method_call(builder, region, *object, method, arguments),
         ASTNode::Index { target, index, .. } => {
+            let access = fastmem_table_access(&target);
             let base = lower_fastmem_expr(builder, region, *target)?;
             let idx = lower_fastmem_expr(builder, region, *index)?;
-            builder.emit_fastmem_value_memop(region, MemOpKind::TableIndex, vec![base, idx])
+            builder.emit_fastmem_value_memop_with_access(
+                region,
+                MemOpKind::TableIndex,
+                vec![base, idx],
+                access,
+            )
         }
-        ASTNode::FieldAccess { object, .. } => {
+        ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
-            builder.emit_fastmem_value_memop(region, MemOpKind::FieldLoad, vec![base])
+            builder.emit_fastmem_value_memop_with_access(
+                region,
+                MemOpKind::FieldLoad,
+                vec![base],
+                Some(MemOpAccess::field(field)),
+            )
         }
         other => Err(format!(
             "[freeze:contract][fastmem/unsupported_expr] node={}",
@@ -312,6 +325,13 @@ fn memop_kind_for_binary_operator(operator: BinaryOperator) -> Result<MemOpKind,
     }
 }
 
+fn fastmem_table_access(target: &ASTNode) -> Option<MemOpAccess> {
+    match target {
+        ASTNode::Variable { name, .. } => Some(MemOpAccess::table(name.clone())),
+        _ => None,
+    }
+}
+
 impl MirBuilder {
     fn register_fastmem_region(
         &mut self,
@@ -366,8 +386,18 @@ impl MirBuilder {
         kind: MemOpKind,
         operands: Vec<ValueId>,
     ) -> Result<ValueId, String> {
+        self.emit_fastmem_value_memop_with_access(region, kind, operands, None)
+    }
+
+    fn emit_fastmem_value_memop_with_access(
+        &mut self,
+        region: FastMemRegionId,
+        kind: MemOpKind,
+        operands: Vec<ValueId>,
+        access: Option<MemOpAccess>,
+    ) -> Result<ValueId, String> {
         let dst = self.next_value_id();
-        self.emit_fastmem_memop(region, kind, Some(dst), operands)?;
+        self.emit_fastmem_memop(region, kind, Some(dst), operands, access)?;
         self.type_ctx.value_types.insert(dst, MirType::Integer);
         Ok(dst)
     }
@@ -378,6 +408,7 @@ impl MirBuilder {
         kind: MemOpKind,
         dst: Option<ValueId>,
         operands: Vec<ValueId>,
+        access: Option<MemOpAccess>,
     ) -> Result<(), String> {
         self.note_fastmem_memop(region)?;
         self.emit_instruction(MirInstruction::MemOp {
@@ -385,6 +416,7 @@ impl MirBuilder {
             kind,
             dst,
             operands,
+            access,
             effects: kind.effect_mask(),
         })
     }
@@ -426,6 +458,30 @@ mod tests {
             operator,
             left: Box::new(left),
             right: Box::new(right),
+            span: span(),
+        }
+    }
+
+    fn index(target: ASTNode, idx: ASTNode) -> ASTNode {
+        ASTNode::Index {
+            target: Box::new(target),
+            index: Box::new(idx),
+            span: span(),
+        }
+    }
+
+    fn field(object: ASTNode, name: &str) -> ASTNode {
+        ASTNode::FieldAccess {
+            object: Box::new(object),
+            field: name.to_string(),
+            span: span(),
+        }
+    }
+
+    fn assign(target: ASTNode, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(target),
+            value: Box::new(value),
             span: span(),
         }
     }
@@ -482,6 +538,55 @@ mod tests {
         assert_eq!(
             kinds,
             vec![MemOpKind::AddrOf, MemOpKind::LogicalShr, MemOpKind::BitAnd]
+        );
+    }
+
+    #[test]
+    fn fastmem_layout_table_source_preserves_symbolic_access_ids() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_access/0".to_string());
+        let body = vec![
+            local("page_table", int_lit(8192)),
+            local("key", int_lit(3)),
+            local("ptr", int_lit(12288)),
+            ASTNode::FastMemRegion {
+                contract: "PageMapV0".to_string(),
+                body: vec![
+                    local("page", index(var("page_table"), var("key"))),
+                    local("owner", field(var("page"), "owner_id")),
+                    assign(field(var("page"), "local_free_head"), var("ptr")),
+                ],
+                span: span(),
+            },
+        ];
+
+        super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let access_entries: Vec<(MemOpKind, Option<String>, Option<String>)> = function
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter_map(|inst| match inst {
+                MirInstruction::MemOp { kind, access, .. } => Some((
+                    *kind,
+                    access.as_ref().and_then(|access| access.table_id.clone()),
+                    access.as_ref().and_then(|access| access.field_id.clone()),
+                )),
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(
+            access_entries,
+            vec![
+                (MemOpKind::TableIndex, Some("page_table".to_string()), None,),
+                (MemOpKind::FieldLoad, None, Some("owner_id".to_string())),
+                (
+                    MemOpKind::FieldStore,
+                    None,
+                    Some("local_free_head".to_string()),
+                ),
+            ]
         );
     }
 }

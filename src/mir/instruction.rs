@@ -28,6 +28,34 @@ impl FastMemRegionId {
     }
 }
 
+/// Symbolic access ids preserved by FastMemory MemOps.
+///
+/// These ids are not executable truth. MIRBuilder records them so verifier /
+/// contract code can resolve layout, field, and table plans before any backend
+/// lowering. Lowering must not infer this information from operands.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct MemOpAccess {
+    pub layout_id: Option<String>,
+    pub field_id: Option<String>,
+    pub table_id: Option<String>,
+}
+
+impl MemOpAccess {
+    pub fn field(field_id: impl Into<String>) -> Self {
+        Self {
+            field_id: Some(field_id.into()),
+            ..Self::default()
+        }
+    }
+
+    pub fn table(table_id: impl Into<String>) -> Self {
+        Self {
+            table_id: Some(table_id.into()),
+            ..Self::default()
+        }
+    }
+}
+
 /// V0 memory fast-path operation dialect.
 ///
 /// Semantic vocabulary, shape, and wire names live on this enum. Backend support
@@ -189,6 +217,7 @@ pub enum MirInstruction {
         kind: MemOpKind,
         dst: Option<ValueId>,
         operands: Vec<ValueId>,
+        access: Option<MemOpAccess>,
         effects: EffectMask,
     },
 

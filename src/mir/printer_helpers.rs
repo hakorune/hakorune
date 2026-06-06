@@ -78,6 +78,7 @@ pub fn format_instruction(
             kind,
             dst,
             operands,
+            access,
             effects,
         } => {
             let args = operands
@@ -85,19 +86,40 @@ pub fn format_instruction(
                 .map(|v| format!("{}", v))
                 .collect::<Vec<_>>()
                 .join(", ");
+            let access_suffix = access
+                .as_ref()
+                .map(|access| {
+                    let mut parts = Vec::new();
+                    if let Some(table_id) = &access.table_id {
+                        parts.push(format!("table={}", table_id));
+                    }
+                    if let Some(layout_id) = &access.layout_id {
+                        parts.push(format!("layout={}", layout_id));
+                    }
+                    if let Some(field_id) = &access.field_id {
+                        parts.push(format!("field={}", field_id));
+                    }
+                    if parts.is_empty() {
+                        String::new()
+                    } else {
+                        format!(" [{}]", parts.join(" "))
+                    }
+                })
+                .unwrap_or_default();
             if let Some(dst) = dst {
                 format!(
-                    "{} memop {:?} r{}({}); effects: {}",
+                    "{} memop {:?} r{}({}){}; effects: {}",
                     format_dst(dst, types),
                     kind,
                     region.0,
                     args,
+                    access_suffix,
                     effects
                 )
             } else {
                 format!(
-                    "memop {:?} r{}({}); effects: {}",
-                    kind, region.0, args, effects
+                    "memop {:?} r{}({}){}; effects: {}",
+                    kind, region.0, args, access_suffix, effects
                 )
             }
         }

@@ -276,12 +276,14 @@ impl JoinIrIdRemapper {
                 kind,
                 dst,
                 operands,
+                access,
                 effects,
             } => MemOp {
                 region: *region,
                 kind: *kind,
                 dst: dst.map(remap),
                 operands: operands.iter().map(|&v| remap(v)).collect(),
+                access: access.clone(),
                 effects: *effects,
             },
             FieldGet {

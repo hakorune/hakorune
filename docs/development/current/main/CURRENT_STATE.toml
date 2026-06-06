@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "MIR-FMEM-008A completed producer-slice selection; MIR-FMEM-008B layout/table producer pilot opens next."
+active_lane_status = "MIR-FMEM-008B symbolic layout/table access metadata landed; verified layout/table access plan and LLVM GEP/load/store lowering remain next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-455-PRODUCER-SLICE-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-456-LAYOUT-TABLE-PRODUCER-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-455-PRODUCER-SLICE-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-455-PRODUCER-SLICE-SELECTION.md"
-latest_card_summary = "Landed MIR-FMEM-008A: report/check now selects the layout/table MemOps (`TableIndex`, `FieldLoad`, `FieldStore`) as the next MIR-to-LLVM replacement-front producer slice and defers owner-runtime MemOps; MIR-FMEM-008B layout/table producer pilot opens next."
+latest_card = "296x-456-LAYOUT-TABLE-PRODUCER-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-456-LAYOUT-TABLE-PRODUCER-PILOT.md"
+latest_card_summary = "Landed the first MIR-FMEM-008B slice: MemOpAccess now preserves symbolic `field_id` / `table_id` in MIR and JSON, verifier rejects missing layout/table access ids, and owner-runtime MemOps stay deferred; verified layout/table access plans and LLVM GEP/load/store lowering remain next."
 current_blocker_token = "MIR-FMEM-008B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-456 landed the first MIR-FMEM-008B slice: MemOpAccess now preserves symbolic `field_id` / `table_id` in MIR and JSON, verifier rejects missing layout/table access ids, and owner-runtime MemOps stay deferred; verified layout/table access plans and LLVM GEP/load/store lowering remain next.",
   "2026-06-06: 296x-455 landed MIR-FMEM-008A producer-slice selection: report/check now selects layout/table MemOps (`TableIndex`, `FieldLoad`, `FieldStore`) first, defers owner-runtime MemOps (`CurrentAllocOwnerId`, `OwnerEq`), and keeps lowering behavior change, bridge retirement, product activation, hooks, global allocator claim, and winner claim closed; MIR-FMEM-008B layout/table producer pilot opens next.",
   "2026-06-06: 296x-454 landed MIM-FMEM-020 abandoned reclaim: empty abandoned owner-page entries now produce generation-safe Reclaimed evidence after AtomicRemoteHead drain, while live/remote candidates and TLS backing transfer remain closed; the producer task was split and MIR-FMEM-008A producer-slice selection opened next.",
   "2026-06-06: 296x-453 landed MIM-FMEM-019 AtomicRemoteHead drain: owner thread-exit flush now drains already-published remote frees into local free evidence and leaves reclaim blocked unless remote candidates are handled; MIM-FMEM-020 abandoned reclaim opens next.",

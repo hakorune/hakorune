@@ -599,6 +599,7 @@ mod tests {
             kind: MemOpKind::AddrOf,
             dst: Some(ValueId::new(10)),
             operands: vec![ValueId::new(1)],
+            access: None,
             effects: EffectMask::PURE,
         };
         assert_eq!(instruction_tag(&inst), "MemOp");
@@ -616,12 +617,14 @@ mod tests {
             MemOpKind::FieldLoad,
             MemOpKind::FieldStore,
             MemOpKind::CurrentAllocOwnerId,
+            MemOpKind::OwnerEq,
         ] {
             let inst = MirInstruction::MemOp {
                 region: FastMemRegionId::new(1),
                 kind,
                 dst: Some(ValueId::new(10)),
                 operands: vec![ValueId::new(1)],
+                access: None,
                 effects: EffectMask::READ,
             };
             assert!(!is_supported_mir_json_instruction(&inst));

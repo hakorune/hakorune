@@ -134,6 +134,7 @@ impl fmt::Display for MirInstruction {
                 kind,
                 dst,
                 operands,
+                access,
                 effects,
             } => {
                 if let Some(dst) = dst {
@@ -147,6 +148,17 @@ impl fmt::Display for MirInstruction {
                         write!(f, ", ")?;
                     }
                     write!(f, "{}", operand)?;
+                }
+                if let Some(access) = access {
+                    if let Some(table_id) = &access.table_id {
+                        write!(f, " table={}", table_id)?;
+                    }
+                    if let Some(layout_id) = &access.layout_id {
+                        write!(f, " layout={}", layout_id)?;
+                    }
+                    if let Some(field_id) = &access.field_id {
+                        write!(f, " field={}", field_id)?;
+                    }
                 }
                 write!(f, "); effects: {}", effects)
             }

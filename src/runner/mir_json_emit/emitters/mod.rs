@@ -172,8 +172,11 @@ fn emit_instruction(
             kind,
             dst,
             operands,
+            access,
             effects,
-        } => Ok(fastmem::emit_memop(region, kind, dst, operands, effects)),
+        } => Ok(fastmem::emit_memop(
+            region, kind, dst, operands, access, effects,
+        )),
         I::Call {
             dst,
             func,

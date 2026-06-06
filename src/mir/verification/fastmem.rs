@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::contracts::fastmem_ops::is_fastmem_v0_memop_kind;
 use crate::mir::function::MirFunction;
-use crate::mir::instruction::{FastMemRegionId, MemOpKind};
+use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, EffectMask, MirInstruction, ValueId};
 
@@ -111,6 +111,7 @@ fn collect_memop_sites<'a>(
                 kind,
                 dst,
                 operands,
+                access,
                 effects,
             } = sp.inst
             else {
@@ -138,6 +139,7 @@ fn collect_memop_sites<'a>(
                 kind,
                 *dst,
                 operands,
+                access.as_ref(),
                 *effects,
                 contract.clone(),
                 errors,
@@ -161,6 +163,7 @@ fn check_memop_shape(
     kind: &MemOpKind,
     dst: Option<ValueId>,
     operands: &[ValueId],
+    access: Option<&MemOpAccess>,
     effects: EffectMask,
     contract: Option<String>,
     errors: &mut Vec<VerificationError>,
@@ -205,10 +208,89 @@ fn check_memop_shape(
             Some(block),
             Some(instruction_index),
             Some(region.0),
-            contract,
+            contract.clone(),
             "effect-mask-mismatch",
             errors,
         );
+    }
+    check_memop_access_shape(
+        function,
+        block,
+        instruction_index,
+        region,
+        kind,
+        access,
+        contract,
+        errors,
+    );
+}
+
+#[allow(clippy::too_many_arguments)]
+fn check_memop_access_shape(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+    region: &FastMemRegionId,
+    kind: &MemOpKind,
+    access: Option<&MemOpAccess>,
+    contract: Option<String>,
+    errors: &mut Vec<VerificationError>,
+) {
+    let empty = |value: &Option<String>| value.as_deref().is_some_and(|s| s.trim().is_empty());
+    if let Some(access) = access {
+        if empty(&access.layout_id) || empty(&access.field_id) || empty(&access.table_id) {
+            push_region_error(
+                function,
+                Some(block),
+                Some(instruction_index),
+                Some(region.0),
+                contract.clone(),
+                "empty-access-id",
+                errors,
+            );
+        }
+    }
+
+    match kind {
+        MemOpKind::TableIndex => {
+            if access.and_then(|a| a.table_id.as_deref()).is_none() {
+                push_region_error(
+                    function,
+                    Some(block),
+                    Some(instruction_index),
+                    Some(region.0),
+                    contract,
+                    "table-index-missing-table-id",
+                    errors,
+                );
+            }
+        }
+        MemOpKind::FieldLoad | MemOpKind::FieldStore => {
+            if access.and_then(|a| a.field_id.as_deref()).is_none() {
+                push_region_error(
+                    function,
+                    Some(block),
+                    Some(instruction_index),
+                    Some(region.0),
+                    contract,
+                    "field-access-missing-field-id",
+                    errors,
+                );
+            }
+        }
+        _ => {
+            if access.is_some() {
+                push_region_error(
+                    function,
+                    Some(block),
+                    Some(instruction_index),
+                    Some(region.0),
+                    contract,
+                    "unexpected-access-metadata",
+                    errors,
+                );
+            }
+        }
     }
 }
 
@@ -357,6 +439,7 @@ mod tests {
         kind: MemOpKind,
         dst: Option<ValueId>,
         operands: Vec<ValueId>,
+        access: Option<MemOpAccess>,
         effects: EffectMask,
     ) -> MirInstruction {
         MirInstruction::MemOp {
@@ -364,6 +447,7 @@ mod tests {
             kind,
             dst,
             operands,
+            access,
             effects,
         }
     }
@@ -384,18 +468,21 @@ mod tests {
                 MemOpKind::AddrOf,
                 Some(ValueId::new(1)),
                 vec![ValueId::new(0)],
+                None,
                 EffectMask::PURE,
             ),
             memop(
                 MemOpKind::LogicalShr,
                 Some(ValueId::new(2)),
                 vec![ValueId::new(1), ValueId::new(0)],
+                None,
                 EffectMask::PURE,
             ),
             memop(
                 MemOpKind::FieldStore,
                 None,
                 vec![ValueId::new(2), ValueId::new(0)],
+                Some(MemOpAccess::field("local_free_head")),
                 EffectMask::WRITE,
             ),
         ]);
@@ -414,6 +501,7 @@ mod tests {
                 MemOpKind::AddrOf,
                 Some(ValueId::new(1)),
                 vec![ValueId::new(0)],
+                None,
                 EffectMask::PURE,
             ),
             MirInstruction::Return {
@@ -431,6 +519,7 @@ mod tests {
             MemOpKind::FieldLoad,
             Some(ValueId::new(1)),
             vec![ValueId::new(0)],
+            Some(MemOpAccess::field("owner_id")),
             EffectMask::PURE,
         )]);
 
@@ -445,11 +534,43 @@ mod tests {
             kind: MemOpKind::AddrOf,
             dst: Some(ValueId::new(1)),
             operands: vec![ValueId::new(0)],
+            access: None,
             effects: EffectMask::PURE,
         }]);
         function.metadata.fastmem_regions[0].emitted_memop_count = 0;
 
         let text = error_text(&function);
         assert!(text.contains("unknown-region"), "{}", text);
+    }
+
+    #[test]
+    fn rejects_layout_table_memops_without_symbolic_access_ids() {
+        let field = test_function(vec![memop(
+            MemOpKind::FieldLoad,
+            Some(ValueId::new(1)),
+            vec![ValueId::new(0)],
+            None,
+            EffectMask::READ,
+        )]);
+        let field_text = error_text(&field);
+        assert!(
+            field_text.contains("field-access-missing-field-id"),
+            "{}",
+            field_text
+        );
+
+        let table = test_function(vec![memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(1)),
+            vec![ValueId::new(0), ValueId::new(2)],
+            None,
+            EffectMask::READ,
+        )]);
+        let table_text = error_text(&table);
+        assert!(
+            table_text.contains("table-index-missing-table-id"),
+            "{}",
+            table_text
+        );
     }
 }

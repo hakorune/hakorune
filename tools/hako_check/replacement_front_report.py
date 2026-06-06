@@ -112,6 +112,23 @@ PRODUCER_SLICE_DEFAULTS = {
     "replacement_front_selection_product_activation": 0,
     "replacement_front_selection_bridge_retirement_allowed": 0,
 }
+LAYOUT_TABLE_PRODUCER_PILOT_DEFAULTS = {
+    "mir_fmem_008b_layout_table_producer_pilot": 0,
+    "memop_table_index_lowered_count": 0,
+    "memop_field_load_lowered_count": 0,
+    "memop_field_store_lowered_count": 0,
+    "memop_current_alloc_owner_id_lowered_count": 0,
+    "memop_owner_eq_lowered_count": 0,
+    "memop_atomic_remote_head_lowered_count": 0,
+    "fastmem_field_id_missing_count": 0,
+    "fastmem_table_id_missing_count": 0,
+    "fastmem_unverified_layout_access_count": 0,
+    "fastmem_table_index_unchecked_count": 0,
+    "fastmem_unknown_alignment_count": 0,
+    "fastmem_atomic_field_plain_store_count": 0,
+    "fastmem_layout_ref_escape_count": 0,
+    "fastmem_lowering_recomputed_layout_offset_count": 0,
+}
 
 def page_lookup_route(rows: dict[str, str], subject_idx: int, report: dict[str, Any]) -> str:
     lookup_route = prefixed(rows, subject_idx, "replacement_front_page_bins_lookup_route")
@@ -644,6 +661,8 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
             key,
             int(PRODUCER_SLICE_DEFAULTS[key]),
         )
+    for key, default in LAYOUT_TABLE_PRODUCER_PILOT_DEFAULTS.items():
+        report[key] = prefixed_int(rows, replacement_idx, key, int(default))
     page_local_mirror_source = prefixed(
         rows, replacement_idx, "replacement_front_page_local_state_source"
     )

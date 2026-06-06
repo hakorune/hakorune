@@ -23,7 +23,6 @@ pub const FASTMEM_LLVM_VALUE_MEMOP_KINDS: &[MemOpKind] = &[
     MemOpKind::BitAnd,
     MemOpKind::Add,
     MemOpKind::Sub,
-    MemOpKind::OwnerEq,
 ];
 
 pub fn is_fastmem_v0_memop_kind(kind: MemOpKind) -> bool {
@@ -84,6 +83,7 @@ mod tests {
             MemOpKind::FieldLoad,
             MemOpKind::FieldStore,
             MemOpKind::CurrentAllocOwnerId,
+            MemOpKind::OwnerEq,
         ] {
             assert!(!is_supported_memop_kind(FastMemBackend::MirJson, kind));
             assert!(!is_supported_memop_kind(FastMemBackend::LlvmJson, kind));

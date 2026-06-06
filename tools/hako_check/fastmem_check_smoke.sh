@@ -12,7 +12,8 @@ BAD_SIZE_CLASS_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_size_class.
 BAD_PAGE_LOCAL_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_page_local.XXXXXX")"
 BAD_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_producer.XXXXXX")"
 BAD_PRODUCER_SLICE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_producer_slice.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT"' EXIT
+BAD_LAYOUT_TABLE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_layout_table.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -152,5 +153,19 @@ grep -q '^failure_5_reason=replacement_front_selection_behavior_change$' "$BAD_P
 grep -q '^failure_6_reason=replacement_front_selection_product_activation$' "$BAD_PRODUCER_SLICE_OUT"
 grep -q '^failure_7_reason=replacement_front_selection_bridge_retirement_allowed$' "$BAD_PRODUCER_SLICE_OUT"
 grep -q '^summary=failed$' "$BAD_PRODUCER_SLICE_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_layout_table_producer_pilot_inventory.kv" \
+  --format kv \
+  >"$BAD_LAYOUT_TABLE_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad layout/table producer pilot" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=3$' "$BAD_LAYOUT_TABLE_OUT"
+grep -q '^failure_0_reason=memop_current_alloc_owner_id_lowered_count$' "$BAD_LAYOUT_TABLE_OUT"
+grep -q '^failure_1_reason=fastmem_field_id_missing_count$' "$BAD_LAYOUT_TABLE_OUT"
+grep -q '^failure_2_reason=fastmem_atomic_field_plain_store_count$' "$BAD_LAYOUT_TABLE_OUT"
+grep -q '^summary=failed$' "$BAD_LAYOUT_TABLE_OUT"
 
 echo "[TEST/OK] fastmem_check"

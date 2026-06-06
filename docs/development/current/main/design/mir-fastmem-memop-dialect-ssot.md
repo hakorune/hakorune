@@ -93,9 +93,40 @@ MirInstruction::MemOp {
     kind: MemOpKind,
     dst: Option<ValueId>,
     operands: Vec<ValueId>,
+    access: Option<MemOpAccess>,
     effects: EffectMask,
 }
 ```
+
+Symbolic access metadata:
+
+```rust
+struct MemOpAccess {
+    layout_id: Option<String>,
+    field_id: Option<String>,
+    table_id: Option<String>,
+}
+```
+
+`MemOpAccess` is not executable truth. MIRBuilder records source symbolic ids
+so verifier / contract code can resolve layout, field, and table plans before
+lowering. LLVM/C lowering must not infer field names, table names, byte
+offsets, strides, or alignment from operands.
+
+V0 access requirements:
+
+```text
+TableIndex:
+  table_id required when the source target is a named table
+
+FieldLoad:
+  field_id required
+
+FieldStore:
+  field_id required for field-access stores
+```
+
+If symbolic ids are missing, lowering must stop before GEP/load/store.
 
 Region metadata:
 
@@ -509,6 +540,9 @@ fastmem_region_count
 fastmem_memop_count
 fastmem_unknown_memop_kind_count=0
 fastmem_escape_count=0
+fastmem_field_id_missing_count=0
+fastmem_table_id_missing_count=0
+fastmem_unverified_layout_access_count=0
 type_abi_hot_lookup_count=0
 provider_abi_hot_dispatch_count=0
 replacement_front_producer=python_template_c_bridge|mir_to_c_lowering|mir_to_llvm_lowering

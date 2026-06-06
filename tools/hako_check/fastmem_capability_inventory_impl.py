@@ -1159,6 +1159,41 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "replacement_front_selection_bridge_retirement_allowed": replacement[
             "replacement_front_selection_bridge_retirement_allowed"
         ],
+        "mir_fmem_008b_layout_table_producer_pilot": replacement[
+            "mir_fmem_008b_layout_table_producer_pilot"
+        ],
+        "memop_table_index_lowered_count": replacement[
+            "memop_table_index_lowered_count"
+        ],
+        "memop_field_load_lowered_count": replacement[
+            "memop_field_load_lowered_count"
+        ],
+        "memop_field_store_lowered_count": replacement[
+            "memop_field_store_lowered_count"
+        ],
+        "memop_current_alloc_owner_id_lowered_count": replacement[
+            "memop_current_alloc_owner_id_lowered_count"
+        ],
+        "memop_owner_eq_lowered_count": replacement["memop_owner_eq_lowered_count"],
+        "memop_atomic_remote_head_lowered_count": replacement[
+            "memop_atomic_remote_head_lowered_count"
+        ],
+        "fastmem_field_id_missing_count": replacement["fastmem_field_id_missing_count"],
+        "fastmem_table_id_missing_count": replacement["fastmem_table_id_missing_count"],
+        "fastmem_unverified_layout_access_count": replacement[
+            "fastmem_unverified_layout_access_count"
+        ],
+        "fastmem_table_index_unchecked_count": replacement[
+            "fastmem_table_index_unchecked_count"
+        ],
+        "fastmem_unknown_alignment_count": replacement["fastmem_unknown_alignment_count"],
+        "fastmem_atomic_field_plain_store_count": replacement[
+            "fastmem_atomic_field_plain_store_count"
+        ],
+        "fastmem_layout_ref_escape_count": replacement["fastmem_layout_ref_escape_count"],
+        "fastmem_lowering_recomputed_layout_offset_count": replacement[
+            "fastmem_lowering_recomputed_layout_offset_count"
+        ],
         "replacement_front_is_full_hako_algorithm": replacement[
             "replacement_front_is_full_hako_algorithm"
         ],
