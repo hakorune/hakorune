@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "MIM-FMEM-020 completed conservative abandoned reclaim evidence; MIR-FMEM-008 was split and next opens MIR-FMEM-008A producer-slice selection."
+active_lane_status = "MIR-FMEM-008A completed producer-slice selection; MIR-FMEM-008B layout/table producer pilot opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-454-ABANDONED-RECLAIM.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-455-PRODUCER-SLICE-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-454-ABANDONED-RECLAIM"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-454-ABANDONED-RECLAIM.md"
-latest_card_summary = "Landed MIM-FMEM-020: reclaim empty abandoned owner-page entries after remote drain and generation bump evidence while keeping TLS backing transfer closed; MIR-FMEM-008A producer-slice selection is next after the producer task split."
-current_blocker_token = "MIR-FMEM-008A"
+latest_card = "296x-455-PRODUCER-SLICE-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-455-PRODUCER-SLICE-SELECTION.md"
+latest_card_summary = "Landed MIR-FMEM-008A: report/check now selects the layout/table MemOps (`TableIndex`, `FieldLoad`, `FieldStore`) as the next MIR-to-LLVM replacement-front producer slice and defers owner-runtime MemOps; MIR-FMEM-008B layout/table producer pilot opens next."
+current_blocker_token = "MIR-FMEM-008B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,7 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-06-06: 296x-454 landed MIM-FMEM-020 abandoned reclaim: empty abandoned owner-page entries now produce generation-safe Reclaimed evidence after AtomicRemoteHead drain, while live/remote candidates and TLS backing transfer remain closed; the producer task is split and MIR-FMEM-008A producer-slice selection opens next.",
+  "2026-06-06: 296x-455 landed MIR-FMEM-008A producer-slice selection: report/check now selects layout/table MemOps (`TableIndex`, `FieldLoad`, `FieldStore`) first, defers owner-runtime MemOps (`CurrentAllocOwnerId`, `OwnerEq`), and keeps lowering behavior change, bridge retirement, product activation, hooks, global allocator claim, and winner claim closed; MIR-FMEM-008B layout/table producer pilot opens next.",
+  "2026-06-06: 296x-454 landed MIM-FMEM-020 abandoned reclaim: empty abandoned owner-page entries now produce generation-safe Reclaimed evidence after AtomicRemoteHead drain, while live/remote candidates and TLS backing transfer remain closed; the producer task was split and MIR-FMEM-008A producer-slice selection opened next.",
   "2026-06-06: 296x-453 landed MIM-FMEM-019 AtomicRemoteHead drain: owner thread-exit flush now drains already-published remote frees into local free evidence and leaves reclaim blocked unless remote candidates are handled; MIM-FMEM-020 abandoned reclaim opens next.",
   "2026-06-06: 296x-452 landed MIM-FMEM-018C lifecycle shadow counters: the diagnostic replacement-front producer now emits owner generation, thread-exit flush, abandoned page, and reclaim-block observations while keeping remote drain and abandoned reclaim closed; MIM-FMEM-019 AtomicRemoteHead drain opens next.",
   "2026-06-06: 296x-451 landed MIM-FMEM-018B lifecycle report/check fields: inventory now reports AllocOwner lifecycle state/generation/thread-exit/abandoned/reclaim-block fields, and fastmem-check rejects invalid lifecycle reports; MIM-FMEM-018C shadow counters open next.",

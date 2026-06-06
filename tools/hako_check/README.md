@@ -285,6 +285,15 @@ replacement_front_mir_fastmem_region_enabled
 replacement_front_mirbuilder_representation_only
 replacement_front_mirbuilder_route_decision_count
 replacement_front_producer_transition_state
+replacement_front_producer_slice_selection_v0
+replacement_front_next_producer_slice
+replacement_front_selected_memop_family
+replacement_front_selected_memop_kinds
+replacement_front_deferred_memop_family
+replacement_front_deferred_memop_kinds
+replacement_front_selection_behavior_change
+replacement_front_selection_product_activation
+replacement_front_selection_bridge_retirement_allowed
 skip_hot_counters_median_ops_per_sec
 skip_hot_counter_gap_ratio
 skip_hot_counter_gap_class
@@ -318,6 +327,11 @@ summary=ok|failed
     explicitly declared the retired Python-template C front as a diagnostic
     baseline producer, not semantic SSOT. `replacement_front_c_shim` alone is
     not enough to infer this producer after MIR-FMEM-007.
+  - `replacement_front_producer_slice_selection_v0=1` means MIR-FMEM-008A has
+    fixed the next producer body slice as layout/table MemOps
+    (`TableIndex,FieldLoad,FieldStore`) and deferred owner-runtime MemOps
+    (`CurrentAllocOwnerId,OwnerEq`). Selection is report/check metadata only:
+    behavior change, product activation, and bridge retirement remain zero.
 - Stop line: this adapter reads existing key-value reports only. It does not
   run benchmarks, rewrite source, change MIR, choose keepers, activate
   providers, replace allocators, install hooks, claim product readiness, or
@@ -674,6 +688,15 @@ replacement_front_mir_fastmem_region_enabled
 replacement_front_mirbuilder_representation_only
 replacement_front_mirbuilder_route_decision_count
 replacement_front_producer_transition_state
+replacement_front_producer_slice_selection_v0
+replacement_front_next_producer_slice
+replacement_front_selected_memop_family
+replacement_front_selected_memop_kinds
+replacement_front_deferred_memop_family
+replacement_front_deferred_memop_kinds
+replacement_front_selection_behavior_change
+replacement_front_selection_product_activation
+replacement_front_selection_bridge_retirement_allowed
 replacement_front_is_full_hako_algorithm
 hako_mimalloc_algorithm_claim
 product_activation_ready

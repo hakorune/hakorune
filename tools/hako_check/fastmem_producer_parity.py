@@ -15,6 +15,9 @@ CANDIDATE_ARTIFACTS = {"llvm_ir", "object", "exe"}
 REQUIRED_ZERO_FIELDS = (
     "replacement_front_python_template_c_semantic_ssot",
     "replacement_front_mirbuilder_route_decision_count",
+    "replacement_front_selection_behavior_change",
+    "replacement_front_selection_product_activation",
+    "replacement_front_selection_bridge_retirement_allowed",
     "type_abi_hot_lookup_count",
     "type_abi_hot_path_lookup_count",
     "provider_abi_hot_dispatch_count",
@@ -29,6 +32,7 @@ REQUIRED_ZERO_FIELDS = (
 
 REQUIRED_ONE_FIELDS = (
     "replacement_front_producer_taxonomy_v0",
+    "replacement_front_producer_slice_selection_v0",
     "replacement_front_python_template_c_retirement_required",
     "replacement_front_mirbuilder_representation_only",
 )
@@ -39,6 +43,15 @@ PARITY_FIELDS = (
     "replacement_front_python_template_c_retirement_required",
     "replacement_front_mirbuilder_representation_only",
     "replacement_front_mirbuilder_route_decision_count",
+    "replacement_front_producer_slice_selection_v0",
+    "replacement_front_next_producer_slice",
+    "replacement_front_selected_memop_family",
+    "replacement_front_selected_memop_kinds",
+    "replacement_front_deferred_memop_family",
+    "replacement_front_deferred_memop_kinds",
+    "replacement_front_selection_behavior_change",
+    "replacement_front_selection_product_activation",
+    "replacement_front_selection_bridge_retirement_allowed",
     "replacement_front_is_full_hako_algorithm",
     "hako_mimalloc_algorithm_claim",
     "type_abi_hot_lookup_count",
@@ -64,6 +77,9 @@ INT_DEFAULTS: dict[str, int] = {
     "global_allocator_claim": 0,
     "global_allocator_product_claim": 0,
     "winner_claim": 0,
+    "replacement_front_selection_behavior_change": 0,
+    "replacement_front_selection_product_activation": 0,
+    "replacement_front_selection_bridge_retirement_allowed": 0,
 }
 
 

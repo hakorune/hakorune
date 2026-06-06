@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008A producer-slice selection
+  MIR-FMEM-008B layout/table producer pilot
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
@@ -210,12 +210,12 @@ why:
   abandoned reclaim closed. 296x-454 landed MIM-FMEM-020 by allowing empty
   abandoned owner-page index entries to transition to Reclaimed after remote
   drain and generation bump evidence, while keeping TLS backing transfer
-  closed. The current reference sync records the accepted source/MIR/runtime
-  reading, but a second closeout is intentionally parked until implementation
-  completes so stale bridge wording can be removed in one pass. The parent
-  MIR-FMEM-008 task is split into 008A producer-slice selection, 008B
-  layout/table producer pilot, 008C owner-runtime producer pilot, and 008D
-  producer-neutral parity/readiness. MIR-FMEM-008A opens next.
+  closed. 296x-455 landed MIR-FMEM-008A by selecting layout/table MemOps
+  (`TableIndex`, `FieldLoad`, `FieldStore`) as the next producer slice and
+  deferring owner-runtime MemOps (`CurrentAllocOwnerId`, `OwnerEq`). The
+  current reference sync records the accepted source/MIR/runtime reading, but a
+  second closeout is intentionally parked until implementation completes so
+  stale bridge wording can be removed in one pass. MIR-FMEM-008B opens next.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -310,9 +310,9 @@ task_order:
   MIM-FMEM-018C lifecycle shadow counters
   MIM-FMEM-019 AtomicRemoteHead drain
   MIM-FMEM-020 abandoned reclaim
+  MIR-FMEM-008A producer-slice selection
 
 next_mir_producer_rows:
-  MIR-FMEM-008A producer-slice selection
   MIR-FMEM-008B layout/table producer pilot
   MIR-FMEM-008C owner-runtime producer pilot
   MIR-FMEM-008D producer-neutral parity/readiness

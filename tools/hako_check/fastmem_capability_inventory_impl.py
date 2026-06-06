@@ -1132,6 +1132,33 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "replacement_front_producer_transition_state": replacement[
             "replacement_front_producer_transition_state"
         ],
+        "replacement_front_producer_slice_selection_v0": replacement[
+            "replacement_front_producer_slice_selection_v0"
+        ],
+        "replacement_front_next_producer_slice": replacement[
+            "replacement_front_next_producer_slice"
+        ],
+        "replacement_front_selected_memop_family": replacement[
+            "replacement_front_selected_memop_family"
+        ],
+        "replacement_front_selected_memop_kinds": replacement[
+            "replacement_front_selected_memop_kinds"
+        ],
+        "replacement_front_deferred_memop_family": replacement[
+            "replacement_front_deferred_memop_family"
+        ],
+        "replacement_front_deferred_memop_kinds": replacement[
+            "replacement_front_deferred_memop_kinds"
+        ],
+        "replacement_front_selection_behavior_change": replacement[
+            "replacement_front_selection_behavior_change"
+        ],
+        "replacement_front_selection_product_activation": replacement[
+            "replacement_front_selection_product_activation"
+        ],
+        "replacement_front_selection_bridge_retirement_allowed": replacement[
+            "replacement_front_selection_bridge_retirement_allowed"
+        ],
         "replacement_front_is_full_hako_algorithm": replacement[
             "replacement_front_is_full_hako_algorithm"
         ],

@@ -151,8 +151,15 @@ MIM-FMEM-020 landed:
   Empty abandoned owner-page index entries now produce Reclaimed evidence only
   after remote candidates are drained and generation bump evidence is emitted.
   Cross-owner TLS backing transfer and owner slot reuse remain closed.
-  The parent MIR-FMEM-008 producer task is split below; MIR-FMEM-008A
-  producer-slice selection opens next.
+  The parent MIR-FMEM-008 producer task was split below; MIR-FMEM-008A has
+  since landed and MIR-FMEM-008B opens next.
+MIR-FMEM-008A landed:
+  Report/check now fixes the next MIR-to-LLVM replacement-front producer slice
+  as layout/table MemOps (`TableIndex`, `FieldLoad`, `FieldStore`) and defers
+  owner-runtime MemOps (`CurrentAllocOwnerId`, `OwnerEq`). This row changes no
+  lowering behavior and keeps product activation, bridge retirement, hooks,
+  global allocator claim, and winner claim closed. MIR-FMEM-008B opens the
+  layout/table producer pilot next.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
@@ -161,8 +168,7 @@ Reference sync note:
   confirm product-activation stop lines still read correctly.
 MIR-FMEM-008 split:
   MIR-FMEM-008A producer-slice selection:
-    choose the smallest MIR-to-LLVM replacement-front producer slice and its
-    acceptance fields only; no lowering behavior change.
+    landed; selection fields choose layout/table first and owner-runtime later.
   MIR-FMEM-008B layout/table producer pilot:
     lower verified TableIndex / FieldLoad / FieldStore style MemOps without
     owner TLS/runtime behavior.

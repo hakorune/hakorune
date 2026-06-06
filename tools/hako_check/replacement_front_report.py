@@ -101,6 +101,17 @@ REPLACEMENT_FRONT_SOURCE_TRUTHS = {
     "hako_alloc.page_box",
     "unknown",
 }
+PRODUCER_SLICE_DEFAULTS = {
+    "replacement_front_producer_slice_selection_v0": 1,
+    "replacement_front_next_producer_slice": "layout_table_producer_pilot",
+    "replacement_front_selected_memop_family": "layout_table",
+    "replacement_front_selected_memop_kinds": "TableIndex,FieldLoad,FieldStore",
+    "replacement_front_deferred_memop_family": "owner_runtime",
+    "replacement_front_deferred_memop_kinds": "CurrentAllocOwnerId,OwnerEq",
+    "replacement_front_selection_behavior_change": 0,
+    "replacement_front_selection_product_activation": 0,
+    "replacement_front_selection_bridge_retirement_allowed": 0,
+}
 
 def page_lookup_route(rows: dict[str, str], subject_idx: int, report: dict[str, Any]) -> str:
     lookup_route = prefixed(rows, subject_idx, "replacement_front_page_bins_lookup_route")
@@ -608,6 +619,31 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         "replacement_front_producer_transition_state",
         producer_transition_state(producer),
     )
+    report["replacement_front_producer_slice_selection_v0"] = prefixed_int(
+        rows,
+        replacement_idx,
+        "replacement_front_producer_slice_selection_v0",
+        int(PRODUCER_SLICE_DEFAULTS["replacement_front_producer_slice_selection_v0"]),
+    )
+    for key in [
+        "replacement_front_next_producer_slice",
+        "replacement_front_selected_memop_family",
+        "replacement_front_selected_memop_kinds",
+        "replacement_front_deferred_memop_family",
+        "replacement_front_deferred_memop_kinds",
+    ]:
+        report[key] = prefixed(rows, replacement_idx, key, str(PRODUCER_SLICE_DEFAULTS[key]))
+    for key in [
+        "replacement_front_selection_behavior_change",
+        "replacement_front_selection_product_activation",
+        "replacement_front_selection_bridge_retirement_allowed",
+    ]:
+        report[key] = prefixed_int(
+            rows,
+            replacement_idx,
+            key,
+            int(PRODUCER_SLICE_DEFAULTS[key]),
+        )
     page_local_mirror_source = prefixed(
         rows, replacement_idx, "replacement_front_page_local_state_source"
     )

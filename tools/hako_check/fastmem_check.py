@@ -72,6 +72,20 @@ FAIL_STRING_FIELDS = {
     "free_path_page_lookup_route": {"range_scan"},
 }
 
+PRODUCER_SLICE_EXPECTED_STRINGS = {
+    "replacement_front_next_producer_slice": "layout_table_producer_pilot",
+    "replacement_front_selected_memop_family": "layout_table",
+    "replacement_front_selected_memop_kinds": "TableIndex,FieldLoad,FieldStore",
+    "replacement_front_deferred_memop_family": "owner_runtime",
+    "replacement_front_deferred_memop_kinds": "CurrentAllocOwnerId,OwnerEq",
+}
+
+PRODUCER_SLICE_EXPECTED_ZERO = (
+    "replacement_front_selection_behavior_change",
+    "replacement_front_selection_product_activation",
+    "replacement_front_selection_bridge_retirement_allowed",
+)
+
 
 def int_count(rows: dict[str, Any], key: str) -> int:
     value = rows.get(key, "0")
@@ -129,6 +143,10 @@ def page_local_bridge_profile(rows: dict[str, str]) -> bool:
 
 def producer_taxonomy_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "replacement_front_producer_taxonomy_v0") > 0
+
+
+def producer_slice_selection_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "replacement_front_producer_slice_selection_v0") > 0
 
 
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
@@ -393,6 +411,15 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
                 reasons.append("replacement_front_backend_artifact")
             if rows.get("replacement_front_producer_transition_state") != "final_primary":
                 reasons.append("replacement_front_producer_transition_state")
+    if producer_slice_selection_profile(rows):
+        if int_count(rows, "replacement_front_producer_taxonomy_v0") != 1:
+            reasons.append("replacement_front_producer_taxonomy_v0")
+        for key, expected in PRODUCER_SLICE_EXPECTED_STRINGS.items():
+            if rows.get(key) != expected:
+                reasons.append(key)
+        for key in PRODUCER_SLICE_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
     return reasons
 
 
