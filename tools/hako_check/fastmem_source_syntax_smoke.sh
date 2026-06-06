@@ -987,6 +987,40 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_CHECK"
 grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_CHECK"
 
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile remote-free-drain-to-local \
+  --mir-json "$ATOMIC_REMOTE_HEAD_DRAIN_MIR" \
+  --object-out "$ATOMIC_REMOTE_HEAD_DRAIN_DIRECT_OBJ" \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT" \
+  2>"$ATOMIC_REMOTE_HEAD_DRAIN_LLVM_STDERR"
+
+grep -q '^fastmem_atomic_remote_head_drain_to_local_route_producer_pilot=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^replacement_front_next_producer_slice=atomic_remote_head_drain_local_list_mutation_preflight$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^atomic_remote_head_drain_open=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^atomic_remote_head_drain_lowered_count=1$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^atomic_remote_head_drain_to_local_route_selected=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^atomic_remote_head_drain_to_local_route_producer_pilot=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^atomic_remote_head_drain_to_local_route_open=1$' \
+  "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^remote_owner_branch_routing_open=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^product_activation=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^global_allocator_claim=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+grep -q '^winner_claim=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_REPORT" \
+  --format kv \
+  --out "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_CHECK"
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_CHECK"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_DRAIN_TO_LOCAL_CHECK"
+
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_PUSH_PRECONDITION_AST" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_PUSH_PRECONDITION_MIR" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-041.
 Related:
@@ -58,3 +58,37 @@ winner_claim=0
 
 This row should be conservative. If list mutation needs a separate
 precondition/proof row, split it before opening behavior.
+
+## Landed
+
+MIM-041 opens the producer-pilot evidence for consuming the
+`remote_free_list_token` emitted by `AtomicRemoteHeadDrain(page)` as an
+owner-local drain route. This is still conservative: it opens the route evidence
+but does not mutate local/free lists.
+
+## Evidence
+
+```text
+fastmem_atomic_remote_head_drain_to_local_route_producer_pilot=1
+replacement_front_next_producer_slice=atomic_remote_head_drain_local_list_mutation_preflight
+atomic_remote_head_drain_open=1
+atomic_remote_head_drain_lowered_count=1
+atomic_remote_head_drain_to_local_route_selected=1
+atomic_remote_head_drain_to_local_route_open=1
+remote_owner_branch_routing_open=0
+```
+
+Verification:
+
+```text
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+MIM-PORT-FMEM-042 should select the first list-mutation preflight for the
+drained `remote_free_list_token`. It must keep remote-owner branch routing,
+TLS transfer, abandoned reclaim, product activation, hooks, global allocator
+claim, and winner claim closed.
