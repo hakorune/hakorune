@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::contracts::fastmem_ops::{is_fastmem_v0_memop_kind, memop_kind_name};
+use crate::mir::contracts::fastmem_ops::is_fastmem_v0_memop_kind;
 use crate::mir::function::MirFunction;
 use crate::mir::instruction::{FastMemRegionId, MemOpKind};
 use crate::mir::verification_types::VerificationError;
@@ -177,8 +177,7 @@ fn check_memop_shape(
         );
     }
 
-    let (expected_dst, expected_operands, expected_effects) = expected_shape(*kind);
-    if dst.is_some() != expected_dst {
+    if dst.is_some() != kind.has_destination() {
         push_region_error(
             function,
             Some(block),
@@ -189,7 +188,7 @@ fn check_memop_shape(
             errors,
         );
     }
-    if operands.len() != expected_operands {
+    if operands.len() != kind.operand_arity() {
         push_region_error(
             function,
             Some(block),
@@ -200,7 +199,7 @@ fn check_memop_shape(
             errors,
         );
     }
-    if effects != expected_effects {
+    if effects != kind.effect_mask() {
         push_region_error(
             function,
             Some(block),
@@ -210,20 +209,6 @@ fn check_memop_shape(
             "effect-mask-mismatch",
             errors,
         );
-    }
-}
-
-fn expected_shape(kind: MemOpKind) -> (bool, usize, EffectMask) {
-    match kind {
-        MemOpKind::AddrOf => (true, 1, EffectMask::PURE),
-        MemOpKind::LogicalShr | MemOpKind::BitAnd | MemOpKind::Add | MemOpKind::Sub => {
-            (true, 2, EffectMask::PURE)
-        }
-        MemOpKind::TableIndex => (true, 2, EffectMask::READ),
-        MemOpKind::FieldLoad => (true, 1, EffectMask::READ),
-        MemOpKind::FieldStore => (false, 2, EffectMask::WRITE),
-        MemOpKind::CurrentAllocOwnerId => (true, 0, EffectMask::PURE),
-        MemOpKind::OwnerEq => (true, 2, EffectMask::PURE),
     }
 }
 
@@ -303,7 +288,7 @@ fn check_memop_escape(
                         .iter()
                         .find(|metadata| metadata.id == region)
                         .map(|metadata| metadata.contract.clone()),
-                    &format!("memop-value-escapes kind={}", memop_kind_name(kind)),
+                    &format!("memop-value-escapes kind={}", kind.display_name()),
                     errors,
                 );
             }

@@ -11,18 +11,7 @@ pub enum FastMemBackend {
 }
 
 /// V0 MemOpKind vocabulary. This is the dialect allowlist SSOT.
-pub const FASTMEM_V0_MEMOP_KINDS: &[MemOpKind] = &[
-    MemOpKind::AddrOf,
-    MemOpKind::LogicalShr,
-    MemOpKind::BitAnd,
-    MemOpKind::Add,
-    MemOpKind::Sub,
-    MemOpKind::TableIndex,
-    MemOpKind::FieldLoad,
-    MemOpKind::FieldStore,
-    MemOpKind::CurrentAllocOwnerId,
-    MemOpKind::OwnerEq,
-];
+pub const FASTMEM_V0_MEMOP_KINDS: &[MemOpKind] = MemOpKind::ALL;
 
 /// MemOps opened for MIR-FMEM-005 primary LLVM/object producer.
 ///
@@ -60,18 +49,7 @@ pub fn is_supported_memop_kind(backend: FastMemBackend, kind: MemOpKind) -> bool
 }
 
 pub fn memop_kind_name(kind: MemOpKind) -> &'static str {
-    match kind {
-        MemOpKind::AddrOf => "AddrOf",
-        MemOpKind::LogicalShr => "LogicalShr",
-        MemOpKind::BitAnd => "BitAnd",
-        MemOpKind::Add => "Add",
-        MemOpKind::Sub => "Sub",
-        MemOpKind::TableIndex => "TableIndex",
-        MemOpKind::FieldLoad => "FieldLoad",
-        MemOpKind::FieldStore => "FieldStore",
-        MemOpKind::CurrentAllocOwnerId => "CurrentAllocOwnerId",
-        MemOpKind::OwnerEq => "OwnerEq",
-    }
+    kind.display_name()
 }
 
 #[cfg(test)]
@@ -87,6 +65,7 @@ mod tests {
     fn fastmem_v0_memop_kinds_are_named() {
         for kind in FASTMEM_V0_MEMOP_KINDS {
             assert!(!memop_kind_name(*kind).is_empty());
+            assert!(!kind.as_json_name().is_empty());
         }
     }
 

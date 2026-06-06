@@ -30,8 +30,8 @@ impl FastMemRegionId {
 
 /// V0 memory fast-path operation dialect.
 ///
-/// Keep this vocabulary aligned with
-/// `src/mir/contracts/fastmem_ops.rs`; backend support is contract-driven.
+/// Semantic vocabulary, shape, and wire names live on this enum. Backend support
+/// remains contract-driven.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MemOpKind {
     AddrOf,
@@ -44,6 +44,83 @@ pub enum MemOpKind {
     FieldStore,
     CurrentAllocOwnerId,
     OwnerEq,
+}
+
+impl MemOpKind {
+    pub const ALL: &'static [Self] = &[
+        Self::AddrOf,
+        Self::LogicalShr,
+        Self::BitAnd,
+        Self::Add,
+        Self::Sub,
+        Self::TableIndex,
+        Self::FieldLoad,
+        Self::FieldStore,
+        Self::CurrentAllocOwnerId,
+        Self::OwnerEq,
+    ];
+
+    pub fn display_name(self) -> &'static str {
+        match self {
+            Self::AddrOf => "AddrOf",
+            Self::LogicalShr => "LogicalShr",
+            Self::BitAnd => "BitAnd",
+            Self::Add => "Add",
+            Self::Sub => "Sub",
+            Self::TableIndex => "TableIndex",
+            Self::FieldLoad => "FieldLoad",
+            Self::FieldStore => "FieldStore",
+            Self::CurrentAllocOwnerId => "CurrentAllocOwnerId",
+            Self::OwnerEq => "OwnerEq",
+        }
+    }
+
+    pub fn as_json_name(self) -> &'static str {
+        match self {
+            Self::AddrOf => "addr_of",
+            Self::LogicalShr => "logical_shr",
+            Self::BitAnd => "bit_and",
+            Self::Add => "add",
+            Self::Sub => "sub",
+            Self::TableIndex => "table_index",
+            Self::FieldLoad => "field_load",
+            Self::FieldStore => "field_store",
+            Self::CurrentAllocOwnerId => "current_alloc_owner_id",
+            Self::OwnerEq => "owner_eq",
+        }
+    }
+
+    pub fn has_destination(self) -> bool {
+        !matches!(self, Self::FieldStore)
+    }
+
+    pub fn operand_arity(self) -> usize {
+        match self {
+            Self::CurrentAllocOwnerId => 0,
+            Self::AddrOf | Self::FieldLoad => 1,
+            Self::LogicalShr
+            | Self::BitAnd
+            | Self::Add
+            | Self::Sub
+            | Self::TableIndex
+            | Self::FieldStore
+            | Self::OwnerEq => 2,
+        }
+    }
+
+    pub fn effect_mask(self) -> EffectMask {
+        match self {
+            Self::TableIndex | Self::FieldLoad => EffectMask::READ,
+            Self::FieldStore => EffectMask::WRITE,
+            Self::AddrOf
+            | Self::LogicalShr
+            | Self::BitAnd
+            | Self::Add
+            | Self::Sub
+            | Self::CurrentAllocOwnerId
+            | Self::OwnerEq => EffectMask::PURE,
+        }
+    }
 }
 
 /// MIR instruction types (full enum; backend allowlists are contract-driven)

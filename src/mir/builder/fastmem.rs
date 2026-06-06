@@ -10,7 +10,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::vars::assignment_resolver::AssignmentResolverBox;
 use crate::mir::function::{FastMemRegionMetadata, FastMemRegionOrigin};
 use crate::mir::instruction::{FastMemRegionId, MemOpKind};
-use crate::mir::{EffectMask, MirType};
+use crate::mir::MirType;
 
 pub(in crate::mir::builder) fn build_fastmem_region(
     builder: &mut MirBuilder,
@@ -115,7 +115,6 @@ fn lower_fastmem_assignment(
                 MemOpKind::FieldStore,
                 None,
                 vec![base, value_id],
-                EffectMask::WRITE,
             )?;
             Ok(value_id)
         }
@@ -139,7 +138,6 @@ fn lower_fastmem_assignment(
                 MemOpKind::FieldStore,
                 None,
                 vec![slot, value_id],
-                EffectMask::WRITE,
             )?;
             Ok(value_id)
         }
@@ -369,11 +367,7 @@ impl MirBuilder {
         operands: Vec<ValueId>,
     ) -> Result<ValueId, String> {
         let dst = self.next_value_id();
-        let effects = match kind {
-            MemOpKind::FieldLoad | MemOpKind::TableIndex => EffectMask::READ,
-            _ => EffectMask::PURE,
-        };
-        self.emit_fastmem_memop(region, kind, Some(dst), operands, effects)?;
+        self.emit_fastmem_memop(region, kind, Some(dst), operands)?;
         self.type_ctx.value_types.insert(dst, MirType::Integer);
         Ok(dst)
     }
@@ -384,7 +378,6 @@ impl MirBuilder {
         kind: MemOpKind,
         dst: Option<ValueId>,
         operands: Vec<ValueId>,
-        effects: EffectMask,
     ) -> Result<(), String> {
         self.note_fastmem_memop(region)?;
         self.emit_instruction(MirInstruction::MemOp {
@@ -392,7 +385,7 @@ impl MirBuilder {
             kind,
             dst,
             operands,
-            effects,
+            effects: kind.effect_mask(),
         })
     }
 }

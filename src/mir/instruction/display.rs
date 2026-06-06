@@ -137,9 +137,9 @@ impl fmt::Display for MirInstruction {
                 effects,
             } => {
                 if let Some(dst) = dst {
-                    write!(f, "{} = memop {:?} r{}", dst, kind, region.0)?;
+                    write!(f, "{} = memop {} r{}", dst, kind.display_name(), region.0)?;
                 } else {
-                    write!(f, "memop {:?} r{}", kind, region.0)?;
+                    write!(f, "memop {} r{}", kind.display_name(), region.0)?;
                 }
                 write!(f, "(")?;
                 for (idx, operand) in operands.iter().enumerate() {
