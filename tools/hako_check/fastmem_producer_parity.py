@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from replacement_front_report import read_kv
+from report_kv import read_kv
 
 BASELINE_PRODUCER = "python_template_c_bridge"
 CANDIDATE_PRODUCER = "mir_to_llvm_lowering"

@@ -42,16 +42,13 @@ from fastmem_capability_inventory_common import (
     typed_page_meta_fields,
     write_output,
 )
+from report_kv import first_value, int_value, prefixed, read_kv
 from replacement_front_report import (
     build_report as build_replacement_report,
     emit_kv,
-    first_value,
     format_value,
-    int_value,
     page_lookup_route,
     page_map_bridge_kind,
-    prefixed,
-    read_kv,
 )
 
 def build_inventory(rows: dict[str, str]) -> dict[str, Any]:

@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Iterable
 
-from replacement_front_report import first_value, int_value, prefixed
+from report_kv import first_value, int_value, prefixed
 
 PAGE_META_FIELDS = (
     "owner_worker_id",

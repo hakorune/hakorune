@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from replacement_front_report import read_kv
+from report_kv import read_kv
 
 ROOT = Path(__file__).resolve().parents[2]
 INVENTORY = ROOT / "tools" / "hako_check" / "fastmem_capability_inventory.py"
