@@ -173,4 +173,29 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/owner_lifecycle_reclaim_report.kv" \
+  >"$OUT"
+
+grep -q '^replacement_front_owner_shadow_counters=1$' "$OUT"
+grep -q '^allocator_owner_lifecycle_state_machine=1$' "$OUT"
+grep -q '^allocator_owner_reclaimed_count=1$' "$OUT"
+grep -q '^allocator_owner_generation_bump_count=1$' "$OUT"
+grep -q '^allocator_abandoned_empty_page_count=2$' "$OUT"
+grep -q '^allocator_abandoned_reclaim_attempt_count=2$' "$OUT"
+grep -q '^allocator_abandoned_reclaim_success_count=2$' "$OUT"
+grep -q '^allocator_abandoned_reclaim_blocked_count=0$' "$OUT"
+grep -q '^remote_candidate_unhandled_reclaim_block_count=0$' "$OUT"
+grep -q '^page_reclaimed_with_remote_candidates=0$' "$OUT"
+grep -q '^remote_free_drain_supported=1$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --report "$FIXTURE_DIR/owner_lifecycle_reclaim_report.kv" \
+  --format kv \
+  >"$OUT"
+
+grep -q '^failure_count=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
 echo "[TEST/OK] fastmem_alloc_owner_shadow_counter"

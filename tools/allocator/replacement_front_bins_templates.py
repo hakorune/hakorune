@@ -474,6 +474,24 @@ static unsigned long long hako_page_index_drain_remote_for_exit(
   }}
 }}
 
+static unsigned long long hako_owner_token_next_generation(
+    unsigned long long token) {{
+  return token + (1ull << 32);
+}}
+
+static void hako_page_index_reclaim_owner_entries_for_exit(
+    unsigned long long old_owner_token,
+    unsigned long long new_owner_token) {{
+  for (unsigned int slot = 0; slot < HAKO_PAGE_INDEX_TABLE_CAP; slot++) {{
+    HakoReplacementPageIndexEntry* entry = &page_index_table[slot];
+    if (entry->state == HAKO_PAGE_INDEX_READY &&
+        !entry->owner_active &&
+        entry->owner_token == old_owner_token) {{
+      entry->owner_token = new_owner_token;
+    }}
+  }}
+}}
+
 static void page_arena_tls_destructor(void* value) {{
   if (!value) return;
   HAKO_COUNTER_ADD(allocator_thread_exit_observed_count, 1);
@@ -534,6 +552,16 @@ static void page_arena_tls_destructor(void* value) {{
       HAKO_COUNTER_ADD(
           allocator_abandoned_reclaim_blocked_remote_count,
           unhandled_remote_candidate_pages);
+    }}
+    if (live_pages == 0 && unhandled_remote_candidate_pages == 0) {{
+      unsigned long long new_owner_token =
+          hako_owner_token_next_generation(hako_current_owner_token);
+      hako_page_index_reclaim_owner_entries_for_exit(
+          hako_current_owner_token, new_owner_token);
+      HAKO_COUNTER_ADD(allocator_abandoned_reclaim_attempt_count, empty_pages);
+      HAKO_COUNTER_ADD(allocator_abandoned_reclaim_success_count, empty_pages);
+      HAKO_COUNTER_ADD(allocator_owner_reclaimed_count, 1);
+      HAKO_COUNTER_ADD(allocator_owner_generation_bump_count, 1);
     }}
   }}
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS

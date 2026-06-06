@@ -1288,7 +1288,8 @@ keeper work in one task.
 | `MIM-FMEM-018B lifecycle report/check fields` | done | Add report schema and fastmem-check gates for owner lifecycle, generation reuse, stale detection, reclaim blocking, and boundary claims. | Bad lifecycle reports fail fast; behavior remains conservative and reclaim is not opened. |
 | `MIM-FMEM-018C lifecycle shadow counters` | done | Add producer-side shadow evidence for thread-exit flush, owner state transitions, abandoned pages, and reclaim-block observations. | Counters observe lifecycle truth without enabling unsafe abandoned reclaim. |
 | `MIM-FMEM-019 AtomicRemoteHead drain` | done | Implement remote-free drain after owner lifecycle truth can block unsafe reclaim. | Remote candidates can be handled before reclaim work opens. |
-| `MIM-FMEM-020 abandoned reclaim` | next | Implement abandoned page reclaim with generation-safe owner transfer and remote-drain preconditions. | Reclaim succeeds only after remote candidates are handled and owner generation rules are proven. |
+| `MIM-FMEM-020 abandoned reclaim` | done | Implement abandoned page reclaim with generation-safe owner transition and remote-drain preconditions. | Empty abandoned owner-page entries can transition to Reclaimed only after remote candidates are handled; TLS backing transfer remains closed. |
+| `MIR-FMEM-008 replacement-front layout/table/owner runtime producer selection` | next | Select the next MIR-to-LLVM producer slice after the diagnostic lifecycle bridge evidence is complete. | Do not retire remaining Python-template C diagnostic payloads until MIR producer coverage can replace their layout/table/owner runtime role. |
 
 ## Report Fields For `MIM-FMEM-002`
 

@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-020 abandoned reclaim
+  MIR-FMEM-008 replacement-front layout/table/owner runtime producer selection
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -199,8 +199,11 @@ why:
   adding producer-side lifecycle shadow counters without enabling reclaim
   behavior. 296x-453 landed MIM-FMEM-019 by draining already-published
   AtomicRemoteHead remote frees during owner thread-exit flush while leaving
-  abandoned reclaim closed. MIM-FMEM-020 opens generation-safe abandoned
-  reclaim next.
+  abandoned reclaim closed. 296x-454 landed MIM-FMEM-020 by allowing empty
+  abandoned owner-page index entries to transition to Reclaimed after remote
+  drain and generation bump evidence, while keeping TLS backing transfer
+  closed. MIR-FMEM-008 opens replacement-front layout/table/owner runtime
+  producer selection next.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -245,6 +248,7 @@ completed_this_slice:
   MIM-FMEM-018B lifecycle report/check fields
   MIM-FMEM-018C lifecycle shadow counters
   MIM-FMEM-019 AtomicRemoteHead drain
+  MIM-FMEM-020 abandoned reclaim
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -293,9 +297,10 @@ task_order:
   MIM-FMEM-018B lifecycle report/check fields
   MIM-FMEM-018C lifecycle shadow counters
   MIM-FMEM-019 AtomicRemoteHead drain
-
-next_lifecycle_rows:
   MIM-FMEM-020 abandoned reclaim
+
+next_mir_producer_rows:
+  MIR-FMEM-008 replacement-front layout/table/owner runtime producer selection
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.

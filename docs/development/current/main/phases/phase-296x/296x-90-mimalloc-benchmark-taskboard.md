@@ -147,6 +147,12 @@ MIM-FMEM-019 landed:
   frees into the page local free stack and reports drain evidence. Abandoned
   reclaim behavior remains closed. MIM-FMEM-020 opens generation-safe
   abandoned reclaim next.
+MIM-FMEM-020 landed:
+  Empty abandoned owner-page index entries now produce Reclaimed evidence only
+  after remote candidates are drained and generation bump evidence is emitted.
+  Cross-owner TLS backing transfer and owner slot reuse remain closed.
+  MIR-FMEM-008 opens replacement-front layout/table/owner runtime producer
+  selection next.
 ```
 
 ## Queue

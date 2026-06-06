@@ -203,6 +203,11 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             and int_count(rows, "remote_free_drain_supported") <= 0
         ):
             reasons.append("allocator_abandoned_reclaim_success_without_remote_drain")
+        if (
+            int_count(rows, "allocator_abandoned_reclaim_success_count") > 0
+            and int_count(rows, "remote_candidate_unhandled_reclaim_block_count") > 0
+        ):
+            reasons.append("allocator_abandoned_reclaim_success_with_unhandled_remote")
     if atomic_remote_profile(rows):
         if int_count(rows, "atomic_remote_head_plan") <= 0:
             reasons.append("atomic_remote_head_plan")
