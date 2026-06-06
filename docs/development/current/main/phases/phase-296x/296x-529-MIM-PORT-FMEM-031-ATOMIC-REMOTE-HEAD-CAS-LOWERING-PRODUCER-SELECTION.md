@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-031.
 Related:
@@ -50,6 +50,34 @@ reason:
   proof-consuming report contract separate from the LLVM CAS implementation.
 ```
 
+## Decision
+
+```text
+selected:
+  C. Split selection then lowering
+
+next row:
+  MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight
+
+CAS lowering:
+  still closed
+```
+
+`AtomicRemoteHeadPush` is the first FastMemory publication/synchronization
+MemOp. It must not be opened by the same row that chooses the producer slice.
+The next row should add producer-neutral report/check evidence that the CAS
+lowering slice is selected and that all preconditions are present, while still
+reporting:
+
+```text
+atomic_remote_head_push_lowerable_count=0
+memop_atomic_remote_head_lowered_count=0
+atomic_remote_head_cas_lowering_open=0
+```
+
+The dedicated CAS lowering row can then consume the same fields and flip only
+the lowering-specific evidence.
+
 ## Still Closed
 
 ```text
@@ -59,4 +87,10 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight
 ```
