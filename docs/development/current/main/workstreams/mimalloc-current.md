@@ -141,6 +141,12 @@ next_task:
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
 
+proof_commonality_follow_up:
+  DIRECTARRAY-FMEM-COMMON-001
+
+docs_slim_follow_up:
+  DOCS-SLIM-296X-001
+
 follow_up_cleanup_trigger:
   after the MIR-FMEM layout/table/owner runtime producer body is implemented
   and the Python-template C bridge is no longer needed as semantic/runtime
@@ -3172,6 +3178,12 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Parking Lot
 
+- `DIRECTARRAY-FMEM-COMMON-001` is queued as proof-envelope/report adapter
+  work only. DirectArray access does not auto-generate a fastmem region in the
+  current lane.
+- `DOCS-SLIM-296X-001` is queued to slim this active workstream after the
+  current task routing is stable. Historical evidence should move to
+  investigation/archive owners instead of growing this restart card.
 - DirectMemory / Span / Bytes / LayoutSpan remain future substrate work.
 - `direct {}` remains parked; use RequiredFastPathRegion diagnostics first.
 - `DirectArray<T>` generic source form remains parked; v0 source-visible type is

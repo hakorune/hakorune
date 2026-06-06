@@ -249,3 +249,16 @@ FastMemory TableIndex consumes `MemOpKind::TableIndex` sites and requires
 memory-specific table length, bounds, overflow, alignment, element-layout, and
 provenance proof. DirectArray consumes Array get/set route sites and keeps its
 own access plan.
+
+Task routing:
+
+```text
+DIRECTARRAY-FMEM-COMMON-001:
+  proof-envelope/report adapter only
+  no DirectArray auto-fastmem region
+  no DirectArrayAccessPlan/FastMemAccessPlan merge
+```
+
+An automatic DirectArray-to-FastMemory lowering path is parked until a separate
+reference decision accepts it. It must not be introduced as part of table proof
+or layout lowering cleanup.

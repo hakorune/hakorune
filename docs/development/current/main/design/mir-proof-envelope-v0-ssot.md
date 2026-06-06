@@ -102,6 +102,27 @@ DirectArray proves collection access semantics.
 FastMemory proves metadata-table address construction and memory access safety.
 ```
 
+## DirectArray Auto-FastMemory Stop Line
+
+DirectArray may reuse the shared proof envelope and reusable proof ingredients,
+but DirectArray access does not automatically become a FastMemory region in the
+current lane.
+
+```text
+Allowed:
+  DirectArray report adapter emits ProofEnvelopeV0-style proof identity
+  RangeIndexFact-style facts may be reused as proof inputs after domain checks
+
+Forbidden:
+  DirectArray access auto-generates fastmem ContractRegion
+  DirectArrayAccessPlan is replaced by FastMemAccessPlan
+  DirectArrayExtentFact becomes FastMemory table length proof
+  DirectArray route names become FastMemory MemOpKind
+```
+
+Any future auto-lowering path needs a separate docs/reference decision because
+it changes source/lowering semantics, not just proof reporting.
+
 ## FastMemory-Specific
 
 FastMemory owns:
@@ -156,4 +177,15 @@ FMEM-TABLE-005:
 DIRECT-ARRAY-ADAPTER-LATER:
   optional report adapter that emits ProofEnvelopeV0 from existing DirectArray
   proof ids without changing DirectArray access planning
+
+DIRECTARRAY-FMEM-COMMON-001:
+  add the DirectArray/FastMemory proof-envelope report/check adapter
+  no source syntax change
+  no DirectArray auto-fastmem region
+  no shared access-plan payload
+  no LLVM lowering behavior change
+
+DIRECTARRAY-FMEM-AUTO-LOWERING-LATER:
+  parked until a separate reference decision accepts DirectArray access as a
+  source/lowering producer for FastMemory MemOps
 ```

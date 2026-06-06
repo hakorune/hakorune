@@ -274,6 +274,16 @@ MIR-FMEM-008C report/check closeout landed:
   `fastmem-check` unless TableIndex, FieldLoad, and FieldStore lowered-count
   evidence is present. Incomplete proof reports still fail on their
   proof-specific counters, and owner-runtime MemOps remain deferred.
+DirectArray/FastMemory commonality task inserted:
+  `DIRECTARRAY-FMEM-COMMON-001` is a proof-envelope/report adapter task only.
+  DirectArray and FastMemory may share ProofEnvelopeV0-style identity and
+  RangeIndexFact-style proof inputs, but DirectArray access does not
+  auto-generate fastmem regions and access-plan payloads remain separate.
+Docs length cleanup task inserted:
+  `DOCS-SLIM-296X-001` / `DOCS-SLIM-296X-002` / `DOCS-SLIM-FMEM-SSOT-001`
+  are queued because active restart docs crossed the 1000-line maintenance
+  threshold. Do not mix physical doc slimming with MIR-FMEM-008D owner-runtime
+  implementation.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
