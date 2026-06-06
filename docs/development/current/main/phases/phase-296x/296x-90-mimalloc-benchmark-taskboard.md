@@ -249,6 +249,11 @@ MIR-FMEM-008C handoff order active:
   lowering slice, and Worker D design-consult pack only if pointer/value
   representation is ambiguous. SSOT card:
   `docs/development/current/main/phases/phase-296x/296x-473-MIR-FMEM-008C-HANDOFF-ORDER.md`
+MIR-FMEM-008C preflight metadata landed:
+  The Python LLVM metadata loader now preserves `field_size` and `element_size`
+  from verified FastMemory access-plan rows. Actual TableIndex / FieldLoad /
+  FieldStore lowering remains closed until the TableIndex result pointer/value
+  representation is decided.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

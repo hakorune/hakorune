@@ -324,8 +324,10 @@ def _load_fastmem_access_plan_metadata(builder, func_data: Dict[str, Any]) -> No
         "table",
         "index",
         "byte_offset",
+        "field_size",
         "alignment",
         "element_stride",
+        "element_size",
         "length",
     )
     for row in rows:

@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008C LLVM producer preflight for complete VerifiedTableAccess rows
+  MIR-FMEM-008C TableIndex pointer/value representation design consult
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
@@ -218,9 +218,9 @@ why:
   stale bridge wording can be removed in one pass. MIR-FMEM-008B then landed
   the concrete layout/table proof chain through complete TableIndex proof
   evidence and `fastmem-check` rejection for incomplete proofs. MIR-FMEM-008C
-  now opens with an LLVM producer preflight: inspect the metadata/resolver/MemOp
-  lowering seam, then lower only complete VerifiedTableAccess rows if
-  pointer/value representation is unambiguous.
+  opened with an LLVM producer preflight. The metadata loader now preserves
+  `field_size` and `element_size`; actual lowering is stopped at the
+  TableIndex result pointer/value representation decision.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
