@@ -331,6 +331,13 @@ MIM-PORT-FMEM-012B landed:
   ordinary `local_free_head` FieldLoad/FieldStore routes, LocalFreePop,
   remote-owner routing, AtomicRemoteHead, TLS transfer, and product activation
   remain closed. MIM-PORT-FMEM-013 opens the LocalFreePop route.
+MIM-PORT-FMEM-013A landed:
+  `.hako hako_alloc` can now express LocalFreePop preconditions through
+  `mem.assumeLocalFreeNonEmpty(page)` plus same-owner proof. LocalFreePop plans
+  report non-empty evidence but stay non-lowerable with
+  `local-free-pop-lowering-closed`. MIM-PORT-FMEM-013B opens the LocalFreePop
+  LLVM producer pilot while keeping remote-free, AtomicRemoteHead, TLS
+  transfer, and product activation closed.
 MIR-FMEM-008C FieldLoad LayoutRef pilot landed:
   Verified FieldLoad rows now consume backend-private LayoutRefs and emit
   readonly scalar GEP/load results into ordinary `vmap`. FieldStore, owner

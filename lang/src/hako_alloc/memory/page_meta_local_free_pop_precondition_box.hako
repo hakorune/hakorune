@@ -1,0 +1,24 @@
+// page_meta_local_free_pop_precondition_box.hako -- LocalFreePop precondition pilot
+// Responsibility: prove that .hako hako_alloc can express the same-owner and
+// non-empty preconditions required before LocalFreePop lowering opens.
+// This does not lower LocalFreePop, open remote-owner routing, open
+// AtomicRemoteHead, transfer TLS backing, or activate product allocation.
+
+static box HakoAllocPageMetaLocalFreePopPrecondition {
+    localFreePopPreconditionProbe(page_table, page_index) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local owner_worker_id = page.owner_worker_id
+            local current_owner_id = mem.currentAllocOwnerId()
+            local same_owner = mem.ownerEq(owner_worker_id, current_owner_id)
+            page.used = same_owner
+            mem.assumeSameOwner(page, same_owner)
+            mem.assumeLocalFreeNonEmpty(page)
+            local popped = mem.localFreePop(page)
+            page.used = popped
+        }
+        return 0
+    }
+}

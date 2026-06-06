@@ -1233,6 +1233,7 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     memops: list[dict[str, Any]] = []
     same_owner_facts: list[dict[str, Any]] = []
     block_next_facts: list[dict[str, Any]] = []
+    local_free_non_empty_facts: list[dict[str, Any]] = []
 
     for function in root.get("functions", []):
         metadata = function.get("metadata", {})
@@ -1254,6 +1255,11 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         block_next_facts.extend(
             fact
             for fact in metadata.get("fastmem_block_next_facts", [])
+            if isinstance(fact, dict)
+        )
+        local_free_non_empty_facts.extend(
+            fact
+            for fact in metadata.get("fastmem_local_free_non_empty_facts", [])
             if isinstance(fact, dict)
         )
         for block in function.get("blocks", []):
@@ -1363,8 +1369,13 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     )
     local_free_block_next_missing = sum(
         1
-        for plan in local_free_plans
+        for plan in local_free_push_plans
         if not bool(plan.get("block_next_proof_valid"))
+    )
+    local_free_non_empty_missing = sum(
+        1
+        for plan in local_free_pop_plans
+        if not bool(plan.get("non_empty_proof_valid"))
     )
     local_free_head_access_resolved = sum(
         1
@@ -1442,8 +1453,11 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_local_free_access_plan_incomplete_count": local_free_access_plan_incomplete,
             "fastmem_same_owner_fact_count": len(same_owner_facts),
             "fastmem_block_next_fact_count": len(block_next_facts),
+            "fastmem_local_free_non_empty_fact_count": len(local_free_non_empty_facts),
             "fastmem_local_free_same_owner_required": int(bool(local_free_plans)),
             "fastmem_local_free_same_owner_missing_count": local_free_same_owner_missing,
+            "fastmem_local_free_non_empty_required": int(bool(local_free_pop_plans)),
+            "fastmem_local_free_non_empty_missing_count": local_free_non_empty_missing,
             "fastmem_local_free_remote_owner_rejected_count": local_free_remote_owner_rejected,
             "fastmem_local_free_block_next_proof_missing_count": local_free_block_next_missing,
             "fastmem_verified_mem_access_plan_count": len(verified_plans),

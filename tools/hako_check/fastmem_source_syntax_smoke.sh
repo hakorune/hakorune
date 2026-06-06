@@ -77,6 +77,13 @@ LOCAL_FREE_PUSH_PRECONDITION_MIR_INV="$TMPDIR/page_meta_local_free_push_precondi
 LOCAL_FREE_PUSH_PRECONDITION_LLVM_REPORT="$TMPDIR/page_meta_local_free_push_precondition.llvm.report.kv"
 LOCAL_FREE_PUSH_PRECONDITION_LLVM_CHECK="$TMPDIR/page_meta_local_free_push_precondition.llvm.check.kv"
 LOCAL_FREE_PUSH_PRECONDITION_LLVM_STDERR="$TMPDIR/page_meta_local_free_push_precondition.llvm.stderr"
+LOCAL_FREE_POP_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_pop_precondition_box.hako"
+LOCAL_FREE_POP_PRECONDITION_AST="$TMPDIR/page_meta_local_free_pop_precondition.ast.json"
+LOCAL_FREE_POP_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_pop_precondition.mir.json"
+LOCAL_FREE_POP_PRECONDITION_INV="$TMPDIR/page_meta_local_free_pop_precondition.inventory.kv"
+LOCAL_FREE_POP_PRECONDITION_MIR_INV="$TMPDIR/page_meta_local_free_pop_precondition.mir.inventory.kv"
+LOCAL_FREE_POP_PRECONDITION_LLVM_REPORT="$TMPDIR/page_meta_local_free_pop_precondition.llvm.report.kv"
+LOCAL_FREE_POP_PRECONDITION_LLVM_STDERR="$TMPDIR/page_meta_local_free_pop_precondition.llvm.stderr"
 
 cat >"$GOOD_SRC" <<'HK'
 static box Main {
@@ -490,7 +497,9 @@ grep -q '^fastmem_local_free_pop_plan_count=1$' "$LOCAL_FREE_MEMOP_MIR_INV"
 grep -q '^fastmem_local_free_nonlowerable_count=2$' "$LOCAL_FREE_MEMOP_MIR_INV"
 grep -q '^fastmem_local_free_same_owner_required=1$' "$LOCAL_FREE_MEMOP_MIR_INV"
 grep -q '^fastmem_local_free_same_owner_missing_count=2$' "$LOCAL_FREE_MEMOP_MIR_INV"
-grep -q '^fastmem_local_free_block_next_proof_missing_count=2$' "$LOCAL_FREE_MEMOP_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_required=1$' "$LOCAL_FREE_MEMOP_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_missing_count=1$' "$LOCAL_FREE_MEMOP_MIR_INV"
+grep -q '^fastmem_local_free_block_next_proof_missing_count=1$' "$LOCAL_FREE_MEMOP_MIR_INV"
 grep -q '^summary=ok$' "$LOCAL_FREE_MEMOP_MIR_INV"
 
 if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
@@ -583,6 +592,68 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --out "$LOCAL_FREE_PUSH_PRECONDITION_LLVM_CHECK"
 grep -q '^summary=ok$' "$LOCAL_FREE_PUSH_PRECONDITION_LLVM_CHECK"
 grep -q '^failure_count=0$' "$LOCAL_FREE_PUSH_PRECONDITION_LLVM_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_POP_PRECONDITION_AST" "$LOCAL_FREE_POP_PRECONDITION_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_POP_PRECONDITION_MIR" "$LOCAL_FREE_POP_PRECONDITION_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$LOCAL_FREE_POP_PRECONDITION_AST" \
+  --out "$LOCAL_FREE_POP_PRECONDITION_INV"
+
+grep -q '^input_kind=ast_json$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_region_count=1$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_field_store_count=2$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_local_free_push_count=0$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_memop_local_free_pop_count=1$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+grep -q '^summary=ok$' "$LOCAL_FREE_POP_PRECONDITION_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$LOCAL_FREE_POP_PRECONDITION_MIR" \
+  --out "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_field_store_count=2$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_local_free_push_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_memop_local_free_pop_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_list_plan=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_push_plan_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_pop_plan_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_nonlowerable_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_pop_lowerable_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_head_access_resolved_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_access_plan_incomplete_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_same_owner_fact_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_fact_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_same_owner_required=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_same_owner_missing_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_required=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_non_empty_missing_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_remote_owner_rejected_count=1$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^fastmem_local_free_block_next_proof_missing_count=0$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+grep -q '^summary=ok$' "$LOCAL_FREE_POP_PRECONDITION_MIR_INV"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --mir-json "$LOCAL_FREE_POP_PRECONDITION_MIR" \
+  --out "$LOCAL_FREE_POP_PRECONDITION_LLVM_REPORT" \
+  2>"$LOCAL_FREE_POP_PRECONDITION_LLVM_STDERR"; then
+  echo "[TEST/FAIL] LocalFreePop precondition pilot unexpectedly lowered" >&2
+  cat "$LOCAL_FREE_POP_PRECONDITION_LLVM_REPORT" >&2 || true
+  exit 1
+fi
+grep -q '\[llvm/fastmem:unsupported-kind\] local_free_pop' \
+  "$LOCAL_FREE_POP_PRECONDITION_LLVM_STDERR"
 
 cat >"$BAD_SRC" <<'HK'
 static box Main {

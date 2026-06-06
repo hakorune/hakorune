@@ -248,6 +248,33 @@ pub struct FastMemBlockNextFact {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemLocalFreeNonEmptyProofKind {
+    SourceAssumeLocalFreeNonEmpty,
+}
+
+impl FastMemLocalFreeNonEmptyProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SourceAssumeLocalFreeNonEmpty => "source_assume_local_free_non_empty",
+        }
+    }
+}
+
+/// FastMemory-owned proof that a PageMeta local free-list has a pop candidate.
+///
+/// This is a source/verifier proof consumed by `LocalFreePop` plans. It is not
+/// an ordinary `local_free_head` FieldLoad and does not open pop lowering by
+/// itself.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemLocalFreeNonEmptyFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub page_value: ValueId,
+    pub proof_kind: FastMemLocalFreeNonEmptyProofKind,
+    pub non_empty: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayExtentProofKind {
     DefaultCapacity,
     ProducerInvariant,
@@ -541,6 +568,9 @@ pub struct FunctionMetadata {
 
     /// FastMemory block-next facts consumed by LocalFreePush access plans.
     pub fastmem_block_next_facts: Vec<FastMemBlockNextFact>,
+
+    /// FastMemory non-empty local free-list facts consumed by LocalFreePop.
+    pub fastmem_local_free_non_empty_facts: Vec<FastMemLocalFreeNonEmptyFact>,
 
     /// Function-local FastMemory layout/table access plan rows.
     ///

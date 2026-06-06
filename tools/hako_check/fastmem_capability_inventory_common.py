@@ -210,6 +210,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             or is_mem_method_call(expr, "assumeIndexInRange")
             or is_mem_method_call(expr, "assumeSameOwner")
             or is_mem_method_call(expr, "assumeLocalFreeBlockNext")
+            or is_mem_method_call(expr, "assumeLocalFreeNonEmpty")
         ):
             pass
         else:
@@ -241,6 +242,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             "mem.assumeIndexInRange",
             "mem.assumeSameOwner",
             "mem.assumeLocalFreeBlockNext",
+            "mem.assumeLocalFreeNonEmpty",
         }:
             pass
         else:
@@ -452,8 +454,11 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_local_free_access_plan_incomplete_count": 0,
         "fastmem_same_owner_fact_count": 0,
         "fastmem_block_next_fact_count": 0,
+        "fastmem_local_free_non_empty_fact_count": 0,
         "fastmem_local_free_same_owner_required": 0,
         "fastmem_local_free_same_owner_missing_count": 0,
+        "fastmem_local_free_non_empty_required": 0,
+        "fastmem_local_free_non_empty_missing_count": 0,
         "fastmem_local_free_remote_owner_rejected_count": 0,
         "fastmem_local_free_block_next_proof_missing_count": 0,
         "fastmem_memop_typed_load_count": 0,

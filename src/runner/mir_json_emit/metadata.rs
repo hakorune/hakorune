@@ -274,6 +274,15 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "provenance_valid": fact.provenance_valid,
             })
         }).collect::<Vec<_>>(),
+        "fastmem_local_free_non_empty_facts": metadata.fastmem_local_free_non_empty_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "region": fact.region.0,
+                "page_value": fact.page_value.as_u32(),
+                "proof_kind": fact.proof_kind.as_str(),
+                "non_empty": fact.non_empty,
+            })
+        }).collect::<Vec<_>>(),
         "fastmem_access_plans": metadata.fastmem_access_plans.iter().map(|plan| {
             let mut row = json!({
                 "block": plan.block.as_u32(),
@@ -433,6 +442,10 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         map.insert(
                             "block_next_proof_valid".to_string(),
                             json!(local_free.block_next_proof_valid),
+                        );
+                        map.insert(
+                            "non_empty_proof_valid".to_string(),
+                            json!(local_free.non_empty_proof_valid),
                         );
                         map.insert(
                             "remote_owner_rejected".to_string(),
