@@ -115,6 +115,11 @@ MIR-FMEM-007B landed:
   diagnostic baseline guard, and remaining template payloads are classified as
   diagnostic implementation. MIR-FMEM-007C opens a static import guard so normal
   allocator tools cannot import diagnostic payloads directly.
+MIR-FMEM-007C landed:
+  `tools/checks/python_template_c_bridge_import_guard.sh` now blocks normal
+  allocator / hako_check tools from direct-importing retired Python-template C
+  diagnostic payload modules. MIR-FMEM-007D opens the keep/archive decision for
+  remaining diagnostic payloads.
 ```
 
 ## Queue

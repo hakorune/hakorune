@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-007C Python template C diagnostic import guard
+  MIR-FMEM-007D Python template C diagnostic payload keep/archive decision
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -184,7 +184,10 @@ why:
   `python_template_c_bridge` unless the report declares that producer. 296x-447
   landed MIR-FMEM-007B by moving the retirement guard into
   `tools/allocator/python_template_c_bridge.py` and requiring that guard at
-  both CLI validation and bridge build-helper entrypoints.
+  both CLI validation and bridge build-helper entrypoints. 296x-448 landed
+  MIR-FMEM-007C by adding a dev-gate static import guard that prevents normal
+  allocator / hako_check tools from direct-importing retired diagnostic payload
+  modules.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -267,6 +270,7 @@ task_order:
   MIR-FMEM-007 Python template C bridge retirement first slice
   MIR-FMEM-007B Remaining Python template C quarantine/delete inventory
   MIR-FMEM-007C Python template C diagnostic import guard
+  MIR-FMEM-007D Python template C diagnostic payload keep/archive decision
   MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff/bootstrap artifact producer
 
 retirement_gate:
@@ -277,8 +281,10 @@ retirement_gate:
   removes report-side hidden producer inference. MIR-FMEM-007B quarantined the
   remaining build helpers behind the same explicit diagnostic baseline guard.
   MIR-FMEM-007C adds a static import guard for remaining diagnostic payload
-  files. Optional MIR-to-C artifact support is a separate generated-backend
-  lane.
+  files. MIR-FMEM-007D decides whether the remaining diagnostic payloads stay
+  until allocator-owner layout/table MemOps cover replacement-front behavior,
+  or whether fixed-slot-only payloads can be archived first. Optional MIR-to-C
+  artifact support is a separate generated-backend lane.
   Historical command snippets before 296x-446 are archival. If re-run as a
   diagnostic baseline, every Python-template C replacement-front mode must add
   `--allow-python-template-c-bridge-baseline`; do not read older snippets as

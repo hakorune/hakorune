@@ -57,6 +57,7 @@ dev_gate_script_step "K2-wide runtime-decl return proof row guard" tools/checks/
 dev_gate_script_step "K2-wide native ptr declare type guard" tools/checks/k2_wide_native_ptr_decl_type_guard.sh
 dev_gate_script_step "K2-wide hako_mem runtime-decl guard" tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh
 dev_gate_script_step "K2-wide mimalloc substrate route inventory guard" tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh
+dev_gate_script_step "Python-template C bridge import guard" tools/checks/python_template_c_bridge_import_guard.sh
 dev_gate_script_step "allocator provider inactive sentinel guard" tools/checks/allocator_provider_inactive_sentinel_guard.sh
 dev_gate_script_step "K2-wide hako_alloc handle policy guard" tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
 dev_gate_script_step "K2-wide hako_alloc GC trigger policy guard" tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
