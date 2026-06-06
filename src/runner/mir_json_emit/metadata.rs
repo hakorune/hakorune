@@ -263,6 +263,15 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "remote_owner_rejected": fact.remote_owner_rejected,
             })
         }).collect::<Vec<_>>(),
+        "fastmem_remote_owner_facts": metadata.fastmem_remote_owner_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "region": fact.region.0,
+                "page_value": fact.page_value.as_u32(),
+                "proof_kind": fact.proof_kind.as_str(),
+                "same_owner_rejected": fact.same_owner_rejected,
+            })
+        }).collect::<Vec<_>>(),
         "fastmem_block_next_facts": metadata.fastmem_block_next_facts.iter().map(|fact| {
             json!({
                 "fact_id": fact.fact_id,

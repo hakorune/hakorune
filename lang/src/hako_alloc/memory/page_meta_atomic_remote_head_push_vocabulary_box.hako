@@ -11,6 +11,8 @@ static box HakoAllocPageMetaAtomicRemoteHeadPushVocabulary {
             mem.assumeIndexInRange(page_index, 64)
             local page = page_table[page_index]
             local used = page.used
+            mem.assumeRemoteOwner(page)
+            mem.assumeRemoteFreeBlockNext(block)
             mem.atomicRemoteHeadPush(page, block)
             return used
         }

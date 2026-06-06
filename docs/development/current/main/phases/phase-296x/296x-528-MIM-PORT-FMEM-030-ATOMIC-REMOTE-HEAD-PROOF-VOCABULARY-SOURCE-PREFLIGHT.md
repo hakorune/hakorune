@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-030.
 Related:
@@ -39,6 +39,27 @@ atomic_remote_head_block_next_missing_count=0
 atomic_remote_head_memory_order_policy=closed
 ```
 
+## Landed Evidence
+
+```text
+mem.assumeRemoteOwner(page)
+mem.assumeRemoteFreeBlockNext(block)
+
+fastmem_remote_owner_fact_count=1
+fastmem_remote_owner_source_assume_count=1
+fastmem_remote_free_block_next_source_assume_count=1
+
+atomic_remote_head_push_plan_count=1
+atomic_remote_head_push_lowerable_count=0
+atomic_remote_head_remote_owner_missing_count=0
+atomic_remote_head_block_next_missing_count=0
+atomic_remote_head_memory_order_policy=closed
+```
+
+The `.hako` AtomicRemoteHead pilot now carries both remote-free publication
+preconditions into MIR metadata. `AtomicRemoteHeadPush` still reports
+`lowerable=0`; this row does not open CAS lowering or remote branch routing.
+
 ## Candidate Source Intrinsics
 
 ```text
@@ -60,4 +81,10 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
 ```

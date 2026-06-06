@@ -12,8 +12,9 @@ use crate::mir::function::{
     FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
     FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
     FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
-    FastMemSameOwnerFact, FastMemSameOwnerProofKind, FastMemTableLengthFact,
-    FastMemTableLengthPolicyKind, RangeIndexFact, RangeIndexFactOriginKind,
+    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
+    FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
+    RangeIndexFact, RangeIndexFactOriginKind,
 };
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::loop_api::LoopBuilderApi;
@@ -56,9 +57,7 @@ fn lower_fastmem_stmt(
             value: Some(expression),
             ..
         } => lower_fastmem_expr(builder, region, *expression),
-        ASTNode::If {
-            ..
-        } => Err("[freeze:contract][fastmem/branch_cfg_closed]".to_string()),
+        ASTNode::If { .. } => Err("[freeze:contract][fastmem/branch_cfg_closed]".to_string()),
         ASTNode::Return { value: None, .. } => {
             crate::mir::builder::emission::constant::emit_void(builder)
         }
@@ -266,7 +265,13 @@ fn lower_fastmem_function_call(
                     args.len()
                 ));
             }
-            builder.emit_fastmem_memop(region, MemOpKind::AtomicRemoteHeadPush, None, args, None)?;
+            builder.emit_fastmem_memop(
+                region,
+                MemOpKind::AtomicRemoteHeadPush,
+                None,
+                args,
+                None,
+            )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         "mem.localFreePop" => {
@@ -288,6 +293,11 @@ fn lower_fastmem_function_call(
             builder.add_fastmem_same_owner_fact(region, args[0], args[1])?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
+        "mem.assumeRemoteOwner" => {
+            let arg = single_fastmem_arg(builder, region, "mem.assumeRemoteOwner", arguments)?;
+            builder.add_fastmem_remote_owner_fact(region, arg)?;
+            crate::mir::builder::emission::constant::emit_void(builder)
+        }
         "mem.assumeLocalFreeBlockNext" => {
             let arg =
                 single_fastmem_arg(builder, region, "mem.assumeLocalFreeBlockNext", arguments)?;
@@ -305,6 +315,16 @@ fn lower_fastmem_function_call(
                 region,
                 arg,
                 FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext,
+            )?;
+            crate::mir::builder::emission::constant::emit_void(builder)
+        }
+        "mem.assumeRemoteFreeBlockNext" => {
+            let arg =
+                single_fastmem_arg(builder, region, "mem.assumeRemoteFreeBlockNext", arguments)?;
+            builder.add_fastmem_block_next_fact(
+                region,
+                arg,
+                FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext,
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
@@ -638,6 +658,30 @@ impl MirBuilder {
                 proof_value,
                 proof_kind: FastMemSameOwnerProofKind::SourceAssumeOwnerEq,
                 remote_owner_rejected: true,
+            });
+        Ok(())
+    }
+
+    fn add_fastmem_remote_owner_fact(
+        &mut self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+    ) -> Result<(), String> {
+        let function = self
+            .scope_ctx
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
+        let fact_id = function.metadata.fastmem_remote_owner_facts.len() as u32;
+        function
+            .metadata
+            .fastmem_remote_owner_facts
+            .push(FastMemRemoteOwnerFact {
+                fact_id,
+                region,
+                page_value,
+                proof_kind: FastMemRemoteOwnerProofKind::SourceAssumeRemoteOwner,
+                same_owner_rejected: true,
             });
         Ok(())
     }
@@ -1163,6 +1207,16 @@ mod tests {
                         span: span(),
                     },
                     ASTNode::FunctionCall {
+                        name: "mem.assumeRemoteOwner".to_string(),
+                        arguments: vec![var("page")],
+                        span: span(),
+                    },
+                    ASTNode::FunctionCall {
+                        name: "mem.assumeRemoteFreeBlockNext".to_string(),
+                        arguments: vec![var("block")],
+                        span: span(),
+                    },
+                    ASTNode::FunctionCall {
                         name: "mem.assumeLocalFreeNonEmpty".to_string(),
                         arguments: vec![var("page")],
                         span: span(),
@@ -1185,7 +1239,8 @@ mod tests {
         super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
         let function = builder.scope_ctx.current_function.as_ref().unwrap();
         assert_eq!(function.metadata.fastmem_same_owner_facts.len(), 1);
-        assert_eq!(function.metadata.fastmem_block_next_facts.len(), 2);
+        assert_eq!(function.metadata.fastmem_remote_owner_facts.len(), 1);
+        assert_eq!(function.metadata.fastmem_block_next_facts.len(), 3);
         assert_eq!(
             function.metadata.fastmem_local_free_non_empty_facts.len(),
             1
@@ -1206,6 +1261,14 @@ mod tests {
         assert_eq!(
             function.metadata.fastmem_block_next_facts[1].proof_kind,
             FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext
+        );
+        assert_eq!(
+            function.metadata.fastmem_remote_owner_facts[0].proof_kind,
+            FastMemRemoteOwnerProofKind::SourceAssumeRemoteOwner
+        );
+        assert_eq!(
+            function.metadata.fastmem_block_next_facts[2].proof_kind,
+            FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext
         );
         assert!(function.metadata.fastmem_local_free_non_empty_facts[0].non_empty);
         assert!(function.metadata.fastmem_free_head_non_empty_facts[0].non_empty);

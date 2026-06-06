@@ -222,9 +222,34 @@ pub struct FastMemSameOwnerFact {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemRemoteOwnerProofKind {
+    SourceAssumeRemoteOwner,
+}
+
+impl FastMemRemoteOwnerProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SourceAssumeRemoteOwner => "source_assume_remote_owner",
+        }
+    }
+}
+
+/// FastMemory-owned proof that a PageMeta value must use the remote-owner
+/// publication path rather than same-owner local mutation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemRemoteOwnerFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub page_value: ValueId,
+    pub proof_kind: FastMemRemoteOwnerProofKind,
+    pub same_owner_rejected: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FastMemBlockNextProofKind {
     SourceAssumeLocalFreeBlockNext,
     SourceAssumeFreeHeadBlockNext,
+    SourceAssumeRemoteFreeBlockNext,
 }
 
 impl FastMemBlockNextProofKind {
@@ -232,6 +257,7 @@ impl FastMemBlockNextProofKind {
         match self {
             Self::SourceAssumeLocalFreeBlockNext => "source_assume_local_free_block_next",
             Self::SourceAssumeFreeHeadBlockNext => "source_assume_free_head_block_next",
+            Self::SourceAssumeRemoteFreeBlockNext => "source_assume_remote_free_block_next",
         }
     }
 }
@@ -596,6 +622,9 @@ pub struct FunctionMetadata {
 
     /// FastMemory same-owner facts consumed by local free-list access plans.
     pub fastmem_same_owner_facts: Vec<FastMemSameOwnerFact>,
+
+    /// FastMemory remote-owner facts consumed by AtomicRemoteHead plans.
+    pub fastmem_remote_owner_facts: Vec<FastMemRemoteOwnerFact>,
 
     /// FastMemory block-next facts consumed by LocalFreePush access plans.
     pub fastmem_block_next_facts: Vec<FastMemBlockNextFact>,

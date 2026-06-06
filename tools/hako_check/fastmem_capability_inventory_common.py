@@ -215,8 +215,10 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             is_mem_method_call(expr, "assumeTableLength")
             or is_mem_method_call(expr, "assumeIndexInRange")
             or is_mem_method_call(expr, "assumeSameOwner")
+            or is_mem_method_call(expr, "assumeRemoteOwner")
             or is_mem_method_call(expr, "assumeLocalFreeBlockNext")
             or is_mem_method_call(expr, "assumeFreeHeadBlockNext")
+            or is_mem_method_call(expr, "assumeRemoteFreeBlockNext")
             or is_mem_method_call(expr, "assumeLocalFreeNonEmpty")
             or is_mem_method_call(expr, "assumeFreeHeadNonEmpty")
         ):
@@ -255,8 +257,10 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             "mem.assumeTableLength",
             "mem.assumeIndexInRange",
             "mem.assumeSameOwner",
+            "mem.assumeRemoteOwner",
             "mem.assumeLocalFreeBlockNext",
             "mem.assumeFreeHeadBlockNext",
+            "mem.assumeRemoteFreeBlockNext",
             "mem.assumeLocalFreeNonEmpty",
             "mem.assumeFreeHeadNonEmpty",
         }:

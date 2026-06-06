@@ -15,9 +15,9 @@ use crate::mir::{
         resolve_fastmem_table_contract,
     },
     function::{
-        FastMemBlockNextFact, FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind,
-        FastMemLocalFreeNonEmptyFact, FastMemRegionMetadata, FastMemSameOwnerFact,
-        FastMemTableLengthFact, RangeIndexFact,
+        FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
+        FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact, FastMemRegionMetadata,
+        FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact, RangeIndexFact,
     },
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
@@ -272,6 +272,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let regions = function.metadata.fastmem_regions.clone();
     let table_length_facts = function.metadata.fastmem_table_length_facts.clone();
     let same_owner_facts = function.metadata.fastmem_same_owner_facts.clone();
+    let remote_owner_facts = function.metadata.fastmem_remote_owner_facts.clone();
     let block_next_facts = function.metadata.fastmem_block_next_facts.clone();
     let local_free_non_empty_facts = function.metadata.fastmem_local_free_non_empty_facts.clone();
     let mut free_head_non_empty_facts: Vec<_> = function
@@ -310,6 +311,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 region_contract(&regions, *region),
                 &table_length_facts,
                 &same_owner_facts,
+                &remote_owner_facts,
                 &block_next_facts,
                 &local_free_non_empty_facts,
                 &free_head_non_empty_facts,
@@ -339,6 +341,7 @@ fn plan_from_memop(
     contract: Option<&str>,
     table_length_facts: &[FastMemTableLengthFact],
     same_owner_facts: &[FastMemSameOwnerFact],
+    remote_owner_facts: &[FastMemRemoteOwnerFact],
     block_next_facts: &[FastMemBlockNextFact],
     local_free_non_empty_facts: &[FastMemLocalFreeNonEmptyFact],
     free_head_non_empty_facts: &[FastMemFreeHeadNonEmptyFact],
@@ -431,6 +434,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
+            remote_owner_facts,
             block_next_facts,
         ),
         _ => None,
@@ -1278,6 +1282,7 @@ fn atomic_remote_head_plan(
     dst: Option<ValueId>,
     operands: &[ValueId],
     contract: Option<&str>,
+    remote_owner_facts: &[FastMemRemoteOwnerFact],
     block_next_facts: &[FastMemBlockNextFact],
 ) -> Option<FastMemAccessPlan> {
     let page = operands.first().copied()?;
@@ -1321,7 +1326,10 @@ fn atomic_remote_head_plan(
     let block_next_field_id = "next";
     let block_next_fact = block_value.and_then(|block_value| {
         block_next_fact(block_next_facts, region, block_value).filter(|fact| {
-            fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
+            fact.next_field_id == block_next_field_id
+                && fact.writable
+                && fact.provenance_valid
+                && fact.proof_kind == FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext
         })
     });
     let block_next_resolved = block_next_fact.and_then(|fact| {
@@ -1358,7 +1366,8 @@ fn atomic_remote_head_plan(
         && block_next_field_type.is_some()
         && block_next_alignment.is_some();
     let remote_owner_required = true;
-    let remote_owner_proof_valid = false;
+    let remote_owner_proof_valid = remote_owner_fact(remote_owner_facts, region, page)
+        .map_or(false, |fact| fact.same_owner_rejected);
     let block_next_required = true;
     let memory_order_policy = "closed".to_string();
     let lowerable = false;
@@ -1413,6 +1422,16 @@ fn same_owner_fact<'a>(
     region: FastMemRegionId,
     page_value: ValueId,
 ) -> Option<&'a FastMemSameOwnerFact> {
+    facts
+        .iter()
+        .find(|fact| fact.region == region && fact.page_value == page_value)
+}
+
+fn remote_owner_fact<'a>(
+    facts: &'a [FastMemRemoteOwnerFact],
+    region: FastMemRegionId,
+    page_value: ValueId,
+) -> Option<&'a FastMemRemoteOwnerFact> {
     facts
         .iter()
         .find(|fact| fact.region == region && fact.page_value == page_value)
@@ -1484,8 +1503,9 @@ mod tests {
         FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
         FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
         FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
-        FastMemSameOwnerFact, FastMemSameOwnerProofKind, FastMemTableLengthFact,
-        FastMemTableLengthPolicyKind, RangeIndexFact, RangeIndexFactOriginKind,
+        FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
+        FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
+        RangeIndexFact, RangeIndexFactOriginKind,
     };
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
@@ -2010,7 +2030,7 @@ mod tests {
                 region: FastMemRegionId::new(0),
                 block_value: ValueId::new(11),
                 next_field_id: "next".to_string(),
-                proof_kind: FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext,
+                proof_kind: FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext,
                 writable: true,
                 provenance_valid: true,
             });
@@ -2040,6 +2060,58 @@ mod tests {
         assert_eq!(remote_head.block_next_alignment, Some(8));
         assert!(remote_head.remote_owner_required);
         assert!(!remote_head.remote_owner_proof_valid);
+        assert!(!remote_head.lowerable);
+    }
+
+    #[test]
+    fn refresh_observes_atomic_remote_head_proofs_but_keeps_cas_lowering_closed() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::AtomicRemoteHeadPush,
+            None,
+            vec![ValueId::new(10), ValueId::new(11)],
+            None,
+        )]);
+        function
+            .metadata
+            .fastmem_remote_owner_facts
+            .push(FastMemRemoteOwnerFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                page_value: ValueId::new(10),
+                proof_kind: FastMemRemoteOwnerProofKind::SourceAssumeRemoteOwner,
+                same_owner_rejected: true,
+            });
+        function
+            .metadata
+            .fastmem_block_next_facts
+            .push(FastMemBlockNextFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                block_value: ValueId::new(11),
+                next_field_id: "next".to_string(),
+                proof_kind: FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext,
+                writable: true,
+                provenance_valid: true,
+            });
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
+        let plan = &function.metadata.fastmem_access_plans[0];
+        assert_eq!(plan.kind, FastMemAccessPlanKind::AtomicRemoteHeadPush);
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            plan.failure_reason.as_deref(),
+            Some("atomic-remote-head-cas-lowering-closed")
+        );
+        let FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) = &plan.payload else {
+            panic!("expected atomic remote-head plan");
+        };
+        assert!(remote_head.remote_owner_required);
+        assert!(remote_head.remote_owner_proof_valid);
+        assert!(remote_head.block_next_required);
+        assert!(remote_head.block_next_proof_valid);
+        assert_eq!(remote_head.memory_order_policy, "closed");
         assert!(!remote_head.lowerable);
     }
 

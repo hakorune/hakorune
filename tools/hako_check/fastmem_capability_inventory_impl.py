@@ -1232,6 +1232,7 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     plans: list[dict[str, Any]] = []
     memops: list[dict[str, Any]] = []
     same_owner_facts: list[dict[str, Any]] = []
+    remote_owner_facts: list[dict[str, Any]] = []
     block_next_facts: list[dict[str, Any]] = []
     local_free_non_empty_facts: list[dict[str, Any]] = []
     free_head_non_empty_facts: list[dict[str, Any]] = []
@@ -1251,6 +1252,11 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         same_owner_facts.extend(
             fact
             for fact in metadata.get("fastmem_same_owner_facts", [])
+            if isinstance(fact, dict)
+        )
+        remote_owner_facts.extend(
+            fact
+            for fact in metadata.get("fastmem_remote_owner_facts", [])
             if isinstance(fact, dict)
         )
         block_next_facts.extend(
@@ -1494,6 +1500,17 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             or plan.get("block_next_alignment") in (None, "")
         )
     )
+    remote_owner_source_assume = sum(
+        1
+        for fact in remote_owner_facts
+        if str(fact.get("proof_kind")) == "source_assume_remote_owner"
+        and bool(fact.get("same_owner_rejected"))
+    )
+    remote_free_block_next_source_assume = sum(
+        1
+        for fact in block_next_facts
+        if str(fact.get("proof_kind")) == "source_assume_remote_free_block_next"
+    )
     atomic_remote_head_push_lowerable = sum(
         1 for plan in atomic_remote_head_push_plans if bool(plan.get("lowerable"))
     )
@@ -1582,7 +1599,12 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_local_free_block_next_access_resolved_count": local_free_block_next_access_resolved,
             "fastmem_local_free_access_plan_incomplete_count": local_free_access_plan_incomplete,
             "fastmem_same_owner_fact_count": len(same_owner_facts),
+            "fastmem_remote_owner_fact_count": len(remote_owner_facts),
+            "fastmem_remote_owner_source_assume_count": remote_owner_source_assume,
             "fastmem_block_next_fact_count": len(block_next_facts),
+            "fastmem_remote_free_block_next_source_assume_count": (
+                remote_free_block_next_source_assume
+            ),
             "fastmem_local_free_non_empty_fact_count": len(local_free_non_empty_facts),
             "fastmem_local_free_same_owner_required": int(bool(local_free_plans)),
             "fastmem_local_free_same_owner_missing_count": local_free_same_owner_missing,
