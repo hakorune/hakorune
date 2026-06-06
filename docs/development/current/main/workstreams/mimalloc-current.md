@@ -146,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot
+  MIM-PORT-FMEM-018 local_free -> free refill body pilot
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -181,7 +181,8 @@ implementation_sequence:
   MIM-PORT-FMEM-016B next page-local route closeout slice selection (landed)
   MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight (landed)
   MIM-PORT-FMEM-017B FreeHeadPush verifier preconditions (landed)
-  MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot
+  MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot (landed)
+  MIM-PORT-FMEM-018 local_free -> free refill body pilot
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)

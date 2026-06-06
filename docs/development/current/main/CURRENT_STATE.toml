@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-512 landed MIM-PORT-FMEM-017B FreeHeadPush verifier preconditions; MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot opens next."
+active_lane_status = "296x-513 landed MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot; MIM-PORT-FMEM-018 local_free to free refill body pilot opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-512-MIM-PORT-FMEM-017B-FREE-HEAD-PUSH-VERIFIER-PRECONDITIONS"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-512-MIM-PORT-FMEM-017B-FREE-HEAD-PUSH-VERIFIER-PRECONDITIONS.md"
-latest_card_summary = "FreeHeadPush now has verifier-owned precondition evidence: mem.assumeFreeHeadBlockNext(block) feeds a lowerable FreeHeadPush plan with same-owner proof, free_head access material, and FreeBlockNodeLayoutV0.next access material, while MIR-to-LLVM still fails closed with unsupported-kind and refill composition, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed."
-current_blocker_token = "MIM-PORT-FMEM-017C"
+latest_card = "296x-513-MIM-PORT-FMEM-017C-FREE-HEAD-PUSH-LLVM-PRODUCER-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-513-MIM-PORT-FMEM-017C-FREE-HEAD-PUSH-LLVM-PRODUCER-PILOT.md"
+latest_card_summary = "Verified FreeHeadPush plans now lower through MIR-to-LLVM/object by storing old page.free_head into block.next and publishing block to page.free_head, while vocabulary-only FreeHeadPush fails closed with missing verified plan and refill composition, ordinary free_head FieldStore, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed."
+current_blocker_token = "MIM-PORT-FMEM-018"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-513 landed MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot: verified FreeHeadPush plans now lower through MIR-to-LLVM/object by storing old page.free_head into block.next and publishing block to page.free_head, while vocabulary-only FreeHeadPush fails closed with missing verified plan and refill composition, ordinary free_head FieldStore, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-018 local_free to free refill body pilot opens next.",
   "2026-06-07: 296x-512 landed MIM-PORT-FMEM-017B FreeHeadPush verifier preconditions: mem.assumeFreeHeadBlockNext(block) now feeds a lowerable verifier-owned FreeHeadPush plan with same-owner proof, free_head access material, and FreeBlockNodeLayoutV0.next access material, while MIR-to-LLVM still fails closed with unsupported-kind and refill composition, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-017C FreeHeadPush LLVM producer pilot opens next.",
   "2026-06-07: 296x-511 landed MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight: .hako hako_alloc can now name mem.freeHeadPush(page, block), hako_check reports fastmem_memop_free_head_push_count=1, and MIR-to-LLVM fails closed with unsupported-kind while verifier plans, lowering, refill composition, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-017B FreeHeadPush verifier preconditions opens next.",
   "2026-06-07: 296x-510 landed MIM-PORT-FMEM-016B refill-prerequisite slice selection: the next refill prerequisite is FreeHeadPush vocabulary/source preflight because LocalFreePop is already covered and local_free -> free refill needs a dedicated free_head publication primitive before composing the refill body, while counters, remote routing, AtomicRemoteHead, TLS transfer, and product activation stay closed; MIM-PORT-FMEM-017A FreeHeadPush vocabulary/source preflight opens next.",

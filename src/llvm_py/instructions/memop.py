@@ -134,6 +134,11 @@ def _current_fastmem_access_plan(
                 continue
             if plan.get("page") != int(operands[0]):
                 continue
+        if kind == "free_head_push":
+            if len(operands) < 2:
+                continue
+            if plan.get("page") != int(operands[0]) or plan.get("block_value") != int(operands[1]):
+                continue
         return plan
     return None
 
@@ -472,6 +477,82 @@ def _require_complete_free_head_pop_plan(plan: Optional[Dict[str, Any]]) -> Dict
     return plan
 
 
+def _require_complete_free_head_push_plan(plan: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-free-head-push-plan]")
+    for key in (
+        "free_head_layout_id",
+        "free_head_field_id",
+        "free_head_field_class",
+        "free_head_byte_offset",
+        "free_head_field_size",
+        "free_head_field_type",
+        "free_head_alignment",
+        "block_next_layout_id",
+        "block_next_field_id",
+        "block_next_field_class",
+        "block_next_byte_offset",
+        "block_next_field_size",
+        "block_next_field_type",
+        "block_next_alignment",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(f"[llvm/fastmem:missing-free-head-push-plan-field] {key}")
+    if plan.get("lowerable") is not True:
+        raise RuntimeError("[llvm/fastmem:free-head-push-plan-not-lowerable]")
+    if plan.get("same_owner_proof_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:free-head-push-same-owner-proof-missing]")
+    if plan.get("block_next_proof_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:free-head-push-block-next-proof-missing]")
+    if plan.get("remote_owner_rejected") is not True:
+        raise RuntimeError("[llvm/fastmem:free-head-push-remote-owner-not-rejected]")
+    if str(plan.get("free_head_field_class")) != _FREE_HEAD_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-free-head-class] "
+            f"{plan.get('free_head_field_class')}"
+        )
+    if str(plan.get("block_next_field_class")) != _LOCAL_FREE_BLOCK_NEXT_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-free-head-block-next-class] "
+            f"{plan.get('block_next_field_class')}"
+        )
+    for key in (
+        "free_head_field_size",
+        "free_head_alignment",
+        "block_next_field_size",
+        "block_next_alignment",
+    ):
+        try:
+            if int(plan.get(key)) <= 0:
+                raise RuntimeError(
+                    f"[llvm/fastmem:invalid-free-head-push-plan-number] {key}"
+                )
+        except ValueError as exc:
+            raise RuntimeError("[llvm/fastmem:invalid-free-head-push-plan-number]") from exc
+    if int(plan.get("free_head_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-free-head-size] "
+            f"{plan.get('free_head_field_size')}"
+        )
+    if int(plan.get("block_next_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-free-head-block-next-size] "
+            f"{plan.get('block_next_field_size')}"
+        )
+    if str(plan.get("free_head_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-free-head-type] "
+            f"{plan.get('free_head_field_type')}"
+        )
+    if str(plan.get("block_next_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-free-head-block-next-type] "
+            f"{plan.get('block_next_field_type')}"
+        )
+    return plan
+
+
 def _layout_refs(resolver) -> Dict[int, Dict[str, Any]]:
     refs = getattr(resolver, "fastmem_layout_refs", None)
     if not isinstance(refs, dict):
@@ -795,6 +876,58 @@ def _lower_free_head_pop(
     return old_head
 
 
+def _lower_free_head_push(
+    builder: ir.IRBuilder,
+    resolver,
+    operands: List[Any],
+    vmap: Dict[int, ir.Value],
+    current_block,
+    preds,
+    block_end_values,
+    bb_map,
+) -> None:
+    _require_operands("free_head_push", operands, 2)
+    plan = _require_complete_free_head_push_plan(
+        _current_fastmem_access_plan(resolver, "free_head_push", None, operands)
+    )
+    page_ref = _get_layout_ref(
+        resolver,
+        int(operands[0]),
+        str(plan["free_head_layout_id"]),
+    )
+    block_addr = _resolve_i64_operand(
+        builder,
+        resolver,
+        int(operands[1]),
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+        name_hint=f"fastmem_free_head_push_block_{operands[1]}",
+    )
+    block_ptr = builder.inttoptr(
+        block_addr,
+        ir.IntType(8).as_pointer(),
+        name=f"fastmem_free_head_push_block_ptr_{operands[1]}",
+    )
+    head_ptr = _gep_i64_field_ptr(
+        builder,
+        page_ref["ptr"],
+        int(plan["free_head_byte_offset"]),
+        name_prefix="fastmem_free_head_push_head",
+    )
+    old_head = builder.load(head_ptr, name="fastmem_free_head_push_old_head")
+    block_next_ptr = _gep_i64_field_ptr(
+        builder,
+        block_ptr,
+        int(plan["block_next_byte_offset"]),
+        name_prefix="fastmem_free_head_push_block_next",
+    )
+    builder.store(old_head, block_next_ptr)
+    builder.store(block_addr, head_ptr)
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -870,6 +1003,20 @@ def lower_memop(
             raise RuntimeError("[llvm/fastmem:free-head-pop-missing-dst]")
         result = _lower_free_head_pop(builder, resolver, int(dst), operands)
         safe_vmap_write(vmap, int(dst), result, "fastmem_free_head_pop", resolver=resolver)
+        return
+    if kind == "free_head_push":
+        if dst is not None:
+            raise RuntimeError("[llvm/fastmem:free-head-push-has-dst]")
+        _lower_free_head_push(
+            builder,
+            resolver,
+            operands,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
+        )
         return
     if kind == "current_alloc_owner_id":
         _require_operands(kind, operands, 0)

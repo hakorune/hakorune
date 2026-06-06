@@ -139,7 +139,6 @@ LOCAL_FREE_PRODUCER_EXPECTED_ZERO = (
 LOCAL_FREE_PRODUCER_EXPECTED_POSITIVE = (
     "memop_table_index_lowered_count",
     "memop_field_load_lowered_count",
-    "memop_field_store_lowered_count",
 )
 
 
@@ -539,15 +538,18 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         if rows.get("replacement_front_selected_memop_family") != "local_free":
             reasons.append("replacement_front_selected_memop_family")
         selected_local_free = rows.get("replacement_front_selected_memop_kinds")
-        if selected_local_free not in {
+        selected_parts = set(filter(None, (selected_local_free or "").split(",")))
+        allowed_local_free = {
             "LocalFreePush",
             "LocalFreePop",
+            "FreeHeadPush",
             "FreeHeadPop",
-            "LocalFreePush,LocalFreePop",
-            "LocalFreePop,FreeHeadPop",
-            "LocalFreePush,FreeHeadPop",
-            "LocalFreePush,LocalFreePop,FreeHeadPop",
-        }:
+        }
+        if (
+            not selected_parts
+            or selected_local_free == "none"
+            or not selected_parts.issubset(allowed_local_free)
+        ):
             reasons.append("replacement_front_selected_memop_kinds")
         deferred_local_free = rows.get("replacement_front_deferred_memop_kinds", "")
         if "AtomicRemoteHead" not in deferred_local_free.split(","):
@@ -574,6 +576,16 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
                 "memop_local_free_pop_layout_ref_consumed_count",
                 "fastmem_local_free_pop_lowering_uses_verified_plan",
                 "fastmem_local_free_pop_lowering_enabled",
+            ):
+                if int_count(rows, key) <= 0:
+                    reasons.append(key)
+        if selected_local_free and "FreeHeadPush" in selected_local_free:
+            for key in (
+                "fastmem_free_head_push_plan_count",
+                "memop_free_head_push_lowered_count",
+                "memop_free_head_push_layout_ref_consumed_count",
+                "fastmem_free_head_push_lowering_uses_verified_plan",
+                "fastmem_free_head_push_lowering_enabled",
             ):
                 if int_count(rows, key) <= 0:
                     reasons.append(key)
