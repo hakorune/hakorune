@@ -25,7 +25,7 @@ use crate::mir::{
     },
     exact_seed_backend_route::ExactSeedBackendRoute,
     extern_call_route_plan::ExternCallRoute,
-    fastmem_access_plan::FastMemAccessPlan,
+    fastmem_access_plan::{FastMemAccessPlan, FastMemTableFieldAccessLink},
     generic_method_route_plan::GenericMethodRoute,
     global_call_route_plan::GlobalCallRoute,
     hotcore_method_summary::HotCoreMethodSummary,
@@ -486,6 +486,12 @@ pub struct FunctionMetadata {
     /// access contract that later LLVM lowering may consume. Rows may remain
     /// `symbolic_only` until canonical layout/table contracts are available.
     pub fastmem_access_plans: Vec<FastMemAccessPlan>,
+
+    /// Verified v0 links from TableIndex results to same-block field accesses.
+    ///
+    /// These rows are the explicit source for `field_offset_resolved` in the
+    /// table proof payload. They do not open overflow proof or lowering.
+    pub fastmem_table_field_access_links: Vec<FastMemTableFieldAccessLink>,
 
     /// Metadata-only helper effect summaries.
     ///

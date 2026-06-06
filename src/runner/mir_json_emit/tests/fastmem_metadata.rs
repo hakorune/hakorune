@@ -2,7 +2,8 @@ use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::fastmem_access_plan::{
     FastMemAccessPlan, FastMemAccessPlanKind, FastMemAccessPlanPayload, FastMemAccessPlanStatus,
-    FastMemTableAccessPlan, FastMemTableAccessProof,
+    FastMemFieldAccessMode, FastMemTableAccessPlan, FastMemTableAccessProof,
+    FastMemTableFieldAccessLink,
 };
 use crate::mir::function::{FastMemTableLengthFact, FastMemTableLengthPolicyKind};
 use crate::mir::instruction::FastMemRegionId;
@@ -72,7 +73,7 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
                     table_length_resolved: true,
                     bounds_proof_valid: true,
                     stride_resolved: true,
-                    field_offset_resolved: false,
+                    field_offset_resolved: true,
                     overflow_proof_valid: false,
                     alignment_valid: true,
                     element_layout_verified: true,
@@ -82,6 +83,24 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
                     failure_reason: None,
                 },
             }),
+        });
+    function
+        .metadata
+        .fastmem_table_field_access_links
+        .push(FastMemTableFieldAccessLink {
+            table_block: BasicBlockId::new(0),
+            table_instruction_index: 0,
+            field_block: BasicBlockId::new(0),
+            field_instruction_index: 1,
+            region: FastMemRegionId::new(0),
+            table_result: ValueId::new(10),
+            field_base: ValueId::new(10),
+            field_id: "capacity".to_string(),
+            field_access: FastMemFieldAccessMode::Load,
+            byte_offset: 40,
+            field_type: "usize".to_string(),
+            alignment: 8,
+            proof: "table_field_link:0:1".to_string(),
         });
     module
         .functions
@@ -96,10 +115,23 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
     assert_eq!(plans[0]["kind"], "table_index");
     assert_eq!(plans[0]["table_length_resolved"], true);
     assert_eq!(plans[0]["bounds_proof_valid"], true);
+    assert_eq!(plans[0]["field_offset_resolved"], true);
     assert_eq!(plans[0]["bounds_proof"], "range_fact:7");
     assert_eq!(plans[0]["overflow_proof_valid"], false);
     assert_eq!(
         plans[0]["failure_reason"],
         "verified-table-access-proof-incomplete"
     );
+    let links = root["functions"][0]["metadata"]["fastmem_table_field_access_links"]
+        .as_array()
+        .expect("metadata.fastmem_table_field_access_links array");
+    assert_eq!(links.len(), 1);
+    assert_eq!(links[0]["table_instruction_index"], 0);
+    assert_eq!(links[0]["field_instruction_index"], 1);
+    assert_eq!(links[0]["table_result"], 10);
+    assert_eq!(links[0]["field_base"], 10);
+    assert_eq!(links[0]["field_id"], "capacity");
+    assert_eq!(links[0]["field_access"], "load");
+    assert_eq!(links[0]["byte_offset"], 40);
+    assert_eq!(links[0]["proof"], "table_field_link:0:1");
 }

@@ -341,6 +341,23 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
             }
             row
         }).collect::<Vec<_>>(),
+        "fastmem_table_field_access_links": metadata.fastmem_table_field_access_links.iter().map(|link| {
+            json!({
+                "table_block": link.table_block.as_u32(),
+                "table_instruction_index": link.table_instruction_index,
+                "field_block": link.field_block.as_u32(),
+                "field_instruction_index": link.field_instruction_index,
+                "region": link.region.0,
+                "table_result": link.table_result.as_u32(),
+                "field_base": link.field_base.as_u32(),
+                "field_id": link.field_id,
+                "field_access": link.field_access.as_str(),
+                "byte_offset": link.byte_offset,
+                "field_type": link.field_type,
+                "alignment": link.alignment,
+                "proof": link.proof,
+            })
+        }).collect::<Vec<_>>(),
         "effect_summaries": metadata.effect_summaries.iter().map(|summary| {
             json!({
                 "method": summary.method,

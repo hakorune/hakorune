@@ -99,6 +99,23 @@ pub struct FastMemTableAccessPlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemTableFieldAccessLink {
+    pub table_block: BasicBlockId,
+    pub table_instruction_index: usize,
+    pub field_block: BasicBlockId,
+    pub field_instruction_index: usize,
+    pub region: FastMemRegionId,
+    pub table_result: ValueId,
+    pub field_base: ValueId,
+    pub field_id: String,
+    pub field_access: FastMemFieldAccessMode,
+    pub byte_offset: u32,
+    pub field_type: String,
+    pub alignment: u32,
+    pub proof: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FastMemTableAccessProof {
     pub table_length_resolved: bool,
     pub bounds_proof_valid: bool,
@@ -188,7 +205,9 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
         }
     }
 
+    let table_field_links = table_field_access_links(&mut plans);
     function.metadata.fastmem_access_plans = plans;
+    function.metadata.fastmem_table_field_access_links = table_field_links;
 }
 
 fn plan_from_memop(
@@ -402,6 +421,112 @@ fn table_length_fact<'a>(
 ) -> Option<&'a FastMemTableLengthFact> {
     facts.iter().find(|fact| {
         fact.region == region && fact.table_id == table_id && fact.table_value == table_value
+    })
+}
+
+fn table_field_access_links(plans: &mut [FastMemAccessPlan]) -> Vec<FastMemTableFieldAccessLink> {
+    let mut links = Vec::new();
+
+    for table_index in 0..plans.len() {
+        let Some((table_block, table_instruction_index, region, table_result)) =
+            table_link_source(&plans[table_index])
+        else {
+            continue;
+        };
+
+        for field_plan in plans.iter() {
+            let Some(field_link) = field_link_target(
+                field_plan,
+                table_block,
+                table_instruction_index,
+                region,
+                table_result,
+            ) else {
+                continue;
+            };
+            links.push(field_link);
+        }
+    }
+
+    for plan in plans.iter_mut() {
+        let Some((table_block, table_instruction_index, region, table_result)) =
+            table_link_source(plan)
+        else {
+            continue;
+        };
+        let has_link = links.iter().any(|link| {
+            link.table_block == table_block
+                && link.table_instruction_index == table_instruction_index
+                && link.region == region
+                && link.table_result == table_result
+        });
+        if has_link {
+            if let FastMemAccessPlanPayload::Table(table) = &mut plan.payload {
+                table.proof.field_offset_resolved = true;
+            }
+            if plan.status == FastMemAccessPlanStatus::Verified {
+                plan.status = FastMemAccessPlanStatus::Rejected;
+            }
+            if plan.status == FastMemAccessPlanStatus::Rejected && plan.failure_reason.is_none() {
+                plan.failure_reason = Some("verified-table-access-proof-incomplete".to_string());
+            }
+        }
+    }
+
+    links
+}
+
+fn table_link_source(
+    plan: &FastMemAccessPlan,
+) -> Option<(BasicBlockId, usize, FastMemRegionId, ValueId)> {
+    let FastMemAccessPlanPayload::Table(table) = &plan.payload else {
+        return None;
+    };
+    Some((
+        plan.block,
+        plan.instruction_index,
+        plan.region,
+        table.result?,
+    ))
+}
+
+fn field_link_target(
+    plan: &FastMemAccessPlan,
+    table_block: BasicBlockId,
+    table_instruction_index: usize,
+    region: FastMemRegionId,
+    table_result: ValueId,
+) -> Option<FastMemTableFieldAccessLink> {
+    if plan.status != FastMemAccessPlanStatus::Verified
+        || plan.block != table_block
+        || plan.region != region
+        || plan.instruction_index <= table_instruction_index
+    {
+        return None;
+    }
+    let FastMemAccessPlanPayload::Field(field) = &plan.payload else {
+        return None;
+    };
+    if field.base != table_result {
+        return None;
+    }
+    Some(FastMemTableFieldAccessLink {
+        table_block,
+        table_instruction_index,
+        field_block: plan.block,
+        field_instruction_index: plan.instruction_index,
+        region,
+        table_result,
+        field_base: field.base,
+        field_id: field.field_id.clone(),
+        field_access: field.mode,
+        byte_offset: field.byte_offset?,
+        field_type: field.field_type.clone()?,
+        alignment: field.alignment?,
+        proof: format!(
+            "table_field_link:{}:{}",
+            table_instruction_index, plan.instruction_index
+        ),
     })
 }
 
@@ -656,7 +781,7 @@ mod tests {
         assert!(!table.proof.table_length_resolved);
         assert!(!table.proof.bounds_proof_valid);
         assert!(table.proof.stride_resolved);
-        assert!(!table.proof.field_offset_resolved);
+        assert!(table.proof.field_offset_resolved);
         assert!(!table.proof.overflow_proof_valid);
         assert!(table.proof.alignment_valid);
         assert!(table.proof.element_layout_verified);
@@ -664,6 +789,15 @@ mod tests {
             table.proof.failure_reason.as_deref(),
             Some("table-length-unresolved")
         );
+        assert_eq!(function.metadata.fastmem_table_field_access_links.len(), 2);
+        let owner_link = &function.metadata.fastmem_table_field_access_links[0];
+        assert_eq!(owner_link.table_instruction_index, 0);
+        assert_eq!(owner_link.field_instruction_index, 1);
+        assert_eq!(owner_link.table_result, ValueId::new(10));
+        assert_eq!(owner_link.field_base, ValueId::new(10));
+        assert_eq!(owner_link.field_id, "owner_worker_id");
+        assert_eq!(owner_link.byte_offset, 0);
+        assert_eq!(owner_link.proof, "table_field_link:0:1");
     }
 
     #[test]
@@ -739,6 +873,82 @@ mod tests {
                 .as_deref(),
             Some("verified-table-access-proof-incomplete")
         );
+    }
+
+    #[test]
+    fn refresh_sets_field_offset_resolved_from_verified_table_field_link() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::TableIndex,
+                Some(ValueId::new(10)),
+                vec![ValueId::new(1), ValueId::new(2)],
+                Some(MemOpAccess::table("page_table")),
+            ),
+            memop(
+                MemOpKind::FieldLoad,
+                Some(ValueId::new(11)),
+                vec![ValueId::new(10)],
+                Some(MemOpAccess::field("capacity")),
+            ),
+        ]);
+        function
+            .metadata
+            .fastmem_table_length_facts
+            .push(table_length_fact());
+        function
+            .metadata
+            .range_index_facts
+            .push(range_index_fact(7, ValueId::new(2)));
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert!(table.proof.table_length_resolved);
+        assert!(table.proof.bounds_proof_valid);
+        assert!(table.proof.field_offset_resolved);
+        assert!(!table.proof.overflow_proof_valid);
+        assert!(!table.proof.is_lowerable());
+        assert_eq!(function.metadata.fastmem_table_field_access_links.len(), 1);
+        let link = &function.metadata.fastmem_table_field_access_links[0];
+        assert_eq!(link.field_id, "capacity");
+        assert!(link.byte_offset > 0);
+        assert_eq!(link.field_access, FastMemFieldAccessMode::Load);
+        assert_eq!(link.proof, "table_field_link:0:1");
+    }
+
+    #[test]
+    fn refresh_does_not_link_field_access_before_table_index() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::FieldLoad,
+                Some(ValueId::new(11)),
+                vec![ValueId::new(10)],
+                Some(MemOpAccess::field("capacity")),
+            ),
+            memop(
+                MemOpKind::TableIndex,
+                Some(ValueId::new(10)),
+                vec![ValueId::new(1), ValueId::new(2)],
+                Some(MemOpAccess::table("page_table")),
+            ),
+        ]);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[1].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert!(!table.proof.field_offset_resolved);
+        assert!(function
+            .metadata
+            .fastmem_table_field_access_links
+            .is_empty());
     }
 
     #[test]
