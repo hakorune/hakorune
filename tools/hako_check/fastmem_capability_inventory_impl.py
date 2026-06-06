@@ -1195,6 +1195,12 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         "fastmem_table_index_unchecked_count": replacement[
             "fastmem_table_index_unchecked_count"
         ],
+        "fastmem_table_access_proof_incomplete_count": replacement[
+            "fastmem_table_access_proof_incomplete_count"
+        ],
+        "fastmem_table_overflow_proof_missing_count": replacement[
+            "fastmem_table_overflow_proof_missing_count"
+        ],
         "fastmem_unknown_alignment_count": replacement["fastmem_unknown_alignment_count"],
         "fastmem_atomic_field_plain_store_count": replacement[
             "fastmem_atomic_field_plain_store_count"

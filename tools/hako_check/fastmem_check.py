@@ -93,6 +93,8 @@ LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO = (
     "fastmem_table_id_missing_count",
     "fastmem_unverified_layout_access_count",
     "fastmem_table_index_unchecked_count",
+    "fastmem_table_access_proof_incomplete_count",
+    "fastmem_table_overflow_proof_missing_count",
     "fastmem_unknown_alignment_count",
     "fastmem_atomic_field_plain_store_count",
     "fastmem_layout_ref_escape_count",

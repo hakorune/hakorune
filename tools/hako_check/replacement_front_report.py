@@ -127,6 +127,8 @@ LAYOUT_TABLE_PRODUCER_PILOT_DEFAULTS = {
     "fastmem_table_id_missing_count": 0,
     "fastmem_unverified_layout_access_count": 0,
     "fastmem_table_index_unchecked_count": 0,
+    "fastmem_table_access_proof_incomplete_count": 0,
+    "fastmem_table_overflow_proof_missing_count": 0,
     "fastmem_unknown_alignment_count": 0,
     "fastmem_atomic_field_plain_store_count": 0,
     "fastmem_layout_ref_escape_count": 0,
