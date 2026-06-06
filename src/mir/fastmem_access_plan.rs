@@ -33,6 +33,7 @@ pub enum FastMemAccessPlanKind {
     FreeHeadPop,
     AtomicRemoteHeadPush,
     AtomicRemoteHeadDrain,
+    DrainRemoteListToLocal,
 }
 
 impl FastMemAccessPlanKind {
@@ -47,6 +48,7 @@ impl FastMemAccessPlanKind {
             Self::FreeHeadPop => "free_head_pop",
             Self::AtomicRemoteHeadPush => "atomic_remote_head_push",
             Self::AtomicRemoteHeadDrain => "atomic_remote_head_drain",
+            Self::DrainRemoteListToLocal => "drain_remote_list_to_local",
         }
     }
 }
@@ -218,6 +220,20 @@ pub struct FastMemAtomicRemoteHeadPlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemDrainRemoteListToLocalPlan {
+    pub page: ValueId,
+    pub token: ValueId,
+    pub token_source_block: Option<BasicBlockId>,
+    pub token_source_instruction_index: Option<usize>,
+    pub token_provenance_valid: bool,
+    pub page_operand_valid: bool,
+    pub head_class_resolved: bool,
+    pub local_list_head_class: Option<String>,
+    pub publication_order: String,
+    pub lowerable: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FastMemTableAccessProof {
     pub table_length_resolved: bool,
     pub bounds_proof_valid: bool,
@@ -251,6 +267,7 @@ pub enum FastMemAccessPlanPayload {
     LocalFree(FastMemLocalFreeListPlan),
     FreeHead(FastMemFreeHeadListPlan),
     AtomicRemoteHead(FastMemAtomicRemoteHeadPlan),
+    DrainRemoteListToLocal(FastMemDrainRemoteListToLocalPlan),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -277,7 +294,17 @@ struct FastMemFactStore<'a> {
     block_next_facts: &'a [FastMemBlockNextFact],
     local_free_non_empty_facts: &'a [FastMemLocalFreeNonEmptyFact],
     free_head_non_empty_facts: &'a [FastMemFreeHeadNonEmptyFact],
+    remote_drain_token_facts: &'a [FastMemRemoteDrainTokenFact],
     range_index_facts: &'a [RangeIndexFact],
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct FastMemRemoteDrainTokenFact {
+    region: FastMemRegionId,
+    page_value: ValueId,
+    token_value: ValueId,
+    block: BasicBlockId,
+    instruction_index: usize,
 }
 
 impl<'a> FastMemFactStore<'a> {
@@ -363,6 +390,19 @@ impl<'a> FastMemFactStore<'a> {
             .iter()
             .find(|fact| fact.region == region && fact.page_value == page_value)
     }
+
+    fn remote_drain_token(
+        &self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+        token_value: ValueId,
+    ) -> Option<&'a FastMemRemoteDrainTokenFact> {
+        self.remote_drain_token_facts.iter().find(|fact| {
+            fact.region == region
+                && fact.page_value == page_value
+                && fact.token_value == token_value
+        })
+    }
 }
 
 pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
@@ -381,6 +421,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
         .cloned()
         .collect();
     let range_index_facts = function.metadata.range_index_facts.clone();
+    let remote_drain_token_facts = collect_remote_drain_token_facts(function);
 
     for block_id in function.block_ids() {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -405,6 +446,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 block_next_facts: &block_next_facts,
                 local_free_non_empty_facts: &local_free_non_empty_facts,
                 free_head_non_empty_facts: &free_head_non_empty_facts,
+                remote_drain_token_facts: &remote_drain_token_facts,
                 range_index_facts: &range_index_facts,
             };
             let Some(plan) = plan_from_memop(
@@ -533,8 +575,51 @@ fn plan_from_memop(
             contract,
             facts,
         ),
+        MemOpKind::DrainRemoteListToLocal => drain_remote_list_to_local_plan(
+            block,
+            instruction_index,
+            region,
+            dst,
+            operands,
+            facts,
+        ),
         _ => None,
     }
+}
+
+fn collect_remote_drain_token_facts(function: &MirFunction) -> Vec<FastMemRemoteDrainTokenFact> {
+    let mut facts = Vec::new();
+    for block_id in function.block_ids() {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for (instruction_index, sp) in block.all_spanned_instructions_enumerated() {
+            let MirInstruction::MemOp {
+                region,
+                kind,
+                dst,
+                operands,
+                ..
+            } = sp.inst
+            else {
+                continue;
+            };
+            if *kind != MemOpKind::AtomicRemoteHeadDrain {
+                continue;
+            }
+            let (Some(token_value), Some(page_value)) = (*dst, operands.first().copied()) else {
+                continue;
+            };
+            facts.push(FastMemRemoteDrainTokenFact {
+                region: *region,
+                page_value,
+                token_value,
+                block: block_id,
+                instruction_index,
+            });
+        }
+    }
+    facts
 }
 
 fn region_contract(regions: &[FastMemRegionMetadata], region: FastMemRegionId) -> Option<&str> {
@@ -728,7 +813,8 @@ fn table_field_access_links(plans: &mut [FastMemAccessPlan]) -> Vec<FastMemTable
                     false
                 }
                 FastMemAccessPlanPayload::FreeHead(_)
-                | FastMemAccessPlanPayload::AtomicRemoteHead(_) => false,
+                | FastMemAccessPlanPayload::AtomicRemoteHead(_)
+                | FastMemAccessPlanPayload::DrainRemoteListToLocal(_) => false,
             };
             if lowerable {
                 plan.status = FastMemAccessPlanStatus::Verified;
@@ -1517,6 +1603,65 @@ fn atomic_remote_head_plan(
     })
 }
 
+fn drain_remote_list_to_local_plan(
+    block: BasicBlockId,
+    instruction_index: usize,
+    region: FastMemRegionId,
+    dst: Option<ValueId>,
+    operands: &[ValueId],
+    facts: &FastMemFactStore<'_>,
+) -> Option<FastMemAccessPlan> {
+    if dst.is_some() {
+        return None;
+    }
+    let page = operands.first().copied()?;
+    let token = operands.get(1).copied()?;
+    let token_fact = facts.remote_drain_token(region, page, token);
+    let token_provenance_valid = token_fact.is_some();
+    let page_operand_valid = token_provenance_valid;
+    let head_class_resolved = token_provenance_valid;
+    let local_list_head_class = head_class_resolved
+        .then(|| "owner_local_free_or_free_head".to_string());
+    let publication_order = if head_class_resolved {
+        "verifier_owned_acquire_then_owner_local"
+    } else {
+        "closed"
+    }
+    .to_string();
+    let failure_reason = if !token_provenance_valid {
+        Some("drain-remote-list-token-provenance-missing".to_string())
+    } else if !page_operand_valid {
+        Some("drain-remote-list-page-operand-mismatch".to_string())
+    } else if !head_class_resolved {
+        Some("drain-remote-list-target-head-class-unresolved".to_string())
+    } else {
+        Some("drain-remote-list-to-local-lowering-closed".to_string())
+    };
+
+    Some(FastMemAccessPlan {
+        block,
+        instruction_index,
+        region,
+        kind: FastMemAccessPlanKind::DrainRemoteListToLocal,
+        status: FastMemAccessPlanStatus::Rejected,
+        failure_reason,
+        payload: FastMemAccessPlanPayload::DrainRemoteListToLocal(
+            FastMemDrainRemoteListToLocalPlan {
+                page,
+                token,
+                token_source_block: token_fact.map(|fact| fact.block),
+                token_source_instruction_index: token_fact.map(|fact| fact.instruction_index),
+                token_provenance_valid,
+                page_operand_valid,
+                head_class_resolved,
+                local_list_head_class,
+                publication_order,
+                lowerable: false,
+            },
+        ),
+    })
+}
+
 fn maybe_add_derived_free_head_non_empty_fact(
     plan: &FastMemAccessPlan,
     facts: &mut Vec<FastMemFreeHeadNonEmptyFact>,
@@ -2110,6 +2255,57 @@ mod tests {
         assert_eq!(remote_head.remote_head_field_type.as_deref(), Some("usize"));
         assert_eq!(remote_head.remote_head_alignment, Some(8));
         assert!(remote_head.lowerable);
+    }
+
+    #[test]
+    fn refresh_adds_drain_remote_list_to_local_precondition_plan() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::AtomicRemoteHeadDrain,
+                Some(ValueId::new(12)),
+                vec![ValueId::new(10)],
+                None,
+            ),
+            memop(
+                MemOpKind::DrainRemoteListToLocal,
+                None,
+                vec![ValueId::new(10), ValueId::new(12)],
+                None,
+            ),
+        ]);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 2);
+        let drain_plan = &function.metadata.fastmem_access_plans[1];
+        assert_eq!(
+            drain_plan.kind,
+            FastMemAccessPlanKind::DrainRemoteListToLocal
+        );
+        assert_eq!(drain_plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            drain_plan.failure_reason.as_deref(),
+            Some("drain-remote-list-to-local-lowering-closed")
+        );
+        let FastMemAccessPlanPayload::DrainRemoteListToLocal(drain) = &drain_plan.payload else {
+            panic!("expected drain remote-list to local plan");
+        };
+        assert_eq!(drain.page, ValueId::new(10));
+        assert_eq!(drain.token, ValueId::new(12));
+        assert_eq!(drain.token_source_block, Some(BasicBlockId::new(0)));
+        assert_eq!(drain.token_source_instruction_index, Some(0));
+        assert!(drain.token_provenance_valid);
+        assert!(drain.page_operand_valid);
+        assert!(drain.head_class_resolved);
+        assert_eq!(
+            drain.local_list_head_class.as_deref(),
+            Some("owner_local_free_or_free_head")
+        );
+        assert_eq!(
+            drain.publication_order,
+            "verifier_owned_acquire_then_owner_local"
+        );
+        assert!(!drain.lowerable);
     }
 
     #[test]

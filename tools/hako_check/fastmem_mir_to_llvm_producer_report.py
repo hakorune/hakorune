@@ -228,6 +228,9 @@ def build_rows(
         plan for plan in plans if plan.get("kind") == "atomic_remote_head_drain"
     ]
     atomic_remote_head_plans = atomic_remote_head_push_plans + atomic_remote_head_drain_plans
+    drain_remote_list_to_local_plans = [
+        plan for plan in plans if plan.get("kind") == "drain_remote_list_to_local"
+    ]
     remote_owner_facts = metadata_facts(mir, "fastmem_remote_owner_facts")
     block_next_facts = metadata_facts(mir, "fastmem_block_next_facts")
 
@@ -302,6 +305,24 @@ def build_rows(
     atomic_remote_head_push_count = count_memops(memops, "atomic_remote_head_push")
     atomic_remote_head_drain_count = count_memops(memops, "atomic_remote_head_drain")
     drain_remote_list_to_local_count = count_memops(memops, "drain_remote_list_to_local")
+    drain_remote_list_to_local_lowerable = sum(
+        1 for plan in drain_remote_list_to_local_plans if bool(plan.get("lowerable"))
+    )
+    drain_remote_list_to_local_token_provenance_valid = sum(
+        1
+        for plan in drain_remote_list_to_local_plans
+        if bool(plan.get("token_provenance_valid"))
+    )
+    drain_remote_list_to_local_page_operand_valid = sum(
+        1
+        for plan in drain_remote_list_to_local_plans
+        if bool(plan.get("page_operand_valid"))
+    )
+    drain_remote_list_to_local_head_class_resolved = sum(
+        1
+        for plan in drain_remote_list_to_local_plans
+        if bool(plan.get("head_class_resolved"))
+    )
     atomic_remote_head_push_lowerable = sum(
         1 for plan in atomic_remote_head_push_plans if bool(plan.get("lowerable"))
     )
@@ -411,6 +432,9 @@ def build_rows(
     remote_free_drain_local_list_mutation_vocabulary_preflight = (
         profile == "remote-free-drain-local-list-mutation-vocabulary-preflight"
     )
+    remote_free_drain_local_list_mutation_verifier_preconditions = (
+        profile == "remote-free-drain-local-list-mutation-verifier-preconditions"
+    )
     if profile in {
         "remote-free-preflight",
         "remote-free",
@@ -424,6 +448,7 @@ def build_rows(
         "remote-free-drain-local-list-mutation-preflight",
         "remote-free-drain-local-list-mutation-proof",
         "remote-free-drain-local-list-mutation-vocabulary-preflight",
+        "remote-free-drain-local-list-mutation-verifier-preconditions",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -437,6 +462,7 @@ def build_rows(
             "remote-free-drain-local-list-mutation-preflight",
             "remote-free-drain-local-list-mutation-proof",
             "remote-free-drain-local-list-mutation-vocabulary-preflight",
+            "remote-free-drain-local-list-mutation-verifier-preconditions",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -484,6 +510,11 @@ def build_rows(
             deferred_remote_kinds = (
                 "DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting"
             )
+        elif remote_free_drain_local_list_mutation_verifier_preconditions:
+            next_slice = "atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot"
+            deferred_remote_kinds = (
+                "DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting"
+            )
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -497,8 +528,11 @@ def build_rows(
             or remote_free_drain_local_list_mutation_preflight
             or remote_free_drain_local_list_mutation_proof
             or remote_free_drain_local_list_mutation_vocabulary_preflight
+            or remote_free_drain_local_list_mutation_verifier_preconditions
             else "AtomicRemoteHeadPush"
         )
+        if remote_free_drain_local_list_mutation_verifier_preconditions:
+            selected_remote_kind = "DrainRemoteListToLocal"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_next_producer_slice", next_slice),
@@ -524,6 +558,7 @@ def build_rows(
                         and not remote_free_drain_local_list_mutation_preflight
                         and not remote_free_drain_local_list_mutation_proof
                         and not remote_free_drain_local_list_mutation_vocabulary_preflight
+                        and not remote_free_drain_local_list_mutation_verifier_preconditions
                     )
                 ),
             ),
@@ -566,6 +601,10 @@ def build_rows(
             (
                 "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
                 str(int_flag(remote_free_drain_local_list_mutation_vocabulary_preflight)),
+            ),
+            (
+                "fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
+                str(int_flag(remote_free_drain_local_list_mutation_verifier_preconditions)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -731,6 +770,8 @@ def build_rows(
                         "remote-free-drain-to-local",
                         "remote-free-drain-local-list-mutation-preflight",
                         "remote-free-drain-local-list-mutation-proof",
+                        "remote-free-drain-local-list-mutation-vocabulary-preflight",
+                        "remote-free-drain-local-list-mutation-verifier-preconditions",
                     }
                 )
             ),
@@ -785,6 +826,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -802,6 +844,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_preflight
                 or remote_free_drain_local_list_mutation_proof
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
+                or remote_free_drain_local_list_mutation_verifier_preconditions
             )
             else "0",
         ),
@@ -818,6 +861,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_preflight
                 or remote_free_drain_local_list_mutation_proof
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
+                or remote_free_drain_local_list_mutation_verifier_preconditions
                 else 0
             ),
         ),
@@ -833,6 +877,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -847,6 +892,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -861,6 +907,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_preflight
                 or remote_free_drain_local_list_mutation_proof
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
+                or remote_free_drain_local_list_mutation_verifier_preconditions
             )
             else "closed",
         ),
@@ -875,6 +922,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_preflight
                 or remote_free_drain_local_list_mutation_proof
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
+                or remote_free_drain_local_list_mutation_verifier_preconditions
             )
             else "closed",
         ),
@@ -887,6 +935,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -902,6 +951,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -912,6 +962,7 @@ def build_rows(
                     remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -929,6 +980,10 @@ def build_rows(
                 int_flag(
                     remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or (
+                        remote_free_drain_local_list_mutation_verifier_preconditions
+                        and drain_remote_list_to_local_head_class_resolved > 0
+                    )
                 )
             ),
         ),
@@ -937,6 +992,10 @@ def build_rows(
             "owner_local_free_or_free_head"
             if remote_free_drain_local_list_mutation_proof
             or remote_free_drain_local_list_mutation_vocabulary_preflight
+            or (
+                remote_free_drain_local_list_mutation_verifier_preconditions
+                and drain_remote_list_to_local_head_class_resolved > 0
+            )
             else "closed",
         ),
         (
@@ -944,6 +1003,10 @@ def build_rows(
             "verifier_owned_acquire_then_owner_local"
             if remote_free_drain_local_list_mutation_proof
             or remote_free_drain_local_list_mutation_vocabulary_preflight
+            or (
+                remote_free_drain_local_list_mutation_verifier_preconditions
+                and drain_remote_list_to_local_head_class_resolved > 0
+            )
             else "closed",
         ),
         (
@@ -956,6 +1019,7 @@ def build_rows(
                     or remote_free_drain_local_list_mutation_preflight
                     or remote_free_drain_local_list_mutation_proof
                     or remote_free_drain_local_list_mutation_vocabulary_preflight
+                    or remote_free_drain_local_list_mutation_verifier_preconditions
                 )
             ),
         ),
@@ -971,6 +1035,7 @@ def build_rows(
                 or remote_free_drain_local_list_mutation_preflight
                 or remote_free_drain_local_list_mutation_proof
                 or remote_free_drain_local_list_mutation_vocabulary_preflight
+                or remote_free_drain_local_list_mutation_verifier_preconditions
                 else 0
             ),
         ),
@@ -979,8 +1044,28 @@ def build_rows(
             str(drain_remote_list_to_local_count),
         ),
         (
+            "drain_remote_list_to_local_plan_count",
+            str(len(drain_remote_list_to_local_plans)),
+        ),
+        (
+            "drain_remote_list_to_local_token_provenance_valid",
+            str(drain_remote_list_to_local_token_provenance_valid),
+        ),
+        (
+            "drain_remote_list_to_local_page_operand_valid",
+            str(drain_remote_list_to_local_page_operand_valid),
+        ),
+        (
+            "drain_remote_list_to_local_head_class_resolved",
+            str(drain_remote_list_to_local_head_class_resolved),
+        ),
+        (
+            "drain_remote_list_to_local_lowerable_count",
+            str(drain_remote_list_to_local_lowerable),
+        ),
+        (
             "atomic_remote_head_drain_local_list_mutation_lowerable_count",
-            "0",
+            str(drain_remote_list_to_local_lowerable),
         ),
         ("remote_owner_branch_routing_open", "0"),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
@@ -1152,6 +1237,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "remote-free-drain-local-list-mutation-preflight",
             "remote-free-drain-local-list-mutation-proof",
             "remote-free-drain-local-list-mutation-vocabulary-preflight",
+            "remote-free-drain-local-list-mutation-verifier-preconditions",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
@@ -1168,6 +1254,7 @@ def main(argv: list[str] | None = None) -> int:
         "remote-free-preflight",
         "remote-free-retry-preflight",
         "remote-free-drain-local-list-mutation-vocabulary-preflight",
+        "remote-free-drain-local-list-mutation-verifier-preconditions",
     }:
         object_out = (
             args.object_out.resolve()

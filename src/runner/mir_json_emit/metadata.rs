@@ -647,6 +647,39 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         );
                         map.insert("lowerable".to_string(), json!(remote_head.lowerable));
                     }
+                    FastMemAccessPlanPayload::DrainRemoteListToLocal(drain) => {
+                        map.insert("page".to_string(), json!(drain.page.as_u32()));
+                        map.insert("token".to_string(), json!(drain.token.as_u32()));
+                        map.insert(
+                            "token_source_block".to_string(),
+                            json!(drain.token_source_block.map(|block| block.as_u32())),
+                        );
+                        map.insert(
+                            "token_source_instruction_index".to_string(),
+                            json!(drain.token_source_instruction_index),
+                        );
+                        map.insert(
+                            "token_provenance_valid".to_string(),
+                            json!(drain.token_provenance_valid),
+                        );
+                        map.insert(
+                            "page_operand_valid".to_string(),
+                            json!(drain.page_operand_valid),
+                        );
+                        map.insert(
+                            "head_class_resolved".to_string(),
+                            json!(drain.head_class_resolved),
+                        );
+                        map.insert(
+                            "local_list_head_class".to_string(),
+                            json!(&drain.local_list_head_class),
+                        );
+                        map.insert(
+                            "publication_order".to_string(),
+                            json!(&drain.publication_order),
+                        );
+                        map.insert("lowerable".to_string(), json!(drain.lowerable));
+                    }
                 }
             }
             row

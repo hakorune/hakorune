@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-045.
 Related:
@@ -69,4 +69,29 @@ same/remote free full route body
 AtomicRemoteHead remote-heavy benchmark claim
 TLS backing transfer
 allocator activation
+```
+
+## Done Evidence
+
+```text
+FastMemAccessPlanKind::DrainRemoteListToLocal exists
+DrainRemoteListToLocal rejected verifier plan exists
+token provenance is tied to same-region AtomicRemoteHeadDrain(page) result
+page operand validity is reported
+owner-local target head class is resolved as owner_local_free_or_free_head
+publication order remains verifier_owned_acquire_then_owner_local
+lowerable count remains 0
+producer profile: remote-free-drain-local-list-mutation-verifier-preconditions
+next slice: atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot
+```
+
+Verified:
+
+```text
+cargo test -q --lib fastmem_access_plan
+cargo test -q --lib fastmem_
+cargo build --release --bin hakorune
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py tools/hako_check/fastmem_capability_inventory_common.py tools/hako_check/fastmem_capability_inventory_impl.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
 ```

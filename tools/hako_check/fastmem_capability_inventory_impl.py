@@ -1316,6 +1316,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         plan for plan in plans if str(plan.get("kind")) == "atomic_remote_head_drain"
     ]
     atomic_remote_head_plans = atomic_remote_head_push_plans + atomic_remote_head_drain_plans
+    drain_remote_list_to_local_plans = [
+        plan for plan in plans if str(plan.get("kind")) == "drain_remote_list_to_local"
+    ]
     rejected_table_plans = [
         plan
         for plan in plans
@@ -1557,6 +1560,24 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     )
     if not atomic_remote_head_memory_order_policy:
         atomic_remote_head_memory_order_policy = "none"
+    drain_remote_list_to_local_lowerable = sum(
+        1 for plan in drain_remote_list_to_local_plans if bool(plan.get("lowerable"))
+    )
+    drain_remote_list_to_local_token_provenance_valid = sum(
+        1
+        for plan in drain_remote_list_to_local_plans
+        if bool(plan.get("token_provenance_valid"))
+    )
+    drain_remote_list_to_local_page_operand_valid = sum(
+        1
+        for plan in drain_remote_list_to_local_plans
+        if bool(plan.get("page_operand_valid"))
+    )
+    drain_remote_list_to_local_head_class_resolved = sum(
+        1
+        for plan in drain_remote_list_to_local_plans
+        if bool(plan.get("head_class_resolved"))
+    )
 
     report.update(
         {
@@ -1649,7 +1670,24 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "atomic_remote_head_push_lowerable_count": atomic_remote_head_push_lowerable,
             "atomic_remote_head_drain_plan_count": len(atomic_remote_head_drain_plans),
             "atomic_remote_head_drain_lowerable_count": atomic_remote_head_drain_lowerable,
-            "atomic_remote_head_drain_local_list_mutation_lowerable_count": 0,
+            "drain_remote_list_to_local_plan_count": len(
+                drain_remote_list_to_local_plans
+            ),
+            "drain_remote_list_to_local_token_provenance_valid": (
+                drain_remote_list_to_local_token_provenance_valid
+            ),
+            "drain_remote_list_to_local_page_operand_valid": (
+                drain_remote_list_to_local_page_operand_valid
+            ),
+            "drain_remote_list_to_local_head_class_resolved": (
+                drain_remote_list_to_local_head_class_resolved
+            ),
+            "drain_remote_list_to_local_lowerable_count": (
+                drain_remote_list_to_local_lowerable
+            ),
+            "atomic_remote_head_drain_local_list_mutation_lowerable_count": (
+                drain_remote_list_to_local_lowerable
+            ),
             "atomic_remote_head_remote_owner_required": (
                 atomic_remote_head_remote_owner_required
             ),

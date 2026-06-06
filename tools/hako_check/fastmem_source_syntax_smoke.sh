@@ -1139,19 +1139,36 @@ grep -q '^fastmem_memop_atomic_remote_head_drain_count=1$' "$DRAIN_REMOTE_LIST_T
 grep -q '^fastmem_memop_drain_remote_list_to_local_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^atomic_remote_head_drain_plan_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^atomic_remote_head_drain_lowerable_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^drain_remote_list_to_local_plan_count=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^drain_remote_list_to_local_token_provenance_valid=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^drain_remote_list_to_local_page_operand_valid=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^drain_remote_list_to_local_head_class_resolved=1$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
+grep -q '^drain_remote_list_to_local_lowerable_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^atomic_remote_head_drain_local_list_mutation_lowerable_count=0$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 grep -q '^summary=ok$' "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR_INV"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile remote-free-drain-local-list-mutation-vocabulary-preflight \
+  --profile remote-free-drain-local-list-mutation-verifier-preconditions \
   --mir-json "$DRAIN_REMOTE_LIST_TO_LOCAL_MIR" \
   --out "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 
-grep -q '^fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight=1$' \
+grep -q '^fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
-grep -q '^replacement_front_next_producer_slice=atomic_remote_head_drain_local_list_mutation_verifier_preconditions$' \
+grep -q '^replacement_front_selected_memop_kinds=DrainRemoteListToLocal$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
+grep -q '^replacement_front_next_producer_slice=atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^fastmem_memop_drain_remote_list_to_local_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
+grep -q '^drain_remote_list_to_local_plan_count=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
+grep -q '^drain_remote_list_to_local_token_provenance_valid=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
+grep -q '^drain_remote_list_to_local_page_operand_valid=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
+grep -q '^drain_remote_list_to_local_head_class_resolved=1$' \
+  "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
+grep -q '^drain_remote_list_to_local_lowerable_count=0$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
 grep -q '^atomic_remote_head_drain_local_list_mutation_selected=1$' \
   "$DRAIN_REMOTE_LIST_TO_LOCAL_REPORT"
