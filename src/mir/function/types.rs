@@ -279,12 +279,14 @@ pub struct FastMemLocalFreeNonEmptyFact {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FastMemFreeHeadNonEmptyProofKind {
     SourceAssumeFreeHeadNonEmpty,
+    DerivedFromFreeHeadPush,
 }
 
 impl FastMemFreeHeadNonEmptyProofKind {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::SourceAssumeFreeHeadNonEmpty => "source_assume_free_head_non_empty",
+            Self::DerivedFromFreeHeadPush => "derived_from_free_head_push",
         }
     }
 }

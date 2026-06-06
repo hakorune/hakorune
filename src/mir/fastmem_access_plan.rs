@@ -15,8 +15,9 @@ use crate::mir::{
         resolve_fastmem_table_contract,
     },
     function::{
-        FastMemBlockNextFact, FastMemFreeHeadNonEmptyFact, FastMemLocalFreeNonEmptyFact,
-        FastMemRegionMetadata, FastMemSameOwnerFact, FastMemTableLengthFact, RangeIndexFact,
+        FastMemBlockNextFact, FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind,
+        FastMemLocalFreeNonEmptyFact, FastMemRegionMetadata, FastMemSameOwnerFact,
+        FastMemTableLengthFact, RangeIndexFact,
     },
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
@@ -243,7 +244,13 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let same_owner_facts = function.metadata.fastmem_same_owner_facts.clone();
     let block_next_facts = function.metadata.fastmem_block_next_facts.clone();
     let local_free_non_empty_facts = function.metadata.fastmem_local_free_non_empty_facts.clone();
-    let free_head_non_empty_facts = function.metadata.fastmem_free_head_non_empty_facts.clone();
+    let mut free_head_non_empty_facts: Vec<_> = function
+        .metadata
+        .fastmem_free_head_non_empty_facts
+        .iter()
+        .filter(|fact| fact.proof_kind != FastMemFreeHeadNonEmptyProofKind::DerivedFromFreeHeadPush)
+        .cloned()
+        .collect();
     let range_index_facts = function.metadata.range_index_facts.clone();
 
     for block_id in function.block_ids() {
@@ -280,6 +287,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
             ) else {
                 continue;
             };
+            maybe_add_derived_free_head_non_empty_fact(&plan, &mut free_head_non_empty_facts);
             plans.push(plan);
         }
     }
@@ -287,6 +295,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let table_field_links = table_field_access_links(&mut plans);
     function.metadata.fastmem_access_plans = plans;
     function.metadata.fastmem_table_field_access_links = table_field_links;
+    function.metadata.fastmem_free_head_non_empty_facts = free_head_non_empty_facts;
 }
 
 fn plan_from_memop(
@@ -1262,6 +1271,34 @@ fn free_head_non_empty_fact<'a>(
         .find(|fact| fact.region == region && fact.page_value == page_value)
 }
 
+fn maybe_add_derived_free_head_non_empty_fact(
+    plan: &FastMemAccessPlan,
+    facts: &mut Vec<FastMemFreeHeadNonEmptyFact>,
+) {
+    if plan.kind != FastMemAccessPlanKind::FreeHeadPush || !plan.is_verified() {
+        return;
+    }
+    let FastMemAccessPlanPayload::FreeHead(push) = &plan.payload else {
+        return;
+    };
+    if !push.lowerable || !push.same_owner_proof_valid || !push.block_next_proof_valid {
+        return;
+    }
+    if facts
+        .iter()
+        .any(|fact| fact.region == plan.region && fact.page_value == push.page && fact.non_empty)
+    {
+        return;
+    }
+    facts.push(FastMemFreeHeadNonEmptyFact {
+        fact_id: facts.len() as u32,
+        region: plan.region,
+        page_value: push.page,
+        proof_kind: FastMemFreeHeadNonEmptyProofKind::DerivedFromFreeHeadPush,
+        non_empty: true,
+    });
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2091,6 +2128,131 @@ mod tests {
         assert_eq!(push.block_next_field_size, Some(8));
         assert_eq!(push.block_next_field_type.as_deref(), Some("usize"));
         assert_eq!(push.block_next_alignment, Some(8));
+    }
+
+    #[test]
+    fn refresh_derives_free_head_non_empty_after_verified_push_for_later_pop() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::FreeHeadPush,
+                None,
+                vec![ValueId::new(10), ValueId::new(11)],
+                None,
+            ),
+            memop(
+                MemOpKind::FreeHeadPop,
+                Some(ValueId::new(12)),
+                vec![ValueId::new(10)],
+                None,
+            ),
+        ]);
+        function
+            .metadata
+            .fastmem_same_owner_facts
+            .push(FastMemSameOwnerFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                page_value: ValueId::new(10),
+                proof_value: ValueId::new(20),
+                proof_kind: FastMemSameOwnerProofKind::SourceAssumeOwnerEq,
+                remote_owner_rejected: true,
+            });
+        function
+            .metadata
+            .fastmem_block_next_facts
+            .push(FastMemBlockNextFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                block_value: ValueId::new(11),
+                next_field_id: "next".to_string(),
+                proof_kind: FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext,
+                writable: true,
+                provenance_valid: true,
+            });
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 2);
+        assert_eq!(function.metadata.fastmem_free_head_non_empty_facts.len(), 1);
+        assert_eq!(
+            function.metadata.fastmem_free_head_non_empty_facts[0].proof_kind,
+            FastMemFreeHeadNonEmptyProofKind::DerivedFromFreeHeadPush
+        );
+        assert_eq!(
+            function.metadata.fastmem_free_head_non_empty_facts[0].page_value,
+            ValueId::new(10)
+        );
+
+        let push_plan = &function.metadata.fastmem_access_plans[0];
+        let pop_plan = &function.metadata.fastmem_access_plans[1];
+        assert_eq!(push_plan.kind, FastMemAccessPlanKind::FreeHeadPush);
+        assert_eq!(push_plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(pop_plan.kind, FastMemAccessPlanKind::FreeHeadPop);
+        assert_eq!(pop_plan.status, FastMemAccessPlanStatus::Verified);
+        let FastMemAccessPlanPayload::FreeHead(pop) = &pop_plan.payload else {
+            panic!("expected free-head pop plan");
+        };
+        assert!(pop.non_empty_proof_valid);
+        assert!(pop.lowerable);
+
+        refresh_function_fastmem_access_plans(&mut function);
+        assert_eq!(function.metadata.fastmem_free_head_non_empty_facts.len(), 1);
+    }
+
+    #[test]
+    fn refresh_does_not_derive_free_head_non_empty_before_push() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::FreeHeadPop,
+                Some(ValueId::new(12)),
+                vec![ValueId::new(10)],
+                None,
+            ),
+            memop(
+                MemOpKind::FreeHeadPush,
+                None,
+                vec![ValueId::new(10), ValueId::new(11)],
+                None,
+            ),
+        ]);
+        function
+            .metadata
+            .fastmem_same_owner_facts
+            .push(FastMemSameOwnerFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                page_value: ValueId::new(10),
+                proof_value: ValueId::new(20),
+                proof_kind: FastMemSameOwnerProofKind::SourceAssumeOwnerEq,
+                remote_owner_rejected: true,
+            });
+        function
+            .metadata
+            .fastmem_block_next_facts
+            .push(FastMemBlockNextFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                block_value: ValueId::new(11),
+                next_field_id: "next".to_string(),
+                proof_kind: FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext,
+                writable: true,
+                provenance_valid: true,
+            });
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 2);
+        let pop_plan = &function.metadata.fastmem_access_plans[0];
+        let push_plan = &function.metadata.fastmem_access_plans[1];
+        assert_eq!(pop_plan.kind, FastMemAccessPlanKind::FreeHeadPop);
+        assert_eq!(pop_plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            pop_plan.failure_reason.as_deref(),
+            Some("free-head-non-empty-proof-missing")
+        );
+        assert_eq!(push_plan.kind, FastMemAccessPlanKind::FreeHeadPush);
+        assert_eq!(push_plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(function.metadata.fastmem_free_head_non_empty_facts.len(), 1);
     }
 
     #[test]
