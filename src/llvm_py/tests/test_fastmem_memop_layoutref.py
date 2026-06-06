@@ -81,6 +81,28 @@ def _verified_field_load_plan():
     }
 
 
+def _verified_field_store_plan():
+    return {
+        "kind": "field_store",
+        "verified": True,
+        "status": "verified",
+        "block": 0,
+        "instruction_index": 2,
+        "region": 1,
+        "base": 12,
+        "value": 14,
+        "layout_id": "PageMetaLayoutV0",
+        "field_id": "used",
+        "access": "store",
+        "byte_offset": 48,
+        "field_size": 8,
+        "field_type": "usize",
+        "alignment": 8,
+        "mutability": "mutable",
+        "field_class": "plain_scalar",
+    }
+
+
 class TestFastMemMemOpLayoutRef(unittest.TestCase):
     def test_table_index_lowers_to_layout_ref_map_not_vmap(self):
         i64, module, builder = _new_builder()
@@ -257,15 +279,117 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
                 {},
             )
 
-    def test_field_store_remains_unsupported(self):
-        _i64, _module, builder = _new_builder()
+    def test_field_store_from_layout_ref_emits_store(self):
+        i64, module, builder = _new_builder()
         resolver = _DummyResolver()
+        resolver.current_instruction_index = 2
+        resolver.fastmem_access_plans_by_site[(0, 2)] = [_verified_field_store_plan()]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="store_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+        vmap = {14: ir.Constant(i64, 7)}
 
-        with self.assertRaisesRegex(RuntimeError, "unsupported-kind"):
+        lower_memop(
+            builder,
+            {"kind": "field_store", "operands": [12, 14]},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(ir.Constant(i64, 0))
+
+        self.assertIn("fastmem_field_store_ptr", str(module))
+        self.assertIn("store i64 7", str(module))
+
+    def test_field_store_rejects_immutable_field(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 2
+        plan = _verified_field_store_plan()
+        plan["field_id"] = "capacity"
+        plan["mutability"] = "immutable_after_claim"
+        resolver.fastmem_access_plans_by_site[(0, 2)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="immutable_store_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "unsupported-field-store-mutability"):
             lower_memop(
                 builder,
-                {"kind": "field_store", "operands": [12, 13]},
+                {"kind": "field_store", "operands": [12, 14]},
+                {14: ir.Constant(i64, 1)},
+                resolver,
+                builder.block,
                 {},
+                {},
+                {},
+            )
+
+    def test_field_store_rejects_local_free_head_field(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 2
+        plan = _verified_field_store_plan()
+        plan["field_id"] = "local_free_head"
+        plan["field_class"] = "local_free_head"
+        resolver.fastmem_access_plans_by_site[(0, 2)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="local_free_store_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "unsupported-field-store-class"):
+            lower_memop(
+                builder,
+                {"kind": "field_store", "operands": [12, 14]},
+                {14: ir.Constant(i64, 1)},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_field_store_rejects_atomic_publication_field(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 2
+        plan = _verified_field_store_plan()
+        plan["field_id"] = "remote_head"
+        plan["mutability"] = "atomic_only"
+        plan["field_class"] = "atomic_remote_head"
+        resolver.fastmem_access_plans_by_site[(0, 2)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="atomic_store_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "unsupported-field-store-mutability"):
+            lower_memop(
+                builder,
+                {"kind": "field_store", "operands": [12, 14]},
+                {14: ir.Constant(i64, 1)},
                 resolver,
                 builder.block,
                 {},

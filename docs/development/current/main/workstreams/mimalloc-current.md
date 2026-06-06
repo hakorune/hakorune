@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008C FieldStore from LayoutRef pilot
+  MIR-FMEM-008C report/check closeout for layout/table LLVM producer coverage
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
@@ -221,8 +221,10 @@ why:
   opened with an LLVM producer preflight. The metadata loader now preserves
   `field_size` and `element_size`; TableIndex result truth was accepted as
   LayoutRef and the Python LLVM producer now stores raw metadata pointers only
-  in `fastmem_layout_refs`. FieldLoad now consumes LayoutRefs for verified
-  readonly scalar/plain-pointer fields. FieldStore remains closed.
+  in `fastmem_layout_refs`. FieldLoad consumes LayoutRefs for verified
+  readonly scalar/plain-pointer fields. FieldStore consumes LayoutRefs for
+  mutable plain fields only; owner, local-free, and atomic/publication fields
+  remain closed.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -329,6 +331,7 @@ next_mir_producer_rows:
   MIR-FMEM-008C layout/table LLVM producer preflight and lowering
     296x-476 TableIndex -> LayoutRef pilot landed
     296x-477 FieldLoad from LayoutRef pilot landed
+    296x-478 FieldStore from LayoutRef pilot landed
   MIR-FMEM-008D owner-runtime producer pilot
   MIR-FMEM-008E producer-neutral parity/readiness
 

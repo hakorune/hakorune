@@ -263,6 +263,12 @@ MIR-FMEM-008C FieldLoad LayoutRef pilot landed:
   readonly scalar GEP/load results into ordinary `vmap`. FieldStore, owner
   mutation, atomic/publication fields, Type ABI hot lookup, Provider ABI hot
   dispatch, Python-template C fallback, and product activation remain closed.
+MIR-FMEM-008C FieldStore LayoutRef pilot landed:
+  Verified FieldStore rows now consume backend-private LayoutRefs and store
+  ordinary i64 values only into mutable plain fields. Owner mutation,
+  local_free_head, atomic/publication fields, Type ABI hot lookup, Provider ABI
+  hot dispatch, Python-template C fallback, and product activation remain
+  closed.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

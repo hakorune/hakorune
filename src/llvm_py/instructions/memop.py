@@ -16,6 +16,8 @@ _TABLE_INDEX_REQUIRED_PROOF_FLAGS = (
 )
 _FIELD_LOAD_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
 _FIELD_LOAD_I64_TYPES = frozenset(("usize", "u64", "i64", "pointer"))
+_FIELD_STORE_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
+_FIELD_STORE_I64_TYPES = _FIELD_LOAD_I64_TYPES
 
 
 def _is_fastmem_layout_ref(resolver, value_id: int) -> bool:
@@ -107,6 +109,11 @@ def _current_fastmem_access_plan(
                 continue
             if plan.get("base") != int(operands[0]):
                 continue
+        if kind == "field_store":
+            if len(operands) < 2:
+                continue
+            if plan.get("base") != int(operands[0]) or plan.get("value") != int(operands[1]):
+                continue
         return plan
     return None
 
@@ -167,6 +174,53 @@ def _require_complete_field_load_plan(plan: Optional[Dict[str, Any]]) -> Dict[st
             )
     except ValueError as exc:
         raise RuntimeError("[llvm/fastmem:invalid-field-load-plan-number]") from exc
+    return plan
+
+
+def _require_complete_field_store_plan(plan: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-field-store-plan]")
+    for key in (
+        "layout_id",
+        "field_id",
+        "byte_offset",
+        "field_size",
+        "field_type",
+        "alignment",
+        "mutability",
+        "field_class",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(f"[llvm/fastmem:missing-field-store-plan-field] {key}")
+    if plan.get("access") not in (None, "store", "write"):
+        raise RuntimeError(
+            f"[llvm/fastmem:unsupported-field-store-access] {plan.get('access')}"
+        )
+    mutability = str(plan.get("mutability"))
+    if mutability != "mutable":
+        raise RuntimeError(
+            f"[llvm/fastmem:unsupported-field-store-mutability] {mutability}"
+        )
+    field_class = str(plan.get("field_class"))
+    if field_class not in _FIELD_STORE_ALLOWED_CLASSES:
+        raise RuntimeError(
+            f"[llvm/fastmem:unsupported-field-store-class] {field_class}"
+        )
+    field_type = str(plan.get("field_type"))
+    if field_type not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(f"[llvm/fastmem:unsupported-field-store-type] {field_type}")
+    try:
+        if int(plan.get("field_size")) != 8:
+            raise RuntimeError(
+                f"[llvm/fastmem:unsupported-field-store-size] {plan.get('field_size')}"
+            )
+        if int(plan.get("alignment")) <= 0:
+            raise RuntimeError(
+                f"[llvm/fastmem:invalid-field-store-alignment] {plan.get('alignment')}"
+            )
+    except ValueError as exc:
+        raise RuntimeError("[llvm/fastmem:invalid-field-store-plan-number]") from exc
     return plan
 
 
@@ -284,6 +338,55 @@ def _lower_field_load_from_layout_ref(
     safe_vmap_write(vmap, int(dst), loaded, "fastmem_field_load", resolver=resolver)
 
 
+def _lower_field_store_from_layout_ref(
+    builder: ir.IRBuilder,
+    resolver,
+    operands: List[Any],
+    vmap: Dict[int, ir.Value],
+    current_block,
+    preds,
+    block_end_values,
+    bb_map,
+) -> None:
+    _require_operands("field_store", operands, 2)
+    plan = _require_complete_field_store_plan(
+        _current_fastmem_access_plan(resolver, "field_store", None, operands)
+    )
+    layout_ref = _get_layout_ref(resolver, int(operands[0]), str(plan["layout_id"]))
+    i64 = ir.IntType(64)
+    i8_ptr = ir.IntType(8).as_pointer()
+    value = _resolve_i64_operand(
+        builder,
+        resolver,
+        int(operands[1]),
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+        name_hint=f"fastmem_field_store_value_{operands[1]}",
+    )
+    base_ptr = layout_ref["ptr"]
+    try:
+        base_type = base_ptr.type
+    except _SAFE_MEMOP_EXC:
+        base_type = None
+    if base_type != i8_ptr:
+        base_ptr = builder.bitcast(base_ptr, i8_ptr, name="fastmem_field_store_base")
+    byte_offset = int(plan["byte_offset"])
+    field_addr = builder.gep(
+        base_ptr,
+        [ir.Constant(i64, byte_offset)],
+        name="fastmem_field_store_addr",
+    )
+    field_ptr = builder.bitcast(
+        field_addr,
+        i64.as_pointer(),
+        name="fastmem_field_store_ptr",
+    )
+    builder.store(value, field_ptr)
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -319,6 +422,20 @@ def lower_memop(
         if dst is None:
             raise RuntimeError("[llvm/fastmem:field-load-missing-dst]")
         _lower_field_load_from_layout_ref(builder, resolver, int(dst), operands, vmap)
+        return
+    if kind == "field_store":
+        if dst is not None:
+            raise RuntimeError("[llvm/fastmem:field-store-has-dst]")
+        _lower_field_store_from_layout_ref(
+            builder,
+            resolver,
+            operands,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
+        )
         return
     if kind == "addr_of":
         _require_operands(kind, operands, 1)
