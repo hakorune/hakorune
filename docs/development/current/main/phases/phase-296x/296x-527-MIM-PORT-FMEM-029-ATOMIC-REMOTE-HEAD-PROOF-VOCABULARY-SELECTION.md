@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-029.
 Related:
@@ -50,6 +50,31 @@ prefer:
   source syntax that reads like a remote-free publication contract
   MIR facts that later lowering can consume without re-deciding owner policy
 ```
+
+## Decision
+
+```text
+selected:
+  C. Pair both as a single proof vocabulary row
+
+next:
+  MIM-PORT-FMEM-030 AtomicRemoteHead proof vocabulary source preflight
+```
+
+AtomicRemoteHead publication needs both facts to avoid a misleading half-open
+route:
+
+```text
+remote-owner proof:
+  proves the page is not same-owner local mutation
+
+remote-free block-next proof:
+  proves the block node can carry the remote publication link
+```
+
+The next implementation row should add source/MIR fact vocabulary for both and
+keep `AtomicRemoteHeadPush` `lowerable=0`. CAS lowering and remote branch
+routing remain deferred until a later producer row consumes those facts.
 
 ## Still Closed
 
