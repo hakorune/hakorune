@@ -17,6 +17,7 @@ Usage:
   $0 llvm-pipeline-inventory [--repo-root repo] [--format kv|summary]
   $0 fastmem-capability-inventory (--report target/.../report.out | --ast-json ast.json | --program-json program.json) [options]
   $0 fastmem-check (--report target/.../report.out | --inventory report.kv | --ast-json ast.json | --program-json program.json) [options]
+  $0 fastmem-producer-parity --baseline bridge.kv --candidate llvm.kv
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
@@ -33,6 +34,9 @@ Tool surfaces:
   fastmem-capability-inventory
                       read-only fastmem / memory fast-path capability inventory
   fastmem-check       CI-style verifier over fastmem inventory fields
+  fastmem-producer-parity
+                      compare replacement-front reports through the producer-neutral
+                      FastMemory parity contract
   fastpath-explain    read-only FastPath / RouteDecision metadata explanation
                       with optional --profile / --group report scoping
   fastpath-check      CI-style RouteDecision profile check for current
@@ -95,6 +99,11 @@ fi
 if [ "${1:-}" = "fastmem-check" ]; then
   shift
   exec python3 "$ROOT/tools/hako_check/fastmem_check.py" "$@"
+fi
+
+if [ "${1:-}" = "fastmem-producer-parity" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/fastmem_producer_parity.py" "$@"
 fi
 
 if [ ! -x "$BIN" ]; then

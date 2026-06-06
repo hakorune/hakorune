@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-006 producer-neutral parity against python_template_c_bridge
+  MIR-FMEM-007 Python template C bridge retirement
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -174,6 +174,10 @@ why:
   296x-444 landed MIR-FMEM-005 by opening MIR JSON transport and Python LLVM
   lowering for the value-only FastMemory MemOp subset. Layout/table MemOps and
   allocator owner TLS runtime MemOps remain closed until their dedicated rows.
+  296x-445 landed MIR-FMEM-006 by adding `hako_check fastmem-producer-parity`,
+  an explicit allowlist comparison between `python_template_c_bridge` and
+  `mir_to_llvm_lowering` reports. The bridge is still present until
+  MIR-FMEM-007 removes the semantic/runtime dependency.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -258,7 +262,7 @@ task_order:
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.
-  MIR-FMEM-006 must prove producer-neutral parity with the same report.kv /
+  MIR-FMEM-006 proved producer-neutral parity with the same report.kv /
   hako_check contract.
   MIR-FMEM-007 deletes the Python-template C semantic bridge and forbids hidden
   fallback. Optional MIR-to-C artifact support is a separate generated-backend

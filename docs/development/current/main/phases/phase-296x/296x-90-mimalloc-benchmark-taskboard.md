@@ -101,7 +101,10 @@ MIR-FMEM-004 landed verifier gates:
 MIR-FMEM-005 landed the primary producer subset:
   MIR JSON transport and Python LLVM lowering are open for value-only FastMemory
   MemOps. Table/layout and allocator-owner TLS runtime MemOps remain closed.
-  MIR-FMEM-006 opens producer-neutral parity against python_template_c_bridge.
+MIR-FMEM-006 landed producer-neutral parity:
+  `hako_check fastmem-producer-parity` now compares the Python-template C
+  bridge baseline against the MIR-to-LLVM candidate through an explicit
+  producer-neutral allowlist. MIR-FMEM-007 opens bridge retirement next.
 ```
 
 ## Queue

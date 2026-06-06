@@ -695,6 +695,39 @@ summary=ok|failed
   infer fastmem regions from source, rewrite MIR, choose keepers, or activate
   product allocator replacement.
 
+FastMemory Producer Parity
+- `hako_check fastmem-producer-parity` compares the current
+  `python_template_c_bridge` baseline against a `mir_to_llvm_lowering`
+  candidate through producer-neutral report fields. It is the gate before
+  retiring the Python-template C bridge as a semantic/runtime dependency.
+- Stable v0 entry:
+
+```bash
+bash tools/hako_check.sh fastmem-producer-parity \
+  --baseline target/bridge/report.kv \
+  --candidate target/mir-llvm/report.kv
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-fastmem-producer-parity-v0
+tool_surface=hako_check_fastmem_producer_parity
+observation_only=1
+benchmark_run_executed=0
+producer_neutral_report_schema=0|1
+producer_neutral_parity_pass=0|1
+producer_neutral_compared_field_count
+producer_neutral_mismatch_count
+producer_neutral_missing_field_count
+python_template_c_bridge_runtime_dependency_count
+summary=ok|failed
+```
+
+- Stop line: this tool compares an explicit allowlist of structural fields. It
+  does not compare timing/throughput, choose a keeper, run a benchmark, delete
+  the bridge, activate replacement, or treat C as a final semantic producer.
+
 FastMemory PageMapBridge Smoke
 - `fastmem_page_map_bridge_smoke.sh` fixes the benchmark-front PageMapBridge
   acceptance surface. It proves that the bridge fixture reports
