@@ -872,15 +872,23 @@ fn local_free_plan(
     let remote_owner_rejected = same_owner_proof_valid;
     let non_empty_proof_valid = local_free_non_empty_fact(local_free_non_empty_facts, region, page)
         .map_or(false, |fact| fact.non_empty);
+    let block_next_field_id = "next";
     let block_next_fact = block_value.and_then(|block_value| {
-        block_next_fact(block_next_facts, region, block_value)
-            .filter(|fact| fact.next_field_id == "next" && fact.writable && fact.provenance_valid)
+        block_next_fact(block_next_facts, region, block_value).filter(|fact| {
+            fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
+        })
     });
-    let block_next_resolved = block_next_fact.and_then(|fact| {
+    let block_next_resolved = if let Some(fact) = block_next_fact {
         contract.and_then(|contract| {
             resolve_fastmem_block_next_contract(contract, &fact.next_field_id).ok()
         })
-    });
+    } else if kind == FastMemAccessPlanKind::LocalFreePop && non_empty_proof_valid {
+        contract.and_then(|contract| {
+            resolve_fastmem_block_next_contract(contract, block_next_field_id).ok()
+        })
+    } else {
+        None
+    };
     let (
         block_next_layout_id,
         block_next_field_id,
@@ -909,14 +917,25 @@ fn local_free_plan(
         && block_next_field_size.is_some()
         && block_next_field_type.is_some()
         && block_next_alignment.is_some();
-    let lowerable = kind == FastMemAccessPlanKind::LocalFreePush
-        && failure_reason.is_none()
+    let block_next_access_resolved = block_next_layout_id.is_some()
+        && block_next_field_id.is_some()
+        && block_next_byte_offset.is_some()
+        && block_next_field_size.is_some()
+        && block_next_field_type.is_some()
+        && block_next_alignment.is_some();
+    let common_lowerable = failure_reason.is_none()
         && same_owner_proof_valid
-        && block_next_proof_valid
         && head_byte_offset.is_some()
         && head_field_size.is_some()
         && head_field_type.is_some()
         && head_alignment.is_some();
+    let lowerable_push =
+        kind == FastMemAccessPlanKind::LocalFreePush && common_lowerable && block_next_proof_valid;
+    let lowerable_pop = kind == FastMemAccessPlanKind::LocalFreePop
+        && common_lowerable
+        && non_empty_proof_valid
+        && block_next_access_resolved;
+    let lowerable = lowerable_push || lowerable_pop;
     let status = if lowerable {
         FastMemAccessPlanStatus::Verified
     } else {
@@ -929,8 +948,8 @@ fn local_free_plan(
             Some("local-free-block-next-proof-missing".to_string())
         } else if kind == FastMemAccessPlanKind::LocalFreePop && !non_empty_proof_valid {
             Some("local-free-non-empty-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::LocalFreePop {
-            Some("local-free-pop-lowering-closed".to_string())
+        } else if kind == FastMemAccessPlanKind::LocalFreePop && !block_next_access_resolved {
+            Some("local-free-block-next-access-unresolved".to_string())
         } else {
             None
         }
@@ -1653,11 +1672,8 @@ mod tests {
         assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
         let pop_plan = &function.metadata.fastmem_access_plans[0];
         assert_eq!(pop_plan.kind, FastMemAccessPlanKind::LocalFreePop);
-        assert_eq!(pop_plan.status, FastMemAccessPlanStatus::Rejected);
-        assert_eq!(
-            pop_plan.failure_reason.as_deref(),
-            Some("local-free-pop-lowering-closed")
-        );
+        assert_eq!(pop_plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(pop_plan.failure_reason, None);
         let FastMemAccessPlanPayload::LocalFree(pop) = &pop_plan.payload else {
             panic!("expected local free-list pop plan");
         };
@@ -1665,7 +1681,7 @@ mod tests {
         assert!(pop.non_empty_proof_valid);
         assert!(!pop.block_next_proof_valid);
         assert!(pop.remote_owner_rejected);
-        assert!(!pop.lowerable);
+        assert!(pop.lowerable);
         assert_eq!(
             pop.local_free_head_layout_id.as_deref(),
             Some("PageMetaLayoutV0")
@@ -1678,6 +1694,19 @@ mod tests {
         assert_eq!(pop.local_free_head_field_size, Some(8));
         assert_eq!(pop.local_free_head_field_type.as_deref(), Some("usize"));
         assert_eq!(pop.local_free_head_alignment, Some(8));
+        assert_eq!(
+            pop.block_next_layout_id.as_deref(),
+            Some("FreeBlockNodeLayoutV0")
+        );
+        assert_eq!(pop.block_next_field_id.as_deref(), Some("next"));
+        assert_eq!(
+            pop.block_next_field_class.as_deref(),
+            Some("local_free_block_next")
+        );
+        assert_eq!(pop.block_next_byte_offset, Some(0));
+        assert_eq!(pop.block_next_field_size, Some(8));
+        assert_eq!(pop.block_next_field_type.as_deref(), Some("usize"));
+        assert_eq!(pop.block_next_alignment, Some(8));
     }
 
     #[test]

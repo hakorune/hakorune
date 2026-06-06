@@ -338,6 +338,14 @@ MIM-PORT-FMEM-013A landed:
   `local-free-pop-lowering-closed`. MIM-PORT-FMEM-013B opens the LocalFreePop
   LLVM producer pilot while keeping remote-free, AtomicRemoteHead, TLS
   transfer, and product activation closed.
+MIM-PORT-FMEM-013B landed:
+  Verified LocalFreePop plans now lower through the MIR-to-LLVM producer by
+  consuming a PageMeta LayoutRef, loading `page.local_free_head`, loading
+  `FreeBlockNodeLayoutV0.next` from the popped block, storing the next head
+  back to `page.local_free_head`, and returning the popped block as a
+  pointer-sized scalar. Remote-free, AtomicRemoteHead, TLS transfer, and
+  product activation remain closed. MIM-PORT-FMEM-014 opens the next
+  page-local route slice selection.
 MIR-FMEM-008C FieldLoad LayoutRef pilot landed:
   Verified FieldLoad rows now consume backend-private LayoutRefs and emit
   readonly scalar GEP/load results into ordinary `vmap`. FieldStore, owner

@@ -146,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-013B LocalFreePop LLVM producer pilot
+  MIM-PORT-FMEM-014 next page-local route slice selection
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -170,7 +170,8 @@ implementation_sequence:
   MIM-PORT-FMEM-012A LocalFreePush precondition evidence (landed)
   MIM-PORT-FMEM-012B LocalFreePush LLVM producer pilot (landed)
   MIM-PORT-FMEM-013A LocalFreePop precondition evidence (landed)
-  MIM-PORT-FMEM-013B LocalFreePop LLVM producer pilot
+  MIM-PORT-FMEM-013B LocalFreePop LLVM producer pilot (landed)
+  MIM-PORT-FMEM-014 next page-local route slice selection
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)

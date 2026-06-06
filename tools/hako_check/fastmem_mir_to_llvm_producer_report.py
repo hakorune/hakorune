@@ -191,9 +191,10 @@ def build_rows(
         for plan in verified_field_store
         if string_value(plan.get("field_class")) == "atomic_remote_head"
     )
+    local_free_verified = verified_local_free_push + verified_local_free_pop
     local_free_incomplete = sum(
         1
-        for plan in verified_local_free_push
+        for plan in local_free_verified
         if plan.get("local_free_head_byte_offset") is None
         or plan.get("local_free_head_field_size") is None
         or plan.get("local_free_head_field_type") is None
@@ -205,6 +206,17 @@ def build_rows(
     )
     current_owner_count = count_memops(memops, "current_alloc_owner_id")
     owner_eq_count = count_memops(memops, "owner_eq")
+    selected_local_free_kinds = []
+    if verified_local_free_push:
+        selected_local_free_kinds.append("LocalFreePush")
+    if verified_local_free_pop:
+        selected_local_free_kinds.append("LocalFreePop")
+    deferred_local_free_kinds = []
+    if not verified_local_free_push:
+        deferred_local_free_kinds.append("LocalFreePush")
+    if not verified_local_free_pop:
+        deferred_local_free_kinds.append("LocalFreePop")
+    deferred_local_free_kinds.append("AtomicRemoteHead")
 
     if profile == "owner-runtime":
         slice_rows = [
@@ -227,9 +239,15 @@ def build_rows(
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_next_producer_slice", "local_free_producer_pilot"),
             ("replacement_front_selected_memop_family", "local_free"),
-            ("replacement_front_selected_memop_kinds", "LocalFreePush"),
+            (
+                "replacement_front_selected_memop_kinds",
+                ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none",
+            ),
             ("replacement_front_deferred_memop_family", "remote_free"),
-            ("replacement_front_deferred_memop_kinds", "LocalFreePop,AtomicRemoteHead"),
+            (
+                "replacement_front_deferred_memop_kinds",
+                ",".join(deferred_local_free_kinds),
+            ),
             ("mir_fmem_008b_layout_table_producer_pilot", "0"),
             ("fastmem_owner_runtime_producer_pilot", "0"),
             ("fastmem_local_free_producer_pilot", "1"),
@@ -288,7 +306,7 @@ def build_rows(
         ("memop_field_load_lowered_count", str(len(verified_field_load))),
         ("memop_field_store_lowered_count", str(len(verified_field_store))),
         ("memop_local_free_push_lowered_count", str(len(verified_local_free_push))),
-        ("memop_local_free_pop_lowered_count", "0"),
+        ("memop_local_free_pop_lowered_count", str(len(verified_local_free_pop))),
         ("memop_current_alloc_owner_id_lowered_count", str(current_owner_count)),
         ("memop_owner_eq_lowered_count", str(owner_eq_count)),
         ("memop_atomic_remote_head_lowered_count", "0"),
@@ -296,6 +314,7 @@ def build_rows(
         ("memop_field_load_layout_ref_consumed_count", str(len(verified_field_load))),
         ("memop_field_store_layout_ref_consumed_count", str(len(verified_field_store))),
         ("memop_local_free_push_layout_ref_consumed_count", str(len(verified_local_free_push))),
+        ("memop_local_free_pop_layout_ref_consumed_count", str(len(verified_local_free_pop))),
         ("memop_lowering_missing_layout_ref_count", "0"),
         ("memop_lowering_raw_pointer_vmap_count", "0"),
         ("memop_lowering_helper_call_count", "0"),
@@ -316,8 +335,15 @@ def build_rows(
         ("fastmem_atomic_field_plain_store_count", str(atomic_plain_store)),
         ("fastmem_local_free_access_plan_incomplete_count", str(local_free_incomplete)),
         ("fastmem_local_free_head_plain_store_lowered_count", "0"),
-        ("fastmem_local_free_push_lowering_uses_verified_plan", "1"),
-        ("fastmem_local_free_pop_lowering_enabled", "0"),
+        (
+            "fastmem_local_free_push_lowering_uses_verified_plan",
+            str(int_flag(bool(verified_local_free_push))),
+        ),
+        (
+            "fastmem_local_free_pop_lowering_uses_verified_plan",
+            str(int_flag(bool(verified_local_free_pop))),
+        ),
+        ("fastmem_local_free_pop_lowering_enabled", str(int_flag(bool(verified_local_free_pop)))),
         ("fastmem_lowering_used_verified_plan", "1"),
         ("fastmem_lowering_recomputed_layout_offset_count", "0"),
         ("fastmem_lowering_recomputed_table_stride_count", "0"),
