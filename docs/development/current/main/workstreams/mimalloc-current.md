@@ -136,7 +136,16 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008D owner-runtime producer pilot
+  MIR-FMEM-008D-PRE owner-runtime producer preflight
+
+implementation_sequence:
+  MIR-FMEM-008D-PRE docs/inventory
+  MIR-FMEM-008D-A CurrentAllocOwnerId lowering
+  MIR-FMEM-008D-B OwnerEq lowering
+  MIR-FMEM-008D-C report/check closeout
+  MIR-FMEM-008E producer-neutral parity/readiness
+  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
+  MIM-PORT-FMEM-001 first hako_alloc body migration pilot
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001

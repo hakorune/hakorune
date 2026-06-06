@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-480 queued DirectArray/FastMemory proof-envelope commonality and active-doc length cleanup while keeping MIR-FMEM-008D owner-runtime producer pilot as the next implementation task."
+active_lane_status = "296x-481 split the remaining work into FastMemory substrate rows and later mimalloc-port rows; MIR-FMEM-008D-PRE owner-runtime producer preflight opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-480-DIRECTARRAY-FMEM-COMMONALITY-AND-DOC-LENGTH-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-480-DIRECTARRAY-FMEM-COMMONALITY-AND-DOC-LENGTH-CLEANUP.md"
-latest_card_summary = "Queued DirectArray/FastMemory proof-envelope commonality as report/check adapter work only, added active-doc length cleanup rows for over-1000-line current docs, and kept MIR-FMEM-008D owner-runtime producer pilot as the next implementation task."
-current_blocker_token = "MIR-FMEM-008C"
+latest_card = "296x-481-FASTMEM-SUBSTRATE-VS-MIMALLOC-PORT-TASK-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-481-FASTMEM-SUBSTRATE-VS-MIMALLOC-PORT-TASK-SPLIT.md"
+latest_card_summary = "Split the remaining FastMemory work into substrate rows, parity/reference closeout, and later mimalloc-port body migration rows; MIR-FMEM-008D-PRE owner-runtime producer preflight opens next."
+current_blocker_token = "MIR-FMEM-008D-PRE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-481 split the remaining work into FastMemory substrate rows, producer parity/reference closeout, and later mimalloc-port body migration rows; MIR-FMEM-008D-PRE owner-runtime producer preflight opens next.",
   "2026-06-06: 296x-480 queued DirectArray/FastMemory proof-envelope commonality as adapter-only work and added active-doc length cleanup rows for current docs over the 1000-line maintenance threshold; MIR-FMEM-008D remains the next implementation task.",
   "2026-06-06: 296x-479 landed MIR-FMEM-008C report/check closeout: complete mir_to_llvm layout/table producer candidates now fail fastmem-check unless TableIndex, FieldLoad, and FieldStore lowered-count evidence is present; MIR-FMEM-008D owner-runtime producer pilot opens next.",
   "2026-06-06: 296x-478 landed MIR-FMEM-008C FieldStore from LayoutRef: verified field_store rows now consume backend-private LayoutRef pointers and store ordinary i64 values only into mutable plain fields while owner mutation, local_free_head, atomic/publication fields, Type ABI/Provider ABI hot paths, and product activation remain closed.",

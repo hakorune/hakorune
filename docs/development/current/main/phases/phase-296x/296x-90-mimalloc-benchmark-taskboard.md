@@ -301,11 +301,16 @@ MIR-FMEM-008 split:
     VerifiedTableAccess rows only. CurrentAllocOwnerId / OwnerEq remain
     deferred.
   MIR-FMEM-008D owner-runtime producer pilot:
-    lower CurrentAllocOwnerId / OwnerEq style MemOps and matching report
-    counters without TLS backing transfer or owner slot reuse.
+    split into PRE/A/B/C: decide owner-runtime input truth and counters, then
+    lower CurrentAllocOwnerId observation, then OwnerEq equality, then close
+    report/check coverage. No TLS backing transfer, owner slot reuse,
+    AtomicRemoteHead, or local/remote free routing.
   MIR-FMEM-008E producer-neutral parity/readiness:
     prove MIR-to-LLVM evidence can replace the quarantined Python-template C
     diagnostic baseline before the reference closeout runs.
+  MIM-PORT-FMEM-001:
+    first mimalloc-port body row after FastMemory substrate parity; migrate one
+    narrow hako_alloc owner/layout path using existing substrate only.
 ```
 
 ## Queue
