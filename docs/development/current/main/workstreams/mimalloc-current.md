@@ -97,12 +97,13 @@ algorithm-port coverage:
 
 hako_alloc identity:
   `hako_alloc` is the `.hako` body/source truth of the mimalloc port, not a
-  separate allocator family. The current replacement-front C shim is a
-  temporary execution bridge for the same port. Bridge evidence exists to
-  prevent drift while this double management remains. The final direction is
-  `.hako hako_alloc/fastmem -> MIR MemOp -> LLVM/object`, with Python-template
-  C retired as semantic producer. Runtime/bootstrap allocation stays separate
-  from application/product allocator activation. SSOT:
+  separate allocator family. The Python-template C replacement front is now
+  diagnostic-baseline-only after the MIR-to-LLVM producer readiness gate.
+  Bridge evidence exists to prevent drift while any explicit diagnostic
+  baseline remains. The active implementation direction is `.hako hako_alloc /
+  fastmem -> MIR MemOp -> LLVM/object`, with MIM-PORT-FMEM-001 opening the
+  first narrow body migration. Runtime/bootstrap allocation stays separate from
+  application/product allocator activation. SSOT:
   `docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md`
 
 capability gap:
@@ -136,7 +137,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
+  MIM-PORT-FMEM-001 first hako_alloc body migration pilot
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -144,11 +145,11 @@ implementation_sequence:
   MIR-FMEM-008D-B OwnerEq lowering (landed)
   MIR-FMEM-008D-C report/check closeout (landed)
   MIR-FMEM-008E producer-neutral parity/readiness (landed)
-  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
+  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
   MIM-PORT-FMEM-001 first hako_alloc body migration pilot
 
 follow_up_cleanup_task:
-  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
+  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
 
 proof_commonality_follow_up:
   DIRECTARRAY-FMEM-COMMON-001
@@ -157,9 +158,8 @@ docs_slim_follow_up:
   DOCS-SLIM-296X-001
 
 follow_up_cleanup_trigger:
-  after the MIR-FMEM layout/table/owner runtime producer body is implemented
-  and the Python-template C bridge is no longer needed as semantic/runtime
-  baseline evidence
+  MIR-FMEM-008E landed a producer-neutral readiness gate for layout/table plus
+  owner-runtime MIR-to-LLVM evidence.
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -199,12 +199,13 @@ why:
   allocator owner TLS runtime MemOps remain closed until their dedicated rows.
   296x-445 landed MIR-FMEM-006 by adding `hako_check fastmem-producer-parity`,
   an explicit allowlist comparison between `python_template_c_bridge` and
-  `mir_to_llvm_lowering` reports. The bridge is still present until
-  MIR-FMEM-007 removes the semantic/runtime dependency. 296x-446 landed the
-  first retirement slice: Python-template C replacement-front generation now
+  `mir_to_llvm_lowering` reports. 296x-446 landed the first retirement slice:
+  Python-template C replacement-front generation now
   requires `--allow-python-template-c-bridge-baseline`, and report producer
   inference no longer maps `replacement_front_c_shim` to
-  `python_template_c_bridge` unless the report declares that producer. 296x-447
+  `python_template_c_bridge` unless the report declares that producer. The
+  bridge is now an explicit diagnostic baseline only, not a semantic/runtime
+  dependency. 296x-447
   landed MIR-FMEM-007B by moving the retirement guard into
   `tools/allocator/python_template_c_bridge.py` and requiring that guard at
   both CLI validation and bridge build-helper entrypoints. 296x-448 landed
@@ -241,7 +242,10 @@ why:
   mutable plain fields only; owner, local-free, and atomic/publication fields
   remain closed. `fastmem-check` now requires complete `mir_to_llvm_lowering`
   layout/table candidates to report positive lowered counts for TableIndex,
-  FieldLoad, and FieldStore.
+  FieldLoad, and FieldStore. MIR-FMEM-008D then added CurrentAllocOwnerId /
+  OwnerEq producer evidence, and MIR-FMEM-008E added a producer-neutral
+  readiness gate that combines layout/table and owner-runtime evidence before
+  hako_alloc body migration opens.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -351,7 +355,10 @@ next_mir_producer_rows:
     296x-478 FieldStore from LayoutRef pilot landed
     296x-479 report/check closeout landed
   MIR-FMEM-008D owner-runtime producer pilot
+    296x-482..485 landed CurrentAllocOwnerId / OwnerEq lowering and report gate
   MIR-FMEM-008E producer-neutral parity/readiness
+    296x-486 landed candidate-only readiness gate combining layout/table and
+    owner-runtime evidence
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.
@@ -363,8 +370,11 @@ retirement_gate:
   MIR-FMEM-007C adds a static import guard for remaining diagnostic payload
   files. MIR-FMEM-007D keeps the remaining payloads quarantined until
   MIR-to-LLVM replacement-front layout/table/owner runtime coverage can replace
-  their baseline role. Optional MIR-to-C artifact support is a separate
-  generated-backend lane.
+  their baseline role. MIR-FMEM-008E has now supplied that replacement
+  readiness evidence. The remaining payloads are still diagnostic-only until a
+  dedicated deletion/archive row; they are not semantic producers or hidden
+  fallbacks. Optional MIR-to-C artifact support is a separate generated-backend
+  lane.
   Historical command snippets before 296x-446 are archival. If re-run as a
   diagnostic baseline, every Python-template C replacement-front mode must add
   `--allow-python-template-c-bridge-baseline`; do not read older snippets as
@@ -430,11 +440,11 @@ product_activation_ready=0
 Producer transition direction:
 
 ```text
-current producer:
+diagnostic baseline:
   replacement_front_producer=python_template_c_bridge
-  status=bridge_only
+  status=explicit_diagnostic_baseline_only
   semantic_ssot=0
-  retirement_required=1
+  runtime_dependency=0
 
 transition producer:
   replacement_front_producer=mir_to_c_lowering
@@ -443,6 +453,7 @@ transition producer:
 final primary producer:
   replacement_front_producer=mir_to_llvm_lowering
   primary path has no intermediate C
+  fastmem_producer_readiness_v0=1
 ```
 
 MIRBuilder design consultation is a separate task after the page-local bridge
@@ -490,6 +501,19 @@ replacement_front_mirbuilder_representation_only=1
 replacement_front_mirbuilder_route_decision_count=0
 replacement_front_producer_transition_state=current_bridge
 product_activation_ready=0
+```
+
+After MIR-FMEM-008E, the active candidate evidence is:
+
+```text
+replacement_front_producer=mir_to_llvm_lowering
+fastmem_producer_readiness_v0=1
+fastmem_producer_readiness_scope=layout_table_owner_runtime
+memop_table_index_lowered_count>0
+memop_field_load_lowered_count>0
+memop_field_store_lowered_count>0
+memop_current_alloc_owner_id_lowered_count>0
+memop_owner_eq_lowered_count>0
 ```
 
 `LLVM-PIPE-001` landed as static hako_check inventory:
@@ -673,10 +697,11 @@ because it consumes the next `.hako` semantic boundary and improves over the
 same-run page-bins refresh. It is not a winner/performance claim against the
 older page-bins best sample or C mimalloc.
 
-The size-class table lookup is the current malloc-owner keeper: `perf` on the
-current bridge selected `malloc` plus the ownership lookup as the dominant
-replacement-front symbols, and the table path improves the same-run 7-sample
-HotCore/PageModel median. The eager-init follow-up is the current top keeper:
+The size-class table lookup was the bridge-era malloc-owner keeper: `perf` on
+the then-current diagnostic bridge selected `malloc` plus the ownership lookup
+as the dominant replacement-front symbols, and the table path improved the
+same-run 7-sample HotCore/PageModel median. The eager-init follow-up stayed in
+that benchmark-only route:
 it keeps the same benchmark-only route and table lookup, but moves bin
 initialization into the replacement-front constructor. Product pages,
 activation, hooks, globals, full `.hako` algorithm claims, and winner claims

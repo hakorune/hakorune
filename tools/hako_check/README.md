@@ -793,10 +793,12 @@ summary=ok|failed
   product allocator replacement.
 
 FastMemory Producer Parity
-- `hako_check fastmem-producer-parity` compares the current
-  `python_template_c_bridge` baseline against a `mir_to_llvm_lowering`
-  candidate through producer-neutral report fields. It is the gate before
-  retiring the Python-template C bridge as a semantic/runtime dependency.
+- `hako_check fastmem-producer-parity` compares the explicit
+  `python_template_c_bridge` diagnostic baseline against a
+  `mir_to_llvm_lowering` candidate through producer-neutral report fields. It
+  is the gate that proves a MIR-to-LLVM candidate can replace that diagnostic
+  baseline for a selected evidence surface. It does not delete diagnostic
+  payloads or open product allocator activation.
 - Stable v0 entry:
 
 ```bash

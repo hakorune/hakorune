@@ -809,9 +809,9 @@ hako_alloc:
   .hako body/source truth of the mimalloc port
   not a separate allocator family
 
-replacement_front C shim:
-  temporary execution bridge for the same mimalloc port
-  not the final semantic producer
+python_template_c_bridge:
+  explicit diagnostic baseline for the same mimalloc port after MIR-FMEM-008E
+  not the final semantic producer and not a hidden runtime fallback
 
 runtime/bootstrap allocator:
   allocator used to run/build Hakorune itself
@@ -824,21 +824,21 @@ Read the full naming and role split here:
 docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md
 ```
 
-The current replacement front is a safe bridge, not the final producer. The
-long-term goal is to remove Python-template C as a semantic producer while
-keeping the producer-neutral `report.kv` / `hako_check` contract.
+The Python-template C replacement front is a diagnostic baseline, not the final
+producer. The current goal is to keep that baseline explicit while moving the
+implementation body to `.hako` / MIR / LLVM and preserving the producer-neutral
+`report.kv` / `hako_check` contract.
 
 Producer roles:
 
 ```text
 python_template_c_bridge:
-  current bridge
-  allowed only while product activation is closed
+  explicit diagnostic baseline after MIR-FMEM-008E
+  allowed only through guarded diagnostic entrypoints while product activation is closed
   must be tied to .hako source truth by bridge evidence
   must not become semantic SSOT
-  retirement required
-  retained through MIR-FMEM-005 as baseline evidence
-  retired only after MIR-FMEM-006 producer-neutral parity
+  no hidden runtime fallback
+  payload deletion remains a separate closeout row
 
 mir_to_c_lowering:
   optional debug/diff/bootstrap artifact producer
@@ -847,9 +847,11 @@ mir_to_c_lowering:
   not required before the primary LLVM/object producer
 
 mir_to_llvm_lowering:
-  primary product producer
+  primary producer direction
   no C in the primary execution path
   same counters/report.kv contract as other producers
+  readiness gate landed through MIR-FMEM-008E for selected layout/table and
+  owner-runtime FastMemory evidence
 ```
 
 Producer-neutral fields:
@@ -864,6 +866,9 @@ replacement_front_python_template_c_retirement_required=0|1
 python_template_c_bridge_runtime_dependency_count
 producer_neutral_report_schema=0|1
 producer_neutral_parity_pass=0|1
+fastmem_producer_readiness_v0=0|1
+fastmem_producer_readiness_pass=0|1
+fastmem_producer_readiness_scope=layout_table_owner_runtime|unknown
 replacement_front_mir_memop_enabled=0|1
 replacement_front_mir_fastmem_region_enabled=0|1
 replacement_front_mirbuilder_representation_only=1
@@ -968,15 +973,31 @@ MIR-FMEM-004:
   Verifier gates for fastmem escape/layout/ABI boundaries.
 
 MIR-FMEM-005:
-  MIR -> LLVM/object primary producer.
+  MIR -> LLVM/object primary producer for value-only FastMemory MemOps.
   Keep python_template_c_bridge as comparison baseline.
 
 MIR-FMEM-006:
   Producer-neutral parity against the current python_template_c_bridge.
 
 MIR-FMEM-007:
-  Retire python_template_c_bridge after producer-neutral parity is proven.
+  Retire python_template_c_bridge from normal runtime entrypoints after
+  producer-neutral parity is proven.
   Do not leave a hidden fallback to the Python-template C producer.
+
+MIR-FMEM-008C:
+  Layout/table LLVM producer evidence for TableIndex, FieldLoad, and FieldStore.
+
+MIR-FMEM-008D:
+  Owner-runtime LLVM producer evidence for CurrentAllocOwnerId and OwnerEq.
+
+MIR-FMEM-008E:
+  Producer-neutral readiness gate combining layout/table and owner-runtime
+  lowered-count evidence. This proves the MIR-to-LLVM candidate can replace the
+  quarantined Python-template C diagnostic baseline for the selected surface.
+
+FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001:
+  Sync reference/current/tool docs so Python-template C is diagnostic-only and
+  the next implementation owner is MIM-PORT-FMEM-001.
 
 MIR-FMEM-C-ARTIFACT:
   Optional MIR -> C debug/diff/bootstrap artifact producer.
@@ -1270,7 +1291,7 @@ keeper work in one task.
 | `MIM-FMEM-017A Product-shaped bridge report normalization` | done | Normalize non-activating product-shaped bridge evidence and bind the first source truth to `SizeClassBox`. | Report/check only; activation, hook install, global allocator claim, and winner claim remain closed. |
 | `MIM-FMEM-017B SizeClassBox bridge evidence` | done | Prove the replacement-front size-class mirror is formally tied to `.hako` `SizeClassBox` policy. | Product bins/pages execution remains benchmark-only; no page metadata or remote-free behavior change. |
 | `MIM-FMEM-017C Page-local state bridge evidence` | done | Start connecting `PageBox` page-local shape to product-shaped metadata evidence after size-class truth is bound. | No activation; page-map/TLS/remote-free semantics remain explicit later rows. |
-| `MIM-FMEM-017D Replacement-front producer taxonomy` | done | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; does not implement MIR lowering or remove the current bridge. |
+| `MIM-FMEM-017D Replacement-front producer taxonomy` | done | Add producer-neutral report fields that distinguish `python_template_c_bridge`, `mir_to_c_lowering`, and `mir_to_llvm_lowering`. | Report/check only; later rows made Python-template C explicit diagnostic-baseline-only and opened MIR-to-LLVM readiness. |
 | `LLVM-PIPE-001 LLVM runner pipeline debt inventory` | done | Report the current env rewrite, method-id seam, JoinIR experiment hook, and PyVM/harness/mock fallback visibility risks. | Static hako_check inventory only; PyVM remains diagnostic-reachable but daily route stays zero. |
 | `LLVM-PIPE-002 LLVM runner pipeline report fields` | done | Add explicit pipeline report fields for future rewrite route, JoinIR experiment, method-id mutation count, backend executor, and fallback reason. | Opt-in runtime report via `NYASH_LLVM_PIPELINE_REPORT_OUT`; no route change. |
 | `LLVM-PIPE-003 CompileOptions / PipelinePlan cleanup` | done | Move env side effects and runner ad-hoc stages toward explicit plan objects. | Current defaults flow through named `LlvmCompileOptions` / `LlvmPipelinePlan`; executor behavior unchanged. |
@@ -1296,7 +1317,8 @@ keeper work in one task.
 | `MIR-FMEM-008C layout/table LLVM producer pilot` | done | Open LLVM/object lowering for complete verified layout/table MemOps. | TableIndex lowers to backend-private LayoutRef, FieldLoad consumes LayoutRef into ordinary scalar values, FieldStore writes allowlisted mutable plain fields, and report/check requires positive lowered counts. Owner-runtime MemOps remain deferred. |
 | `MIR-FMEM-008D owner-runtime producer pilot` | done | Open LLVM/object lowering for allocator owner runtime MemOps such as `CurrentAllocOwnerId` and `OwnerEq` plus matching report counters. | `CurrentAllocOwnerId` lowers to producer-local owner-id observation and `OwnerEq` lowers to equality only. TLS backing transfer, owner slot reuse as active owner, hooks, global allocator claim, and winner claim remain closed. |
 | `MIR-FMEM-008E producer-neutral parity/readiness` | done | Prove MIR-to-LLVM layout/table/owner-runtime evidence can replace the quarantined Python-template C diagnostic baseline. | `fastmem-producer-parity` now has a candidate-only readiness profile requiring positive layout/table and owner-runtime lowered-count evidence. Reference closeout may run next; remaining payload deletion is still separate. |
-| `FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001` | planned | Resync reference/current/tool docs after the MIR-FMEM layout/table/owner runtime producer body is implemented. | Retire stale Python-template C wording or mark it diagnostic-only; do not use this docs closeout to open product activation. |
+| `FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001` | done | Resync reference/current/tool docs after the MIR-FMEM layout/table/owner runtime producer body is implemented. | Python-template C wording is diagnostic-only, MIR-to-LLVM readiness is current producer direction, and product activation remains closed. |
+| `MIM-PORT-FMEM-001 first hako_alloc body migration pilot` | planned | Migrate one narrow hako_alloc owner/layout path using the existing FastMemory substrate only. | No new substrate semantics, AtomicRemoteHead lowering, TLS backing transfer, provider activation, hook, global allocator claim, or winner claim. |
 
 ## Report Fields For `MIM-FMEM-002`
 

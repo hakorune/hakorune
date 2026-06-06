@@ -17,10 +17,11 @@ Related:
 `hako_alloc` is the `.hako` body and source truth of the mimalloc port. It is
 not a separate allocator family competing with the mimalloc migration.
 
-The current replacement-front C shim is a temporary execution bridge for the
-same mimalloc port. It is allowed only while product allocator activation is
-closed and while bridge evidence proves that the duplicated C surface is tied
-back to `.hako` source truth.
+The older Python-template C replacement front was the temporary execution
+bridge for the same mimalloc port. After MIR-FMEM-008E, it is no longer treated
+as a normal semantic/runtime producer. It may remain only as an explicit
+diagnostic baseline while the `.hako`/MIR/LLVM producer takes over the selected
+FastMemory evidence surface.
 
 Long-term source truth is:
 
@@ -36,7 +37,8 @@ Python-template C must not remain the allocator semantic producer.
 
 ## Current State
 
-Today the mimalloc port has two active surfaces:
+Today the mimalloc port has one source truth and one quarantined diagnostic
+baseline:
 
 ```text
 mimalloc port
@@ -49,11 +51,12 @@ mimalloc port
 
   python_template_c_bridge replacement front
     generated benchmark-only malloc/free/realloc front
-    role: temporary execution bridge
+    role: explicit diagnostic baseline only
 ```
 
-This is intentional double management during migration, not the desired final
-architecture.
+This is the tail of the migration bridge, not the desired final architecture
+and not a normal runtime path. Diagnostic baseline execution requires explicit
+guarded entrypoints.
 
 Bridge evidence exists to keep this temporary split honest:
 
@@ -70,6 +73,21 @@ producer taxonomy:
 ```
 
 Bridge evidence is a migration guard. It is not a permanent abstraction goal.
+
+After MIR-FMEM-008E, the readiness proof for the primary direction is:
+
+```text
+hako_check fastmem-producer-parity
+  candidate:
+    replacement_front_producer=mir_to_llvm_lowering
+    fastmem_producer_readiness_v0=1
+    fastmem_producer_readiness_scope=layout_table_owner_runtime
+```
+
+That readiness gate requires positive lowered-count evidence for
+`TableIndex`, `FieldLoad`, `FieldStore`, `CurrentAllocOwnerId`, and `OwnerEq`.
+It does not open diagnostic payload deletion, TLS backing transfer,
+AtomicRemoteHead lowering, hooks, global allocator claims, or winner claims.
 
 ## Target State
 
@@ -147,16 +165,19 @@ hako_alloc:
   .hako body/source truth for the mimalloc port.
 
 replacement_front C shim:
-  temporary benchmark/product-shaped execution bridge for the same port.
+  legacy umbrella phrase for C-shaped replacement-front experiments.
+  Use the precise producer names below in new docs.
 
 Python-template C bridge:
-  current temporary producer that duplicates selected .hako allocator logic.
+  explicit diagnostic baseline that duplicates selected .hako allocator logic
+  only for comparison.
 
 MIR-to-C lowering:
   future backend artifact producer; C is output, not semantic truth.
 
 MIR-to-LLVM lowering:
-  primary final producer.
+  primary producer direction; MIR-FMEM-008E has a readiness gate for selected
+  layout/table and owner-runtime FastMemory evidence.
 
 runtime/bootstrap allocator:
   allocator used to run/build Hakorune itself.
@@ -217,12 +238,23 @@ MIR-FMEM-006:
   producer-neutral parity against the current python_template_c_bridge.
 
 MIR-FMEM-007:
-  retire python_template_c_bridge after producer-neutral parity is proven.
+  retire python_template_c_bridge from normal entrypoints after
+  producer-neutral parity is proven.
   No hidden fallback to the Python-template C bridge may remain.
   First slice: replacement-front generation requires
   `--allow-python-template-c-bridge-baseline`, and reports must explicitly
   declare `replacement_front_producer=python_template_c_bridge` instead of
   inferring it from `replacement_front_c_shim`.
+
+MIR-FMEM-008E:
+  producer-neutral readiness after layout/table and owner-runtime MIR-to-LLVM
+  producer evidence.
+  The Python-template C bridge remains diagnostic-only; it is not a semantic
+  producer or hidden runtime fallback.
+
+MIM-PORT-FMEM-001:
+  migrate the first narrow hako_alloc body path onto the existing FastMemory
+  substrate without adding new substrate semantics.
 
 MIR-FMEM-C-ARTIFACT:
   optional MIR -> C debug/diff/bootstrap artifact producer.

@@ -142,8 +142,28 @@ Verifier:
 
 The current primary proving workload is the `.hako` mimalloc port. `hako_alloc`
 is the `.hako` source/body truth for that port. The older Python-template C
-replacement front is only a temporary diagnostic bridge while selected
-FastMemory MemOps migrate to MIR/LLVM.
+replacement front is no longer a normal semantic producer; it is kept only as
+an explicitly requested diagnostic baseline. The primary FastMemory producer
+direction is `.hako fastmem` / capability surface -> MIR `MemOp` -> LLVM/object.
+
+The post-producer readiness gate is producer-neutral:
+
+```text
+hako_check fastmem-producer-parity
+  baseline:
+    replacement_front_producer=python_template_c_bridge
+    role=explicit_diagnostic_baseline
+
+  candidate:
+    replacement_front_producer=mir_to_llvm_lowering
+    fastmem_producer_readiness_v0=1
+    fastmem_producer_readiness_scope=layout_table_owner_runtime
+```
+
+This proves that the `mir_to_llvm_lowering` candidate has both layout/table
+evidence (`TableIndex`, `FieldLoad`, `FieldStore`) and owner-runtime evidence
+(`CurrentAllocOwnerId`, `OwnerEq`). It does not delete diagnostic payloads or
+open product allocator activation.
 
 Still closed:
 
