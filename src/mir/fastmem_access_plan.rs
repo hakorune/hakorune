@@ -270,6 +270,101 @@ impl FastMemAccessPlan {
     }
 }
 
+struct FastMemFactStore<'a> {
+    table_length_facts: &'a [FastMemTableLengthFact],
+    same_owner_facts: &'a [FastMemSameOwnerFact],
+    remote_owner_facts: &'a [FastMemRemoteOwnerFact],
+    block_next_facts: &'a [FastMemBlockNextFact],
+    local_free_non_empty_facts: &'a [FastMemLocalFreeNonEmptyFact],
+    free_head_non_empty_facts: &'a [FastMemFreeHeadNonEmptyFact],
+    range_index_facts: &'a [RangeIndexFact],
+}
+
+impl<'a> FastMemFactStore<'a> {
+    fn table_length(
+        &self,
+        region: FastMemRegionId,
+        table_id: &str,
+        table_value: ValueId,
+    ) -> Option<&'a FastMemTableLengthFact> {
+        self.table_length_facts.iter().find(|fact| {
+            fact.region == region && fact.table_id == table_id && fact.table_value == table_value
+        })
+    }
+
+    fn range_bounds_proof(
+        &self,
+        block: BasicBlockId,
+        index_value: ValueId,
+        length_fact: &FastMemTableLengthFact,
+    ) -> Option<String> {
+        self.range_index_facts.iter().find_map(|fact| {
+            if fact.index_value == index_value
+                && fact.upper_exclusive_value == length_fact.length_value
+                && fact.body_bb == block
+                && fact.step == 1
+                && fact.end_exclusive
+                && fact.index_body_read_only
+                && !fact.loop_carried_writes_supported
+            {
+                Some(format!("range_fact:{}", fact.fact_id))
+            } else {
+                None
+            }
+        })
+    }
+
+    fn same_owner(
+        &self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+    ) -> Option<&'a FastMemSameOwnerFact> {
+        self.same_owner_facts
+            .iter()
+            .find(|fact| fact.region == region && fact.page_value == page_value)
+    }
+
+    fn remote_owner(
+        &self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+    ) -> Option<&'a FastMemRemoteOwnerFact> {
+        self.remote_owner_facts
+            .iter()
+            .find(|fact| fact.region == region && fact.page_value == page_value)
+    }
+
+    fn block_next(
+        &self,
+        region: FastMemRegionId,
+        block_value: ValueId,
+    ) -> Option<&'a FastMemBlockNextFact> {
+        self.block_next_facts
+            .iter()
+            .find(|fact| fact.region == region && fact.block_value == block_value)
+    }
+
+    fn local_free_non_empty(
+        &self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+    ) -> Option<&'a FastMemLocalFreeNonEmptyFact> {
+        self.local_free_non_empty_facts
+            .iter()
+            .find(|fact| fact.region == region && fact.page_value == page_value)
+    }
+
+    fn free_head_non_empty(
+        &self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+    ) -> Option<&'a FastMemFreeHeadNonEmptyFact> {
+        self.free_head_non_empty_facts
+            .iter()
+            .find(|fact| fact.region == region && fact.page_value == page_value)
+    }
+}
+
 pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let mut plans = Vec::new();
     let regions = function.metadata.fastmem_regions.clone();
@@ -303,6 +398,15 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
             else {
                 continue;
             };
+            let fact_store = FastMemFactStore {
+                table_length_facts: &table_length_facts,
+                same_owner_facts: &same_owner_facts,
+                remote_owner_facts: &remote_owner_facts,
+                block_next_facts: &block_next_facts,
+                local_free_non_empty_facts: &local_free_non_empty_facts,
+                free_head_non_empty_facts: &free_head_non_empty_facts,
+                range_index_facts: &range_index_facts,
+            };
             let Some(plan) = plan_from_memop(
                 block_id,
                 instruction_index,
@@ -312,13 +416,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 operands,
                 access.as_ref(),
                 region_contract(&regions, *region),
-                &table_length_facts,
-                &same_owner_facts,
-                &remote_owner_facts,
-                &block_next_facts,
-                &local_free_non_empty_facts,
-                &free_head_non_empty_facts,
-                &range_index_facts,
+                &fact_store,
             ) else {
                 continue;
             };
@@ -342,13 +440,7 @@ fn plan_from_memop(
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
-    table_length_facts: &[FastMemTableLengthFact],
-    same_owner_facts: &[FastMemSameOwnerFact],
-    remote_owner_facts: &[FastMemRemoteOwnerFact],
-    block_next_facts: &[FastMemBlockNextFact],
-    local_free_non_empty_facts: &[FastMemLocalFreeNonEmptyFact],
-    free_head_non_empty_facts: &[FastMemFreeHeadNonEmptyFact],
-    range_index_facts: &[RangeIndexFact],
+    facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
     match kind {
         MemOpKind::TableIndex => table_plan(
@@ -359,8 +451,7 @@ fn plan_from_memop(
             operands,
             access,
             contract,
-            table_length_facts,
-            range_index_facts,
+            facts,
         ),
         MemOpKind::FieldLoad => field_plan(
             block,
@@ -390,9 +481,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
-            same_owner_facts,
-            block_next_facts,
-            local_free_non_empty_facts,
+            facts,
         ),
         MemOpKind::LocalFreePop => local_free_plan(
             block,
@@ -402,9 +491,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
-            same_owner_facts,
-            block_next_facts,
-            local_free_non_empty_facts,
+            facts,
         ),
         MemOpKind::FreeHeadPop => free_head_plan(
             block,
@@ -414,9 +501,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
-            same_owner_facts,
-            block_next_facts,
-            free_head_non_empty_facts,
+            facts,
         ),
         MemOpKind::FreeHeadPush => free_head_plan(
             block,
@@ -426,9 +511,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
-            same_owner_facts,
-            block_next_facts,
-            free_head_non_empty_facts,
+            facts,
         ),
         MemOpKind::AtomicRemoteHeadPush => atomic_remote_head_plan(
             block,
@@ -438,8 +521,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
-            remote_owner_facts,
-            block_next_facts,
+            facts,
         ),
         MemOpKind::AtomicRemoteHeadDrain => atomic_remote_head_plan(
             block,
@@ -449,8 +531,7 @@ fn plan_from_memop(
             dst,
             operands,
             contract,
-            remote_owner_facts,
-            block_next_facts,
+            facts,
         ),
         _ => None,
     }
@@ -471,16 +552,15 @@ fn table_plan(
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
-    table_length_facts: &[FastMemTableLengthFact],
-    range_index_facts: &[RangeIndexFact],
+    facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
     let access = access?;
     let table_id = access.table_id.as_ref()?.clone();
     let table = operands.first().copied()?;
     let index = operands.get(1).copied()?;
-    let table_length_fact = table_length_fact(table_length_facts, region, &table_id, table);
+    let table_length_fact = facts.table_length(region, &table_id, table);
     let bounds_proof = table_length_fact
-        .and_then(|length_fact| range_bounds_proof(range_index_facts, block, index, length_fact));
+        .and_then(|length_fact| facts.range_bounds_proof(block, index, length_fact));
     let resolved = contract.map(|contract| {
         resolve_fastmem_table_contract(contract, &table_id).map_err(|err| err.reason())
     });
@@ -592,39 +672,6 @@ fn table_plan(
             index_policy,
             proof,
         }),
-    })
-}
-
-fn range_bounds_proof(
-    facts: &[RangeIndexFact],
-    block: BasicBlockId,
-    index_value: ValueId,
-    length_fact: &FastMemTableLengthFact,
-) -> Option<String> {
-    facts.iter().find_map(|fact| {
-        if fact.index_value == index_value
-            && fact.upper_exclusive_value == length_fact.length_value
-            && fact.body_bb == block
-            && fact.step == 1
-            && fact.end_exclusive
-            && fact.index_body_read_only
-            && !fact.loop_carried_writes_supported
-        {
-            Some(format!("range_fact:{}", fact.fact_id))
-        } else {
-            None
-        }
-    })
-}
-
-fn table_length_fact<'a>(
-    facts: &'a [FastMemTableLengthFact],
-    region: FastMemRegionId,
-    table_id: &str,
-    table_value: ValueId,
-) -> Option<&'a FastMemTableLengthFact> {
-    facts.iter().find(|fact| {
-        fact.region == region && fact.table_id == table_id && fact.table_value == table_value
     })
 }
 
@@ -948,9 +995,7 @@ fn local_free_plan(
     dst: Option<ValueId>,
     operands: &[ValueId],
     contract: Option<&str>,
-    same_owner_facts: &[FastMemSameOwnerFact],
-    block_next_facts: &[FastMemBlockNextFact],
-    local_free_non_empty_facts: &[FastMemLocalFreeNonEmptyFact],
+    facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
     let page = operands.first().copied()?;
     let block_value = if kind == FastMemAccessPlanKind::LocalFreePush {
@@ -994,14 +1039,16 @@ fn local_free_plan(
             None,
         ),
     };
-    let same_owner_proof_valid = same_owner_fact(same_owner_facts, region, page)
+    let same_owner_proof_valid = facts
+        .same_owner(region, page)
         .map_or(false, |fact| fact.remote_owner_rejected);
     let remote_owner_rejected = same_owner_proof_valid;
-    let non_empty_proof_valid = local_free_non_empty_fact(local_free_non_empty_facts, region, page)
+    let non_empty_proof_valid = facts
+        .local_free_non_empty(region, page)
         .map_or(false, |fact| fact.non_empty);
     let block_next_field_id = "next";
     let block_next_fact = block_value.and_then(|block_value| {
-        block_next_fact(block_next_facts, region, block_value).filter(|fact| {
+        facts.block_next(region, block_value).filter(|fact| {
             fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
         })
     });
@@ -1124,9 +1171,7 @@ fn free_head_plan(
     dst: Option<ValueId>,
     operands: &[ValueId],
     contract: Option<&str>,
-    same_owner_facts: &[FastMemSameOwnerFact],
-    block_next_facts: &[FastMemBlockNextFact],
-    free_head_non_empty_facts: &[FastMemFreeHeadNonEmptyFact],
+    facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
     let page = operands.first().copied()?;
     let block_value = if kind == FastMemAccessPlanKind::FreeHeadPush {
@@ -1170,14 +1215,16 @@ fn free_head_plan(
             None,
         ),
     };
-    let same_owner_proof_valid = same_owner_fact(same_owner_facts, region, page)
+    let same_owner_proof_valid = facts
+        .same_owner(region, page)
         .map_or(false, |fact| fact.remote_owner_rejected);
     let remote_owner_rejected = same_owner_proof_valid;
-    let non_empty_proof_valid = free_head_non_empty_fact(free_head_non_empty_facts, region, page)
+    let non_empty_proof_valid = facts
+        .free_head_non_empty(region, page)
         .map_or(false, |fact| fact.non_empty);
     let block_next_field_id = "next";
     let block_next_fact = block_value.and_then(|block_value| {
-        block_next_fact(block_next_facts, region, block_value).filter(|fact| {
+        facts.block_next(region, block_value).filter(|fact| {
             fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
         })
     });
@@ -1298,8 +1345,7 @@ fn atomic_remote_head_plan(
     dst: Option<ValueId>,
     operands: &[ValueId],
     contract: Option<&str>,
-    remote_owner_facts: &[FastMemRemoteOwnerFact],
-    block_next_facts: &[FastMemBlockNextFact],
+    facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
     let page = operands.first().copied()?;
     let block_value = if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
@@ -1345,7 +1391,7 @@ fn atomic_remote_head_plan(
     };
     let block_next_field_id = "next";
     let block_next_fact = block_value.and_then(|block_value| {
-        block_next_fact(block_next_facts, region, block_value).filter(|fact| {
+        facts.block_next(region, block_value).filter(|fact| {
             fact.next_field_id == block_next_field_id
                 && fact.writable
                 && fact.provenance_valid
@@ -1387,7 +1433,8 @@ fn atomic_remote_head_plan(
         && block_next_alignment.is_some();
     let remote_owner_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
     let remote_owner_proof_valid = if remote_owner_required {
-        remote_owner_fact(remote_owner_facts, region, page)
+        facts
+            .remote_owner(region, page)
             .map_or(false, |fact| fact.same_owner_rejected)
     } else {
         false
@@ -1460,56 +1507,6 @@ fn atomic_remote_head_plan(
             lowerable,
         }),
     })
-}
-
-fn same_owner_fact<'a>(
-    facts: &'a [FastMemSameOwnerFact],
-    region: FastMemRegionId,
-    page_value: ValueId,
-) -> Option<&'a FastMemSameOwnerFact> {
-    facts
-        .iter()
-        .find(|fact| fact.region == region && fact.page_value == page_value)
-}
-
-fn remote_owner_fact<'a>(
-    facts: &'a [FastMemRemoteOwnerFact],
-    region: FastMemRegionId,
-    page_value: ValueId,
-) -> Option<&'a FastMemRemoteOwnerFact> {
-    facts
-        .iter()
-        .find(|fact| fact.region == region && fact.page_value == page_value)
-}
-
-fn block_next_fact<'a>(
-    facts: &'a [FastMemBlockNextFact],
-    region: FastMemRegionId,
-    block_value: ValueId,
-) -> Option<&'a FastMemBlockNextFact> {
-    facts
-        .iter()
-        .find(|fact| fact.region == region && fact.block_value == block_value)
-}
-
-fn local_free_non_empty_fact<'a>(
-    facts: &'a [FastMemLocalFreeNonEmptyFact],
-    region: FastMemRegionId,
-    page_value: ValueId,
-) -> Option<&'a FastMemLocalFreeNonEmptyFact> {
-    facts
-        .iter()
-        .find(|fact| fact.region == region && fact.page_value == page_value)
-}
-
-fn free_head_non_empty_fact<'a>(
-    facts: &'a [FastMemFreeHeadNonEmptyFact],
-    region: FastMemRegionId,
-    page_value: ValueId,
-) -> Option<&'a FastMemFreeHeadNonEmptyFact> {
-    facts
-        .iter()
-        .find(|fact| fact.region == region && fact.page_value == page_value)
 }
 
 fn maybe_add_derived_free_head_non_empty_fact(
