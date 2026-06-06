@@ -125,6 +125,12 @@ MIR-FMEM-007D landed:
   MIR-to-LLVM replacement-front layout/table/owner runtime coverage can replace
   their baseline role. MIM-FMEM-018 thread-exit / abandoned owner lifecycle
   opens next.
+MIM-FMEM-018A landed:
+  AllocOwner lifecycle is now documented as page ownership truth, not just
+  thread-exit cleanup. Active / ExitingFlush / Abandoned / Reclaimed are the
+  persistent states, ReclaimAttempt is transient, and AllocOwnerId is
+  generation-bearing from v0. MIM-FMEM-018B opens report/check fields next
+  without enabling abandoned reclaim behavior.
 ```
 
 ## Queue

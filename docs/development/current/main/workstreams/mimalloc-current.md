@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-018 thread-exit / abandoned owner lifecycle
+  MIM-FMEM-018B lifecycle report/check fields
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -189,7 +189,12 @@ why:
   allocator / hako_check tools from direct-importing retired diagnostic payload
   modules. 296x-449 landed MIR-FMEM-007D by keeping the remaining diagnostic
   payloads quarantined until MIR-to-LLVM replacement-front layout/table/owner
-  runtime coverage can replace their baseline role.
+  runtime coverage can replace their baseline role. 296x-450 then split
+  MIM-FMEM-018 into AllocOwner lifecycle truth first: Active / ExitingFlush /
+  Abandoned / Reclaimed are the persistent states, ReclaimAttempt is transient,
+  and AllocOwnerId is generation-bearing from v0. MIM-FMEM-018B now opens
+  report/check fields for that lifecycle without enabling abandoned reclaim
+  behavior.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -230,6 +235,7 @@ completed_this_slice:
   296x-442 FastMemory producer task order realignment
   296x-443 Python-template C bridge retirement gate
   MIR-FMEM-005 MIR-to-LLVM/object primary producer for value-only MemOps
+  MIM-FMEM-018A AllocOwner lifecycle state machine
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -274,7 +280,11 @@ task_order:
   MIR-FMEM-007C Python template C diagnostic import guard
   MIR-FMEM-007D Python template C diagnostic payload keep/archive decision
   MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff/bootstrap artifact producer
-  MIM-FMEM-018 thread-exit / abandoned owner lifecycle
+  MIM-FMEM-018A AllocOwner lifecycle state machine
+  MIM-FMEM-018B lifecycle report/check fields
+  MIM-FMEM-018C lifecycle shadow counters
+  MIM-FMEM-019 AtomicRemoteHead drain
+  MIM-FMEM-020 abandoned reclaim
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.
