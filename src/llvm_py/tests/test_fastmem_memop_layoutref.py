@@ -60,6 +60,27 @@ def _verified_table_plan():
     }
 
 
+def _verified_field_load_plan():
+    return {
+        "kind": "field_load",
+        "verified": True,
+        "status": "verified",
+        "block": 0,
+        "instruction_index": 1,
+        "region": 1,
+        "base": 12,
+        "result": 13,
+        "layout_id": "PageMetaLayoutV0",
+        "field_id": "capacity",
+        "access": "load",
+        "byte_offset": 40,
+        "field_size": 8,
+        "field_type": "usize",
+        "alignment": 8,
+        "field_class": "plain_scalar",
+    }
+
+
 class TestFastMemMemOpLayoutRef(unittest.TestCase):
     def test_table_index_lowers_to_layout_ref_map_not_vmap(self):
         i64, module, builder = _new_builder()
@@ -122,6 +143,129 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
                 builder,
                 {"kind": "table_index", "dst": 12, "operands": [10, 11]},
                 {10: ir.Constant(i64, 4096), 11: ir.Constant(i64, 1)},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_field_load_from_layout_ref_writes_scalar_vmap(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 1
+        resolver.fastmem_access_plans_by_site[(0, 1)] = [_verified_field_load_plan()]
+        base_ptr = builder.inttoptr(
+            ir.Constant(i64, 8192),
+            ir.IntType(8).as_pointer(),
+            name="base_layout_ref",
+        )
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": base_ptr,
+            "layout_id": "PageMetaLayoutV0",
+            "table_id": "page_table",
+            "region": 1,
+        }
+        vmap = {}
+
+        lower_memop(
+            builder,
+            {"kind": "field_load", "dst": 13, "operands": [12]},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(vmap[13])
+
+        self.assertIn(13, vmap)
+        self.assertIn("fastmem_field_ptr_13", str(module))
+        self.assertIn("fastmem_field_load_13", str(module))
+
+    def test_field_load_requires_layout_ref_base(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 1
+        resolver.fastmem_access_plans_by_site[(0, 1)] = [_verified_field_load_plan()]
+
+        with self.assertRaisesRegex(RuntimeError, "expected-layout-ref"):
+            lower_memop(
+                builder,
+                {"kind": "field_load", "dst": 13, "operands": [12]},
+                {},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_field_load_rejects_layout_mismatch(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 1
+        resolver.fastmem_access_plans_by_site[(0, 1)] = [_verified_field_load_plan()]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="wrong_layout_ref",
+            ),
+            "layout_id": "OtherLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "layout-ref-mismatch"):
+            lower_memop(
+                builder,
+                {"kind": "field_load", "dst": 13, "operands": [12]},
+                {},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_field_load_rejects_atomic_publication_field(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 1
+        plan = _verified_field_load_plan()
+        plan["field_id"] = "remote_head"
+        plan["field_class"] = "atomic_remote_head"
+        resolver.fastmem_access_plans_by_site[(0, 1)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="atomic_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "unsupported-field-load-class"):
+            lower_memop(
+                builder,
+                {"kind": "field_load", "dst": 13, "operands": [12]},
+                {},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_field_store_remains_unsupported(self):
+        _i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+
+        with self.assertRaisesRegex(RuntimeError, "unsupported-kind"):
+            lower_memop(
+                builder,
+                {"kind": "field_store", "operands": [12, 13]},
+                {},
                 resolver,
                 builder.block,
                 {},

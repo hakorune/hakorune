@@ -258,6 +258,11 @@ MIR-FMEM-008C TableIndex LayoutRef pilot landed:
   Verified TableIndex rows now lower to backend-private `fastmem_layout_refs`
   rather than ordinary `vmap`. FieldLoad / FieldStore remain closed and open
   next as LayoutRef consumers.
+MIR-FMEM-008C FieldLoad LayoutRef pilot landed:
+  Verified FieldLoad rows now consume backend-private LayoutRefs and emit
+  readonly scalar GEP/load results into ordinary `vmap`. FieldStore, owner
+  mutation, atomic/publication fields, Type ABI hot lookup, Provider ABI hot
+  dispatch, Python-template C fallback, and product activation remain closed.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

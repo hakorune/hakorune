@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-476 opened the first MIR-FMEM-008C behavior slice: verified TableIndex lowers to a backend-private LayoutRef map while ordinary vmap stays metadata-pointer-free."
+active_lane_status = "296x-477 opened the second MIR-FMEM-008C behavior slice: verified FieldLoad consumes backend-private LayoutRef entries and emits readonly scalar loads while FieldStore and atomic/owner mutation stay closed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-476-MIR-FMEM-008C-TABLEINDEX-LAYOUTREF-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-476-MIR-FMEM-008C-TABLEINDEX-LAYOUTREF-PILOT.md"
-latest_card_summary = "Opened verified TableIndex to LayoutRef lowering in the Python LLVM producer using a function-local fastmem_layout_refs map, kept raw metadata pointers out of ordinary vmap, and added fail-fast tests for incomplete proofs and ordinary-value misuse."
+latest_card = "296x-477-MIR-FMEM-008C-FIELDLOAD-LAYOUTREF-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-477-MIR-FMEM-008C-FIELDLOAD-LAYOUTREF-PILOT.md"
+latest_card_summary = "Opened verified FieldLoad from LayoutRef in the Python LLVM producer: loads require a verified field_load access plan, consume fastmem_layout_refs only, reject layout mismatches and atomic/publication fields, and write only scalar results into ordinary vmap."
 current_blocker_token = "MIR-FMEM-008C"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-477 landed MIR-FMEM-008C FieldLoad from LayoutRef: verified field_load rows now consume backend-private LayoutRef pointers and emit readonly scalar GEP/load results into ordinary vmap while FieldStore, owner mutation, and atomic/publication fields remain closed.",
   "2026-06-06: 296x-456 landed the first MIR-FMEM-008B slice: MemOpAccess now preserves symbolic `field_id` / `table_id` in MIR and JSON, verifier rejects missing layout/table access ids, and owner-runtime MemOps stay deferred; verified layout/table access plans and LLVM GEP/load/store lowering remain next.",
   "2026-06-06: 296x-455 landed MIR-FMEM-008A producer-slice selection: report/check now selects layout/table MemOps (`TableIndex`, `FieldLoad`, `FieldStore`) first, defers owner-runtime MemOps (`CurrentAllocOwnerId`, `OwnerEq`), and keeps lowering behavior change, bridge retirement, product activation, hooks, global allocator claim, and winner claim closed; MIR-FMEM-008B layout/table producer pilot opens next.",
   "2026-06-06: 296x-454 landed MIM-FMEM-020 abandoned reclaim: empty abandoned owner-page entries now produce generation-safe Reclaimed evidence after AtomicRemoteHead drain, while live/remote candidates and TLS backing transfer remain closed; the producer task was split and MIR-FMEM-008A producer-slice selection opened next.",

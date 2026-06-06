@@ -14,6 +14,8 @@ _TABLE_INDEX_REQUIRED_PROOF_FLAGS = (
     "alignment_valid",
     "element_layout_verified",
 )
+_FIELD_LOAD_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
+_FIELD_LOAD_I64_TYPES = frozenset(("usize", "u64", "i64", "pointer"))
 
 
 def _is_fastmem_layout_ref(resolver, value_id: int) -> bool:
@@ -71,7 +73,9 @@ def _require_operands(kind: str, operands: List[Any], expected: int) -> None:
         )
 
 
-def _current_fastmem_access_plan(resolver, kind: str, dst, operands: List[Any]) -> Optional[Dict[str, Any]]:
+def _current_fastmem_access_plan(
+    resolver, kind: str, dst, operands: List[Any]
+) -> Optional[Dict[str, Any]]:
     if resolver is None:
         return None
     try:
@@ -98,6 +102,11 @@ def _current_fastmem_access_plan(resolver, kind: str, dst, operands: List[Any]) 
                 continue
             if plan.get("table") != int(operands[0]) or plan.get("index") != int(operands[1]):
                 continue
+        if kind == "field_load":
+            if len(operands) < 1:
+                continue
+            if plan.get("base") != int(operands[0]):
+                continue
         return plan
     return None
 
@@ -120,12 +129,70 @@ def _require_complete_table_index_plan(plan: Optional[Dict[str, Any]]) -> Dict[s
     return plan
 
 
+def _require_complete_field_load_plan(plan: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-field-load-plan]")
+    for key in (
+        "layout_id",
+        "field_id",
+        "byte_offset",
+        "field_size",
+        "field_type",
+        "alignment",
+        "field_class",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(f"[llvm/fastmem:missing-field-load-plan-field] {key}")
+    if plan.get("access") not in (None, "load", "read"):
+        raise RuntimeError(
+            f"[llvm/fastmem:unsupported-field-load-access] {plan.get('access')}"
+        )
+    field_class = str(plan.get("field_class"))
+    if field_class not in _FIELD_LOAD_ALLOWED_CLASSES:
+        raise RuntimeError(
+            f"[llvm/fastmem:unsupported-field-load-class] {field_class}"
+        )
+    field_type = str(plan.get("field_type"))
+    if field_type not in _FIELD_LOAD_I64_TYPES:
+        raise RuntimeError(f"[llvm/fastmem:unsupported-field-load-type] {field_type}")
+    try:
+        if int(plan.get("field_size")) != 8:
+            raise RuntimeError(
+                f"[llvm/fastmem:unsupported-field-load-size] {plan.get('field_size')}"
+            )
+        if int(plan.get("alignment")) <= 0:
+            raise RuntimeError(
+                f"[llvm/fastmem:invalid-field-load-alignment] {plan.get('alignment')}"
+            )
+    except ValueError as exc:
+        raise RuntimeError("[llvm/fastmem:invalid-field-load-plan-number]") from exc
+    return plan
+
+
 def _layout_refs(resolver) -> Dict[int, Dict[str, Any]]:
     refs = getattr(resolver, "fastmem_layout_refs", None)
     if not isinstance(refs, dict):
         refs = {}
         setattr(resolver, "fastmem_layout_refs", refs)
     return refs
+
+
+def _get_layout_ref(resolver, value_id: int, expected_layout_id: str) -> Dict[str, Any]:
+    refs = _layout_refs(resolver)
+    ref = refs.get(int(value_id))
+    if not isinstance(ref, dict):
+        raise RuntimeError(f"[llvm/fastmem:expected-layout-ref] v{int(value_id)}")
+    actual_layout_id = ref.get("layout_id")
+    if actual_layout_id != expected_layout_id:
+        raise RuntimeError(
+            "[llvm/fastmem:layout-ref-mismatch] "
+            f"v{int(value_id)} expected={expected_layout_id} actual={actual_layout_id}"
+        )
+    ptr = ref.get("ptr")
+    if ptr is None:
+        raise RuntimeError(f"[llvm/fastmem:layout-ref-missing-ptr] v{int(value_id)}")
+    return ref
 
 
 def _lower_table_index_to_layout_ref(
@@ -181,6 +248,42 @@ def _lower_table_index_to_layout_ref(
     }
 
 
+def _lower_field_load_from_layout_ref(
+    builder: ir.IRBuilder,
+    resolver,
+    dst: int,
+    operands: List[Any],
+    vmap: Dict[int, ir.Value],
+) -> None:
+    _require_operands("field_load", operands, 1)
+    plan = _require_complete_field_load_plan(
+        _current_fastmem_access_plan(resolver, "field_load", dst, operands)
+    )
+    layout_ref = _get_layout_ref(resolver, int(operands[0]), str(plan["layout_id"]))
+    i64 = ir.IntType(64)
+    i8_ptr = ir.IntType(8).as_pointer()
+    base_ptr = layout_ref["ptr"]
+    try:
+        base_type = base_ptr.type
+    except _SAFE_MEMOP_EXC:
+        base_type = None
+    if base_type != i8_ptr:
+        base_ptr = builder.bitcast(base_ptr, i8_ptr, name=f"fastmem_field_base_{dst}")
+    byte_offset = int(plan["byte_offset"])
+    field_addr = builder.gep(
+        base_ptr,
+        [ir.Constant(i64, byte_offset)],
+        name=f"fastmem_field_addr_{dst}",
+    )
+    field_ptr = builder.bitcast(
+        field_addr,
+        i64.as_pointer(),
+        name=f"fastmem_field_ptr_{dst}",
+    )
+    loaded = builder.load(field_ptr, name=f"fastmem_field_load_{dst}")
+    safe_vmap_write(vmap, int(dst), loaded, "fastmem_field_load", resolver=resolver)
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -211,6 +314,11 @@ def lower_memop(
             block_end_values,
             bb_map,
         )
+        return
+    if kind == "field_load":
+        if dst is None:
+            raise RuntimeError("[llvm/fastmem:field-load-missing-dst]")
+        _lower_field_load_from_layout_ref(builder, resolver, int(dst), operands, vmap)
         return
     if kind == "addr_of":
         _require_operands(kind, operands, 1)
