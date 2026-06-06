@@ -1450,6 +1450,16 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         for plan in free_head_pop_plans
         if not bool(plan.get("non_empty_proof_valid"))
     )
+    free_head_non_empty_source_assume = sum(
+        1
+        for fact in free_head_non_empty_facts
+        if str(fact.get("proof_kind")) == "source_assume_free_head_non_empty"
+    )
+    free_head_non_empty_derived_from_push = sum(
+        1
+        for fact in free_head_non_empty_facts
+        if str(fact.get("proof_kind")) == "derived_from_free_head_push"
+    )
     free_head_access_resolved = sum(
         1
         for plan in free_head_plans
@@ -1545,6 +1555,10 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_free_head_block_next_access_resolved_count": free_head_block_next_access_resolved,
             "fastmem_free_head_access_plan_incomplete_count": free_head_access_plan_incomplete,
             "fastmem_free_head_non_empty_fact_count": len(free_head_non_empty_facts),
+            "fastmem_free_head_non_empty_source_assume_count": free_head_non_empty_source_assume,
+            "fastmem_free_head_non_empty_derived_from_free_head_push_count": (
+                free_head_non_empty_derived_from_push
+            ),
             "fastmem_free_head_same_owner_required": int(bool(free_head_plans)),
             "fastmem_free_head_same_owner_missing_count": free_head_same_owner_missing,
             "fastmem_free_head_non_empty_required": int(bool(free_head_pop_plans)),

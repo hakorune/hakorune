@@ -87,6 +87,18 @@ def fastmem_memops(mir: dict[str, Any]) -> list[dict[str, Any]]:
     return memops
 
 
+def fastmem_free_head_non_empty_facts(mir: dict[str, Any]) -> list[dict[str, Any]]:
+    facts: list[dict[str, Any]] = []
+    for function in functions(mir):
+        metadata = function.get("metadata", {})
+        if not isinstance(metadata, dict):
+            continue
+        for fact in metadata.get("fastmem_free_head_non_empty_facts", []):
+            if isinstance(fact, dict):
+                facts.append(fact)
+    return facts
+
+
 def is_verified(plan: dict[str, Any]) -> bool:
     return bool(plan.get("verified")) and plan.get("status") == "verified"
 
@@ -104,6 +116,23 @@ def count_plans(plans: list[dict[str, Any]], kind: str, *, verified: bool | None
 
 def count_memops(memops: list[dict[str, Any]], kind: str) -> int:
     return sum(1 for inst in memops if inst.get("kind") == kind)
+
+
+def page_local_alloc_route_candidate(
+    *,
+    local_free_pop_count: int,
+    free_head_push_count: int,
+    free_head_pop_count: int,
+) -> str:
+    if local_free_pop_count == 0 and free_head_push_count == 0 and free_head_pop_count == 0:
+        return "none"
+    if local_free_pop_count == 1 and free_head_push_count == 0 and free_head_pop_count == 0:
+        return "local_free_alloc"
+    if local_free_pop_count == 0 and free_head_push_count == 0 and free_head_pop_count == 1:
+        return "free_head_alloc"
+    if local_free_pop_count == 1 and free_head_push_count == 1 and free_head_pop_count == 1:
+        return "refill_then_free_head_alloc"
+    return "mixed"
 
 
 def run_llvm_builder(mir_json: Path, object_out: Path) -> None:
@@ -135,6 +164,7 @@ def build_rows(
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
     memops = fastmem_memops(mir)
+    free_head_non_empty_facts = fastmem_free_head_non_empty_facts(mir)
     verified_plans = [plan for plan in plans if is_verified(plan)]
     verified_table = [plan for plan in verified_plans if plan.get("kind") == "table_index"]
     verified_field_load = [plan for plan in verified_plans if plan.get("kind") == "field_load"]
@@ -250,6 +280,7 @@ def build_rows(
     deferred_local_free_kinds.append("AtomicRemoteHead")
 
     if profile == "owner-runtime":
+        route_candidate = "none"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_next_producer_slice", "owner_runtime_producer_pilot"),
@@ -266,6 +297,11 @@ def build_rows(
             ),
         ]
     elif profile == "local-free":
+        route_candidate = page_local_alloc_route_candidate(
+            local_free_pop_count=len(verified_local_free_pop),
+            free_head_push_count=len(verified_free_head_push),
+            free_head_pop_count=len(verified_free_head_pop),
+        )
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_next_producer_slice", "local_free_producer_pilot"),
@@ -285,6 +321,7 @@ def build_rows(
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
+        route_candidate = "none"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "1"),
             ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
@@ -335,6 +372,37 @@ def build_rows(
         ("fastmem_local_free_pop_plan_count", str(len(verified_local_free_pop))),
         ("fastmem_free_head_push_plan_count", str(len(verified_free_head_push))),
         ("fastmem_free_head_pop_plan_count", str(len(verified_free_head_pop))),
+        ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
+        ("page_local_alloc_route_candidate", route_candidate),
+        (
+            "page_local_alloc_route_candidate_count",
+            str(int_flag(route_candidate != "none")),
+        ),
+        ("page_local_alloc_route_branch_claim", "0"),
+        ("page_local_alloc_route_cfg_lowering_enabled", "0"),
+        ("page_local_alloc_route_verified_plan_source", "fastmem_access_plans"),
+        (
+            "fastmem_free_head_non_empty_source_assume_count",
+            str(
+                sum(
+                    1
+                    for fact in free_head_non_empty_facts
+                    if string_value(fact.get("proof_kind"))
+                    == "source_assume_free_head_non_empty"
+                )
+            ),
+        ),
+        (
+            "fastmem_free_head_non_empty_derived_from_free_head_push_count",
+            str(
+                sum(
+                    1
+                    for fact in free_head_non_empty_facts
+                    if string_value(fact.get("proof_kind"))
+                    == "derived_from_free_head_push"
+                )
+            ),
+        ),
         ("memop_table_index_lowered_count", str(len(verified_table))),
         ("memop_field_load_lowered_count", str(len(verified_field_load))),
         ("memop_field_store_lowered_count", str(len(verified_field_store))),
