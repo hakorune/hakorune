@@ -100,6 +100,11 @@ LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO = (
     "fastmem_layout_ref_escape_count",
     "fastmem_lowering_recomputed_layout_offset_count",
 )
+LAYOUT_TABLE_PRODUCER_EXPECTED_POSITIVE = (
+    "memop_table_index_lowered_count",
+    "memop_field_load_lowered_count",
+    "memop_field_store_lowered_count",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -166,6 +171,16 @@ def producer_slice_selection_profile(rows: dict[str, str]) -> bool:
 
 def layout_table_producer_pilot_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "mir_fmem_008b_layout_table_producer_pilot") > 0
+
+
+def complete_layout_table_lowering_candidate(rows: dict[str, str]) -> bool:
+    if not layout_table_producer_pilot_profile(rows):
+        return False
+    if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+        return False
+    if int_count(rows, "fastmem_verified_mem_access_plan_count") <= 0:
+        return False
+    return all(int_count(rows, key) == 0 for key in LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO)
 
 
 def expected_mimalloc_keeper_block_reason(rows: dict[str, str]) -> str:
@@ -451,6 +466,10 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         for key in LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO:
             if int_count(rows, key) != 0:
                 reasons.append(key)
+        if complete_layout_table_lowering_candidate(rows):
+            for key in LAYOUT_TABLE_PRODUCER_EXPECTED_POSITIVE:
+                if int_count(rows, key) <= 0:
+                    reasons.append(key)
     return reasons
 
 

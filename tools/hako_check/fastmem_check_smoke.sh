@@ -14,7 +14,9 @@ BAD_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_producer.XXXX
 BAD_PRODUCER_SLICE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_producer_slice.XXXXXX")"
 BAD_LAYOUT_TABLE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_layout_table.XXXXXX")"
 BAD_TABLE_PROOF_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_table_proof.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT"' EXIT
+LAYOUT_LOWERING_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_layout_lowering.XXXXXX")"
+BAD_LAYOUT_LOWERING_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_layout_lowering.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -25,6 +27,26 @@ grep -q '^output_contract=hako-check-fastmem-check-v0$' "$GOOD_OUT"
 grep -q '^tool_surface=hako_check_fastmem_check$' "$GOOD_OUT"
 grep -q '^failure_count=0$' "$GOOD_OUT"
 grep -q '^summary=ok$' "$GOOD_OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/layout_table_lowering_coverage_inventory.kv" \
+  --format kv \
+  >"$LAYOUT_LOWERING_OUT"
+
+grep -q '^failure_count=0$' "$LAYOUT_LOWERING_OUT"
+grep -q '^summary=ok$' "$LAYOUT_LOWERING_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_layout_table_lowering_coverage_inventory.kv" \
+  --format kv \
+  >"$BAD_LAYOUT_LOWERING_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted missing layout/table lowered coverage" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_LAYOUT_LOWERING_OUT"
+grep -q '^failure_0_reason=memop_field_store_lowered_count$' "$BAD_LAYOUT_LOWERING_OUT"
+grep -q '^summary=failed$' "$BAD_LAYOUT_LOWERING_OUT"
 
 if bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --inventory "$FIXTURE_DIR/bad_inventory.kv" \

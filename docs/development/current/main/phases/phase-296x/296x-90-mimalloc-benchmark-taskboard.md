@@ -269,6 +269,11 @@ MIR-FMEM-008C FieldStore LayoutRef pilot landed:
   local_free_head, atomic/publication fields, Type ABI hot lookup, Provider ABI
   hot dispatch, Python-template C fallback, and product activation remain
   closed.
+MIR-FMEM-008C report/check closeout landed:
+  Complete `mir_to_llvm_lowering` layout/table candidates now fail
+  `fastmem-check` unless TableIndex, FieldLoad, and FieldStore lowered-count
+  evidence is present. Incomplete proof reports still fail on their
+  proof-specific counters, and owner-runtime MemOps remain deferred.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
