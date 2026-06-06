@@ -146,4 +146,31 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/owner_lifecycle_drain_report.kv" \
+  >"$OUT"
+
+grep -q '^replacement_front_owner_shadow_counters=1$' "$OUT"
+grep -q '^allocator_owner_lifecycle_state_machine=1$' "$OUT"
+grep -q '^allocator_thread_exit_observed_count=1$' "$OUT"
+grep -q '^allocator_thread_exit_flush_supported=1$' "$OUT"
+grep -q '^allocator_thread_exit_local_free_drain_count=1$' "$OUT"
+grep -q '^allocator_thread_exit_remote_candidate_seen_count=1$' "$OUT"
+grep -q '^allocator_abandoned_remote_candidate_count=1$' "$OUT"
+grep -q '^remote_free_push_count=1$' "$OUT"
+grep -q '^remote_free_drain_count=1$' "$OUT"
+grep -q '^remote_free_drain_supported=1$' "$OUT"
+grep -q '^remote_candidate_unhandled_reclaim_block_count=0$' "$OUT"
+grep -q '^page_reclaimed_with_remote_candidates=0$' "$OUT"
+grep -q '^atomic_remote_head_enabled=1$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --report "$FIXTURE_DIR/owner_lifecycle_drain_report.kv" \
+  --format kv \
+  >"$OUT"
+
+grep -q '^failure_count=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
 echo "[TEST/OK] fastmem_alloc_owner_shadow_counter"

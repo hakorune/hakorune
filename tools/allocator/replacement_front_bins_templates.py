@@ -444,6 +444,36 @@ static void page_index_register_range(
 static void flush_thread_counters(void);
 #endif
 
+static unsigned long long hako_page_index_drain_remote_for_exit(
+    HakoReplacementPageIndexEntry* entry) {{
+  if (!entry || !entry->remote_head || !entry->remote_next ||
+      !entry->used || !entry->requested || !entry->free_stack ||
+      !entry->free_top) {{
+    return 0;
+  }}
+  unsigned long long drained = 0;
+  for (;;) {{
+    int head = *entry->remote_head;
+    if (head < 0) return drained;
+    uint32_t uhead = (uint32_t)head;
+    if (uhead >= HAKO_REPLACEMENT_BIN_SLOT_COUNT) return drained;
+    int next = (int)entry->remote_next[uhead];
+    if (!__sync_bool_compare_and_swap(entry->remote_head, head, next)) {{
+      HAKO_COUNTER_ADD(remote_free_cas_retry_count, 1);
+      continue;
+    }}
+    entry->remote_next[uhead] = (uint32_t)-1;
+    entry->used[uhead] = 0u;
+    entry->requested[uhead] = 0u;
+    if (*entry->free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT) {{
+      entry->free_stack[(*entry->free_top)++] = uhead;
+      HAKO_COUNTER_ADD(remote_free_drain_count, 1);
+      HAKO_COUNTER_ADD(allocator_thread_exit_local_free_drain_count, 1);
+      drained++;
+    }}
+  }}
+}}
+
 static void page_arena_tls_destructor(void* value) {{
   if (!value) return;
   HAKO_COUNTER_ADD(allocator_thread_exit_observed_count, 1);
@@ -452,23 +482,30 @@ static void page_arena_tls_destructor(void* value) {{
   unsigned long long live_pages = 0;
   unsigned long long empty_pages = 0;
   unsigned long long remote_candidate_pages = 0;
+  unsigned long long unhandled_remote_candidate_pages = 0;
   for (unsigned int slot = 0; slot < HAKO_PAGE_INDEX_TABLE_CAP; slot++) {{
     HakoReplacementPageIndexEntry* entry = &page_index_table[slot];
     if (entry->state == HAKO_PAGE_INDEX_READY &&
         entry->owner_active &&
         entry->owner_token == hako_current_owner_token) {{
+      unsigned char had_remote_candidates =
+          (unsigned char)(entry->remote_head && *entry->remote_head >= 0);
+      if (had_remote_candidates) {{
+        remote_candidate_pages++;
+      }}
+      (void)hako_page_index_drain_remote_for_exit(entry);
       unsigned char has_live_slots =
           (unsigned char)(entry->free_top &&
                           *entry->free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT);
       unsigned char has_remote_candidates =
           (unsigned char)(entry->remote_head && *entry->remote_head >= 0);
+      if (has_remote_candidates) {{
+        unhandled_remote_candidate_pages++;
+      }}
       if (has_live_slots || has_remote_candidates) {{
         live_pages++;
       }} else {{
         empty_pages++;
-      }}
-      if (has_remote_candidates) {{
-        remote_candidate_pages++;
       }}
       entry->owner_active = 0u;
       abandoned++;
@@ -487,16 +524,16 @@ static void page_arena_tls_destructor(void* value) {{
     HAKO_COUNTER_ADD(
         allocator_thread_exit_remote_candidate_seen_count,
         remote_candidate_pages);
-    if (remote_candidate_pages > 0) {{
+    if (unhandled_remote_candidate_pages > 0) {{
       HAKO_COUNTER_ADD(
           remote_candidate_unhandled_reclaim_block_count,
-          remote_candidate_pages);
+          unhandled_remote_candidate_pages);
       HAKO_COUNTER_ADD(
           allocator_abandoned_reclaim_blocked_count,
-          remote_candidate_pages);
+          unhandled_remote_candidate_pages);
       HAKO_COUNTER_ADD(
           allocator_abandoned_reclaim_blocked_remote_count,
-          remote_candidate_pages);
+          unhandled_remote_candidate_pages);
     }}
   }}
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS

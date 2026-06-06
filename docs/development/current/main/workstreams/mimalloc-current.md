@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-019 AtomicRemoteHead drain
+  MIM-FMEM-020 abandoned reclaim
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -197,7 +197,10 @@ why:
   without enabling abandoned reclaim behavior. MIM-FMEM-018C now opens
   producer-side lifecycle shadow counters. 296x-452 landed MIM-FMEM-018C by
   adding producer-side lifecycle shadow counters without enabling reclaim
-  behavior. MIM-FMEM-019 opens AtomicRemoteHead drain next.
+  behavior. 296x-453 landed MIM-FMEM-019 by draining already-published
+  AtomicRemoteHead remote frees during owner thread-exit flush while leaving
+  abandoned reclaim closed. MIM-FMEM-020 opens generation-safe abandoned
+  reclaim next.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -240,6 +243,8 @@ completed_this_slice:
   MIR-FMEM-005 MIR-to-LLVM/object primary producer for value-only MemOps
   MIM-FMEM-018A AllocOwner lifecycle state machine
   MIM-FMEM-018B lifecycle report/check fields
+  MIM-FMEM-018C lifecycle shadow counters
+  MIM-FMEM-019 AtomicRemoteHead drain
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -287,9 +292,9 @@ task_order:
   MIM-FMEM-018A AllocOwner lifecycle state machine
   MIM-FMEM-018B lifecycle report/check fields
   MIM-FMEM-018C lifecycle shadow counters
+  MIM-FMEM-019 AtomicRemoteHead drain
 
 next_lifecycle_rows:
-  MIM-FMEM-019 AtomicRemoteHead drain
   MIM-FMEM-020 abandoned reclaim
 
 retirement_gate:

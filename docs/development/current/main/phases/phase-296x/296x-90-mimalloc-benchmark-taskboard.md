@@ -142,6 +142,11 @@ MIM-FMEM-018C landed:
   for owner generation, thread-exit flush, abandoned pages, and reclaim-block
   observations. Reclaim behavior remains closed. MIM-FMEM-019 opens
   AtomicRemoteHead drain next.
+MIM-FMEM-019 landed:
+  Owner thread-exit flush now drains already-published AtomicRemoteHead remote
+  frees into the page local free stack and reports drain evidence. Abandoned
+  reclaim behavior remains closed. MIM-FMEM-020 opens generation-safe
+  abandoned reclaim next.
 ```
 
 ## Queue

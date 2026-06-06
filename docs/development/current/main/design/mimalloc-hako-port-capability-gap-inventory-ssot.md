@@ -1287,8 +1287,8 @@ keeper work in one task.
 | `MIM-FMEM-018A AllocOwner lifecycle state machine` | done | Define thread-exit / abandoned-owner lifecycle as AllocOwnerId page ownership truth, not just cleanup. | Persistent states are Active / ExitingFlush / Abandoned / Reclaimed; ReclaimAttempt is transient; AllocOwnerId is packed slot/generation from v0. |
 | `MIM-FMEM-018B lifecycle report/check fields` | done | Add report schema and fastmem-check gates for owner lifecycle, generation reuse, stale detection, reclaim blocking, and boundary claims. | Bad lifecycle reports fail fast; behavior remains conservative and reclaim is not opened. |
 | `MIM-FMEM-018C lifecycle shadow counters` | done | Add producer-side shadow evidence for thread-exit flush, owner state transitions, abandoned pages, and reclaim-block observations. | Counters observe lifecycle truth without enabling unsafe abandoned reclaim. |
-| `MIM-FMEM-019 AtomicRemoteHead drain` | next | Implement remote-free drain after owner lifecycle truth can block unsafe reclaim. | Remote candidates can be handled before reclaim work opens. |
-| `MIM-FMEM-020 abandoned reclaim` | pending | Implement abandoned page reclaim with generation-safe owner transfer and remote-drain preconditions. | Reclaim succeeds only after remote candidates are handled and owner generation rules are proven. |
+| `MIM-FMEM-019 AtomicRemoteHead drain` | done | Implement remote-free drain after owner lifecycle truth can block unsafe reclaim. | Remote candidates can be handled before reclaim work opens. |
+| `MIM-FMEM-020 abandoned reclaim` | next | Implement abandoned page reclaim with generation-safe owner transfer and remote-drain preconditions. | Reclaim succeeds only after remote candidates are handled and owner generation rules are proven. |
 
 ## Report Fields For `MIM-FMEM-002`
 
