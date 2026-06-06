@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-482 landed MIR-FMEM-008D-PRE owner-runtime preflight: CurrentAllocOwnerId opens as observation scalar first, OwnerEq is equality only, and routing/TLS/AtomicRemoteHead remain closed."
+active_lane_status = "296x-483 landed MIR-FMEM-008D-A CurrentAllocOwnerId lowering as a producer-local LLVM helper call returning ordinary i64 evidence; OwnerEq lowering opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-482-MIR-FMEM-008D-PRE-OWNER-RUNTIME-PREFLIGHT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-482-MIR-FMEM-008D-PRE-OWNER-RUNTIME-PREFLIGHT.md"
-latest_card_summary = "Fixed MIR-FMEM-008D owner-runtime preflight: CurrentAllocOwnerId is an observation scalar first, OwnerEq is equality only, and TLS transfer, owner slot reuse, AtomicRemoteHead, and local/remote free routing stay closed."
-current_blocker_token = "MIR-FMEM-008D-A"
+latest_card = "296x-483-MIR-FMEM-008D-A-CURRENT-ALLOC-OWNER-ID-LOWERING"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-483-MIR-FMEM-008D-A-CURRENT-ALLOC-OWNER-ID-LOWERING.md"
+latest_card_summary = "Lowered CurrentAllocOwnerId to a producer-local LLVM helper call returning ordinary i64 owner evidence while keeping TLS transfer, owner slot reuse, routing, AtomicRemoteHead, and product activation closed."
+current_blocker_token = "MIR-FMEM-008D-B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-483 landed MIR-FMEM-008D-A CurrentAllocOwnerId lowering: Python LLVM producer now declares/calls hako_fastmem_current_alloc_owner_id and writes ordinary i64 evidence to vmap while TLS transfer, owner slot reuse, routing, AtomicRemoteHead, and product activation stay closed; MIR-FMEM-008D-B OwnerEq opens next.",
   "2026-06-06: 296x-482 landed MIR-FMEM-008D-PRE owner-runtime preflight: CurrentAllocOwnerId opens as observation scalar first, OwnerEq is equality only, and TLS transfer, owner slot reuse, AtomicRemoteHead, local/remote free routing, and mimalloc body migration stay closed; MIR-FMEM-008D-A opens next.",
   "2026-06-06: 296x-481 split the remaining work into FastMemory substrate rows, producer parity/reference closeout, and later mimalloc-port body migration rows; MIR-FMEM-008D-PRE owner-runtime producer preflight opens next.",
   "2026-06-06: 296x-480 queued DirectArray/FastMemory proof-envelope commonality as adapter-only work and added active-doc length cleanup rows for current docs over the 1000-line maintenance threshold; MIR-FMEM-008D remains the next implementation task.",

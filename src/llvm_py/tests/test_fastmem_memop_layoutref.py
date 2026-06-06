@@ -104,6 +104,29 @@ def _verified_field_store_plan():
 
 
 class TestFastMemMemOpLayoutRef(unittest.TestCase):
+    def test_current_alloc_owner_id_lowers_to_intrinsic_scalar_vmap(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        vmap = {}
+
+        lower_memop(
+            builder,
+            {"kind": "current_alloc_owner_id", "dst": 15, "operands": []},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(vmap[15])
+
+        self.assertIn(15, vmap)
+        self.assertNotIn(15, resolver.fastmem_layout_refs)
+        text = str(module)
+        self.assertIn('declare i64 @"hako_fastmem_current_alloc_owner_id"()', text)
+        self.assertIn('call i64 @"hako_fastmem_current_alloc_owner_id"()', text)
+
     def test_table_index_lowers_to_layout_ref_map_not_vmap(self):
         i64, module, builder = _new_builder()
         resolver = _DummyResolver()

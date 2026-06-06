@@ -136,11 +136,11 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008D-A CurrentAllocOwnerId lowering
+  MIR-FMEM-008D-B OwnerEq lowering
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
-  MIR-FMEM-008D-A CurrentAllocOwnerId lowering
+  MIR-FMEM-008D-A CurrentAllocOwnerId lowering (landed)
   MIR-FMEM-008D-B OwnerEq lowering
   MIR-FMEM-008D-C report/check closeout
   MIR-FMEM-008E producer-neutral parity/readiness
@@ -3191,6 +3191,9 @@ bash tools/checks/current_state_pointer_guard.sh
   observation scalar first, OwnerEq is equality only, and 008D must not open
   local/remote free routing, TLS backing transfer, AtomicRemoteHead, or
   mimalloc body migration.
+- `MIR-FMEM-008D-A` lowered CurrentAllocOwnerId to a producer-local LLVM helper
+  call returning an ordinary i64 scalar. It did not open TLS backing transfer,
+  owner reuse, routing, or product activation.
 - `DIRECTARRAY-FMEM-COMMON-001` is queued as proof-envelope/report adapter
   work only. DirectArray access does not auto-generate a fastmem region in the
   current lane.

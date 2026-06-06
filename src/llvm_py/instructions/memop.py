@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 
 import llvmlite.ir as ir
 
+from instructions.llvm_decl import declare_function
 from utils.values import resolve_i64_strict, safe_vmap_write
 
 _SAFE_MEMOP_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
@@ -18,6 +19,7 @@ _FIELD_LOAD_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
 _FIELD_LOAD_I64_TYPES = frozenset(("usize", "u64", "i64", "pointer"))
 _FIELD_STORE_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
 _FIELD_STORE_I64_TYPES = _FIELD_LOAD_I64_TYPES
+_CURRENT_ALLOC_OWNER_HELPER = "hako_fastmem_current_alloc_owner_id"
 
 
 def _is_fastmem_layout_ref(resolver, value_id: int) -> bool:
@@ -249,6 +251,12 @@ def _get_layout_ref(resolver, value_id: int, expected_layout_id: str) -> Dict[st
     return ref
 
 
+def _lower_current_alloc_owner_id(builder: ir.IRBuilder, dst: int) -> ir.Value:
+    i64 = ir.IntType(64)
+    helper = declare_function(builder.module, _CURRENT_ALLOC_OWNER_HELPER, i64, [])
+    return builder.call(helper, [], name=f"fastmem_current_alloc_owner_id_{dst}")
+
+
 def _lower_table_index_to_layout_ref(
     builder: ir.IRBuilder,
     resolver,
@@ -437,7 +445,12 @@ def lower_memop(
             bb_map,
         )
         return
-    if kind == "addr_of":
+    if kind == "current_alloc_owner_id":
+        _require_operands(kind, operands, 0)
+        if dst is None:
+            raise RuntimeError("[llvm/fastmem:current-alloc-owner-id-missing-dst]")
+        result = _lower_current_alloc_owner_id(builder, int(dst))
+    elif kind == "addr_of":
         _require_operands(kind, operands, 1)
         result = _resolve_i64_operand(
             builder,
