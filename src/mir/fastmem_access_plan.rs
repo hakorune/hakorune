@@ -11,7 +11,7 @@
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::{
     fastmem_layout_contract::{resolve_fastmem_field_contract, resolve_fastmem_table_contract},
-    function::FastMemRegionMetadata,
+    function::{FastMemRegionMetadata, FastMemTableLengthFact},
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
@@ -151,6 +151,7 @@ impl FastMemAccessPlan {
 pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let mut plans = Vec::new();
     let regions = function.metadata.fastmem_regions.clone();
+    let table_length_facts = function.metadata.fastmem_table_length_facts.clone();
 
     for block_id in function.block_ids() {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -177,6 +178,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 operands,
                 access.as_ref(),
                 region_contract(&regions, *region),
+                &table_length_facts,
             ) else {
                 continue;
             };
@@ -196,6 +198,7 @@ fn plan_from_memop(
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
+    table_length_facts: &[FastMemTableLengthFact],
 ) -> Option<FastMemAccessPlan> {
     match kind {
         MemOpKind::TableIndex => table_plan(
@@ -206,6 +209,7 @@ fn plan_from_memop(
             operands,
             access,
             contract,
+            table_length_facts,
         ),
         MemOpKind::FieldLoad => field_plan(
             block,
@@ -246,21 +250,23 @@ fn table_plan(
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
+    table_length_facts: &[FastMemTableLengthFact],
 ) -> Option<FastMemAccessPlan> {
     let access = access?;
     let table_id = access.table_id.as_ref()?.clone();
     let table = operands.first().copied()?;
     let index = operands.get(1).copied()?;
+    let table_length_fact = table_length_fact(table_length_facts, region, &table_id, table);
     let resolved = contract.map(|contract| {
         resolve_fastmem_table_contract(contract, &table_id).map_err(|err| err.reason())
     });
     let (
         status,
-        failure_reason,
+        mut failure_reason,
         element_layout_id,
         element_repr,
         element_stride,
-        length,
+        _contract_length,
         alignment,
         index_policy,
     ) = match resolved {
@@ -305,15 +311,20 @@ fn table_plan(
             None,
         ),
     };
+    let length = table_length_fact.and_then(|fact| fact.resolved_length);
+    let table_length_policy = table_length_fact.map(|fact| fact.policy.as_str().to_string());
+    if table_length_fact.is_some() && failure_reason.as_deref() == Some("table-length-unresolved") {
+        failure_reason = None;
+    }
     let proof = FastMemTableAccessProof {
-        table_length_resolved: length.is_some(),
+        table_length_resolved: table_length_fact.is_some(),
         bounds_proof_valid: false,
         stride_resolved: element_stride.is_some(),
         field_offset_resolved: false,
         overflow_proof_valid: false,
         alignment_valid: alignment.is_some(),
         element_layout_verified: element_layout_id.is_some(),
-        table_length_policy: length.map(|value| format!("const_len:{value}")),
+        table_length_policy,
         bounds_proof: None,
         overflow_proof: None,
         failure_reason: failure_reason.clone(),
@@ -351,6 +362,17 @@ fn table_plan(
             index_policy,
             proof,
         }),
+    })
+}
+
+fn table_length_fact<'a>(
+    facts: &'a [FastMemTableLengthFact],
+    region: FastMemRegionId,
+    table_id: &str,
+    table_value: ValueId,
+) -> Option<&'a FastMemTableLengthFact> {
+    facts.iter().find(|fact| {
+        fact.region == region && fact.table_id == table_id && fact.table_value == table_value
     })
 }
 
@@ -450,7 +472,10 @@ fn field_plan(
 mod tests {
     use super::*;
     use crate::ast::Span;
-    use crate::mir::function::{FastMemRegionMetadata, FastMemRegionOrigin};
+    use crate::mir::function::{
+        FastMemRegionMetadata, FastMemRegionOrigin, FastMemTableLengthFact,
+        FastMemTableLengthPolicyKind,
+    };
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
     fn make_function(instructions: Vec<MirInstruction>) -> MirFunction {
@@ -582,6 +607,52 @@ mod tests {
         assert_eq!(
             table.proof.failure_reason.as_deref(),
             Some("table-length-unresolved")
+        );
+    }
+
+    #[test]
+    fn refresh_consumes_explicit_table_length_fact_without_making_table_lowerable() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(10)),
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(MemOpAccess::table("page_table")),
+        )]);
+        function
+            .metadata
+            .fastmem_table_length_facts
+            .push(FastMemTableLengthFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                table_id: "page_table".to_string(),
+                table_value: ValueId::new(1),
+                length_value: ValueId::new(50),
+                resolved_length: Some(64),
+                policy: FastMemTableLengthPolicyKind::ExplicitConstLen,
+            });
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert_eq!(table.length, Some(64));
+        assert!(table.proof.table_length_resolved);
+        assert_eq!(
+            table.proof.table_length_policy.as_deref(),
+            Some("explicit_const_len")
+        );
+        assert!(!table.proof.bounds_proof_valid);
+        assert!(!table.proof.overflow_proof_valid);
+        assert!(!table.proof.is_lowerable());
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0]
+                .failure_reason
+                .as_deref(),
+            Some("verified-table-access-proof-incomplete")
         );
     }
 

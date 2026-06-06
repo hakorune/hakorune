@@ -161,6 +161,36 @@ pub struct RangeIndexFact {
     pub loop_carried_writes_supported: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum FastMemTableLengthPolicyKind {
+    ExplicitConstLen,
+}
+
+impl FastMemTableLengthPolicyKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::ExplicitConstLen => "explicit_const_len",
+        }
+    }
+}
+
+/// FastMemory-owned table length fact for TableIndex access proofs.
+///
+/// Layout contracts own representation facts such as element layout, stride,
+/// and alignment. Length facts live here so later page-map strategies and
+/// range proofs can feed one FastMemory access-proof surface without teaching
+/// MIRBuilder or lowering to invent table bounds.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemTableLengthFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub table_id: String,
+    pub table_value: ValueId,
+    pub length_value: ValueId,
+    pub resolved_length: Option<u64>,
+    pub policy: FastMemTableLengthPolicyKind,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayExtentProofKind {
     DefaultCapacity,
@@ -443,6 +473,12 @@ pub struct FunctionMetadata {
     /// Region truth lives here. MIR instruction streams carry only `MemOp`
     /// executable operations with a `FastMemRegionId` back-reference.
     pub fastmem_regions: Vec<FastMemRegionMetadata>,
+
+    /// FastMemory-owned table length facts consumed by TableIndex access plans.
+    ///
+    /// These rows are semantic memory-profile metadata. MIRBuilder must only
+    /// preserve symbolic table ids and provenance; it must not invent lengths.
+    pub fastmem_table_length_facts: Vec<FastMemTableLengthFact>,
 
     /// Function-local FastMemory layout/table access plan rows.
     ///

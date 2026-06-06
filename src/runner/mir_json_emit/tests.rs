@@ -10,6 +10,7 @@ mod direct_array_access_plans;
 mod exact_numeric_routes;
 mod exact_seed_backend_route;
 mod extern_call_routes;
+mod fastmem_metadata;
 mod function_attrs;
 mod generic_method_routes;
 mod global_call_routes;

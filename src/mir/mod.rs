@@ -56,6 +56,7 @@ pub mod exact_seed_backend_route; // function-level backend route tags for exact
 pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod fastmem_access_plan; // MIR-owned FastMemory layout/table access plans
 pub mod fastmem_layout_contract; // memory-profile FastMemory layout/table contracts
+pub mod fastmem_table_length_fact; // FastMemory-owned table length facts
 pub mod fastpath_required_diagnostic; // source-syntax-free required FastPath diagnostics
 pub mod function;
 pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners

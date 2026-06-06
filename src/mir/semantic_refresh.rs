@@ -36,6 +36,7 @@ use super::{
     },
     extern_call_route_plan::refresh_function_extern_call_routes,
     fastmem_access_plan::refresh_function_fastmem_access_plans,
+    fastmem_table_length_fact::refresh_function_fastmem_table_length_facts,
     fastpath_required_diagnostic::refresh_function_fastpath_obligations,
     function::ModuleMetadata,
     generic_method_route_plan::refresh_function_generic_method_routes,
@@ -116,6 +117,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_span_access_plans(function);
     refresh_function_record_state_field_access_plans(function, module_metadata);
     refresh_function_fastpath_obligations(function);
+    refresh_function_fastmem_table_length_facts(function);
     refresh_function_fastmem_access_plans(function);
     refresh_function_effect_summaries(function);
     refresh_function_receiver_snapshot_publication_plans(function);
@@ -173,6 +175,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_span_access_plans(function);
         refresh_function_record_state_field_access_plans(function, &module_metadata);
         refresh_function_fastpath_obligations(function);
+        refresh_function_fastmem_table_length_facts(function);
         refresh_function_fastmem_access_plans(function);
         refresh_function_effect_summaries(function);
         refresh_function_receiver_snapshot_publication_plans(function);

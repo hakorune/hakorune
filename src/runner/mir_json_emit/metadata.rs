@@ -242,6 +242,17 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 },
             })
         }).collect::<Vec<_>>(),
+        "fastmem_table_length_facts": metadata.fastmem_table_length_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "region": fact.region.0,
+                "table_id": fact.table_id,
+                "table_value": fact.table_value.as_u32(),
+                "length_value": fact.length_value.as_u32(),
+                "resolved_length": fact.resolved_length,
+                "policy": fact.policy.as_str(),
+            })
+        }).collect::<Vec<_>>(),
         "fastmem_access_plans": metadata.fastmem_access_plans.iter().map(|plan| {
             let mut row = json!({
                 "block": plan.block.as_u32(),
