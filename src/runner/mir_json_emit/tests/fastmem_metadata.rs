@@ -66,6 +66,7 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
                 element_layout_id: Some("PageMetaLayoutV0".to_string()),
                 element_repr: Some("pointer_to_element".to_string()),
                 element_stride: Some(8),
+                element_size: Some(56),
                 length: Some(64),
                 alignment: Some(8),
                 index_policy: Some("explicit_check".to_string()),
@@ -98,6 +99,7 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
             field_id: "capacity".to_string(),
             field_access: FastMemFieldAccessMode::Load,
             byte_offset: 40,
+            field_size: 8,
             field_type: "usize".to_string(),
             alignment: 8,
             proof: "table_field_link:0:1".to_string(),
@@ -116,6 +118,7 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
     assert_eq!(plans[0]["table_length_resolved"], true);
     assert_eq!(plans[0]["bounds_proof_valid"], true);
     assert_eq!(plans[0]["field_offset_resolved"], true);
+    assert_eq!(plans[0]["element_size"], 56);
     assert_eq!(plans[0]["bounds_proof"], "range_fact:7");
     assert_eq!(plans[0]["overflow_proof_valid"], false);
     assert_eq!(
@@ -133,5 +136,6 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
     assert_eq!(links[0]["field_id"], "capacity");
     assert_eq!(links[0]["field_access"], "load");
     assert_eq!(links[0]["byte_offset"], 40);
+    assert_eq!(links[0]["field_size"], 8);
     assert_eq!(links[0]["proof"], "table_field_link:0:1");
 }

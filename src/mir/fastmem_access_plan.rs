@@ -77,6 +77,7 @@ pub struct FastMemFieldAccessPlan {
     pub result: Option<ValueId>,
     pub mode: FastMemFieldAccessMode,
     pub byte_offset: Option<u32>,
+    pub field_size: Option<u32>,
     pub field_type: Option<String>,
     pub alignment: Option<u32>,
     pub mutability: Option<String>,
@@ -92,6 +93,7 @@ pub struct FastMemTableAccessPlan {
     pub element_layout_id: Option<String>,
     pub element_repr: Option<String>,
     pub element_stride: Option<u32>,
+    pub element_size: Option<u32>,
     pub length: Option<u64>,
     pub alignment: Option<u32>,
     pub index_policy: Option<String>,
@@ -110,6 +112,7 @@ pub struct FastMemTableFieldAccessLink {
     pub field_id: String,
     pub field_access: FastMemFieldAccessMode,
     pub byte_offset: u32,
+    pub field_size: u32,
     pub field_type: String,
     pub alignment: u32,
     pub proof: String,
@@ -292,6 +295,7 @@ fn table_plan(
         element_layout_id,
         element_repr,
         element_stride,
+        element_size,
         _contract_length,
         alignment,
         index_policy,
@@ -302,6 +306,7 @@ fn table_plan(
             Some(resolved.element_layout_id),
             Some(resolved.element_repr),
             Some(resolved.element_stride),
+            Some(resolved.element_size),
             resolved.length,
             Some(resolved.alignment),
             Some(resolved.index_policy),
@@ -312,6 +317,7 @@ fn table_plan(
             Some(resolved.element_layout_id),
             Some(resolved.element_repr),
             Some(resolved.element_stride),
+            Some(resolved.element_size),
             resolved.length,
             Some(resolved.alignment),
             Some(resolved.index_policy),
@@ -325,10 +331,12 @@ fn table_plan(
             None,
             None,
             None,
+            None,
         ),
         None => (
             FastMemAccessPlanStatus::SymbolicOnly,
             Some("layout-table-contract-unresolved".to_string()),
+            None,
             None,
             None,
             None,
@@ -383,6 +391,7 @@ fn table_plan(
             element_layout_id,
             element_repr,
             element_stride,
+            element_size,
             length,
             alignment,
             index_policy,
@@ -463,17 +472,121 @@ fn table_field_access_links(plans: &mut [FastMemAccessPlan]) -> Vec<FastMemTable
         if has_link {
             if let FastMemAccessPlanPayload::Table(table) = &mut plan.payload {
                 table.proof.field_offset_resolved = true;
+                apply_table_overflow_proof(
+                    table,
+                    table_block,
+                    table_instruction_index,
+                    region,
+                    &links,
+                );
             }
-            if plan.status == FastMemAccessPlanStatus::Verified {
+            let lowerable = match &plan.payload {
+                FastMemAccessPlanPayload::Table(table) => table.proof.is_lowerable(),
+                FastMemAccessPlanPayload::Field(_) => false,
+            };
+            if lowerable {
+                plan.status = FastMemAccessPlanStatus::Verified;
+                plan.failure_reason = None;
+                if let FastMemAccessPlanPayload::Table(table) = &mut plan.payload {
+                    table.proof.failure_reason = None;
+                }
+            } else if plan.status == FastMemAccessPlanStatus::Verified {
                 plan.status = FastMemAccessPlanStatus::Rejected;
             }
             if plan.status == FastMemAccessPlanStatus::Rejected && plan.failure_reason.is_none() {
-                plan.failure_reason = Some("verified-table-access-proof-incomplete".to_string());
+                let reason = "verified-table-access-proof-incomplete".to_string();
+                plan.failure_reason = Some(reason.clone());
+                if let FastMemAccessPlanPayload::Table(table) = &mut plan.payload {
+                    if table.proof.failure_reason.is_none() {
+                        table.proof.failure_reason = Some(reason);
+                    }
+                }
             }
         }
     }
 
     links
+}
+
+fn apply_table_overflow_proof(
+    table: &mut FastMemTableAccessPlan,
+    table_block: BasicBlockId,
+    table_instruction_index: usize,
+    region: FastMemRegionId,
+    links: &[FastMemTableFieldAccessLink],
+) {
+    if !(table.proof.table_length_resolved
+        && table.proof.bounds_proof_valid
+        && table.proof.stride_resolved
+        && table.proof.field_offset_resolved
+        && table.proof.alignment_valid
+        && table.proof.element_layout_verified)
+    {
+        return;
+    }
+
+    let Some(table_result) = table.result else {
+        return;
+    };
+    let Some(length) = table.length else {
+        return;
+    };
+    let Some(stride) = table.element_stride else {
+        return;
+    };
+    let Some(element_size) = table.element_size else {
+        return;
+    };
+    let table_links = links
+        .iter()
+        .filter(|link| {
+            link.table_block == table_block
+                && link.table_instruction_index == table_instruction_index
+                && link.region == region
+                && link.table_result == table_result
+        })
+        .collect::<Vec<_>>();
+    if table_links.is_empty() {
+        return;
+    }
+
+    let target_max = target_usize_max();
+    let Some(table_byte_len) = u128::from(length).checked_mul(u128::from(stride)) else {
+        return;
+    };
+    if table_byte_len > target_max {
+        return;
+    }
+    for link in &table_links {
+        let Some(field_end) = u128::from(link.byte_offset).checked_add(u128::from(link.field_size))
+        else {
+            return;
+        };
+        if field_end > u128::from(element_size) || field_end > target_max {
+            return;
+        }
+    }
+
+    table.proof.overflow_proof_valid = true;
+    table.proof.overflow_proof = Some(format!(
+        "usize_mul_add_no_overflow+offset_within_object:len={}:stride={}:element_size={}:fields={}",
+        length,
+        stride,
+        element_size,
+        table_links
+            .iter()
+            .map(|link| link.field_id.as_str())
+            .collect::<Vec<_>>()
+            .join(",")
+    ));
+}
+
+fn target_usize_max() -> u128 {
+    if usize::BITS == 128 {
+        u128::MAX
+    } else {
+        (1_u128 << usize::BITS) - 1
+    }
 }
 
 fn table_link_source(
@@ -521,6 +634,7 @@ fn field_link_target(
         field_id: field.field_id.clone(),
         field_access: field.mode,
         byte_offset: field.byte_offset?,
+        field_size: field.field_size?,
         field_type: field.field_type.clone()?,
         alignment: field.alignment?,
         proof: format!(
@@ -557,6 +671,7 @@ fn field_plan(
         layout_id,
         canonical_field_id,
         byte_offset,
+        field_size,
         field_type,
         alignment,
         mutability,
@@ -568,6 +683,7 @@ fn field_plan(
             Some(resolved.layout_id),
             resolved.field_id,
             Some(resolved.byte_offset),
+            Some(resolved.field_size),
             Some(resolved.field_type),
             Some(resolved.alignment),
             Some(resolved.mutability),
@@ -583,12 +699,14 @@ fn field_plan(
             None,
             None,
             None,
+            None,
         ),
         None => (
             FastMemAccessPlanStatus::SymbolicOnly,
             Some("layout-field-contract-unresolved".to_string()),
             access.layout_id.clone(),
             field_id,
+            None,
             None,
             None,
             None,
@@ -614,6 +732,7 @@ fn field_plan(
             result: dst,
             mode,
             byte_offset,
+            field_size,
             field_type,
             alignment,
             mutability,
@@ -797,6 +916,7 @@ mod tests {
         assert_eq!(owner_link.field_base, ValueId::new(10));
         assert_eq!(owner_link.field_id, "owner_worker_id");
         assert_eq!(owner_link.byte_offset, 0);
+        assert_eq!(owner_link.field_size, 8);
         assert_eq!(owner_link.proof, "table_field_link:0:1");
     }
 
@@ -876,7 +996,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_sets_field_offset_resolved_from_verified_table_field_link() {
+    fn refresh_sets_overflow_proof_from_length_bounds_and_table_field_link() {
         let mut function = make_function(vec![
             memop(
                 MemOpKind::TableIndex,
@@ -910,14 +1030,70 @@ mod tests {
         assert!(table.proof.table_length_resolved);
         assert!(table.proof.bounds_proof_valid);
         assert!(table.proof.field_offset_resolved);
-        assert!(!table.proof.overflow_proof_valid);
-        assert!(!table.proof.is_lowerable());
+        assert!(table.proof.overflow_proof_valid);
+        assert!(table.proof.is_lowerable());
+        assert!(table
+            .proof
+            .overflow_proof
+            .as_deref()
+            .unwrap_or_default()
+            .contains("usize_mul_add_no_overflow+offset_within_object"));
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0].status,
+            FastMemAccessPlanStatus::Verified
+        );
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0].failure_reason,
+            None
+        );
         assert_eq!(function.metadata.fastmem_table_field_access_links.len(), 1);
         let link = &function.metadata.fastmem_table_field_access_links[0];
         assert_eq!(link.field_id, "capacity");
         assert!(link.byte_offset > 0);
+        assert_eq!(link.field_size, 8);
         assert_eq!(link.field_access, FastMemFieldAccessMode::Load);
         assert_eq!(link.proof, "table_field_link:0:1");
+    }
+
+    #[test]
+    fn refresh_keeps_overflow_proof_closed_without_bounds_proof() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::TableIndex,
+                Some(ValueId::new(10)),
+                vec![ValueId::new(1), ValueId::new(2)],
+                Some(MemOpAccess::table("page_table")),
+            ),
+            memop(
+                MemOpKind::FieldLoad,
+                Some(ValueId::new(11)),
+                vec![ValueId::new(10)],
+                Some(MemOpAccess::field("capacity")),
+            ),
+        ]);
+        function
+            .metadata
+            .fastmem_table_length_facts
+            .push(table_length_fact());
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert!(table.proof.table_length_resolved);
+        assert!(!table.proof.bounds_proof_valid);
+        assert!(table.proof.field_offset_resolved);
+        assert!(!table.proof.overflow_proof_valid);
+        assert!(!table.proof.is_lowerable());
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0]
+                .failure_reason
+                .as_deref(),
+            Some("verified-table-access-proof-incomplete")
+        );
     }
 
     #[test]

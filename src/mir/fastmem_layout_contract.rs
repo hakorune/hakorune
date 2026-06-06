@@ -26,6 +26,7 @@ pub struct ResolvedFastMemFieldContract {
     pub layout_id: String,
     pub field_id: String,
     pub byte_offset: u32,
+    pub field_size: u32,
     pub field_type: String,
     pub alignment: u32,
     pub mutability: String,
@@ -38,6 +39,7 @@ pub struct ResolvedFastMemTableContract {
     pub element_layout_id: String,
     pub element_repr: String,
     pub element_stride: u32,
+    pub element_size: u32,
     pub length: Option<u64>,
     pub alignment: u32,
     pub index_policy: String,
@@ -107,6 +109,7 @@ pub fn resolve_fastmem_field_contract(
         layout_id: PAGE_META_LAYOUT_V0.to_string(),
         field_id: canonical.to_string(),
         byte_offset: raw_field.offset_bytes,
+        field_size: raw_field.size_bytes,
         field_type: raw_field.declared_type_name.clone(),
         alignment: raw_field.align_bytes,
         mutability: spec.mutability.to_string(),
@@ -126,11 +129,13 @@ pub fn resolve_fastmem_table_contract(
         });
     }
     let pointer_bytes = usize::BITS / 8;
+    let element_size = page_meta_raw_layout(contract)?.size_bytes;
     Ok(ResolvedFastMemTableContract {
         table_id: PAGE_TABLE_V0.to_string(),
         element_layout_id: PAGE_META_LAYOUT_V0.to_string(),
         element_repr: "pointer_to_element".to_string(),
         element_stride: pointer_bytes,
+        element_size,
         length: None,
         alignment: pointer_bytes,
         index_policy: "explicit_check".to_string(),
@@ -256,6 +261,7 @@ mod tests {
         assert_eq!(field.layout_id, PAGE_META_LAYOUT_V0);
         assert_eq!(field.field_id, "owner_worker_id");
         assert_eq!(field.field_type, "u64");
+        assert_eq!(field.field_size, 8);
         assert_eq!(field.field_class, "plain_scalar");
         assert_eq!(field.byte_offset, 0);
     }
@@ -280,6 +286,7 @@ mod tests {
         assert_eq!(table.element_layout_id, PAGE_META_LAYOUT_V0);
         assert_eq!(table.element_repr, "pointer_to_element");
         assert_eq!(table.element_stride, usize::BITS / 8);
+        assert!(table.element_size >= 56);
         assert_eq!(table.length, None);
         assert!(!table.lowerable);
         assert_eq!(

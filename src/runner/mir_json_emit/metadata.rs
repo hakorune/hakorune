@@ -279,6 +279,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         );
                         map.insert("access".to_string(), json!(field.mode.as_str()));
                         map.insert("byte_offset".to_string(), json!(field.byte_offset));
+                        map.insert("field_size".to_string(), json!(field.field_size));
                         map.insert("field_type".to_string(), json!(&field.field_type));
                         map.insert("alignment".to_string(), json!(field.alignment));
                         map.insert("mutability".to_string(), json!(&field.mutability));
@@ -298,6 +299,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         );
                         map.insert("element_repr".to_string(), json!(&table.element_repr));
                         map.insert("element_stride".to_string(), json!(table.element_stride));
+                        map.insert("element_size".to_string(), json!(table.element_size));
                         map.insert("length".to_string(), json!(table.length));
                         map.insert("alignment".to_string(), json!(table.alignment));
                         map.insert("index_policy".to_string(), json!(&table.index_policy));
@@ -353,6 +355,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "field_id": link.field_id,
                 "field_access": link.field_access.as_str(),
                 "byte_offset": link.byte_offset,
+                "field_size": link.field_size,
                 "field_type": link.field_type,
                 "alignment": link.alignment,
                 "proof": link.proof,
