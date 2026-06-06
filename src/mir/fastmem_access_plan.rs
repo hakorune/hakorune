@@ -1450,26 +1450,34 @@ fn atomic_remote_head_plan(
     } else {
         0
     };
-    let lowerable = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush
-        && failure_reason.is_none()
-        && remote_owner_proof_valid
-        && block_next_proof_valid;
+    let head_access_resolved = head_byte_offset.is_some()
+        && head_field_size.is_some()
+        && head_field_type.is_some()
+        && head_alignment.is_some();
+    let lowerable = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
+        failure_reason.is_none() && head_access_resolved
+    } else {
+        kind == FastMemAccessPlanKind::AtomicRemoteHeadPush
+            && failure_reason.is_none()
+            && remote_owner_proof_valid
+            && block_next_proof_valid
+    };
     let status = if lowerable {
         FastMemAccessPlanStatus::Verified
     } else {
         FastMemAccessPlanStatus::Rejected
     };
     let failure_reason = failure_reason.or_else(|| {
-        if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-            Some("atomic-remote-head-drain-lowering-closed".to_string())
+        if lowerable {
+            None
+        } else if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
+            Some("atomic-remote-head-drain-plan-not-lowerable".to_string())
         } else if !remote_owner_proof_valid {
             Some("atomic-remote-head-remote-owner-proof-missing".to_string())
         } else if !block_next_proof_valid {
             Some("atomic-remote-head-block-next-proof-missing".to_string())
-        } else if !lowerable {
-            Some("atomic-remote-head-cas-lowering-closed".to_string())
         } else {
-            None
+            Some("atomic-remote-head-cas-lowering-closed".to_string())
         }
     });
 
@@ -2058,7 +2066,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_adds_nonlowerable_atomic_remote_head_drain_plan() {
+    fn refresh_adds_lowerable_atomic_remote_head_drain_plan() {
         let mut function = make_function(vec![memop(
             MemOpKind::AtomicRemoteHeadDrain,
             Some(ValueId::new(12)),
@@ -2071,11 +2079,8 @@ mod tests {
         assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
         let plan = &function.metadata.fastmem_access_plans[0];
         assert_eq!(plan.kind, FastMemAccessPlanKind::AtomicRemoteHeadDrain);
-        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
-        assert_eq!(
-            plan.failure_reason.as_deref(),
-            Some("atomic-remote-head-drain-lowering-closed")
-        );
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(plan.failure_reason.as_deref(), None);
         let FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) = &plan.payload else {
             panic!("expected atomic remote-head plan");
         };
@@ -2097,7 +2102,14 @@ mod tests {
         assert!(!remote_head.block_next_proof_valid);
         assert_eq!(remote_head.memory_order_policy, "acquire_exchange");
         assert_eq!(remote_head.retry_attempt_limit, 0);
-        assert!(!remote_head.lowerable);
+        assert_eq!(
+            remote_head.remote_head_field_class.as_deref(),
+            Some("atomic_remote_head")
+        );
+        assert_eq!(remote_head.remote_head_field_size, Some(8));
+        assert_eq!(remote_head.remote_head_field_type.as_deref(), Some("usize"));
+        assert_eq!(remote_head.remote_head_alignment, Some(8));
+        assert!(remote_head.lowerable);
     }
 
     #[test]

@@ -30,7 +30,9 @@ ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_
 BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_atomic_remote_drain_preflight.XXXXXX")"
 ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_atomic_remote_drain_exchange.XXXXXX")"
 BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_atomic_remote_drain_exchange.XXXXXX")"
-trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT" "$OWNER_RUNTIME_OUT" "$BAD_OWNER_RUNTIME_OUT" "$ATOMIC_REMOTE_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_PREFLIGHT_OUT" "$ATOMIC_REMOTE_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_PRODUCER_OUT" "$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT" "$ATOMIC_REMOTE_RETRY_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_RETRY_PRODUCER_OUT" "$ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT" "$ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT" "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT"' EXIT
+ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_atomic_remote_drain_exchange_producer.XXXXXX")"
+BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_atomic_remote_drain_exchange_producer.XXXXXX")"
+trap 'rm -f "$GOOD_OUT" "$BAD_OUT" "$BAD_SAFE_OUT" "$BAD_SHAPE_OUT" "$BAD_BRIDGE_OUT" "$BAD_SIZE_CLASS_OUT" "$BAD_PAGE_LOCAL_OUT" "$BAD_PRODUCER_OUT" "$BAD_PRODUCER_SLICE_OUT" "$BAD_LAYOUT_TABLE_OUT" "$BAD_TABLE_PROOF_OUT" "$LAYOUT_LOWERING_OUT" "$BAD_LAYOUT_LOWERING_OUT" "$OWNER_RUNTIME_OUT" "$BAD_OWNER_RUNTIME_OUT" "$ATOMIC_REMOTE_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_PREFLIGHT_OUT" "$ATOMIC_REMOTE_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_PRODUCER_OUT" "$ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_RETRY_PREFLIGHT_OUT" "$ATOMIC_REMOTE_RETRY_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_RETRY_PRODUCER_OUT" "$ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT" "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT" "$ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT" "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT" "$ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT" "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"' EXIT
 
 bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --report "$FIXTURE_DIR/report.kv" \
@@ -419,5 +421,38 @@ grep -q '^failure_4_reason=atomic_remote_head_drain_lowered_count$' "$BAD_ATOMIC
 grep -q '^failure_5_reason=atomic_remote_head_drain_to_local_route_open$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT"
 grep -q '^failure_6_reason=atomic_remote_head_drain_exchange_selected$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT"
 grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_OUT"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/atomic_remote_head_drain_exchange_producer_inventory.kv" \
+  --format kv \
+  >"$ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected AtomicRemoteHead drain exchange producer inventory" >&2
+  cat "$ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_atomic_remote_head_drain_exchange_producer_inventory.kv" \
+  --format kv \
+  >"$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad AtomicRemoteHead drain exchange producer inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=10$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_0_reason=replacement_front_deferred_memop_kinds$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_1_reason=atomic_remote_head_drain_exchange_order$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_2_reason=atomic_remote_head_drain_result_kind$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_3_reason=atomic_remote_head_memory_order_policy$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_4_reason=atomic_remote_head_drain_to_local_route_open$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_5_reason=atomic_remote_head_drain_exchange_selected$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_6_reason=atomic_remote_head_drain_open$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_7_reason=atomic_remote_head_drain_lowerable_count$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_8_reason=atomic_remote_head_drain_lowered_count$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^failure_9_reason=memop_atomic_remote_head_drain_count$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_DRAIN_EXCHANGE_PRODUCER_OUT"
 
 echo "[TEST/OK] fastmem_check"

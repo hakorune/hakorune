@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-039.
 Related:
@@ -57,3 +57,49 @@ product_activation=0
 global_allocator_claim=0
 winner_claim=0
 ```
+
+## Landed
+
+MIM-039 opens `AtomicRemoteHeadDrain(page)` lowering through the
+MIR-to-LLVM producer as an acquire exchange over `PageMeta.remote_head`:
+
+```text
+old = atomic_exchange(page.remote_head, 0, acquire)
+result = remote_free_list_token(old)
+```
+
+The result remains an internal remote-free-list token. Drain-to-local/free
+routing, remote-owner branch routing, TLS transfer, abandoned reclaim,
+activation, hooks, global allocator claim, winner claim, and full Hakorune
+mimalloc claim all remain closed.
+
+## Evidence
+
+```text
+fastmem_atomic_remote_head_drain_exchange_producer_pilot=1
+atomic_remote_head_drain_exchange_selected=1
+atomic_remote_head_drain_open=1
+atomic_remote_head_drain_lowered_count=1
+atomic_remote_head_drain_exchange_order=acquire
+atomic_remote_head_drain_result_kind=remote_free_list_token
+atomic_remote_head_drain_to_local_route_open=0
+remote_owner_branch_routing_open=0
+```
+
+Verification:
+
+```text
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py src/llvm_py/instructions/memop.py src/llvm_py/tests/test_fastmem_memop_layoutref.py
+python3 -m unittest src/llvm_py/tests/test_fastmem_memop_layoutref.py
+cargo test -q --lib atomic_remote_head
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Next
+
+MIM-PORT-FMEM-040 should select the first route for consuming the
+`remote_free_list_token` into owner-local state. It must still keep
+remote-owner branch routing, TLS transfer, abandoned reclaim, product
+activation, hooks, global allocator claim, and winner claim closed.

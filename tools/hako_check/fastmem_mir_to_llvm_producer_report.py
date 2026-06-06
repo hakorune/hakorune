@@ -227,6 +227,7 @@ def build_rows(
     atomic_remote_head_drain_plans = [
         plan for plan in plans if plan.get("kind") == "atomic_remote_head_drain"
     ]
+    atomic_remote_head_plans = atomic_remote_head_push_plans + atomic_remote_head_drain_plans
     remote_owner_facts = metadata_facts(mir, "fastmem_remote_owner_facts")
     block_next_facts = metadata_facts(mir, "fastmem_block_next_facts")
 
@@ -326,7 +327,7 @@ def build_rows(
     )
     atomic_remote_head_access_resolved = sum(
         1
-        for plan in atomic_remote_head_push_plans
+        for plan in atomic_remote_head_plans
         if plan.get("remote_head_byte_offset") not in (None, "")
         and plan.get("remote_head_field_size") not in (None, "")
         and plan.get("remote_head_field_type") not in (None, "")
@@ -336,7 +337,7 @@ def build_rows(
         sorted(
             {
                 string_value(plan.get("memory_order_policy"), "unknown")
-                for plan in atomic_remote_head_push_plans
+                for plan in atomic_remote_head_plans
             }
         )
     )
@@ -395,6 +396,7 @@ def build_rows(
     remote_free_drain_exchange_selection = (
         profile == "remote-free-drain-exchange-selection"
     )
+    remote_free_drain_exchange_producer = profile == "remote-free-drain-exchange"
     if profile in {
         "remote-free-preflight",
         "remote-free",
@@ -402,6 +404,7 @@ def build_rows(
         "remote-free-retry",
         "remote-free-drain-preflight",
         "remote-free-drain-exchange-selection",
+        "remote-free-drain-exchange",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -409,6 +412,7 @@ def build_rows(
             "remote-free-retry",
             "remote-free-drain-preflight",
             "remote-free-drain-exchange-selection",
+            "remote-free-drain-exchange",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -434,12 +438,17 @@ def build_rows(
             deferred_remote_kinds = (
                 "AtomicRemoteHeadDrainLowering,DrainToLocalRoute,RemoteOwnerBranchRouting"
             )
+        elif remote_free_drain_exchange_producer:
+            next_slice = "atomic_remote_head_drain_to_local_route_selection"
+            deferred_remote_kinds = "DrainToLocalRoute,RemoteOwnerBranchRouting"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
         selected_remote_kind = (
             "AtomicRemoteHeadDrain"
-            if remote_free_drain_preflight or remote_free_drain_exchange_selection
+            if remote_free_drain_preflight
+            or remote_free_drain_exchange_selection
+            or remote_free_drain_exchange_producer
             else "AtomicRemoteHeadPush"
         )
         slice_rows = [
@@ -461,6 +470,7 @@ def build_rows(
                         and not remote_free_retry_preflight
                         and not remote_free_drain_preflight
                         and not remote_free_drain_exchange_selection
+                        and not remote_free_drain_exchange_producer
                     )
                 ),
             ),
@@ -479,6 +489,10 @@ def build_rows(
             (
                 "fastmem_atomic_remote_head_drain_exchange_selection",
                 str(int_flag(remote_free_drain_exchange_selection)),
+            ),
+            (
+                "fastmem_atomic_remote_head_drain_exchange_producer_pilot",
+                str(int_flag(remote_free_drain_exchange_producer)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -500,6 +514,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_drain_preflight", "0"),
             ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
+            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
             (
                 "fastmem_owner_runtime_current_owner_source",
                 "llvm_producer_intrinsic",
@@ -539,6 +554,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_drain_preflight", "0"),
             ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
+            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
     else:
@@ -560,6 +576,7 @@ def build_rows(
             ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
             ("fastmem_atomic_remote_head_drain_preflight", "0"),
             ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
+            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
@@ -612,6 +629,7 @@ def build_rows(
                         "remote-free-retry",
                         "remote-free-drain-preflight",
                         "remote-free-drain-exchange-selection",
+                        "remote-free-drain-exchange",
                     }
                 )
             ),
@@ -660,6 +678,7 @@ def build_rows(
                     remote_free_retry_producer
                     or remote_free_drain_preflight
                     or remote_free_drain_exchange_selection
+                    or remote_free_drain_exchange_producer
                 )
             ),
         ),
@@ -670,6 +689,7 @@ def build_rows(
             or remote_free_retry_producer
             or remote_free_drain_preflight
             or remote_free_drain_exchange_selection
+            or remote_free_drain_exchange_producer
             else "0",
         ),
         (
@@ -679,30 +699,49 @@ def build_rows(
                 if remote_free_retry_producer
                 or remote_free_drain_preflight
                 or remote_free_drain_exchange_selection
+                or remote_free_drain_exchange_producer
                 else 0
             ),
         ),
         (
             "atomic_remote_head_drain_selected",
-            str(int_flag(remote_free_drain_preflight or remote_free_drain_exchange_selection)),
+            str(
+                int_flag(
+                    remote_free_drain_preflight
+                    or remote_free_drain_exchange_selection
+                    or remote_free_drain_exchange_producer
+                )
+            ),
         ),
         (
             "atomic_remote_head_drain_exchange_selected",
-            str(int_flag(remote_free_drain_exchange_selection)),
+            str(
+                int_flag(
+                    remote_free_drain_exchange_selection
+                    or remote_free_drain_exchange_producer
+                )
+            ),
         ),
         (
             "atomic_remote_head_drain_exchange_order",
-            "acquire" if remote_free_drain_exchange_selection else "closed",
+            "acquire"
+            if remote_free_drain_exchange_selection or remote_free_drain_exchange_producer
+            else "closed",
         ),
         (
             "atomic_remote_head_drain_result_kind",
-            "remote_free_list_token" if remote_free_drain_exchange_selection else "closed",
+            "remote_free_list_token"
+            if remote_free_drain_exchange_selection or remote_free_drain_exchange_producer
+            else "closed",
         ),
         ("atomic_remote_head_drain_to_local_route_open", "0"),
-        ("atomic_remote_head_drain_open", "0"),
+        ("atomic_remote_head_drain_open", str(int_flag(remote_free_drain_exchange_producer))),
         ("atomic_remote_head_drain_plan_count", str(len(atomic_remote_head_drain_plans))),
         ("atomic_remote_head_drain_lowerable_count", str(atomic_remote_head_drain_lowerable)),
-        ("atomic_remote_head_drain_lowered_count", "0"),
+        (
+            "atomic_remote_head_drain_lowered_count",
+            str(atomic_remote_head_drain_lowerable if remote_free_drain_exchange_producer else 0),
+        ),
         ("remote_owner_branch_routing_open", "0"),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
         ("page_local_alloc_route_candidate", route_candidate),
@@ -867,6 +906,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "remote-free-retry",
             "remote-free-drain-preflight",
             "remote-free-drain-exchange-selection",
+            "remote-free-drain-exchange",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",

@@ -145,6 +145,11 @@ def _current_fastmem_access_plan(
                 continue
             if plan.get("page") != int(operands[0]) or plan.get("block_value") != int(operands[1]):
                 continue
+        if kind == "atomic_remote_head_drain":
+            if len(operands) < 1:
+                continue
+            if plan.get("page") != int(operands[0]):
+                continue
         return plan
     return None
 
@@ -655,6 +660,61 @@ def _require_complete_atomic_remote_head_push_plan(
     return plan
 
 
+def _require_complete_atomic_remote_head_drain_plan(
+    plan: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-atomic-remote-head-drain-plan]")
+    for key in (
+        "remote_head_layout_id",
+        "remote_head_field_id",
+        "remote_head_field_class",
+        "remote_head_byte_offset",
+        "remote_head_field_size",
+        "remote_head_field_type",
+        "remote_head_alignment",
+        "memory_order_policy",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(
+                f"[llvm/fastmem:missing-atomic-remote-head-drain-plan-field] {key}"
+            )
+    if plan.get("lowerable") is not True:
+        raise RuntimeError("[llvm/fastmem:atomic-remote-head-drain-plan-not-lowerable]")
+    if str(plan.get("remote_head_field_class")) != _ATOMIC_REMOTE_HEAD_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-drain-class] "
+            f"{plan.get('remote_head_field_class')}"
+        )
+    if str(plan.get("memory_order_policy")) != "acquire_exchange":
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-drain-memory-order] "
+            f"{plan.get('memory_order_policy')}"
+        )
+    for key in ("remote_head_field_size", "remote_head_alignment"):
+        try:
+            if int(plan.get(key)) <= 0:
+                raise RuntimeError(
+                    f"[llvm/fastmem:invalid-atomic-remote-head-drain-plan-number] {key}"
+                )
+        except ValueError as exc:
+            raise RuntimeError(
+                "[llvm/fastmem:invalid-atomic-remote-head-drain-plan-number]"
+            ) from exc
+    if int(plan.get("remote_head_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-drain-size] "
+            f"{plan.get('remote_head_field_size')}"
+        )
+    if str(plan.get("remote_head_field_type")) not in _FIELD_LOAD_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-atomic-remote-head-drain-type] "
+            f"{plan.get('remote_head_field_type')}"
+        )
+    return plan
+
+
 def _layout_refs(resolver) -> Dict[int, Dict[str, Any]]:
     refs = getattr(resolver, "fastmem_layout_refs", None)
     if not isinstance(refs, dict):
@@ -1111,6 +1171,37 @@ def _lower_atomic_remote_head_push(
     builder.position_at_end(done_bb)
 
 
+def _lower_atomic_remote_head_drain(
+    builder: ir.IRBuilder,
+    resolver,
+    dst: int,
+    operands: List[Any],
+) -> ir.Value:
+    _require_operands("atomic_remote_head_drain", operands, 1)
+    plan = _require_complete_atomic_remote_head_drain_plan(
+        _current_fastmem_access_plan(resolver, "atomic_remote_head_drain", dst, operands)
+    )
+    page_ref = _get_layout_ref(
+        resolver,
+        int(operands[0]),
+        str(plan["remote_head_layout_id"]),
+    )
+    i64 = ir.IntType(64)
+    head_ptr = _gep_i64_field_ptr(
+        builder,
+        page_ref["ptr"],
+        int(plan["remote_head_byte_offset"]),
+        name_prefix="fastmem_atomic_remote_drain_head",
+    )
+    return builder.atomic_rmw(
+        "xchg",
+        head_ptr,
+        ir.Constant(i64, 0),
+        "acquire",
+        name=f"fastmem_atomic_remote_drain_xchg_{dst}",
+    )
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -1213,6 +1304,18 @@ def lower_memop(
             preds,
             block_end_values,
             bb_map,
+        )
+        return
+    if kind == "atomic_remote_head_drain":
+        if dst is None:
+            raise RuntimeError("[llvm/fastmem:atomic-remote-head-drain-missing-dst]")
+        result = _lower_atomic_remote_head_drain(builder, resolver, int(dst), operands)
+        safe_vmap_write(
+            vmap,
+            int(dst),
+            result,
+            "fastmem_atomic_remote_head_drain",
+            resolver=resolver,
         )
         return
     if kind == "current_alloc_owner_id":
