@@ -119,5 +119,5 @@ replacement_front_page_reclaimed_with_remote_candidates=0
 Next row:
 
 ```text
-MIR-FMEM-008 replacement-front layout/table/owner runtime producer selection
+MIR-FMEM-008A producer-slice selection
 ```

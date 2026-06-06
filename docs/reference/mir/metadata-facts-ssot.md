@@ -382,6 +382,7 @@ Contract:
 | `inline_plans` | array | InlinePlan rows derived from declaration-local canonical `Inline(prefer/avoid/required)`, compat `Hint(inline/noinline/hot/cold)`, and compat `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
 | `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes; consumed by the MIR verifier, not by backends |
 | `capability_plans` | array | CapabilityPlan rows derived from metadata-only `uses ...` declarations; profile-derived bundles remain parked unless a later row reopens them |
+| `fastmem_regions` | array | Function-local FastMemory contract region side table. Each row owns region id, contract id, origin/source metadata, layout/pointer-class references, and verifier flags consumed by `MemOp` instructions. Region boundaries are metadata, not executable Begin/End instructions. |
 | `generic_method_routes` | array | MIR-owned method route facts; backend shims consume these instead of reclassifying method strings |
 | `extern_call_routes` | array | MIR-owned route facts for accepted `externcall` sites; pure-first reads these rows instead of classifying helper names locally |
 | `global_call_routes` | array | MIR-owned global-call route / unsupported route facts |
@@ -409,6 +410,29 @@ Contract:
 | `userbox_loop_micro_seed_route` | object or null | Exact UserBox loop micro seed payload |
 | `userbox_known_receiver_method_seed_route` | object or null | Exact UserBox known-receiver method seed payload |
 | `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
+
+### `fastmem_regions[]`
+
+`fastmem_regions[]` is the function-level side table for source
+`fastmem ContractName { ... }` regions. It is metadata consumed by `MemOp`
+instructions through `region_id`; it is not a second executable MIR dialect and
+does not create Begin/End instructions.
+
+Minimal v0 row shape:
+
+```text
+id
+contract
+origin
+source_span
+layout_ids
+pointer_classes
+flags
+```
+
+Backends may consume this metadata only through accepted `MemOp` lowering rows.
+They must not infer memory behavior from contract names, source box names,
+helper names, or replacement-front producer labels.
 
 ## Placement Route Fold-Up Contract
 

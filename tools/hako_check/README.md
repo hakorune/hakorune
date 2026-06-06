@@ -524,7 +524,38 @@ allocator_tls_arena_peak_count
 allocator_tls_arena_reuse_count
 allocator_tls_arena_init_fail_count
 allocator_tls_arena_fallback_count
+allocator_owner_lifecycle_state_machine
+allocator_owner_id_repr
+allocator_owner_slot_bits
+allocator_owner_generation_bits
+allocator_owner_generation_bump_count
+allocator_owner_reuse_without_generation_bump_count
+allocator_owner_stale_generation_count
+allocator_owner_active_count
+allocator_owner_exiting_flush_count
+allocator_owner_abandoned_count
+allocator_owner_reclaimed_count
+allocator_owner_invalid_transition_count
+allocator_exiting_owner_page_claim_count
+allocator_abandoned_owner_local_free_count
+allocator_thread_exit_observed_count
 allocator_thread_exit_flush_supported
+allocator_thread_exit_flush_count
+allocator_thread_exit_flush_page_count
+allocator_thread_exit_local_free_drain_count
+allocator_thread_exit_remote_candidate_seen_count
+allocator_abandoned_owner_count
+allocator_abandoned_page_count
+allocator_abandoned_live_page_count
+allocator_abandoned_empty_page_count
+allocator_abandoned_remote_candidate_count
+allocator_abandoned_reclaim_attempt_count
+allocator_abandoned_reclaim_success_count
+allocator_abandoned_reclaim_blocked_count
+allocator_abandoned_reclaim_blocked_remote_count
+remote_free_drain_supported
+remote_candidate_unhandled_reclaim_block_count
+page_reclaimed_with_remote_candidates
 page_owner_check_enabled
 page_owner_check_route
 page_owner_check_count
@@ -659,8 +690,11 @@ summary=ok|failed
 FastMemory Check
 - `hako_check fastmem-check` is a CI-style verifier over the FastMemory
   inventory fields. It fails on unclassified MemOps, forbidden operations,
-  region/local memory value escapes, runtime contract lookup, or Type ABI /
-  Provider ABI hot-path crossings.
+  region/local memory value escapes, runtime contract lookup, Type ABI /
+  Provider ABI hot-path crossings, invalid AllocOwner lifecycle transitions,
+  stale generation evidence, owner reuse without generation bump,
+  abandoned-owner local_free misuse, or reclaim with unhandled remote
+  candidates.
 - Stable v0 entries:
 
 ```bash
@@ -780,6 +814,12 @@ FastMemory AllocOwnerId Shadow Counter Smoke
   `AtomicRemoteHead` pilot evidence by reading the cross-thread smoke pack:
   `atomic_remote_head_pilot_enabled=1`, `remote_free_push_count>0`, and
   `remote_free_drain_count>0`.
+- The same smoke family now also fixes AllocOwner lifecycle evidence. It
+  reports generation-bearing owner ids, Active / ExitingFlush / Abandoned /
+  Reclaimed state counters, thread-exit flush observations,
+  AtomicRemoteHead drain evidence, and conservative empty-abandoned-owner
+  reclaim counters. Reclaim remains generation-safe and must keep
+  `page_reclaimed_with_remote_candidates=0`.
 - This remains benchmark-front evidence only. It does not claim `.hako`
   source-level thread support or activate product allocator replacement.
 

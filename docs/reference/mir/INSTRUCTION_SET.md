@@ -45,9 +45,11 @@ Transition Note
 - Core-14 安定後に本ドキュメントの「Core Instructions」を14命令へ更新し、マッピング表を併記する。
 - Phase 285–287: lifecycle conformance のため `KeepAlive` / `ReleaseStrong` を追加（語彙の明確化）。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
-- MIR-FMEM-002: FastMemory dialect vocabulary のため `MemOp` を追加。`MemOp`
-  は kept instruction vocabulary だが、VM / MIR JSON / LLVM lowering support
-  は後続 row まで closed/fail-fast。
+- MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
+  `MemOp` は kept instruction vocabulary。FastMemRegion metadata and
+  value-only MIR JSON / LLVM lowering are open for the accepted subset;
+  table/layout and allocator-owner TLS runtime MemOps remain closed until
+  dedicated producer rows.
 
 ## Canonical Enum Op Lane (kept vocabulary; Core profile out-of-count)
 
@@ -149,6 +151,68 @@ Current live limits:
 - VM execution checks table presence, element/len consistency, and bounds.
 - backend emitters read the JSON fields and must not infer table meaning from
   source names.
+
+## FastMemory MemOp JSON And Region Metadata
+
+`MemOp` is the single executable MIR instruction for FastMemory dialect
+operations. FastMemory region boundaries are not represented by
+`FastMemRegionBegin` / `FastMemRegionEnd` instructions. Region truth is carried
+as function metadata, and each `MemOp` refers to a region id.
+
+Canonical split:
+
+```text
+MemOp:
+  executable instruction vocabulary
+
+MemOpKind:
+  dialect vocabulary, such as addr_of / logical_shr / bit_and / add / sub /
+  table_index / field_load / field_store / current_alloc_owner_id / owner_eq
+
+FastMemRegion:
+  metadata side-table row with contract id, origin, source span, layout ids,
+  pointer classes, and verifier flags
+```
+
+Minimal JSON/reference shape:
+
+```text
+MemOp instruction:
+  op="memop"
+  region
+  kind
+  dst
+  operands
+  effects, when emitted by the active transport
+
+fastmem_regions[] metadata row:
+  id
+  contract
+  origin
+  source_span
+  layout_ids
+  pointer_classes
+  flags
+```
+
+The current backend status is intentionally partial:
+
+```text
+value-only MemOps:
+  MIR JSON transport and LLVM lowering are open for the selected subset
+
+table/layout MemOps:
+  closed until a dedicated layout/table producer row
+
+allocator-owner TLS runtime MemOps:
+  closed until a dedicated owner-runtime producer row
+
+VM execution:
+  closed/fail-fast except for future explicit probe rows
+```
+
+Backends must not infer FastMemory behavior from contract names, source box
+names, helper names, or replacement-front producer names.
 
 ## Core Instructions（26）
 - Const

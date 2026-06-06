@@ -136,7 +136,15 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-008 replacement-front layout/table/owner runtime producer selection
+  MIR-FMEM-008A producer-slice selection
+
+follow_up_cleanup_task:
+  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001
+
+follow_up_cleanup_trigger:
+  after the MIR-FMEM layout/table/owner runtime producer body is implemented
+  and the Python-template C bridge is no longer needed as semantic/runtime
+  baseline evidence
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -202,8 +210,12 @@ why:
   abandoned reclaim closed. 296x-454 landed MIM-FMEM-020 by allowing empty
   abandoned owner-page index entries to transition to Reclaimed after remote
   drain and generation bump evidence, while keeping TLS backing transfer
-  closed. MIR-FMEM-008 opens replacement-front layout/table/owner runtime
-  producer selection next.
+  closed. The current reference sync records the accepted source/MIR/runtime
+  reading, but a second closeout is intentionally parked until implementation
+  completes so stale bridge wording can be removed in one pass. The parent
+  MIR-FMEM-008 task is split into 008A producer-slice selection, 008B
+  layout/table producer pilot, 008C owner-runtime producer pilot, and 008D
+  producer-neutral parity/readiness. MIR-FMEM-008A opens next.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -300,7 +312,10 @@ task_order:
   MIM-FMEM-020 abandoned reclaim
 
 next_mir_producer_rows:
-  MIR-FMEM-008 replacement-front layout/table/owner runtime producer selection
+  MIR-FMEM-008A producer-slice selection
+  MIR-FMEM-008B layout/table producer pilot
+  MIR-FMEM-008C owner-runtime producer pilot
+  MIR-FMEM-008D producer-neutral parity/readiness
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.

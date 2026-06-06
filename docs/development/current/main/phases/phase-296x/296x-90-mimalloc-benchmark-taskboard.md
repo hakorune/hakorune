@@ -151,8 +151,27 @@ MIM-FMEM-020 landed:
   Empty abandoned owner-page index entries now produce Reclaimed evidence only
   after remote candidates are drained and generation bump evidence is emitted.
   Cross-owner TLS backing transfer and owner slot reuse remain closed.
-  MIR-FMEM-008 opens replacement-front layout/table/owner runtime producer
-  selection next.
+  The parent MIR-FMEM-008 producer task is split below; MIR-FMEM-008A
+  producer-slice selection opens next.
+Reference sync note:
+  docs/reference now records the accepted fastmem source surface, MemOp /
+  FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the
+  MIR-FMEM layout/table/owner runtime producer body is implemented, run the
+  follow-up reference closeout task below to retire stale bridge wording and
+  confirm product-activation stop lines still read correctly.
+MIR-FMEM-008 split:
+  MIR-FMEM-008A producer-slice selection:
+    choose the smallest MIR-to-LLVM replacement-front producer slice and its
+    acceptance fields only; no lowering behavior change.
+  MIR-FMEM-008B layout/table producer pilot:
+    lower verified TableIndex / FieldLoad / FieldStore style MemOps without
+    owner TLS/runtime behavior.
+  MIR-FMEM-008C owner-runtime producer pilot:
+    lower CurrentAllocOwnerId / OwnerEq style MemOps and matching report
+    counters without TLS backing transfer or owner slot reuse.
+  MIR-FMEM-008D producer-neutral parity/readiness:
+    prove MIR-to-LLVM evidence can replace the quarantined Python-template C
+    diagnostic baseline before the reference closeout runs.
 ```
 
 ## Queue
@@ -499,6 +518,7 @@ MIM-FMEM-020 landed:
 | 416 | `FASTMEM-PARSER-PARITY-CATCHUP-296X-001` | Done | Parser parity catch-up through PARSER-FMEM-006 proved dual Rust/.hako parse-only parity for fastmem source syntax. |
 | 417 | `FASTMEM-SOURCE-SYNTAX-PILOT-296X-001` | Done | MIM-FMEM-008 connected parsed fastmem source regions to hako_check inventory/check metadata without opening execution or product activation. |
 | 418 | `PAGEMAPBRIDGE-BENCHMARK-FRONT-PILOT-296X-001` | Done | MIM-FMEM-009 promoted PageMapBridge benchmark-front report fields and made hot range_scan inventories fail fastmem-check. |
+| 455 | `FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001` | Planned | After MIR-FMEM layout/table/owner runtime producer implementation is complete, resync docs/reference, tools/hako_check README, and current workstream wording so Python-template C bridge references are either retired or explicitly diagnostic-only. |
 
 ## Hako Mimalloc Performance Parity Plan
 

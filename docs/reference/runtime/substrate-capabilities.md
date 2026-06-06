@@ -81,6 +81,8 @@ The current live surface is intentionally narrow.
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow; provisional `usize` aliases exist for len/cap/index/capacity inputs without adding new native leaves |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
 | `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state, `HakoAllocRemoteFreePolicy`, and `HakoAllocPageSourcePolicy`; current proof rows cover local small/medium allocate/free/reject/reuse accounting, bounded CAS retry-loop remote-free policy, and OSVM reserve/commit/decommit page-source policy; OSVM unreserve is live only as a substrate route until a later allocator owner adopts it |
+| FastMemory replacement-front bridge | `fastmem ContractName { ... }` is the accepted source boundary for contract-bound memory fast paths. Current execution evidence still comes from a non-activating diagnostic replacement-front bridge or from selected MIR-to-LLVM value-only MemOps; table/layout/owner-runtime producer work remains staged. This does not activate host/process allocator replacement. |
+| allocator owner lifecycle evidence | `AllocOwnerId` is allocator arena owner identity, not OS thread id, runtime worker id, or `.hako` task id. Current diagnostic evidence uses generation-bearing owner ids, Active / ExitingFlush / Abandoned / Reclaimed lifecycle counters, AtomicRemoteHead drain counters, and conservative empty-abandoned-owner reclaim counters. Cross-owner TLS backing transfer, owner slot reuse as active owner, and product allocation remain closed. |
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.worker` | single-worker `current_id_i64` substrate row exists for allocator-internal owner/cache policy proof; source-level worker identity is not live |
@@ -91,6 +93,23 @@ The current live surface is intentionally narrow.
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | canonical `@rune Inline(prefer/avoid/required)` rows preserve MIR InlinePlan metadata; compat `@rune Hint(inline/noinline)` and `@rune Lowering(inline_required)` map to equivalent inline requests during migration; `Hint(hot/cold)` remains advisory tuning metadata; `Inline(prefer)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for supported leaf bodies, including small receiver-fieldset leaves that infer `no_alloc` / `no_safepoint` from MIR shape; verified required inline is consumed by the MIR optimizer before backend emission |
 | profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)`. Profile names are reserved/compat registry entries; current source should prefer primitive runes. `CapabilityPlan` is emitted from metadata-only `uses osvm` / `uses atomic` / `uses rawbuf` / `uses random` / `uses alloc_reclaim` as canonical `hako.*` ids; `@rune Capability(...)` is not live parser surface |
+
+Allocator owner lifecycle note:
+
+```text
+persistent states:
+  Active
+  ExitingFlush
+  Abandoned
+  Reclaimed
+
+transient evidence:
+  ReclaimAttempt
+```
+
+Generation-safe reclaim may be reported only after remote candidates are
+handled. Pages with unhandled remote candidates must not be reclaimed, and
+`ReclaimAttempt` must not be treated as a persistent page/owner state.
 
 ## Pure-First / EXE Proof Chain
 

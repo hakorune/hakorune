@@ -60,6 +60,7 @@ stmt      := 'return' expr
            | assign_stmt
            | guard_stmt
            | gate_stmt
+           | fastmem_stmt
            | 'if' expr block ('else' block)?
            | loop_stmt
            | expr                         ; expression statement
@@ -89,6 +90,12 @@ gate_stmt  := 'gate' build_predicate block
            ('else' ('gate' build_predicate block | block))?
            ; statement-level build selection inside block/method bodies.
            ; inactive branches are parsed but pruned before MIR/lowering.
+
+fastmem_stmt := 'fastmem' IDENT block
+           ; FastMemory contract region. The IDENT is a required contract id
+           ; such as PageMapV0. Contract-less `fastmem { ... }` is rejected.
+           ; The parser transports the region boundary; verifier/lowering rows
+           ; own MemOp legality and backend support.
 
 qualified_variant_pattern := IDENT '::' IDENT '(' IDENT ')'
 

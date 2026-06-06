@@ -101,6 +101,67 @@ NativePtr pointer arithmetic
 `NativePtr` remains opaque. Future native memory access must create a bounded
 view first.
 
+### FastMemory Contract Regions
+
+Decision: accepted as a narrow low-level source surface.
+
+`fastmem ContractName { ... }` is the canonical spelling for a
+contract-bound memory fast-path region:
+
+```hako
+fastmem PageMapV0 {
+    local addr = mem.addr(ptr)
+    local key = (addr >> PAGE_SHIFT) & PAGE_MASK
+}
+```
+
+The contract name is required. Contract-less `fastmem { ... }` and broad
+`unsafe { ... }` blocks are rejected. A `fastmem` region is not a general raw
+pointer surface; it is a source boundary that lowers to MIR-owned FastMemory
+region metadata plus `MemOp` instructions, then verifier/lowering rows decide
+which backend may consume those operations.
+
+Accepted v0 reading:
+
+```text
+source:
+  fastmem ContractName { ... }
+
+MIR:
+  FastMemRegion metadata side table
+  MemOp instruction rows tagged with region_id
+
+Verifier:
+  contract exists
+  allowed MemOp vocabulary
+  no escape
+  no allocation / safepoint / await / nowait
+  no Type ABI hot lookup
+  no Provider ABI hot dispatch
+```
+
+The current primary proving workload is the `.hako` mimalloc port. `hako_alloc`
+is the `.hako` source/body truth for that port. The older Python-template C
+replacement front is only a temporary diagnostic bridge while selected
+FastMemory MemOps migrate to MIR/LLVM.
+
+Still closed:
+
+```text
+general RawPtr<T>
+pointer arithmetic outside fastmem
+metadata pointer escape
+contract-less unsafe blocks
+product allocator activation
+hook installation
+global allocator claim
+winner claim
+```
+
+Future `fastpath ProfileName { ... }` spelling for memory / IO / SIMD contract
+regions is a design idea only. It is not the accepted source spelling for this
+reference; use `fastmem ContractName { ... }` for the current memory row.
+
 ### Box, Record, And Mutable State
 
 `record` is the canonical source spelling for identity-free aggregate values.
