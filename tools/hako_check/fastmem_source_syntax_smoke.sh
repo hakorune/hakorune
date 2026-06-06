@@ -27,6 +27,9 @@ BAD_SRC="$TMPDIR/bad.hako"
 BAD_AST="$TMPDIR/bad.ast.json"
 BAD_INV="$TMPDIR/bad.inventory.kv"
 BAD_CHECK="$TMPDIR/bad.check.kv"
+BAD_BRANCH_SRC="$TMPDIR/bad_branch.hako"
+BAD_BRANCH_MIR="$TMPDIR/bad_branch.mir.json"
+BAD_BRANCH_LOG="$TMPDIR/bad_branch.log"
 PILOT_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_fastmem_pilot_box.hako"
 PILOT_AST="$TMPDIR/page_meta_pilot.ast.json"
 PILOT_MIR="$TMPDIR/page_meta_pilot.mir.json"
@@ -201,6 +204,28 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --out "$GOOD_CHECK"
 grep -q '^summary=ok$' "$GOOD_CHECK"
 grep -q '^failure_count=0$' "$GOOD_CHECK"
+
+cat >"$BAD_BRANCH_SRC" <<'HK'
+static box Main {
+  main(ptr) {
+    fastmem PageMapV0 {
+      if true {
+        local addr = mem.addr(ptr)
+      } else {
+        local addr = mem.addr(ptr)
+      }
+    }
+    return 0
+  }
+}
+HK
+
+if NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$BAD_BRANCH_MIR" "$BAD_BRANCH_SRC" >"$BAD_BRANCH_LOG" 2>&1; then
+  echo "[TEST/FAIL] fastmem branch CFG was accepted" >&2
+  cat "$BAD_BRANCH_LOG" >&2 || true
+  exit 1
+fi
+grep -q '\[freeze:contract\]\[fastmem/branch_cfg_closed\]' "$BAD_BRANCH_LOG"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$PILOT_AST" "$PILOT_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$PILOT_MIR" "$PILOT_SRC" >/dev/null

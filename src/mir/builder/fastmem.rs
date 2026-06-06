@@ -57,22 +57,8 @@ fn lower_fastmem_stmt(
             ..
         } => lower_fastmem_expr(builder, region, *expression),
         ASTNode::If {
-            condition,
-            then_body,
-            else_body,
             ..
-        } => {
-            let mut last = lower_fastmem_expr(builder, region, *condition)?;
-            for child in then_body {
-                last = lower_fastmem_stmt(builder, region, child)?;
-            }
-            if let Some(children) = else_body {
-                for child in children {
-                    last = lower_fastmem_stmt(builder, region, child)?;
-                }
-            }
-            Ok(last)
-        }
+        } => Err("[freeze:contract][fastmem/branch_cfg_closed]".to_string()),
         ASTNode::Return { value: None, .. } => {
             crate::mir::builder::emission::constant::emit_void(builder)
         }
@@ -845,6 +831,13 @@ mod tests {
         }
     }
 
+    fn bool_lit(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: span(),
+        }
+    }
+
     #[test]
     fn fastmem_source_lowers_to_region_metadata_and_memops() {
         let mut builder = MirBuilder::new();
@@ -888,6 +881,30 @@ mod tests {
         assert_eq!(
             kinds,
             vec![MemOpKind::AddrOf, MemOpKind::LogicalShr, MemOpKind::BitAnd]
+        );
+    }
+
+    #[test]
+    fn fastmem_source_rejects_branch_cfg_until_proof_envelope_exists() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_branch_closed/0".to_string());
+        let body = vec![ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_string(),
+            body: vec![ASTNode::If {
+                condition: Box::new(bool_lit(true)),
+                then_body: vec![local("then_value", int_lit(1))],
+                else_body: Some(vec![local("else_value", int_lit(0))]),
+                span: span(),
+            }],
+            span: span(),
+        }];
+
+        let err = super::super::stmts::block_stmt::build_block(&mut builder, body)
+            .expect_err("fastmem branch CFG must stay closed");
+        assert!(
+            err.contains("[freeze:contract][fastmem/branch_cfg_closed]"),
+            "unexpected error: {}",
+            err
         );
     }
 

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-023.
 Related:
@@ -53,6 +53,21 @@ page_local_alloc_route_cfg_lowering_enabled remains 0
 no backend redecision or ABI hot lookup appears
 ```
 
+## Landed Evidence
+
+```text
+MIRBuilder:
+  source fastmem `if` returns
+  [freeze:contract][fastmem/branch_cfg_closed]
+
+Unit:
+  cargo test -q --lib fastmem_source_rejects_branch_cfg_until_proof_envelope_exists
+  cargo test -q --lib fastmem
+
+Smoke:
+  bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
 ## Still Closed
 
 ```text
@@ -69,4 +84,22 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next Row
+
+```text
+MIM-PORT-FMEM-024:
+  Page-local same-owner free body pilot
+
+Goal:
+  add a straight-line `.hako hako_alloc` free body that composes same-owner
+  proof, block-next proof, LocalFreePush, and PageMeta.used decrement through
+  existing fastmem MemOps.
+
+Non-goals:
+  branch route selection
+  remote-owner free
+  AtomicRemoteHead
+  TLS backing transfer
 ```
