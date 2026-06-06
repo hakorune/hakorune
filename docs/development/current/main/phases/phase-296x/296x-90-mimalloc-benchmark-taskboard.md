@@ -192,6 +192,11 @@ MIR-FMEM-008B proof direction accepted:
   VerifiedElementRef and must not lower page_table[index].field. Page-map
   strategy / PageTableLengthV0 remain deferred until the proof surface is
   stable.
+MIR-FMEM-008B commonality boundary accepted:
+  DirectArray and FastMemory may share ProofEnvelopeV0 and RangeIndexFact-style
+  proof inputs, but not access-plan payloads. DirectArrayExtentFact remains
+  DirectArray-specific; FastMemory gets its own VerifiedTableAccessProof,
+  table-length, bounds, overflow, alignment, and provenance payload.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

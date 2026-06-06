@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "VerifiedTableAccess proof decision is active: TableIndex requires verifier-owned length/bounds/overflow proof before lowerable; optional field smoke may use VerifiedElementRef only."
+active_lane_status = "ProofEnvelopeV0 commonality decision is active: share only the small proof carrier and reusable RangeIndexFact inputs; keep DirectArrayAccessPlan and FastMemAccessPlan payloads separate."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
-latest_card_summary = "Accepted the TableIndex proof direction: layout verification is not access verification, TableIndex requires VerifiedTableAccess with length/bounds/overflow proof before LLVM lowering, optional field-only smoke may use VerifiedElementRef, and page-map strategy / PageTableLengthV0 stay deferred."
+latest_card_summary = "Accepted the TableIndex proof direction and commonality boundary: share ProofEnvelopeV0 / RangeIndexFact-style proof ingredients only, keep DirectArray access payloads and FastMemory VerifiedTableAccessProof separate, and do not introduce a generic access plan."
 current_blocker_token = "MIR-FMEM-008B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."

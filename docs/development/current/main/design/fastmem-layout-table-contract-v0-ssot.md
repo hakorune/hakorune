@@ -5,6 +5,7 @@ Scope: memory-profile layout/table contract resolver for MIR-FMEM-008B.
 Related:
   - docs/development/current/main/design/mir-fastmem-memop-dialect-ssot.md
   - docs/development/current/main/design/contract-region-v0-ssot.md
+  - docs/development/current/main/design/mir-proof-envelope-v0-ssot.md
   - docs/development/current/main/phases/phase-296x/296x-457-VERIFIED-MEM-ACCESS-PLAN.md
 ---
 
@@ -226,3 +227,25 @@ Bounds and overflow are separate proofs. `index < len` does not by itself prove
 
 The short LLVM smoke may lower fields only from `VerifiedElementRef`. It must
 not lower `page_table[index].field`.
+
+## DirectArray Commonality
+
+Use shared proof ingredients, not shared access-plan payloads.
+
+```text
+Reusable:
+  ProofEnvelopeV0
+  RangeIndexFact as a bounds proof input
+  RegionStabilityFact concept as stable-base/no-escape ingredient
+
+Not reusable:
+  DirectArrayExtentFact
+  DirectArrayProofKind
+  DirectArray route names
+  collection-specific checked/proved-unchecked semantics
+```
+
+FastMemory TableIndex consumes `MemOpKind::TableIndex` sites and requires
+memory-specific table length, bounds, overflow, alignment, element-layout, and
+provenance proof. DirectArray consumes Array get/set route sites and keeps its
+own access plan.

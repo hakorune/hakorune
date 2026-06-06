@@ -5,6 +5,7 @@ Row: MIR-FMEM-008B
 Scope: TableIndex bounds/length proof decision before LLVM GEP/load/store lowering.
 Related:
   - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
+  - docs/development/current/main/design/mir-proof-envelope-v0-ssot.md
   - docs/development/current/main/phases/phase-296x/296x-459-FASTMEM-LAYOUT-TABLE-CONTRACTS.md
 ---
 
@@ -134,6 +135,37 @@ Later page-map strategies may add:
 ```text
 TwoLevel { l1_len, l2_len }
 StrategyProof
+```
+
+## DirectArray Reuse Boundary
+
+Worker-reviewed decision:
+
+```text
+Commonize:
+  ProofEnvelopeV0
+  RangeIndexFact as BoundsProof::RangeFact input
+  RegionStabilityFact concept as stable-base/no-escape ingredient
+
+Do not commonize:
+  DirectArrayExtentFact
+  DirectArrayAccessPlan
+  DirectArrayProofKind
+  generic VerifiedRegionAccessPlan
+```
+
+`DirectArrayExtentFact` is tied to `ArrayBox` / `DirectArrayI64` receiver
+capacity, field origin, and collection semantics. FastMemory needs a
+memory-profile table length/provenance fact instead.
+
+Task split:
+
+```text
+1. Add ProofEnvelopeV0 carrier only.
+2. Add FastMemory VerifiedTableAccessProof fields.
+3. Consume RangeIndexFact only as one BoundsProof source.
+4. Add OverflowProof separately.
+5. Keep DirectArray routes untouched.
 ```
 
 ## Lowering Contract
