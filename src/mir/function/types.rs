@@ -275,6 +275,33 @@ pub struct FastMemLocalFreeNonEmptyFact {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemFreeHeadNonEmptyProofKind {
+    SourceAssumeFreeHeadNonEmpty,
+}
+
+impl FastMemFreeHeadNonEmptyProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SourceAssumeFreeHeadNonEmpty => "source_assume_free_head_non_empty",
+        }
+    }
+}
+
+/// FastMemory-owned proof that a PageMeta ordinary free list has a pop
+/// candidate.
+///
+/// This is consumed by `FreeHeadPop` plans. It is not an ordinary `free_head`
+/// FieldLoad/FieldStore route and does not open pop lowering by itself.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemFreeHeadNonEmptyFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub page_value: ValueId,
+    pub proof_kind: FastMemFreeHeadNonEmptyProofKind,
+    pub non_empty: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayExtentProofKind {
     DefaultCapacity,
     ProducerInvariant,
@@ -571,6 +598,9 @@ pub struct FunctionMetadata {
 
     /// FastMemory non-empty local free-list facts consumed by LocalFreePop.
     pub fastmem_local_free_non_empty_facts: Vec<FastMemLocalFreeNonEmptyFact>,
+
+    /// FastMemory non-empty ordinary free-list facts consumed by FreeHeadPop.
+    pub fastmem_free_head_non_empty_facts: Vec<FastMemFreeHeadNonEmptyFact>,
 
     /// Function-local FastMemory layout/table access plan rows.
     ///

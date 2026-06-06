@@ -1234,6 +1234,7 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
     same_owner_facts: list[dict[str, Any]] = []
     block_next_facts: list[dict[str, Any]] = []
     local_free_non_empty_facts: list[dict[str, Any]] = []
+    free_head_non_empty_facts: list[dict[str, Any]] = []
 
     for function in root.get("functions", []):
         metadata = function.get("metadata", {})
@@ -1260,6 +1261,11 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         local_free_non_empty_facts.extend(
             fact
             for fact in metadata.get("fastmem_local_free_non_empty_facts", [])
+            if isinstance(fact, dict)
+        )
+        free_head_non_empty_facts.extend(
+            fact
+            for fact in metadata.get("fastmem_free_head_non_empty_facts", [])
             if isinstance(fact, dict)
         )
         for block in function.get("blocks", []):
@@ -1290,6 +1296,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         plan for plan in plans if str(plan.get("kind")) == "local_free_pop"
     ]
     local_free_plans = local_free_push_plans + local_free_pop_plans
+    free_head_pop_plans = [
+        plan for plan in plans if str(plan.get("kind")) == "free_head_pop"
+    ]
     rejected_table_plans = [
         plan
         for plan in plans
@@ -1408,6 +1417,58 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             or plan.get("block_next_alignment") in (None, "")
         )
     )
+    free_head_nonlowerable = sum(
+        1 for plan in free_head_pop_plans if not bool(plan.get("lowerable"))
+    )
+    free_head_pop_lowerable = sum(
+        1 for plan in free_head_pop_plans if bool(plan.get("lowerable"))
+    )
+    free_head_same_owner_missing = sum(
+        1
+        for plan in free_head_pop_plans
+        if not bool(plan.get("same_owner_proof_valid"))
+    )
+    free_head_remote_owner_rejected = sum(
+        1
+        for plan in free_head_pop_plans
+        if bool(plan.get("remote_owner_rejected"))
+    )
+    free_head_non_empty_missing = sum(
+        1
+        for plan in free_head_pop_plans
+        if not bool(plan.get("non_empty_proof_valid"))
+    )
+    free_head_access_resolved = sum(
+        1
+        for plan in free_head_pop_plans
+        if plan.get("free_head_byte_offset") not in (None, "")
+        and plan.get("free_head_field_size") not in (None, "")
+        and plan.get("free_head_field_type") not in (None, "")
+        and plan.get("free_head_alignment") not in (None, "")
+    )
+    free_head_block_next_access_resolved = sum(
+        1
+        for plan in free_head_pop_plans
+        if plan.get("block_next_byte_offset") not in (None, "")
+        and plan.get("block_next_field_size") not in (None, "")
+        and plan.get("block_next_field_type") not in (None, "")
+        and plan.get("block_next_alignment") not in (None, "")
+    )
+    free_head_access_plan_incomplete = sum(
+        1
+        for plan in free_head_pop_plans
+        if bool(plan.get("lowerable"))
+        and (
+            plan.get("free_head_byte_offset") in (None, "")
+            or plan.get("free_head_field_size") in (None, "")
+            or plan.get("free_head_field_type") in (None, "")
+            or plan.get("free_head_alignment") in (None, "")
+            or plan.get("block_next_byte_offset") in (None, "")
+            or plan.get("block_next_field_size") in (None, "")
+            or plan.get("block_next_field_type") in (None, "")
+            or plan.get("block_next_alignment") in (None, "")
+        )
+    )
 
     report.update(
         {
@@ -1461,6 +1522,19 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_local_free_non_empty_missing_count": local_free_non_empty_missing,
             "fastmem_local_free_remote_owner_rejected_count": local_free_remote_owner_rejected,
             "fastmem_local_free_block_next_proof_missing_count": local_free_block_next_missing,
+            "fastmem_free_head_list_plan": int(bool(free_head_pop_plans)),
+            "fastmem_free_head_pop_plan_count": len(free_head_pop_plans),
+            "fastmem_free_head_nonlowerable_count": free_head_nonlowerable,
+            "fastmem_free_head_pop_lowerable_count": free_head_pop_lowerable,
+            "fastmem_free_head_access_resolved_count": free_head_access_resolved,
+            "fastmem_free_head_block_next_access_resolved_count": free_head_block_next_access_resolved,
+            "fastmem_free_head_access_plan_incomplete_count": free_head_access_plan_incomplete,
+            "fastmem_free_head_non_empty_fact_count": len(free_head_non_empty_facts),
+            "fastmem_free_head_same_owner_required": int(bool(free_head_pop_plans)),
+            "fastmem_free_head_same_owner_missing_count": free_head_same_owner_missing,
+            "fastmem_free_head_non_empty_required": int(bool(free_head_pop_plans)),
+            "fastmem_free_head_non_empty_missing_count": free_head_non_empty_missing,
+            "fastmem_free_head_remote_owner_rejected_count": free_head_remote_owner_rejected,
             "fastmem_verified_mem_access_plan_count": len(verified_plans),
             "fastmem_verified_field_access_count": len(verified_field_plans),
             "fastmem_verified_table_access_count": len(verified_table_plans),

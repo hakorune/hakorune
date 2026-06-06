@@ -213,6 +213,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             or is_mem_method_call(expr, "assumeSameOwner")
             or is_mem_method_call(expr, "assumeLocalFreeBlockNext")
             or is_mem_method_call(expr, "assumeLocalFreeNonEmpty")
+            or is_mem_method_call(expr, "assumeFreeHeadNonEmpty")
         ):
             pass
         else:
@@ -247,6 +248,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             "mem.assumeSameOwner",
             "mem.assumeLocalFreeBlockNext",
             "mem.assumeLocalFreeNonEmpty",
+            "mem.assumeFreeHeadNonEmpty",
         }:
             pass
         else:
@@ -466,6 +468,19 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_local_free_non_empty_missing_count": 0,
         "fastmem_local_free_remote_owner_rejected_count": 0,
         "fastmem_local_free_block_next_proof_missing_count": 0,
+        "fastmem_free_head_list_plan": 0,
+        "fastmem_free_head_pop_plan_count": 0,
+        "fastmem_free_head_nonlowerable_count": 0,
+        "fastmem_free_head_pop_lowerable_count": 0,
+        "fastmem_free_head_access_resolved_count": 0,
+        "fastmem_free_head_block_next_access_resolved_count": 0,
+        "fastmem_free_head_access_plan_incomplete_count": 0,
+        "fastmem_free_head_non_empty_fact_count": 0,
+        "fastmem_free_head_same_owner_required": 0,
+        "fastmem_free_head_same_owner_missing_count": 0,
+        "fastmem_free_head_non_empty_required": 0,
+        "fastmem_free_head_non_empty_missing_count": 0,
+        "fastmem_free_head_remote_owner_rejected_count": 0,
         "fastmem_memop_typed_load_count": 0,
         "fastmem_memop_typed_store_count": 0,
         "fastmem_memop_atomic_cas_count": 0,

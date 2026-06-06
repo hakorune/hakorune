@@ -66,6 +66,7 @@ FAIL_FIELDS = [
     "safe_capability_wrapper_rawptr_surface",
     "safe_capability_wrapper_deref_surface",
     "safe_capability_wrapper_escape_count",
+    "fastmem_free_head_access_plan_incomplete_count",
 ]
 
 FAIL_STRING_FIELDS = {

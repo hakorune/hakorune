@@ -9,7 +9,8 @@ use super::{MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::vars::assignment_resolver::AssignmentResolverBox;
 use crate::mir::function::{
-    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemLocalFreeNonEmptyFact,
+    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
+    FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
     FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
     FastMemSameOwnerFact, FastMemSameOwnerProofKind, FastMemTableLengthFact,
     FastMemTableLengthPolicyKind, RangeIndexFact, RangeIndexFactOriginKind,
@@ -289,6 +290,11 @@ fn lower_fastmem_function_call(
             let arg =
                 single_fastmem_arg(builder, region, "mem.assumeLocalFreeNonEmpty", arguments)?;
             builder.add_fastmem_local_free_non_empty_fact(region, arg)?;
+            crate::mir::builder::emission::constant::emit_void(builder)
+        }
+        "mem.assumeFreeHeadNonEmpty" => {
+            let arg = single_fastmem_arg(builder, region, "mem.assumeFreeHeadNonEmpty", arguments)?;
+            builder.add_fastmem_free_head_non_empty_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         "mem.assumeTableLength" => {
@@ -664,6 +670,30 @@ impl MirBuilder {
         Ok(())
     }
 
+    fn add_fastmem_free_head_non_empty_fact(
+        &mut self,
+        region: FastMemRegionId,
+        page_value: ValueId,
+    ) -> Result<(), String> {
+        let function = self
+            .scope_ctx
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
+        let fact_id = function.metadata.fastmem_free_head_non_empty_facts.len() as u32;
+        function
+            .metadata
+            .fastmem_free_head_non_empty_facts
+            .push(FastMemFreeHeadNonEmptyFact {
+                fact_id,
+                region,
+                page_value,
+                proof_kind: FastMemFreeHeadNonEmptyProofKind::SourceAssumeFreeHeadNonEmpty,
+                non_empty: true,
+            });
+        Ok(())
+    }
+
     fn add_fastmem_range_index_fact(
         &mut self,
         index_value: ValueId,
@@ -1002,6 +1032,11 @@ mod tests {
                         span: span(),
                     },
                     ASTNode::FunctionCall {
+                        name: "mem.assumeFreeHeadNonEmpty".to_string(),
+                        arguments: vec![var("page")],
+                        span: span(),
+                    },
+                    ASTNode::FunctionCall {
                         name: "mem.localFreePush".to_string(),
                         arguments: vec![var("page"), var("block")],
                         span: span(),
@@ -1019,6 +1054,7 @@ mod tests {
             function.metadata.fastmem_local_free_non_empty_facts.len(),
             1
         );
+        assert_eq!(function.metadata.fastmem_free_head_non_empty_facts.len(), 1);
         assert_eq!(
             function.metadata.fastmem_same_owner_facts[0].region,
             FastMemRegionId::new(0)
@@ -1028,5 +1064,6 @@ mod tests {
             "next"
         );
         assert!(function.metadata.fastmem_local_free_non_empty_facts[0].non_empty);
+        assert!(function.metadata.fastmem_free_head_non_empty_facts[0].non_empty);
     }
 }
