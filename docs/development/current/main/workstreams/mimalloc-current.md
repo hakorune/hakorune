@@ -146,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-020 refill branch/route selection
+  MIM-PORT-FMEM-021 page-local alloc route report surface
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -187,7 +187,8 @@ implementation_sequence:
   MIM-PORT-FMEM-019 refill counter field-group pilot (landed)
   MIM-PORT-FMEM-019B FreeHeadPush-derived non-empty proof and
     refill-then-free_head alloc body pilot (landed)
-  MIM-PORT-FMEM-020 refill branch/route selection
+  MIM-PORT-FMEM-020 refill branch/route selection (landed)
+  MIM-PORT-FMEM-021 page-local alloc route report surface
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
