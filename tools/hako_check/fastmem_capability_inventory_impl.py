@@ -1303,6 +1303,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         plan for plan in plans if str(plan.get("kind")) == "free_head_pop"
     ]
     free_head_plans = free_head_push_plans + free_head_pop_plans
+    atomic_remote_head_push_plans = [
+        plan for plan in plans if str(plan.get("kind")) == "atomic_remote_head_push"
+    ]
     rejected_table_plans = [
         plan
         for plan in plans
@@ -1491,6 +1494,45 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             or plan.get("block_next_alignment") in (None, "")
         )
     )
+    atomic_remote_head_push_lowerable = sum(
+        1 for plan in atomic_remote_head_push_plans if bool(plan.get("lowerable"))
+    )
+    atomic_remote_head_remote_owner_required = int(
+        any(bool(plan.get("remote_owner_required")) for plan in atomic_remote_head_push_plans)
+    )
+    atomic_remote_head_remote_owner_missing = sum(
+        1
+        for plan in atomic_remote_head_push_plans
+        if bool(plan.get("remote_owner_required"))
+        and not bool(plan.get("remote_owner_proof_valid"))
+    )
+    atomic_remote_head_block_next_required = int(
+        any(bool(plan.get("block_next_required")) for plan in atomic_remote_head_push_plans)
+    )
+    atomic_remote_head_block_next_missing = sum(
+        1
+        for plan in atomic_remote_head_push_plans
+        if bool(plan.get("block_next_required"))
+        and not bool(plan.get("block_next_proof_valid"))
+    )
+    atomic_remote_head_access_resolved = sum(
+        1
+        for plan in atomic_remote_head_push_plans
+        if plan.get("remote_head_byte_offset") not in (None, "")
+        and plan.get("remote_head_field_size") not in (None, "")
+        and plan.get("remote_head_field_type") not in (None, "")
+        and plan.get("remote_head_alignment") not in (None, "")
+    )
+    atomic_remote_head_memory_order_policy = ",".join(
+        sorted(
+            {
+                str(plan.get("memory_order_policy") or "unknown")
+                for plan in atomic_remote_head_push_plans
+            }
+        )
+    )
+    if not atomic_remote_head_memory_order_policy:
+        atomic_remote_head_memory_order_policy = "none"
 
     report.update(
         {
@@ -1568,6 +1610,18 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_free_head_non_empty_missing_count": free_head_non_empty_missing,
             "fastmem_free_head_remote_owner_rejected_count": free_head_remote_owner_rejected,
             "fastmem_free_head_block_next_proof_missing_count": free_head_block_next_missing,
+            "atomic_remote_head_push_plan_count": len(atomic_remote_head_push_plans),
+            "atomic_remote_head_push_lowerable_count": atomic_remote_head_push_lowerable,
+            "atomic_remote_head_remote_owner_required": (
+                atomic_remote_head_remote_owner_required
+            ),
+            "atomic_remote_head_remote_owner_missing_count": (
+                atomic_remote_head_remote_owner_missing
+            ),
+            "atomic_remote_head_block_next_required": atomic_remote_head_block_next_required,
+            "atomic_remote_head_block_next_missing_count": atomic_remote_head_block_next_missing,
+            "atomic_remote_head_access_resolved_count": atomic_remote_head_access_resolved,
+            "atomic_remote_head_memory_order_policy": atomic_remote_head_memory_order_policy,
             "fastmem_verified_mem_access_plan_count": len(verified_plans),
             "fastmem_verified_field_access_count": len(verified_field_plans),
             "fastmem_verified_table_access_count": len(verified_table_plans),

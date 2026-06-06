@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-028.
 Related:
@@ -30,6 +30,25 @@ atomic_remote_head_block_next_missing_count
 atomic_remote_head_memory_order_policy=<closed|acq_rel>
 ```
 
+## Landed Evidence
+
+```text
+atomic_remote_head_push_plan_count=1
+atomic_remote_head_push_lowerable_count=0
+atomic_remote_head_remote_owner_required=1
+atomic_remote_head_remote_owner_missing_count=1
+atomic_remote_head_block_next_required=1
+atomic_remote_head_block_next_missing_count=1
+atomic_remote_head_access_resolved_count=1
+atomic_remote_head_memory_order_policy=closed
+```
+
+`AtomicRemoteHeadPush` now creates a verifier-owned rejected access-plan row.
+The plan resolves the `remote_head` field contract but keeps CAS lowering
+closed until remote-owner proof and publication block-next proof vocabulary is
+accepted. The verified mem access count remains limited to TableIndex/FieldLoad
+rows; AtomicRemoteHead is reported separately as a precondition row.
+
 ## Still Closed
 
 ```text
@@ -41,4 +60,10 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-029 AtomicRemoteHead proof vocabulary selection
 ```

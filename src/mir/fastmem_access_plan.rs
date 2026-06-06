@@ -31,6 +31,7 @@ pub enum FastMemAccessPlanKind {
     LocalFreePop,
     FreeHeadPush,
     FreeHeadPop,
+    AtomicRemoteHeadPush,
 }
 
 impl FastMemAccessPlanKind {
@@ -43,6 +44,7 @@ impl FastMemAccessPlanKind {
             Self::LocalFreePop => "local_free_pop",
             Self::FreeHeadPush => "free_head_push",
             Self::FreeHeadPop => "free_head_pop",
+            Self::AtomicRemoteHeadPush => "atomic_remote_head_push",
         }
     }
 }
@@ -186,6 +188,33 @@ pub struct FastMemFreeHeadListPlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemAtomicRemoteHeadPlan {
+    pub page: ValueId,
+    pub block: Option<ValueId>,
+    pub result: Option<ValueId>,
+    pub remote_head_layout_id: Option<String>,
+    pub remote_head_field_id: Option<String>,
+    pub remote_head_field_class: Option<String>,
+    pub remote_head_byte_offset: Option<u32>,
+    pub remote_head_field_size: Option<u32>,
+    pub remote_head_field_type: Option<String>,
+    pub remote_head_alignment: Option<u32>,
+    pub block_next_layout_id: Option<String>,
+    pub block_next_field_id: Option<String>,
+    pub block_next_field_class: Option<String>,
+    pub block_next_byte_offset: Option<u32>,
+    pub block_next_field_size: Option<u32>,
+    pub block_next_field_type: Option<String>,
+    pub block_next_alignment: Option<u32>,
+    pub remote_owner_required: bool,
+    pub remote_owner_proof_valid: bool,
+    pub block_next_required: bool,
+    pub block_next_proof_valid: bool,
+    pub memory_order_policy: String,
+    pub lowerable: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FastMemTableAccessProof {
     pub table_length_resolved: bool,
     pub bounds_proof_valid: bool,
@@ -218,6 +247,7 @@ pub enum FastMemAccessPlanPayload {
     Table(FastMemTableAccessPlan),
     LocalFree(FastMemLocalFreeListPlan),
     FreeHead(FastMemFreeHeadListPlan),
+    AtomicRemoteHead(FastMemAtomicRemoteHeadPlan),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -393,6 +423,15 @@ fn plan_from_memop(
             same_owner_facts,
             block_next_facts,
             free_head_non_empty_facts,
+        ),
+        MemOpKind::AtomicRemoteHeadPush => atomic_remote_head_plan(
+            block,
+            instruction_index,
+            region,
+            dst,
+            operands,
+            contract,
+            block_next_facts,
         ),
         _ => None,
     }
@@ -622,7 +661,8 @@ fn table_field_access_links(plans: &mut [FastMemAccessPlan]) -> Vec<FastMemTable
                 FastMemAccessPlanPayload::Field(_) | FastMemAccessPlanPayload::LocalFree(_) => {
                     false
                 }
-                FastMemAccessPlanPayload::FreeHead(_) => false,
+                FastMemAccessPlanPayload::FreeHead(_)
+                | FastMemAccessPlanPayload::AtomicRemoteHead(_) => false,
             };
             if lowerable {
                 plan.status = FastMemAccessPlanStatus::Verified;
@@ -1231,6 +1271,143 @@ fn free_head_plan(
     })
 }
 
+fn atomic_remote_head_plan(
+    block: BasicBlockId,
+    instruction_index: usize,
+    region: FastMemRegionId,
+    dst: Option<ValueId>,
+    operands: &[ValueId],
+    contract: Option<&str>,
+    block_next_facts: &[FastMemBlockNextFact],
+) -> Option<FastMemAccessPlan> {
+    let page = operands.first().copied()?;
+    let block_value = operands.get(1).copied();
+    let resolved = contract.map(|contract| {
+        resolve_fastmem_field_contract(contract, "remote_head", FastMemFieldAccessMode::Load)
+            .map_err(|err| err.reason())
+    });
+    let (
+        failure_reason,
+        layout_id,
+        field_id,
+        field_class,
+        head_byte_offset,
+        head_field_size,
+        head_field_type,
+        head_alignment,
+    ) = match resolved {
+        Some(Ok(resolved)) => (
+            None,
+            Some(resolved.layout_id),
+            Some(resolved.field_id),
+            Some(resolved.field_class),
+            Some(resolved.byte_offset),
+            Some(resolved.field_size),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+        ),
+        Some(Err(reason)) => (Some(reason), None, None, None, None, None, None, None),
+        None => (
+            Some("layout-field-contract-unresolved".to_string()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+    };
+    let block_next_field_id = "next";
+    let block_next_fact = block_value.and_then(|block_value| {
+        block_next_fact(block_next_facts, region, block_value).filter(|fact| {
+            fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
+        })
+    });
+    let block_next_resolved = block_next_fact.and_then(|fact| {
+        contract.and_then(|contract| {
+            resolve_fastmem_block_next_contract(contract, &fact.next_field_id).ok()
+        })
+    });
+    let (
+        block_next_layout_id,
+        block_next_field_id,
+        block_next_field_class,
+        block_next_byte_offset,
+        block_next_field_size,
+        block_next_field_type,
+        block_next_alignment,
+    ) = if let Some(resolved) = block_next_resolved {
+        (
+            Some(resolved.layout_id),
+            Some(resolved.field_id),
+            Some(resolved.field_class),
+            Some(resolved.byte_offset),
+            Some(resolved.field_size),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+        )
+    } else {
+        (None, None, None, None, None, None, None)
+    };
+    let block_next_proof_valid = block_next_fact.is_some()
+        && block_next_layout_id.is_some()
+        && block_next_field_id.is_some()
+        && block_next_byte_offset.is_some()
+        && block_next_field_size.is_some()
+        && block_next_field_type.is_some()
+        && block_next_alignment.is_some();
+    let remote_owner_required = true;
+    let remote_owner_proof_valid = false;
+    let block_next_required = true;
+    let memory_order_policy = "closed".to_string();
+    let lowerable = false;
+    let status = FastMemAccessPlanStatus::Rejected;
+    let failure_reason = failure_reason.or_else(|| {
+        if !remote_owner_proof_valid {
+            Some("atomic-remote-head-remote-owner-proof-missing".to_string())
+        } else if !block_next_proof_valid {
+            Some("atomic-remote-head-block-next-proof-missing".to_string())
+        } else {
+            Some("atomic-remote-head-cas-lowering-closed".to_string())
+        }
+    });
+
+    Some(FastMemAccessPlan {
+        block,
+        instruction_index,
+        region,
+        kind: FastMemAccessPlanKind::AtomicRemoteHeadPush,
+        status,
+        failure_reason,
+        payload: FastMemAccessPlanPayload::AtomicRemoteHead(FastMemAtomicRemoteHeadPlan {
+            page,
+            block: block_value,
+            result: dst,
+            remote_head_layout_id: layout_id,
+            remote_head_field_id: field_id,
+            remote_head_field_class: field_class,
+            remote_head_byte_offset: head_byte_offset,
+            remote_head_field_size: head_field_size,
+            remote_head_field_type: head_field_type,
+            remote_head_alignment: head_alignment,
+            block_next_layout_id,
+            block_next_field_id,
+            block_next_field_class,
+            block_next_byte_offset,
+            block_next_field_size,
+            block_next_field_type,
+            block_next_alignment,
+            remote_owner_required,
+            remote_owner_proof_valid,
+            block_next_required,
+            block_next_proof_valid,
+            memory_order_policy,
+            lowerable,
+        }),
+    })
+}
+
 fn same_owner_fact<'a>(
     facts: &'a [FastMemSameOwnerFact],
     region: FastMemRegionId,
@@ -1766,6 +1943,104 @@ mod tests {
             plan.failure_reason.as_deref(),
             Some("atomic-field-plain-store:remote_head")
         );
+    }
+
+    #[test]
+    fn refresh_adds_nonlowerable_atomic_remote_head_push_plan() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::AtomicRemoteHeadPush,
+            None,
+            vec![ValueId::new(10), ValueId::new(11)],
+            None,
+        )]);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
+        let plan = &function.metadata.fastmem_access_plans[0];
+        assert_eq!(plan.kind, FastMemAccessPlanKind::AtomicRemoteHeadPush);
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            plan.failure_reason.as_deref(),
+            Some("atomic-remote-head-remote-owner-proof-missing")
+        );
+        let FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) = &plan.payload else {
+            panic!("expected atomic remote-head plan");
+        };
+        assert_eq!(remote_head.page, ValueId::new(10));
+        assert_eq!(remote_head.block, Some(ValueId::new(11)));
+        assert_eq!(remote_head.result, None);
+        assert_eq!(
+            remote_head.remote_head_layout_id.as_deref(),
+            Some("PageMetaLayoutV0")
+        );
+        assert_eq!(
+            remote_head.remote_head_field_id.as_deref(),
+            Some("remote_head")
+        );
+        assert_eq!(
+            remote_head.remote_head_field_class.as_deref(),
+            Some("atomic_remote_head")
+        );
+        assert_eq!(remote_head.remote_head_byte_offset, Some(32));
+        assert_eq!(remote_head.remote_head_field_size, Some(8));
+        assert_eq!(remote_head.remote_head_field_type.as_deref(), Some("usize"));
+        assert_eq!(remote_head.remote_head_alignment, Some(8));
+        assert!(remote_head.remote_owner_required);
+        assert!(!remote_head.remote_owner_proof_valid);
+        assert!(remote_head.block_next_required);
+        assert!(!remote_head.block_next_proof_valid);
+        assert_eq!(remote_head.memory_order_policy, "closed");
+        assert!(!remote_head.lowerable);
+    }
+
+    #[test]
+    fn refresh_observes_atomic_remote_head_block_next_proof_but_keeps_lowering_closed() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::AtomicRemoteHeadPush,
+            None,
+            vec![ValueId::new(10), ValueId::new(11)],
+            None,
+        )]);
+        function
+            .metadata
+            .fastmem_block_next_facts
+            .push(FastMemBlockNextFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                block_value: ValueId::new(11),
+                next_field_id: "next".to_string(),
+                proof_kind: FastMemBlockNextProofKind::SourceAssumeFreeHeadBlockNext,
+                writable: true,
+                provenance_valid: true,
+            });
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
+        let plan = &function.metadata.fastmem_access_plans[0];
+        assert_eq!(plan.kind, FastMemAccessPlanKind::AtomicRemoteHeadPush);
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
+        let FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) = &plan.payload else {
+            panic!("expected atomic remote-head plan");
+        };
+        assert!(remote_head.block_next_proof_valid);
+        assert_eq!(
+            remote_head.block_next_layout_id.as_deref(),
+            Some("FreeBlockNodeLayoutV0")
+        );
+        assert_eq!(remote_head.block_next_field_id.as_deref(), Some("next"));
+        assert_eq!(
+            remote_head.block_next_field_class.as_deref(),
+            Some("local_free_block_next")
+        );
+        assert_eq!(remote_head.block_next_byte_offset, Some(0));
+        assert_eq!(remote_head.block_next_field_size, Some(8));
+        assert_eq!(remote_head.block_next_field_type.as_deref(), Some("usize"));
+        assert_eq!(remote_head.block_next_alignment, Some(8));
+        assert!(remote_head.remote_owner_required);
+        assert!(!remote_head.remote_owner_proof_valid);
+        assert!(!remote_head.lowerable);
     }
 
     #[test]

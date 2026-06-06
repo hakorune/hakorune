@@ -546,6 +546,94 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                         );
                         map.insert("lowerable".to_string(), json!(free_head.lowerable));
                     }
+                    FastMemAccessPlanPayload::AtomicRemoteHead(remote_head) => {
+                        map.insert("page".to_string(), json!(remote_head.page.as_u32()));
+                        map.insert(
+                            "block_value".to_string(),
+                            json!(remote_head.block.map(|value| value.as_u32())),
+                        );
+                        map.insert(
+                            "result".to_string(),
+                            json!(remote_head.result.map(|value| value.as_u32())),
+                        );
+                        map.insert(
+                            "remote_head_layout_id".to_string(),
+                            json!(&remote_head.remote_head_layout_id),
+                        );
+                        map.insert(
+                            "remote_head_field_id".to_string(),
+                            json!(&remote_head.remote_head_field_id),
+                        );
+                        map.insert(
+                            "remote_head_field_class".to_string(),
+                            json!(&remote_head.remote_head_field_class),
+                        );
+                        map.insert(
+                            "remote_head_byte_offset".to_string(),
+                            json!(remote_head.remote_head_byte_offset),
+                        );
+                        map.insert(
+                            "remote_head_field_size".to_string(),
+                            json!(remote_head.remote_head_field_size),
+                        );
+                        map.insert(
+                            "remote_head_field_type".to_string(),
+                            json!(&remote_head.remote_head_field_type),
+                        );
+                        map.insert(
+                            "remote_head_alignment".to_string(),
+                            json!(remote_head.remote_head_alignment),
+                        );
+                        map.insert(
+                            "block_next_layout_id".to_string(),
+                            json!(&remote_head.block_next_layout_id),
+                        );
+                        map.insert(
+                            "block_next_field_id".to_string(),
+                            json!(&remote_head.block_next_field_id),
+                        );
+                        map.insert(
+                            "block_next_field_class".to_string(),
+                            json!(&remote_head.block_next_field_class),
+                        );
+                        map.insert(
+                            "block_next_byte_offset".to_string(),
+                            json!(remote_head.block_next_byte_offset),
+                        );
+                        map.insert(
+                            "block_next_field_size".to_string(),
+                            json!(remote_head.block_next_field_size),
+                        );
+                        map.insert(
+                            "block_next_field_type".to_string(),
+                            json!(&remote_head.block_next_field_type),
+                        );
+                        map.insert(
+                            "block_next_alignment".to_string(),
+                            json!(remote_head.block_next_alignment),
+                        );
+                        map.insert(
+                            "remote_owner_required".to_string(),
+                            json!(remote_head.remote_owner_required),
+                        );
+                        map.insert(
+                            "remote_owner_proof_valid".to_string(),
+                            json!(remote_head.remote_owner_proof_valid),
+                        );
+                        map.insert(
+                            "block_next_required".to_string(),
+                            json!(remote_head.block_next_required),
+                        );
+                        map.insert(
+                            "block_next_proof_valid".to_string(),
+                            json!(remote_head.block_next_proof_valid),
+                        );
+                        map.insert(
+                            "memory_order_policy".to_string(),
+                            json!(&remote_head.memory_order_policy),
+                        );
+                        map.insert("lowerable".to_string(), json!(remote_head.lowerable));
+                    }
                 }
             }
             row

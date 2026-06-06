@@ -146,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-028 AtomicRemoteHead verifier preconditions
+  MIM-PORT-FMEM-029 AtomicRemoteHead proof vocabulary selection
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -195,7 +195,8 @@ implementation_sequence:
   MIM-PORT-FMEM-025 page-local free route report surface (landed)
   MIM-PORT-FMEM-026 remote-free substrate selection (landed)
   MIM-PORT-FMEM-027 AtomicRemoteHead vocabulary source preflight (landed)
-  MIM-PORT-FMEM-028 AtomicRemoteHead verifier preconditions
+  MIM-PORT-FMEM-028 AtomicRemoteHead verifier preconditions (landed)
+  MIM-PORT-FMEM-029 AtomicRemoteHead proof vocabulary selection
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
