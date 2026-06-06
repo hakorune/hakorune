@@ -188,6 +188,12 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
     if legacy_callsite_reject_code(inst).is_some() {
         return false;
     }
+    if let MirInstruction::MemOp { kind, .. } = inst {
+        return crate::mir::contracts::fastmem_ops::is_supported_memop_kind(
+            crate::mir::contracts::fastmem_ops::FastMemBackend::MirJson,
+            *kind,
+        );
+    }
     matches!(
         inst,
         MirInstruction::Copy { .. }
@@ -296,9 +302,18 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::WeakRef { .. } => &["weak_new", "weak_load"],
         MirInstruction::Barrier { .. } => &["barrier"],
         MirInstruction::Select { .. } => &["select"],
+        MirInstruction::MemOp { kind, .. } => {
+            if crate::mir::contracts::fastmem_ops::is_supported_memop_kind(
+                crate::mir::contracts::fastmem_ops::FastMemBackend::LlvmJson,
+                *kind,
+            ) {
+                &["memop"]
+            } else {
+                &[]
+            }
+        }
 
         MirInstruction::Load { .. }
-        | MirInstruction::MemOp { .. }
         | MirInstruction::Store { .. }
         | MirInstruction::NewClosure { .. }
         | MirInstruction::Debug { .. }
@@ -339,6 +354,7 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
     "weak_new",
     "weak_load",
     "while",
+    "memop",
 ];
 
 /// Canonical LLVM JSON opcode allowlist (Python lowerer frontend contract).
@@ -577,19 +593,40 @@ mod tests {
     }
 
     #[test]
-    fn memop_is_kept_but_not_backend_supported_yet() {
+    fn memop_value_subset_is_json_and_llvm_supported() {
         let inst = MirInstruction::MemOp {
             region: FastMemRegionId::new(1),
             kind: MemOpKind::AddrOf,
             dst: Some(ValueId::new(10)),
             operands: vec![ValueId::new(1)],
-            effects: EffectMask::READ,
+            effects: EffectMask::PURE,
         };
         assert_eq!(instruction_tag(&inst), "MemOp");
         assert_eq!(instruction_diet_cohort(&inst), InstructionDietCohort::Kept);
-        assert!(!is_supported_mir_json_instruction(&inst));
+        assert!(is_supported_mir_json_instruction(&inst));
         assert!(!is_supported_vm_instruction(&inst));
-        assert_eq!(llvm_json_ops_for_instruction(&inst), &[] as &[&str]);
+        assert_eq!(llvm_json_ops_for_instruction(&inst), &["memop"]);
+        assert!(is_supported_llvm_json_op("memop"));
+    }
+
+    #[test]
+    fn memop_memory_and_runtime_owner_ops_remain_backend_closed() {
+        for kind in [
+            MemOpKind::TableIndex,
+            MemOpKind::FieldLoad,
+            MemOpKind::FieldStore,
+            MemOpKind::CurrentAllocOwnerId,
+        ] {
+            let inst = MirInstruction::MemOp {
+                region: FastMemRegionId::new(1),
+                kind,
+                dst: Some(ValueId::new(10)),
+                operands: vec![ValueId::new(1)],
+                effects: EffectMask::READ,
+            };
+            assert!(!is_supported_mir_json_instruction(&inst));
+            assert_eq!(llvm_json_ops_for_instruction(&inst), &[] as &[&str]);
+        }
     }
 
     #[test]

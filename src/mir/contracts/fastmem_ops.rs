@@ -24,22 +24,38 @@ pub const FASTMEM_V0_MEMOP_KINDS: &[MemOpKind] = &[
     MemOpKind::OwnerEq,
 ];
 
+/// MemOps opened for MIR-FMEM-005 primary LLVM/object producer.
+///
+/// These are value-only operations with complete lowering semantics. Layout
+/// and runtime-owner operations stay closed until their dedicated rows.
+pub const FASTMEM_LLVM_VALUE_MEMOP_KINDS: &[MemOpKind] = &[
+    MemOpKind::AddrOf,
+    MemOpKind::LogicalShr,
+    MemOpKind::BitAnd,
+    MemOpKind::Add,
+    MemOpKind::Sub,
+    MemOpKind::OwnerEq,
+];
+
 pub fn is_fastmem_v0_memop_kind(kind: MemOpKind) -> bool {
     FASTMEM_V0_MEMOP_KINDS.contains(&kind)
 }
 
-/// MIR-FMEM-002 only opens the vocabulary. Execution/transport support stays
-/// closed until the dedicated JSON, verifier, and lowering rows.
+pub fn is_fastmem_llvm_value_memop_kind(kind: MemOpKind) -> bool {
+    FASTMEM_LLVM_VALUE_MEMOP_KINDS.contains(&kind)
+}
+
+/// Backend support is opened by dedicated rows. MIR-FMEM-005 opens only the
+/// value-only MemOp subset for MIR JSON transport and LLVM lowering.
 pub fn is_supported_memop_kind(backend: FastMemBackend, kind: MemOpKind) -> bool {
     if !is_fastmem_v0_memop_kind(kind) {
         return false;
     }
     match backend {
-        FastMemBackend::MirJson
-        | FastMemBackend::Vm
-        | FastMemBackend::LlvmJson
-        | FastMemBackend::LlvmNative
-        | FastMemBackend::CArtifact => false,
+        FastMemBackend::MirJson | FastMemBackend::LlvmJson | FastMemBackend::LlvmNative => {
+            is_fastmem_llvm_value_memop_kind(kind)
+        }
+        FastMemBackend::Vm | FastMemBackend::CArtifact => false,
     }
 }
 
@@ -75,17 +91,24 @@ mod tests {
     }
 
     #[test]
-    fn fastmem_backends_are_closed_for_vocabulary_only_slice() {
-        for backend in [
-            FastMemBackend::MirJson,
-            FastMemBackend::Vm,
-            FastMemBackend::LlvmJson,
-            FastMemBackend::LlvmNative,
-            FastMemBackend::CArtifact,
+    fn llvm_value_memops_are_the_only_open_backend_subset() {
+        for kind in FASTMEM_LLVM_VALUE_MEMOP_KINDS {
+            assert!(is_supported_memop_kind(FastMemBackend::MirJson, *kind));
+            assert!(is_supported_memop_kind(FastMemBackend::LlvmJson, *kind));
+            assert!(is_supported_memop_kind(FastMemBackend::LlvmNative, *kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::Vm, *kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::CArtifact, *kind));
+        }
+
+        for kind in [
+            MemOpKind::TableIndex,
+            MemOpKind::FieldLoad,
+            MemOpKind::FieldStore,
+            MemOpKind::CurrentAllocOwnerId,
         ] {
-            for kind in FASTMEM_V0_MEMOP_KINDS {
-                assert!(!is_supported_memop_kind(backend, *kind));
-            }
+            assert!(!is_supported_memop_kind(FastMemBackend::MirJson, kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::LlvmJson, kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::LlvmNative, kind));
         }
     }
 }

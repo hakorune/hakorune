@@ -226,6 +226,21 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "failure_reason": obligation.failure_reason,
             })
         }).collect::<Vec<_>>(),
+        "fastmem_regions": metadata.fastmem_regions.iter().map(|region| {
+            json!({
+                "id": region.id.0,
+                "contract": region.contract,
+                "origin": fastmem_region_origin_name(region.origin),
+                "body_statement_count": region.body_statement_count,
+                "emitted_memop_count": region.emitted_memop_count,
+                "source_span": {
+                    "start": region.source_span.start,
+                    "end": region.source_span.end,
+                    "line": region.source_span.line,
+                    "column": region.source_span.column,
+                },
+            })
+        }).collect::<Vec<_>>(),
         "effect_summaries": metadata.effect_summaries.iter().map(|summary| {
             json!({
                 "method": summary.method,
@@ -1109,6 +1124,12 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_plan_metadata_json(obj, metadata);
     }
     metadata_json
+}
+
+fn fastmem_region_origin_name(origin: crate::mir::function::FastMemRegionOrigin) -> &'static str {
+    match origin {
+        crate::mir::function::FastMemRegionOrigin::SourceFastMemBlock => "source_fastmem_block",
+    }
 }
 
 fn binary_op_route_symbol(op: BinaryOp) -> &'static str {

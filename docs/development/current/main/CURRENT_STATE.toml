@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIR-FMEM-004 landed verifier gates; 296x-442 realigned producer order; 296x-443 fixed bridge retirement timing so MIR-FMEM-005 keeps Python-template C as baseline, MIR-FMEM-006 proves parity, and MIR-FMEM-007 retires it."
+active_lane_status = "MIR-FMEM-005 landed MIR JSON transport and Python LLVM lowering for the value-only FastMemory MemOp subset; next is MIR-FMEM-006 producer-neutral parity against python_template_c_bridge."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-443-PYTHON-C-BRIDGE-RETIREMENT-GATE.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-444-MIR-FASTMEM-LLVM-PRIMARY-PRODUCER.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-443-PYTHON-C-BRIDGE-RETIREMENT-GATE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-443-PYTHON-C-BRIDGE-RETIREMENT-GATE.md"
-latest_card_summary = "Clarified Python-template C bridge retirement: MIR-FMEM-005 keeps it as baseline, MIR-FMEM-006 proves producer-neutral parity, and MIR-FMEM-007 retires it without hidden fallback."
-current_blocker_token = "MIR-FMEM-005"
+latest_card = "296x-444-MIR-FASTMEM-LLVM-PRIMARY-PRODUCER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-444-MIR-FASTMEM-LLVM-PRIMARY-PRODUCER.md"
+latest_card_summary = "Landed MIR-FMEM-005: MIR JSON transport and Python LLVM lowering for value-only FastMemory MemOps, while layout/runtime-owner MemOps and Python-template C retirement remain closed."
+current_blocker_token = "MIR-FMEM-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-444 landed MIR-FMEM-005 MIR-to-LLVM/object primary producer for value-only FastMemory MemOps; MIR-FMEM-006 producer-neutral parity against python_template_c_bridge opens next.",
   "2026-06-06: 296x-443 clarified Python-template C bridge retirement timing: MIR-FMEM-005 keeps the bridge as baseline, MIR-FMEM-006 proves producer-neutral parity, and MIR-FMEM-007 retires it without hidden fallback.",
   "2026-06-06: 296x-442 realigned FastMemory producer order: MIR-FMEM-005 is MIR-to-LLVM/object primary producer, MIR-to-C is deferred optional debug/diff artifact, and Python-template C bridge retirement remains after producer-neutral parity.",
   "2026-06-06: 296x-441 landed MIR-FMEM-004 verifier gates for FastMemory region metadata, MemOp kind/arity/effect shape, and no-escape; its original MIR-to-C next step was superseded by 296x-442.",

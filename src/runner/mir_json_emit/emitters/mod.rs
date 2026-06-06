@@ -1,6 +1,7 @@
 mod basic;
 mod calls;
 mod control_flow;
+mod fastmem;
 mod fields;
 mod phi;
 mod sum;
@@ -166,6 +167,13 @@ fn emit_instruction(
             else_val,
             ..
         } => Ok(basic::emit_select(dst, cond, then_val, else_val)),
+        I::MemOp {
+            region,
+            kind,
+            dst,
+            operands,
+            effects,
+        } => Ok(fastmem::emit_memop(region, kind, dst, operands, effects)),
         I::Call {
             dst,
             func,

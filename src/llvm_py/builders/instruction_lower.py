@@ -27,6 +27,7 @@ from instructions.controlflow.while_ import lower_while_regular
 from instructions.mir_call import lower_mir_call  # New unified handler
 from instructions.weak import lower_weak_new, lower_weak_load  # Phase 285LLVM-1: WeakRef
 from instructions.lifecycle import lower_keepalive, lower_release_strong  # Phase 287: Lifecycle
+from instructions.memop import lower_memop
 
 _SAFE_INSTRUCTION_LOWER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
 
@@ -59,6 +60,7 @@ SUPPORTED_OPS = {
     "weak_new",
     "weak_load",
     "while",
+    "memop",
 }
 
 
@@ -357,6 +359,17 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             lower_while_regular(builder, func, cond, body,
                                 owner.loop_count, ctx.vmap, ctx.bb_map,
                                 ctx.resolver, ctx.preds, ctx.block_end_values, None)
+    elif op == "memop":
+        lower_memop(
+            builder,
+            inst,
+            vmap_ctx,
+            ctx.resolver,
+            builder.block,
+            ctx.preds,
+            ctx.block_end_values,
+            ctx.bb_map,
+        )
     else:
         # Defensive path (should be unreachable due to pre-check)
         msg = f"[llvm/lower:unsupported_op] unknown instruction: {op}"

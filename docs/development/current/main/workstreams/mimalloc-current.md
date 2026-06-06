@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-005 MIR-to-LLVM/object primary producer
+  MIR-FMEM-006 producer-neutral parity against python_template_c_bridge
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -171,6 +171,9 @@ why:
   lane and must not become semantic SSOT. 296x-443 then fixed the removal
   timing: MIR-FMEM-005 keeps the Python-template C bridge as baseline,
   MIR-FMEM-006 proves producer-neutral parity, and MIR-FMEM-007 retires it.
+  296x-444 landed MIR-FMEM-005 by opening MIR JSON transport and Python LLVM
+  lowering for the value-only FastMemory MemOp subset. Layout/table MemOps and
+  allocator owner TLS runtime MemOps remain closed until their dedicated rows.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -210,6 +213,7 @@ completed_this_slice:
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
   296x-442 FastMemory producer task order realignment
   296x-443 Python-template C bridge retirement gate
+  MIR-FMEM-005 MIR-to-LLVM/object primary producer for value-only MemOps
 
 task_order:
   MIM-FMEM-001 FastMemoryContract docs/report lock

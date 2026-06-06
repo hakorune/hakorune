@@ -98,6 +98,10 @@ MIR-FMEM-004 landed verifier gates:
   MIR-FMEM-005 opens the MIR-to-LLVM/object primary producer next, while
   MIR-to-C is deferred to an optional debug/diff/bootstrap artifact lane.
   JSON/VM/product activation remain closed.
+MIR-FMEM-005 landed the primary producer subset:
+  MIR JSON transport and Python LLVM lowering are open for value-only FastMemory
+  MemOps. Table/layout and allocator-owner TLS runtime MemOps remain closed.
+  MIR-FMEM-006 opens producer-neutral parity against python_template_c_bridge.
 ```
 
 ## Queue
