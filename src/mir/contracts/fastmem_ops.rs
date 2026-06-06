@@ -51,6 +51,7 @@ pub const FASTMEM_FREE_LIST_MEMOP_KINDS: &[MemOpKind] = &[
 pub const FASTMEM_REMOTE_FREE_MEMOP_KINDS: &[MemOpKind] = &[
     MemOpKind::AtomicRemoteHeadPush,
     MemOpKind::AtomicRemoteHeadDrain,
+    MemOpKind::DrainRemoteListToLocal,
 ];
 
 /// Complete MemOp set accepted by the current MIR-to-LLVM/object producer.
@@ -118,7 +119,7 @@ mod tests {
 
     #[test]
     fn fastmem_v0_memop_kind_count_is_intentional() {
-        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 16);
+        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 17);
     }
 
     #[test]

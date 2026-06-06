@@ -1599,6 +1599,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_memop_atomic_remote_head_drain_count": count_memop(
                 "atomic_remote_head_drain"
             ),
+            "fastmem_memop_drain_remote_list_to_local_count": count_memop(
+                "drain_remote_list_to_local"
+            ),
             "fastmem_local_free_list_plan": int(bool(local_free_plans)),
             "fastmem_local_free_push_plan_count": len(local_free_push_plans),
             "fastmem_local_free_pop_plan_count": len(local_free_pop_plans),
@@ -1646,6 +1649,7 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "atomic_remote_head_push_lowerable_count": atomic_remote_head_push_lowerable,
             "atomic_remote_head_drain_plan_count": len(atomic_remote_head_drain_plans),
             "atomic_remote_head_drain_lowerable_count": atomic_remote_head_drain_lowerable,
+            "atomic_remote_head_drain_local_list_mutation_lowerable_count": 0,
             "atomic_remote_head_remote_owner_required": (
                 atomic_remote_head_remote_owner_required
             ),

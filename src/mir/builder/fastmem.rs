@@ -278,6 +278,23 @@ fn lower_fastmem_function_call(
             let arg = single_fastmem_arg(builder, region, "mem.atomicRemoteHeadDrain", arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::AtomicRemoteHeadDrain, vec![arg])
         }
+        "mem.drainRemoteListToLocal" => {
+            let args = lower_fastmem_args(builder, region, arguments)?;
+            if args.len() != 2 {
+                return Err(format!(
+                    "[freeze:contract][fastmem/arity] call=mem.drainRemoteListToLocal expected=2 actual={}",
+                    args.len()
+                ));
+            }
+            builder.emit_fastmem_memop(
+                region,
+                MemOpKind::DrainRemoteListToLocal,
+                None,
+                args,
+                None,
+            )?;
+            crate::mir::builder::emission::constant::emit_void(builder)
+        }
         "mem.localFreePop" => {
             let arg = single_fastmem_arg(builder, region, "mem.localFreePop", arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::LocalFreePop, vec![arg])
@@ -1223,6 +1240,57 @@ mod tests {
         assert_eq!(
             kinds,
             vec![MemOpKind::TableIndex, MemOpKind::AtomicRemoteHeadDrain]
+        );
+    }
+
+    #[test]
+    fn fastmem_source_emits_drain_remote_list_to_local_memop() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_drain_remote_list_to_local/0".to_string());
+        let body = vec![
+            local("page_table", int_lit(8192)),
+            local("key", int_lit(3)),
+            ASTNode::FastMemRegion {
+                contract: "PageMapV0".to_string(),
+                body: vec![
+                    local("page", index(var("page_table"), var("key"))),
+                    local(
+                        "drained",
+                        ASTNode::FunctionCall {
+                            name: "mem.atomicRemoteHeadDrain".to_string(),
+                            arguments: vec![var("page")],
+                            span: span(),
+                        },
+                    ),
+                    ASTNode::FunctionCall {
+                        name: "mem.drainRemoteListToLocal".to_string(),
+                        arguments: vec![var("page"), var("drained")],
+                        span: span(),
+                    },
+                ],
+                span: span(),
+            },
+        ];
+
+        super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let kinds: Vec<MemOpKind> = function
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter_map(|inst| match inst {
+                MirInstruction::MemOp { kind, .. } => Some(*kind),
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(
+            kinds,
+            vec![
+                MemOpKind::TableIndex,
+                MemOpKind::AtomicRemoteHeadDrain,
+                MemOpKind::DrainRemoteListToLocal,
+            ]
         );
     }
 

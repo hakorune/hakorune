@@ -458,6 +458,38 @@ ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_EXPECTED_POSITIVE = (
     "atomic_remote_head_access_resolved_count",
     "memop_atomic_remote_head_drain_count",
 )
+ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_VOCABULARY_EXPECTED_ZERO = (
+    "atomic_remote_head_drain_local_list_mutation_open",
+    "atomic_remote_head_drain_local_list_token_escape_count",
+    "atomic_remote_head_drain_local_list_mutation_lowerable_count",
+    "remote_owner_branch_routing_open",
+    "atomic_remote_head_remote_owner_missing_count",
+    "atomic_remote_head_block_next_missing_count",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_VOCABULARY_EXPECTED_POSITIVE = (
+    "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+    "fastmem_memop_drain_remote_list_to_local_count",
+    "atomic_remote_head_drain_selected",
+    "atomic_remote_head_drain_exchange_selected",
+    "atomic_remote_head_drain_open",
+    "atomic_remote_head_drain_plan_count",
+    "atomic_remote_head_drain_lowerable_count",
+    "atomic_remote_head_drain_lowered_count",
+    "atomic_remote_head_drain_to_local_route_selected",
+    "atomic_remote_head_drain_to_local_route_open",
+    "atomic_remote_head_drain_local_list_mutation_selected",
+    "atomic_remote_head_drain_local_list_head_class_resolved",
+    "atomic_remote_head_access_resolved_count",
+    "memop_atomic_remote_head_drain_count",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -589,6 +621,18 @@ def atomic_remote_head_drain_local_list_mutation_proof_profile(
         int_count(
             rows,
             "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
+        )
+        > 0
+    )
+
+
+def atomic_remote_head_drain_local_list_mutation_vocabulary_profile(
+    rows: dict[str, str],
+) -> bool:
+    return (
+        int_count(
+            rows,
+            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
         )
         > 0
     )
@@ -1280,6 +1324,45 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_PROOF_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if atomic_remote_head_drain_local_list_mutation_vocabulary_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_memop_family") != "remote_free":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != "AtomicRemoteHeadDrain":
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "atomic_remote_head_drain_local_list_mutation_verifier_preconditions"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if "DrainRemoteListToLocalLowering" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        if "RemoteOwnerBranchRouting" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        if rows.get("atomic_remote_head_drain_exchange_order") != "acquire":
+            reasons.append("atomic_remote_head_drain_exchange_order")
+        if rows.get("atomic_remote_head_drain_result_kind") != "remote_free_list_token":
+            reasons.append("atomic_remote_head_drain_result_kind")
+        if rows.get("atomic_remote_head_memory_order_policy") != "acquire_exchange":
+            reasons.append("atomic_remote_head_memory_order_policy")
+        if rows.get("atomic_remote_head_drain_local_list_head_class") != (
+            "owner_local_free_or_free_head"
+        ):
+            reasons.append("atomic_remote_head_drain_local_list_head_class")
+        if rows.get("atomic_remote_head_drain_local_list_publication_order") != (
+            "verifier_owned_acquire_then_owner_local"
+        ):
+            reasons.append("atomic_remote_head_drain_local_list_publication_order")
+        for key in ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_VOCABULARY_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in ATOMIC_REMOTE_HEAD_DRAIN_LOCAL_LIST_MUTATION_VOCABULARY_EXPECTED_POSITIVE:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
     return reasons

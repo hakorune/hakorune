@@ -78,6 +78,7 @@ pub enum MemOpKind {
     FreeHeadPop,
     AtomicRemoteHeadPush,
     AtomicRemoteHeadDrain,
+    DrainRemoteListToLocal,
 }
 
 impl MemOpKind {
@@ -98,6 +99,7 @@ impl MemOpKind {
         Self::FreeHeadPop,
         Self::AtomicRemoteHeadPush,
         Self::AtomicRemoteHeadDrain,
+        Self::DrainRemoteListToLocal,
     ];
 
     pub fn display_name(self) -> &'static str {
@@ -118,6 +120,7 @@ impl MemOpKind {
             Self::FreeHeadPop => "FreeHeadPop",
             Self::AtomicRemoteHeadPush => "AtomicRemoteHeadPush",
             Self::AtomicRemoteHeadDrain => "AtomicRemoteHeadDrain",
+            Self::DrainRemoteListToLocal => "DrainRemoteListToLocal",
         }
     }
 
@@ -139,6 +142,7 @@ impl MemOpKind {
             Self::FreeHeadPop => "free_head_pop",
             Self::AtomicRemoteHeadPush => "atomic_remote_head_push",
             Self::AtomicRemoteHeadDrain => "atomic_remote_head_drain",
+            Self::DrainRemoteListToLocal => "drain_remote_list_to_local",
         }
     }
 
@@ -149,6 +153,7 @@ impl MemOpKind {
                 | Self::LocalFreePush
                 | Self::FreeHeadPush
                 | Self::AtomicRemoteHeadPush
+                | Self::DrainRemoteListToLocal
         )
     }
 
@@ -169,7 +174,8 @@ impl MemOpKind {
             | Self::OwnerEq
             | Self::LocalFreePush
             | Self::FreeHeadPush
-            | Self::AtomicRemoteHeadPush => 2,
+            | Self::AtomicRemoteHeadPush
+            | Self::DrainRemoteListToLocal => 2,
         }
     }
 
@@ -182,7 +188,8 @@ impl MemOpKind {
             | Self::FreeHeadPush
             | Self::FreeHeadPop
             | Self::AtomicRemoteHeadPush
-            | Self::AtomicRemoteHeadDrain => EffectMask::WRITE,
+            | Self::AtomicRemoteHeadDrain
+            | Self::DrainRemoteListToLocal => EffectMask::WRITE,
             Self::AddrOf
             | Self::LogicalShr
             | Self::BitAnd

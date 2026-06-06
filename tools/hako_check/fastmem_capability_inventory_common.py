@@ -213,6 +213,8 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             add_count(counts, "fastmem_memop_atomic_remote_head_push_count")
         elif is_mem_method_call(expr, "atomicRemoteHeadDrain"):
             add_count(counts, "fastmem_memop_atomic_remote_head_drain_count")
+        elif is_mem_method_call(expr, "drainRemoteListToLocal"):
+            add_count(counts, "fastmem_memop_drain_remote_list_to_local_count")
         elif (
             is_mem_method_call(expr, "assumeTableLength")
             or is_mem_method_call(expr, "assumeIndexInRange")
@@ -257,6 +259,8 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             add_count(counts, "fastmem_memop_atomic_remote_head_push_count")
         elif name == "mem.atomicRemoteHeadDrain":
             add_count(counts, "fastmem_memop_atomic_remote_head_drain_count")
+        elif name == "mem.drainRemoteListToLocal":
+            add_count(counts, "fastmem_memop_drain_remote_list_to_local_count")
         elif name in {
             "mem.assumeTableLength",
             "mem.assumeIndexInRange",
@@ -471,6 +475,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_memop_free_head_pop_count": 0,
         "fastmem_memop_atomic_remote_head_push_count": 0,
         "fastmem_memop_atomic_remote_head_drain_count": 0,
+        "fastmem_memop_drain_remote_list_to_local_count": 0,
         "fastmem_local_free_list_plan": 0,
         "fastmem_local_free_push_plan_count": 0,
         "fastmem_local_free_pop_plan_count": 0,
@@ -600,6 +605,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "atomic_remote_head_drain_exchange_order": "closed",
         "atomic_remote_head_drain_result_kind": "closed",
         "atomic_remote_head_drain_to_local_route_open": 0,
+        "atomic_remote_head_drain_local_list_mutation_lowerable_count": 0,
         "remote_free_push_count": 0,
         "remote_free_drain_count": 0,
         "remote_free_cas_retry_count": 0,
