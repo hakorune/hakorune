@@ -61,6 +61,14 @@ def main() -> int:
         help="benchmark-only: add a thin native-slot malloc/free replacement front subject",
     )
     parser.add_argument(
+        "--allow-python-template-c-bridge-baseline",
+        action="store_true",
+        help=(
+            "diagnostic-only: explicitly allow the retired Python-template C "
+            "replacement-front bridge as a comparison baseline"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-native-bins-mode",
         action="store_true",
         help=(

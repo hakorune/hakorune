@@ -246,6 +246,18 @@ def build_compare_plan(args: argparse.Namespace) -> HakozunaMixedWsComparePlan:
     replacement_front_bins_mode = (
         args.replacement_front_native_bins_mode or args.replacement_front_page_bins_mode
     )
+    replacement_front_bridge_mode = (
+        args.replacement_front_native_slot_mode or replacement_front_bins_mode
+    )
+    if (
+        replacement_front_bridge_mode
+        and not args.allow_python_template_c_bridge_baseline
+    ):
+        raise SystemExit(
+            "Python-template C replacement front is retired from normal runs; "
+            "pass --allow-python-template-c-bridge-baseline for an explicit "
+            "diagnostic baseline"
+        )
     if replacement_front_bins_mode:
         if (
             args.threads != 1

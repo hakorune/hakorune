@@ -67,6 +67,7 @@ mimalloc, and the benchmark-only Hakorune replacement front:
 ```sh
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-slot-mode \
   --replacement-front-thread-local-mode \
   --replacement-front-tls-counter-mode \

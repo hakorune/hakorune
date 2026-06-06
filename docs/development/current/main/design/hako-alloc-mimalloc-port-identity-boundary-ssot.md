@@ -219,6 +219,10 @@ MIR-FMEM-006:
 MIR-FMEM-007:
   retire python_template_c_bridge after producer-neutral parity is proven.
   No hidden fallback to the Python-template C bridge may remain.
+  First slice: replacement-front generation requires
+  `--allow-python-template-c-bridge-baseline`, and reports must explicitly
+  declare `replacement_front_producer=python_template_c_bridge` instead of
+  inferring it from `replacement_front_c_shim`.
 
 MIR-FMEM-C-ARTIFACT:
   optional MIR -> C debug/diff/bootstrap artifact producer.

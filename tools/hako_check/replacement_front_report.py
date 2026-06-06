@@ -219,8 +219,6 @@ def normalized_page_local_bridge_source(source: str) -> str:
 def normalized_replacement_front_producer(value: str, front_class: str) -> str:
     if value in REPLACEMENT_FRONT_PRODUCERS:
         return value
-    if front_class == "replacement_front_c_shim":
-        return "python_template_c_bridge"
     return "unknown"
 
 

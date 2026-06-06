@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIR-FMEM-007 Python template C bridge retirement
+  MIR-FMEM-007B Remaining Python template C quarantine/delete inventory
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -177,7 +177,11 @@ why:
   296x-445 landed MIR-FMEM-006 by adding `hako_check fastmem-producer-parity`,
   an explicit allowlist comparison between `python_template_c_bridge` and
   `mir_to_llvm_lowering` reports. The bridge is still present until
-  MIR-FMEM-007 removes the semantic/runtime dependency.
+  MIR-FMEM-007 removes the semantic/runtime dependency. 296x-446 landed the
+  first retirement slice: Python-template C replacement-front generation now
+  requires `--allow-python-template-c-bridge-baseline`, and report producer
+  inference no longer maps `replacement_front_c_shim` to
+  `python_template_c_bridge` unless the report declares that producer.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -257,16 +261,18 @@ task_order:
   MIR-FMEM-004 FastMem verifier gates over MIR MemOps
   MIR-FMEM-005 MIR-to-LLVM/object primary producer
   MIR-FMEM-006 producer-neutral parity against python_template_c_bridge
-  MIR-FMEM-007 Python template C bridge retirement
+  MIR-FMEM-007 Python template C bridge retirement first slice
+  MIR-FMEM-007B Remaining Python template C quarantine/delete inventory
   MIR-FMEM-C-ARTIFACT optional MIR-to-C debug/diff/bootstrap artifact producer
 
 retirement_gate:
   MIR-FMEM-005 does not delete python_template_c_bridge.
   MIR-FMEM-006 proved producer-neutral parity with the same report.kv /
   hako_check contract.
-  MIR-FMEM-007 deletes the Python-template C semantic bridge and forbids hidden
-  fallback. Optional MIR-to-C artifact support is a separate generated-backend
-  lane.
+  MIR-FMEM-007 first slice makes Python-template C explicit baseline-only and
+  removes report-side hidden producer inference. MIR-FMEM-007B deletes or
+  quarantines remaining non-baseline runtime entrypoints. Optional MIR-to-C
+  artifact support is a separate generated-backend lane.
 
 closed_by_default:
   RawPtr<T>

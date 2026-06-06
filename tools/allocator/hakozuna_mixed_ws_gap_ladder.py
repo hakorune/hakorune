@@ -58,6 +58,8 @@ def run_compare(args: argparse.Namespace, compare_report: Path) -> None:
         cmd.append("--provider-usable-size-mode")
     if args.provider_assume_owned_mode:
         cmd.append("--provider-assume-owned-mode")
+    if args.allow_python_template_c_bridge_baseline:
+        cmd.append("--allow-python-template-c-bridge-baseline")
     if args.replacement_front_native_slot_mode:
         cmd.append("--replacement-front-native-slot-mode")
     if args.replacement_front_lock_mode:
@@ -114,6 +116,7 @@ def main() -> int:
     parser.add_argument("--min-size", type=int, default=16)
     parser.add_argument("--max-size", type=int, default=1024)
     parser.add_argument("--replacement-front-native-slot-mode", action="store_true")
+    parser.add_argument("--allow-python-template-c-bridge-baseline", action="store_true")
     parser.add_argument("--replacement-front-lock-mode", action="store_true")
     parser.add_argument("--replacement-front-thread-local-mode", action="store_true")
     parser.add_argument("--replacement-front-cross-thread-smoke", action="store_true")

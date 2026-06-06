@@ -314,10 +314,10 @@ summary=ok|failed
     page-local metadata/same-owner evidence is tied to `.hako`
     `HakoAllocPageModel`. It does not imply remote-free completion, segment
     backing, product activation, or full `.hako` mimalloc algorithm coverage.
-  - `replacement_front_producer=python_template_c_bridge` means the current C
-    front is a temporary bridge producer, not semantic SSOT. MIR/C and
-    MIR/LLVM producers use the same producer-neutral report fields before their
-    lowering implementations exist.
+  - `replacement_front_producer=python_template_c_bridge` means a report has
+    explicitly declared the retired Python-template C front as a diagnostic
+    baseline producer, not semantic SSOT. `replacement_front_c_shim` alone is
+    not enough to infer this producer after MIR-FMEM-007.
 - Stop line: this adapter reads existing key-value reports only. It does not
   run benchmarks, rewrite source, change MIR, choose keepers, activate
   providers, replace allocators, install hooks, claim product readiness, or

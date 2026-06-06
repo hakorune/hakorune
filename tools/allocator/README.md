@@ -210,6 +210,22 @@ replacement_front_templates.py:
   re-exports; no raw shim source or multi-bin generation
 ```
 
+Python-template C replacement fronts are retired from normal runs. Any command
+that intentionally builds them as a diagnostic baseline must pass:
+
+```text
+--allow-python-template-c-bridge-baseline
+```
+
+This flag does not reopen product activation, hook install, global allocator
+claim, or winner claim. It only keeps the old C bridge available for explicit
+baseline comparison while MIR/FastMemory lowering becomes the primary producer.
+The retirement guard is:
+
+```bash
+bash tools/allocator/python_template_c_bridge_retirement_smoke.sh
+```
+
 Before claiming that an allocator benchmark is measuring the full `.hako`
 mimalloc algorithm, run the algorithm coverage report:
 
@@ -683,6 +699,7 @@ the owner evidence needs the fixed slot size to come from the `.hako`
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-slot-mode \
   --replacement-front-match-hako-size-class \
   --out target/hakozuna-mixed-ws-sizeclass-bridge/report.out \
@@ -749,6 +766,7 @@ For the first benchmark-only multi-bin prototype, use:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-bins-mode \
   --threads 1 \
   --out target/hakozuna-mixed-ws-native-bins/report.out \
@@ -780,6 +798,7 @@ For the first page-shaped benchmark-only multi-bin prototype, use:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-page-bins-mode \
   --threads 1 \
   --out target/hakozuna-mixed-ws-page-bins/report.out \
@@ -811,6 +830,7 @@ top of page-bins with:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-page-bins-mode \
   --replacement-front-hotcore-page-model-mode \
   --replacement-front-size-class-table-mode \
@@ -888,6 +908,7 @@ add the HotCore wrapper mode:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-page-bins-mode \
   --replacement-front-hotcore-page-model-mode \
   --threads 1 \
@@ -928,6 +949,7 @@ and initializes the benchmark-only bins in the replacement-front constructor:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-page-bins-mode \
   --replacement-front-hotcore-page-model-mode \
   --replacement-front-size-class-table-mode \
@@ -971,6 +993,7 @@ with the dedicated TLS mode:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --out-dir target/hakozuna-mixed-ws-tls-page-arena/artifacts \
   --out target/hakozuna-mixed-ws-tls-page-arena/report.out \
   --sample-count 1 \
@@ -1246,6 +1269,7 @@ shape is intentional for that fixture:
 python3 tools/allocator/hakmem_fixture_ldpreload_compare.py \
   --fixture tiny-hot-system \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-slot-mode \
   --replacement-front-thread-local-mode \
   --replacement-front-tls-counter-mode \
@@ -1265,6 +1289,7 @@ local front with focused cross-thread smokes:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-slot-mode \
   --replacement-front-thread-local-mode \
   --replacement-front-tls-counter-mode \
@@ -1282,6 +1307,7 @@ does not claim product replacement:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-slot-mode \
   --replacement-front-lock-mode \
   --replacement-front-skip-hot-counters \
@@ -1297,6 +1323,7 @@ operation count:
 ```bash
 python3 tools/allocator/hakozuna_mixed_ws_ldpreload_compare.py \
   --allow-ldconfig-discovery \
+  --allow-python-template-c-bridge-baseline \
   --replacement-front-native-slot-mode \
   --replacement-front-lock-mode \
   --replacement-front-skip-hot-counters \

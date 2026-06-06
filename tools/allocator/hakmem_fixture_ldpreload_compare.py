@@ -11,13 +11,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from hako_mimalloc_provider_backed_hakmem_ldpreload_bench_pilot import read_kv
-from hakozuna_mixed_ws_ldpreload_compare import (
+from hakozuna_mixed_ws_build_support import (
     build_replacement_front_shim,
     find_mimalloc_library,
-    format_ratio,
-    median_float,
-    positive_int,
 )
+from hakozuna_mixed_ws_report_support import format_ratio
+from replacement_front_support import median_float, positive_int
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -156,6 +155,14 @@ def main() -> int:
         help="benchmark-only: add a thin native-slot replacement front subject",
     )
     parser.add_argument(
+        "--allow-python-template-c-bridge-baseline",
+        action="store_true",
+        help=(
+            "diagnostic-only: explicitly allow the retired Python-template C "
+            "replacement-front bridge as a comparison baseline"
+        ),
+    )
+    parser.add_argument(
         "--replacement-front-lock-mode",
         action="store_true",
         help="benchmark-only: build replacement front with a global mutex",
@@ -188,6 +195,15 @@ def main() -> int:
     if args.replacement_front_lock_mode and not args.replacement_front_native_slot_mode:
         raise SystemExit(
             "--replacement-front-lock-mode requires --replacement-front-native-slot-mode"
+        )
+    if (
+        args.replacement_front_native_slot_mode
+        and not args.allow_python_template_c_bridge_baseline
+    ):
+        raise SystemExit(
+            "Python-template C replacement front is retired from normal runs; "
+            "pass --allow-python-template-c-bridge-baseline for an explicit "
+            "diagnostic baseline"
         )
     if args.replacement_front_thread_local_mode and not args.replacement_front_native_slot_mode:
         raise SystemExit(

@@ -105,6 +105,11 @@ MIR-FMEM-006 landed producer-neutral parity:
   `hako_check fastmem-producer-parity` now compares the Python-template C
   bridge baseline against the MIR-to-LLVM candidate through an explicit
   producer-neutral allowlist. MIR-FMEM-007 opens bridge retirement next.
+MIR-FMEM-007 first slice landed:
+  Replacement-front Python-template C generation now requires
+  `--allow-python-template-c-bridge-baseline`, and report producer inference no
+  longer defaults `replacement_front_c_shim` to `python_template_c_bridge`.
+  MIR-FMEM-007B opens the remaining bridge quarantine/delete inventory.
 ```
 
 ## Queue
