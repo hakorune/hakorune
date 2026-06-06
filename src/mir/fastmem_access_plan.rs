@@ -249,6 +249,50 @@ pub struct FastMemDrainRemoteListToLocalPlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+struct ResolvedHeadAccess {
+    failure_reason: Option<String>,
+    layout_id: Option<String>,
+    field_id: Option<String>,
+    field_class: Option<String>,
+    byte_offset: Option<u32>,
+    field_size: Option<u32>,
+    field_type: Option<String>,
+    alignment: Option<u32>,
+}
+
+impl ResolvedHeadAccess {
+    fn is_resolved(&self) -> bool {
+        self.failure_reason.is_none()
+            && self.byte_offset.is_some()
+            && self.field_size.is_some()
+            && self.field_type.is_some()
+            && self.alignment.is_some()
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+struct ResolvedBlockNextAccess {
+    layout_id: Option<String>,
+    field_id: Option<String>,
+    field_class: Option<String>,
+    byte_offset: Option<u32>,
+    field_size: Option<u32>,
+    field_type: Option<String>,
+    alignment: Option<u32>,
+}
+
+impl ResolvedBlockNextAccess {
+    fn is_resolved(&self) -> bool {
+        self.layout_id.is_some()
+            && self.field_id.is_some()
+            && self.byte_offset.is_some()
+            && self.field_size.is_some()
+            && self.field_type.is_some()
+            && self.alignment.is_some()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FastMemTableAccessProof {
     pub table_length_resolved: bool,
     pub bounds_proof_valid: bool,
@@ -1085,6 +1129,65 @@ fn field_plan(
     })
 }
 
+fn resolve_head_access(
+    contract: Option<&str>,
+    field_id: &str,
+    mode: FastMemFieldAccessMode,
+) -> ResolvedHeadAccess {
+    match contract.map(|contract| {
+        resolve_fastmem_field_contract(contract, field_id, mode).map_err(|err| err.reason())
+    }) {
+        Some(Ok(resolved)) => ResolvedHeadAccess {
+            failure_reason: None,
+            layout_id: Some(resolved.layout_id),
+            field_id: Some(resolved.field_id),
+            field_class: Some(resolved.field_class),
+            byte_offset: Some(resolved.byte_offset),
+            field_size: Some(resolved.field_size),
+            field_type: Some(resolved.field_type),
+            alignment: Some(resolved.alignment),
+        },
+        Some(Err(reason)) => ResolvedHeadAccess {
+            failure_reason: Some(reason),
+            layout_id: None,
+            field_id: None,
+            field_class: None,
+            byte_offset: None,
+            field_size: None,
+            field_type: None,
+            alignment: None,
+        },
+        None => ResolvedHeadAccess {
+            failure_reason: Some("layout-field-contract-unresolved".to_string()),
+            layout_id: None,
+            field_id: None,
+            field_class: None,
+            byte_offset: None,
+            field_size: None,
+            field_type: None,
+            alignment: None,
+        },
+    }
+}
+
+fn resolve_block_next_access(contract: Option<&str>, field_id: &str) -> ResolvedBlockNextAccess {
+    let Some(resolved) =
+        contract.and_then(|contract| resolve_fastmem_block_next_contract(contract, field_id).ok())
+    else {
+        return ResolvedBlockNextAccess::default();
+    };
+
+    ResolvedBlockNextAccess {
+        layout_id: Some(resolved.layout_id),
+        field_id: Some(resolved.field_id),
+        field_class: Some(resolved.field_class),
+        byte_offset: Some(resolved.byte_offset),
+        field_size: Some(resolved.field_size),
+        field_type: Some(resolved.field_type),
+        alignment: Some(resolved.alignment),
+    }
+}
+
 fn local_free_plan(
     block: BasicBlockId,
     instruction_index: usize,
@@ -1101,42 +1204,8 @@ fn local_free_plan(
     } else {
         None
     };
-    let resolved = contract.map(|contract| {
-        resolve_fastmem_field_contract(contract, "local_free_head", FastMemFieldAccessMode::Load)
-            .map_err(|err| err.reason())
-    });
-    let (
-        failure_reason,
-        layout_id,
-        field_id,
-        field_class,
-        head_byte_offset,
-        head_field_size,
-        head_field_type,
-        head_alignment,
-    ) = match resolved {
-        Some(Ok(resolved)) => (
-            None,
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        ),
-        Some(Err(reason)) => (Some(reason), None, None, None, None, None, None, None),
-        None => (
-            Some("layout-field-contract-unresolved".to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        ),
-    };
+    let head_access =
+        resolve_head_access(contract, "local_free_head", FastMemFieldAccessMode::Load);
     let same_owner_proof_valid = facts
         .same_owner(region, page)
         .map_or(false, |fact| fact.remote_owner_rejected);
@@ -1150,57 +1219,16 @@ fn local_free_plan(
             fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
         })
     });
-    let block_next_resolved = if let Some(fact) = block_next_fact {
-        contract.and_then(|contract| {
-            resolve_fastmem_block_next_contract(contract, &fact.next_field_id).ok()
-        })
+    let block_next_access = if let Some(fact) = block_next_fact {
+        resolve_block_next_access(contract, &fact.next_field_id)
     } else if kind == FastMemAccessPlanKind::LocalFreePop && non_empty_proof_valid {
-        contract.and_then(|contract| {
-            resolve_fastmem_block_next_contract(contract, block_next_field_id).ok()
-        })
+        resolve_block_next_access(contract, block_next_field_id)
     } else {
-        None
+        ResolvedBlockNextAccess::default()
     };
-    let (
-        block_next_layout_id,
-        block_next_field_id,
-        block_next_field_class,
-        block_next_byte_offset,
-        block_next_field_size,
-        block_next_field_type,
-        block_next_alignment,
-    ) = if let Some(resolved) = block_next_resolved {
-        (
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        )
-    } else {
-        (None, None, None, None, None, None, None)
-    };
-    let block_next_proof_valid = block_next_fact.is_some()
-        && block_next_layout_id.is_some()
-        && block_next_field_id.is_some()
-        && block_next_byte_offset.is_some()
-        && block_next_field_size.is_some()
-        && block_next_field_type.is_some()
-        && block_next_alignment.is_some();
-    let block_next_access_resolved = block_next_layout_id.is_some()
-        && block_next_field_id.is_some()
-        && block_next_byte_offset.is_some()
-        && block_next_field_size.is_some()
-        && block_next_field_type.is_some()
-        && block_next_alignment.is_some();
-    let common_lowerable = failure_reason.is_none()
-        && same_owner_proof_valid
-        && head_byte_offset.is_some()
-        && head_field_size.is_some()
-        && head_field_type.is_some()
-        && head_alignment.is_some();
+    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
+    let block_next_access_resolved = block_next_access.is_resolved();
+    let common_lowerable = head_access.is_resolved() && same_owner_proof_valid;
     let lowerable_push =
         kind == FastMemAccessPlanKind::LocalFreePush && common_lowerable && block_next_proof_valid;
     let lowerable_pop = kind == FastMemAccessPlanKind::LocalFreePop
@@ -1213,7 +1241,7 @@ fn local_free_plan(
     } else {
         FastMemAccessPlanStatus::Rejected
     };
-    let failure_reason = failure_reason.or_else(|| {
+    let failure_reason = head_access.failure_reason.clone().or_else(|| {
         if !same_owner_proof_valid {
             Some("local-free-same-owner-proof-missing".to_string())
         } else if kind == FastMemAccessPlanKind::LocalFreePush && !block_next_proof_valid {
@@ -1238,20 +1266,20 @@ fn local_free_plan(
             page,
             block: block_value,
             result: dst,
-            local_free_head_layout_id: layout_id,
-            local_free_head_field_id: field_id,
-            local_free_head_field_class: field_class,
-            local_free_head_byte_offset: head_byte_offset,
-            local_free_head_field_size: head_field_size,
-            local_free_head_field_type: head_field_type,
-            local_free_head_alignment: head_alignment,
-            block_next_layout_id,
-            block_next_field_id,
-            block_next_field_class,
-            block_next_byte_offset,
-            block_next_field_size,
-            block_next_field_type,
-            block_next_alignment,
+            local_free_head_layout_id: head_access.layout_id,
+            local_free_head_field_id: head_access.field_id,
+            local_free_head_field_class: head_access.field_class,
+            local_free_head_byte_offset: head_access.byte_offset,
+            local_free_head_field_size: head_access.field_size,
+            local_free_head_field_type: head_access.field_type,
+            local_free_head_alignment: head_access.alignment,
+            block_next_layout_id: block_next_access.layout_id,
+            block_next_field_id: block_next_access.field_id,
+            block_next_field_class: block_next_access.field_class,
+            block_next_byte_offset: block_next_access.byte_offset,
+            block_next_field_size: block_next_access.field_size,
+            block_next_field_type: block_next_access.field_type,
+            block_next_alignment: block_next_access.alignment,
             same_owner_proof_valid,
             block_next_proof_valid,
             non_empty_proof_valid,
@@ -1277,42 +1305,7 @@ fn free_head_plan(
     } else {
         None
     };
-    let resolved = contract.map(|contract| {
-        resolve_fastmem_field_contract(contract, "free_head", FastMemFieldAccessMode::Load)
-            .map_err(|err| err.reason())
-    });
-    let (
-        failure_reason,
-        layout_id,
-        field_id,
-        field_class,
-        head_byte_offset,
-        head_field_size,
-        head_field_type,
-        head_alignment,
-    ) = match resolved {
-        Some(Ok(resolved)) => (
-            None,
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        ),
-        Some(Err(reason)) => (Some(reason), None, None, None, None, None, None, None),
-        None => (
-            Some("layout-field-contract-unresolved".to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        ),
-    };
+    let head_access = resolve_head_access(contract, "free_head", FastMemFieldAccessMode::Load);
     let same_owner_proof_valid = facts
         .same_owner(region, page)
         .map_or(false, |fact| fact.remote_owner_rejected);
@@ -1326,55 +1319,16 @@ fn free_head_plan(
             fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
         })
     });
-    let block_next_resolved = if let Some(fact) = block_next_fact {
-        contract.and_then(|contract| {
-            resolve_fastmem_block_next_contract(contract, &fact.next_field_id).ok()
-        })
+    let block_next_access = if let Some(fact) = block_next_fact {
+        resolve_block_next_access(contract, &fact.next_field_id)
     } else if kind == FastMemAccessPlanKind::FreeHeadPop && non_empty_proof_valid {
-        contract.and_then(|contract| resolve_fastmem_block_next_contract(contract, "next").ok())
+        resolve_block_next_access(contract, block_next_field_id)
     } else {
-        None
+        ResolvedBlockNextAccess::default()
     };
-    let (
-        block_next_layout_id,
-        block_next_field_id,
-        block_next_field_class,
-        block_next_byte_offset,
-        block_next_field_size,
-        block_next_field_type,
-        block_next_alignment,
-    ) = if let Some(resolved) = block_next_resolved {
-        (
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        )
-    } else {
-        (None, None, None, None, None, None, None)
-    };
-    let block_next_access_resolved = block_next_layout_id.is_some()
-        && block_next_field_id.is_some()
-        && block_next_byte_offset.is_some()
-        && block_next_field_size.is_some()
-        && block_next_field_type.is_some()
-        && block_next_alignment.is_some();
-    let block_next_proof_valid = block_next_fact.is_some()
-        && block_next_layout_id.is_some()
-        && block_next_field_id.is_some()
-        && block_next_byte_offset.is_some()
-        && block_next_field_size.is_some()
-        && block_next_field_type.is_some()
-        && block_next_alignment.is_some();
-    let common_lowerable = failure_reason.is_none()
-        && same_owner_proof_valid
-        && head_byte_offset.is_some()
-        && head_field_size.is_some()
-        && head_field_type.is_some()
-        && head_alignment.is_some();
+    let block_next_access_resolved = block_next_access.is_resolved();
+    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
+    let common_lowerable = head_access.is_resolved() && same_owner_proof_valid;
     let lowerable_push =
         kind == FastMemAccessPlanKind::FreeHeadPush && common_lowerable && block_next_proof_valid;
     let lowerable_pop = kind == FastMemAccessPlanKind::FreeHeadPop
@@ -1387,7 +1341,7 @@ fn free_head_plan(
     } else {
         FastMemAccessPlanStatus::Rejected
     };
-    let failure_reason = failure_reason.or_else(|| {
+    let failure_reason = head_access.failure_reason.clone().or_else(|| {
         if !same_owner_proof_valid {
             Some("free-head-same-owner-proof-missing".to_string())
         } else if kind == FastMemAccessPlanKind::FreeHeadPush && !block_next_proof_valid {
@@ -1412,20 +1366,20 @@ fn free_head_plan(
             page,
             block: block_value,
             result: dst,
-            free_head_layout_id: layout_id,
-            free_head_field_id: field_id,
-            free_head_field_class: field_class,
-            free_head_byte_offset: head_byte_offset,
-            free_head_field_size: head_field_size,
-            free_head_field_type: head_field_type,
-            free_head_alignment: head_alignment,
-            block_next_layout_id,
-            block_next_field_id,
-            block_next_field_class,
-            block_next_byte_offset,
-            block_next_field_size,
-            block_next_field_type,
-            block_next_alignment,
+            free_head_layout_id: head_access.layout_id,
+            free_head_field_id: head_access.field_id,
+            free_head_field_class: head_access.field_class,
+            free_head_byte_offset: head_access.byte_offset,
+            free_head_field_size: head_access.field_size,
+            free_head_field_type: head_access.field_type,
+            free_head_alignment: head_access.alignment,
+            block_next_layout_id: block_next_access.layout_id,
+            block_next_field_id: block_next_access.field_id,
+            block_next_field_class: block_next_access.field_class,
+            block_next_byte_offset: block_next_access.byte_offset,
+            block_next_field_size: block_next_access.field_size,
+            block_next_field_type: block_next_access.field_type,
+            block_next_alignment: block_next_access.alignment,
             same_owner_proof_valid,
             block_next_proof_valid,
             non_empty_proof_valid,
@@ -1451,42 +1405,7 @@ fn atomic_remote_head_plan(
     } else {
         None
     };
-    let resolved = contract.map(|contract| {
-        resolve_fastmem_field_contract(contract, "remote_head", FastMemFieldAccessMode::Load)
-            .map_err(|err| err.reason())
-    });
-    let (
-        failure_reason,
-        layout_id,
-        field_id,
-        field_class,
-        head_byte_offset,
-        head_field_size,
-        head_field_type,
-        head_alignment,
-    ) = match resolved {
-        Some(Ok(resolved)) => (
-            None,
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        ),
-        Some(Err(reason)) => (Some(reason), None, None, None, None, None, None, None),
-        None => (
-            Some("layout-field-contract-unresolved".to_string()),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        ),
-    };
+    let head_access = resolve_head_access(contract, "remote_head", FastMemFieldAccessMode::Load);
     let block_next_field_id = "next";
     let block_next_fact = block_value.and_then(|block_value| {
         facts.block_next(region, block_value).filter(|fact| {
@@ -1496,39 +1415,12 @@ fn atomic_remote_head_plan(
                 && fact.proof_kind == FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext
         })
     });
-    let block_next_resolved = block_next_fact.and_then(|fact| {
-        contract.and_then(|contract| {
-            resolve_fastmem_block_next_contract(contract, &fact.next_field_id).ok()
-        })
-    });
-    let (
-        block_next_layout_id,
-        block_next_field_id,
-        block_next_field_class,
-        block_next_byte_offset,
-        block_next_field_size,
-        block_next_field_type,
-        block_next_alignment,
-    ) = if let Some(resolved) = block_next_resolved {
-        (
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        )
+    let block_next_access = if let Some(fact) = block_next_fact {
+        resolve_block_next_access(contract, &fact.next_field_id)
     } else {
-        (None, None, None, None, None, None, None)
+        ResolvedBlockNextAccess::default()
     };
-    let block_next_proof_valid = block_next_fact.is_some()
-        && block_next_layout_id.is_some()
-        && block_next_field_id.is_some()
-        && block_next_byte_offset.is_some()
-        && block_next_field_size.is_some()
-        && block_next_field_type.is_some()
-        && block_next_alignment.is_some();
+    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
     let remote_owner_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
     let remote_owner_proof_valid = if remote_owner_required {
         facts
@@ -1548,15 +1440,11 @@ fn atomic_remote_head_plan(
     } else {
         0
     };
-    let head_access_resolved = head_byte_offset.is_some()
-        && head_field_size.is_some()
-        && head_field_type.is_some()
-        && head_alignment.is_some();
     let lowerable = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-        failure_reason.is_none() && head_access_resolved
+        head_access.is_resolved()
     } else {
         kind == FastMemAccessPlanKind::AtomicRemoteHeadPush
-            && failure_reason.is_none()
+            && head_access.is_resolved()
             && remote_owner_proof_valid
             && block_next_proof_valid
     };
@@ -1565,7 +1453,7 @@ fn atomic_remote_head_plan(
     } else {
         FastMemAccessPlanStatus::Rejected
     };
-    let failure_reason = failure_reason.or_else(|| {
+    let failure_reason = head_access.failure_reason.clone().or_else(|| {
         if lowerable {
             None
         } else if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
@@ -1590,20 +1478,20 @@ fn atomic_remote_head_plan(
             page,
             block: block_value,
             result: dst,
-            remote_head_layout_id: layout_id,
-            remote_head_field_id: field_id,
-            remote_head_field_class: field_class,
-            remote_head_byte_offset: head_byte_offset,
-            remote_head_field_size: head_field_size,
-            remote_head_field_type: head_field_type,
-            remote_head_alignment: head_alignment,
-            block_next_layout_id,
-            block_next_field_id,
-            block_next_field_class,
-            block_next_byte_offset,
-            block_next_field_size,
-            block_next_field_type,
-            block_next_alignment,
+            remote_head_layout_id: head_access.layout_id,
+            remote_head_field_id: head_access.field_id,
+            remote_head_field_class: head_access.field_class,
+            remote_head_byte_offset: head_access.byte_offset,
+            remote_head_field_size: head_access.field_size,
+            remote_head_field_type: head_access.field_type,
+            remote_head_alignment: head_access.alignment,
+            block_next_layout_id: block_next_access.layout_id,
+            block_next_field_id: block_next_access.field_id,
+            block_next_field_class: block_next_access.field_class,
+            block_next_byte_offset: block_next_access.byte_offset,
+            block_next_field_size: block_next_access.field_size,
+            block_next_field_type: block_next_access.field_type,
+            block_next_alignment: block_next_access.alignment,
             remote_owner_required,
             remote_owner_proof_valid,
             block_next_required,
@@ -1632,67 +1520,11 @@ fn drain_remote_list_to_local_plan(
     let token_provenance_valid = token_fact.is_some();
     let page_operand_valid = token_provenance_valid;
     let contract = region_contract(facts.regions, region);
-    let local_free_head_resolved = contract.and_then(|contract| {
-        resolve_fastmem_field_contract(contract, "local_free_head", FastMemFieldAccessMode::Store)
-            .ok()
-    });
-    let (
-        local_free_head_layout_id,
-        local_free_head_field_id,
-        local_free_head_field_class,
-        local_free_head_byte_offset,
-        local_free_head_field_size,
-        local_free_head_field_type,
-        local_free_head_alignment,
-    ) = if let Some(resolved) = local_free_head_resolved {
-        (
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        )
-    } else {
-        (None, None, None, None, None, None, None)
-    };
-    let block_next_resolved =
-        contract.and_then(|contract| resolve_fastmem_block_next_contract(contract, "next").ok());
-    let (
-        block_next_layout_id,
-        block_next_field_id,
-        block_next_field_class,
-        block_next_byte_offset,
-        block_next_field_size,
-        block_next_field_type,
-        block_next_alignment,
-    ) = if let Some(resolved) = block_next_resolved {
-        (
-            Some(resolved.layout_id),
-            Some(resolved.field_id),
-            Some(resolved.field_class),
-            Some(resolved.byte_offset),
-            Some(resolved.field_size),
-            Some(resolved.field_type),
-            Some(resolved.alignment),
-        )
-    } else {
-        (None, None, None, None, None, None, None)
-    };
-    let head_class_resolved = token_provenance_valid
-        && local_free_head_layout_id.is_some()
-        && local_free_head_field_id.is_some()
-        && local_free_head_byte_offset.is_some()
-        && local_free_head_field_size.is_some()
-        && local_free_head_field_type.is_some()
-        && local_free_head_alignment.is_some();
-    let block_next_access_resolved = block_next_layout_id.is_some()
-        && block_next_field_id.is_some()
-        && block_next_byte_offset.is_some()
-        && block_next_field_size.is_some()
-        && block_next_field_type.is_some()
-        && block_next_alignment.is_some();
+    let local_free_head =
+        resolve_head_access(contract, "local_free_head", FastMemFieldAccessMode::Store);
+    let block_next_access = resolve_block_next_access(contract, "next");
+    let head_class_resolved = token_provenance_valid && local_free_head.is_resolved();
+    let block_next_access_resolved = block_next_access.is_resolved();
     let local_list_head_class =
         head_class_resolved.then(|| "owner_local_free_or_free_head".to_string());
     let publication_order = if head_class_resolved {
@@ -1741,20 +1573,20 @@ fn drain_remote_list_to_local_plan(
                 page_operand_valid,
                 head_class_resolved,
                 local_list_head_class,
-                local_free_head_layout_id,
-                local_free_head_field_id,
-                local_free_head_field_class,
-                local_free_head_byte_offset,
-                local_free_head_field_size,
-                local_free_head_field_type,
-                local_free_head_alignment,
-                block_next_layout_id,
-                block_next_field_id,
-                block_next_field_class,
-                block_next_byte_offset,
-                block_next_field_size,
-                block_next_field_type,
-                block_next_alignment,
+                local_free_head_layout_id: local_free_head.layout_id,
+                local_free_head_field_id: local_free_head.field_id,
+                local_free_head_field_class: local_free_head.field_class,
+                local_free_head_byte_offset: local_free_head.byte_offset,
+                local_free_head_field_size: local_free_head.field_size,
+                local_free_head_field_type: local_free_head.field_type,
+                local_free_head_alignment: local_free_head.alignment,
+                block_next_layout_id: block_next_access.layout_id,
+                block_next_field_id: block_next_access.field_id,
+                block_next_field_class: block_next_access.field_class,
+                block_next_byte_offset: block_next_access.byte_offset,
+                block_next_field_size: block_next_access.field_size,
+                block_next_field_type: block_next_access.field_type,
+                block_next_alignment: block_next_access.alignment,
                 block_next_access_resolved,
                 publication_order,
                 lowerable,

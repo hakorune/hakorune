@@ -9,16 +9,16 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-551A landed FastMemory large-file split cleanup: inline test modules were moved out of fastmem_access_plan, builder/fastmem, direct_array_access_plan, and stage1 program_json_v0 lowering without behavior changes; MIM-PORT-FMEM-053 branch CFG lowering producer pilot remains next."
+active_lane_status = "296x-551B landed FastMemory linked-list plan core cleanup: LocalFree, FreeHead, AtomicRemoteHead, and DrainRemoteListToLocal access-plan builders now share ResolvedHeadAccess / ResolvedBlockNextAccess helpers without report or producer behavior changes; MIM-PORT-FMEM-053 branch CFG lowering producer pilot remains next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-551A-FASTMEM-LARGE-FILE-SPLIT-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-551A-FASTMEM-LARGE-FILE-SPLIT-CLEANUP.md"
-latest_card_summary = "Inline test modules were moved out of fastmem_access_plan, builder/fastmem, direct_array_access_plan, and stage1 program_json_v0 lowering without behavior changes; MIM-PORT-FMEM-053 remains next."
+latest_card = "296x-551B-FASTMEM-LINKED-LIST-PLAN-CORE-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-551B-FASTMEM-LINKED-LIST-PLAN-CORE-CLEANUP.md"
+latest_card_summary = "LocalFree, FreeHead, AtomicRemoteHead, and DrainRemoteListToLocal access-plan builders now share ResolvedHeadAccess / ResolvedBlockNextAccess helpers without report or producer behavior changes; MIM-PORT-FMEM-053 remains next."
 current_blocker_token = "MIM-PORT-FMEM-053"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-551B landed FastMemory linked-list plan core cleanup: LocalFree, FreeHead, AtomicRemoteHead, and DrainRemoteListToLocal access-plan builders now share ResolvedHeadAccess / ResolvedBlockNextAccess helpers without report or producer behavior changes; MIM-PORT-FMEM-053 branch CFG lowering producer pilot remains next.",
   "2026-06-07: 296x-551A landed FastMemory large-file split cleanup: inline test modules were moved out of fastmem_access_plan, builder/fastmem, direct_array_access_plan, and stage1 program_json_v0 lowering without behavior changes; MIM-PORT-FMEM-053 branch CFG lowering producer pilot remains next.",
   "2026-06-07: 296x-550 landed MIM-PORT-FMEM-052 FastMemory branch CFG lowering preflight: report/check now select branch_cfg/FastMemBranchCfg as the next producer owner while keeping source branch CFG lowering, full same/remote free body, TLS backing transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-053 branch CFG lowering producer pilot opens next.",
   "2026-06-07: 296x-549 landed MIM-PORT-FMEM-051 FastMemory branch CFG preflight: report/check now select the branch CFG boundary after remote-owner route body preflight while keeping source branch CFG lowering, full same/remote free body, TLS backing transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-052 branch CFG lowering preflight opens next.",
