@@ -5,6 +5,7 @@ Date: 2026-06-05
 Scope: inventory of language, MIR, runtime, and tooling gaps that block a faithful `.hako` mimalloc-style port.
 Related:
   - docs/development/current/main/workstreams/mimalloc-current.md
+  - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md
   - docs/development/current/main/design/usize-semantic-foundation-ssot.md

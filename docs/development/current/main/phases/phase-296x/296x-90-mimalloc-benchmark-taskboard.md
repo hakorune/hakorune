@@ -177,6 +177,14 @@ ContractRegionV0 docs-only landed:
   for future profiles, but `FastMemRegion` remains the current memory-profile
   wrapper and `MemOp` / `VerifiedMemAccessPlan` remain memory-specific. This
   row opens no rename, no generic RegionOp, no second profile, and no behavior.
+MIR-FMEM-008B contract-resolution slice landed:
+  PageMetaLayoutV0 and page_table contracts are the next implementation seam.
+  The resolver owns canonical field ids, owner_id compatibility normalization,
+  field offsets/types/alignment/mutability/classes, and table representation
+  facts. LLVM GEP/load/store lowering remains closed until verified access
+  plans exist and no lowerer-side recomputation is needed. Field plans now
+  verify through PageMetaLayoutV0, while page_table remains non-lowerable until
+  a TableIndex bounds/length policy is selected.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
   FastMemRegion split, and AllocOwner lifecycle evidence boundary. After the

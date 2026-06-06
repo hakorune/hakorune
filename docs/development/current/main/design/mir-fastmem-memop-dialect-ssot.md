@@ -5,6 +5,7 @@ Date: 2026-06-06
 Scope: MIR representation boundary for `.hako` fastmem regions and memory dialect operations.
 Related:
   - docs/development/current/main/design/contract-region-v0-ssot.md
+  - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
   - docs/development/current/main/workstreams/mimalloc-current.md
   - docs/development/current/main/phases/phase-296x/296x-437-MIRBUILDER-FASTMEM-MEMOP-DIALECT-DECISION.md

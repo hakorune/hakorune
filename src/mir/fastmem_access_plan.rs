@@ -3,12 +3,16 @@
  *
  * `MemOpAccess` carries symbolic source ids. This module publishes the next
  * metadata seam: a function-local access-plan row for each layout/table MemOp
- * site.  The current slice is intentionally conservative; without canonical
- * layout/table contracts it records `symbolic_only` rows and keeps LLVM
- * GEP/load/store lowering closed.
+ * site. Verified rows are produced only by the memory-profile contract
+ * resolver. LLVM GEP/load/store lowering remains closed until it consumes
+ * verified rows without recomputing layout/table facts.
  */
 
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
+use crate::mir::{
+    fastmem_layout_contract::{resolve_fastmem_field_contract, resolve_fastmem_table_contract},
+    function::FastMemRegionMetadata,
+};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -118,6 +122,7 @@ impl FastMemAccessPlan {
 
 pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let mut plans = Vec::new();
+    let regions = function.metadata.fastmem_regions.clone();
 
     for block_id in function.block_ids() {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -143,6 +148,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 *dst,
                 operands,
                 access.as_ref(),
+                region_contract(&regions, *region),
             ) else {
                 continue;
             };
@@ -161,11 +167,18 @@ fn plan_from_memop(
     dst: Option<ValueId>,
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
+    contract: Option<&str>,
 ) -> Option<FastMemAccessPlan> {
     match kind {
-        MemOpKind::TableIndex => {
-            table_plan(block, instruction_index, region, dst, operands, access)
-        }
+        MemOpKind::TableIndex => table_plan(
+            block,
+            instruction_index,
+            region,
+            dst,
+            operands,
+            access,
+            contract,
+        ),
         MemOpKind::FieldLoad => field_plan(
             block,
             instruction_index,
@@ -174,6 +187,7 @@ fn plan_from_memop(
             operands,
             access,
             FastMemFieldAccessMode::Load,
+            contract,
         ),
         MemOpKind::FieldStore => field_plan(
             block,
@@ -183,9 +197,17 @@ fn plan_from_memop(
             operands,
             access,
             FastMemFieldAccessMode::Store,
+            contract,
         ),
         _ => None,
     }
+}
+
+fn region_contract(regions: &[FastMemRegionMetadata], region: FastMemRegionId) -> Option<&str> {
+    regions
+        .iter()
+        .find(|metadata| metadata.id == region)
+        .map(|metadata| metadata.contract.as_str())
 }
 
 fn table_plan(
@@ -195,29 +217,84 @@ fn table_plan(
     dst: Option<ValueId>,
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
+    contract: Option<&str>,
 ) -> Option<FastMemAccessPlan> {
     let access = access?;
     let table_id = access.table_id.as_ref()?.clone();
     let table = operands.first().copied()?;
     let index = operands.get(1).copied()?;
+    let resolved = contract.map(|contract| {
+        resolve_fastmem_table_contract(contract, &table_id).map_err(|err| err.reason())
+    });
+    let (
+        status,
+        failure_reason,
+        element_layout_id,
+        element_repr,
+        element_stride,
+        length,
+        alignment,
+        index_policy,
+    ) = match resolved {
+        Some(Ok(resolved)) if resolved.lowerable => (
+            FastMemAccessPlanStatus::Verified,
+            None,
+            Some(resolved.element_layout_id),
+            Some(resolved.element_repr),
+            Some(resolved.element_stride),
+            resolved.length,
+            Some(resolved.alignment),
+            Some(resolved.index_policy),
+        ),
+        Some(Ok(resolved)) => (
+            FastMemAccessPlanStatus::Rejected,
+            resolved.non_lowerable_reason,
+            Some(resolved.element_layout_id),
+            Some(resolved.element_repr),
+            Some(resolved.element_stride),
+            resolved.length,
+            Some(resolved.alignment),
+            Some(resolved.index_policy),
+        ),
+        Some(Err(reason)) => (
+            FastMemAccessPlanStatus::Rejected,
+            Some(reason),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+        None => (
+            FastMemAccessPlanStatus::SymbolicOnly,
+            Some("layout-table-contract-unresolved".to_string()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+    };
     Some(FastMemAccessPlan {
         block,
         instruction_index,
         region,
         kind: FastMemAccessPlanKind::TableIndex,
-        status: FastMemAccessPlanStatus::SymbolicOnly,
-        failure_reason: Some("layout-table-contract-unresolved".to_string()),
+        status,
+        failure_reason,
         payload: FastMemAccessPlanPayload::Table(FastMemTableAccessPlan {
             table_id,
             table,
             index,
             result: dst,
-            element_layout_id: None,
-            element_repr: None,
-            element_stride: None,
-            length: None,
-            alignment: None,
-            index_policy: None,
+            element_layout_id,
+            element_repr,
+            element_stride,
+            length,
+            alignment,
+            index_policy,
         }),
     })
 }
@@ -230,6 +307,7 @@ fn field_plan(
     operands: &[ValueId],
     access: Option<&MemOpAccess>,
     mode: FastMemFieldAccessMode,
+    contract: Option<&str>,
 ) -> Option<FastMemAccessPlan> {
     let access = access?;
     let field_id = access.field_id.as_ref()?.clone();
@@ -239,6 +317,54 @@ fn field_plan(
     } else {
         None
     };
+    let resolved = contract.map(|contract| {
+        resolve_fastmem_field_contract(contract, &field_id, mode).map_err(|err| err.reason())
+    });
+    let (
+        status,
+        failure_reason,
+        layout_id,
+        canonical_field_id,
+        byte_offset,
+        field_type,
+        alignment,
+        mutability,
+        field_class,
+    ) = match resolved {
+        Some(Ok(resolved)) => (
+            FastMemAccessPlanStatus::Verified,
+            None,
+            Some(resolved.layout_id),
+            resolved.field_id,
+            Some(resolved.byte_offset),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+            Some(resolved.mutability),
+            Some(resolved.field_class),
+        ),
+        Some(Err(reason)) => (
+            FastMemAccessPlanStatus::Rejected,
+            Some(reason),
+            access.layout_id.clone(),
+            field_id,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+        None => (
+            FastMemAccessPlanStatus::SymbolicOnly,
+            Some("layout-field-contract-unresolved".to_string()),
+            access.layout_id.clone(),
+            field_id,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+    };
     Some(FastMemAccessPlan {
         block,
         instruction_index,
@@ -247,20 +373,20 @@ fn field_plan(
             FastMemFieldAccessMode::Load => FastMemAccessPlanKind::FieldLoad,
             FastMemFieldAccessMode::Store => FastMemAccessPlanKind::FieldStore,
         },
-        status: FastMemAccessPlanStatus::SymbolicOnly,
-        failure_reason: Some("layout-field-contract-unresolved".to_string()),
+        status,
+        failure_reason,
         payload: FastMemAccessPlanPayload::Field(FastMemFieldAccessPlan {
-            layout_id: access.layout_id.clone(),
-            field_id,
+            layout_id,
+            field_id: canonical_field_id,
             base,
             value,
             result: dst,
             mode,
-            byte_offset: None,
-            field_type: None,
-            alignment: None,
-            mutability: None,
-            field_class: None,
+            byte_offset,
+            field_type,
+            alignment,
+            mutability,
+            field_class,
         }),
     })
 }
@@ -268,6 +394,8 @@ fn field_plan(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::Span;
+    use crate::mir::function::{FastMemRegionMetadata, FastMemRegionOrigin};
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
     fn make_function(instructions: Vec<MirInstruction>) -> MirFunction {
@@ -286,6 +414,29 @@ mod tests {
         for instruction in instructions {
             block.add_instruction(instruction);
         }
+        function
+            .metadata
+            .fastmem_regions
+            .push(FastMemRegionMetadata {
+                id: FastMemRegionId::new(0),
+                contract: "PageMapV0".to_string(),
+                source_span: Span::unknown(),
+                origin: FastMemRegionOrigin::SourceFastMemBlock,
+                body_statement_count: 1,
+                emitted_memop_count: function
+                    .blocks
+                    .get(&BasicBlockId::new(0))
+                    .map(|block| {
+                        block
+                            .instructions
+                            .iter()
+                            .filter(|instruction| {
+                                matches!(instruction, MirInstruction::MemOp { .. })
+                            })
+                            .count()
+                    })
+                    .unwrap_or(0),
+            });
         function
     }
 
@@ -306,7 +457,7 @@ mod tests {
     }
 
     #[test]
-    fn refresh_records_symbolic_layout_table_sites() {
+    fn refresh_verifies_page_meta_field_sites_and_rejects_unbounded_table() {
         let mut function = make_function(vec![
             memop(
                 MemOpKind::TableIndex,
@@ -331,11 +482,60 @@ mod tests {
         refresh_function_fastmem_access_plans(&mut function);
 
         assert_eq!(function.metadata.fastmem_access_plans.len(), 3);
-        assert!(function
-            .metadata
-            .fastmem_access_plans
-            .iter()
-            .all(|plan| plan.status == FastMemAccessPlanStatus::SymbolicOnly));
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0].status,
+            FastMemAccessPlanStatus::Rejected
+        );
+        assert_eq!(
+            function.metadata.fastmem_access_plans[0]
+                .failure_reason
+                .as_deref(),
+            Some("table-length-unresolved")
+        );
+        assert_eq!(
+            function.metadata.fastmem_access_plans[1].status,
+            FastMemAccessPlanStatus::Verified
+        );
+        assert_eq!(
+            function.metadata.fastmem_access_plans[2].status,
+            FastMemAccessPlanStatus::Verified
+        );
+        let FastMemAccessPlanPayload::Field(field) =
+            &function.metadata.fastmem_access_plans[1].payload
+        else {
+            panic!("expected owner field plan");
+        };
+        assert_eq!(field.layout_id.as_deref(), Some("PageMetaLayoutV0"));
+        assert_eq!(field.field_id, "owner_worker_id");
+        assert_eq!(field.byte_offset, Some(0));
+        assert_eq!(field.field_class.as_deref(), Some("plain_scalar"));
+        let FastMemAccessPlanPayload::Table(table) =
+            &function.metadata.fastmem_access_plans[0].payload
+        else {
+            panic!("expected table plan");
+        };
+        assert_eq!(table.element_layout_id.as_deref(), Some("PageMetaLayoutV0"));
+        assert_eq!(table.element_repr.as_deref(), Some("pointer_to_element"));
+    }
+
+    #[test]
+    fn refresh_rejects_plain_store_to_atomic_remote_head() {
+        let mut function = make_function(vec![memop(
+            MemOpKind::FieldStore,
+            None,
+            vec![ValueId::new(10), ValueId::new(3)],
+            Some(MemOpAccess::field("remote_head")),
+        )]);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 1);
+        let plan = &function.metadata.fastmem_access_plans[0];
+        assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            plan.failure_reason.as_deref(),
+            Some("atomic-field-plain-store:remote_head")
+        );
     }
 
     #[test]
