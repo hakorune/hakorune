@@ -36,9 +36,110 @@ BINS_COUNTERS: tuple[tuple[str, str], ...] = (
     ("replacement_front_global_lock_reclaim_count", "global_lock_reclaim_count"),
     ("replacement_front_tls_arena_count", "tls_arena_count"),
     ("replacement_front_tls_arena_peak_count", "tls_arena_peak_count"),
+    (
+        "replacement_front_allocator_owner_lifecycle_state_machine",
+        "allocator_owner_lifecycle_state_machine",
+    ),
+    (
+        "replacement_front_allocator_owner_generation_enabled",
+        "allocator_owner_generation_enabled",
+    ),
+    ("replacement_front_allocator_owner_active_count", "allocator_owner_active_count"),
+    (
+        "replacement_front_allocator_owner_exiting_flush_count",
+        "allocator_owner_exiting_flush_count",
+    ),
+    ("replacement_front_allocator_owner_abandoned_count", "allocator_owner_abandoned_count"),
+    ("replacement_front_allocator_owner_reclaimed_count", "allocator_owner_reclaimed_count"),
+    (
+        "replacement_front_allocator_owner_invalid_transition_count",
+        "allocator_owner_invalid_transition_count",
+    ),
+    (
+        "replacement_front_allocator_owner_stale_generation_count",
+        "allocator_owner_stale_generation_count",
+    ),
+    (
+        "replacement_front_allocator_owner_generation_bump_count",
+        "allocator_owner_generation_bump_count",
+    ),
+    (
+        "replacement_front_allocator_owner_reuse_without_generation_bump_count",
+        "allocator_owner_reuse_without_generation_bump_count",
+    ),
     ("replacement_front_thread_exit_arena_flush_count", "thread_exit_arena_flush_count"),
+    (
+        "replacement_front_allocator_thread_exit_observed_count",
+        "allocator_thread_exit_observed_count",
+    ),
+    (
+        "replacement_front_allocator_thread_exit_flush_supported",
+        "allocator_thread_exit_flush_supported",
+    ),
+    (
+        "replacement_front_allocator_thread_exit_flush_count",
+        "allocator_thread_exit_flush_count",
+    ),
+    (
+        "replacement_front_allocator_thread_exit_flush_page_count",
+        "allocator_thread_exit_flush_page_count",
+    ),
+    (
+        "replacement_front_allocator_thread_exit_local_free_drain_count",
+        "allocator_thread_exit_local_free_drain_count",
+    ),
+    (
+        "replacement_front_allocator_thread_exit_remote_candidate_seen_count",
+        "allocator_thread_exit_remote_candidate_seen_count",
+    ),
     ("replacement_front_abandoned_owner_count", "abandoned_owner_count"),
     ("replacement_front_abandoned_remote_free_count", "abandoned_remote_free_count"),
+    ("replacement_front_allocator_abandoned_page_count", "allocator_abandoned_page_count"),
+    (
+        "replacement_front_allocator_abandoned_live_page_count",
+        "allocator_abandoned_live_page_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_empty_page_count",
+        "allocator_abandoned_empty_page_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_remote_candidate_count",
+        "allocator_abandoned_remote_candidate_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_reclaim_attempt_count",
+        "allocator_abandoned_reclaim_attempt_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_reclaim_success_count",
+        "allocator_abandoned_reclaim_success_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_reclaim_blocked_count",
+        "allocator_abandoned_reclaim_blocked_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_reclaim_blocked_remote_count",
+        "allocator_abandoned_reclaim_blocked_remote_count",
+    ),
+    (
+        "replacement_front_remote_candidate_unhandled_reclaim_block_count",
+        "remote_candidate_unhandled_reclaim_block_count",
+    ),
+    (
+        "replacement_front_page_reclaimed_with_remote_candidates",
+        "page_reclaimed_with_remote_candidates",
+    ),
+    (
+        "replacement_front_allocator_exiting_owner_page_claim_count",
+        "allocator_exiting_owner_page_claim_count",
+    ),
+    (
+        "replacement_front_allocator_abandoned_owner_local_free_count",
+        "allocator_abandoned_owner_local_free_count",
+    ),
+    ("replacement_front_remote_free_drain_supported", "remote_free_drain_supported"),
     ("replacement_front_owner_thread_id_lookup_count", "owner_thread_id_lookup_count"),
     ("replacement_front_owner_thread_id_same_count", "owner_thread_id_same_count"),
     ("replacement_front_owner_thread_id_remote_count", "owner_thread_id_remote_count"),
@@ -131,6 +232,12 @@ __attribute__((constructor)) static void replacement_front_init(void) {
 #endif
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
   thread_local_page_bins_mode_enabled = 1;
+#endif
+#ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
+  allocator_owner_lifecycle_state_machine = 1;
+  allocator_owner_generation_enabled = 1;
+  allocator_thread_exit_flush_supported = 1;
+  remote_free_drain_supported = 1;
 #endif
   atexit(write_report);
 }

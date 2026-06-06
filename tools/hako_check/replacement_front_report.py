@@ -400,6 +400,18 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
     replacement_idx = find_subject(rows, "replacement_front_c_shim", 2)
     mimalloc_idx = find_subject(rows, "c_mimalloc_ldpreload", 1)
 
+    def front_counter(suffix: str) -> int:
+        return int_value(
+            rows,
+            [
+                f"subject_{replacement_idx}_{suffix}_total",
+                f"subject_{replacement_idx}_{suffix}",
+                f"{suffix}_total",
+                suffix,
+            ],
+            0,
+        )
+
     c_mimalloc_median = prefixed_float(rows, mimalloc_idx, "throughput_median_ops_per_sec")
     replacement_median = prefixed_float(rows, replacement_idx, "throughput_median_ops_per_sec")
     reported_vs_mimalloc = prefixed_float(rows, replacement_idx, "throughput_vs_c_mimalloc")
@@ -436,57 +448,47 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
         "c_mimalloc_median_ops_per_sec": c_mimalloc_median,
         "replacement_median_ops_per_sec": replacement_median,
         "throughput_vs_c_mimalloc": throughput_vs_mimalloc,
-        "remote_free_push_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_cross_thread_free_remote_push_count_total"
+        "remote_free_push_count_total": front_counter(
+            "replacement_front_cross_thread_free_remote_push_count"
         ),
-        "remote_free_drain_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_remote_free_drain_count_total"
+        "remote_free_drain_count_total": front_counter(
+            "replacement_front_remote_free_drain_count"
         ),
-        "remote_free_cas_retry_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_remote_free_cas_retry_count_total"
+        "remote_free_cas_retry_count_total": front_counter(
+            "replacement_front_remote_free_cas_retry_count"
         ),
-        "same_thread_free_local_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_same_thread_free_local_count_total"
+        "same_thread_free_local_count_total": front_counter(
+            "replacement_front_same_thread_free_local_count"
         ),
-        "same_thread_alloc_local_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_same_thread_alloc_local_count_total"
+        "same_thread_alloc_local_count_total": front_counter(
+            "replacement_front_same_thread_alloc_local_count"
         ),
-        "page_from_ptr_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_page_from_ptr_count_total"
+        "page_from_ptr_count_total": front_counter("replacement_front_page_from_ptr_count"),
+        "page_from_ptr_range_scan_count_total": front_counter(
+            "replacement_front_page_from_ptr_range_scan_count"
         ),
-        "page_from_ptr_range_scan_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_page_from_ptr_range_scan_count_total"
+        "page_from_ptr_miss_count_total": front_counter(
+            "replacement_front_page_from_ptr_miss_count"
         ),
-        "page_from_ptr_miss_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_page_from_ptr_miss_count_total"
+        "owner_thread_id_lookup_count_total": front_counter(
+            "replacement_front_owner_thread_id_lookup_count"
         ),
-        "owner_thread_id_lookup_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_owner_thread_id_lookup_count_total"
+        "owner_thread_id_same_count_total": front_counter(
+            "replacement_front_owner_thread_id_same_count"
         ),
-        "owner_thread_id_same_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_owner_thread_id_same_count_total"
+        "owner_thread_id_remote_count_total": front_counter(
+            "replacement_front_owner_thread_id_remote_count"
         ),
-        "owner_thread_id_remote_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_owner_thread_id_remote_count_total"
+        "tls_arena_count_total": front_counter("replacement_front_tls_arena_count"),
+        "tls_arena_peak_count_total": front_counter("replacement_front_tls_arena_peak_count"),
+        "page_index_probe_count_total": front_counter("replacement_front_page_index_probe_count"),
+        "global_lock_hot_path_count_total": front_counter(
+            "replacement_front_global_lock_hot_path_count"
         ),
-        "tls_arena_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_tls_arena_count_total"
+        "global_lock_refill_count_total": front_counter(
+            "replacement_front_global_lock_refill_count"
         ),
-        "tls_arena_peak_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_tls_arena_peak_count_total"
-        ),
-        "page_index_probe_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_page_index_probe_count_total"
-        ),
-        "global_lock_hot_path_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_global_lock_hot_path_count_total"
-        ),
-        "global_lock_refill_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_global_lock_refill_count_total"
-        ),
-        "host_passthrough_count_total": prefixed_int(
-            rows, replacement_idx, "replacement_front_host_passthrough_count_total"
-        ),
+        "host_passthrough_count_total": front_counter("replacement_front_host_passthrough_count"),
         "typed_page_meta_field_block_size": prefixed_int(
             rows, replacement_idx, "typed_page_meta_field_block_size"
         ),

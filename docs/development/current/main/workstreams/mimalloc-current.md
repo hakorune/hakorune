@@ -136,7 +136,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-FMEM-018C lifecycle shadow counters
+  MIM-FMEM-019 AtomicRemoteHead drain
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
@@ -195,7 +195,9 @@ why:
   and AllocOwnerId is generation-bearing from v0. 296x-451 landed
   MIM-FMEM-018B by adding lifecycle inventory fields and fastmem-check gates
   without enabling abandoned reclaim behavior. MIM-FMEM-018C now opens
-  producer-side lifecycle shadow counters.
+  producer-side lifecycle shadow counters. 296x-452 landed MIM-FMEM-018C by
+  adding producer-side lifecycle shadow counters without enabling reclaim
+  behavior. MIM-FMEM-019 opens AtomicRemoteHead drain next.
 
 completed_this_slice:
   MIM-FMEM-001 FastMemoryContract docs/report lock
@@ -285,6 +287,8 @@ task_order:
   MIM-FMEM-018A AllocOwner lifecycle state machine
   MIM-FMEM-018B lifecycle report/check fields
   MIM-FMEM-018C lifecycle shadow counters
+
+next_lifecycle_rows:
   MIM-FMEM-019 AtomicRemoteHead drain
   MIM-FMEM-020 abandoned reclaim
 

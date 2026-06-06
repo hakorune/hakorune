@@ -109,4 +109,41 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --report "$FIXTURE_DIR/owner_lifecycle_shadow_report.kv" \
+  >"$OUT"
+
+grep -q '^replacement_front_owner_shadow_counters=1$' "$OUT"
+grep -q '^alloc_owner_id_capability=1$' "$OUT"
+grep -q '^alloc_owner_id_generation_enabled=1$' "$OUT"
+grep -q '^allocator_owner_lifecycle_state_machine=1$' "$OUT"
+grep -q '^allocator_owner_generation_enabled=1$' "$OUT"
+grep -q '^allocator_owner_id_kind=arena_owner$' "$OUT"
+grep -q '^allocator_owner_id_repr=packed_u64_slot_generation$' "$OUT"
+grep -q '^allocator_owner_active_count=2$' "$OUT"
+grep -q '^allocator_owner_exiting_flush_count=1$' "$OUT"
+grep -q '^allocator_owner_abandoned_count=1$' "$OUT"
+grep -q '^allocator_thread_exit_observed_count=1$' "$OUT"
+grep -q '^allocator_thread_exit_flush_supported=1$' "$OUT"
+grep -q '^allocator_thread_exit_flush_count=1$' "$OUT"
+grep -q '^allocator_thread_exit_flush_page_count=2$' "$OUT"
+grep -q '^allocator_abandoned_page_count=2$' "$OUT"
+grep -q '^allocator_abandoned_live_page_count=1$' "$OUT"
+grep -q '^allocator_abandoned_empty_page_count=1$' "$OUT"
+grep -q '^allocator_abandoned_remote_candidate_count=1$' "$OUT"
+grep -q '^allocator_abandoned_reclaim_success_count=0$' "$OUT"
+grep -q '^allocator_abandoned_reclaim_blocked_count=1$' "$OUT"
+grep -q '^remote_candidate_unhandled_reclaim_block_count=1$' "$OUT"
+grep -q '^page_reclaimed_with_remote_candidates=0$' "$OUT"
+grep -q '^remote_free_drain_supported=1$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --report "$FIXTURE_DIR/owner_lifecycle_shadow_report.kv" \
+  --format kv \
+  >"$OUT"
+
+grep -q '^failure_count=0$' "$OUT"
+grep -q '^summary=ok$' "$OUT"
+
 echo "[TEST/OK] fastmem_alloc_owner_shadow_counter"

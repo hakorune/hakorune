@@ -446,19 +446,58 @@ static void flush_thread_counters(void);
 
 static void page_arena_tls_destructor(void* value) {{
   if (!value) return;
+  HAKO_COUNTER_ADD(allocator_thread_exit_observed_count, 1);
+  HAKO_COUNTER_ADD(allocator_owner_exiting_flush_count, 1);
   unsigned long long abandoned = 0;
+  unsigned long long live_pages = 0;
+  unsigned long long empty_pages = 0;
+  unsigned long long remote_candidate_pages = 0;
   for (unsigned int slot = 0; slot < HAKO_PAGE_INDEX_TABLE_CAP; slot++) {{
     HakoReplacementPageIndexEntry* entry = &page_index_table[slot];
     if (entry->state == HAKO_PAGE_INDEX_READY &&
         entry->owner_active &&
         entry->owner_token == hako_current_owner_token) {{
+      unsigned char has_live_slots =
+          (unsigned char)(entry->free_top &&
+                          *entry->free_top < HAKO_REPLACEMENT_BIN_SLOT_COUNT);
+      unsigned char has_remote_candidates =
+          (unsigned char)(entry->remote_head && *entry->remote_head >= 0);
+      if (has_live_slots || has_remote_candidates) {{
+        live_pages++;
+      }} else {{
+        empty_pages++;
+      }}
+      if (has_remote_candidates) {{
+        remote_candidate_pages++;
+      }}
       entry->owner_active = 0u;
       abandoned++;
     }}
   }}
   if (abandoned > 0) {{
     HAKO_COUNTER_ADD(thread_exit_arena_flush_count, 1);
+    HAKO_COUNTER_ADD(allocator_thread_exit_flush_count, 1);
+    HAKO_COUNTER_ADD(allocator_thread_exit_flush_page_count, abandoned);
     HAKO_COUNTER_ADD(abandoned_owner_count, 1);
+    HAKO_COUNTER_ADD(allocator_owner_abandoned_count, 1);
+    HAKO_COUNTER_ADD(allocator_abandoned_page_count, abandoned);
+    HAKO_COUNTER_ADD(allocator_abandoned_live_page_count, live_pages);
+    HAKO_COUNTER_ADD(allocator_abandoned_empty_page_count, empty_pages);
+    HAKO_COUNTER_ADD(allocator_abandoned_remote_candidate_count, remote_candidate_pages);
+    HAKO_COUNTER_ADD(
+        allocator_thread_exit_remote_candidate_seen_count,
+        remote_candidate_pages);
+    if (remote_candidate_pages > 0) {{
+      HAKO_COUNTER_ADD(
+          remote_candidate_unhandled_reclaim_block_count,
+          remote_candidate_pages);
+      HAKO_COUNTER_ADD(
+          allocator_abandoned_reclaim_blocked_count,
+          remote_candidate_pages);
+      HAKO_COUNTER_ADD(
+          allocator_abandoned_reclaim_blocked_remote_count,
+          remote_candidate_pages);
+    }}
   }}
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_COUNTERS
   flush_thread_counters();
@@ -678,7 +717,8 @@ static void init_bins(void) {{
 #ifdef HAKO_REPLACEMENT_FRONT_TLS_PAGE_ARENA
   unsigned long long current_tls_arena_count = __sync_add_and_fetch(&tls_arena_count, 1);
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
-  hako_current_owner_token = current_tls_arena_count;
+  hako_current_owner_token = (1ull << 32) | (current_tls_arena_count & 0xffffffffull);
+  HAKO_COUNTER_ADD(allocator_owner_active_count, 1);
 #endif
   unsigned long long peak = tls_arena_peak_count;
   for (unsigned int attempt = 0; current_tls_arena_count > peak && attempt < 4u; attempt++) {{
@@ -751,7 +791,11 @@ void free(void* ptr) {{
   if (find_owned(ptr, &bin, &index, &slot_size, &used, &requested, &free_stack, &free_top, &remote_next, &remote_head, &owner_active, &owner_local)) {{
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
     if (!owner_active) {{
+      if (owner_local) {{
+        HAKO_COUNTER_ADD(allocator_abandoned_owner_local_free_count, 1);
+      }}
       HAKO_COUNTER_ADD(abandoned_remote_free_count, 1);
+      HAKO_COUNTER_ADD(allocator_abandoned_remote_candidate_count, 1);
       HAKO_COUNTER_ADD(direct_core_call_count, 1);
       unlock_arena();
       return;
@@ -828,7 +872,11 @@ void* realloc(void* ptr, size_t size) {{
     (void)remote_head;
 #ifdef HAKO_REPLACEMENT_FRONT_REMOTE_FREE_QUEUE
     if (!owner_active) {{
+      if (owner_local) {{
+        HAKO_COUNTER_ADD(allocator_abandoned_owner_local_free_count, 1);
+      }}
       HAKO_COUNTER_ADD(abandoned_remote_free_count, 1);
+      HAKO_COUNTER_ADD(allocator_abandoned_remote_candidate_count, 1);
       unlock_arena();
       return 0;
     }}

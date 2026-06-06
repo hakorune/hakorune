@@ -137,6 +137,11 @@ MIM-FMEM-018B landed:
   rejects invalid lifecycle transitions, stale generation, reuse without
   generation bump, local_free misuse, and reclaim-with-remote-candidates.
   MIM-FMEM-018C opens producer-side lifecycle shadow counters next.
+MIM-FMEM-018C landed:
+  The diagnostic replacement-front producer now emits lifecycle shadow counters
+  for owner generation, thread-exit flush, abandoned pages, and reclaim-block
+  observations. Reclaim behavior remains closed. MIM-FMEM-019 opens
+  AtomicRemoteHead drain next.
 ```
 
 ## Queue

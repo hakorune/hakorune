@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-06"
 
 active_lane = "mimalloc AllocOwnerId TLS arena owner state"
-active_lane_status = "MIM-FMEM-018B added AllocOwner lifecycle inventory fields and fastmem-check gates; next opens MIM-FMEM-018C lifecycle shadow counters."
+active_lane_status = "MIM-FMEM-018C added producer-side AllocOwner lifecycle shadow counters; next opens MIM-FMEM-019 AtomicRemoteHead drain."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-451-ALLOC-OWNER-LIFECYCLE-REPORT-CHECK-FIELDS.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-452-ALLOC-OWNER-LIFECYCLE-SHADOW-COUNTERS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-451-ALLOC-OWNER-LIFECYCLE-REPORT-CHECK-FIELDS"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-451-ALLOC-OWNER-LIFECYCLE-REPORT-CHECK-FIELDS.md"
-latest_card_summary = "Landed MIM-FMEM-018B: add AllocOwner lifecycle inventory fields and fastmem-check gates while keeping reclaim behavior closed."
-current_blocker_token = "MIM-FMEM-018C"
+latest_card = "296x-452-ALLOC-OWNER-LIFECYCLE-SHADOW-COUNTERS"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-452-ALLOC-OWNER-LIFECYCLE-SHADOW-COUNTERS.md"
+latest_card_summary = "Landed MIM-FMEM-018C: add producer-side AllocOwner lifecycle shadow counters while keeping remote drain and abandoned reclaim behavior closed."
+current_blocker_token = "MIM-FMEM-019"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-06: 296x-452 landed MIM-FMEM-018C lifecycle shadow counters: the diagnostic replacement-front producer now emits owner generation, thread-exit flush, abandoned page, and reclaim-block observations while keeping remote drain and abandoned reclaim closed; MIM-FMEM-019 AtomicRemoteHead drain opens next.",
   "2026-06-06: 296x-451 landed MIM-FMEM-018B lifecycle report/check fields: inventory now reports AllocOwner lifecycle state/generation/thread-exit/abandoned/reclaim-block fields, and fastmem-check rejects invalid lifecycle reports; MIM-FMEM-018C shadow counters open next.",
   "2026-06-06: 296x-450 landed MIM-FMEM-018A AllocOwner lifecycle state machine: Active / ExitingFlush / Abandoned / Reclaimed are fixed as ownership truth, ReclaimAttempt is transient, and MIM-FMEM-018B lifecycle report/check fields open next.",
   "2026-06-06: 296x-449 landed MIR-FMEM-007D keep decision: remaining Python-template C diagnostic payloads stay quarantined until MIR-to-LLVM replacement-front coverage can replace their baseline role; MIM-FMEM-018 thread-exit / abandoned owner lifecycle opens next.",
