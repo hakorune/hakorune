@@ -258,6 +258,79 @@ MIR-FMEM-008C TableIndex LayoutRef pilot landed:
   Verified TableIndex rows now lower to backend-private `fastmem_layout_refs`
   rather than ordinary `vmap`. FieldLoad / FieldStore remain closed and open
   next as LayoutRef consumers.
+MIM-PORT-FMEM-004 landed:
+  The PageMeta hako_alloc pilot now has observation-only MIR-to-LLVM producer
+  evidence: verified `TableIndex`, `FieldLoad`, and `FieldStore` access plans
+  compile through the Python LLVM producer and emit lowered-count KV evidence
+  checked by `fastmem-check --inventory`. Owner runtime, remote-free, TLS
+  transfer, bridge deletion/archive, and product activation remain closed.
+  MIM-PORT-FMEM-005 opens next hako_alloc body slice selection.
+MIM-PORT-FMEM-005 landed:
+  Worker inventory selected PageMeta `owner_worker_id` read-only scalar
+  observation as the safest next body slice. A separate pilot now reads
+  `owner_worker_id` through the existing verified layout/table producer path.
+  This is not owner-runtime behavior: `CurrentAllocOwnerId`, `OwnerEq`, owner
+  mutation, DirectArray/free-list mutation, remote-free, TLS transfer, and
+  product activation remain closed. MIM-PORT-FMEM-006 opens `free_head`
+  read-only pointer observation with explicit no-escape evidence.
+MIM-PORT-FMEM-006 landed:
+  A separate PageMeta fastmem pilot now reads `free_head` as read-only
+  pointer-shaped metadata through verified layout/table producer evidence.
+  It does not return or store `free_head`, does not claim free-list semantics,
+  and keeps `local_free_head`, `remote_head`, DirectArray/free-list mutation,
+  owner runtime, TLS transfer, and product activation closed.
+  MIM-PORT-FMEM-007 opens owner equality-only source observation.
+MIM-PORT-FMEM-007 landed:
+  A separate PageMeta fastmem pilot now observes current AllocOwnerId and
+  owner equality from `.hako` source via `mem.currentAllocOwnerId` and
+  `mem.ownerEq`. The equality result is consumed inside the fastmem region as
+  the input to a verified `used` FieldStore, so it does not escape as an
+  ordinary value and does not select same/remote free routing. Owner mutation,
+  `local_free_head`, `remote_head`, AtomicRemoteHead, DirectArray/free-list
+  mutation, TLS transfer, and product activation remain closed.
+  MIM-PORT-FMEM-008 opens local_free_head / free-list source-body preflight.
+MIM-PORT-FMEM-008 landed:
+  A PageMeta local_free_head preflight now proves `local_free_head` is visible
+  from `.hako` source and MIR metadata, but MIR-to-LLVM lowering rejects it as
+  an ordinary FieldLoad with
+  `[llvm/fastmem:unsupported-field-load-class] local_free_head`. This keeps
+  free-list mutation fail-closed until a dedicated substrate is selected.
+  MIM-PORT-FMEM-009 opens free-list mutation substrate selection.
+MIM-PORT-FMEM-009 landed:
+  The selected substrate is a free-list-specific FastMemory MemOp family, not
+  ordinary `local_free_head` FieldLoad/FieldStore class widening. DirectArray
+  commonality remains proof-envelope-only. MIM-PORT-FMEM-010 opens
+  LocalFreePush / LocalFreePop vocabulary and source-intrinsic observation
+  while lowering, remote-owner routing, AtomicRemoteHead, TLS transfer, and
+  product activation remain closed.
+MIM-PORT-FMEM-010 landed:
+  LocalFreePush / LocalFreePop vocabulary is now visible from `.hako` source,
+  MIR, and hako_check inventory through a dedicated PageMeta pilot. LLVM
+  lowering remains fail-closed on unsupported-kind, and ordinary
+  `local_free_head` FieldLoad/FieldStore remains rejected. MIM-PORT-FMEM-011
+  opens verifier-owned local free-list plans before any lowering behavior.
+MIM-PORT-FMEM-011 landed:
+  LocalFreePush / LocalFreePop now produce verifier-owned access-plan rows.
+  The rows resolve `local_free_head` metadata but remain non-lowerable because
+  same-owner proof and block-next layout/provenance proof are still missing.
+  MIM-PORT-FMEM-012 opens LocalFreePush lowering preconditions / pilot without
+  opening LocalFreePop, remote-owner routing, AtomicRemoteHead, TLS transfer,
+  or product activation as a side effect.
+MIM-PORT-FMEM-012A landed:
+  `.hako hako_alloc` can now express LocalFreePush preconditions through
+  `mem.assumeSameOwner(page, same_owner)` and
+  `mem.assumeLocalFreeBlockNext(block)`. When both proof facts exist,
+  LocalFreePush becomes a verified/lowerable access-plan row. LLVM lowering,
+  LocalFreePop, remote-owner routing, AtomicRemoteHead, TLS transfer, and
+  product activation remain closed. MIM-PORT-FMEM-012B opens the first
+  LocalFreePush LLVM producer pilot.
+MIM-PORT-FMEM-012B landed:
+  Verified LocalFreePush plans now lower through the MIR-to-LLVM producer.
+  Lowering consumes a PageMeta LayoutRef, verified `local_free_head` access
+  material, and `FreeBlockNodeLayoutV0.next` block-next access material. The
+  ordinary `local_free_head` FieldLoad/FieldStore routes, LocalFreePop,
+  remote-owner routing, AtomicRemoteHead, TLS transfer, and product activation
+  remain closed. MIM-PORT-FMEM-013 opens the LocalFreePop route.
 MIR-FMEM-008C FieldLoad LayoutRef pilot landed:
   Verified FieldLoad rows now consume backend-private LayoutRefs and emit
   readonly scalar GEP/load results into ordinary `vmap`. FieldStore, owner
@@ -329,8 +402,18 @@ MIR-FMEM-008 split:
     quarantined Python-template C diagnostic baseline can be treated as
     replaceable. Reference closeout opens next.
   MIM-PORT-FMEM-001:
-    first mimalloc-port body row after FastMemory substrate parity; migrate one
-    narrow hako_alloc owner/layout path using existing substrate only.
+    landed as the first hako_alloc source/body pilot: PageMeta scalar
+    TableIndex / FieldLoad / FieldStore shape is now present in `.hako`
+    source and visible to hako_check AST inventory. DirectArray/free-list
+    lowering and product activation remain closed.
+  MIM-PORT-FMEM-002:
+    landed as MIR JSON verified FieldLoad/FieldStore access-plan evidence for
+    the PageMeta scalar pilot. TableIndex stayed proof-incomplete in that row.
+  MIM-PORT-FMEM-003:
+    landed explicit fastmem table-length and index-range proof annotations so
+    PageMapV0 TableIndex is now a verified access plan without lowering-side
+    inference or ABI lookup. MIM-PORT-FMEM-004 opens MIR-to-LLVM producer
+    evidence for the verified PageMeta pilot.
 ```
 
 ## Queue
@@ -678,6 +761,10 @@ MIR-FMEM-008 split:
 | 417 | `FASTMEM-SOURCE-SYNTAX-PILOT-296X-001` | Done | MIM-FMEM-008 connected parsed fastmem source regions to hako_check inventory/check metadata without opening execution or product activation. |
 | 418 | `PAGEMAPBRIDGE-BENCHMARK-FRONT-PILOT-296X-001` | Done | MIM-FMEM-009 promoted PageMapBridge benchmark-front report fields and made hot range_scan inventories fail fastmem-check. |
 | 455 | `FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001` | Done | After MIR-FMEM layout/table/owner runtime producer implementation is complete, resync docs/reference, tools/hako_check README, and current workstream wording so Python-template C bridge references are diagnostic-only and MIM-PORT-FMEM-001 can open. |
+| 456 | `MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT` | Done | Added the first hako_alloc PageMeta scalar fastmem source body and AST inventory coverage for TableIndex / FieldLoad / FieldStore. |
+| 457 | `MIM-PORT-FMEM-002-PAGE-META-SCALAR-VERIFIED-EVIDENCE` | Done | Connected the PageMeta scalar pilot to MIR JSON metadata and verified FieldLoad/FieldStore access-plan evidence. TableIndex remains proof-incomplete until length/bounds evidence lands. |
+| 458 | `MIM-PORT-FMEM-003-PAGE-META-TABLEINDEX-PROOF-SURFACE` | Done | Added explicit fastmem table-length and index-range proof annotations so PageMapV0 TableIndex becomes a verified table access without lowering-side inference or ABI lookup. |
+| 459 | `MIM-PORT-FMEM-004-PAGE-META-MIR-LLVM-PRODUCER-EVIDENCE` | Planned | Connect the verified PageMeta pilot to MIR-to-LLVM producer lowered-count evidence without opening owner routing, remote-free, TLS transfer, or product activation. |
 
 ## Hako Mimalloc Performance Parity Plan
 

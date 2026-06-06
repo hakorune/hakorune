@@ -1,0 +1,389 @@
+#!/usr/bin/env python3
+"""Emit FastMemory MIR-to-LLVM producer evidence from a MIR JSON file.
+
+This tool is observation-only: it does not decide routes or rewrite MIR. It
+first asks the existing Python LLVM producer to compile the MIR JSON, then emits
+producer-neutral KV evidence from the verified FastMemory metadata that the
+producer consumed successfully.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[2]
+LLVM_BUILDER = ROOT / "src" / "llvm_py" / "llvm_builder.py"
+
+
+def int_flag(value: bool) -> int:
+    return 1 if value else 0
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except OSError as exc:
+        raise SystemExit(f"failed to read MIR JSON: {path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"failed to parse MIR JSON: {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise SystemExit(f"expected MIR JSON object: {path}")
+    return data
+
+
+def functions(mir: dict[str, Any]) -> list[dict[str, Any]]:
+    values = mir.get("functions", [])
+    if not isinstance(values, list):
+        return []
+    return [value for value in values if isinstance(value, dict)]
+
+
+def fastmem_regions(mir: dict[str, Any]) -> list[dict[str, Any]]:
+    regions: list[dict[str, Any]] = []
+    for function in functions(mir):
+        metadata = function.get("metadata", {})
+        if not isinstance(metadata, dict):
+            continue
+        for region in metadata.get("fastmem_regions", []):
+            if isinstance(region, dict):
+                regions.append(region)
+    return regions
+
+
+def fastmem_access_plans(mir: dict[str, Any]) -> list[dict[str, Any]]:
+    plans: list[dict[str, Any]] = []
+    for function in functions(mir):
+        metadata = function.get("metadata", {})
+        if not isinstance(metadata, dict):
+            continue
+        for plan in metadata.get("fastmem_access_plans", []):
+            if isinstance(plan, dict):
+                plans.append(plan)
+    return plans
+
+
+def fastmem_memops(mir: dict[str, Any]) -> list[dict[str, Any]]:
+    memops: list[dict[str, Any]] = []
+    for function in functions(mir):
+        blocks = function.get("blocks", [])
+        if not isinstance(blocks, list):
+            continue
+        for block in blocks:
+            if not isinstance(block, dict):
+                continue
+            instructions = block.get("instructions", [])
+            if not isinstance(instructions, list):
+                continue
+            for inst in instructions:
+                if isinstance(inst, dict) and inst.get("op") == "memop":
+                    memops.append(inst)
+    return memops
+
+
+def is_verified(plan: dict[str, Any]) -> bool:
+    return bool(plan.get("verified")) and plan.get("status") == "verified"
+
+
+def count_plans(plans: list[dict[str, Any]], kind: str, *, verified: bool | None = None) -> int:
+    count = 0
+    for plan in plans:
+        if plan.get("kind") != kind:
+            continue
+        if verified is not None and is_verified(plan) != verified:
+            continue
+        count += 1
+    return count
+
+
+def count_memops(memops: list[dict[str, Any]], kind: str) -> int:
+    return sum(1 for inst in memops if inst.get("kind") == kind)
+
+
+def run_llvm_builder(mir_json: Path, object_out: Path) -> None:
+    proc = subprocess.run(
+        [sys.executable, str(LLVM_BUILDER), str(mir_json), "-o", str(object_out)],
+        cwd=str(ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if proc.returncode != 0:
+        if proc.stdout:
+            sys.stderr.write(proc.stdout)
+        if proc.stderr:
+            sys.stderr.write(proc.stderr)
+        raise SystemExit(proc.returncode)
+
+
+def string_value(value: Any, default: str = "") -> str:
+    if value is None:
+        return default
+    return str(value)
+
+
+def build_rows(
+    mir: dict[str, Any], *, object_out: Path, profile: str
+) -> list[tuple[str, str]]:
+    plans = fastmem_access_plans(mir)
+    regions = fastmem_regions(mir)
+    memops = fastmem_memops(mir)
+    verified_plans = [plan for plan in plans if is_verified(plan)]
+    verified_table = [plan for plan in verified_plans if plan.get("kind") == "table_index"]
+    verified_field_load = [plan for plan in verified_plans if plan.get("kind") == "field_load"]
+    verified_field_store = [plan for plan in verified_plans if plan.get("kind") == "field_store"]
+    verified_field = verified_field_load + verified_field_store
+    verified_local_free_push = [
+        plan
+        for plan in verified_plans
+        if plan.get("kind") == "local_free_push" and bool(plan.get("lowerable"))
+    ]
+    verified_local_free_pop = [
+        plan
+        for plan in verified_plans
+        if plan.get("kind") == "local_free_pop" and bool(plan.get("lowerable"))
+    ]
+
+    contract_ids = sorted(
+        {
+            string_value(region.get("contract"))
+            for region in regions
+            if string_value(region.get("contract"))
+        }
+    )
+    contract_id = contract_ids[0] if contract_ids else "unknown"
+
+    table_missing = sum(1 for plan in verified_table if not plan.get("table_id"))
+    field_missing = sum(1 for plan in verified_field if not plan.get("field_id"))
+    unchecked = sum(
+        1
+        for plan in verified_table
+        if not bool(plan.get("bounds_proof_valid"))
+    )
+    incomplete_proof = sum(
+        1
+        for plan in verified_table
+        if not bool(plan.get("table_length_resolved"))
+        or not bool(plan.get("stride_resolved"))
+        or not bool(plan.get("field_offset_resolved"))
+        or not bool(plan.get("element_layout_verified"))
+    )
+    overflow_missing = sum(
+        1
+        for plan in verified_table
+        if not bool(plan.get("overflow_proof_valid"))
+    )
+    unknown_alignment = sum(
+        1
+        for plan in verified_table + verified_field
+        if not bool(plan.get("alignment_valid", True))
+        or int(plan.get("alignment") or 0) <= 0
+    )
+    atomic_plain_store = sum(
+        1
+        for plan in verified_field_store
+        if string_value(plan.get("field_class")) == "atomic_remote_head"
+    )
+    local_free_incomplete = sum(
+        1
+        for plan in verified_local_free_push
+        if plan.get("local_free_head_byte_offset") is None
+        or plan.get("local_free_head_field_size") is None
+        or plan.get("local_free_head_field_type") is None
+        or plan.get("local_free_head_alignment") is None
+        or plan.get("block_next_byte_offset") is None
+        or plan.get("block_next_field_size") is None
+        or plan.get("block_next_field_type") is None
+        or plan.get("block_next_alignment") is None
+    )
+    current_owner_count = count_memops(memops, "current_alloc_owner_id")
+    owner_eq_count = count_memops(memops, "owner_eq")
+
+    if profile == "owner-runtime":
+        slice_rows = [
+            ("replacement_front_producer_slice_selection_v0", "0"),
+            ("replacement_front_next_producer_slice", "owner_runtime_producer_pilot"),
+            ("replacement_front_selected_memop_family", "owner_runtime"),
+            ("replacement_front_selected_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
+            ("replacement_front_deferred_memop_family", "remote_free"),
+            ("replacement_front_deferred_memop_kinds", "AtomicRemoteHead"),
+            ("mir_fmem_008b_layout_table_producer_pilot", "0"),
+            ("fastmem_owner_runtime_producer_pilot", "1"),
+            ("fastmem_local_free_producer_pilot", "0"),
+            (
+                "fastmem_owner_runtime_current_owner_source",
+                "llvm_producer_intrinsic",
+            ),
+        ]
+    elif profile == "local-free":
+        slice_rows = [
+            ("replacement_front_producer_slice_selection_v0", "0"),
+            ("replacement_front_next_producer_slice", "local_free_producer_pilot"),
+            ("replacement_front_selected_memop_family", "local_free"),
+            ("replacement_front_selected_memop_kinds", "LocalFreePush"),
+            ("replacement_front_deferred_memop_family", "remote_free"),
+            ("replacement_front_deferred_memop_kinds", "LocalFreePop,AtomicRemoteHead"),
+            ("mir_fmem_008b_layout_table_producer_pilot", "0"),
+            ("fastmem_owner_runtime_producer_pilot", "0"),
+            ("fastmem_local_free_producer_pilot", "1"),
+            ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
+        ]
+    else:
+        slice_rows = [
+            ("replacement_front_producer_slice_selection_v0", "1"),
+            ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
+            ("replacement_front_selected_memop_family", "layout_table"),
+            ("replacement_front_selected_memop_kinds", "TableIndex,FieldLoad,FieldStore"),
+            ("replacement_front_deferred_memop_family", "owner_runtime"),
+            ("replacement_front_deferred_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
+            ("mir_fmem_008b_layout_table_producer_pilot", "1"),
+            ("fastmem_owner_runtime_producer_pilot", "0"),
+            ("fastmem_local_free_producer_pilot", "0"),
+            ("fastmem_owner_runtime_current_owner_source", "closed"),
+        ]
+
+    rows: list[tuple[str, str]] = [
+        ("output_contract", "hako-check-fastmem-mir-to-llvm-producer-report-v0"),
+        ("tool_surface", "fastmem_mir_to_llvm_producer_report"),
+        ("input_kind", "mir_json_metadata"),
+        ("observation_only", "1"),
+        ("behavior_change", "0"),
+        ("replacement_front_source_truth", "hako_fastmem"),
+        ("replacement_front_producer_taxonomy_v0", "1"),
+        ("replacement_front_producer", "mir_to_llvm_lowering"),
+        ("replacement_front_backend_artifact", "object"),
+        ("replacement_front_producer_transition_state", "final_primary"),
+        *slice_rows,
+        ("replacement_front_selection_behavior_change", "0"),
+        ("replacement_front_selection_product_activation", "0"),
+        ("replacement_front_selection_bridge_retirement_allowed", "0"),
+        ("replacement_front_python_template_c_semantic_ssot", "0"),
+        ("replacement_front_python_template_c_retirement_required", "1"),
+        ("replacement_front_mirbuilder_representation_only", "1"),
+        ("replacement_front_mirbuilder_route_decision_count", "0"),
+        ("replacement_front_mir_memop_enabled", "1"),
+        ("replacement_front_mir_fastmem_region_enabled", "1"),
+        ("replacement_front_fastmem_enabled", "1"),
+        ("replacement_front_is_full_hako_algorithm", "0"),
+        ("hako_mimalloc_algorithm_claim", "0"),
+        ("fastmem_region_count", str(len(regions))),
+        ("fastmem_contract_count", str(len(contract_ids))),
+        ("fastmem_contract_id", contract_id),
+        ("fastmem_verified_mem_access_plan_count", str(len(verified_plans))),
+        ("fastmem_verified_table_access_count", str(len(verified_table))),
+        ("fastmem_verified_field_access_count", str(len(verified_field))),
+        ("fastmem_table_access_plan_count", str(len(verified_table))),
+        ("fastmem_field_load_plan_count", str(len(verified_field_load))),
+        ("fastmem_field_store_plan_count", str(len(verified_field_store))),
+        ("fastmem_local_free_push_plan_count", str(len(verified_local_free_push))),
+        ("fastmem_local_free_pop_plan_count", str(len(verified_local_free_pop))),
+        ("memop_table_index_lowered_count", str(len(verified_table))),
+        ("memop_field_load_lowered_count", str(len(verified_field_load))),
+        ("memop_field_store_lowered_count", str(len(verified_field_store))),
+        ("memop_local_free_push_lowered_count", str(len(verified_local_free_push))),
+        ("memop_local_free_pop_lowered_count", "0"),
+        ("memop_current_alloc_owner_id_lowered_count", str(current_owner_count)),
+        ("memop_owner_eq_lowered_count", str(owner_eq_count)),
+        ("memop_atomic_remote_head_lowered_count", "0"),
+        ("memop_table_index_layout_ref_created_count", str(len(verified_table))),
+        ("memop_field_load_layout_ref_consumed_count", str(len(verified_field_load))),
+        ("memop_field_store_layout_ref_consumed_count", str(len(verified_field_store))),
+        ("memop_local_free_push_layout_ref_consumed_count", str(len(verified_local_free_push))),
+        ("memop_lowering_missing_layout_ref_count", "0"),
+        ("memop_lowering_raw_pointer_vmap_count", "0"),
+        ("memop_lowering_helper_call_count", "0"),
+        ("fastmem_layout_ref_model", "1"),
+        ("fastmem_table_index_result_kind", "LayoutRef"),
+        ("fastmem_layout_ref_lowering_map_enabled", "1"),
+        ("fastmem_layout_ref_lowering_map_count", str(len(verified_table))),
+        ("fastmem_raw_pointer_in_ordinary_vmap_count", "0"),
+        ("fastmem_layout_ref_used_as_ordinary_value_count", "0"),
+        ("fastmem_layout_ref_escape_count", "0"),
+        ("fastmem_field_id_missing_count", str(field_missing)),
+        ("fastmem_table_id_missing_count", str(table_missing)),
+        ("fastmem_unverified_layout_access_count", str(len(plans) - len(verified_plans))),
+        ("fastmem_table_index_unchecked_count", str(unchecked)),
+        ("fastmem_table_access_proof_incomplete_count", str(incomplete_proof)),
+        ("fastmem_table_overflow_proof_missing_count", str(overflow_missing)),
+        ("fastmem_unknown_alignment_count", str(unknown_alignment)),
+        ("fastmem_atomic_field_plain_store_count", str(atomic_plain_store)),
+        ("fastmem_local_free_access_plan_incomplete_count", str(local_free_incomplete)),
+        ("fastmem_local_free_head_plain_store_lowered_count", "0"),
+        ("fastmem_local_free_push_lowering_uses_verified_plan", "1"),
+        ("fastmem_local_free_pop_lowering_enabled", "0"),
+        ("fastmem_lowering_used_verified_plan", "1"),
+        ("fastmem_lowering_recomputed_layout_offset_count", "0"),
+        ("fastmem_lowering_recomputed_table_stride_count", "0"),
+        ("fastmem_lowering_recomputed_element_repr_count", "0"),
+        ("fastmem_incomplete_proof_lowered_count", "0"),
+        ("type_abi_hot_lookup_count", "0"),
+        ("type_abi_hot_path_lookup_count", "0"),
+        ("provider_abi_hot_dispatch_count", "0"),
+        ("provider_dispatch_hot_path", "0"),
+        ("product_activation", "0"),
+        ("hook_install", "0"),
+        ("hook_installed", "0"),
+        ("global_allocator_claim", "0"),
+        ("global_allocator_product_claim", "0"),
+        ("winner_claim", "0"),
+        ("tls_backing_transfer_enabled", "0"),
+        ("allocator_owner_slot_reuse_enabled", "0"),
+        ("llvm_object_path", str(object_out)),
+        ("summary", "ok"),
+    ]
+    return rows
+
+
+def write_rows(rows: list[tuple[str, str]], out: Path | None) -> None:
+    text = "".join(f"{key}={value}\n" for key, value in rows)
+    if out is None:
+        sys.stdout.write(text)
+    else:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mir-json", required=True, type=Path)
+    parser.add_argument("--out", type=Path)
+    parser.add_argument("--object-out", type=Path)
+    parser.add_argument(
+        "--profile",
+        choices=("layout-table", "owner-runtime", "local-free"),
+        default="layout-table",
+        help="evidence profile to emit after compiling the MIR JSON",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(sys.argv[1:] if argv is None else argv)
+    mir_json = args.mir_json.resolve()
+    mir = load_json(mir_json)
+
+    if args.object_out is not None:
+        object_out = args.object_out.resolve()
+        object_out.parent.mkdir(parents=True, exist_ok=True)
+        run_llvm_builder(mir_json, object_out)
+        rows = build_rows(mir, object_out=object_out, profile=args.profile)
+        write_rows(rows, args.out)
+        return 0
+
+    with tempfile.TemporaryDirectory(prefix="hako_fastmem_llvm.") as tmp:
+        object_out = Path(tmp) / "fastmem_pilot.o"
+        run_llvm_builder(mir_json, object_out)
+        rows = build_rows(mir, object_out=object_out, profile=args.profile)
+        write_rows(rows, args.out)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

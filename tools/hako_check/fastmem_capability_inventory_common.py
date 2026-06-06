@@ -197,6 +197,21 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
         elif is_mem_method_call(expr, "atomicFetchAdd"):
             add_count(counts, "fastmem_memop_atomic_fetch_add_count")
             add_count(counts, "fastmem_region_atomic_op_count")
+        elif is_mem_method_call(expr, "currentAllocOwnerId"):
+            add_count(counts, "fastmem_memop_current_alloc_owner_id_count")
+        elif is_mem_method_call(expr, "ownerEq"):
+            add_count(counts, "fastmem_memop_owner_eq_count")
+        elif is_mem_method_call(expr, "localFreePush"):
+            add_count(counts, "fastmem_memop_local_free_push_count")
+        elif is_mem_method_call(expr, "localFreePop"):
+            add_count(counts, "fastmem_memop_local_free_pop_count")
+        elif (
+            is_mem_method_call(expr, "assumeTableLength")
+            or is_mem_method_call(expr, "assumeIndexInRange")
+            or is_mem_method_call(expr, "assumeSameOwner")
+            or is_mem_method_call(expr, "assumeLocalFreeBlockNext")
+        ):
+            pass
         else:
             add_count(counts, "fastmem_forbidden_call_count")
         for arg in child_expr(expr, "arguments", "args") or []:
@@ -213,6 +228,21 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
         elif name == "mem.store":
             add_count(counts, "fastmem_memop_typed_store_count")
             add_count(counts, "fastmem_region_typed_store_count")
+        elif name == "mem.currentAllocOwnerId":
+            add_count(counts, "fastmem_memop_current_alloc_owner_id_count")
+        elif name == "mem.ownerEq":
+            add_count(counts, "fastmem_memop_owner_eq_count")
+        elif name == "mem.localFreePush":
+            add_count(counts, "fastmem_memop_local_free_push_count")
+        elif name == "mem.localFreePop":
+            add_count(counts, "fastmem_memop_local_free_pop_count")
+        elif name in {
+            "mem.assumeTableLength",
+            "mem.assumeIndexInRange",
+            "mem.assumeSameOwner",
+            "mem.assumeLocalFreeBlockNext",
+        }:
+            pass
         else:
             add_count(counts, "fastmem_forbidden_call_count")
         for arg in child_expr(expr, "arguments", "args") or []:
@@ -223,6 +253,11 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
         add_count(counts, "fastmem_memop_table_index_count")
         analyze_expr(child_expr(expr, "target"), counts)
         analyze_expr(child_expr(expr, "index"), counts)
+        return
+
+    if is_node(expr, "FieldAccess"):
+        add_count(counts, "fastmem_memop_field_load_count")
+        analyze_expr(child_expr(expr, "object", "receiver", "target"), counts)
         return
 
     if is_node(expr, "AwaitExpression", "Await"):
@@ -256,6 +291,17 @@ def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
         return
 
     if is_node(stmt, "Assignment"):
+        target = child_expr(stmt, "target")
+        if not isinstance(target, dict):
+            target = child_expr(stmt, "lhs")
+        if isinstance(target, dict):
+            if is_node(target, "FieldAccess"):
+                add_count(counts, "fastmem_memop_field_store_count")
+                analyze_expr(child_expr(target, "object", "receiver", "target"), counts)
+            elif is_node(target, "Index"):
+                add_count(counts, "fastmem_memop_table_index_count")
+                analyze_expr(child_expr(target, "target"), counts)
+                analyze_expr(child_expr(target, "index"), counts)
         analyze_expr(child_expr(stmt, "value", "expr"), counts)
         return
 
@@ -391,6 +437,25 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_memop_table_index_count": 0,
         "fastmem_memop_field_load_count": 0,
         "fastmem_memop_field_store_count": 0,
+        "fastmem_memop_current_alloc_owner_id_count": 0,
+        "fastmem_memop_owner_eq_count": 0,
+        "fastmem_memop_local_free_push_count": 0,
+        "fastmem_memop_local_free_pop_count": 0,
+        "fastmem_local_free_list_plan": 0,
+        "fastmem_local_free_push_plan_count": 0,
+        "fastmem_local_free_pop_plan_count": 0,
+        "fastmem_local_free_nonlowerable_count": 0,
+        "fastmem_local_free_push_lowerable_count": 0,
+        "fastmem_local_free_pop_lowerable_count": 0,
+        "fastmem_local_free_head_access_resolved_count": 0,
+        "fastmem_local_free_block_next_access_resolved_count": 0,
+        "fastmem_local_free_access_plan_incomplete_count": 0,
+        "fastmem_same_owner_fact_count": 0,
+        "fastmem_block_next_fact_count": 0,
+        "fastmem_local_free_same_owner_required": 0,
+        "fastmem_local_free_same_owner_missing_count": 0,
+        "fastmem_local_free_remote_owner_rejected_count": 0,
+        "fastmem_local_free_block_next_proof_missing_count": 0,
         "fastmem_memop_typed_load_count": 0,
         "fastmem_memop_typed_store_count": 0,
         "fastmem_memop_atomic_cas_count": 0,

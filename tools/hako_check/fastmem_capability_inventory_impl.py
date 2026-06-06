@@ -1226,6 +1226,242 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
     return report
 
 
+def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
+    report = base_inventory("mir_json_metadata")
+    regions: list[dict[str, Any]] = []
+    plans: list[dict[str, Any]] = []
+    memops: list[dict[str, Any]] = []
+    same_owner_facts: list[dict[str, Any]] = []
+    block_next_facts: list[dict[str, Any]] = []
+
+    for function in root.get("functions", []):
+        metadata = function.get("metadata", {})
+        regions.extend(
+            region
+            for region in metadata.get("fastmem_regions", [])
+            if isinstance(region, dict)
+        )
+        plans.extend(
+            plan
+            for plan in metadata.get("fastmem_access_plans", [])
+            if isinstance(plan, dict)
+        )
+        same_owner_facts.extend(
+            fact
+            for fact in metadata.get("fastmem_same_owner_facts", [])
+            if isinstance(fact, dict)
+        )
+        block_next_facts.extend(
+            fact
+            for fact in metadata.get("fastmem_block_next_facts", [])
+            if isinstance(fact, dict)
+        )
+        for block in function.get("blocks", []):
+            for inst in block.get("instructions", []):
+                if isinstance(inst, dict) and inst.get("op") == "memop":
+                    memops.append(inst)
+
+    contracts = sorted(
+        {
+            str(region.get("contract"))
+            for region in regions
+            if region.get("contract") not in (None, "")
+        }
+    )
+    verified_plans = [plan for plan in plans if bool(plan.get("verified"))]
+    verified_field_plans = [
+        plan
+        for plan in verified_plans
+        if str(plan.get("kind")) in {"field_load", "field_store"}
+    ]
+    verified_table_plans = [
+        plan for plan in verified_plans if str(plan.get("kind")) == "table_index"
+    ]
+    local_free_push_plans = [
+        plan for plan in plans if str(plan.get("kind")) == "local_free_push"
+    ]
+    local_free_pop_plans = [
+        plan for plan in plans if str(plan.get("kind")) == "local_free_pop"
+    ]
+    local_free_plans = local_free_push_plans + local_free_pop_plans
+    rejected_table_plans = [
+        plan
+        for plan in plans
+        if str(plan.get("kind")) == "table_index" and not bool(plan.get("verified"))
+    ]
+
+    def count_memop(kind: str) -> int:
+        return sum(1 for inst in memops if inst.get("kind") == kind)
+
+    missing_field_id = sum(
+        1
+        for plan in plans
+        if str(plan.get("kind")) in {"field_load", "field_store"}
+        and not plan.get("field_id")
+    )
+    missing_table_id = sum(
+        1
+        for plan in plans
+        if str(plan.get("kind")) == "table_index" and not plan.get("table_id")
+    )
+    table_unchecked = sum(
+        1
+        for plan in plans
+        if str(plan.get("kind")) == "table_index"
+        and bool(plan.get("table_length_resolved"))
+        and not bool(plan.get("bounds_proof_valid"))
+    )
+    table_incomplete = sum(
+        1
+        for plan in rejected_table_plans
+        if str(plan.get("failure_reason") or "").endswith("proof-incomplete")
+        or not bool(plan.get("table_length_resolved"))
+        or not bool(plan.get("overflow_proof_valid"))
+    )
+    table_overflow_missing = sum(
+        1
+        for plan in plans
+        if str(plan.get("kind")) == "table_index"
+        and bool(plan.get("table_length_resolved"))
+        and bool(plan.get("bounds_proof_valid"))
+        and not bool(plan.get("overflow_proof_valid"))
+    )
+    unknown_alignment = sum(
+        1
+        for plan in plans
+        if str(plan.get("kind")) in {"table_index", "field_load", "field_store"}
+        and plan.get("alignment") in (None, "", 0)
+        or (
+            str(plan.get("kind")) == "table_index"
+            and not bool(plan.get("alignment_valid"))
+        )
+    )
+    atomic_plain_store = sum(
+        1
+        for plan in plans
+        if str(plan.get("kind")) == "field_store"
+        and str(plan.get("field_class")) == "atomic_remote_head"
+    )
+    local_free_nonlowerable = sum(
+        1 for plan in local_free_plans if not bool(plan.get("lowerable"))
+    )
+    local_free_push_lowerable = sum(
+        1 for plan in local_free_push_plans if bool(plan.get("lowerable"))
+    )
+    local_free_pop_lowerable = sum(
+        1 for plan in local_free_pop_plans if bool(plan.get("lowerable"))
+    )
+    local_free_same_owner_missing = sum(
+        1
+        for plan in local_free_plans
+        if not bool(plan.get("same_owner_proof_valid"))
+    )
+    local_free_remote_owner_rejected = sum(
+        1
+        for plan in local_free_plans
+        if bool(plan.get("remote_owner_rejected"))
+    )
+    local_free_block_next_missing = sum(
+        1
+        for plan in local_free_plans
+        if not bool(plan.get("block_next_proof_valid"))
+    )
+    local_free_head_access_resolved = sum(
+        1
+        for plan in local_free_plans
+        if plan.get("local_free_head_byte_offset") not in (None, "")
+        and plan.get("local_free_head_field_size") not in (None, "")
+        and plan.get("local_free_head_field_type") not in (None, "")
+        and plan.get("local_free_head_alignment") not in (None, "")
+    )
+    local_free_block_next_access_resolved = sum(
+        1
+        for plan in local_free_plans
+        if plan.get("block_next_byte_offset") not in (None, "")
+        and plan.get("block_next_field_size") not in (None, "")
+        and plan.get("block_next_field_type") not in (None, "")
+        and plan.get("block_next_alignment") not in (None, "")
+    )
+    local_free_access_plan_incomplete = sum(
+        1
+        for plan in local_free_plans
+        if bool(plan.get("lowerable"))
+        and (
+            plan.get("local_free_head_byte_offset") in (None, "")
+            or plan.get("local_free_head_field_size") in (None, "")
+            or plan.get("local_free_head_field_type") in (None, "")
+            or plan.get("local_free_head_alignment") in (None, "")
+            or plan.get("block_next_byte_offset") in (None, "")
+            or plan.get("block_next_field_size") in (None, "")
+            or plan.get("block_next_field_type") in (None, "")
+            or plan.get("block_next_alignment") in (None, "")
+        )
+    )
+
+    report.update(
+        {
+            "input_kind": "mir_json_metadata",
+            "measured_hot_path_owner": "hako_source",
+            "replacement_front_producer": "mir_json_metadata",
+            "replacement_front_source_truth": "hako_fastmem",
+            "replacement_front_mir_memop_enabled": int(bool(memops)),
+            "replacement_front_mir_fastmem_region_enabled": int(bool(regions)),
+            "fastmem_region_count": len(regions),
+            "fastmem_contract_count": len(contracts),
+            "fastmem_contract_id": ",".join(contracts) if contracts else "unknown",
+            "fastmem_contract_family": (
+                contract_family(contracts[0]) if len(contracts) == 1 else "mixed"
+            )
+            if contracts
+            else "unknown",
+            "fastmem_memop_region_begin_count": len(regions),
+            "fastmem_memop_region_end_count": len(regions),
+            "fastmem_memop_unbalanced_region_count": 0,
+            "fastmem_memop_addr_of_count": count_memop("addr_of"),
+            "fastmem_memop_add_count": count_memop("add"),
+            "fastmem_memop_sub_count": count_memop("sub"),
+            "fastmem_memop_logical_shr_count": count_memop("logical_shr"),
+            "fastmem_memop_and_count": count_memop("bit_and"),
+            "fastmem_memop_table_index_count": count_memop("table_index"),
+            "fastmem_memop_field_load_count": count_memop("field_load"),
+            "fastmem_memop_field_store_count": count_memop("field_store"),
+            "fastmem_memop_current_alloc_owner_id_count": count_memop(
+                "current_alloc_owner_id"
+            ),
+            "fastmem_memop_owner_eq_count": count_memop("owner_eq"),
+            "fastmem_memop_local_free_push_count": count_memop("local_free_push"),
+            "fastmem_memop_local_free_pop_count": count_memop("local_free_pop"),
+            "fastmem_local_free_list_plan": int(bool(local_free_plans)),
+            "fastmem_local_free_push_plan_count": len(local_free_push_plans),
+            "fastmem_local_free_pop_plan_count": len(local_free_pop_plans),
+            "fastmem_local_free_nonlowerable_count": local_free_nonlowerable,
+            "fastmem_local_free_push_lowerable_count": local_free_push_lowerable,
+            "fastmem_local_free_pop_lowerable_count": local_free_pop_lowerable,
+            "fastmem_local_free_head_access_resolved_count": local_free_head_access_resolved,
+            "fastmem_local_free_block_next_access_resolved_count": local_free_block_next_access_resolved,
+            "fastmem_local_free_access_plan_incomplete_count": local_free_access_plan_incomplete,
+            "fastmem_same_owner_fact_count": len(same_owner_facts),
+            "fastmem_block_next_fact_count": len(block_next_facts),
+            "fastmem_local_free_same_owner_required": int(bool(local_free_plans)),
+            "fastmem_local_free_same_owner_missing_count": local_free_same_owner_missing,
+            "fastmem_local_free_remote_owner_rejected_count": local_free_remote_owner_rejected,
+            "fastmem_local_free_block_next_proof_missing_count": local_free_block_next_missing,
+            "fastmem_verified_mem_access_plan_count": len(verified_plans),
+            "fastmem_verified_field_access_count": len(verified_field_plans),
+            "fastmem_verified_table_access_count": len(verified_table_plans),
+            "fastmem_field_id_missing_count": missing_field_id,
+            "fastmem_table_id_missing_count": missing_table_id,
+            "fastmem_table_index_unchecked_count": table_unchecked,
+            "fastmem_table_access_proof_incomplete_count": table_incomplete,
+            "fastmem_table_overflow_proof_missing_count": table_overflow_missing,
+            "fastmem_unknown_alignment_count": unknown_alignment,
+            "fastmem_atomic_field_plain_store_count": atomic_plain_store,
+            "summary": "ok" if regions or memops or plans else "failed",
+        }
+    )
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group(required=True)
@@ -1235,6 +1471,11 @@ def main() -> int:
         "--program-json",
         type=Path,
         help="Read Program(JSON v0) containing FastMemRegion nodes.",
+    )
+    source.add_argument(
+        "--mir-json",
+        type=Path,
+        help="Read MIR JSON containing FastMemory metadata/access-plan rows.",
     )
     parser.add_argument("--format", choices=("kv", "summary", "json"), default="kv")
     parser.add_argument("--out", type=Path)
@@ -1248,10 +1489,14 @@ def main() -> int:
             json.loads(args.ast_json.read_text(encoding="utf-8")),
             "ast_json",
         )
-    else:
+    elif args.program_json:
         report = build_source_inventory(
             json.loads(args.program_json.read_text(encoding="utf-8")),
             "program_json_v0",
+        )
+    else:
+        report = build_mir_metadata_inventory(
+            json.loads(args.mir_json.read_text(encoding="utf-8"))
         )
 
     if args.format == "json":

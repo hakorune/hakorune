@@ -7,14 +7,21 @@
  * facts already attached to the function.
  */
 
-use crate::mir::{MirFunction, ValueId};
+use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::{ConstValue, MirFunction, MirInstruction, ValueId};
 use std::collections::HashSet;
 
 pub fn refresh_function_fastmem_table_length_facts(function: &mut MirFunction) {
+    let def_map = build_value_def_map(function);
     let mut seen = HashSet::new();
     let mut facts = Vec::new();
 
-    for mut fact in function.metadata.fastmem_table_length_facts.drain(..) {
+    let existing = std::mem::take(&mut function.metadata.fastmem_table_length_facts);
+    for mut fact in existing {
+        if fact.resolved_length.is_none() {
+            fact.resolved_length =
+                resolved_positive_const_usize(function, &def_map, fact.length_value);
+        }
         if fact.table_id.is_empty()
             || fact.table_value == ValueId::INVALID
             || fact.length_value == ValueId::INVALID
@@ -38,6 +45,31 @@ pub fn refresh_function_fastmem_table_length_facts(function: &mut MirFunction) {
     }
 
     function.metadata.fastmem_table_length_facts = facts;
+}
+
+fn resolved_positive_const_usize(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<u64> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let raw = integer_const_value(function, origin)?;
+    u64::try_from(raw).ok().filter(|actual| *actual > 0)
+}
+
+fn integer_const_value(function: &MirFunction, value: ValueId) -> Option<i64> {
+    function.blocks.values().find_map(|block| {
+        block
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(actual),
+                } if *dst == value => Some(*actual),
+                _ => None,
+            })
+    })
 }
 
 #[cfg(test)]

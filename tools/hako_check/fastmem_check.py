@@ -120,6 +120,32 @@ OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE = (
     "memop_current_alloc_owner_id_lowered_count",
     "memop_owner_eq_lowered_count",
 )
+LOCAL_FREE_PRODUCER_EXPECTED_ZERO = (
+    "memop_local_free_pop_lowered_count",
+    "memop_atomic_remote_head_lowered_count",
+    "fastmem_local_free_access_plan_incomplete_count",
+    "fastmem_local_free_head_plain_store_lowered_count",
+    "fastmem_local_free_pop_lowering_enabled",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+LOCAL_FREE_PRODUCER_EXPECTED_POSITIVE = (
+    "memop_table_index_lowered_count",
+    "memop_field_load_lowered_count",
+    "memop_field_store_lowered_count",
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+    "fastmem_local_free_push_plan_count",
+    "memop_local_free_push_lowered_count",
+    "memop_local_free_push_layout_ref_consumed_count",
+    "fastmem_local_free_push_lowering_uses_verified_plan",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -190,6 +216,10 @@ def layout_table_producer_pilot_profile(rows: dict[str, str]) -> bool:
 
 def owner_runtime_producer_pilot_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_owner_runtime_producer_pilot") > 0
+
+
+def local_free_producer_pilot_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_local_free_producer_pilot") > 0
 
 
 def complete_layout_table_lowering_candidate(rows: dict[str, str]) -> bool:
@@ -508,6 +538,23 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         for key in OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
+    if local_free_producer_pilot_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_memop_family") != "local_free":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != "LocalFreePush":
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_deferred_memop_kinds") != (
+            "LocalFreePop,AtomicRemoteHead"
+        ):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in LOCAL_FREE_PRODUCER_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in LOCAL_FREE_PRODUCER_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
     return reasons
 
 
@@ -575,6 +622,7 @@ def main() -> int:
     source.add_argument("--inventory", type=Path, help="Read an existing fastmem inventory kv file.")
     source.add_argument("--ast-json", type=Path, help="Read Rust AST JSON via inventory.")
     source.add_argument("--program-json", type=Path, help="Read Program(JSON v0) via inventory.")
+    source.add_argument("--mir-json", type=Path, help="Read MIR JSON via inventory.")
     parser.add_argument("--format", choices=("kv", "text"), default="text")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
@@ -585,6 +633,8 @@ def main() -> int:
         rows = run_inventory("--ast-json", args.ast_json)
     elif args.program_json:
         rows = run_inventory("--program-json", args.program_json)
+    elif args.mir_json:
+        rows = run_inventory("--mir-json", args.mir_json)
     else:
         rows = read_kv(args.inventory)
     reasons = failure_reasons(rows)

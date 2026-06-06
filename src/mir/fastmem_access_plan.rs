@@ -10,8 +10,14 @@
 
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::{
-    fastmem_layout_contract::{resolve_fastmem_field_contract, resolve_fastmem_table_contract},
-    function::{FastMemRegionMetadata, FastMemTableLengthFact, RangeIndexFact},
+    fastmem_layout_contract::{
+        resolve_fastmem_block_next_contract, resolve_fastmem_field_contract,
+        resolve_fastmem_table_contract,
+    },
+    function::{
+        FastMemBlockNextFact, FastMemRegionMetadata, FastMemSameOwnerFact, FastMemTableLengthFact,
+        RangeIndexFact,
+    },
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
@@ -20,6 +26,8 @@ pub enum FastMemAccessPlanKind {
     TableIndex,
     FieldLoad,
     FieldStore,
+    LocalFreePush,
+    LocalFreePop,
 }
 
 impl FastMemAccessPlanKind {
@@ -28,6 +36,8 @@ impl FastMemAccessPlanKind {
             Self::TableIndex => "table_index",
             Self::FieldLoad => "field_load",
             Self::FieldStore => "field_store",
+            Self::LocalFreePush => "local_free_push",
+            Self::LocalFreePop => "local_free_pop",
         }
     }
 }
@@ -119,6 +129,31 @@ pub struct FastMemTableFieldAccessLink {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemLocalFreeListPlan {
+    pub page: ValueId,
+    pub block: Option<ValueId>,
+    pub result: Option<ValueId>,
+    pub local_free_head_layout_id: Option<String>,
+    pub local_free_head_field_id: Option<String>,
+    pub local_free_head_field_class: Option<String>,
+    pub local_free_head_byte_offset: Option<u32>,
+    pub local_free_head_field_size: Option<u32>,
+    pub local_free_head_field_type: Option<String>,
+    pub local_free_head_alignment: Option<u32>,
+    pub block_next_layout_id: Option<String>,
+    pub block_next_field_id: Option<String>,
+    pub block_next_field_class: Option<String>,
+    pub block_next_byte_offset: Option<u32>,
+    pub block_next_field_size: Option<u32>,
+    pub block_next_field_type: Option<String>,
+    pub block_next_alignment: Option<u32>,
+    pub same_owner_proof_valid: bool,
+    pub block_next_proof_valid: bool,
+    pub remote_owner_rejected: bool,
+    pub lowerable: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FastMemTableAccessProof {
     pub table_length_resolved: bool,
     pub bounds_proof_valid: bool,
@@ -149,6 +184,7 @@ impl FastMemTableAccessProof {
 pub enum FastMemAccessPlanPayload {
     Field(FastMemFieldAccessPlan),
     Table(FastMemTableAccessPlan),
+    LocalFree(FastMemLocalFreeListPlan),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -172,6 +208,8 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
     let mut plans = Vec::new();
     let regions = function.metadata.fastmem_regions.clone();
     let table_length_facts = function.metadata.fastmem_table_length_facts.clone();
+    let same_owner_facts = function.metadata.fastmem_same_owner_facts.clone();
+    let block_next_facts = function.metadata.fastmem_block_next_facts.clone();
     let range_index_facts = function.metadata.range_index_facts.clone();
 
     for block_id in function.block_ids() {
@@ -200,6 +238,8 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
                 access.as_ref(),
                 region_contract(&regions, *region),
                 &table_length_facts,
+                &same_owner_facts,
+                &block_next_facts,
                 &range_index_facts,
             ) else {
                 continue;
@@ -223,6 +263,8 @@ fn plan_from_memop(
     access: Option<&MemOpAccess>,
     contract: Option<&str>,
     table_length_facts: &[FastMemTableLengthFact],
+    same_owner_facts: &[FastMemSameOwnerFact],
+    block_next_facts: &[FastMemBlockNextFact],
     range_index_facts: &[RangeIndexFact],
 ) -> Option<FastMemAccessPlan> {
     match kind {
@@ -256,6 +298,28 @@ fn plan_from_memop(
             access,
             FastMemFieldAccessMode::Store,
             contract,
+        ),
+        MemOpKind::LocalFreePush => local_free_plan(
+            block,
+            instruction_index,
+            region,
+            FastMemAccessPlanKind::LocalFreePush,
+            dst,
+            operands,
+            contract,
+            same_owner_facts,
+            block_next_facts,
+        ),
+        MemOpKind::LocalFreePop => local_free_plan(
+            block,
+            instruction_index,
+            region,
+            FastMemAccessPlanKind::LocalFreePop,
+            dst,
+            operands,
+            contract,
+            same_owner_facts,
+            block_next_facts,
         ),
         _ => None,
     }
@@ -482,7 +546,9 @@ fn table_field_access_links(plans: &mut [FastMemAccessPlan]) -> Vec<FastMemTable
             }
             let lowerable = match &plan.payload {
                 FastMemAccessPlanPayload::Table(table) => table.proof.is_lowerable(),
-                FastMemAccessPlanPayload::Field(_) => false,
+                FastMemAccessPlanPayload::Field(_) | FastMemAccessPlanPayload::LocalFree(_) => {
+                    false
+                }
             };
             if lowerable {
                 plan.status = FastMemAccessPlanStatus::Verified;
@@ -741,13 +807,186 @@ fn field_plan(
     })
 }
 
+fn local_free_plan(
+    block: BasicBlockId,
+    instruction_index: usize,
+    region: FastMemRegionId,
+    kind: FastMemAccessPlanKind,
+    dst: Option<ValueId>,
+    operands: &[ValueId],
+    contract: Option<&str>,
+    same_owner_facts: &[FastMemSameOwnerFact],
+    block_next_facts: &[FastMemBlockNextFact],
+) -> Option<FastMemAccessPlan> {
+    let page = operands.first().copied()?;
+    let block_value = if kind == FastMemAccessPlanKind::LocalFreePush {
+        operands.get(1).copied()
+    } else {
+        None
+    };
+    let resolved = contract.map(|contract| {
+        resolve_fastmem_field_contract(contract, "local_free_head", FastMemFieldAccessMode::Load)
+            .map_err(|err| err.reason())
+    });
+    let (
+        failure_reason,
+        layout_id,
+        field_id,
+        field_class,
+        head_byte_offset,
+        head_field_size,
+        head_field_type,
+        head_alignment,
+    ) = match resolved {
+        Some(Ok(resolved)) => (
+            None,
+            Some(resolved.layout_id),
+            Some(resolved.field_id),
+            Some(resolved.field_class),
+            Some(resolved.byte_offset),
+            Some(resolved.field_size),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+        ),
+        Some(Err(reason)) => (Some(reason), None, None, None, None, None, None, None),
+        None => (
+            Some("layout-field-contract-unresolved".to_string()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+    };
+    let same_owner_proof_valid = same_owner_fact(same_owner_facts, region, page)
+        .map_or(false, |fact| fact.remote_owner_rejected);
+    let remote_owner_rejected = same_owner_proof_valid;
+    let block_next_fact = block_value.and_then(|block_value| {
+        block_next_fact(block_next_facts, region, block_value)
+            .filter(|fact| fact.next_field_id == "next" && fact.writable && fact.provenance_valid)
+    });
+    let block_next_resolved = block_next_fact.and_then(|fact| {
+        contract.and_then(|contract| {
+            resolve_fastmem_block_next_contract(contract, &fact.next_field_id).ok()
+        })
+    });
+    let (
+        block_next_layout_id,
+        block_next_field_id,
+        block_next_field_class,
+        block_next_byte_offset,
+        block_next_field_size,
+        block_next_field_type,
+        block_next_alignment,
+    ) = if let Some(resolved) = block_next_resolved {
+        (
+            Some(resolved.layout_id),
+            Some(resolved.field_id),
+            Some(resolved.field_class),
+            Some(resolved.byte_offset),
+            Some(resolved.field_size),
+            Some(resolved.field_type),
+            Some(resolved.alignment),
+        )
+    } else {
+        (None, None, None, None, None, None, None)
+    };
+    let block_next_proof_valid = block_next_fact.is_some()
+        && block_next_layout_id.is_some()
+        && block_next_field_id.is_some()
+        && block_next_byte_offset.is_some()
+        && block_next_field_size.is_some()
+        && block_next_field_type.is_some()
+        && block_next_alignment.is_some();
+    let lowerable = kind == FastMemAccessPlanKind::LocalFreePush
+        && failure_reason.is_none()
+        && same_owner_proof_valid
+        && block_next_proof_valid
+        && head_byte_offset.is_some()
+        && head_field_size.is_some()
+        && head_field_type.is_some()
+        && head_alignment.is_some();
+    let status = if lowerable {
+        FastMemAccessPlanStatus::Verified
+    } else {
+        FastMemAccessPlanStatus::Rejected
+    };
+    let failure_reason = failure_reason.or_else(|| {
+        if !same_owner_proof_valid {
+            Some("local-free-same-owner-proof-missing".to_string())
+        } else if kind == FastMemAccessPlanKind::LocalFreePush && !block_next_proof_valid {
+            Some("local-free-block-next-proof-missing".to_string())
+        } else if kind == FastMemAccessPlanKind::LocalFreePop {
+            Some("local-free-pop-lowering-closed".to_string())
+        } else {
+            None
+        }
+    });
+
+    Some(FastMemAccessPlan {
+        block,
+        instruction_index,
+        region,
+        kind,
+        status,
+        failure_reason,
+        payload: FastMemAccessPlanPayload::LocalFree(FastMemLocalFreeListPlan {
+            page,
+            block: block_value,
+            result: dst,
+            local_free_head_layout_id: layout_id,
+            local_free_head_field_id: field_id,
+            local_free_head_field_class: field_class,
+            local_free_head_byte_offset: head_byte_offset,
+            local_free_head_field_size: head_field_size,
+            local_free_head_field_type: head_field_type,
+            local_free_head_alignment: head_alignment,
+            block_next_layout_id,
+            block_next_field_id,
+            block_next_field_class,
+            block_next_byte_offset,
+            block_next_field_size,
+            block_next_field_type,
+            block_next_alignment,
+            same_owner_proof_valid,
+            block_next_proof_valid,
+            remote_owner_rejected,
+            lowerable,
+        }),
+    })
+}
+
+fn same_owner_fact<'a>(
+    facts: &'a [FastMemSameOwnerFact],
+    region: FastMemRegionId,
+    page_value: ValueId,
+) -> Option<&'a FastMemSameOwnerFact> {
+    facts
+        .iter()
+        .find(|fact| fact.region == region && fact.page_value == page_value)
+}
+
+fn block_next_fact<'a>(
+    facts: &'a [FastMemBlockNextFact],
+    region: FastMemRegionId,
+    block_value: ValueId,
+) -> Option<&'a FastMemBlockNextFact> {
+    facts
+        .iter()
+        .find(|fact| fact.region == region && fact.block_value == block_value)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::function::{
-        FastMemRegionMetadata, FastMemRegionOrigin, FastMemTableLengthFact,
-        FastMemTableLengthPolicyKind, RangeIndexFact, RangeIndexFactOriginKind,
+        FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemRegionMetadata,
+        FastMemRegionOrigin, FastMemSameOwnerFact, FastMemSameOwnerProofKind,
+        FastMemTableLengthFact, FastMemTableLengthPolicyKind, RangeIndexFact,
+        RangeIndexFactOriginKind,
     };
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
@@ -1205,6 +1444,153 @@ mod tests {
             plan.failure_reason.as_deref(),
             Some("atomic-field-plain-store:remote_head")
         );
+    }
+
+    #[test]
+    fn refresh_adds_nonlowerable_local_free_list_plans() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::LocalFreePush,
+                None,
+                vec![ValueId::new(10), ValueId::new(11)],
+                None,
+            ),
+            memop(
+                MemOpKind::LocalFreePop,
+                Some(ValueId::new(12)),
+                vec![ValueId::new(10)],
+                None,
+            ),
+        ]);
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 2);
+        for plan in &function.metadata.fastmem_access_plans {
+            assert_eq!(plan.status, FastMemAccessPlanStatus::Rejected);
+            assert_eq!(
+                plan.failure_reason.as_deref(),
+                Some("local-free-same-owner-proof-missing")
+            );
+            let FastMemAccessPlanPayload::LocalFree(local_free) = &plan.payload else {
+                panic!("expected local free-list plan");
+            };
+            assert_eq!(
+                local_free.local_free_head_field_id.as_deref(),
+                Some("local_free_head")
+            );
+            assert_eq!(
+                local_free.local_free_head_field_class.as_deref(),
+                Some("local_free_head")
+            );
+            assert_eq!(local_free.local_free_head_byte_offset, Some(24));
+            assert_eq!(local_free.local_free_head_field_size, Some(8));
+            assert_eq!(
+                local_free.local_free_head_field_type.as_deref(),
+                Some("usize")
+            );
+            assert_eq!(local_free.local_free_head_alignment, Some(8));
+            assert!(!local_free.same_owner_proof_valid);
+            assert!(!local_free.block_next_proof_valid);
+            assert!(!local_free.remote_owner_rejected);
+            assert!(!local_free.lowerable);
+        }
+    }
+
+    #[test]
+    fn refresh_verifies_local_free_push_when_precondition_facts_exist() {
+        let mut function = make_function(vec![
+            memop(
+                MemOpKind::LocalFreePush,
+                None,
+                vec![ValueId::new(10), ValueId::new(11)],
+                None,
+            ),
+            memop(
+                MemOpKind::LocalFreePop,
+                Some(ValueId::new(12)),
+                vec![ValueId::new(10)],
+                None,
+            ),
+        ]);
+        function
+            .metadata
+            .fastmem_same_owner_facts
+            .push(FastMemSameOwnerFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                page_value: ValueId::new(10),
+                proof_value: ValueId::new(20),
+                proof_kind: FastMemSameOwnerProofKind::SourceAssumeOwnerEq,
+                remote_owner_rejected: true,
+            });
+        function
+            .metadata
+            .fastmem_block_next_facts
+            .push(FastMemBlockNextFact {
+                fact_id: 0,
+                region: FastMemRegionId::new(0),
+                block_value: ValueId::new(11),
+                next_field_id: "next".to_string(),
+                proof_kind: FastMemBlockNextProofKind::SourceAssumeLocalFreeBlockNext,
+                writable: true,
+                provenance_valid: true,
+            });
+
+        refresh_function_fastmem_access_plans(&mut function);
+
+        assert_eq!(function.metadata.fastmem_access_plans.len(), 2);
+        let push_plan = &function.metadata.fastmem_access_plans[0];
+        assert_eq!(push_plan.kind, FastMemAccessPlanKind::LocalFreePush);
+        assert_eq!(push_plan.status, FastMemAccessPlanStatus::Verified);
+        assert_eq!(push_plan.failure_reason, None);
+        let FastMemAccessPlanPayload::LocalFree(push) = &push_plan.payload else {
+            panic!("expected local free-list push plan");
+        };
+        assert!(push.same_owner_proof_valid);
+        assert!(push.block_next_proof_valid);
+        assert!(push.remote_owner_rejected);
+        assert!(push.lowerable);
+        assert_eq!(
+            push.local_free_head_layout_id.as_deref(),
+            Some("PageMetaLayoutV0")
+        );
+        assert_eq!(
+            push.local_free_head_field_id.as_deref(),
+            Some("local_free_head")
+        );
+        assert_eq!(push.local_free_head_byte_offset, Some(24));
+        assert_eq!(push.local_free_head_field_size, Some(8));
+        assert_eq!(push.local_free_head_field_type.as_deref(), Some("usize"));
+        assert_eq!(push.local_free_head_alignment, Some(8));
+        assert_eq!(
+            push.block_next_layout_id.as_deref(),
+            Some("FreeBlockNodeLayoutV0")
+        );
+        assert_eq!(push.block_next_field_id.as_deref(), Some("next"));
+        assert_eq!(
+            push.block_next_field_class.as_deref(),
+            Some("local_free_block_next")
+        );
+        assert_eq!(push.block_next_byte_offset, Some(0));
+        assert_eq!(push.block_next_field_size, Some(8));
+        assert_eq!(push.block_next_field_type.as_deref(), Some("usize"));
+        assert_eq!(push.block_next_alignment, Some(8));
+
+        let pop_plan = &function.metadata.fastmem_access_plans[1];
+        assert_eq!(pop_plan.kind, FastMemAccessPlanKind::LocalFreePop);
+        assert_eq!(pop_plan.status, FastMemAccessPlanStatus::Rejected);
+        assert_eq!(
+            pop_plan.failure_reason.as_deref(),
+            Some("local-free-pop-lowering-closed")
+        );
+        let FastMemAccessPlanPayload::LocalFree(pop) = &pop_plan.payload else {
+            panic!("expected local free-list pop plan");
+        };
+        assert!(pop.same_owner_proof_valid);
+        assert!(!pop.block_next_proof_valid);
+        assert!(pop.remote_owner_rejected);
+        assert!(!pop.lowerable);
     }
 
     #[test]

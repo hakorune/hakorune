@@ -30,10 +30,7 @@ impl LlvmPipelineReport {
         Self {
             pipeline_plan_v0: true,
             compile_options_v0: true,
-            mir_future_rewrite_option: plan
-                .compile_options
-                .future_rewrite_route
-                .option_value(),
+            mir_future_rewrite_option: plan.compile_options.future_rewrite_route.option_value(),
             mir_future_rewrite_route: plan.compile_options.future_rewrite_route.report_value(),
             method_id_injector_plan_enabled: plan.method_id_injector_enabled,
             method_id_injector_mutation_count: 0,
@@ -72,16 +69,17 @@ fn write_report(path: &str, report: &LlvmPipelineReport) -> std::io::Result<()> 
         }
     }
     let mut out = String::new();
-    writeln!(
-        out,
-        "output_contract=hako-llvm-pipeline-runtime-report-v0"
-    )
-    .unwrap();
+    writeln!(out, "output_contract=hako-llvm-pipeline-runtime-report-v0").unwrap();
     writeln!(out, "tool_surface=llvm_runner_pipeline_report").unwrap();
     writeln!(out, "observation_only=1").unwrap();
     writeln!(out, "behavior_change=0").unwrap();
     writeln!(out, "pipeline_plan_v0={}", report.pipeline_plan_v0 as u8).unwrap();
-    writeln!(out, "compile_options_v0={}", report.compile_options_v0 as u8).unwrap();
+    writeln!(
+        out,
+        "compile_options_v0={}",
+        report.compile_options_v0 as u8
+    )
+    .unwrap();
     writeln!(
         out,
         "mir_future_rewrite_option={}",
@@ -127,12 +125,7 @@ fn write_report(path: &str, report: &LlvmPipelineReport) -> std::io::Result<()> 
     .unwrap();
     writeln!(out, "llvm_fallback_reason={}", report.llvm_fallback_reason).unwrap();
     writeln!(out, "pyvm_requested={}", report.pyvm_requested as u8).unwrap();
-    writeln!(
-        out,
-        "harness_requested={}",
-        report.harness_requested as u8
-    )
-    .unwrap();
+    writeln!(out, "harness_requested={}", report.harness_requested as u8).unwrap();
     writeln!(
         out,
         "mock_fallback_used={}",

@@ -463,6 +463,12 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "object": ast_to_json(&object),
             "field": field
         }),
+        ASTNode::Index { target, index, .. } => json!({
+            "kind": "Index",
+            "type": "Index",
+            "target": ast_to_json(&target),
+            "index": ast_to_json(&index)
+        }),
         // Phase 52: Me → Var("me") ノード（JoinIR Frontend 互換）
         ASTNode::Me { .. } => json!({
             "kind": "Me",

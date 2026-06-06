@@ -253,6 +253,27 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "policy": fact.policy.as_str(),
             })
         }).collect::<Vec<_>>(),
+        "fastmem_same_owner_facts": metadata.fastmem_same_owner_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "region": fact.region.0,
+                "page_value": fact.page_value.as_u32(),
+                "proof_value": fact.proof_value.as_u32(),
+                "proof_kind": fact.proof_kind.as_str(),
+                "remote_owner_rejected": fact.remote_owner_rejected,
+            })
+        }).collect::<Vec<_>>(),
+        "fastmem_block_next_facts": metadata.fastmem_block_next_facts.iter().map(|fact| {
+            json!({
+                "fact_id": fact.fact_id,
+                "region": fact.region.0,
+                "block_value": fact.block_value.as_u32(),
+                "next_field_id": &fact.next_field_id,
+                "proof_kind": fact.proof_kind.as_str(),
+                "writable": fact.writable,
+                "provenance_valid": fact.provenance_valid,
+            })
+        }).collect::<Vec<_>>(),
         "fastmem_access_plans": metadata.fastmem_access_plans.iter().map(|plan| {
             let mut row = json!({
                 "block": plan.block.as_u32(),
@@ -338,6 +359,86 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                             "table_access_proof_failure_reason".to_string(),
                             json!(&table.proof.failure_reason),
                         );
+                    }
+                    FastMemAccessPlanPayload::LocalFree(local_free) => {
+                        map.insert("page".to_string(), json!(local_free.page.as_u32()));
+                        map.insert(
+                            "block_value".to_string(),
+                            json!(local_free.block.map(|value| value.as_u32())),
+                        );
+                        map.insert(
+                            "result".to_string(),
+                            json!(local_free.result.map(|value| value.as_u32())),
+                        );
+                        map.insert(
+                            "local_free_head_layout_id".to_string(),
+                            json!(&local_free.local_free_head_layout_id),
+                        );
+                        map.insert(
+                            "local_free_head_field_id".to_string(),
+                            json!(&local_free.local_free_head_field_id),
+                        );
+                        map.insert(
+                            "local_free_head_field_class".to_string(),
+                            json!(&local_free.local_free_head_field_class),
+                        );
+                        map.insert(
+                            "local_free_head_byte_offset".to_string(),
+                            json!(local_free.local_free_head_byte_offset),
+                        );
+                        map.insert(
+                            "local_free_head_field_size".to_string(),
+                            json!(local_free.local_free_head_field_size),
+                        );
+                        map.insert(
+                            "local_free_head_field_type".to_string(),
+                            json!(&local_free.local_free_head_field_type),
+                        );
+                        map.insert(
+                            "local_free_head_alignment".to_string(),
+                            json!(local_free.local_free_head_alignment),
+                        );
+                        map.insert(
+                            "block_next_layout_id".to_string(),
+                            json!(&local_free.block_next_layout_id),
+                        );
+                        map.insert(
+                            "block_next_field_id".to_string(),
+                            json!(&local_free.block_next_field_id),
+                        );
+                        map.insert(
+                            "block_next_field_class".to_string(),
+                            json!(&local_free.block_next_field_class),
+                        );
+                        map.insert(
+                            "block_next_byte_offset".to_string(),
+                            json!(local_free.block_next_byte_offset),
+                        );
+                        map.insert(
+                            "block_next_field_size".to_string(),
+                            json!(local_free.block_next_field_size),
+                        );
+                        map.insert(
+                            "block_next_field_type".to_string(),
+                            json!(&local_free.block_next_field_type),
+                        );
+                        map.insert(
+                            "block_next_alignment".to_string(),
+                            json!(local_free.block_next_alignment),
+                        );
+                        map.insert(
+                            "same_owner_proof_valid".to_string(),
+                            json!(local_free.same_owner_proof_valid),
+                        );
+                        map.insert(
+                            "block_next_proof_valid".to_string(),
+                            json!(local_free.block_next_proof_valid),
+                        );
+                        map.insert(
+                            "remote_owner_rejected".to_string(),
+                            json!(local_free.remote_owner_rejected),
+                        );
+                        map.insert("lowerable".to_string(), json!(local_free.lowerable));
                     }
                 }
             }

@@ -593,42 +593,22 @@ mod tests {
     }
 
     #[test]
-    fn memop_value_subset_is_json_and_llvm_supported() {
-        let inst = MirInstruction::MemOp {
-            region: FastMemRegionId::new(1),
-            kind: MemOpKind::AddrOf,
-            dst: Some(ValueId::new(10)),
-            operands: vec![ValueId::new(1)],
-            access: None,
-            effects: EffectMask::PURE,
-        };
-        assert_eq!(instruction_tag(&inst), "MemOp");
-        assert_eq!(instruction_diet_cohort(&inst), InstructionDietCohort::Kept);
-        assert!(is_supported_mir_json_instruction(&inst));
-        assert!(!is_supported_vm_instruction(&inst));
-        assert_eq!(llvm_json_ops_for_instruction(&inst), &["memop"]);
-        assert!(is_supported_llvm_json_op("memop"));
-    }
-
-    #[test]
-    fn memop_memory_and_runtime_owner_ops_remain_backend_closed() {
-        for kind in [
-            MemOpKind::TableIndex,
-            MemOpKind::FieldLoad,
-            MemOpKind::FieldStore,
-            MemOpKind::CurrentAllocOwnerId,
-            MemOpKind::OwnerEq,
-        ] {
+    fn memop_v0_dialect_is_json_and_llvm_supported() {
+        for kind in MemOpKind::ALL {
             let inst = MirInstruction::MemOp {
                 region: FastMemRegionId::new(1),
-                kind,
+                kind: *kind,
                 dst: Some(ValueId::new(10)),
                 operands: vec![ValueId::new(1)],
                 access: None,
                 effects: EffectMask::READ,
             };
-            assert!(!is_supported_mir_json_instruction(&inst));
-            assert_eq!(llvm_json_ops_for_instruction(&inst), &[] as &[&str]);
+            assert_eq!(instruction_tag(&inst), "MemOp");
+            assert_eq!(instruction_diet_cohort(&inst), InstructionDietCohort::Kept);
+            assert!(is_supported_mir_json_instruction(&inst));
+            assert!(!is_supported_vm_instruction(&inst));
+            assert_eq!(llvm_json_ops_for_instruction(&inst), &["memop"]);
+            assert!(is_supported_llvm_json_op("memop"));
         }
     }
 

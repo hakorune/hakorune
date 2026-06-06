@@ -11,6 +11,7 @@ use crate::mir::raw_layout::{build_repr_c_v0_raw_layout, RawLayoutFieldDecl};
 
 pub const PAGE_MAP_CONTRACT_V0: &str = "PageMapV0";
 pub const PAGE_META_LAYOUT_V0: &str = "PageMetaLayoutV0";
+pub const FREE_BLOCK_NODE_LAYOUT_V0: &str = "FreeBlockNodeLayoutV0";
 pub const PAGE_TABLE_V0: &str = "page_table";
 
 const FIELD_OWNER_WORKER_ID: &str = "owner_worker_id";
@@ -20,9 +21,22 @@ const FIELD_LOCAL_FREE_HEAD: &str = "local_free_head";
 const FIELD_REMOTE_HEAD: &str = "remote_head";
 const FIELD_CAPACITY: &str = "capacity";
 const FIELD_USED: &str = "used";
+const FIELD_NEXT: &str = "next";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedFastMemFieldContract {
+    pub layout_id: String,
+    pub field_id: String,
+    pub byte_offset: u32,
+    pub field_size: u32,
+    pub field_type: String,
+    pub alignment: u32,
+    pub mutability: String,
+    pub field_class: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResolvedFastMemBlockNextContract {
     pub layout_id: String,
     pub field_id: String,
     pub byte_offset: u32,
@@ -141,6 +155,30 @@ pub fn resolve_fastmem_table_contract(
         index_policy: "explicit_check".to_string(),
         lowerable: false,
         non_lowerable_reason: Some("table-length-unresolved".to_string()),
+    })
+}
+
+pub fn resolve_fastmem_block_next_contract(
+    contract: &str,
+    field_id: &str,
+) -> Result<ResolvedFastMemBlockNextContract, FastMemContractError> {
+    ensure_page_map_contract(contract)?;
+    if field_id != FIELD_NEXT {
+        return Err(FastMemContractError::UnknownField {
+            contract: contract.to_string(),
+            field_id: field_id.to_string(),
+        });
+    }
+    let pointer_bytes = usize::BITS / 8;
+    Ok(ResolvedFastMemBlockNextContract {
+        layout_id: FREE_BLOCK_NODE_LAYOUT_V0.to_string(),
+        field_id: FIELD_NEXT.to_string(),
+        byte_offset: 0,
+        field_size: pointer_bytes,
+        field_type: "usize".to_string(),
+        alignment: pointer_bytes,
+        mutability: "mutable".to_string(),
+        field_class: "local_free_block_next".to_string(),
     })
 }
 

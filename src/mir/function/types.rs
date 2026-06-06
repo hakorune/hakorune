@@ -131,6 +131,7 @@ pub struct CountingLoopFact {
 pub enum RangeIndexFactOriginKind {
     RangeLoop,
     CountingLoop,
+    FastMemAssume,
 }
 
 impl RangeIndexFactOriginKind {
@@ -138,6 +139,7 @@ impl RangeIndexFactOriginKind {
         match self {
             Self::RangeLoop => "range_loop",
             Self::CountingLoop => "counting_loop",
+            Self::FastMemAssume => "fastmem_assume",
         }
     }
 }
@@ -189,6 +191,60 @@ pub struct FastMemTableLengthFact {
     pub length_value: ValueId,
     pub resolved_length: Option<u64>,
     pub policy: FastMemTableLengthPolicyKind,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemSameOwnerProofKind {
+    SourceAssumeOwnerEq,
+}
+
+impl FastMemSameOwnerProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SourceAssumeOwnerEq => "source_assume_owner_eq",
+        }
+    }
+}
+
+/// FastMemory-owned proof that a PageMeta value is on the same allocator owner
+/// route for a local free-list operation.
+///
+/// This is a verifier fact, not a lowering decision. The proof value is the
+/// source-side equality token, typically produced by `mem.ownerEq(...)`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemSameOwnerFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub page_value: ValueId,
+    pub proof_value: ValueId,
+    pub proof_kind: FastMemSameOwnerProofKind,
+    pub remote_owner_rejected: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemBlockNextProofKind {
+    SourceAssumeLocalFreeBlockNext,
+}
+
+impl FastMemBlockNextProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SourceAssumeLocalFreeBlockNext => "source_assume_local_free_block_next",
+        }
+    }
+}
+
+/// FastMemory-owned proof that a candidate block has the free-list `next`
+/// storage/provenance required by `LocalFreePush`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemBlockNextFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub block_value: ValueId,
+    pub next_field_id: String,
+    pub proof_kind: FastMemBlockNextProofKind,
+    pub writable: bool,
+    pub provenance_valid: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -479,6 +535,12 @@ pub struct FunctionMetadata {
     /// These rows are semantic memory-profile metadata. MIRBuilder must only
     /// preserve symbolic table ids and provenance; it must not invent lengths.
     pub fastmem_table_length_facts: Vec<FastMemTableLengthFact>,
+
+    /// FastMemory same-owner facts consumed by local free-list access plans.
+    pub fastmem_same_owner_facts: Vec<FastMemSameOwnerFact>,
+
+    /// FastMemory block-next facts consumed by LocalFreePush access plans.
+    pub fastmem_block_next_facts: Vec<FastMemBlockNextFact>,
 
     /// Function-local FastMemory layout/table access plan rows.
     ///

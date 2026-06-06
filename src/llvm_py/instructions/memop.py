@@ -19,6 +19,8 @@ _FIELD_LOAD_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
 _FIELD_LOAD_I64_TYPES = frozenset(("usize", "u64", "i64", "pointer"))
 _FIELD_STORE_ALLOWED_CLASSES = frozenset(("plain_scalar", "plain_pointer"))
 _FIELD_STORE_I64_TYPES = _FIELD_LOAD_I64_TYPES
+_LOCAL_FREE_HEAD_ALLOWED_CLASS = "local_free_head"
+_LOCAL_FREE_BLOCK_NEXT_ALLOWED_CLASS = "local_free_block_next"
 _CURRENT_ALLOC_OWNER_HELPER = "hako_fastmem_current_alloc_owner_id"
 
 
@@ -115,6 +117,11 @@ def _current_fastmem_access_plan(
             if len(operands) < 2:
                 continue
             if plan.get("base") != int(operands[0]) or plan.get("value") != int(operands[1]):
+                continue
+        if kind == "local_free_push":
+            if len(operands) < 2:
+                continue
+            if plan.get("page") != int(operands[0]) or plan.get("block_value") != int(operands[1]):
                 continue
         return plan
     return None
@@ -223,6 +230,82 @@ def _require_complete_field_store_plan(plan: Optional[Dict[str, Any]]) -> Dict[s
             )
     except ValueError as exc:
         raise RuntimeError("[llvm/fastmem:invalid-field-store-plan-number]") from exc
+    return plan
+
+
+def _require_complete_local_free_push_plan(plan: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not isinstance(plan, dict):
+        raise RuntimeError("[llvm/fastmem:missing-verified-local-free-push-plan]")
+    for key in (
+        "local_free_head_layout_id",
+        "local_free_head_field_id",
+        "local_free_head_field_class",
+        "local_free_head_byte_offset",
+        "local_free_head_field_size",
+        "local_free_head_field_type",
+        "local_free_head_alignment",
+        "block_next_layout_id",
+        "block_next_field_id",
+        "block_next_field_class",
+        "block_next_byte_offset",
+        "block_next_field_size",
+        "block_next_field_type",
+        "block_next_alignment",
+        "region",
+    ):
+        if plan.get(key) is None:
+            raise RuntimeError(f"[llvm/fastmem:missing-local-free-push-plan-field] {key}")
+    if plan.get("lowerable") is not True:
+        raise RuntimeError("[llvm/fastmem:local-free-push-plan-not-lowerable]")
+    if plan.get("same_owner_proof_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:local-free-push-same-owner-proof-missing]")
+    if plan.get("block_next_proof_valid") is not True:
+        raise RuntimeError("[llvm/fastmem:local-free-push-block-next-proof-missing]")
+    if plan.get("remote_owner_rejected") is not True:
+        raise RuntimeError("[llvm/fastmem:local-free-push-remote-owner-not-rejected]")
+    if str(plan.get("local_free_head_field_class")) != _LOCAL_FREE_HEAD_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-local-free-head-class] "
+            f"{plan.get('local_free_head_field_class')}"
+        )
+    if str(plan.get("block_next_field_class")) != _LOCAL_FREE_BLOCK_NEXT_ALLOWED_CLASS:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-local-free-block-next-class] "
+            f"{plan.get('block_next_field_class')}"
+        )
+    for key in (
+        "local_free_head_field_size",
+        "local_free_head_alignment",
+        "block_next_field_size",
+        "block_next_alignment",
+    ):
+        try:
+            if int(plan.get(key)) <= 0:
+                raise RuntimeError(
+                    f"[llvm/fastmem:invalid-local-free-push-plan-number] {key}"
+                )
+        except ValueError as exc:
+            raise RuntimeError("[llvm/fastmem:invalid-local-free-push-plan-number]") from exc
+    if int(plan.get("local_free_head_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-local-free-head-size] "
+            f"{plan.get('local_free_head_field_size')}"
+        )
+    if int(plan.get("block_next_field_size")) != 8:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-local-free-block-next-size] "
+            f"{plan.get('block_next_field_size')}"
+        )
+    if str(plan.get("local_free_head_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-local-free-head-type] "
+            f"{plan.get('local_free_head_field_type')}"
+        )
+    if str(plan.get("block_next_field_type")) not in _FIELD_STORE_I64_TYPES:
+        raise RuntimeError(
+            "[llvm/fastmem:unsupported-local-free-block-next-type] "
+            f"{plan.get('block_next_field_type')}"
+        )
     return plan
 
 
@@ -395,6 +478,82 @@ def _lower_field_store_from_layout_ref(
     builder.store(value, field_ptr)
 
 
+def _gep_i64_field_ptr(
+    builder: ir.IRBuilder,
+    base_ptr,
+    byte_offset: int,
+    *,
+    name_prefix: str,
+):
+    i64 = ir.IntType(64)
+    i8_ptr = ir.IntType(8).as_pointer()
+    try:
+        base_type = base_ptr.type
+    except _SAFE_MEMOP_EXC:
+        base_type = None
+    if base_type != i8_ptr:
+        base_ptr = builder.bitcast(base_ptr, i8_ptr, name=f"{name_prefix}_base")
+    field_addr = builder.gep(
+        base_ptr,
+        [ir.Constant(i64, byte_offset)],
+        name=f"{name_prefix}_addr",
+    )
+    return builder.bitcast(field_addr, i64.as_pointer(), name=f"{name_prefix}_ptr")
+
+
+def _lower_local_free_push(
+    builder: ir.IRBuilder,
+    resolver,
+    operands: List[Any],
+    vmap: Dict[int, ir.Value],
+    current_block,
+    preds,
+    block_end_values,
+    bb_map,
+) -> None:
+    _require_operands("local_free_push", operands, 2)
+    plan = _require_complete_local_free_push_plan(
+        _current_fastmem_access_plan(resolver, "local_free_push", None, operands)
+    )
+    page_ref = _get_layout_ref(
+        resolver,
+        int(operands[0]),
+        str(plan["local_free_head_layout_id"]),
+    )
+    i64 = ir.IntType(64)
+    block_addr = _resolve_i64_operand(
+        builder,
+        resolver,
+        int(operands[1]),
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+        name_hint=f"fastmem_local_free_block_{operands[1]}",
+    )
+    block_ptr = builder.inttoptr(
+        block_addr,
+        ir.IntType(8).as_pointer(),
+        name=f"fastmem_local_free_block_ptr_{operands[1]}",
+    )
+    head_ptr = _gep_i64_field_ptr(
+        builder,
+        page_ref["ptr"],
+        int(plan["local_free_head_byte_offset"]),
+        name_prefix="fastmem_local_free_head",
+    )
+    old_head = builder.load(head_ptr, name="fastmem_local_free_old_head")
+    block_next_ptr = _gep_i64_field_ptr(
+        builder,
+        block_ptr,
+        int(plan["block_next_byte_offset"]),
+        name_prefix="fastmem_local_free_block_next",
+    )
+    builder.store(old_head, block_next_ptr)
+    builder.store(block_addr, head_ptr)
+
+
 def lower_memop(
     builder: ir.IRBuilder,
     inst: Dict[str, Any],
@@ -435,6 +594,20 @@ def lower_memop(
         if dst is not None:
             raise RuntimeError("[llvm/fastmem:field-store-has-dst]")
         _lower_field_store_from_layout_ref(
+            builder,
+            resolver,
+            operands,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
+        )
+        return
+    if kind == "local_free_push":
+        if dst is not None:
+            raise RuntimeError("[llvm/fastmem:local-free-push-has-dst]")
+        _lower_local_free_push(
             builder,
             resolver,
             operands,

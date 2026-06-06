@@ -72,6 +72,8 @@ pub enum MemOpKind {
     FieldStore,
     CurrentAllocOwnerId,
     OwnerEq,
+    LocalFreePush,
+    LocalFreePop,
 }
 
 impl MemOpKind {
@@ -86,6 +88,8 @@ impl MemOpKind {
         Self::FieldStore,
         Self::CurrentAllocOwnerId,
         Self::OwnerEq,
+        Self::LocalFreePush,
+        Self::LocalFreePop,
     ];
 
     pub fn display_name(self) -> &'static str {
@@ -100,6 +104,8 @@ impl MemOpKind {
             Self::FieldStore => "FieldStore",
             Self::CurrentAllocOwnerId => "CurrentAllocOwnerId",
             Self::OwnerEq => "OwnerEq",
+            Self::LocalFreePush => "LocalFreePush",
+            Self::LocalFreePop => "LocalFreePop",
         }
     }
 
@@ -115,31 +121,34 @@ impl MemOpKind {
             Self::FieldStore => "field_store",
             Self::CurrentAllocOwnerId => "current_alloc_owner_id",
             Self::OwnerEq => "owner_eq",
+            Self::LocalFreePush => "local_free_push",
+            Self::LocalFreePop => "local_free_pop",
         }
     }
 
     pub fn has_destination(self) -> bool {
-        !matches!(self, Self::FieldStore)
+        !matches!(self, Self::FieldStore | Self::LocalFreePush)
     }
 
     pub fn operand_arity(self) -> usize {
         match self {
             Self::CurrentAllocOwnerId => 0,
-            Self::AddrOf | Self::FieldLoad => 1,
+            Self::AddrOf | Self::FieldLoad | Self::LocalFreePop => 1,
             Self::LogicalShr
             | Self::BitAnd
             | Self::Add
             | Self::Sub
             | Self::TableIndex
             | Self::FieldStore
-            | Self::OwnerEq => 2,
+            | Self::OwnerEq
+            | Self::LocalFreePush => 2,
         }
     }
 
     pub fn effect_mask(self) -> EffectMask {
         match self {
             Self::TableIndex | Self::FieldLoad => EffectMask::READ,
-            Self::FieldStore => EffectMask::WRITE,
+            Self::FieldStore | Self::LocalFreePush | Self::LocalFreePop => EffectMask::WRITE,
             Self::AddrOf
             | Self::LogicalShr
             | Self::BitAnd

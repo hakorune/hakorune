@@ -103,6 +103,37 @@ def _verified_field_store_plan():
     }
 
 
+def _verified_local_free_push_plan():
+    return {
+        "kind": "local_free_push",
+        "verified": True,
+        "status": "verified",
+        "block": 0,
+        "instruction_index": 3,
+        "region": 1,
+        "page": 12,
+        "block_value": 15,
+        "local_free_head_layout_id": "PageMetaLayoutV0",
+        "local_free_head_field_id": "local_free_head",
+        "local_free_head_field_class": "local_free_head",
+        "local_free_head_byte_offset": 24,
+        "local_free_head_field_size": 8,
+        "local_free_head_field_type": "usize",
+        "local_free_head_alignment": 8,
+        "block_next_layout_id": "FreeBlockNodeLayoutV0",
+        "block_next_field_id": "next",
+        "block_next_field_class": "local_free_block_next",
+        "block_next_byte_offset": 0,
+        "block_next_field_size": 8,
+        "block_next_field_type": "usize",
+        "block_next_alignment": 8,
+        "same_owner_proof_valid": True,
+        "block_next_proof_valid": True,
+        "remote_owner_rejected": True,
+        "lowerable": True,
+    }
+
+
 class TestFastMemMemOpLayoutRef(unittest.TestCase):
     def test_current_alloc_owner_id_lowers_to_intrinsic_scalar_vmap(self):
         i64, module, builder = _new_builder()
@@ -327,6 +358,35 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
                 {},
             )
 
+    def test_field_load_rejects_local_free_head_field(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 1
+        plan = _verified_field_load_plan()
+        plan["field_id"] = "local_free_head"
+        plan["field_class"] = "local_free_head"
+        resolver.fastmem_access_plans_by_site[(0, 1)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="local_free_load_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "unsupported-field-load-class"):
+            lower_memop(
+                builder,
+                {"kind": "field_load", "dst": 13, "operands": [12]},
+                {},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
     def test_field_store_from_layout_ref_emits_store(self):
         i64, module, builder = _new_builder()
         resolver = _DummyResolver()
@@ -438,6 +498,67 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
                 builder,
                 {"kind": "field_store", "operands": [12, 14]},
                 {14: ir.Constant(i64, 1)},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_local_free_push_lowers_verified_plan_only(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 3
+        resolver.fastmem_access_plans_by_site[(0, 3)] = [_verified_local_free_push_plan()]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="local_free_page_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+        vmap = {15: ir.Constant(i64, 12288)}
+
+        lower_memop(
+            builder,
+            {"kind": "local_free_push", "operands": [12, 15]},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(ir.Constant(i64, 0))
+
+        text = str(module)
+        self.assertIn("fastmem_local_free_old_head", text)
+        self.assertIn("fastmem_local_free_block_next_ptr", text)
+        self.assertIn("store i64 12288", text)
+        self.assertNotIn(12, vmap)
+
+    def test_local_free_push_rejects_missing_block_next_proof(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 3
+        plan = _verified_local_free_push_plan()
+        plan["block_next_proof_valid"] = False
+        resolver.fastmem_access_plans_by_site[(0, 3)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="local_free_reject_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "block-next-proof-missing"):
+            lower_memop(
+                builder,
+                {"kind": "local_free_push", "operands": [12, 15]},
+                {15: ir.Constant(i64, 12288)},
                 resolver,
                 builder.block,
                 {},

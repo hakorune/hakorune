@@ -13,6 +13,13 @@ use crate::mir::{
 };
 
 pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
+    let explicit_fastmem_facts = function
+        .metadata
+        .range_index_facts
+        .iter()
+        .filter(|fact| fact.origin_kind == RangeIndexFactOriginKind::FastMemAssume)
+        .cloned()
+        .collect::<Vec<_>>();
     let mut facts = Vec::new();
     for source in &function.metadata.loop_range_facts {
         facts.push(RangeIndexFact {
@@ -43,6 +50,15 @@ pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
         });
     }
     append_mir_counting_loop_range_index_facts(function, &mut facts);
+    for mut source in explicit_fastmem_facts {
+        source.fact_id = facts.len() as u32;
+        if !facts
+            .iter()
+            .any(|existing| same_range_fact(existing, &source))
+        {
+            facts.push(source);
+        }
+    }
     function.metadata.range_index_facts = facts;
 }
 

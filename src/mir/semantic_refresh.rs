@@ -73,7 +73,7 @@ use super::{
     },
     user_box_method_route_plan::refresh_function_user_box_method_routes,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
-    MirFunction, MirModule,
+    MirFunction, MirInstruction, MirModule,
 };
 
 /// Refresh the current string-corridor metadata stack for one function.
@@ -96,6 +96,7 @@ pub fn refresh_function_semantic_metadata(
     function: &mut MirFunction,
     module_metadata: &ModuleMetadata,
 ) {
+    refresh_function_fastmem_region_emitted_counts(function);
     refresh_function_rune_plans(function);
     refresh_function_string_corridor_metadata(function);
     refresh_function_storage_class_facts(function);
@@ -144,6 +145,35 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_userbox_loop_micro_seed_route(function);
     refresh_function_exact_seed_backend_route(function);
     refresh_function_array_text_state_residence_route(function);
+}
+
+/// Recompute FastMemory region instruction counts from the canonical MIR stream.
+///
+/// MIRBuilder records counts while lowering source, but later MIR passes may
+/// remove or move instructions before verification. The verifier should compare
+/// region metadata against the current function body, not stale builder-time
+/// counters.
+pub fn refresh_function_fastmem_region_emitted_counts(function: &mut MirFunction) {
+    if function.metadata.fastmem_regions.is_empty() {
+        return;
+    }
+
+    use std::collections::BTreeMap;
+    let mut counts: BTreeMap<u32, usize> = BTreeMap::new();
+    for block_id in function.block_ids() {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for (_, sp) in block.all_spanned_instructions_enumerated() {
+            if let MirInstruction::MemOp { region, .. } = sp.inst {
+                *counts.entry(region.0).or_insert(0) += 1;
+            }
+        }
+    }
+
+    for region in &mut function.metadata.fastmem_regions {
+        region.emitted_memop_count = counts.get(&region.id.0).copied().unwrap_or(0);
+    }
 }
 
 /// Refresh MIR semantic metadata for the whole module.

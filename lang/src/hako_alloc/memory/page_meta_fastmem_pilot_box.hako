@@ -1,0 +1,21 @@
+// page_meta_fastmem_pilot_box.hako -- first hako_alloc FastMemory body pilot
+// Responsibility: expose one narrow PageMeta scalar path as .hako fastmem
+// source truth. This does not replace the allocator, install hooks, open
+// remote-free, mutate owner identity, or touch DirectArray/free-list storage.
+
+static box HakoAllocPageMetaFastmemPilot {
+    scalarPageMetaProbe(page_table, page_index, next_used) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local block_size = page.block_size
+            local capacity = page.capacity
+            local used = page.used
+            page.used = next_used
+            local total = block_size + capacity
+            return total + used
+        }
+        return 0
+    }
+}

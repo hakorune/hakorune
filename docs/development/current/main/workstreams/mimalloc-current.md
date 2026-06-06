@@ -128,6 +128,15 @@ smoke growth brake:
   rows should not add one-off smoke scripts. Behavior rows may extend the
   existing fastmem smoke family, but the next priority is `.hako` mimalloc
   fastmem migration body work, not per-row report-smoke growth.
+
+free-list mutation direction:
+  `local_free_head` remains rejected as an ordinary FieldLoad/FieldStore
+  lowering target. The selected substrate is a free-list-specific FastMemory
+  MemOp family, starting with LocalFreePush / LocalFreePop-style vocabulary and
+  source-intrinsic observation. Lowering must consume verifier-owned local
+  free-list plans only and must not open remote-owner routing, AtomicRemoteHead,
+  TLS transfer, provider activation, hook installation, global allocator claim,
+  or winner claim as a side effect.
 ```
 
 ## Current Task Order
@@ -137,7 +146,7 @@ fastmem source-syntax pilot.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-001 first hako_alloc body migration pilot
+  MIM-PORT-FMEM-013 LocalFreePop route
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
@@ -146,7 +155,21 @@ implementation_sequence:
   MIR-FMEM-008D-C report/check closeout (landed)
   MIR-FMEM-008E producer-neutral parity/readiness (landed)
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
-  MIM-PORT-FMEM-001 first hako_alloc body migration pilot
+  MIM-PORT-FMEM-001 first hako_alloc body migration pilot (landed)
+  MIM-PORT-FMEM-002 PageMeta scalar pilot verified access-plan evidence (landed)
+  MIM-PORT-FMEM-003 PageMeta TableIndex length/bounds proof surface (landed)
+  MIM-PORT-FMEM-004 PageMeta MIR-to-LLVM producer evidence (landed)
+  MIM-PORT-FMEM-005 PageMeta owner_worker_id read-only scalar pilot (landed)
+  MIM-PORT-FMEM-006 PageMeta free_head read-only pointer observation (landed)
+  MIM-PORT-FMEM-007 owner equality-only source observation (landed)
+  MIM-PORT-FMEM-008 local_free_head / free-list source-body preflight (landed)
+  MIM-PORT-FMEM-009 free-list mutation substrate selection (landed)
+  MIM-PORT-FMEM-010 LocalFreePush / LocalFreePop MemOp vocabulary and
+    source-intrinsic observation (landed)
+  MIM-PORT-FMEM-011 verifier-owned LocalFreeList plans (landed)
+  MIM-PORT-FMEM-012A LocalFreePush precondition evidence (landed)
+  MIM-PORT-FMEM-012B LocalFreePush LLVM producer pilot (landed)
+  MIM-PORT-FMEM-013 LocalFreePop route
 
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)

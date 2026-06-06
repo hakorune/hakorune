@@ -15,8 +15,9 @@ Usage:
   $0 perf-surface-contract [--out report.txt]
   $0 replacement-front-report --report target/.../report.out [options]
   $0 llvm-pipeline-inventory [--repo-root repo] [--format kv|summary]
-  $0 fastmem-capability-inventory (--report target/.../report.out | --ast-json ast.json | --program-json program.json) [options]
-  $0 fastmem-check (--report target/.../report.out | --inventory report.kv | --ast-json ast.json | --program-json program.json) [options]
+  $0 fastmem-capability-inventory (--report target/.../report.out | --ast-json ast.json | --program-json program.json | --mir-json mir.json) [options]
+  $0 fastmem-mir-to-llvm-producer-report --mir-json mir.json [--out report.kv]
+  $0 fastmem-check (--report target/.../report.out | --inventory report.kv | --ast-json ast.json | --program-json program.json | --mir-json mir.json) [options]
   $0 fastmem-producer-parity --baseline bridge.kv --candidate llvm.kv
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
@@ -33,6 +34,8 @@ Tool surfaces:
                       read-only LLVM runner pipeline debt inventory
   fastmem-capability-inventory
                       read-only fastmem / memory fast-path capability inventory
+  fastmem-mir-to-llvm-producer-report
+                      read-only MIR-to-LLVM FastMemory producer evidence report
   fastmem-check       CI-style verifier over fastmem inventory fields
   fastmem-producer-parity
                       compare replacement-front reports through the producer-neutral
@@ -94,6 +97,11 @@ fi
 if [ "${1:-}" = "fastmem-capability-inventory" ]; then
   shift
   exec python3 "$ROOT/tools/hako_check/fastmem_capability_inventory.py" "$@"
+fi
+
+if [ "${1:-}" = "fastmem-mir-to-llvm-producer-report" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/fastmem_mir_to_llvm_producer_report.py" "$@"
 fi
 
 if [ "${1:-}" = "fastmem-check" ]; then
