@@ -72,6 +72,13 @@ LOCAL_FREE_MEMOP_INV="$TMPDIR/page_meta_local_free_memop.inventory.kv"
 LOCAL_FREE_MEMOP_MIR_INV="$TMPDIR/page_meta_local_free_memop.mir.inventory.kv"
 LOCAL_FREE_MEMOP_LLVM_REPORT="$TMPDIR/page_meta_local_free_memop.llvm.report.kv"
 LOCAL_FREE_MEMOP_LLVM_STDERR="$TMPDIR/page_meta_local_free_memop.llvm.stderr"
+ATOMIC_REMOTE_HEAD_PUSH_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_atomic_remote_head_push_vocabulary_box.hako"
+ATOMIC_REMOTE_HEAD_PUSH_AST="$TMPDIR/page_meta_atomic_remote_head_push.ast.json"
+ATOMIC_REMOTE_HEAD_PUSH_MIR="$TMPDIR/page_meta_atomic_remote_head_push.mir.json"
+ATOMIC_REMOTE_HEAD_PUSH_INV="$TMPDIR/page_meta_atomic_remote_head_push.inventory.kv"
+ATOMIC_REMOTE_HEAD_PUSH_MIR_INV="$TMPDIR/page_meta_atomic_remote_head_push.mir.inventory.kv"
+ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT="$TMPDIR/page_meta_atomic_remote_head_push.llvm.report.kv"
+ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR="$TMPDIR/page_meta_atomic_remote_head_push.llvm.stderr"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -612,6 +619,52 @@ if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
 fi
 grep -q '\[llvm/fastmem:missing-verified-local-free-push-plan\]' \
   "$LOCAL_FREE_MEMOP_LLVM_STDERR"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$ATOMIC_REMOTE_HEAD_PUSH_AST" "$ATOMIC_REMOTE_HEAD_PUSH_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" "$ATOMIC_REMOTE_HEAD_PUSH_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$ATOMIC_REMOTE_HEAD_PUSH_AST" \
+  --out "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+
+grep -q '^input_kind=ast_json$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^fastmem_region_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^fastmem_memop_atomic_remote_head_push_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_PUSH_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
+  --out "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_memop_atomic_remote_head_push_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_verified_mem_access_plan_count=2$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_verified_field_access_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_verified_table_access_count=1$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_table_index_unchecked_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_table_access_proof_incomplete_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^fastmem_table_overflow_proof_missing_count=0$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+grep -q '^summary=ok$' "$ATOMIC_REMOTE_HEAD_PUSH_MIR_INV"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile local-free \
+  --mir-json "$ATOMIC_REMOTE_HEAD_PUSH_MIR" \
+  --out "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT" \
+  2>"$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"; then
+  echo "[TEST/FAIL] AtomicRemoteHeadPush vocabulary unexpectedly lowered" >&2
+  cat "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_REPORT" >&2 || true
+  exit 1
+fi
+grep -q '\[llvm/fastmem:unsupported-kind\] atomic_remote_head_push' \
+  "$ATOMIC_REMOTE_HEAD_PUSH_LLVM_STDERR"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$LOCAL_FREE_PUSH_PRECONDITION_AST" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$LOCAL_FREE_PUSH_PRECONDITION_MIR" "$LOCAL_FREE_PUSH_PRECONDITION_SRC" >/dev/null

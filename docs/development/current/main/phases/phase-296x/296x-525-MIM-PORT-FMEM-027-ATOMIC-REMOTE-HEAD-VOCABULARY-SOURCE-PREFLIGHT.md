@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-027.
 Related:
@@ -39,6 +39,26 @@ TLS transfer remains closed
 product activation / hook / global allocator / winner claims remain 0
 ```
 
+## Landed Evidence
+
+```text
+Source:
+  lang/src/hako_alloc/memory/page_meta_atomic_remote_head_push_vocabulary_box.hako
+
+Vocabulary:
+  MemOpKind::AtomicRemoteHeadPush
+  mem.atomicRemoteHeadPush(page, block)
+
+Inventory:
+  fastmem_memop_atomic_remote_head_push_count=1
+
+Fail-closed:
+  [llvm/fastmem:unsupported-kind] atomic_remote_head_push
+
+Smoke:
+  bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
 ## Still Closed
 
 ```text
@@ -51,4 +71,15 @@ process allocator replacement
 hook installation
 global allocator claim
 winner claim
+```
+
+## Next Row
+
+```text
+MIM-PORT-FMEM-028:
+  AtomicRemoteHead verifier preconditions
+
+Goal:
+  introduce verifier-owned non-lowerable AtomicRemoteHeadPush plans with
+  explicit same-owner/remote-owner and block-next/publication proof gaps.
 ```

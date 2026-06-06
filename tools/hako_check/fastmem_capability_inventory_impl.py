@@ -1527,6 +1527,9 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
             "fastmem_memop_local_free_pop_count": count_memop("local_free_pop"),
             "fastmem_memop_free_head_push_count": count_memop("free_head_push"),
             "fastmem_memop_free_head_pop_count": count_memop("free_head_pop"),
+            "fastmem_memop_atomic_remote_head_push_count": count_memop(
+                "atomic_remote_head_push"
+            ),
             "fastmem_local_free_list_plan": int(bool(local_free_plans)),
             "fastmem_local_free_push_plan_count": len(local_free_push_plans),
             "fastmem_local_free_pop_plan_count": len(local_free_pop_plans),

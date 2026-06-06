@@ -76,6 +76,7 @@ pub enum MemOpKind {
     LocalFreePop,
     FreeHeadPush,
     FreeHeadPop,
+    AtomicRemoteHeadPush,
 }
 
 impl MemOpKind {
@@ -94,6 +95,7 @@ impl MemOpKind {
         Self::LocalFreePop,
         Self::FreeHeadPush,
         Self::FreeHeadPop,
+        Self::AtomicRemoteHeadPush,
     ];
 
     pub fn display_name(self) -> &'static str {
@@ -112,6 +114,7 @@ impl MemOpKind {
             Self::LocalFreePop => "LocalFreePop",
             Self::FreeHeadPush => "FreeHeadPush",
             Self::FreeHeadPop => "FreeHeadPop",
+            Self::AtomicRemoteHeadPush => "AtomicRemoteHeadPush",
         }
     }
 
@@ -131,13 +134,17 @@ impl MemOpKind {
             Self::LocalFreePop => "local_free_pop",
             Self::FreeHeadPush => "free_head_push",
             Self::FreeHeadPop => "free_head_pop",
+            Self::AtomicRemoteHeadPush => "atomic_remote_head_push",
         }
     }
 
     pub fn has_destination(self) -> bool {
         !matches!(
             self,
-            Self::FieldStore | Self::LocalFreePush | Self::FreeHeadPush
+            Self::FieldStore
+                | Self::LocalFreePush
+                | Self::FreeHeadPush
+                | Self::AtomicRemoteHeadPush
         )
     }
 
@@ -153,7 +160,8 @@ impl MemOpKind {
             | Self::FieldStore
             | Self::OwnerEq
             | Self::LocalFreePush
-            | Self::FreeHeadPush => 2,
+            | Self::FreeHeadPush
+            | Self::AtomicRemoteHeadPush => 2,
         }
     }
 
@@ -164,7 +172,8 @@ impl MemOpKind {
             | Self::LocalFreePush
             | Self::LocalFreePop
             | Self::FreeHeadPush
-            | Self::FreeHeadPop => EffectMask::WRITE,
+            | Self::FreeHeadPop
+            | Self::AtomicRemoteHeadPush => EffectMask::WRITE,
             Self::AddrOf
             | Self::LogicalShr
             | Self::BitAnd

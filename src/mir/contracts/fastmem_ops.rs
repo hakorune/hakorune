@@ -44,10 +44,16 @@ pub const FASTMEM_FREE_LIST_MEMOP_KINDS: &[MemOpKind] = &[
     MemOpKind::FreeHeadPop,
 ];
 
+/// Remote-free publication vocabulary selected by MIM-PORT-FMEM-026.
+///
+/// The MemOp is transport-only in MIM-PORT-FMEM-027: MIR JSON can carry it,
+/// but verifier-owned AtomicRemoteHead plans and LLVM CAS lowering stay closed.
+pub const FASTMEM_REMOTE_FREE_MEMOP_KINDS: &[MemOpKind] = &[MemOpKind::AtomicRemoteHeadPush];
+
 /// Complete MemOp set accepted by the current MIR-to-LLVM/object producer.
 ///
-/// AtomicRemoteHead, TLS backing transfer, owner slot reuse, and allocator
-/// activation are intentionally not represented by v0 MemOpKind entries.
+/// AtomicRemoteHead CAS lowering, TLS backing transfer, owner slot reuse, and
+/// allocator activation are intentionally not opened here.
 pub const FASTMEM_LLVM_OPEN_MEMOP_KINDS: &[MemOpKind] = &[
     MemOpKind::AddrOf,
     MemOpKind::LogicalShr,
@@ -109,7 +115,7 @@ mod tests {
 
     #[test]
     fn fastmem_v0_memop_kind_count_is_intentional() {
-        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 14);
+        assert_eq!(FASTMEM_V0_MEMOP_KINDS.len(), 15);
     }
 
     #[test]
@@ -137,6 +143,18 @@ mod tests {
         for kind in FASTMEM_FREE_LIST_MEMOP_KINDS {
             assert!(is_fastmem_v0_memop_kind(*kind));
             assert!(is_fastmem_free_list_memop_kind(*kind));
+            assert!(is_supported_memop_kind(FastMemBackend::MirJson, *kind));
+            assert!(is_supported_memop_kind(FastMemBackend::LlvmJson, *kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::LlvmNative, *kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::Vm, *kind));
+            assert!(!is_supported_memop_kind(FastMemBackend::CArtifact, *kind));
+        }
+    }
+
+    #[test]
+    fn remote_free_memops_are_transport_only_until_lowering_row() {
+        for kind in FASTMEM_REMOTE_FREE_MEMOP_KINDS {
+            assert!(is_fastmem_v0_memop_kind(*kind));
             assert!(is_supported_memop_kind(FastMemBackend::MirJson, *kind));
             assert!(is_supported_memop_kind(FastMemBackend::LlvmJson, *kind));
             assert!(!is_supported_memop_kind(FastMemBackend::LlvmNative, *kind));

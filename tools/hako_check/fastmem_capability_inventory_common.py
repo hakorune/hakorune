@@ -209,6 +209,8 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             add_count(counts, "fastmem_memop_free_head_pop_count")
         elif is_mem_method_call(expr, "freeHeadPush"):
             add_count(counts, "fastmem_memop_free_head_push_count")
+        elif is_mem_method_call(expr, "atomicRemoteHeadPush"):
+            add_count(counts, "fastmem_memop_atomic_remote_head_push_count")
         elif (
             is_mem_method_call(expr, "assumeTableLength")
             or is_mem_method_call(expr, "assumeIndexInRange")
@@ -247,6 +249,8 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
             add_count(counts, "fastmem_memop_free_head_pop_count")
         elif name == "mem.freeHeadPush":
             add_count(counts, "fastmem_memop_free_head_push_count")
+        elif name == "mem.atomicRemoteHeadPush":
+            add_count(counts, "fastmem_memop_atomic_remote_head_push_count")
         elif name in {
             "mem.assumeTableLength",
             "mem.assumeIndexInRange",
@@ -457,6 +461,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_memop_local_free_pop_count": 0,
         "fastmem_memop_free_head_push_count": 0,
         "fastmem_memop_free_head_pop_count": 0,
+        "fastmem_memop_atomic_remote_head_push_count": 0,
         "fastmem_local_free_list_plan": 0,
         "fastmem_local_free_push_plan_count": 0,
         "fastmem_local_free_pop_plan_count": 0,
