@@ -127,6 +127,31 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
         self.assertIn('declare i64 @"hako_fastmem_current_alloc_owner_id"()', text)
         self.assertIn('call i64 @"hako_fastmem_current_alloc_owner_id"()', text)
 
+    def test_owner_eq_lowers_to_scalar_equality_only(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        vmap = {
+            20: ir.Constant(i64, 7),
+            21: ir.Constant(i64, 7),
+        }
+
+        lower_memop(
+            builder,
+            {"kind": "owner_eq", "dst": 22, "operands": [20, 21]},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(ir.Constant(i64, 0))
+
+        self.assertIn(22, vmap)
+        self.assertEqual(vmap[22].type.width, 1)
+        self.assertNotIn(22, resolver.fastmem_layout_refs)
+        self.assertIn("fastmem_owner_eq_22", str(module))
+
     def test_table_index_lowers_to_layout_ref_map_not_vmap(self):
         i64, module, builder = _new_builder()
         resolver = _DummyResolver()

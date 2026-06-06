@@ -314,6 +314,10 @@ MIR-FMEM-008 split:
     CurrentAllocOwnerId now lowers to a producer-local LLVM helper call returning
     an ordinary i64 scalar. It does not touch LayoutRef, TLS backing transfer,
     owner slot reuse, local/remote free routing, or product activation.
+  MIR-FMEM-008D-B landed:
+    OwnerEq is now fixed as equality-only lowering over ordinary owner-id
+    scalars. It does not choose same-owner or remote-owner allocation/free
+    routing.
   MIR-FMEM-008E producer-neutral parity/readiness:
     prove MIR-to-LLVM evidence can replace the quarantined Python-template C
     diagnostic baseline before the reference closeout runs.
