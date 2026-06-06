@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-034.
 Related:
@@ -47,6 +47,45 @@ remote_owner_branch_selection:
   become real route bodies
 ```
 
+## Decision
+
+Select `retry_policy` as the next row.
+
+Reason:
+
+```text
+MIM-033 lowered only a single cmpxchg attempt.
+
+Opening drain/exchange before retry evidence would make the owner-side drain
+route consume a remote list that may have silently dropped push failures.
+
+Opening remote-owner branch routing before retry evidence would mix CFG routing
+with publication correctness.
+
+Opening TLS backing transfer or activation remains out of scope until the
+remote-free publication route has retry/failure evidence.
+```
+
+The next row must therefore make the AtomicRemoteHeadPush publication contract
+observable before any drain or remote-owner branch route opens.
+
+## Selected Next Row
+
+```text
+MIM-PORT-FMEM-035:
+  AtomicRemoteHead retry policy report/check preflight.
+
+Acceptance surface:
+  atomic_remote_head_retry_policy_selected=1
+  atomic_remote_head_retry_policy_open=0
+  atomic_remote_head_retry_attempt_limit=<n>
+  atomic_remote_head_retry_lowered_count=0
+  memop_atomic_remote_head_lowered_count remains 1 for the MIM-033 pilot
+```
+
+This is intentionally report/check preflight first. The retry loop producer can
+open in the following implementation row after the report contract is pinned.
+
 ## Still Closed
 
 ```text
@@ -75,4 +114,11 @@ provider_abi_hot_dispatch_count=0 remains required
 product_activation=0 remains required
 global_allocator_claim=0 remains required
 winner_claim=0 remains required
+```
+
+## Verification
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```

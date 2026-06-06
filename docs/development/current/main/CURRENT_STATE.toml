@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-531 landed MIM-PORT-FMEM-033 AtomicRemoteHead CAS lowering producer pilot: .hako hako_alloc AtomicRemoteHeadPush now lowers through MIR-to-LLVM/object as a single-attempt acq_rel CAS using verified remote_head/block-next plans; MIM-PORT-FMEM-034 route/drain selection opens next."
+active_lane_status = "296x-532 landed MIM-PORT-FMEM-034 AtomicRemoteHead route/drain selection: retry-policy report/check preflight is selected before drain/exchange, remote-owner branch routing, TLS transfer, or activation; MIM-PORT-FMEM-035 retry policy preflight opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-531-MIM-PORT-FMEM-033-ATOMIC-REMOTE-HEAD-CAS-LOWERING-PRODUCER-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-531-MIM-PORT-FMEM-033-ATOMIC-REMOTE-HEAD-CAS-LOWERING-PRODUCER-PILOT.md"
-latest_card_summary = "AtomicRemoteHeadPush now lowers through the MIR-to-LLVM producer as a verified single-attempt acq_rel CAS while retry/drain/routing and activation claims stay closed."
-current_blocker_token = "MIM-PORT-FMEM-034"
+latest_card = "296x-532-MIM-PORT-FMEM-034-ATOMIC-REMOTE-HEAD-ROUTE-DRAIN-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-532-MIM-PORT-FMEM-034-ATOMIC-REMOTE-HEAD-ROUTE-DRAIN-SELECTION.md"
+latest_card_summary = "AtomicRemoteHead retry-policy report/check preflight is selected as the next remote-free row before retry lowering, drain/exchange, remote-owner branch routing, TLS transfer, or activation opens."
+current_blocker_token = "MIM-PORT-FMEM-035"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-532 landed MIM-PORT-FMEM-034 AtomicRemoteHead route/drain selection: retry-policy report/check preflight is selected next because MIM-033 only emitted one cmpxchg attempt and publication correctness must be observable before drain/exchange or remote-owner branch routing opens; MIM-PORT-FMEM-035 retry policy preflight opens next.",
   "2026-06-07: 296x-531 landed MIM-PORT-FMEM-033 AtomicRemoteHead CAS lowering producer pilot: .hako hako_alloc AtomicRemoteHeadPush now consumes verified remote-owner/block-next evidence and lowers through MIR-to-LLVM/object as a single-attempt acq_rel CAS, while retry, drain, remote-owner branch routing, TLS transfer, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-034 route/drain selection opens next.",
   "2026-06-07: 296x-530 landed MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight: remote-free preflight report selects AtomicRemoteHeadPush, verifies remote-owner/block-next proofs, keeps lowerable=0 and direct LLVM fail-fast closed; MIM-PORT-FMEM-033 CAS lowering producer pilot opens next.",
   "2026-06-07: 296x-529 landed MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection: split selection/report preflight before dedicated CAS lowering, with AtomicRemoteHeadPush still lowerable=0 and CAS lowering closed; MIM-PORT-FMEM-032 report/check preflight opens next.",
