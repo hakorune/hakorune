@@ -146,6 +146,28 @@ def _page_local_route_report_rows(
     ]
 
 
+def _terminal_ladder_refresh_rows(
+    *,
+    page_local_route_body_join_open: bool,
+    terminal_ladder_refresh_selected_any: bool,
+    terminal_ladder_refresh_open_any: bool,
+) -> list[tuple[str, str]]:
+    return [
+        (
+            "page_local_route_body_join_open",
+            str(int_flag(page_local_route_body_join_open)),
+        ),
+        (
+            "terminal_ladder_refresh_selected",
+            str(int_flag(terminal_ladder_refresh_selected_any)),
+        ),
+        (
+            "terminal_ladder_refresh_open",
+            str(int_flag(terminal_ladder_refresh_open_any)),
+        ),
+    ]
+
+
 def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) -> list[tuple[str, str]]:
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
@@ -371,6 +393,43 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
     globals().update(route_state)
     route_candidate = route_state.get("route_candidate", route_candidate)
     free_route_candidate = route_state.get("free_route_candidate", free_route_candidate)
+    terminal_ladder_refresh_selected_any = (
+        terminal_ladder_refresh_preflight
+        or tls_backing_transfer_preflight_refresh
+        or tls_backing_transfer_producer_refresh
+        or owner_slot_reuse_preflight_refresh
+        or owner_slot_reuse_producer_refresh
+        or abandoned_reclaim_preflight_refresh
+        or abandoned_reclaim_producer_refresh
+        or product_activation_preflight_refresh
+        or product_activation_producer_refresh
+        or hook_install_preflight_refresh
+        or hook_install_producer_refresh
+        or global_allocator_claim_preflight_refresh
+        or global_allocator_claim_producer_refresh
+        or winner_claim_preflight_refresh
+        or winner_claim_producer_refresh
+    )
+    terminal_ladder_refresh_open_any = (
+        tls_backing_transfer_preflight_refresh
+        or tls_backing_transfer_producer_refresh
+        or owner_slot_reuse_preflight_refresh
+        or owner_slot_reuse_producer_refresh
+        or abandoned_reclaim_preflight_refresh
+        or abandoned_reclaim_producer_refresh
+        or product_activation_preflight_refresh
+        or product_activation_producer_refresh
+        or hook_install_preflight_refresh
+        or hook_install_producer_refresh
+        or global_allocator_claim_preflight_refresh
+        or global_allocator_claim_producer_refresh
+        or winner_claim_preflight_refresh
+        or winner_claim_producer_refresh
+    )
+    page_local_route_body_join_open_any = (
+        page_local_route_body_join_producer
+        or terminal_ladder_refresh_selected_any
+    )
 
     rows: list[tuple[str, str]] = [
         ("output_contract", "hako-check-fastmem-mir-to-llvm-producer-report-v0"),
@@ -992,71 +1051,10 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             "page_local_route_body_join_selected",
             str(int_flag(page_local_route_body_join_any)),
         ),
-        (
-            "page_local_route_body_join_open",
-            str(
-                int_flag(
-                    page_local_route_body_join_producer
-                    or terminal_ladder_refresh_preflight
-                    or tls_backing_transfer_preflight_refresh
-                    or tls_backing_transfer_producer_refresh
-                    or owner_slot_reuse_preflight_refresh
-                    or owner_slot_reuse_producer_refresh
-                    or abandoned_reclaim_preflight_refresh
-                    or abandoned_reclaim_producer_refresh
-                    or product_activation_preflight_refresh
-                    or product_activation_producer_refresh
-                    or hook_install_preflight_refresh
-                    or hook_install_producer_refresh
-                    or global_allocator_claim_preflight_refresh
-                    or global_allocator_claim_producer_refresh
-                    or winner_claim_preflight_refresh
-                    or winner_claim_producer_refresh
-                )
-            ),
-        ),
-        (
-            "terminal_ladder_refresh_selected",
-            str(
-                int_flag(
-                    terminal_ladder_refresh_preflight
-                    or tls_backing_transfer_preflight_refresh
-                    or tls_backing_transfer_producer_refresh
-                    or owner_slot_reuse_preflight_refresh
-                    or owner_slot_reuse_producer_refresh
-                    or abandoned_reclaim_preflight_refresh
-                    or abandoned_reclaim_producer_refresh
-                    or product_activation_preflight_refresh
-                    or product_activation_producer_refresh
-                    or hook_install_preflight_refresh
-                    or hook_install_producer_refresh
-                    or global_allocator_claim_preflight_refresh
-                    or global_allocator_claim_producer_refresh
-                    or winner_claim_preflight_refresh
-                    or winner_claim_producer_refresh
-                )
-            ),
-        ),
-        (
-            "terminal_ladder_refresh_open",
-            str(
-                int_flag(
-                    tls_backing_transfer_preflight_refresh
-                    or tls_backing_transfer_producer_refresh
-                    or owner_slot_reuse_preflight_refresh
-                    or owner_slot_reuse_producer_refresh
-                    or abandoned_reclaim_preflight_refresh
-                    or abandoned_reclaim_producer_refresh
-                    or product_activation_preflight_refresh
-                    or product_activation_producer_refresh
-                    or hook_install_preflight_refresh
-                    or hook_install_producer_refresh
-                    or global_allocator_claim_preflight_refresh
-                    or global_allocator_claim_producer_refresh
-                    or winner_claim_preflight_refresh
-                    or winner_claim_producer_refresh
-                )
-            ),
+        * _terminal_ladder_refresh_rows(
+            page_local_route_body_join_open=page_local_route_body_join_open_any,
+            terminal_ladder_refresh_selected_any=terminal_ladder_refresh_selected_any,
+            terminal_ladder_refresh_open_any=terminal_ladder_refresh_open_any,
         ),
         (
             "tls_backing_transfer_selected",
