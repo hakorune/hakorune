@@ -76,6 +76,16 @@ new-body manifest routing landed:
   no longer duplicated there
 ```
 
+## 608C Status
+
+```text
+legacy group migration landed:
+  local-free alloc body now runs through the manifest runner instead of a
+  bespoke shell block
+  the smoke keeps the legacy shell coverage for the remaining groups
+  608D now focuses on splitting expectation data out of the shell
+```
+
 ## Migration Rule After This Row
 
 ```text
