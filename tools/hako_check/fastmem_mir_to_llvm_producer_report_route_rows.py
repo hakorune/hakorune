@@ -719,6 +719,29 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or page_local_free_route_cfg_any
         or tls_backing_transfer_or_later
     )
+    remote_free_drain_local_list_mutation_any = (
+        remote_free_drain_local_list_mutation_preflight
+        or remote_free_drain_local_list_mutation_proof
+        or remote_free_drain_local_list_mutation_vocabulary_preflight
+        or remote_free_drain_local_list_mutation_verifier_preconditions
+        or remote_free_drain_local_list_mutation_lowering_producer
+    )
+    remote_free_drain_to_local_any = (
+        remote_free_drain_to_local_selection
+        or remote_free_drain_to_local_producer
+        or remote_free_drain_local_list_mutation_any
+    )
+    remote_free_drain_exchange_any = (
+        remote_free_drain_exchange_selection
+        or remote_free_drain_exchange_producer
+        or remote_free_drain_to_local_any
+    )
+    remote_free_drain_any = (
+        remote_free_drain_preflight
+        or remote_free_drain_exchange_any
+        or remote_free_drain_to_local_any
+        or remote_free_drain_local_list_mutation_any
+    )
     def _build_route_summary() -> dict[str, Any]:
         route_spec = remote_free_route_profile_spec(profile)
         if route_spec is not None:
@@ -833,16 +856,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
 
             selected_remote_kind = (
                 "AtomicRemoteHeadDrain"
-                if remote_free_drain_preflight
-                or remote_free_drain_exchange_selection
-                or remote_free_drain_exchange_producer
-                or remote_free_drain_to_local_selection
-                or remote_free_drain_to_local_producer
-                or remote_free_drain_local_list_mutation_preflight
-                or remote_free_drain_local_list_mutation_proof
-                or remote_free_drain_local_list_mutation_vocabulary_preflight
-                or remote_free_drain_local_list_mutation_verifier_preconditions
-                or remote_free_drain_local_list_mutation_lowering_producer
+                if remote_free_drain_any
                 or remote_owner_branch_routing_any
                 else "AtomicRemoteHeadPush"
             )
