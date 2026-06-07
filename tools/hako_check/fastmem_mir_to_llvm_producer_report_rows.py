@@ -150,6 +150,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "hook-install-preflight-refresh",
             "hook-install-producer-refresh",
             "global-allocator-claim-preflight-refresh",
+            "global-allocator-claim-producer-refresh",
             "hook-install-preflight",
             "hook-install-producer-pilot",
             "global-allocator-claim-preflight",
