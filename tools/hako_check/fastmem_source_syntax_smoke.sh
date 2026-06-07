@@ -1875,6 +1875,49 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_PRODUCER_CHECK"
 grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_PRODUCER_CHECK"
 
+OWNER_SLOT_REUSE_PREFLIGHT_REPORT="$TMPDIR/page_meta_owner_slot_reuse_preflight.report.kv"
+OWNER_SLOT_REUSE_PREFLIGHT_CHECK="$TMPDIR/page_meta_owner_slot_reuse_preflight.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile owner-slot-reuse-preflight \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_allocator_owner_slot_reuse_preflight=1$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=owner_slot_reuse_preflight$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_family=owner_slot_reuse$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=OwnerSlotReuse$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=owner_slot_reuse_producer_pilot$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^allocator_owner_slot_reuse_selected=1$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^allocator_owner_slot_reuse_enabled=0$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^allocator_owner_reuse_without_generation_bump_count=0$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^tls_backing_transfer_selected=1$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^tls_backing_transfer_enabled=1$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^product_activation=0$' "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$OWNER_SLOT_REUSE_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$OWNER_SLOT_REUSE_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$OWNER_SLOT_REUSE_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$OWNER_SLOT_REUSE_PREFLIGHT_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \

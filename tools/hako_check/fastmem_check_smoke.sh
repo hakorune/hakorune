@@ -1000,4 +1000,32 @@ grep -q '^failure_0_reason=allocator_owner_slot_reuse_enabled$' \
   "$BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT"
 grep -q '^summary=failed$' "$BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT"
 
+OWNER_SLOT_REUSE_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_owner_slot_reuse_preflight.XXXXXX")"
+BAD_OWNER_SLOT_REUSE_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_owner_slot_reuse_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/owner_slot_reuse_preflight_inventory.kv" \
+  --format kv \
+  >"$OWNER_SLOT_REUSE_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected owner slot reuse preflight inventory" >&2
+  cat "$OWNER_SLOT_REUSE_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$OWNER_SLOT_REUSE_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$OWNER_SLOT_REUSE_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_owner_slot_reuse_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_OWNER_SLOT_REUSE_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad owner slot reuse preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_OWNER_SLOT_REUSE_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=allocator_owner_slot_reuse_enabled$' \
+  "$BAD_OWNER_SLOT_REUSE_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_OWNER_SLOT_REUSE_PREFLIGHT_OUT"
+
 echo "[TEST/OK] fastmem_check"

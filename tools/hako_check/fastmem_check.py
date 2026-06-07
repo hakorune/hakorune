@@ -1006,6 +1006,38 @@ TLS_BACKING_TRANSFER_PRODUCER_EXPECTED_POSITIVE = (
     "memop_owner_eq_lowered_count",
     "atomic_remote_head_drain_local_list_mutation_lowered_count",
 )
+OWNER_SLOT_REUSE_PREFLIGHT_EXPECTED_ZERO = (
+    "allocator_owner_slot_reuse_enabled",
+    "allocator_owner_reuse_without_generation_bump_count",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+OWNER_SLOT_REUSE_PREFLIGHT_EXPECTED_POSITIVE = (
+    "fastmem_allocator_owner_slot_reuse_preflight",
+    "allocator_owner_slot_reuse_selected",
+    "tls_backing_transfer_selected",
+    "tls_backing_transfer_enabled",
+    "page_local_free_route_cfg_selected",
+    "page_local_free_route_cfg_lowering_enabled",
+    "same_remote_free_body_selected",
+    "same_remote_free_body_open",
+    "same_remote_free_body_lowered_count",
+    "fastmem_branch_cfg_selected",
+    "fastmem_branch_cfg_open",
+    "fastmem_branch_cfg_lowered_count",
+    "remote_owner_branch_routing_selected",
+    "remote_owner_branch_routing_lowering_selected",
+    "remote_owner_branch_routing_open",
+    "remote_owner_branch_routing_lowered_count",
+    "remote_owner_branch_route_body_selected",
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+    "atomic_remote_head_drain_local_list_mutation_lowered_count",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -1228,6 +1260,10 @@ def tls_backing_transfer_preflight_profile(rows: dict[str, str]) -> bool:
 
 def tls_backing_transfer_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_tls_backing_transfer_producer_pilot") > 0
+
+
+def owner_slot_reuse_preflight_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_allocator_owner_slot_reuse_preflight") > 0
 
 
 def complete_layout_table_lowering_candidate(rows: dict[str, str]) -> bool:
@@ -2424,6 +2460,32 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in TLS_BACKING_TRANSFER_PRODUCER_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if owner_slot_reuse_preflight_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != "owner_slot_reuse_preflight":
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != "owner_slot_reuse":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != "OwnerSlotReuse":
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "owner_slot_reuse_producer_pilot"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        deferred = rows.get("replacement_front_deferred_memop_kinds", "").split(",")
+        if "OwnerSlotReuseProducer" not in deferred:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        if "AbandonedReclaim" not in deferred:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in OWNER_SLOT_REUSE_PREFLIGHT_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in OWNER_SLOT_REUSE_PREFLIGHT_EXPECTED_POSITIVE:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
     return reasons
