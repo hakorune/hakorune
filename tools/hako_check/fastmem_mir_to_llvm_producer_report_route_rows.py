@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from fastmem_mir_to_llvm_producer_report_common import (
@@ -40,6 +41,120 @@ from fastmem_route_profiles import (
     refresh_profile_spec,
     remote_free_route_profile_spec,
 )
+
+
+@dataclass(frozen=True)
+class RouteSummaryFlags:
+    winner_claim_any: bool
+    global_allocator_claim_any: bool
+    hook_install_any: bool
+    product_activation_any: bool
+    abandoned_reclaim_any: bool
+    owner_slot_reuse_any: bool
+    tls_backing_transfer_preflight_refresh: bool
+    tls_backing_transfer_producer_refresh: bool
+    tls_backing_transfer_preflight: bool
+    tls_backing_transfer_producer: bool
+    terminal_ladder_refresh_preflight: bool
+    page_local_route_body_join_any: bool
+    page_local_route_body_join_preflight: bool
+    page_local_route_body_join_producer: bool
+    page_local_free_route_cfg_any: bool
+    page_local_free_route_cfg_preflight: bool
+    page_local_alloc_route_cfg_any: bool
+    page_local_alloc_route_cfg_preflight: bool
+    page_local_alloc_route_cfg_producer: bool
+    same_remote_free_body_preflight: bool
+    same_remote_free_body_producer: bool
+    fastmem_branch_cfg_lowering_preflight: bool
+    fastmem_branch_cfg_lowering_producer: bool
+    remote_owner_branch_routing_any: bool
+
+
+def _selected_memop_family(flags: RouteSummaryFlags) -> str:
+    if flags.winner_claim_any:
+        return "winner_claim"
+    if flags.global_allocator_claim_any:
+        return "global_allocator_claim"
+    if flags.hook_install_any:
+        return "hook_install"
+    if flags.product_activation_any:
+        return "product_activation"
+    if flags.abandoned_reclaim_any:
+        return "abandoned_reclaim"
+    if flags.owner_slot_reuse_any:
+        return "owner_slot_reuse"
+    if (
+        flags.tls_backing_transfer_preflight_refresh
+        or flags.tls_backing_transfer_producer_refresh
+        or flags.tls_backing_transfer_producer
+    ):
+        return "tls_backing_transfer"
+    if flags.terminal_ladder_refresh_preflight:
+        return "terminal_ladder_refresh"
+    if flags.page_local_route_body_join_any:
+        return "page_local_route_body_join"
+    if flags.page_local_free_route_cfg_any or flags.tls_backing_transfer_preflight:
+        return "page_local_route_cfg"
+    if flags.page_local_alloc_route_cfg_any:
+        return "page_local_alloc_route_cfg"
+    if (
+        flags.same_remote_free_body_preflight
+        or flags.same_remote_free_body_producer
+    ):
+        return "same_remote_free_body"
+    if (
+        flags.fastmem_branch_cfg_lowering_preflight
+        or flags.fastmem_branch_cfg_lowering_producer
+    ):
+        return "branch_cfg"
+    if flags.remote_owner_branch_routing_any:
+        return "remote_free_routing"
+    return "remote_free"
+
+
+def _selected_memop_kinds(flags: RouteSummaryFlags, selected_remote_kind: str) -> str:
+    if flags.winner_claim_any:
+        return "WinnerClaim"
+    if flags.global_allocator_claim_any:
+        return "GlobalAllocatorClaim"
+    if flags.hook_install_any:
+        return "HookInstall"
+    if flags.product_activation_any:
+        return "ProductActivation"
+    if flags.abandoned_reclaim_any:
+        return "AbandonedReclaim"
+    if flags.owner_slot_reuse_any:
+        return "OwnerSlotReuse"
+    if (
+        flags.tls_backing_transfer_preflight_refresh
+        or flags.tls_backing_transfer_producer_refresh
+        or flags.tls_backing_transfer_producer
+    ):
+        return "TlsBackingTransfer"
+    if flags.terminal_ladder_refresh_preflight:
+        return "TerminalLadderRefresh"
+    if flags.page_local_route_body_join_preflight:
+        return "PageLocalRouteBodyJoin"
+    if flags.page_local_route_body_join_producer:
+        return "PageLocalRouteBodyJoinProducer"
+    if flags.page_local_free_route_cfg_any or flags.tls_backing_transfer_preflight:
+        return "PageLocalFreeRouteCfg"
+    if flags.page_local_alloc_route_cfg_producer:
+        return "PageLocalAllocRouteCfgProducer"
+    if flags.page_local_alloc_route_cfg_preflight:
+        return "PageLocalAllocRouteCfg"
+    if (
+        flags.same_remote_free_body_preflight
+        or flags.same_remote_free_body_producer
+    ):
+        return "SameRemoteFreeBody"
+    if (
+        flags.fastmem_branch_cfg_lowering_preflight
+        or flags.fastmem_branch_cfg_lowering_producer
+    ):
+        return "FastMemBranchCfg"
+    return selected_remote_kind
 
 
 def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
@@ -448,88 +563,38 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "remote_owner_branch_routing_preflight"
         else:
             selected_route = "none"
-
-        selected_memop_family = (
-            "winner_claim"
-            if winner_claim_any
-            else "global_allocator_claim"
-            if global_allocator_claim_any
-            else "hook_install"
-            if hook_install_any
-            else "product_activation"
-            if product_activation_any
-            else "abandoned_reclaim"
-            if abandoned_reclaim_any
-            else "owner_slot_reuse"
-            if owner_slot_reuse_any
-            else "tls_backing_transfer"
-            if tls_backing_transfer_preflight_refresh
-            or tls_backing_transfer_producer_refresh
-            or tls_backing_transfer_producer
-            else "terminal_ladder_refresh"
-            if terminal_ladder_refresh_preflight
-            else "page_local_route_body_join"
-            if page_local_route_body_join_any
-            else "page_local_route_cfg"
-            if page_local_free_route_cfg_any or tls_backing_transfer_preflight
-            else "page_local_alloc_route_cfg"
-            if page_local_alloc_route_cfg_any
-            else (
-                "same_remote_free_body"
-                if same_remote_free_body_preflight or same_remote_free_body_producer
-                else (
-                    "branch_cfg"
-                    if fastmem_branch_cfg_lowering_preflight
-                    or fastmem_branch_cfg_lowering_producer
-                    else (
-                        "remote_free_routing"
-                        if remote_owner_branch_routing_any
-                        else "remote_free"
-                    )
-                )
-            )
+        route_summary_flags = RouteSummaryFlags(
+            winner_claim_any=winner_claim_any,
+            global_allocator_claim_any=global_allocator_claim_any,
+            hook_install_any=hook_install_any,
+            product_activation_any=product_activation_any,
+            abandoned_reclaim_any=abandoned_reclaim_any,
+            owner_slot_reuse_any=owner_slot_reuse_any,
+            tls_backing_transfer_preflight_refresh=tls_backing_transfer_preflight_refresh,
+            tls_backing_transfer_producer_refresh=tls_backing_transfer_producer_refresh,
+            tls_backing_transfer_preflight=tls_backing_transfer_preflight,
+            tls_backing_transfer_producer=tls_backing_transfer_producer,
+            terminal_ladder_refresh_preflight=terminal_ladder_refresh_preflight,
+            page_local_route_body_join_any=page_local_route_body_join_any,
+            page_local_route_body_join_preflight=page_local_route_body_join_preflight,
+            page_local_route_body_join_producer=page_local_route_body_join_producer,
+            page_local_free_route_cfg_any=page_local_free_route_cfg_any,
+            page_local_free_route_cfg_preflight=page_local_free_route_cfg_preflight,
+            page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
+            page_local_alloc_route_cfg_preflight=page_local_alloc_route_cfg_preflight,
+            page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
+            same_remote_free_body_preflight=same_remote_free_body_preflight,
+            same_remote_free_body_producer=same_remote_free_body_producer,
+            fastmem_branch_cfg_lowering_preflight=fastmem_branch_cfg_lowering_preflight,
+            fastmem_branch_cfg_lowering_producer=fastmem_branch_cfg_lowering_producer,
+            remote_owner_branch_routing_any=remote_owner_branch_routing_any,
         )
-        selected_memop_kinds = (
-            "WinnerClaim"
-            if winner_claim_any
-            else "GlobalAllocatorClaim"
-            if global_allocator_claim_any
-            else "HookInstall"
-            if hook_install_any
-            else "ProductActivation"
-            if product_activation_any
-            else "AbandonedReclaim"
-            if abandoned_reclaim_any
-            else "OwnerSlotReuse"
-            if owner_slot_reuse_any
-            else "TlsBackingTransfer"
-            if tls_backing_transfer_preflight_refresh
-            or tls_backing_transfer_producer_refresh
-            or tls_backing_transfer_producer
-            else "TerminalLadderRefresh"
-            if terminal_ladder_refresh_preflight
-            else "PageLocalRouteBodyJoin"
-            if page_local_route_body_join_preflight
-            else "PageLocalRouteBodyJoinProducer"
-            if page_local_route_body_join_producer
-            else "PageLocalFreeRouteCfg"
-            if page_local_free_route_cfg_any or tls_backing_transfer_preflight
-            else "PageLocalAllocRouteCfgProducer"
-            if page_local_alloc_route_cfg_producer
-            else "PageLocalAllocRouteCfg"
-            if page_local_alloc_route_cfg_preflight
-            else (
-                "SameRemoteFreeBody"
-                if same_remote_free_body_preflight or same_remote_free_body_producer
-                else (
-                    "FastMemBranchCfg"
-                    if fastmem_branch_cfg_lowering_preflight
-                    or fastmem_branch_cfg_lowering_producer
-                    else selected_remote_kind
-                )
-            )
+        selected_memop_family = _selected_memop_family(route_summary_flags)
+        selected_memop_kinds = _selected_memop_kinds(
+            route_summary_flags,
+            selected_remote_kind,
         )
-    slice_rows = [
+        slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_selected_route", selected_route),
             ("replacement_front_next_producer_slice", next_slice),
