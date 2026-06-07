@@ -168,6 +168,94 @@ def _terminal_ladder_refresh_rows(
     ]
 
 
+def _remote_owner_branch_routing_rows(
+    *,
+    remote_owner_branch_routing_selected_any: bool,
+    remote_owner_branch_routing_open_any: bool,
+    remote_owner_branch_routing_lowered_count_value: int,
+    remote_owner_branch_routing_preflight_requires_branch_cfg_row_value: int,
+    remote_owner_branch_route_body_selected_any: bool,
+) -> list[tuple[str, str]]:
+    return [
+        (
+            "remote_owner_branch_routing_selected",
+            str(int_flag(remote_owner_branch_routing_selected_any)),
+        ),
+        (
+            "remote_owner_branch_routing_lowering_selected",
+            str(int_flag(remote_owner_branch_routing_selected_any)),
+        ),
+        (
+            "remote_owner_branch_routing_open",
+            str(int_flag(remote_owner_branch_routing_open_any)),
+        ),
+        (
+            "remote_owner_branch_routing_lowered_count",
+            str(remote_owner_branch_routing_lowered_count_value),
+        ),
+        (
+            "remote_owner_branch_routing_preflight_requires_branch_cfg_row",
+            str(
+                int_flag(
+                    remote_owner_branch_routing_preflight_requires_branch_cfg_row_value
+                )
+            ),
+        ),
+        (
+            "remote_owner_branch_route_body_selected",
+            str(int_flag(remote_owner_branch_route_body_selected_any)),
+        ),
+        ("remote_owner_branch_route_body_open", "0"),
+    ]
+
+
+def _branch_cfg_and_same_remote_rows(
+    *,
+    fastmem_branch_cfg_selected_any: bool,
+    fastmem_branch_cfg_open_any: bool,
+    fastmem_branch_cfg_closed_guard_any: bool,
+    fastmem_branch_cfg_lowered_count_value: int,
+    fastmem_branch_cfg_source_guard_value: str,
+    same_remote_free_body_selected_any: bool,
+    same_remote_free_body_open_any: bool,
+    same_remote_free_body_lowered_count_any: bool,
+) -> list[tuple[str, str]]:
+    return [
+        (
+            "fastmem_branch_cfg_selected",
+            str(int_flag(fastmem_branch_cfg_selected_any)),
+        ),
+        (
+            "fastmem_branch_cfg_open",
+            str(int_flag(fastmem_branch_cfg_open_any)),
+        ),
+        (
+            "fastmem_branch_cfg_closed_guard",
+            str(int_flag(fastmem_branch_cfg_closed_guard_any)),
+        ),
+        (
+            "fastmem_branch_cfg_lowered_count",
+            str(fastmem_branch_cfg_lowered_count_value),
+        ),
+        (
+            "fastmem_branch_cfg_source_guard",
+            fastmem_branch_cfg_source_guard_value,
+        ),
+        (
+            "same_remote_free_body_selected",
+            str(int_flag(same_remote_free_body_selected_any)),
+        ),
+        (
+            "same_remote_free_body_open",
+            str(int_flag(same_remote_free_body_open_any)),
+        ),
+        (
+            "same_remote_free_body_lowered_count",
+            str(int_flag(same_remote_free_body_lowered_count_any)),
+        ),
+    ]
+
+
 def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) -> list[tuple[str, str]]:
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
@@ -393,6 +481,107 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
     globals().update(route_state)
     route_candidate = route_state.get("route_candidate", route_candidate)
     free_route_candidate = route_state.get("free_route_candidate", free_route_candidate)
+    remote_owner_branch_routing_selected_any = remote_owner_branch_routing_any
+    remote_owner_branch_routing_open_any = (
+        remote_owner_branch_routing_lowering_producer
+        or remote_owner_branch_route_body_preflight
+        or fastmem_branch_cfg_preflight
+        or fastmem_branch_cfg_lowering_preflight
+        or fastmem_branch_cfg_lowering_producer
+        or same_remote_free_body_preflight
+        or same_remote_free_body_producer
+        or page_local_free_route_cfg_any
+        or tls_backing_transfer_or_later
+    )
+    remote_owner_branch_routing_lowered_count_value = int_flag(
+        (
+            remote_owner_branch_routing_lowering_producer
+            or remote_owner_branch_route_body_preflight
+            or fastmem_branch_cfg_preflight
+            or fastmem_branch_cfg_lowering_preflight
+            or fastmem_branch_cfg_lowering_producer
+            or same_remote_free_body_preflight
+            or same_remote_free_body_producer
+            or page_local_free_route_cfg_any
+            or tls_backing_transfer_or_later
+        )
+        and current_owner_count > 0
+        and owner_eq_count > 0
+        and drain_remote_list_to_local_lowerable > 0
+    )
+    remote_owner_branch_routing_preflight_requires_branch_cfg_row_value = int_flag(
+        not (
+            remote_owner_branch_routing_lowering_producer
+            or remote_owner_branch_route_body_preflight
+            or fastmem_branch_cfg_preflight
+            or fastmem_branch_cfg_lowering_preflight
+            or fastmem_branch_cfg_lowering_producer
+            or same_remote_free_body_preflight
+            or same_remote_free_body_producer
+            or page_local_free_route_cfg_any
+            or tls_backing_transfer_or_later
+        )
+    )
+    remote_owner_branch_route_body_selected_any = (
+        remote_owner_branch_route_body_preflight
+        or fastmem_branch_cfg_preflight
+        or fastmem_branch_cfg_lowering_preflight
+        or fastmem_branch_cfg_lowering_producer
+        or same_remote_free_body_preflight
+        or same_remote_free_body_producer
+        or page_local_free_route_cfg_any
+        or tls_backing_transfer_or_later
+    )
+    fastmem_branch_cfg_selected_any = (
+        fastmem_branch_cfg_preflight
+        or fastmem_branch_cfg_lowering_preflight
+        or fastmem_branch_cfg_lowering_producer
+        or same_remote_free_body_preflight
+        or same_remote_free_body_producer
+        or page_local_alloc_route_cfg_producer
+        or page_local_route_body_join_any
+        or page_local_free_route_cfg_any
+        or tls_backing_transfer_or_later
+    )
+    fastmem_branch_cfg_open_any = (
+        fastmem_branch_cfg_lowering_producer
+        or same_remote_free_body_preflight
+        or same_remote_free_body_producer
+        or page_local_alloc_route_cfg_producer
+        or page_local_route_body_join_any
+        or page_local_free_route_cfg_any
+        or tls_backing_transfer_or_later
+    )
+    fastmem_branch_cfg_closed_guard_any = (
+        fastmem_branch_cfg_preflight
+        or fastmem_branch_cfg_lowering_preflight
+    ) and not fastmem_branch_cfg_lowering_producer
+    fastmem_branch_cfg_lowered_count_value = (
+        branch_cfg_count(mir) if fastmem_branch_cfg_open_any else 0
+    )
+    fastmem_branch_cfg_source_guard_value = (
+        "branch_cfg_open" if fastmem_branch_cfg_open_any else "branch_cfg_closed"
+    )
+    same_remote_free_body_selected_any = (
+        same_remote_free_body_preflight
+        or same_remote_free_body_producer
+        or page_local_free_route_cfg_any
+        or tls_backing_transfer_or_later
+    )
+    same_remote_free_body_open_any = (
+        same_remote_free_body_producer
+        or page_local_free_route_cfg_any
+        or page_local_route_body_join_any
+        or tls_backing_transfer_or_later
+    )
+    same_remote_free_body_lowered_count_any = (
+        same_remote_free_body_open_any
+        and branch_cfg_count(mir) > 0
+        and current_owner_count > 0
+        and owner_eq_count > 0
+        and drain_remote_list_to_local_lowerable > 0
+        and len(verified_field_store) > 0
+    )
     terminal_ladder_refresh_selected_any = (
         terminal_ladder_refresh_preflight
         or tls_backing_transfer_preflight_refresh
@@ -842,196 +1031,22 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                 else 0
             ),
         ),
-        (
-            "remote_owner_branch_routing_selected",
-            str(
-                int_flag(
-                    remote_owner_branch_routing_any
-                )
-            ),
+        * _remote_owner_branch_routing_rows(
+            remote_owner_branch_routing_selected_any=remote_owner_branch_routing_selected_any,
+            remote_owner_branch_routing_open_any=remote_owner_branch_routing_open_any,
+            remote_owner_branch_routing_lowered_count_value=remote_owner_branch_routing_lowered_count_value,
+            remote_owner_branch_routing_preflight_requires_branch_cfg_row_value=remote_owner_branch_routing_preflight_requires_branch_cfg_row_value,
+            remote_owner_branch_route_body_selected_any=remote_owner_branch_route_body_selected_any,
         ),
-        (
-            "remote_owner_branch_routing_lowering_selected",
-            str(int_flag(remote_owner_branch_routing_any)),
-        ),
-        (
-            "remote_owner_branch_routing_open",
-            str(
-                int_flag(
-                    remote_owner_branch_routing_lowering_producer
-                    or remote_owner_branch_route_body_preflight
-                    or fastmem_branch_cfg_preflight
-                    or fastmem_branch_cfg_lowering_preflight
-                    or fastmem_branch_cfg_lowering_producer
-                    or same_remote_free_body_preflight
-                    or same_remote_free_body_producer
-                    or page_local_free_route_cfg_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        (
-            "remote_owner_branch_routing_lowered_count",
-            str(
-                int_flag(
-                    (
-                        remote_owner_branch_routing_lowering_producer
-                        or remote_owner_branch_route_body_preflight
-                        or fastmem_branch_cfg_preflight
-                        or fastmem_branch_cfg_lowering_preflight
-                        or fastmem_branch_cfg_lowering_producer
-                        or same_remote_free_body_preflight
-                        or same_remote_free_body_producer
-                        or page_local_free_route_cfg_any
-                        or tls_backing_transfer_or_later
-                    )
-                    and current_owner_count > 0
-                    and owner_eq_count > 0
-                    and drain_remote_list_to_local_lowerable > 0
-                )
-            ),
-        ),
-        (
-            "remote_owner_branch_routing_preflight_requires_branch_cfg_row",
-            str(
-                int_flag(
-                    not (
-                        remote_owner_branch_routing_lowering_producer
-                        or remote_owner_branch_route_body_preflight
-                        or fastmem_branch_cfg_preflight
-                        or fastmem_branch_cfg_lowering_preflight
-                        or fastmem_branch_cfg_lowering_producer
-                        or same_remote_free_body_preflight
-                        or same_remote_free_body_producer
-                        or page_local_free_route_cfg_any
-                        or tls_backing_transfer_or_later
-                    )
-                )
-            ),
-        ),
-        (
-            "remote_owner_branch_route_body_selected",
-            str(
-                int_flag(
-                    remote_owner_branch_route_body_preflight
-                    or fastmem_branch_cfg_preflight
-                    or fastmem_branch_cfg_lowering_preflight
-                    or fastmem_branch_cfg_lowering_producer
-                    or same_remote_free_body_preflight
-                    or same_remote_free_body_producer
-                    or page_local_free_route_cfg_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        ("remote_owner_branch_route_body_open", "0"),
-        (
-            "fastmem_branch_cfg_selected",
-            str(
-                int_flag(
-                    fastmem_branch_cfg_preflight
-                    or fastmem_branch_cfg_lowering_preflight
-                    or fastmem_branch_cfg_lowering_producer
-                    or same_remote_free_body_preflight
-                    or same_remote_free_body_producer
-                    or page_local_alloc_route_cfg_producer
-                    or page_local_route_body_join_any
-                    or page_local_free_route_cfg_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        (
-            "fastmem_branch_cfg_open",
-            str(
-                int_flag(
-                    fastmem_branch_cfg_lowering_producer
-                    or same_remote_free_body_preflight
-                    or same_remote_free_body_producer
-                    or page_local_alloc_route_cfg_producer
-                    or page_local_route_body_join_any
-                    or page_local_free_route_cfg_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        (
-            "fastmem_branch_cfg_closed_guard",
-            str(
-                int_flag(
-                    (
-                        fastmem_branch_cfg_preflight
-                        or fastmem_branch_cfg_lowering_preflight
-                    )
-                    and not fastmem_branch_cfg_lowering_producer
-                )
-            ),
-        ),
-        (
-            "fastmem_branch_cfg_lowered_count",
-            str(
-                branch_cfg_count(mir)
-                if fastmem_branch_cfg_lowering_producer
-                or same_remote_free_body_preflight
-                or same_remote_free_body_producer
-                or page_local_alloc_route_cfg_producer
-                or page_local_route_body_join_any
-                or page_local_free_route_cfg_any
-                or tls_backing_transfer_or_later
-                else 0
-            ),
-        ),
-        (
-            "fastmem_branch_cfg_source_guard",
-            "branch_cfg_open"
-            if fastmem_branch_cfg_lowering_producer
-            or same_remote_free_body_preflight
-            or same_remote_free_body_producer
-            or page_local_alloc_route_cfg_any
-            or page_local_free_route_cfg_any
-            or page_local_route_body_join_any
-            or tls_backing_transfer_or_later
-            else "branch_cfg_closed",
-        ),
-        (
-            "same_remote_free_body_selected",
-            str(
-                int_flag(
-                    same_remote_free_body_preflight
-                    or same_remote_free_body_producer
-                    or page_local_free_route_cfg_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        (
-            "same_remote_free_body_open",
-            str(
-                int_flag(
-                    same_remote_free_body_producer
-                    or page_local_free_route_cfg_any
-                    or page_local_route_body_join_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        (
-            "same_remote_free_body_lowered_count",
-            str(
-                int_flag(
-                    (
-                        same_remote_free_body_producer
-                    or page_local_free_route_cfg_any
-                    or page_local_route_body_join_any
-                    or tls_backing_transfer_or_later
-                    )
-                    and branch_cfg_count(mir) > 0
-                    and current_owner_count > 0
-                    and owner_eq_count > 0
-                    and drain_remote_list_to_local_lowerable > 0
-                    and len(verified_field_store) > 0
-                )
-            ),
+        * _branch_cfg_and_same_remote_rows(
+            fastmem_branch_cfg_selected_any=fastmem_branch_cfg_selected_any,
+            fastmem_branch_cfg_open_any=fastmem_branch_cfg_open_any,
+            fastmem_branch_cfg_closed_guard_any=fastmem_branch_cfg_closed_guard_any,
+            fastmem_branch_cfg_lowered_count_value=fastmem_branch_cfg_lowered_count_value,
+            fastmem_branch_cfg_source_guard_value=fastmem_branch_cfg_source_guard_value,
+            same_remote_free_body_selected_any=same_remote_free_body_selected_any,
+            same_remote_free_body_open_any=same_remote_free_body_open_any,
+            same_remote_free_body_lowered_count_any=same_remote_free_body_lowered_count_any,
         ),
         (
             "page_local_free_route_cfg_selected",
