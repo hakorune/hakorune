@@ -179,7 +179,7 @@ DIRECT-ARRAY-ADAPTER-LATER:
   proof ids without changing DirectArray access planning
 
 DIRECTARRAY-FMEM-COMMON-001:
-  add the DirectArray/FastMemory proof-envelope report/check adapter
+  landed: DirectArray/FastMemory proof-envelope report/check adapter
   no source syntax change
   no DirectArray auto-fastmem region
   no shared access-plan payload

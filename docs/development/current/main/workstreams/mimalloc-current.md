@@ -806,9 +806,9 @@ bash tools/checks/current_state_pointer_guard.sh
   positive CurrentAllocOwnerId and OwnerEq lowered counts while rejecting TLS
   transfer, owner slot reuse, AtomicRemoteHead, ABI hot paths, and activation
   claims.
-- `DIRECTARRAY-FMEM-COMMON-001` is queued as proof-envelope/report adapter
-  work only. DirectArray access does not auto-generate a fastmem region in the
-  current lane.
+- `DIRECTARRAY-FMEM-COMMON-001` landed as a proof-envelope/report adapter.
+  DirectArray access does not auto-generate a fastmem region in the current
+  lane.
 - `DOCS-SLIM-FMEM-SSOT-001` landed by slimming the design SSOT and moving the
   historical evidence to the investigation/archive owners instead of growing
   this restart card.

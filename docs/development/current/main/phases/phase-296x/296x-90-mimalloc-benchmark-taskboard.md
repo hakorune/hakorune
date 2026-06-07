@@ -363,8 +363,8 @@ MIR-FMEM-008C report/check closeout landed:
   evidence is present. Incomplete proof reports still fail on their
   proof-specific counters, and owner-runtime MemOps remain deferred.
 DirectArray/FastMemory commonality task inserted:
-  `DIRECTARRAY-FMEM-COMMON-001` is a proof-envelope/report adapter task only.
-  DirectArray and FastMemory may share ProofEnvelopeV0-style identity and
+  `DIRECTARRAY-FMEM-COMMON-001` landed as a proof-envelope/report adapter only.
+  DirectArray and FastMemory share ProofEnvelopeV0-style identity and
   RangeIndexFact-style proof inputs, but DirectArray access does not
   auto-generate fastmem regions and access-plan payloads remain separate.
 Docs length cleanup task inserted:

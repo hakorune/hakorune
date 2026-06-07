@@ -254,7 +254,7 @@ Task routing:
 
 ```text
 DIRECTARRAY-FMEM-COMMON-001:
-  proof-envelope/report adapter only
+  landed: proof-envelope/report adapter only
   no DirectArray auto-fastmem region
   no DirectArrayAccessPlan/FastMemAccessPlan merge
 ```
