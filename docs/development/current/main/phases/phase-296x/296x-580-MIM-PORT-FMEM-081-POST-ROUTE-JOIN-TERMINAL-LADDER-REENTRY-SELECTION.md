@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-081.
 Related:
@@ -54,4 +54,49 @@ git diff --check passes
 ```text
 opening product allocator replacement
 changing already-landed terminal rows without a refresh decision
+```
+
+## Decision
+
+Use a terminal ladder refresh preflight before reopening TLS, owner lifecycle,
+product activation, hook installation, global allocator claim, or winner claim
+rows.
+
+The old terminal ladder consumed `page_local_free_route_cfg_lowering_enabled=1`.
+After the late allocation route CFG and the alloc/free route body join producer,
+the refreshed terminal ladder must consume the newer join boundary:
+
+```text
+page_local_route_body_join_selected=1
+page_local_route_body_join_open=1
+page_local_alloc_route_cfg_lowering_enabled=1
+page_local_free_route_cfg_lowering_enabled=1
+```
+
+This keeps the ladder conservative: the next row selects a refreshed terminal
+entry point, but activation, hook, global allocator, and winner claims stay
+closed until their own refreshed rows explicitly reopen them.
+
+## Landed Evidence
+
+```text
+selected_next_slice=terminal_ladder_refresh_preflight
+selected_next_slice_requires=page_local_route_body_join_open=1
+selected_next_slice_keeps_product_activation_closed=1
+selected_next_slice_keeps_hook_install_closed=1
+selected_next_slice_keeps_global_allocator_claim_closed=1
+selected_next_slice_keeps_winner_claim_closed=1
+```
+
+## Verification
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+```text
+296x-581 MIM-PORT-FMEM-082 terminal ladder refresh preflight.
 ```
