@@ -251,6 +251,38 @@ def _verified_atomic_remote_head_drain_plan():
     }
 
 
+def _verified_drain_remote_list_to_local_plan():
+    return {
+        "kind": "drain_remote_list_to_local",
+        "verified": True,
+        "status": "verified",
+        "block": 0,
+        "instruction_index": 8,
+        "region": 1,
+        "page": 12,
+        "local_free_head_layout_id": "PageMetaLayoutV0",
+        "local_free_head_field_id": "local_free_head",
+        "local_free_head_field_class": "local_free_head",
+        "local_free_head_byte_offset": 24,
+        "local_free_head_field_size": 8,
+        "local_free_head_field_type": "usize",
+        "local_free_head_alignment": 8,
+        "block_next_layout_id": "FreeBlockNodeLayoutV0",
+        "block_next_field_id": "next",
+        "block_next_field_class": "local_free_block_next",
+        "block_next_byte_offset": 0,
+        "block_next_field_size": 8,
+        "block_next_field_type": "usize",
+        "block_next_alignment": 8,
+        "publication_order": "verifier_owned_acquire_then_owner_local",
+        "token_provenance_valid": True,
+        "page_operand_valid": True,
+        "head_class_resolved": True,
+        "block_next_access_resolved": True,
+        "lowerable": True,
+    }
+
+
 class TestFastMemMemOpLayoutRef(unittest.TestCase):
     def test_current_alloc_owner_id_lowers_to_intrinsic_scalar_vmap(self):
         i64, module, builder = _new_builder()
@@ -964,6 +996,69 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
                 builder,
                 {"kind": "atomic_remote_head_drain", "dst": 17, "operands": [12]},
                 {},
+                resolver,
+                builder.block,
+                {},
+                {},
+                {},
+            )
+
+    def test_drain_remote_list_to_local_lowers_verified_plan_only(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 8
+        resolver.fastmem_access_plans_by_site[(0, 8)] = [
+            _verified_drain_remote_list_to_local_plan()
+        ]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="drain_remote_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+        vmap = {15: ir.Constant(i64, 12288)}
+
+        lower_memop(
+            builder,
+            {"kind": "drain_remote_list_to_local", "operands": [12, 15]},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(ir.Constant(i64, 0))
+
+        text = str(module)
+        self.assertIn("fastmem_drain_remote_old_local_head", text)
+        self.assertIn("fastmem_drain_remote_tail_next", text)
+        self.assertIn("fastmem_drain_remote_done", text)
+        self.assertNotIn(12, vmap)
+
+    def test_drain_remote_list_to_local_rejects_missing_block_next_access_resolution(self):
+        i64, _module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 8
+        plan = _verified_drain_remote_list_to_local_plan()
+        plan["block_next_access_resolved"] = False
+        resolver.fastmem_access_plans_by_site[(0, 8)] = [plan]
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": builder.inttoptr(
+                ir.Constant(i64, 8192),
+                ir.IntType(8).as_pointer(),
+                name="drain_remote_reject_layout_ref",
+            ),
+            "layout_id": "PageMetaLayoutV0",
+        }
+
+        with self.assertRaisesRegex(RuntimeError, "drain-remote-list-block-next-access-unresolved"):
+            lower_memop(
+                builder,
+                {"kind": "drain_remote_list_to_local", "operands": [12, 15]},
+                {15: ir.Constant(i64, 12288)},
                 resolver,
                 builder.block,
                 {},
