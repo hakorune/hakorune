@@ -2197,6 +2197,46 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$HOOK_INSTALL_PRODUCER_CHECK"
 grep -q '^summary=ok$' "$HOOK_INSTALL_PRODUCER_CHECK"
 
+GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT="$TMPDIR/page_meta_global_allocator_claim_preflight.report.kv"
+GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_CHECK="$TMPDIR/page_meta_global_allocator_claim_preflight.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile global-allocator-claim-preflight \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_global_allocator_claim_preflight=1$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=global_allocator_claim_preflight$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_family=global_allocator_claim$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=GlobalAllocatorClaim$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=global_allocator_claim_producer_pilot$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim_selected=1$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^hook_install_selected=1$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^hook_install=1$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^product_activation_selected=1$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^product_activation=1$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \

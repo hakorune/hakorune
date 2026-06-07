@@ -1224,4 +1224,32 @@ grep -q '^failure_0_reason=winner_claim$' \
   "$BAD_HOOK_INSTALL_PRODUCER_OUT"
 grep -q '^summary=failed$' "$BAD_HOOK_INSTALL_PRODUCER_OUT"
 
+GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_global_allocator_claim_preflight.XXXXXX")"
+BAD_GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_global_allocator_claim_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/global_allocator_claim_preflight_inventory.kv" \
+  --format kv \
+  >"$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected global allocator claim preflight inventory" >&2
+  cat "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_global_allocator_claim_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad global allocator claim preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=winner_claim$' \
+  "$BAD_GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_OUT"
+
 echo "[TEST/OK] fastmem_check"
