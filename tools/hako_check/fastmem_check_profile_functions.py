@@ -269,6 +269,10 @@ def abandoned_reclaim_preflight_refresh_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_abandoned_reclaim_preflight_refresh") > 0
 
 
+def abandoned_reclaim_producer_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_abandoned_reclaim_producer_refresh") > 0
+
+
 def abandoned_reclaim_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_abandoned_reclaim_producer_pilot") > 0
 

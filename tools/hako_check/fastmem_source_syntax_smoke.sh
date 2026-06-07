@@ -254,6 +254,8 @@ OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT="$TMPDIR/owner_slot_reuse_producer_refr
 OWNER_SLOT_REUSE_PRODUCER_REFRESH_CHECK="$TMPDIR/owner_slot_reuse_producer_refresh.check.kv"
 ABANDONED_RECLAIM_REFRESH_REPORT="$TMPDIR/abandoned_reclaim_refresh.report.kv"
 ABANDONED_RECLAIM_REFRESH_CHECK="$TMPDIR/abandoned_reclaim_refresh.check.kv"
+ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT="$TMPDIR/abandoned_reclaim_producer_refresh.report.kv"
+ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK="$TMPDIR/abandoned_reclaim_producer_refresh.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
 WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
@@ -3823,6 +3825,50 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^summary=ok$' "$ABANDONED_RECLAIM_REFRESH_CHECK"
 grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_REFRESH_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile abandoned-reclaim-producer-refresh \
+  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  --out "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+
+grep -q '^fastmem_abandoned_reclaim_producer_refresh=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_route=abandoned_reclaim_producer_refresh$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_family=abandoned_reclaim$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=AbandonedReclaim$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_next_producer_slice=product_activation_preflight_refresh$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_open=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^page_local_route_body_join_open=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^tls_backing_transfer_enabled=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^allocator_owner_slot_reuse_enabled=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^allocator_owner_generation_bump_count=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^abandoned_reclaim_selected=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^abandoned_reclaim_enabled=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^page_reclaimed_with_remote_candidates=0$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^product_activation=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^hook_install=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^global_allocator_claim=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+grep -q '^winner_claim=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT" \
+  --format kv \
+  --out "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
+
+grep -q '^summary=ok$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
+grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \

@@ -120,6 +120,10 @@ def abandoned_reclaim_preflight_refresh_profile(rows: Mapping[str, str]) -> bool
     return _profile_flag(rows, "fastmem_abandoned_reclaim_preflight_refresh")
 
 
+def abandoned_reclaim_producer_refresh_profile(rows: Mapping[str, str]) -> bool:
+    return _profile_flag(rows, "fastmem_abandoned_reclaim_producer_refresh")
+
+
 def abandoned_reclaim_producer_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_abandoned_reclaim_producer_pilot")
 
@@ -474,6 +478,31 @@ ABANDONED_RECLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE = (
     "allocator_owner_slot_reuse_enabled",
     "allocator_owner_generation_bump_count",
     "abandoned_reclaim_selected",
+    "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_free_route_cfg_lowering_enabled",
+)
+
+ABANDONED_RECLAIM_PRODUCER_REFRESH_EXPECTED_ZERO = (
+    "page_reclaimed_with_remote_candidates",
+    "allocator_owner_reuse_without_generation_bump_count",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+
+ABANDONED_RECLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE = (
+    "fastmem_abandoned_reclaim_producer_refresh",
+    "terminal_ladder_refresh_open",
+    "page_local_route_body_join_open",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_selected",
+    "allocator_owner_slot_reuse_enabled",
+    "allocator_owner_generation_bump_count",
+    "abandoned_reclaim_selected",
+    "abandoned_reclaim_enabled",
     "page_local_alloc_route_cfg_lowering_enabled",
     "page_local_free_route_cfg_lowering_enabled",
 )

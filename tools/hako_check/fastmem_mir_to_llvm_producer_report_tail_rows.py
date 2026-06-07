@@ -74,6 +74,9 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     owner_slot_reuse_producer = state.get("owner_slot_reuse_producer", False)
     owner_slot_reuse_or_later = state.get("owner_slot_reuse_or_later", False)
     abandoned_reclaim_preflight = state.get("abandoned_reclaim_preflight", False)
+    abandoned_reclaim_producer_refresh = state.get(
+        "abandoned_reclaim_producer_refresh", False
+    )
     abandoned_reclaim_producer = state.get("abandoned_reclaim_producer", False)
     abandoned_reclaim_or_later = state.get("abandoned_reclaim_or_later", False)
     product_activation_preflight = state.get("product_activation_preflight", False)
@@ -247,7 +250,16 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ),
         ("allocator_owner_reuse_without_generation_bump_count", "0"),
         ("abandoned_reclaim_selected", str(int_flag(abandoned_reclaim_or_later))),
-        ("abandoned_reclaim_enabled", str(int_flag(abandoned_reclaim_producer or product_activation_or_later))),
+        (
+            "abandoned_reclaim_enabled",
+            str(
+                int_flag(
+                    abandoned_reclaim_producer
+                    or abandoned_reclaim_producer_refresh
+                    or product_activation_or_later
+                )
+            ),
+        ),
         ("product_activation_selected", str(int_flag(product_activation_or_later))),
         ("hook_install_selected", str(int_flag(hook_install_or_later))),
         ("global_allocator_claim_selected", str(int_flag(global_allocator_claim_or_later))),
