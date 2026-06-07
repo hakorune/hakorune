@@ -11,6 +11,7 @@
 mod fact_store;
 mod field;
 mod linked_list;
+mod remote;
 mod table;
 mod types;
 
@@ -19,9 +20,7 @@ use crate::mir::{
     fastmem_layout_contract::{
         resolve_fastmem_block_next_contract, resolve_fastmem_field_contract,
     },
-    function::{
-        FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind,
-    },
+    function::{FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind},
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use fact_store::{collect_remote_drain_token_facts, region_contract, FastMemFactStore};
@@ -29,6 +28,7 @@ use field::field_plan;
 use linked_list::{
     resolve_linked_list_plan_core, FastMemLinkedListFamily, ResolvedLinkedListPlanCore,
 };
+use remote::{atomic_remote_head_plan, drain_remote_list_to_local_plan};
 use table::{table_field_access_links, table_plan};
 pub use types::{
     FastMemAccessPlan, FastMemAccessPlanKind, FastMemAccessPlanPayload, FastMemAccessPlanStatus,
@@ -445,212 +445,6 @@ fn free_head_plan(
             remote_owner_rejected,
             lowerable,
         }),
-    })
-}
-
-fn atomic_remote_head_plan(
-    block: BasicBlockId,
-    instruction_index: usize,
-    region: FastMemRegionId,
-    kind: FastMemAccessPlanKind,
-    dst: Option<ValueId>,
-    operands: &[ValueId],
-    contract: Option<&str>,
-    facts: &FastMemFactStore<'_>,
-) -> Option<FastMemAccessPlan> {
-    let page = operands.first().copied()?;
-    let block_value = if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
-        operands.get(1).copied()
-    } else {
-        None
-    };
-    let head_access = resolve_head_access(contract, "remote_head", FastMemFieldAccessMode::Load);
-    let block_next_field_id = "next";
-    let block_next_fact = block_value.and_then(|block_value| {
-        facts.block_next(region, block_value).filter(|fact| {
-            fact.next_field_id == block_next_field_id
-                && fact.writable
-                && fact.provenance_valid
-                && fact.proof_kind == FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext
-        })
-    });
-    let block_next_access = if let Some(fact) = block_next_fact {
-        resolve_block_next_access(contract, &fact.next_field_id)
-    } else {
-        ResolvedBlockNextAccess::default()
-    };
-    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
-    let remote_owner_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
-    let remote_owner_proof_valid = if remote_owner_required {
-        facts
-            .remote_owner(region, page)
-            .map_or(false, |fact| fact.same_owner_rejected)
-    } else {
-        false
-    };
-    let block_next_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
-    let memory_order_policy = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-        "acquire_exchange".to_string()
-    } else {
-        "acq_rel".to_string()
-    };
-    let retry_attempt_limit = if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
-        3
-    } else {
-        0
-    };
-    let lowerable = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-        head_access.is_resolved()
-    } else {
-        kind == FastMemAccessPlanKind::AtomicRemoteHeadPush
-            && head_access.is_resolved()
-            && remote_owner_proof_valid
-            && block_next_proof_valid
-    };
-    let status = if lowerable {
-        FastMemAccessPlanStatus::Verified
-    } else {
-        FastMemAccessPlanStatus::Rejected
-    };
-    let failure_reason = head_access.failure_reason.clone().or_else(|| {
-        if lowerable {
-            None
-        } else if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-            Some("atomic-remote-head-drain-plan-not-lowerable".to_string())
-        } else if !remote_owner_proof_valid {
-            Some("atomic-remote-head-remote-owner-proof-missing".to_string())
-        } else if !block_next_proof_valid {
-            Some("atomic-remote-head-block-next-proof-missing".to_string())
-        } else {
-            Some("atomic-remote-head-cas-lowering-closed".to_string())
-        }
-    });
-
-    Some(FastMemAccessPlan {
-        block,
-        instruction_index,
-        region,
-        kind,
-        status,
-        failure_reason,
-        payload: FastMemAccessPlanPayload::AtomicRemoteHead(FastMemAtomicRemoteHeadPlan {
-            page,
-            block: block_value,
-            result: dst,
-            remote_head_layout_id: head_access.layout_id,
-            remote_head_field_id: head_access.field_id,
-            remote_head_field_class: head_access.field_class,
-            remote_head_byte_offset: head_access.byte_offset,
-            remote_head_field_size: head_access.field_size,
-            remote_head_field_type: head_access.field_type,
-            remote_head_alignment: head_access.alignment,
-            block_next_layout_id: block_next_access.layout_id,
-            block_next_field_id: block_next_access.field_id,
-            block_next_field_class: block_next_access.field_class,
-            block_next_byte_offset: block_next_access.byte_offset,
-            block_next_field_size: block_next_access.field_size,
-            block_next_field_type: block_next_access.field_type,
-            block_next_alignment: block_next_access.alignment,
-            remote_owner_required,
-            remote_owner_proof_valid,
-            block_next_required,
-            block_next_proof_valid,
-            memory_order_policy,
-            retry_attempt_limit,
-            lowerable,
-        }),
-    })
-}
-
-fn drain_remote_list_to_local_plan(
-    block: BasicBlockId,
-    instruction_index: usize,
-    region: FastMemRegionId,
-    dst: Option<ValueId>,
-    operands: &[ValueId],
-    facts: &FastMemFactStore<'_>,
-) -> Option<FastMemAccessPlan> {
-    if dst.is_some() {
-        return None;
-    }
-    let page = operands.first().copied()?;
-    let token = operands.get(1).copied()?;
-    let token_fact = facts.remote_drain_token(region, page, token);
-    let token_provenance_valid = token_fact.is_some();
-    let page_operand_valid = token_provenance_valid;
-    let contract = facts.region_contract(region);
-    let local_free_head =
-        resolve_head_access(contract, "local_free_head", FastMemFieldAccessMode::Store);
-    let block_next_access = resolve_block_next_access(contract, "next");
-    let head_class_resolved = token_provenance_valid && local_free_head.is_resolved();
-    let block_next_access_resolved = block_next_access.is_resolved();
-    let local_list_head_class =
-        head_class_resolved.then(|| "owner_local_free_or_free_head".to_string());
-    let publication_order = if head_class_resolved {
-        "verifier_owned_acquire_then_owner_local"
-    } else {
-        "closed"
-    }
-    .to_string();
-    let lowerable = token_provenance_valid
-        && page_operand_valid
-        && head_class_resolved
-        && block_next_access_resolved;
-    let status = if lowerable {
-        FastMemAccessPlanStatus::Verified
-    } else {
-        FastMemAccessPlanStatus::Rejected
-    };
-    let failure_reason = if lowerable {
-        None
-    } else if !token_provenance_valid {
-        Some("drain-remote-list-token-provenance-missing".to_string())
-    } else if !page_operand_valid {
-        Some("drain-remote-list-page-operand-mismatch".to_string())
-    } else if !head_class_resolved {
-        Some("drain-remote-list-target-head-class-unresolved".to_string())
-    } else if !block_next_access_resolved {
-        Some("drain-remote-list-block-next-access-unresolved".to_string())
-    } else {
-        Some("drain-remote-list-to-local-lowering-closed".to_string())
-    };
-
-    Some(FastMemAccessPlan {
-        block,
-        instruction_index,
-        region,
-        kind: FastMemAccessPlanKind::DrainRemoteListToLocal,
-        status,
-        failure_reason,
-        payload: FastMemAccessPlanPayload::DrainRemoteListToLocal(
-            FastMemDrainRemoteListToLocalPlan {
-                page,
-                token,
-                token_source_block: token_fact.map(|fact| fact.block),
-                token_source_instruction_index: token_fact.map(|fact| fact.instruction_index),
-                token_provenance_valid,
-                page_operand_valid,
-                head_class_resolved,
-                local_list_head_class,
-                local_free_head_layout_id: local_free_head.layout_id,
-                local_free_head_field_id: local_free_head.field_id,
-                local_free_head_field_class: local_free_head.field_class,
-                local_free_head_byte_offset: local_free_head.byte_offset,
-                local_free_head_field_size: local_free_head.field_size,
-                local_free_head_field_type: local_free_head.field_type,
-                local_free_head_alignment: local_free_head.alignment,
-                block_next_layout_id: block_next_access.layout_id,
-                block_next_field_id: block_next_access.field_id,
-                block_next_field_class: block_next_access.field_class,
-                block_next_byte_offset: block_next_access.byte_offset,
-                block_next_field_size: block_next_access.field_size,
-                block_next_field_type: block_next_access.field_type,
-                block_next_alignment: block_next_access.alignment,
-                block_next_access_resolved,
-                publication_order,
-                lowerable,
-            },
-        ),
     })
 }
 
