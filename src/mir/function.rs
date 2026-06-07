@@ -10,6 +10,7 @@ mod display;
 mod facts;
 mod fastmem;
 mod function_impl;
+mod metadata;
 mod module_impl;
 mod object_metadata;
 mod types;
@@ -40,8 +41,9 @@ pub use object_metadata::{
     SourcePackedArrayDirectReadConsumptionPlan, TypedObjectFieldPlan, TypedObjectFieldStorage,
     TypedObjectPlan, UserBoxFieldDecl,
 };
+pub use metadata::FunctionMetadata;
 pub use types::{
     ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
-    FunctionMetadata, FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl,
-    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, StaticDataPlan,
+    FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
+    MirParamDecl, ModuleMetadata, ModuleStats, StaticDataPlan,
 };
