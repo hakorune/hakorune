@@ -341,10 +341,10 @@ Related:
   perform page release, realloc, pointer arithmetic, or native metal work.
 - `page_map_release_box.hako` owns M172 page-map-backed release orchestration.
   It may call `HakoAllocPageMapBridge.lookup(...)`,
-  `HakoAllocPageModel.releaseLocal(...)`, and
-  `HakoAllocPageMapBridge.unregister(...)`, but it must not own registration,
-  realloc, aligned/huge allocation, OSVM release, provider hooks, or allocator
-  replacement.
+  `HakoAllocPageMetaSameRemoteFreePublishBody.sameRemoteFreePublishBodyProbe(...)`,
+  and `HakoAllocPageMapBridge.unregister(...)`, but it must not own
+  registration, realloc, aligned/huge allocation, OSVM release, provider hooks,
+  or allocator replacement.
 - `page_map_release_invariant_box.hako` owns M173 pre-realloc release
   observation. It may call `HakoAllocPageMap.lookup(...)` and
   `HakoAllocPageMapReleaseSeam.releasePtr(...)` to freeze handle lifetime and

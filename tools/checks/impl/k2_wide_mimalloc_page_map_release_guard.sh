@@ -57,8 +57,9 @@ guard_expect_in_file "$TAG" 'box HakoAllocPageMapReleaseSeam' "$PAGE_RELEASE" "M
 guard_expect_in_file "$TAG" 'birth\(page_map\)' "$PAGE_RELEASE" "M172 release seam must take the page-map owner explicitly"
 guard_expect_in_file "$TAG" 'releasePtr\(ptr\)' "$PAGE_RELEASE" "M172 release seam must expose releasePtr"
 guard_expect_in_file "$TAG" 'page_map_bridge\.lookup\(ptr\)' "$PAGE_RELEASE" "M172 must resolve pointer ownership through HakoAllocPageMapBridge.lookup"
-guard_expect_in_file "$TAG" 'page\.releaseLocal\(entry\.block_id\)' "$PAGE_RELEASE" "M172 must delegate block release to HakoAllocPageModel.releaseLocal"
-guard_expect_in_file "$TAG" 'page_map_bridge\.unregister\(ptr\)' "$PAGE_RELEASE" "M172 must unregister ownership after page-local release succeeds"
+guard_expect_in_file "$TAG" 'page\.blockIsLive\(entry\.block_id\)' "$PAGE_RELEASE" "M172 must reject dead blocks before publish"
+guard_expect_in_file "$TAG" 'me\.same_remote_free_publish_body\.sameRemoteFreePublishBodyProbe\(page, entry\.block_id, same_owner\)' "$PAGE_RELEASE" "M172 must compose the same/remote free publish body"
+guard_expect_in_file "$TAG" 'page_map_bridge\.unregister\(ptr\)' "$PAGE_RELEASE" "M172 must unregister ownership after publish body succeeds"
 guard_expect_in_file "$TAG" 'page_count: usize = 0' "$PAGE_RELEASE" "release seam page_count must be exact usize"
 guard_expect_in_file "$TAG" 'page_register_count: usize = 0' "$PAGE_RELEASE" "release seam page-register counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_count: usize = 0' "$PAGE_RELEASE" "release seam release counter must be exact usize"
@@ -103,7 +104,7 @@ if rg -n '&&' "$APP" >/tmp/"$TAG".proof_conjunction 2>&1; then
 fi
 rm -f /tmp/"$TAG".proof_conjunction
 
-if rg -n 'realloc|aligned|huge|secure|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|OSVM|OsVm|provider|hook|replacement|hako_mem_|externcall|unreserve|release_bytes|hako_osvm_(unreserve|release)' \
+if rg -n 'realloc|aligned|huge|secure|fetch_add|cas_|load_ordered|store_ordered|OSVM|OsVm|provider|hook|replacement|hako_mem_|externcall|unreserve|release_bytes|hako_osvm_(unreserve|release)' \
   "$PAGE_RELEASE" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
   echo "[$TAG] ERROR: M172 leaked out of page-map-backed release scope" >&2
   cat /tmp/"$TAG".forbidden >&2
@@ -156,7 +157,7 @@ required = {
     "HakoAllocPageMapReleaseSeam.birth/1",
     "HakoAllocPageMapReleaseSeam.addPage/1",
     "HakoAllocPageMapReleaseSeam.releasePtr/1",
-    "HakoAllocPageModel.releaseLocal/1",
+    "HakoAllocPageMetaSameRemoteFreePublishBody.sameRemoteFreePublishBodyProbe/3",
     "ProofCheck.expect/2",
     "ProofCheck.ok/0",
 }
@@ -233,7 +234,12 @@ def require_method_route(owner_name, box_name, method, ret_shape):
 require_method_route("HakoAllocPageMapBridge.lookup/1", "HakoAllocPageMap", "lookup", "object_handle")
 require_method_route("HakoAllocPageMapBridge.unregister/1", "HakoAllocPageMap", "unregister", "scalar_i64")
 require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageMapBridge", "lookup", "object_handle")
-require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageModel", "releaseLocal", "scalar_i64")
+require_method_route(
+    "HakoAllocPageMapReleaseSeam.releasePtr/1",
+    "HakoAllocPageMetaSameRemoteFreePublishBody",
+    "sameRemoteFreePublishBodyProbe",
+    "scalar_i64",
+)
 require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageMapBridge", "unregister", "scalar_i64")
 PY
 

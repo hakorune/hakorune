@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-110.
 Related:
@@ -82,4 +82,20 @@ changing page-local release semantics
 ```bash
 bash tools/checks/impl/k2_wide_mimalloc_page_map_release_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Landed
+
+```text
+HakoAllocPageMapReleaseSeam now resolves caller-visible release ownership
+through HakoAllocPageMapBridge.lookup/unregister while keeping the next same/
+remote publish body connection separate. The bridge stays page-map-local and
+does not open pointer arithmetic, PageKey/AddressToken derivation, product
+activation, hooks, or global allocator claims.
+```
+
+## Closeout
+
+```text
+next: 296x-610 MIM-PORT-FMEM-111 PageMapRelease same/remote publish body connection
 ```

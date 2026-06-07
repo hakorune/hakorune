@@ -1,0 +1,37 @@
+// page_meta_same_remote_free_publish_body_runtime_box.hako -- runtime same/remote free publish body bridge
+// Responsibility: keep the page-map release seam executable in the VM by
+// composing the page lookup result with the landed page-local release path.
+// The fastmem proof fixture remains in `page_meta_same_remote_free_publish_body_box.hako`.
+// This runtime bridge does not own page-map lookup, bridge registration,
+// pointer-derived lookup, TLS transfer, product allocator replacement, hooks,
+// or winner claims.
+
+box HakoAllocPageMetaSameRemoteFreePublishBody {
+    birth() {
+    }
+
+    sameRemoteFreePublishBodyProbe(page, block, same_owner) {
+        if page == null {
+            return -1
+        }
+
+        if page.blockIsLive(block) == 0 {
+            return -1
+        }
+
+        if same_owner {
+            local released = page.releaseLocalKnownLive(block)
+            if released == 0 {
+                return -1
+            }
+            return page.used
+        }
+
+        local released = page.releaseLocalKnownLive(block)
+        if released == 0 {
+            return -1
+        }
+
+        return page.used
+    }
+}

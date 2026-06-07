@@ -134,6 +134,8 @@ Current modules
 - `page_map_aligned_small_path_box.hako`
 - `page_map_release_box.hako`
 - `page_map_release_invariant_box.hako`
+- `page_meta_same_remote_free_publish_body_box.hako`
+- `page_meta_same_remote_free_publish_body_runtime_box.hako`
 - `page_map_realloc_alloc_copy_release_box.hako`
 - `page_map_realloc_failure_contract_box.hako`
 - `page_map_realloc_same_class_box.hako`

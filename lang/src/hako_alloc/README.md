@@ -89,9 +89,9 @@ Principles
     composition remains a later row.
   - `HakoAllocPageMapReleaseSeam` is the M172 release orchestration owner. It
     takes an explicit `HakoAllocPageMap`, resolves ownership through the
-    explicit page-map bridge, delegates block mutation to
-    `HakoAllocPageModel.releaseLocal(...)`, and unregisters only after
-    page-local release succeeds.
+    explicit page-map bridge, composes the landed same/remote free publish
+    body from `HakoAllocPageMetaSameRemoteFreePublishBody`, and unregisters
+    only after the publish body succeeds.
   - `HakoAllocPageMapReleaseObserver` is the M173 invariant observer owner. It
     observes live-handle state around `HakoAllocPageMapReleaseSeam.releasePtr(...)`
     so realloc rows can reuse a frozen success-vs-reject contract without taking
