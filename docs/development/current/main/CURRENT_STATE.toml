@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-08"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-607 landed MIM-PORT-FMEM-108 PageMapRelease pointer lookup preflight selection; 296x-608 source-syntax smoke manifest runner seed, 608B new-body manifest routing, 608C legacy group migration, 608D expectation split, and 608E bespoke-block retirement are all landed; 296x-609 PageMapRelease pointer lookup bridge, 296x-610 same/remote publish body connection, 296x-611 realloc guard refresh closeout, 296x-612 hako_alloc next body slice selection, 296x-613 local-free-to-free refill manifest promotion, 296x-614 remaining fastmem target inventory, 296x-615..617 source body manifest promotions, 296x-618 remaining source-syntax smoke retirement task order, 296x-619 page-local alloc route CFG preflight manifest promotion, and 296x-620 page-local alloc route CFG producer profile promotion are done; 296x-621 page-local route body join preflight promotion opens next."
+active_lane_status = "296x-607 landed MIM-PORT-FMEM-108 PageMapRelease pointer lookup preflight selection; 296x-608 source-syntax smoke manifest runner seed, 608B new-body manifest routing, 608C legacy group migration, 608D expectation split, and 608E bespoke-block retirement are all landed; 296x-609 PageMapRelease pointer lookup bridge, 296x-610 same/remote publish body connection, 296x-611 realloc guard refresh closeout, 296x-612 hako_alloc next body slice selection, 296x-613 local-free-to-free refill manifest promotion, 296x-614 remaining fastmem target inventory, 296x-615..617 source body manifest promotions, 296x-618 remaining source-syntax smoke retirement task order, 296x-619 page-local alloc route CFG preflight manifest promotion, 296x-620 page-local alloc route CFG producer profile promotion, and 296x-621..622 page-local route body join preflight/producer promotion are done; 296x-623 terminal ladder shared-input split opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-620-MIM-PORT-FMEM-121-PAGE-LOCAL-ALLOC-ROUTE-CFG-PRODUCER-PROFILE-PROMOTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-620-MIM-PORT-FMEM-121-PAGE-LOCAL-ALLOC-ROUTE-CFG-PRODUCER-PROFILE-PROMOTION.md"
-latest_card_summary = "page-local alloc route CFG producer evidence is now manifest-backed while the shell keeps only the shared AST/MIR generation for downstream route-body join and terminal ladder checks; 296x-621 opens page-local route body join preflight promotion."
-current_blocker_token = "296x-621"
+latest_card = "296x-622-MIM-PORT-FMEM-123-PAGE-LOCAL-ROUTE-BODY-JOIN-PRODUCER-PROFILE-PROMOTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-622-MIM-PORT-FMEM-123-PAGE-LOCAL-ROUTE-BODY-JOIN-PRODUCER-PROFILE-PROMOTION.md"
+latest_card_summary = "page-local route body join preflight and producer evidence are now manifest-backed while the shell keeps only shared AST/MIR generation for downstream terminal ladder checks; 296x-623 opens terminal ladder shared-input split."
+current_blocker_token = "296x-623"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-08: 296x-622 landed MIM-PORT-FMEM-123 page-local route body join producer profile promotion: page-local route body join producer evidence is now manifest-backed while the shell keeps only shared AST/MIR generation for downstream terminal ladder checks; 296x-623 terminal ladder shared-input split opens next.",
+  "2026-06-08: 296x-621 landed MIM-PORT-FMEM-122 page-local route body join preflight promotion: page-local route body join preflight evidence is now manifest-backed while the shell keeps only shared AST/MIR generation for later terminal ladder checks; 296x-622 page-local route body join producer profile promotion opens next.",
   "2026-06-08: 296x-620 landed MIM-PORT-FMEM-121 page-local alloc route CFG producer profile promotion: page-local alloc route CFG producer evidence is now manifest-backed while the shell keeps only shared AST/MIR generation for downstream route-body join and terminal ladder checks; 296x-621 page-local route body join preflight promotion opens next.",
   "2026-06-08: 296x-619 landed MIM-PORT-FMEM-120 page-local alloc route CFG preflight manifest promotion: page_meta_page_local_alloc_route_cfg_preflight_box.hako is now manifest-backed while the shell keeps only shared AST/MIR generation for later route-body join and terminal ladder checks; 296x-620 page-local alloc route CFG producer profile promotion opens next.",
   "2026-06-08: 296x-618 landed MIM-PORT-FMEM-119 remaining source-syntax smoke retirement task order: shell-owned FastMemory targets are classified into manifest-ready precondition rows, vocabulary/failure fixture rows, branch/routing rows, and shared-input-only MIR generation; 296x-619 page-local alloc route CFG preflight manifest promotion opens next.",
