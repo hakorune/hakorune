@@ -1,0 +1,19 @@
+schema_version = 0
+
+[[fixtures]]
+id = "SAME_REMOTE_FREE_PUBLISH_BODY"
+label = "same/remote free publish body preflight"
+source = "lang/src/hako_alloc/memory/page_meta_same_remote_free_publish_body_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "local-free"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body.local.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body.local.check.expected.kv"
+
+[[fixtures.producers]]
+profile = "remote-free"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body.remote.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body.remote.check.expected.kv"

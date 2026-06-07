@@ -55,6 +55,16 @@ runner:
   runs fastmem-check for listed reports
 ```
 
+## 608A Status
+
+```text
+seed manifest runner landed:
+  tools/hako_check/fastmem_source_manifest_runner.py
+  tools/hako_check/fastmem_source_syntax_smoke.sh now calls it for the landed
+  same/remote free publish body seed fixture
+  legacy shell assertions stay in place
+```
+
 ## Migration Rule After This Row
 
 ```text

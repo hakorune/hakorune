@@ -19,6 +19,13 @@ cleanup() {
 }
 trap cleanup EXIT
 
+run_fastmem_source_manifest_seed() {
+  python3 "$ROOT/tools/hako_check/fastmem_source_manifest_runner.py" \
+    --manifest "$ROOT/tools/hako_check/manifests/fastmem_source_syntax_smoke.toml"
+}
+
+run_fastmem_source_manifest_seed
+
 emit_fastmem_producer_report() {
   local profile="$1"
   local mir_json="$2"
