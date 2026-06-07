@@ -1,0 +1,37 @@
+// page_meta_page_local_alloc_route_cfg_preflight_box.hako
+// MIM-PORT-FMEM-076: page-local allocation route CFG preflight.
+//
+// This fixture expresses the branch envelope that will eventually choose
+// between landed straight-line allocation bodies. The row is report/check-only:
+// it does not open path-sensitive allocation execution, LayoutRef joins,
+// multi-block refill, TLS transfer, product activation, hooks, allocator
+// claims, or winner claims.
+
+static box HakoAllocPageMetaPageLocalAllocRouteCfgPreflight {
+    pageLocalAllocRouteCfgPreflightProbe(page_table, page_index) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local current = mem.currentAllocOwnerId()
+            local same = mem.ownerEq(page.owner_worker_id, current)
+            mem.assumeSameOwner(page, same)
+
+            if same {
+                mem.assumeLocalFreeNonEmpty(page)
+                local local_popped = mem.localFreePop(page)
+                local local_used = page.used
+                local local_next_used = local_used + 1
+                page.used = local_next_used
+            } else {
+                mem.assumeFreeHeadNonEmpty(page)
+                local free_popped = mem.freeHeadPop(page)
+                local free_used = page.used
+                local free_next_used = free_used + 1
+                page.used = free_next_used
+            }
+            return page.used
+        }
+        return 0
+    }
+}

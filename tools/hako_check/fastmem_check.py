@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from fastmem_route_profiles import (
+    PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_POSITIVE,
+    PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_ZERO,
+    page_local_alloc_route_cfg_preflight_profile,
+)
 from report_kv import read_kv
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -2789,6 +2794,38 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         for key in SAME_REMOTE_FREE_BODY_PRODUCER_EXPECTED_POSITIVE:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
+    if page_local_alloc_route_cfg_preflight_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            "page_local_alloc_route_cfg_preflight"
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != (
+            "page_local_alloc_route_cfg"
+        ):
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != (
+            "PageLocalAllocRouteCfg"
+        ):
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "page_local_alloc_route_cfg_producer_pilot"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        if "PageLocalAllocRouteCfgProducer" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+        return reasons
     if page_local_free_route_cfg_preflight_profile(rows):
         if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
             reasons.append("replacement_front_producer")

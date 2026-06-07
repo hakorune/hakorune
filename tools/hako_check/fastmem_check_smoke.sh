@@ -888,6 +888,34 @@ grep -q '^failure_0_reason=same_remote_free_body_lowered_count$' \
   "$BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
 grep -q '^summary=failed$' "$BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
 
+PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_page_local_alloc_route_cfg_preflight.XXXXXX")"
+BAD_PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_page_local_alloc_route_cfg_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/page_local_alloc_route_cfg_preflight_inventory.kv" \
+  --format kv \
+  >"$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected page-local alloc route CFG preflight inventory" >&2
+  cat "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_page_local_alloc_route_cfg_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad page-local alloc route CFG preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=page_local_alloc_route_cfg_lowering_enabled$' \
+  "$BAD_PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_OUT"
+
 PAGE_LOCAL_FREE_ROUTE_CFG_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_page_local_free_route_cfg_preflight.XXXXXX")"
 BAD_PAGE_LOCAL_FREE_ROUTE_CFG_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_page_local_free_route_cfg_preflight.XXXXXX")"
 

@@ -91,6 +91,42 @@ row must keep CFG lowering disabled. If the current builder rejects source
 branching for this shape, the report/check surface should still be able to
 select the row without claiming execution.
 
+### Fixture Shape
+
+Use the smallest branch shape that the current MIRBuilder can represent:
+
+```hako
+if same_owner {
+    page.used = next_local_used
+} else {
+    page.used = next_free_used
+}
+return page.used
+```
+
+Do not use branch-local returns in this row:
+
+```hako
+if same_owner {
+    return local_result
+} else {
+    return free_result
+}
+```
+
+That shape currently trips the MIRBuilder lexical-scope guard:
+
+```text
+[freeze:contract][lexical_scope/unbalanced_pop]
+```
+
+MIM-PORT-FMEM-076 should not fix that. It is a separate builder acceptance
+shape, tracked by:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-575-MIR-BUILDER-FASTMEM-BRANCH-RETURN-SCOPE-FIX.md
+```
+
 ## Acceptance Sketch
 
 ```text
@@ -109,6 +145,7 @@ git diff --check passes
 ```text
 implementing page-local alloc route CFG producer lowering
 opening source allocation branch execution
+accepting fastmem branch-local return shapes
 retiring diagnostic Python-template C bridge
 changing product activation or allocator claim behavior
 ```
