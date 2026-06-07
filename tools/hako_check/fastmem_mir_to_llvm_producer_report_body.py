@@ -910,6 +910,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or terminal_ladder_refresh_preflight
                     or tls_backing_transfer_preflight_refresh
                     or tls_backing_transfer_producer_refresh
+                    or owner_slot_reuse_preflight_refresh
                 )
             ),
         ),
@@ -920,6 +921,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     terminal_ladder_refresh_preflight
                     or tls_backing_transfer_preflight_refresh
                     or tls_backing_transfer_producer_refresh
+                    or owner_slot_reuse_preflight_refresh
                 )
             ),
         ),
@@ -929,6 +931,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                 int_flag(
                     tls_backing_transfer_preflight_refresh
                     or tls_backing_transfer_producer_refresh
+                    or owner_slot_reuse_preflight_refresh
                 )
             ),
         ),
@@ -958,6 +961,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                 int_flag(
                     page_local_alloc_route_cfg_producer
                     or page_local_route_body_join_any
+                    or tls_backing_transfer_or_later
                 )
             ),
         ),

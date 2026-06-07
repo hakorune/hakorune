@@ -245,6 +245,10 @@ def tls_backing_transfer_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_tls_backing_transfer_producer_pilot") > 0
 
 
+def owner_slot_reuse_preflight_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_allocator_owner_slot_reuse_preflight_refresh") > 0
+
+
 def owner_slot_reuse_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_allocator_owner_slot_reuse_preflight") > 0
 

@@ -96,6 +96,10 @@ def tls_backing_transfer_producer_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_tls_backing_transfer_producer_pilot")
 
 
+def owner_slot_reuse_preflight_refresh_profile(rows: Mapping[str, str]) -> bool:
+    return _profile_flag(rows, "fastmem_allocator_owner_slot_reuse_preflight_refresh")
+
+
 def owner_slot_reuse_preflight_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_allocator_owner_slot_reuse_preflight")
 
@@ -392,5 +396,27 @@ TLS_BACKING_TRANSFER_PRODUCER_REFRESH_EXPECTED_POSITIVE = (
     "page_local_alloc_route_cfg_selected",
     "page_local_alloc_route_cfg_lowering_enabled",
     "page_local_free_route_cfg_selected",
+    "page_local_free_route_cfg_lowering_enabled",
+)
+
+OWNER_SLOT_REUSE_PREFLIGHT_REFRESH_EXPECTED_ZERO = (
+    "allocator_owner_slot_reuse_enabled",
+    "allocator_owner_reuse_without_generation_bump_count",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+
+OWNER_SLOT_REUSE_PREFLIGHT_REFRESH_EXPECTED_POSITIVE = (
+    "fastmem_allocator_owner_slot_reuse_preflight_refresh",
+    "terminal_ladder_refresh_open",
+    "page_local_route_body_join_open",
+    "tls_backing_transfer_selected",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_selected",
+    "page_local_alloc_route_cfg_lowering_enabled",
     "page_local_free_route_cfg_lowering_enabled",
 )
