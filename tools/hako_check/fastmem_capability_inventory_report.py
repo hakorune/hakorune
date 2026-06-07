@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import Any
 
 from fastmem_capability_inventory_common import (
@@ -12,14 +13,16 @@ from fastmem_capability_inventory_common import (
     MIMALLOC_SHAPE_DEFAULT_THRESHOLD,
     base_inventory,
     classify_remote_memory_order,
+    first_subject_value,
     int_subject_value,
+    speed_score_from_ratio,
 )
-from report_kv import int_value
+from report_kv import first_value, int_value
 
 
 def build_inventory_report(state: dict[str, Any]) -> dict[str, Any]:
     rows = state["rows"]
-    replacement = state["replacement"]
+    replacement = defaultdict(int, state["replacement"])
     idx = state["idx"]
 
     free_path_route = state["free_path_route"]
@@ -31,6 +34,7 @@ def build_inventory_report(state: dict[str, Any]) -> dict[str, Any]:
     smoke_remote_overflow_count = state["smoke_remote_overflow_count"]
     remote_free_push_count = state["remote_free_push_count"]
     remote_free_drain_count = state["remote_free_drain_count"]
+    tls_arena_count = state["tls_arena_count"]
     atomic_remote_head_plan = state["atomic_remote_head_plan"]
     atomic_remote_enabled = state["atomic_remote_enabled"]
     page_map_bridge_present = state["page_map_bridge_present"]
