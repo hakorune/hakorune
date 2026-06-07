@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-101.
 Related:
@@ -37,6 +37,30 @@ refresh report flags are emitted from REFRESH_PROFILE_SPECS
 explicit per-refresh flag row list is removed or reduced
 fastmem_check_smoke stays green
 fastmem_source_syntax_smoke stays green
+```
+
+## Landed Evidence
+
+```text
+fastmem_mir_to_llvm_producer_report_route_rows.py:
+  refresh_flag_rows = [(spec.report_flag, int(profile == spec.profile))]
+
+explicit per-refresh flag row block removed from slice_rows
+emitted KV key compatibility preserved
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+296x-601 MIM-PORT-FMEM-102 producer refresh boolean/import cleanup.
 ```
 
 ## Verification

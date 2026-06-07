@@ -52,6 +52,7 @@ from fastmem_route_profiles import (
     winner_claim_producer_profile,
     winner_claim_producer_refresh_profile,
     REFRESH_PROFILE_NAMES,
+    REFRESH_PROFILE_SPECS,
     refresh_profile_spec,
 )
 
@@ -61,6 +62,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
     profile = state["profile"]
     refresh_spec = refresh_profile_spec(profile)
+    refresh_flag_rows = [
+        (spec.report_flag, str(int_flag(profile == spec.profile)))
+        for spec in REFRESH_PROFILE_SPECS
+    ]
     selected_local_free_kinds = state["selected_local_free_kinds"]
     verified_free_head_pop = state["verified_free_head_pop"]
     verified_free_head_push = state["verified_free_head_push"]
@@ -817,18 +822,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 "fastmem_page_local_route_body_join_producer_pilot",
                 str(int_flag(page_local_route_body_join_producer)),
             ),
-            (
-                "fastmem_terminal_ladder_refresh_preflight",
-                str(int_flag(terminal_ladder_refresh_preflight)),
-            ),
-            (
-                "fastmem_tls_backing_transfer_preflight_refresh",
-                str(int_flag(tls_backing_transfer_preflight_refresh)),
-            ),
-            (
-                "fastmem_tls_backing_transfer_producer_refresh",
-                str(int_flag(tls_backing_transfer_producer_refresh)),
-            ),
+            *refresh_flag_rows,
             (
                 "fastmem_tls_backing_transfer_preflight",
                 str(int_flag(tls_backing_transfer_preflight)),
@@ -836,14 +830,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_tls_backing_transfer_producer_pilot",
                 str(int_flag(tls_backing_transfer_producer)),
-            ),
-            (
-                "fastmem_allocator_owner_slot_reuse_preflight_refresh",
-                str(int_flag(owner_slot_reuse_preflight_refresh)),
-            ),
-            (
-                "fastmem_allocator_owner_slot_reuse_producer_refresh",
-                str(int_flag(owner_slot_reuse_producer_refresh)),
             ),
             (
                 "fastmem_allocator_owner_slot_reuse_preflight",
@@ -854,14 +840,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 str(int_flag(owner_slot_reuse_producer)),
             ),
             (
-                "fastmem_abandoned_reclaim_preflight_refresh",
-                str(int_flag(abandoned_reclaim_preflight_refresh)),
-            ),
-            (
-                "fastmem_abandoned_reclaim_producer_refresh",
-                str(int_flag(abandoned_reclaim_producer_refresh)),
-            ),
-            (
                 "fastmem_abandoned_reclaim_preflight",
                 str(int_flag(abandoned_reclaim_preflight)),
             ),
@@ -870,44 +848,12 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 str(int_flag(abandoned_reclaim_producer)),
             ),
             (
-                "fastmem_product_activation_preflight_refresh",
-                str(int_flag(product_activation_preflight_refresh)),
-            ),
-            (
-                "fastmem_product_activation_producer_refresh",
-                str(int_flag(product_activation_producer_refresh)),
-            ),
-            (
                 "fastmem_product_activation_preflight",
                 str(int_flag(product_activation_preflight)),
             ),
             (
                 "fastmem_product_activation_producer_pilot",
                 str(int_flag(product_activation_producer)),
-            ),
-            (
-                "fastmem_hook_install_preflight_refresh",
-                str(int_flag(hook_install_preflight_refresh)),
-            ),
-            (
-                "fastmem_hook_install_producer_refresh",
-                str(int_flag(hook_install_producer_refresh)),
-            ),
-            (
-                "fastmem_global_allocator_claim_preflight_refresh",
-                str(int_flag(global_allocator_claim_preflight_refresh)),
-            ),
-            (
-                "fastmem_global_allocator_claim_producer_refresh",
-                str(int_flag(global_allocator_claim_producer_refresh)),
-            ),
-            (
-                "fastmem_winner_claim_preflight_refresh",
-                str(int_flag(winner_claim_preflight_refresh)),
-            ),
-            (
-                "fastmem_winner_claim_producer_refresh",
-                str(int_flag(winner_claim_producer_refresh)),
             ),
             (
                 "fastmem_hook_install_preflight",
