@@ -7,6 +7,7 @@
  */
 
 mod display;
+mod fastmem;
 mod function_impl;
 mod module_impl;
 mod types;
@@ -14,24 +15,27 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub use fastmem::{
+    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
+    FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
+    FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
+    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
+    FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
+};
 pub use types::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
     ClosureBodyId, CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind,
     DirectStateFieldPlan, DirectStatePlan, ExactNumericRuntimeCheckContract,
-    ExactNumericRuntimeCheckContractKind, FastMemBlockNextFact, FastMemBlockNextProofKind,
-    FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
-    FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
-    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
-    FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
-    FastPathObligation, FunctionMetadata, FunctionSignature, FunctionStats,
-    HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
-    LoopRangeFact, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
-    ModuleMetadata, ModuleStats, RangeIndexFact, RangeIndexFactOriginKind, RecordDecl,
-    RecordLayoutFieldPlan, RecordLayoutPlan, RecordStateFieldAccessPlan,
-    RecordStateResidenceFieldPlan, RecordStateResidencePlan, RecordStateResidenceRejectedFieldPlan,
-    RegionStabilityFact, RegionStabilityProofKind, RequiredFastPathRegion,
-    SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan, SpanAccessOp,
-    SpanAccessPlan, SpanBorrowFact, SpanBorrowMutability, SpanElementType, StaticDataPlan,
-    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    ExactNumericRuntimeCheckContractKind, FastPathObligation, FunctionMetadata, FunctionSignature,
+    FunctionStats, HakoAllocAlignedSmallPackedStorePilotPlan,
+    HakoAllocHugePagePackedStorePilotPlan, LoopRangeFact, MirEnumDecl, MirEnumVariantDecl,
+    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RangeIndexFact,
+    RangeIndexFactOriginKind, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
+    RecordStateFieldAccessPlan, RecordStateResidenceFieldPlan, RecordStateResidencePlan,
+    RecordStateResidenceRejectedFieldPlan, RegionStabilityFact, RegionStabilityProofKind,
+    RequiredFastPathRegion, SourcePackedArrayAutoUsePilotPlan,
+    SourcePackedArrayDirectReadConsumptionPlan, SpanAccessOp, SpanAccessPlan, SpanBorrowFact,
+    SpanBorrowMutability, SpanElementType, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };
