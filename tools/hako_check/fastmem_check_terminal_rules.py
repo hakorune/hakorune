@@ -17,6 +17,8 @@ from fastmem_route_profiles import (
     GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
     GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE,
     GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_EXPECTED_ZERO,
+    WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
     PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_POSITIVE,
     PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_ZERO,
     PRODUCT_ACTIVATION_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
@@ -931,6 +933,35 @@ def check_terminal_rules(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE:
+            if key.endswith("_lowered_count"):
+                continue
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if winner_claim_preflight_refresh_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            "winner_claim_preflight_refresh"
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != "winner_claim":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != "WinnerClaim":
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "winner_claim_producer_refresh"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        if "WinnerClaimProducer" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE:
             if key.endswith("_lowered_count"):
                 continue
             if int_count(rows, key) <= 0:

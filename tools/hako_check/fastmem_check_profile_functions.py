@@ -329,6 +329,10 @@ def winner_claim_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_winner_claim_preflight") > 0
 
 
+def winner_claim_preflight_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_winner_claim_preflight_refresh") > 0
+
+
 def winner_claim_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_winner_claim_producer_pilot") > 0
 
