@@ -15,7 +15,7 @@ Construction SSOT:
 - Source-level construction order and the `birth` direct-call policy are fixed
   in `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`.
 - Short rule: `birth` is a constructor hook. It is fired only by `new`.
-  Direct source calls such as `obj.birth(...)` are forbidden.
+  Direct receiver calls such as `obj.birth(...)` are forbidden.
 
 ## Terms
 
@@ -65,7 +65,7 @@ Rules:
   explicit field-initializer sugar for ordinary post-construction field
   assignments.
 - `birth(...)` is a constructor hook, not an ordinary public method.
-- Direct source calls such as `obj.birth(...)` are forbidden.
+- Direct receiver `birth(...)` calls such as `obj.birth(...)` are forbidden.
 - Stored field initializers are per-instance values and run before `birth`.
 - Reuse/reset/reactivation must use explicit ordinary methods such as
   `reset`, `reactivate`, `configure`, `clear`, or `attach`.

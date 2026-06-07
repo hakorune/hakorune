@@ -10,7 +10,7 @@ policy into a parser-level negative fixture.
 `birth` remains a constructor hook fired by `new`, not a receiver-callable
 method.
 
-The parser should reject direct source receiver calls such as:
+The parser should reject direct receiver `birth(...)` calls such as:
 
 ```hako
 page.birth(PageId(0), Bytes(32), 2, 2)
@@ -28,7 +28,8 @@ box Page {
 
 - Add a focused parser/source fixture for direct receiver `birth(...)`.
 - Keep existing constructor declarations accepted.
-- Keep the improved user-facing hint for `PARSER-BIRTH-002`.
+- Keep the improved user-facing hint for `PARSER-BIRTH-002` and the
+  receiver-form wording refinement in `PARSER-BIRTH-003`.
 
 ## Stop Lines
 

@@ -22,7 +22,7 @@ new Page(PageId(0), Bytes(32), 2, 2)
 
 ## Scope
 
-- Improve the direct source receiver `birth(...)` parser error text with a
+- Improve the direct receiver `birth(...)` parser error text with an explicit
   `use new Box(...)` hint.
 - Keep the hint owned by the parser lifecycle policy helper.
 - Add a narrow test/guard that fixes the user-facing diagnostic text.
@@ -46,7 +46,7 @@ tools/checks/dev_gate.sh quick
 ## Implementation
 
 - Extended the parser lifecycle direct-birth diagnostic with
-  `use new Box(...) for construction`.
+  `direct receiver \`birth(...)\` calls are forbidden; \`birth\` is a constructor hook fired only by \`new\`; use \`new Box(...)\` for construction`.
 - Kept the diagnostic owned by `src/parser/lifecycle.rs`, with both expression
   parser paths continuing to use the shared helper.
 - Added a focused diagnostic fixture and guard.

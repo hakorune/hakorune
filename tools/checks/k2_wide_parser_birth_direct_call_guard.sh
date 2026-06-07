@@ -43,7 +43,7 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
 for path in "$CARD" "$SSOT" "$LIFECYCLE_REF"; do
-  guard_expect_in_file "$TAG" '[Dd]irect source' "$path" "$path must mention direct source birth calls"
+  guard_expect_in_file "$TAG" '[Dd]irect receiver `birth' "$path" "$path must mention direct receiver birth calls"
   guard_expect_in_file "$TAG" 'constructor hook' "$path" "$path must define birth as a constructor hook"
 done
 
@@ -52,7 +52,7 @@ guard_expect_in_file "$TAG" 'PARSER-BIRTH-002' "$TASKBOARD" "taskboard must keep
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list the parser birth direct-call guard"
 
 guard_expect_in_file "$TAG" 'DIRECT_BIRTH_CALL_EXPECTED' "$PARSER_POLICY" "parser lifecycle policy must own the direct birth call diagnostic contract"
-guard_expect_in_file "$TAG" 'direct source birth calls are forbidden' "$PARSER_POLICY" "parser lifecycle policy must forbid direct birth calls"
+guard_expect_in_file "$TAG" 'direct receiver `birth\(\.\.\.\)` calls are forbidden' "$PARSER_POLICY" "parser lifecycle policy must forbid direct receiver birth calls"
 guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CALL" "legacy expression parser must use the lifecycle rejection helper"
 guard_expect_in_file "$TAG" 'TokenType::BIRTH' "$PARSER_CALL" "legacy expression parser must inspect birth after receiver dot"
 guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CURSOR" "TokenCursor expression parser must use the lifecycle rejection helper"

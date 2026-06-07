@@ -30,7 +30,7 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
 for path in "$CARD" "$SSOT" "$LIFECYCLE_REF"; do
   guard_expect_in_file "$TAG" 'constructor hook' "$path" "$path must define birth as a constructor hook"
-  guard_expect_in_file "$TAG" '[Dd]irect source' "$path" "$path must reject direct source birth calls"
+  guard_expect_in_file "$TAG" '[Dd]irect receiver `birth' "$path" "$path must reject direct receiver birth calls"
   guard_expect_in_file "$TAG" 'new' "$path" "$path must point construction at new"
 done
 

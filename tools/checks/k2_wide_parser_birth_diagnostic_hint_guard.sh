@@ -41,13 +41,13 @@ guard_expect_in_file "$TAG" 'use new Box\(\.\.\.\)' "$CARD" "card must require t
 guard_expect_in_file "$TAG" 'REUSE-LIFECYCLE-001' "$NEXT_CARD" "next reuse lifecycle card must exist"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list the diagnostic hint guard"
 
-guard_expect_in_file "$TAG" 'direct source birth calls are forbidden' "$PARSER_POLICY" "policy helper must keep the direct call rejection"
-guard_expect_in_file "$TAG" 'use new Box\(\.\.\.\) for construction' "$PARSER_POLICY" "policy helper must own the new-expression hint"
+guard_expect_in_file "$TAG" 'direct receiver `birth\(\.\.\.\)` calls are forbidden' "$PARSER_POLICY" "policy helper must keep the direct receiver call rejection"
+guard_expect_in_file "$TAG" 'use `new Box\(\.\.\.\)` for construction' "$PARSER_POLICY" "policy helper must own the new-expression hint"
 guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CALL" "legacy parser must keep using the lifecycle policy helper"
 guard_expect_in_file "$TAG" 'direct_birth_call_error' "$PARSER_CURSOR" "TokenCursor parser must keep using the lifecycle policy helper"
 
 guard_expect_in_file "$TAG" 'parser_birth_direct_call_diagnostic_points_to_new_expression' "$TEST_FILE" "diagnostic hint fixture missing"
-guard_expect_in_file "$TAG" 'use new Box\(\.\.\.\) for construction' "$TEST_FILE" "test must assert the new-expression hint"
+guard_expect_in_file "$TAG" 'use `new Box\(\.\.\.\)` for construction' "$TEST_FILE" "test must assert the new-expression hint"
 
 cargo test -q --lib parser_birth_
 

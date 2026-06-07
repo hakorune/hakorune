@@ -17,7 +17,7 @@ Hakorune keeps construction small and explicit:
 ```text
 birth:
   constructor hook
-  direct source call forbidden
+  direct receiver `birth(...)` call forbidden
   fires only through new
 
 new:
@@ -76,7 +76,7 @@ That makes lifecycle state ambiguous and weakens verifier / allocator reasoning.
 Parser diagnostics should point users at the canonical surface:
 
 ```text
-birth is a constructor hook; use new HakoAllocPageModel(...)
+direct receiver `birth(...)` calls are forbidden; `birth` is a constructor hook fired only by `new`; use `new HakoAllocPageModel(...)` for construction
 ```
 
 Existing internal or legacy `birth` routes are compatibility residue unless a

@@ -1136,6 +1136,7 @@ allocator-provider ladder:
 | `LIFECYCLE-BIRTH-001` | landed | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | before parser widening |
 | `PARSER-BIRTH-001` | landed | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | before PARSER-BIRTH-002 |
 | `PARSER-BIRTH-002` | landed | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | before REUSE-LIFECYCLE-001 |
+| `PARSER-BIRTH-003` | landed | Refine the direct receiver `birth(...)` diagnostic wording while keeping the canonical `new Box(...)` construction hint explicit. | after PARSER-BIRTH-002 |
 | `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |
 | `REUSE-LIFECYCLE-001` | landed | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | before MIMAP-022A |
 
