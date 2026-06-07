@@ -4,6 +4,7 @@ use std::io::Write;
 mod agg_local;
 mod decls;
 mod emitters;
+mod exact_numeric;
 mod fastmem_metadata;
 mod helpers;
 mod io;
@@ -14,6 +15,7 @@ mod plan_metadata;
 mod plans;
 mod root;
 mod route_json;
+mod route_metadata;
 #[cfg(test)]
 mod tests;
 
