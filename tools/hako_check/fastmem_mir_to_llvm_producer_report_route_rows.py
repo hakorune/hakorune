@@ -780,35 +780,40 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         )
 
     def _remote_free_slice_rows() -> list[tuple[str, str]]:
+        def _remote_free_cas_producer_pilot_open() -> bool:
+            return (
+                remote_free_open
+                and not remote_free_retry_preflight
+                and not remote_free_drain_preflight
+                and not remote_free_drain_exchange_selection
+                and not remote_free_drain_exchange_producer
+                and not remote_free_drain_to_local_selection
+                and not remote_free_drain_to_local_producer
+                and not remote_free_drain_local_list_mutation_preflight
+                and not remote_free_drain_local_list_mutation_proof
+                and not remote_free_drain_local_list_mutation_vocabulary_preflight
+                and not remote_free_drain_local_list_mutation_verifier_preconditions
+                and not remote_free_drain_local_list_mutation_lowering_producer
+                and not remote_owner_branch_routing_preflight
+                and not remote_owner_branch_routing_lowering_preflight
+                and not remote_owner_branch_routing_lowering_producer
+                and not remote_owner_branch_route_body_preflight
+                and not fastmem_branch_cfg_preflight
+                and not fastmem_branch_cfg_lowering_preflight
+                and not fastmem_branch_cfg_lowering_producer
+                and not same_remote_free_body_preflight
+                and not same_remote_free_body_producer
+                and not page_local_free_route_cfg_any
+                and not tls_backing_transfer_or_later
+            )
+
         def _remote_free_atomic_rows() -> list[tuple[str, str]]:
             return [
                 * _flag_rows(
                     ("fastmem_atomic_remote_head_cas_preflight", not remote_free_open and not page_local_alloc_route_cfg_any),
                     (
                         "fastmem_atomic_remote_head_cas_producer_pilot",
-                        remote_free_open
-                        and not remote_free_retry_preflight
-                        and not remote_free_drain_preflight
-                        and not remote_free_drain_exchange_selection
-                        and not remote_free_drain_exchange_producer
-                        and not remote_free_drain_to_local_selection
-                        and not remote_free_drain_to_local_producer
-                        and not remote_free_drain_local_list_mutation_preflight
-                        and not remote_free_drain_local_list_mutation_proof
-                        and not remote_free_drain_local_list_mutation_vocabulary_preflight
-                        and not remote_free_drain_local_list_mutation_verifier_preconditions
-                        and not remote_free_drain_local_list_mutation_lowering_producer
-                        and not remote_owner_branch_routing_preflight
-                        and not remote_owner_branch_routing_lowering_preflight
-                        and not remote_owner_branch_routing_lowering_producer
-                        and not remote_owner_branch_route_body_preflight
-                        and not fastmem_branch_cfg_preflight
-                        and not fastmem_branch_cfg_lowering_preflight
-                        and not fastmem_branch_cfg_lowering_producer
-                        and not same_remote_free_body_preflight
-                        and not same_remote_free_body_producer
-                        and not page_local_free_route_cfg_any
-                        and not tls_backing_transfer_or_later,
+                        _remote_free_cas_producer_pilot_open(),
                     ),
                     ("fastmem_atomic_remote_head_retry_preflight", remote_free_retry_preflight),
                     ("fastmem_atomic_remote_head_retry_producer_pilot", remote_free_retry_producer),
