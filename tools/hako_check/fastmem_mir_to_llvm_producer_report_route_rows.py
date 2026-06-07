@@ -375,6 +375,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         route_spec = remote_free_route_profile_spec(profile)
         if route_spec is not None:
             remote_free_open = True
+            route_family = True
             route_candidate = "none"
             next_slice = route_spec.next_slice
             deferred_remote_kinds = route_spec.deferred_kinds
@@ -385,6 +386,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "local-free",
             "layout_table",
         ):
+            route_family = True
             remote_free_open = False
             route_candidate = "none"
             if remote_owner_branch_routing_preflight:
@@ -565,6 +567,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             else:
                 selected_route = "none"
         else:
+            route_family = False
             remote_free_open = False
             route_candidate = "none"
             next_slice = "layout_table_producer_pilot"
@@ -575,6 +578,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         return {
             "route_candidate": route_candidate,
             "remote_free_open": remote_free_open,
+            "route_family": route_family,
             "next_slice": next_slice,
             "deferred_remote_kinds": deferred_remote_kinds,
             "selected_remote_kind": selected_remote_kind,
@@ -584,6 +588,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     route_summary = _build_route_summary()
     route_candidate = route_summary["route_candidate"]
     remote_free_open = route_summary["remote_free_open"]
+    route_family = route_summary["route_family"]
     next_slice = route_summary["next_slice"]
     deferred_remote_kinds = route_summary["deferred_remote_kinds"]
     selected_remote_kind = route_summary["selected_remote_kind"]
@@ -837,8 +842,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
-    if profile == "owner-runtime":
+    if not route_family and profile == "owner-runtime":
         route_candidate = "none"
+        selected_memop_family = "owner_runtime"
+        selected_memop_kinds = "CurrentAllocOwnerId,OwnerEq"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_next_producer_slice", "owner_runtime_producer_pilot"),
@@ -869,7 +876,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 "llvm_producer_intrinsic",
             ),
         ]
-    elif profile == "local-free":
+    elif not route_family and profile == "local-free":
         route_candidate = page_local_alloc_route_candidate(
             local_free_pop_count=len(verified_local_free_pop),
             free_head_push_count=len(verified_free_head_push),
@@ -880,6 +887,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             local_free_pop_count=len(verified_local_free_pop),
             free_head_push_count=len(verified_free_head_push),
             free_head_pop_count=len(verified_free_head_pop),
+        )
+        selected_memop_family = "local_free"
+        selected_memop_kinds = (
+            ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none"
         )
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
@@ -914,9 +925,11 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             ),
             ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
         ]
-    else:
+    elif not route_family:
         route_candidate = "none"
         free_route_candidate = "none"
+        selected_memop_family = "layout_table"
+        selected_memop_kinds = "TableIndex,FieldLoad,FieldStore"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "1"),
             ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
