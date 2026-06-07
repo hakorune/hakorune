@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIRBuilder FastMemory branch-local return acceptance.
 Related:
@@ -63,6 +63,22 @@ no new report claims are opened by this fix
 fastmem source syntax smoke remains green
 current state pointer guard passes
 git diff --check passes
+```
+
+## Result
+
+The current MIRBuilder accepts the narrow branch-local return shape without a
+code-side lexical-scope change. This card pins that behavior with a dedicated
+`hako_alloc` fixture and source-syntax smoke coverage so later FastMemory route
+work cannot regress back to `lexical_scope/unbalanced_pop`.
+
+## Verification
+
+```bash
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```
 
 ## Non-goals

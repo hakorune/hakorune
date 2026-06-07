@@ -30,6 +30,10 @@ BAD_CHECK="$TMPDIR/bad.check.kv"
 BAD_BRANCH_SRC="$TMPDIR/bad_branch.hako"
 BAD_BRANCH_MIR="$TMPDIR/bad_branch.mir.json"
 BAD_BRANCH_LOG="$TMPDIR/bad_branch.log"
+BRANCH_RETURN_SCOPE_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_fastmem_branch_return_scope_box.hako"
+BRANCH_RETURN_SCOPE_AST="$TMPDIR/page_meta_fastmem_branch_return_scope.ast.json"
+BRANCH_RETURN_SCOPE_MIR="$TMPDIR/page_meta_fastmem_branch_return_scope.mir.json"
+BRANCH_RETURN_SCOPE_INV="$TMPDIR/page_meta_fastmem_branch_return_scope.inventory.kv"
 PILOT_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_fastmem_pilot_box.hako"
 PILOT_AST="$TMPDIR/page_meta_pilot.ast.json"
 PILOT_MIR="$TMPDIR/page_meta_pilot.mir.json"
@@ -313,6 +317,24 @@ fi
 # path can still mask builder Err with the existing lexical-scope cleanup
 # fail-fast; this smoke only requires that unsupported branch CFG does not pass.
 grep -Eq '\[freeze:contract\]\[(fastmem/branch_cfg_requires_owner_eq_condition|lexical_scope/unbalanced_pop)\]' "$BAD_BRANCH_LOG"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$BRANCH_RETURN_SCOPE_AST" "$BRANCH_RETURN_SCOPE_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$BRANCH_RETURN_SCOPE_MIR" "$BRANCH_RETURN_SCOPE_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$BRANCH_RETURN_SCOPE_MIR" \
+  --out "$BRANCH_RETURN_SCOPE_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_region_count=1$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_memop_field_load_count=3$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_memop_field_store_count=0$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^fastmem_memop_unbalanced_region_count=0$' "$BRANCH_RETURN_SCOPE_INV"
+grep -q '^summary=ok$' "$BRANCH_RETURN_SCOPE_INV"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$PILOT_AST" "$PILOT_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$PILOT_MIR" "$PILOT_SRC" >/dev/null

@@ -1,0 +1,26 @@
+// page_meta_fastmem_branch_return_scope_box.hako
+// 296x-575: FastMemory branch-local return lexical-scope fixture.
+//
+// This fixture pins the narrow shape where both branches return from inside a
+// fastmem region. It must build MIR without tripping lexical_scope/unbalanced_pop.
+
+static box HakoAllocPageMetaFastmemBranchReturnScope {
+    branchReturnScopeProbe(page_table, page_index) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local current = mem.currentAllocOwnerId()
+            local same = mem.ownerEq(page.owner_worker_id, current)
+
+            if same {
+                local local_result = page.used
+                return local_result
+            } else {
+                local free_result = page.capacity
+                return free_result
+            }
+        }
+        return 0
+    }
+}
