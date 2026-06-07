@@ -525,6 +525,10 @@ def check_atomic_rules(rows: dict[str, str]) -> list[str]:
             "replacement_front_deferred_memop_kinds", ""
         ).split(","):
             reasons.append("replacement_front_deferred_memop_kinds")
+        if rows.get("atomic_remote_head_drain_exchange_order") != "acquire":
+            reasons.append("atomic_remote_head_drain_exchange_order")
+        if rows.get("atomic_remote_head_drain_result_kind") != "remote_free_list_token":
+            reasons.append("atomic_remote_head_drain_result_kind")
         if rows.get("atomic_remote_head_memory_order_policy") != "acq_rel":
             reasons.append("atomic_remote_head_memory_order_policy")
         for key in ATOMIC_REMOTE_HEAD_DRAIN_PREFLIGHT_EXPECTED_ZERO:
@@ -845,4 +849,3 @@ def check_atomic_rules(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
     return reasons
-

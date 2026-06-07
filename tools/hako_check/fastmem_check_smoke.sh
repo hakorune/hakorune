@@ -396,12 +396,14 @@ if bash "$ROOT/tools/hako_check.sh" fastmem-check \
   exit 1
 fi
 
-grep -q '^failure_count=5$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
+grep -q '^failure_count=7$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
 grep -q '^failure_0_reason=replacement_front_selected_memop_kinds$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
 grep -q '^failure_1_reason=replacement_front_next_producer_slice$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
-grep -q '^failure_2_reason=atomic_remote_head_drain_open$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
-grep -q '^failure_3_reason=atomic_remote_head_drain_lowered_count$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
-grep -q '^failure_4_reason=atomic_remote_head_drain_selected$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
+grep -q '^failure_2_reason=atomic_remote_head_drain_exchange_order$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
+grep -q '^failure_3_reason=atomic_remote_head_drain_result_kind$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
+grep -q '^failure_4_reason=atomic_remote_head_drain_open$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
+grep -q '^failure_5_reason=atomic_remote_head_drain_lowered_count$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
+grep -q '^failure_6_reason=atomic_remote_head_drain_selected$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_ATOMIC_REMOTE_DRAIN_PREFLIGHT_OUT"
 
 if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
