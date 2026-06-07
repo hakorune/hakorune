@@ -71,6 +71,87 @@ class RouteSummaryFlags:
     remote_owner_branch_routing_any: bool
 
 
+REMOTE_FREE_ATOMIC_FLAG_NAMES: tuple[str, ...] = (
+    "fastmem_atomic_remote_head_cas_preflight",
+    "fastmem_atomic_remote_head_cas_producer_pilot",
+    "fastmem_atomic_remote_head_retry_preflight",
+    "fastmem_atomic_remote_head_retry_producer_pilot",
+    "fastmem_atomic_remote_head_drain_preflight",
+    "fastmem_atomic_remote_head_drain_exchange_selection",
+    "fastmem_atomic_remote_head_drain_exchange_producer_pilot",
+    "fastmem_atomic_remote_head_drain_to_local_route_selection",
+    "fastmem_atomic_remote_head_drain_to_local_route_producer_pilot",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_preflight",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot",
+)
+
+REMOTE_FREE_ROUTE_FAMILY_FLAG_NAMES: tuple[str, ...] = (
+    "fastmem_remote_owner_branch_routing_preflight",
+    "fastmem_remote_owner_branch_routing_lowering_preflight",
+    "fastmem_remote_owner_branch_routing_lowering_producer_pilot",
+    "fastmem_remote_owner_branch_route_body_preflight",
+    "fastmem_branch_cfg_preflight",
+    "fastmem_branch_cfg_lowering_preflight",
+    "fastmem_branch_cfg_lowering_producer_pilot",
+    "fastmem_same_remote_free_body_preflight",
+    "fastmem_same_remote_free_body_producer_pilot",
+    "fastmem_page_local_free_route_cfg_preflight",
+    "fastmem_page_local_alloc_route_cfg_preflight",
+    "fastmem_page_local_alloc_route_cfg_producer_pilot",
+    "fastmem_page_local_free_route_cfg_producer_pilot",
+    "fastmem_page_local_route_body_join_preflight",
+    "fastmem_page_local_route_body_join_producer_pilot",
+)
+
+REMOTE_FREE_REFRESH_FLAG_NAMES: tuple[str, ...] = (
+    "fastmem_tls_backing_transfer_preflight",
+    "fastmem_tls_backing_transfer_producer_pilot",
+    "fastmem_allocator_owner_slot_reuse_preflight",
+    "fastmem_allocator_owner_slot_reuse_producer_pilot",
+    "fastmem_abandoned_reclaim_preflight",
+    "fastmem_abandoned_reclaim_producer_pilot",
+    "fastmem_product_activation_preflight",
+    "fastmem_product_activation_producer_pilot",
+    "fastmem_hook_install_preflight",
+    "fastmem_hook_install_producer_pilot",
+    "fastmem_global_allocator_claim_preflight",
+    "fastmem_global_allocator_claim_producer_pilot",
+    "fastmem_winner_claim_preflight",
+    "fastmem_winner_claim_producer_pilot",
+)
+
+REMOTE_FREE_CAS_BLOCKER_NAMES: tuple[str, ...] = (
+    "fastmem_atomic_remote_head_retry_preflight",
+    "fastmem_atomic_remote_head_drain_preflight",
+    "fastmem_atomic_remote_head_drain_exchange_selection",
+    "fastmem_atomic_remote_head_drain_exchange_producer_pilot",
+    "fastmem_atomic_remote_head_drain_to_local_route_selection",
+    "fastmem_atomic_remote_head_drain_to_local_route_producer_pilot",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_preflight",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
+    "fastmem_atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot",
+    "fastmem_remote_owner_branch_routing_preflight",
+    "fastmem_remote_owner_branch_routing_lowering_preflight",
+    "fastmem_remote_owner_branch_routing_lowering_producer_pilot",
+    "fastmem_remote_owner_branch_route_body_preflight",
+    "fastmem_branch_cfg_preflight",
+    "fastmem_branch_cfg_lowering_preflight",
+    "fastmem_branch_cfg_lowering_producer_pilot",
+    "fastmem_same_remote_free_body_preflight",
+    "fastmem_same_remote_free_body_producer_pilot",
+    "fastmem_page_local_free_route_cfg_preflight",
+    "page_local_free_route_cfg_any",
+    "fastmem_tls_backing_transfer_preflight",
+    "fastmem_tls_backing_transfer_producer_pilot",
+    "tls_backing_transfer_or_later",
+)
+
+
 def _flag_rows(*pairs: tuple[str, bool]) -> list[tuple[str, str]]:
     return [(name, str(int_flag(flag))) for name, flag in pairs]
 
@@ -828,89 +909,12 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "fastmem_winner_claim_preflight": winner_claim_preflight,
             "fastmem_winner_claim_producer_pilot": winner_claim_producer,
         }
-        remote_free_cas_blocker_names = (
-            "fastmem_atomic_remote_head_retry_preflight",
-            "fastmem_atomic_remote_head_drain_preflight",
-            "fastmem_atomic_remote_head_drain_exchange_selection",
-            "fastmem_atomic_remote_head_drain_exchange_producer_pilot",
-            "fastmem_atomic_remote_head_drain_to_local_route_selection",
-            "fastmem_atomic_remote_head_drain_to_local_route_producer_pilot",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_preflight",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot",
-            "fastmem_remote_owner_branch_routing_preflight",
-            "fastmem_remote_owner_branch_routing_lowering_preflight",
-            "fastmem_remote_owner_branch_routing_lowering_producer_pilot",
-            "fastmem_remote_owner_branch_route_body_preflight",
-            "fastmem_branch_cfg_preflight",
-            "fastmem_branch_cfg_lowering_preflight",
-            "fastmem_branch_cfg_lowering_producer_pilot",
-            "fastmem_same_remote_free_body_preflight",
-            "fastmem_same_remote_free_body_producer_pilot",
-            "fastmem_page_local_free_route_cfg_preflight",
-            "page_local_free_route_cfg_any",
-            "fastmem_tls_backing_transfer_preflight",
-            "fastmem_tls_backing_transfer_producer_pilot",
-            "tls_backing_transfer_or_later",
-        )
-        remote_free_atomic_flag_names = (
-            "fastmem_atomic_remote_head_cas_preflight",
-            "fastmem_atomic_remote_head_cas_producer_pilot",
-            "fastmem_atomic_remote_head_retry_preflight",
-            "fastmem_atomic_remote_head_retry_producer_pilot",
-            "fastmem_atomic_remote_head_drain_preflight",
-            "fastmem_atomic_remote_head_drain_exchange_selection",
-            "fastmem_atomic_remote_head_drain_exchange_producer_pilot",
-            "fastmem_atomic_remote_head_drain_to_local_route_selection",
-            "fastmem_atomic_remote_head_drain_to_local_route_producer_pilot",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_preflight",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
-            "fastmem_atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot",
-        )
-        remote_free_route_family_flag_names = (
-            "fastmem_remote_owner_branch_routing_preflight",
-            "fastmem_remote_owner_branch_routing_lowering_preflight",
-            "fastmem_remote_owner_branch_routing_lowering_producer_pilot",
-            "fastmem_remote_owner_branch_route_body_preflight",
-            "fastmem_branch_cfg_preflight",
-            "fastmem_branch_cfg_lowering_preflight",
-            "fastmem_branch_cfg_lowering_producer_pilot",
-            "fastmem_same_remote_free_body_preflight",
-            "fastmem_same_remote_free_body_producer_pilot",
-            "fastmem_page_local_free_route_cfg_preflight",
-            "fastmem_page_local_alloc_route_cfg_preflight",
-            "fastmem_page_local_alloc_route_cfg_producer_pilot",
-            "fastmem_page_local_free_route_cfg_producer_pilot",
-            "fastmem_page_local_route_body_join_preflight",
-            "fastmem_page_local_route_body_join_producer_pilot",
-        )
-        remote_free_refresh_flag_names = (
-            "fastmem_tls_backing_transfer_preflight",
-            "fastmem_tls_backing_transfer_producer_pilot",
-            "fastmem_allocator_owner_slot_reuse_preflight",
-            "fastmem_allocator_owner_slot_reuse_producer_pilot",
-            "fastmem_abandoned_reclaim_preflight",
-            "fastmem_abandoned_reclaim_producer_pilot",
-            "fastmem_product_activation_preflight",
-            "fastmem_product_activation_producer_pilot",
-            "fastmem_hook_install_preflight",
-            "fastmem_hook_install_producer_pilot",
-            "fastmem_global_allocator_claim_preflight",
-            "fastmem_global_allocator_claim_producer_pilot",
-            "fastmem_winner_claim_preflight",
-            "fastmem_winner_claim_producer_pilot",
-        )
-
         def _flag_rows_from_scope(*names: str) -> list[tuple[str, str]]:
             return _flag_rows(*((name, flag_scope[name]) for name in names))
 
         def _remote_free_cas_producer_pilot_open() -> bool:
             return remote_free_open and not any(
-                flag_scope[name] for name in remote_free_cas_blocker_names
+                flag_scope[name] for name in REMOTE_FREE_CAS_BLOCKER_NAMES
             )
 
         def _remote_free_atomic_rows() -> list[tuple[str, str]]:
@@ -919,18 +923,18 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                     ("fastmem_atomic_remote_head_cas_preflight", flag_scope["fastmem_atomic_remote_head_cas_preflight"]),
                     ("fastmem_atomic_remote_head_cas_producer_pilot", _remote_free_cas_producer_pilot_open()),
                 ),
-                *_flag_rows_from_scope(*remote_free_atomic_flag_names[2:]),
+                *_flag_rows_from_scope(*REMOTE_FREE_ATOMIC_FLAG_NAMES[2:]),
             ]
 
         def _remote_free_route_family_rows() -> list[tuple[str, str]]:
             return [
-                *_flag_rows_from_scope(*remote_free_route_family_flag_names),
+                *_flag_rows_from_scope(*REMOTE_FREE_ROUTE_FAMILY_FLAG_NAMES),
             ]
 
         def _remote_free_refresh_rows() -> list[tuple[str, str]]:
             return [
                 *refresh_flag_rows,
-                *_flag_rows_from_scope(*remote_free_refresh_flag_names),
+                *_flag_rows_from_scope(*REMOTE_FREE_REFRESH_FLAG_NAMES),
             ]
 
         return [
