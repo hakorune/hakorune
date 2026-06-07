@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-108.
 Related:
@@ -75,4 +75,55 @@ CURRENT_STATE points at the selected implementation row
 
 ```bash
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected next row:
+  296x-608 MIM-PORT-FMEM-109 source-syntax smoke manifest runner
+
+PageMapRelease pointer lookup remains next implementation work, but it should
+not be started by appending another large grep block to
+fastmem_source_syntax_smoke.sh.
+```
+
+## Why This Detour
+
+```text
+The fastmem substrate is now strong enough that the main bottleneck is no
+longer one MemOp at a time. The bottleneck is the source-syntax smoke ledger:
+each .hako body currently adds a long shell block of AST/MIR/report/check grep
+assertions.
+
+That makes the actual hako_alloc migration feel slower than the implementation
+it is proving.
+```
+
+## New Working Rule
+
+```text
+Do not add another large handwritten source-syntax smoke block for each
+hako_alloc body.
+
+Move the repeated source fixture flow into a manifest runner:
+  source fixture list
+  profile list
+  expected key manifest
+  shared AST/MIR/report/check execution
+
+Then resume .hako mimalloc body migration with compact manifest entries.
+```
+
+## Deferred Implementation Row
+
+```text
+PageMapRelease pointer lookup preflight stays selected as the next hako_alloc
+body-migration topic after 296x-608.
+```
+
+## Closeout
+
+```text
+next: 296x-608 MIM-PORT-FMEM-109 source-syntax smoke manifest runner
 ```
