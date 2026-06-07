@@ -340,6 +340,31 @@ def _remote_free_refresh_rows(
     ]
 
 
+def _inactive_atomic_remote_rows(
+    current_owner_source: str,
+) -> list[tuple[str, str]]:
+    return [
+        *_flag_rows(
+            ("fastmem_atomic_remote_head_cas_preflight", False),
+            ("fastmem_atomic_remote_head_cas_producer_pilot", False),
+            ("fastmem_atomic_remote_head_retry_preflight", False),
+            ("fastmem_atomic_remote_head_retry_producer_pilot", False),
+            ("fastmem_atomic_remote_head_drain_preflight", False),
+            ("fastmem_atomic_remote_head_drain_exchange_selection", False),
+            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", False),
+            ("fastmem_atomic_remote_head_drain_to_local_route_selection", False),
+            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", False),
+            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", False),
+            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", False),
+            (
+                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+                False,
+            ),
+        ),
+        ("fastmem_owner_runtime_current_owner_source", current_owner_source),
+    ]
+
+
 def _selected_memop_family(flags: RouteSummaryFlags) -> str:
     if flags.winner_claim_any:
         return "winner_claim"
@@ -439,24 +464,7 @@ def _owner_runtime_slice_rows() -> list[tuple[str, str]]:
             local_free_pilot=False,
             layout_table_pilot=False,
         ),
-        * _flag_rows(
-            ("fastmem_atomic_remote_head_cas_preflight", False),
-            ("fastmem_atomic_remote_head_cas_producer_pilot", False),
-            ("fastmem_atomic_remote_head_retry_preflight", False),
-            ("fastmem_atomic_remote_head_retry_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_preflight", False),
-            ("fastmem_atomic_remote_head_drain_exchange_selection", False),
-            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_to_local_route_selection", False),
-            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", False),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", False),
-            (
-                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-                False,
-            ),
-        ),
-        ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
+        *_inactive_atomic_remote_rows("llvm_producer_intrinsic"),
     ]
 
 
@@ -476,24 +484,7 @@ def _local_free_slice_rows(
             local_free_pilot=True,
             layout_table_pilot=False,
         ),
-        * _flag_rows(
-            ("fastmem_atomic_remote_head_cas_preflight", False),
-            ("fastmem_atomic_remote_head_cas_producer_pilot", False),
-            ("fastmem_atomic_remote_head_retry_preflight", False),
-            ("fastmem_atomic_remote_head_retry_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_preflight", False),
-            ("fastmem_atomic_remote_head_drain_exchange_selection", False),
-            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_to_local_route_selection", False),
-            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", False),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", False),
-            (
-                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-                False,
-            ),
-        ),
-        ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
+        *_inactive_atomic_remote_rows("llvm_producer_intrinsic"),
     ]
 
 
@@ -510,24 +501,7 @@ def _layout_table_slice_rows() -> list[tuple[str, str]]:
             local_free_pilot=False,
             layout_table_pilot=True,
         ),
-        * _flag_rows(
-            ("fastmem_atomic_remote_head_cas_preflight", False),
-            ("fastmem_atomic_remote_head_cas_producer_pilot", False),
-            ("fastmem_atomic_remote_head_retry_preflight", False),
-            ("fastmem_atomic_remote_head_retry_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_preflight", False),
-            ("fastmem_atomic_remote_head_drain_exchange_selection", False),
-            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_to_local_route_selection", False),
-            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", False),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", False),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", False),
-            (
-                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-                False,
-            ),
-        ),
-        ("fastmem_owner_runtime_current_owner_source", "closed"),
+        *_inactive_atomic_remote_rows("closed"),
     ]
 
 
