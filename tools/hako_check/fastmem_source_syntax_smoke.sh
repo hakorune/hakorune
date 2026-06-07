@@ -258,6 +258,8 @@ ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT="$TMPDIR/abandoned_reclaim_producer_re
 ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK="$TMPDIR/abandoned_reclaim_producer_refresh.check.kv"
 PRODUCT_ACTIVATION_REFRESH_REPORT="$TMPDIR/product_activation_refresh.report.kv"
 PRODUCT_ACTIVATION_REFRESH_CHECK="$TMPDIR/product_activation_refresh.check.kv"
+PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT="$TMPDIR/product_activation_producer_refresh.report.kv"
+PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK="$TMPDIR/product_activation_producer_refresh.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
 WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
@@ -3911,6 +3913,46 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_REFRESH_CHECK"
 grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_REFRESH_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile product-activation-producer-refresh \
+  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  --out "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+
+grep -q '^fastmem_product_activation_producer_refresh=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_route=product_activation_producer_refresh$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_family=product_activation$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=ProductActivation$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_next_producer_slice=hook_install_preflight_refresh$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_open=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^page_local_route_body_join_open=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^tls_backing_transfer_enabled=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^allocator_owner_slot_reuse_enabled=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^abandoned_reclaim_enabled=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^product_activation_selected=1$' \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^product_activation=1$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^hook_install=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^global_allocator_claim=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+grep -q '^winner_claim=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT" \
+  --format kv \
+  --out "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
+
+grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
+grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \

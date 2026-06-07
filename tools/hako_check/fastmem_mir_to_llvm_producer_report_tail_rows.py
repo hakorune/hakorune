@@ -80,6 +80,9 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     abandoned_reclaim_producer = state.get("abandoned_reclaim_producer", False)
     abandoned_reclaim_or_later = state.get("abandoned_reclaim_or_later", False)
     product_activation_preflight = state.get("product_activation_preflight", False)
+    product_activation_producer_refresh = state.get(
+        "product_activation_producer_refresh", False
+    )
     product_activation_producer = state.get("product_activation_producer", False)
     product_activation_or_later = state.get("product_activation_or_later", False)
     hook_install_preflight = state.get("hook_install_preflight", False)
@@ -211,7 +214,16 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ("type_abi_hot_path_lookup_count", "0"),
         ("provider_abi_hot_dispatch_count", "0"),
         ("provider_dispatch_hot_path", "0"),
-        ("product_activation", str(int_flag(product_activation_producer or hook_install_or_later))),
+        (
+            "product_activation",
+            str(
+                int_flag(
+                    product_activation_producer
+                    or product_activation_producer_refresh
+                    or hook_install_or_later
+                )
+            ),
+        ),
         ("hook_install", str(int_flag(hook_install_producer or global_allocator_claim_or_later))),
         ("hook_installed", "0"),
         ("global_allocator_claim", str(int_flag(global_allocator_claim_producer or winner_claim_any))),

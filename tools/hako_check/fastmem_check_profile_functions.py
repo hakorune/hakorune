@@ -289,6 +289,10 @@ def product_activation_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_product_activation_producer_pilot") > 0
 
 
+def product_activation_producer_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_product_activation_producer_refresh") > 0
+
+
 def hook_install_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_hook_install_preflight") > 0
 
