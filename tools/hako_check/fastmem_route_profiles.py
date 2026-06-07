@@ -164,6 +164,10 @@ def global_allocator_claim_preflight_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_global_allocator_claim_preflight")
 
 
+def global_allocator_claim_preflight_refresh_profile(rows: Mapping[str, str]) -> bool:
+    return _profile_flag(rows, "fastmem_global_allocator_claim_preflight_refresh")
+
+
 def global_allocator_claim_producer_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_global_allocator_claim_producer_pilot")
 
@@ -609,6 +613,28 @@ HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_POSITIVE = (
     "product_activation",
     "hook_install_selected",
     "hook_install",
+    "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_free_route_cfg_lowering_enabled",
+)
+
+GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO = (
+    "page_reclaimed_with_remote_candidates",
+    "allocator_owner_reuse_without_generation_bump_count",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "global_allocator_claim",
+    "winner_claim",
+)
+
+GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE = (
+    "fastmem_global_allocator_claim_preflight_refresh",
+    "terminal_ladder_refresh_open",
+    "page_local_route_body_join_open",
+    "product_activation_selected",
+    "product_activation",
+    "hook_install_selected",
+    "hook_install",
+    "global_allocator_claim_selected",
     "page_local_alloc_route_cfg_lowering_enabled",
     "page_local_free_route_cfg_lowering_enabled",
 )

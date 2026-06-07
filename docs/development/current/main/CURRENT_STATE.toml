@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-591 landed MIM-PORT-FMEM-092 hook install producer refresh: report/check now reopen hook_install=1 on the refreshed ladder while global allocator and winner claims remain closed; 296x-592 global allocator claim preflight refresh opens next."
+active_lane_status = "296x-592 landed MIM-PORT-FMEM-093 global allocator claim preflight refresh: report/check now select refreshed global allocator claim preflight while global allocator and winner claims remain closed; 296x-593 global allocator claim producer refresh opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-591-MIM-PORT-FMEM-092-HOOK-INSTALL-PRODUCER-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-591-MIM-PORT-FMEM-092-HOOK-INSTALL-PRODUCER-REFRESH.md"
-latest_card_summary = "Hook install producer refresh now reopens hook_install=1 on the refreshed ladder while global allocator and winner claims remain closed; 296x-592 opens next."
-current_blocker_token = "296x-592"
+latest_card = "296x-592-MIM-PORT-FMEM-093-GLOBAL-ALLOCATOR-CLAIM-PREFLIGHT-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-592-MIM-PORT-FMEM-093-GLOBAL-ALLOCATOR-CLAIM-PREFLIGHT-REFRESH.md"
+latest_card_summary = "Global allocator claim preflight refresh now selects refreshed global allocator claim preflight while global allocator and winner claims remain closed; 296x-593 opens next."
+current_blocker_token = "296x-593"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-592 landed MIM-PORT-FMEM-093 global allocator claim preflight refresh: report/check now select refreshed global allocator claim preflight while global allocator and winner claims remain closed; 296x-593 global allocator claim producer refresh opens next.",
   "2026-06-07: 296x-591 landed MIM-PORT-FMEM-092 hook install producer refresh: report/check now reopen hook_install=1 on the refreshed ladder while global allocator and winner claims remain closed; 296x-592 global allocator claim preflight refresh opens next.",
   "2026-06-07: 296x-590 landed MIM-PORT-FMEM-091 hook install preflight refresh: report/check now select refreshed hook install preflight from product activation producer evidence while hook/global/winner behavior remains closed; 296x-591 hook install producer refresh opens next.",
   "2026-06-07: 296x-589 landed MIM-PORT-FMEM-090 product activation producer refresh: report/check now reopen product_activation=1 on the refreshed ladder while hook/global/winner behavior remains closed; 296x-590 hook install preflight refresh opens next.",

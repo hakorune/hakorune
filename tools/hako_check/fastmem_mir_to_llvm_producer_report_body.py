@@ -918,6 +918,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or product_activation_producer_refresh
                     or hook_install_preflight_refresh
                     or hook_install_producer_refresh
+                    or global_allocator_claim_preflight_refresh
                 )
             ),
         ),
@@ -936,6 +937,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or product_activation_producer_refresh
                     or hook_install_preflight_refresh
                     or hook_install_producer_refresh
+                    or global_allocator_claim_preflight_refresh
                 )
             ),
         ),
@@ -953,6 +955,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or product_activation_producer_refresh
                     or hook_install_preflight_refresh
                     or hook_install_producer_refresh
+                    or global_allocator_claim_preflight_refresh
                 )
             ),
         ),

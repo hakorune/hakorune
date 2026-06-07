@@ -18,6 +18,7 @@ from fastmem_route_profiles import (
     fastmem_branch_cfg_lowering_profile,
     fastmem_branch_cfg_preflight_profile,
     global_allocator_claim_preflight_profile,
+    global_allocator_claim_preflight_refresh_profile,
     global_allocator_claim_producer_profile,
     hook_install_preflight_profile,
     hook_install_preflight_refresh_profile,
@@ -201,10 +202,15 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or hook_install_preflight
         or hook_install_producer
     )
+    global_allocator_claim_preflight_refresh = (
+        profile == "global-allocator-claim-preflight-refresh"
+    )
     global_allocator_claim_preflight = profile == "global-allocator-claim-preflight"
     global_allocator_claim_producer = profile == "global-allocator-claim-producer-pilot"
     global_allocator_claim_any = (
-        global_allocator_claim_preflight or global_allocator_claim_producer
+        global_allocator_claim_preflight_refresh
+        or global_allocator_claim_preflight
+        or global_allocator_claim_producer
     )
     winner_claim_preflight = profile == "winner-claim-preflight"
     winner_claim_producer = profile == "winner-claim-producer-pilot"
@@ -291,6 +297,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "product-activation-producer-pilot",
         "hook-install-preflight-refresh",
         "hook-install-producer-refresh",
+        "global-allocator-claim-preflight-refresh",
         "hook-install-preflight",
         "hook-install-producer-pilot",
         "global-allocator-claim-preflight",
@@ -344,6 +351,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "product-activation-producer-pilot",
             "hook-install-preflight-refresh",
             "hook-install-producer-refresh",
+            "global-allocator-claim-preflight-refresh",
             "hook-install-preflight",
             "hook-install-producer-pilot",
             "global-allocator-claim-preflight",
@@ -483,6 +491,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif hook_install_producer_refresh:
             next_slice = "global_allocator_claim_preflight_refresh"
             deferred_remote_kinds = "GlobalAllocatorClaim"
+        elif global_allocator_claim_preflight_refresh:
+            next_slice = "global_allocator_claim_producer_refresh"
+            deferred_remote_kinds = "GlobalAllocatorClaimProducer,WinnerClaim"
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -589,6 +600,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "hook_install_preflight_refresh"
         elif hook_install_producer_refresh:
             selected_route = "hook_install_producer_refresh"
+        elif global_allocator_claim_preflight_refresh:
+            selected_route = "global_allocator_claim_preflight_refresh"
         elif page_local_route_body_join_preflight:
             selected_route = "page_local_route_body_join_preflight"
         elif page_local_alloc_route_cfg_producer:
@@ -939,6 +952,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_hook_install_producer_refresh",
                 str(int_flag(hook_install_producer_refresh)),
+            ),
+            (
+                "fastmem_global_allocator_claim_preflight_refresh",
+                str(int_flag(global_allocator_claim_preflight_refresh)),
             ),
             (
                 "fastmem_hook_install_preflight",
