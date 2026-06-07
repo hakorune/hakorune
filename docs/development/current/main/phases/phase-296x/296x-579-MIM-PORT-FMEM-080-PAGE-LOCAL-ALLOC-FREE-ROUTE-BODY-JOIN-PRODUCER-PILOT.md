@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-080.
 Related:
@@ -59,6 +59,29 @@ FastMemory check smoke remains green
 FastMemory source syntax smoke remains green
 current state pointer guard passes
 git diff --check passes
+```
+
+## Result
+
+Added the `page-local-route-body-join` producer profile. The row opens only the
+join evidence:
+
+```text
+page_local_route_body_join_selected=1
+page_local_route_body_join_open=1
+page_local_alloc_route_cfg_lowering_enabled=1
+page_local_free_route_cfg_lowering_enabled=1
+```
+
+Terminal/product claims remain closed, and the next producer slice returns to
+`tls_backing_transfer_preflight`.
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_route_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/hako_check/fastmem_check_smoke.sh
 ```
 
 ## Non-goals

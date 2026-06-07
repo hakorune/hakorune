@@ -10,8 +10,11 @@ from fastmem_route_profiles import (
     PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_ZERO,
     PAGE_LOCAL_ROUTE_BODY_JOIN_PREFLIGHT_EXPECTED_POSITIVE,
     PAGE_LOCAL_ROUTE_BODY_JOIN_PREFLIGHT_EXPECTED_ZERO,
+    PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_EXPECTED_POSITIVE,
+    PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_EXPECTED_ZERO,
     page_local_alloc_route_cfg_producer_profile,
     page_local_alloc_route_cfg_preflight_profile,
+    page_local_route_body_join_producer_profile,
     page_local_route_body_join_preflight_profile,
 )
 from fastmem_check_profile_functions import *
@@ -839,6 +842,37 @@ def check_route_rules(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in PAGE_LOCAL_ROUTE_BODY_JOIN_PREFLIGHT_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if page_local_route_body_join_producer_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            "page_local_route_body_join_producer_pilot"
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != (
+            "page_local_route_body_join"
+        ):
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != (
+            "PageLocalRouteBodyJoinProducer"
+        ):
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "tls_backing_transfer_preflight"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        if "TlsBackingTransfer" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_EXPECTED_POSITIVE:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
     return reasons

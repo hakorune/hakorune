@@ -240,6 +240,8 @@ PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER_REPORT="$TMPDIR/page_meta_page_local_alloc_r
 PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER_CHECK="$TMPDIR/page_meta_page_local_alloc_route_cfg_producer.check.kv"
 PAGE_LOCAL_ROUTE_BODY_JOIN_REPORT="$TMPDIR/page_meta_page_local_route_body_join.report.kv"
 PAGE_LOCAL_ROUTE_BODY_JOIN_CHECK="$TMPDIR/page_meta_page_local_route_body_join.check.kv"
+PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT="$TMPDIR/page_meta_page_local_route_body_join_producer.report.kv"
+PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK="$TMPDIR/page_meta_page_local_route_body_join_producer.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
 WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
@@ -3525,6 +3527,42 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^summary=ok$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_CHECK"
 grep -q '^failure_count=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile page-local-route-body-join \
+  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  --out "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+
+grep -q '^fastmem_page_local_route_body_join_producer_pilot=1$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_route=page_local_route_body_join_producer_pilot$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_family=page_local_route_body_join$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=PageLocalRouteBodyJoinProducer$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^replacement_front_next_producer_slice=tls_backing_transfer_preflight$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^page_local_route_body_join_selected=1$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^page_local_route_body_join_open=1$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^page_local_alloc_route_cfg_lowering_enabled=1$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=1$' \
+  "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^product_activation=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^hook_install=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^global_allocator_claim=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+grep -q '^winner_claim=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT" \
+  --format kv \
+  --out "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
+
+grep -q '^summary=ok$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
+grep -q '^failure_count=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \

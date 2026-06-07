@@ -103,15 +103,19 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     page_local_route_body_join_preflight = (
         profile == "page-local-route-body-join-preflight"
     )
+    page_local_route_body_join_producer = profile == "page-local-route-body-join"
+    page_local_route_body_join_any = (
+        page_local_route_body_join_preflight or page_local_route_body_join_producer
+    )
     page_local_alloc_route_cfg_any = (
         page_local_alloc_route_cfg_preflight
         or page_local_alloc_route_cfg_producer
-        or page_local_route_body_join_preflight
+        or page_local_route_body_join_any
     )
     page_local_free_route_cfg_any = (
         page_local_free_route_cfg_preflight
         or page_local_free_route_cfg_producer
-        or page_local_route_body_join_preflight
+        or page_local_route_body_join_any
     )
     tls_backing_transfer_preflight = profile == "tls-backing-transfer-preflight"
     tls_backing_transfer_producer = profile == "tls-backing-transfer-producer-pilot"
@@ -200,6 +204,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "page-local-free-route-cfg-preflight",
         "page-local-free-route-cfg",
         "page-local-route-body-join-preflight",
+        "page-local-route-body-join",
         "tls-backing-transfer-preflight",
         "tls-backing-transfer-producer-pilot",
         "owner-slot-reuse-preflight",
@@ -241,6 +246,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "page-local-free-route-cfg-preflight",
             "page-local-free-route-cfg",
             "page-local-route-body-join-preflight",
+            "page-local-route-body-join",
             "tls-backing-transfer-preflight",
             "tls-backing-transfer-producer-pilot",
             "owner-slot-reuse-preflight",
@@ -352,6 +358,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif page_local_route_body_join_preflight:
             next_slice = "page_local_route_body_join_producer_pilot"
             deferred_remote_kinds = "PageLocalRouteBodyJoinProducer,TlsBackingTransfer"
+        elif page_local_route_body_join_producer:
+            next_slice = "tls_backing_transfer_preflight"
+            deferred_remote_kinds = "TlsBackingTransfer"
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -446,8 +455,11 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                                             "product_activation_preflight"
                                             if product_activation_preflight
                                             else (
-                                                "page_local_route_body_join_preflight"
-                                                if page_local_route_body_join_preflight
+                                                "page_local_route_body_join_producer_pilot"
+                                                if page_local_route_body_join_producer
+                                                else (
+                                                    "page_local_route_body_join_preflight"
+                                                    if page_local_route_body_join_preflight
                                                 else (
                                                     "page_local_alloc_route_cfg_producer_pilot"
                                                     if page_local_alloc_route_cfg_producer
@@ -524,7 +536,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                                                             )
                                                         )
                                                     )
-                                                )
+                                                ))
                                             )
                                         )
                                     )
@@ -552,7 +564,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 else "tls_backing_transfer"
                 if tls_backing_transfer_producer
                 else "page_local_route_body_join"
-                if page_local_route_body_join_preflight
+                if page_local_route_body_join_any
                 else "page_local_route_cfg"
                 if page_local_free_route_cfg_any or tls_backing_transfer_preflight
                 else "page_local_alloc_route_cfg"
@@ -590,6 +602,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 if tls_backing_transfer_producer
                 else "PageLocalRouteBodyJoin"
                 if page_local_route_body_join_preflight
+                else "PageLocalRouteBodyJoinProducer"
+                if page_local_route_body_join_producer
                 else "PageLocalFreeRouteCfg"
                 if page_local_free_route_cfg_any or tls_backing_transfer_preflight
                 else "PageLocalAllocRouteCfgProducer"
@@ -749,6 +763,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_page_local_route_body_join_preflight",
                 str(int_flag(page_local_route_body_join_preflight)),
+            ),
+            (
+                "fastmem_page_local_route_body_join_producer_pilot",
+                str(int_flag(page_local_route_body_join_producer)),
             ),
             (
                 "fastmem_tls_backing_transfer_preflight",
