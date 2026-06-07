@@ -244,6 +244,8 @@ PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT="$TMPDIR/page_meta_page_local_route_b
 PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK="$TMPDIR/page_meta_page_local_route_body_join_producer.check.kv"
 TERMINAL_LADDER_REFRESH_REPORT="$TMPDIR/terminal_ladder_refresh.report.kv"
 TERMINAL_LADDER_REFRESH_CHECK="$TMPDIR/terminal_ladder_refresh.check.kv"
+TLS_BACKING_TRANSFER_REFRESH_REPORT="$TMPDIR/tls_backing_transfer_refresh.report.kv"
+TLS_BACKING_TRANSFER_REFRESH_CHECK="$TMPDIR/tls_backing_transfer_refresh.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
 WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
@@ -3606,6 +3608,47 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^summary=ok$' "$TERMINAL_LADDER_REFRESH_CHECK"
 grep -q '^failure_count=0$' "$TERMINAL_LADDER_REFRESH_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile tls-backing-transfer-preflight-refresh \
+  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  --out "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+
+grep -q '^fastmem_tls_backing_transfer_preflight_refresh=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_route=tls_backing_transfer_preflight_refresh$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_family=tls_backing_transfer$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=TlsBackingTransfer$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^replacement_front_next_producer_slice=tls_backing_transfer_producer_refresh$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_selected=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_open=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^page_local_route_body_join_open=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^page_local_alloc_route_cfg_lowering_enabled=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^tls_backing_transfer_selected=1$' \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^tls_backing_transfer_enabled=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^product_activation=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^hook_install=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^global_allocator_claim=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+grep -q '^winner_claim=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$TLS_BACKING_TRANSFER_REFRESH_REPORT" \
+  --format kv \
+  --out "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
+
+grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
+grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \

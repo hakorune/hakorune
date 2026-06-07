@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-581 landed MIM-PORT-FMEM-082 terminal ladder refresh preflight: report/check now select terminal_ladder_refresh_preflight from page_local_route_body_join_open=1 while TLS/product/winner behavior remains closed; 296x-582 TLS backing transfer preflight refresh opens next."
+active_lane_status = "296x-582 landed MIM-PORT-FMEM-083 TLS backing transfer preflight refresh: report/check now select refreshed TLS preflight from terminal_ladder_refresh_open=1 while TLS/product/winner behavior remains closed; 296x-583 TLS backing transfer producer refresh opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-581-MIM-PORT-FMEM-082-TERMINAL-LADDER-REFRESH-PREFLIGHT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-581-MIM-PORT-FMEM-082-TERMINAL-LADDER-REFRESH-PREFLIGHT.md"
-latest_card_summary = "Terminal ladder refresh preflight now selects terminal_ladder_refresh_preflight and consumes page_local_route_body_join_open=1 while TLS/product/winner behavior remains closed; 296x-582 opens next."
-current_blocker_token = "296x-582"
+latest_card = "296x-582-MIM-PORT-FMEM-083-TLS-BACKING-TRANSFER-PREFLIGHT-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-582-MIM-PORT-FMEM-083-TLS-BACKING-TRANSFER-PREFLIGHT-REFRESH.md"
+latest_card_summary = "TLS backing transfer preflight refresh now consumes terminal_ladder_refresh_open=1 and keeps TLS behavior closed; 296x-583 opens next."
+current_blocker_token = "296x-583"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-582 landed MIM-PORT-FMEM-083 TLS backing transfer preflight refresh: report/check now select refreshed TLS preflight from terminal_ladder_refresh_open=1 while TLS/product/winner behavior remains closed; 296x-583 TLS backing transfer producer refresh opens next.",
   "2026-06-07: 296x-581 landed MIM-PORT-FMEM-082 terminal ladder refresh preflight: report/check now select terminal_ladder_refresh_preflight from page_local_route_body_join_open=1 while TLS/product/winner behavior remains closed; 296x-582 TLS backing transfer preflight refresh opens next.",
   "2026-06-07: 296x-580 landed MIM-PORT-FMEM-081 post-route-join terminal ladder reentry selection: next slice is a terminal ladder refresh preflight consuming page_local_route_body_join_open=1 before TLS/product/winner rows reopen; 296x-581 opens next.",
   "2026-06-07: 296x-579 landed MIM-PORT-FMEM-080 page-local alloc/free route body join producer pilot: report/check now opens page_local_route_body_join_open=1 while terminal/product claims remain closed; 296x-580 post-route-join terminal ladder reentry selection opens next.",

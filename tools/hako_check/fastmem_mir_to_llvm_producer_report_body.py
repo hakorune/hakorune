@@ -908,16 +908,22 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                 int_flag(
                     page_local_route_body_join_producer
                     or terminal_ladder_refresh_preflight
+                    or tls_backing_transfer_preflight_refresh
                 )
             ),
         ),
         (
             "terminal_ladder_refresh_selected",
-            str(int_flag(terminal_ladder_refresh_preflight)),
+            str(
+                int_flag(
+                    terminal_ladder_refresh_preflight
+                    or tls_backing_transfer_preflight_refresh
+                )
+            ),
         ),
         (
             "terminal_ladder_refresh_open",
-            "0",
+            str(int_flag(tls_backing_transfer_preflight_refresh)),
         ),
         (
             "tls_backing_transfer_selected",

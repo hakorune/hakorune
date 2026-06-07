@@ -33,6 +33,7 @@ from fastmem_route_profiles import (
     same_remote_free_body_preflight_profile,
     same_remote_free_body_producer_profile,
     terminal_ladder_refresh_preflight_profile,
+    tls_backing_transfer_preflight_refresh_profile,
     tls_backing_transfer_preflight_profile,
     tls_backing_transfer_producer_profile,
     winner_claim_preflight_profile,
@@ -108,10 +109,14 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     terminal_ladder_refresh_preflight = (
         profile == "terminal-ladder-refresh-preflight"
     )
+    tls_backing_transfer_preflight_refresh = (
+        profile == "tls-backing-transfer-preflight-refresh"
+    )
     page_local_route_body_join_any = (
         page_local_route_body_join_preflight
         or page_local_route_body_join_producer
         or terminal_ladder_refresh_preflight
+        or tls_backing_transfer_preflight_refresh
     )
     page_local_alloc_route_cfg_any = (
         page_local_alloc_route_cfg_preflight
@@ -126,7 +131,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     tls_backing_transfer_preflight = profile == "tls-backing-transfer-preflight"
     tls_backing_transfer_producer = profile == "tls-backing-transfer-producer-pilot"
     tls_backing_transfer_any = (
-        tls_backing_transfer_preflight or tls_backing_transfer_producer
+        tls_backing_transfer_preflight
+        or tls_backing_transfer_preflight_refresh
+        or tls_backing_transfer_producer
     )
     owner_slot_reuse_preflight = profile == "owner-slot-reuse-preflight"
     owner_slot_reuse_producer = profile == "owner-slot-reuse-producer-pilot"
@@ -212,6 +219,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "page-local-route-body-join-preflight",
         "page-local-route-body-join",
         "terminal-ladder-refresh-preflight",
+        "tls-backing-transfer-preflight-refresh",
         "tls-backing-transfer-preflight",
         "tls-backing-transfer-producer-pilot",
         "owner-slot-reuse-preflight",
@@ -255,6 +263,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "page-local-route-body-join-preflight",
             "page-local-route-body-join",
             "terminal-ladder-refresh-preflight",
+            "tls-backing-transfer-preflight-refresh",
             "tls-backing-transfer-preflight",
             "tls-backing-transfer-producer-pilot",
             "owner-slot-reuse-preflight",
@@ -372,6 +381,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif terminal_ladder_refresh_preflight:
             next_slice = "tls_backing_transfer_preflight_refresh"
             deferred_remote_kinds = "TlsBackingTransfer"
+        elif tls_backing_transfer_preflight_refresh:
+            next_slice = "tls_backing_transfer_producer_refresh"
+            deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -458,6 +470,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "page_local_route_body_join_producer_pilot"
         elif terminal_ladder_refresh_preflight:
             selected_route = "terminal_ladder_refresh_preflight"
+        elif tls_backing_transfer_preflight_refresh:
+            selected_route = "tls_backing_transfer_preflight_refresh"
         elif page_local_route_body_join_preflight:
             selected_route = "page_local_route_body_join_preflight"
         elif page_local_alloc_route_cfg_producer:
@@ -519,7 +533,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 else "owner_slot_reuse"
                 if owner_slot_reuse_any
                 else "tls_backing_transfer"
-                if tls_backing_transfer_producer
+                if tls_backing_transfer_preflight_refresh or tls_backing_transfer_producer
                 else "terminal_ladder_refresh"
                 if terminal_ladder_refresh_preflight
                 else "page_local_route_body_join"
@@ -558,7 +572,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 else "OwnerSlotReuse"
                 if owner_slot_reuse_any
                 else "TlsBackingTransfer"
-                if tls_backing_transfer_producer
+                if tls_backing_transfer_preflight_refresh or tls_backing_transfer_producer
                 else "TerminalLadderRefresh"
                 if terminal_ladder_refresh_preflight
                 else "PageLocalRouteBodyJoin"
@@ -732,6 +746,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_terminal_ladder_refresh_preflight",
                 str(int_flag(terminal_ladder_refresh_preflight)),
+            ),
+            (
+                "fastmem_tls_backing_transfer_preflight_refresh",
+                str(int_flag(tls_backing_transfer_preflight_refresh)),
             ),
             (
                 "fastmem_tls_backing_transfer_preflight",

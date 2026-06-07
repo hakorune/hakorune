@@ -80,6 +80,10 @@ def terminal_ladder_refresh_preflight_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_terminal_ladder_refresh_preflight")
 
 
+def tls_backing_transfer_preflight_refresh_profile(rows: Mapping[str, str]) -> bool:
+    return _profile_flag(rows, "fastmem_tls_backing_transfer_preflight_refresh")
+
+
 def tls_backing_transfer_preflight_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_tls_backing_transfer_preflight")
 
@@ -337,4 +341,28 @@ TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_POSITIVE = (
     "page_local_free_route_cfg_selected",
     "page_local_free_route_cfg_lowering_enabled",
     "page_local_free_route_report_v0",
+)
+
+TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_ZERO = (
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+
+TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_POSITIVE = (
+    "fastmem_tls_backing_transfer_preflight_refresh",
+    "terminal_ladder_refresh_selected",
+    "terminal_ladder_refresh_open",
+    "tls_backing_transfer_selected",
+    "page_local_route_body_join_selected",
+    "page_local_route_body_join_open",
+    "page_local_alloc_route_cfg_selected",
+    "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_free_route_cfg_selected",
+    "page_local_free_route_cfg_lowering_enabled",
 )

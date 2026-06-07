@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-083.
 Related:
@@ -39,7 +39,6 @@ replacement_front_selected_memop_family=tls_backing_transfer
 replacement_front_selected_memop_kinds=TlsBackingTransfer
 replacement_front_next_producer_slice=tls_backing_transfer_producer_refresh
 
-fastmem_terminal_ladder_refresh_preflight=1
 terminal_ladder_refresh_selected=1
 terminal_ladder_refresh_open=1
 page_local_route_body_join_selected=1
@@ -67,4 +66,40 @@ abandoned reclaim
 allocator activation
 global allocator replacement
 winner claim
+```
+
+## Landed Evidence
+
+```text
+replacement_front_selected_route=tls_backing_transfer_preflight_refresh
+replacement_front_selected_memop_family=tls_backing_transfer
+replacement_front_selected_memop_kinds=TlsBackingTransfer
+replacement_front_next_producer_slice=tls_backing_transfer_producer_refresh
+fastmem_tls_backing_transfer_preflight_refresh=1
+terminal_ladder_refresh_selected=1
+terminal_ladder_refresh_open=1
+page_local_route_body_join_selected=1
+page_local_route_body_join_open=1
+page_local_alloc_route_cfg_lowering_enabled=1
+page_local_free_route_cfg_lowering_enabled=1
+tls_backing_transfer_selected=1
+tls_backing_transfer_enabled=0
+product_activation=0
+hook_install=0
+global_allocator_claim=0
+winner_claim=0
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_profile_functions.py tools/hako_check/fastmem_check_terminal_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+296x-583 MIM-PORT-FMEM-084 TLS backing transfer producer refresh.
 ```

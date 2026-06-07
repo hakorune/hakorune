@@ -7,6 +7,8 @@ from fastmem_check_profile_functions import *
 from fastmem_route_profiles import (
     TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_POSITIVE,
     TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_ZERO,
+    TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_ZERO,
 )
 
 TERMINAL_LADDER_REFRESH_PREFLIGHT_SELECTED_ROUTE = "terminal_ladder_refresh_preflight"
@@ -529,6 +531,40 @@ def check_terminal_rules(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_POSITIVE:
+            if key.endswith("_lowered_count"):
+                continue
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if tls_backing_transfer_preflight_refresh_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            "tls_backing_transfer_preflight_refresh"
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != (
+            "tls_backing_transfer"
+        ):
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != (
+            "TlsBackingTransfer"
+        ):
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "tls_backing_transfer_producer_refresh"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        deferred = rows.get("replacement_front_deferred_memop_kinds", "").split(",")
+        if "TlsBackingTransferProducer" not in deferred:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        if "OwnerSlotReuse" not in deferred:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_POSITIVE:
             if key.endswith("_lowered_count"):
                 continue
             if int_count(rows, key) <= 0:
