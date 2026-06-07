@@ -1,0 +1,34 @@
+// page_meta_same_remote_free_publish_body_box.hako -- same/remote free publish body preflight
+// Responsibility: prove that .hako hako_alloc can compose owner routing with
+// same-owner LocalFreePush and remote-owner AtomicRemoteHeadPush in one
+// page-meta-local FastMemory body.
+// This does not wire PageMapReleaseSeam.releasePtr, source-level PageMapBridge,
+// pointer-derived lookup, TLS transfer, product allocator replacement, hooks,
+// or winner claims.
+
+static box HakoAllocPageMetaSameRemoteFreePublishBody {
+    sameRemoteFreePublishBodyProbe(page_table, page_index, block) {
+        fastmem PageMapV0 {
+            mem.assumeTableLength(page_table, 64)
+            mem.assumeIndexInRange(page_index, 64)
+            local page = page_table[page_index]
+            local owner_worker_id = page.owner_worker_id
+            local current_owner_id = mem.currentAllocOwnerId()
+            local same_owner = mem.ownerEq(owner_worker_id, current_owner_id)
+            mem.assumeRemoteFreeBlockNext(block)
+            if same_owner {
+                mem.assumeSameOwner(page, same_owner)
+                mem.assumeLocalFreeBlockNext(block)
+                mem.localFreePush(page, block)
+                local used = page.used
+                local next_used = used - 1
+                page.used = next_used
+            } else {
+                mem.assumeRemoteOwner(page)
+                mem.atomicRemoteHeadPush(page, block)
+            }
+            return page.used
+        }
+        return 0
+    }
+}

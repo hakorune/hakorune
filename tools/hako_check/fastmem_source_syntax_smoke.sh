@@ -195,6 +195,15 @@ SAME_OWNER_FREE_BODY_MIR_INV="$TMPDIR/page_meta_same_owner_free_body.mir.invento
 SAME_OWNER_FREE_BODY_LLVM_REPORT="$TMPDIR/page_meta_same_owner_free_body.llvm.report.kv"
 SAME_OWNER_FREE_BODY_LLVM_CHECK="$TMPDIR/page_meta_same_owner_free_body.llvm.check.kv"
 SAME_OWNER_FREE_BODY_LLVM_STDERR="$TMPDIR/page_meta_same_owner_free_body.llvm.stderr"
+SAME_REMOTE_FREE_PUBLISH_BODY_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_same_remote_free_publish_body_box.hako"
+SAME_REMOTE_FREE_PUBLISH_BODY_AST="$TMPDIR/page_meta_same_remote_free_publish_body.ast.json"
+SAME_REMOTE_FREE_PUBLISH_BODY_MIR="$TMPDIR/page_meta_same_remote_free_publish_body.mir.json"
+SAME_REMOTE_FREE_PUBLISH_BODY_INV="$TMPDIR/page_meta_same_remote_free_publish_body.inventory.kv"
+SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV="$TMPDIR/page_meta_same_remote_free_publish_body.mir.inventory.kv"
+SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT="$TMPDIR/page_meta_same_remote_free_publish_body.local.report.kv"
+SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_CHECK="$TMPDIR/page_meta_same_remote_free_publish_body.local.check.kv"
+SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT="$TMPDIR/page_meta_same_remote_free_publish_body.remote.report.kv"
+SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_CHECK="$TMPDIR/page_meta_same_remote_free_publish_body.remote.check.kv"
 FREE_HEAD_POP_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_free_head_pop_vocabulary_box.hako"
 FREE_HEAD_POP_AST="$TMPDIR/page_meta_free_head_pop.ast.json"
 FREE_HEAD_POP_MIR="$TMPDIR/page_meta_free_head_pop.mir.json"
@@ -2754,6 +2763,107 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --out "$SAME_OWNER_FREE_BODY_LLVM_CHECK"
 grep -q '^summary=ok$' "$SAME_OWNER_FREE_BODY_LLVM_CHECK"
 grep -q '^failure_count=0$' "$SAME_OWNER_FREE_BODY_LLVM_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$SAME_REMOTE_FREE_PUBLISH_BODY_AST" "$SAME_REMOTE_FREE_PUBLISH_BODY_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR" "$SAME_REMOTE_FREE_PUBLISH_BODY_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$SAME_REMOTE_FREE_PUBLISH_BODY_AST" \
+  --out "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+
+grep -q '^input_kind=ast_json$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_region_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_field_load_count=3$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_field_store_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_sub_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_local_free_push_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_memop_atomic_remote_head_push_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+grep -q '^summary=ok$' "$SAME_REMOTE_FREE_PUBLISH_BODY_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR" \
+  --out "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_field_load_count=3$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_field_store_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_sub_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_local_free_push_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_memop_atomic_remote_head_push_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_verified_mem_access_plan_count=7$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_verified_field_access_count=4$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_verified_table_access_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_local_free_push_plan_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_local_free_push_lowerable_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_local_free_access_plan_incomplete_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_same_owner_fact_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_block_next_fact_count=2$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_local_free_block_next_proof_missing_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_remote_owner_fact_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^fastmem_remote_free_block_next_source_assume_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^atomic_remote_head_push_plan_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^atomic_remote_head_push_lowerable_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^atomic_remote_head_remote_owner_missing_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^atomic_remote_head_block_next_missing_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+grep -q '^summary=ok$' "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR_INV"
+
+emit_fastmem_producer_report \
+  local-free \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR" \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+
+grep -q '^replacement_front_selected_memop_family=local_free$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=LocalFreePush$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^fastmem_local_free_producer_pilot=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^fastmem_local_free_push_plan_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^atomic_remote_head_push_lowerable_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^memop_local_free_push_lowered_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^memop_atomic_remote_head_lowered_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^product_activation=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^global_allocator_claim=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^winner_claim=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+grep -q '^summary=ok$' "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT"
+
+assert_fastmem_report_check_ok \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_REPORT" \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_LOCAL_CHECK"
+
+emit_fastmem_producer_report \
+  remote-free \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_MIR" \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+
+grep -q '^replacement_front_selected_memop_family=remote_free$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=AtomicRemoteHeadPush$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^fastmem_atomic_remote_head_cas_producer_pilot=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^atomic_remote_head_push_plan_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^atomic_remote_head_push_lowerable_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^atomic_remote_head_remote_owner_missing_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^atomic_remote_head_block_next_missing_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^memop_local_free_push_lowered_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^memop_atomic_remote_head_lowered_count=1$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^product_activation=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^global_allocator_claim=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^winner_claim=0$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+grep -q '^summary=ok$' "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT"
+
+assert_fastmem_report_check_ok \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_REPORT" \
+  "$SAME_REMOTE_FREE_PUBLISH_BODY_REMOTE_CHECK"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$FREE_HEAD_POP_AST" "$FREE_HEAD_POP_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$FREE_HEAD_POP_MIR" "$FREE_HEAD_POP_SRC" >/dev/null

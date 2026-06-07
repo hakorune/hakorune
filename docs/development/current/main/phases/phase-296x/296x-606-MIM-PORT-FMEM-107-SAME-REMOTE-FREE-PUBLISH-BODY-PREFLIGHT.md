@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-107.
 Related:
@@ -58,4 +58,48 @@ fastmem_source_syntax_smoke stays green
 bash tools/hako_check/fastmem_check_smoke.sh
 bash tools/hako_check/fastmem_source_syntax_smoke.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Landed
+
+```text
+Added page_meta_same_remote_free_publish_body_box.hako as the page-meta-local
+publish body preflight.
+
+The new body composes:
+  same owner:
+    assumeSameOwner + LocalFreePush + page.used decrement
+
+  remote owner:
+    assumeRemoteOwner + AtomicRemoteHeadPush
+
+The source fixture keeps PageMapReleaseSeam.releasePtr and pointer-derived
+PageMapBridge lookup closed. The remote block-next precondition is region-level
+so the AtomicRemoteHeadPush plan can use the verified block-next proof while the
+same-owner proof remains branch-local.
+```
+
+## Evidence
+
+```text
+source inventory:
+  fastmem_memop_local_free_push_count=1
+  fastmem_memop_atomic_remote_head_push_count=1
+
+MIR inventory:
+  fastmem_local_free_push_lowerable_count=1
+  atomic_remote_head_push_lowerable_count=1
+  fastmem_local_free_block_next_proof_missing_count=0
+  atomic_remote_head_block_next_missing_count=0
+
+producer evidence:
+  local-free profile lowers LocalFreePush
+  remote-free profile lowers AtomicRemoteHeadPush
+  product/hook/global/winner behavior remains closed
+```
+
+## Closeout
+
+```text
+next: 296x-607 MIM-PORT-FMEM-108 PageMapRelease pointer lookup preflight selection
 ```
