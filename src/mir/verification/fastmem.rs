@@ -361,6 +361,9 @@ fn check_memop_escape(
                 let Some((region, kind)) = produced.get(&escape_use.value).copied() else {
                     continue;
                 };
+                if allowed_fastmem_escape_use(sp.inst, kind, escape_use.value) {
+                    continue;
+                }
                 push_region_error(
                     function,
                     Some(block_id),
@@ -396,20 +399,33 @@ fn extend_single_input_phi_aliases(
                 continue;
             };
             for sp in block.all_spanned_instructions() {
-                let MirInstruction::Phi { dst, inputs, .. } = sp.inst else {
-                    continue;
-                };
-                if produced.contains_key(dst) || inputs.len() != 1 {
-                    continue;
+                match sp.inst {
+                    MirInstruction::Phi { dst, inputs, .. } => {
+                        if produced.contains_key(dst) || inputs.len() != 1 {
+                            continue;
+                        }
+                        let Some((_, input)) = inputs.first() else {
+                            continue;
+                        };
+                        let Some(origin) = produced.get(input).copied() else {
+                            continue;
+                        };
+                        produced.insert(*dst, origin);
+                        changed = true;
+                    }
+                    MirInstruction::Copy { dst, src } => {
+                        if produced.contains_key(dst) {
+                            continue;
+                        }
+                        let Some(origin @ (_, MemOpKind::OwnerEq)) = produced.get(src).copied()
+                        else {
+                            continue;
+                        };
+                        produced.insert(*dst, origin);
+                        changed = true;
+                    }
+                    _ => {}
                 }
-                let Some((_, input)) = inputs.first() else {
-                    continue;
-                };
-                let Some(origin) = produced.get(input).copied() else {
-                    continue;
-                };
-                produced.insert(*dst, origin);
-                changed = true;
             }
         }
     }
@@ -456,6 +472,22 @@ fn fastmem_escape_uses(inst: &MirInstruction) -> Vec<FastMemEscapeUse> {
         });
     }
     uses
+}
+
+fn allowed_fastmem_escape_use(inst: &MirInstruction, kind: MemOpKind, value: ValueId) -> bool {
+    matches!(
+        (kind, inst),
+        (
+            MemOpKind::OwnerEq,
+            MirInstruction::Branch { condition, .. }
+        ) if *condition == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::OwnerEq,
+            MirInstruction::Copy { src, .. }
+        ) if *src == value
+    )
 }
 
 fn push_region_error(
@@ -566,6 +598,32 @@ mod tests {
                 Some(MemOpAccess::field("local_free_head")),
                 EffectMask::WRITE,
             ),
+        ]);
+
+        assert!(
+            check_fastmem_regions(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
+    }
+
+    #[test]
+    fn accepts_owner_eq_memop_as_branch_condition() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::OwnerEq,
+                Some(ValueId::new(3)),
+                vec![ValueId::new(1), ValueId::new(2)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::Branch {
+                condition: ValueId::new(3),
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            },
         ]);
 
         assert!(

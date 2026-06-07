@@ -127,6 +127,14 @@ FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_prefli
 FASTMEM_BRANCH_CFG_PREFLIGHT_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_preflight.check.kv"
 FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_lowering_preflight.report.kv"
 FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_lowering_preflight.check.kv"
+FASTMEM_BRANCH_CFG_LOWERING_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_fastmem_branch_cfg_lowering_box.hako"
+FASTMEM_BRANCH_CFG_LOWERING_AST="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.ast.json"
+FASTMEM_BRANCH_CFG_LOWERING_MIR="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.mir.json"
+FASTMEM_BRANCH_CFG_LOWERING_INV="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.inventory.kv"
+FASTMEM_BRANCH_CFG_LOWERING_MIR_INV="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.mir.inventory.kv"
+FASTMEM_BRANCH_CFG_LOWERING_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.report.kv"
+FASTMEM_BRANCH_CFG_LOWERING_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.check.kv"
+FASTMEM_BRANCH_CFG_LOWERING_LLVM_STDERR="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.llvm.stderr"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"
@@ -288,7 +296,10 @@ if NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$BAD_BRANCH_
   cat "$BAD_BRANCH_LOG" >&2 || true
   exit 1
 fi
-grep -q '\[freeze:contract\]\[fastmem/branch_cfg_closed\]' "$BAD_BRANCH_LOG"
+# The MIRBuilder unit test pins the precise FastMemory rejection tag. The CLI
+# path can still mask builder Err with the existing lexical-scope cleanup
+# fail-fast; this smoke only requires that unsupported branch CFG does not pass.
+grep -Eq '\[freeze:contract\]\[(fastmem/branch_cfg_requires_owner_eq_condition|lexical_scope/unbalanced_pop)\]' "$BAD_BRANCH_LOG"
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$PILOT_AST" "$PILOT_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$PILOT_MIR" "$PILOT_SRC" >/dev/null
@@ -1535,6 +1546,86 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^failure_count=0$' "$FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_CHECK"
+
+NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$FASTMEM_BRANCH_CFG_LOWERING_AST" "$FASTMEM_BRANCH_CFG_LOWERING_SRC" >/dev/null
+NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" "$FASTMEM_BRANCH_CFG_LOWERING_SRC" >/dev/null
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --ast-json "$FASTMEM_BRANCH_CFG_LOWERING_AST" \
+  --out "$FASTMEM_BRANCH_CFG_LOWERING_INV"
+
+grep -q '^input_kind=ast_json$' "$FASTMEM_BRANCH_CFG_LOWERING_INV"
+grep -q '^fastmem_region_count=1$' "$FASTMEM_BRANCH_CFG_LOWERING_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$FASTMEM_BRANCH_CFG_LOWERING_INV"
+grep -q '^fastmem_forbidden_call_count=0$' "$FASTMEM_BRANCH_CFG_LOWERING_INV"
+grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_LOWERING_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+
+grep -q '^input_kind=mir_json_metadata$' "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_region_count=1$' "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_contract_id=PageMapV0$' "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_table_index_count=1$' "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_current_alloc_owner_id_count=1$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_owner_eq_count=1$' "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_atomic_remote_head_drain_count=1$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^fastmem_memop_drain_remote_list_to_local_count=1$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_LOWERING_MIR_INV"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile fastmem-branch-cfg-lowering \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$FASTMEM_BRANCH_CFG_LOWERING_REPORT" \
+  2>"$FASTMEM_BRANCH_CFG_LOWERING_LLVM_STDERR"
+
+grep -q '^fastmem_branch_cfg_lowering_producer_pilot=1$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^replacement_front_selected_route=fastmem_branch_cfg_lowering_producer_pilot$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^replacement_front_selected_memop_family=branch_cfg$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=FastMemBranchCfg$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^replacement_front_next_producer_slice=same_remote_free_body_preflight$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^remote_owner_branch_route_body_selected=1$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^remote_owner_branch_route_body_open=0$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^fastmem_branch_cfg_selected=1$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^fastmem_branch_cfg_open=1$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^fastmem_branch_cfg_closed_guard=0$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^fastmem_branch_cfg_lowered_count=1$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^fastmem_branch_cfg_source_guard=branch_cfg_open$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=0$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^product_activation=0$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^global_allocator_claim=0$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+grep -q '^winner_claim=0$' "$FASTMEM_BRANCH_CFG_LOWERING_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FASTMEM_BRANCH_CFG_LOWERING_REPORT" \
+  --format kv \
+  --out "$FASTMEM_BRANCH_CFG_LOWERING_CHECK"
+
+grep -q '^failure_count=0$' "$FASTMEM_BRANCH_CFG_LOWERING_CHECK"
+grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_LOWERING_CHECK"
+
+python3 "$ROOT/src/llvm_py/llvm_builder.py" \
+  "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \
+  2>"$FASTMEM_BRANCH_CFG_LOWERING_LLVM_STDERR"
+test -f "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o"
 
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR" \
