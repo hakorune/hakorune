@@ -1,5 +1,7 @@
 use super::*;
 use crate::ast::{BinaryOperator, LiteralValue};
+use crate::mir::function::{FastMemBlockNextProofKind, FastMemRemoteOwnerProofKind};
+use crate::mir::MirInstruction;
 
 fn span() -> Span {
     Span::unknown()
@@ -157,25 +159,34 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
             contract: "PageMapV0".to_string(),
             body: vec![
                 local("page", index(var("page_table"), var("key"))),
-                local("current", ASTNode::FunctionCall {
-                    name: "mem.currentAllocOwnerId".to_string(),
-                    arguments: Vec::new(),
-                    span: span(),
-                }),
-                local("same_owner", ASTNode::FunctionCall {
-                    name: "mem.ownerEq".to_string(),
-                    arguments: vec![field(var("page"), "owner_worker_id"), var("current")],
-                    span: span(),
-                }),
+                local(
+                    "current",
+                    ASTNode::FunctionCall {
+                        name: "mem.currentAllocOwnerId".to_string(),
+                        arguments: Vec::new(),
+                        span: span(),
+                    },
+                ),
+                local(
+                    "same_owner",
+                    ASTNode::FunctionCall {
+                        name: "mem.ownerEq".to_string(),
+                        arguments: vec![field(var("page"), "owner_worker_id"), var("current")],
+                        span: span(),
+                    },
+                ),
                 ASTNode::If {
                     condition: Box::new(var("same_owner")),
                     then_body: vec![assign(field(var("page"), "used"), int_lit(1))],
                     else_body: Some(vec![
-                        local("drained", ASTNode::FunctionCall {
-                            name: "mem.atomicRemoteHeadDrain".to_string(),
-                            arguments: vec![var("page")],
-                            span: span(),
-                        }),
+                        local(
+                            "drained",
+                            ASTNode::FunctionCall {
+                                name: "mem.atomicRemoteHeadDrain".to_string(),
+                                arguments: vec![var("page")],
+                                span: span(),
+                            },
+                        ),
                         ASTNode::FunctionCall {
                             name: "mem.drainRemoteListToLocal".to_string(),
                             arguments: vec![var("page"), var("drained")],
