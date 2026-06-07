@@ -912,6 +912,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or tls_backing_transfer_producer_refresh
                     or owner_slot_reuse_preflight_refresh
                     or owner_slot_reuse_producer_refresh
+                    or abandoned_reclaim_preflight_refresh
                 )
             ),
         ),
@@ -924,6 +925,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or tls_backing_transfer_producer_refresh
                     or owner_slot_reuse_preflight_refresh
                     or owner_slot_reuse_producer_refresh
+                    or abandoned_reclaim_preflight_refresh
                 )
             ),
         ),
@@ -935,6 +937,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or tls_backing_transfer_producer_refresh
                     or owner_slot_reuse_preflight_refresh
                     or owner_slot_reuse_producer_refresh
+                    or abandoned_reclaim_preflight_refresh
                 )
             ),
         ),

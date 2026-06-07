@@ -10,6 +10,7 @@ from fastmem_mir_to_llvm_producer_report_common import (
     page_local_free_route_candidate,
 )
 from fastmem_route_profiles import (
+    abandoned_reclaim_preflight_refresh_profile,
     abandoned_reclaim_preflight_profile,
     abandoned_reclaim_producer_profile,
     fastmem_branch_cfg_lowering_preflight_profile,
@@ -157,9 +158,16 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or owner_slot_reuse_producer_refresh
         or owner_slot_reuse_producer
     )
+    abandoned_reclaim_preflight_refresh = (
+        profile == "abandoned-reclaim-preflight-refresh"
+    )
     abandoned_reclaim_preflight = profile == "abandoned-reclaim-preflight"
     abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
-    abandoned_reclaim_any = abandoned_reclaim_preflight or abandoned_reclaim_producer
+    abandoned_reclaim_any = (
+        abandoned_reclaim_preflight_refresh
+        or abandoned_reclaim_preflight
+        or abandoned_reclaim_producer
+    )
     product_activation_preflight = profile == "product-activation-preflight"
     product_activation_producer = profile == "product-activation-producer-pilot"
     product_activation_any = product_activation_preflight or product_activation_producer
@@ -246,6 +254,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "owner-slot-reuse-producer-refresh",
         "owner-slot-reuse-preflight",
         "owner-slot-reuse-producer-pilot",
+        "abandoned-reclaim-preflight-refresh",
         "abandoned-reclaim-preflight",
         "abandoned-reclaim-producer-pilot",
         "product-activation-preflight",
@@ -293,6 +302,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "owner-slot-reuse-producer-refresh",
             "owner-slot-reuse-preflight",
             "owner-slot-reuse-producer-pilot",
+            "abandoned-reclaim-preflight-refresh",
             "abandoned-reclaim-preflight",
             "abandoned-reclaim-producer-pilot",
             "product-activation-preflight",
@@ -418,6 +428,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif owner_slot_reuse_producer_refresh:
             next_slice = "abandoned_reclaim_preflight_refresh"
             deferred_remote_kinds = "AbandonedReclaim"
+        elif abandoned_reclaim_preflight_refresh:
+            next_slice = "abandoned_reclaim_producer_refresh"
+            deferred_remote_kinds = "AbandonedReclaimProducer,ProductActivation"
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -512,6 +525,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "owner_slot_reuse_preflight_refresh"
         elif owner_slot_reuse_producer_refresh:
             selected_route = "owner_slot_reuse_producer_refresh"
+        elif abandoned_reclaim_preflight_refresh:
+            selected_route = "abandoned_reclaim_preflight_refresh"
         elif page_local_route_body_join_preflight:
             selected_route = "page_local_route_body_join_preflight"
         elif page_local_alloc_route_cfg_producer:
@@ -822,6 +837,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_allocator_owner_slot_reuse_producer_pilot",
                 str(int_flag(owner_slot_reuse_producer)),
+            ),
+            (
+                "fastmem_abandoned_reclaim_preflight_refresh",
+                str(int_flag(abandoned_reclaim_preflight_refresh)),
             ),
             (
                 "fastmem_abandoned_reclaim_preflight",
