@@ -8,6 +8,7 @@
  * verified rows without recomputing layout/table facts.
  */
 
+mod fact_store;
 mod linked_list;
 mod types;
 
@@ -18,12 +19,11 @@ use crate::mir::{
         resolve_fastmem_table_contract,
     },
     function::{
-        FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
-        FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact, FastMemRegionMetadata,
-        FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact, RangeIndexFact,
+        FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind,
     },
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use fact_store::{collect_remote_drain_token_facts, region_contract, FastMemFactStore};
 use linked_list::{
     resolve_linked_list_plan_core, FastMemLinkedListFamily, ResolvedLinkedListPlanCore,
 };
@@ -75,125 +75,6 @@ impl ResolvedBlockNextAccess {
             && self.field_size.is_some()
             && self.field_type.is_some()
             && self.alignment.is_some()
-    }
-}
-
-struct FastMemFactStore<'a> {
-    regions: &'a [FastMemRegionMetadata],
-    table_length_facts: &'a [FastMemTableLengthFact],
-    same_owner_facts: &'a [FastMemSameOwnerFact],
-    remote_owner_facts: &'a [FastMemRemoteOwnerFact],
-    block_next_facts: &'a [FastMemBlockNextFact],
-    local_free_non_empty_facts: &'a [FastMemLocalFreeNonEmptyFact],
-    free_head_non_empty_facts: &'a [FastMemFreeHeadNonEmptyFact],
-    remote_drain_token_facts: &'a [FastMemRemoteDrainTokenFact],
-    range_index_facts: &'a [RangeIndexFact],
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct FastMemRemoteDrainTokenFact {
-    region: FastMemRegionId,
-    page_value: ValueId,
-    token_value: ValueId,
-    block: BasicBlockId,
-    instruction_index: usize,
-}
-
-impl<'a> FastMemFactStore<'a> {
-    fn table_length(
-        &self,
-        region: FastMemRegionId,
-        table_id: &str,
-        table_value: ValueId,
-    ) -> Option<&'a FastMemTableLengthFact> {
-        self.table_length_facts.iter().find(|fact| {
-            fact.region == region && fact.table_id == table_id && fact.table_value == table_value
-        })
-    }
-
-    fn range_bounds_proof(
-        &self,
-        block: BasicBlockId,
-        index_value: ValueId,
-        length_fact: &FastMemTableLengthFact,
-    ) -> Option<String> {
-        self.range_index_facts.iter().find_map(|fact| {
-            if fact.index_value == index_value
-                && fact.upper_exclusive_value == length_fact.length_value
-                && fact.body_bb == block
-                && fact.step == 1
-                && fact.end_exclusive
-                && fact.index_body_read_only
-                && !fact.loop_carried_writes_supported
-            {
-                Some(format!("range_fact:{}", fact.fact_id))
-            } else {
-                None
-            }
-        })
-    }
-
-    fn same_owner(
-        &self,
-        region: FastMemRegionId,
-        page_value: ValueId,
-    ) -> Option<&'a FastMemSameOwnerFact> {
-        self.same_owner_facts
-            .iter()
-            .find(|fact| fact.region == region && fact.page_value == page_value)
-    }
-
-    fn remote_owner(
-        &self,
-        region: FastMemRegionId,
-        page_value: ValueId,
-    ) -> Option<&'a FastMemRemoteOwnerFact> {
-        self.remote_owner_facts
-            .iter()
-            .find(|fact| fact.region == region && fact.page_value == page_value)
-    }
-
-    fn block_next(
-        &self,
-        region: FastMemRegionId,
-        block_value: ValueId,
-    ) -> Option<&'a FastMemBlockNextFact> {
-        self.block_next_facts
-            .iter()
-            .find(|fact| fact.region == region && fact.block_value == block_value)
-    }
-
-    fn local_free_non_empty(
-        &self,
-        region: FastMemRegionId,
-        page_value: ValueId,
-    ) -> Option<&'a FastMemLocalFreeNonEmptyFact> {
-        self.local_free_non_empty_facts
-            .iter()
-            .find(|fact| fact.region == region && fact.page_value == page_value)
-    }
-
-    fn free_head_non_empty(
-        &self,
-        region: FastMemRegionId,
-        page_value: ValueId,
-    ) -> Option<&'a FastMemFreeHeadNonEmptyFact> {
-        self.free_head_non_empty_facts
-            .iter()
-            .find(|fact| fact.region == region && fact.page_value == page_value)
-    }
-
-    fn remote_drain_token(
-        &self,
-        region: FastMemRegionId,
-        page_value: ValueId,
-        token_value: ValueId,
-    ) -> Option<&'a FastMemRemoteDrainTokenFact> {
-        self.remote_drain_token_facts.iter().find(|fact| {
-            fact.region == region
-                && fact.page_value == page_value
-                && fact.token_value == token_value
-        })
     }
 }
 
@@ -373,48 +254,6 @@ fn plan_from_memop(
         }
         _ => None,
     }
-}
-
-fn collect_remote_drain_token_facts(function: &MirFunction) -> Vec<FastMemRemoteDrainTokenFact> {
-    let mut facts = Vec::new();
-    for block_id in function.block_ids() {
-        let Some(block) = function.blocks.get(&block_id) else {
-            continue;
-        };
-        for (instruction_index, sp) in block.all_spanned_instructions_enumerated() {
-            let MirInstruction::MemOp {
-                region,
-                kind,
-                dst,
-                operands,
-                ..
-            } = sp.inst
-            else {
-                continue;
-            };
-            if *kind != MemOpKind::AtomicRemoteHeadDrain {
-                continue;
-            }
-            let (Some(token_value), Some(page_value)) = (*dst, operands.first().copied()) else {
-                continue;
-            };
-            facts.push(FastMemRemoteDrainTokenFact {
-                region: *region,
-                page_value,
-                token_value,
-                block: block_id,
-                instruction_index,
-            });
-        }
-    }
-    facts
-}
-
-fn region_contract(regions: &[FastMemRegionMetadata], region: FastMemRegionId) -> Option<&str> {
-    regions
-        .iter()
-        .find(|metadata| metadata.id == region)
-        .map(|metadata| metadata.contract.as_str())
 }
 
 fn table_plan(
@@ -1180,7 +1019,7 @@ fn drain_remote_list_to_local_plan(
     let token_fact = facts.remote_drain_token(region, page, token);
     let token_provenance_valid = token_fact.is_some();
     let page_operand_valid = token_provenance_valid;
-    let contract = region_contract(facts.regions, region);
+    let contract = facts.region_contract(region);
     let local_free_head =
         resolve_head_access(contract, "local_free_head", FastMemFieldAccessMode::Store);
     let block_next_access = resolve_block_next_access(contract, "next");
