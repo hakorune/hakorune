@@ -972,4 +972,32 @@ grep -q '^failure_0_reason=tls_backing_transfer_enabled$' \
   "$BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
 
+TLS_BACKING_TRANSFER_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_tls_backing_transfer_producer.XXXXXX")"
+BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_tls_backing_transfer_producer.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/tls_backing_transfer_producer_inventory.kv" \
+  --format kv \
+  >"$TLS_BACKING_TRANSFER_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected TLS backing transfer producer inventory" >&2
+  cat "$TLS_BACKING_TRANSFER_PRODUCER_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_PRODUCER_OUT"
+grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_PRODUCER_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_tls_backing_transfer_producer_inventory.kv" \
+  --format kv \
+  >"$BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad TLS backing transfer producer inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT"
+grep -q '^failure_0_reason=allocator_owner_slot_reuse_enabled$' \
+  "$BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_TLS_BACKING_TRANSFER_PRODUCER_OUT"
+
 echo "[TEST/OK] fastmem_check"

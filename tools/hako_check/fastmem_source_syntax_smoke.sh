@@ -1832,6 +1832,49 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_PREFLIGHT_CHECK"
 
+TLS_BACKING_TRANSFER_PRODUCER_REPORT="$TMPDIR/page_meta_tls_backing_transfer_producer.report.kv"
+TLS_BACKING_TRANSFER_PRODUCER_CHECK="$TMPDIR/page_meta_tls_backing_transfer_producer.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile tls-backing-transfer-producer-pilot \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+
+grep -q '^fastmem_tls_backing_transfer_producer_pilot=1$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_route=tls_backing_transfer_producer_pilot$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_family=tls_backing_transfer$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=TlsBackingTransfer$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^replacement_front_next_producer_slice=owner_slot_reuse_preflight$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^tls_backing_transfer_selected=1$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^tls_backing_transfer_enabled=1$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^page_local_free_route_cfg_selected=1$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=1$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^allocator_owner_slot_reuse_enabled=0$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^product_activation=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^global_allocator_claim=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+grep -q '^winner_claim=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$TLS_BACKING_TRANSFER_PRODUCER_REPORT" \
+  --format kv \
+  --out "$TLS_BACKING_TRANSFER_PRODUCER_CHECK"
+
+grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_PRODUCER_CHECK"
+grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_PRODUCER_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \
