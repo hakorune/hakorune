@@ -813,6 +813,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "fastmem_page_local_route_body_join_producer_pilot": page_local_route_body_join_producer,
             "fastmem_tls_backing_transfer_preflight": tls_backing_transfer_preflight,
             "fastmem_tls_backing_transfer_producer_pilot": tls_backing_transfer_producer,
+            "page_local_free_route_cfg_any": page_local_free_route_cfg_any,
+            "tls_backing_transfer_or_later": tls_backing_transfer_or_later,
             "fastmem_allocator_owner_slot_reuse_preflight": owner_slot_reuse_preflight,
             "fastmem_allocator_owner_slot_reuse_producer_pilot": owner_slot_reuse_producer,
             "fastmem_abandoned_reclaim_preflight": abandoned_reclaim_preflight,
@@ -826,6 +828,33 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "fastmem_winner_claim_preflight": winner_claim_preflight,
             "fastmem_winner_claim_producer_pilot": winner_claim_producer,
         }
+        remote_free_cas_blocker_names = (
+            "fastmem_atomic_remote_head_retry_preflight",
+            "fastmem_atomic_remote_head_drain_preflight",
+            "fastmem_atomic_remote_head_drain_exchange_selection",
+            "fastmem_atomic_remote_head_drain_exchange_producer_pilot",
+            "fastmem_atomic_remote_head_drain_to_local_route_selection",
+            "fastmem_atomic_remote_head_drain_to_local_route_producer_pilot",
+            "fastmem_atomic_remote_head_drain_local_list_mutation_preflight",
+            "fastmem_atomic_remote_head_drain_local_list_mutation_proof",
+            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+            "fastmem_atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
+            "fastmem_atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot",
+            "fastmem_remote_owner_branch_routing_preflight",
+            "fastmem_remote_owner_branch_routing_lowering_preflight",
+            "fastmem_remote_owner_branch_routing_lowering_producer_pilot",
+            "fastmem_remote_owner_branch_route_body_preflight",
+            "fastmem_branch_cfg_preflight",
+            "fastmem_branch_cfg_lowering_preflight",
+            "fastmem_branch_cfg_lowering_producer_pilot",
+            "fastmem_same_remote_free_body_preflight",
+            "fastmem_same_remote_free_body_producer_pilot",
+            "fastmem_page_local_free_route_cfg_preflight",
+            "page_local_free_route_cfg_any",
+            "fastmem_tls_backing_transfer_preflight",
+            "fastmem_tls_backing_transfer_producer_pilot",
+            "tls_backing_transfer_or_later",
+        )
         remote_free_atomic_flag_names = (
             "fastmem_atomic_remote_head_cas_preflight",
             "fastmem_atomic_remote_head_cas_producer_pilot",
@@ -880,30 +909,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             return _flag_rows(*((name, flag_scope[name]) for name in names))
 
         def _remote_free_cas_producer_pilot_open() -> bool:
-            return (
-                remote_free_open
-                and not remote_free_retry_preflight
-                and not remote_free_drain_preflight
-                and not remote_free_drain_exchange_selection
-                and not remote_free_drain_exchange_producer
-                and not remote_free_drain_to_local_selection
-                and not remote_free_drain_to_local_producer
-                and not remote_free_drain_local_list_mutation_preflight
-                and not remote_free_drain_local_list_mutation_proof
-                and not remote_free_drain_local_list_mutation_vocabulary_preflight
-                and not remote_free_drain_local_list_mutation_verifier_preconditions
-                and not remote_free_drain_local_list_mutation_lowering_producer
-                and not remote_owner_branch_routing_preflight
-                and not remote_owner_branch_routing_lowering_preflight
-                and not remote_owner_branch_routing_lowering_producer
-                and not remote_owner_branch_route_body_preflight
-                and not fastmem_branch_cfg_preflight
-                and not fastmem_branch_cfg_lowering_preflight
-                and not fastmem_branch_cfg_lowering_producer
-                and not same_remote_free_body_preflight
-                and not same_remote_free_body_producer
-                and not page_local_free_route_cfg_any
-                and not tls_backing_transfer_or_later
+            return remote_free_open and not any(
+                flag_scope[name] for name in remote_free_cas_blocker_names
             )
 
         def _remote_free_atomic_rows() -> list[tuple[str, str]]:
