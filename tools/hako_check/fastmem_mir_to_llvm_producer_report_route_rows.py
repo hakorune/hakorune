@@ -10,25 +10,15 @@ from fastmem_mir_to_llvm_producer_report_common import (
     page_local_free_route_candidate,
 )
 from fastmem_route_profiles import (
-    abandoned_reclaim_producer_refresh_profile,
-    abandoned_reclaim_preflight_refresh_profile,
     abandoned_reclaim_preflight_profile,
     abandoned_reclaim_producer_profile,
     fastmem_branch_cfg_lowering_preflight_profile,
     fastmem_branch_cfg_lowering_profile,
     fastmem_branch_cfg_preflight_profile,
     global_allocator_claim_preflight_profile,
-    global_allocator_claim_preflight_refresh_profile,
     global_allocator_claim_producer_profile,
-    global_allocator_claim_producer_refresh_profile,
     hook_install_preflight_profile,
-    hook_install_preflight_refresh_profile,
     hook_install_producer_profile,
-    hook_install_producer_refresh_profile,
-    owner_slot_reuse_preflight_refresh_profile,
-    owner_slot_reuse_producer_refresh_profile,
-    product_activation_preflight_refresh_profile,
-    product_activation_producer_refresh_profile,
     owner_slot_reuse_preflight_profile,
     owner_slot_reuse_producer_profile,
     page_local_alloc_route_cfg_preflight_profile,
@@ -42,15 +32,10 @@ from fastmem_route_profiles import (
     remote_owner_branch_routing_preflight_profile,
     same_remote_free_body_preflight_profile,
     same_remote_free_body_producer_profile,
-    terminal_ladder_refresh_preflight_profile,
-    tls_backing_transfer_preflight_refresh_profile,
-    tls_backing_transfer_producer_refresh_profile,
     tls_backing_transfer_preflight_profile,
     tls_backing_transfer_producer_profile,
     winner_claim_preflight_profile,
-    winner_claim_preflight_refresh_profile,
     winner_claim_producer_profile,
-    winner_claim_producer_refresh_profile,
     REFRESH_PROFILE_NAMES,
     REFRESH_PROFILE_SPECS,
     refresh_profile_spec,
@@ -62,6 +47,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
     profile = state["profile"]
     refresh_spec = refresh_profile_spec(profile)
+    refresh_route = refresh_spec.selected_route if refresh_spec is not None else ""
     refresh_flag_rows = [
         (spec.report_flag, str(int_flag(profile == spec.profile)))
         for spec in REFRESH_PROFILE_SPECS
@@ -128,13 +114,13 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     )
     page_local_route_body_join_producer = profile == "page-local-route-body-join"
     terminal_ladder_refresh_preflight = (
-        profile == "terminal-ladder-refresh-preflight"
+        refresh_route == "terminal_ladder_refresh_preflight"
     )
     tls_backing_transfer_preflight_refresh = (
-        profile == "tls-backing-transfer-preflight-refresh"
+        refresh_route == "tls_backing_transfer_preflight_refresh"
     )
     tls_backing_transfer_producer_refresh = (
-        profile == "tls-backing-transfer-producer-refresh"
+        refresh_route == "tls_backing_transfer_producer_refresh"
     )
     page_local_route_body_join_any = (
         page_local_route_body_join_preflight
@@ -163,10 +149,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     )
     owner_slot_reuse_preflight = profile == "owner-slot-reuse-preflight"
     owner_slot_reuse_preflight_refresh = (
-        profile == "owner-slot-reuse-preflight-refresh"
+        refresh_route == "owner_slot_reuse_preflight_refresh"
     )
     owner_slot_reuse_producer_refresh = (
-        profile == "owner-slot-reuse-producer-refresh"
+        refresh_route == "owner_slot_reuse_producer_refresh"
     )
     owner_slot_reuse_producer = profile == "owner-slot-reuse-producer-pilot"
     owner_slot_reuse_any = (
@@ -176,10 +162,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or owner_slot_reuse_producer
     )
     abandoned_reclaim_preflight_refresh = (
-        profile == "abandoned-reclaim-preflight-refresh"
+        refresh_route == "abandoned_reclaim_preflight_refresh"
     )
     abandoned_reclaim_producer_refresh = (
-        profile == "abandoned-reclaim-producer-refresh"
+        refresh_route == "abandoned_reclaim_producer_refresh"
     )
     abandoned_reclaim_preflight = profile == "abandoned-reclaim-preflight"
     abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
@@ -190,10 +176,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or abandoned_reclaim_producer
     )
     product_activation_preflight_refresh = (
-        profile == "product-activation-preflight-refresh"
+        refresh_route == "product_activation_preflight_refresh"
     )
     product_activation_producer_refresh = (
-        profile == "product-activation-producer-refresh"
+        refresh_route == "product_activation_producer_refresh"
     )
     product_activation_preflight = profile == "product-activation-preflight"
     product_activation_producer = profile == "product-activation-producer-pilot"
@@ -203,8 +189,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or product_activation_preflight
         or product_activation_producer
     )
-    hook_install_preflight_refresh = profile == "hook-install-preflight-refresh"
-    hook_install_producer_refresh = profile == "hook-install-producer-refresh"
+    hook_install_preflight_refresh = refresh_route == "hook_install_preflight_refresh"
+    hook_install_producer_refresh = refresh_route == "hook_install_producer_refresh"
     hook_install_preflight = profile == "hook-install-preflight"
     hook_install_producer = profile == "hook-install-producer-pilot"
     hook_install_any = (
@@ -214,11 +200,11 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or hook_install_producer
     )
     global_allocator_claim_preflight_refresh = (
-        profile == "global-allocator-claim-preflight-refresh"
+        refresh_route == "global_allocator_claim_preflight_refresh"
     )
     global_allocator_claim_preflight = profile == "global-allocator-claim-preflight"
     global_allocator_claim_producer_refresh = (
-        profile == "global-allocator-claim-producer-refresh"
+        refresh_route == "global_allocator_claim_producer_refresh"
     )
     global_allocator_claim_producer = profile == "global-allocator-claim-producer-pilot"
     global_allocator_claim_any = (
@@ -227,8 +213,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or global_allocator_claim_preflight
         or global_allocator_claim_producer
     )
-    winner_claim_preflight_refresh = profile == "winner-claim-preflight-refresh"
-    winner_claim_producer_refresh = profile == "winner-claim-producer-refresh"
+    winner_claim_preflight_refresh = refresh_route == "winner_claim_preflight_refresh"
+    winner_claim_producer_refresh = refresh_route == "winner_claim_producer_refresh"
     winner_claim_preflight = profile == "winner-claim-preflight"
     winner_claim_producer = profile == "winner-claim-producer-pilot"
     winner_claim_any = (

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-102.
 Related:
@@ -47,4 +47,18 @@ python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_chec
 bash tools/hako_check/fastmem_check_smoke.sh
 bash tools/hako_check/fastmem_source_syntax_smoke.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Landed Evidence
+
+```text
+refresh-specific profile function imports are no longer needed in route_rows
+refreshed route booleans derive from RefreshProfileSpec.selected_route
+emitted refresh flag rows still derive from REFRESH_PROFILE_SPECS
+```
+
+## Closeout
+
+```text
+next: 296x-602 MIM-PORT-FMEM-103 source-syntax refresh helper cleanup
 ```
