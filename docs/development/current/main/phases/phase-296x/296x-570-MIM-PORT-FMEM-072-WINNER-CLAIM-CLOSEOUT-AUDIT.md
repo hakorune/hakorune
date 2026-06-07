@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-072.
 Related:
@@ -47,4 +47,30 @@ fastmem_source_syntax_smoke passes
 new MemOp lowering
 Python-template C bridge restoration
 global allocator behavior expansion beyond existing winner-claim evidence
+```
+
+## Landed Evidence
+
+```text
+replacement_front_selected_route=winner_claim_producer_pilot
+replacement_front_next_producer_slice=complete
+replacement_front_deferred_memop_kinds=none
+winner_claim_selected=1
+winner_claim=1
+type_abi_hot_lookup_count=0
+provider_abi_hot_dispatch_count=0
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_mir_to_llvm_producer_report.py tools/hako_check/fastmem_check.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-073 FastMemory access-plan payload commonality cleanup
 ```
