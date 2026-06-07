@@ -811,6 +811,40 @@ FASTMEM_BRANCH_CFG_LOWERING_PRODUCER_EXPECTED_POSITIVE = (
     "memop_owner_eq_lowered_count",
     "atomic_remote_head_drain_local_list_mutation_lowered_count",
 )
+SAME_REMOTE_FREE_BODY_PREFLIGHT_EXPECTED_ZERO = (
+    "same_remote_free_body_open",
+    "same_remote_free_body_lowered_count",
+    "remote_owner_branch_route_body_open",
+    "page_local_alloc_route_branch_claim",
+    "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_free_route_branch_claim",
+    "page_local_free_route_cfg_lowering_enabled",
+    "atomic_remote_head_remote_owner_missing_count",
+    "atomic_remote_head_block_next_missing_count",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+SAME_REMOTE_FREE_BODY_PREFLIGHT_EXPECTED_POSITIVE = (
+    "fastmem_same_remote_free_body_preflight",
+    "same_remote_free_body_selected",
+    "fastmem_branch_cfg_selected",
+    "fastmem_branch_cfg_open",
+    "fastmem_branch_cfg_lowered_count",
+    "remote_owner_branch_routing_selected",
+    "remote_owner_branch_routing_lowering_selected",
+    "remote_owner_branch_routing_open",
+    "remote_owner_branch_routing_lowered_count",
+    "remote_owner_branch_route_body_selected",
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+    "atomic_remote_head_drain_local_list_mutation_lowered_count",
+)
 
 
 def int_count(rows: dict[str, Any], key: str) -> int:
@@ -1009,6 +1043,10 @@ def fastmem_branch_cfg_lowering_preflight_profile(rows: dict[str, str]) -> bool:
 
 def fastmem_branch_cfg_lowering_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_branch_cfg_lowering_producer_pilot") > 0
+
+
+def same_remote_free_body_preflight_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_same_remote_free_body_preflight") > 0
 
 
 def complete_layout_table_lowering_candidate(rows: dict[str, str]) -> bool:
@@ -2045,6 +2083,33 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in FASTMEM_BRANCH_CFG_LOWERING_PRODUCER_EXPECTED_POSITIVE:
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if same_remote_free_body_preflight_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            "same_remote_free_body_preflight"
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != "same_remote_free_body":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != "SameRemoteFreeBody":
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "same_remote_free_body_producer_pilot"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        if "SameRemoteFreeBodyProducer" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in SAME_REMOTE_FREE_BODY_PREFLIGHT_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in SAME_REMOTE_FREE_BODY_PREFLIGHT_EXPECTED_POSITIVE:
             if int_count(rows, key) <= 0:
                 reasons.append(key)
     return reasons

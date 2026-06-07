@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-054.
 Related:
@@ -59,4 +59,37 @@ opening remote-heavy benchmark claim
 opening TLS backing transfer
 opening abandoned reclaim
 opening allocator activation
+```
+
+## Landed Evidence
+
+```text
+producer:
+  replacement_front_selected_route=same_remote_free_body_preflight
+  replacement_front_next_producer_slice=same_remote_free_body_producer_pilot
+  replacement_front_selected_memop_family=same_remote_free_body
+  replacement_front_selected_memop_kinds=SameRemoteFreeBody
+
+required existing evidence:
+  fastmem_branch_cfg_open=1
+  fastmem_branch_cfg_lowered_count=1
+
+still closed:
+  same_remote_free_body_open=0
+  same_remote_free_body_lowered_count=0
+  page_local_free_route_cfg_lowering_enabled=0
+  type_abi_hot_lookup_count=0
+  provider_abi_hot_dispatch_count=0
+  product_activation=0
+  hook_install=0
+  global_allocator_claim=0
+  winner_claim=0
+```
+
+Verification:
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
 ```

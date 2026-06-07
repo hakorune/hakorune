@@ -1621,6 +1621,50 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$FASTMEM_BRANCH_CFG_LOWERING_CHECK"
 grep -q '^summary=ok$' "$FASTMEM_BRANCH_CFG_LOWERING_CHECK"
 
+SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT="$TMPDIR/page_meta_same_remote_free_body_preflight.report.kv"
+SAME_REMOTE_FREE_BODY_PREFLIGHT_CHECK="$TMPDIR/page_meta_same_remote_free_body_preflight.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile same-remote-free-body-preflight \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_same_remote_free_body_preflight=1$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=same_remote_free_body_preflight$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_family=same_remote_free_body$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=SameRemoteFreeBody$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=same_remote_free_body_producer_pilot$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^same_remote_free_body_selected=1$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^same_remote_free_body_open=0$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^same_remote_free_body_lowered_count=0$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^fastmem_branch_cfg_open=1$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^fastmem_branch_cfg_lowered_count=1$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=0$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^product_activation=0$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$SAME_REMOTE_FREE_BODY_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$SAME_REMOTE_FREE_BODY_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$SAME_REMOTE_FREE_BODY_PREFLIGHT_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \
