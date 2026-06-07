@@ -340,6 +340,16 @@ def _remote_free_refresh_rows(
     ]
 
 
+def _first_true_route(
+    choices: tuple[tuple[bool, str], ...],
+    default: str,
+) -> str:
+    for condition, value in choices:
+        if condition:
+            return value
+    return default
+
+
 def _inactive_atomic_remote_rows(
     current_owner_source: str,
 ) -> list[tuple[str, str]]:
@@ -707,18 +717,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or page_local_free_route_cfg_any
         or tls_backing_transfer_or_later
     )
-    remote_owner_branch_routing_lowering_any = (
-        remote_owner_branch_routing_lowering_preflight
-        or remote_owner_branch_routing_lowering_producer
-        or remote_owner_branch_route_body_preflight
-        or fastmem_branch_cfg_preflight
-        or fastmem_branch_cfg_lowering_preflight
-        or fastmem_branch_cfg_lowering_producer
-        or same_remote_free_body_preflight
-        or same_remote_free_body_producer
-        or page_local_free_route_cfg_any
-        or tls_backing_transfer_or_later
-    )
     remote_free_drain_local_list_mutation_any = (
         remote_free_drain_local_list_mutation_preflight
         or remote_free_drain_local_list_mutation_proof
@@ -866,68 +864,101 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 selected_remote_kind = "DrainRemoteListToLocal"
             if remote_owner_branch_routing_any:
                 selected_remote_kind = "RemoteOwnerBranchRouting"
-            if winner_claim_producer:
-                selected_route = "winner_claim_producer_pilot"
-            elif winner_claim_preflight:
-                selected_route = "winner_claim_preflight"
-            elif global_allocator_claim_producer:
-                selected_route = "global_allocator_claim_producer_pilot"
-            elif global_allocator_claim_preflight:
-                selected_route = "global_allocator_claim_preflight"
-            elif hook_install_producer:
-                selected_route = "hook_install_producer_pilot"
-            elif hook_install_preflight:
-                selected_route = "hook_install_preflight"
-            elif product_activation_producer:
-                selected_route = "product_activation_producer_pilot"
-            elif product_activation_preflight:
-                selected_route = "product_activation_preflight"
-            elif page_local_route_body_join_producer:
-                selected_route = "page_local_route_body_join_producer_pilot"
-            elif refresh_spec is not None:
-                selected_route = refresh_spec.selected_route
-            elif page_local_route_body_join_preflight:
-                selected_route = "page_local_route_body_join_preflight"
-            elif page_local_alloc_route_cfg_producer:
-                selected_route = "page_local_alloc_route_cfg_producer_pilot"
-            elif page_local_alloc_route_cfg_preflight:
-                selected_route = "page_local_alloc_route_cfg_preflight"
-            elif page_local_free_route_cfg_preflight:
-                selected_route = "page_local_free_route_cfg_preflight"
-            elif abandoned_reclaim_producer:
-                selected_route = "abandoned_reclaim_producer_pilot"
-            elif abandoned_reclaim_preflight:
-                selected_route = "abandoned_reclaim_preflight"
-            elif owner_slot_reuse_producer:
-                selected_route = "owner_slot_reuse_producer_pilot"
-            elif owner_slot_reuse_preflight:
-                selected_route = "owner_slot_reuse_preflight"
-            elif tls_backing_transfer_producer:
-                selected_route = "tls_backing_transfer_producer_pilot"
-            elif tls_backing_transfer_preflight:
-                selected_route = "tls_backing_transfer_preflight"
-            elif page_local_free_route_cfg_producer:
-                selected_route = "page_local_free_route_cfg_producer_pilot"
-            elif same_remote_free_body_producer:
-                selected_route = "same_remote_free_body_producer_pilot"
-            elif same_remote_free_body_preflight:
-                selected_route = "same_remote_free_body_preflight"
-            elif fastmem_branch_cfg_lowering_producer:
-                selected_route = "fastmem_branch_cfg_lowering_producer_pilot"
-            elif fastmem_branch_cfg_lowering_preflight:
-                selected_route = "fastmem_branch_cfg_lowering_preflight"
-            elif fastmem_branch_cfg_preflight:
-                selected_route = "fastmem_branch_cfg_preflight"
-            elif remote_owner_branch_route_body_preflight:
-                selected_route = "remote_owner_branch_route_body_preflight"
-            elif remote_owner_branch_routing_lowering_producer:
-                selected_route = "remote_owner_branch_routing_lowering_producer_pilot"
-            elif remote_owner_branch_routing_lowering_preflight:
-                selected_route = "remote_owner_branch_routing_lowering_preflight"
-            elif remote_owner_branch_routing_preflight:
-                selected_route = "remote_owner_branch_routing_preflight"
-            else:
-                selected_route = "none"
+            selected_route = _first_true_route(
+                (
+                    (winner_claim_producer, "winner_claim_producer_pilot"),
+                    (winner_claim_preflight, "winner_claim_preflight"),
+                    (
+                        global_allocator_claim_producer,
+                        "global_allocator_claim_producer_pilot",
+                    ),
+                    (
+                        global_allocator_claim_preflight,
+                        "global_allocator_claim_preflight",
+                    ),
+                    (hook_install_producer, "hook_install_producer_pilot"),
+                    (hook_install_preflight, "hook_install_preflight"),
+                    (
+                        product_activation_producer,
+                        "product_activation_producer_pilot",
+                    ),
+                    (product_activation_preflight, "product_activation_preflight"),
+                    (
+                        page_local_route_body_join_producer,
+                        "page_local_route_body_join_producer_pilot",
+                    ),
+                    (
+                        refresh_spec is not None,
+                        refresh_spec.selected_route if refresh_spec is not None else "none",
+                    ),
+                    (
+                        page_local_route_body_join_preflight,
+                        "page_local_route_body_join_preflight",
+                    ),
+                    (
+                        page_local_alloc_route_cfg_producer,
+                        "page_local_alloc_route_cfg_producer_pilot",
+                    ),
+                    (
+                        page_local_alloc_route_cfg_preflight,
+                        "page_local_alloc_route_cfg_preflight",
+                    ),
+                    (
+                        page_local_free_route_cfg_preflight,
+                        "page_local_free_route_cfg_preflight",
+                    ),
+                    (
+                        abandoned_reclaim_producer,
+                        "abandoned_reclaim_producer_pilot",
+                    ),
+                    (abandoned_reclaim_preflight, "abandoned_reclaim_preflight"),
+                    (owner_slot_reuse_producer, "owner_slot_reuse_producer_pilot"),
+                    (owner_slot_reuse_preflight, "owner_slot_reuse_preflight"),
+                    (
+                        tls_backing_transfer_producer,
+                        "tls_backing_transfer_producer_pilot",
+                    ),
+                    (tls_backing_transfer_preflight, "tls_backing_transfer_preflight"),
+                    (
+                        page_local_free_route_cfg_producer,
+                        "page_local_free_route_cfg_producer_pilot",
+                    ),
+                    (
+                        same_remote_free_body_producer,
+                        "same_remote_free_body_producer_pilot",
+                    ),
+                    (
+                        same_remote_free_body_preflight,
+                        "same_remote_free_body_preflight",
+                    ),
+                    (
+                        fastmem_branch_cfg_lowering_producer,
+                        "fastmem_branch_cfg_lowering_producer_pilot",
+                    ),
+                    (
+                        fastmem_branch_cfg_lowering_preflight,
+                        "fastmem_branch_cfg_lowering_preflight",
+                    ),
+                    (fastmem_branch_cfg_preflight, "fastmem_branch_cfg_preflight"),
+                    (
+                        remote_owner_branch_route_body_preflight,
+                        "remote_owner_branch_route_body_preflight",
+                    ),
+                    (
+                        remote_owner_branch_routing_lowering_producer,
+                        "remote_owner_branch_routing_lowering_producer_pilot",
+                    ),
+                    (
+                        remote_owner_branch_routing_lowering_preflight,
+                        "remote_owner_branch_routing_lowering_preflight",
+                    ),
+                    (
+                        remote_owner_branch_routing_preflight,
+                        "remote_owner_branch_routing_preflight",
+                    ),
+                ),
+                default="none",
+            )
         else:
             route_family = False
             remote_free_open = False

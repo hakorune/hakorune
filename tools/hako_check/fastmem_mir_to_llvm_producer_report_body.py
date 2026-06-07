@@ -703,7 +703,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
         ),
         (
             "remote_owner_branch_routing_lowering_selected",
-            str(int_flag(remote_owner_branch_routing_lowering_any)),
+            str(int_flag(remote_owner_branch_routing_any)),
         ),
         (
             "remote_owner_branch_routing_open",
