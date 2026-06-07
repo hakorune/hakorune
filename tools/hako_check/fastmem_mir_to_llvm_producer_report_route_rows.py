@@ -707,6 +707,61 @@ def _route_family_progression_from_flags(
     return next_slice, deferred_remote_kinds, selected_remote_kind
 
 
+def _build_route_summary(
+    *,
+    profile: str,
+    state: Mapping[str, Any],
+    refresh_spec: Any | None,
+    route_family_flags: Mapping[str, bool],
+) -> dict[str, Any]:
+    route_spec = remote_free_route_profile_spec(profile)
+    if route_spec is not None:
+        return {
+            "route_candidate": "none",
+            "remote_free_open": True,
+            "route_family": True,
+            "next_slice": route_spec.next_slice,
+            "deferred_remote_kinds": route_spec.deferred_kinds,
+            "selected_remote_kind": route_spec.selected_remote_kind,
+            "selected_route": route_spec.selected_route,
+        }
+
+    if profile not in (
+        "owner-runtime",
+        "local-free",
+        "layout_table",
+    ):
+        if refresh_spec is not None:
+            next_slice = refresh_spec.next_slice
+            deferred_remote_kinds = refresh_spec.deferred_kinds
+            _, _, selected_remote_kind = _route_family_progression_from_flags(
+                **route_family_flags
+            )
+        else:
+            next_slice, deferred_remote_kinds, selected_remote_kind = (
+                _route_family_progression_from_flags(**route_family_flags)
+            )
+        return {
+            "route_candidate": "none",
+            "remote_free_open": False,
+            "route_family": True,
+            "next_slice": next_slice,
+            "deferred_remote_kinds": deferred_remote_kinds,
+            "selected_remote_kind": selected_remote_kind,
+            "selected_route": _selected_route_from_state(state, refresh_spec),
+        }
+
+    return {
+        "route_candidate": "none",
+        "remote_free_open": False,
+        "route_family": False,
+        "next_slice": "layout_table_producer_pilot",
+        "deferred_remote_kinds": "CurrentAllocOwnerId,OwnerEq",
+        "selected_remote_kind": "LayoutTable",
+        "selected_route": _selected_route_from_state(state, refresh_spec),
+    }
+
+
 def _owner_runtime_slice_rows() -> list[tuple[str, str]]:
     return [
         *_slice_prefix_rows(
@@ -1021,51 +1076,12 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "remote_free_drain_any": remote_free_drain_any,
         "remote_owner_branch_routing_any": remote_owner_branch_routing_any,
     }
-    def _build_route_summary() -> dict[str, Any]:
-        route_spec = remote_free_route_profile_spec(profile)
-        if route_spec is not None:
-            remote_free_open = True
-            route_family = True
-            route_candidate = "none"
-            next_slice = route_spec.next_slice
-            deferred_remote_kinds = route_spec.deferred_kinds
-            selected_remote_kind = route_spec.selected_remote_kind
-            selected_route = route_spec.selected_route
-        elif profile not in (
-            "owner-runtime",
-            "local-free",
-            "layout_table",
-        ):
-            route_family = True
-            remote_free_open = False
-            route_candidate = "none"
-            if refresh_spec is not None:
-                next_slice = refresh_spec.next_slice
-                deferred_remote_kinds = refresh_spec.deferred_kinds
-                _, _, selected_remote_kind = _route_family_progression_from_flags(**route_family_flags)
-            else:
-                next_slice, deferred_remote_kinds, selected_remote_kind = _route_family_progression_from_flags(**route_family_flags)
-            selected_route = _selected_route_from_state(state, refresh_spec)
-        else:
-            route_family = False
-            remote_free_open = False
-            route_candidate = "none"
-            next_slice = "layout_table_producer_pilot"
-            deferred_remote_kinds = "CurrentAllocOwnerId,OwnerEq"
-            selected_remote_kind = "LayoutTable"
-            selected_route = _selected_route_from_state(state, refresh_spec)
-
-        return {
-            "route_candidate": route_candidate,
-            "remote_free_open": remote_free_open,
-            "route_family": route_family,
-            "next_slice": next_slice,
-            "deferred_remote_kinds": deferred_remote_kinds,
-            "selected_remote_kind": selected_remote_kind,
-            "selected_route": selected_route,
-        }
-
-    route_summary = _build_route_summary()
+    route_summary = _build_route_summary(
+        profile=profile,
+        state=state,
+        refresh_spec=refresh_spec,
+        route_family_flags=route_family_flags,
+    )
     route_candidate = route_summary["route_candidate"]
     remote_free_open = route_summary["remote_free_open"]
     route_family = route_summary["route_family"]
