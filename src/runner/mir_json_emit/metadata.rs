@@ -10,6 +10,7 @@ use super::metadata_seed::{
 };
 use super::placement_effect::build_placement_effect_routes_json;
 use super::plan_metadata::insert_plan_metadata_json;
+use super::proof_envelope::build_proof_envelopes_json;
 use super::plans::build_string_kernel_plan_json;
 use super::route_metadata::insert_route_metadata_json;
 use crate::mir::MirFunction;
@@ -167,6 +168,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "failure_reason": plan.failure_reason,
             })
         }).collect::<Vec<_>>(),
+        "proof_envelopes": build_proof_envelopes_json(metadata),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

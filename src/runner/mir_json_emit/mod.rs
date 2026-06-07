@@ -16,6 +16,7 @@ mod order;
 mod placement_effect;
 mod plan_metadata;
 mod plans;
+mod proof_envelope;
 mod root;
 mod route_json;
 mod route_metadata;

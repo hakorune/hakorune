@@ -16,6 +16,7 @@ mod generic_method_routes;
 mod global_call_routes;
 mod map_lookup_fusion_routes;
 mod ordering;
+mod proof_envelopes;
 mod placement;
 mod string_corridor;
 mod string_direct_set_routes;
