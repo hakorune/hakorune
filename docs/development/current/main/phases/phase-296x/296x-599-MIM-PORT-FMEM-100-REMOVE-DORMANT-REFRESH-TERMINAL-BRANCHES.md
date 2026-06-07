@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-100.
 Related:
@@ -36,6 +36,31 @@ only refresh-profile terminal rule duplication is deleted
 refresh profiles still validate through RefreshProfileSpec
 fastmem_check_smoke stays green
 fastmem_source_syntax_smoke stays green
+```
+
+## Landed Evidence
+
+```text
+fastmem_check_terminal_rules.py:
+  before this row: 1389 lines
+  after this row: 953 lines
+
+refresh terminal branches now validate only through:
+  refresh_profile_spec_for_rows(rows)
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_profile_functions.py tools/hako_check/fastmem_check_terminal_rules.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+296x-600 MIM-PORT-FMEM-101 producer refresh flag-row cleanup.
 ```
 
 ## Verification
