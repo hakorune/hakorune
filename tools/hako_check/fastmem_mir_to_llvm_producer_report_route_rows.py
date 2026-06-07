@@ -686,6 +686,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     deferred_remote_kinds = route_summary["deferred_remote_kinds"]
     selected_remote_kind = route_summary["selected_remote_kind"]
     selected_route = route_summary["selected_route"]
+    free_route_candidate = "none"
     route_summary_flags = RouteSummaryFlags(
         winner_claim_any=winner_claim_any,
         global_allocator_claim_any=global_allocator_claim_any,
@@ -969,7 +970,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         selected_memop_family = "layout_table"
         selected_memop_kinds = "TableIndex,FieldLoad,FieldStore"
         slice_rows = _layout_table_slice_rows()
-
 
     state.update(locals())
     return state
