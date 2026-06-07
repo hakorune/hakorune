@@ -921,6 +921,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or global_allocator_claim_preflight_refresh
                     or global_allocator_claim_producer_refresh
                     or winner_claim_preflight_refresh
+                    or winner_claim_producer_refresh
                 )
             ),
         ),
@@ -942,6 +943,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or global_allocator_claim_preflight_refresh
                     or global_allocator_claim_producer_refresh
                     or winner_claim_preflight_refresh
+                    or winner_claim_producer_refresh
                 )
             ),
         ),
@@ -962,6 +964,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or global_allocator_claim_preflight_refresh
                     or global_allocator_claim_producer_refresh
                     or winner_claim_preflight_refresh
+                    or winner_claim_producer_refresh
                 )
             ),
         ),
