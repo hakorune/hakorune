@@ -262,6 +262,8 @@ PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT="$TMPDIR/product_activation_producer_
 PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK="$TMPDIR/product_activation_producer_refresh.check.kv"
 HOOK_INSTALL_REFRESH_REPORT="$TMPDIR/hook_install_refresh.report.kv"
 HOOK_INSTALL_REFRESH_CHECK="$TMPDIR/hook_install_refresh.check.kv"
+HOOK_INSTALL_PRODUCER_REFRESH_REPORT="$TMPDIR/hook_install_producer_refresh.report.kv"
+HOOK_INSTALL_PRODUCER_REFRESH_CHECK="$TMPDIR/hook_install_producer_refresh.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
 WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
@@ -3990,6 +3992,42 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^summary=ok$' "$HOOK_INSTALL_REFRESH_CHECK"
 grep -q '^failure_count=0$' "$HOOK_INSTALL_REFRESH_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile hook-install-producer-refresh \
+  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  --out "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+
+grep -q '^fastmem_hook_install_producer_refresh=1$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_route=hook_install_producer_refresh$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_family=hook_install$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=HookInstall$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^replacement_front_next_producer_slice=global_allocator_claim_preflight_refresh$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_open=1$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^page_local_route_body_join_open=1$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^product_activation_selected=1$' \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^product_activation=1$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^hook_install_selected=1$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^hook_install=1$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^hook_installed=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^global_allocator_claim=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+grep -q '^winner_claim=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT" \
+  --format kv \
+  --out "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
+
+grep -q '^summary=ok$' "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
+grep -q '^failure_count=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \

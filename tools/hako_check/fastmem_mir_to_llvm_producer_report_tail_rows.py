@@ -86,6 +86,7 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     product_activation_producer = state.get("product_activation_producer", False)
     product_activation_or_later = state.get("product_activation_or_later", False)
     hook_install_preflight = state.get("hook_install_preflight", False)
+    hook_install_producer_refresh = state.get("hook_install_producer_refresh", False)
     hook_install_producer = state.get("hook_install_producer", False)
     hook_install_or_later = state.get("hook_install_or_later", False)
     global_allocator_claim_preflight = state.get("global_allocator_claim_preflight", False)
@@ -224,7 +225,16 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
                 )
             ),
         ),
-        ("hook_install", str(int_flag(hook_install_producer or global_allocator_claim_or_later))),
+        (
+            "hook_install",
+            str(
+                int_flag(
+                    hook_install_producer
+                    or hook_install_producer_refresh
+                    or global_allocator_claim_or_later
+                )
+            ),
+        ),
         ("hook_installed", "0"),
         ("global_allocator_claim", str(int_flag(global_allocator_claim_producer or winner_claim_any))),
         ("global_allocator_product_claim", "0"),

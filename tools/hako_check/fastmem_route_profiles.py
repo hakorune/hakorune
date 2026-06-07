@@ -152,6 +152,10 @@ def hook_install_preflight_refresh_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_hook_install_preflight_refresh")
 
 
+def hook_install_producer_refresh_profile(rows: Mapping[str, str]) -> bool:
+    return _profile_flag(rows, "fastmem_hook_install_producer_refresh")
+
+
 def hook_install_producer_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_hook_install_producer_pilot")
 
@@ -584,6 +588,27 @@ HOOK_INSTALL_PREFLIGHT_REFRESH_EXPECTED_POSITIVE = (
     "product_activation_selected",
     "product_activation",
     "hook_install_selected",
+    "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_free_route_cfg_lowering_enabled",
+)
+
+HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_ZERO = (
+    "page_reclaimed_with_remote_candidates",
+    "allocator_owner_reuse_without_generation_bump_count",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "global_allocator_claim",
+    "winner_claim",
+)
+
+HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_POSITIVE = (
+    "fastmem_hook_install_producer_refresh",
+    "terminal_ladder_refresh_open",
+    "page_local_route_body_join_open",
+    "product_activation_selected",
+    "product_activation",
+    "hook_install_selected",
+    "hook_install",
     "page_local_alloc_route_cfg_lowering_enabled",
     "page_local_free_route_cfg_lowering_enabled",
 )

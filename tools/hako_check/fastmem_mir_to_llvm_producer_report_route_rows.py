@@ -22,6 +22,7 @@ from fastmem_route_profiles import (
     hook_install_preflight_profile,
     hook_install_preflight_refresh_profile,
     hook_install_producer_profile,
+    hook_install_producer_refresh_profile,
     owner_slot_reuse_preflight_refresh_profile,
     owner_slot_reuse_producer_refresh_profile,
     product_activation_preflight_refresh_profile,
@@ -191,10 +192,12 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or product_activation_producer
     )
     hook_install_preflight_refresh = profile == "hook-install-preflight-refresh"
+    hook_install_producer_refresh = profile == "hook-install-producer-refresh"
     hook_install_preflight = profile == "hook-install-preflight"
     hook_install_producer = profile == "hook-install-producer-pilot"
     hook_install_any = (
         hook_install_preflight_refresh
+        or hook_install_producer_refresh
         or hook_install_preflight
         or hook_install_producer
     )
@@ -287,6 +290,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "product-activation-preflight",
         "product-activation-producer-pilot",
         "hook-install-preflight-refresh",
+        "hook-install-producer-refresh",
         "hook-install-preflight",
         "hook-install-producer-pilot",
         "global-allocator-claim-preflight",
@@ -339,6 +343,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "product-activation-preflight",
             "product-activation-producer-pilot",
             "hook-install-preflight-refresh",
+            "hook-install-producer-refresh",
             "hook-install-preflight",
             "hook-install-producer-pilot",
             "global-allocator-claim-preflight",
@@ -475,6 +480,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif hook_install_preflight_refresh:
             next_slice = "hook_install_producer_refresh"
             deferred_remote_kinds = "HookInstallProducer,GlobalAllocatorClaim"
+        elif hook_install_producer_refresh:
+            next_slice = "global_allocator_claim_preflight_refresh"
+            deferred_remote_kinds = "GlobalAllocatorClaim"
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -579,6 +587,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "product_activation_producer_refresh"
         elif hook_install_preflight_refresh:
             selected_route = "hook_install_preflight_refresh"
+        elif hook_install_producer_refresh:
+            selected_route = "hook_install_producer_refresh"
         elif page_local_route_body_join_preflight:
             selected_route = "page_local_route_body_join_preflight"
         elif page_local_alloc_route_cfg_producer:
@@ -925,6 +935,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_hook_install_preflight_refresh",
                 str(int_flag(hook_install_preflight_refresh)),
+            ),
+            (
+                "fastmem_hook_install_producer_refresh",
+                str(int_flag(hook_install_producer_refresh)),
             ),
             (
                 "fastmem_hook_install_preflight",

@@ -11,6 +11,8 @@ from fastmem_route_profiles import (
     ABANDONED_RECLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
     HOOK_INSTALL_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
     HOOK_INSTALL_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+    HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_ZERO,
     PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_POSITIVE,
     PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_ZERO,
     PRODUCT_ACTIVATION_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
@@ -829,6 +831,35 @@ def check_terminal_rules(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 0:
                 reasons.append(key)
         for key in HOOK_INSTALL_PREFLIGHT_REFRESH_EXPECTED_POSITIVE:
+            if key.endswith("_lowered_count"):
+                continue
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+    if hook_install_producer_refresh_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            "hook_install_producer_refresh"
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != "hook_install":
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != "HookInstall":
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            "global_allocator_claim_preflight_refresh"
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        if "GlobalAllocatorClaim" not in rows.get(
+            "replacement_front_deferred_memop_kinds", ""
+        ).split(","):
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_POSITIVE:
             if key.endswith("_lowered_count"):
                 continue
             if int_count(rows, key) <= 0:
