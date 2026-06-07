@@ -1,4 +1,11 @@
-use super::*;
+use crate::mir::instruction::FastMemRegionId;
+use crate::mir::ValueId;
+
+use super::fact_store::FastMemFactStore;
+use super::head_access::{
+    resolve_block_next_access, resolve_head_access, ResolvedBlockNextAccess, ResolvedHeadAccess,
+};
+use super::types::{FastMemAccessPlanKind, FastMemAccessPlanStatus, FastMemFieldAccessMode};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum FastMemLinkedListFamily {

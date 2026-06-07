@@ -3,11 +3,11 @@ use crate::mir::instruction::FastMemRegionId;
 use crate::mir::{BasicBlockId, ValueId};
 
 use super::fact_store::FastMemFactStore;
+use super::head_access::{resolve_block_next_access, resolve_head_access, ResolvedBlockNextAccess};
 use super::types::{
     FastMemAccessPlan, FastMemAccessPlanKind, FastMemAccessPlanPayload, FastMemAccessPlanStatus,
     FastMemAtomicRemoteHeadPlan, FastMemDrainRemoteListToLocalPlan, FastMemFieldAccessMode,
 };
-use super::{resolve_block_next_access, resolve_head_access, ResolvedBlockNextAccess};
 
 pub(super) fn atomic_remote_head_plan(
     block: BasicBlockId,
