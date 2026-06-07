@@ -56,6 +56,96 @@ from fastmem_route_profiles import (
 )
 
 
+def _page_local_route_report_rows(
+    *,
+    profile: str,
+    route_candidate: str,
+    free_route_candidate: str,
+    page_local_alloc_route_cfg_any: bool,
+    page_local_route_body_join_any: bool,
+    page_local_alloc_route_cfg_producer: bool,
+    page_local_free_route_cfg_producer: bool,
+    tls_backing_transfer_or_later: bool,
+    free_head_non_empty_facts: list[dict[str, Any]],
+) -> list[tuple[str, str]]:
+    return [
+        (
+            "page_local_alloc_route_report_v0",
+            str(
+                int_flag(
+                    profile == "local-free"
+                    or page_local_alloc_route_cfg_any
+                    or page_local_route_body_join_any
+                )
+            ),
+        ),
+        ("page_local_alloc_route_candidate", route_candidate),
+        (
+            "page_local_alloc_route_candidate_count",
+            str(int_flag(route_candidate != "none")),
+        ),
+        ("page_local_alloc_route_branch_claim", "0"),
+        (
+            "page_local_alloc_route_cfg_lowering_enabled",
+            str(
+                int_flag(
+                    page_local_alloc_route_cfg_producer
+                    or page_local_route_body_join_any
+                    or tls_backing_transfer_or_later
+                )
+            ),
+        ),
+        ("page_local_alloc_route_verified_plan_source", "fastmem_access_plans"),
+        (
+            "page_local_free_route_report_v0",
+            str(
+                int_flag(
+                    profile == "local-free" or page_local_route_body_join_any
+                )
+            ),
+        ),
+        ("page_local_free_route_candidate", free_route_candidate),
+        (
+            "page_local_free_route_candidate_count",
+            str(int_flag(free_route_candidate != "none")),
+        ),
+        ("page_local_free_route_branch_claim", "0"),
+        (
+            "page_local_free_route_cfg_lowering_enabled",
+            str(
+                int_flag(
+                    page_local_free_route_cfg_producer
+                    or page_local_route_body_join_any
+                    or tls_backing_transfer_or_later
+                )
+            ),
+        ),
+        ("page_local_free_route_verified_plan_source", "fastmem_access_plans"),
+        (
+            "fastmem_free_head_non_empty_source_assume_count",
+            str(
+                sum(
+                    1
+                    for fact in free_head_non_empty_facts
+                    if string_value(fact.get("proof_kind"))
+                    == "source_assume_free_head_non_empty"
+                )
+            ),
+        ),
+        (
+            "fastmem_free_head_non_empty_derived_from_free_head_push_count",
+            str(
+                sum(
+                    1
+                    for fact in free_head_non_empty_facts
+                    if string_value(fact.get("proof_kind"))
+                    == "derived_from_free_head_push"
+                )
+            ),
+        ),
+    ]
+
+
 def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) -> list[tuple[str, str]]:
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
@@ -972,81 +1062,20 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             "tls_backing_transfer_selected",
             str(int_flag(tls_backing_transfer_or_later)),
         ),
-        (
-            "page_local_alloc_route_report_v0",
-            str(
-                int_flag(
-                    profile == "local-free"
-                    or page_local_alloc_route_cfg_any
-                    or page_local_route_body_join_any
-                )
-            ),
-        ),
-        ("page_local_alloc_route_candidate", route_candidate),
-        (
-            "page_local_alloc_route_candidate_count",
-            str(int_flag(route_candidate != "none")),
-        ),
-        ("page_local_alloc_route_branch_claim", "0"),
-        (
-            "page_local_alloc_route_cfg_lowering_enabled",
-            str(
-                int_flag(
-                    page_local_alloc_route_cfg_producer
-                    or page_local_route_body_join_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        ("page_local_alloc_route_verified_plan_source", "fastmem_access_plans"),
-        (
-            "page_local_free_route_report_v0",
-            str(
-                int_flag(
-                    profile == "local-free" or page_local_route_body_join_any
-                )
-            ),
-        ),
-        ("page_local_free_route_candidate", free_route_candidate),
-        (
-            "page_local_free_route_candidate_count",
-            str(int_flag(free_route_candidate != "none")),
-        ),
-        ("page_local_free_route_branch_claim", "0"),
-        (
-            "page_local_free_route_cfg_lowering_enabled",
-            str(
-                int_flag(
-                    page_local_free_route_cfg_producer
-                    or page_local_route_body_join_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        ("page_local_free_route_verified_plan_source", "fastmem_access_plans"),
-        (
-            "fastmem_free_head_non_empty_source_assume_count",
-            str(
-                sum(
-                    1
-                    for fact in free_head_non_empty_facts
-                    if string_value(fact.get("proof_kind"))
-                    == "source_assume_free_head_non_empty"
-                )
-            ),
-        ),
-        (
-            "fastmem_free_head_non_empty_derived_from_free_head_push_count",
-            str(
-                sum(
-                    1
-                    for fact in free_head_non_empty_facts
-                    if string_value(fact.get("proof_kind"))
-                    == "derived_from_free_head_push"
-                )
-            ),
-        ),
     ]
+    rows.extend(
+        _page_local_route_report_rows(
+            profile=profile,
+            route_candidate=route_candidate,
+            free_route_candidate=free_route_candidate,
+            page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
+            page_local_route_body_join_any=page_local_route_body_join_any,
+            page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
+            page_local_free_route_cfg_producer=page_local_free_route_cfg_producer,
+            tls_backing_transfer_or_later=tls_backing_transfer_or_later,
+            free_head_non_empty_facts=free_head_non_empty_facts,
+        )
+    )
     state = locals().copy()
     state.update(route_state)
     rows.extend(build_tail_rows(state))
