@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-105.
 Related:
@@ -56,4 +56,39 @@ CURRENT_STATE points at the selected next row
 
 ```bash
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected: option A, hako_alloc body migration reentry
+```
+
+Rationale:
+
+```text
+The refreshed terminal ladder and cleanup series are complete enough to stop
+growing smoke/report scaffolding. The active mimalloc workstream also names
+`.hako` mimalloc fastmem migration body work as the next priority after the
+smoke-growth brake.
+```
+
+## Rejected Candidates
+
+```text
+option B: producer-neutral activation-readiness audit
+  rejected for now because 596 and 603 already close the refreshed winner and
+  SSOT cleanup evidence. Product behavior remains closed until a dedicated
+  activation ladder reopens it.
+
+option C: source-syntax smoke structure split
+  rejected for now because 602 reduced the refresh helper duplication enough
+  for implementation reentry. Further large-file cleanup can wait until the
+  next implementation blocker exposes a real readability issue.
+```
+
+## Closeout
+
+```text
+next: 296x-605 MIM-PORT-FMEM-106 hako_alloc next body slice selection
 ```
