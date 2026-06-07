@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-103.
 Related:
@@ -45,4 +45,18 @@ fastmem_source_syntax_smoke stays green
 bash tools/hako_check/fastmem_check_smoke.sh
 bash tools/hako_check/fastmem_source_syntax_smoke.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Landed Evidence
+
+```text
+fastmem_source_syntax_smoke now uses shared report/check helper functions
+refreshed terminal ladder assertions keep their existing KV grep expectations
+source-syntax and fastmem-check smokes stay green
+```
+
+## Closeout
+
+```text
+next: 296x-603 MIM-PORT-FMEM-104 post-refresh cleanup closeout audit
 ```

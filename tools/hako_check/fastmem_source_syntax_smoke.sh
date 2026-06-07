@@ -19,6 +19,30 @@ cleanup() {
 }
 trap cleanup EXIT
 
+emit_fastmem_producer_report() {
+  local profile="$1"
+  local mir_json="$2"
+  local out="$3"
+
+  bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+    --profile "$profile" \
+    --mir-json "$mir_json" \
+    --out "$out"
+}
+
+assert_fastmem_report_check_ok() {
+  local report="$1"
+  local check="$2"
+
+  bash "$ROOT/tools/hako_check.sh" fastmem-check \
+    --inventory "$report" \
+    --format kv \
+    --out "$check"
+
+  grep -q '^summary=ok$' "$check"
+  grep -q '^failure_count=0$' "$check"
+}
+
 GOOD_SRC="$TMPDIR/good.hako"
 GOOD_AST="$TMPDIR/good.ast.json"
 GOOD_INV="$TMPDIR/good.inventory.kv"
@@ -3594,10 +3618,10 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^summary=ok$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
 grep -q '^failure_count=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile terminal-ladder-refresh-preflight \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$TERMINAL_LADDER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  terminal-ladder-refresh-preflight \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
 
 grep -q '^fastmem_terminal_ladder_refresh_preflight=1$' \
   "$TERMINAL_LADDER_REFRESH_REPORT"
@@ -3627,18 +3651,14 @@ grep -q '^hook_install=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$TERMINAL_LADDER_REFRESH_REPORT" \
-  --format kv \
-  --out "$TERMINAL_LADDER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$TERMINAL_LADDER_REFRESH_REPORT" \
+  "$TERMINAL_LADDER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$TERMINAL_LADDER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$TERMINAL_LADDER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile tls-backing-transfer-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  tls-backing-transfer-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
 
 grep -q '^fastmem_tls_backing_transfer_preflight_refresh=1$' \
   "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
@@ -3668,18 +3688,14 @@ grep -q '^hook_install=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$TLS_BACKING_TRANSFER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$TLS_BACKING_TRANSFER_REFRESH_REPORT" \
-  --format kv \
-  --out "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$TLS_BACKING_TRANSFER_REFRESH_REPORT" \
+  "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile tls-backing-transfer-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  tls-backing-transfer-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_tls_backing_transfer_producer_refresh=1$' \
   "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT"
@@ -3706,18 +3722,14 @@ grep -q '^hook_install=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_REPORT" \
+  "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_PRODUCER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile owner-slot-reuse-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$OWNER_SLOT_REUSE_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  owner-slot-reuse-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$OWNER_SLOT_REUSE_REFRESH_REPORT"
 
 grep -q '^fastmem_allocator_owner_slot_reuse_preflight_refresh=1$' \
   "$OWNER_SLOT_REUSE_REFRESH_REPORT"
@@ -3746,18 +3758,14 @@ grep -q '^hook_install=0$' "$OWNER_SLOT_REUSE_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$OWNER_SLOT_REUSE_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$OWNER_SLOT_REUSE_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$OWNER_SLOT_REUSE_REFRESH_REPORT" \
-  --format kv \
-  --out "$OWNER_SLOT_REUSE_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$OWNER_SLOT_REUSE_REFRESH_REPORT" \
+  "$OWNER_SLOT_REUSE_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$OWNER_SLOT_REUSE_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$OWNER_SLOT_REUSE_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile owner-slot-reuse-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  owner-slot-reuse-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_allocator_owner_slot_reuse_producer_refresh=1$' \
   "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT"
@@ -3790,18 +3798,14 @@ grep -q '^hook_install=0$' "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_REPORT" \
+  "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$OWNER_SLOT_REUSE_PRODUCER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile abandoned-reclaim-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$ABANDONED_RECLAIM_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  abandoned-reclaim-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$ABANDONED_RECLAIM_REFRESH_REPORT"
 
 grep -q '^fastmem_abandoned_reclaim_preflight_refresh=1$' \
   "$ABANDONED_RECLAIM_REFRESH_REPORT"
@@ -3834,18 +3838,14 @@ grep -q '^hook_install=0$' "$ABANDONED_RECLAIM_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$ABANDONED_RECLAIM_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$ABANDONED_RECLAIM_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$ABANDONED_RECLAIM_REFRESH_REPORT" \
-  --format kv \
-  --out "$ABANDONED_RECLAIM_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$ABANDONED_RECLAIM_REFRESH_REPORT" \
+  "$ABANDONED_RECLAIM_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$ABANDONED_RECLAIM_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile abandoned-reclaim-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  abandoned-reclaim-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_abandoned_reclaim_producer_refresh=1$' \
   "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
@@ -3878,18 +3878,14 @@ grep -q '^hook_install=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_REPORT" \
+  "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_PRODUCER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile product-activation-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$PRODUCT_ACTIVATION_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  product-activation-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$PRODUCT_ACTIVATION_REFRESH_REPORT"
 
 grep -q '^fastmem_product_activation_preflight_refresh=1$' \
   "$PRODUCT_ACTIVATION_REFRESH_REPORT"
@@ -3918,18 +3914,14 @@ grep -q '^hook_install=0$' "$PRODUCT_ACTIVATION_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$PRODUCT_ACTIVATION_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$PRODUCT_ACTIVATION_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$PRODUCT_ACTIVATION_REFRESH_REPORT" \
-  --format kv \
-  --out "$PRODUCT_ACTIVATION_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$PRODUCT_ACTIVATION_REFRESH_REPORT" \
+  "$PRODUCT_ACTIVATION_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile product-activation-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  product-activation-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_product_activation_producer_refresh=1$' \
   "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
@@ -3958,18 +3950,14 @@ grep -q '^hook_install=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_REPORT" \
+  "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_PRODUCER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile hook-install-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$HOOK_INSTALL_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  hook-install-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$HOOK_INSTALL_REFRESH_REPORT"
 
 grep -q '^fastmem_hook_install_preflight_refresh=1$' \
   "$HOOK_INSTALL_REFRESH_REPORT"
@@ -3993,18 +3981,14 @@ grep -q '^hook_install=0$' "$HOOK_INSTALL_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$HOOK_INSTALL_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$HOOK_INSTALL_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$HOOK_INSTALL_REFRESH_REPORT" \
-  --format kv \
-  --out "$HOOK_INSTALL_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$HOOK_INSTALL_REFRESH_REPORT" \
+  "$HOOK_INSTALL_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$HOOK_INSTALL_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$HOOK_INSTALL_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile hook-install-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  hook-install-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_hook_install_producer_refresh=1$' \
   "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
@@ -4029,18 +4013,14 @@ grep -q '^hook_installed=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
 grep -q '^global_allocator_claim=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_REPORT" \
+  "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$HOOK_INSTALL_PRODUCER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile global-allocator-claim-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  global-allocator-claim-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT"
 
 grep -q '^fastmem_global_allocator_claim_preflight_refresh=1$' \
   "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT"
@@ -4065,18 +4045,14 @@ grep -q '^global_allocator_claim=0$' "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT"
 grep -q '^global_allocator_product_claim=0$' "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT" \
-  --format kv \
-  --out "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_REPORT" \
+  "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$GLOBAL_ALLOCATOR_CLAIM_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile global-allocator-claim-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  global-allocator-claim-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_global_allocator_claim_producer_refresh=1$' \
   "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT"
@@ -4103,18 +4079,14 @@ grep -q '^global_allocator_product_claim=0$' \
   "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_REPORT" \
+  "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile winner-claim-preflight-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$WINNER_CLAIM_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  winner-claim-preflight-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$WINNER_CLAIM_REFRESH_REPORT"
 
 grep -q '^fastmem_winner_claim_preflight_refresh=1$' \
   "$WINNER_CLAIM_REFRESH_REPORT"
@@ -4135,18 +4107,14 @@ grep -q '^global_allocator_product_claim=0$' "$WINNER_CLAIM_REFRESH_REPORT"
 grep -q '^winner_claim_selected=1$' "$WINNER_CLAIM_REFRESH_REPORT"
 grep -q '^winner_claim=0$' "$WINNER_CLAIM_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$WINNER_CLAIM_REFRESH_REPORT" \
-  --format kv \
-  --out "$WINNER_CLAIM_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$WINNER_CLAIM_REFRESH_REPORT" \
+  "$WINNER_CLAIM_REFRESH_CHECK"
 
-grep -q '^summary=ok$' "$WINNER_CLAIM_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$WINNER_CLAIM_REFRESH_CHECK"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile winner-claim-producer-refresh \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT"
+emit_fastmem_producer_report \
+  winner-claim-producer-refresh \
+  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT"
 
 grep -q '^fastmem_winner_claim_producer_refresh=1$' \
   "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT"
@@ -4170,13 +4138,9 @@ grep -q '^global_allocator_product_claim=0$' \
 grep -q '^winner_claim_selected=1$' "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT"
 grep -q '^winner_claim=1$' "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT"
 
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT" \
-  --format kv \
-  --out "$WINNER_CLAIM_PRODUCER_REFRESH_CHECK"
-
-grep -q '^summary=ok$' "$WINNER_CLAIM_PRODUCER_REFRESH_CHECK"
-grep -q '^failure_count=0$' "$WINNER_CLAIM_PRODUCER_REFRESH_CHECK"
+assert_fastmem_report_check_ok \
+  "$WINNER_CLAIM_PRODUCER_REFRESH_REPORT" \
+  "$WINNER_CLAIM_PRODUCER_REFRESH_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \
