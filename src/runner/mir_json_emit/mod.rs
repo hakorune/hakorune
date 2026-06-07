@@ -10,6 +10,7 @@ mod fastmem_metadata;
 mod helpers;
 mod io;
 mod metadata;
+mod metadata_seed;
 mod order;
 mod placement_effect;
 mod plan_metadata;
