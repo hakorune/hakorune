@@ -1140,4 +1140,32 @@ grep -q '^failure_0_reason=hook_install$' \
   "$BAD_PRODUCT_ACTIVATION_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_PRODUCT_ACTIVATION_PREFLIGHT_OUT"
 
+PRODUCT_ACTIVATION_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_product_activation_producer.XXXXXX")"
+BAD_PRODUCT_ACTIVATION_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_product_activation_producer.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/product_activation_producer_inventory.kv" \
+  --format kv \
+  >"$PRODUCT_ACTIVATION_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected product activation producer inventory" >&2
+  cat "$PRODUCT_ACTIVATION_PRODUCER_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_PRODUCER_OUT"
+grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_PRODUCER_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_product_activation_producer_inventory.kv" \
+  --format kv \
+  >"$BAD_PRODUCT_ACTIVATION_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad product activation producer inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_PRODUCT_ACTIVATION_PRODUCER_OUT"
+grep -q '^failure_0_reason=global_allocator_claim$' \
+  "$BAD_PRODUCT_ACTIVATION_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_PRODUCT_ACTIVATION_PRODUCER_OUT"
+
 echo "[TEST/OK] fastmem_check"

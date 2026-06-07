@@ -508,7 +508,8 @@ def build_rows(
     abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
     abandoned_reclaim_any = abandoned_reclaim_preflight or abandoned_reclaim_producer
     product_activation_preflight = profile == "product-activation-preflight"
-    product_activation_any = product_activation_preflight
+    product_activation_producer = profile == "product-activation-producer-pilot"
+    product_activation_any = product_activation_preflight or product_activation_producer
     abandoned_reclaim_or_later = abandoned_reclaim_any or product_activation_any
     owner_slot_reuse_or_later = owner_slot_reuse_any or abandoned_reclaim_or_later
     tls_backing_transfer_or_later = (
@@ -572,6 +573,7 @@ def build_rows(
         "abandoned-reclaim-preflight",
         "abandoned-reclaim-producer-pilot",
         "product-activation-preflight",
+        "product-activation-producer-pilot",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -605,6 +607,7 @@ def build_rows(
             "abandoned-reclaim-preflight",
             "abandoned-reclaim-producer-pilot",
             "product-activation-preflight",
+            "product-activation-producer-pilot",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -714,6 +717,9 @@ def build_rows(
         elif product_activation_preflight:
             next_slice = "product_activation_producer_pilot"
             deferred_remote_kinds = "ProductActivationProducer,HookInstall"
+        elif product_activation_producer:
+            next_slice = "hook_install_preflight"
+            deferred_remote_kinds = "HookInstall"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -742,60 +748,64 @@ def build_rows(
             ("replacement_front_producer_slice_selection_v0", "0"),
             (
                 "replacement_front_selected_route",
-                "product_activation_preflight"
-                if product_activation_preflight
+                "product_activation_producer_pilot"
+                if product_activation_producer
                 else (
-                    "page_local_free_route_cfg_preflight"
-                    if page_local_free_route_cfg_preflight
+                    "product_activation_preflight"
+                    if product_activation_preflight
                     else (
-                        "abandoned_reclaim_producer_pilot"
-                        if abandoned_reclaim_producer
+                        "page_local_free_route_cfg_preflight"
+                        if page_local_free_route_cfg_preflight
                         else (
-                            "abandoned_reclaim_preflight"
-                            if abandoned_reclaim_preflight
+                            "abandoned_reclaim_producer_pilot"
+                            if abandoned_reclaim_producer
                             else (
-                                "owner_slot_reuse_producer_pilot"
-                                if owner_slot_reuse_producer
+                                "abandoned_reclaim_preflight"
+                                if abandoned_reclaim_preflight
                                 else (
-                                    "owner_slot_reuse_preflight"
-                                    if owner_slot_reuse_preflight
+                                    "owner_slot_reuse_producer_pilot"
+                                    if owner_slot_reuse_producer
                                     else (
-                                        "tls_backing_transfer_producer_pilot"
-                                        if tls_backing_transfer_producer
+                                        "owner_slot_reuse_preflight"
+                                        if owner_slot_reuse_preflight
                                         else (
-                                            "tls_backing_transfer_preflight"
-                                            if tls_backing_transfer_preflight
+                                            "tls_backing_transfer_producer_pilot"
+                                            if tls_backing_transfer_producer
                                             else (
-                                                "page_local_free_route_cfg_producer_pilot"
-                                                if page_local_free_route_cfg_producer
+                                                "tls_backing_transfer_preflight"
+                                                if tls_backing_transfer_preflight
                                                 else (
-                                                    "same_remote_free_body_producer_pilot"
-                                                    if same_remote_free_body_producer
+                                                    "page_local_free_route_cfg_producer_pilot"
+                                                    if page_local_free_route_cfg_producer
                                                     else (
-                                                        "same_remote_free_body_preflight"
-                                                        if same_remote_free_body_preflight
+                                                        "same_remote_free_body_producer_pilot"
+                                                        if same_remote_free_body_producer
                                                         else (
-                                                            "fastmem_branch_cfg_lowering_producer_pilot"
-                                                            if fastmem_branch_cfg_lowering_producer
+                                                            "same_remote_free_body_preflight"
+                                                            if same_remote_free_body_preflight
                                                             else (
-                                                                "fastmem_branch_cfg_lowering_preflight"
-                                                                if fastmem_branch_cfg_lowering_preflight
+                                                                "fastmem_branch_cfg_lowering_producer_pilot"
+                                                                if fastmem_branch_cfg_lowering_producer
                                                                 else (
-                                                                    "fastmem_branch_cfg_preflight"
-                                                                    if fastmem_branch_cfg_preflight
+                                                                    "fastmem_branch_cfg_lowering_preflight"
+                                                                    if fastmem_branch_cfg_lowering_preflight
                                                                     else (
-                                                                        "remote_owner_branch_route_body_preflight"
-                                                                        if remote_owner_branch_route_body_preflight
+                                                                        "fastmem_branch_cfg_preflight"
+                                                                        if fastmem_branch_cfg_preflight
                                                                         else (
-                                                                            "remote_owner_branch_routing_lowering_producer_pilot"
-                                                                            if remote_owner_branch_routing_lowering_producer
+                                                                            "remote_owner_branch_route_body_preflight"
+                                                                            if remote_owner_branch_route_body_preflight
                                                                             else (
-                                                                                "remote_owner_branch_routing_lowering_preflight"
-                                                                                if remote_owner_branch_routing_lowering_preflight
+                                                                                "remote_owner_branch_routing_lowering_producer_pilot"
+                                                                                if remote_owner_branch_routing_lowering_producer
                                                                                 else (
-                                                                                    "remote_owner_branch_routing_preflight"
-                                                                                    if remote_owner_branch_routing_preflight
-                                                                                    else "none"
+                                                                                    "remote_owner_branch_routing_lowering_preflight"
+                                                                                    if remote_owner_branch_routing_lowering_preflight
+                                                                                    else (
+                                                                                        "remote_owner_branch_routing_preflight"
+                                                                                        if remote_owner_branch_routing_preflight
+                                                                                        else "none"
+                                                                                    )
                                                                                 )
                                                                             )
                                                                         )
@@ -1020,6 +1030,10 @@ def build_rows(
             (
                 "fastmem_product_activation_preflight",
                 str(int_flag(product_activation_preflight)),
+            ),
+            (
+                "fastmem_product_activation_producer_pilot",
+                str(int_flag(product_activation_producer)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -1852,7 +1866,7 @@ def build_rows(
         ("type_abi_hot_path_lookup_count", "0"),
         ("provider_abi_hot_dispatch_count", "0"),
         ("provider_dispatch_hot_path", "0"),
-        ("product_activation", "0"),
+        ("product_activation", str(int_flag(product_activation_producer))),
         ("hook_install", "0"),
         ("hook_installed", "0"),
         ("global_allocator_claim", "0"),
@@ -1939,6 +1953,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "abandoned-reclaim-preflight",
             "abandoned-reclaim-producer-pilot",
             "product-activation-preflight",
+            "product-activation-producer-pilot",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
