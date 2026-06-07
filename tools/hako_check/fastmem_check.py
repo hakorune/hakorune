@@ -12,8 +12,18 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
-
+from fastmem_check_config import (
+    FAIL_FIELDS,
+    FAIL_STRING_FIELDS,
+    LAYOUT_TABLE_PRODUCER_EXPECTED_POSITIVE,
+    LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO,
+    LOCAL_FREE_PRODUCER_EXPECTED_POSITIVE,
+    LOCAL_FREE_PRODUCER_EXPECTED_ZERO,
+    OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE,
+    OWNER_RUNTIME_PRODUCER_EXPECTED_ZERO,
+    PRODUCER_SLICE_EXPECTED_STRINGS,
+    PRODUCER_SLICE_EXPECTED_ZERO,
+)
 from fastmem_route_profiles import (
     PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_POSITIVE,
     PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_ZERO,
@@ -24,136 +34,10 @@ from fastmem_check_atomic_rules import check_atomic_rules
 from fastmem_check_profile_functions import *
 from fastmem_check_route_rules import check_route_rules
 from fastmem_check_terminal_rules import check_terminal_rules
+from fastmem_check_output import emit_kv, render
 
 ROOT = Path(__file__).resolve().parents[2]
 INVENTORY = ROOT / "tools" / "hako_check" / "fastmem_capability_inventory.py"
-
-FAIL_FIELDS = [
-    "fastmem_general_rawptr_type",
-    "fastmem_general_deref_outside_region",
-    "fastmem_general_pointer_arithmetic_outside_region",
-    "fastmem_escape_count",
-    "fastmem_metadata_ptr_escape_count",
-    "fastmem_closure_capture_count",
-    "fastmem_box_field_store_count",
-    "fastmem_array_store_count",
-    "fastmem_unverified_offset_load_count",
-    "typed_page_meta_required_field_missing_count",
-    "fastmem_contract_runtime_lookup_count",
-    "fastmem_memop_unbalanced_region_count",
-    "fastmem_memop_unclassified_count",
-    "fastmem_forbidden_allocation_count",
-    "fastmem_forbidden_safepoint_count",
-    "fastmem_forbidden_await_count",
-    "fastmem_forbidden_nowait_count",
-    "fastmem_forbidden_call_count",
-    "fastmem_type_abi_hot_lookup_count",
-    "fastmem_provider_abi_crossing_count",
-    "type_abi_hot_path_lookup_count",
-    "provider_dispatch_hot_path",
-    "page_map_bridge_type_abi_hot_lookup_count",
-    "page_map_bridge_provider_abi_hot_dispatch_count",
-    "free_path_page_lookup_range_scan_count",
-    "alloc_owner_id_escape_count",
-    "worker_id_escape_count",
-    "worker_id_equals_os_thread_id_claim",
-    "worker_id_equals_runtime_worker_id_claim",
-    "worker_id_equals_hako_task_id_claim",
-    "allocator_tls_arena_init_fail_count",
-    "page_owner_count_mismatch",
-    "page_owner_stale_generation_count",
-    "page_owner_unowned_count",
-    "allocator_owner_invalid_transition_count",
-    "allocator_owner_stale_generation_count",
-    "allocator_owner_reuse_without_generation_bump_count",
-    "allocator_exiting_owner_page_claim_count",
-    "allocator_abandoned_owner_local_free_count",
-    "page_reclaimed_with_remote_candidates",
-    "hako_source_thread_support_claim",
-    "replacement_front_cross_thread_free_arena_registry_overflow_count",
-    "safe_capability_wrapper_missing_count",
-    "safe_capability_wrapper_rawptr_surface",
-    "safe_capability_wrapper_deref_surface",
-    "safe_capability_wrapper_escape_count",
-    "fastmem_free_head_access_plan_incomplete_count",
-]
-
-FAIL_STRING_FIELDS = {
-    "free_path_page_lookup_route": {"range_scan"},
-}
-
-PRODUCER_SLICE_EXPECTED_STRINGS = {
-    "replacement_front_next_producer_slice": "layout_table_producer_pilot",
-    "replacement_front_selected_memop_family": "layout_table",
-    "replacement_front_selected_memop_kinds": "TableIndex,FieldLoad,FieldStore",
-    "replacement_front_deferred_memop_family": "owner_runtime",
-    "replacement_front_deferred_memop_kinds": "CurrentAllocOwnerId,OwnerEq",
-}
-
-PRODUCER_SLICE_EXPECTED_ZERO = (
-    "replacement_front_selection_behavior_change",
-    "replacement_front_selection_product_activation",
-    "replacement_front_selection_bridge_retirement_allowed",
-)
-LAYOUT_TABLE_PRODUCER_EXPECTED_ZERO = (
-    "memop_current_alloc_owner_id_lowered_count",
-    "memop_owner_eq_lowered_count",
-    "memop_atomic_remote_head_lowered_count",
-    "fastmem_field_id_missing_count",
-    "fastmem_table_id_missing_count",
-    "fastmem_unverified_layout_access_count",
-    "fastmem_table_index_unchecked_count",
-    "fastmem_table_access_proof_incomplete_count",
-    "fastmem_table_overflow_proof_missing_count",
-    "fastmem_unknown_alignment_count",
-    "fastmem_atomic_field_plain_store_count",
-    "fastmem_layout_ref_escape_count",
-    "fastmem_lowering_recomputed_layout_offset_count",
-)
-LAYOUT_TABLE_PRODUCER_EXPECTED_POSITIVE = (
-    "memop_table_index_lowered_count",
-    "memop_field_load_lowered_count",
-    "memop_field_store_lowered_count",
-)
-OWNER_RUNTIME_PRODUCER_EXPECTED_ZERO = (
-    "tls_backing_transfer_enabled",
-    "allocator_owner_slot_reuse_enabled",
-    "memop_atomic_remote_head_lowered_count",
-    "type_abi_hot_lookup_count",
-    "provider_abi_hot_dispatch_count",
-    "product_activation",
-    "hook_install",
-    "global_allocator_claim",
-    "winner_claim",
-)
-OWNER_RUNTIME_PRODUCER_EXPECTED_POSITIVE = (
-    "memop_current_alloc_owner_id_lowered_count",
-    "memop_owner_eq_lowered_count",
-)
-LOCAL_FREE_PRODUCER_EXPECTED_ZERO = (
-    "memop_atomic_remote_head_lowered_count",
-    "fastmem_local_free_access_plan_incomplete_count",
-    "fastmem_free_head_access_plan_incomplete_count",
-    "fastmem_local_free_head_plain_store_lowered_count",
-    "fastmem_free_head_plain_store_lowered_count",
-    "page_local_alloc_route_branch_claim",
-    "page_local_alloc_route_cfg_lowering_enabled",
-    "page_local_free_route_branch_claim",
-    "page_local_free_route_cfg_lowering_enabled",
-    "tls_backing_transfer_enabled",
-    "allocator_owner_slot_reuse_enabled",
-    "type_abi_hot_lookup_count",
-    "provider_abi_hot_dispatch_count",
-    "product_activation",
-    "hook_install",
-    "global_allocator_claim",
-    "winner_claim",
-)
-LOCAL_FREE_PRODUCER_EXPECTED_POSITIVE = (
-    "memop_table_index_lowered_count",
-    "memop_field_load_lowered_count",
-)
-
 
 def failure_reasons(rows: dict[str, str]) -> list[str]:
     reasons: list[str] = []
@@ -503,54 +387,6 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
     reasons.extend(check_route_rules(rows))
     reasons.extend(check_terminal_rules(rows))
     return reasons
-
-def render(rows: dict[str, str], reasons: list[str]) -> str:
-    status = "OK" if not reasons else "FAILED"
-    lines = [
-        f"FastMemory check: {status}",
-        "",
-        "Contract",
-        "  output_contract=hako-check-fastmem-check-v0",
-        f"  source_contract={rows.get('output_contract', 'unknown')}",
-        f"  tool_surface={rows.get('tool_surface', 'unknown')}",
-        "",
-        "Regions",
-        f"  fastmem regions: {rows.get('fastmem_region_count', '0')}",
-        f"  fastmem contracts: {rows.get('fastmem_contract_count', '0')}",
-        f"  unclassified memops: {rows.get('fastmem_memop_unclassified_count', '0')}",
-        f"  unbalanced regions: {rows.get('fastmem_memop_unbalanced_region_count', '0')}",
-        "",
-        "Boundaries",
-        f"  type ABI hot lookup: {rows.get('type_abi_hot_path_lookup_count', '0')}",
-        f"  provider hot dispatch: {rows.get('provider_dispatch_hot_path', '0')}",
-        f"  fastmem runtime contract lookup: {rows.get('fastmem_contract_runtime_lookup_count', '0')}",
-        "",
-        "Machine",
-        f"  failure_count={len(reasons)}",
-    ]
-    for idx, reason in enumerate(reasons):
-        lines.append(f"  failure_{idx}_reason={reason}")
-    lines.append("  summary=ok" if not reasons else "  summary=failed")
-    return "\n".join(lines) + "\n"
-
-
-def emit_kv(rows: dict[str, str], reasons: list[str]) -> str:
-    out = [
-        "output_contract=hako-check-fastmem-check-v0",
-        "input_kind=fastmem_inventory",
-        "tool_surface=hako_check_fastmem_check",
-        "observation_only=1",
-        "rewrite_executed=0",
-        "source_rewrite_executed=0",
-        "benchmark_run_executed=0",
-        "keeper_selection=0",
-        f"source_contract={rows.get('output_contract', 'unknown')}",
-        f"failure_count={len(reasons)}",
-    ]
-    for idx, reason in enumerate(reasons):
-        out.append(f"failure_{idx}_reason={reason}")
-    out.append("summary=ok" if not reasons else "summary=failed")
-    return "\n".join(out) + "\n"
 
 
 def write_output(text: str, out: Path | None) -> None:
