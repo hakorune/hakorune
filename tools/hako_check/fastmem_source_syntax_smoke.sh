@@ -2006,6 +2006,49 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$ABANDONED_RECLAIM_PREFLIGHT_CHECK"
 
+ABANDONED_RECLAIM_PRODUCER_REPORT="$TMPDIR/page_meta_abandoned_reclaim_producer.report.kv"
+ABANDONED_RECLAIM_PRODUCER_CHECK="$TMPDIR/page_meta_abandoned_reclaim_producer.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile abandoned-reclaim-producer-pilot \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+
+grep -q '^fastmem_abandoned_reclaim_producer_pilot=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_route=abandoned_reclaim_producer_pilot$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_family=abandoned_reclaim$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=AbandonedReclaim$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_next_producer_slice=product_activation_preflight$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^abandoned_reclaim_selected=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^abandoned_reclaim_enabled=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^page_reclaimed_with_remote_candidates=0$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^allocator_owner_slot_reuse_enabled=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^allocator_owner_generation_bump_count=1$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^product_activation=0$' "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^global_allocator_claim=0$' "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+grep -q '^winner_claim=0$' "$ABANDONED_RECLAIM_PRODUCER_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$ABANDONED_RECLAIM_PRODUCER_REPORT" \
+  --format kv \
+  --out "$ABANDONED_RECLAIM_PRODUCER_CHECK"
+
+grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_PRODUCER_CHECK"
+grep -q '^summary=ok$' "$ABANDONED_RECLAIM_PRODUCER_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \

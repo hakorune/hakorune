@@ -505,7 +505,9 @@ def build_rows(
     owner_slot_reuse_producer = profile == "owner-slot-reuse-producer-pilot"
     owner_slot_reuse_any = owner_slot_reuse_preflight or owner_slot_reuse_producer
     abandoned_reclaim_preflight = profile == "abandoned-reclaim-preflight"
-    owner_slot_reuse_or_later = owner_slot_reuse_any or abandoned_reclaim_preflight
+    abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
+    abandoned_reclaim_any = abandoned_reclaim_preflight or abandoned_reclaim_producer
+    owner_slot_reuse_or_later = owner_slot_reuse_any or abandoned_reclaim_any
     tls_backing_transfer_or_later = (
         tls_backing_transfer_any or owner_slot_reuse_or_later
     )
@@ -565,6 +567,7 @@ def build_rows(
         "owner-slot-reuse-preflight",
         "owner-slot-reuse-producer-pilot",
         "abandoned-reclaim-preflight",
+        "abandoned-reclaim-producer-pilot",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -596,6 +599,7 @@ def build_rows(
             "owner-slot-reuse-preflight",
             "owner-slot-reuse-producer-pilot",
             "abandoned-reclaim-preflight",
+            "abandoned-reclaim-producer-pilot",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -699,6 +703,9 @@ def build_rows(
         elif abandoned_reclaim_preflight:
             next_slice = "abandoned_reclaim_producer_pilot"
             deferred_remote_kinds = "AbandonedReclaimProducer,ProductActivation"
+        elif abandoned_reclaim_producer:
+            next_slice = "product_activation_preflight"
+            deferred_remote_kinds = "ProductActivation"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -730,51 +737,55 @@ def build_rows(
                 "page_local_free_route_cfg_preflight"
                 if page_local_free_route_cfg_preflight
                 else (
-                    "abandoned_reclaim_preflight"
-                    if abandoned_reclaim_preflight
+                    "abandoned_reclaim_producer_pilot"
+                    if abandoned_reclaim_producer
                     else (
-                        "owner_slot_reuse_producer_pilot"
-                        if owner_slot_reuse_producer
+                        "abandoned_reclaim_preflight"
+                        if abandoned_reclaim_preflight
                         else (
-                            "owner_slot_reuse_preflight"
-                            if owner_slot_reuse_preflight
+                            "owner_slot_reuse_producer_pilot"
+                            if owner_slot_reuse_producer
                             else (
-                                "tls_backing_transfer_producer_pilot"
-                                if tls_backing_transfer_producer
+                                "owner_slot_reuse_preflight"
+                                if owner_slot_reuse_preflight
                                 else (
-                                    "tls_backing_transfer_preflight"
-                                    if tls_backing_transfer_preflight
+                                    "tls_backing_transfer_producer_pilot"
+                                    if tls_backing_transfer_producer
                                     else (
-                                        "page_local_free_route_cfg_producer_pilot"
-                                        if page_local_free_route_cfg_producer
+                                        "tls_backing_transfer_preflight"
+                                        if tls_backing_transfer_preflight
                                         else (
-                                            "same_remote_free_body_producer_pilot"
-                                            if same_remote_free_body_producer
+                                            "page_local_free_route_cfg_producer_pilot"
+                                            if page_local_free_route_cfg_producer
                                             else (
-                                                "same_remote_free_body_preflight"
-                                                if same_remote_free_body_preflight
+                                                "same_remote_free_body_producer_pilot"
+                                                if same_remote_free_body_producer
                                                 else (
-                                                    "fastmem_branch_cfg_lowering_producer_pilot"
-                                                    if fastmem_branch_cfg_lowering_producer
+                                                    "same_remote_free_body_preflight"
+                                                    if same_remote_free_body_preflight
                                                     else (
-                                                        "fastmem_branch_cfg_lowering_preflight"
-                                                        if fastmem_branch_cfg_lowering_preflight
+                                                        "fastmem_branch_cfg_lowering_producer_pilot"
+                                                        if fastmem_branch_cfg_lowering_producer
                                                         else (
-                                                            "fastmem_branch_cfg_preflight"
-                                                            if fastmem_branch_cfg_preflight
+                                                            "fastmem_branch_cfg_lowering_preflight"
+                                                            if fastmem_branch_cfg_lowering_preflight
                                                             else (
-                                                                "remote_owner_branch_route_body_preflight"
-                                                                if remote_owner_branch_route_body_preflight
+                                                                "fastmem_branch_cfg_preflight"
+                                                                if fastmem_branch_cfg_preflight
                                                                 else (
-                                                                    "remote_owner_branch_routing_lowering_producer_pilot"
-                                                                    if remote_owner_branch_routing_lowering_producer
+                                                                    "remote_owner_branch_route_body_preflight"
+                                                                    if remote_owner_branch_route_body_preflight
                                                                     else (
-                                                                        "remote_owner_branch_routing_lowering_preflight"
-                                                                        if remote_owner_branch_routing_lowering_preflight
+                                                                        "remote_owner_branch_routing_lowering_producer_pilot"
+                                                                        if remote_owner_branch_routing_lowering_producer
                                                                         else (
-                                                                            "remote_owner_branch_routing_preflight"
-                                                                            if remote_owner_branch_routing_preflight
-                                                                            else "none"
+                                                                            "remote_owner_branch_routing_lowering_preflight"
+                                                                            if remote_owner_branch_routing_lowering_preflight
+                                                                            else (
+                                                                                "remote_owner_branch_routing_preflight"
+                                                                                if remote_owner_branch_routing_preflight
+                                                                                else "none"
+                                                                            )
                                                                         )
                                                                     )
                                                                 )
@@ -795,7 +806,7 @@ def build_rows(
             (
                 "replacement_front_selected_memop_family",
                 "abandoned_reclaim"
-                if abandoned_reclaim_preflight
+                if abandoned_reclaim_any
                 else "owner_slot_reuse"
                 if owner_slot_reuse_any
                 else "tls_backing_transfer"
@@ -820,7 +831,7 @@ def build_rows(
             (
                 "replacement_front_selected_memop_kinds",
                 "AbandonedReclaim"
-                if abandoned_reclaim_preflight
+                if abandoned_reclaim_any
                 else "OwnerSlotReuse"
                 if owner_slot_reuse_any
                 else "TlsBackingTransfer"
@@ -985,6 +996,10 @@ def build_rows(
             (
                 "fastmem_abandoned_reclaim_preflight",
                 str(int_flag(abandoned_reclaim_preflight)),
+            ),
+            (
+                "fastmem_abandoned_reclaim_producer_pilot",
+                str(int_flag(abandoned_reclaim_producer)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -1829,16 +1844,16 @@ def build_rows(
         ),
         (
             "allocator_owner_slot_reuse_enabled",
-            str(int_flag(owner_slot_reuse_producer or abandoned_reclaim_preflight)),
+            str(int_flag(owner_slot_reuse_producer or abandoned_reclaim_any)),
         ),
         ("allocator_owner_slot_reuse_selected", str(int_flag(owner_slot_reuse_or_later))),
         (
             "allocator_owner_generation_bump_count",
-            str(int_flag(owner_slot_reuse_producer or abandoned_reclaim_preflight)),
+            str(int_flag(owner_slot_reuse_producer or abandoned_reclaim_any)),
         ),
         ("allocator_owner_reuse_without_generation_bump_count", "0"),
-        ("abandoned_reclaim_selected", str(int_flag(abandoned_reclaim_preflight))),
-        ("abandoned_reclaim_enabled", "0"),
+        ("abandoned_reclaim_selected", str(int_flag(abandoned_reclaim_any))),
+        ("abandoned_reclaim_enabled", str(int_flag(abandoned_reclaim_producer))),
         ("page_reclaimed_with_remote_candidates", "0"),
         (
             "llvm_object_path",
@@ -1901,6 +1916,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "owner-slot-reuse-preflight",
             "owner-slot-reuse-producer-pilot",
             "abandoned-reclaim-preflight",
+            "abandoned-reclaim-producer-pilot",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",
