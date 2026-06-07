@@ -1056,4 +1056,32 @@ grep -q '^failure_0_reason=allocator_owner_generation_bump_count$' \
   "$BAD_OWNER_SLOT_REUSE_PRODUCER_OUT"
 grep -q '^summary=failed$' "$BAD_OWNER_SLOT_REUSE_PRODUCER_OUT"
 
+ABANDONED_RECLAIM_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_abandoned_reclaim_preflight.XXXXXX")"
+BAD_ABANDONED_RECLAIM_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_abandoned_reclaim_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/abandoned_reclaim_preflight_inventory.kv" \
+  --format kv \
+  >"$ABANDONED_RECLAIM_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected abandoned reclaim preflight inventory" >&2
+  cat "$ABANDONED_RECLAIM_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$ABANDONED_RECLAIM_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_abandoned_reclaim_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_ABANDONED_RECLAIM_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad abandoned reclaim preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_ABANDONED_RECLAIM_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=abandoned_reclaim_enabled$' \
+  "$BAD_ABANDONED_RECLAIM_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_ABANDONED_RECLAIM_PREFLIGHT_OUT"
+
 echo "[TEST/OK] fastmem_check"
