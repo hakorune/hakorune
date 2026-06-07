@@ -1,5 +1,6 @@
 use super::agg_local::build_agg_local_scalarization_routes_json;
 use super::array_metadata::insert_array_metadata_json;
+use super::core_metadata::insert_core_metadata_json;
 use super::exact_numeric::insert_exact_numeric_metadata_json;
 use super::fastmem_metadata::insert_fastmem_metadata_json;
 use super::metadata_seed::{
@@ -11,114 +12,12 @@ use super::placement_effect::build_placement_effect_routes_json;
 use super::plan_metadata::insert_plan_metadata_json;
 use super::plans::build_string_kernel_plan_json;
 use super::route_metadata::insert_route_metadata_json;
-use crate::mir::{MirFunction, MirType};
+use crate::mir::MirFunction;
 use serde_json::json;
 
 pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value {
     let metadata = &f.metadata;
     let mut metadata_json = json!({
-        "value_types": metadata.value_types.iter().map(|(k, v)| {
-            let type_str = match v {
-                MirType::Integer => json!("i64"),
-                MirType::Float => json!("f64"),  // Phase 275 P0: Float type annotation
-                MirType::String => json!({"kind": "string"}),
-                MirType::Box(bt) => json!({"kind": "handle", "box_type": bt}),
-                MirType::Bool => json!("i1"),
-                MirType::Void => json!("void"),
-                MirType::Unknown => json!(null),
-                _ => json!(null),
-            };
-            (k.as_u32().to_string(), type_str)
-        }).collect::<serde_json::Map<String, serde_json::Value>>(),
-        "value_consumer_facts": metadata.value_consumer_facts.iter().map(|(k, facts)| {
-            (k.as_u32().to_string(), json!({
-                "direct_set_consumer": facts.direct_set_consumer,
-            }))
-        }).collect::<serde_json::Map<String, serde_json::Value>>(),
-        "loop_range_facts": metadata.loop_range_facts.iter().map(|fact| {
-            json!({
-                "index_name": fact.index_name.as_str(),
-                "start_value": fact.start_value.as_u32(),
-                "end_value": fact.end_value.as_u32(),
-                "index_phi": fact.index_phi.as_u32(),
-                "preheader_bb": fact.preheader_bb.as_u32(),
-                "header_bb": fact.header_bb.as_u32(),
-                "body_bb": fact.body_bb.as_u32(),
-                "step_bb": fact.step_bb.as_u32(),
-                "exit_bb": fact.exit_bb.as_u32(),
-                "step": fact.step,
-                "end_exclusive": fact.end_exclusive,
-                "index_read_only": fact.index_read_only,
-                "body_local_writes_supported": fact.body_local_writes_supported,
-                "loop_carried_writes_supported": fact.loop_carried_writes_supported,
-                "body_writes_supported": fact.body_writes_supported,
-            })
-        }).collect::<Vec<_>>(),
-        "counting_loop_facts": metadata.counting_loop_facts.iter().map(|fact| {
-            json!({
-                "index_name": fact.index_name.as_str(),
-                "lower_value": fact.lower_value.as_u32(),
-                "upper_exclusive_value": fact.upper_exclusive_value.as_u32(),
-                "index_value": fact.index_value.as_u32(),
-                "preheader_bb": fact.preheader_bb.as_u32(),
-                "header_bb": fact.header_bb.as_u32(),
-                "body_bb": fact.body_bb.as_u32(),
-                "latch_bb": fact.latch_bb.as_u32(),
-                "exit_bb": fact.exit_bb.as_u32(),
-                "step": fact.step,
-                "end_exclusive": fact.end_exclusive,
-                "index_body_read_only": fact.index_body_read_only,
-                "loop_carried_writes_supported": fact.loop_carried_writes_supported,
-            })
-        }).collect::<Vec<_>>(),
-        "range_index_facts": metadata.range_index_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "origin_kind": fact.origin_kind.as_str(),
-                "index_value": fact.index_value.as_u32(),
-                "lower_value": fact.lower_value.as_u32(),
-                "upper_exclusive_value": fact.upper_exclusive_value.as_u32(),
-                "body_bb": fact.body_bb.as_u32(),
-                "step": fact.step,
-                "end_exclusive": fact.end_exclusive,
-                "index_body_read_only": fact.index_body_read_only,
-                "loop_carried_writes_supported": fact.loop_carried_writes_supported,
-            })
-        }).collect::<Vec<_>>(),
-        "direct_array_extent_facts": metadata.direct_array_extent_facts.iter().map(|fact| {
-            json!({
-                "receiver_value": fact.receiver_value.as_u32(),
-                "lower_bound_value": fact.lower_bound_value.as_u32(),
-                "proof_kind": fact.proof_kind.as_str(),
-                "region_stability_fact_id": fact.region_stability_fact_id,
-                "stable_in_region": fact.stable_in_region,
-            })
-        }).collect::<Vec<_>>(),
-        "region_stability_facts": metadata.region_stability_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region_value": fact.region_value.as_u32(),
-                "scope_bb": fact.scope_bb.as_u32(),
-                "proof_kind": fact.proof_kind.as_str(),
-                "stable_in_region": fact.stable_in_region,
-            })
-        }).collect::<Vec<_>>(),
-        "span_borrow_facts": metadata.span_borrow_facts.iter().map(|fact| {
-            json!({
-                "span_id": fact.span_id,
-                "span_value": fact.span_value.as_u32(),
-                "region_value": fact.region_value.as_u32(),
-                "owner_value": fact.owner_value.as_u32(),
-                "mutability": fact.mutability.as_str(),
-                "element_type": fact.element_type.as_str(),
-                "start_value": fact.start_value.as_u32(),
-                "length_value": fact.length_value.as_u32(),
-                "scope_bb": fact.scope_bb.as_u32(),
-                "no_escape": fact.no_escape,
-                "owner_stable": fact.owner_stable,
-                "region_stability_fact_id": fact.region_stability_fact_id,
-            })
-        }).collect::<Vec<_>>(),
         "span_access_plans": metadata.span_access_plans.iter().map(|plan| {
             json!({
                 "block": plan.block.as_u32(),
@@ -511,6 +410,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         ),
     });
     if let serde_json::Value::Object(obj) = &mut metadata_json {
+        insert_core_metadata_json(obj, metadata);
         insert_array_metadata_json(obj, metadata);
         insert_exact_numeric_metadata_json(obj, metadata);
         insert_route_metadata_json(obj, f, metadata);

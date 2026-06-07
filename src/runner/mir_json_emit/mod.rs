@@ -3,6 +3,7 @@ use std::io::Write;
 
 mod agg_local;
 mod array_metadata;
+mod core_metadata;
 mod decls;
 mod emitters;
 mod exact_numeric;

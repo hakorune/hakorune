@@ -1,5 +1,11 @@
 use super::diagnostic_output::finish_result;
 use super::CliConfig;
+use config::{
+    alloc_free_route, semantic_codegen_supported, semantic_codegen_uses_object_lifecycle,
+    semantic_codegen_uses_owns, semantic_codegen_uses_ping, AllocFreeRoute, ABI_VERSION,
+    BUILD_MODE, DESCRIPTOR_EXPORT, OBJECT_LIFECYCLE_NATIVE_SLOT_MODE, OUTPUT_CONTRACT,
+    PACKAGE_MODE, SCHEMA_VERSION,
+};
 use mir_json::{
     emit_mir_json, extract_hako_provider_owns_allocated_literal,
     extract_hako_provider_ping_literal, validate_hako_provider_object_lifecycle_entrypoint,
@@ -13,61 +19,9 @@ use support::{
     semantic_codegen_output, sha256_bytes, sha256_file,
 };
 
+mod config;
 mod mir_json;
 mod support;
-
-const SCHEMA_VERSION: &str = "hakorune-provider-package-v1";
-const ABI_VERSION: &str = "hakorune-provider-abi-v1";
-const DESCRIPTOR_EXPORT: &str = "hakorune_provider_descriptor_v1";
-const OUTPUT_CONTRACT: &str = "hakorune-provider-package-hako-derived-build-v0";
-const BUILD_MODE: &str = "hako-derived-selected-fixture";
-const PACKAGE_MODE: &str = "hako-derived-provider-package";
-const OBJECT_LIFECYCLE_MODE: &str = "object-lifecycle-small-alloc-release-v0";
-const OBJECT_LIFECYCLE_NATIVE_SLOT_MODE: &str = "object-lifecycle-native-slot-bridge-v0";
-const HOST_ALLOC_FREE_ROUTE: &str = "host_malloc_free_wrapper";
-const HOST_OBJECT_LIFECYCLE_USAGE: &str = "metadata_verification_only";
-const HOST_BACKED_ADAPTER_KIND: &str = "host_backed_adapter";
-const NATIVE_SLOT_ALLOC_FREE_ROUTE: &str = "native_static_slot_bridge_from_object_lifecycle_shape";
-const NATIVE_SLOT_OBJECT_LIFECYCLE_USAGE: &str = "native_shape_codegen";
-const PURE_PROVIDER_KIND: &str = "pure_allocator";
-
-#[derive(Clone, Copy)]
-struct AllocFreeRoute {
-    route: &'static str,
-    allocator_kind: &'static str,
-    realloc_claim_enabled: bool,
-    usable_size_claim_enabled: bool,
-    host_allocator_vtable_init: bool,
-    uses_host_malloc: bool,
-    uses_hako_object_lifecycle: bool,
-    object_lifecycle_usage: &'static str,
-}
-
-fn alloc_free_route(semantic_codegen: &str) -> AllocFreeRoute {
-    if semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE {
-        AllocFreeRoute {
-            route: NATIVE_SLOT_ALLOC_FREE_ROUTE,
-            allocator_kind: PURE_PROVIDER_KIND,
-            realloc_claim_enabled: true,
-            usable_size_claim_enabled: true,
-            host_allocator_vtable_init: false,
-            uses_host_malloc: false,
-            uses_hako_object_lifecycle: true,
-            object_lifecycle_usage: NATIVE_SLOT_OBJECT_LIFECYCLE_USAGE,
-        }
-    } else {
-        AllocFreeRoute {
-            route: HOST_ALLOC_FREE_ROUTE,
-            allocator_kind: HOST_BACKED_ADAPTER_KIND,
-            realloc_claim_enabled: true,
-            usable_size_claim_enabled: true,
-            host_allocator_vtable_init: true,
-            uses_host_malloc: true,
-            uses_hako_object_lifecycle: false,
-            object_lifecycle_usage: HOST_OBJECT_LIFECYCLE_USAGE,
-        }
-    }
-}
 
 pub fn maybe_run_provider_package_hako_derived_build(config: &CliConfig) -> Option<i32> {
     config
@@ -130,12 +84,7 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         .provider_package_hako_semantic_codegen
         .as_deref()
         .unwrap_or("none");
-    if semantic_codegen != "none"
-        && semantic_codegen != "ping-literal-v0"
-        && semantic_codegen != "alloc-free-owns-literal-v0"
-        && semantic_codegen != OBJECT_LIFECYCLE_MODE
-        && semantic_codegen != OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
-    {
+    if !semantic_codegen_supported(semantic_codegen) {
         return Err("[provider-package-hako-build/unsupported-semantic-codegen] expected none|ping-literal-v0|alloc-free-owns-literal-v0|object-lifecycle-small-alloc-release-v0|object-lifecycle-native-slot-bridge-v0".to_string());
     }
 
@@ -175,19 +124,12 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
 
     let hako_source_hash = sha256_file(&hako_source)?;
     let hako_mir_json_hash = sha256_file(&mir_json_path)?;
-    let semantic_ping_value = if semantic_codegen == "ping-literal-v0"
-        || semantic_codegen == "alloc-free-owns-literal-v0"
-        || semantic_codegen == OBJECT_LIFECYCLE_MODE
-        || semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
-    {
+    let semantic_ping_value = if semantic_codegen_uses_ping(semantic_codegen) {
         Some(extract_hako_provider_ping_literal(&mir_json_path)?)
     } else {
         None
     };
-    let semantic_owns_value = if semantic_codegen == "alloc-free-owns-literal-v0"
-        || semantic_codegen == OBJECT_LIFECYCLE_MODE
-        || semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
-    {
+    let semantic_owns_value = if semantic_codegen_uses_owns(semantic_codegen) {
         let value = extract_hako_provider_owns_allocated_literal(&mir_json_path)?;
         if value != 0 && value != 1 {
             return Err(
@@ -198,14 +140,13 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     } else {
         None
     };
-    let semantic_object_lifecycle_verified = if semantic_codegen == OBJECT_LIFECYCLE_MODE
-        || semantic_codegen == OBJECT_LIFECYCLE_NATIVE_SLOT_MODE
-    {
-        validate_hako_provider_object_lifecycle_entrypoint(&mir_json_path)?;
-        true
-    } else {
-        false
-    };
+    let semantic_object_lifecycle_verified =
+        if semantic_codegen_uses_object_lifecycle(semantic_codegen) {
+            validate_hako_provider_object_lifecycle_entrypoint(&mir_json_path)?;
+            true
+        } else {
+            false
+        };
     let alloc_route = alloc_free_route(semantic_codegen);
     let activation = json!({
         "provider_call_allowed": config.provider_package_provider_call_allowed,
