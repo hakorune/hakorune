@@ -12,7 +12,6 @@ from fastmem_mir_to_llvm_producer_report_common import (
 from fastmem_route_profiles import (
     abandoned_reclaim_preflight_profile,
     abandoned_reclaim_producer_profile,
-    FASTMEM_REMOTE_FREE_ROUTE_PROFILE_NAMES,
     fastmem_branch_cfg_lowering_preflight_profile,
     fastmem_branch_cfg_lowering_profile,
     fastmem_branch_cfg_preflight_profile,
@@ -37,9 +36,9 @@ from fastmem_route_profiles import (
     tls_backing_transfer_producer_profile,
     winner_claim_preflight_profile,
     winner_claim_producer_profile,
-    profile_in,
     REFRESH_PROFILE_SPECS,
     refresh_profile_spec,
+    remote_free_route_profile_spec,
 )
 
 
@@ -257,63 +256,22 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or page_local_free_route_cfg_any
         or tls_backing_transfer_or_later
     )
-    if profile_in(profile, FASTMEM_REMOTE_FREE_ROUTE_PROFILE_NAMES):
+    route_spec = remote_free_route_profile_spec(profile)
+    if route_spec is not None:
         remote_free_open = True
         route_candidate = "none"
-        if profile == "remote-free-preflight":
-            next_slice = "atomic_remote_head_cas_lowering_preflight"
-            deferred_remote_kinds = (
-                "AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_retry_preflight:
-            next_slice = "atomic_remote_head_retry_policy_preflight"
-            deferred_remote_kinds = (
-                "AtomicRemoteHeadRetryLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_retry_producer:
-            next_slice = "atomic_remote_head_retry_lowering_producer_pilot"
-            deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
-        elif remote_free_drain_preflight:
-            next_slice = "atomic_remote_head_drain_preflight"
-            deferred_remote_kinds = (
-                "AtomicRemoteHeadDrainLowering,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_drain_exchange_selection:
-            next_slice = "atomic_remote_head_drain_exchange_lowering_producer_pilot"
-            deferred_remote_kinds = (
-                "AtomicRemoteHeadDrainLowering,DrainToLocalRoute,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_drain_exchange_producer:
-            next_slice = "atomic_remote_head_drain_to_local_route_selection"
-            deferred_remote_kinds = "DrainToLocalRoute,RemoteOwnerBranchRouting"
-        elif remote_free_drain_to_local_selection:
-            next_slice = "atomic_remote_head_drain_to_local_route_producer_pilot"
-            deferred_remote_kinds = "DrainToLocalRouteLowering,RemoteOwnerBranchRouting"
-        elif remote_free_drain_to_local_producer:
-            next_slice = "atomic_remote_head_drain_local_list_mutation_preflight"
-            deferred_remote_kinds = "DrainToLocalMutation,RemoteOwnerBranchRouting"
-        elif remote_free_drain_local_list_mutation_preflight:
-            next_slice = "atomic_remote_head_drain_local_list_mutation_proof"
-            deferred_remote_kinds = "DrainLocalListMutation,RemoteOwnerBranchRouting"
-        elif remote_free_drain_local_list_mutation_proof:
-            next_slice = "atomic_remote_head_drain_local_list_mutation_vocabulary_preflight"
-            deferred_remote_kinds = (
-                "DrainLocalListMutationVocabulary,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_drain_local_list_mutation_vocabulary_preflight:
-            next_slice = "atomic_remote_head_drain_local_list_mutation_verifier_preconditions"
-            deferred_remote_kinds = (
-                "DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_drain_local_list_mutation_verifier_preconditions:
-            next_slice = "atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot"
-            deferred_remote_kinds = (
-                "DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting"
-            )
-        elif remote_free_drain_local_list_mutation_lowering_producer:
-            next_slice = "remote_owner_branch_routing_preflight"
-            deferred_remote_kinds = "RemoteOwnerBranchRouting"
-        elif remote_owner_branch_routing_preflight:
+        next_slice = route_spec.next_slice
+        deferred_remote_kinds = route_spec.deferred_kinds
+        selected_remote_kind = route_spec.selected_remote_kind
+        selected_route = route_spec.selected_route
+        selected_memop_family = route_spec.selected_memop_family
+        selected_memop_kinds = route_spec.selected_memop_kinds
+    if route_spec is None and profile not in (
+        "owner-runtime",
+        "local-free",
+        "layout_table",
+    ):
+        if remote_owner_branch_routing_preflight:
             next_slice = "remote_owner_branch_routing_lowering_preflight"
             deferred_remote_kinds = "RemoteOwnerBranchRoutingLowering"
         elif remote_owner_branch_routing_lowering_preflight:
@@ -406,6 +364,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
+
         selected_remote_kind = (
             "AtomicRemoteHeadDrain"
             if remote_free_drain_preflight
@@ -489,91 +448,98 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "remote_owner_branch_routing_preflight"
         else:
             selected_route = "none"
-        slice_rows = [
+
+        selected_memop_family = (
+            "winner_claim"
+            if winner_claim_any
+            else "global_allocator_claim"
+            if global_allocator_claim_any
+            else "hook_install"
+            if hook_install_any
+            else "product_activation"
+            if product_activation_any
+            else "abandoned_reclaim"
+            if abandoned_reclaim_any
+            else "owner_slot_reuse"
+            if owner_slot_reuse_any
+            else "tls_backing_transfer"
+            if tls_backing_transfer_preflight_refresh
+            or tls_backing_transfer_producer_refresh
+            or tls_backing_transfer_producer
+            else "terminal_ladder_refresh"
+            if terminal_ladder_refresh_preflight
+            else "page_local_route_body_join"
+            if page_local_route_body_join_any
+            else "page_local_route_cfg"
+            if page_local_free_route_cfg_any or tls_backing_transfer_preflight
+            else "page_local_alloc_route_cfg"
+            if page_local_alloc_route_cfg_any
+            else (
+                "same_remote_free_body"
+                if same_remote_free_body_preflight or same_remote_free_body_producer
+                else (
+                    "branch_cfg"
+                    if fastmem_branch_cfg_lowering_preflight
+                    or fastmem_branch_cfg_lowering_producer
+                    else (
+                        "remote_free_routing"
+                        if remote_owner_branch_routing_any
+                        else "remote_free"
+                    )
+                )
+            )
+        )
+        selected_memop_kinds = (
+            "WinnerClaim"
+            if winner_claim_any
+            else "GlobalAllocatorClaim"
+            if global_allocator_claim_any
+            else "HookInstall"
+            if hook_install_any
+            else "ProductActivation"
+            if product_activation_any
+            else "AbandonedReclaim"
+            if abandoned_reclaim_any
+            else "OwnerSlotReuse"
+            if owner_slot_reuse_any
+            else "TlsBackingTransfer"
+            if tls_backing_transfer_preflight_refresh
+            or tls_backing_transfer_producer_refresh
+            or tls_backing_transfer_producer
+            else "TerminalLadderRefresh"
+            if terminal_ladder_refresh_preflight
+            else "PageLocalRouteBodyJoin"
+            if page_local_route_body_join_preflight
+            else "PageLocalRouteBodyJoinProducer"
+            if page_local_route_body_join_producer
+            else "PageLocalFreeRouteCfg"
+            if page_local_free_route_cfg_any or tls_backing_transfer_preflight
+            else "PageLocalAllocRouteCfgProducer"
+            if page_local_alloc_route_cfg_producer
+            else "PageLocalAllocRouteCfg"
+            if page_local_alloc_route_cfg_preflight
+            else (
+                "SameRemoteFreeBody"
+                if same_remote_free_body_preflight or same_remote_free_body_producer
+                else (
+                    "FastMemBranchCfg"
+                    if fastmem_branch_cfg_lowering_preflight
+                    or fastmem_branch_cfg_lowering_producer
+                    else selected_remote_kind
+                )
+            )
+        )
+    slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),
             ("replacement_front_selected_route", selected_route),
             ("replacement_front_next_producer_slice", next_slice),
             (
                 "replacement_front_selected_memop_family",
-                "winner_claim"
-                if winner_claim_any
-                else "global_allocator_claim"
-                if global_allocator_claim_any
-                else "hook_install"
-                if hook_install_any
-                else "product_activation"
-                if product_activation_any
-                else "abandoned_reclaim"
-                if abandoned_reclaim_any
-                else "owner_slot_reuse"
-                if owner_slot_reuse_any
-                else "tls_backing_transfer"
-                if tls_backing_transfer_preflight_refresh
-                or tls_backing_transfer_producer_refresh
-                or tls_backing_transfer_producer
-                else "terminal_ladder_refresh"
-                if terminal_ladder_refresh_preflight
-                else "page_local_route_body_join"
-                if page_local_route_body_join_any
-                else "page_local_route_cfg"
-                if page_local_free_route_cfg_any or tls_backing_transfer_preflight
-                else "page_local_alloc_route_cfg"
-                if page_local_alloc_route_cfg_any
-                else (
-                    "same_remote_free_body"
-                    if same_remote_free_body_preflight or same_remote_free_body_producer
-                    else (
-                        "branch_cfg"
-                        if fastmem_branch_cfg_lowering_preflight
-                        or fastmem_branch_cfg_lowering_producer
-                        else (
-                            "remote_free_routing"
-                            if remote_owner_branch_routing_any
-                            else "remote_free"
-                        )
-                    )
-                ),
+                selected_memop_family,
             ),
             (
                 "replacement_front_selected_memop_kinds",
-                "WinnerClaim"
-                if winner_claim_any
-                else "GlobalAllocatorClaim"
-                if global_allocator_claim_any
-                else "HookInstall"
-                if hook_install_any
-                else "ProductActivation"
-                if product_activation_any
-                else "AbandonedReclaim"
-                if abandoned_reclaim_any
-                else "OwnerSlotReuse"
-                if owner_slot_reuse_any
-                else "TlsBackingTransfer"
-                if tls_backing_transfer_preflight_refresh
-                or tls_backing_transfer_producer_refresh
-                or tls_backing_transfer_producer
-                else "TerminalLadderRefresh"
-                if terminal_ladder_refresh_preflight
-                else "PageLocalRouteBodyJoin"
-                if page_local_route_body_join_preflight
-                else "PageLocalRouteBodyJoinProducer"
-                if page_local_route_body_join_producer
-                else "PageLocalFreeRouteCfg"
-                if page_local_free_route_cfg_any or tls_backing_transfer_preflight
-                else "PageLocalAllocRouteCfgProducer"
-                if page_local_alloc_route_cfg_producer
-                else "PageLocalAllocRouteCfg"
-                if page_local_alloc_route_cfg_preflight
-                else (
-                    "SameRemoteFreeBody"
-                    if same_remote_free_body_preflight or same_remote_free_body_producer
-                    else (
-                        "FastMemBranchCfg"
-                        if fastmem_branch_cfg_lowering_preflight
-                        or fastmem_branch_cfg_lowering_producer
-                        else selected_remote_kind
-                    )
-                ),
+                selected_memop_kinds,
             ),
             ("replacement_front_deferred_memop_family", "remote_free_execution"),
             ("replacement_front_deferred_memop_kinds", deferred_remote_kinds),
@@ -781,7 +747,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
-    elif profile == "owner-runtime":
+    if profile == "owner-runtime":
         route_candidate = "none"
         slice_rows = [
             ("replacement_front_producer_slice_selection_v0", "0"),

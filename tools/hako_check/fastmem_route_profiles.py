@@ -24,6 +24,17 @@ class RefreshProfileSpec:
     expected_positive: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class RemoteFreeRouteProfileSpec:
+    profile: str
+    selected_route: str
+    next_slice: str
+    deferred_kinds: str
+    selected_remote_kind: str
+    selected_memop_family: str
+    selected_memop_kinds: str
+
+
 FASTMEM_REMOTE_FREE_ROUTE_PROFILE_NAMES: tuple[str, ...] = (
     "remote-free",
     "remote-free-retry-preflight",
@@ -83,6 +94,145 @@ FASTMEM_REMOTE_FREE_ROUTE_PROFILE_NAMES: tuple[str, ...] = (
     "winner-claim-preflight",
     "winner-claim-producer-pilot",
 )
+
+
+REMOTE_FREE_ROUTE_PROFILE_SPECS: tuple[RemoteFreeRouteProfileSpec, ...] = (
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-preflight",
+        selected_route="none",
+        next_slice="atomic_remote_head_cas_lowering_preflight",
+        deferred_kinds="AtomicRemoteHeadCasLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadPush",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadPush",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free",
+        selected_route="none",
+        next_slice="atomic_remote_head_cas_lowering_producer_pilot",
+        deferred_kinds="AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadPush",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadPush",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-retry-preflight",
+        selected_route="none",
+        next_slice="atomic_remote_head_retry_policy_preflight",
+        deferred_kinds="AtomicRemoteHeadRetryLowering,AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadPush",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadPush",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-retry",
+        selected_route="none",
+        next_slice="atomic_remote_head_retry_lowering_producer_pilot",
+        deferred_kinds="AtomicRemoteHeadDrain,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadPush",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadPush",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-preflight",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_preflight",
+        deferred_kinds="AtomicRemoteHeadDrainLowering,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-exchange-selection",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_exchange_lowering_producer_pilot",
+        deferred_kinds="AtomicRemoteHeadDrainLowering,DrainToLocalRoute,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-exchange",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_to_local_route_selection",
+        deferred_kinds="DrainToLocalRoute,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-to-local-selection",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_to_local_route_producer_pilot",
+        deferred_kinds="DrainToLocalRouteLowering,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-to-local",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_local_list_mutation_preflight",
+        deferred_kinds="DrainLocalListMutation,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-local-list-mutation-preflight",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_local_list_mutation_proof",
+        deferred_kinds="DrainLocalListMutation,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-local-list-mutation-proof",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+        deferred_kinds="DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-local-list-mutation-vocabulary-preflight",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_local_list_mutation_verifier_preconditions",
+        deferred_kinds="DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting",
+        selected_remote_kind="AtomicRemoteHeadDrain",
+        selected_memop_family="remote_free",
+        selected_memop_kinds="AtomicRemoteHeadDrain",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-local-list-mutation-verifier-preconditions",
+        selected_route="none",
+        next_slice="atomic_remote_head_drain_local_list_mutation_lowering_producer_pilot",
+        deferred_kinds="DrainRemoteListToLocalLowering,RemoteOwnerBranchRouting",
+        selected_remote_kind="DrainRemoteListToLocal",
+        selected_memop_family="remote_free_routing",
+        selected_memop_kinds="DrainRemoteListToLocal",
+    ),
+    RemoteFreeRouteProfileSpec(
+        profile="remote-free-drain-local-list-mutation-lowering",
+        selected_route="none",
+        next_slice="remote_owner_branch_routing_preflight",
+        deferred_kinds="RemoteOwnerBranchRouting",
+        selected_remote_kind="DrainRemoteListToLocal",
+        selected_memop_family="remote_free_routing",
+        selected_memop_kinds="DrainRemoteListToLocal",
+    ),
+)
+
+
+REMOTE_FREE_ROUTE_PROFILE_BY_NAME = {
+    spec.profile: spec for spec in REMOTE_FREE_ROUTE_PROFILE_SPECS
+}
+
+
+def remote_free_route_profile_spec(profile: str) -> RemoteFreeRouteProfileSpec | None:
+    return REMOTE_FREE_ROUTE_PROFILE_BY_NAME.get(profile)
 
 
 def profile_in(profile: str, expected: tuple[str, ...]) -> bool:
