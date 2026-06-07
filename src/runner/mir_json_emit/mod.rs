@@ -2,6 +2,7 @@ use serde_json::json;
 use std::io::Write;
 
 mod agg_local;
+mod array_metadata;
 mod decls;
 mod emitters;
 mod exact_numeric;
