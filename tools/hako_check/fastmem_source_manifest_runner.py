@@ -89,10 +89,17 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
             report_expected = producer.get("report_expected")
             check_expected = producer.get("check_expected")
             expect_failure = bool(producer.get("expect_failure", False))
+            check_expect_failure = bool(producer.get("check_expect_failure", False))
             stderr_expected = producer.get("stderr_expected")
             if not isinstance(profile, str) or not profile:
                 fail(f"fixtures {fixture_id} producer #{p_index} profile must be a non-empty string")
             entry: dict[str, object] = {"profile": profile, "expect_failure": expect_failure}
+            if check_expect_failure:
+                if expect_failure:
+                    fail(
+                        f"fixtures {fixture_id} producer {profile} cannot set both expect_failure and check_expect_failure"
+                    )
+                entry["check_expect_failure"] = check_expect_failure
             if expect_failure:
                 if not isinstance(stderr_expected, str) or not stderr_expected:
                     fail(
@@ -212,6 +219,7 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
         for producer in producers:
             profile = producer["profile"]
             expect_failure = bool(producer.get("expect_failure", False))
+            check_expect_failure = bool(producer.get("check_expect_failure", False))
             report_path = tmpdir / f"{fixture_id}.{profile}.report.kv"
             check_path = tmpdir / f"{fixture_id}.{profile}.check.kv"
             if expect_failure:
@@ -267,7 +275,7 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
             )
             compare_expected_kv(report_path, report_expected_path, tag, f"{fixture_id} {profile} report")
 
-            run_command(
+            check_result = subprocess.run(
                 [
                     "bash",
                     str(root / "tools/hako_check.sh"),
@@ -281,7 +289,19 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
                 ],
                 cwd=root,
                 env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
+            if check_expect_failure:
+                if check_result.returncode == 0:
+                    fail(
+                        f"fixture {fixture_id} producer {profile} expected fastmem-check failure but succeeded"
+                    )
+            elif check_result.returncode != 0:
+                fail(
+                    f"command failed ({check_result.returncode}): bash {root / 'tools/hako_check.sh'} fastmem-check --inventory {report_path} --format kv --out {check_path}",
+                    code=check_result.returncode,
+                )
             compare_expected_kv(check_path, check_expected_path, tag, f"{fixture_id} {profile} check")
 
 
