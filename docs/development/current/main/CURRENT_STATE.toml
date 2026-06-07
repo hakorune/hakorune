@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-575 landed MIRBuilder FastMemory branch-local return scope fix: a dedicated hako_alloc fixture now builds MIR without lexical_scope/unbalanced_pop and source-syntax smoke pins the narrow branch-local return shape; 296x-577 hako_alloc route body reentry selection opens next."
+active_lane_status = "296x-577 landed MIM-PORT-FMEM-078 hako_alloc route body reentry selection: the next implementation row is page-local alloc/free route body join preflight, proving the late alloc route CFG and existing free route CFG meet before later terminal/product claims reopen; 296x-578 opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-575-MIR-BUILDER-FASTMEM-BRANCH-RETURN-SCOPE-FIX"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-575-MIR-BUILDER-FASTMEM-BRANCH-RETURN-SCOPE-FIX.md"
-latest_card_summary = "FastMemory branch-local returns inside a PageMapV0 region now build MIR without lexical_scope/unbalanced_pop and are pinned by a hako_alloc source fixture plus source-syntax smoke; 296x-577 hako_alloc route body reentry selection opens next."
-current_blocker_token = "296x-577"
+latest_card = "296x-577-MIM-PORT-FMEM-078-HAKO-ALLOC-ROUTE-BODY-REENTRY-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-577-MIM-PORT-FMEM-078-HAKO-ALLOC-ROUTE-BODY-REENTRY-SELECTION.md"
+latest_card_summary = "Selected page-local alloc/free route body join preflight as the next implementation row so late allocation-route CFG evidence and existing free-route CFG evidence meet before later terminal/product claims reopen; 296x-578 opens next."
+current_blocker_token = "296x-578"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-577 landed MIM-PORT-FMEM-078 hako_alloc route body reentry selection: the next implementation row is page-local alloc/free route body join preflight, proving the late alloc route CFG and existing free route CFG meet before later terminal/product claims reopen; 296x-578 opens next.",
   "2026-06-07: 296x-575 landed MIRBuilder FastMemory branch-local return scope fix: a dedicated hako_alloc fixture now builds MIR without lexical_scope/unbalanced_pop and source-syntax smoke pins the narrow branch-local return shape; 296x-577 hako_alloc route body reentry selection opens next.",
   "2026-06-07: 296x-576 landed MIM-PORT-FMEM-077 page-local alloc route CFG producer pilot: report/check now select producer evidence for the allocation route CFG while keeping branch claim, product activation, hooks, global allocator claim, and winner claim closed; 296x-575 branch-local return scope fix opens next.",
   "2026-06-07: 296x-574 landed MIM-PORT-FMEM-076 page-local alloc route CFG preflight: report/check now select the allocation route CFG boundary while keeping route lowering, branch claim, product activation, hooks, global allocator claim, and winner claim closed; MIM-PORT-FMEM-077 opens next.",

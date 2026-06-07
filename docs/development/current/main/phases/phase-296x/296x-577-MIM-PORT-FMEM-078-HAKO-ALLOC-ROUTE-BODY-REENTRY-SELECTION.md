@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-078.
 Related:
@@ -36,6 +36,28 @@ activation / hook / global allocator / winner claims remain closed
 4. next missing hako_alloc body identified by fastmem inventory
 ```
 
+## Decision
+
+Select `page-local alloc/free route body join preflight` as the next row.
+
+Reasoning:
+
+```text
+page-local free route CFG already fed the terminal product/owner ladder
+page-local alloc route CFG was added later as a missing hako_alloc body slice
+the next row should join the two route bodies before reopening later claims
+```
+
+This keeps the route body ladder honest: both allocation and free route CFG
+evidence must be visible before subsequent terminal/product rows treat the
+page-local route body as complete.
+
+## Next Card
+
+```text
+296x-578-MIM-PORT-FMEM-079-PAGE-LOCAL-ALLOC-FREE-ROUTE-BODY-JOIN-PREFLIGHT
+```
+
 ## Required Boundaries
 
 ```text
@@ -55,6 +77,13 @@ source fixture and report/check owner are identified
 closed activation / hook / allocator / winner claims remain closed
 current state pointer guard passes
 git diff --check passes
+```
+
+## Verification
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```
 
 ## Non-goals
