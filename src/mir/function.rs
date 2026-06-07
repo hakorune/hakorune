@@ -10,6 +10,7 @@ mod display;
 mod fastmem;
 mod function_impl;
 mod module_impl;
+mod object_metadata;
 mod types;
 
 #[cfg(test)]
@@ -22,20 +23,22 @@ pub use fastmem::{
     FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
     FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
 };
-pub use types::{
+pub use object_metadata::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    ClosureBodyId, CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind,
-    DirectStateFieldPlan, DirectStatePlan, ExactNumericRuntimeCheckContract,
-    ExactNumericRuntimeCheckContractKind, FastPathObligation, FunctionMetadata, FunctionSignature,
-    FunctionStats, HakoAllocAlignedSmallPackedStorePilotPlan,
-    HakoAllocHugePagePackedStorePilotPlan, LoopRangeFact, MirEnumDecl, MirEnumVariantDecl,
-    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RangeIndexFact,
-    RangeIndexFactOriginKind, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
+    DirectStateFieldPlan, DirectStatePlan, HakoAllocAlignedSmallPackedStorePilotPlan,
+    HakoAllocHugePagePackedStorePilotPlan, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
     RecordStateFieldAccessPlan, RecordStateResidenceFieldPlan, RecordStateResidencePlan,
-    RecordStateResidenceRejectedFieldPlan, RegionStabilityFact, RegionStabilityProofKind,
-    RequiredFastPathRegion, SourcePackedArrayAutoUsePilotPlan,
-    SourcePackedArrayDirectReadConsumptionPlan, SpanAccessOp, SpanAccessPlan, SpanBorrowFact,
-    SpanBorrowMutability, SpanElementType, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    RecordStateResidenceRejectedFieldPlan, SourcePackedArrayAutoUsePilotPlan,
+    SourcePackedArrayDirectReadConsumptionPlan, TypedObjectFieldPlan, TypedObjectFieldStorage,
+    TypedObjectPlan, UserBoxFieldDecl,
+};
+pub use types::{
+    ClosureBodyId, CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind,
+    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind, FastPathObligation,
+    FunctionMetadata, FunctionSignature, FunctionStats, LoopRangeFact, MirEnumDecl,
+    MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats,
+    RangeIndexFact, RangeIndexFactOriginKind, RegionStabilityFact, RegionStabilityProofKind,
+    RequiredFastPathRegion, SpanAccessOp, SpanAccessPlan, SpanBorrowFact, SpanBorrowMutability,
+    SpanElementType, StaticDataPlan,
 };
