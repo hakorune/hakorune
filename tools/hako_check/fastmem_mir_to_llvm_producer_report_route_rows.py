@@ -718,6 +718,57 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         route_summary_flags,
         selected_remote_kind,
     )
+
+    def _non_route_family_state() -> tuple[
+        str,
+        str,
+        str,
+        str,
+        list[tuple[str, str]],
+    ]:
+        if profile == "owner-runtime":
+            return (
+                "none",
+                "none",
+                "owner_runtime",
+                "CurrentAllocOwnerId,OwnerEq",
+                _owner_runtime_slice_rows(),
+            )
+        if profile == "local-free":
+            route_candidate = page_local_alloc_route_candidate(
+                local_free_pop_count=len(verified_local_free_pop),
+                free_head_push_count=len(verified_free_head_push),
+                free_head_pop_count=len(verified_free_head_pop),
+            )
+            free_route_candidate = page_local_free_route_candidate(
+                local_free_push_count=len(verified_local_free_push),
+                local_free_pop_count=len(verified_local_free_pop),
+                free_head_push_count=len(verified_free_head_push),
+                free_head_pop_count=len(verified_free_head_pop),
+            )
+            selected_local_free_kinds_str = (
+                ",".join(selected_local_free_kinds)
+                if selected_local_free_kinds
+                else "none"
+            )
+            return (
+                route_candidate,
+                free_route_candidate,
+                "local_free",
+                selected_local_free_kinds_str,
+                _local_free_slice_rows(
+                    selected_local_free_kinds_str,
+                    ",".join(deferred_local_free_kinds),
+                ),
+            )
+        return (
+            "none",
+            "none",
+            "layout_table",
+            "TableIndex,FieldLoad,FieldStore",
+            _layout_table_slice_rows(),
+        )
+
     def _remote_free_slice_rows() -> list[tuple[str, str]]:
         return [
                 ("replacement_front_producer_slice_selection_v0", "0"),
@@ -939,37 +990,14 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             ]
 
     slice_rows = _remote_free_slice_rows()
-    if not route_family and profile == "owner-runtime":
-        route_candidate = "none"
-        selected_memop_family = "owner_runtime"
-        selected_memop_kinds = "CurrentAllocOwnerId,OwnerEq"
-        slice_rows = _owner_runtime_slice_rows()
-    elif not route_family and profile == "local-free":
-        route_candidate = page_local_alloc_route_candidate(
-            local_free_pop_count=len(verified_local_free_pop),
-            free_head_push_count=len(verified_free_head_push),
-            free_head_pop_count=len(verified_free_head_pop),
-        )
-        free_route_candidate = page_local_free_route_candidate(
-            local_free_push_count=len(verified_local_free_push),
-            local_free_pop_count=len(verified_local_free_pop),
-            free_head_push_count=len(verified_free_head_push),
-            free_head_pop_count=len(verified_free_head_pop),
-        )
-        selected_memop_family = "local_free"
-        selected_memop_kinds = (
-            ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none"
-        )
-        slice_rows = _local_free_slice_rows(
-            ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none",
-            ",".join(deferred_local_free_kinds),
-        )
-    elif not route_family:
-        route_candidate = "none"
-        free_route_candidate = "none"
-        selected_memop_family = "layout_table"
-        selected_memop_kinds = "TableIndex,FieldLoad,FieldStore"
-        slice_rows = _layout_table_slice_rows()
+    if not route_family:
+        (
+            route_candidate,
+            free_route_candidate,
+            selected_memop_family,
+            selected_memop_kinds,
+            slice_rows,
+        ) = _non_route_family_state()
 
     state.update(locals())
     return state
