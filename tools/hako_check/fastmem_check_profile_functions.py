@@ -249,6 +249,10 @@ def owner_slot_reuse_preflight_refresh_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_allocator_owner_slot_reuse_preflight_refresh") > 0
 
 
+def owner_slot_reuse_producer_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_allocator_owner_slot_reuse_producer_refresh") > 0
+
+
 def owner_slot_reuse_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_allocator_owner_slot_reuse_preflight") > 0
 

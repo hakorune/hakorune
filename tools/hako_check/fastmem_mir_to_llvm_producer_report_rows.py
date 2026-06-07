@@ -136,6 +136,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "tls-backing-transfer-preflight",
             "tls-backing-transfer-producer-pilot",
             "owner-slot-reuse-preflight-refresh",
+            "owner-slot-reuse-producer-refresh",
             "owner-slot-reuse-preflight",
             "owner-slot-reuse-producer-pilot",
             "abandoned-reclaim-preflight",

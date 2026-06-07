@@ -68,6 +68,9 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     tls_backing_transfer_producer = state.get("tls_backing_transfer_producer", False)
     tls_backing_transfer_or_later = state.get("tls_backing_transfer_or_later", False)
     owner_slot_reuse_preflight = state.get("owner_slot_reuse_preflight", False)
+    owner_slot_reuse_producer_refresh = state.get(
+        "owner_slot_reuse_producer_refresh", False
+    )
     owner_slot_reuse_producer = state.get("owner_slot_reuse_producer", False)
     owner_slot_reuse_or_later = state.get("owner_slot_reuse_or_later", False)
     abandoned_reclaim_preflight = state.get("abandoned_reclaim_preflight", False)
@@ -223,12 +226,24 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ),
         (
             "allocator_owner_slot_reuse_enabled",
-            str(int_flag(owner_slot_reuse_producer or abandoned_reclaim_or_later)),
+            str(
+                int_flag(
+                    owner_slot_reuse_producer
+                    or owner_slot_reuse_producer_refresh
+                    or abandoned_reclaim_or_later
+                )
+            ),
         ),
         ("allocator_owner_slot_reuse_selected", str(int_flag(owner_slot_reuse_or_later))),
         (
             "allocator_owner_generation_bump_count",
-            str(int_flag(owner_slot_reuse_producer or abandoned_reclaim_or_later)),
+            str(
+                int_flag(
+                    owner_slot_reuse_producer
+                    or owner_slot_reuse_producer_refresh
+                    or abandoned_reclaim_or_later
+                )
+            ),
         ),
         ("allocator_owner_reuse_without_generation_bump_count", "0"),
         ("abandoned_reclaim_selected", str(int_flag(abandoned_reclaim_or_later))),
