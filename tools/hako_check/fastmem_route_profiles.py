@@ -7,7 +7,21 @@ switches and expected-field sets.
 
 from __future__ import annotations
 
-from typing import Callable, Mapping
+from dataclasses import dataclass
+from typing import Mapping
+
+
+@dataclass(frozen=True)
+class RefreshProfileSpec:
+    profile: str
+    report_flag: str
+    selected_route: str
+    family: str
+    memop_kinds: str
+    next_slice: str
+    deferred_kinds: str
+    expected_zero: tuple[str, ...]
+    expected_positive: tuple[str, ...]
 
 
 def _profile_flag(rows: Mapping[str, str], key: str) -> bool:
@@ -718,3 +732,189 @@ WINNER_CLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE = (
     "page_local_alloc_route_cfg_lowering_enabled",
     "page_local_free_route_cfg_lowering_enabled",
 )
+
+
+REFRESH_PROFILE_SPECS: tuple[RefreshProfileSpec, ...] = (
+    RefreshProfileSpec(
+        profile="terminal-ladder-refresh-preflight",
+        report_flag="fastmem_terminal_ladder_refresh_preflight",
+        selected_route="terminal_ladder_refresh_preflight",
+        family="terminal_ladder_refresh",
+        memop_kinds="TerminalLadderRefresh",
+        next_slice="tls_backing_transfer_preflight_refresh",
+        deferred_kinds="TlsBackingTransfer",
+        expected_zero=TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_ZERO,
+        expected_positive=TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="tls-backing-transfer-preflight-refresh",
+        report_flag="fastmem_tls_backing_transfer_preflight_refresh",
+        selected_route="tls_backing_transfer_preflight_refresh",
+        family="tls_backing_transfer",
+        memop_kinds="TlsBackingTransfer",
+        next_slice="tls_backing_transfer_producer_refresh",
+        deferred_kinds="TlsBackingTransferProducer,OwnerSlotReuse",
+        expected_zero=TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=TLS_BACKING_TRANSFER_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="tls-backing-transfer-producer-refresh",
+        report_flag="fastmem_tls_backing_transfer_producer_refresh",
+        selected_route="tls_backing_transfer_producer_refresh",
+        family="tls_backing_transfer",
+        memop_kinds="TlsBackingTransfer",
+        next_slice="owner_slot_reuse_preflight_refresh",
+        deferred_kinds="OwnerSlotReuse",
+        expected_zero=TLS_BACKING_TRANSFER_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=TLS_BACKING_TRANSFER_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="owner-slot-reuse-preflight-refresh",
+        report_flag="fastmem_allocator_owner_slot_reuse_preflight_refresh",
+        selected_route="owner_slot_reuse_preflight_refresh",
+        family="owner_slot_reuse",
+        memop_kinds="OwnerSlotReuse",
+        next_slice="owner_slot_reuse_producer_refresh",
+        deferred_kinds="OwnerSlotReuseProducer,AbandonedReclaim",
+        expected_zero=OWNER_SLOT_REUSE_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=OWNER_SLOT_REUSE_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="owner-slot-reuse-producer-refresh",
+        report_flag="fastmem_allocator_owner_slot_reuse_producer_refresh",
+        selected_route="owner_slot_reuse_producer_refresh",
+        family="owner_slot_reuse",
+        memop_kinds="OwnerSlotReuse",
+        next_slice="abandoned_reclaim_preflight_refresh",
+        deferred_kinds="AbandonedReclaim",
+        expected_zero=OWNER_SLOT_REUSE_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=OWNER_SLOT_REUSE_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="abandoned-reclaim-preflight-refresh",
+        report_flag="fastmem_abandoned_reclaim_preflight_refresh",
+        selected_route="abandoned_reclaim_preflight_refresh",
+        family="abandoned_reclaim",
+        memop_kinds="AbandonedReclaim",
+        next_slice="abandoned_reclaim_producer_refresh",
+        deferred_kinds="AbandonedReclaimProducer,ProductActivation",
+        expected_zero=ABANDONED_RECLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=ABANDONED_RECLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="abandoned-reclaim-producer-refresh",
+        report_flag="fastmem_abandoned_reclaim_producer_refresh",
+        selected_route="abandoned_reclaim_producer_refresh",
+        family="abandoned_reclaim",
+        memop_kinds="AbandonedReclaim",
+        next_slice="product_activation_preflight_refresh",
+        deferred_kinds="ProductActivation",
+        expected_zero=ABANDONED_RECLAIM_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=ABANDONED_RECLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="product-activation-preflight-refresh",
+        report_flag="fastmem_product_activation_preflight_refresh",
+        selected_route="product_activation_preflight_refresh",
+        family="product_activation",
+        memop_kinds="ProductActivation",
+        next_slice="product_activation_producer_refresh",
+        deferred_kinds="ProductActivationProducer,HookInstall",
+        expected_zero=PRODUCT_ACTIVATION_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=PRODUCT_ACTIVATION_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="product-activation-producer-refresh",
+        report_flag="fastmem_product_activation_producer_refresh",
+        selected_route="product_activation_producer_refresh",
+        family="product_activation",
+        memop_kinds="ProductActivation",
+        next_slice="hook_install_preflight_refresh",
+        deferred_kinds="HookInstall",
+        expected_zero=PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="hook-install-preflight-refresh",
+        report_flag="fastmem_hook_install_preflight_refresh",
+        selected_route="hook_install_preflight_refresh",
+        family="hook_install",
+        memop_kinds="HookInstall",
+        next_slice="hook_install_producer_refresh",
+        deferred_kinds="HookInstallProducer,GlobalAllocatorClaim",
+        expected_zero=HOOK_INSTALL_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=HOOK_INSTALL_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="hook-install-producer-refresh",
+        report_flag="fastmem_hook_install_producer_refresh",
+        selected_route="hook_install_producer_refresh",
+        family="hook_install",
+        memop_kinds="HookInstall",
+        next_slice="global_allocator_claim_preflight_refresh",
+        deferred_kinds="GlobalAllocatorClaim",
+        expected_zero=HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=HOOK_INSTALL_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="global-allocator-claim-preflight-refresh",
+        report_flag="fastmem_global_allocator_claim_preflight_refresh",
+        selected_route="global_allocator_claim_preflight_refresh",
+        family="global_allocator_claim",
+        memop_kinds="GlobalAllocatorClaim",
+        next_slice="global_allocator_claim_producer_refresh",
+        deferred_kinds="GlobalAllocatorClaimProducer,WinnerClaim",
+        expected_zero=GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=GLOBAL_ALLOCATOR_CLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="global-allocator-claim-producer-refresh",
+        report_flag="fastmem_global_allocator_claim_producer_refresh",
+        selected_route="global_allocator_claim_producer_refresh",
+        family="global_allocator_claim",
+        memop_kinds="GlobalAllocatorClaim",
+        next_slice="winner_claim_preflight_refresh",
+        deferred_kinds="WinnerClaim",
+        expected_zero=GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=GLOBAL_ALLOCATOR_CLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="winner-claim-preflight-refresh",
+        report_flag="fastmem_winner_claim_preflight_refresh",
+        selected_route="winner_claim_preflight_refresh",
+        family="winner_claim",
+        memop_kinds="WinnerClaim",
+        next_slice="winner_claim_producer_refresh",
+        deferred_kinds="WinnerClaimProducer",
+        expected_zero=WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
+        expected_positive=WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
+    ),
+    RefreshProfileSpec(
+        profile="winner-claim-producer-refresh",
+        report_flag="fastmem_winner_claim_producer_refresh",
+        selected_route="winner_claim_producer_refresh",
+        family="winner_claim",
+        memop_kinds="WinnerClaim",
+        next_slice="complete",
+        deferred_kinds="none",
+        expected_zero=WINNER_CLAIM_PRODUCER_REFRESH_EXPECTED_ZERO,
+        expected_positive=WINNER_CLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE,
+    ),
+)
+
+REFRESH_PROFILE_BY_NAME = {spec.profile: spec for spec in REFRESH_PROFILE_SPECS}
+REFRESH_PROFILE_BY_FLAG = {spec.report_flag: spec for spec in REFRESH_PROFILE_SPECS}
+REFRESH_PROFILE_NAMES = tuple(spec.profile for spec in REFRESH_PROFILE_SPECS)
+
+
+def refresh_profile_spec(profile: str) -> RefreshProfileSpec | None:
+    return REFRESH_PROFILE_BY_NAME.get(profile)
+
+
+def refresh_profile_spec_for_rows(
+    rows: Mapping[str, str],
+) -> RefreshProfileSpec | None:
+    for spec in REFRESH_PROFILE_SPECS:
+        if _profile_flag(rows, spec.report_flag):
+            return spec
+    return None

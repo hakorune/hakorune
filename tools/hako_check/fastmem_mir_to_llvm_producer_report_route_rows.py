@@ -51,6 +51,8 @@ from fastmem_route_profiles import (
     winner_claim_preflight_refresh_profile,
     winner_claim_producer_profile,
     winner_claim_producer_refresh_profile,
+    REFRESH_PROFILE_NAMES,
+    refresh_profile_spec,
 )
 
 
@@ -58,6 +60,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     state = dict(state)
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
     profile = state["profile"]
+    refresh_spec = refresh_profile_spec(profile)
     selected_local_free_kinds = state["selected_local_free_kinds"]
     verified_free_head_pop = state["verified_free_head_pop"]
     verified_free_head_push = state["verified_free_head_push"]
@@ -292,29 +295,15 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "page-local-free-route-cfg",
         "page-local-route-body-join-preflight",
         "page-local-route-body-join",
-        "terminal-ladder-refresh-preflight",
-        "tls-backing-transfer-preflight-refresh",
-        "tls-backing-transfer-producer-refresh",
+        *REFRESH_PROFILE_NAMES,
         "tls-backing-transfer-preflight",
         "tls-backing-transfer-producer-pilot",
-        "owner-slot-reuse-preflight-refresh",
-        "owner-slot-reuse-producer-refresh",
         "owner-slot-reuse-preflight",
         "owner-slot-reuse-producer-pilot",
-        "abandoned-reclaim-preflight-refresh",
-        "abandoned-reclaim-producer-refresh",
         "abandoned-reclaim-preflight",
         "abandoned-reclaim-producer-pilot",
-        "product-activation-preflight-refresh",
-        "product-activation-producer-refresh",
         "product-activation-preflight",
         "product-activation-producer-pilot",
-        "hook-install-preflight-refresh",
-        "hook-install-producer-refresh",
-        "global-allocator-claim-preflight-refresh",
-        "global-allocator-claim-producer-refresh",
-        "winner-claim-preflight-refresh",
-        "winner-claim-producer-refresh",
         "hook-install-preflight",
         "hook-install-producer-pilot",
         "global-allocator-claim-preflight",
@@ -349,29 +338,15 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "page-local-free-route-cfg",
             "page-local-route-body-join-preflight",
             "page-local-route-body-join",
-            "terminal-ladder-refresh-preflight",
-            "tls-backing-transfer-preflight-refresh",
-            "tls-backing-transfer-producer-refresh",
+            *REFRESH_PROFILE_NAMES,
             "tls-backing-transfer-preflight",
             "tls-backing-transfer-producer-pilot",
-            "owner-slot-reuse-preflight-refresh",
-            "owner-slot-reuse-producer-refresh",
             "owner-slot-reuse-preflight",
             "owner-slot-reuse-producer-pilot",
-            "abandoned-reclaim-preflight-refresh",
-            "abandoned-reclaim-producer-refresh",
             "abandoned-reclaim-preflight",
             "abandoned-reclaim-producer-pilot",
-            "product-activation-preflight-refresh",
-            "product-activation-producer-refresh",
             "product-activation-preflight",
             "product-activation-producer-pilot",
-            "hook-install-preflight-refresh",
-            "hook-install-producer-refresh",
-            "global-allocator-claim-preflight-refresh",
-            "global-allocator-claim-producer-refresh",
-            "winner-claim-preflight-refresh",
-            "winner-claim-producer-refresh",
             "hook-install-preflight",
             "hook-install-producer-pilot",
             "global-allocator-claim-preflight",
@@ -478,51 +453,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif page_local_route_body_join_producer:
             next_slice = "terminal_ladder_refresh_preflight"
             deferred_remote_kinds = "TerminalLadderRefresh,TlsBackingTransfer"
-        elif terminal_ladder_refresh_preflight:
-            next_slice = "tls_backing_transfer_preflight_refresh"
-            deferred_remote_kinds = "TlsBackingTransfer"
-        elif tls_backing_transfer_preflight_refresh:
-            next_slice = "tls_backing_transfer_producer_refresh"
-            deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
-        elif tls_backing_transfer_producer_refresh:
-            next_slice = "owner_slot_reuse_preflight_refresh"
-            deferred_remote_kinds = "OwnerSlotReuse"
-        elif owner_slot_reuse_preflight_refresh:
-            next_slice = "owner_slot_reuse_producer_refresh"
-            deferred_remote_kinds = "OwnerSlotReuseProducer,AbandonedReclaim"
-        elif owner_slot_reuse_producer_refresh:
-            next_slice = "abandoned_reclaim_preflight_refresh"
-            deferred_remote_kinds = "AbandonedReclaim"
-        elif abandoned_reclaim_preflight_refresh:
-            next_slice = "abandoned_reclaim_producer_refresh"
-            deferred_remote_kinds = "AbandonedReclaimProducer,ProductActivation"
-        elif abandoned_reclaim_producer_refresh:
-            next_slice = "product_activation_preflight_refresh"
-            deferred_remote_kinds = "ProductActivation"
-        elif product_activation_preflight_refresh:
-            next_slice = "product_activation_producer_refresh"
-            deferred_remote_kinds = "ProductActivationProducer,HookInstall"
-        elif product_activation_producer_refresh:
-            next_slice = "hook_install_preflight_refresh"
-            deferred_remote_kinds = "HookInstall"
-        elif hook_install_preflight_refresh:
-            next_slice = "hook_install_producer_refresh"
-            deferred_remote_kinds = "HookInstallProducer,GlobalAllocatorClaim"
-        elif hook_install_producer_refresh:
-            next_slice = "global_allocator_claim_preflight_refresh"
-            deferred_remote_kinds = "GlobalAllocatorClaim"
-        elif global_allocator_claim_preflight_refresh:
-            next_slice = "global_allocator_claim_producer_refresh"
-            deferred_remote_kinds = "GlobalAllocatorClaimProducer,WinnerClaim"
-        elif global_allocator_claim_producer_refresh:
-            next_slice = "winner_claim_preflight_refresh"
-            deferred_remote_kinds = "WinnerClaim"
-        elif winner_claim_preflight_refresh:
-            next_slice = "winner_claim_producer_refresh"
-            deferred_remote_kinds = "WinnerClaimProducer"
-        elif winner_claim_producer_refresh:
-            next_slice = "complete"
-            deferred_remote_kinds = "none"
+        elif refresh_spec is not None:
+            next_slice = refresh_spec.next_slice
+            deferred_remote_kinds = refresh_spec.deferred_kinds
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -607,36 +540,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "product_activation_preflight"
         elif page_local_route_body_join_producer:
             selected_route = "page_local_route_body_join_producer_pilot"
-        elif terminal_ladder_refresh_preflight:
-            selected_route = "terminal_ladder_refresh_preflight"
-        elif tls_backing_transfer_preflight_refresh:
-            selected_route = "tls_backing_transfer_preflight_refresh"
-        elif tls_backing_transfer_producer_refresh:
-            selected_route = "tls_backing_transfer_producer_refresh"
-        elif owner_slot_reuse_preflight_refresh:
-            selected_route = "owner_slot_reuse_preflight_refresh"
-        elif owner_slot_reuse_producer_refresh:
-            selected_route = "owner_slot_reuse_producer_refresh"
-        elif abandoned_reclaim_preflight_refresh:
-            selected_route = "abandoned_reclaim_preflight_refresh"
-        elif abandoned_reclaim_producer_refresh:
-            selected_route = "abandoned_reclaim_producer_refresh"
-        elif product_activation_preflight_refresh:
-            selected_route = "product_activation_preflight_refresh"
-        elif product_activation_producer_refresh:
-            selected_route = "product_activation_producer_refresh"
-        elif hook_install_preflight_refresh:
-            selected_route = "hook_install_preflight_refresh"
-        elif hook_install_producer_refresh:
-            selected_route = "hook_install_producer_refresh"
-        elif global_allocator_claim_preflight_refresh:
-            selected_route = "global_allocator_claim_preflight_refresh"
-        elif global_allocator_claim_producer_refresh:
-            selected_route = "global_allocator_claim_producer_refresh"
-        elif winner_claim_preflight_refresh:
-            selected_route = "winner_claim_preflight_refresh"
-        elif winner_claim_producer_refresh:
-            selected_route = "winner_claim_producer_refresh"
+        elif refresh_spec is not None:
+            selected_route = refresh_spec.selected_route
         elif page_local_route_body_join_preflight:
             selected_route = "page_local_route_body_join_preflight"
         elif page_local_alloc_route_cfg_producer:

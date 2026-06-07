@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-099.
 Related:
@@ -62,6 +62,47 @@ refresh profile metadata has one SSOT table/helper
 terminal rule checks consume the shared metadata for refresh profiles
 producer route row selection consumes the shared metadata for refresh profiles
 all existing refresh-profile smoke expectations stay green
+```
+
+## Landed Shape
+
+```text
+RefreshProfileSpec
+REFRESH_PROFILE_SPECS
+refresh_profile_spec(profile)
+refresh_profile_spec_for_rows(rows)
+```
+
+The shared spec now owns refreshed profile metadata for:
+
+```text
+profile name
+report flag
+selected route
+selected memop family
+selected memop kinds
+next producer slice
+deferred memop kinds
+expected zero fields
+expected positive fields
+```
+
+`fastmem_check_terminal_rules.py` consumes the shared spec before the legacy
+per-profile blocks. `fastmem_mir_to_llvm_producer_report_route_rows.py` consumes
+the shared spec for refreshed route next/deferred/selected-route decisions.
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_profile_functions.py tools/hako_check/fastmem_check_terminal_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py tools/hako_check/fastmem_mir_to_llvm_producer_report_tail_rows.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+296x-599 MIM-PORT-FMEM-100 remove dormant refresh terminal branches.
 ```
 
 ## Verification

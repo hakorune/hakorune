@@ -21,6 +21,7 @@ from fastmem_route_profiles import (
     WINNER_CLAIM_PREFLIGHT_REFRESH_EXPECTED_ZERO,
     WINNER_CLAIM_PRODUCER_REFRESH_EXPECTED_POSITIVE,
     WINNER_CLAIM_PRODUCER_REFRESH_EXPECTED_ZERO,
+    refresh_profile_spec_for_rows,
     PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_POSITIVE,
     PRODUCT_ACTIVATION_PRODUCER_REFRESH_EXPECTED_ZERO,
     PRODUCT_ACTIVATION_PREFLIGHT_REFRESH_EXPECTED_POSITIVE,
@@ -529,6 +530,33 @@ WINNER_CLAIM_PRODUCER_EXPECTED_POSITIVE = (
 )
 def check_terminal_rules(rows: dict[str, str]) -> list[str]:
     reasons: list[str] = []
+    refresh_spec = refresh_profile_spec_for_rows(rows)
+    if refresh_spec is not None:
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != refresh_spec.selected_route:
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != refresh_spec.family:
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != refresh_spec.memop_kinds:
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != refresh_spec.next_slice:
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        deferred = rows.get("replacement_front_deferred_memop_kinds", "")
+        if deferred != refresh_spec.deferred_kinds:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in refresh_spec.expected_zero:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in refresh_spec.expected_positive:
+            if key.endswith("_lowered_count"):
+                continue
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
+        return reasons
+
     if terminal_ladder_refresh_preflight_profile(rows):
         if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
             reasons.append("replacement_front_producer")
