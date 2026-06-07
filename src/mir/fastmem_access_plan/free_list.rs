@@ -21,47 +21,18 @@ pub(super) fn local_free_plan(
     contract: Option<&str>,
     facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
-    let ResolvedLinkedListPlanCore {
-        page,
-        block_value,
-        head_access,
-        block_next_access,
-        same_owner_proof_valid,
-        block_next_proof_valid,
-        non_empty_proof_valid,
-        remote_owner_rejected,
-        lowerable,
-        status,
-        failure_reason,
-    } = resolve_linked_list_plan_core(
+    linked_list_plan(
+        block,
+        instruction_index,
         region,
         kind,
         operands,
         contract,
         facts,
         FastMemLinkedListFamily::LocalFree,
-    )?;
-
-    Some(FastMemAccessPlan {
-        block,
-        instruction_index,
-        region,
-        kind,
-        status,
-        failure_reason,
-        payload: FastMemAccessPlanPayload::LocalFree(FastMemLocalFreeListPlan {
-            page,
-            block: block_value,
-            result: dst,
-            local_free_head: head_access.into_field_plan(),
-            block_next: block_next_access.into_field_plan(),
-            same_owner_proof_valid,
-            block_next_proof_valid,
-            non_empty_proof_valid,
-            remote_owner_rejected,
-            lowerable,
-        }),
-    })
+        dst,
+        local_free_payload,
+    )
 }
 
 pub(super) fn free_head_plan(
@@ -74,6 +45,51 @@ pub(super) fn free_head_plan(
     contract: Option<&str>,
     facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
+    linked_list_plan(
+        block,
+        instruction_index,
+        region,
+        kind,
+        operands,
+        contract,
+        facts,
+        FastMemLinkedListFamily::FreeHead,
+        dst,
+        free_head_payload,
+    )
+}
+
+fn linked_list_plan(
+    block: BasicBlockId,
+    instruction_index: usize,
+    region: FastMemRegionId,
+    kind: FastMemAccessPlanKind,
+    operands: &[ValueId],
+    contract: Option<&str>,
+    facts: &FastMemFactStore<'_>,
+    family: FastMemLinkedListFamily,
+    dst: Option<ValueId>,
+    payload: fn(ResolvedLinkedListPlanCore, Option<ValueId>) -> FastMemAccessPlanPayload,
+) -> Option<FastMemAccessPlan> {
+    let core = resolve_linked_list_plan_core(region, kind, operands, contract, facts, family)?;
+    let status = core.status;
+    let failure_reason = core.failure_reason.clone();
+
+    Some(FastMemAccessPlan {
+        block,
+        instruction_index,
+        region,
+        kind,
+        status,
+        failure_reason,
+        payload: payload(core, dst),
+    })
+}
+
+fn local_free_payload(
+    core: ResolvedLinkedListPlanCore,
+    dst: Option<ValueId>,
+) -> FastMemAccessPlanPayload {
     let ResolvedLinkedListPlanCore {
         page,
         block_value,
@@ -84,36 +100,51 @@ pub(super) fn free_head_plan(
         non_empty_proof_valid,
         remote_owner_rejected,
         lowerable,
-        status,
-        failure_reason,
-    } = resolve_linked_list_plan_core(
-        region,
-        kind,
-        operands,
-        contract,
-        facts,
-        FastMemLinkedListFamily::FreeHead,
-    )?;
+        ..
+    } = core;
 
-    Some(FastMemAccessPlan {
-        block,
-        instruction_index,
-        region,
-        kind,
-        status,
-        failure_reason,
-        payload: FastMemAccessPlanPayload::FreeHead(FastMemFreeHeadListPlan {
-            page,
-            block: block_value,
-            result: dst,
-            free_head: head_access.into_field_plan(),
-            block_next: block_next_access.into_field_plan(),
-            same_owner_proof_valid,
-            block_next_proof_valid,
-            non_empty_proof_valid,
-            remote_owner_rejected,
-            lowerable,
-        }),
+    FastMemAccessPlanPayload::LocalFree(FastMemLocalFreeListPlan {
+        page,
+        block: block_value,
+        result: dst,
+        local_free_head: head_access.into_field_plan(),
+        block_next: block_next_access.into_field_plan(),
+        same_owner_proof_valid,
+        block_next_proof_valid,
+        non_empty_proof_valid,
+        remote_owner_rejected,
+        lowerable,
+    })
+}
+
+fn free_head_payload(
+    core: ResolvedLinkedListPlanCore,
+    dst: Option<ValueId>,
+) -> FastMemAccessPlanPayload {
+    let ResolvedLinkedListPlanCore {
+        page,
+        block_value,
+        head_access,
+        block_next_access,
+        same_owner_proof_valid,
+        block_next_proof_valid,
+        non_empty_proof_valid,
+        remote_owner_rejected,
+        lowerable,
+        ..
+    } = core;
+
+    FastMemAccessPlanPayload::FreeHead(FastMemFreeHeadListPlan {
+        page,
+        block: block_value,
+        result: dst,
+        free_head: head_access.into_field_plan(),
+        block_next: block_next_access.into_field_plan(),
+        same_owner_proof_valid,
+        block_next_proof_valid,
+        non_empty_proof_valid,
+        remote_owner_rejected,
+        lowerable,
     })
 }
 

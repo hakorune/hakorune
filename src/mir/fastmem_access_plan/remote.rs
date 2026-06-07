@@ -26,40 +26,14 @@ pub(super) fn atomic_remote_head_plan(
         None
     };
     let head_access = resolve_head_access(contract, "remote_head", FastMemFieldAccessMode::Load);
-    let block_next_field_id = "next";
-    let block_next_fact = block_value.and_then(|block_value| {
-        facts.block_next(region, block_value).filter(|fact| {
-            fact.next_field_id == block_next_field_id
-                && fact.writable
-                && fact.provenance_valid
-                && fact.proof_kind == FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext
-        })
-    });
-    let block_next_access = if let Some(fact) = block_next_fact {
-        resolve_block_next_access(contract, &fact.next_field_id)
-    } else {
-        ResolvedBlockNextAccess::default()
-    };
-    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
+    let (block_next_access, block_next_proof_valid) =
+        remote_block_next_access(region, block_value, contract, facts);
     let remote_owner_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
-    let remote_owner_proof_valid = if remote_owner_required {
-        facts
-            .remote_owner(region, page)
-            .map_or(false, |fact| fact.same_owner_rejected)
-    } else {
-        false
-    };
+    let remote_owner_proof_valid =
+        remote_owner_required && has_remote_owner_proof(region, page, facts);
     let block_next_required = kind == FastMemAccessPlanKind::AtomicRemoteHeadPush;
-    let memory_order_policy = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-        "acquire_exchange".to_string()
-    } else {
-        "acq_rel".to_string()
-    };
-    let retry_attempt_limit = if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
-        3
-    } else {
-        0
-    };
+    let memory_order_policy = atomic_remote_memory_order_policy(kind).to_string();
+    let retry_attempt_limit = atomic_remote_retry_attempt_limit(kind);
     let lowerable = if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
         head_access.is_resolved()
     } else {
@@ -73,19 +47,13 @@ pub(super) fn atomic_remote_head_plan(
     } else {
         FastMemAccessPlanStatus::Rejected
     };
-    let failure_reason = head_access.failure_reason.clone().or_else(|| {
-        if lowerable {
-            None
-        } else if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
-            Some("atomic-remote-head-drain-plan-not-lowerable".to_string())
-        } else if !remote_owner_proof_valid {
-            Some("atomic-remote-head-remote-owner-proof-missing".to_string())
-        } else if !block_next_proof_valid {
-            Some("atomic-remote-head-block-next-proof-missing".to_string())
-        } else {
-            Some("atomic-remote-head-cas-lowering-closed".to_string())
-        }
-    });
+    let failure_reason = atomic_remote_failure_reason(
+        kind,
+        lowerable,
+        head_access.failure_reason.clone(),
+        remote_owner_proof_valid,
+        block_next_proof_valid,
+    );
 
     Some(FastMemAccessPlan {
         block,
@@ -108,6 +76,78 @@ pub(super) fn atomic_remote_head_plan(
             retry_attempt_limit,
             lowerable,
         }),
+    })
+}
+
+fn remote_block_next_access(
+    region: FastMemRegionId,
+    block_value: Option<ValueId>,
+    contract: Option<&str>,
+    facts: &FastMemFactStore<'_>,
+) -> (ResolvedBlockNextAccess, bool) {
+    let block_next_field_id = "next";
+    let block_next_fact = block_value.and_then(|block_value| {
+        facts.block_next(region, block_value).filter(|fact| {
+            fact.next_field_id == block_next_field_id
+                && fact.writable
+                && fact.provenance_valid
+                && fact.proof_kind == FastMemBlockNextProofKind::SourceAssumeRemoteFreeBlockNext
+        })
+    });
+    let access = if let Some(fact) = block_next_fact {
+        resolve_block_next_access(contract, &fact.next_field_id)
+    } else {
+        ResolvedBlockNextAccess::default()
+    };
+    let proof_valid = block_next_fact.is_some() && access.is_resolved();
+    (access, proof_valid)
+}
+
+fn has_remote_owner_proof(
+    region: FastMemRegionId,
+    page: ValueId,
+    facts: &FastMemFactStore<'_>,
+) -> bool {
+    facts
+        .remote_owner(region, page)
+        .map_or(false, |fact| fact.same_owner_rejected)
+}
+
+fn atomic_remote_memory_order_policy(kind: FastMemAccessPlanKind) -> &'static str {
+    if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
+        "acquire_exchange"
+    } else {
+        "acq_rel"
+    }
+}
+
+fn atomic_remote_retry_attempt_limit(kind: FastMemAccessPlanKind) -> u32 {
+    if kind == FastMemAccessPlanKind::AtomicRemoteHeadPush {
+        3
+    } else {
+        0
+    }
+}
+
+fn atomic_remote_failure_reason(
+    kind: FastMemAccessPlanKind,
+    lowerable: bool,
+    head_failure_reason: Option<String>,
+    remote_owner_proof_valid: bool,
+    block_next_proof_valid: bool,
+) -> Option<String> {
+    head_failure_reason.or_else(|| {
+        if lowerable {
+            None
+        } else if kind == FastMemAccessPlanKind::AtomicRemoteHeadDrain {
+            Some("atomic-remote-head-drain-plan-not-lowerable".to_string())
+        } else if !remote_owner_proof_valid {
+            Some("atomic-remote-head-remote-owner-proof-missing".to_string())
+        } else if !block_next_proof_valid {
+            Some("atomic-remote-head-block-next-proof-missing".to_string())
+        } else {
+            Some("atomic-remote-head-cas-lowering-closed".to_string())
+        }
     })
 }
 

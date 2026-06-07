@@ -17,18 +17,28 @@ use proofs::{
     stack_top_pop_store_index_origins,
 };
 
+macro_rules! impl_as_str {
+    ($ty:ty { $($variant:ident => $name:literal),+ $(,)? }) => {
+        impl $ty {
+            pub fn as_str(self) -> &'static str {
+                match self {
+                    $(Self::$variant => $name,)+
+                }
+            }
+        }
+    };
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectArrayAccessOp {
     Load,
     Store,
 }
 
-impl DirectArrayAccessOp {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Load => "load",
-            Self::Store => "store",
-        }
+impl_as_str! {
+    DirectArrayAccessOp {
+        Load => "load",
+        Store => "store",
     }
 }
 
@@ -38,12 +48,10 @@ pub enum DirectArrayBoundsPolicy {
     ProvedUnchecked,
 }
 
-impl DirectArrayBoundsPolicy {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Checked => "checked",
-            Self::ProvedUnchecked => "proved_unchecked",
-        }
+impl_as_str! {
+    DirectArrayBoundsPolicy {
+        Checked => "checked",
+        ProvedUnchecked => "proved_unchecked",
     }
 }
 
@@ -55,14 +63,12 @@ pub enum DirectArrayProofKind {
     CallerPrecondition,
 }
 
-impl DirectArrayProofKind {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::ExactFrontContract => "exact_front_contract",
-            Self::RangeIndex => "range_index",
-            Self::StackTopPop => "stack_top_pop",
-            Self::CallerPrecondition => "caller_precondition",
-        }
+impl_as_str! {
+    DirectArrayProofKind {
+        ExactFrontContract => "exact_front_contract",
+        RangeIndex => "range_index",
+        StackTopPop => "stack_top_pop",
+        CallerPrecondition => "caller_precondition",
     }
 }
 
@@ -72,12 +78,10 @@ pub enum DirectArrayFallbackPolicy {
     FailFast,
 }
 
-impl DirectArrayFallbackPolicy {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::AllowChecked => "allow_checked",
-            Self::FailFast => "fail_fast",
-        }
+impl_as_str! {
+    DirectArrayFallbackPolicy {
+        AllowChecked => "allow_checked",
+        FailFast => "fail_fast",
     }
 }
 
@@ -87,12 +91,10 @@ pub enum DirectArrayCfgShape {
     Branchless,
 }
 
-impl DirectArrayCfgShape {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::CheckedBranching => "checked_branching",
-            Self::Branchless => "branchless",
-        }
+impl_as_str! {
+    DirectArrayCfgShape {
+        CheckedBranching => "checked_branching",
+        Branchless => "branchless",
     }
 }
 
@@ -103,13 +105,11 @@ pub enum DirectArrayStoreSemantics {
     OverwriteExisting,
 }
 
-impl DirectArrayStoreSemantics {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::NotStore => "not_store",
-            Self::AppendOrOverwrite => "append_or_overwrite",
-            Self::OverwriteExisting => "overwrite_existing",
-        }
+impl_as_str! {
+    DirectArrayStoreSemantics {
+        NotStore => "not_store",
+        AppendOrOverwrite => "append_or_overwrite",
+        OverwriteExisting => "overwrite_existing",
     }
 }
 
