@@ -23,6 +23,7 @@ from fastmem_route_profiles import (
     hook_install_producer_profile,
     owner_slot_reuse_preflight_refresh_profile,
     owner_slot_reuse_producer_refresh_profile,
+    product_activation_preflight_refresh_profile,
     owner_slot_reuse_preflight_profile,
     owner_slot_reuse_producer_profile,
     page_local_alloc_route_cfg_preflight_profile,
@@ -173,9 +174,16 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         or abandoned_reclaim_preflight
         or abandoned_reclaim_producer
     )
+    product_activation_preflight_refresh = (
+        profile == "product-activation-preflight-refresh"
+    )
     product_activation_preflight = profile == "product-activation-preflight"
     product_activation_producer = profile == "product-activation-producer-pilot"
-    product_activation_any = product_activation_preflight or product_activation_producer
+    product_activation_any = (
+        product_activation_preflight_refresh
+        or product_activation_preflight
+        or product_activation_producer
+    )
     hook_install_preflight = profile == "hook-install-preflight"
     hook_install_producer = profile == "hook-install-producer-pilot"
     hook_install_any = hook_install_preflight or hook_install_producer
@@ -263,6 +271,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "abandoned-reclaim-producer-refresh",
         "abandoned-reclaim-preflight",
         "abandoned-reclaim-producer-pilot",
+        "product-activation-preflight-refresh",
         "product-activation-preflight",
         "product-activation-producer-pilot",
         "hook-install-preflight",
@@ -312,6 +321,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             "abandoned-reclaim-producer-refresh",
             "abandoned-reclaim-preflight",
             "abandoned-reclaim-producer-pilot",
+            "product-activation-preflight-refresh",
             "product-activation-preflight",
             "product-activation-producer-pilot",
             "hook-install-preflight",
@@ -441,6 +451,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif abandoned_reclaim_producer_refresh:
             next_slice = "product_activation_preflight_refresh"
             deferred_remote_kinds = "ProductActivation"
+        elif product_activation_preflight_refresh:
+            next_slice = "product_activation_producer_refresh"
+            deferred_remote_kinds = "ProductActivationProducer,HookInstall"
         elif tls_backing_transfer_preflight:
             next_slice = "tls_backing_transfer_producer_pilot"
             deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
@@ -539,6 +552,8 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_route = "abandoned_reclaim_preflight_refresh"
         elif abandoned_reclaim_producer_refresh:
             selected_route = "abandoned_reclaim_producer_refresh"
+        elif product_activation_preflight_refresh:
+            selected_route = "product_activation_preflight_refresh"
         elif page_local_route_body_join_preflight:
             selected_route = "page_local_route_body_join_preflight"
         elif page_local_alloc_route_cfg_producer:
@@ -865,6 +880,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_abandoned_reclaim_producer_pilot",
                 str(int_flag(abandoned_reclaim_producer)),
+            ),
+            (
+                "fastmem_product_activation_preflight_refresh",
+                str(int_flag(product_activation_preflight_refresh)),
             ),
             (
                 "fastmem_product_activation_preflight",

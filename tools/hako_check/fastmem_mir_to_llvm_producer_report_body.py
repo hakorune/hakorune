@@ -914,6 +914,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or owner_slot_reuse_producer_refresh
                     or abandoned_reclaim_preflight_refresh
                     or abandoned_reclaim_producer_refresh
+                    or product_activation_preflight_refresh
                 )
             ),
         ),
@@ -928,6 +929,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or owner_slot_reuse_producer_refresh
                     or abandoned_reclaim_preflight_refresh
                     or abandoned_reclaim_producer_refresh
+                    or product_activation_preflight_refresh
                 )
             ),
         ),
@@ -941,6 +943,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or owner_slot_reuse_producer_refresh
                     or abandoned_reclaim_preflight_refresh
                     or abandoned_reclaim_producer_refresh
+                    or product_activation_preflight_refresh
                 )
             ),
         ),

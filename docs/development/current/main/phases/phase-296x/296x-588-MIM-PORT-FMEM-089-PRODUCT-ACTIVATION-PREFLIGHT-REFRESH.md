@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-089.
 Related:
@@ -58,4 +58,38 @@ product activation producer behavior
 hook installation
 global allocator replacement
 winner claim
+```
+
+## Landed Evidence
+
+```text
+replacement_front_selected_route=product_activation_preflight_refresh
+replacement_front_selected_memop_family=product_activation
+replacement_front_selected_memop_kinds=ProductActivation
+replacement_front_next_producer_slice=product_activation_producer_refresh
+fastmem_product_activation_preflight_refresh=1
+terminal_ladder_refresh_open=1
+page_local_route_body_join_open=1
+tls_backing_transfer_enabled=1
+allocator_owner_slot_reuse_enabled=1
+abandoned_reclaim_enabled=1
+product_activation_selected=1
+product_activation=0
+hook_install=0
+global_allocator_claim=0
+winner_claim=0
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_profile_functions.py tools/hako_check/fastmem_check_terminal_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py tools/hako_check/fastmem_mir_to_llvm_producer_report_tail_rows.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+296x-589 MIM-PORT-FMEM-090 product activation producer refresh.
 ```

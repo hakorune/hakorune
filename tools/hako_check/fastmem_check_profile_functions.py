@@ -281,6 +281,10 @@ def product_activation_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_product_activation_preflight") > 0
 
 
+def product_activation_preflight_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_product_activation_preflight_refresh") > 0
+
+
 def product_activation_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_product_activation_producer_pilot") > 0
 

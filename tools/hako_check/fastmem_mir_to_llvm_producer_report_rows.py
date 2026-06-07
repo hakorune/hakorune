@@ -143,6 +143,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "abandoned-reclaim-producer-refresh",
             "abandoned-reclaim-preflight",
             "abandoned-reclaim-producer-pilot",
+            "product-activation-preflight-refresh",
             "product-activation-preflight",
             "product-activation-producer-pilot",
             "hook-install-preflight",
