@@ -2125,6 +2125,42 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_PRODUCER_CHECK"
 grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_PRODUCER_CHECK"
 
+HOOK_INSTALL_PREFLIGHT_REPORT="$TMPDIR/page_meta_hook_install_preflight.report.kv"
+HOOK_INSTALL_PREFLIGHT_CHECK="$TMPDIR/page_meta_hook_install_preflight.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile hook-install-preflight \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$HOOK_INSTALL_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_hook_install_preflight=1$' \
+  "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=hook_install_preflight$' \
+  "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_family=hook_install$' \
+  "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=HookInstall$' \
+  "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=hook_install_producer_pilot$' \
+  "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^hook_install_selected=1$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^product_activation_selected=1$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^product_activation=1$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^hook_install=0$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$HOOK_INSTALL_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$HOOK_INSTALL_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$HOOK_INSTALL_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$HOOK_INSTALL_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$HOOK_INSTALL_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$HOOK_INSTALL_PREFLIGHT_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \
