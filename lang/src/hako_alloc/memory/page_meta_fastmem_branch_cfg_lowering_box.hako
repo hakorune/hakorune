@@ -1,9 +1,9 @@
 // page_meta_fastmem_branch_cfg_lowering_box.hako
-// MIM-PORT-FMEM-053: narrow source branch CFG lowering producer pilot.
+// MIM-PORT-FMEM-053/055: narrow source branch CFG and same/remote body pilot.
 //
 // This proves that one .hako fastmem region can lower an owner-equality
-// branch into MIR CFG while keeping the full same/remote free bodies, TLS
-// transfer, allocator activation, hooks, and winner claims closed.
+// branch into MIR CFG and expose a controlled same/remote body shape while
+// keeping TLS transfer, allocator activation, hooks, and winner claims closed.
 
 static box HakoAllocPageMetaFastMemBranchCfgLowering {
     fastmemBranchCfgLoweringProbe(page_table, page_index) {

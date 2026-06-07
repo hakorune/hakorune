@@ -860,4 +860,32 @@ grep -q '^failure_0_reason=same_remote_free_body_open$' \
   "$BAD_SAME_REMOTE_FREE_BODY_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_SAME_REMOTE_FREE_BODY_PREFLIGHT_OUT"
 
+SAME_REMOTE_FREE_BODY_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_same_remote_free_body_producer.XXXXXX")"
+BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_same_remote_free_body_producer.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/same_remote_free_body_producer_inventory.kv" \
+  --format kv \
+  >"$SAME_REMOTE_FREE_BODY_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected same/remote free body producer inventory" >&2
+  cat "$SAME_REMOTE_FREE_BODY_PRODUCER_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
+grep -q '^summary=ok$' "$SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_same_remote_free_body_producer_inventory.kv" \
+  --format kv \
+  >"$BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad same/remote free body producer inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
+grep -q '^failure_0_reason=same_remote_free_body_lowered_count$' \
+  "$BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_SAME_REMOTE_FREE_BODY_PRODUCER_OUT"
+
 echo "[TEST/OK] fastmem_check"
