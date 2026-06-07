@@ -43,3 +43,81 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_fre
 profile = "local-free"
 report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_alloc_body.local.report.expected.kv"
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_alloc_body.local.check.expected.kv"
+
+[[fixtures]]
+id = "FREE_HEAD"
+label = "free-head read fastmem pilot"
+source = "lang/src/hako_alloc/memory/page_meta_free_head_read_fastmem_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "layout-table"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head.layout-table.check.expected.kv"
+
+[[fixtures]]
+id = "PILOT"
+label = "fastmem layout-table producer pilot"
+source = "lang/src/hako_alloc/memory/page_meta_fastmem_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "layout-table"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.layout-table.check.expected.kv"
+
+[[fixtures]]
+id = "OWNER"
+label = "owner read fastmem pilot"
+source = "lang/src/hako_alloc/memory/page_meta_owner_read_fastmem_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "layout-table"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.layout-table.check.expected.kv"
+
+[[fixtures]]
+id = "OWNER_EQ"
+label = "owner-equality fastmem pilot"
+source = "lang/src/hako_alloc/memory/page_meta_owner_eq_fastmem_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner_eq.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner_eq.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "owner-runtime"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner_eq.owner-runtime.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner_eq.owner-runtime.check.expected.kv"
+
+[[fixtures]]
+id = "LOCAL_FREE_HEAD"
+label = "local-free head preflight"
+source = "lang/src/hako_alloc/memory/page_meta_local_free_head_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_head.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_head.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "layout-table"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_head.layout-table.stderr.expected.txt"
+
+[[fixtures]]
+id = "LOCAL_FREE_MEMOP"
+label = "local-free memop vocabulary preflight"
+source = "lang/src/hako_alloc/memory/page_meta_local_free_memop_vocabulary_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_memop.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_memop.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "local-free"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_memop.local-free.stderr.expected.txt"

@@ -86,6 +86,26 @@ legacy group migration landed:
   608D now focuses on splitting expectation data out of the shell
 ```
 
+## 608D Status
+
+```text
+expectation data split landed:
+  manifest runner now covers free-head read, local-free-head failure, and
+  local-free-memop failure expectations through small data files
+  the shell lost the corresponding bespoke blocks
+  608E can now retire more migrated legacy blocks
+```
+
+## 608E Status
+
+```text
+bespoke-block retirement landed:
+  the remaining migrated fixture rows now run through the manifest runner
+  the smoke keeps the legacy shell wrapper only for the still-unmigrated groups
+  source-syntax smoke cleanup is complete enough to return to PageMapRelease
+  implementation work
+```
+
 ## Migration Rule After This Row
 
 ```text
@@ -145,8 +165,9 @@ so hako_alloc migration can resume after the new path exists.
 
 608E retire bespoke blocks:
   delete migrated shell blocks only after equivalent manifest coverage is green
-  keep a small top-level smoke wrapper
+  keep a small top-level smoke wrapper for the still-unmigrated groups
   keep failure output short and fixture-scoped
+  this row is landed; the lane can return to PageMapRelease implementation work
 ```
 
 ## Anti-Goals For Cleanup

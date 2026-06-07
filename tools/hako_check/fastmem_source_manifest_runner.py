@@ -81,26 +81,32 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
         producers = raw_entry.get("producers", [])
         if not isinstance(producers, list) or not producers:
             fail(f"fixtures {fixture_id} must contain at least one [[fixtures.producers]] entry")
-        normalized_producers: list[dict[str, str]] = []
+        normalized_producers: list[dict[str, object]] = []
         for p_index, producer in enumerate(producers):
             if not isinstance(producer, dict):
                 fail(f"fixtures {fixture_id} producer #{p_index} must be a table")
             profile = producer.get("profile")
             report_expected = producer.get("report_expected")
             check_expected = producer.get("check_expected")
+            expect_failure = bool(producer.get("expect_failure", False))
+            stderr_expected = producer.get("stderr_expected")
             if not isinstance(profile, str) or not profile:
                 fail(f"fixtures {fixture_id} producer #{p_index} profile must be a non-empty string")
-            if not isinstance(report_expected, str) or not report_expected:
-                fail(f"fixtures {fixture_id} producer {profile} report_expected must be a non-empty string")
-            if not isinstance(check_expected, str) or not check_expected:
-                fail(f"fixtures {fixture_id} producer {profile} check_expected must be a non-empty string")
-            normalized_producers.append(
-                {
-                    "profile": profile,
-                    "report_expected": report_expected,
-                    "check_expected": check_expected,
-                }
-            )
+            entry: dict[str, object] = {"profile": profile, "expect_failure": expect_failure}
+            if expect_failure:
+                if not isinstance(stderr_expected, str) or not stderr_expected:
+                    fail(
+                        f"fixtures {fixture_id} producer {profile} expect_failure requires stderr_expected"
+                    )
+                entry["stderr_expected"] = stderr_expected
+            else:
+                if not isinstance(report_expected, str) or not report_expected:
+                    fail(f"fixtures {fixture_id} producer {profile} report_expected must be a non-empty string")
+                if not isinstance(check_expected, str) or not check_expected:
+                    fail(f"fixtures {fixture_id} producer {profile} check_expected must be a non-empty string")
+                entry["report_expected"] = report_expected
+                entry["check_expected"] = check_expected
+            normalized_producers.append(entry)  # type: ignore[arg-type]
 
         entry: dict[str, object] = {
             "id": fixture_id,
@@ -133,6 +139,29 @@ def compare_expected_kv(actual_path: Path, expected_path: Path, tag: str, label:
         print(f"[{tag}] {label} mismatch:", file=sys.stderr)
         for line in format_expected_kv_mismatches(mismatches):
             print(f"[{tag}]   {line}", file=sys.stderr)
+        raise SystemExit(1)
+
+
+def read_expected_lines(path: Path) -> list[str]:
+    if not path.is_file():
+        fail(f"expected text missing: {path}")
+    lines: list[str] = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        lines.append(line)
+    return lines
+
+
+def compare_expected_text(actual_path: Path, expected_path: Path, tag: str, label: str) -> None:
+    actual = actual_path.read_text(encoding="utf-8", errors="replace")
+    expected_lines = read_expected_lines(expected_path)
+    missing = [line for line in expected_lines if line not in actual]
+    if missing:
+        print(f"[{tag}] {label} mismatch:", file=sys.stderr)
+        for line in missing:
+            print(f"[{tag}]   missing substring: {line}", file=sys.stderr)
         raise SystemExit(1)
 
 
@@ -182,15 +211,45 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
 
         for producer in producers:
             profile = producer["profile"]
-            report_expected = resolve_path(root, producer["report_expected"])
-            check_expected = resolve_path(root, producer["check_expected"])
-            if not report_expected.is_file():
-                fail(f"fixture {fixture_id} report_expected missing for {profile}: {report_expected}")
-            if not check_expected.is_file():
-                fail(f"fixture {fixture_id} check_expected missing for {profile}: {check_expected}")
-
+            expect_failure = bool(producer.get("expect_failure", False))
             report_path = tmpdir / f"{fixture_id}.{profile}.report.kv"
             check_path = tmpdir / f"{fixture_id}.{profile}.check.kv"
+            if expect_failure:
+                stderr_expected = producer.get("stderr_expected")
+                if not isinstance(stderr_expected, str) or not stderr_expected:
+                    fail(f"fixture {fixture_id} producer {profile} expect_failure requires stderr_expected")
+                stderr_path = tmpdir / f"{fixture_id}.{profile}.stderr"
+                cmd = [
+                    "bash",
+                    str(root / "tools/hako_check.sh"),
+                    "fastmem-mir-to-llvm-producer-report",
+                    "--profile",
+                    profile,
+                    "--mir-json",
+                    str(mir_json),
+                    "--out",
+                    str(report_path),
+                ]
+                with stderr_path.open("w", encoding="utf-8") as stderr_file:
+                    result = subprocess.run(cmd, cwd=root, env=env, stdout=subprocess.DEVNULL, stderr=stderr_file)
+                if result.returncode == 0:
+                    fail(f"fixture {fixture_id} producer {profile} expected failure but succeeded")
+                compare_expected_text(stderr_path, resolve_path(root, stderr_expected), tag, f"{fixture_id} {profile} stderr")
+                continue
+
+            report_expected = producer.get("report_expected")
+            check_expected = producer.get("check_expected")
+            if not isinstance(report_expected, str) or not report_expected:
+                fail(f"fixture {fixture_id} producer {profile} report_expected must be set for success fixtures")
+            if not isinstance(check_expected, str) or not check_expected:
+                fail(f"fixture {fixture_id} producer {profile} check_expected must be set for success fixtures")
+            report_expected_path = resolve_path(root, report_expected)
+            check_expected_path = resolve_path(root, check_expected)
+            if not report_expected_path.is_file():
+                fail(f"fixture {fixture_id} report_expected missing for {profile}: {report_expected_path}")
+            if not check_expected_path.is_file():
+                fail(f"fixture {fixture_id} check_expected missing for {profile}: {check_expected_path}")
+
             run_command(
                 [
                     "bash",
@@ -206,7 +265,7 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
                 cwd=root,
                 env=env,
             )
-            compare_expected_kv(report_path, report_expected, tag, f"{fixture_id} {profile} report")
+            compare_expected_kv(report_path, report_expected_path, tag, f"{fixture_id} {profile} report")
 
             run_command(
                 [
@@ -223,7 +282,7 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
                 cwd=root,
                 env=env,
             )
-            compare_expected_kv(check_path, check_expected, tag, f"{fixture_id} {profile} check")
+            compare_expected_kv(check_path, check_expected_path, tag, f"{fixture_id} {profile} check")
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
