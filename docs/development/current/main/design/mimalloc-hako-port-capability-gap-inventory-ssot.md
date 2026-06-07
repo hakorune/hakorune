@@ -686,9 +686,9 @@ See the archived task ledger for the full field inventory.
 ## Replacement Front Producer Transition Plan
 
 `hako_alloc` is the mimalloc `.hako` body, not a separate allocator family.
-`python_template_c_bridge` is the explicit diagnostic baseline until the
-MIR/LLVM producer reaches parity. `mir_to_c_lowering` remains optional backend
-artifact output.
+`python_template_c_bridge` remains the explicit diagnostic baseline; MIR-FMEM-
+008E supplies producer-neutral readiness evidence for the MIR-to-LLVM path,
+and `mir_to_c_lowering` remains optional backend artifact output.
 
 Current roles:
 

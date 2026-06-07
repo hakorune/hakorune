@@ -20,8 +20,9 @@ not a separate allocator family competing with the mimalloc migration.
 The older Python-template C replacement front was the temporary execution
 bridge for the same mimalloc port. After MIR-FMEM-008E, it is no longer treated
 as a normal semantic/runtime producer. It may remain only as an explicit
-diagnostic baseline while the `.hako`/MIR/LLVM producer takes over the selected
-FastMemory evidence surface.
+diagnostic baseline while the MIR-to-LLVM candidate carries the selected
+FastMemory evidence surface. That bridge wording is therefore diagnostic-only,
+not a semantic fallback.
 
 Long-term source truth is:
 

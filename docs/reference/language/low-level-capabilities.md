@@ -8,6 +8,9 @@ allocator, collection, and runtime internals.
 The current mimalloc port is the main proving workload for this surface. Its
 goal is to make allocator algorithms expressible in `.hako` / `hako_alloc`,
 not to replace the Hakorune process allocator.
+MIR-FMEM-008E already supplies the producer-neutral readiness gate for the
+MIR-to-LLVM direction, so the Python-template C bridge remains diagnostic-only
+and non-semantic.
 
 Detailed runtime capability rows are owned by
 `docs/reference/runtime/substrate-capabilities.md`.

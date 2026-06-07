@@ -230,6 +230,8 @@ docs_slim_follow_up:
 follow_up_cleanup_trigger:
   MIR-FMEM-008E landed a producer-neutral readiness gate for layout/table plus
   owner-runtime MIR-to-LLVM evidence.
+reference_closeout:
+  landed: stale bridge wording retired in the reference docs; product-activation stop lines remain closed.
 
 why:
   MIM-FMEM-001/002 fixed the fastmem boundary and added an observation-only
