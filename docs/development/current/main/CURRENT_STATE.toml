@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-573 landed MIM-PORT-FMEM-075 hako_alloc body migration reentry selection: next body slice is page-local allocation route CFG preflight, consuming landed straight-line allocation bodies and branch-CFG substrate without opening route execution; MIM-PORT-FMEM-076 opens next."
+active_lane_status = "296x-576 landed MIM-PORT-FMEM-077 page-local alloc route CFG producer pilot: report/check now select producer evidence for the allocation route CFG while keeping branch claim, product activation, hooks, global allocator claim, and winner claim closed; 296x-575 branch-local return scope fix opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-573-MIM-PORT-FMEM-075-HAKO-ALLOC-BODY-MIGRATION-REENTRY-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-573-MIM-PORT-FMEM-075-HAKO-ALLOC-BODY-MIGRATION-REENTRY-SELECTION.md"
-latest_card_summary = "Hako alloc body migration reentry selected page-local allocation route CFG preflight as the next slice: straight-line local_free/free_head/refill allocation bodies are ready, but allocation route CFG remains closed; MIM-PORT-FMEM-076 opens next."
-current_blocker_token = "MIM-PORT-FMEM-076"
+latest_card = "296x-576-MIM-PORT-FMEM-077-PAGE-LOCAL-ALLOC-ROUTE-CFG-PRODUCER-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-576-MIM-PORT-FMEM-077-PAGE-LOCAL-ALLOC-ROUTE-CFG-PRODUCER-PILOT.md"
+latest_card_summary = "Page-local alloc route CFG producer pilot selects producer evidence and enables page_local_alloc_route_cfg_lowering while keeping branch claim and activation claims closed; 296x-575 branch-local return scope fix opens next."
+current_blocker_token = "296x-575"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-576 landed MIM-PORT-FMEM-077 page-local alloc route CFG producer pilot: report/check now select producer evidence for the allocation route CFG while keeping branch claim, product activation, hooks, global allocator claim, and winner claim closed; 296x-575 branch-local return scope fix opens next.",
+  "2026-06-07: 296x-574 landed MIM-PORT-FMEM-076 page-local alloc route CFG preflight: report/check now select the allocation route CFG boundary while keeping route lowering, branch claim, product activation, hooks, global allocator claim, and winner claim closed; MIM-PORT-FMEM-077 opens next.",
   "2026-06-07: 296x-573 landed MIM-PORT-FMEM-075 hako_alloc body migration reentry selection: next body slice is page-local allocation route CFG preflight, consuming landed straight-line allocation bodies and branch-CFG substrate without opening route execution; MIM-PORT-FMEM-076 opens next.",
   "2026-06-07: 296x-573A landed large-file split follow-up: stale large-file feedback was reconciled against the current module/test split state, and provider package function-table contract hash construction moved behind a dedicated contract seam; MIM-PORT-FMEM-075 hako_alloc body migration reentry selection remains next.",
   "2026-06-07: 296x-572 landed MIM-PORT-FMEM-074 FastMemory metadata JSON emitter cleanup: runner JSON tests now lock legacy local_free_head_* and block_next_* resolved-field report keys behind the shared helper seam; MIM-PORT-FMEM-075 hako_alloc body migration reentry selection opens next.",

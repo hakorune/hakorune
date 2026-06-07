@@ -95,11 +95,14 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     page_local_alloc_route_cfg_preflight = (
         profile == "page-local-alloc-route-cfg-preflight"
     )
+    page_local_alloc_route_cfg_producer = profile == "page-local-alloc-route-cfg"
     page_local_free_route_cfg_preflight = (
         profile == "page-local-free-route-cfg-preflight"
     )
     page_local_free_route_cfg_producer = profile == "page-local-free-route-cfg"
-    page_local_alloc_route_cfg_any = page_local_alloc_route_cfg_preflight
+    page_local_alloc_route_cfg_any = (
+        page_local_alloc_route_cfg_preflight or page_local_alloc_route_cfg_producer
+    )
     page_local_free_route_cfg_any = (
         page_local_free_route_cfg_preflight or page_local_free_route_cfg_producer
     )
@@ -186,6 +189,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         "same-remote-free-body-preflight",
         "same-remote-free-body",
         "page-local-alloc-route-cfg-preflight",
+        "page-local-alloc-route-cfg",
         "page-local-free-route-cfg-preflight",
         "page-local-free-route-cfg",
         "tls-backing-transfer-preflight",
@@ -327,6 +331,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         elif page_local_alloc_route_cfg_preflight:
             next_slice = "page_local_alloc_route_cfg_producer_pilot"
             deferred_remote_kinds = "PageLocalAllocRouteCfgProducer,PageLocalFreeRouteCfg"
+        elif page_local_alloc_route_cfg_producer:
+            next_slice = "page_local_free_route_cfg_preflight"
+            deferred_remote_kinds = "PageLocalFreeRouteCfg"
         elif page_local_free_route_cfg_preflight:
             next_slice = "page_local_free_route_cfg_producer_pilot"
             deferred_remote_kinds = "PageLocalFreeRouteCfgProducer,TlsBackingTransfer"
@@ -427,60 +434,64 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                                             "product_activation_preflight"
                                             if product_activation_preflight
                                             else (
-                                                "page_local_alloc_route_cfg_preflight"
-                                                if page_local_alloc_route_cfg_preflight
+                                                "page_local_alloc_route_cfg_producer_pilot"
+                                                if page_local_alloc_route_cfg_producer
                                                 else (
-                                                    "page_local_free_route_cfg_preflight"
-                                                    if page_local_free_route_cfg_preflight
+                                                    "page_local_alloc_route_cfg_preflight"
+                                                    if page_local_alloc_route_cfg_preflight
                                                     else (
-                                                        "abandoned_reclaim_producer_pilot"
-                                                        if abandoned_reclaim_producer
+                                                        "page_local_free_route_cfg_preflight"
+                                                        if page_local_free_route_cfg_preflight
                                                         else (
-                                                            "abandoned_reclaim_preflight"
-                                                            if abandoned_reclaim_preflight
+                                                            "abandoned_reclaim_producer_pilot"
+                                                            if abandoned_reclaim_producer
                                                             else (
-                                                                "owner_slot_reuse_producer_pilot"
-                                                                if owner_slot_reuse_producer
+                                                                "abandoned_reclaim_preflight"
+                                                                if abandoned_reclaim_preflight
                                                                 else (
-                                                                    "owner_slot_reuse_preflight"
-                                                                    if owner_slot_reuse_preflight
+                                                                    "owner_slot_reuse_producer_pilot"
+                                                                    if owner_slot_reuse_producer
                                                                     else (
-                                                                        "tls_backing_transfer_producer_pilot"
-                                                                        if tls_backing_transfer_producer
+                                                                        "owner_slot_reuse_preflight"
+                                                                        if owner_slot_reuse_preflight
                                                                         else (
-                                                                            "tls_backing_transfer_preflight"
-                                                                            if tls_backing_transfer_preflight
+                                                                            "tls_backing_transfer_producer_pilot"
+                                                                            if tls_backing_transfer_producer
                                                                             else (
-                                                                                "page_local_free_route_cfg_producer_pilot"
-                                                                                if page_local_free_route_cfg_producer
+                                                                                "tls_backing_transfer_preflight"
+                                                                                if tls_backing_transfer_preflight
                                                                                 else (
-                                                                                    "same_remote_free_body_producer_pilot"
-                                                                                    if same_remote_free_body_producer
+                                                                                    "page_local_free_route_cfg_producer_pilot"
+                                                                                    if page_local_free_route_cfg_producer
                                                                                     else (
-                                                                                        "same_remote_free_body_preflight"
-                                                                                        if same_remote_free_body_preflight
+                                                                                        "same_remote_free_body_producer_pilot"
+                                                                                        if same_remote_free_body_producer
                                                                                         else (
-                                                                                            "fastmem_branch_cfg_lowering_producer_pilot"
-                                                                                            if fastmem_branch_cfg_lowering_producer
+                                                                                            "same_remote_free_body_preflight"
+                                                                                            if same_remote_free_body_preflight
                                                                                             else (
-                                                                                                "fastmem_branch_cfg_lowering_preflight"
-                                                                                                if fastmem_branch_cfg_lowering_preflight
+                                                                                                "fastmem_branch_cfg_lowering_producer_pilot"
+                                                                                                if fastmem_branch_cfg_lowering_producer
                                                                                                 else (
-                                                                                                    "fastmem_branch_cfg_preflight"
-                                                                                                    if fastmem_branch_cfg_preflight
+                                                                                                    "fastmem_branch_cfg_lowering_preflight"
+                                                                                                    if fastmem_branch_cfg_lowering_preflight
                                                                                                     else (
-                                                                                                        "remote_owner_branch_route_body_preflight"
-                                                                                                        if remote_owner_branch_route_body_preflight
+                                                                                                        "fastmem_branch_cfg_preflight"
+                                                                                                        if fastmem_branch_cfg_preflight
                                                                                                         else (
-                                                                                                            "remote_owner_branch_routing_lowering_producer_pilot"
-                                                                                                            if remote_owner_branch_routing_lowering_producer
+                                                                                                            "remote_owner_branch_route_body_preflight"
+                                                                                                            if remote_owner_branch_route_body_preflight
                                                                                                             else (
-                                                                                                                "remote_owner_branch_routing_lowering_preflight"
-                                                                                                                if remote_owner_branch_routing_lowering_preflight
+                                                                                                                "remote_owner_branch_routing_lowering_producer_pilot"
+                                                                                                                if remote_owner_branch_routing_lowering_producer
                                                                                                                 else (
-                                                                                                                    "remote_owner_branch_routing_preflight"
-                                                                                                                    if remote_owner_branch_routing_preflight
-                                                                                                                    else "none"
+                                                                                                                    "remote_owner_branch_routing_lowering_preflight"
+                                                                                                                    if remote_owner_branch_routing_lowering_preflight
+                                                                                                                    else (
+                                                                                                                        "remote_owner_branch_routing_preflight"
+                                                                                                                        if remote_owner_branch_routing_preflight
+                                                                                                                        else "none"
+                                                                                                                    )
                                                                                                                 )
                                                                                                             )
                                                                                                         )
@@ -561,8 +572,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 if tls_backing_transfer_producer
                 else "PageLocalFreeRouteCfg"
                 if page_local_free_route_cfg_any or tls_backing_transfer_preflight
+                else "PageLocalAllocRouteCfgProducer"
+                if page_local_alloc_route_cfg_producer
                 else "PageLocalAllocRouteCfg"
-                if page_local_alloc_route_cfg_any
+                if page_local_alloc_route_cfg_preflight
                 else (
                     "SameRemoteFreeBody"
                     if same_remote_free_body_preflight or same_remote_free_body_producer
@@ -581,7 +594,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             ("fastmem_local_free_producer_pilot", "0"),
             (
                 "fastmem_atomic_remote_head_cas_preflight",
-                str(int_flag(not remote_free_open and not page_local_alloc_route_cfg_preflight)),
+                str(int_flag(not remote_free_open and not page_local_alloc_route_cfg_any)),
             ),
             (
                 "fastmem_atomic_remote_head_cas_producer_pilot",
@@ -704,6 +717,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             (
                 "fastmem_page_local_alloc_route_cfg_preflight",
                 str(int_flag(page_local_alloc_route_cfg_preflight)),
+            ),
+            (
+                "fastmem_page_local_alloc_route_cfg_producer_pilot",
+                str(int_flag(page_local_alloc_route_cfg_producer)),
             ),
             (
                 "fastmem_page_local_free_route_cfg_producer_pilot",

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-076.
 Related:
@@ -138,6 +138,15 @@ FastMemory check smoke remains green
 FastMemory source syntax smoke remains green
 current state pointer guard passes
 git diff --check passes
+```
+
+## Verification
+
+```bash
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```
 
 ## Non-goals

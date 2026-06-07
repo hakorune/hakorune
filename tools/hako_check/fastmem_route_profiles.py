@@ -56,6 +56,10 @@ def page_local_alloc_route_cfg_preflight_profile(rows: Mapping[str, str]) -> boo
     return _profile_flag(rows, "fastmem_page_local_alloc_route_cfg_preflight")
 
 
+def page_local_alloc_route_cfg_producer_profile(rows: Mapping[str, str]) -> bool:
+    return _profile_flag(rows, "fastmem_page_local_alloc_route_cfg_producer_pilot")
+
+
 def page_local_free_route_cfg_preflight_profile(rows: Mapping[str, str]) -> bool:
     return _profile_flag(rows, "fastmem_page_local_free_route_cfg_preflight")
 
@@ -139,6 +143,34 @@ PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_POSITIVE = (
     "fastmem_page_local_alloc_route_cfg_preflight",
     "page_local_alloc_route_cfg_selected",
     "page_local_alloc_route_report_v0",
+)
+
+PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER_EXPECTED_ZERO = (
+    "page_local_alloc_route_branch_claim",
+    "page_local_free_route_branch_claim",
+    "page_local_free_route_cfg_lowering_enabled",
+    "tls_backing_transfer_enabled",
+    "allocator_owner_slot_reuse_enabled",
+    "type_abi_hot_lookup_count",
+    "provider_abi_hot_dispatch_count",
+    "product_activation",
+    "hook_install",
+    "global_allocator_claim",
+    "winner_claim",
+)
+
+PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER_EXPECTED_POSITIVE = (
+    "fastmem_page_local_alloc_route_cfg_producer_pilot",
+    "page_local_alloc_route_cfg_selected",
+    "page_local_alloc_route_cfg_lowering_enabled",
+    "page_local_alloc_route_report_v0",
+    "fastmem_branch_cfg_selected",
+    "fastmem_branch_cfg_open",
+    "fastmem_branch_cfg_lowered_count",
+    "memop_current_alloc_owner_id_lowered_count",
+    "memop_owner_eq_lowered_count",
+    "memop_local_free_pop_lowered_count",
+    "memop_free_head_pop_lowered_count",
 )
 
 PAGE_LOCAL_FREE_ROUTE_CFG_PREFLIGHT_EXPECTED_ZERO = (

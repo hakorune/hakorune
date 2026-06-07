@@ -1,5 +1,5 @@
 ---
-Status: Planned
+Status: Active
 Date: 2026-06-07
 Scope: MIRBuilder FastMemory branch-local return acceptance.
 Related:
