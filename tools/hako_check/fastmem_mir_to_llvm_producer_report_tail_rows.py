@@ -7,6 +7,56 @@ from typing import Any
 from fastmem_mir_to_llvm_producer_report_common import int_flag
 
 
+def _activation_chain_rows(
+    *,
+    product_activation_row: bool,
+    hook_install_row: bool,
+    global_allocator_claim_row: bool,
+    winner_claim_row: bool,
+    tls_backing_transfer_enabled_row: bool,
+    allocator_owner_slot_reuse_enabled_row: bool,
+    allocator_owner_slot_reuse_selected_row: bool,
+    allocator_owner_generation_bump_count_row: bool,
+    abandoned_reclaim_selected_row: bool,
+    abandoned_reclaim_enabled_row: bool,
+    product_activation_selected_row: bool,
+    hook_install_selected_row: bool,
+    global_allocator_claim_selected_row: bool,
+    winner_claim_selected_row: bool,
+) -> list[tuple[str, str]]:
+    return [
+        ("product_activation", str(int_flag(product_activation_row))),
+        ("hook_install", str(int_flag(hook_install_row))),
+        ("hook_installed", "0"),
+        ("global_allocator_claim", str(int_flag(global_allocator_claim_row))),
+        ("global_allocator_product_claim", "0"),
+        ("winner_claim", str(int_flag(winner_claim_row))),
+        ("tls_backing_transfer_enabled", str(int_flag(tls_backing_transfer_enabled_row))),
+        (
+            "allocator_owner_slot_reuse_enabled",
+            str(int_flag(allocator_owner_slot_reuse_enabled_row)),
+        ),
+        (
+            "allocator_owner_slot_reuse_selected",
+            str(int_flag(allocator_owner_slot_reuse_selected_row)),
+        ),
+        (
+            "allocator_owner_generation_bump_count",
+            str(int_flag(allocator_owner_generation_bump_count_row)),
+        ),
+        ("allocator_owner_reuse_without_generation_bump_count", "0"),
+        ("abandoned_reclaim_selected", str(int_flag(abandoned_reclaim_selected_row))),
+        ("abandoned_reclaim_enabled", str(int_flag(abandoned_reclaim_enabled_row))),
+        ("product_activation_selected", str(int_flag(product_activation_selected_row))),
+        ("hook_install_selected", str(int_flag(hook_install_selected_row))),
+        (
+            "global_allocator_claim_selected",
+            str(int_flag(global_allocator_claim_selected_row)),
+        ),
+        ("winner_claim_selected", str(int_flag(winner_claim_selected_row))),
+    ]
+
+
 def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     mir = state["mir"]
     profile = state["profile"]
@@ -139,6 +189,36 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     fastmem_free_head_non_empty_derived_from_free_head_push_count = state.get(
         "fastmem_free_head_non_empty_derived_from_free_head_push_count", 0
     )
+    activation_chain_rows = _activation_chain_rows(
+        product_activation_row=product_activation_producer
+        or product_activation_producer_refresh
+        or hook_install_or_later,
+        hook_install_row=hook_install_producer
+        or hook_install_producer_refresh
+        or global_allocator_claim_or_later,
+        global_allocator_claim_row=global_allocator_claim_producer
+        or global_allocator_claim_producer_refresh
+        or winner_claim_any,
+        winner_claim_row=winner_claim_producer or winner_claim_producer_refresh,
+        tls_backing_transfer_enabled_row=tls_backing_transfer_producer
+        or tls_backing_transfer_producer_refresh
+        or owner_slot_reuse_or_later,
+        allocator_owner_slot_reuse_enabled_row=owner_slot_reuse_producer
+        or owner_slot_reuse_producer_refresh
+        or abandoned_reclaim_or_later,
+        allocator_owner_slot_reuse_selected_row=owner_slot_reuse_or_later,
+        allocator_owner_generation_bump_count_row=owner_slot_reuse_producer
+        or owner_slot_reuse_producer_refresh
+        or abandoned_reclaim_or_later,
+        abandoned_reclaim_selected_row=abandoned_reclaim_or_later,
+        abandoned_reclaim_enabled_row=abandoned_reclaim_producer
+        or abandoned_reclaim_producer_refresh
+        or product_activation_or_later,
+        product_activation_selected_row=product_activation_or_later,
+        hook_install_selected_row=hook_install_or_later,
+        global_allocator_claim_selected_row=global_allocator_claim_or_later,
+        winner_claim_selected_row=winner_claim_any,
+    )
 
     rows: list[tuple[str, str]] = [
         ("memop_table_index_lowered_count", str(len(verified_table))),
@@ -219,89 +299,7 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ("type_abi_hot_path_lookup_count", "0"),
         ("provider_abi_hot_dispatch_count", "0"),
         ("provider_dispatch_hot_path", "0"),
-        (
-            "product_activation",
-            str(
-                int_flag(
-                    product_activation_producer
-                    or product_activation_producer_refresh
-                    or hook_install_or_later
-                )
-            ),
-        ),
-        (
-            "hook_install",
-            str(
-                int_flag(
-                    hook_install_producer
-                    or hook_install_producer_refresh
-                    or global_allocator_claim_or_later
-                )
-            ),
-        ),
-        ("hook_installed", "0"),
-        (
-            "global_allocator_claim",
-            str(
-                int_flag(
-                    global_allocator_claim_producer
-                    or global_allocator_claim_producer_refresh
-                    or winner_claim_any
-                )
-            ),
-        ),
-        ("global_allocator_product_claim", "0"),
-        (
-            "winner_claim",
-            str(int_flag(winner_claim_producer or winner_claim_producer_refresh)),
-        ),
-        (
-            "tls_backing_transfer_enabled",
-            str(
-                int_flag(
-                    tls_backing_transfer_producer
-                    or tls_backing_transfer_producer_refresh
-                    or owner_slot_reuse_or_later
-                )
-            ),
-        ),
-        (
-            "allocator_owner_slot_reuse_enabled",
-            str(
-                int_flag(
-                    owner_slot_reuse_producer
-                    or owner_slot_reuse_producer_refresh
-                    or abandoned_reclaim_or_later
-                )
-            ),
-        ),
-        ("allocator_owner_slot_reuse_selected", str(int_flag(owner_slot_reuse_or_later))),
-        (
-            "allocator_owner_generation_bump_count",
-            str(
-                int_flag(
-                    owner_slot_reuse_producer
-                    or owner_slot_reuse_producer_refresh
-                    or abandoned_reclaim_or_later
-                )
-            ),
-        ),
-        ("allocator_owner_reuse_without_generation_bump_count", "0"),
-        ("abandoned_reclaim_selected", str(int_flag(abandoned_reclaim_or_later))),
-        (
-            "abandoned_reclaim_enabled",
-            str(
-                int_flag(
-                    abandoned_reclaim_producer
-                    or abandoned_reclaim_producer_refresh
-                    or product_activation_or_later
-                )
-            ),
-        ),
-        ("product_activation_selected", str(int_flag(product_activation_or_later))),
-        ("hook_install_selected", str(int_flag(hook_install_or_later))),
-        ("global_allocator_claim_selected", str(int_flag(global_allocator_claim_or_later))),
-        ("winner_claim_selected", str(int_flag(winner_claim_any))),
+        *activation_chain_rows,
         ("page_reclaimed_with_remote_candidates", "0"),
         (
             "llvm_object_path",
