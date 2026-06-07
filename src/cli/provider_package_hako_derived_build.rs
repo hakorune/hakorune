@@ -2,10 +2,11 @@ use super::diagnostic_output::finish_result;
 use super::CliConfig;
 use config::{
     alloc_free_route, semantic_codegen_supported, semantic_codegen_uses_object_lifecycle,
-    semantic_codegen_uses_owns, semantic_codegen_uses_ping, AllocFreeRoute, ABI_VERSION,
-    BUILD_MODE, DESCRIPTOR_EXPORT, OBJECT_LIFECYCLE_NATIVE_SLOT_MODE, OUTPUT_CONTRACT,
-    PACKAGE_MODE, SCHEMA_VERSION,
+    semantic_codegen_uses_owns, semantic_codegen_uses_ping, ABI_VERSION, BUILD_MODE,
+    DESCRIPTOR_EXPORT, OBJECT_LIFECYCLE_NATIVE_SLOT_MODE, OUTPUT_CONTRACT, PACKAGE_MODE,
+    SCHEMA_VERSION,
 };
+use contract::{hako_derived_function_table_hash, HakoDerivedProviderContractInput};
 use mir_json::{
     emit_mir_json, extract_hako_provider_owns_allocated_literal,
     extract_hako_provider_ping_literal, validate_hako_provider_object_lifecycle_entrypoint,
@@ -20,6 +21,7 @@ use support::{
 };
 
 mod config;
+mod contract;
 mod mir_json;
 mod support;
 
@@ -194,16 +196,16 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
             })?
             .as_bytes(),
     );
-    let function_table_hash = hako_derived_function_table_hash(
+    let function_table_hash = hako_derived_function_table_hash(HakoDerivedProviderContractInput {
         provider_kind,
-        &hako_source_hash,
-        &hako_mir_json_hash,
+        hako_source_hash: &hako_source_hash,
+        hako_mir_json_hash: &hako_mir_json_hash,
         semantic_codegen,
         semantic_ping_value,
         semantic_owns_value,
         semantic_object_lifecycle_verified,
         alloc_route,
-    )?;
+    })?;
     let source_path = build_dir.join("hako_derived_provider_wrapper.c");
     fs::write(
         &source_path,
@@ -386,51 +388,4 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
         }
     );
     Ok((output, 0))
-}
-
-fn hako_derived_function_table_hash(
-    provider_kind: &str,
-    hako_source_hash: &str,
-    hako_mir_json_hash: &str,
-    semantic_codegen: &str,
-    semantic_ping_value: Option<i64>,
-    semantic_owns_value: Option<i64>,
-    semantic_object_lifecycle_verified: bool,
-    alloc_route: AllocFreeRoute,
-) -> Result<String, String> {
-    let contract = json!({
-        "abi_version": ABI_VERSION,
-        "api_table_schema_version": "hakorune-provider-api-v1",
-        "entrypoints": ["ping", "alloc", "free", "owns", "free_claim", "usable_size_claim", "realloc_claim", "init_host_allocator"],
-        "provider_kind": provider_kind,
-        "provider_allocator_kind": alloc_route.allocator_kind,
-        "provider_abi_claim_ops_v1": true,
-        "provider_free_claim_enabled": true,
-        "provider_realloc_claim_enabled": alloc_route.realloc_claim_enabled,
-        "provider_usable_size_claim_enabled": alloc_route.usable_size_claim_enabled,
-        "compat_alloc_free_owns_still_supported": true,
-        "compat_owns_free_mainline": false,
-        "host_allocator_vtable_init": alloc_route.host_allocator_vtable_init,
-        "provider_direct_libc_symbol_dependency": false,
-        "ld_preload_reentry_for_host_alloc": false,
-        "hako_source_hash": hako_source_hash,
-        "hako_mir_json_hash": hako_mir_json_hash,
-        "hako_semantic_provider_codegen": semantic_codegen,
-        "hako_provider_ping_value": semantic_ping_value,
-        "hako_provider_owns_value": semantic_owns_value,
-        "hako_provider_object_lifecycle_entrypoint_verified": semantic_object_lifecycle_verified,
-        "hako_provider_alloc_free_route": alloc_route.route,
-        "hako_provider_alloc_free_uses_host_malloc": alloc_route.uses_host_malloc,
-        "hako_provider_alloc_free_uses_hako_object_lifecycle": alloc_route.uses_hako_object_lifecycle,
-        "hako_provider_object_lifecycle_entrypoint_usage": alloc_route.object_lifecycle_usage,
-    });
-    Ok(sha256_bytes(
-        serde_json::to_string(&contract)
-            .map_err(|error| {
-                format!(
-                    "[provider-package-hako-build/function-table-hash-serialize-failed] {error}"
-                )
-            })?
-            .as_bytes(),
-    ))
 }
