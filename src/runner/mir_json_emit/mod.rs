@@ -4,6 +4,7 @@ use std::io::Write;
 mod agg_local;
 mod decls;
 mod emitters;
+mod fastmem_metadata;
 mod helpers;
 mod io;
 mod metadata;
