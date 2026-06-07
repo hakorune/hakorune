@@ -1196,4 +1196,32 @@ grep -q '^failure_0_reason=winner_claim$' \
   "$BAD_HOOK_INSTALL_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_HOOK_INSTALL_PREFLIGHT_OUT"
 
+HOOK_INSTALL_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_hook_install_producer.XXXXXX")"
+BAD_HOOK_INSTALL_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_hook_install_producer.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/hook_install_producer_inventory.kv" \
+  --format kv \
+  >"$HOOK_INSTALL_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected hook install producer inventory" >&2
+  cat "$HOOK_INSTALL_PRODUCER_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$HOOK_INSTALL_PRODUCER_OUT"
+grep -q '^summary=ok$' "$HOOK_INSTALL_PRODUCER_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_hook_install_producer_inventory.kv" \
+  --format kv \
+  >"$BAD_HOOK_INSTALL_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad hook install producer inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_HOOK_INSTALL_PRODUCER_OUT"
+grep -q '^failure_0_reason=winner_claim$' \
+  "$BAD_HOOK_INSTALL_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_HOOK_INSTALL_PRODUCER_OUT"
+
 echo "[TEST/OK] fastmem_check"

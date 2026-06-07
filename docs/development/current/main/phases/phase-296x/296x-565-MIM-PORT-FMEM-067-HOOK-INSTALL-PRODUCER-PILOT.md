@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-067.
 Related:
@@ -36,6 +36,36 @@ global_allocator_claim=0
 winner_claim=0
 type_abi_hot_lookup_count=0
 provider_abi_hot_dispatch_count=0
+```
+
+## Landed Evidence
+
+```text
+replacement_front_selected_route=hook_install_producer_pilot
+replacement_front_selected_memop_family=hook_install
+replacement_front_selected_memop_kinds=HookInstall
+replacement_front_next_producer_slice=global_allocator_claim_preflight
+product_activation=1
+hook_install_selected=1
+hook_install=1
+global_allocator_claim=0
+winner_claim=0
+type_abi_hot_lookup_count=0
+provider_abi_hot_dispatch_count=0
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_mir_to_llvm_producer_report.py tools/hako_check/fastmem_check.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-068 global allocator claim preflight.
 ```
 
 ## Non-goals
