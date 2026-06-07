@@ -5,6 +5,7 @@ Scope: MIM-PORT-FMEM-089.
 Related:
   - docs/development/current/main/phases/phase-296x/296x-587-MIM-PORT-FMEM-088-ABANDONED-RECLAIM-PRODUCER-REFRESH.md
   - docs/development/current/main/phases/phase-296x/296x-562-MIM-PORT-FMEM-064-PRODUCT-ACTIVATION-PREFLIGHT.md
+  - docs/development/current/main/phases/phase-296x/296x-588-596-MIM-PORT-FMEM-REFRESH-LADDER-TASK-ORDER.md
 ---
 
 # 296x-588 MIM-PORT-FMEM-089 Product Activation Preflight Refresh
