@@ -1,97 +1,13 @@
 use super::*;
-use crate::ast::Span;
+mod support;
+
 use crate::mir::function::{
     FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
     FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
-    FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
-    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
-    FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
-    RangeIndexFact, RangeIndexFactOriginKind,
+    FastMemLocalFreeNonEmptyProofKind, FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind,
+    FastMemSameOwnerFact, FastMemSameOwnerProofKind,
 };
-use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
-
-fn make_function(instructions: Vec<MirInstruction>) -> MirFunction {
-    let mut function = MirFunction::new(
-        FunctionSignature {
-            name: "Main.fastmem/0".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    let block = function
-        .get_block_mut(BasicBlockId::new(0))
-        .expect("entry block");
-    for instruction in instructions {
-        block.add_instruction(instruction);
-    }
-    function
-        .metadata
-        .fastmem_regions
-        .push(FastMemRegionMetadata {
-            id: FastMemRegionId::new(0),
-            contract: "PageMapV0".to_string(),
-            source_span: Span::unknown(),
-            origin: FastMemRegionOrigin::SourceFastMemBlock,
-            body_statement_count: 1,
-            emitted_memop_count: function
-                .blocks
-                .get(&BasicBlockId::new(0))
-                .map(|block| {
-                    block
-                        .instructions
-                        .iter()
-                        .filter(|instruction| matches!(instruction, MirInstruction::MemOp { .. }))
-                        .count()
-                })
-                .unwrap_or(0),
-        });
-    function
-}
-
-fn memop(
-    kind: MemOpKind,
-    dst: Option<ValueId>,
-    operands: Vec<ValueId>,
-    access: Option<MemOpAccess>,
-) -> MirInstruction {
-    MirInstruction::MemOp {
-        region: FastMemRegionId::new(0),
-        kind,
-        dst,
-        operands,
-        access,
-        effects: kind.effect_mask(),
-    }
-}
-
-fn table_length_fact() -> FastMemTableLengthFact {
-    FastMemTableLengthFact {
-        fact_id: 0,
-        region: FastMemRegionId::new(0),
-        table_id: "page_table".to_string(),
-        table_value: ValueId::new(1),
-        length_value: ValueId::new(50),
-        resolved_length: Some(64),
-        policy: FastMemTableLengthPolicyKind::ExplicitConstLen,
-    }
-}
-
-fn range_index_fact(fact_id: u32, index_value: ValueId) -> RangeIndexFact {
-    RangeIndexFact {
-        fact_id,
-        origin_kind: RangeIndexFactOriginKind::CountingLoop,
-        index_value,
-        lower_value: ValueId::new(40),
-        upper_exclusive_value: ValueId::new(50),
-        body_bb: BasicBlockId::new(0),
-        step: 1,
-        end_exclusive: true,
-        index_body_read_only: true,
-        loop_carried_writes_supported: false,
-    }
-}
+use support::*;
 
 #[test]
 fn refresh_verifies_page_meta_field_sites_and_rejects_unbounded_table() {
