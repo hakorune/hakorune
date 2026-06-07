@@ -97,6 +97,19 @@ report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/refill
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/refill_then_free_head_alloc_body.local.check.expected.kv"
 
 [[fixtures]]
+id = "PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT"
+label = "page-local alloc route CFG preflight"
+source = "lang/src/hako_alloc/memory/page_meta_page_local_alloc_route_cfg_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_local_alloc_route_cfg_preflight.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_local_alloc_route_cfg_preflight.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "page-local-alloc-route-cfg-preflight"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_local_alloc_route_cfg_preflight.page-local-alloc-route-cfg-preflight.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_local_alloc_route_cfg_preflight.page-local-alloc-route-cfg-preflight.check.expected.kv"
+
+[[fixtures]]
 id = "FREE_HEAD"
 label = "free-head read fastmem pilot"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_read_fastmem_pilot_box.hako"

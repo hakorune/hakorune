@@ -179,10 +179,6 @@ REFILL_THEN_FREE_HEAD_ALLOC_MIR="$TMPDIR/page_meta_refill_then_free_head_alloc.m
 PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_page_local_alloc_route_cfg_preflight_box.hako"
 PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_AST="$TMPDIR/page_meta_page_local_alloc_route_cfg_preflight.ast.json"
 PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR="$TMPDIR/page_meta_page_local_alloc_route_cfg_preflight.mir.json"
-PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV="$TMPDIR/page_meta_page_local_alloc_route_cfg_preflight.inventory.kv"
-PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV="$TMPDIR/page_meta_page_local_alloc_route_cfg_preflight.mir.inventory.kv"
-PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT="$TMPDIR/page_meta_page_local_alloc_route_cfg_preflight.report.kv"
-PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_CHECK="$TMPDIR/page_meta_page_local_alloc_route_cfg_preflight.check.kv"
 PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER_REPORT="$TMPDIR/page_meta_page_local_alloc_route_cfg_producer.report.kv"
 PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER_CHECK="$TMPDIR/page_meta_page_local_alloc_route_cfg_producer.check.kv"
 PAGE_LOCAL_ROUTE_BODY_JOIN_REPORT="$TMPDIR/page_meta_page_local_route_body_join.report.kv"
@@ -2386,74 +2382,6 @@ NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$REFILL_THEN_FR
 
 NYASH_FEATURES="$FEATURES" "$BIN" --emit-ast-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_AST" "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_SRC" >/dev/null
 NYASH_FEATURES="$FEATURES" "$BIN" --backend mir --emit-mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_SRC" >/dev/null
-
-bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
-  --ast-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_AST" \
-  --out "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-
-grep -q '^input_kind=ast_json$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^fastmem_region_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^fastmem_contract_id=PageMapV0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^fastmem_memop_table_index_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^fastmem_memop_local_free_pop_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^fastmem_memop_free_head_pop_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^fastmem_forbidden_call_count=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-grep -q '^summary=ok$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_INV"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-capability-inventory \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-
-grep -q '^input_kind=mir_json_metadata$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_region_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_contract_id=PageMapV0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_memop_table_index_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_memop_local_free_pop_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_memop_free_head_pop_count=1$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_table_index_unchecked_count=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^fastmem_table_access_proof_incomplete_count=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-grep -q '^summary=ok$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR_INV"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
-  --profile page-local-alloc-route-cfg-preflight \
-  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
-  --out "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-
-grep -q '^fastmem_page_local_alloc_route_cfg_preflight=1$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^replacement_front_selected_route=page_local_alloc_route_cfg_preflight$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^replacement_front_selected_memop_family=page_local_alloc_route_cfg$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^replacement_front_selected_memop_kinds=PageLocalAllocRouteCfg$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^replacement_front_next_producer_slice=page_local_alloc_route_cfg_producer_pilot$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^page_local_alloc_route_report_v0=1$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^page_local_alloc_route_cfg_selected=1$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^page_local_alloc_route_branch_claim=0$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^page_local_alloc_route_cfg_lowering_enabled=0$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^page_local_free_route_cfg_lowering_enabled=0$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^type_abi_hot_lookup_count=0$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^provider_abi_hot_dispatch_count=0$' \
-  "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^product_activation=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^global_allocator_claim=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-grep -q '^winner_claim=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT"
-
-bash "$ROOT/tools/hako_check.sh" fastmem-check \
-  --inventory "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_REPORT" \
-  --format kv \
-  --out "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_CHECK"
-
-grep -q '^summary=ok$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_CHECK"
-grep -q '^failure_count=0$' "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile page-local-alloc-route-cfg \
