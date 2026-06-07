@@ -1,5 +1,186 @@
 use crate::mir::fastmem_access_plan::{FastMemAccessPlan, FastMemAccessPlanPayload};
+use crate::mir::function::{FastMemRegionOrigin, FunctionMetadata};
 use serde_json::json;
+
+pub(super) fn insert_fastmem_metadata_json(
+    obj: &mut serde_json::Map<String, serde_json::Value>,
+    metadata: &FunctionMetadata,
+) {
+    obj.insert(
+        "fastmem_regions".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_regions
+                .iter()
+                .map(|region| {
+                    json!({
+                        "id": region.id.0,
+                        "contract": region.contract,
+                        "origin": fastmem_region_origin_name(region.origin),
+                        "body_statement_count": region.body_statement_count,
+                        "emitted_memop_count": region.emitted_memop_count,
+                        "source_span": {
+                            "start": region.source_span.start,
+                            "end": region.source_span.end,
+                            "line": region.source_span.line,
+                            "column": region.source_span.column,
+                        },
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_table_length_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_table_length_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "fact_id": fact.fact_id,
+                        "region": fact.region.0,
+                        "table_id": fact.table_id,
+                        "table_value": fact.table_value.as_u32(),
+                        "length_value": fact.length_value.as_u32(),
+                        "resolved_length": fact.resolved_length,
+                        "policy": fact.policy.as_str(),
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_same_owner_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_same_owner_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "fact_id": fact.fact_id,
+                        "region": fact.region.0,
+                        "page_value": fact.page_value.as_u32(),
+                        "proof_value": fact.proof_value.as_u32(),
+                        "proof_kind": fact.proof_kind.as_str(),
+                        "remote_owner_rejected": fact.remote_owner_rejected,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_remote_owner_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_remote_owner_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "fact_id": fact.fact_id,
+                        "region": fact.region.0,
+                        "page_value": fact.page_value.as_u32(),
+                        "proof_kind": fact.proof_kind.as_str(),
+                        "same_owner_rejected": fact.same_owner_rejected,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_block_next_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_block_next_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "fact_id": fact.fact_id,
+                        "region": fact.region.0,
+                        "block_value": fact.block_value.as_u32(),
+                        "next_field_id": &fact.next_field_id,
+                        "proof_kind": fact.proof_kind.as_str(),
+                        "writable": fact.writable,
+                        "provenance_valid": fact.provenance_valid,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_local_free_non_empty_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_local_free_non_empty_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "fact_id": fact.fact_id,
+                        "region": fact.region.0,
+                        "page_value": fact.page_value.as_u32(),
+                        "proof_kind": fact.proof_kind.as_str(),
+                        "non_empty": fact.non_empty,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_free_head_non_empty_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_free_head_non_empty_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "fact_id": fact.fact_id,
+                        "region": fact.region.0,
+                        "page_value": fact.page_value.as_u32(),
+                        "proof_kind": fact.proof_kind.as_str(),
+                        "non_empty": fact.non_empty,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_access_plans".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_access_plans
+                .iter()
+                .map(build_fastmem_access_plan_json)
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_table_field_access_links".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_table_field_access_links
+                .iter()
+                .map(|link| {
+                    json!({
+                        "table_block": link.table_block.as_u32(),
+                        "table_instruction_index": link.table_instruction_index,
+                        "field_block": link.field_block.as_u32(),
+                        "field_instruction_index": link.field_instruction_index,
+                        "region": link.region.0,
+                        "table_result": link.table_result.as_u32(),
+                        "field_base": link.field_base.as_u32(),
+                        "field_id": link.field_id,
+                        "field_access": link.field_access.as_str(),
+                        "byte_offset": link.byte_offset,
+                        "field_size": link.field_size,
+                        "field_type": link.field_type,
+                        "alignment": link.alignment,
+                        "proof": link.proof,
+                    })
+                })
+                .collect(),
+        ),
+    );
+}
 
 pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_json::Value {
     let mut row = json!({
@@ -449,4 +630,10 @@ pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_
         }
     }
     row
+}
+
+fn fastmem_region_origin_name(origin: FastMemRegionOrigin) -> &'static str {
+    match origin {
+        FastMemRegionOrigin::SourceFastMemBlock => "source_fastmem_block",
+    }
 }

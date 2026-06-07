@@ -1,4 +1,5 @@
 use super::agg_local::build_agg_local_scalarization_routes_json;
+use super::fastmem_metadata::insert_fastmem_metadata_json;
 use super::placement_effect::build_placement_effect_routes_json;
 use super::plan_metadata::insert_plan_metadata_json;
 use super::plans::build_string_kernel_plan_json;
@@ -224,99 +225,6 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "status": obligation.status,
                 "failure_code": obligation.failure_code,
                 "failure_reason": obligation.failure_reason,
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_regions": metadata.fastmem_regions.iter().map(|region| {
-            json!({
-                "id": region.id.0,
-                "contract": region.contract,
-                "origin": fastmem_region_origin_name(region.origin),
-                "body_statement_count": region.body_statement_count,
-                "emitted_memop_count": region.emitted_memop_count,
-                "source_span": {
-                    "start": region.source_span.start,
-                    "end": region.source_span.end,
-                    "line": region.source_span.line,
-                    "column": region.source_span.column,
-                },
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_table_length_facts": metadata.fastmem_table_length_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region": fact.region.0,
-                "table_id": fact.table_id,
-                "table_value": fact.table_value.as_u32(),
-                "length_value": fact.length_value.as_u32(),
-                "resolved_length": fact.resolved_length,
-                "policy": fact.policy.as_str(),
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_same_owner_facts": metadata.fastmem_same_owner_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region": fact.region.0,
-                "page_value": fact.page_value.as_u32(),
-                "proof_value": fact.proof_value.as_u32(),
-                "proof_kind": fact.proof_kind.as_str(),
-                "remote_owner_rejected": fact.remote_owner_rejected,
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_remote_owner_facts": metadata.fastmem_remote_owner_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region": fact.region.0,
-                "page_value": fact.page_value.as_u32(),
-                "proof_kind": fact.proof_kind.as_str(),
-                "same_owner_rejected": fact.same_owner_rejected,
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_block_next_facts": metadata.fastmem_block_next_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region": fact.region.0,
-                "block_value": fact.block_value.as_u32(),
-                "next_field_id": &fact.next_field_id,
-                "proof_kind": fact.proof_kind.as_str(),
-                "writable": fact.writable,
-                "provenance_valid": fact.provenance_valid,
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_local_free_non_empty_facts": metadata.fastmem_local_free_non_empty_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region": fact.region.0,
-                "page_value": fact.page_value.as_u32(),
-                "proof_kind": fact.proof_kind.as_str(),
-                "non_empty": fact.non_empty,
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_free_head_non_empty_facts": metadata.fastmem_free_head_non_empty_facts.iter().map(|fact| {
-            json!({
-                "fact_id": fact.fact_id,
-                "region": fact.region.0,
-                "page_value": fact.page_value.as_u32(),
-                "proof_kind": fact.proof_kind.as_str(),
-                "non_empty": fact.non_empty,
-            })
-        }).collect::<Vec<_>>(),
-        "fastmem_access_plans": metadata.fastmem_access_plans.iter().map(super::fastmem_metadata::build_fastmem_access_plan_json).collect::<Vec<_>>(),
-        "fastmem_table_field_access_links": metadata.fastmem_table_field_access_links.iter().map(|link| {
-            json!({
-                "table_block": link.table_block.as_u32(),
-                "table_instruction_index": link.table_instruction_index,
-                "field_block": link.field_block.as_u32(),
-                "field_instruction_index": link.field_instruction_index,
-                "region": link.region.0,
-                "table_result": link.table_result.as_u32(),
-                "field_base": link.field_base.as_u32(),
-                "field_id": link.field_id,
-                "field_access": link.field_access.as_str(),
-                "byte_offset": link.byte_offset,
-                "field_size": link.field_size,
-                "field_type": link.field_type,
-                "alignment": link.alignment,
-                "proof": link.proof,
             })
         }).collect::<Vec<_>>(),
         "effect_summaries": metadata.effect_summaries.iter().map(|summary| {
@@ -1199,15 +1107,10 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         );
     }
     if let serde_json::Value::Object(obj) = &mut metadata_json {
+        insert_fastmem_metadata_json(obj, metadata);
         insert_plan_metadata_json(obj, metadata);
     }
     metadata_json
-}
-
-fn fastmem_region_origin_name(origin: crate::mir::function::FastMemRegionOrigin) -> &'static str {
-    match origin {
-        crate::mir::function::FastMemRegionOrigin::SourceFastMemBlock => "source_fastmem_block",
-    }
 }
 
 fn binary_op_route_symbol(op: BinaryOp) -> &'static str {
