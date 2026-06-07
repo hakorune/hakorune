@@ -156,6 +156,10 @@ def _flag_rows(*pairs: tuple[str, bool]) -> list[tuple[str, str]]:
     return [(name, str(int_flag(flag))) for name, flag in pairs]
 
 
+def _any_true(*flags: bool) -> bool:
+    return any(flags)
+
+
 def _slice_prefix_rows(
     *,
     selection_v0: str,
@@ -595,30 +599,30 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     tls_backing_transfer_producer_refresh = (
         refresh_route == "tls_backing_transfer_producer_refresh"
     )
-    page_local_route_body_join_any = (
-        page_local_route_body_join_preflight
-        or page_local_route_body_join_producer
-        or terminal_ladder_refresh_preflight
-        or tls_backing_transfer_preflight_refresh
-        or tls_backing_transfer_producer_refresh
+    page_local_route_body_join_any = _any_true(
+        page_local_route_body_join_preflight,
+        page_local_route_body_join_producer,
+        terminal_ladder_refresh_preflight,
+        tls_backing_transfer_preflight_refresh,
+        tls_backing_transfer_producer_refresh,
     )
-    page_local_alloc_route_cfg_any = (
-        page_local_alloc_route_cfg_preflight
-        or page_local_alloc_route_cfg_producer
-        or page_local_route_body_join_any
+    page_local_alloc_route_cfg_any = _any_true(
+        page_local_alloc_route_cfg_preflight,
+        page_local_alloc_route_cfg_producer,
+        page_local_route_body_join_any,
     )
-    page_local_free_route_cfg_any = (
-        page_local_free_route_cfg_preflight
-        or page_local_free_route_cfg_producer
-        or page_local_route_body_join_any
+    page_local_free_route_cfg_any = _any_true(
+        page_local_free_route_cfg_preflight,
+        page_local_free_route_cfg_producer,
+        page_local_route_body_join_any,
     )
     tls_backing_transfer_preflight = profile == "tls-backing-transfer-preflight"
     tls_backing_transfer_producer = profile == "tls-backing-transfer-producer-pilot"
-    tls_backing_transfer_any = (
-        tls_backing_transfer_preflight
-        or tls_backing_transfer_preflight_refresh
-        or tls_backing_transfer_producer_refresh
-        or tls_backing_transfer_producer
+    tls_backing_transfer_any = _any_true(
+        tls_backing_transfer_preflight,
+        tls_backing_transfer_preflight_refresh,
+        tls_backing_transfer_producer_refresh,
+        tls_backing_transfer_producer,
     )
     owner_slot_reuse_preflight = profile == "owner-slot-reuse-preflight"
     owner_slot_reuse_preflight_refresh = (
@@ -628,11 +632,11 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         refresh_route == "owner_slot_reuse_producer_refresh"
     )
     owner_slot_reuse_producer = profile == "owner-slot-reuse-producer-pilot"
-    owner_slot_reuse_any = (
-        owner_slot_reuse_preflight
-        or owner_slot_reuse_preflight_refresh
-        or owner_slot_reuse_producer_refresh
-        or owner_slot_reuse_producer
+    owner_slot_reuse_any = _any_true(
+        owner_slot_reuse_preflight,
+        owner_slot_reuse_preflight_refresh,
+        owner_slot_reuse_producer_refresh,
+        owner_slot_reuse_producer,
     )
     abandoned_reclaim_preflight_refresh = (
         refresh_route == "abandoned_reclaim_preflight_refresh"
@@ -642,11 +646,11 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     )
     abandoned_reclaim_preflight = profile == "abandoned-reclaim-preflight"
     abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
-    abandoned_reclaim_any = (
-        abandoned_reclaim_preflight_refresh
-        or abandoned_reclaim_producer_refresh
-        or abandoned_reclaim_preflight
-        or abandoned_reclaim_producer
+    abandoned_reclaim_any = _any_true(
+        abandoned_reclaim_preflight_refresh,
+        abandoned_reclaim_producer_refresh,
+        abandoned_reclaim_preflight,
+        abandoned_reclaim_producer,
     )
     product_activation_preflight_refresh = (
         refresh_route == "product_activation_preflight_refresh"
@@ -656,21 +660,21 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     )
     product_activation_preflight = profile == "product-activation-preflight"
     product_activation_producer = profile == "product-activation-producer-pilot"
-    product_activation_any = (
-        product_activation_preflight_refresh
-        or product_activation_producer_refresh
-        or product_activation_preflight
-        or product_activation_producer
+    product_activation_any = _any_true(
+        product_activation_preflight_refresh,
+        product_activation_producer_refresh,
+        product_activation_preflight,
+        product_activation_producer,
     )
     hook_install_preflight_refresh = refresh_route == "hook_install_preflight_refresh"
     hook_install_producer_refresh = refresh_route == "hook_install_producer_refresh"
     hook_install_preflight = profile == "hook-install-preflight"
     hook_install_producer = profile == "hook-install-producer-pilot"
-    hook_install_any = (
-        hook_install_preflight_refresh
-        or hook_install_producer_refresh
-        or hook_install_preflight
-        or hook_install_producer
+    hook_install_any = _any_true(
+        hook_install_preflight_refresh,
+        hook_install_producer_refresh,
+        hook_install_preflight,
+        hook_install_producer,
     )
     global_allocator_claim_preflight_refresh = (
         refresh_route == "global_allocator_claim_preflight_refresh"
@@ -680,21 +684,21 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         refresh_route == "global_allocator_claim_producer_refresh"
     )
     global_allocator_claim_producer = profile == "global-allocator-claim-producer-pilot"
-    global_allocator_claim_any = (
-        global_allocator_claim_preflight_refresh
-        or global_allocator_claim_producer_refresh
-        or global_allocator_claim_preflight
-        or global_allocator_claim_producer
+    global_allocator_claim_any = _any_true(
+        global_allocator_claim_preflight_refresh,
+        global_allocator_claim_producer_refresh,
+        global_allocator_claim_preflight,
+        global_allocator_claim_producer,
     )
     winner_claim_preflight_refresh = refresh_route == "winner_claim_preflight_refresh"
     winner_claim_producer_refresh = refresh_route == "winner_claim_producer_refresh"
     winner_claim_preflight = profile == "winner-claim-preflight"
     winner_claim_producer = profile == "winner-claim-producer-pilot"
-    winner_claim_any = (
-        winner_claim_preflight_refresh
-        or winner_claim_producer_refresh
-        or winner_claim_preflight
-        or winner_claim_producer
+    winner_claim_any = _any_true(
+        winner_claim_preflight_refresh,
+        winner_claim_producer_refresh,
+        winner_claim_preflight,
+        winner_claim_producer,
     )
     global_allocator_claim_or_later = global_allocator_claim_any or winner_claim_any
     hook_install_or_later = hook_install_any or global_allocator_claim_or_later
@@ -704,41 +708,41 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     tls_backing_transfer_or_later = (
         tls_backing_transfer_any or owner_slot_reuse_or_later
     )
-    remote_owner_branch_routing_any = (
-        remote_owner_branch_routing_preflight
-        or remote_owner_branch_routing_lowering_preflight
-        or remote_owner_branch_routing_lowering_producer
-        or remote_owner_branch_route_body_preflight
-        or fastmem_branch_cfg_preflight
-        or fastmem_branch_cfg_lowering_preflight
-        or fastmem_branch_cfg_lowering_producer
-        or same_remote_free_body_preflight
-        or same_remote_free_body_producer
-        or page_local_free_route_cfg_any
-        or tls_backing_transfer_or_later
+    remote_owner_branch_routing_any = _any_true(
+        remote_owner_branch_routing_preflight,
+        remote_owner_branch_routing_lowering_preflight,
+        remote_owner_branch_routing_lowering_producer,
+        remote_owner_branch_route_body_preflight,
+        fastmem_branch_cfg_preflight,
+        fastmem_branch_cfg_lowering_preflight,
+        fastmem_branch_cfg_lowering_producer,
+        same_remote_free_body_preflight,
+        same_remote_free_body_producer,
+        page_local_free_route_cfg_any,
+        tls_backing_transfer_or_later,
     )
-    remote_free_drain_local_list_mutation_any = (
-        remote_free_drain_local_list_mutation_preflight
-        or remote_free_drain_local_list_mutation_proof
-        or remote_free_drain_local_list_mutation_vocabulary_preflight
-        or remote_free_drain_local_list_mutation_verifier_preconditions
-        or remote_free_drain_local_list_mutation_lowering_producer
+    remote_free_drain_local_list_mutation_any = _any_true(
+        remote_free_drain_local_list_mutation_preflight,
+        remote_free_drain_local_list_mutation_proof,
+        remote_free_drain_local_list_mutation_vocabulary_preflight,
+        remote_free_drain_local_list_mutation_verifier_preconditions,
+        remote_free_drain_local_list_mutation_lowering_producer,
     )
-    remote_free_drain_to_local_any = (
-        remote_free_drain_to_local_selection
-        or remote_free_drain_to_local_producer
-        or remote_free_drain_local_list_mutation_any
+    remote_free_drain_to_local_any = _any_true(
+        remote_free_drain_to_local_selection,
+        remote_free_drain_to_local_producer,
+        remote_free_drain_local_list_mutation_any,
     )
-    remote_free_drain_exchange_any = (
-        remote_free_drain_exchange_selection
-        or remote_free_drain_exchange_producer
-        or remote_free_drain_to_local_any
+    remote_free_drain_exchange_any = _any_true(
+        remote_free_drain_exchange_selection,
+        remote_free_drain_exchange_producer,
+        remote_free_drain_to_local_any,
     )
-    remote_free_drain_any = (
-        remote_free_drain_preflight
-        or remote_free_drain_exchange_any
-        or remote_free_drain_to_local_any
-        or remote_free_drain_local_list_mutation_any
+    remote_free_drain_any = _any_true(
+        remote_free_drain_preflight,
+        remote_free_drain_exchange_any,
+        remote_free_drain_to_local_any,
+        remote_free_drain_local_list_mutation_any,
     )
     def _build_route_summary() -> dict[str, Any]:
         route_spec = remote_free_route_profile_spec(profile)
