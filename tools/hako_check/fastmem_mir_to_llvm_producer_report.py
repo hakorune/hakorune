@@ -519,7 +519,8 @@ def build_rows(
         global_allocator_claim_preflight or global_allocator_claim_producer
     )
     winner_claim_preflight = profile == "winner-claim-preflight"
-    winner_claim_any = winner_claim_preflight
+    winner_claim_producer = profile == "winner-claim-producer-pilot"
+    winner_claim_any = winner_claim_preflight or winner_claim_producer
     global_allocator_claim_or_later = global_allocator_claim_any or winner_claim_any
     hook_install_or_later = hook_install_any or global_allocator_claim_or_later
     product_activation_or_later = product_activation_any or hook_install_or_later
@@ -592,6 +593,7 @@ def build_rows(
         "global-allocator-claim-preflight",
         "global-allocator-claim-producer-pilot",
         "winner-claim-preflight",
+        "winner-claim-producer-pilot",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -631,6 +633,7 @@ def build_rows(
             "global-allocator-claim-preflight",
             "global-allocator-claim-producer-pilot",
             "winner-claim-preflight",
+            "winner-claim-producer-pilot",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -758,6 +761,9 @@ def build_rows(
         elif winner_claim_preflight:
             next_slice = "winner_claim_producer_pilot"
             deferred_remote_kinds = "WinnerClaimProducer"
+        elif winner_claim_producer:
+            next_slice = "complete"
+            deferred_remote_kinds = "none"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -786,78 +792,82 @@ def build_rows(
             ("replacement_front_producer_slice_selection_v0", "0"),
             (
                 "replacement_front_selected_route",
-                "winner_claim_preflight"
-                if winner_claim_preflight
+                "winner_claim_producer_pilot"
+                if winner_claim_producer
                 else (
-                    "global_allocator_claim_producer_pilot"
-                    if global_allocator_claim_producer
+                    "winner_claim_preflight"
+                    if winner_claim_preflight
                     else (
-                        "global_allocator_claim_preflight"
-                        if global_allocator_claim_preflight
+                        "global_allocator_claim_producer_pilot"
+                        if global_allocator_claim_producer
                         else (
-                            "hook_install_producer_pilot"
-                            if hook_install_producer
+                            "global_allocator_claim_preflight"
+                            if global_allocator_claim_preflight
                             else (
-                                "hook_install_preflight"
-                                if hook_install_preflight
+                                "hook_install_producer_pilot"
+                                if hook_install_producer
                                 else (
-                                    "product_activation_producer_pilot"
-                                    if product_activation_producer
+                                    "hook_install_preflight"
+                                    if hook_install_preflight
                                     else (
-                                        "product_activation_preflight"
-                                        if product_activation_preflight
+                                        "product_activation_producer_pilot"
+                                        if product_activation_producer
                                         else (
-                                            "page_local_free_route_cfg_preflight"
-                                            if page_local_free_route_cfg_preflight
+                                            "product_activation_preflight"
+                                            if product_activation_preflight
                                             else (
-                                                "abandoned_reclaim_producer_pilot"
-                                                if abandoned_reclaim_producer
+                                                "page_local_free_route_cfg_preflight"
+                                                if page_local_free_route_cfg_preflight
                                                 else (
-                                                    "abandoned_reclaim_preflight"
-                                                    if abandoned_reclaim_preflight
+                                                    "abandoned_reclaim_producer_pilot"
+                                                    if abandoned_reclaim_producer
                                                     else (
-                                                        "owner_slot_reuse_producer_pilot"
-                                                        if owner_slot_reuse_producer
+                                                        "abandoned_reclaim_preflight"
+                                                        if abandoned_reclaim_preflight
                                                         else (
-                                                            "owner_slot_reuse_preflight"
-                                                            if owner_slot_reuse_preflight
+                                                            "owner_slot_reuse_producer_pilot"
+                                                            if owner_slot_reuse_producer
                                                             else (
-                                                                "tls_backing_transfer_producer_pilot"
-                                                                if tls_backing_transfer_producer
+                                                                "owner_slot_reuse_preflight"
+                                                                if owner_slot_reuse_preflight
                                                                 else (
-                                                                    "tls_backing_transfer_preflight"
-                                                                    if tls_backing_transfer_preflight
+                                                                    "tls_backing_transfer_producer_pilot"
+                                                                    if tls_backing_transfer_producer
                                                                     else (
-                                                                        "page_local_free_route_cfg_producer_pilot"
-                                                                        if page_local_free_route_cfg_producer
+                                                                        "tls_backing_transfer_preflight"
+                                                                        if tls_backing_transfer_preflight
                                                                         else (
-                                                                            "same_remote_free_body_producer_pilot"
-                                                                            if same_remote_free_body_producer
+                                                                            "page_local_free_route_cfg_producer_pilot"
+                                                                            if page_local_free_route_cfg_producer
                                                                             else (
-                                                                                "same_remote_free_body_preflight"
-                                                                                if same_remote_free_body_preflight
+                                                                                "same_remote_free_body_producer_pilot"
+                                                                                if same_remote_free_body_producer
                                                                                 else (
-                                                                                    "fastmem_branch_cfg_lowering_producer_pilot"
-                                                                                    if fastmem_branch_cfg_lowering_producer
+                                                                                    "same_remote_free_body_preflight"
+                                                                                    if same_remote_free_body_preflight
                                                                                     else (
-                                                                                        "fastmem_branch_cfg_lowering_preflight"
-                                                                                        if fastmem_branch_cfg_lowering_preflight
+                                                                                        "fastmem_branch_cfg_lowering_producer_pilot"
+                                                                                        if fastmem_branch_cfg_lowering_producer
                                                                                         else (
-                                                                                            "fastmem_branch_cfg_preflight"
-                                                                                            if fastmem_branch_cfg_preflight
+                                                                                            "fastmem_branch_cfg_lowering_preflight"
+                                                                                            if fastmem_branch_cfg_lowering_preflight
                                                                                             else (
-                                                                                                "remote_owner_branch_route_body_preflight"
-                                                                                                if remote_owner_branch_route_body_preflight
+                                                                                                "fastmem_branch_cfg_preflight"
+                                                                                                if fastmem_branch_cfg_preflight
                                                                                                 else (
-                                                                                                    "remote_owner_branch_routing_lowering_producer_pilot"
-                                                                                                    if remote_owner_branch_routing_lowering_producer
+                                                                                                    "remote_owner_branch_route_body_preflight"
+                                                                                                    if remote_owner_branch_route_body_preflight
                                                                                                     else (
-                                                                                                        "remote_owner_branch_routing_lowering_preflight"
-                                                                                                        if remote_owner_branch_routing_lowering_preflight
+                                                                                                        "remote_owner_branch_routing_lowering_producer_pilot"
+                                                                                                        if remote_owner_branch_routing_lowering_producer
                                                                                                         else (
-                                                                                                            "remote_owner_branch_routing_preflight"
-                                                                                                            if remote_owner_branch_routing_preflight
-                                                                                                            else "none"
+                                                                                                            "remote_owner_branch_routing_lowering_preflight"
+                                                                                                            if remote_owner_branch_routing_lowering_preflight
+                                                                                                            else (
+                                                                                                                "remote_owner_branch_routing_preflight"
+                                                                                                                if remote_owner_branch_routing_preflight
+                                                                                                                else "none"
+                                                                                                            )
                                                                                                         )
                                                                                                     )
                                                                                                 )
@@ -1124,6 +1134,10 @@ def build_rows(
             (
                 "fastmem_winner_claim_preflight",
                 str(int_flag(winner_claim_preflight)),
+            ),
+            (
+                "fastmem_winner_claim_producer_pilot",
+                str(int_flag(winner_claim_producer)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -1961,7 +1975,7 @@ def build_rows(
         ("hook_installed", "0"),
         ("global_allocator_claim", str(int_flag(global_allocator_claim_producer or winner_claim_any))),
         ("global_allocator_product_claim", "0"),
-        ("winner_claim", "0"),
+        ("winner_claim", str(int_flag(winner_claim_producer))),
         (
             "tls_backing_transfer_enabled",
             str(int_flag(tls_backing_transfer_producer or owner_slot_reuse_or_later)),
@@ -2052,6 +2066,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "global-allocator-claim-preflight",
             "global-allocator-claim-producer-pilot",
             "winner-claim-preflight",
+            "winner-claim-producer-pilot",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",

@@ -1308,4 +1308,32 @@ grep -q '^failure_0_reason=winner_claim$' \
   "$BAD_WINNER_CLAIM_PREFLIGHT_OUT"
 grep -q '^summary=failed$' "$BAD_WINNER_CLAIM_PREFLIGHT_OUT"
 
+WINNER_CLAIM_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_winner_claim_producer.XXXXXX")"
+BAD_WINNER_CLAIM_PRODUCER_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_winner_claim_producer.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/winner_claim_producer_inventory.kv" \
+  --format kv \
+  >"$WINNER_CLAIM_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected winner claim producer inventory" >&2
+  cat "$WINNER_CLAIM_PRODUCER_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$WINNER_CLAIM_PRODUCER_OUT"
+grep -q '^summary=ok$' "$WINNER_CLAIM_PRODUCER_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_winner_claim_producer_inventory.kv" \
+  --format kv \
+  >"$BAD_WINNER_CLAIM_PRODUCER_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad winner claim producer inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_WINNER_CLAIM_PRODUCER_OUT"
+grep -q '^failure_0_reason=winner_claim$' \
+  "$BAD_WINNER_CLAIM_PRODUCER_OUT"
+grep -q '^summary=failed$' "$BAD_WINNER_CLAIM_PRODUCER_OUT"
+
 echo "[TEST/OK] fastmem_check"

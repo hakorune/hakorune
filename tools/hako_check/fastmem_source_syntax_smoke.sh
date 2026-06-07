@@ -227,6 +227,8 @@ REFILL_THEN_FREE_HEAD_ALLOC_LLVM_REPORT="$TMPDIR/page_meta_refill_then_free_head
 REFILL_THEN_FREE_HEAD_ALLOC_LLVM_CHECK="$TMPDIR/page_meta_refill_then_free_head_alloc.llvm.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
+WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
+WINNER_CLAIM_PRODUCER_CHECK="$TMPDIR/winner_claim_producer.check.kv"
 
 cat >"$GOOD_SRC" <<'HK'
 static box Main {
@@ -3357,6 +3359,35 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
   --out "$WINNER_CLAIM_PREFLIGHT_CHECK"
 grep -q '^summary=ok$' "$WINNER_CLAIM_PREFLIGHT_CHECK"
 grep -q '^failure_count=0$' "$WINNER_CLAIM_PREFLIGHT_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile winner-claim-producer-pilot \
+  --mir-json "$REFILL_THEN_FREE_HEAD_ALLOC_MIR" \
+  --out "$WINNER_CLAIM_PRODUCER_REPORT"
+
+grep -q '^replacement_front_producer=mir_to_llvm_lowering$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^fastmem_winner_claim_producer_pilot=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_route=winner_claim_producer_pilot$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_family=winner_claim$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=WinnerClaim$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_next_producer_slice=complete$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^replacement_front_deferred_memop_kinds=none$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^winner_claim_selected=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^global_allocator_claim_selected=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^global_allocator_claim=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^hook_install=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^product_activation=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^winner_claim=1$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' "$WINNER_CLAIM_PRODUCER_REPORT"
+grep -q '^summary=ok$' "$WINNER_CLAIM_PRODUCER_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$WINNER_CLAIM_PRODUCER_REPORT" \
+  --format kv \
+  --out "$WINNER_CLAIM_PRODUCER_CHECK"
+grep -q '^summary=ok$' "$WINNER_CLAIM_PRODUCER_CHECK"
+grep -q '^failure_count=0$' "$WINNER_CLAIM_PRODUCER_CHECK"
 
 cat >"$BAD_SRC" <<'HK'
 static box Main {
