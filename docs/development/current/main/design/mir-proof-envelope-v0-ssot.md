@@ -55,6 +55,10 @@ fastmem
 The envelope is report/metadata carrier only. It does not decide lowering and
 does not replace domain-specific proof payloads.
 
+`build_mir_json_root` may expose `proof_envelopes` for report tools such as
+`fastpath_explain`, but that remains observation-only and must not alter
+DirectArray or FastMemory lowering decisions.
+
 ## Reusable Facts
 
 Reusable:

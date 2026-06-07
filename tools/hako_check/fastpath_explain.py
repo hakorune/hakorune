@@ -367,6 +367,9 @@ def render_summary(payload: dict[str, Any]) -> str:
         "Coverage",
         f"  route decisions: {counts['route_decision_count']}",
         f"  fastpath plans: {counts['fastpath_plan_count']}",
+        f"  proof envelopes: {counts['proof_envelope_count']}",
+        f"  proof envelopes direct_array: {counts['proof_envelope_direct_array_count']}",
+        f"  proof envelopes fastmem: {counts['proof_envelope_fastmem_count']}",
         f"  DirectArray plans: {counts['direct_array_access_plan_count']}",
         f"  DirectArray proved unchecked: {counts['direct_array_proved_unchecked_plan_count']}",
         f"  Span plans: {counts['span_access_plan_count']}",
@@ -427,6 +430,9 @@ def render_markdown(payload: dict[str, Any], topn: int) -> str:
         "| Metric | Value |",
         "|---|---:|",
         f"| FastPath plans | {counts['fastpath_plan_count']} |",
+        f"| Proof envelopes | {counts['proof_envelope_count']} |",
+        f"| Proof envelopes direct_array | {counts['proof_envelope_direct_array_count']} |",
+        f"| Proof envelopes fastmem | {counts['proof_envelope_fastmem_count']} |",
         f"| DirectArray plans | {counts['direct_array_access_plan_count']} |",
         f"| Route decisions | {counts['route_decision_count']} |",
         f"| Route decisions fast selected | {counts['route_decision_fast_selected_count']} |",
@@ -521,6 +527,7 @@ def main() -> int:
     selected = selected_functions(all_functions, args.method)
 
     direct_plans: list[tuple[str, dict[str, Any]]] = []
+    proof_envelopes: list[tuple[str, dict[str, Any]]] = []
     span_plans: list[tuple[str, dict[str, Any]]] = []
     regions: list[tuple[str, dict[str, Any]]] = []
     obligations: list[tuple[str, dict[str, Any]]] = []
@@ -533,6 +540,7 @@ def main() -> int:
     for function in selected:
         name = function_name(function)
         direct_plans.extend((name, row) for row in list_meta(function, "direct_array_access_plans"))
+        proof_envelopes.extend((name, row) for row in list_meta(function, "proof_envelopes"))
         span_plans.extend((name, row) for row in list_meta(function, "span_access_plans"))
         regions.extend((name, row) for row in list_meta(function, "required_fastpath_regions"))
         obligations.extend((name, row) for row in list_meta(function, "fastpath_obligations"))
@@ -563,6 +571,7 @@ def main() -> int:
     hotcore_call_plans = filter_group(hotcore_call_plans, "hotcore_call", selected_group)
 
     direct_rows = [row for _, row in direct_plans]
+    proof_envelope_rows = [row for _, row in proof_envelopes]
     span_rows = [row for _, row in span_plans]
     obligation_rows = [row for _, row in obligations]
     route_decision_rows = [row for _, row in route_decisions]
@@ -577,6 +586,7 @@ def main() -> int:
     direct_op_counts = count_by(direct_rows, "op")
     direct_bounds_counts = count_by(direct_rows, "bounds_policy")
     direct_proof_counts = count_by(direct_rows, "proof_kind")
+    proof_envelope_profile_counts = count_by(proof_envelope_rows, "profile")
     span_op_counts = count_by(span_rows, "op")
     span_bounds_counts = count_by(span_rows, "bounds_policy")
     obligation_status_counts = count_by(obligation_rows, "status")
@@ -662,6 +672,9 @@ def main() -> int:
         f"function_count={len(all_functions)}",
         f"selected_function_count={len(selected)}",
         f"fastpath_plan_count={fastpath_plan_count}",
+        f"proof_envelope_count={len(proof_envelopes)}",
+        f"proof_envelope_direct_array_count={proof_envelope_profile_counts['direct_array']}",
+        f"proof_envelope_fastmem_count={proof_envelope_profile_counts['fastmem']}",
         f"direct_array_access_plan_count={len(direct_plans)}",
         f"route_decision_count={len(route_decisions)}",
         f"route_decision_fast_selected_count={route_decision_fast_selected_count}",
