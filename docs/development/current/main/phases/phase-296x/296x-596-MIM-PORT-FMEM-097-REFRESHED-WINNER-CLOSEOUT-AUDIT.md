@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-097.
 Related:
@@ -42,6 +42,43 @@ product-activation-preflight-refresh -> product-activation-producer-refresh
 fastmem_source_syntax_smoke covers every refreshed profile.
 fastmem_check_smoke stays green.
 current-state pointer guard stays green.
+```
+
+## Landed Evidence
+
+```text
+product-activation-preflight-refresh -> product-activation-producer-refresh
+  -> hook-install-preflight-refresh -> hook-install-producer-refresh
+  -> global-allocator-claim-preflight-refresh
+  -> global-allocator-claim-producer-refresh
+  -> winner-claim-preflight-refresh
+  -> winner-claim-producer-refresh
+  -> complete
+
+winner_claim_producer_refresh:
+  replacement_front_selected_route=winner_claim_producer_refresh
+  replacement_front_next_producer_slice=complete
+  replacement_front_deferred_memop_kinds=none
+  product_activation=1
+  hook_install=1
+  global_allocator_claim=1
+  global_allocator_product_claim=0
+  winner_claim=1
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_profile_functions.py tools/hako_check/fastmem_check_terminal_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py tools/hako_check/fastmem_mir_to_llvm_producer_report_tail_rows.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Next
+
+```text
+296x-597 post-refresh cleanup planning.
 ```
 
 ## Non-goals
