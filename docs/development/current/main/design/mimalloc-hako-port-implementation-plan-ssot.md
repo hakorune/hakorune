@@ -730,11 +730,11 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   M172 landed as `HakoAllocPageMapReleaseSeam` in
   `page_map_release_box.hako`: pointer registration remains owned by
   `HakoAllocPageMap`, while the release seam takes an explicit page-map owner,
-  resolves pointer ownership, delegates page-local mutation to
-  `HakoAllocPageModel.releaseLocal(...)`, and unregisters only after release
-  succeeds. VM execution and MIR route contracts are the current proof; full
-  pure-first EXE parity remains blocked by later object-return/lowering work,
-  not by M172 ownership.
+  resolves pointer ownership through the explicit `HakoAllocPageMapBridge`,
+  delegates page-local mutation to `HakoAllocPageModel.releaseLocal(...)`, and
+  unregisters only after release succeeds. VM execution and MIR route
+  contracts are the current proof; full pure-first EXE parity remains blocked
+  by later object-return/lowering work, not by M172 ownership.
 
 ## First Concrete Row
 

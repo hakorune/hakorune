@@ -1,0 +1,28 @@
+// page_map_bridge_box.hako — M172B release-side page-map bridge
+// Responsibility: expose explicit pointer ownership lookup and unregistering
+// through a thin bridge object so the release seam can route through a named
+// page-map bridge.
+// Non-responsibility: page-local release, realloc, pointer arithmetic, OSVM,
+// provider, or backend shortcuts.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+
+box HakoAllocPageMapBridge {
+    page_map: HakoAllocPageMap
+
+    birth(page_map) {
+        me.page_map = page_map
+    }
+
+    lookup(ptr) {
+        return me.page_map.lookup(ptr)
+    }
+
+    unregister(ptr) {
+        return me.page_map.unregister(ptr)
+    }
+
+    liveCount() {
+        return me.page_map.live_count
+    }
+}

@@ -16,6 +16,9 @@ Scope
 - `page_map_release_invariant_box.hako`: the M173 pre-realloc release invariant
   observer module. It stays as an observer-only seam for release/realloc
   freeze evidence and does not take over page release execution.
+- `page_map_bridge_box.hako`: the M172B release-side page-map bridge. It keeps
+  explicit pointer ownership lookup/unregister routing narrow and named before
+  any wider release, realloc, or allocator replacement work opens.
 - `purge_candidate_policy_box.hako` owns M211 purge candidate policy inventory.
   It keeps the candidate classification route narrow, exact, and explicit
   before any wider purge or decommit policy work opens.
@@ -88,8 +91,8 @@ Scope
   exact, and explicit before any broader alloc-copy or release-order work
   opens.
 - `page_map_release_box.hako`: the M172 page-map-backed release seam. It
-  composes page-map lookup, page-local release, and ownership unregistering
-  for the explicit release route and keeps the counter fields exact.
+  composes the explicit page-map bridge lookup/unregister route with
+  page-local release, and keeps the counter fields exact.
 - `page_map_realloc_same_class_box.hako`: the M174 no-move realloc module. It
   owns the same-class path and keeps the exact counters for no-move evidence.
 - `page_map_realloc_failure_contract_box.hako`: the M176 realloc failure-

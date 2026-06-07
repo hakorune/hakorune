@@ -340,10 +340,10 @@ Related:
   and resolve caller-visible pointer identity to page/block ids, but it must not
   perform page release, realloc, pointer arithmetic, or native metal work.
 - `page_map_release_box.hako` owns M172 page-map-backed release orchestration.
-  It may call `HakoAllocPageMap.lookup(...)`,
+  It may call `HakoAllocPageMapBridge.lookup(...)`,
   `HakoAllocPageModel.releaseLocal(...)`, and
-  `HakoAllocPageMap.unregister(...)`, but it must not own registration, realloc,
-  aligned/huge allocation, OSVM release, provider hooks, or allocator
+  `HakoAllocPageMapBridge.unregister(...)`, but it must not own registration,
+  realloc, aligned/huge allocation, OSVM release, provider hooks, or allocator
   replacement.
 - `page_map_release_invariant_box.hako` owns M173 pre-realloc release
   observation. It may call `HakoAllocPageMap.lookup(...)` and

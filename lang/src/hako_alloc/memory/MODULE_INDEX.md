@@ -130,6 +130,7 @@ Current modules
 - `page_box.hako`
 - `page_heap_box.hako`
 - `page_map_box.hako`
+- `page_map_bridge_box.hako`
 - `page_map_aligned_small_path_box.hako`
 - `page_map_release_box.hako`
 - `page_map_release_invariant_box.hako`

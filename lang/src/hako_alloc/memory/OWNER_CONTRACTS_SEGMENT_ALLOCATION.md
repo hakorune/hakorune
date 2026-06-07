@@ -55,9 +55,17 @@ Related:
   `modeled_block_end` and record successful segment-map release reports into
   the existing MIMAP-107A released-span ledger, while keeping real segment free
   execution and free-list mutation closed.
-- `page_map_release_box.hako` owns M172. It may compose
-  `HakoAllocPageMap.lookup(...)`, `HakoAllocPageModel.releaseLocal(...)`, and
-  `HakoAllocPageMap.unregister(...)` into the explicit page-map-backed release
+- `page_map_bridge_box.hako` owns M172B. It may compose explicit
+  pointer-ownership lookup/unregister routing through `HakoAllocPageMap`
+  without taking over page-local release, realloc, or backend behavior. It
+  must not own pointer registration, execute real segment free, allocate arena
+  backing, use raw pointer residence, perform segment-map lookup beyond the
+  explicit page-map route, execute atomic bitmap claims, call page-source/OSVM
+  seams, schedule workers, activate provider hooks, replace the host
+  allocator, or add backend shortcuts.
+- `page_map_release_box.hako` owns M172. It may compose the explicit
+  page-map bridge lookup/unregister route with
+  `HakoAllocPageModel.releaseLocal(...)` into the page-map-backed release
   seam. It must keep pointer registration owned by `page_map_box`, keep the
   release counters exact, and must not own pointer registration, execute real
   segment free, allocate arena backing, use raw pointer residence, perform

@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 source tools/checks/lib/guard_common.sh
 
 PAGE_RELEASE="lang/src/hako_alloc/memory/page_map_release_box.hako"
+PAGE_BRIDGE="lang/src/hako_alloc/memory/page_map_bridge_box.hako"
 PAGE_MAP="lang/src/hako_alloc/memory/page_map_box.hako"
 PAGE_BOX="lang/src/hako_alloc/memory/page_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
@@ -29,6 +30,7 @@ echo "[$TAG] checking M172 mimalloc page-map-backed release seam"
 guard_require_files \
   "$TAG" \
   "$PAGE_RELEASE" \
+  "$PAGE_BRIDGE" \
   "$PAGE_MAP" \
   "$PAGE_BOX" \
   "$MODULE" \
@@ -43,12 +45,20 @@ guard_require_files \
   "$INDEX"
 
 guard_expect_in_file "$TAG" 'memory.page_map_release_box = "memory/page_map_release_box.hako"' "$MODULE" "hako module must export M172 release seam"
+guard_expect_in_file "$TAG" 'memory.page_map_bridge_box = "memory/page_map_bridge_box.hako"' "$MODULE" "hako module must export M173 release bridge"
+guard_expect_in_file "$TAG" 'box HakoAllocPageMapBridge' "$PAGE_BRIDGE" "M173 release bridge owner must exist"
+guard_expect_in_file "$TAG" 'birth\(page_map\)' "$PAGE_BRIDGE" "M173 release bridge must take the page-map owner explicitly"
+guard_expect_in_file "$TAG" 'lookup\(ptr\)' "$PAGE_BRIDGE" "M173 release bridge must expose lookup"
+guard_expect_in_file "$TAG" 'unregister\(ptr\)' "$PAGE_BRIDGE" "M173 release bridge must expose unregister"
+guard_expect_in_file "$TAG" 'liveCount\(\)' "$PAGE_BRIDGE" "M173 release bridge must expose liveCount"
+guard_expect_in_file "$TAG" 'page_map\.lookup\(ptr\)' "$PAGE_BRIDGE" "M173 bridge must forward lookup to HakoAllocPageMap.lookup"
+guard_expect_in_file "$TAG" 'page_map\.unregister\(ptr\)' "$PAGE_BRIDGE" "M173 bridge must forward unregister to HakoAllocPageMap.unregister"
 guard_expect_in_file "$TAG" 'box HakoAllocPageMapReleaseSeam' "$PAGE_RELEASE" "M172 release seam owner must exist"
 guard_expect_in_file "$TAG" 'birth\(page_map\)' "$PAGE_RELEASE" "M172 release seam must take the page-map owner explicitly"
 guard_expect_in_file "$TAG" 'releasePtr\(ptr\)' "$PAGE_RELEASE" "M172 release seam must expose releasePtr"
-guard_expect_in_file "$TAG" 'page_map\.lookup\(ptr\)' "$PAGE_RELEASE" "M172 must resolve pointer ownership through HakoAllocPageMap.lookup"
+guard_expect_in_file "$TAG" 'page_map_bridge\.lookup\(ptr\)' "$PAGE_RELEASE" "M172 must resolve pointer ownership through HakoAllocPageMapBridge.lookup"
 guard_expect_in_file "$TAG" 'page\.releaseLocal\(entry\.block_id\)' "$PAGE_RELEASE" "M172 must delegate block release to HakoAllocPageModel.releaseLocal"
-guard_expect_in_file "$TAG" 'page_map\.unregister\(ptr\)' "$PAGE_RELEASE" "M172 must unregister ownership after page-local release succeeds"
+guard_expect_in_file "$TAG" 'page_map_bridge\.unregister\(ptr\)' "$PAGE_RELEASE" "M172 must unregister ownership after page-local release succeeds"
 guard_expect_in_file "$TAG" 'page_count: usize = 0' "$PAGE_RELEASE" "release seam page_count must be exact usize"
 guard_expect_in_file "$TAG" 'page_register_count: usize = 0' "$PAGE_RELEASE" "release seam page-register counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_count: usize = 0' "$PAGE_RELEASE" "release seam release counter must be exact usize"
@@ -220,9 +230,11 @@ def require_method_route(owner_name, box_name, method, ret_shape):
             return
     raise SystemExit(f"missing route in {owner_name}: {box_name}.{method} -> {ret_shape}")
 
-require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageMap", "lookup", "object_handle")
+require_method_route("HakoAllocPageMapBridge.lookup/1", "HakoAllocPageMap", "lookup", "object_handle")
+require_method_route("HakoAllocPageMapBridge.unregister/1", "HakoAllocPageMap", "unregister", "scalar_i64")
+require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageMapBridge", "lookup", "object_handle")
 require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageModel", "releaseLocal", "scalar_i64")
-require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageMap", "unregister", "scalar_i64")
+require_method_route("HakoAllocPageMapReleaseSeam.releasePtr/1", "HakoAllocPageMapBridge", "unregister", "scalar_i64")
 PY
 
 rm -f /tmp/"$TAG".emit.out /tmp/"$TAG".emit.err
