@@ -157,6 +157,99 @@ def _selected_memop_kinds(flags: RouteSummaryFlags, selected_remote_kind: str) -
     return selected_remote_kind
 
 
+def _owner_runtime_slice_rows() -> list[tuple[str, str]]:
+    return [
+        ("replacement_front_producer_slice_selection_v0", "0"),
+        ("replacement_front_next_producer_slice", "owner_runtime_producer_pilot"),
+        ("replacement_front_selected_memop_family", "owner_runtime"),
+        ("replacement_front_selected_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
+        ("replacement_front_deferred_memop_family", "remote_free"),
+        ("replacement_front_deferred_memop_kinds", "AtomicRemoteHead"),
+        ("mir_fmem_008b_layout_table_producer_pilot", "0"),
+        ("fastmem_owner_runtime_producer_pilot", "1"),
+        ("fastmem_local_free_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_cas_preflight", "0"),
+        ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_retry_preflight", "0"),
+        ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_preflight", "0"),
+        ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
+        ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
+        ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
+        ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
+        (
+            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+            "0",
+        ),
+        ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
+    ]
+
+
+def _local_free_slice_rows(
+    selected_local_free_kinds: str,
+    deferred_local_free_kinds: str,
+) -> list[tuple[str, str]]:
+    return [
+        ("replacement_front_producer_slice_selection_v0", "0"),
+        ("replacement_front_next_producer_slice", "local_free_producer_pilot"),
+        ("replacement_front_selected_memop_family", "local_free"),
+        ("replacement_front_selected_memop_kinds", selected_local_free_kinds),
+        ("replacement_front_deferred_memop_family", "remote_free"),
+        ("replacement_front_deferred_memop_kinds", deferred_local_free_kinds),
+        ("mir_fmem_008b_layout_table_producer_pilot", "0"),
+        ("fastmem_owner_runtime_producer_pilot", "0"),
+        ("fastmem_local_free_producer_pilot", "1"),
+        ("fastmem_atomic_remote_head_cas_preflight", "0"),
+        ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_retry_preflight", "0"),
+        ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_preflight", "0"),
+        ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
+        ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
+        ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
+        ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
+        (
+            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+            "0",
+        ),
+        ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
+    ]
+
+
+def _layout_table_slice_rows() -> list[tuple[str, str]]:
+    return [
+        ("replacement_front_producer_slice_selection_v0", "1"),
+        ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
+        ("replacement_front_selected_memop_family", "layout_table"),
+        ("replacement_front_selected_memop_kinds", "TableIndex,FieldLoad,FieldStore"),
+        ("replacement_front_deferred_memop_family", "owner_runtime"),
+        ("replacement_front_deferred_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
+        ("mir_fmem_008b_layout_table_producer_pilot", "1"),
+        ("fastmem_owner_runtime_producer_pilot", "0"),
+        ("fastmem_local_free_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_cas_preflight", "0"),
+        ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_retry_preflight", "0"),
+        ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_preflight", "0"),
+        ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
+        ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
+        ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
+        ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
+        ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
+        (
+            "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
+            "0",
+        ),
+        ("fastmem_owner_runtime_current_owner_source", "closed"),
+    ]
+
+
 def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     state = dict(state)
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
@@ -846,36 +939,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         route_candidate = "none"
         selected_memop_family = "owner_runtime"
         selected_memop_kinds = "CurrentAllocOwnerId,OwnerEq"
-        slice_rows = [
-            ("replacement_front_producer_slice_selection_v0", "0"),
-            ("replacement_front_next_producer_slice", "owner_runtime_producer_pilot"),
-            ("replacement_front_selected_memop_family", "owner_runtime"),
-            ("replacement_front_selected_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
-            ("replacement_front_deferred_memop_family", "remote_free"),
-            ("replacement_front_deferred_memop_kinds", "AtomicRemoteHead"),
-            ("mir_fmem_008b_layout_table_producer_pilot", "0"),
-            ("fastmem_owner_runtime_producer_pilot", "1"),
-            ("fastmem_local_free_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_cas_preflight", "0"),
-            ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_retry_preflight", "0"),
-            ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_preflight", "0"),
-            ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
-            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
-            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
-            (
-                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-                "0",
-            ),
-            (
-                "fastmem_owner_runtime_current_owner_source",
-                "llvm_producer_intrinsic",
-            ),
-        ]
+        slice_rows = _owner_runtime_slice_rows()
     elif not route_family and profile == "local-free":
         route_candidate = page_local_alloc_route_candidate(
             local_free_pop_count=len(verified_local_free_pop),
@@ -892,71 +956,16 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         selected_memop_kinds = (
             ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none"
         )
-        slice_rows = [
-            ("replacement_front_producer_slice_selection_v0", "0"),
-            ("replacement_front_next_producer_slice", "local_free_producer_pilot"),
-            ("replacement_front_selected_memop_family", "local_free"),
-            (
-                "replacement_front_selected_memop_kinds",
-                ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none",
-            ),
-            ("replacement_front_deferred_memop_family", "remote_free"),
-            (
-                "replacement_front_deferred_memop_kinds",
-                ",".join(deferred_local_free_kinds),
-            ),
-            ("mir_fmem_008b_layout_table_producer_pilot", "0"),
-            ("fastmem_owner_runtime_producer_pilot", "0"),
-            ("fastmem_local_free_producer_pilot", "1"),
-            ("fastmem_atomic_remote_head_cas_preflight", "0"),
-            ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_retry_preflight", "0"),
-            ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_preflight", "0"),
-            ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
-            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
-            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
-            (
-                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-                "0",
-            ),
-            ("fastmem_owner_runtime_current_owner_source", "llvm_producer_intrinsic"),
-        ]
+        slice_rows = _local_free_slice_rows(
+            ",".join(selected_local_free_kinds) if selected_local_free_kinds else "none",
+            ",".join(deferred_local_free_kinds),
+        )
     elif not route_family:
         route_candidate = "none"
         free_route_candidate = "none"
         selected_memop_family = "layout_table"
         selected_memop_kinds = "TableIndex,FieldLoad,FieldStore"
-        slice_rows = [
-            ("replacement_front_producer_slice_selection_v0", "1"),
-            ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
-            ("replacement_front_selected_memop_family", "layout_table"),
-            ("replacement_front_selected_memop_kinds", "TableIndex,FieldLoad,FieldStore"),
-            ("replacement_front_deferred_memop_family", "owner_runtime"),
-            ("replacement_front_deferred_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
-            ("mir_fmem_008b_layout_table_producer_pilot", "1"),
-            ("fastmem_owner_runtime_producer_pilot", "0"),
-            ("fastmem_local_free_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_cas_preflight", "0"),
-            ("fastmem_atomic_remote_head_cas_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_retry_preflight", "0"),
-            ("fastmem_atomic_remote_head_retry_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_preflight", "0"),
-            ("fastmem_atomic_remote_head_drain_exchange_selection", "0"),
-            ("fastmem_atomic_remote_head_drain_exchange_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_to_local_route_selection", "0"),
-            ("fastmem_atomic_remote_head_drain_to_local_route_producer_pilot", "0"),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_preflight", "0"),
-            ("fastmem_atomic_remote_head_drain_local_list_mutation_proof", "0"),
-            (
-                "fastmem_atomic_remote_head_drain_local_list_mutation_vocabulary_preflight",
-                "0",
-            ),
-            ("fastmem_owner_runtime_current_owner_source", "closed"),
-        ]
+        slice_rows = _layout_table_slice_rows()
 
 
     state.update(locals())
