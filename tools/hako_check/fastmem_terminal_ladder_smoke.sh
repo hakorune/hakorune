@@ -24,6 +24,14 @@ run_fastmem_source_manifest_seed() {
     --manifest "$ROOT/tools/hako_check/manifests/fastmem_source_syntax_smoke.toml"
 }
 
+run_fastmem_route_cfg_manifest_seed() {
+  python3 "$ROOT/tools/hako_check/fastmem_source_manifest_runner.py" \
+    --manifest "$ROOT/tools/hako_check/manifests/fastmem_route_cfg_smoke.toml"
+}
+
+
+run_fastmem_source_manifest_seed
+run_fastmem_route_cfg_manifest_seed
 
 emit_fastmem_producer_report() {
   local profile="$1"
@@ -57,13 +65,6 @@ BAD_SRC="$TMPDIR/bad.hako"
 BAD_AST="$TMPDIR/bad.ast.json"
 BAD_INV="$TMPDIR/bad.inventory.kv"
 BAD_CHECK="$TMPDIR/bad.check.kv"
-BAD_BRANCH_SRC="$TMPDIR/bad_branch.hako"
-BAD_BRANCH_MIR="$TMPDIR/bad_branch.mir.json"
-BAD_BRANCH_LOG="$TMPDIR/bad_branch.log"
-BRANCH_RETURN_SCOPE_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_fastmem_branch_return_scope_box.hako"
-BRANCH_RETURN_SCOPE_AST="$TMPDIR/page_meta_fastmem_branch_return_scope.ast.json"
-BRANCH_RETURN_SCOPE_MIR="$TMPDIR/page_meta_fastmem_branch_return_scope.mir.json"
-BRANCH_RETURN_SCOPE_INV="$TMPDIR/page_meta_fastmem_branch_return_scope.inventory.kv"
 ATOMIC_REMOTE_HEAD_PUSH_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_atomic_remote_head_push_vocabulary_box.hako"
 ATOMIC_REMOTE_HEAD_PUSH_AST="$TMPDIR/page_meta_atomic_remote_head_push.ast.json"
 ATOMIC_REMOTE_HEAD_PUSH_MIR="$TMPDIR/page_meta_atomic_remote_head_push.mir.json"
@@ -105,28 +106,6 @@ DRAIN_REMOTE_LIST_TO_LOCAL_CHECK="$TMPDIR/page_meta_drain_remote_list_to_local.c
 DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_REPORT="$TMPDIR/page_meta_drain_remote_list_to_local.lowering.report.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_LOWERING_CHECK="$TMPDIR/page_meta_drain_remote_list_to_local.lowering.check.kv"
 DRAIN_REMOTE_LIST_TO_LOCAL_LLVM_STDERR="$TMPDIR/page_meta_drain_remote_list_to_local.llvm.stderr"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_remote_owner_branch_routing_lowering_box.hako"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_AST="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.ast.json"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.mir.json"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_INV="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.inventory.kv"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_MIR_INV="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.mir.inventory.kv"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_REPORT="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.report.kv"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_CHECK="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.check.kv"
-REMOTE_OWNER_BRANCH_ROUTING_LOWERING_LLVM_STDERR="$TMPDIR/page_meta_remote_owner_branch_routing_lowering.llvm.stderr"
-REMOTE_OWNER_BRANCH_ROUTE_BODY_PREFLIGHT_REPORT="$TMPDIR/page_meta_remote_owner_branch_route_body_preflight.report.kv"
-REMOTE_OWNER_BRANCH_ROUTE_BODY_PREFLIGHT_CHECK="$TMPDIR/page_meta_remote_owner_branch_route_body_preflight.check.kv"
-FASTMEM_BRANCH_CFG_PREFLIGHT_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_preflight.report.kv"
-FASTMEM_BRANCH_CFG_PREFLIGHT_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_preflight.check.kv"
-FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_lowering_preflight.report.kv"
-FASTMEM_BRANCH_CFG_LOWERING_PREFLIGHT_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_lowering_preflight.check.kv"
-FASTMEM_BRANCH_CFG_LOWERING_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_fastmem_branch_cfg_lowering_box.hako"
-FASTMEM_BRANCH_CFG_LOWERING_AST="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.ast.json"
-FASTMEM_BRANCH_CFG_LOWERING_MIR="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.mir.json"
-FASTMEM_BRANCH_CFG_LOWERING_INV="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.inventory.kv"
-FASTMEM_BRANCH_CFG_LOWERING_MIR_INV="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.mir.inventory.kv"
-FASTMEM_BRANCH_CFG_LOWERING_REPORT="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.report.kv"
-FASTMEM_BRANCH_CFG_LOWERING_CHECK="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.check.kv"
-FASTMEM_BRANCH_CFG_LOWERING_LLVM_STDERR="$TMPDIR/page_meta_fastmem_branch_cfg_lowering.llvm.stderr"
 LOCAL_FREE_PUSH_PRECONDITION_SRC="$ROOT/lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 LOCAL_FREE_PUSH_PRECONDITION_AST="$TMPDIR/page_meta_local_free_push_precondition.ast.json"
 LOCAL_FREE_PUSH_PRECONDITION_MIR="$TMPDIR/page_meta_local_free_push_precondition.mir.json"

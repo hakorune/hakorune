@@ -1,0 +1,41 @@
+schema_version = 0
+
+[[fixtures]]
+id = "BRANCH_RETURN_SCOPE"
+label = "branch return scope route body preflight"
+source = "lang/src/hako_alloc/memory/page_meta_fastmem_branch_return_scope_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/branch_return_scope.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/branch_return_scope.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "remote-owner-branch-route-body-preflight"
+report_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/branch_return_scope.remote-owner-branch-route-body-preflight.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/branch_return_scope.remote-owner-branch-route-body-preflight.check.expected.kv"
+check_expect_failure = true
+
+[[fixtures]]
+id = "REMOTE_OWNER_BRANCH_ROUTING_LOWERING"
+label = "remote-owner branch routing lowering"
+source = "lang/src/hako_alloc/memory/page_meta_remote_owner_branch_routing_lowering_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/remote_owner_branch_routing_lowering.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/remote_owner_branch_routing_lowering.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "remote-owner-branch-routing-lowering"
+report_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/remote_owner_branch_routing_lowering.remote-owner-branch-routing-lowering.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/remote_owner_branch_routing_lowering.remote-owner-branch-routing-lowering.check.expected.kv"
+
+[[fixtures]]
+id = "FASTMEM_BRANCH_CFG_LOWERING"
+label = "fastmem branch cfg lowering"
+source = "lang/src/hako_alloc/memory/page_meta_fastmem_branch_cfg_lowering_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "fastmem-branch-cfg-lowering"
+report_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.fastmem-branch-cfg-lowering.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.fastmem-branch-cfg-lowering.check.expected.kv"
