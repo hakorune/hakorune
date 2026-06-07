@@ -45,6 +45,19 @@ report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_alloc_body.local.check.expected.kv"
 
 [[fixtures]]
+id = "LOCAL_FREE_TO_FREE_REFILL_BODY"
+label = "local-free to free-head refill body"
+source = "lang/src/hako_alloc/memory/page_meta_local_free_to_free_refill_body_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_body.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_body.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "local-free"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_body.local.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_body.local.check.expected.kv"
+
+[[fixtures]]
 id = "FREE_HEAD"
 label = "free-head read fastmem pilot"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_read_fastmem_pilot_box.hako"
