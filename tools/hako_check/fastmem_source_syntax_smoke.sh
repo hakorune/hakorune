@@ -242,6 +242,8 @@ PAGE_LOCAL_ROUTE_BODY_JOIN_REPORT="$TMPDIR/page_meta_page_local_route_body_join.
 PAGE_LOCAL_ROUTE_BODY_JOIN_CHECK="$TMPDIR/page_meta_page_local_route_body_join.check.kv"
 PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT="$TMPDIR/page_meta_page_local_route_body_join_producer.report.kv"
 PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK="$TMPDIR/page_meta_page_local_route_body_join_producer.check.kv"
+TERMINAL_LADDER_REFRESH_REPORT="$TMPDIR/terminal_ladder_refresh.report.kv"
+TERMINAL_LADDER_REFRESH_CHECK="$TMPDIR/terminal_ladder_refresh.check.kv"
 WINNER_CLAIM_PREFLIGHT_REPORT="$TMPDIR/winner_claim_preflight.report.kv"
 WINNER_CLAIM_PREFLIGHT_CHECK="$TMPDIR/winner_claim_preflight.check.kv"
 WINNER_CLAIM_PRODUCER_REPORT="$TMPDIR/winner_claim_producer.report.kv"
@@ -3541,7 +3543,7 @@ grep -q '^replacement_front_selected_memop_family=page_local_route_body_join$' \
   "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
 grep -q '^replacement_front_selected_memop_kinds=PageLocalRouteBodyJoinProducer$' \
   "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
-grep -q '^replacement_front_next_producer_slice=tls_backing_transfer_preflight$' \
+grep -q '^replacement_front_next_producer_slice=terminal_ladder_refresh_preflight$' \
   "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
 grep -q '^page_local_route_body_join_selected=1$' \
   "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_REPORT"
@@ -3563,6 +3565,47 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 
 grep -q '^summary=ok$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
 grep -q '^failure_count=0$' "$PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_CHECK"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile terminal-ladder-refresh-preflight \
+  --mir-json "$PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_MIR" \
+  --out "$TERMINAL_LADDER_REFRESH_REPORT"
+
+grep -q '^fastmem_terminal_ladder_refresh_preflight=1$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_route=terminal_ladder_refresh_preflight$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_family=terminal_ladder_refresh$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=TerminalLadderRefresh$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^replacement_front_next_producer_slice=tls_backing_transfer_preflight_refresh$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^page_local_route_body_join_selected=1$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^page_local_route_body_join_open=1$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^page_local_alloc_route_cfg_lowering_enabled=1$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^page_local_free_route_cfg_lowering_enabled=1$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_selected=1$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^terminal_ladder_refresh_open=0$' \
+  "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^tls_backing_transfer_enabled=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^product_activation=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^hook_install=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^global_allocator_claim=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
+grep -q '^winner_claim=0$' "$TERMINAL_LADDER_REFRESH_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$TERMINAL_LADDER_REFRESH_REPORT" \
+  --format kv \
+  --out "$TERMINAL_LADDER_REFRESH_CHECK"
+
+grep -q '^summary=ok$' "$TERMINAL_LADDER_REFRESH_CHECK"
+grep -q '^failure_count=0$' "$TERMINAL_LADDER_REFRESH_CHECK"
 
 bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
   --profile winner-claim-preflight \

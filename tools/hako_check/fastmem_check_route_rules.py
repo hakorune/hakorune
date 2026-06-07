@@ -860,14 +860,15 @@ def check_route_rules(rows: dict[str, str]) -> list[str]:
         ):
             reasons.append("replacement_front_selected_memop_kinds")
         if rows.get("replacement_front_next_producer_slice") != (
-            "tls_backing_transfer_preflight"
+            "terminal_ladder_refresh_preflight"
         ):
             reasons.append("replacement_front_next_producer_slice")
         if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
             reasons.append("fastmem_branch_cfg_source_guard")
-        if "TlsBackingTransfer" not in rows.get(
-            "replacement_front_deferred_memop_kinds", ""
-        ).split(","):
+        deferred = rows.get("replacement_front_deferred_memop_kinds", "").split(",")
+        if "TerminalLadderRefresh" not in deferred:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        if "TlsBackingTransfer" not in deferred:
             reasons.append("replacement_front_deferred_memop_kinds")
         for key in PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER_EXPECTED_ZERO:
             if int_count(rows, key) != 0:

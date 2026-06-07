@@ -225,6 +225,10 @@ def page_local_free_route_cfg_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_page_local_free_route_cfg_producer_pilot") > 0
 
 
+def terminal_ladder_refresh_preflight_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_terminal_ladder_refresh_preflight") > 0
+
+
 def tls_backing_transfer_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_tls_backing_transfer_preflight") > 0
 

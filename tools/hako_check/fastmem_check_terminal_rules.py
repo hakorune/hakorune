@@ -4,6 +4,13 @@
 from __future__ import annotations
 
 from fastmem_check_profile_functions import *
+from fastmem_route_profiles import (
+    TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_POSITIVE,
+    TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_ZERO,
+)
+
+TERMINAL_LADDER_REFRESH_PREFLIGHT_SELECTED_ROUTE = "terminal_ladder_refresh_preflight"
+TERMINAL_LADDER_REFRESH_PREFLIGHT_NEXT_SLICE = "tls_backing_transfer_preflight_refresh"
 
 TLS_BACKING_TRANSFER_PREFLIGHT_EXPECTED_ZERO = (
     "tls_backing_transfer_enabled",
@@ -494,6 +501,38 @@ WINNER_CLAIM_PRODUCER_EXPECTED_POSITIVE = (
 )
 def check_terminal_rules(rows: dict[str, str]) -> list[str]:
     reasons: list[str] = []
+    if terminal_ladder_refresh_preflight_profile(rows):
+        if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
+            reasons.append("replacement_front_producer")
+        if rows.get("replacement_front_selected_route") != (
+            TERMINAL_LADDER_REFRESH_PREFLIGHT_SELECTED_ROUTE
+        ):
+            reasons.append("replacement_front_selected_route")
+        if rows.get("replacement_front_selected_memop_family") != (
+            "terminal_ladder_refresh"
+        ):
+            reasons.append("replacement_front_selected_memop_family")
+        if rows.get("replacement_front_selected_memop_kinds") != (
+            "TerminalLadderRefresh"
+        ):
+            reasons.append("replacement_front_selected_memop_kinds")
+        if rows.get("replacement_front_next_producer_slice") != (
+            TERMINAL_LADDER_REFRESH_PREFLIGHT_NEXT_SLICE
+        ):
+            reasons.append("replacement_front_next_producer_slice")
+        if rows.get("fastmem_branch_cfg_source_guard") != "branch_cfg_open":
+            reasons.append("fastmem_branch_cfg_source_guard")
+        deferred = rows.get("replacement_front_deferred_memop_kinds", "").split(",")
+        if "TlsBackingTransfer" not in deferred:
+            reasons.append("replacement_front_deferred_memop_kinds")
+        for key in TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_ZERO:
+            if int_count(rows, key) != 0:
+                reasons.append(key)
+        for key in TERMINAL_LADDER_REFRESH_PREFLIGHT_EXPECTED_POSITIVE:
+            if key.endswith("_lowered_count"):
+                continue
+            if int_count(rows, key) <= 0:
+                reasons.append(key)
     if tls_backing_transfer_preflight_profile(rows):
         if rows.get("replacement_front_producer") != "mir_to_llvm_lowering":
             reasons.append("replacement_front_producer")
