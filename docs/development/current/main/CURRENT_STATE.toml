@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-602 landed MIM-PORT-FMEM-103 source-syntax refresh helper cleanup: refreshed source-syntax smoke report/check invocations now share helper entry points while KV grep expectations stay intact; 296x-603 post-refresh cleanup closeout audit opens next."
+active_lane_status = "296x-603 landed MIM-PORT-FMEM-104 post-refresh cleanup closeout audit: refreshed terminal ladder SSOT coverage is documented as complete enough to return to implementation reentry; 296x-604 implementation reentry selection opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-602-MIM-PORT-FMEM-103-SOURCE-SYNTAX-REFRESH-HELPER-CLEANUP"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-602-MIM-PORT-FMEM-103-SOURCE-SYNTAX-REFRESH-HELPER-CLEANUP.md"
-latest_card_summary = "Refreshed source-syntax smoke report/check invocations now share helper entry points while KV grep expectations stay intact; 296x-603 opens next."
-current_blocker_token = "296x-603"
+latest_card = "296x-603-MIM-PORT-FMEM-104-POST-REFRESH-CLEANUP-CLOSEOUT-AUDIT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-603-MIM-PORT-FMEM-104-POST-REFRESH-CLEANUP-CLOSEOUT-AUDIT.md"
+latest_card_summary = "Refreshed terminal ladder SSOT coverage is documented as complete enough to return to implementation reentry; 296x-604 opens next."
+current_blocker_token = "296x-604"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-603 landed MIM-PORT-FMEM-104 post-refresh cleanup closeout audit: refreshed terminal ladder SSOT coverage is documented as complete enough to return to implementation reentry; 296x-604 implementation reentry selection opens next.",
   "2026-06-07: 296x-602 landed MIM-PORT-FMEM-103 source-syntax refresh helper cleanup: refreshed source-syntax smoke report/check invocations now share helper entry points while KV grep expectations stay intact; 296x-603 post-refresh cleanup closeout audit opens next.",
   "2026-06-07: 296x-601 landed MIM-PORT-FMEM-102 producer refresh boolean/import cleanup: route_rows now derives refreshed route booleans from RefreshProfileSpec.selected_route and no longer imports refresh profile helpers directly; 296x-602 source-syntax refresh helper cleanup opens next.",
   "2026-06-07: 296x-600 landed MIM-PORT-FMEM-101 producer refresh flag-row cleanup: refreshed report flags are now emitted from REFRESH_PROFILE_SPECS while KV compatibility stays intact; 296x-601 producer refresh boolean/import cleanup opens next.",

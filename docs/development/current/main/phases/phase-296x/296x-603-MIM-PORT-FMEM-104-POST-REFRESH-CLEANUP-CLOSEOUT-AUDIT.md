@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-104.
 Related:
@@ -47,4 +47,40 @@ next task is selected from either implementation reentry or one more cleanup row
 bash tools/hako_check/fastmem_check_smoke.sh
 bash tools/hako_check/fastmem_source_syntax_smoke.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Audit Result
+
+```text
+RefreshProfileSpec owns:
+  profile name
+  report flag
+  selected route
+  memop family/kinds
+  next producer slice
+  deferred kinds
+  expected zero/positive terminal fields
+
+fastmem_check_terminal_rules consumes refresh_profile_spec_for_rows.
+fastmem_mir_to_llvm_producer_report_route_rows consumes REFRESH_PROFILE_SPECS
+and refresh_profile_spec.
+fastmem_source_syntax_smoke keeps explicit grep expectations but shares
+report/check invocation helpers.
+```
+
+## Remaining Accepted Duplication
+
+```text
+fastmem_route_profiles still exposes compatibility profile predicate helpers.
+Those helpers are no longer the refreshed terminal ladder decision SSOT.
+
+fastmem_source_syntax_smoke keeps explicit refreshed KV grep expectations.
+Those expectations are intentional smoke assertions, not route-selection policy.
+```
+
+## Closeout
+
+```text
+cleanup series is complete enough to return to implementation reentry
+next: 296x-604 MIM-PORT-FMEM-105 implementation reentry selection
 ```
