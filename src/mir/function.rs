@@ -7,6 +7,7 @@
  */
 
 mod display;
+mod facts;
 mod fastmem;
 mod function_impl;
 mod module_impl;
@@ -16,6 +17,12 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub use facts::{
+    CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, FastPathObligation,
+    LoopRangeFact, RangeIndexFact, RangeIndexFactOriginKind, RegionStabilityFact,
+    RegionStabilityProofKind, RequiredFastPathRegion, SpanAccessOp, SpanAccessPlan, SpanBorrowFact,
+    SpanBorrowMutability, SpanElementType,
+};
 pub use fastmem::{
     FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
     FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
@@ -34,11 +41,7 @@ pub use object_metadata::{
     TypedObjectPlan, UserBoxFieldDecl,
 };
 pub use types::{
-    ClosureBodyId, CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind,
-    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind, FastPathObligation,
-    FunctionMetadata, FunctionSignature, FunctionStats, LoopRangeFact, MirEnumDecl,
-    MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats,
-    RangeIndexFact, RangeIndexFactOriginKind, RegionStabilityFact, RegionStabilityProofKind,
-    RequiredFastPathRegion, SpanAccessOp, SpanAccessPlan, SpanBorrowFact, SpanBorrowMutability,
-    SpanElementType, StaticDataPlan,
+    ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
+    FunctionMetadata, FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl,
+    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, StaticDataPlan,
 };
