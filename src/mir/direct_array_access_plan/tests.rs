@@ -3,8 +3,8 @@ use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::function::{DirectArrayExtentProofKind, LoopRangeFact};
 use crate::mir::range_index_fact::refresh_function_range_index_facts;
 use crate::mir::{
-    BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
-    MirInstruction, MirType,
+    BasicBlock, BasicBlockId, BinaryOp, Callee, CompareOp, ConstValue, EffectMask,
+    FunctionSignature, MirFunction, MirInstruction, MirType,
 };
 
 fn make_function() -> MirFunction {
