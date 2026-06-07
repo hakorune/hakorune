@@ -19,6 +19,39 @@ def read_kv(path: Path) -> dict[str, str]:
     return rows
 
 
+def read_expected_kv(path: Path) -> dict[str, str]:
+    """Read an expected-key manifest.
+
+    The format intentionally matches report `.kv` files so shell grep
+    expectations can move to data files without introducing a second syntax.
+    """
+
+    return read_kv(path)
+
+
+def expected_kv_mismatches(
+    rows: dict[str, str],
+    expected: dict[str, str],
+) -> list[tuple[str, str, str]]:
+    """Return `(key, expected, actual)` rows for exact expectation failures."""
+
+    mismatches: list[tuple[str, str, str]] = []
+    for key, expected_value in expected.items():
+        actual_value = rows.get(key, "")
+        if actual_value != expected_value:
+            mismatches.append((key, expected_value, actual_value))
+    return mismatches
+
+
+def format_expected_kv_mismatches(
+    mismatches: list[tuple[str, str, str]],
+) -> list[str]:
+    return [
+        f"{key}: expected={expected} actual={actual}"
+        for key, expected, actual in mismatches
+    ]
+
+
 def first_value(rows: dict[str, str], keys: list[str], default: str = "") -> str:
     for key in keys:
         value = rows.get(key)

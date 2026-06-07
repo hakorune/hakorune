@@ -85,6 +85,48 @@ no existing expected key is weakened
 CURRENT_STATE points at the next hako_alloc implementation row after closeout
 ```
 
+## Full Cleanup Backlog
+
+This row only creates the entry path. The full cleanup is intentionally split
+so hako_alloc migration can resume after the new path exists.
+
+```text
+608A seed manifest runner:
+  add Python helper/runner surface
+  run one landed fixture from a compact manifest
+  keep all legacy shell assertions intact
+
+608B new-body rule:
+  route all newly added hako_alloc fastmem bodies through the manifest runner
+  stop appending large bespoke blocks to fastmem_source_syntax_smoke.sh
+
+608C migrate legacy groups gradually:
+  layout/table pilots
+  owner/runtime pilots
+  local_free/free_head bodies
+  atomic remote head bodies
+  route/body-join/product ladder reports
+
+608D split expectation data:
+  move grep-style key expectations into small expected-key files
+  keep shell as orchestration only
+  keep fastmem-check as the policy gate
+
+608E retire bespoke blocks:
+  delete migrated shell blocks only after equivalent manifest coverage is green
+  keep a small top-level smoke wrapper
+  keep failure output short and fixture-scoped
+```
+
+## Anti-Goals For Cleanup
+
+```text
+do not do a one-shot rewrite of the 4000+ line smoke
+do not weaken exact key expectations while moving them
+do not mix PageMapRelease implementation with smoke cleanup
+do not move fastmem_check_smoke.sh in the first cleanup row
+```
+
 ## Verification
 
 ```bash
