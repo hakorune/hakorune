@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-056.
 Related:
@@ -57,4 +57,36 @@ TLS backing transfer
 abandoned reclaim
 allocator activation
 global allocator replacement
+```
+
+## Landed Evidence
+
+```text
+producer:
+  replacement_front_selected_route=page_local_free_route_cfg_preflight
+  replacement_front_next_producer_slice=page_local_free_route_cfg_producer_pilot
+  replacement_front_selected_memop_family=page_local_route_cfg
+  replacement_front_selected_memop_kinds=PageLocalFreeRouteCfg
+
+required existing evidence:
+  same_remote_free_body_open=1
+  same_remote_free_body_lowered_count=1
+
+still closed:
+  page_local_free_route_cfg_lowering_enabled=0
+  tls_backing_transfer_enabled=0
+  type_abi_hot_lookup_count=0
+  provider_abi_hot_dispatch_count=0
+  product_activation=0
+  hook_install=0
+  global_allocator_claim=0
+  winner_claim=0
+```
+
+Verification:
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_check.py tools/hako_check/fastmem_mir_to_llvm_producer_report.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
 ```
