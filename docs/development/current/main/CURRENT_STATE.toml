@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-08"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-607 landed MIM-PORT-FMEM-108 PageMapRelease pointer lookup preflight selection; 296x-608 source-syntax smoke manifest runner seed, 608B new-body manifest routing, 608C legacy group migration, 608D expectation split, and 608E bespoke-block retirement are all landed; 296x-609 PageMapRelease pointer lookup bridge, 296x-610 same/remote publish body connection, and 296x-611 realloc guard refresh closeout are done; 296x-612 hako_alloc next implementation slice selection opens next."
+active_lane_status = "296x-607 landed MIM-PORT-FMEM-108 PageMapRelease pointer lookup preflight selection; 296x-608 source-syntax smoke manifest runner seed, 608B new-body manifest routing, 608C legacy group migration, 608D expectation split, and 608E bespoke-block retirement are all landed; 296x-609 PageMapRelease pointer lookup bridge, 296x-610 same/remote publish body connection, 296x-611 realloc guard refresh closeout, and 296x-612 hako_alloc next body slice selection are done; 296x-613 local-free-to-free refill source-syntax manifest promotion opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-611-MIM-PORT-FMEM-112-PAGEMAPRELEASE-REALLOC-GUARD-REFRESH-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-611-MIM-PORT-FMEM-112-PAGEMAPRELEASE-REALLOC-GUARD-REFRESH-CLOSEOUT.md"
-latest_card_summary = "PageMapRelease same/remote publish body closeout refreshed the M173-M176 realloc/release proof apps into labelled single-condition checks and guards against giant && proof summaries."
-current_blocker_token = "296x-612"
+latest_card = "296x-612-MIM-PORT-FMEM-113-HAKO-ALLOC-NEXT-BODY-SLICE-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-612-MIM-PORT-FMEM-113-HAKO-ALLOC-NEXT-BODY-SLICE-SELECTION.md"
+latest_card_summary = "hako_alloc next body slice selection chose the existing single-block local_free -> free_head refill body for source-syntax manifest promotion before broader refill-then-alloc, PageMapRelease, or realloc follow-ups."
+current_blocker_token = "296x-613"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-08: 296x-612 landed MIM-PORT-FMEM-113 hako_alloc next body slice selection: the next row is source-syntax manifest promotion for page_meta_local_free_to_free_refill_body_box.hako, keeping refill-then-alloc, PageMapRelease/realloc mutation, TLS transfer, activation, global allocator, and winner claims closed; 296x-613 opens next.",
   "2026-06-08: 296x-611 landed MIM-PORT-FMEM-112 PageMapRelease realloc guard refresh closeout: M173-M176 proof apps now use labelled single-condition expectations, their guards reject giant && proof summaries before execution, and 296x-612 hako_alloc next implementation slice selection opens next.",
   "2026-06-08: 296x-610 landed MIM-PORT-FMEM-111 PageMapRelease same/remote publish body connection: the release seam now composes PageMapBridge lookup with HakoAllocPageMetaSameRemoteFreePublishBody.sameRemoteFreePublishBodyProbe before unregistering while activation and pointer-arithmetic claims remain closed; 296x-611 realloc guard refresh closeout opens next.",
   "2026-06-07: 296x-608 landed MIM-PORT-FMEM-109 source-syntax smoke manifest runner seed, new-body manifest routing, and local-free alloc legacy group migration: same/remote free publish body and local-free alloc body now both run through the manifest runner instead of bespoke shell blocks, and 608D expectation split opens next.",
