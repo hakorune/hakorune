@@ -496,6 +496,7 @@ def build_rows(
     page_local_free_route_cfg_any = (
         page_local_free_route_cfg_preflight or page_local_free_route_cfg_producer
     )
+    tls_backing_transfer_preflight = profile == "tls-backing-transfer-preflight"
     remote_owner_branch_routing_any = (
         remote_owner_branch_routing_preflight
         or remote_owner_branch_routing_lowering_preflight
@@ -507,6 +508,7 @@ def build_rows(
         or same_remote_free_body_preflight
         or same_remote_free_body_producer
         or page_local_free_route_cfg_any
+        or tls_backing_transfer_preflight
     )
     remote_owner_branch_routing_lowering_any = (
         remote_owner_branch_routing_lowering_preflight
@@ -518,6 +520,7 @@ def build_rows(
         or same_remote_free_body_preflight
         or same_remote_free_body_producer
         or page_local_free_route_cfg_any
+        or tls_backing_transfer_preflight
     )
     if profile in {
         "remote-free-preflight",
@@ -545,6 +548,7 @@ def build_rows(
         "same-remote-free-body",
         "page-local-free-route-cfg-preflight",
         "page-local-free-route-cfg",
+        "tls-backing-transfer-preflight",
     }:
         remote_free_open = profile in {
             "remote-free",
@@ -571,6 +575,7 @@ def build_rows(
             "same-remote-free-body",
             "page-local-free-route-cfg-preflight",
             "page-local-free-route-cfg",
+            "tls-backing-transfer-preflight",
         }
         route_candidate = "none"
         if profile == "remote-free-preflight":
@@ -659,6 +664,9 @@ def build_rows(
         elif page_local_free_route_cfg_producer:
             next_slice = "tls_backing_transfer_preflight"
             deferred_remote_kinds = "TlsBackingTransfer"
+        elif tls_backing_transfer_preflight:
+            next_slice = "tls_backing_transfer_producer_pilot"
+            deferred_remote_kinds = "TlsBackingTransferProducer,OwnerSlotReuse"
         else:
             next_slice = "atomic_remote_head_cas_lowering_producer_pilot"
             deferred_remote_kinds = "AtomicRemoteHeadDrain,RemoteOwnerBranchRouting"
@@ -690,36 +698,40 @@ def build_rows(
                 "page_local_free_route_cfg_preflight"
                 if page_local_free_route_cfg_preflight
                 else (
-                    "page_local_free_route_cfg_producer_pilot"
-                    if page_local_free_route_cfg_producer
+                    "tls_backing_transfer_preflight"
+                    if tls_backing_transfer_preflight
                     else (
-                        "same_remote_free_body_producer_pilot"
-                        if same_remote_free_body_producer
+                        "page_local_free_route_cfg_producer_pilot"
+                        if page_local_free_route_cfg_producer
                         else (
-                            "same_remote_free_body_preflight"
-                            if same_remote_free_body_preflight
+                            "same_remote_free_body_producer_pilot"
+                            if same_remote_free_body_producer
                             else (
-                                "fastmem_branch_cfg_lowering_producer_pilot"
-                                if fastmem_branch_cfg_lowering_producer
+                                "same_remote_free_body_preflight"
+                                if same_remote_free_body_preflight
                                 else (
-                                    "fastmem_branch_cfg_lowering_preflight"
-                                    if fastmem_branch_cfg_lowering_preflight
+                                    "fastmem_branch_cfg_lowering_producer_pilot"
+                                    if fastmem_branch_cfg_lowering_producer
                                     else (
-                                        "fastmem_branch_cfg_preflight"
-                                        if fastmem_branch_cfg_preflight
+                                        "fastmem_branch_cfg_lowering_preflight"
+                                        if fastmem_branch_cfg_lowering_preflight
                                         else (
-                                            "remote_owner_branch_route_body_preflight"
-                                            if remote_owner_branch_route_body_preflight
+                                            "fastmem_branch_cfg_preflight"
+                                            if fastmem_branch_cfg_preflight
                                             else (
-                                                "remote_owner_branch_routing_lowering_producer_pilot"
-                                                if remote_owner_branch_routing_lowering_producer
+                                                "remote_owner_branch_route_body_preflight"
+                                                if remote_owner_branch_route_body_preflight
                                                 else (
-                                                    "remote_owner_branch_routing_lowering_preflight"
-                                                    if remote_owner_branch_routing_lowering_preflight
+                                                    "remote_owner_branch_routing_lowering_producer_pilot"
+                                                    if remote_owner_branch_routing_lowering_producer
                                                     else (
-                                                        "remote_owner_branch_routing_preflight"
-                                                        if remote_owner_branch_routing_preflight
-                                                        else "none"
+                                                        "remote_owner_branch_routing_lowering_preflight"
+                                                        if remote_owner_branch_routing_lowering_preflight
+                                                        else (
+                                                            "remote_owner_branch_routing_preflight"
+                                                            if remote_owner_branch_routing_preflight
+                                                            else "none"
+                                                        )
                                                     )
                                                 )
                                             )
@@ -735,7 +747,7 @@ def build_rows(
             (
                 "replacement_front_selected_memop_family",
                 "page_local_route_cfg"
-                if page_local_free_route_cfg_any
+                if page_local_free_route_cfg_any or tls_backing_transfer_preflight
                 else (
                     "same_remote_free_body"
                     if same_remote_free_body_preflight or same_remote_free_body_producer
@@ -754,7 +766,7 @@ def build_rows(
             (
                 "replacement_front_selected_memop_kinds",
                 "PageLocalFreeRouteCfg"
-                if page_local_free_route_cfg_any
+                if page_local_free_route_cfg_any or tls_backing_transfer_preflight
                 else (
                     "SameRemoteFreeBody"
                     if same_remote_free_body_preflight or same_remote_free_body_producer
@@ -798,6 +810,7 @@ def build_rows(
                         and not same_remote_free_body_preflight
                         and not same_remote_free_body_producer
                         and not page_local_free_route_cfg_any
+                        and not tls_backing_transfer_preflight
                     )
                 ),
             ),
@@ -892,6 +905,10 @@ def build_rows(
             (
                 "fastmem_page_local_free_route_cfg_producer_pilot",
                 str(int_flag(page_local_free_route_cfg_producer)),
+            ),
+            (
+                "fastmem_tls_backing_transfer_preflight",
+                str(int_flag(tls_backing_transfer_preflight)),
             ),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
@@ -1438,6 +1455,7 @@ def build_rows(
                     or same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or tls_backing_transfer_preflight
                 )
             ),
         ),
@@ -1454,6 +1472,7 @@ def build_rows(
                         or same_remote_free_body_preflight
                         or same_remote_free_body_producer
                         or page_local_free_route_cfg_any
+                        or tls_backing_transfer_preflight
                     )
                     and current_owner_count > 0
                     and owner_eq_count > 0
@@ -1474,6 +1493,7 @@ def build_rows(
                         or same_remote_free_body_preflight
                         or same_remote_free_body_producer
                         or page_local_free_route_cfg_any
+                        or tls_backing_transfer_preflight
                     )
                 )
             ),
@@ -1489,6 +1509,7 @@ def build_rows(
                     or same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or tls_backing_transfer_preflight
                 )
             ),
         ),
@@ -1503,6 +1524,7 @@ def build_rows(
                     or same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or tls_backing_transfer_preflight
                 )
             ),
         ),
@@ -1514,6 +1536,7 @@ def build_rows(
                     or same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or tls_backing_transfer_preflight
                 )
             ),
         ),
@@ -1537,6 +1560,7 @@ def build_rows(
                 or same_remote_free_body_preflight
                 or same_remote_free_body_producer
                 or page_local_free_route_cfg_any
+                or tls_backing_transfer_preflight
                 else 0
             ),
         ),
@@ -1547,6 +1571,7 @@ def build_rows(
             or same_remote_free_body_preflight
             or same_remote_free_body_producer
             or page_local_free_route_cfg_any
+            or tls_backing_transfer_preflight
             else "branch_cfg_closed",
         ),
         (
@@ -1556,18 +1581,29 @@ def build_rows(
                     same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or tls_backing_transfer_preflight
                 )
             ),
         ),
         (
             "same_remote_free_body_open",
-            str(int_flag(same_remote_free_body_producer or page_local_free_route_cfg_any)),
+            str(
+                int_flag(
+                    same_remote_free_body_producer
+                    or page_local_free_route_cfg_any
+                    or tls_backing_transfer_preflight
+                )
+            ),
         ),
         (
             "same_remote_free_body_lowered_count",
             str(
                 int_flag(
-                    (same_remote_free_body_producer or page_local_free_route_cfg_any)
+                    (
+                        same_remote_free_body_producer
+                        or page_local_free_route_cfg_any
+                        or tls_backing_transfer_preflight
+                    )
                     and branch_cfg_count(mir) > 0
                     and current_owner_count > 0
                     and owner_eq_count > 0
@@ -1578,7 +1614,11 @@ def build_rows(
         ),
         (
             "page_local_free_route_cfg_selected",
-            str(int_flag(page_local_free_route_cfg_any)),
+            str(int_flag(page_local_free_route_cfg_any or tls_backing_transfer_preflight)),
+        ),
+        (
+            "tls_backing_transfer_selected",
+            str(int_flag(tls_backing_transfer_preflight)),
         ),
         ("page_local_alloc_route_report_v0", str(int_flag(profile == "local-free"))),
         ("page_local_alloc_route_candidate", route_candidate),
@@ -1598,7 +1638,7 @@ def build_rows(
         ("page_local_free_route_branch_claim", "0"),
         (
             "page_local_free_route_cfg_lowering_enabled",
-            str(int_flag(page_local_free_route_cfg_producer)),
+            str(int_flag(page_local_free_route_cfg_producer or tls_backing_transfer_preflight)),
         ),
         ("page_local_free_route_verified_plan_source", "fastmem_access_plans"),
         (
@@ -1765,6 +1805,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "same-remote-free-body",
             "page-local-free-route-cfg-preflight",
             "page-local-free-route-cfg",
+            "tls-backing-transfer-preflight",
         ),
         default="layout-table",
         help="evidence profile to emit after compiling the MIR JSON",

@@ -944,4 +944,32 @@ grep -q '^failure_0_reason=page_local_free_route_cfg_lowering_enabled$' \
   "$BAD_PAGE_LOCAL_FREE_ROUTE_CFG_PRODUCER_OUT"
 grep -q '^summary=failed$' "$BAD_PAGE_LOCAL_FREE_ROUTE_CFG_PRODUCER_OUT"
 
+TLS_BACKING_TRANSFER_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_tls_backing_transfer_preflight.XXXXXX")"
+BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT="$(mktemp "${TMPDIR:-/tmp}/hako_fastmem_check_bad_tls_backing_transfer_preflight.XXXXXX")"
+
+if ! bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/tls_backing_transfer_preflight_inventory.kv" \
+  --format kv \
+  >"$TLS_BACKING_TRANSFER_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check rejected TLS backing transfer preflight inventory" >&2
+  cat "$TLS_BACKING_TRANSFER_PREFLIGHT_OUT" >&2 || true
+  exit 1
+fi
+
+grep -q '^failure_count=0$' "$TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
+grep -q '^summary=ok$' "$TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
+
+if bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$FIXTURE_DIR/bad_tls_backing_transfer_preflight_inventory.kv" \
+  --format kv \
+  >"$BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT"; then
+  echo "[TEST/FAIL] fastmem-check accepted bad TLS backing transfer preflight inventory" >&2
+  exit 1
+fi
+
+grep -q '^failure_count=1$' "$BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
+grep -q '^failure_0_reason=tls_backing_transfer_enabled$' \
+  "$BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
+grep -q '^summary=failed$' "$BAD_TLS_BACKING_TRANSFER_PREFLIGHT_OUT"
+
 echo "[TEST/OK] fastmem_check"

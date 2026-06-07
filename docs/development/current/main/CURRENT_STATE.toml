@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-06-07"
 
 active_lane = "mimalloc FastMemory MIR replacement-front producer"
-active_lane_status = "296x-555 landed MIM-PORT-FMEM-057 Page-local free route CFG producer pilot: report/check and source-syntax smoke now open page_local_free_route_cfg producer evidence while TLS transfer, owner slot reuse, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-058 TLS backing transfer preflight opens next."
+active_lane_status = "296x-556 landed MIM-PORT-FMEM-058 TLS backing transfer preflight: report/check and source-syntax smoke now select tls_backing_transfer_preflight while TLS transfer lowering, owner slot reuse, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-059 TLS backing transfer producer pilot opens next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-460-VERIFIED-TABLE-ACCESS-PROOF-DECISION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-555-MIM-PORT-FMEM-057-PAGE-LOCAL-FREE-ROUTE-CFG-PRODUCER-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-555-MIM-PORT-FMEM-057-PAGE-LOCAL-FREE-ROUTE-CFG-PRODUCER-PILOT.md"
-latest_card_summary = "Report/check and source-syntax smoke now open page_local_free_route_cfg producer evidence while TLS transfer, owner slot reuse, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-058 TLS backing transfer preflight opens next."
-current_blocker_token = "MIM-PORT-FMEM-058"
+latest_card = "296x-556-MIM-PORT-FMEM-058-TLS-BACKING-TRANSFER-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-556-MIM-PORT-FMEM-058-TLS-BACKING-TRANSFER-PREFLIGHT.md"
+latest_card_summary = "Report/check and source-syntax smoke now select tls_backing_transfer_preflight while TLS transfer lowering, owner slot reuse, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-059 TLS backing transfer producer pilot opens next."
+current_blocker_token = "MIM-PORT-FMEM-059"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-07: 296x-556 landed MIM-PORT-FMEM-058 TLS backing transfer preflight: report/check and source-syntax smoke now select tls_backing_transfer_preflight while TLS transfer lowering, owner slot reuse, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-059 TLS backing transfer producer pilot opens next.",
   "2026-06-07: 296x-555 landed MIM-PORT-FMEM-057 Page-local free route CFG producer pilot: report/check and source-syntax smoke now open page_local_free_route_cfg producer evidence while TLS transfer, owner slot reuse, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-058 TLS backing transfer preflight opens next.",
   "2026-06-07: 296x-554 landed MIM-PORT-FMEM-056 Page-local free route CFG preflight: report/check now select the page_local_free_route_cfg boundary after same/remote body evidence while keeping route CFG lowering, TLS transfer, product activation, global allocator claim, and winner claim closed; MIM-PORT-FMEM-057 page-local free route CFG producer pilot opens next.",
   "2026-06-07: 296x-553 landed MIM-PORT-FMEM-055 Same/remote free body producer pilot: existing FastMemory branch CFG body evidence now opens same_remote_free_body producer evidence while page-local route CFG lowering, TLS transfer, product activation, global allocator claim, and winner claim stay closed; MIM-PORT-FMEM-056 page-local free route CFG preflight opens next.",
