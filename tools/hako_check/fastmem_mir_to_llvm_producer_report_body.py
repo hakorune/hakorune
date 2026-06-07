@@ -786,6 +786,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_alloc_route_cfg_producer
+                    or page_local_route_body_join_preflight
                     or page_local_free_route_cfg_any
                     or tls_backing_transfer_or_later
                 )
@@ -799,6 +800,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     or same_remote_free_body_preflight
                     or same_remote_free_body_producer
                     or page_local_alloc_route_cfg_producer
+                    or page_local_route_body_join_preflight
                     or page_local_free_route_cfg_any
                     or tls_backing_transfer_or_later
                 )
@@ -824,6 +826,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                 or same_remote_free_body_preflight
                 or same_remote_free_body_producer
                 or page_local_alloc_route_cfg_producer
+                or page_local_route_body_join_preflight
                 or page_local_free_route_cfg_any
                 or tls_backing_transfer_or_later
                 else 0
@@ -837,6 +840,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             or same_remote_free_body_producer
             or page_local_alloc_route_cfg_any
             or page_local_free_route_cfg_any
+            or page_local_route_body_join_preflight
             or tls_backing_transfer_or_later
             else "branch_cfg_closed",
         ),
@@ -857,6 +861,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                 int_flag(
                     same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or page_local_route_body_join_preflight
                     or tls_backing_transfer_or_later
                 )
             ),
@@ -868,6 +873,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
                     (
                         same_remote_free_body_producer
                     or page_local_free_route_cfg_any
+                    or page_local_route_body_join_preflight
                     or tls_backing_transfer_or_later
                     )
                     and branch_cfg_count(mir) > 0
@@ -883,6 +889,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             str(
                 int_flag(
                     page_local_free_route_cfg_any
+                    or page_local_route_body_join_preflight
                     or tls_backing_transfer_or_later
                 )
             ),
@@ -892,12 +899,23 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             str(int_flag(page_local_alloc_route_cfg_any)),
         ),
         (
+            "page_local_route_body_join_selected",
+            str(int_flag(page_local_route_body_join_preflight)),
+        ),
+        ("page_local_route_body_join_open", "0"),
+        (
             "tls_backing_transfer_selected",
             str(int_flag(tls_backing_transfer_or_later)),
         ),
         (
             "page_local_alloc_route_report_v0",
-            str(int_flag(profile == "local-free" or page_local_alloc_route_cfg_any)),
+            str(
+                int_flag(
+                    profile == "local-free"
+                    or page_local_alloc_route_cfg_any
+                    or page_local_route_body_join_preflight
+                )
+            ),
         ),
         ("page_local_alloc_route_candidate", route_candidate),
         (
@@ -907,10 +925,22 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
         ("page_local_alloc_route_branch_claim", "0"),
         (
             "page_local_alloc_route_cfg_lowering_enabled",
-            str(int_flag(page_local_alloc_route_cfg_producer)),
+            str(
+                int_flag(
+                    page_local_alloc_route_cfg_producer
+                    or page_local_route_body_join_preflight
+                )
+            ),
         ),
         ("page_local_alloc_route_verified_plan_source", "fastmem_access_plans"),
-        ("page_local_free_route_report_v0", str(int_flag(profile == "local-free"))),
+        (
+            "page_local_free_route_report_v0",
+            str(
+                int_flag(
+                    profile == "local-free" or page_local_route_body_join_preflight
+                )
+            ),
+        ),
         ("page_local_free_route_candidate", free_route_candidate),
         (
             "page_local_free_route_candidate_count",
@@ -919,7 +949,13 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
         ("page_local_free_route_branch_claim", "0"),
         (
             "page_local_free_route_cfg_lowering_enabled",
-            str(int_flag(page_local_free_route_cfg_producer or tls_backing_transfer_or_later)),
+            str(
+                int_flag(
+                    page_local_free_route_cfg_producer
+                    or page_local_route_body_join_preflight
+                    or tls_backing_transfer_or_later
+                )
+            ),
         ),
         ("page_local_free_route_verified_plan_source", "fastmem_access_plans"),
         (

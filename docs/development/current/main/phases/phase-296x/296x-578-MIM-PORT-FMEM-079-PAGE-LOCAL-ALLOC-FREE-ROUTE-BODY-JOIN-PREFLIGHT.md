@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-079.
 Related:
@@ -64,6 +64,30 @@ FastMemory check smoke remains green
 FastMemory source syntax smoke remains green
 current state pointer guard passes
 git diff --check passes
+```
+
+## Result
+
+Added the `page-local-route-body-join-preflight` report/check profile. The row
+selects `PageLocalRouteBodyJoin`, requires both page-local allocation and free
+route CFG evidence to be visible, and keeps the join itself closed:
+
+```text
+page_local_route_body_join_selected=1
+page_local_route_body_join_open=0
+page_local_alloc_route_cfg_lowering_enabled=1
+page_local_free_route_cfg_lowering_enabled=1
+```
+
+The source-syntax smoke now generates the join report from the existing
+page-local allocation route CFG fixture and checks the preflight boundary.
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_route_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+bash tools/hako_check/fastmem_check_smoke.sh
 ```
 
 ## Non-goals

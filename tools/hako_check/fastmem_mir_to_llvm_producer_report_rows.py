@@ -124,6 +124,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "page-local-alloc-route-cfg",
             "page-local-free-route-cfg-preflight",
             "page-local-free-route-cfg",
+            "page-local-route-body-join-preflight",
             "tls-backing-transfer-preflight",
             "tls-backing-transfer-producer-pilot",
             "owner-slot-reuse-preflight",
