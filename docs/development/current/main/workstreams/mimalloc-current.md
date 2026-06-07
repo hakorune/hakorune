@@ -200,6 +200,69 @@ implementation_sequence:
   MIM-PORT-FMEM-030 AtomicRemoteHead proof vocabulary source preflight (landed)
   MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
 
+## Task Granularity / Worker Handoff
+
+Keep the AtomicRemoteHead lane in four buckets. Do not split these further
+unless a new verifier or lowering boundary appears.
+
+```text
+bucket_1:
+  MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
+  MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight
+  reason:
+    one selection decision and one report contract; keep together
+
+bucket_2:
+  MIM-PORT-FMEM-033 AtomicRemoteHead CAS lowering producer pilot
+  reason:
+    one minimal implementation slice for the single-attempt CAS path
+
+bucket_3:
+  MIM-PORT-FMEM-034 AtomicRemoteHead Route/Drain Selection
+  MIM-PORT-FMEM-035 AtomicRemoteHead Retry Policy Preflight
+  MIM-PORT-FMEM-036 AtomicRemoteHead Retry Lowering Producer Pilot
+  reason:
+    retry evidence and bounded lowering stay coupled until drain/exchange is
+    selected
+
+bucket_4:
+  MIM-PORT-FMEM-037 AtomicRemoteHead Drain Preflight
+  MIM-PORT-FMEM-038 AtomicRemoteHead Drain/Exchange Selection
+  reason:
+    drain/exchange vocabulary must be pinned before route selection or
+    lowering opens
+
+bucket_5:
+  MIM-PORT-FMEM-039 AtomicRemoteHead Drain/Exchange Lowering Producer Pilot
+  reason:
+    one producer implementation row for the exchange primitive only
+
+bucket_6:
+  MIM-PORT-FMEM-040 AtomicRemoteHead Drain-to-Local Route Selection
+  reason:
+    drain-to-local consumes the drained token and deserves its own
+    proof/precondition boundary
+```
+
+Worker handoff order for this lane:
+
+1. report/check gap inventory for the next bucket
+2. LLVM producer inventory for the next implementation bucket
+3. verifier BoxShape cleanup only after a lowering slice lands
+4. docs-slim / taskboard sync only if the lane notes grow past the current
+   compactness threshold
+5. fixture migration and negative-case audit stay sidecar only; they do not
+   change the mainline bucket order
+
+Sidecar worker tasks:
+
+- extract or refresh manifest-backed source fixtures for route ladder evidence
+- audit `fastmem-check` negative cases for missing proofs, premature open
+  flags, and activation/global/winner leakage
+- keep docs/ledger cleanup separate from lowering work
+- run a report-key consistency pass across `remote-free-*`, `remote-owner-*`,
+  and branch CFG profiles
+
 follow_up_cleanup_task:
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
 

@@ -501,6 +501,9 @@ def _lower_atomic_remote_head_push(
     )
     retry_limit = int(plan["retry_attempt_limit"])
     done_bb = builder.function.append_basic_block("fastmem_atomic_remote_retry_done")
+    exhausted_bb = builder.function.append_basic_block(
+        "fastmem_atomic_remote_retry_exhausted"
+    )
     for attempt in range(retry_limit):
         old_head = builder.load_atomic(
             head_ptr,
@@ -518,7 +521,14 @@ def _lower_atomic_remote_head_push(
             name=f"fastmem_atomic_remote_head_cas_{attempt}",
         )
         if attempt + 1 == retry_limit:
-            builder.branch(done_bb)
+            success = builder.extract_value(
+                cas_result,
+                1,
+                name=f"fastmem_atomic_remote_cas_success_{attempt}",
+            )
+            builder.cbranch(success, done_bb, exhausted_bb)
+            builder.position_at_end(exhausted_bb)
+            builder.unreachable()
             break
         retry_bb = builder.function.append_basic_block(
             f"fastmem_atomic_remote_retry_{attempt + 1}"
