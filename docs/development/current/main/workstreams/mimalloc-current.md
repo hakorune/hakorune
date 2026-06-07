@@ -142,13 +142,13 @@ free-list mutation direction:
 ## Current Task Order
 
 The parser parity catch-up and owner-state foundation are complete for the
-fastmem source-syntax pilot. The remaining open work in this workstream is
-docs-slim cleanup; the implementation ladder through `MIM-PORT-FMEM-129` is
-already represented in phase cards.
+fastmem source-syntax pilot. The docs-slim cleanup row is complete; the
+implementation ladder through `MIM-PORT-FMEM-129` is already represented in
+phase cards.
 
 ```text
 next_task:
-  DOCS-SLIM-FMEM-SSOT-001 design SSOT docs slimming
+  phase-296x next lane selection pending
 
 implementation_sequence:
   MIR-FMEM-008D-PRE..MIR-FMEM-008E (landed)
@@ -225,7 +225,7 @@ proof_commonality_follow_up:
   DIRECTARRAY-FMEM-COMMON-001
 
 docs_slim_follow_up:
-  DOCS-SLIM-FMEM-SSOT-001
+  DOCS-SLIM-FMEM-SSOT-001 (landed)
 
 follow_up_cleanup_trigger:
   MIR-FMEM-008E landed a producer-neutral readiness gate for layout/table plus
@@ -809,9 +809,9 @@ bash tools/checks/current_state_pointer_guard.sh
 - `DIRECTARRAY-FMEM-COMMON-001` is queued as proof-envelope/report adapter
   work only. DirectArray access does not auto-generate a fastmem region in the
   current lane.
-- `DOCS-SLIM-FMEM-SSOT-001` is queued to slim the design SSOT after the
-  current task routing is stable. Historical evidence should move to
-  investigation/archive owners instead of growing this restart card.
+- `DOCS-SLIM-FMEM-SSOT-001` landed by slimming the design SSOT and moving the
+  historical evidence to the investigation/archive owners instead of growing
+  this restart card.
 - DirectMemory / Span / Bytes / LayoutSpan remain future substrate work.
 - `direct {}` remains parked; use RequiredFastPathRegion diagnostics first.
 - `DirectArray<T>` generic source form remains parked; v0 source-visible type is

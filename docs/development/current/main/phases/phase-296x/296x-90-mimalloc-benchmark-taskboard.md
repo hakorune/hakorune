@@ -368,9 +368,9 @@ DirectArray/FastMemory commonality task inserted:
   RangeIndexFact-style proof inputs, but DirectArray access does not
   auto-generate fastmem regions and access-plan payloads remain separate.
 Docs length cleanup task inserted:
-  `DOCS-SLIM-FMEM-SSOT-001`
-  are queued because active restart docs crossed the 1000-line maintenance
-  threshold. Do not mix physical doc slimming with MIR-FMEM-008D owner-runtime
+  `DOCS-SLIM-FMEM-SSOT-001` landed by slimming the design SSOT after the
+  active restart docs crossed the 1000-line maintenance threshold. Keep
+  physical doc slimming separate from MIR-FMEM-008D owner-runtime
   implementation.
 Reference sync note:
   docs/reference now records the accepted fastmem source surface, MemOp /
