@@ -10,6 +10,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from fastmem_mir_to_llvm_producer_report_body import build_report_rows
+from report_kv import row_key_surface, shared_key_surface
 
 
 class FastMemReportKeyConsistencyTest(unittest.TestCase):
@@ -105,12 +106,21 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
         key_sets: dict[str, set[str]] = {}
         for profile in profiles:
             rows = build_report_rows(mir, object_out=object_out, profile=profile)
-            key_sets[profile] = {key for key, _ in rows}
+            key_sets[profile] = row_key_surface(rows)
 
         baseline = key_sets[profiles[0]]
         for profile in profiles[1:]:
             with self.subTest(profile=profile):
                 self.assertSetEqual(baseline, key_sets[profile])
+
+        self.assertSetEqual(
+            baseline,
+            shared_key_surface(
+                build_report_rows(mir, object_out=object_out, profile=profiles[0]),
+                build_report_rows(mir, object_out=object_out, profile=profiles[1]),
+                build_report_rows(mir, object_out=object_out, profile=profiles[2]),
+            ),
+        )
 
         required_keys = {
             "replacement_front_producer",

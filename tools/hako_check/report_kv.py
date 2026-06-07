@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections.abc import Iterable
 
 
 def read_kv(path: Path) -> dict[str, str]:
@@ -123,3 +124,17 @@ def ratio(numerator: float, denominator: float) -> float:
     if denominator == 0.0:
         return 0.0
     return numerator / denominator
+
+
+def row_key_surface(rows: Iterable[tuple[str, str]]) -> set[str]:
+    return {key for key, _ in rows}
+
+
+def shared_key_surface(*row_sets: Iterable[tuple[str, str]]) -> set[str]:
+    surfaces = [row_key_surface(rows) for rows in row_sets]
+    if not surfaces:
+        return set()
+    shared = set(surfaces[0])
+    for surface in surfaces[1:]:
+        shared &= surface
+    return shared
