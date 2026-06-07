@@ -156,6 +156,39 @@ def _flag_rows(*pairs: tuple[str, bool]) -> list[tuple[str, str]]:
     return [(name, str(int_flag(flag))) for name, flag in pairs]
 
 
+def _slice_prefix_rows(
+    *,
+    selection_v0: str,
+    next_slice: str,
+    selected_memop_family: str,
+    selected_memop_kinds: str,
+    deferred_memop_family: str,
+    deferred_memop_kinds: str,
+    owner_runtime_pilot: bool,
+    local_free_pilot: bool,
+    layout_table_pilot: bool,
+    selected_route: str | None = None,
+) -> list[tuple[str, str]]:
+    rows: list[tuple[str, str]] = [
+        ("replacement_front_producer_slice_selection_v0", selection_v0),
+    ]
+    if selected_route is not None:
+        rows.append(("replacement_front_selected_route", selected_route))
+    rows.extend(
+        [
+            ("replacement_front_next_producer_slice", next_slice),
+            ("replacement_front_selected_memop_family", selected_memop_family),
+            ("replacement_front_selected_memop_kinds", selected_memop_kinds),
+            ("replacement_front_deferred_memop_family", deferred_memop_family),
+            ("replacement_front_deferred_memop_kinds", deferred_memop_kinds),
+            ("mir_fmem_008b_layout_table_producer_pilot", str(int_flag(layout_table_pilot))),
+            ("fastmem_owner_runtime_producer_pilot", str(int_flag(owner_runtime_pilot))),
+            ("fastmem_local_free_producer_pilot", str(int_flag(local_free_pilot))),
+        ]
+    )
+    return rows
+
+
 def _selected_memop_family(flags: RouteSummaryFlags) -> str:
     if flags.winner_claim_any:
         return "winner_claim"
@@ -244,16 +277,18 @@ def _selected_memop_kinds(flags: RouteSummaryFlags, selected_remote_kind: str) -
 
 def _owner_runtime_slice_rows() -> list[tuple[str, str]]:
     return [
-        ("replacement_front_producer_slice_selection_v0", "0"),
-        ("replacement_front_next_producer_slice", "owner_runtime_producer_pilot"),
-        ("replacement_front_selected_memop_family", "owner_runtime"),
-        ("replacement_front_selected_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
-        ("replacement_front_deferred_memop_family", "remote_free"),
-        ("replacement_front_deferred_memop_kinds", "AtomicRemoteHead"),
+        *_slice_prefix_rows(
+            selection_v0="0",
+            next_slice="owner_runtime_producer_pilot",
+            selected_memop_family="owner_runtime",
+            selected_memop_kinds="CurrentAllocOwnerId,OwnerEq",
+            deferred_memop_family="remote_free",
+            deferred_memop_kinds="AtomicRemoteHead",
+            owner_runtime_pilot=True,
+            local_free_pilot=False,
+            layout_table_pilot=False,
+        ),
         * _flag_rows(
-            ("mir_fmem_008b_layout_table_producer_pilot", False),
-            ("fastmem_owner_runtime_producer_pilot", True),
-            ("fastmem_local_free_producer_pilot", False),
             ("fastmem_atomic_remote_head_cas_preflight", False),
             ("fastmem_atomic_remote_head_cas_producer_pilot", False),
             ("fastmem_atomic_remote_head_retry_preflight", False),
@@ -279,16 +314,18 @@ def _local_free_slice_rows(
     deferred_local_free_kinds: str,
 ) -> list[tuple[str, str]]:
     return [
-        ("replacement_front_producer_slice_selection_v0", "0"),
-        ("replacement_front_next_producer_slice", "local_free_producer_pilot"),
-        ("replacement_front_selected_memop_family", "local_free"),
-        ("replacement_front_selected_memop_kinds", selected_local_free_kinds),
-        ("replacement_front_deferred_memop_family", "remote_free"),
-        ("replacement_front_deferred_memop_kinds", deferred_local_free_kinds),
+        *_slice_prefix_rows(
+            selection_v0="0",
+            next_slice="local_free_producer_pilot",
+            selected_memop_family="local_free",
+            selected_memop_kinds=selected_local_free_kinds,
+            deferred_memop_family="remote_free",
+            deferred_memop_kinds=deferred_local_free_kinds,
+            owner_runtime_pilot=False,
+            local_free_pilot=True,
+            layout_table_pilot=False,
+        ),
         * _flag_rows(
-            ("mir_fmem_008b_layout_table_producer_pilot", False),
-            ("fastmem_owner_runtime_producer_pilot", False),
-            ("fastmem_local_free_producer_pilot", True),
             ("fastmem_atomic_remote_head_cas_preflight", False),
             ("fastmem_atomic_remote_head_cas_producer_pilot", False),
             ("fastmem_atomic_remote_head_retry_preflight", False),
@@ -311,16 +348,18 @@ def _local_free_slice_rows(
 
 def _layout_table_slice_rows() -> list[tuple[str, str]]:
     return [
-        ("replacement_front_producer_slice_selection_v0", "1"),
-        ("replacement_front_next_producer_slice", "layout_table_producer_pilot"),
-        ("replacement_front_selected_memop_family", "layout_table"),
-        ("replacement_front_selected_memop_kinds", "TableIndex,FieldLoad,FieldStore"),
-        ("replacement_front_deferred_memop_family", "owner_runtime"),
-        ("replacement_front_deferred_memop_kinds", "CurrentAllocOwnerId,OwnerEq"),
+        *_slice_prefix_rows(
+            selection_v0="1",
+            next_slice="layout_table_producer_pilot",
+            selected_memop_family="layout_table",
+            selected_memop_kinds="TableIndex,FieldLoad,FieldStore",
+            deferred_memop_family="owner_runtime",
+            deferred_memop_kinds="CurrentAllocOwnerId,OwnerEq",
+            owner_runtime_pilot=False,
+            local_free_pilot=False,
+            layout_table_pilot=True,
+        ),
         * _flag_rows(
-            ("mir_fmem_008b_layout_table_producer_pilot", True),
-            ("fastmem_owner_runtime_producer_pilot", False),
-            ("fastmem_local_free_producer_pilot", False),
             ("fastmem_atomic_remote_head_cas_preflight", False),
             ("fastmem_atomic_remote_head_cas_producer_pilot", False),
             ("fastmem_atomic_remote_head_retry_preflight", False),
@@ -938,22 +977,18 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             ]
 
         return [
-            ("replacement_front_producer_slice_selection_v0", "0"),
-            ("replacement_front_selected_route", selected_route),
-            ("replacement_front_next_producer_slice", next_slice),
-            (
-                "replacement_front_selected_memop_family",
-                selected_memop_family,
+            *_slice_prefix_rows(
+                selection_v0="0",
+                selected_route=selected_route,
+                next_slice=next_slice,
+                selected_memop_family=selected_memop_family,
+                selected_memop_kinds=selected_memop_kinds,
+                deferred_memop_family="remote_free_execution",
+                deferred_memop_kinds=deferred_remote_kinds,
+                owner_runtime_pilot=False,
+                local_free_pilot=False,
+                layout_table_pilot=False,
             ),
-            (
-                "replacement_front_selected_memop_kinds",
-                selected_memop_kinds,
-            ),
-            ("replacement_front_deferred_memop_family", "remote_free_execution"),
-            ("replacement_front_deferred_memop_kinds", deferred_remote_kinds),
-            ("mir_fmem_008b_layout_table_producer_pilot", "0"),
-            ("fastmem_owner_runtime_producer_pilot", "0"),
-            ("fastmem_local_free_producer_pilot", "0"),
             *_remote_free_atomic_rows(),
             *_remote_free_route_family_rows(),
             *_remote_free_refresh_rows(),
