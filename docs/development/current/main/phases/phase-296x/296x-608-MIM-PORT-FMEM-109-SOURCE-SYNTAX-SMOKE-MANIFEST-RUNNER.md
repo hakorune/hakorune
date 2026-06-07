@@ -65,6 +65,17 @@ seed manifest runner landed:
   legacy shell assertions stay in place
 ```
 
+## 608B Status
+
+```text
+new-body manifest routing landed:
+  same/remote free publish body now runs through the manifest runner instead of
+  a bespoke shell block
+  new hako_alloc fastmem bodies must enter through manifest entries
+  legacy shell coverage remains for the rest of the smoke, but the new body is
+  no longer duplicated there
+```
+
 ## Migration Rule After This Row
 
 ```text
