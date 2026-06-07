@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Mapping
 
 from fastmem_mir_to_llvm_producer_report_common import (
     int_flag,
@@ -285,6 +285,59 @@ def _remote_free_flag_scope(
         "fastmem_winner_claim_preflight": winner_claim_preflight,
         "fastmem_winner_claim_producer_pilot": winner_claim_producer,
     }
+
+
+def _flag_rows_from_scope(
+    flag_scope: Mapping[str, bool],
+    *names: str,
+) -> list[tuple[str, str]]:
+    return _flag_rows(*((name, flag_scope[name]) for name in names))
+
+
+def _remote_free_cas_producer_pilot_open(
+    remote_free_open: bool,
+    flag_scope: Mapping[str, bool],
+) -> bool:
+    return remote_free_open and not any(
+        flag_scope[name] for name in REMOTE_FREE_CAS_BLOCKER_NAMES
+    )
+
+
+def _remote_free_atomic_rows(
+    remote_free_open: bool,
+    flag_scope: Mapping[str, bool],
+) -> list[tuple[str, str]]:
+    return [
+        *_flag_rows(
+            (
+                "fastmem_atomic_remote_head_cas_preflight",
+                flag_scope["fastmem_atomic_remote_head_cas_preflight"],
+            ),
+            (
+                "fastmem_atomic_remote_head_cas_producer_pilot",
+                _remote_free_cas_producer_pilot_open(remote_free_open, flag_scope),
+            ),
+        ),
+        *_flag_rows_from_scope(flag_scope, *REMOTE_FREE_ATOMIC_FLAG_NAMES[2:]),
+    ]
+
+
+def _remote_free_route_family_rows(
+    flag_scope: Mapping[str, bool],
+) -> list[tuple[str, str]]:
+    return [
+        *_flag_rows_from_scope(flag_scope, *REMOTE_FREE_ROUTE_FAMILY_FLAG_NAMES),
+    ]
+
+
+def _remote_free_refresh_rows(
+    flag_scope: Mapping[str, bool],
+    refresh_flag_rows: list[tuple[str, str]],
+) -> list[tuple[str, str]]:
+    return [
+        *refresh_flag_rows,
+        *_flag_rows_from_scope(flag_scope, *REMOTE_FREE_REFRESH_FLAG_NAMES),
+    ]
 
 
 def _selected_memop_family(flags: RouteSummaryFlags) -> str:
@@ -1046,34 +1099,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             winner_claim_producer=winner_claim_producer,
         )
 
-        def _flag_rows_from_scope(*names: str) -> list[tuple[str, str]]:
-            return _flag_rows(*((name, flag_scope[name]) for name in names))
-
-        def _remote_free_cas_producer_pilot_open() -> bool:
-            return remote_free_open and not any(
-                flag_scope[name] for name in REMOTE_FREE_CAS_BLOCKER_NAMES
-            )
-
-        def _remote_free_atomic_rows() -> list[tuple[str, str]]:
-            return [
-                * _flag_rows(
-                    ("fastmem_atomic_remote_head_cas_preflight", flag_scope["fastmem_atomic_remote_head_cas_preflight"]),
-                    ("fastmem_atomic_remote_head_cas_producer_pilot", _remote_free_cas_producer_pilot_open()),
-                ),
-                *_flag_rows_from_scope(*REMOTE_FREE_ATOMIC_FLAG_NAMES[2:]),
-            ]
-
-        def _remote_free_route_family_rows() -> list[tuple[str, str]]:
-            return [
-                *_flag_rows_from_scope(*REMOTE_FREE_ROUTE_FAMILY_FLAG_NAMES),
-            ]
-
-        def _remote_free_refresh_rows() -> list[tuple[str, str]]:
-            return [
-                *refresh_flag_rows,
-                *_flag_rows_from_scope(*REMOTE_FREE_REFRESH_FLAG_NAMES),
-            ]
-
         return [
             *_slice_prefix_rows(
                 selection_v0="0",
@@ -1087,9 +1112,9 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 local_free_pilot=False,
                 layout_table_pilot=False,
             ),
-            *_remote_free_atomic_rows(),
-            *_remote_free_route_family_rows(),
-            *_remote_free_refresh_rows(),
+            *_remote_free_atomic_rows(remote_free_open, flag_scope),
+            *_remote_free_route_family_rows(flag_scope),
+            *_remote_free_refresh_rows(flag_scope, refresh_flag_rows),
             ("fastmem_owner_runtime_current_owner_source", "closed"),
         ]
 
