@@ -2049,6 +2049,46 @@ bash "$ROOT/tools/hako_check.sh" fastmem-check \
 grep -q '^failure_count=0$' "$ABANDONED_RECLAIM_PRODUCER_CHECK"
 grep -q '^summary=ok$' "$ABANDONED_RECLAIM_PRODUCER_CHECK"
 
+PRODUCT_ACTIVATION_PREFLIGHT_REPORT="$TMPDIR/page_meta_product_activation_preflight.report.kv"
+PRODUCT_ACTIVATION_PREFLIGHT_CHECK="$TMPDIR/page_meta_product_activation_preflight.check.kv"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-mir-to-llvm-producer-report \
+  --profile product-activation-preflight \
+  --mir-json "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
+  --out "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+
+grep -q '^fastmem_product_activation_preflight=1$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_route=product_activation_preflight$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_family=product_activation$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^replacement_front_selected_memop_kinds=ProductActivation$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^replacement_front_next_producer_slice=product_activation_producer_pilot$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^product_activation_selected=1$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^abandoned_reclaim_selected=1$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^abandoned_reclaim_enabled=1$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^type_abi_hot_lookup_count=0$' "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^provider_abi_hot_dispatch_count=0$' \
+  "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^product_activation=0$' "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^hook_install=0$' "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^global_allocator_claim=0$' "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+grep -q '^winner_claim=0$' "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT"
+
+bash "$ROOT/tools/hako_check.sh" fastmem-check \
+  --inventory "$PRODUCT_ACTIVATION_PREFLIGHT_REPORT" \
+  --format kv \
+  --out "$PRODUCT_ACTIVATION_PREFLIGHT_CHECK"
+
+grep -q '^failure_count=0$' "$PRODUCT_ACTIVATION_PREFLIGHT_CHECK"
+grep -q '^summary=ok$' "$PRODUCT_ACTIVATION_PREFLIGHT_CHECK"
+
 python3 "$ROOT/src/llvm_py/llvm_builder.py" \
   "$FASTMEM_BRANCH_CFG_LOWERING_MIR" \
   -o "$TMPDIR/page_meta_fastmem_branch_cfg_lowering.direct.o" \
