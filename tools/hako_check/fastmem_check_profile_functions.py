@@ -233,6 +233,10 @@ def tls_backing_transfer_preflight_refresh_profile(rows: dict[str, str]) -> bool
     return int_count(rows, "fastmem_tls_backing_transfer_preflight_refresh") > 0
 
 
+def tls_backing_transfer_producer_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_tls_backing_transfer_producer_refresh") > 0
+
+
 def tls_backing_transfer_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_tls_backing_transfer_preflight") > 0
 

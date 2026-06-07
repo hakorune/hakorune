@@ -62,6 +62,9 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     page_local_alloc_route_cfg_any = state.get("page_local_alloc_route_cfg_any", False)
     page_local_free_route_cfg_any = state.get("page_local_free_route_cfg_any", False)
     tls_backing_transfer_preflight = state.get("tls_backing_transfer_preflight", False)
+    tls_backing_transfer_producer_refresh = state.get(
+        "tls_backing_transfer_producer_refresh", False
+    )
     tls_backing_transfer_producer = state.get("tls_backing_transfer_producer", False)
     tls_backing_transfer_or_later = state.get("tls_backing_transfer_or_later", False)
     owner_slot_reuse_preflight = state.get("owner_slot_reuse_preflight", False)
@@ -210,7 +213,13 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ("winner_claim", str(int_flag(winner_claim_producer))),
         (
             "tls_backing_transfer_enabled",
-            str(int_flag(tls_backing_transfer_producer or owner_slot_reuse_or_later)),
+            str(
+                int_flag(
+                    tls_backing_transfer_producer
+                    or tls_backing_transfer_producer_refresh
+                    or owner_slot_reuse_or_later
+                )
+            ),
         ),
         (
             "allocator_owner_slot_reuse_enabled",
@@ -238,4 +247,3 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ("summary", "ok"),
     ]
     return rows
-
