@@ -142,11 +142,13 @@ free-list mutation direction:
 ## Current Task Order
 
 The parser parity catch-up and owner-state foundation are complete for the
-fastmem source-syntax pilot.
+fastmem source-syntax pilot. The remaining open work in this workstream is
+docs-slim cleanup; the implementation ladder through `MIM-PORT-FMEM-129` is
+already represented in phase cards.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
+  DOCS-SLIM-296X-001 workstream docs slimming
 
 implementation_sequence:
   MIR-FMEM-008D-PRE docs/inventory (landed)
