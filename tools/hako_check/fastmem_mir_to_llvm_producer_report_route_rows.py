@@ -465,6 +465,107 @@ def _selected_memop_kinds(flags: RouteSummaryFlags, selected_remote_kind: str) -
     return selected_remote_kind
 
 
+def _selected_route_from_state(
+    state: Mapping[str, Any],
+    refresh_spec: Any | None,
+) -> str:
+    return _first_true_route(
+        (
+            (state.get("winner_claim_producer", False), "winner_claim_producer_pilot"),
+            (state.get("winner_claim_preflight", False), "winner_claim_preflight"),
+            (
+                state.get("global_allocator_claim_producer", False),
+                "global_allocator_claim_producer_pilot",
+            ),
+            (
+                state.get("global_allocator_claim_preflight", False),
+                "global_allocator_claim_preflight",
+            ),
+            (state.get("hook_install_producer", False), "hook_install_producer_pilot"),
+            (state.get("hook_install_preflight", False), "hook_install_preflight"),
+            (
+                state.get("product_activation_producer", False),
+                "product_activation_producer_pilot",
+            ),
+            (state.get("product_activation_preflight", False), "product_activation_preflight"),
+            (
+                state.get("page_local_route_body_join_producer", False),
+                "page_local_route_body_join_producer_pilot",
+            ),
+            (
+                refresh_spec is not None,
+                refresh_spec.selected_route if refresh_spec is not None else "none",
+            ),
+            (
+                state.get("page_local_route_body_join_preflight", False),
+                "page_local_route_body_join_preflight",
+            ),
+            (
+                state.get("page_local_alloc_route_cfg_producer", False),
+                "page_local_alloc_route_cfg_producer_pilot",
+            ),
+            (
+                state.get("page_local_alloc_route_cfg_preflight", False),
+                "page_local_alloc_route_cfg_preflight",
+            ),
+            (
+                state.get("page_local_free_route_cfg_preflight", False),
+                "page_local_free_route_cfg_preflight",
+            ),
+            (
+                state.get("abandoned_reclaim_producer", False),
+                "abandoned_reclaim_producer_pilot",
+            ),
+            (state.get("abandoned_reclaim_preflight", False), "abandoned_reclaim_preflight"),
+            (state.get("owner_slot_reuse_producer", False), "owner_slot_reuse_producer_pilot"),
+            (state.get("owner_slot_reuse_preflight", False), "owner_slot_reuse_preflight"),
+            (
+                state.get("tls_backing_transfer_producer", False),
+                "tls_backing_transfer_producer_pilot",
+            ),
+            (state.get("tls_backing_transfer_preflight", False), "tls_backing_transfer_preflight"),
+            (
+                state.get("page_local_free_route_cfg_producer", False),
+                "page_local_free_route_cfg_producer_pilot",
+            ),
+            (
+                state.get("same_remote_free_body_producer", False),
+                "same_remote_free_body_producer_pilot",
+            ),
+            (
+                state.get("same_remote_free_body_preflight", False),
+                "same_remote_free_body_preflight",
+            ),
+            (
+                state.get("fastmem_branch_cfg_lowering_producer", False),
+                "fastmem_branch_cfg_lowering_producer_pilot",
+            ),
+            (
+                state.get("fastmem_branch_cfg_lowering_preflight", False),
+                "fastmem_branch_cfg_lowering_preflight",
+            ),
+            (state.get("fastmem_branch_cfg_preflight", False), "fastmem_branch_cfg_preflight"),
+            (
+                state.get("remote_owner_branch_route_body_preflight", False),
+                "remote_owner_branch_route_body_preflight",
+            ),
+            (
+                state.get("remote_owner_branch_routing_lowering_producer", False),
+                "remote_owner_branch_routing_lowering_producer_pilot",
+            ),
+            (
+                state.get("remote_owner_branch_routing_lowering_preflight", False),
+                "remote_owner_branch_routing_lowering_preflight",
+            ),
+            (
+                state.get("remote_owner_branch_routing_preflight", False),
+                "remote_owner_branch_routing_preflight",
+            ),
+        ),
+        default="none",
+    )
+
+
 def _owner_runtime_slice_rows() -> list[tuple[str, str]]:
     return [
         *_slice_prefix_rows(
@@ -868,100 +969,10 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
                 selected_remote_kind = "DrainRemoteListToLocal"
             if remote_owner_branch_routing_any:
                 selected_remote_kind = "RemoteOwnerBranchRouting"
-            selected_route = _first_true_route(
-                (
-                    (winner_claim_producer, "winner_claim_producer_pilot"),
-                    (winner_claim_preflight, "winner_claim_preflight"),
-                    (
-                        global_allocator_claim_producer,
-                        "global_allocator_claim_producer_pilot",
-                    ),
-                    (
-                        global_allocator_claim_preflight,
-                        "global_allocator_claim_preflight",
-                    ),
-                    (hook_install_producer, "hook_install_producer_pilot"),
-                    (hook_install_preflight, "hook_install_preflight"),
-                    (
-                        product_activation_producer,
-                        "product_activation_producer_pilot",
-                    ),
-                    (product_activation_preflight, "product_activation_preflight"),
-                    (
-                        page_local_route_body_join_producer,
-                        "page_local_route_body_join_producer_pilot",
-                    ),
-                    (
-                        refresh_spec is not None,
-                        refresh_spec.selected_route if refresh_spec is not None else "none",
-                    ),
-                    (
-                        page_local_route_body_join_preflight,
-                        "page_local_route_body_join_preflight",
-                    ),
-                    (
-                        page_local_alloc_route_cfg_producer,
-                        "page_local_alloc_route_cfg_producer_pilot",
-                    ),
-                    (
-                        page_local_alloc_route_cfg_preflight,
-                        "page_local_alloc_route_cfg_preflight",
-                    ),
-                    (
-                        page_local_free_route_cfg_preflight,
-                        "page_local_free_route_cfg_preflight",
-                    ),
-                    (
-                        abandoned_reclaim_producer,
-                        "abandoned_reclaim_producer_pilot",
-                    ),
-                    (abandoned_reclaim_preflight, "abandoned_reclaim_preflight"),
-                    (owner_slot_reuse_producer, "owner_slot_reuse_producer_pilot"),
-                    (owner_slot_reuse_preflight, "owner_slot_reuse_preflight"),
-                    (
-                        tls_backing_transfer_producer,
-                        "tls_backing_transfer_producer_pilot",
-                    ),
-                    (tls_backing_transfer_preflight, "tls_backing_transfer_preflight"),
-                    (
-                        page_local_free_route_cfg_producer,
-                        "page_local_free_route_cfg_producer_pilot",
-                    ),
-                    (
-                        same_remote_free_body_producer,
-                        "same_remote_free_body_producer_pilot",
-                    ),
-                    (
-                        same_remote_free_body_preflight,
-                        "same_remote_free_body_preflight",
-                    ),
-                    (
-                        fastmem_branch_cfg_lowering_producer,
-                        "fastmem_branch_cfg_lowering_producer_pilot",
-                    ),
-                    (
-                        fastmem_branch_cfg_lowering_preflight,
-                        "fastmem_branch_cfg_lowering_preflight",
-                    ),
-                    (fastmem_branch_cfg_preflight, "fastmem_branch_cfg_preflight"),
-                    (
-                        remote_owner_branch_route_body_preflight,
-                        "remote_owner_branch_route_body_preflight",
-                    ),
-                    (
-                        remote_owner_branch_routing_lowering_producer,
-                        "remote_owner_branch_routing_lowering_producer_pilot",
-                    ),
-                    (
-                        remote_owner_branch_routing_lowering_preflight,
-                        "remote_owner_branch_routing_lowering_preflight",
-                    ),
-                    (
-                        remote_owner_branch_routing_preflight,
-                        "remote_owner_branch_routing_preflight",
-                    ),
-                ),
-                default="none",
+            selected_route = (
+                route_spec.selected_route
+                if route_spec is not None
+                else _selected_route_from_state(state, refresh_spec)
             )
         else:
             route_family = False
@@ -970,7 +981,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             next_slice = "layout_table_producer_pilot"
             deferred_remote_kinds = "CurrentAllocOwnerId,OwnerEq"
             selected_remote_kind = "LayoutTable"
-            selected_route = "layout_table_producer_pilot"
+            selected_route = _selected_route_from_state(state, refresh_spec)
 
         return {
             "route_candidate": route_candidate,
