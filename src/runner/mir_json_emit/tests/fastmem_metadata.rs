@@ -2,8 +2,8 @@ use super::super::build_mir_json_root;
 use super::make_function;
 use crate::mir::fastmem_access_plan::{
     FastMemAccessPlan, FastMemAccessPlanKind, FastMemAccessPlanPayload, FastMemAccessPlanStatus,
-    FastMemFieldAccessMode, FastMemTableAccessPlan, FastMemTableAccessProof,
-    FastMemTableFieldAccessLink,
+    FastMemFieldAccessMode, FastMemLocalFreeListPlan, FastMemResolvedFieldPlan,
+    FastMemTableAccessPlan, FastMemTableAccessProof, FastMemTableFieldAccessLink,
 };
 use crate::mir::function::{FastMemTableLengthFact, FastMemTableLengthPolicyKind};
 use crate::mir::instruction::FastMemRegionId;
@@ -138,4 +138,74 @@ fn build_mir_json_root_emits_fastmem_range_bounds_proof() {
     assert_eq!(links[0]["byte_offset"], 40);
     assert_eq!(links[0]["field_size"], 8);
     assert_eq!(links[0]["proof"], "table_field_link:0:1");
+}
+
+#[test]
+fn build_mir_json_root_preserves_fastmem_resolved_field_legacy_keys() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("Main.fastmem/0", false);
+    function
+        .metadata
+        .fastmem_access_plans
+        .push(FastMemAccessPlan {
+            block: BasicBlockId::new(0),
+            instruction_index: 0,
+            region: FastMemRegionId::new(0),
+            kind: FastMemAccessPlanKind::LocalFreePush,
+            status: FastMemAccessPlanStatus::Verified,
+            failure_reason: None,
+            payload: FastMemAccessPlanPayload::LocalFree(FastMemLocalFreeListPlan {
+                page: ValueId::new(1),
+                block: Some(ValueId::new(2)),
+                result: None,
+                local_free_head: FastMemResolvedFieldPlan {
+                    layout_id: Some("PageMetaLayoutV0".to_string()),
+                    field_id: Some("local_free_head".to_string()),
+                    field_class: Some("local_free_head".to_string()),
+                    byte_offset: Some(24),
+                    field_size: Some(8),
+                    field_type: Some("usize".to_string()),
+                    alignment: Some(8),
+                },
+                block_next: FastMemResolvedFieldPlan {
+                    layout_id: Some("FreeBlockNodeLayoutV0".to_string()),
+                    field_id: Some("next".to_string()),
+                    field_class: Some("plain_pointer".to_string()),
+                    byte_offset: Some(0),
+                    field_size: Some(8),
+                    field_type: Some("usize".to_string()),
+                    alignment: Some(8),
+                },
+                same_owner_proof_valid: true,
+                block_next_proof_valid: true,
+                non_empty_proof_valid: false,
+                remote_owner_rejected: true,
+                lowerable: true,
+            }),
+        });
+    module
+        .functions
+        .insert("Main.fastmem/0".to_string(), function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let plans = root["functions"][0]["metadata"]["fastmem_access_plans"]
+        .as_array()
+        .expect("metadata.fastmem_access_plans array");
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["kind"], "local_free_push");
+    assert_eq!(plans[0]["local_free_head_layout_id"], "PageMetaLayoutV0");
+    assert_eq!(plans[0]["local_free_head_field_id"], "local_free_head");
+    assert_eq!(plans[0]["local_free_head_field_class"], "local_free_head");
+    assert_eq!(plans[0]["local_free_head_byte_offset"], 24);
+    assert_eq!(plans[0]["local_free_head_field_size"], 8);
+    assert_eq!(plans[0]["local_free_head_field_type"], "usize");
+    assert_eq!(plans[0]["local_free_head_alignment"], 8);
+    assert_eq!(plans[0]["block_next_layout_id"], "FreeBlockNodeLayoutV0");
+    assert_eq!(plans[0]["block_next_field_id"], "next");
+    assert_eq!(plans[0]["block_next_field_class"], "plain_pointer");
+    assert_eq!(plans[0]["block_next_byte_offset"], 0);
+    assert_eq!(plans[0]["block_next_field_size"], 8);
+    assert_eq!(plans[0]["block_next_field_type"], "usize");
+    assert_eq!(plans[0]["block_next_alignment"], 8);
 }

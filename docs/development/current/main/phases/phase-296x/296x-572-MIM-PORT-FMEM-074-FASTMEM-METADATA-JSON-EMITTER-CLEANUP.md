@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-074.
 Related:
@@ -46,4 +46,32 @@ new lowering
 new proof kind
 changing hako_check key names
 switching to a new JSON schema
+```
+
+## Landed
+
+```text
+The repeated resolved-field JSON key expansion stays behind
+  insert_resolved_field_plan_json(...)
+
+runner::mir_json_emit now has an explicit FastMemory metadata test proving the
+  legacy local_free_head_* and block_next_* report keys remain present after the
+  Rust payload moved to FastMemResolvedFieldPlan
+```
+
+## Verification
+
+```text
+cargo test -q runner::mir_json_emit::tests::fastmem_metadata
+cargo test -q runner::mir_json_emit
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+git diff --check
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-075: return from the BoxShape cleanup mini-series to hako_alloc
+body migration by selecting the next FastMemory-backed mimalloc body slice.
 ```
