@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-091.
 Related:
@@ -52,4 +52,35 @@ provider_abi_hot_dispatch_count=0
 hook install producer behavior
 global allocator replacement
 winner claim
+```
+
+## Landed Evidence
+
+```text
+replacement_front_selected_route=hook_install_preflight_refresh
+replacement_front_selected_memop_family=hook_install
+replacement_front_selected_memop_kinds=HookInstall
+replacement_front_next_producer_slice=hook_install_producer_refresh
+fastmem_hook_install_preflight_refresh=1
+terminal_ladder_refresh_open=1
+page_local_route_body_join_open=1
+product_activation=1
+hook_install_selected=1
+hook_install=0
+global_allocator_claim=0
+winner_claim=0
+```
+
+## Verification
+
+```bash
+python3 -m py_compile tools/hako_check/fastmem_route_profiles.py tools/hako_check/fastmem_check_profile_functions.py tools/hako_check/fastmem_check_terminal_rules.py tools/hako_check/fastmem_mir_to_llvm_producer_report_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py tools/hako_check/fastmem_mir_to_llvm_producer_report_body.py tools/hako_check/fastmem_mir_to_llvm_producer_report_tail_rows.py
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+```
+
+## Next
+
+```text
+296x-591 MIM-PORT-FMEM-092 hook install producer refresh.
 ```

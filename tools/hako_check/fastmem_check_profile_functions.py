@@ -297,6 +297,10 @@ def hook_install_preflight_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_hook_install_preflight") > 0
 
 
+def hook_install_preflight_refresh_profile(rows: dict[str, str]) -> bool:
+    return int_count(rows, "fastmem_hook_install_preflight_refresh") > 0
+
+
 def hook_install_producer_profile(rows: dict[str, str]) -> bool:
     return int_count(rows, "fastmem_hook_install_producer_pilot") > 0
 
