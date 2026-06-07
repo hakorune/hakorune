@@ -24,6 +24,71 @@ class RefreshProfileSpec:
     expected_positive: tuple[str, ...]
 
 
+FASTMEM_REMOTE_FREE_ROUTE_PROFILE_NAMES: tuple[str, ...] = (
+    "remote-free",
+    "remote-free-retry-preflight",
+    "remote-free-retry",
+    "remote-free-drain-preflight",
+    "remote-free-drain-exchange-selection",
+    "remote-free-drain-exchange",
+    "remote-free-drain-to-local-selection",
+    "remote-free-drain-to-local",
+    "remote-free-drain-local-list-mutation-preflight",
+    "remote-free-drain-local-list-mutation-proof",
+    "remote-free-drain-local-list-mutation-vocabulary-preflight",
+    "remote-free-drain-local-list-mutation-verifier-preconditions",
+    "remote-free-drain-local-list-mutation-lowering",
+    "remote-owner-branch-routing-preflight",
+    "remote-owner-branch-routing-lowering-preflight",
+    "remote-owner-branch-routing-lowering",
+    "remote-owner-branch-route-body-preflight",
+    "fastmem-branch-cfg-preflight",
+    "fastmem-branch-cfg-lowering-preflight",
+    "fastmem-branch-cfg-lowering",
+    "same-remote-free-body-preflight",
+    "same-remote-free-body",
+    "page-local-alloc-route-cfg-preflight",
+    "page-local-alloc-route-cfg",
+    "page-local-free-route-cfg-preflight",
+    "page-local-free-route-cfg",
+    "page-local-route-body-join-preflight",
+    "page-local-route-body-join",
+    "terminal-ladder-refresh-preflight",
+    "tls-backing-transfer-preflight-refresh",
+    "tls-backing-transfer-producer-refresh",
+    "owner-slot-reuse-preflight-refresh",
+    "owner-slot-reuse-producer-refresh",
+    "abandoned-reclaim-preflight-refresh",
+    "abandoned-reclaim-producer-refresh",
+    "product-activation-preflight-refresh",
+    "product-activation-producer-refresh",
+    "hook-install-preflight-refresh",
+    "hook-install-producer-refresh",
+    "global-allocator-claim-preflight-refresh",
+    "global-allocator-claim-producer-refresh",
+    "winner-claim-preflight-refresh",
+    "winner-claim-producer-refresh",
+    "tls-backing-transfer-preflight",
+    "tls-backing-transfer-producer-pilot",
+    "owner-slot-reuse-preflight",
+    "owner-slot-reuse-producer-pilot",
+    "abandoned-reclaim-preflight",
+    "abandoned-reclaim-producer-pilot",
+    "product-activation-preflight",
+    "product-activation-producer-pilot",
+    "hook-install-preflight",
+    "hook-install-producer-pilot",
+    "global-allocator-claim-preflight",
+    "global-allocator-claim-producer-pilot",
+    "winner-claim-preflight",
+    "winner-claim-producer-pilot",
+)
+
+
+def profile_in(profile: str, expected: tuple[str, ...]) -> bool:
+    return profile in expected
+
+
 def _profile_flag(rows: Mapping[str, str], key: str) -> bool:
     return int(rows.get(key, "0") or 0) > 0
 
