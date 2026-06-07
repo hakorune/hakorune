@@ -29,7 +29,8 @@ pub use types::{
     FastMemAccessPlan, FastMemAccessPlanKind, FastMemAccessPlanPayload, FastMemAccessPlanStatus,
     FastMemAtomicRemoteHeadPlan, FastMemDrainRemoteListToLocalPlan, FastMemFieldAccessMode,
     FastMemFieldAccessPlan, FastMemFreeHeadListPlan, FastMemLocalFreeListPlan,
-    FastMemTableAccessPlan, FastMemTableAccessProof, FastMemTableFieldAccessLink,
+    FastMemResolvedFieldPlan, FastMemTableAccessPlan, FastMemTableAccessProof,
+    FastMemTableFieldAccessLink,
 };
 
 pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {

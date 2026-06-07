@@ -2,7 +2,7 @@ use crate::mir::fastmem_layout_contract::{
     resolve_fastmem_block_next_contract, resolve_fastmem_field_contract,
 };
 
-use super::types::FastMemFieldAccessMode;
+use super::types::{FastMemFieldAccessMode, FastMemResolvedFieldPlan};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct ResolvedHeadAccess {
@@ -23,6 +23,18 @@ impl ResolvedHeadAccess {
             && self.field_size.is_some()
             && self.field_type.is_some()
             && self.alignment.is_some()
+    }
+
+    pub(super) fn into_field_plan(self) -> FastMemResolvedFieldPlan {
+        FastMemResolvedFieldPlan {
+            layout_id: self.layout_id,
+            field_id: self.field_id,
+            field_class: self.field_class,
+            byte_offset: self.byte_offset,
+            field_size: self.field_size,
+            field_type: self.field_type,
+            alignment: self.alignment,
+        }
     }
 }
 
@@ -45,6 +57,18 @@ impl ResolvedBlockNextAccess {
             && self.field_size.is_some()
             && self.field_type.is_some()
             && self.alignment.is_some()
+    }
+
+    pub(super) fn into_field_plan(self) -> FastMemResolvedFieldPlan {
+        FastMemResolvedFieldPlan {
+            layout_id: self.layout_id,
+            field_id: self.field_id,
+            field_class: self.field_class,
+            byte_offset: self.byte_offset,
+            field_size: self.field_size,
+            field_type: self.field_type,
+            alignment: self.alignment,
+        }
     }
 }
 

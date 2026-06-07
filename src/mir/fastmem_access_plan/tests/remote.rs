@@ -53,21 +53,21 @@ fn refresh_adds_nonlowerable_atomic_remote_head_push_plan() {
     assert_eq!(remote_head.block, Some(ValueId::new(11)));
     assert_eq!(remote_head.result, None);
     assert_eq!(
-        remote_head.remote_head_layout_id.as_deref(),
+        remote_head.remote_head.layout_id.as_deref(),
         Some("PageMetaLayoutV0")
     );
     assert_eq!(
-        remote_head.remote_head_field_id.as_deref(),
+        remote_head.remote_head.field_id.as_deref(),
         Some("remote_head")
     );
     assert_eq!(
-        remote_head.remote_head_field_class.as_deref(),
+        remote_head.remote_head.field_class.as_deref(),
         Some("atomic_remote_head")
     );
-    assert_eq!(remote_head.remote_head_byte_offset, Some(32));
-    assert_eq!(remote_head.remote_head_field_size, Some(8));
-    assert_eq!(remote_head.remote_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(remote_head.remote_head_alignment, Some(8));
+    assert_eq!(remote_head.remote_head.byte_offset, Some(32));
+    assert_eq!(remote_head.remote_head.field_size, Some(8));
+    assert_eq!(remote_head.remote_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(remote_head.remote_head.alignment, Some(8));
     assert!(remote_head.remote_owner_required);
     assert!(!remote_head.remote_owner_proof_valid);
     assert!(remote_head.block_next_required);
@@ -100,14 +100,14 @@ fn refresh_adds_lowerable_atomic_remote_head_drain_plan() {
     assert_eq!(remote_head.block, None);
     assert_eq!(remote_head.result, Some(ValueId::new(12)));
     assert_eq!(
-        remote_head.remote_head_layout_id.as_deref(),
+        remote_head.remote_head.layout_id.as_deref(),
         Some("PageMetaLayoutV0")
     );
     assert_eq!(
-        remote_head.remote_head_field_id.as_deref(),
+        remote_head.remote_head.field_id.as_deref(),
         Some("remote_head")
     );
-    assert_eq!(remote_head.remote_head_byte_offset, Some(32));
+    assert_eq!(remote_head.remote_head.byte_offset, Some(32));
     assert!(!remote_head.remote_owner_required);
     assert!(!remote_head.remote_owner_proof_valid);
     assert!(!remote_head.block_next_required);
@@ -115,12 +115,12 @@ fn refresh_adds_lowerable_atomic_remote_head_drain_plan() {
     assert_eq!(remote_head.memory_order_policy, "acquire_exchange");
     assert_eq!(remote_head.retry_attempt_limit, 0);
     assert_eq!(
-        remote_head.remote_head_field_class.as_deref(),
+        remote_head.remote_head.field_class.as_deref(),
         Some("atomic_remote_head")
     );
-    assert_eq!(remote_head.remote_head_field_size, Some(8));
-    assert_eq!(remote_head.remote_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(remote_head.remote_head_alignment, Some(8));
+    assert_eq!(remote_head.remote_head.field_size, Some(8));
+    assert_eq!(remote_head.remote_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(remote_head.remote_head.alignment, Some(8));
     assert!(remote_head.lowerable);
 }
 
@@ -166,34 +166,34 @@ fn refresh_adds_drain_remote_list_to_local_precondition_plan() {
         Some("owner_local_free_or_free_head")
     );
     assert_eq!(
-        drain.local_free_head_layout_id.as_deref(),
+        drain.local_free_head.layout_id.as_deref(),
         Some("PageMetaLayoutV0")
     );
     assert_eq!(
-        drain.local_free_head_field_id.as_deref(),
+        drain.local_free_head.field_id.as_deref(),
         Some("local_free_head")
     );
     assert_eq!(
-        drain.local_free_head_field_class.as_deref(),
+        drain.local_free_head.field_class.as_deref(),
         Some("local_free_head")
     );
-    assert_eq!(drain.local_free_head_byte_offset, Some(24));
-    assert_eq!(drain.local_free_head_field_size, Some(8));
-    assert_eq!(drain.local_free_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(drain.local_free_head_alignment, Some(8));
+    assert_eq!(drain.local_free_head.byte_offset, Some(24));
+    assert_eq!(drain.local_free_head.field_size, Some(8));
+    assert_eq!(drain.local_free_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(drain.local_free_head.alignment, Some(8));
     assert_eq!(
-        drain.block_next_layout_id.as_deref(),
+        drain.block_next.layout_id.as_deref(),
         Some("FreeBlockNodeLayoutV0")
     );
-    assert_eq!(drain.block_next_field_id.as_deref(), Some("next"));
+    assert_eq!(drain.block_next.field_id.as_deref(), Some("next"));
     assert_eq!(
-        drain.block_next_field_class.as_deref(),
+        drain.block_next.field_class.as_deref(),
         Some("local_free_block_next")
     );
-    assert_eq!(drain.block_next_byte_offset, Some(0));
-    assert_eq!(drain.block_next_field_size, Some(8));
-    assert_eq!(drain.block_next_field_type.as_deref(), Some("usize"));
-    assert_eq!(drain.block_next_alignment, Some(8));
+    assert_eq!(drain.block_next.byte_offset, Some(0));
+    assert_eq!(drain.block_next.field_size, Some(8));
+    assert_eq!(drain.block_next.field_type.as_deref(), Some("usize"));
+    assert_eq!(drain.block_next.alignment, Some(8));
     assert!(drain.block_next_access_resolved);
     assert_eq!(
         drain.publication_order,
@@ -234,18 +234,18 @@ fn refresh_observes_atomic_remote_head_block_next_proof_but_keeps_lowering_close
     };
     assert!(remote_head.block_next_proof_valid);
     assert_eq!(
-        remote_head.block_next_layout_id.as_deref(),
+        remote_head.block_next.layout_id.as_deref(),
         Some("FreeBlockNodeLayoutV0")
     );
-    assert_eq!(remote_head.block_next_field_id.as_deref(), Some("next"));
+    assert_eq!(remote_head.block_next.field_id.as_deref(), Some("next"));
     assert_eq!(
-        remote_head.block_next_field_class.as_deref(),
+        remote_head.block_next.field_class.as_deref(),
         Some("local_free_block_next")
     );
-    assert_eq!(remote_head.block_next_byte_offset, Some(0));
-    assert_eq!(remote_head.block_next_field_size, Some(8));
-    assert_eq!(remote_head.block_next_field_type.as_deref(), Some("usize"));
-    assert_eq!(remote_head.block_next_alignment, Some(8));
+    assert_eq!(remote_head.block_next.byte_offset, Some(0));
+    assert_eq!(remote_head.block_next.field_size, Some(8));
+    assert_eq!(remote_head.block_next.field_type.as_deref(), Some("usize"));
+    assert_eq!(remote_head.block_next.alignment, Some(8));
     assert!(remote_head.remote_owner_required);
     assert!(!remote_head.remote_owner_proof_valid);
     assert!(!remote_head.lowerable);

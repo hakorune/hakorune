@@ -38,20 +38,20 @@ fn refresh_adds_nonlowerable_local_free_list_plans() {
             panic!("expected local free-list plan");
         };
         assert_eq!(
-            local_free.local_free_head_field_id.as_deref(),
+            local_free.local_free_head.field_id.as_deref(),
             Some("local_free_head")
         );
         assert_eq!(
-            local_free.local_free_head_field_class.as_deref(),
+            local_free.local_free_head.field_class.as_deref(),
             Some("local_free_head")
         );
-        assert_eq!(local_free.local_free_head_byte_offset, Some(24));
-        assert_eq!(local_free.local_free_head_field_size, Some(8));
+        assert_eq!(local_free.local_free_head.byte_offset, Some(24));
+        assert_eq!(local_free.local_free_head.field_size, Some(8));
         assert_eq!(
-            local_free.local_free_head_field_type.as_deref(),
+            local_free.local_free_head.field_type.as_deref(),
             Some("usize")
         );
-        assert_eq!(local_free.local_free_head_alignment, Some(8));
+        assert_eq!(local_free.local_free_head.alignment, Some(8));
         assert!(!local_free.same_owner_proof_valid);
         assert!(!local_free.block_next_proof_valid);
         assert!(!local_free.non_empty_proof_valid);
@@ -115,31 +115,31 @@ fn refresh_verifies_local_free_push_when_precondition_facts_exist() {
     assert!(push.remote_owner_rejected);
     assert!(push.lowerable);
     assert_eq!(
-        push.local_free_head_layout_id.as_deref(),
+        push.local_free_head.layout_id.as_deref(),
         Some("PageMetaLayoutV0")
     );
     assert_eq!(
-        push.local_free_head_field_id.as_deref(),
+        push.local_free_head.field_id.as_deref(),
         Some("local_free_head")
     );
-    assert_eq!(push.local_free_head_byte_offset, Some(24));
-    assert_eq!(push.local_free_head_field_size, Some(8));
-    assert_eq!(push.local_free_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(push.local_free_head_alignment, Some(8));
+    assert_eq!(push.local_free_head.byte_offset, Some(24));
+    assert_eq!(push.local_free_head.field_size, Some(8));
+    assert_eq!(push.local_free_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(push.local_free_head.alignment, Some(8));
     assert!(!push.non_empty_proof_valid);
     assert_eq!(
-        push.block_next_layout_id.as_deref(),
+        push.block_next.layout_id.as_deref(),
         Some("FreeBlockNodeLayoutV0")
     );
-    assert_eq!(push.block_next_field_id.as_deref(), Some("next"));
+    assert_eq!(push.block_next.field_id.as_deref(), Some("next"));
     assert_eq!(
-        push.block_next_field_class.as_deref(),
+        push.block_next.field_class.as_deref(),
         Some("local_free_block_next")
     );
-    assert_eq!(push.block_next_byte_offset, Some(0));
-    assert_eq!(push.block_next_field_size, Some(8));
-    assert_eq!(push.block_next_field_type.as_deref(), Some("usize"));
-    assert_eq!(push.block_next_alignment, Some(8));
+    assert_eq!(push.block_next.byte_offset, Some(0));
+    assert_eq!(push.block_next.field_size, Some(8));
+    assert_eq!(push.block_next.field_type.as_deref(), Some("usize"));
+    assert_eq!(push.block_next.alignment, Some(8));
 
     let pop_plan = &function.metadata.fastmem_access_plans[1];
     assert_eq!(pop_plan.kind, FastMemAccessPlanKind::LocalFreePop);
@@ -204,30 +204,30 @@ fn refresh_verifies_local_free_pop_preconditions_without_lowering() {
     assert!(pop.remote_owner_rejected);
     assert!(pop.lowerable);
     assert_eq!(
-        pop.local_free_head_layout_id.as_deref(),
+        pop.local_free_head.layout_id.as_deref(),
         Some("PageMetaLayoutV0")
     );
     assert_eq!(
-        pop.local_free_head_field_id.as_deref(),
+        pop.local_free_head.field_id.as_deref(),
         Some("local_free_head")
     );
-    assert_eq!(pop.local_free_head_byte_offset, Some(24));
-    assert_eq!(pop.local_free_head_field_size, Some(8));
-    assert_eq!(pop.local_free_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(pop.local_free_head_alignment, Some(8));
+    assert_eq!(pop.local_free_head.byte_offset, Some(24));
+    assert_eq!(pop.local_free_head.field_size, Some(8));
+    assert_eq!(pop.local_free_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(pop.local_free_head.alignment, Some(8));
     assert_eq!(
-        pop.block_next_layout_id.as_deref(),
+        pop.block_next.layout_id.as_deref(),
         Some("FreeBlockNodeLayoutV0")
     );
-    assert_eq!(pop.block_next_field_id.as_deref(), Some("next"));
+    assert_eq!(pop.block_next.field_id.as_deref(), Some("next"));
     assert_eq!(
-        pop.block_next_field_class.as_deref(),
+        pop.block_next.field_class.as_deref(),
         Some("local_free_block_next")
     );
-    assert_eq!(pop.block_next_byte_offset, Some(0));
-    assert_eq!(pop.block_next_field_size, Some(8));
-    assert_eq!(pop.block_next_field_type.as_deref(), Some("usize"));
-    assert_eq!(pop.block_next_alignment, Some(8));
+    assert_eq!(pop.block_next.byte_offset, Some(0));
+    assert_eq!(pop.block_next.field_size, Some(8));
+    assert_eq!(pop.block_next.field_type.as_deref(), Some("usize"));
+    assert_eq!(pop.block_next.alignment, Some(8));
 }
 
 #[test]
@@ -274,26 +274,26 @@ fn refresh_verifies_free_head_pop_preconditions_without_lowering() {
     assert!(pop.non_empty_proof_valid);
     assert!(pop.remote_owner_rejected);
     assert!(pop.lowerable);
-    assert_eq!(pop.free_head_layout_id.as_deref(), Some("PageMetaLayoutV0"));
-    assert_eq!(pop.free_head_field_id.as_deref(), Some("free_head"));
-    assert_eq!(pop.free_head_field_class.as_deref(), Some("plain_pointer"));
-    assert_eq!(pop.free_head_byte_offset, Some(16));
-    assert_eq!(pop.free_head_field_size, Some(8));
-    assert_eq!(pop.free_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(pop.free_head_alignment, Some(8));
+    assert_eq!(pop.free_head.layout_id.as_deref(), Some("PageMetaLayoutV0"));
+    assert_eq!(pop.free_head.field_id.as_deref(), Some("free_head"));
+    assert_eq!(pop.free_head.field_class.as_deref(), Some("plain_pointer"));
+    assert_eq!(pop.free_head.byte_offset, Some(16));
+    assert_eq!(pop.free_head.field_size, Some(8));
+    assert_eq!(pop.free_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(pop.free_head.alignment, Some(8));
     assert_eq!(
-        pop.block_next_layout_id.as_deref(),
+        pop.block_next.layout_id.as_deref(),
         Some("FreeBlockNodeLayoutV0")
     );
-    assert_eq!(pop.block_next_field_id.as_deref(), Some("next"));
+    assert_eq!(pop.block_next.field_id.as_deref(), Some("next"));
     assert_eq!(
-        pop.block_next_field_class.as_deref(),
+        pop.block_next.field_class.as_deref(),
         Some("local_free_block_next")
     );
-    assert_eq!(pop.block_next_byte_offset, Some(0));
-    assert_eq!(pop.block_next_field_size, Some(8));
-    assert_eq!(pop.block_next_field_type.as_deref(), Some("usize"));
-    assert_eq!(pop.block_next_alignment, Some(8));
+    assert_eq!(pop.block_next.byte_offset, Some(0));
+    assert_eq!(pop.block_next.field_size, Some(8));
+    assert_eq!(pop.block_next.field_type.as_deref(), Some("usize"));
+    assert_eq!(pop.block_next.alignment, Some(8));
 }
 
 #[test]
@@ -346,28 +346,28 @@ fn refresh_verifies_free_head_push_preconditions_without_lowering() {
     assert!(push.remote_owner_rejected);
     assert!(push.lowerable);
     assert_eq!(
-        push.free_head_layout_id.as_deref(),
+        push.free_head.layout_id.as_deref(),
         Some("PageMetaLayoutV0")
     );
-    assert_eq!(push.free_head_field_id.as_deref(), Some("free_head"));
-    assert_eq!(push.free_head_field_class.as_deref(), Some("plain_pointer"));
-    assert_eq!(push.free_head_byte_offset, Some(16));
-    assert_eq!(push.free_head_field_size, Some(8));
-    assert_eq!(push.free_head_field_type.as_deref(), Some("usize"));
-    assert_eq!(push.free_head_alignment, Some(8));
+    assert_eq!(push.free_head.field_id.as_deref(), Some("free_head"));
+    assert_eq!(push.free_head.field_class.as_deref(), Some("plain_pointer"));
+    assert_eq!(push.free_head.byte_offset, Some(16));
+    assert_eq!(push.free_head.field_size, Some(8));
+    assert_eq!(push.free_head.field_type.as_deref(), Some("usize"));
+    assert_eq!(push.free_head.alignment, Some(8));
     assert_eq!(
-        push.block_next_layout_id.as_deref(),
+        push.block_next.layout_id.as_deref(),
         Some("FreeBlockNodeLayoutV0")
     );
-    assert_eq!(push.block_next_field_id.as_deref(), Some("next"));
+    assert_eq!(push.block_next.field_id.as_deref(), Some("next"));
     assert_eq!(
-        push.block_next_field_class.as_deref(),
+        push.block_next.field_class.as_deref(),
         Some("local_free_block_next")
     );
-    assert_eq!(push.block_next_byte_offset, Some(0));
-    assert_eq!(push.block_next_field_size, Some(8));
-    assert_eq!(push.block_next_field_type.as_deref(), Some("usize"));
-    assert_eq!(push.block_next_alignment, Some(8));
+    assert_eq!(push.block_next.byte_offset, Some(0));
+    assert_eq!(push.block_next.field_size, Some(8));
+    assert_eq!(push.block_next.field_type.as_deref(), Some("usize"));
+    assert_eq!(push.block_next.alignment, Some(8));
 }
 
 #[test]

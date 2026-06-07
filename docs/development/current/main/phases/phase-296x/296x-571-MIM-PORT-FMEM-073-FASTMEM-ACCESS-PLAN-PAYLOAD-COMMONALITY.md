@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Date: 2026-06-07
 Scope: MIM-PORT-FMEM-073.
 Related:
@@ -43,4 +43,37 @@ git diff --check passes
 new lowering
 new proof kind
 current winner-claim behavior changes
+```
+
+## Landed
+
+```text
+FastMemResolvedFieldPlan now carries the repeated resolved-field metadata group:
+  layout_id / field_id / field_class / byte_offset / field_size / field_type / alignment
+
+LocalFree / FreeHead / AtomicRemoteHead / DrainRemoteListToLocal now store
+  head and block-next metadata through FastMemResolvedFieldPlan
+
+ResolvedHeadAccess and ResolvedBlockNextAccess provide the single conversion seam:
+  into_field_plan()
+
+MIR JSON emission keeps the existing report keys by expanding the shared payload
+  through one helper, preserving hako_check/report compatibility
+```
+
+## Verification
+
+```text
+cargo test -q mir::fastmem_access_plan
+cargo test -q runner::mir_json_emit
+bash tools/hako_check/fastmem_check_smoke.sh
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+git diff --check
+```
+
+## Next
+
+```text
+MIM-PORT-FMEM-074: continue BoxShape cleanup at the FastMemory metadata JSON
+emitter boundary without changing report keys or producer behavior.
 ```

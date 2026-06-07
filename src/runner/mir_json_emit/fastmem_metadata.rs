@@ -1,4 +1,6 @@
-use crate::mir::fastmem_access_plan::{FastMemAccessPlan, FastMemAccessPlanPayload};
+use crate::mir::fastmem_access_plan::{
+    FastMemAccessPlan, FastMemAccessPlanPayload, FastMemResolvedFieldPlan,
+};
 use crate::mir::function::{FastMemRegionOrigin, FunctionMetadata};
 use serde_json::json;
 
@@ -284,62 +286,12 @@ pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_
                     "result".to_string(),
                     json!(local_free.result.map(|value| value.as_u32())),
                 );
-                map.insert(
-                    "local_free_head_layout_id".to_string(),
-                    json!(&local_free.local_free_head_layout_id),
+                insert_resolved_field_plan_json(
+                    map,
+                    "local_free_head",
+                    &local_free.local_free_head,
                 );
-                map.insert(
-                    "local_free_head_field_id".to_string(),
-                    json!(&local_free.local_free_head_field_id),
-                );
-                map.insert(
-                    "local_free_head_field_class".to_string(),
-                    json!(&local_free.local_free_head_field_class),
-                );
-                map.insert(
-                    "local_free_head_byte_offset".to_string(),
-                    json!(local_free.local_free_head_byte_offset),
-                );
-                map.insert(
-                    "local_free_head_field_size".to_string(),
-                    json!(local_free.local_free_head_field_size),
-                );
-                map.insert(
-                    "local_free_head_field_type".to_string(),
-                    json!(&local_free.local_free_head_field_type),
-                );
-                map.insert(
-                    "local_free_head_alignment".to_string(),
-                    json!(local_free.local_free_head_alignment),
-                );
-                map.insert(
-                    "block_next_layout_id".to_string(),
-                    json!(&local_free.block_next_layout_id),
-                );
-                map.insert(
-                    "block_next_field_id".to_string(),
-                    json!(&local_free.block_next_field_id),
-                );
-                map.insert(
-                    "block_next_field_class".to_string(),
-                    json!(&local_free.block_next_field_class),
-                );
-                map.insert(
-                    "block_next_byte_offset".to_string(),
-                    json!(local_free.block_next_byte_offset),
-                );
-                map.insert(
-                    "block_next_field_size".to_string(),
-                    json!(local_free.block_next_field_size),
-                );
-                map.insert(
-                    "block_next_field_type".to_string(),
-                    json!(&local_free.block_next_field_type),
-                );
-                map.insert(
-                    "block_next_alignment".to_string(),
-                    json!(local_free.block_next_alignment),
-                );
+                insert_resolved_field_plan_json(map, "block_next", &local_free.block_next);
                 map.insert(
                     "same_owner_proof_valid".to_string(),
                     json!(local_free.same_owner_proof_valid),
@@ -368,62 +320,8 @@ pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_
                     "result".to_string(),
                     json!(free_head.result.map(|value| value.as_u32())),
                 );
-                map.insert(
-                    "free_head_layout_id".to_string(),
-                    json!(&free_head.free_head_layout_id),
-                );
-                map.insert(
-                    "free_head_field_id".to_string(),
-                    json!(&free_head.free_head_field_id),
-                );
-                map.insert(
-                    "free_head_field_class".to_string(),
-                    json!(&free_head.free_head_field_class),
-                );
-                map.insert(
-                    "free_head_byte_offset".to_string(),
-                    json!(free_head.free_head_byte_offset),
-                );
-                map.insert(
-                    "free_head_field_size".to_string(),
-                    json!(free_head.free_head_field_size),
-                );
-                map.insert(
-                    "free_head_field_type".to_string(),
-                    json!(&free_head.free_head_field_type),
-                );
-                map.insert(
-                    "free_head_alignment".to_string(),
-                    json!(free_head.free_head_alignment),
-                );
-                map.insert(
-                    "block_next_layout_id".to_string(),
-                    json!(&free_head.block_next_layout_id),
-                );
-                map.insert(
-                    "block_next_field_id".to_string(),
-                    json!(&free_head.block_next_field_id),
-                );
-                map.insert(
-                    "block_next_field_class".to_string(),
-                    json!(&free_head.block_next_field_class),
-                );
-                map.insert(
-                    "block_next_byte_offset".to_string(),
-                    json!(free_head.block_next_byte_offset),
-                );
-                map.insert(
-                    "block_next_field_size".to_string(),
-                    json!(free_head.block_next_field_size),
-                );
-                map.insert(
-                    "block_next_field_type".to_string(),
-                    json!(&free_head.block_next_field_type),
-                );
-                map.insert(
-                    "block_next_alignment".to_string(),
-                    json!(free_head.block_next_alignment),
-                );
+                insert_resolved_field_plan_json(map, "free_head", &free_head.free_head);
+                insert_resolved_field_plan_json(map, "block_next", &free_head.block_next);
                 map.insert(
                     "same_owner_proof_valid".to_string(),
                     json!(free_head.same_owner_proof_valid),
@@ -452,62 +350,8 @@ pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_
                     "result".to_string(),
                     json!(remote_head.result.map(|value| value.as_u32())),
                 );
-                map.insert(
-                    "remote_head_layout_id".to_string(),
-                    json!(&remote_head.remote_head_layout_id),
-                );
-                map.insert(
-                    "remote_head_field_id".to_string(),
-                    json!(&remote_head.remote_head_field_id),
-                );
-                map.insert(
-                    "remote_head_field_class".to_string(),
-                    json!(&remote_head.remote_head_field_class),
-                );
-                map.insert(
-                    "remote_head_byte_offset".to_string(),
-                    json!(remote_head.remote_head_byte_offset),
-                );
-                map.insert(
-                    "remote_head_field_size".to_string(),
-                    json!(remote_head.remote_head_field_size),
-                );
-                map.insert(
-                    "remote_head_field_type".to_string(),
-                    json!(&remote_head.remote_head_field_type),
-                );
-                map.insert(
-                    "remote_head_alignment".to_string(),
-                    json!(remote_head.remote_head_alignment),
-                );
-                map.insert(
-                    "block_next_layout_id".to_string(),
-                    json!(&remote_head.block_next_layout_id),
-                );
-                map.insert(
-                    "block_next_field_id".to_string(),
-                    json!(&remote_head.block_next_field_id),
-                );
-                map.insert(
-                    "block_next_field_class".to_string(),
-                    json!(&remote_head.block_next_field_class),
-                );
-                map.insert(
-                    "block_next_byte_offset".to_string(),
-                    json!(remote_head.block_next_byte_offset),
-                );
-                map.insert(
-                    "block_next_field_size".to_string(),
-                    json!(remote_head.block_next_field_size),
-                );
-                map.insert(
-                    "block_next_field_type".to_string(),
-                    json!(&remote_head.block_next_field_type),
-                );
-                map.insert(
-                    "block_next_alignment".to_string(),
-                    json!(remote_head.block_next_alignment),
-                );
+                insert_resolved_field_plan_json(map, "remote_head", &remote_head.remote_head);
+                insert_resolved_field_plan_json(map, "block_next", &remote_head.block_next);
                 map.insert(
                     "remote_owner_required".to_string(),
                     json!(remote_head.remote_owner_required),
@@ -561,62 +405,8 @@ pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_
                     "local_list_head_class".to_string(),
                     json!(&drain.local_list_head_class),
                 );
-                map.insert(
-                    "local_free_head_layout_id".to_string(),
-                    json!(&drain.local_free_head_layout_id),
-                );
-                map.insert(
-                    "local_free_head_field_id".to_string(),
-                    json!(&drain.local_free_head_field_id),
-                );
-                map.insert(
-                    "local_free_head_field_class".to_string(),
-                    json!(&drain.local_free_head_field_class),
-                );
-                map.insert(
-                    "local_free_head_byte_offset".to_string(),
-                    json!(drain.local_free_head_byte_offset),
-                );
-                map.insert(
-                    "local_free_head_field_size".to_string(),
-                    json!(drain.local_free_head_field_size),
-                );
-                map.insert(
-                    "local_free_head_field_type".to_string(),
-                    json!(&drain.local_free_head_field_type),
-                );
-                map.insert(
-                    "local_free_head_alignment".to_string(),
-                    json!(drain.local_free_head_alignment),
-                );
-                map.insert(
-                    "block_next_layout_id".to_string(),
-                    json!(&drain.block_next_layout_id),
-                );
-                map.insert(
-                    "block_next_field_id".to_string(),
-                    json!(&drain.block_next_field_id),
-                );
-                map.insert(
-                    "block_next_field_class".to_string(),
-                    json!(&drain.block_next_field_class),
-                );
-                map.insert(
-                    "block_next_byte_offset".to_string(),
-                    json!(drain.block_next_byte_offset),
-                );
-                map.insert(
-                    "block_next_field_size".to_string(),
-                    json!(drain.block_next_field_size),
-                );
-                map.insert(
-                    "block_next_field_type".to_string(),
-                    json!(&drain.block_next_field_type),
-                );
-                map.insert(
-                    "block_next_alignment".to_string(),
-                    json!(drain.block_next_alignment),
-                );
+                insert_resolved_field_plan_json(map, "local_free_head", &drain.local_free_head);
+                insert_resolved_field_plan_json(map, "block_next", &drain.block_next);
                 map.insert(
                     "block_next_access_resolved".to_string(),
                     json!(drain.block_next_access_resolved),
@@ -630,6 +420,20 @@ pub(super) fn build_fastmem_access_plan_json(plan: &FastMemAccessPlan) -> serde_
         }
     }
     row
+}
+
+fn insert_resolved_field_plan_json(
+    map: &mut serde_json::Map<String, serde_json::Value>,
+    prefix: &str,
+    field: &FastMemResolvedFieldPlan,
+) {
+    map.insert(format!("{}_layout_id", prefix), json!(&field.layout_id));
+    map.insert(format!("{}_field_id", prefix), json!(&field.field_id));
+    map.insert(format!("{}_field_class", prefix), json!(&field.field_class));
+    map.insert(format!("{}_byte_offset", prefix), json!(field.byte_offset));
+    map.insert(format!("{}_field_size", prefix), json!(field.field_size));
+    map.insert(format!("{}_field_type", prefix), json!(&field.field_type));
+    map.insert(format!("{}_alignment", prefix), json!(field.alignment));
 }
 
 fn fastmem_region_origin_name(origin: FastMemRegionOrigin) -> &'static str {
