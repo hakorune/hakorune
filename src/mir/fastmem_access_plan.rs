@@ -8,6 +8,8 @@
  * verified rows without recomputing layout/table facts.
  */
 
+mod linked_list;
+
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::{
     fastmem_layout_contract::{
@@ -21,6 +23,9 @@ use crate::mir::{
     },
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use linked_list::{
+    resolve_linked_list_plan_core, FastMemLinkedListFamily, ResolvedLinkedListPlanCore,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FastMemAccessPlanKind {
@@ -1198,62 +1203,26 @@ fn local_free_plan(
     contract: Option<&str>,
     facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
-    let page = operands.first().copied()?;
-    let block_value = if kind == FastMemAccessPlanKind::LocalFreePush {
-        operands.get(1).copied()
-    } else {
-        None
-    };
-    let head_access =
-        resolve_head_access(contract, "local_free_head", FastMemFieldAccessMode::Load);
-    let same_owner_proof_valid = facts
-        .same_owner(region, page)
-        .map_or(false, |fact| fact.remote_owner_rejected);
-    let remote_owner_rejected = same_owner_proof_valid;
-    let non_empty_proof_valid = facts
-        .local_free_non_empty(region, page)
-        .map_or(false, |fact| fact.non_empty);
-    let block_next_field_id = "next";
-    let block_next_fact = block_value.and_then(|block_value| {
-        facts.block_next(region, block_value).filter(|fact| {
-            fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
-        })
-    });
-    let block_next_access = if let Some(fact) = block_next_fact {
-        resolve_block_next_access(contract, &fact.next_field_id)
-    } else if kind == FastMemAccessPlanKind::LocalFreePop && non_empty_proof_valid {
-        resolve_block_next_access(contract, block_next_field_id)
-    } else {
-        ResolvedBlockNextAccess::default()
-    };
-    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
-    let block_next_access_resolved = block_next_access.is_resolved();
-    let common_lowerable = head_access.is_resolved() && same_owner_proof_valid;
-    let lowerable_push =
-        kind == FastMemAccessPlanKind::LocalFreePush && common_lowerable && block_next_proof_valid;
-    let lowerable_pop = kind == FastMemAccessPlanKind::LocalFreePop
-        && common_lowerable
-        && non_empty_proof_valid
-        && block_next_access_resolved;
-    let lowerable = lowerable_push || lowerable_pop;
-    let status = if lowerable {
-        FastMemAccessPlanStatus::Verified
-    } else {
-        FastMemAccessPlanStatus::Rejected
-    };
-    let failure_reason = head_access.failure_reason.clone().or_else(|| {
-        if !same_owner_proof_valid {
-            Some("local-free-same-owner-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::LocalFreePush && !block_next_proof_valid {
-            Some("local-free-block-next-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::LocalFreePop && !non_empty_proof_valid {
-            Some("local-free-non-empty-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::LocalFreePop && !block_next_access_resolved {
-            Some("local-free-block-next-access-unresolved".to_string())
-        } else {
-            None
-        }
-    });
+    let ResolvedLinkedListPlanCore {
+        page,
+        block_value,
+        head_access,
+        block_next_access,
+        same_owner_proof_valid,
+        block_next_proof_valid,
+        non_empty_proof_valid,
+        remote_owner_rejected,
+        lowerable,
+        status,
+        failure_reason,
+    } = resolve_linked_list_plan_core(
+        region,
+        kind,
+        operands,
+        contract,
+        facts,
+        FastMemLinkedListFamily::LocalFree,
+    )?;
 
     Some(FastMemAccessPlan {
         block,
@@ -1299,61 +1268,26 @@ fn free_head_plan(
     contract: Option<&str>,
     facts: &FastMemFactStore<'_>,
 ) -> Option<FastMemAccessPlan> {
-    let page = operands.first().copied()?;
-    let block_value = if kind == FastMemAccessPlanKind::FreeHeadPush {
-        operands.get(1).copied()
-    } else {
-        None
-    };
-    let head_access = resolve_head_access(contract, "free_head", FastMemFieldAccessMode::Load);
-    let same_owner_proof_valid = facts
-        .same_owner(region, page)
-        .map_or(false, |fact| fact.remote_owner_rejected);
-    let remote_owner_rejected = same_owner_proof_valid;
-    let non_empty_proof_valid = facts
-        .free_head_non_empty(region, page)
-        .map_or(false, |fact| fact.non_empty);
-    let block_next_field_id = "next";
-    let block_next_fact = block_value.and_then(|block_value| {
-        facts.block_next(region, block_value).filter(|fact| {
-            fact.next_field_id == block_next_field_id && fact.writable && fact.provenance_valid
-        })
-    });
-    let block_next_access = if let Some(fact) = block_next_fact {
-        resolve_block_next_access(contract, &fact.next_field_id)
-    } else if kind == FastMemAccessPlanKind::FreeHeadPop && non_empty_proof_valid {
-        resolve_block_next_access(contract, block_next_field_id)
-    } else {
-        ResolvedBlockNextAccess::default()
-    };
-    let block_next_access_resolved = block_next_access.is_resolved();
-    let block_next_proof_valid = block_next_fact.is_some() && block_next_access.is_resolved();
-    let common_lowerable = head_access.is_resolved() && same_owner_proof_valid;
-    let lowerable_push =
-        kind == FastMemAccessPlanKind::FreeHeadPush && common_lowerable && block_next_proof_valid;
-    let lowerable_pop = kind == FastMemAccessPlanKind::FreeHeadPop
-        && common_lowerable
-        && non_empty_proof_valid
-        && block_next_access_resolved;
-    let lowerable = lowerable_push || lowerable_pop;
-    let status = if lowerable {
-        FastMemAccessPlanStatus::Verified
-    } else {
-        FastMemAccessPlanStatus::Rejected
-    };
-    let failure_reason = head_access.failure_reason.clone().or_else(|| {
-        if !same_owner_proof_valid {
-            Some("free-head-same-owner-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::FreeHeadPush && !block_next_proof_valid {
-            Some("free-head-block-next-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::FreeHeadPop && !non_empty_proof_valid {
-            Some("free-head-non-empty-proof-missing".to_string())
-        } else if kind == FastMemAccessPlanKind::FreeHeadPop && !block_next_access_resolved {
-            Some("free-head-block-next-access-unresolved".to_string())
-        } else {
-            None
-        }
-    });
+    let ResolvedLinkedListPlanCore {
+        page,
+        block_value,
+        head_access,
+        block_next_access,
+        same_owner_proof_valid,
+        block_next_proof_valid,
+        non_empty_proof_valid,
+        remote_owner_rejected,
+        lowerable,
+        status,
+        failure_reason,
+    } = resolve_linked_list_plan_core(
+        region,
+        kind,
+        operands,
+        contract,
+        facts,
+        FastMemLinkedListFamily::FreeHead,
+    )?;
 
     Some(FastMemAccessPlan {
         block,
