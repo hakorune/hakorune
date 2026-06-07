@@ -97,6 +97,15 @@ if rg -n '\.register\(|\.releasePtr\(|\.unregister\(|releaseLocal\(|memcpy|copy_
 fi
 rm -f /tmp/"$TAG".forbidden
 
+
+if rg -n '&&' "$APP" >/tmp/"$TAG".proof_conjunction 2>&1; then
+  echo "[$TAG] ERROR: proof app must not regress to a giant && summary condition" >&2
+  cat /tmp/"$TAG".proof_conjunction >&2
+  rm -f /tmp/"$TAG".proof_conjunction
+  exit 1
+fi
+rm -f /tmp/"$TAG".proof_conjunction
+
 if rg -n 'mimalloc-realloc-failure-contract|HakoAllocPageMapReallocFailureContract|page_map_realloc_failure_contract' \
   lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
   echo "[$TAG] ERROR: M176 app/box matcher leaked into .inc" >&2

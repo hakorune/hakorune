@@ -95,6 +95,15 @@ if rg -n 'memcpy|copy_bytes|aligned[A-Z_(]|huge[A-Z_(]|secure[A-Z_(]|remote_free
 fi
 rm -f /tmp/"$TAG".forbidden
 
+
+if rg -n '&&' "$APP" >/tmp/"$TAG".proof_conjunction 2>&1; then
+  echo "[$TAG] ERROR: proof app must not regress to a giant && summary condition" >&2
+  cat /tmp/"$TAG".proof_conjunction >&2
+  rm -f /tmp/"$TAG".proof_conjunction
+  exit 1
+fi
+rm -f /tmp/"$TAG".proof_conjunction
+
 if rg -n 'mimalloc-realloc-same-class|HakoAllocPageMapReallocSameClassPath|page_map_realloc_same_class' \
   lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
   echo "[$TAG] ERROR: M174 app/box matcher leaked into .inc" >&2

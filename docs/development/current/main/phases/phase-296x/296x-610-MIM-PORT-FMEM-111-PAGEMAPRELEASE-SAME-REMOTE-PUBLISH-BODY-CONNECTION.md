@@ -1,6 +1,6 @@
 ---
-Status: Active
-Date: 2026-06-07
+Status: Done
+Date: 2026-06-08
 Scope: MIM-PORT-FMEM-111.
 Related:
   - docs/development/current/main/phases/phase-296x/296x-609-MIM-PORT-FMEM-110-PAGEMAPRELEASE-POINTER-LOOKUP-BRIDGE.md
@@ -79,4 +79,21 @@ changing the source-syntax manifest runner coverage set
 ```bash
 bash tools/checks/impl/k2_wide_mimalloc_page_map_release_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Landed
+
+```text
+HakoAllocPageMapReleaseSeam now composes the explicit page-map bridge lookup
+with HakoAllocPageMetaSameRemoteFreePublishBody.sameRemoteFreePublishBodyProbe
+before unregistering the caller pointer. The release path stays page-map-local,
+keeps dead-block rejection before publish, and does not open raw pointer
+arithmetic, PageKey/AddressToken derivation, product activation, hooks, global
+allocator claim, or winner behavior.
+```
+
+## Closeout
+
+```text
+next: 296x-611 MIM-PORT-FMEM-112 PageMapRelease realloc guard refresh closeout
 ```
