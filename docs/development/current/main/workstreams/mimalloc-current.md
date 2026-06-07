@@ -148,7 +148,7 @@ already represented in phase cards.
 
 ```text
 next_task:
-  DOCS-SLIM-296X-002 taskboard docs slimming
+  DOCS-SLIM-FMEM-SSOT-001 design SSOT docs slimming
 
 implementation_sequence:
   MIR-FMEM-008D-PRE..MIR-FMEM-008E (landed)
@@ -225,7 +225,7 @@ proof_commonality_follow_up:
   DIRECTARRAY-FMEM-COMMON-001
 
 docs_slim_follow_up:
-  DOCS-SLIM-296X-002
+  DOCS-SLIM-FMEM-SSOT-001
 
 follow_up_cleanup_trigger:
   MIR-FMEM-008E landed a producer-neutral readiness gate for layout/table plus
@@ -809,7 +809,7 @@ bash tools/checks/current_state_pointer_guard.sh
 - `DIRECTARRAY-FMEM-COMMON-001` is queued as proof-envelope/report adapter
   work only. DirectArray access does not auto-generate a fastmem region in the
   current lane.
-- `DOCS-SLIM-296X-002` is queued to slim the taskboard after the
+- `DOCS-SLIM-FMEM-SSOT-001` is queued to slim the design SSOT after the
   current task routing is stable. Historical evidence should move to
   investigation/archive owners instead of growing this restart card.
 - DirectMemory / Span / Bytes / LayoutSpan remain future substrate work.
