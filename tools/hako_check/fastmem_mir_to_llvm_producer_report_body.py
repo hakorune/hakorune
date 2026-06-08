@@ -391,6 +391,71 @@ def _atomic_remote_head_retry_rows(
     ]
 
 
+
+
+def _atomic_remote_head_drain_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
+    remote_free_drain_preflight = state["remote_free_drain_preflight"]
+    remote_free_drain_exchange_selection = state["remote_free_drain_exchange_selection"]
+    remote_free_drain_exchange_producer = state["remote_free_drain_exchange_producer"]
+    remote_free_drain_to_local_selection = state["remote_free_drain_to_local_selection"]
+    remote_free_drain_to_local_producer = state["remote_free_drain_to_local_producer"]
+    remote_free_drain_local_list_mutation_preflight = state["remote_free_drain_local_list_mutation_preflight"]
+    remote_free_drain_local_list_mutation_proof = state["remote_free_drain_local_list_mutation_proof"]
+    remote_free_drain_local_list_mutation_vocabulary_preflight = state["remote_free_drain_local_list_mutation_vocabulary_preflight"]
+    remote_free_drain_local_list_mutation_verifier_preconditions = state["remote_free_drain_local_list_mutation_verifier_preconditions"]
+    remote_free_drain_local_list_mutation_lowering_producer = state["remote_free_drain_local_list_mutation_lowering_producer"]
+    remote_owner_branch_routing_any = state["remote_owner_branch_routing_any"]
+    atomic_remote_head_drain_plans = state["atomic_remote_head_drain_plans"]
+    atomic_remote_head_drain_lowerable = state["atomic_remote_head_drain_lowerable"]
+    drain_remote_list_to_local_count = state["drain_remote_list_to_local_count"]
+    drain_remote_list_to_local_plans = state["drain_remote_list_to_local_plans"]
+    drain_remote_list_to_local_token_provenance_valid = state["drain_remote_list_to_local_token_provenance_valid"]
+    drain_remote_list_to_local_page_operand_valid = state["drain_remote_list_to_local_page_operand_valid"]
+    drain_remote_list_to_local_head_class_resolved = state["drain_remote_list_to_local_head_class_resolved"]
+    atomic_remote_head_drain_lowered_count = state["atomic_remote_head_drain_lowered_count"]
+    atomic_remote_head_drain_open = state["atomic_remote_head_drain_open"]
+    atomic_remote_head_drain_exchange_selected = state["atomic_remote_head_drain_exchange_selected"]
+    atomic_remote_head_drain_to_local_route_selected = state["atomic_remote_head_drain_to_local_route_selected"]
+    atomic_remote_head_drain_to_local_route_producer_pilot = state["atomic_remote_head_drain_to_local_route_producer_pilot"]
+    atomic_remote_head_drain_to_local_route_open = state["atomic_remote_head_drain_to_local_route_open"]
+    atomic_remote_head_drain_local_list_mutation_selected = state["atomic_remote_head_drain_local_list_mutation_selected"]
+    atomic_remote_head_drain_local_list_mutation_open = state["atomic_remote_head_drain_local_list_mutation_open"]
+    atomic_remote_head_drain_local_list_token_escape_count = state["atomic_remote_head_drain_local_list_token_escape_count"]
+    atomic_remote_head_drain_local_list_head_class_resolved = state["atomic_remote_head_drain_local_list_head_class_resolved"]
+    atomic_remote_head_drain_local_list_head_class = state["atomic_remote_head_drain_local_list_head_class"]
+    atomic_remote_head_drain_local_list_publication_order = state["atomic_remote_head_drain_local_list_publication_order"]
+    drain_remote_list_to_local_lowerable = state["drain_remote_list_to_local_lowerable"]
+    atomic_remote_head_drain_local_list_mutation_lowerable_count = state["atomic_remote_head_drain_local_list_mutation_lowerable_count"]
+    atomic_remote_head_drain_local_list_mutation_lowered_count = state["atomic_remote_head_drain_local_list_mutation_lowered_count"]
+
+    return [
+        ("atomic_remote_head_drain_selected", str(int_flag(remote_free_drain_preflight or remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
+        ("atomic_remote_head_drain_exchange_selected", str(int_flag(remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
+        ("atomic_remote_head_drain_exchange_order", "acquire" if (remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any) else "closed"),
+        ("atomic_remote_head_drain_result_kind", "remote_free_list_token" if (remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any) else "closed"),
+        ("atomic_remote_head_drain_to_local_route_selected", str(int_flag(remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
+        ("atomic_remote_head_drain_to_local_route_producer_pilot", str(int_flag(remote_free_drain_to_local_producer))),
+        ("atomic_remote_head_drain_to_local_route_open", str(int_flag(remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions))),
+        ("atomic_remote_head_drain_local_list_mutation_selected", str(int_flag(remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
+        ("atomic_remote_head_drain_local_list_mutation_open", str(int_flag(remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
+        ("atomic_remote_head_drain_local_list_token_escape_count", str(atomic_remote_head_drain_local_list_token_escape_count)),
+        ("atomic_remote_head_drain_local_list_head_class_resolved", str(int_flag(atomic_remote_head_drain_local_list_head_class_resolved))),
+        ("atomic_remote_head_drain_local_list_head_class", atomic_remote_head_drain_local_list_head_class),
+        ("atomic_remote_head_drain_local_list_publication_order", atomic_remote_head_drain_local_list_publication_order),
+        ("atomic_remote_head_drain_open", str(int_flag(atomic_remote_head_drain_open))),
+        ("atomic_remote_head_drain_plan_count", str(len(atomic_remote_head_drain_plans))),
+        ("atomic_remote_head_drain_lowerable_count", str(atomic_remote_head_drain_lowerable)),
+        ("atomic_remote_head_drain_lowered_count", str(atomic_remote_head_drain_lowered_count)),
+        ("fastmem_memop_drain_remote_list_to_local_count", str(drain_remote_list_to_local_count)),
+        ("drain_remote_list_to_local_plan_count", str(len(drain_remote_list_to_local_plans))),
+        ("drain_remote_list_to_local_token_provenance_valid", str(drain_remote_list_to_local_token_provenance_valid)),
+        ("drain_remote_list_to_local_page_operand_valid", str(drain_remote_list_to_local_page_operand_valid)),
+        ("drain_remote_list_to_local_head_class_resolved", str(drain_remote_list_to_local_head_class_resolved)),
+        ("drain_remote_list_to_local_lowerable_count", str(drain_remote_list_to_local_lowerable)),
+        ("atomic_remote_head_drain_local_list_mutation_lowerable_count", str(atomic_remote_head_drain_local_list_mutation_lowerable_count)),
+        ("atomic_remote_head_drain_local_list_mutation_lowered_count", str(atomic_remote_head_drain_local_list_mutation_lowered_count)),
+    ]
+
 def _atomic_remote_head_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     remote_free_retry_preflight = state["remote_free_retry_preflight"]
     remote_free_retry_producer = state["remote_free_retry_producer"]
@@ -486,31 +551,7 @@ def _atomic_remote_head_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
             remote_free_drain_local_list_mutation_lowering_producer=remote_free_drain_local_list_mutation_lowering_producer,
             remote_owner_branch_routing_any=remote_owner_branch_routing_any,
         ),
-        ("atomic_remote_head_drain_selected", str(int_flag(remote_free_drain_preflight or remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
-        ("atomic_remote_head_drain_exchange_selected", str(int_flag(remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
-        ("atomic_remote_head_drain_exchange_order", "acquire" if (remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any) else "closed"),
-        ("atomic_remote_head_drain_result_kind", "remote_free_list_token" if (remote_free_drain_exchange_selection or remote_free_drain_exchange_producer or remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any) else "closed"),
-        ("atomic_remote_head_drain_to_local_route_selected", str(int_flag(remote_free_drain_to_local_selection or remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
-        ("atomic_remote_head_drain_to_local_route_producer_pilot", str(int_flag(remote_free_drain_to_local_producer))),
-        ("atomic_remote_head_drain_to_local_route_open", str(int_flag(remote_free_drain_to_local_producer or remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions))),
-        ("atomic_remote_head_drain_local_list_mutation_selected", str(int_flag(remote_free_drain_local_list_mutation_preflight or remote_free_drain_local_list_mutation_proof or remote_free_drain_local_list_mutation_vocabulary_preflight or remote_free_drain_local_list_mutation_verifier_preconditions or remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
-        ("atomic_remote_head_drain_local_list_mutation_open", str(int_flag(remote_free_drain_local_list_mutation_lowering_producer or remote_owner_branch_routing_any))),
-        ("atomic_remote_head_drain_local_list_token_escape_count", str(atomic_remote_head_drain_local_list_token_escape_count)),
-        ("atomic_remote_head_drain_local_list_head_class_resolved", str(int_flag(atomic_remote_head_drain_local_list_head_class_resolved))),
-        ("atomic_remote_head_drain_local_list_head_class", atomic_remote_head_drain_local_list_head_class),
-        ("atomic_remote_head_drain_local_list_publication_order", atomic_remote_head_drain_local_list_publication_order),
-        ("atomic_remote_head_drain_open", str(int_flag(atomic_remote_head_drain_open))),
-        ("atomic_remote_head_drain_plan_count", str(len(atomic_remote_head_drain_plans))),
-        ("atomic_remote_head_drain_lowerable_count", str(atomic_remote_head_drain_lowerable)),
-        ("atomic_remote_head_drain_lowered_count", str(atomic_remote_head_drain_lowered_count)),
-        ("fastmem_memop_drain_remote_list_to_local_count", str(drain_remote_list_to_local_count)),
-        ("drain_remote_list_to_local_plan_count", str(len(drain_remote_list_to_local_plans))),
-        ("drain_remote_list_to_local_token_provenance_valid", str(drain_remote_list_to_local_token_provenance_valid)),
-        ("drain_remote_list_to_local_page_operand_valid", str(drain_remote_list_to_local_page_operand_valid)),
-        ("drain_remote_list_to_local_head_class_resolved", str(drain_remote_list_to_local_head_class_resolved)),
-        ("drain_remote_list_to_local_lowerable_count", str(drain_remote_list_to_local_lowerable)),
-        ("atomic_remote_head_drain_local_list_mutation_lowerable_count", str(atomic_remote_head_drain_local_list_mutation_lowerable_count)),
-        ("atomic_remote_head_drain_local_list_mutation_lowered_count", str(atomic_remote_head_drain_local_list_mutation_lowered_count)),
+        *_atomic_remote_head_drain_rows(state),
     ]
 
 
