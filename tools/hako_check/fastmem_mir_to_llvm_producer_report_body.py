@@ -722,6 +722,131 @@ def _atomic_remote_state_overrides(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+
+def _report_header_rows(state: dict[str, Any], slice_rows: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    plans = state["plans"]
+    regions = state["regions"]
+    verified_plans = state["verified_plans"]
+    verified_table = state["verified_table"]
+    verified_field_load = state["verified_field_load"]
+    verified_field_store = state["verified_field_store"]
+    verified_local_free_push = state["verified_local_free_push"]
+    verified_local_free_pop = state["verified_local_free_pop"]
+    verified_free_head_push = state["verified_free_head_push"]
+    verified_free_head_pop = state["verified_free_head_pop"]
+    contract_ids = state["contract_ids"]
+    contract_id = state["contract_id"]
+    profile = state["profile"]
+    route_candidate = state["route_candidate"]
+    free_route_candidate = state["free_route_candidate"]
+    page_local_alloc_route_cfg_any = state["page_local_alloc_route_cfg_any"]
+    page_local_route_body_join_any = state["page_local_route_body_join_any"]
+    page_local_alloc_route_cfg_producer = state["page_local_alloc_route_cfg_producer"]
+    page_local_free_route_cfg_producer = state["page_local_free_route_cfg_producer"]
+    tls_backing_transfer_or_later = state["tls_backing_transfer_or_later"]
+    free_head_non_empty_facts = state["free_head_non_empty_facts"]
+    remote_owner_branch_routing_selected_any = state["remote_owner_branch_routing_selected_any"]
+    remote_owner_branch_routing_open_any = state["remote_owner_branch_routing_open_any"]
+    remote_owner_branch_routing_lowered_count_value = state["remote_owner_branch_routing_lowered_count_value"]
+    remote_owner_branch_routing_preflight_requires_branch_cfg_row_value = state["remote_owner_branch_routing_preflight_requires_branch_cfg_row_value"]
+    remote_owner_branch_route_body_selected_any = state["remote_owner_branch_route_body_selected_any"]
+    fastmem_branch_cfg_selected_any = state["fastmem_branch_cfg_selected_any"]
+    fastmem_branch_cfg_open_any = state["fastmem_branch_cfg_open_any"]
+    fastmem_branch_cfg_closed_guard_any = state["fastmem_branch_cfg_closed_guard_any"]
+    fastmem_branch_cfg_lowered_count_value = state["fastmem_branch_cfg_lowered_count_value"]
+    fastmem_branch_cfg_source_guard_value = state["fastmem_branch_cfg_source_guard_value"]
+    same_remote_free_body_selected_any = state["same_remote_free_body_selected_any"]
+    same_remote_free_body_open_any = state["same_remote_free_body_open_any"]
+    same_remote_free_body_lowered_count_any = state["same_remote_free_body_lowered_count_any"]
+    page_local_route_body_join_open_any = state["page_local_route_body_join_open_any"]
+    terminal_ladder_refresh_selected_any = state["terminal_ladder_refresh_selected_any"]
+    terminal_ladder_refresh_open_any = state["terminal_ladder_refresh_open_any"]
+
+    return [
+        ("output_contract", "hako-check-fastmem-mir-to-llvm-producer-report-v0"),
+        ("tool_surface", "fastmem_mir_to_llvm_producer_report"),
+        ("input_kind", "mir_json_metadata"),
+        ("observation_only", "1"),
+        ("behavior_change", "0"),
+        ("replacement_front_source_truth", "hako_fastmem"),
+        ("replacement_front_producer_taxonomy_v0", "1"),
+        ("replacement_front_producer", "mir_to_llvm_lowering"),
+        ("replacement_front_backend_artifact", "object"),
+        ("replacement_front_producer_transition_state", "final_primary"),
+        *slice_rows,
+        ("replacement_front_selection_behavior_change", "0"),
+        ("replacement_front_selection_product_activation", "0"),
+        ("replacement_front_selection_bridge_retirement_allowed", "0"),
+        ("replacement_front_python_template_c_semantic_ssot", "0"),
+        ("replacement_front_python_template_c_retirement_required", "1"),
+        ("replacement_front_mirbuilder_representation_only", "1"),
+        ("replacement_front_mirbuilder_route_decision_count", "0"),
+        ("replacement_front_mir_memop_enabled", "1"),
+        ("replacement_front_mir_fastmem_region_enabled", "1"),
+        ("replacement_front_fastmem_enabled", "1"),
+        ("replacement_front_is_full_hako_algorithm", "0"),
+        ("hako_mimalloc_algorithm_claim", "0"),
+        ("fastmem_region_count", str(len(regions))),
+        ("fastmem_contract_count", str(len(contract_ids))),
+        ("fastmem_contract_id", contract_id),
+        ("fastmem_verified_mem_access_plan_count", str(len(verified_plans))),
+        ("fastmem_verified_table_access_count", str(len(verified_table))),
+        ("fastmem_verified_field_access_count", str(len(verified_field_load) + len(verified_field_store))),
+        ("fastmem_table_access_plan_count", str(len(verified_table))),
+        ("fastmem_field_load_plan_count", str(len(verified_field_load))),
+        ("fastmem_field_store_plan_count", str(len(verified_field_store))),
+        ("fastmem_local_free_push_plan_count", str(len(verified_local_free_push))),
+        ("fastmem_local_free_pop_plan_count", str(len(verified_local_free_pop))),
+        ("fastmem_free_head_push_plan_count", str(len(verified_free_head_push))),
+        ("fastmem_free_head_pop_plan_count", str(len(verified_free_head_pop))),
+        *_atomic_remote_head_rows(state),
+        *_remote_owner_branch_routing_rows(
+            remote_owner_branch_routing_selected_any=remote_owner_branch_routing_selected_any,
+            remote_owner_branch_routing_open_any=remote_owner_branch_routing_open_any,
+            remote_owner_branch_routing_lowered_count_value=remote_owner_branch_routing_lowered_count_value,
+            remote_owner_branch_routing_preflight_requires_branch_cfg_row_value=remote_owner_branch_routing_preflight_requires_branch_cfg_row_value,
+            remote_owner_branch_route_body_selected_any=remote_owner_branch_route_body_selected_any,
+        ),
+        *_branch_cfg_and_same_remote_rows(
+            fastmem_branch_cfg_selected_any=fastmem_branch_cfg_selected_any,
+            fastmem_branch_cfg_open_any=fastmem_branch_cfg_open_any,
+            fastmem_branch_cfg_closed_guard_any=fastmem_branch_cfg_closed_guard_any,
+            fastmem_branch_cfg_lowered_count_value=fastmem_branch_cfg_lowered_count_value,
+            fastmem_branch_cfg_source_guard_value=fastmem_branch_cfg_source_guard_value,
+            same_remote_free_body_selected_any=same_remote_free_body_selected_any,
+            same_remote_free_body_open_any=same_remote_free_body_open_any,
+            same_remote_free_body_lowered_count_any=same_remote_free_body_lowered_count_any,
+        ),
+        (
+            "page_local_free_route_cfg_selected",
+            str(
+                int_flag(
+                    state["page_local_free_route_cfg_any"]
+                    or page_local_route_body_join_any
+                    or tls_backing_transfer_or_later
+                )
+            ),
+        ),
+        (
+            "page_local_alloc_route_cfg_selected",
+            str(int_flag(page_local_alloc_route_cfg_any)),
+        ),
+        (
+            "page_local_route_body_join_selected",
+            str(int_flag(page_local_route_body_join_any)),
+        ),
+        *_terminal_ladder_refresh_rows(
+            page_local_route_body_join_open=page_local_route_body_join_open_any,
+            terminal_ladder_refresh_selected_any=terminal_ladder_refresh_selected_any,
+            terminal_ladder_refresh_open_any=terminal_ladder_refresh_open_any,
+        ),
+        (
+            "tls_backing_transfer_selected",
+            str(int_flag(tls_backing_transfer_or_later)),
+        ),
+    ]
+
+
 def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) -> list[tuple[str, str]]:
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
@@ -1088,89 +1213,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
     atomic_remote_state = {**locals().copy(), **route_state}
     atomic_remote_state.update(_atomic_remote_state_overrides(atomic_remote_state))
 
-    rows: list[tuple[str, str]] = [
-        ("output_contract", "hako-check-fastmem-mir-to-llvm-producer-report-v0"),
-        ("tool_surface", "fastmem_mir_to_llvm_producer_report"),
-        ("input_kind", "mir_json_metadata"),
-        ("observation_only", "1"),
-        ("behavior_change", "0"),
-        ("replacement_front_source_truth", "hako_fastmem"),
-        ("replacement_front_producer_taxonomy_v0", "1"),
-        ("replacement_front_producer", "mir_to_llvm_lowering"),
-        ("replacement_front_backend_artifact", "object"),
-        ("replacement_front_producer_transition_state", "final_primary"),
-        *slice_rows,
-        ("replacement_front_selection_behavior_change", "0"),
-        ("replacement_front_selection_product_activation", "0"),
-        ("replacement_front_selection_bridge_retirement_allowed", "0"),
-        ("replacement_front_python_template_c_semantic_ssot", "0"),
-        ("replacement_front_python_template_c_retirement_required", "1"),
-        ("replacement_front_mirbuilder_representation_only", "1"),
-        ("replacement_front_mirbuilder_route_decision_count", "0"),
-        ("replacement_front_mir_memop_enabled", "1"),
-        ("replacement_front_mir_fastmem_region_enabled", "1"),
-        ("replacement_front_fastmem_enabled", "1"),
-        ("replacement_front_is_full_hako_algorithm", "0"),
-        ("hako_mimalloc_algorithm_claim", "0"),
-        ("fastmem_region_count", str(len(regions))),
-        ("fastmem_contract_count", str(len(contract_ids))),
-        ("fastmem_contract_id", contract_id),
-        ("fastmem_verified_mem_access_plan_count", str(len(verified_plans))),
-        ("fastmem_verified_table_access_count", str(len(verified_table))),
-        ("fastmem_verified_field_access_count", str(len(verified_field))),
-        ("fastmem_table_access_plan_count", str(len(verified_table))),
-        ("fastmem_field_load_plan_count", str(len(verified_field_load))),
-        ("fastmem_field_store_plan_count", str(len(verified_field_store))),
-        ("fastmem_local_free_push_plan_count", str(len(verified_local_free_push))),
-        ("fastmem_local_free_pop_plan_count", str(len(verified_local_free_pop))),
-        ("fastmem_free_head_push_plan_count", str(len(verified_free_head_push))),
-        ("fastmem_free_head_pop_plan_count", str(len(verified_free_head_pop))),
-        *_atomic_remote_head_rows(atomic_remote_state),
-        *_remote_owner_branch_routing_rows(
-            remote_owner_branch_routing_selected_any=remote_owner_branch_routing_selected_any,
-            remote_owner_branch_routing_open_any=remote_owner_branch_routing_open_any,
-            remote_owner_branch_routing_lowered_count_value=remote_owner_branch_routing_lowered_count_value,
-            remote_owner_branch_routing_preflight_requires_branch_cfg_row_value=remote_owner_branch_routing_preflight_requires_branch_cfg_row_value,
-            remote_owner_branch_route_body_selected_any=remote_owner_branch_route_body_selected_any,
-        ),
-        *_branch_cfg_and_same_remote_rows(
-            fastmem_branch_cfg_selected_any=fastmem_branch_cfg_selected_any,
-            fastmem_branch_cfg_open_any=fastmem_branch_cfg_open_any,
-            fastmem_branch_cfg_closed_guard_any=fastmem_branch_cfg_closed_guard_any,
-            fastmem_branch_cfg_lowered_count_value=fastmem_branch_cfg_lowered_count_value,
-            fastmem_branch_cfg_source_guard_value=fastmem_branch_cfg_source_guard_value,
-            same_remote_free_body_selected_any=same_remote_free_body_selected_any,
-            same_remote_free_body_open_any=same_remote_free_body_open_any,
-            same_remote_free_body_lowered_count_any=same_remote_free_body_lowered_count_any,
-        ),
-        (
-            "page_local_free_route_cfg_selected",
-            str(
-                int_flag(
-                    page_local_free_route_cfg_any
-                    or page_local_route_body_join_any
-                    or tls_backing_transfer_or_later
-                )
-            ),
-        ),
-        (
-            "page_local_alloc_route_cfg_selected",
-            str(int_flag(page_local_alloc_route_cfg_any)),
-        ),
-        (
-            "page_local_route_body_join_selected",
-            str(int_flag(page_local_route_body_join_any)),
-        ),
-        *_terminal_ladder_refresh_rows(
-            page_local_route_body_join_open=page_local_route_body_join_open_any,
-            terminal_ladder_refresh_selected_any=terminal_ladder_refresh_selected_any,
-            terminal_ladder_refresh_open_any=terminal_ladder_refresh_open_any,
-        ),
-        (
-            "tls_backing_transfer_selected",
-            str(int_flag(tls_backing_transfer_or_later)),
-        ),
-    ]
+    rows = _report_header_rows(atomic_remote_state, slice_rows)
     rows.extend(
         _page_local_route_report_rows(
             profile=profile,
