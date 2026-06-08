@@ -19,7 +19,6 @@ from fastmem_capability_inventory_common import (
     MIMALLOC_SAFETY_DEFAULT_THRESHOLD,
     MIMALLOC_SHAPE_COMPONENT_POINTS,
     MIMALLOC_SHAPE_DEFAULT_THRESHOLD,
-    PAGE_META_FIELDS,
     add_count,
     analyze_expr,
     analyze_stmt,
@@ -538,5 +537,4 @@ def build_mir_metadata_inventory(root: dict[str, Any]) -> dict[str, Any]:
         }
     )
     return report
-
 

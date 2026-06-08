@@ -9,6 +9,10 @@ import re
 from pathlib import Path
 from typing import Any
 
+from fastmem_constants import (
+    PAGE_LOCAL_TYPED_META_FIELDS,
+    typed_page_meta_field_report_key,
+)
 from report_kv import (
     find_subject,
     first_value,
@@ -336,11 +340,10 @@ def page_local_bridge_evidence(
     methods_present = int(not missing_methods and source_path.is_file())
     typed_meta_matches = int(
         report["page_map_bridge_benchmark_front_pilot"]
-        and report.get("typed_page_meta_field_block_size", 0) == 1
-        and report.get("typed_page_meta_field_free_head", 0) == 1
-        and report.get("typed_page_meta_field_local_free_head", 0) == 1
-        and report.get("typed_page_meta_field_capacity", 0) == 1
-        and report.get("typed_page_meta_field_used", 0) == 1
+        and all(
+            report.get(typed_page_meta_field_report_key(field), 0) == 1
+            for field in PAGE_LOCAL_TYPED_META_FIELDS
+        )
     )
     same_owner_matches = int(
         report["same_thread_free_local_count_total"] > 0
@@ -522,21 +525,12 @@ def build_report(rows: dict[str, str], skip_rows: dict[str, str] | None) -> dict
             "replacement_front_global_lock_refill_count"
         ),
         "host_passthrough_count_total": front_counter("replacement_front_host_passthrough_count"),
-        "typed_page_meta_field_block_size": prefixed_int(
-            rows, replacement_idx, "typed_page_meta_field_block_size"
-        ),
-        "typed_page_meta_field_free_head": prefixed_int(
-            rows, replacement_idx, "typed_page_meta_field_free_head"
-        ),
-        "typed_page_meta_field_local_free_head": prefixed_int(
-            rows, replacement_idx, "typed_page_meta_field_local_free_head"
-        ),
-        "typed_page_meta_field_capacity": prefixed_int(
-            rows, replacement_idx, "typed_page_meta_field_capacity"
-        ),
-        "typed_page_meta_field_used": prefixed_int(
-            rows, replacement_idx, "typed_page_meta_field_used"
-        ),
+        **{
+            typed_page_meta_field_report_key(field): prefixed_int(
+                rows, replacement_idx, typed_page_meta_field_report_key(field)
+            )
+            for field in PAGE_LOCAL_TYPED_META_FIELDS
+        },
     }
 
     generated_c_front = report["benchmark_front_class"] == "replacement_front_c_shim"

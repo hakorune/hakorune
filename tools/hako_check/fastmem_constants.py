@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Shared constants for FastMemory capability and ownership surfaces."""
+
+from __future__ import annotations
+
+CONTRACT_PAGE_MAP_V0 = "PageMapV0"
+LAYOUT_PAGE_META_V0 = "PageMetaLayoutV0"
+
+PAGE_META_FIELD_OWNER_WORKER_ID = "owner_worker_id"
+PAGE_META_FIELD_BLOCK_SIZE = "block_size"
+PAGE_META_FIELD_FREE_HEAD = "free_head"
+PAGE_META_FIELD_LOCAL_FREE_HEAD = "local_free_head"
+PAGE_META_FIELD_REMOTE_HEAD = "remote_head"
+PAGE_META_FIELD_CAPACITY = "capacity"
+PAGE_META_FIELD_USED = "used"
+
+PAGE_META_FIELDS = (
+    PAGE_META_FIELD_OWNER_WORKER_ID,
+    PAGE_META_FIELD_BLOCK_SIZE,
+    PAGE_META_FIELD_FREE_HEAD,
+    PAGE_META_FIELD_LOCAL_FREE_HEAD,
+    PAGE_META_FIELD_REMOTE_HEAD,
+    PAGE_META_FIELD_CAPACITY,
+    PAGE_META_FIELD_USED,
+)
+
+PAGE_LOCAL_TYPED_META_FIELDS = (
+    PAGE_META_FIELD_BLOCK_SIZE,
+    PAGE_META_FIELD_FREE_HEAD,
+    PAGE_META_FIELD_LOCAL_FREE_HEAD,
+    PAGE_META_FIELD_CAPACITY,
+    PAGE_META_FIELD_USED,
+)
+
+PAGE_META_FIELD_REPORT_PREFIX = "typed_page_meta_field_"
+PAGE_OWNER_CHECK_ROUTE = "page_meta_owner_worker_id"
+
+ALLOC_OWNER_ID_REPR_PACKED_U64_SLOT_GENERATION = "packed_u64_slot_generation"
+ALLOC_OWNER_ID_KIND_ARENA_OWNER = "arena_owner"
+ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER = "allocator_arena_owner"
+ALLOC_OWNER_ID_SOURCE_BENCHMARK_C_PTHREAD_TLS = "benchmark_c_pthread_tls"
+ALLOC_OWNER_ID_WIDTH_BITS = 64
+ALLOC_OWNER_SLOT_BITS = 32
+ALLOC_OWNER_GENERATION_BITS = 32
+
+
+def typed_page_meta_field_report_key(field: str) -> str:
+    return f"{PAGE_META_FIELD_REPORT_PREFIX}{field}"

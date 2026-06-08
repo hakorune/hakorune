@@ -6,17 +6,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Iterable
 
+from fastmem_constants import CONTRACT_PAGE_MAP_V0, PAGE_META_FIELDS
 from report_kv import first_value, int_value, prefixed
-
-PAGE_META_FIELDS = (
-    "owner_worker_id",
-    "block_size",
-    "free_head",
-    "local_free_head",
-    "remote_head",
-    "capacity",
-    "used",
-)
 
 MIMALLOC_SHAPE_COMPONENT_POINTS = 10
 MIMALLOC_SHAPE_DEFAULT_THRESHOLD = 80
@@ -105,7 +96,7 @@ def typed_page_meta_fields(rows: dict[str, str], subject_idx: int) -> dict[str, 
 
 
 def contract_family(contract: str) -> str:
-    if contract == "PageMapV0":
+    if contract == CONTRACT_PAGE_MAP_V0:
         return "allocator.page_map"
     if contract.startswith("RemoteFree"):
         return "allocator.remote_free"
@@ -543,13 +534,7 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "typed_page_meta_layout_hash": "unknown",
         "typed_page_meta_field_count": 0,
         "typed_page_meta_required_field_missing_count": 0,
-        "typed_page_meta_field_owner_worker_id": 0,
-        "typed_page_meta_field_block_size": 0,
-        "typed_page_meta_field_free_head": 0,
-        "typed_page_meta_field_local_free_head": 0,
-        "typed_page_meta_field_remote_head": 0,
-        "typed_page_meta_field_capacity": 0,
-        "typed_page_meta_field_used": 0,
+        **{f"typed_page_meta_field_{field}": 0 for field in PAGE_META_FIELDS},
         "typed_page_table_mode": "none",
         "alloc_owner_id_capability": 0,
         "alloc_owner_id_kind": "unknown",

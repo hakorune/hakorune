@@ -19,7 +19,6 @@ from fastmem_capability_inventory_common import (
     MIMALLOC_SAFETY_DEFAULT_THRESHOLD,
     MIMALLOC_SHAPE_COMPONENT_POINTS,
     MIMALLOC_SHAPE_DEFAULT_THRESHOLD,
-    PAGE_META_FIELDS,
     add_count,
     analyze_expr,
     analyze_stmt,
@@ -41,6 +40,13 @@ from fastmem_capability_inventory_common import (
     speed_score_from_ratio,
     typed_page_meta_fields,
     write_output,
+)
+from fastmem_constants import (
+    ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER,
+    ALLOC_OWNER_ID_KIND_ARENA_OWNER,
+    ALLOC_OWNER_ID_SOURCE_BENCHMARK_C_PTHREAD_TLS,
+    ALLOC_OWNER_ID_WIDTH_BITS,
+    LAYOUT_PAGE_META_V0,
 )
 from report_kv import first_value, int_value, prefixed, read_kv
 from replacement_front_report import (
@@ -126,7 +132,7 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         rows,
         idx,
         "typed_page_meta_layout_id",
-        first_subject_value(rows, idx, "fastmem_layout_id", "unknown"),
+        first_subject_value(rows, idx, "fastmem_layout_id", LAYOUT_PAGE_META_V0),
     )
     typed_meta_layout_hash = first_subject_value(
         rows,
@@ -141,16 +147,23 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         rows,
         idx,
         "alloc_owner_id_kind",
-        "allocator_arena_owner" if alloc_owner_id_capability else "unknown",
+        ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER
+        if alloc_owner_id_capability
+        else "unknown",
     )
     alloc_owner_id_source = first_subject_value(
         rows,
         idx,
         "alloc_owner_id_source",
-        "benchmark_c_pthread_tls" if alloc_owner_id_capability else "unknown",
+        ALLOC_OWNER_ID_SOURCE_BENCHMARK_C_PTHREAD_TLS
+        if alloc_owner_id_capability
+        else "unknown",
     )
     alloc_owner_id_width_bits = int_subject_value(
-        rows, idx, "alloc_owner_id_width_bits", 64 if alloc_owner_id_capability else 0
+        rows,
+        idx,
+        "alloc_owner_id_width_bits",
+        ALLOC_OWNER_ID_WIDTH_BITS if alloc_owner_id_capability else 0,
     )
     replacement_owner_generation_enabled = replacement_counter(
         "allocator_owner_generation_enabled"
@@ -297,7 +310,9 @@ def build_inventory(rows: dict[str, str]) -> dict[str, Any]:
         rows,
         idx,
         "allocator_owner_id_kind",
-        "arena_owner" if alloc_owner_id_kind == "allocator_arena_owner" else "unknown",
+        ALLOC_OWNER_ID_KIND_ARENA_OWNER
+        if alloc_owner_id_kind == ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER
+        else "unknown",
     )
     allocator_owner_active_count = int_subject_value(
         rows,

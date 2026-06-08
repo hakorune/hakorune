@@ -29,6 +29,12 @@ from fastmem_route_profiles import (
     PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT_EXPECTED_ZERO,
     page_local_alloc_route_cfg_preflight_profile,
 )
+from fastmem_constants import (
+    ALLOC_OWNER_ID_KIND_ARENA_OWNER,
+    ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER,
+    ALLOC_OWNER_ID_REPR_PACKED_U64_SLOT_GENERATION,
+    PAGE_OWNER_CHECK_ROUTE,
+)
 from report_kv import read_kv
 from fastmem_check_atomic_rules import check_atomic_rules
 from fastmem_check_profile_functions import *
@@ -48,9 +54,9 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         if rows.get(key) in forbidden_values:
             reasons.append(key)
     if owner_state_profile(rows):
-        if rows.get("alloc_owner_id_kind") != "allocator_arena_owner":
+        if rows.get("alloc_owner_id_kind") != ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER:
             reasons.append("alloc_owner_id_kind")
-        if rows.get("worker_id_kind") != "allocator_arena_owner":
+        if rows.get("worker_id_kind") != ALLOC_OWNER_ID_KIND_ALLOCATOR_ARENA_OWNER:
             reasons.append("worker_id_kind")
         if int_count(rows, "allocator_tls_arena_enabled") <= 0:
             reasons.append("allocator_tls_arena_enabled")
@@ -58,7 +64,7 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             reasons.append("allocator_tls_arena_init_count")
         if int_count(rows, "page_owner_check_enabled") <= 0:
             reasons.append("page_owner_check_enabled")
-        if rows.get("page_owner_check_route") != "page_meta_owner_worker_id":
+        if rows.get("page_owner_check_route") != PAGE_OWNER_CHECK_ROUTE:
             reasons.append("page_owner_check_route")
         if int_count(rows, "page_owner_check_count") <= 0:
             reasons.append("page_owner_check_count")
@@ -67,9 +73,9 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             reasons.append("allocator_owner_lifecycle_state_machine")
         if int_count(rows, "allocator_owner_generation_enabled") != 1:
             reasons.append("allocator_owner_generation_enabled")
-        if rows.get("allocator_owner_id_kind") != "arena_owner":
+        if rows.get("allocator_owner_id_kind") != ALLOC_OWNER_ID_KIND_ARENA_OWNER:
             reasons.append("allocator_owner_id_kind")
-        if rows.get("allocator_owner_id_repr") != "packed_u64_slot_generation":
+        if rows.get("allocator_owner_id_repr") != ALLOC_OWNER_ID_REPR_PACKED_U64_SLOT_GENERATION:
             reasons.append("allocator_owner_id_repr")
         if int_count(rows, "allocator_owner_slot_bits") != 32:
             reasons.append("allocator_owner_slot_bits")

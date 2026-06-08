@@ -17,6 +17,14 @@ from fastmem_capability_inventory_common import (
     int_subject_value,
     speed_score_from_ratio,
 )
+from fastmem_constants import (
+    ALLOC_OWNER_GENERATION_BITS,
+    ALLOC_OWNER_ID_REPR_PACKED_U64_SLOT_GENERATION,
+    ALLOC_OWNER_SLOT_BITS,
+    PAGE_META_FIELDS,
+    PAGE_OWNER_CHECK_ROUTE,
+    typed_page_meta_field_report_key,
+)
 from report_kv import first_value, int_value
 
 
@@ -320,13 +328,10 @@ def build_inventory_report(state: dict[str, Any]) -> dict[str, Any]:
             "typed_page_meta_layout_hash": typed_meta_layout_hash,
             "typed_page_meta_field_count": typed_meta_field_count,
             "typed_page_meta_required_field_missing_count": typed_meta_missing_count,
-            "typed_page_meta_field_owner_worker_id": typed_meta_fields["owner_worker_id"],
-            "typed_page_meta_field_block_size": typed_meta_fields["block_size"],
-            "typed_page_meta_field_free_head": typed_meta_fields["free_head"],
-            "typed_page_meta_field_local_free_head": typed_meta_fields["local_free_head"],
-            "typed_page_meta_field_remote_head": typed_meta_fields["remote_head"],
-            "typed_page_meta_field_capacity": typed_meta_fields["capacity"],
-            "typed_page_meta_field_used": typed_meta_fields["used"],
+            **{
+                typed_page_meta_field_report_key(field): typed_meta_fields[field]
+                for field in PAGE_META_FIELDS
+            },
             "fastmem_layout_verified": typed_meta_layout_verified,
             "fastmem_layout_id": typed_meta_layout_id,
             "fastmem_layout_hash": typed_meta_layout_hash,
@@ -346,17 +351,20 @@ def build_inventory_report(state: dict[str, Any]) -> dict[str, Any]:
             "allocator_owner_lifecycle_state_machine": allocator_owner_lifecycle_state_machine,
             "allocator_owner_generation_enabled": allocator_owner_generation_enabled,
             "allocator_owner_id_kind": allocator_owner_id_kind,
-            "allocator_owner_id_repr": "packed_u64_slot_generation"
+            "allocator_owner_id_repr": ALLOC_OWNER_ID_REPR_PACKED_U64_SLOT_GENERATION
             if allocator_owner_generation_enabled
             else "unknown",
             "allocator_owner_slot_bits": int_subject_value(
-                rows, idx, "allocator_owner_slot_bits", 32 if allocator_owner_generation_enabled else 0
+                rows,
+                idx,
+                "allocator_owner_slot_bits",
+                ALLOC_OWNER_SLOT_BITS if allocator_owner_generation_enabled else 0,
             ),
             "allocator_owner_generation_bits": int_subject_value(
                 rows,
                 idx,
                 "allocator_owner_generation_bits",
-                32 if allocator_owner_generation_enabled else 0,
+                ALLOC_OWNER_GENERATION_BITS if allocator_owner_generation_enabled else 0,
             ),
             "allocator_owner_zero_is_invalid": int_subject_value(
                 rows, idx, "allocator_owner_zero_is_invalid", alloc_owner_id_zero_is_unowned
@@ -525,7 +533,7 @@ def build_inventory_report(state: dict[str, Any]) -> dict[str, Any]:
             "page_owner_check_enabled": int_subject_value(
                 rows, idx, "page_owner_check_enabled", owner_shadow_counters
             ),
-            "page_owner_check_route": "page_meta_owner_worker_id"
+            "page_owner_check_route": PAGE_OWNER_CHECK_ROUTE
             if owner_shadow_counters
             else "none",
             "page_owner_check_count": page_owner_check_count,
