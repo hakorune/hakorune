@@ -27,6 +27,24 @@ Canonical helpers
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 
+FastMem source-syntax smoke taxonomy
+- SSOT: `docs/development/current/main/design/fastmem-source-syntax-smoke-taxonomy-ssot.md`
+- fixture kinds:
+  - `success`
+  - `ast_failure`
+  - `mir_failure`
+  - `mir_emit_failure`
+- producer kinds:
+  - `success`
+  - `report_failure`
+  - `check_failure`
+- `kind` is optional on `[[fixtures]]` and `[[fixtures.producers]]`.
+- If `kind` is omitted, `tools/hako_check/fastmem_source_manifest_runner.py`
+  infers it from the existing failure booleans for backward compatibility.
+- Prefer explicit `kind` when authoring new rows.
+- Keep one causal stage per row when possible; split mixed failure causes into
+  separate fixtures instead of overloading a single entry.
+
 Execution lane
 - `hako_check` no longer treats explicit `--backend vm` as its canonical runtime.
 - The CLI/scripts should run through the normal `hakorune` ingress (mainline/default route) and keep backend choice out of the tool surface unless a dedicated product-lane proof is being debugged.

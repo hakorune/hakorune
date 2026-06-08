@@ -17,6 +17,19 @@ from pathlib import Path
 
 from report_kv import expected_kv_mismatches, format_expected_kv_mismatches, read_expected_kv
 
+FIXTURE_KINDS = {
+    "success",
+    "ast_failure",
+    "mir_failure",
+    "mir_emit_failure",
+}
+
+PRODUCER_KINDS = {
+    "success",
+    "report_failure",
+    "check_failure",
+}
+
 
 def fail(message: str, code: int = 2) -> None:
     print(f"[fastmem/source-manifest] ERROR: {message}", file=sys.stderr)
@@ -32,6 +45,41 @@ def resolve_path(root: Path, raw: str) -> Path:
     if path.is_absolute():
         return path
     return root / path
+
+
+def normalize_kind(raw_kind: object, *, allowed: set[str], inferred: str, context: str) -> str:
+    if raw_kind is None:
+        return inferred
+    if not isinstance(raw_kind, str) or not raw_kind.strip():
+        fail(f"{context} kind must be a non-empty string")
+    kind = raw_kind.strip()
+    if kind not in allowed:
+        fail(f"{context} kind must be one of {', '.join(sorted(allowed))}: {kind}")
+    if kind != inferred:
+        fail(f"{context} kind {kind} does not match inferred {inferred}")
+    return kind
+
+
+def infer_fixture_kind(
+    ast_expect_failure: bool,
+    mir_expect_failure: bool,
+    mir_emit_expect_failure: bool,
+) -> str:
+    if mir_emit_expect_failure:
+        return "mir_emit_failure"
+    if ast_expect_failure:
+        return "ast_failure"
+    if mir_expect_failure:
+        return "mir_failure"
+    return "success"
+
+
+def infer_producer_kind(expect_failure: bool, check_expect_failure: bool) -> str:
+    if expect_failure:
+        return "report_failure"
+    if check_expect_failure:
+        return "check_failure"
+    return "success"
 
 
 def find_binary(root: Path) -> Path:
@@ -68,6 +116,7 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
         fixture_id = raw_entry.get("id")
         label = raw_entry.get("label")
         source = raw_entry.get("source")
+        fixture_kind = raw_entry.get("kind")
         ast_expect_failure = bool(raw_entry.get("ast_expect_failure", False))
         mir_expect_failure = bool(raw_entry.get("mir_expect_failure", False))
         mir_emit_expect_failure = bool(raw_entry.get("mir_emit_expect_failure", False))
@@ -89,6 +138,7 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
             if not isinstance(producer, dict):
                 fail(f"fixtures {fixture_id} producer #{p_index} must be a table")
             profile = producer.get("profile")
+            producer_kind = producer.get("kind")
             report_expected = producer.get("report_expected")
             check_expected = producer.get("check_expected")
             expect_failure = bool(producer.get("expect_failure", False))
@@ -96,7 +146,18 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
             stderr_expected = producer.get("stderr_expected")
             if not isinstance(profile, str) or not profile:
                 fail(f"fixtures {fixture_id} producer #{p_index} profile must be a non-empty string")
-            entry: dict[str, object] = {"profile": profile, "expect_failure": expect_failure}
+            inferred_producer_kind = infer_producer_kind(expect_failure, check_expect_failure)
+            entry_kind = normalize_kind(
+                producer_kind,
+                allowed=PRODUCER_KINDS,
+                inferred=inferred_producer_kind,
+                context=f"fixtures {fixture_id} producer {profile}",
+            )
+            entry: dict[str, object] = {
+                "profile": profile,
+                "kind": entry_kind,
+                "expect_failure": expect_failure,
+            }
             if check_expect_failure:
                 if expect_failure:
                     fail(
@@ -123,6 +184,12 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
             "label": label,
             "source": source,
             "features": raw_entry.get("features", os.environ.get("FASTMEM_SOURCE_FEATURES", "stage3,rune")),
+            "kind": normalize_kind(
+                fixture_kind,
+                allowed=FIXTURE_KINDS,
+                inferred=infer_fixture_kind(ast_expect_failure, mir_expect_failure, mir_emit_expect_failure),
+                context=f"fixtures {fixture_id}",
+            ),
             "ast_expect_failure": ast_expect_failure,
             "mir_expect_failure": mir_expect_failure,
             "mir_emit_expect_failure": mir_emit_expect_failure,
@@ -184,6 +251,7 @@ def compare_expected_text(actual_path: Path, expected_path: Path, tag: str, labe
 def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str) -> None:
     fixture_id = str(fixture["id"])
     label = str(fixture["label"])
+    fixture_kind = str(fixture["kind"])
     source = resolve_path(root, str(fixture["source"]))
     features = str(fixture["features"])
     ast_expect_failure = bool(fixture.get("ast_expect_failure", False))
@@ -210,7 +278,7 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
         env = os.environ.copy()
         env["NYASH_FEATURES"] = features
 
-        print(f"[{tag}] >>> {fixture_id} :: {label}")
+        print(f"[{tag}] >>> {fixture_id} [{fixture_kind}] :: {label}")
         run_command([str(bin_path), "--emit-ast-json", str(ast_json), str(source)], cwd=root, env=env)
         if mir_emit_expect_failure:
             mir_emit_stderr_expected = fixture.get("mir_emit_stderr_expected")
@@ -280,10 +348,12 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
 
         for producer in producers:
             profile = producer["profile"]
+            producer_kind = str(producer["kind"])
             expect_failure = bool(producer.get("expect_failure", False))
             check_expect_failure = bool(producer.get("check_expect_failure", False))
             report_path = tmpdir / f"{fixture_id}.{profile}.report.kv"
             check_path = tmpdir / f"{fixture_id}.{profile}.check.kv"
+            print(f"[{tag}]   -> {profile} [{producer_kind}]")
             if expect_failure:
                 stderr_expected = producer.get("stderr_expected")
                 if not isinstance(stderr_expected, str) or not stderr_expected:
