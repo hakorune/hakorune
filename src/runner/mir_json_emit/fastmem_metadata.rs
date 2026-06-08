@@ -146,6 +146,61 @@ pub(super) fn insert_fastmem_metadata_json(
         ),
     );
     obj.insert(
+        "fastmem_field_access_sites".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_field_access_sites
+                .iter()
+                .map(|site| {
+                    json!({
+                        "site_id": site.site_id,
+                        "source_span": {
+                            "start": site.source_span.start,
+                            "end": site.source_span.end,
+                            "line": site.source_span.line,
+                            "column": site.source_span.column,
+                        },
+                        "region": site.region.map(|region| region.0),
+                        "base_value": site.base_value.as_u32(),
+                        "field_id": site.field_id,
+                        "layout_id": site.layout_id,
+                        "access_kind": site.access_kind,
+                        "required_route": site.required_route,
+                        "fallback_policy": site.fallback_policy,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "fastmem_index_access_sites".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .fastmem_index_access_sites
+                .iter()
+                .map(|site| {
+                    json!({
+                        "site_id": site.site_id,
+                        "source_span": {
+                            "start": site.source_span.start,
+                            "end": site.source_span.end,
+                            "line": site.source_span.line,
+                            "column": site.source_span.column,
+                        },
+                        "region": site.region.map(|region| region.0),
+                        "base_value": site.base_value.as_u32(),
+                        "index_value": site.index_value.as_u32(),
+                        "table_id": site.table_id,
+                        "layout_id": site.layout_id,
+                        "access_kind": site.access_kind,
+                        "required_route": site.required_route,
+                        "fallback_policy": site.fallback_policy,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
         "fastmem_access_plans".to_string(),
         serde_json::Value::Array(
             metadata

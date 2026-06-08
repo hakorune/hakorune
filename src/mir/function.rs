@@ -25,10 +25,10 @@ pub use facts::{
     SpanBorrowMutability, SpanElementType,
 };
 pub use fastmem::{
-    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
-    FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
-    FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
-    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
+    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFieldAccessSite,
+    FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind, FastMemIndexAccessSite,
+    FastMemLocalFreeNonEmptyFact, FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata,
+    FastMemRegionOrigin, FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
     FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
 };
 pub use metadata::FunctionMetadata;

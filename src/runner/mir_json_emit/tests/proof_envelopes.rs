@@ -34,7 +34,10 @@ fn method_call(
 #[test]
 fn build_mir_json_root_emits_direct_array_proof_envelopes() {
     let mut function = make_function("main", true);
-    let block = function.blocks.get_mut(&BasicBlockId::new(0)).expect("entry");
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
     block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
     block.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![1, 3]));
 
@@ -55,8 +58,14 @@ fn build_mir_json_root_emits_direct_array_proof_envelopes() {
     assert_eq!(first["producer"], "mir_json");
     assert_eq!(first["site"]["block"], 0);
     assert_eq!(first["site"]["instruction_index"], 0);
-    assert_eq!(first["obligation_ids"], serde_json::json!(["exact_front_contract"]));
-    assert_eq!(first["proof_ids"], serde_json::json!(["exact_front_contract"]));
+    assert_eq!(
+        first["obligation_ids"],
+        serde_json::json!(["exact_front_contract"])
+    );
+    assert_eq!(
+        first["proof_ids"],
+        serde_json::json!(["exact_front_contract"])
+    );
     assert_eq!(first["verifier_flags"]["bounds_policy"], "checked");
     assert_eq!(first["verifier_flags"]["fallback_policy"], "allow_checked");
     assert_eq!(first["failure_reason"], serde_json::Value::Null);

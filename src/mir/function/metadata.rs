@@ -3,8 +3,9 @@ use super::facts::{
     RegionStabilityFact, RequiredFastPathRegion, SpanAccessPlan, SpanBorrowFact,
 };
 use super::fastmem::{
-    FastMemBlockNextFact, FastMemFreeHeadNonEmptyFact, FastMemLocalFreeNonEmptyFact,
-    FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
+    FastMemBlockNextFact, FastMemFieldAccessSite, FastMemFreeHeadNonEmptyFact,
+    FastMemIndexAccessSite, FastMemLocalFreeNonEmptyFact, FastMemRegionMetadata,
+    FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
 use super::types::{ExactNumericRuntimeCheckContract, MirParamDecl};
@@ -167,6 +168,18 @@ pub struct FunctionMetadata {
     /// access contract that later LLVM lowering may consume. Rows may remain
     /// `symbolic_only` until canonical layout/table contracts are available.
     pub fastmem_access_plans: Vec<FastMemAccessPlan>,
+
+    /// Function-local FastMemory field access-site metadata.
+    ///
+    /// These rows are the source-side site table for the current transitional
+    /// dedicated lowerer and the future verified-direct route planner.
+    pub fastmem_field_access_sites: Vec<FastMemFieldAccessSite>,
+
+    /// Function-local FastMemory index access-site metadata.
+    ///
+    /// These rows are the source-side site table for table/index accesses and
+    /// the future verified-direct route planner.
+    pub fastmem_index_access_sites: Vec<FastMemIndexAccessSite>,
 
     /// Verified v0 links from TableIndex results to same-block field accesses.
     ///

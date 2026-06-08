@@ -1,3 +1,4 @@
+use crate::ast::Span;
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::ValueId;
 
@@ -167,6 +168,35 @@ pub struct FastMemFreeHeadNonEmptyFact {
     pub page_value: ValueId,
     pub proof_kind: FastMemFreeHeadNonEmptyProofKind,
     pub non_empty: bool,
+}
+
+/// Function-local site metadata for a source FastMemory field access.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FastMemFieldAccessSite {
+    pub site_id: String,
+    pub source_span: Span,
+    pub region: Option<FastMemRegionId>,
+    pub base_value: ValueId,
+    pub field_id: String,
+    pub layout_id: Option<String>,
+    pub access_kind: String,
+    pub required_route: String,
+    pub fallback_policy: String,
+}
+
+/// Function-local site metadata for a source FastMemory table access.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FastMemIndexAccessSite {
+    pub site_id: String,
+    pub source_span: Span,
+    pub region: Option<FastMemRegionId>,
+    pub base_value: ValueId,
+    pub index_value: ValueId,
+    pub table_id: Option<String>,
+    pub layout_id: Option<String>,
+    pub access_kind: String,
+    pub required_route: String,
+    pub fallback_policy: String,
 }
 
 /// Function-local metadata for a source `fastmem ContractName { ... }` region.

@@ -47,6 +47,7 @@ INVENTORY = ROOT / "tools" / "hako_check" / "fastmem_capability_inventory.py"
 
 def failure_reasons(rows: dict[str, str]) -> list[str]:
     reasons: list[str] = []
+    input_kind = rows.get("input_kind", "")
     for key in FAIL_FIELDS:
         if int_count(rows, key) > 0:
             reasons.append(key)
@@ -93,6 +94,14 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             and int_count(rows, "remote_candidate_unhandled_reclaim_block_count") > 0
         ):
             reasons.append("allocator_abandoned_reclaim_success_with_unhandled_remote")
+    if input_kind in {"ast_json", "program_json_v0", "mir_json"}:
+        for key in [
+            "fastmem_source_dedicated_lowerer_enabled",
+            "fastmem_source_dedicated_lowerer_transitional",
+            "fastmem_source_dedicated_lowerer_retirement_required",
+        ]:
+            if int_count(rows, key) != 1:
+                reasons.append(key)
     if atomic_remote_profile(rows):
         if int_count(rows, "atomic_remote_head_plan") <= 0:
             reasons.append("atomic_remote_head_plan")

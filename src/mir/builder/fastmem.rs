@@ -103,6 +103,15 @@ fn lower_fastmem_assignment(
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
+            builder.add_fastmem_field_access_site(
+                region,
+                base,
+                field.clone(),
+                None,
+                "store",
+                "verified_layout_field",
+                "forbidden",
+            )?;
             let value_id = lower_fastmem_expr(builder, region, value)?;
             builder.emit_fastmem_memop(
                 region,
@@ -116,16 +125,28 @@ fn lower_fastmem_assignment(
         ASTNode::Index {
             target,
             index,
-            span,
+            span: _span,
         } => {
-            let slot = lower_fastmem_expr(
-                builder,
+            let target_expr = *target;
+            let index_expr = *index;
+            let base = lower_fastmem_expr(builder, region, target_expr.clone())?;
+            let idx = lower_fastmem_expr(builder, region, index_expr.clone())?;
+            let access = fastmem_table_access(&target_expr);
+            builder.add_fastmem_index_access_site(
                 region,
-                ASTNode::Index {
-                    target,
-                    index,
-                    span,
-                },
+                base,
+                idx,
+                access.as_ref().and_then(|access| access.table_id.clone()),
+                None,
+                "store",
+                "verified_table_index",
+                "forbidden",
+            )?;
+            let slot = builder.emit_fastmem_value_memop_with_access(
+                region,
+                MemOpKind::TableIndex,
+                vec![base, idx],
+                access,
             )?;
             let value_id = lower_fastmem_expr(builder, region, value)?;
             builder.emit_fastmem_memop(
@@ -175,9 +196,21 @@ fn lower_fastmem_expr(
             ..
         } => lower_fastmem_method_call(builder, region, *object, method, arguments),
         ASTNode::Index { target, index, .. } => {
-            let access = fastmem_table_access(&target);
-            let base = lower_fastmem_expr(builder, region, *target)?;
-            let idx = lower_fastmem_expr(builder, region, *index)?;
+            let target_expr = *target;
+            let index_expr = *index;
+            let base = lower_fastmem_expr(builder, region, target_expr.clone())?;
+            let idx = lower_fastmem_expr(builder, region, index_expr.clone())?;
+            let access = fastmem_table_access(&target_expr);
+            builder.add_fastmem_index_access_site(
+                region,
+                base,
+                idx,
+                access.as_ref().and_then(|access| access.table_id.clone()),
+                None,
+                "load",
+                "verified_table_index",
+                "forbidden",
+            )?;
             builder.emit_fastmem_value_memop_with_access(
                 region,
                 MemOpKind::TableIndex,
@@ -187,6 +220,15 @@ fn lower_fastmem_expr(
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
+            builder.add_fastmem_field_access_site(
+                region,
+                base,
+                field.clone(),
+                None,
+                "load",
+                "verified_layout_field",
+                "forbidden",
+            )?;
             builder.emit_fastmem_value_memop_with_access(
                 region,
                 MemOpKind::FieldLoad,

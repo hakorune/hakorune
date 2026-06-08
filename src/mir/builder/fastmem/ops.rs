@@ -6,10 +6,10 @@
 use crate::ast::{LiteralValue, Span};
 use crate::mir::builder::{MirBuilder, MirInstruction, ValueId};
 use crate::mir::function::{
-    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFreeHeadNonEmptyFact,
-    FastMemFreeHeadNonEmptyProofKind, FastMemLocalFreeNonEmptyFact,
-    FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
-    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
+    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFieldAccessSite,
+    FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind, FastMemIndexAccessSite,
+    FastMemLocalFreeNonEmptyFact, FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata,
+    FastMemRegionOrigin, FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
     FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
     RangeIndexFact, RangeIndexFactOriginKind,
 };
@@ -83,6 +83,117 @@ impl MirBuilder {
             access,
             effects: kind.effect_mask(),
         })
+    }
+
+    pub(crate) fn record_field_access_site(
+        &mut self,
+        region: Option<FastMemRegionId>,
+        base_value: ValueId,
+        field_id: String,
+        layout_id: Option<String>,
+        access_kind: &'static str,
+        required_route: &'static str,
+        fallback_policy: &'static str,
+    ) -> Result<(), String> {
+        let source_span = self.metadata_ctx.current_span();
+        let function = self
+            .scope_ctx
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
+        let site_id = if region.is_some() {
+            format!(
+                "fastmem.field.{}",
+                function.metadata.fastmem_field_access_sites.len()
+            )
+        } else {
+            format!(
+                "field.{}",
+                function.metadata.fastmem_field_access_sites.len()
+            )
+        };
+        function
+            .metadata
+            .fastmem_field_access_sites
+            .push(FastMemFieldAccessSite {
+                site_id,
+                source_span,
+                region,
+                base_value,
+                field_id,
+                layout_id,
+                access_kind: access_kind.to_string(),
+                required_route: required_route.to_string(),
+                fallback_policy: fallback_policy.to_string(),
+            });
+        Ok(())
+    }
+
+    pub(super) fn add_fastmem_field_access_site(
+        &mut self,
+        region: FastMemRegionId,
+        base_value: ValueId,
+        field_id: String,
+        layout_id: Option<String>,
+        access_kind: &'static str,
+        required_route: &'static str,
+        fallback_policy: &'static str,
+    ) -> Result<(), String> {
+        self.record_field_access_site(
+            Some(region),
+            base_value,
+            field_id,
+            layout_id,
+            access_kind,
+            required_route,
+            fallback_policy,
+        )
+    }
+
+    pub(crate) fn record_index_access_site(
+        &mut self,
+        region: Option<FastMemRegionId>,
+        base_value: ValueId,
+        index_value: ValueId,
+        table_id: Option<String>,
+        layout_id: Option<String>,
+        access_kind: &'static str,
+        required_route: &'static str,
+        fallback_policy: &'static str,
+    ) -> Result<(), String> {
+        let source_span = self.metadata_ctx.current_span();
+        let function = self
+            .scope_ctx
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
+        let site_id = if region.is_some() {
+            format!(
+                "fastmem.index.{}",
+                function.metadata.fastmem_index_access_sites.len()
+            )
+        } else {
+            format!(
+                "index.{}",
+                function.metadata.fastmem_index_access_sites.len()
+            )
+        };
+        function
+            .metadata
+            .fastmem_index_access_sites
+            .push(FastMemIndexAccessSite {
+                site_id,
+                source_span,
+                region,
+                base_value,
+                index_value,
+                table_id,
+                layout_id,
+                access_kind: access_kind.to_string(),
+                required_route: required_route.to_string(),
+                fallback_policy: fallback_policy.to_string(),
+            });
+        Ok(())
     }
 
     pub(super) fn add_fastmem_table_length_fact(
@@ -265,6 +376,29 @@ impl MirBuilder {
             loop_carried_writes_supported: false,
         });
         Ok(())
+    }
+
+    pub(super) fn add_fastmem_index_access_site(
+        &mut self,
+        region: FastMemRegionId,
+        base_value: ValueId,
+        index_value: ValueId,
+        table_id: Option<String>,
+        layout_id: Option<String>,
+        access_kind: &'static str,
+        required_route: &'static str,
+        fallback_policy: &'static str,
+    ) -> Result<(), String> {
+        self.record_index_access_site(
+            Some(region),
+            base_value,
+            index_value,
+            table_id,
+            layout_id,
+            access_kind,
+            required_route,
+            fallback_policy,
+        )
     }
 
     pub(super) fn canonical_fastmem_range_upper_value(

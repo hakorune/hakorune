@@ -10,8 +10,8 @@ use super::metadata_seed::{
 };
 use super::placement_effect::build_placement_effect_routes_json;
 use super::plan_metadata::insert_plan_metadata_json;
-use super::proof_envelope::build_proof_envelopes_json;
 use super::plans::build_string_kernel_plan_json;
+use super::proof_envelope::build_proof_envelopes_json;
 use super::route_metadata::insert_route_metadata_json;
 use crate::mir::MirFunction;
 use serde_json::json;

@@ -75,6 +75,16 @@ impl super::MirBuilder {
         match class_hint.as_deref() {
             Some("ArrayBox") => {
                 let index_val = self.build_expression(index)?;
+                self.record_index_access_site(
+                    None,
+                    target_val,
+                    index_val,
+                    None,
+                    None,
+                    "load",
+                    "none",
+                    "allow_dynamic",
+                )?;
                 let dst = self.next_value_id();
                 self.emit_box_or_plugin_call(
                     Some(dst),
@@ -88,6 +98,16 @@ impl super::MirBuilder {
             }
             Some("MapBox") => {
                 let index_val = self.build_expression(index)?;
+                self.record_index_access_site(
+                    None,
+                    target_val,
+                    index_val,
+                    None,
+                    None,
+                    "load",
+                    "none",
+                    "allow_dynamic",
+                )?;
                 let dst = self.next_value_id();
                 self.emit_box_or_plugin_call(
                     Some(dst),
@@ -119,6 +139,16 @@ impl super::MirBuilder {
             Some("ArrayBox") => {
                 let index_val = self.build_expression(index)?;
                 let value_val = self.build_expression(value)?;
+                self.record_index_access_site(
+                    None,
+                    target_val,
+                    index_val,
+                    None,
+                    None,
+                    "store",
+                    "none",
+                    "allow_dynamic",
+                )?;
                 self.emit_box_or_plugin_call(
                     None,
                     target_val,
@@ -132,6 +162,16 @@ impl super::MirBuilder {
             Some("MapBox") => {
                 let index_val = self.build_expression(index)?;
                 let value_val = self.build_expression(value)?;
+                self.record_index_access_site(
+                    None,
+                    target_val,
+                    index_val,
+                    None,
+                    None,
+                    "store",
+                    "none",
+                    "allow_dynamic",
+                )?;
                 self.emit_box_or_plugin_call(
                     None,
                     target_val,
@@ -147,5 +187,102 @@ impl super::MirBuilder {
                 Self::format_index_target_kind(class_hint.as_ref())
             )),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::MirBuilder;
+    use super::MirType;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+
+    fn span() -> Span {
+        Span::unknown()
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: span(),
+        }
+    }
+
+    fn int_lit(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: span(),
+        }
+    }
+
+    fn index(target: ASTNode, idx: ASTNode) -> ASTNode {
+        ASTNode::Index {
+            target: Box::new(target),
+            index: Box::new(idx),
+            span: span(),
+        }
+    }
+
+    fn assign(target: ASTNode, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(target),
+            value: Box::new(value),
+            span: span(),
+        }
+    }
+
+    fn local(name: &str, value: ASTNode) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![Some(Box::new(value))],
+            declared_type_names: Vec::new(),
+            span: span(),
+        }
+    }
+
+    #[test]
+    fn ordinary_index_access_records_site_metadata() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("ordinary_index_access/0".to_string());
+        let page_table_id = builder.alloc_value_for_test();
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("page_table".to_string(), page_table_id);
+        builder
+            .type_ctx
+            .value_types
+            .insert(page_table_id, MirType::Box("ArrayBox".to_string()));
+
+        let body = vec![
+            local("key", int_lit(3)),
+            local("loaded", index(var("page_table"), var("key"))),
+            assign(index(var("page_table"), var("key")), int_lit(42)),
+        ];
+
+        super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+
+        assert_eq!(function.metadata.fastmem_index_access_sites.len(), 2);
+        assert!(function
+            .metadata
+            .fastmem_index_access_sites
+            .iter()
+            .all(|site| site.region.is_none()));
+        assert_eq!(
+            function.metadata.fastmem_index_access_sites[0].required_route,
+            "none"
+        );
+        assert_eq!(
+            function.metadata.fastmem_index_access_sites[0].fallback_policy,
+            "allow_dynamic"
+        );
+        assert_eq!(
+            function.metadata.fastmem_index_access_sites[0].access_kind,
+            "load"
+        );
+        assert_eq!(
+            function.metadata.fastmem_index_access_sites[1].access_kind,
+            "store"
+        );
     }
 }

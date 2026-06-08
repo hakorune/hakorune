@@ -320,3 +320,54 @@ fn fastmem_source_records_local_free_precondition_facts() {
     assert!(function.metadata.fastmem_local_free_non_empty_facts[0].non_empty);
     assert!(function.metadata.fastmem_free_head_non_empty_facts[0].non_empty);
 }
+
+#[test]
+fn fastmem_source_records_access_sites() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("fastmem_access_sites/0".to_string());
+    let body = vec![
+        local("page_table", int_lit(8192)),
+        local("key", int_lit(3)),
+        ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_string(),
+            body: vec![
+                local("page", index(var("page_table"), var("key"))),
+                local("owner", field(var("page"), "owner_worker_id")),
+                assign(field(var("page"), "used"), int_lit(1)),
+            ],
+            span: span(),
+        },
+    ];
+
+    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+
+    assert_eq!(function.metadata.fastmem_field_access_sites.len(), 2);
+    assert_eq!(function.metadata.fastmem_index_access_sites.len(), 1);
+    assert!(function
+        .metadata
+        .fastmem_field_access_sites
+        .iter()
+        .all(|site| site.region.is_some()));
+    assert!(function
+        .metadata
+        .fastmem_index_access_sites
+        .iter()
+        .all(|site| site.region.is_some()));
+    assert_eq!(
+        function.metadata.fastmem_field_access_sites[0].required_route,
+        "verified_layout_field"
+    );
+    assert_eq!(
+        function.metadata.fastmem_index_access_sites[0].required_route,
+        "verified_table_index"
+    );
+    assert_eq!(
+        function.metadata.fastmem_field_access_sites[0].fallback_policy,
+        "forbidden"
+    );
+    assert_eq!(
+        function.metadata.fastmem_index_access_sites[0].fallback_policy,
+        "forbidden"
+    );
+}

@@ -158,6 +158,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
 
     if is_node(expr, "BinaryOp", "Binary", "Compare"):
         op = expr.get("op")
+        add_count(counts, "fastmem_dedicated_binary_op_lowering_count")
         if op == ">>":
             add_count(counts, "fastmem_memop_logical_shr_count")
         elif op == "&":
@@ -272,12 +273,16 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
 
     if is_node(expr, "Index"):
         add_count(counts, "fastmem_memop_table_index_count")
+        add_count(counts, "fastmem_dedicated_index_lowering_count")
+        add_count(counts, "fastmem_index_access_site_count")
         analyze_expr(child_expr(expr, "target"), counts)
         analyze_expr(child_expr(expr, "index"), counts)
         return
 
     if is_node(expr, "FieldAccess"):
         add_count(counts, "fastmem_memop_field_load_count")
+        add_count(counts, "fastmem_dedicated_field_access_lowering_count")
+        add_count(counts, "fastmem_field_access_site_count")
         analyze_expr(child_expr(expr, "object", "receiver", "target"), counts)
         return
 
@@ -318,9 +323,15 @@ def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
         if isinstance(target, dict):
             if is_node(target, "FieldAccess"):
                 add_count(counts, "fastmem_memop_field_store_count")
+                add_count(counts, "fastmem_dedicated_assignment_lowering_count")
+                add_count(counts, "fastmem_dedicated_field_access_lowering_count")
+                add_count(counts, "fastmem_field_access_site_count")
                 analyze_expr(child_expr(target, "object", "receiver", "target"), counts)
             elif is_node(target, "Index"):
                 add_count(counts, "fastmem_memop_table_index_count")
+                add_count(counts, "fastmem_dedicated_assignment_lowering_count")
+                add_count(counts, "fastmem_dedicated_index_lowering_count")
+                add_count(counts, "fastmem_index_access_site_count")
                 analyze_expr(child_expr(target, "target"), counts)
                 analyze_expr(child_expr(target, "index"), counts)
         analyze_expr(child_expr(stmt, "value", "expr"), counts)
@@ -335,6 +346,7 @@ def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
         return
 
     if is_node(stmt, "If"):
+        add_count(counts, "fastmem_dedicated_branch_lowering_count")
         analyze_expr(child_expr(stmt, "condition"), counts)
         for child in child_expr(stmt, "then_body", "then", "thenBody") or []:
             analyze_stmt(child, counts)
@@ -377,6 +389,7 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
     )
 
     report = base_inventory(input_kind)
+    source_dedicated_lowerer_enabled = int(region_count > 0)
     report.update(
         {
             "measured_hot_path_owner": "hako_source",
@@ -388,6 +401,26 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
             "fastmem_contract_count": contract_count,
             "fastmem_contract_id": contract_id,
             "fastmem_contract_family": contract_family(contract_id),
+            "fastmem_source_dedicated_lowerer_enabled": source_dedicated_lowerer_enabled,
+            "fastmem_source_dedicated_lowerer_transitional": source_dedicated_lowerer_enabled,
+            "fastmem_source_dedicated_lowerer_retirement_required": source_dedicated_lowerer_enabled,
+            "fastmem_dedicated_field_access_lowering_count": counts.get(
+                "fastmem_dedicated_field_access_lowering_count", 0
+            ),
+            "fastmem_dedicated_index_lowering_count": counts.get(
+                "fastmem_dedicated_index_lowering_count", 0
+            ),
+            "fastmem_dedicated_binary_op_lowering_count": counts.get(
+                "fastmem_dedicated_binary_op_lowering_count", 0
+            ),
+            "fastmem_dedicated_assignment_lowering_count": counts.get(
+                "fastmem_dedicated_assignment_lowering_count", 0
+            ),
+            "fastmem_dedicated_branch_lowering_count": counts.get(
+                "fastmem_dedicated_branch_lowering_count", 0
+            ),
+            "fastmem_field_access_site_count": counts.get("fastmem_field_access_site_count", 0),
+            "fastmem_index_access_site_count": counts.get("fastmem_index_access_site_count", 0),
             "fastmem_memop_unbalanced_region_count": unbalanced,
             "typed_page_table_mode": "none",
             "mimalloc_shape_page_free_lists": "missing",
@@ -450,6 +483,16 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_memop_region_end_count": 0,
         "fastmem_memop_unbalanced_region_count": 0,
         "fastmem_memop_unclassified_count": 0,
+        "fastmem_source_dedicated_lowerer_enabled": 0,
+        "fastmem_source_dedicated_lowerer_transitional": 0,
+        "fastmem_source_dedicated_lowerer_retirement_required": 0,
+        "fastmem_dedicated_field_access_lowering_count": 0,
+        "fastmem_dedicated_index_lowering_count": 0,
+        "fastmem_dedicated_binary_op_lowering_count": 0,
+        "fastmem_dedicated_assignment_lowering_count": 0,
+        "fastmem_dedicated_branch_lowering_count": 0,
+        "fastmem_field_access_site_count": 0,
+        "fastmem_index_access_site_count": 0,
         "fastmem_memop_addr_of_count": 0,
         "fastmem_memop_add_count": 0,
         "fastmem_memop_sub_count": 0,

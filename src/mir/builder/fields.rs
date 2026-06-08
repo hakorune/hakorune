@@ -18,6 +18,16 @@ impl super::MirBuilder {
         let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
 
+        self.record_field_access_site(
+            None,
+            object_value,
+            field.clone(),
+            None,
+            "load",
+            "none",
+            "allow_dynamic",
+        )?;
+
         if let Some(property_value) = self.try_lower_property_read(object_value, &field)? {
             return Ok(property_value);
         }
@@ -115,6 +125,16 @@ impl super::MirBuilder {
         field: String,
         value: ASTNode,
     ) -> Result<ValueId, String> {
+        self.record_field_access_site(
+            None,
+            object_value,
+            field.clone(),
+            None,
+            "store",
+            "none",
+            "allow_dynamic",
+        )?;
+
         let mut value_result = self.build_expression(value)?;
         // LocalSSA: argument in-block (optional safety)
         value_result = self.local_arg(value_result);
@@ -168,5 +188,91 @@ impl super::MirBuilder {
         }
 
         Ok(value_result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::MirBuilder;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+
+    fn span() -> Span {
+        Span::unknown()
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: span(),
+        }
+    }
+
+    fn int_lit(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: span(),
+        }
+    }
+
+    fn field(object: ASTNode, name: &str) -> ASTNode {
+        ASTNode::FieldAccess {
+            object: Box::new(object),
+            field: name.to_string(),
+            span: span(),
+        }
+    }
+
+    fn assign(target: ASTNode, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(target),
+            value: Box::new(value),
+            span: span(),
+        }
+    }
+
+    fn local(name: &str, value: ASTNode) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![Some(Box::new(value))],
+            declared_type_names: Vec::new(),
+            span: span(),
+        }
+    }
+
+    #[test]
+    fn ordinary_field_access_records_site_metadata() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("ordinary_field_access/0".to_string());
+        let body = vec![
+            local("obj", int_lit(1)),
+            local("loaded", field(var("obj"), "used")),
+            assign(field(var("obj"), "used"), int_lit(2)),
+        ];
+
+        super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+
+        assert_eq!(function.metadata.fastmem_field_access_sites.len(), 2);
+        assert!(function
+            .metadata
+            .fastmem_field_access_sites
+            .iter()
+            .all(|site| site.region.is_none()));
+        assert_eq!(
+            function.metadata.fastmem_field_access_sites[0].required_route,
+            "none"
+        );
+        assert_eq!(
+            function.metadata.fastmem_field_access_sites[0].fallback_policy,
+            "allow_dynamic"
+        );
+        assert_eq!(
+            function.metadata.fastmem_field_access_sites[0].access_kind,
+            "load"
+        );
+        assert_eq!(
+            function.metadata.fastmem_field_access_sites[1].access_kind,
+            "store"
+        );
     }
 }
