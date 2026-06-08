@@ -38,15 +38,16 @@ docs/development/current/main/investigations/phase-296x-90-taskboard-history-202
 ## Active Queue
 
 ```text
-DIRECTARRAY-FMEM-COMMON-001:
-  proof/report adapter sidecar only; no auto-fastmem region
+MIM-PORT-FMEM-109:
+  source-syntax smoke manifest runner only; keep new body fixtures on the
+  manifest runner
 ```
 
 ## Restart Notes
 
 - read `CURRENT_STATE.toml` first for the current blocker token
 - use the archive note above for historical queue detail
-- keep DirectArray/FastMemory proof commonality separate from lowering payloads
+- keep the source-syntax smoke manifest runner separate from lowering payloads
 
 ## Stop Line
 

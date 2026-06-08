@@ -154,19 +154,20 @@ verified-direct default direction:
 The parser parity catch-up, owner-state foundation, and the fastmem proof /
 lowering ladder through `MIR-FMEM-008E`, `FASTMEM-REFERENCE-CLOSEOUT-AFTER-
 PRODUCER-BODY-296X-001`, and `MIM-PORT-FMEM-129` are landed in phase cards.
-The docs/taskboard/capability-gap slimming lane is landed. The next active lane
-is the DirectArray/FastMemory proof-envelope sidecar.
+The docs/taskboard/capability-gap slimming lane and the DirectArray/FastMemory
+proof-envelope sidecar are landed. The next active lane is the source-syntax
+smoke manifest runner.
 
 ```text
 next_task:
-  DIRECTARRAY-FMEM-COMMON-001 proof/report adapter sidecar
+  MIM-PORT-FMEM-109 source-syntax smoke manifest runner
 ```
 
 Next selected lane:
 
 ```text
-DIRECTARRAY-FMEM-COMMON-001:
-  proof/report adapter sidecar
+MIM-PORT-FMEM-109:
+  source-syntax smoke manifest runner
 ```
 
 do_not_start_with:
@@ -195,9 +196,9 @@ DOCS-SLIM-FMEM-SSOT-001:
   split the capability-gap SSOT into a compact current decision surface and a
   companion investigation
 
-DIRECTARRAY-FMEM-COMMON-001:
-  proof/report adapter only; no DirectArray auto-fastmem region and no shared
-  access-plan payload
+MIM-PORT-FMEM-109:
+  source-syntax smoke manifest runner; keep new hako_alloc body fixtures on
+  the manifest runner and avoid growing the shell block
 ```
 
 Worker handoff order for this lane:
@@ -205,7 +206,7 @@ Worker handoff order for this lane:
 1. docs-slim the current workstream entry
 2. docs-slim the active taskboard
 3. split the capability-gap SSOT into current decision vs investigation
-4. keep DirectArray/FastMemory commonality as a proof/report adapter sidecar
+4. keep the source-syntax smoke manifest runner compact
 5. keep verifier / lowering cleanup parked until the next proof slice lands
 
 Sidecar worker tasks:
@@ -216,7 +217,10 @@ Sidecar worker tasks:
 - run a report-key consistency pass only after the active docs are slimmed
 
 proof_commonality_follow_up:
-  DIRECTARRAY-FMEM-COMMON-001
+  landed: DIRECTARRAY-FMEM-COMMON-001
+
+source_syntax_smoke_follow_up:
+  MIM-PORT-FMEM-109
 
 docs_slim_follow_up:
   DOCS-SLIM-FMEM-SSOT-001 (landed)
