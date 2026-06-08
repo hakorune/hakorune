@@ -1,5 +1,6 @@
 use super::*;
 use crate::mir::function::{FastMemBlockNextProofKind, FastMemRemoteOwnerProofKind};
+use crate::mir::instruction::FastMemRegionId;
 use crate::mir::instruction::MemOpKind;
 use crate::mir::MirInstruction;
 

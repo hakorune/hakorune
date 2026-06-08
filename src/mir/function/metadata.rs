@@ -187,6 +187,12 @@ pub struct FunctionMetadata {
     /// owner-equality proof required by the narrow branch route surface.
     pub fastmem_branch_condition_facts: Vec<FastMemBranchConditionFact>,
 
+    /// Function-local outbox binding metadata.
+    ///
+    /// This records the narrow Stage1 transfer surface without introducing a
+    /// richer ownership checker.
+    pub outbox_bindings: Vec<String>,
+
     /// Verified v0 links from TableIndex results to same-block field accesses.
     ///
     /// These rows are the explicit source for `field_offset_resolved` in the

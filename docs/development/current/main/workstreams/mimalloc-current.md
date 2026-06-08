@@ -158,7 +158,7 @@ phase cards.
 
 ```text
 next_task:
-  SELFHOST-SURFACE-000 selfhost surface check
+  MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
 
 implementation_sequence:
   MIR-FMEM-008D-PRE..MIR-FMEM-008E (landed)
@@ -166,18 +166,24 @@ implementation_sequence:
   MIM-PORT-FMEM-001..MIM-PORT-FMEM-129 (landed in phase cards)
   MIRBUILDER-FMEM-000..015 (landed through 296x-638)
   296x-639 selfhost surface preflight task order (landed)
+  296x-640 outbox narrow lowering landing (landed)
+  296x-641 selfhost surface check landing (landed)
 ```
 
 Next selected lane:
 
 ```text
 SELFHOST-SURFACE-000:
-  add report/check evidence that Stage1 selfhost sources do not rely on
-  pending, transport-only, deferred, or prohibited semantics
+  landed
 
 OUTBOX-0:
-  close parser-accepted / MIR-missing outbox with narrow local binding and
-  transfer-intent metadata, not a rich ownership checker
+  landed
+
+post-outbox selfhost gate refresh:
+  landed
+
+MIM-PORT-FMEM-031:
+  AtomicRemoteHead CAS lowering producer selection is next
 
 do_not_start_with:
   reopening fastmem dedicated lowerer retirement from older review snapshots

@@ -31,6 +31,7 @@ Active phase-296x daily set:
 
 ```bash
 bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/k2_wide_phase296x_selfhost_surface_check_guard.sh
 bash tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surface_check_guard.sh
 bash tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh
 ```
@@ -43,6 +44,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | Script | Purpose |
 | --- | --- |
 | `tools/checks/dev_gate.sh` | 日常ゲートの統合実行（quick/hotpath/allocator-wide/portability/milestone）。quick は `tools/checks/lib/dev_gate_quick_steps.sh` の inventory を共用し、allocator-wide は full allocator/mimalloc/provider proof を流す。`--list` の allocator-wide 明細は `tools/checks/k2_wide_allocator_gate.sh --list` に委譲し、dev gate 側に個別 allocator guard 一覧を重複保持しない。 |
+| `tools/checks/k2_wide_phase296x_selfhost_surface_check_guard.sh` | 296x selfhost surface check guard。Stage1 selfhost sources が pending / transport-only / deferred / prohibited semantics を runtime surface にしないことと、outbox narrowing の current-state / task-order / contract evidence を固定する。 |
 | `tools/checks/k2_wide_allocator_gate.sh` | dev_gate allocator-wide から呼ぶ allocator/mimalloc/provider proof group の stable public entry。個別 guard の docs/dev_gate 導線は維持しつつ、実装本体は `tools/checks/allocator/k2_wide_allocator_gate.sh`、root inventory は `tools/checks/allocator/k2_wide_allocator_gate.steps`、family inventories は `tools/checks/allocator/families/*.steps`、provider subfamily inventories は `tools/checks/allocator/families/provider/*.steps`、family helper は `tools/checks/allocator/lib/guard_group.sh` に集約する。 |
 | `tools/checks/k2_wide_phase296x_selected_method_receiver_block_entry_copy_forwarding_implementation_guard.sh` | 296x-251 の selected-method receiver block-entry copy forwarding implementation guard。`acquire_usize/1` の selected `%r0` receiver copies が C ABI same-module receiver alias seam で forward され、semantic proof が保たれることを検証する。 |
 | `tools/checks/k2_wide_phase296x_selected_method_receiver_block_entry_copy_forwarding_measurement_guard.sh` | 296x-252 の selected-method receiver block-entry copy forwarding measurement guard。prebuilt exact-EXE body timing evidence と semantic proof を固定し、no-material-effect 後の owner refresh を選ぶ。 |

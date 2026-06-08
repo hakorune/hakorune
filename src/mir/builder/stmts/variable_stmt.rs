@@ -155,6 +155,30 @@ pub(in crate::mir::builder) fn build_local_statement_from_values(
     Ok(last_value.unwrap_or_else(|| builder.next_value_id()))
 }
 
+/// Build a narrow outbox declaration statement.
+///
+/// This is the smallest explicit transfer-surface slice:
+/// - materialize the declared names as Void-typed local bindings
+/// - record the outbox binding names in function metadata
+/// - do not introduce a richer ownership checker
+pub(in crate::mir::builder) fn build_outbox_statement(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+) -> Result<ValueId, String> {
+    let values = variables
+        .iter()
+        .map(|_| crate::mir::builder::emission::constant::emit_void(builder))
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let result = build_local_statement_from_values(builder, variables.clone(), values)?;
+
+    if let Some(function) = builder.scope_ctx.current_function.as_mut() {
+        function.metadata.outbox_bindings.extend(variables);
+    }
+
+    Ok(result)
+}
+
 /// MeResolverBox - SSOT for "me" resolution
 ///
 /// **Purpose**: Resolve receiver reference (me/this) to ValueId

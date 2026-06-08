@@ -233,17 +233,7 @@ impl super::MirBuilder {
             ),
 
             ASTNode::Outbox { variables, .. } => {
-                let func_name = self
-                    .scope_ctx
-                    .current_function
-                    .as_ref()
-                    .map(|f| f.signature.name.as_str())
-                    .unwrap_or("<unknown>");
-                Err(format!(
-                    "[freeze:contract][outbox/lowering_not_implemented] fn={} vars={}",
-                    func_name,
-                    variables.join(",")
-                ))
+                super::stmts::variable_stmt::build_outbox_statement(self, variables.clone())
             }
 
             ASTNode::BoxDeclaration {
