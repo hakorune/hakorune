@@ -152,7 +152,7 @@ fn lower_fastmem_return(
     crate::mir::builder::stmts::return_stmt::emit_return_from_value(builder, value)
 }
 
-fn lower_fastmem_expr(
+pub(super) fn lower_fastmem_expr(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
     expr: ASTNode,

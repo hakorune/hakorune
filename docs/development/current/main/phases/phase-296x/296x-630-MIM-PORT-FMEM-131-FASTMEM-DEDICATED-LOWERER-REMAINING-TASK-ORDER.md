@@ -111,6 +111,11 @@ MIRBUILDER-FMEM-014:
   branch condition gate generalization
   ownerEq condition proof moves toward ordinary condition route facts
 
+  Status: landed
+    the fastmem branch gate now carries ownerEq route facts through the
+    shared if-form path, and the wrapper no longer owns AST-specific
+    condition interpretation.
+
 MIRBUILDER-FMEM-015:
   dedicated lowerer closeout
   fastmem.rs keeps only region entry and obligation shell
@@ -147,5 +152,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-014 branch condition gate generalization
+next: MIRBUILDER-FMEM-015 dedicated lowerer closeout
 ```

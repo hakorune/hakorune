@@ -75,12 +75,22 @@ impl MirBuilder {
         then_branch: ASTNode,
         else_branch: Option<ASTNode>,
     ) -> Result<ValueId, String> {
+        let condition_val = self.build_expression(condition)?;
+        self.lower_if_form_with_condition_value(condition_val, None, then_branch, else_branch)
+    }
+
+    pub(super) fn lower_if_form_with_condition_value(
+        &mut self,
+        condition_val: ValueId,
+        condition_debug: Option<ASTNode>,
+        then_branch: ASTNode,
+        else_branch: Option<ASTNode>,
+    ) -> Result<ValueId, String> {
         // Reserve a deterministic join id for debug region labeling
         let join_id = self.debug_next_join_id();
         // Pre-pin heuristic was deprecated; keep operands as-is for predictability.
 
-        let cond_ast_for_debug = condition.clone();
-        let condition_val = self.build_expression(condition)?;
+        let cond_ast_for_debug = condition_debug;
         let condition_val = self.local_cond(condition_val);
 
         // Create blocks
@@ -99,7 +109,7 @@ impl MirBuilder {
                 if let Some(def_block) = def_blocks.get(&condition_val) {
                     if *def_block != pre_branch_bb {
                         let rhs_const = match &cond_ast_for_debug {
-                            ASTNode::BinaryOp { right, .. } => match right.as_ref() {
+                            Some(ASTNode::BinaryOp { right, .. }) => match right.as_ref() {
                                 ASTNode::Literal {
                                     value: LiteralValue::String(s),
                                     ..

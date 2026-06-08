@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-014
+MIRBUILDER-FMEM-015
 ```
 
 ## Remaining Retirement Rows
@@ -589,6 +589,12 @@ fastmem_branch_condition_owner_eq_miss_count=0
 fastmem branch wrapper no longer owns condition AST interpretation
 ```
 
+### MIRBUILDER-FMEM-014 Status
+
+Landed: the remaining fastmem branch gate now carries ownerEq route facts
+through the shared if-form path, so the fastmem branch wrapper no longer owns
+AST-specific condition interpretation.
+
 ### MIRBUILDER-FMEM-015: Dedicated Lowerer Closeout
 
 Close the transitional source lowerer once field/index/numeric/branch-condition
@@ -606,4 +612,4 @@ no allocator/product activation claims opened
 
 ### Current Next Row
 
-`MIRBUILDER-FMEM-014` branch condition gate generalization
+`MIRBUILDER-FMEM-015` dedicated lowerer closeout

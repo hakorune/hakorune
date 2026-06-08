@@ -126,3 +126,53 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
         .count();
     assert_eq!(branch_count, 1);
 }
+
+#[test]
+fn fastmem_source_lowers_direct_owner_eq_branch_cfg_pilot() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("fastmem_direct_owner_eq_branch_cfg/0".to_string());
+    let body = vec![
+        local("page_table", int_lit(8192)),
+        local("key", int_lit(3)),
+        ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_string(),
+            body: vec![
+                local("page", index(var("page_table"), var("key"))),
+                local(
+                    "current",
+                    ASTNode::FunctionCall {
+                        name: "mem.currentAllocOwnerId".to_string(),
+                        arguments: Vec::new(),
+                        span: span(),
+                    },
+                ),
+                ASTNode::If {
+                    condition: Box::new(ASTNode::FunctionCall {
+                        name: "mem.ownerEq".to_string(),
+                        arguments: vec![field(var("page"), "owner_worker_id"), var("current")],
+                        span: span(),
+                    }),
+                    then_body: vec![assign(field(var("page"), "used"), int_lit(1))],
+                    else_body: Some(vec![local("else_value", int_lit(0))]),
+                    span: span(),
+                },
+            ],
+            span: span(),
+        },
+    ];
+
+    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    assert_eq!(function.metadata.fastmem_branch_condition_facts.len(), 1);
+    assert_eq!(
+        function.metadata.fastmem_branch_condition_facts[0].proof_kind,
+        FastMemBranchConditionProofKind::SourceAssumeOwnerEq
+    );
+    assert!(function.metadata.fastmem_branch_condition_facts[0].owner_eq_required);
+    let branch_count = function
+        .blocks
+        .values()
+        .filter(|block| matches!(block.terminator, Some(MirInstruction::Branch { .. })))
+        .count();
+    assert_eq!(branch_count, 1);
+}
