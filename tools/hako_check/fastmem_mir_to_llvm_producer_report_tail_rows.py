@@ -57,6 +57,19 @@ def _activation_chain_rows(
     ]
 
 
+def _tail_footer_rows(*, profile: str, object_out: str) -> list[tuple[str, str]]:
+    return [
+        ("page_reclaimed_with_remote_candidates", "0"),
+        (
+            "llvm_object_path",
+            "not_emitted_atomic_remote_head_cas_lowering_closed"
+            if profile == "remote-free-preflight"
+            else object_out,
+        ),
+        ("summary", "ok"),
+    ]
+
+
 def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
     mir = state["mir"]
     profile = state["profile"]
@@ -300,13 +313,6 @@ def build_tail_rows(state: dict[str, Any]) -> list[tuple[str, str]]:
         ("provider_abi_hot_dispatch_count", "0"),
         ("provider_dispatch_hot_path", "0"),
         *activation_chain_rows,
-        ("page_reclaimed_with_remote_candidates", "0"),
-        (
-            "llvm_object_path",
-            "not_emitted_atomic_remote_head_cas_lowering_closed"
-            if profile == "remote-free-preflight"
-            else str(state["object_out"]),
-        ),
-        ("summary", "ok"),
+        *_tail_footer_rows(profile=profile, object_out=str(state["object_out"])),
     ]
     return rows
