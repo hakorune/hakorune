@@ -11,61 +11,124 @@ use crate::mir::function::FastMemBlockNextProofKind;
 use crate::mir::instruction::{FastMemRegionId, MemOpKind};
 use crate::mir::{MirInstruction, ValueId};
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum FastMemIntrinsic {
+    Addr,
+    CurrentAllocOwnerId,
+    OwnerEq,
+    LocalFreePush,
+    FreeHeadPush,
+    AtomicRemoteHeadPush,
+    AtomicRemoteHeadDrain,
+    DrainRemoteListToLocal,
+    LocalFreePop,
+    FreeHeadPop,
+    AssumeSameOwner,
+    AssumeRemoteOwner,
+    AssumeLocalFreeBlockNext,
+    AssumeFreeHeadBlockNext,
+    AssumeRemoteFreeBlockNext,
+    AssumeLocalFreeNonEmpty,
+    AssumeFreeHeadNonEmpty,
+    AssumeTableLength,
+    AssumeIndexInRange,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum FastMemIntrinsicArity {
+    Zero,
+    One,
+    Two,
+}
+
+impl FastMemIntrinsicArity {
+    fn expected(self) -> usize {
+        match self {
+            FastMemIntrinsicArity::Zero => 0,
+            FastMemIntrinsicArity::One => 1,
+            FastMemIntrinsicArity::Two => 2,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct FastMemIntrinsicSpec {
+    intrinsic: FastMemIntrinsic,
+    call_name: &'static str,
+    arity: FastMemIntrinsicArity,
+}
+
+impl FastMemIntrinsicSpec {
+    fn new(
+        intrinsic: FastMemIntrinsic,
+        call_name: &'static str,
+        arity: FastMemIntrinsicArity,
+    ) -> Self {
+        Self {
+            intrinsic,
+            call_name,
+            arity,
+        }
+    }
+}
+
 pub(super) fn lower_fastmem_function_call(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
     name: String,
     arguments: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
-    match name.as_str() {
-        "mem.addr" => {
-            let arg = single_fastmem_arg(builder, region, "mem.addr", arguments)?;
+    let Some(spec) = lookup_fastmem_intrinsic(&name) else {
+        return Err(format!(
+            "[freeze:contract][fastmem/forbidden_call] call={}",
+            name
+        ));
+    };
+    lower_fastmem_intrinsic(builder, region, spec, arguments)
+}
+
+fn lower_fastmem_intrinsic(
+    builder: &mut MirBuilder,
+    region: FastMemRegionId,
+    spec: FastMemIntrinsicSpec,
+    arguments: Vec<ASTNode>,
+) -> Result<ValueId, String> {
+    let call = spec.call_name;
+    let expected = spec.arity.expected();
+    if arguments.len() != expected {
+        return Err(format!(
+            "[freeze:contract][fastmem/arity] call={} expected={} actual={}",
+            call,
+            expected,
+            arguments.len()
+        ));
+    }
+
+    match spec.intrinsic {
+        FastMemIntrinsic::Addr => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::AddrOf, vec![arg])
         }
-        "mem.currentAllocOwnerId" => {
-            ensure_no_fastmem_args("mem.currentAllocOwnerId", &arguments)?;
+        FastMemIntrinsic::CurrentAllocOwnerId => {
+            ensure_no_fastmem_args(call, &arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::CurrentAllocOwnerId, Vec::new())
         }
-        "mem.ownerEq" => {
+        FastMemIntrinsic::OwnerEq => {
             let args = lower_fastmem_args(builder, region, arguments)?;
-            if args.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.ownerEq expected=2 actual={}",
-                    args.len()
-                ));
-            }
             builder.emit_fastmem_value_memop(region, MemOpKind::OwnerEq, args)
         }
-        "mem.localFreePush" => {
+        FastMemIntrinsic::LocalFreePush => {
             let args = lower_fastmem_args(builder, region, arguments)?;
-            if args.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.localFreePush expected=2 actual={}",
-                    args.len()
-                ));
-            }
             builder.emit_fastmem_memop(region, MemOpKind::LocalFreePush, None, args, None)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.freeHeadPush" => {
+        FastMemIntrinsic::FreeHeadPush => {
             let args = lower_fastmem_args(builder, region, arguments)?;
-            if args.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.freeHeadPush expected=2 actual={}",
-                    args.len()
-                ));
-            }
             builder.emit_fastmem_memop(region, MemOpKind::FreeHeadPush, None, args, None)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.atomicRemoteHeadPush" => {
+        FastMemIntrinsic::AtomicRemoteHeadPush => {
             let args = lower_fastmem_args(builder, region, arguments)?;
-            if args.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.atomicRemoteHeadPush expected=2 actual={}",
-                    args.len()
-                ));
-            }
             builder.emit_fastmem_memop(
                 region,
                 MemOpKind::AtomicRemoteHeadPush,
@@ -75,18 +138,12 @@ pub(super) fn lower_fastmem_function_call(
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.atomicRemoteHeadDrain" => {
-            let arg = single_fastmem_arg(builder, region, "mem.atomicRemoteHeadDrain", arguments)?;
+        FastMemIntrinsic::AtomicRemoteHeadDrain => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::AtomicRemoteHeadDrain, vec![arg])
         }
-        "mem.drainRemoteListToLocal" => {
+        FastMemIntrinsic::DrainRemoteListToLocal => {
             let args = lower_fastmem_args(builder, region, arguments)?;
-            if args.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.drainRemoteListToLocal expected=2 actual={}",
-                    args.len()
-                ));
-            }
             builder.emit_fastmem_memop(
                 region,
                 MemOpKind::DrainRemoteListToLocal,
@@ -96,33 +153,26 @@ pub(super) fn lower_fastmem_function_call(
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.localFreePop" => {
-            let arg = single_fastmem_arg(builder, region, "mem.localFreePop", arguments)?;
+        FastMemIntrinsic::LocalFreePop => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::LocalFreePop, vec![arg])
         }
-        "mem.freeHeadPop" => {
-            let arg = single_fastmem_arg(builder, region, "mem.freeHeadPop", arguments)?;
+        FastMemIntrinsic::FreeHeadPop => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::FreeHeadPop, vec![arg])
         }
-        "mem.assumeSameOwner" => {
+        FastMemIntrinsic::AssumeSameOwner => {
             let args = lower_fastmem_args(builder, region, arguments)?;
-            if args.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.assumeSameOwner expected=2 actual={}",
-                    args.len()
-                ));
-            }
             builder.add_fastmem_same_owner_fact(region, args[0], args[1])?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeRemoteOwner" => {
-            let arg = single_fastmem_arg(builder, region, "mem.assumeRemoteOwner", arguments)?;
+        FastMemIntrinsic::AssumeRemoteOwner => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.add_fastmem_remote_owner_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeLocalFreeBlockNext" => {
-            let arg =
-                single_fastmem_arg(builder, region, "mem.assumeLocalFreeBlockNext", arguments)?;
+        FastMemIntrinsic::AssumeLocalFreeBlockNext => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.add_fastmem_block_next_fact(
                 region,
                 arg,
@@ -130,9 +180,8 @@ pub(super) fn lower_fastmem_function_call(
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeFreeHeadBlockNext" => {
-            let arg =
-                single_fastmem_arg(builder, region, "mem.assumeFreeHeadBlockNext", arguments)?;
+        FastMemIntrinsic::AssumeFreeHeadBlockNext => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.add_fastmem_block_next_fact(
                 region,
                 arg,
@@ -140,9 +189,8 @@ pub(super) fn lower_fastmem_function_call(
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeRemoteFreeBlockNext" => {
-            let arg =
-                single_fastmem_arg(builder, region, "mem.assumeRemoteFreeBlockNext", arguments)?;
+        FastMemIntrinsic::AssumeRemoteFreeBlockNext => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.add_fastmem_block_next_fact(
                 region,
                 arg,
@@ -150,24 +198,17 @@ pub(super) fn lower_fastmem_function_call(
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeLocalFreeNonEmpty" => {
-            let arg =
-                single_fastmem_arg(builder, region, "mem.assumeLocalFreeNonEmpty", arguments)?;
+        FastMemIntrinsic::AssumeLocalFreeNonEmpty => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.add_fastmem_local_free_non_empty_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeFreeHeadNonEmpty" => {
-            let arg = single_fastmem_arg(builder, region, "mem.assumeFreeHeadNonEmpty", arguments)?;
+        FastMemIntrinsic::AssumeFreeHeadNonEmpty => {
+            let arg = single_fastmem_arg(builder, region, call, arguments)?;
             builder.add_fastmem_free_head_non_empty_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeTableLength" => {
-            if arguments.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.assumeTableLength expected=2 actual={}",
-                    arguments.len()
-                ));
-            }
+        FastMemIntrinsic::AssumeTableLength => {
             let table_id = fastmem_table_length_table_id(&arguments[0])?;
             let resolved_length = fastmem_positive_usize_source_value(builder, &arguments[1])?;
             let args = lower_fastmem_args(builder, region, arguments)?;
@@ -180,13 +221,7 @@ pub(super) fn lower_fastmem_function_call(
             )?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        "mem.assumeIndexInRange" => {
-            if arguments.len() != 2 {
-                return Err(format!(
-                    "[freeze:contract][fastmem/arity] call=mem.assumeIndexInRange expected=2 actual={}",
-                    arguments.len()
-                ));
-            }
+        FastMemIntrinsic::AssumeIndexInRange => {
             let resolved_upper = fastmem_positive_usize_source_value(builder, &arguments[1])?;
             let args = lower_fastmem_args(builder, region, arguments)?;
             let upper_value =
@@ -194,10 +229,6 @@ pub(super) fn lower_fastmem_function_call(
             builder.add_fastmem_range_index_fact(args[0], upper_value)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
-        _ => Err(format!(
-            "[freeze:contract][fastmem/forbidden_call] call={}",
-            name
-        )),
     }
 }
 
@@ -260,6 +291,107 @@ fn ensure_no_fastmem_args(call: &str, arguments: &[ASTNode]) -> Result<(), Strin
             call,
             arguments.len()
         ))
+    }
+}
+
+fn lookup_fastmem_intrinsic(name: &str) -> Option<FastMemIntrinsicSpec> {
+    match name {
+        "mem.addr" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::Addr,
+            "mem.addr",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.currentAllocOwnerId" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::CurrentAllocOwnerId,
+            "mem.currentAllocOwnerId",
+            FastMemIntrinsicArity::Zero,
+        )),
+        "mem.ownerEq" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::OwnerEq,
+            "mem.ownerEq",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.localFreePush" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::LocalFreePush,
+            "mem.localFreePush",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.freeHeadPush" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::FreeHeadPush,
+            "mem.freeHeadPush",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.atomicRemoteHeadPush" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AtomicRemoteHeadPush,
+            "mem.atomicRemoteHeadPush",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.atomicRemoteHeadDrain" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AtomicRemoteHeadDrain,
+            "mem.atomicRemoteHeadDrain",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.drainRemoteListToLocal" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::DrainRemoteListToLocal,
+            "mem.drainRemoteListToLocal",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.localFreePop" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::LocalFreePop,
+            "mem.localFreePop",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.freeHeadPop" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::FreeHeadPop,
+            "mem.freeHeadPop",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeSameOwner" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeSameOwner,
+            "mem.assumeSameOwner",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.assumeRemoteOwner" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeRemoteOwner,
+            "mem.assumeRemoteOwner",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeLocalFreeBlockNext" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeLocalFreeBlockNext,
+            "mem.assumeLocalFreeBlockNext",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeFreeHeadBlockNext" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeFreeHeadBlockNext,
+            "mem.assumeFreeHeadBlockNext",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeRemoteFreeBlockNext" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeRemoteFreeBlockNext,
+            "mem.assumeRemoteFreeBlockNext",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeLocalFreeNonEmpty" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeLocalFreeNonEmpty,
+            "mem.assumeLocalFreeNonEmpty",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeFreeHeadNonEmpty" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeFreeHeadNonEmpty,
+            "mem.assumeFreeHeadNonEmpty",
+            FastMemIntrinsicArity::One,
+        )),
+        "mem.assumeTableLength" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeTableLength,
+            "mem.assumeTableLength",
+            FastMemIntrinsicArity::Two,
+        )),
+        "mem.assumeIndexInRange" => Some(FastMemIntrinsicSpec::new(
+            FastMemIntrinsic::AssumeIndexInRange,
+            "mem.assumeIndexInRange",
+            FastMemIntrinsicArity::Two,
+        )),
+        _ => None,
     }
 }
 

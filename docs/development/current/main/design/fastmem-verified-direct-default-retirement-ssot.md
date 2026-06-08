@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-013
+MIRBUILDER-FMEM-014
 ```
 
 ## Remaining Retirement Rows
@@ -568,6 +568,12 @@ no new intrinsic behavior
 no product activation / hook / global allocator claim
 ```
 
+### MIRBUILDER-FMEM-013 Status
+
+Landed: the fastmem `mem.*` call lowering now uses a small intrinsic registry
+descriptor with stable arity and unsupported-intrinsic handling, while keeping
+intrinsic behavior stable and centralized.
+
 ### MIRBUILDER-FMEM-014: Branch Condition Gate Generalization
 
 Move the remaining branch condition gate from fastmem-only AST handling toward
@@ -597,3 +603,7 @@ all fastmem_dedicated_*_lowering_count=0
 verified-direct report/check gates remain positive where fixtures exercise them
 no allocator/product activation claims opened
 ```
+
+### Current Next Row
+
+`MIRBUILDER-FMEM-014` branch condition gate generalization

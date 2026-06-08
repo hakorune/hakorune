@@ -103,6 +103,10 @@ MIRBUILDER-FMEM-013:
   mem.* stays fastmem-specific vocabulary but stops being scattered string
   matching
 
+  Status: landed
+    mem.* intrinsic lowering now uses a small registry descriptor with stable
+    arity and unsupported-intrinsic handling.
+
 MIRBUILDER-FMEM-014:
   branch condition gate generalization
   ownerEq condition proof moves toward ordinary condition route facts
@@ -143,5 +147,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-013 intrinsic registry cleanup
+next: MIRBUILDER-FMEM-014 branch condition gate generalization
 ```
