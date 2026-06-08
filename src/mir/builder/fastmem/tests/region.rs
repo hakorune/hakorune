@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::instruction::MemOpKind;
 use crate::mir::MirInstruction;
 
 #[test]
@@ -30,9 +31,9 @@ fn fastmem_source_lowers_to_region_metadata_and_memops() {
     let region = &function.metadata.fastmem_regions[0];
     assert_eq!(region.contract, "PageMapV0");
     assert_eq!(region.body_statement_count, 2);
-    assert_eq!(region.emitted_memop_count, 3);
+    assert_eq!(region.emitted_memop_count, 1);
 
-    let kinds: Vec<MemOpKind> = function
+    let memop_kinds: Vec<MemOpKind> = function
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
@@ -42,8 +43,26 @@ fn fastmem_source_lowers_to_region_metadata_and_memops() {
         })
         .collect();
     assert_eq!(
-        kinds,
-        vec![MemOpKind::AddrOf, MemOpKind::LogicalShr, MemOpKind::BitAnd]
+        memop_kinds,
+        vec![MemOpKind::AddrOf]
+    );
+
+    let binop_kinds: Vec<crate::mir::BinaryOp> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|inst| match inst {
+            MirInstruction::BinOp { op, .. } => Some(*op),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        binop_kinds,
+        vec![
+            crate::mir::BinaryOp::Shr,
+            crate::mir::BinaryOp::Shr,
+            crate::mir::BinaryOp::BitAnd,
+        ]
     );
 }
 

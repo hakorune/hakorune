@@ -1,5 +1,6 @@
 use super::*;
 use crate::mir::function::{FastMemBlockNextProofKind, FastMemRemoteOwnerProofKind};
+use crate::mir::instruction::MemOpKind;
 use crate::mir::MirInstruction;
 
 fn emitted_memop_kinds(function: &crate::mir::MirFunction) -> Vec<MemOpKind> {
@@ -9,6 +10,18 @@ fn emitted_memop_kinds(function: &crate::mir::MirFunction) -> Vec<MemOpKind> {
         .flat_map(|block| block.instructions.iter())
         .filter_map(|inst| match inst {
             MirInstruction::MemOp { kind, .. } => Some(*kind),
+            _ => None,
+        })
+        .collect()
+}
+
+fn emitted_binop_kinds(function: &crate::mir::MirFunction) -> Vec<crate::mir::BinaryOp> {
+    function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|inst| match inst {
+            MirInstruction::BinOp { op, .. } => Some(*op),
             _ => None,
         })
         .collect()
@@ -210,13 +223,14 @@ fn fastmem_source_emits_numeric_binary_memops() {
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
     let function = builder.scope_ctx.current_function.as_ref().unwrap();
 
+    assert!(emitted_memop_kinds(function).is_empty());
     assert_eq!(
-        emitted_memop_kinds(function),
+        emitted_binop_kinds(function),
         vec![
-            MemOpKind::Add,
-            MemOpKind::Sub,
-            MemOpKind::LogicalShr,
-            MemOpKind::BitAnd,
+            crate::mir::BinaryOp::Add,
+            crate::mir::BinaryOp::Sub,
+            crate::mir::BinaryOp::Shr,
+            crate::mir::BinaryOp::BitAnd,
         ]
     );
 }

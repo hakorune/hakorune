@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-012
+MIRBUILDER-FMEM-013
 ```
 
 ## Remaining Retirement Rows
@@ -546,6 +546,12 @@ fastmem_numeric_required_route_miss_count=0
 fastmem_dedicated_binary_op_lowering_count=0
 ordinary short-circuit remains ordinary lowering-owned
 ```
+
+### MIRBUILDER-FMEM-012 Status
+
+Landed: the fastmem numeric route now uses the shared binary helper path while
+keeping verified-direct numeric evidence and ordinary `BinOp` shape visible in
+inventory and check output.
 
 ### MIRBUILDER-FMEM-013: Intrinsic Registry Cleanup
 

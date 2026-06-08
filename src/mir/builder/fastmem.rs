@@ -11,7 +11,7 @@ mod ops;
 
 use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::instruction::{FastMemRegionId, MemOpKind};
+use crate::mir::instruction::FastMemRegionId;
 
 use branch::lower_fastmem_if;
 use calls::{lower_fastmem_function_call, lower_fastmem_method_call};
@@ -222,16 +222,10 @@ fn lower_fastmem_literal(builder: &mut MirBuilder, value: LiteralValue) -> Resul
     }
 }
 
-fn memop_kind_for_binary_operator(operator: BinaryOperator) -> Result<MemOpKind, String> {
-    match operator {
-        BinaryOperator::Shr => Ok(MemOpKind::LogicalShr),
-        BinaryOperator::BitAnd => Ok(MemOpKind::BitAnd),
-        BinaryOperator::Add => Ok(MemOpKind::Add),
-        BinaryOperator::Subtract => Ok(MemOpKind::Sub),
-        _ => Err(format!(
-            "[freeze:contract][fastmem/unsupported_binary_op] op={}",
-            operator
-        )),
+fn fastmem_index_table_label(target: &ASTNode) -> Option<String> {
+    match target {
+        ASTNode::Variable { name, .. } => Some(name.clone()),
+        _ => None,
     }
 }
 
@@ -244,15 +238,7 @@ fn lower_fastmem_numeric_binary_op(
 ) -> Result<ValueId, String> {
     let lhs = lower_fastmem_expr(builder, region, left)?;
     let rhs = lower_fastmem_expr(builder, region, right)?;
-    let kind = memop_kind_for_binary_operator(operator)?;
-    builder.emit_fastmem_value_memop(region, kind, vec![lhs, rhs])
-}
-
-fn fastmem_index_table_label(target: &ASTNode) -> Option<String> {
-    match target {
-        ASTNode::Variable { name, .. } => Some(name.clone()),
-        _ => None,
-    }
+    builder.build_binary_op_from_values(operator, lhs, rhs)
 }
 
 #[cfg(test)]

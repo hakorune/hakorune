@@ -1,5 +1,6 @@
 use super::*;
 use crate::mir::function::FastMemBranchConditionProofKind;
+use crate::mir::instruction::MemOpKind;
 use crate::mir::MirInstruction;
 
 #[test]

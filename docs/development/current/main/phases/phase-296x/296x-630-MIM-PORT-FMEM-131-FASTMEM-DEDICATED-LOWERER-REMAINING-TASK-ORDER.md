@@ -94,6 +94,10 @@ MIRBUILDER-FMEM-012:
   numeric route retirement
   BinaryOp becomes ordinary BinOp plus numeric route facts
 
+  Status: landed
+    fastmem numeric source now routes through the shared binary helper path
+    while preserving verified-direct numeric evidence and ordinary BinOp shape.
+
 MIRBUILDER-FMEM-013:
   intrinsic registry cleanup
   mem.* stays fastmem-specific vocabulary but stops being scattered string
@@ -139,5 +143,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-012 numeric route retirement
+next: MIRBUILDER-FMEM-013 intrinsic registry cleanup
 ```

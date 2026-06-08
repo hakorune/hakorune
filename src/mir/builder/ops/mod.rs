@@ -157,7 +157,15 @@ impl super::MirBuilder {
 
         let lhs_raw = self.build_expression(left)?;
         let rhs_raw = self.build_expression(right)?;
+        self.build_binary_op_from_values(operator, lhs_raw, rhs_raw)
+    }
 
+    pub(in crate::mir::builder) fn build_binary_op_from_values(
+        &mut self,
+        operator: BinaryOperator,
+        lhs_raw: ValueId,
+        rhs_raw: ValueId,
+    ) -> Result<ValueId, String> {
         let mir_op = converters::convert_binary_operator(operator)?;
 
         match mir_op {
