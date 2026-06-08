@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-011
+MIRBUILDER-FMEM-012
 ```
 
 ## Remaining Retirement Rows
@@ -525,6 +525,12 @@ fastmem_dedicated_index_lowering_count=0
 index_access_required_verified_table_miss_count=0
 TableIndex without bounds/overflow proof remains non-lowerable
 ```
+
+### MIRBUILDER-FMEM-011 Status
+
+Landed: the fastmem index route now uses the shared index helper path while
+keeping verified-table evidence and index access sites visible in inventory
+and check output.
 
 ### MIRBUILDER-FMEM-012: Numeric Route Retirement
 

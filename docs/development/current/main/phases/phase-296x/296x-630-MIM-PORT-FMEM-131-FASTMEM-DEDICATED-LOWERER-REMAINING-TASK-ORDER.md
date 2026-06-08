@@ -86,6 +86,10 @@ MIRBUILDER-FMEM-011:
   Index becomes ordinary index origin plus IndexAccessSite and verified table
   obligations
 
+  Status: landed
+    fastmem index source now routes through the shared index helper path while
+    preserving verified-table evidence and index access sites.
+
 MIRBUILDER-FMEM-012:
   numeric route retirement
   BinaryOp becomes ordinary BinOp plus numeric route facts
@@ -135,5 +139,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-011 index route retirement
+next: MIRBUILDER-FMEM-012 numeric route retirement
 ```

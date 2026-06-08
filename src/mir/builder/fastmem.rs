@@ -11,7 +11,7 @@ mod ops;
 
 use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
+use crate::mir::instruction::{FastMemRegionId, MemOpKind};
 
 use branch::lower_fastmem_if;
 use calls::{lower_fastmem_function_call, lower_fastmem_method_call};
@@ -112,7 +112,20 @@ fn lower_fastmem_assignment(
             target,
             index,
             span: _span,
-        } => lower_fastmem_index_access(builder, region, *target, *index, "store", Some(value)),
+        } => {
+            let target_label = fastmem_index_table_label(&target);
+            let base = lower_fastmem_expr(builder, region, *target)?;
+            let idx = lower_fastmem_expr(builder, region, *index)?;
+            let value_id = lower_fastmem_expr(builder, region, value)?;
+            builder.build_index_access_from_values(
+                Some(region),
+                base,
+                idx,
+                target_label,
+                "store",
+                Some(value_id),
+            )
+        }
         other => Err(format!(
             "[freeze:contract][fastmem/unsupported_assignment_target] node={}",
             other.node_type()
@@ -165,7 +178,17 @@ fn lower_fastmem_expr(
             ..
         } => lower_fastmem_method_call(builder, region, *object, method, arguments),
         ASTNode::Index { target, index, .. } => {
-            lower_fastmem_index_access(builder, region, *target, *index, "load", None)
+            let target_label = fastmem_index_table_label(&target);
+            let base = lower_fastmem_expr(builder, region, *target)?;
+            let idx = lower_fastmem_expr(builder, region, *index)?;
+            builder.build_index_access_from_values(
+                Some(region),
+                base,
+                idx,
+                target_label,
+                "load",
+                None,
+            )
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
@@ -225,52 +248,10 @@ fn lower_fastmem_numeric_binary_op(
     builder.emit_fastmem_value_memop(region, kind, vec![lhs, rhs])
 }
 
-fn fastmem_table_access(target: &ASTNode) -> Option<MemOpAccess> {
+fn fastmem_index_table_label(target: &ASTNode) -> Option<String> {
     match target {
-        ASTNode::Variable { name, .. } => Some(MemOpAccess::table(name.clone())),
+        ASTNode::Variable { name, .. } => Some(name.clone()),
         _ => None,
-    }
-}
-
-fn lower_fastmem_index_access(
-    builder: &mut MirBuilder,
-    region: FastMemRegionId,
-    target: ASTNode,
-    index: ASTNode,
-    access_kind: &'static str,
-    store_value: Option<ASTNode>,
-) -> Result<ValueId, String> {
-    let base = lower_fastmem_expr(builder, region, target.clone())?;
-    let idx = lower_fastmem_expr(builder, region, index)?;
-    let access = fastmem_table_access(&target);
-    builder.add_fastmem_index_access_site(
-        region,
-        base,
-        idx,
-        access.as_ref().and_then(|access| access.table_id.clone()),
-        None,
-        access_kind,
-        "verified_table_index",
-        "forbidden",
-    )?;
-    let slot = builder.emit_fastmem_value_memop_with_access(
-        region,
-        MemOpKind::TableIndex,
-        vec![base, idx],
-        access,
-    )?;
-    if let Some(value) = store_value {
-        let value_id = lower_fastmem_expr(builder, region, value)?;
-        builder.emit_fastmem_memop(
-            region,
-            MemOpKind::FieldStore,
-            None,
-            vec![slot, value_id],
-            None,
-        )?;
-        Ok(value_id)
-    } else {
-        Ok(slot)
     }
 }
 

@@ -1,4 +1,6 @@
 use crate::ast::ASTNode;
+use crate::mir::instruction::FastMemRegionId;
+use crate::mir::instruction::MemOpKind;
 
 use super::{EffectMask, MirInstruction, MirType, ValueId};
 
@@ -25,6 +27,131 @@ impl super::MirBuilder {
             .filter(|s| !s.is_empty())
             .unwrap_or("unknown")
             .to_string()
+    }
+
+    pub(super) fn build_index_access_from_values(
+        &mut self,
+        region: Option<FastMemRegionId>,
+        target_val: ValueId,
+        index_val: ValueId,
+        target_label: Option<String>,
+        access_kind: &'static str,
+        store_value: Option<ValueId>,
+    ) -> Result<ValueId, String> {
+        let class_hint = self.infer_index_target_class(target_val);
+        let required_route = if region.is_some() {
+            "verified_table_index"
+        } else {
+            "none"
+        };
+        let fallback_policy = if region.is_some() {
+            "forbidden"
+        } else {
+            "allow_dynamic"
+        };
+        self.record_index_access_site(
+            region,
+            target_val,
+            index_val,
+            target_label.clone(),
+            None,
+            access_kind,
+            required_route,
+            fallback_policy,
+        )?;
+
+        match class_hint.as_deref() {
+            Some("ArrayBox") => {
+                let dst = if store_value.is_some() {
+                    None
+                } else {
+                    Some(self.next_value_id())
+                };
+                let value_id = match store_value {
+                    Some(value_id) => value_id,
+                    None => dst.expect("dst must exist for load"),
+                };
+                self.emit_box_or_plugin_call(
+                    dst,
+                    target_val,
+                    if store_value.is_some() {
+                        "set".to_string()
+                    } else {
+                        "get".to_string()
+                    },
+                    None,
+                    if store_value.is_some() {
+                        vec![index_val, value_id]
+                    } else {
+                        vec![index_val]
+                    },
+                    if store_value.is_some() {
+                        EffectMask::MUT
+                    } else {
+                        EffectMask::READ
+                    },
+                )?;
+                Ok(value_id)
+            }
+            Some("MapBox") => {
+                let dst = if store_value.is_some() {
+                    None
+                } else {
+                    Some(self.next_value_id())
+                };
+                let value_id = match store_value {
+                    Some(value_id) => value_id,
+                    None => dst.expect("dst must exist for load"),
+                };
+                self.emit_box_or_plugin_call(
+                    dst,
+                    target_val,
+                    if store_value.is_some() {
+                        "set".to_string()
+                    } else {
+                        "get".to_string()
+                    },
+                    None,
+                    if store_value.is_some() {
+                        vec![index_val, value_id]
+                    } else {
+                        vec![index_val]
+                    },
+                    if store_value.is_some() {
+                        EffectMask::MUT
+                    } else {
+                        EffectMask::READ
+                    },
+                )?;
+                Ok(value_id)
+            }
+            _ if region.is_some() && target_label.is_some() => {
+                let slot = self.emit_fastmem_value_memop_with_access(
+                    region.expect("region required"),
+                    MemOpKind::TableIndex,
+                    vec![target_val, index_val],
+                    Some(crate::mir::instruction::MemOpAccess::table(
+                        target_label.expect("table label required"),
+                    )),
+                )?;
+                if let Some(value_id) = store_value {
+                    self.emit_fastmem_memop(
+                        region.expect("region required"),
+                        crate::mir::instruction::MemOpKind::FieldStore,
+                        None,
+                        vec![slot, value_id],
+                        None,
+                    )?;
+                    Ok(value_id)
+                } else {
+                    Ok(slot)
+                }
+            }
+            _ => Err(format!(
+                "index operator is only supported for Array/Map (found {})",
+                Self::format_index_target_kind(class_hint.as_ref())
+            )),
+        }
     }
 
     pub(super) fn build_index_expression(
@@ -70,60 +197,8 @@ impl super::MirBuilder {
         }
 
         let target_val = self.build_expression(target)?;
-        let class_hint = self.infer_index_target_class(target_val);
-
-        match class_hint.as_deref() {
-            Some("ArrayBox") => {
-                let index_val = self.build_expression(index)?;
-                self.record_index_access_site(
-                    None,
-                    target_val,
-                    index_val,
-                    None,
-                    None,
-                    "load",
-                    "none",
-                    "allow_dynamic",
-                )?;
-                let dst = self.next_value_id();
-                self.emit_box_or_plugin_call(
-                    Some(dst),
-                    target_val,
-                    "get".to_string(),
-                    None,
-                    vec![index_val],
-                    EffectMask::READ,
-                )?;
-                Ok(dst)
-            }
-            Some("MapBox") => {
-                let index_val = self.build_expression(index)?;
-                self.record_index_access_site(
-                    None,
-                    target_val,
-                    index_val,
-                    None,
-                    None,
-                    "load",
-                    "none",
-                    "allow_dynamic",
-                )?;
-                let dst = self.next_value_id();
-                self.emit_box_or_plugin_call(
-                    Some(dst),
-                    target_val,
-                    "get".to_string(),
-                    None,
-                    vec![index_val],
-                    EffectMask::READ,
-                )?;
-                Ok(dst)
-            }
-            _ => Err(format!(
-                "index operator is only supported for Array/Map (found {})",
-                Self::format_index_target_kind(class_hint.as_ref())
-            )),
-        }
+        let index_val = self.build_expression(index)?;
+        self.build_index_access_from_values(None, target_val, index_val, None, "load", None)
     }
 
     pub(super) fn build_index_assignment(
@@ -133,60 +208,16 @@ impl super::MirBuilder {
         value: ASTNode,
     ) -> Result<ValueId, String> {
         let target_val = self.build_expression(target)?;
-        let class_hint = self.infer_index_target_class(target_val);
-
-        match class_hint.as_deref() {
-            Some("ArrayBox") => {
-                let index_val = self.build_expression(index)?;
-                let value_val = self.build_expression(value)?;
-                self.record_index_access_site(
-                    None,
-                    target_val,
-                    index_val,
-                    None,
-                    None,
-                    "store",
-                    "none",
-                    "allow_dynamic",
-                )?;
-                self.emit_box_or_plugin_call(
-                    None,
-                    target_val,
-                    "set".to_string(),
-                    None,
-                    vec![index_val, value_val],
-                    EffectMask::MUT,
-                )?;
-                Ok(value_val)
-            }
-            Some("MapBox") => {
-                let index_val = self.build_expression(index)?;
-                let value_val = self.build_expression(value)?;
-                self.record_index_access_site(
-                    None,
-                    target_val,
-                    index_val,
-                    None,
-                    None,
-                    "store",
-                    "none",
-                    "allow_dynamic",
-                )?;
-                self.emit_box_or_plugin_call(
-                    None,
-                    target_val,
-                    "set".to_string(),
-                    None,
-                    vec![index_val, value_val],
-                    EffectMask::MUT,
-                )?;
-                Ok(value_val)
-            }
-            _ => Err(format!(
-                "index assignment is only supported for Array/Map (found {})",
-                Self::format_index_target_kind(class_hint.as_ref())
-            )),
-        }
+        let index_val = self.build_expression(index)?;
+        let value_val = self.build_expression(value)?;
+        self.build_index_access_from_values(
+            None,
+            target_val,
+            index_val,
+            None,
+            "store",
+            Some(value_val),
+        )
     }
 }
 

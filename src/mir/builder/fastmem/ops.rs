@@ -45,7 +45,7 @@ impl MirBuilder {
         Ok(id)
     }
 
-    pub(super) fn emit_fastmem_value_memop(
+    pub(crate) fn emit_fastmem_value_memop(
         &mut self,
         region: FastMemRegionId,
         kind: MemOpKind,
@@ -54,7 +54,7 @@ impl MirBuilder {
         self.emit_fastmem_value_memop_with_access(region, kind, operands, None)
     }
 
-    pub(super) fn emit_fastmem_value_memop_with_access(
+    pub(crate) fn emit_fastmem_value_memop_with_access(
         &mut self,
         region: FastMemRegionId,
         kind: MemOpKind,
@@ -67,7 +67,7 @@ impl MirBuilder {
         Ok(dst)
     }
 
-    pub(super) fn emit_fastmem_memop(
+    pub(crate) fn emit_fastmem_memop(
         &mut self,
         region: FastMemRegionId,
         kind: MemOpKind,
@@ -418,29 +418,6 @@ impl MirBuilder {
             loop_carried_writes_supported: false,
         });
         Ok(())
-    }
-
-    pub(super) fn add_fastmem_index_access_site(
-        &mut self,
-        region: FastMemRegionId,
-        base_value: ValueId,
-        index_value: ValueId,
-        table_id: Option<String>,
-        layout_id: Option<String>,
-        access_kind: &'static str,
-        required_route: &'static str,
-        fallback_policy: &'static str,
-    ) -> Result<(), String> {
-        self.record_index_access_site(
-            Some(region),
-            base_value,
-            index_value,
-            table_id,
-            layout_id,
-            access_kind,
-            required_route,
-            fallback_policy,
-        )
     }
 
     pub(super) fn canonical_fastmem_range_upper_value(
