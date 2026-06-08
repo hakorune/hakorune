@@ -103,6 +103,11 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
             if int_count(rows, key) != 1:
                 reasons.append(key)
         if int_count(rows, "fastmem_region_count") > 0:
+            if int_count(rows, "fastmem_field_access_site_count") > 0:
+                if int_count(rows, "field_access_required_verified_direct_count") <= 0:
+                    reasons.append("field_access_required_verified_direct_count")
+                if int_count(rows, "field_access_required_verified_direct_miss_count") != 0:
+                    reasons.append("field_access_required_verified_direct_miss_count")
             if int_count(rows, "index_access_required_verified_table_count") <= 0:
                 reasons.append("index_access_required_verified_table_count")
             if int_count(rows, "index_access_required_verified_table_miss_count") != 0:

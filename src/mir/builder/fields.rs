@@ -1,6 +1,7 @@
 // Field access and assignment lowering
 use super::ValueId;
 use crate::ast::ASTNode;
+use crate::mir::instruction::FastMemRegionId;
 
 impl super::MirBuilder {
     /// Build field access: object.field
@@ -32,45 +33,7 @@ impl super::MirBuilder {
             return Ok(property_value);
         }
 
-        let declared_type = self.declared_field_type_for_value(object_value, &field);
-
-        let field_val = if let Some(ref ty) = declared_type {
-            self.alloc_typed(ty.clone())
-        } else {
-            self.next_value_id()
-        };
-        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
-            dst: field_val,
-            base: object_value,
-            field: field.clone(),
-            declared_type,
-        })?;
-
-        self.publish_field_result_origin(field_val, object_value, &field);
-
-        // If the loaded field result has a known box origin and its requested
-        // field is weak, keep WeakRef (+ optional barrier). This must only
-        // consume already-published origin facts; re-lowering nested field
-        // receiver ASTs here would duplicate semantic calls.
-        let inferred_class = self.type_ctx.value_origin_newbox.get(&field_val).cloned();
-        if let Some(class_name) = inferred_class {
-            if self.is_weak_field_on_result_class(&class_name, &field) {
-                // Phase 285A1: Read weak field returns WeakRef (no auto-upgrade)
-                // Delegated to WeakFieldValidatorBox
-                let dst = field_val; // The load result is already our return value
-
-                // Phase 285A1: Annotate result as WeakRef type
-                super::weak_field_validator::WeakFieldValidatorBox::annotate_read_result(
-                    &mut self.type_ctx,
-                    dst,
-                );
-
-                let _ = self.emit_barrier_read(dst);
-                return Ok(dst); // Return WeakRef directly (no auto-upgrade)
-            }
-        }
-
-        Ok(field_val)
+        self.build_field_access_from_value(object_value, field)
     }
 
     /// Build field assignment: object.field = value
@@ -119,14 +82,68 @@ impl super::MirBuilder {
         Ok(())
     }
 
-    fn build_field_assignment_from_value(
+    pub(super) fn build_field_access_from_value(
+        &mut self,
+        object_value: ValueId,
+        field: String,
+    ) -> Result<ValueId, String> {
+        let declared_type = self.declared_field_type_for_value(object_value, &field);
+
+        let field_val = if let Some(ref ty) = declared_type {
+            self.alloc_typed(ty.clone())
+        } else {
+            self.next_value_id()
+        };
+        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
+            dst: field_val,
+            base: object_value,
+            field: field.clone(),
+            declared_type,
+        })?;
+
+        self.publish_field_result_origin(field_val, object_value, &field);
+
+        // If the loaded field result has a known box origin and its requested
+        // field is weak, keep WeakRef (+ optional barrier). This must only
+        // consume already-published origin facts; re-lowering nested field
+        // receiver ASTs here would duplicate semantic calls.
+        let inferred_class = self.type_ctx.value_origin_newbox.get(&field_val).cloned();
+        if let Some(class_name) = inferred_class {
+            if self.is_weak_field_on_result_class(&class_name, &field) {
+                let dst = field_val;
+                super::weak_field_validator::WeakFieldValidatorBox::annotate_read_result(
+                    &mut self.type_ctx,
+                    dst,
+                );
+
+                let _ = self.emit_barrier_read(dst);
+                return Ok(dst);
+            }
+        }
+
+        Ok(field_val)
+    }
+
+    pub(super) fn build_field_assignment_from_value(
         &mut self,
         object_value: ValueId,
         field: String,
         value: ASTNode,
     ) -> Result<ValueId, String> {
+        let mut value_result = self.build_expression(value)?;
+        value_result = self.local_arg(value_result);
+        self.build_field_assignment_from_value_id(None, object_value, field, value_result)
+    }
+
+    pub(super) fn build_field_assignment_from_value_id(
+        &mut self,
+        region: Option<FastMemRegionId>,
+        object_value: ValueId,
+        field: String,
+        value_result: ValueId,
+    ) -> Result<ValueId, String> {
         self.record_field_access_site(
-            None,
+            region,
             object_value,
             field.clone(),
             None,
@@ -134,10 +151,6 @@ impl super::MirBuilder {
             "none",
             "allow_dynamic",
         )?;
-
-        let mut value_result = self.build_expression(value)?;
-        // LocalSSA: argument in-block (optional safety)
-        value_result = self.local_arg(value_result);
         let declared_type = self.declared_field_type_for_value(object_value, &field);
 
         // Phase 285A1: If field is weak, enforce type contract (3 allowed cases)

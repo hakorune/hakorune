@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-010
+MIRBUILDER-FMEM-011
 ```
 
 ## Remaining Retirement Rows
@@ -496,6 +496,20 @@ fastmem_dedicated_field_access_lowering_count=0
 field_access_required_verified_direct_miss_count=0
 remote_head plain FieldStore remains rejected
 ```
+
+Landed:
+
+```text
+FastMemory field accesses now share the ordinary FieldGet/FieldSet builder
+path while keeping verified-direct field evidence and rejecting remote-head
+plain FieldStore.
+```
+
+### MIRBUILDER-FMEM-010 Status
+
+Landed: the field route now uses the shared `FieldGet` / `FieldSet` builder
+path, with field access sites and verified-direct field evidence preserved in
+inventory and check output.
 
 ### MIRBUILDER-FMEM-011: Index Route Retirement
 

@@ -84,7 +84,6 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
     for kind in [
         MemOpKind::TableIndex,
         MemOpKind::CurrentAllocOwnerId,
-        MemOpKind::FieldLoad,
         MemOpKind::OwnerEq,
     ] {
         assert_eq!(
@@ -95,6 +94,30 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
             kinds
         );
     }
+    let field_insts: Vec<&MirInstruction> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter(|inst| matches!(inst, MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }))
+        .collect();
+    assert_eq!(
+        field_insts
+            .iter()
+            .filter(|inst| matches!(inst, MirInstruction::FieldGet { field, .. } if field == "owner_worker_id"))
+            .count(),
+        1,
+        "field_insts={:?}",
+        field_insts
+    );
+    assert_eq!(
+        field_insts
+            .iter()
+            .filter(|inst| matches!(inst, MirInstruction::FieldSet { field, .. } if field == "used"))
+            .count(),
+        1,
+        "field_insts={:?}",
+        field_insts
+    );
     let branch_count = function
         .blocks
         .values()

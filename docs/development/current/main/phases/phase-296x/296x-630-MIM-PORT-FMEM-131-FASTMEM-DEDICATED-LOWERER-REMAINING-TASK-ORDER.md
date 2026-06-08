@@ -70,14 +70,17 @@ MIRBUILDER-FMEM-009 is landed:
   statement-shell helpers while fastmem expression lowering remains in place.
 ```
 
+## 010 Status
+
+```text
+MIRBUILDER-FMEM-010 is landed:
+  field accesses now share the ordinary FieldGet / FieldSet builder path while
+  verified-direct field evidence remains visible in inventory and check output.
+```
+
 ## Remaining Rows
 
 ```text
-MIRBUILDER-FMEM-010:
-  field route retirement
-  FieldAccess/FieldStore become ordinary FieldGet/FieldSet plus
-  FieldAccessSite and verified-direct obligations
-
 MIRBUILDER-FMEM-011:
   index route retirement
   Index becomes ordinary index origin plus IndexAccessSite and verified table
@@ -132,5 +135,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-010 field route retirement
+next: MIRBUILDER-FMEM-011 index route retirement
 ```

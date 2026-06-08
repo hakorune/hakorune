@@ -406,6 +406,27 @@ fn fastmem_source_records_access_sites() {
         function.metadata.fastmem_index_access_sites[0].fallback_policy,
         "forbidden"
     );
+
+    let instructions: Vec<_> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .collect();
+    assert!(instructions.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::FieldGet { field, .. } if field == "owner_worker_id"
+    )));
+    assert!(instructions.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::FieldSet { field, .. } if field == "used"
+    )));
+    assert!(!instructions.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::MemOp {
+            kind: MemOpKind::FieldLoad | MemOpKind::FieldStore,
+            ..
+        }
+    )));
 }
 
 #[test]

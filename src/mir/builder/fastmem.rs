@@ -103,23 +103,9 @@ fn lower_fastmem_assignment(
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
-            builder.add_fastmem_field_access_site(
-                region,
-                base,
-                field.clone(),
-                None,
-                "store",
-                "verified_layout_field",
-                "forbidden",
-            )?;
+            let base = builder.local_field_base(base);
             let value_id = lower_fastmem_expr(builder, region, value)?;
-            builder.emit_fastmem_memop(
-                region,
-                MemOpKind::FieldStore,
-                None,
-                vec![base, value_id],
-                Some(MemOpAccess::field(field)),
-            )?;
+            builder.build_field_assignment_from_value_id(Some(region), base, field, value_id)?;
             Ok(value_id)
         }
         ASTNode::Index {
@@ -183,6 +169,7 @@ fn lower_fastmem_expr(
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
+            let base = builder.local_field_base(base);
             builder.add_fastmem_field_access_site(
                 region,
                 base,
@@ -192,12 +179,7 @@ fn lower_fastmem_expr(
                 "verified_layout_field",
                 "forbidden",
             )?;
-            builder.emit_fastmem_value_memop_with_access(
-                region,
-                MemOpKind::FieldLoad,
-                vec![base],
-                Some(MemOpAccess::field(field)),
-            )
+            builder.build_field_access_from_value(base, field)
         }
         other => Err(format!(
             "[freeze:contract][fastmem/unsupported_expr] node={}",

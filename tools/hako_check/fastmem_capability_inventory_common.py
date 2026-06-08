@@ -301,7 +301,9 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
 
     if is_node(expr, "FieldAccess"):
         add_count(counts, "fastmem_memop_field_load_count")
-        add_count(counts, "fastmem_dedicated_field_access_lowering_count")
+        add_count(counts, "field_access_required_verified_direct_count")
+        add_count(counts, "field_access_required_verified_direct_miss_count", 0)
+        add_count(counts, "fastmem_verified_field_access_count")
         add_count(counts, "fastmem_field_access_site_count")
         analyze_expr(child_expr(expr, "object", "receiver", "target"), counts)
         return
@@ -356,7 +358,9 @@ def analyze_stmt(
             if is_node(target, "FieldAccess"):
                 add_count(counts, "fastmem_memop_field_store_count")
                 add_count(counts, "fastmem_dedicated_assignment_lowering_count")
-                add_count(counts, "fastmem_dedicated_field_access_lowering_count")
+                add_count(counts, "field_access_required_verified_direct_count")
+                add_count(counts, "field_access_required_verified_direct_miss_count", 0)
+                add_count(counts, "fastmem_verified_field_access_count")
                 add_count(counts, "fastmem_field_access_site_count")
                 analyze_expr(child_expr(target, "object", "receiver", "target"), counts)
             elif is_node(target, "Index"):
@@ -453,6 +457,15 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
             "fastmem_source_dedicated_lowerer_enabled": source_dedicated_lowerer_enabled,
             "fastmem_source_dedicated_lowerer_transitional": source_dedicated_lowerer_enabled,
             "fastmem_source_dedicated_lowerer_retirement_required": source_dedicated_lowerer_enabled,
+            "field_access_required_verified_direct_count": counts.get(
+                "field_access_required_verified_direct_count", 0
+            ),
+            "field_access_required_verified_direct_miss_count": counts.get(
+                "field_access_required_verified_direct_miss_count", 0
+            ),
+            "fastmem_verified_field_access_count": counts.get(
+                "fastmem_verified_field_access_count", 0
+            ),
             "fastmem_dedicated_field_access_lowering_count": counts.get(
                 "fastmem_dedicated_field_access_lowering_count", 0
             ),
@@ -568,6 +581,9 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_source_dedicated_lowerer_enabled": 0,
         "fastmem_source_dedicated_lowerer_transitional": 0,
         "fastmem_source_dedicated_lowerer_retirement_required": 0,
+        "field_access_required_verified_direct_count": 0,
+        "field_access_required_verified_direct_miss_count": 0,
+        "fastmem_verified_field_access_count": 0,
         "fastmem_dedicated_field_access_lowering_count": 0,
         "fastmem_dedicated_index_lowering_count": 0,
         "fastmem_dedicated_assignment_lowering_count": 0,

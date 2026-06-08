@@ -84,14 +84,34 @@ fn fastmem_layout_table_source_preserves_symbolic_access_ids() {
 
     assert_eq!(
         access_entries,
-        vec![
-            (MemOpKind::TableIndex, Some("page_table".to_string()), None,),
-            (MemOpKind::FieldLoad, None, Some("owner_id".to_string())),
-            (
-                MemOpKind::FieldStore,
-                None,
-                Some("local_free_head".to_string()),
-            ),
-        ]
+        vec![(MemOpKind::TableIndex, Some("page_table".to_string()), None,)]
     );
+    assert_eq!(function.metadata.fastmem_field_access_sites.len(), 2);
+    assert!(function
+        .metadata
+        .fastmem_field_access_sites
+        .iter()
+        .all(|site| site.region.is_some()));
+    assert_eq!(
+        function.metadata.fastmem_field_access_sites[0].field_id,
+        "owner_id"
+    );
+    assert_eq!(
+        function.metadata.fastmem_field_access_sites[1].field_id,
+        "local_free_head"
+    );
+    let field_insts: Vec<&MirInstruction> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter(|inst| matches!(inst, MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }))
+        .collect();
+    assert!(field_insts.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::FieldGet { field, .. } if field == "owner_id"
+    )));
+    assert!(field_insts.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::FieldSet { field, .. } if field == "local_free_head"
+    )));
 }
