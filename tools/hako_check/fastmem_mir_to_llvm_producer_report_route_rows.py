@@ -1277,6 +1277,61 @@ def _route_family_flags(state: dict[str, Any]) -> dict[str, bool]:
         "remote_owner_branch_routing_any": state["remote_owner_branch_routing_any"],
     }
 
+
+def _route_summary_flags(
+    *,
+    winner_claim_any: bool,
+    global_allocator_claim_any: bool,
+    hook_install_any: bool,
+    product_activation_any: bool,
+    abandoned_reclaim_any: bool,
+    owner_slot_reuse_any: bool,
+    tls_backing_transfer_preflight_refresh: bool,
+    tls_backing_transfer_producer_refresh: bool,
+    tls_backing_transfer_preflight: bool,
+    tls_backing_transfer_producer: bool,
+    terminal_ladder_refresh_preflight: bool,
+    page_local_route_body_join_any: bool,
+    page_local_route_body_join_preflight: bool,
+    page_local_route_body_join_producer: bool,
+    page_local_free_route_cfg_any: bool,
+    page_local_free_route_cfg_preflight: bool,
+    page_local_alloc_route_cfg_any: bool,
+    page_local_alloc_route_cfg_preflight: bool,
+    page_local_alloc_route_cfg_producer: bool,
+    same_remote_free_body_preflight: bool,
+    same_remote_free_body_producer: bool,
+    fastmem_branch_cfg_lowering_preflight: bool,
+    fastmem_branch_cfg_lowering_producer: bool,
+    remote_owner_branch_routing_any: bool,
+) -> RouteSummaryFlags:
+    return RouteSummaryFlags(
+        winner_claim_any=winner_claim_any,
+        global_allocator_claim_any=global_allocator_claim_any,
+        hook_install_any=hook_install_any,
+        product_activation_any=product_activation_any,
+        abandoned_reclaim_any=abandoned_reclaim_any,
+        owner_slot_reuse_any=owner_slot_reuse_any,
+        tls_backing_transfer_preflight_refresh=tls_backing_transfer_preflight_refresh,
+        tls_backing_transfer_producer_refresh=tls_backing_transfer_producer_refresh,
+        tls_backing_transfer_preflight=tls_backing_transfer_preflight,
+        tls_backing_transfer_producer=tls_backing_transfer_producer,
+        terminal_ladder_refresh_preflight=terminal_ladder_refresh_preflight,
+        page_local_route_body_join_any=page_local_route_body_join_any,
+        page_local_route_body_join_preflight=page_local_route_body_join_preflight,
+        page_local_route_body_join_producer=page_local_route_body_join_producer,
+        page_local_free_route_cfg_any=page_local_free_route_cfg_any,
+        page_local_free_route_cfg_preflight=page_local_free_route_cfg_preflight,
+        page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
+        page_local_alloc_route_cfg_preflight=page_local_alloc_route_cfg_preflight,
+        page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
+        same_remote_free_body_preflight=same_remote_free_body_preflight,
+        same_remote_free_body_producer=same_remote_free_body_producer,
+        fastmem_branch_cfg_lowering_preflight=fastmem_branch_cfg_lowering_preflight,
+        fastmem_branch_cfg_lowering_producer=fastmem_branch_cfg_lowering_producer,
+        remote_owner_branch_routing_any=remote_owner_branch_routing_any,
+    )
+
 def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     state = dict(state)
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
@@ -1439,7 +1494,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     selected_remote_kind = route_summary["selected_remote_kind"]
     selected_route = route_summary["selected_route"]
     free_route_candidate = "none"
-    route_summary_flags = RouteSummaryFlags(
+    route_summary_flags = _route_summary_flags(
         winner_claim_any=winner_claim_any,
         global_allocator_claim_any=global_allocator_claim_any,
         hook_install_any=hook_install_any,
