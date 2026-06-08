@@ -54,14 +54,17 @@ current state:
 The important remaining debt is not branch CFG generation. It is the broad AST
 interpretation still living in `src/mir/builder/fastmem.rs`.
 
+## 008 Status
+
+```text
+MIRBUILDER-FMEM-008 is landed:
+  the post-007 inventory now exposes local / literal / variable / call /
+  method-call counts plus the branch condition gate count.
+```
+
 ## Remaining Rows
 
 ```text
-MIRBUILDER-FMEM-008:
-  post-007 debt inventory
-  add visible counts for remaining local/literal/variable/call/method-call
-  and branch-condition-gate debt
-
 MIRBUILDER-FMEM-009:
   shared statement shell
   local / print / return / variable assignment delegate shared builder paths
@@ -119,11 +122,12 @@ git diff --check
 
 ```text
 The retirement lane now has a post-007 status correction and a concrete
-MIRBUILDER-FMEM-008..015 task order.
+MIRBUILDER-FMEM-009..015 task order, with MIRBUILDER-FMEM-008 landed as the
+inventory slice.
 ```
 
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-008 post-007 debt inventory
+next: MIRBUILDER-FMEM-009 shared statement shell
 ```

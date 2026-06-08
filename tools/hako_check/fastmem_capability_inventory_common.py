@@ -160,6 +160,14 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
     if not isinstance(expr, dict):
         return
 
+    if is_node(expr, "Literal", "IntegerLiteral", "BoolLiteral", "StringLiteral", "Null"):
+        add_count(counts, "fastmem_dedicated_literal_lowering_count")
+        return
+
+    if is_node(expr, "Variable", "Var"):
+        add_count(counts, "fastmem_dedicated_variable_lowering_count")
+        return
+
     if is_node(expr, "BinaryOp", "Binary", "Compare"):
         op = expr.get("op")
         if op == ">>":
@@ -181,6 +189,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
         return
 
     if is_node(expr, "MethodCall", "Method"):
+        add_count(counts, "fastmem_dedicated_method_call_lowering_count")
         if is_mem_method_call(expr, "addr"):
             add_count(counts, "fastmem_memop_addr_of_count")
         elif is_mem_method_call(expr, "load"):
@@ -235,6 +244,7 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
         return
 
     if is_node(expr, "FunctionCall", "Call"):
+        add_count(counts, "fastmem_dedicated_call_lowering_count")
         name = call_name(expr)
         if name == "mem.addr":
             add_count(counts, "fastmem_memop_addr_of_count")
@@ -323,6 +333,7 @@ def analyze_stmt(
         return
 
     if is_node(stmt, "Local"):
+        add_count(counts, "fastmem_dedicated_local_lowering_count")
         expr = child_expr(stmt, "expr", "value")
         if expr is None:
             inits = child_expr(stmt, "inits") or []
@@ -372,6 +383,7 @@ def analyze_stmt(
         return
 
     if is_node(stmt, "If"):
+        add_count(counts, "fastmem_branch_condition_gate_count")
         condition = child_expr(stmt, "condition")
         condition_is_owner_eq = False
         if is_owner_eq_call(condition):
@@ -453,11 +465,29 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
             "fastmem_dedicated_branch_lowering_count": counts.get(
                 "fastmem_dedicated_branch_lowering_count", 0
             ),
+            "fastmem_dedicated_local_lowering_count": counts.get(
+                "fastmem_dedicated_local_lowering_count", 0
+            ),
+            "fastmem_dedicated_literal_lowering_count": counts.get(
+                "fastmem_dedicated_literal_lowering_count", 0
+            ),
+            "fastmem_dedicated_variable_lowering_count": counts.get(
+                "fastmem_dedicated_variable_lowering_count", 0
+            ),
+            "fastmem_dedicated_call_lowering_count": counts.get(
+                "fastmem_dedicated_call_lowering_count", 0
+            ),
+            "fastmem_dedicated_method_call_lowering_count": counts.get(
+                "fastmem_dedicated_method_call_lowering_count", 0
+            ),
             "fastmem_branch_condition_required_owner_eq_count": counts.get(
                 "fastmem_branch_condition_required_owner_eq_count", 0
             ),
             "fastmem_branch_condition_owner_eq_miss_count": counts.get(
                 "fastmem_branch_condition_owner_eq_miss_count", 0
+            ),
+            "fastmem_branch_condition_gate_count": counts.get(
+                "fastmem_branch_condition_gate_count", 0
             ),
             "fastmem_numeric_verified_direct_count": counts.get(
                 "fastmem_numeric_verified_direct_count", 0
@@ -542,8 +572,14 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_dedicated_index_lowering_count": 0,
         "fastmem_dedicated_assignment_lowering_count": 0,
         "fastmem_dedicated_branch_lowering_count": 0,
+        "fastmem_dedicated_local_lowering_count": 0,
+        "fastmem_dedicated_literal_lowering_count": 0,
+        "fastmem_dedicated_variable_lowering_count": 0,
+        "fastmem_dedicated_call_lowering_count": 0,
+        "fastmem_dedicated_method_call_lowering_count": 0,
         "fastmem_branch_condition_required_owner_eq_count": 0,
         "fastmem_branch_condition_owner_eq_miss_count": 0,
+        "fastmem_branch_condition_gate_count": 0,
         "fastmem_numeric_verified_direct_count": 0,
         "fastmem_numeric_required_route_miss_count": 0,
         "fastmem_field_access_site_count": 0,

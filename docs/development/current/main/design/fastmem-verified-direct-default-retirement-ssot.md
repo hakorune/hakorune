@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-008
+MIRBUILDER-FMEM-009
 ```
 
 ## Remaining Retirement Rows
@@ -463,6 +463,13 @@ fastmem_dedicated_method_call_lowering_count is visible
 fastmem_branch_condition_gate_count is visible
 fastmem_dedicated_branch_lowering_count=0 remains true
 behavior change: none
+```
+
+Landed:
+
+```text
+FastMemory inventory now exposes the remaining dedicated AST-shape debt as
+explicit counts, so the next row can retire shared statement handling.
 ```
 
 ### MIRBUILDER-FMEM-009: Shared Statement Shell
