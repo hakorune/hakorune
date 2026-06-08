@@ -102,6 +102,11 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
         ]:
             if int_count(rows, key) != 1:
                 reasons.append(key)
+        if int_count(rows, "fastmem_region_count") > 0:
+            if int_count(rows, "index_access_required_verified_table_count") <= 0:
+                reasons.append("index_access_required_verified_table_count")
+            if int_count(rows, "index_access_required_verified_table_miss_count") != 0:
+                reasons.append("index_access_required_verified_table_miss_count")
     if atomic_remote_profile(rows):
         if int_count(rows, "atomic_remote_head_plan") <= 0:
             reasons.append("atomic_remote_head_plan")

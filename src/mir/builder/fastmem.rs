@@ -126,38 +126,7 @@ fn lower_fastmem_assignment(
             target,
             index,
             span: _span,
-        } => {
-            let target_expr = *target;
-            let index_expr = *index;
-            let base = lower_fastmem_expr(builder, region, target_expr.clone())?;
-            let idx = lower_fastmem_expr(builder, region, index_expr.clone())?;
-            let access = fastmem_table_access(&target_expr);
-            builder.add_fastmem_index_access_site(
-                region,
-                base,
-                idx,
-                access.as_ref().and_then(|access| access.table_id.clone()),
-                None,
-                "store",
-                "verified_table_index",
-                "forbidden",
-            )?;
-            let slot = builder.emit_fastmem_value_memop_with_access(
-                region,
-                MemOpKind::TableIndex,
-                vec![base, idx],
-                access,
-            )?;
-            let value_id = lower_fastmem_expr(builder, region, value)?;
-            builder.emit_fastmem_memop(
-                region,
-                MemOpKind::FieldStore,
-                None,
-                vec![slot, value_id],
-                None,
-            )?;
-            Ok(value_id)
-        }
+        } => lower_fastmem_index_access(builder, region, *target, *index, "store", Some(value)),
         other => Err(format!(
             "[freeze:contract][fastmem/unsupported_assignment_target] node={}",
             other.node_type()
@@ -196,27 +165,7 @@ fn lower_fastmem_expr(
             ..
         } => lower_fastmem_method_call(builder, region, *object, method, arguments),
         ASTNode::Index { target, index, .. } => {
-            let target_expr = *target;
-            let index_expr = *index;
-            let base = lower_fastmem_expr(builder, region, target_expr.clone())?;
-            let idx = lower_fastmem_expr(builder, region, index_expr.clone())?;
-            let access = fastmem_table_access(&target_expr);
-            builder.add_fastmem_index_access_site(
-                region,
-                base,
-                idx,
-                access.as_ref().and_then(|access| access.table_id.clone()),
-                None,
-                "load",
-                "verified_table_index",
-                "forbidden",
-            )?;
-            builder.emit_fastmem_value_memop_with_access(
-                region,
-                MemOpKind::TableIndex,
-                vec![base, idx],
-                access,
-            )
+            lower_fastmem_index_access(builder, region, *target, *index, "load", None)
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
@@ -271,6 +220,48 @@ fn fastmem_table_access(target: &ASTNode) -> Option<MemOpAccess> {
     match target {
         ASTNode::Variable { name, .. } => Some(MemOpAccess::table(name.clone())),
         _ => None,
+    }
+}
+
+fn lower_fastmem_index_access(
+    builder: &mut MirBuilder,
+    region: FastMemRegionId,
+    target: ASTNode,
+    index: ASTNode,
+    access_kind: &'static str,
+    store_value: Option<ASTNode>,
+) -> Result<ValueId, String> {
+    let base = lower_fastmem_expr(builder, region, target.clone())?;
+    let idx = lower_fastmem_expr(builder, region, index)?;
+    let access = fastmem_table_access(&target);
+    builder.add_fastmem_index_access_site(
+        region,
+        base,
+        idx,
+        access.as_ref().and_then(|access| access.table_id.clone()),
+        None,
+        access_kind,
+        "verified_table_index",
+        "forbidden",
+    )?;
+    let slot = builder.emit_fastmem_value_memop_with_access(
+        region,
+        MemOpKind::TableIndex,
+        vec![base, idx],
+        access,
+    )?;
+    if let Some(value) = store_value {
+        let value_id = lower_fastmem_expr(builder, region, value)?;
+        builder.emit_fastmem_memop(
+            region,
+            MemOpKind::FieldStore,
+            None,
+            vec![slot, value_id],
+            None,
+        )?;
+        Ok(value_id)
+    } else {
+        Ok(slot)
     }
 }
 
