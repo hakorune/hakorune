@@ -113,6 +113,11 @@ new hako_alloc fastmem body:
   add .hako source
   add manifest entry / expected key file
   avoid growing fastmem_source_syntax_smoke.sh by another large bespoke block
+
+if a new body is not yet MIR-inventoryable:
+  carry the failure as a manifest row
+  keep AST inventory fixed
+  record the MIR inventory failure as kv output instead of a bespoke shell block
 ```
 
 ## Non-Goals

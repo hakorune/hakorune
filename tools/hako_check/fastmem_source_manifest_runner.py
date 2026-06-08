@@ -68,6 +68,8 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
         fixture_id = raw_entry.get("id")
         label = raw_entry.get("label")
         source = raw_entry.get("source")
+        ast_expect_failure = bool(raw_entry.get("ast_expect_failure", False))
+        mir_expect_failure = bool(raw_entry.get("mir_expect_failure", False))
         if not isinstance(fixture_id, str) or not fixture_id:
             fail(f"fixtures #{index} id must be a non-empty string")
         if fixture_id in seen:
@@ -120,14 +122,18 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
             "label": label,
             "source": source,
             "features": raw_entry.get("features", os.environ.get("FASTMEM_SOURCE_FEATURES", "stage3,rune")),
+            "ast_expect_failure": ast_expect_failure,
+            "mir_expect_failure": mir_expect_failure,
             "ast_expected": raw_entry.get("ast_expected"),
             "mir_expected": raw_entry.get("mir_expected"),
             "producers": normalized_producers,
         }
-        for field in ("ast_expected", "mir_expected"):
-            value = entry[field]
-            if not isinstance(value, str) or not value:
-                fail(f"fixtures {fixture_id} {field} must be a non-empty string")
+        value = entry["ast_expected"]
+        if not isinstance(value, str) or not value:
+            fail(f"fixtures {fixture_id} ast_expected must be a non-empty string")
+        value = entry["mir_expected"]
+        if not isinstance(value, str) or not value:
+            fail(f"fixtures {fixture_id} mir_expected must be a non-empty string")
         normalized.append(entry)
     return normalized
 
@@ -177,6 +183,8 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
     label = str(fixture["label"])
     source = resolve_path(root, str(fixture["source"]))
     features = str(fixture["features"])
+    ast_expect_failure = bool(fixture.get("ast_expect_failure", False))
+    mir_expect_failure = bool(fixture.get("mir_expect_failure", False))
     ast_expected = resolve_path(root, str(fixture["ast_expected"]))
     mir_expected = resolve_path(root, str(fixture["mir_expected"]))
     producers = list(fixture["producers"])
@@ -202,19 +210,45 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
         run_command([str(bin_path), "--emit-ast-json", str(ast_json), str(source)], cwd=root, env=env)
         run_command([str(bin_path), "--backend", "mir", "--emit-mir-json", str(mir_json), str(source)], cwd=root, env=env)
 
-        run_command(
-            ["bash", str(root / "tools/hako_check.sh"), "fastmem-capability-inventory", "--ast-json", str(ast_json), "--out", str(ast_inventory)],
-            cwd=root,
-            env=env,
-        )
-        compare_expected_kv(ast_inventory, ast_expected, tag, f"{fixture_id} ast inventory")
+        ast_inventory_cmd = [
+            "bash",
+            str(root / "tools/hako_check.sh"),
+            "fastmem-capability-inventory",
+            "--ast-json",
+            str(ast_json),
+            "--out",
+            str(ast_inventory),
+        ]
+        if ast_expect_failure:
+            ast_stderr_path = tmpdir / f"{fixture_id}.ast.stderr"
+            with ast_stderr_path.open("w", encoding="utf-8") as stderr_file:
+                result = subprocess.run(ast_inventory_cmd, cwd=root, env=env, stdout=subprocess.DEVNULL, stderr=stderr_file)
+            if result.returncode == 0:
+                fail(f"fixture {fixture_id} ast inventory expected failure but succeeded")
+            compare_expected_kv(ast_inventory, ast_expected, tag, f"{fixture_id} ast inventory")
+        else:
+            run_command(ast_inventory_cmd, cwd=root, env=env)
+            compare_expected_kv(ast_inventory, ast_expected, tag, f"{fixture_id} ast inventory")
 
-        run_command(
-            ["bash", str(root / "tools/hako_check.sh"), "fastmem-capability-inventory", "--mir-json", str(mir_json), "--out", str(mir_inventory)],
-            cwd=root,
-            env=env,
-        )
-        compare_expected_kv(mir_inventory, mir_expected, tag, f"{fixture_id} mir inventory")
+        mir_inventory_cmd = [
+            "bash",
+            str(root / "tools/hako_check.sh"),
+            "fastmem-capability-inventory",
+            "--mir-json",
+            str(mir_json),
+            "--out",
+            str(mir_inventory),
+        ]
+        if mir_expect_failure:
+            mir_stderr_path = tmpdir / f"{fixture_id}.mir.stderr"
+            with mir_stderr_path.open("w", encoding="utf-8") as stderr_file:
+                result = subprocess.run(mir_inventory_cmd, cwd=root, env=env, stdout=subprocess.DEVNULL, stderr=stderr_file)
+            if result.returncode == 0:
+                fail(f"fixture {fixture_id} mir inventory expected failure but succeeded")
+            compare_expected_kv(mir_inventory, mir_expected, tag, f"{fixture_id} mir inventory")
+        else:
+            run_command(mir_inventory_cmd, cwd=root, env=env)
+            compare_expected_kv(mir_inventory, mir_expected, tag, f"{fixture_id} mir inventory")
 
         for producer in producers:
             profile = producer["profile"]
