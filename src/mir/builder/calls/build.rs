@@ -53,6 +53,17 @@ impl MirBuilder {
             return Ok(result);
         }
 
+        if let Some(region) = self.current_fastmem_region() {
+            if name.starts_with("mem.") {
+                return crate::mir::builder::fastmem::calls::lower_fastmem_function_call(
+                    self,
+                    region,
+                    name,
+                    args,
+                );
+            }
+        }
+
         // 1. Build argument values
         let arg_values = self.build_call_args(&args)?;
 
@@ -118,6 +129,20 @@ impl MirBuilder {
         // ========================================
         // Section 2: Special Method Handlers (special_method_handlers module)
         // ========================================
+
+        if let Some(region) = self.current_fastmem_region() {
+            if let ASTNode::Variable { name, .. } = &object {
+                if name == "mem" {
+                    return crate::mir::builder::fastmem::calls::lower_fastmem_method_call(
+                        self,
+                        region,
+                        object,
+                        method,
+                        arguments,
+                    );
+                }
+            }
+        }
 
         // 0. Dev-only: __mir__.log / __mir__.mark → MirInstruction::Debug 列へ lowering
         if let Some(result) = self.try_build_mir_debug_method_call(&object, &method, &arguments)? {

@@ -19,16 +19,6 @@ impl super::MirBuilder {
         let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
 
-        self.record_field_access_site(
-            None,
-            object_value,
-            field.clone(),
-            None,
-            "load",
-            "none",
-            "allow_dynamic",
-        )?;
-
         if let Some(property_value) = self.try_lower_property_read(object_value, &field)? {
             return Ok(property_value);
         }
@@ -87,6 +77,24 @@ impl super::MirBuilder {
         object_value: ValueId,
         field: String,
     ) -> Result<ValueId, String> {
+        let region = self.current_fastmem_region();
+        self.record_field_access_site(
+            region,
+            object_value,
+            field.clone(),
+            None,
+            "load",
+            if region.is_some() {
+                "verified_layout_field"
+            } else {
+                "none"
+            },
+            if region.is_some() {
+                "forbidden"
+            } else {
+                "allow_dynamic"
+            },
+        )?;
         let declared_type = self.declared_field_type_for_value(object_value, &field);
 
         let field_val = if let Some(ref ty) = declared_type {
@@ -132,7 +140,12 @@ impl super::MirBuilder {
     ) -> Result<ValueId, String> {
         let mut value_result = self.build_expression(value)?;
         value_result = self.local_arg(value_result);
-        self.build_field_assignment_from_value_id(None, object_value, field, value_result)
+        self.build_field_assignment_from_value_id(
+            self.current_fastmem_region(),
+            object_value,
+            field,
+            value_result,
+        )
     }
 
     pub(super) fn build_field_assignment_from_value_id(
@@ -142,6 +155,7 @@ impl super::MirBuilder {
         field: String,
         value_result: ValueId,
     ) -> Result<ValueId, String> {
+        let region = region.or_else(|| self.current_fastmem_region());
         self.record_field_access_site(
             region,
             object_value,

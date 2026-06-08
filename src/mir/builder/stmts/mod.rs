@@ -154,6 +154,37 @@ impl super::MirBuilder {
     ) -> Result<(), String> {
         use crate::ast::Span;
 
+        if let Some(region) = self.current_fastmem_region() {
+            let condition_value = self.build_expression(condition.clone())?;
+            crate::mir::builder::fastmem::branch::ensure_fastmem_owner_eq_condition(
+                self,
+                region,
+                condition_value,
+            )?;
+            self.add_fastmem_branch_condition_fact(
+                region,
+                condition_value,
+                crate::mir::function::FastMemBranchConditionProofKind::SourceAssumeOwnerEq,
+                true,
+            )?;
+
+            let then_node = ASTNode::Program {
+                statements: then_body,
+                span: Span::unknown(),
+            };
+            let else_node = else_body.map(|b| ASTNode::Program {
+                statements: b,
+                span: Span::unknown(),
+            });
+            let _ = self.lower_if_form_with_condition_value(
+                condition_value,
+                Some(condition),
+                then_node,
+                else_node,
+            )?;
+            return Ok(());
+        }
+
         // then_body と else_body を ASTNode::Program に変換
         let then_node = ASTNode::Program {
             statements: then_body,

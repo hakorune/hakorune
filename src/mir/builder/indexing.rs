@@ -38,6 +38,10 @@ impl super::MirBuilder {
         access_kind: &'static str,
         store_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
+        let region = region.or_else(|| self.current_fastmem_region());
+        let table_id = target_label
+            .clone()
+            .or_else(|| region.map(|_| format!("value_{}", target_val.0)));
         let class_hint = self.infer_index_target_class(target_val);
         let required_route = if region.is_some() {
             "verified_table_index"
@@ -53,7 +57,7 @@ impl super::MirBuilder {
             region,
             target_val,
             index_val,
-            target_label.clone(),
+            table_id.clone(),
             None,
             access_kind,
             required_route,
@@ -125,13 +129,13 @@ impl super::MirBuilder {
                 )?;
                 Ok(value_id)
             }
-            _ if region.is_some() && target_label.is_some() => {
+            _ if region.is_some() => {
                 let slot = self.emit_fastmem_value_memop_with_access(
                     region.expect("region required"),
                     MemOpKind::TableIndex,
                     vec![target_val, index_val],
                     Some(crate::mir::instruction::MemOpAccess::table(
-                        target_label.expect("table label required"),
+                        table_id.unwrap_or_else(|| format!("value_{}", target_val.0)),
                     )),
                 )?;
                 if let Some(value_id) = store_value {
@@ -196,9 +200,13 @@ impl super::MirBuilder {
             }
         }
 
+        let target_label = match &target {
+            ASTNode::Variable { name, .. } => Some(name.clone()),
+            _ => None,
+        };
         let target_val = self.build_expression(target)?;
         let index_val = self.build_expression(index)?;
-        self.build_index_access_from_values(None, target_val, index_val, None, "load", None)
+        self.build_index_access_from_values(None, target_val, index_val, target_label, "load", None)
     }
 
     pub(super) fn build_index_assignment(
@@ -207,6 +215,10 @@ impl super::MirBuilder {
         index: ASTNode,
         value: ASTNode,
     ) -> Result<ValueId, String> {
+        let target_label = match &target {
+            ASTNode::Variable { name, .. } => Some(name.clone()),
+            _ => None,
+        };
         let target_val = self.build_expression(target)?;
         let index_val = self.build_expression(index)?;
         let value_val = self.build_expression(value)?;
@@ -214,7 +226,7 @@ impl super::MirBuilder {
             None,
             target_val,
             index_val,
-            None,
+            target_label,
             "store",
             Some(value_val),
         )

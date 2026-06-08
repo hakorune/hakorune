@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-015
+phase-296x next lane selection pending
 ```
 
 ## Remaining Retirement Rows
@@ -610,6 +610,12 @@ verified-direct report/check gates remain positive where fixtures exercise them
 no allocator/product activation claims opened
 ```
 
+### MIRBUILDER-FMEM-015 Status
+
+Landed: the transitional fastmem source lowerer is now a thin region-entry and
+obligation shell. Field, index, numeric, and branch-condition handling stay on
+the shared builder paths while verified-direct evidence remains intact.
+
 ### Current Next Row
 
-`MIRBUILDER-FMEM-015` dedicated lowerer closeout
+`phase-296x next lane selection pending`

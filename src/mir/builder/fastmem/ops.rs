@@ -130,27 +130,6 @@ impl MirBuilder {
         Ok(())
     }
 
-    pub(super) fn add_fastmem_field_access_site(
-        &mut self,
-        region: FastMemRegionId,
-        base_value: ValueId,
-        field_id: String,
-        layout_id: Option<String>,
-        access_kind: &'static str,
-        required_route: &'static str,
-        fallback_policy: &'static str,
-    ) -> Result<(), String> {
-        self.record_field_access_site(
-            Some(region),
-            base_value,
-            field_id,
-            layout_id,
-            access_kind,
-            required_route,
-            fallback_policy,
-        )
-    }
-
     pub(crate) fn record_index_access_site(
         &mut self,
         region: Option<FastMemRegionId>,
@@ -223,7 +202,7 @@ impl MirBuilder {
         Ok(())
     }
 
-    pub(super) fn add_fastmem_branch_condition_fact(
+    pub(crate) fn add_fastmem_branch_condition_fact(
         &mut self,
         region: FastMemRegionId,
         condition_value: ValueId,

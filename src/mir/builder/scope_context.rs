@@ -14,6 +14,7 @@
 //! - Maintains deterministic iteration order (BTreeMap/BTreeSet)
 
 use crate::mir::{BasicBlockId, MirFunction};
+use crate::mir::instruction::FastMemRegionId;
 use std::collections::HashSet;
 
 pub(in crate::mir::builder) use super::vars::lexical_scope::LexicalScopeFrame;
@@ -50,6 +51,9 @@ pub(in crate::mir) struct ScopeContext {
     /// Stack of region identifiers (e.g., "loop#1/header", "join#3/join")
     /// Zero-cost when unused (dev only)
     pub(super) debug_scope_stack: Vec<String>,
+
+    /// Stack of active FastMemory regions threaded through ordinary builder paths.
+    pub(super) fastmem_region_stack: Vec<FastMemRegionId>,
 }
 
 impl ScopeContext {
@@ -63,6 +67,7 @@ impl ScopeContext {
             current_function: None,
             function_param_names: HashSet::new(),
             debug_scope_stack: Vec::new(),
+            fastmem_region_stack: Vec::new(),
         }
     }
 
@@ -126,6 +131,22 @@ impl ScopeContext {
         self.loop_exit_stack.clear();
         self.if_merge_stack.clear();
         self.debug_scope_stack.clear();
+        self.fastmem_region_stack.clear();
+    }
+
+    #[inline]
+    pub(super) fn push_fastmem_region(&mut self, region: FastMemRegionId) {
+        self.fastmem_region_stack.push(region);
+    }
+
+    #[inline]
+    pub(super) fn pop_fastmem_region(&mut self) -> Option<FastMemRegionId> {
+        self.fastmem_region_stack.pop()
+    }
+
+    #[inline]
+    pub(super) fn current_fastmem_region(&self) -> Option<FastMemRegionId> {
+        self.fastmem_region_stack.last().copied()
     }
 }
 

@@ -119,6 +119,12 @@ MIRBUILDER-FMEM-014:
 MIRBUILDER-FMEM-015:
   dedicated lowerer closeout
   fastmem.rs keeps only region entry and obligation shell
+
+  Status: landed
+    the transitional fastmem source lowerer is now a thin region-entry and
+    obligation shell, while field / index / numeric / branch-condition
+    handling stays on the shared builder paths with verified-direct evidence
+    intact.
 ```
 
 ## Non-Goals
@@ -152,5 +158,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-015 dedicated lowerer closeout
+next: phase-296x next lane selection pending
 ```

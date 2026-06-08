@@ -3,51 +3,12 @@
 //! This module owns the narrow CFG shape allowed inside `fastmem` regions:
 //! an `if/else` split whose condition is a region-local `OwnerEq` MemOp.
 
-use crate::ast::{ASTNode, Span};
 use crate::mir::builder::MirBuilder;
-use crate::mir::function::FastMemBranchConditionProofKind;
 use crate::mir::instruction::{FastMemRegionId, MemOpKind};
 use crate::mir::ValueId;
 use std::collections::HashSet;
-use super::lower_fastmem_expr;
 
-pub(super) fn lower_fastmem_if(
-    builder: &mut MirBuilder,
-    region: FastMemRegionId,
-    condition: ASTNode,
-    then_body: Vec<ASTNode>,
-    else_body: Option<Vec<ASTNode>>,
-) -> Result<ValueId, String> {
-    let Some(else_body) = else_body else {
-        return Err("[freeze:contract][fastmem/branch_cfg_requires_else]".to_string());
-    };
-    let condition_for_debug = condition.clone();
-    let condition_value = lower_fastmem_expr(builder, region, condition)?;
-    ensure_fastmem_owner_eq_condition(builder, region, condition_value)?;
-    builder.add_fastmem_branch_condition_fact(
-        region,
-        condition_value,
-        FastMemBranchConditionProofKind::SourceAssumeOwnerEq,
-        true,
-    )?;
-
-    let then_node = ASTNode::Program {
-        statements: then_body,
-        span: Span::unknown(),
-    };
-    let else_node = ASTNode::Program {
-        statements: else_body,
-        span: Span::unknown(),
-    };
-    builder.lower_if_form_with_condition_value(
-        condition_value,
-        Some(condition_for_debug),
-        then_node,
-        Some(else_node),
-    )
-}
-
-fn ensure_fastmem_owner_eq_condition(
+pub(crate) fn ensure_fastmem_owner_eq_condition(
     builder: &MirBuilder,
     region: FastMemRegionId,
     condition_value: ValueId,

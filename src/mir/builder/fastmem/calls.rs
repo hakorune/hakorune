@@ -4,7 +4,6 @@
 //! It maps `mem.*` helper calls to MemOps or metadata facts, but it does not
 //! choose backend lowering routes.
 
-use super::lower_fastmem_expr;
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::FastMemBlockNextProofKind;
@@ -72,7 +71,7 @@ impl FastMemIntrinsicSpec {
     }
 }
 
-pub(super) fn lower_fastmem_function_call(
+pub(crate) fn lower_fastmem_function_call(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
     name: String,
@@ -232,9 +231,9 @@ fn lower_fastmem_intrinsic(
     }
 }
 
-pub(super) fn lower_fastmem_method_call(
+pub(crate) fn lower_fastmem_method_call(
     builder: &mut MirBuilder,
-    region: FastMemRegionId,
+    _region: FastMemRegionId,
     object: ASTNode,
     method: String,
     arguments: Vec<ASTNode>,
@@ -251,17 +250,17 @@ pub(super) fn lower_fastmem_method_call(
             name, method
         ));
     }
-    lower_fastmem_function_call(builder, region, format!("mem.{}", method), arguments)
+    lower_fastmem_function_call(builder, _region, format!("mem.{}", method), arguments)
 }
 
 fn lower_fastmem_args(
     builder: &mut MirBuilder,
-    region: FastMemRegionId,
+    _region: FastMemRegionId,
     arguments: Vec<ASTNode>,
 ) -> Result<Vec<ValueId>, String> {
     arguments
         .into_iter()
-        .map(|arg| lower_fastmem_expr(builder, region, arg))
+        .map(|arg| builder.build_expression(arg))
         .collect()
 }
 
