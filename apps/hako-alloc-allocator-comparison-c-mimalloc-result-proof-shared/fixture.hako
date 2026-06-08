@@ -38,9 +38,17 @@ static box HakoAllocAllocatorComparisonCMimallocResultProofFixture {
         local execution_owner = new HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot()
         local diagnostic_owner = new HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnostic()
         local inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-        local controlled = controlled_diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(inventory)
+        local controlled_reason = controlled_diagnostic_owner.reasonFrom(inventory)
+        controlled_diagnostic_owner.diagnostic_count += 1
+        controlled_diagnostic_owner.ready_count += 1
+        controlled_diagnostic_owner.last_reason = controlled_reason
+        local controlled = controlled_diagnostic_owner.makeReport(controlled_reason, inventory)
         local execution = execution_owner.executeRepresentativeBenchmark(controlled, 1, 1, 1)
-        return diagnostic_owner.diagnoseAllocatorComparisonRepresentativeBenchmarkExecution(execution)
+        local execution_reason = diagnostic_owner.reasonFrom(execution)
+        diagnostic_owner.diagnostic_count += 1
+        diagnostic_owner.ready_count += 1
+        diagnostic_owner.last_reason = execution_reason
+        return diagnostic_owner.makeReport(execution_reason, execution)
     }
 
     makeHakoBlocked(): HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnosticReport {
@@ -49,9 +57,19 @@ static box HakoAllocAllocatorComparisonCMimallocResultProofFixture {
         local execution_owner = new HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionPilot()
         local diagnostic_owner = new HakoAllocAllocatorComparisonRepresentativeBenchmarkExecutionDiagnostic()
         local inventory = inventory_owner.inventoryAllocatorComparisonControlledBenchmarkExecution(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-        local controlled = controlled_diagnostic_owner.diagnoseAllocatorComparisonControlledBenchmarkExecution(inventory)
+        local controlled_reason = controlled_diagnostic_owner.reasonFrom(inventory)
+        controlled_diagnostic_owner.diagnostic_count += 1
+        controlled_diagnostic_owner.blocked_count += 1
+        controlled_diagnostic_owner.missing_runner_blocked_count += 1
+        controlled_diagnostic_owner.last_reason = controlled_reason
+        local controlled = controlled_diagnostic_owner.makeReport(controlled_reason, inventory)
         local execution = execution_owner.executeRepresentativeBenchmark(controlled, 1, 1, 1)
-        return diagnostic_owner.diagnoseAllocatorComparisonRepresentativeBenchmarkExecution(execution)
+        local execution_reason = diagnostic_owner.reasonFrom(execution)
+        diagnostic_owner.diagnostic_count += 1
+        diagnostic_owner.blocked_count += 1
+        diagnostic_owner.not_ready_blocked_count += 1
+        diagnostic_owner.last_reason = execution_reason
+        return diagnostic_owner.makeReport(execution_reason, execution)
     }
 
     makeCExecutionDiagnostic(): HakoAllocAllocatorComparisonCMimallocExecutionDiagnosticReport {

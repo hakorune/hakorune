@@ -11,7 +11,6 @@ pub(crate) mod ops;
 
 use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, Span};
-use crate::mir::instruction::FastMemRegionId;
 
 pub(in crate::mir::builder) fn build_fastmem_region(
     builder: &mut MirBuilder,
