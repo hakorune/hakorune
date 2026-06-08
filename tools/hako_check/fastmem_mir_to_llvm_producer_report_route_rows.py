@@ -71,6 +71,247 @@ class RouteSummaryFlags:
     remote_owner_branch_routing_any: bool
 
 
+@dataclass(frozen=True)
+class ActivationProgressionFlags:
+    tls_backing_transfer_preflight_refresh: bool
+    tls_backing_transfer_producer_refresh: bool
+    tls_backing_transfer_preflight: bool
+    tls_backing_transfer_producer: bool
+    tls_backing_transfer_any: bool
+    tls_backing_transfer_or_later: bool
+    owner_slot_reuse_preflight: bool
+    owner_slot_reuse_preflight_refresh: bool
+    owner_slot_reuse_producer_refresh: bool
+    owner_slot_reuse_producer: bool
+    owner_slot_reuse_any: bool
+    owner_slot_reuse_or_later: bool
+    abandoned_reclaim_preflight_refresh: bool
+    abandoned_reclaim_producer_refresh: bool
+    abandoned_reclaim_preflight: bool
+    abandoned_reclaim_producer: bool
+    abandoned_reclaim_any: bool
+    abandoned_reclaim_or_later: bool
+    product_activation_preflight_refresh: bool
+    product_activation_producer_refresh: bool
+    product_activation_preflight: bool
+    product_activation_producer: bool
+    product_activation_any: bool
+    product_activation_or_later: bool
+    hook_install_preflight_refresh: bool
+    hook_install_producer_refresh: bool
+    hook_install_preflight: bool
+    hook_install_producer: bool
+    hook_install_any: bool
+    hook_install_or_later: bool
+    global_allocator_claim_preflight_refresh: bool
+    global_allocator_claim_producer_refresh: bool
+    global_allocator_claim_preflight: bool
+    global_allocator_claim_producer: bool
+    global_allocator_claim_any: bool
+    global_allocator_claim_or_later: bool
+    winner_claim_preflight_refresh: bool
+    winner_claim_producer_refresh: bool
+    winner_claim_preflight: bool
+    winner_claim_producer: bool
+    winner_claim_any: bool
+    page_local_route_body_join_preflight: bool
+    page_local_route_body_join_producer: bool
+    terminal_ladder_refresh_preflight: bool
+    page_local_route_body_join_any: bool
+    page_local_alloc_route_cfg_preflight: bool
+    page_local_alloc_route_cfg_producer: bool
+    page_local_alloc_route_cfg_any: bool
+    page_local_free_route_cfg_preflight: bool
+    page_local_free_route_cfg_producer: bool
+    page_local_free_route_cfg_any: bool
+
+
+def _activation_progression_flags(profile: str, refresh_route: str) -> ActivationProgressionFlags:
+    tls_backing_transfer_preflight_refresh = (
+        refresh_route == "tls_backing_transfer_preflight_refresh"
+    )
+    tls_backing_transfer_producer_refresh = (
+        refresh_route == "tls_backing_transfer_producer_refresh"
+    )
+    page_local_route_body_join_preflight = (
+        profile == "page-local-route-body-join-preflight"
+    )
+    page_local_route_body_join_producer = profile == "page-local-route-body-join"
+    terminal_ladder_refresh_preflight = (
+        refresh_route == "terminal_ladder_refresh_preflight"
+    )
+    page_local_route_body_join_any = _any_true(
+        page_local_route_body_join_preflight,
+        page_local_route_body_join_producer,
+        terminal_ladder_refresh_preflight,
+        tls_backing_transfer_preflight_refresh,
+        tls_backing_transfer_producer_refresh,
+    )
+    page_local_alloc_route_cfg_preflight = (
+        profile == "page-local-alloc-route-cfg-preflight"
+    )
+    page_local_alloc_route_cfg_producer = profile == "page-local-alloc-route-cfg"
+    page_local_alloc_route_cfg_any = _any_true(
+        page_local_alloc_route_cfg_preflight,
+        page_local_alloc_route_cfg_producer,
+        page_local_route_body_join_any,
+    )
+    page_local_free_route_cfg_preflight = (
+        profile == "page-local-free-route-cfg-preflight"
+    )
+    page_local_free_route_cfg_producer = profile == "page-local-free-route-cfg"
+    page_local_free_route_cfg_any = _any_true(
+        page_local_free_route_cfg_preflight,
+        page_local_free_route_cfg_producer,
+        page_local_route_body_join_any,
+    )
+    tls_backing_transfer_preflight = profile == "tls-backing-transfer-preflight"
+    tls_backing_transfer_producer = profile == "tls-backing-transfer-producer-pilot"
+    tls_backing_transfer_any = _any_true(
+        tls_backing_transfer_preflight,
+        tls_backing_transfer_preflight_refresh,
+        tls_backing_transfer_producer_refresh,
+        tls_backing_transfer_producer,
+    )
+    owner_slot_reuse_preflight = profile == "owner-slot-reuse-preflight"
+    owner_slot_reuse_preflight_refresh = (
+        refresh_route == "owner_slot_reuse_preflight_refresh"
+    )
+    owner_slot_reuse_producer_refresh = (
+        refresh_route == "owner_slot_reuse_producer_refresh"
+    )
+    owner_slot_reuse_producer = profile == "owner-slot-reuse-producer-pilot"
+    owner_slot_reuse_any = _any_true(
+        owner_slot_reuse_preflight,
+        owner_slot_reuse_preflight_refresh,
+        owner_slot_reuse_producer_refresh,
+        owner_slot_reuse_producer,
+    )
+    abandoned_reclaim_preflight_refresh = (
+        refresh_route == "abandoned_reclaim_preflight_refresh"
+    )
+    abandoned_reclaim_producer_refresh = (
+        refresh_route == "abandoned_reclaim_producer_refresh"
+    )
+    abandoned_reclaim_preflight = profile == "abandoned-reclaim-preflight"
+    abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
+    abandoned_reclaim_any = _any_true(
+        abandoned_reclaim_preflight_refresh,
+        abandoned_reclaim_producer_refresh,
+        abandoned_reclaim_preflight,
+        abandoned_reclaim_producer,
+    )
+    product_activation_preflight_refresh = (
+        refresh_route == "product_activation_preflight_refresh"
+    )
+    product_activation_producer_refresh = (
+        refresh_route == "product_activation_producer_refresh"
+    )
+    product_activation_preflight = profile == "product-activation-preflight"
+    product_activation_producer = profile == "product-activation-producer-pilot"
+    product_activation_any = _any_true(
+        product_activation_preflight_refresh,
+        product_activation_producer_refresh,
+        product_activation_preflight,
+        product_activation_producer,
+    )
+    hook_install_preflight_refresh = refresh_route == "hook_install_preflight_refresh"
+    hook_install_producer_refresh = refresh_route == "hook_install_producer_refresh"
+    hook_install_preflight = profile == "hook-install-preflight"
+    hook_install_producer = profile == "hook-install-producer-pilot"
+    hook_install_any = _any_true(
+        hook_install_preflight_refresh,
+        hook_install_producer_refresh,
+        hook_install_preflight,
+        hook_install_producer,
+    )
+    global_allocator_claim_preflight_refresh = (
+        refresh_route == "global_allocator_claim_preflight_refresh"
+    )
+    global_allocator_claim_producer_refresh = (
+        refresh_route == "global_allocator_claim_producer_refresh"
+    )
+    global_allocator_claim_preflight = profile == "global-allocator-claim-preflight"
+    global_allocator_claim_producer = profile == "global-allocator-claim-producer-pilot"
+    global_allocator_claim_any = _any_true(
+        global_allocator_claim_preflight_refresh,
+        global_allocator_claim_producer_refresh,
+        global_allocator_claim_preflight,
+        global_allocator_claim_producer,
+    )
+    winner_claim_preflight_refresh = refresh_route == "winner_claim_preflight_refresh"
+    winner_claim_producer_refresh = refresh_route == "winner_claim_producer_refresh"
+    winner_claim_preflight = profile == "winner-claim-preflight"
+    winner_claim_producer = profile == "winner-claim-producer-pilot"
+    winner_claim_any = _any_true(
+        winner_claim_preflight_refresh,
+        winner_claim_producer_refresh,
+        winner_claim_preflight,
+        winner_claim_producer,
+    )
+    global_allocator_claim_or_later = global_allocator_claim_any or winner_claim_any
+    hook_install_or_later = hook_install_any or global_allocator_claim_or_later
+    product_activation_or_later = product_activation_any or hook_install_or_later
+    abandoned_reclaim_or_later = abandoned_reclaim_any or product_activation_or_later
+    owner_slot_reuse_or_later = owner_slot_reuse_any or abandoned_reclaim_or_later
+    tls_backing_transfer_or_later = (
+        tls_backing_transfer_any or owner_slot_reuse_or_later
+    )
+    return ActivationProgressionFlags(
+        tls_backing_transfer_preflight_refresh=tls_backing_transfer_preflight_refresh,
+        tls_backing_transfer_producer_refresh=tls_backing_transfer_producer_refresh,
+        tls_backing_transfer_preflight=tls_backing_transfer_preflight,
+        tls_backing_transfer_producer=tls_backing_transfer_producer,
+        tls_backing_transfer_any=tls_backing_transfer_any,
+        tls_backing_transfer_or_later=tls_backing_transfer_or_later,
+        owner_slot_reuse_preflight=owner_slot_reuse_preflight,
+        owner_slot_reuse_preflight_refresh=owner_slot_reuse_preflight_refresh,
+        owner_slot_reuse_producer_refresh=owner_slot_reuse_producer_refresh,
+        owner_slot_reuse_producer=owner_slot_reuse_producer,
+        owner_slot_reuse_any=owner_slot_reuse_any,
+        owner_slot_reuse_or_later=owner_slot_reuse_or_later,
+        abandoned_reclaim_preflight_refresh=abandoned_reclaim_preflight_refresh,
+        abandoned_reclaim_producer_refresh=abandoned_reclaim_producer_refresh,
+        abandoned_reclaim_preflight=abandoned_reclaim_preflight,
+        abandoned_reclaim_producer=abandoned_reclaim_producer,
+        abandoned_reclaim_any=abandoned_reclaim_any,
+        abandoned_reclaim_or_later=abandoned_reclaim_or_later,
+        product_activation_preflight_refresh=product_activation_preflight_refresh,
+        product_activation_producer_refresh=product_activation_producer_refresh,
+        product_activation_preflight=product_activation_preflight,
+        product_activation_producer=product_activation_producer,
+        product_activation_any=product_activation_any,
+        product_activation_or_later=product_activation_or_later,
+        hook_install_preflight_refresh=hook_install_preflight_refresh,
+        hook_install_producer_refresh=hook_install_producer_refresh,
+        hook_install_preflight=hook_install_preflight,
+        hook_install_producer=hook_install_producer,
+        hook_install_any=hook_install_any,
+        hook_install_or_later=hook_install_or_later,
+        global_allocator_claim_preflight_refresh=global_allocator_claim_preflight_refresh,
+        global_allocator_claim_producer_refresh=global_allocator_claim_producer_refresh,
+        global_allocator_claim_preflight=global_allocator_claim_preflight,
+        global_allocator_claim_producer=global_allocator_claim_producer,
+        global_allocator_claim_any=global_allocator_claim_any,
+        global_allocator_claim_or_later=global_allocator_claim_or_later,
+        winner_claim_preflight_refresh=winner_claim_preflight_refresh,
+        winner_claim_producer_refresh=winner_claim_producer_refresh,
+        winner_claim_preflight=winner_claim_preflight,
+        winner_claim_producer=winner_claim_producer,
+        winner_claim_any=winner_claim_any,
+        page_local_route_body_join_preflight=page_local_route_body_join_preflight,
+        page_local_route_body_join_producer=page_local_route_body_join_producer,
+        terminal_ladder_refresh_preflight=terminal_ladder_refresh_preflight,
+        page_local_route_body_join_any=page_local_route_body_join_any,
+        page_local_alloc_route_cfg_preflight=page_local_alloc_route_cfg_preflight,
+        page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
+        page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
+        page_local_free_route_cfg_preflight=page_local_free_route_cfg_preflight,
+        page_local_free_route_cfg_producer=page_local_free_route_cfg_producer,
+        page_local_free_route_cfg_any=page_local_free_route_cfg_any,
+    )
+
+
 REMOTE_FREE_ATOMIC_FLAG_NAMES: tuple[str, ...] = (
     "fastmem_atomic_remote_head_cas_preflight",
     "fastmem_atomic_remote_head_cas_producer_pilot",
@@ -1095,136 +1336,62 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     fastmem_branch_cfg_lowering_producer = profile == "fastmem-branch-cfg-lowering"
     same_remote_free_body_preflight = profile == "same-remote-free-body-preflight"
     same_remote_free_body_producer = profile == "same-remote-free-body"
-    page_local_alloc_route_cfg_preflight = (
-        profile == "page-local-alloc-route-cfg-preflight"
-    )
-    page_local_alloc_route_cfg_producer = profile == "page-local-alloc-route-cfg"
-    page_local_free_route_cfg_preflight = (
-        profile == "page-local-free-route-cfg-preflight"
-    )
-    page_local_free_route_cfg_producer = profile == "page-local-free-route-cfg"
-    page_local_route_body_join_preflight = (
-        profile == "page-local-route-body-join-preflight"
-    )
-    page_local_route_body_join_producer = profile == "page-local-route-body-join"
-    terminal_ladder_refresh_preflight = (
-        refresh_route == "terminal_ladder_refresh_preflight"
-    )
-    tls_backing_transfer_preflight_refresh = (
-        refresh_route == "tls_backing_transfer_preflight_refresh"
-    )
-    tls_backing_transfer_producer_refresh = (
-        refresh_route == "tls_backing_transfer_producer_refresh"
-    )
-    page_local_route_body_join_any = _any_true(
-        page_local_route_body_join_preflight,
-        page_local_route_body_join_producer,
-        terminal_ladder_refresh_preflight,
-        tls_backing_transfer_preflight_refresh,
-        tls_backing_transfer_producer_refresh,
-    )
-    page_local_alloc_route_cfg_any = _any_true(
-        page_local_alloc_route_cfg_preflight,
-        page_local_alloc_route_cfg_producer,
-        page_local_route_body_join_any,
-    )
-    page_local_free_route_cfg_any = _any_true(
-        page_local_free_route_cfg_preflight,
-        page_local_free_route_cfg_producer,
-        page_local_route_body_join_any,
-    )
-    tls_backing_transfer_preflight = profile == "tls-backing-transfer-preflight"
-    tls_backing_transfer_producer = profile == "tls-backing-transfer-producer-pilot"
-    tls_backing_transfer_any = _any_true(
-        tls_backing_transfer_preflight,
-        tls_backing_transfer_preflight_refresh,
-        tls_backing_transfer_producer_refresh,
-        tls_backing_transfer_producer,
-    )
-    owner_slot_reuse_preflight = profile == "owner-slot-reuse-preflight"
-    owner_slot_reuse_preflight_refresh = (
-        refresh_route == "owner_slot_reuse_preflight_refresh"
-    )
-    owner_slot_reuse_producer_refresh = (
-        refresh_route == "owner_slot_reuse_producer_refresh"
-    )
-    owner_slot_reuse_producer = profile == "owner-slot-reuse-producer-pilot"
-    owner_slot_reuse_any = _any_true(
-        owner_slot_reuse_preflight,
-        owner_slot_reuse_preflight_refresh,
-        owner_slot_reuse_producer_refresh,
-        owner_slot_reuse_producer,
-    )
-    abandoned_reclaim_preflight_refresh = (
-        refresh_route == "abandoned_reclaim_preflight_refresh"
-    )
-    abandoned_reclaim_producer_refresh = (
-        refresh_route == "abandoned_reclaim_producer_refresh"
-    )
-    abandoned_reclaim_preflight = profile == "abandoned-reclaim-preflight"
-    abandoned_reclaim_producer = profile == "abandoned-reclaim-producer-pilot"
-    abandoned_reclaim_any = _any_true(
-        abandoned_reclaim_preflight_refresh,
-        abandoned_reclaim_producer_refresh,
-        abandoned_reclaim_preflight,
-        abandoned_reclaim_producer,
-    )
-    product_activation_preflight_refresh = (
-        refresh_route == "product_activation_preflight_refresh"
-    )
-    product_activation_producer_refresh = (
-        refresh_route == "product_activation_producer_refresh"
-    )
-    product_activation_preflight = profile == "product-activation-preflight"
-    product_activation_producer = profile == "product-activation-producer-pilot"
-    product_activation_any = _any_true(
-        product_activation_preflight_refresh,
-        product_activation_producer_refresh,
-        product_activation_preflight,
-        product_activation_producer,
-    )
-    hook_install_preflight_refresh = refresh_route == "hook_install_preflight_refresh"
-    hook_install_producer_refresh = refresh_route == "hook_install_producer_refresh"
-    hook_install_preflight = profile == "hook-install-preflight"
-    hook_install_producer = profile == "hook-install-producer-pilot"
-    hook_install_any = _any_true(
-        hook_install_preflight_refresh,
-        hook_install_producer_refresh,
-        hook_install_preflight,
-        hook_install_producer,
-    )
-    global_allocator_claim_preflight_refresh = (
-        refresh_route == "global_allocator_claim_preflight_refresh"
-    )
-    global_allocator_claim_preflight = profile == "global-allocator-claim-preflight"
-    global_allocator_claim_producer_refresh = (
-        refresh_route == "global_allocator_claim_producer_refresh"
-    )
-    global_allocator_claim_producer = profile == "global-allocator-claim-producer-pilot"
-    global_allocator_claim_any = _any_true(
-        global_allocator_claim_preflight_refresh,
-        global_allocator_claim_producer_refresh,
-        global_allocator_claim_preflight,
-        global_allocator_claim_producer,
-    )
-    winner_claim_preflight_refresh = refresh_route == "winner_claim_preflight_refresh"
-    winner_claim_producer_refresh = refresh_route == "winner_claim_producer_refresh"
-    winner_claim_preflight = profile == "winner-claim-preflight"
-    winner_claim_producer = profile == "winner-claim-producer-pilot"
-    winner_claim_any = _any_true(
-        winner_claim_preflight_refresh,
-        winner_claim_producer_refresh,
-        winner_claim_preflight,
-        winner_claim_producer,
-    )
-    global_allocator_claim_or_later = global_allocator_claim_any or winner_claim_any
-    hook_install_or_later = hook_install_any or global_allocator_claim_or_later
-    product_activation_or_later = product_activation_any or hook_install_or_later
-    abandoned_reclaim_or_later = abandoned_reclaim_any or product_activation_or_later
-    owner_slot_reuse_or_later = owner_slot_reuse_any or abandoned_reclaim_or_later
-    tls_backing_transfer_or_later = (
-        tls_backing_transfer_any or owner_slot_reuse_or_later
-    )
+    progression = _activation_progression_flags(profile, refresh_route)
+    page_local_route_body_join_preflight = progression.page_local_route_body_join_preflight
+    page_local_route_body_join_producer = progression.page_local_route_body_join_producer
+    terminal_ladder_refresh_preflight = progression.terminal_ladder_refresh_preflight
+    page_local_route_body_join_any = progression.page_local_route_body_join_any
+    page_local_alloc_route_cfg_preflight = progression.page_local_alloc_route_cfg_preflight
+    page_local_alloc_route_cfg_producer = progression.page_local_alloc_route_cfg_producer
+    page_local_alloc_route_cfg_any = progression.page_local_alloc_route_cfg_any
+    page_local_free_route_cfg_preflight = progression.page_local_free_route_cfg_preflight
+    page_local_free_route_cfg_producer = progression.page_local_free_route_cfg_producer
+    page_local_free_route_cfg_any = progression.page_local_free_route_cfg_any
+    tls_backing_transfer_preflight_refresh = progression.tls_backing_transfer_preflight_refresh
+    tls_backing_transfer_producer_refresh = progression.tls_backing_transfer_producer_refresh
+    tls_backing_transfer_preflight = progression.tls_backing_transfer_preflight
+    tls_backing_transfer_producer = progression.tls_backing_transfer_producer
+    tls_backing_transfer_any = progression.tls_backing_transfer_any
+    owner_slot_reuse_preflight = progression.owner_slot_reuse_preflight
+    owner_slot_reuse_preflight_refresh = progression.owner_slot_reuse_preflight_refresh
+    owner_slot_reuse_producer_refresh = progression.owner_slot_reuse_producer_refresh
+    owner_slot_reuse_producer = progression.owner_slot_reuse_producer
+    owner_slot_reuse_any = progression.owner_slot_reuse_any
+    owner_slot_reuse_or_later = progression.owner_slot_reuse_or_later
+    abandoned_reclaim_preflight_refresh = progression.abandoned_reclaim_preflight_refresh
+    abandoned_reclaim_producer_refresh = progression.abandoned_reclaim_producer_refresh
+    abandoned_reclaim_preflight = progression.abandoned_reclaim_preflight
+    abandoned_reclaim_producer = progression.abandoned_reclaim_producer
+    abandoned_reclaim_any = progression.abandoned_reclaim_any
+    abandoned_reclaim_or_later = progression.abandoned_reclaim_or_later
+    product_activation_preflight_refresh = progression.product_activation_preflight_refresh
+    product_activation_producer_refresh = progression.product_activation_producer_refresh
+    product_activation_preflight = progression.product_activation_preflight
+    product_activation_producer = progression.product_activation_producer
+    product_activation_any = progression.product_activation_any
+    product_activation_or_later = progression.product_activation_or_later
+    hook_install_preflight_refresh = progression.hook_install_preflight_refresh
+    hook_install_producer_refresh = progression.hook_install_producer_refresh
+    hook_install_preflight = progression.hook_install_preflight
+    hook_install_producer = progression.hook_install_producer
+    hook_install_any = progression.hook_install_any
+    hook_install_or_later = progression.hook_install_or_later
+    global_allocator_claim_preflight_refresh = progression.global_allocator_claim_preflight_refresh
+    global_allocator_claim_producer_refresh = progression.global_allocator_claim_producer_refresh
+    global_allocator_claim_preflight = progression.global_allocator_claim_preflight
+    global_allocator_claim_producer = progression.global_allocator_claim_producer
+    global_allocator_claim_any = progression.global_allocator_claim_any
+    global_allocator_claim_or_later = progression.global_allocator_claim_or_later
+    winner_claim_preflight_refresh = progression.winner_claim_preflight_refresh
+    winner_claim_producer_refresh = progression.winner_claim_producer_refresh
+    winner_claim_preflight = progression.winner_claim_preflight
+    winner_claim_producer = progression.winner_claim_producer
+    winner_claim_any = progression.winner_claim_any
+    hook_install_or_later = progression.hook_install_or_later
+    product_activation_or_later = progression.product_activation_or_later
+    abandoned_reclaim_or_later = progression.abandoned_reclaim_or_later
+    owner_slot_reuse_or_later = progression.owner_slot_reuse_or_later
+    tls_backing_transfer_or_later = progression.tls_backing_transfer_or_later
     remote_owner_branch_routing_any = _any_true(
         remote_owner_branch_routing_preflight,
         remote_owner_branch_routing_lowering_preflight,
