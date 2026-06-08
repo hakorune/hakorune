@@ -1,0 +1,4 @@
+[freeze:contract][emit-mir/direct-verify] route=mir errors=3
+[emit-mir/direct-verify] route=mir detail=[mir/verify:fastmem] function=HakoAllocPageMetaLocalFreePushPrecondition.localFreePushPreconditionProbe/3 block=bb17 instruction=12 region=0 contract=PageMapV0 reason=[freeze:contract][fastmem/memop-value-escapes kind=OwnerEq barrier=store_like]
+[emit-mir/direct-verify] route=mir detail=[mir/verify:fastmem] function=HakoAllocPageMetaLocalFreePushPrecondition.localFreePushPreconditionProbe/3 block=bb17 instruction=14 region=0 contract=PageMapV0 reason=[freeze:contract][fastmem/memop-value-escapes kind=TableIndex barrier=ordinary_use]
+[emit-mir/direct-verify] route=mir detail=[mir/verify:fastmem] function=HakoAllocPageMetaLocalFreePushPrecondition.localFreePushPreconditionProbe/3 block=bb17 instruction=14 region=0 contract=PageMapV0 reason=[freeze:contract][fastmem/memop-value-escapes kind=OwnerEq barrier=ordinary_use]

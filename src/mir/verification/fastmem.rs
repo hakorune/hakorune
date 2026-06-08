@@ -339,6 +339,9 @@ fn check_memop_escape(
 ) {
     let mut produced: BTreeMap<ValueId, (FastMemRegionId, MemOpKind)> = BTreeMap::new();
     for site in sites {
+        if !memop_escape_tracked_kind(site.kind) {
+            continue;
+        }
         if let Some(dst) = site.dst {
             produced.insert(dst, (site.region, site.kind));
         }
@@ -402,6 +405,14 @@ fn extend_single_input_phi_aliases(
                 match sp.inst {
                     MirInstruction::Phi { dst, inputs, .. } => {
                         if produced.contains_key(dst) || inputs.len() != 1 {
+                            if produced.contains_key(dst) || inputs.is_empty() {
+                                continue;
+                            }
+                            let Some(origin) = phi_merge_origin(produced, inputs.as_slice()) else {
+                                continue;
+                            };
+                            produced.insert(*dst, origin);
+                            changed = true;
                             continue;
                         }
                         let Some((_, input)) = inputs.first() else {
@@ -417,18 +428,43 @@ fn extend_single_input_phi_aliases(
                         if produced.contains_key(dst) {
                             continue;
                         }
-                        let Some(origin @ (_, MemOpKind::OwnerEq)) = produced.get(src).copied()
+                        let Some(origin @ (_, kind)) = produced.get(src).copied()
                         else {
                             continue;
                         };
-                        produced.insert(*dst, origin);
-                        changed = true;
+                        if memop_escape_tracked_kind(kind) {
+                            produced.insert(*dst, origin);
+                            changed = true;
+                        }
                     }
                     _ => {}
                 }
             }
         }
     }
+}
+
+fn phi_merge_origin(
+    produced: &BTreeMap<ValueId, (FastMemRegionId, MemOpKind)>,
+    inputs: &[(BasicBlockId, ValueId)],
+) -> Option<(FastMemRegionId, MemOpKind)> {
+    let mut origin: Option<(FastMemRegionId, MemOpKind)> = None;
+    for (_, input) in inputs {
+        let current = produced.get(input).copied()?;
+        if !phi_merge_aliasable_memop_kind(current.1) {
+            return None;
+        }
+        match origin {
+            None => origin = Some(current),
+            Some(existing) if existing == current => {}
+            Some(_) => return None,
+        }
+    }
+    origin
+}
+
+fn phi_merge_aliasable_memop_kind(kind: MemOpKind) -> bool {
+    matches!(kind, MemOpKind::TableIndex | MemOpKind::AtomicRemoteHeadDrain)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -480,13 +516,119 @@ fn allowed_fastmem_escape_use(inst: &MirInstruction, kind: MemOpKind, value: Val
         (
             MemOpKind::OwnerEq,
             MirInstruction::Branch { condition, .. }
-        ) if *condition == value
+    ) if *condition == value
     ) || matches!(
         (kind, inst),
         (
             MemOpKind::OwnerEq,
             MirInstruction::Copy { src, .. }
         ) if *src == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::TableIndex,
+            MirInstruction::FieldGet { base, .. }
+        ) if *base == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::TableIndex,
+            MirInstruction::FieldSet { base, .. }
+        ) if *base == value
+        ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::TableIndex,
+            MirInstruction::Copy { src, .. }
+        ) if *src == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::TableIndex,
+            MirInstruction::Call {
+                callee: Some(crate::mir::Callee::Extern(name) | crate::mir::Callee::Global(name)),
+                args,
+                ..
+            }
+        ) if name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::OwnerEq,
+            MirInstruction::Call {
+                callee: Some(crate::mir::Callee::Extern(name) | crate::mir::Callee::Global(name)),
+                args,
+                ..
+            }
+        ) if name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::TableIndex,
+            MirInstruction::Phi { inputs, .. }
+        ) if inputs.iter().any(|(_, input)| *input == value)
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AddrOf,
+            MirInstruction::BinOp { lhs, rhs, .. }
+        ) if *lhs == value || *rhs == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AddrOf,
+            MirInstruction::Compare { lhs, rhs, .. }
+        ) if *lhs == value || *rhs == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AddrOf,
+            MirInstruction::Copy { src, .. }
+        ) if *src == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AtomicRemoteHeadDrain,
+            MirInstruction::FieldGet { base, .. }
+        ) if *base == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AtomicRemoteHeadDrain,
+            MirInstruction::FieldSet { base, .. }
+        ) if *base == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AtomicRemoteHeadDrain,
+            MirInstruction::Copy { src, .. }
+        ) if *src == value
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AtomicRemoteHeadDrain,
+            MirInstruction::Call {
+                callee: Some(crate::mir::Callee::Extern(name) | crate::mir::Callee::Global(name)),
+                args,
+                ..
+            }
+        ) if name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
+    ) || matches!(
+        (kind, inst),
+        (
+            MemOpKind::AtomicRemoteHeadDrain,
+            MirInstruction::Phi { inputs, .. }
+        ) if inputs.iter().any(|(_, input)| *input == value)
+    )
+}
+
+fn memop_escape_tracked_kind(kind: MemOpKind) -> bool {
+    matches!(
+        kind,
+        MemOpKind::AddrOf
+            | MemOpKind::TableIndex
+            | MemOpKind::AtomicRemoteHeadDrain
+            | MemOpKind::OwnerEq
     )
 }
 
@@ -720,7 +862,30 @@ mod tests {
     }
 
     #[test]
-    fn rejects_memop_value_escape_to_ordinary_use() {
+    fn rejects_layout_ref_escape_to_ordinary_use() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::TableIndex,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0), ValueId::new(9)],
+                None,
+                EffectMask::PURE,
+            ),
+            MirInstruction::BinOp {
+                dst: ValueId::new(2),
+                op: BinaryOp::Add,
+                lhs: ValueId::new(1),
+                rhs: ValueId::new(9),
+            },
+        ]);
+
+        let text = error_text(&function);
+        assert!(text.contains("memop-value-escapes"), "{}", text);
+        assert!(text.contains("barrier=ordinary_use"), "{}", text);
+    }
+
+    #[test]
+    fn accepts_addr_of_numeric_use_in_binop() {
         let function = test_function(vec![
             memop(
                 MemOpKind::AddrOf,
@@ -737,9 +902,38 @@ mod tests {
             },
         ]);
 
-        let text = error_text(&function);
-        assert!(text.contains("memop-value-escapes"), "{}", text);
-        assert!(text.contains("barrier=ordinary_use"), "{}", text);
+        assert!(check_fastmem_regions(&function).is_ok(), "{}", error_text(&function));
+    }
+
+    #[test]
+    fn accepts_table_index_bridge_uses_for_field_access_and_copy() {
+        let function = test_function(vec![
+            memop(
+                MemOpKind::TableIndex,
+                Some(ValueId::new(1)),
+                vec![ValueId::new(0), ValueId::new(9)],
+                Some(MemOpAccess::table("page_table")),
+                EffectMask::READ,
+            ),
+            MirInstruction::Copy {
+                dst: ValueId::new(2),
+                src: ValueId::new(1),
+            },
+            MirInstruction::FieldGet {
+                dst: ValueId::new(3),
+                base: ValueId::new(2),
+                field: "used".to_string(),
+                declared_type: None,
+            },
+            MirInstruction::FieldSet {
+                base: ValueId::new(2),
+                field: "used".to_string(),
+                value: ValueId::new(3),
+                declared_type: None,
+            },
+        ]);
+
+        assert!(check_fastmem_regions(&function).is_ok(), "{}", error_text(&function));
     }
 
     #[test]

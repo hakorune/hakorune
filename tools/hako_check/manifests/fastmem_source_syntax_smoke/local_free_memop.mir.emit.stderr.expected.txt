@@ -1,0 +1,2 @@
+[freeze:contract][emit-mir/direct-verify] route=mir errors=1
+[emit-mir/direct-verify] route=mir detail=[mir/verify:fastmem] function=HakoAllocPageMetaLocalFreeMemopVocabulary.localFreeMemopVocabularyProbe/3 block=bb17 instruction=12 region=0 contract=PageMapV0 reason=[freeze:contract][fastmem/memop-value-escapes kind=TableIndex barrier=ordinary_use]

@@ -70,6 +70,7 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
         source = raw_entry.get("source")
         ast_expect_failure = bool(raw_entry.get("ast_expect_failure", False))
         mir_expect_failure = bool(raw_entry.get("mir_expect_failure", False))
+        mir_emit_expect_failure = bool(raw_entry.get("mir_emit_expect_failure", False))
         if not isinstance(fixture_id, str) or not fixture_id:
             fail(f"fixtures #{index} id must be a non-empty string")
         if fixture_id in seen:
@@ -124,6 +125,8 @@ def load_manifest(path: Path) -> list[dict[str, object]]:
             "features": raw_entry.get("features", os.environ.get("FASTMEM_SOURCE_FEATURES", "stage3,rune")),
             "ast_expect_failure": ast_expect_failure,
             "mir_expect_failure": mir_expect_failure,
+            "mir_emit_expect_failure": mir_emit_expect_failure,
+            "mir_emit_stderr_expected": raw_entry.get("mir_emit_stderr_expected"),
             "ast_expected": raw_entry.get("ast_expected"),
             "mir_expected": raw_entry.get("mir_expected"),
             "producers": normalized_producers,
@@ -185,6 +188,7 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
     features = str(fixture["features"])
     ast_expect_failure = bool(fixture.get("ast_expect_failure", False))
     mir_expect_failure = bool(fixture.get("mir_expect_failure", False))
+    mir_emit_expect_failure = bool(fixture.get("mir_emit_expect_failure", False))
     ast_expected = resolve_path(root, str(fixture["ast_expected"]))
     mir_expected = resolve_path(root, str(fixture["mir_expected"]))
     producers = list(fixture["producers"])
@@ -208,6 +212,30 @@ def run_fixture(root: Path, bin_path: Path, fixture: dict[str, object], tag: str
 
         print(f"[{tag}] >>> {fixture_id} :: {label}")
         run_command([str(bin_path), "--emit-ast-json", str(ast_json), str(source)], cwd=root, env=env)
+        if mir_emit_expect_failure:
+            mir_emit_stderr_expected = fixture.get("mir_emit_stderr_expected")
+            if not isinstance(mir_emit_stderr_expected, str) or not mir_emit_stderr_expected:
+                fail(
+                    f"fixture {fixture_id} mir_emit_expect_failure requires mir_emit_stderr_expected"
+                )
+            mir_emit_stderr_path = tmpdir / f"{fixture_id}.mir.emit.stderr"
+            with mir_emit_stderr_path.open("w", encoding="utf-8") as stderr_file:
+                result = subprocess.run(
+                    [str(bin_path), "--backend", "mir", "--emit-mir-json", str(mir_json), str(source)],
+                    cwd=root,
+                    env=env,
+                    stdout=subprocess.DEVNULL,
+                    stderr=stderr_file,
+                )
+            if result.returncode == 0:
+                fail(f"fixture {fixture_id} MIR emit expected failure but succeeded")
+            compare_expected_text(
+                mir_emit_stderr_path,
+                resolve_path(root, mir_emit_stderr_expected),
+                tag,
+                f"{fixture_id} MIR emit stderr",
+            )
+            return
         run_command([str(bin_path), "--backend", "mir", "--emit-mir-json", str(mir_json), str(source)], cwd=root, env=env)
 
         ast_inventory_cmd = [
