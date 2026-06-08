@@ -158,27 +158,32 @@ phase cards.
 
 ```text
 next_task:
-  phase-296x next lane selection pending
+  SELFHOST-SURFACE-000 selfhost surface check
 
 implementation_sequence:
   MIR-FMEM-008D-PRE..MIR-FMEM-008E (landed)
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
   MIM-PORT-FMEM-001..MIM-PORT-FMEM-129 (landed in phase cards)
+  MIRBUILDER-FMEM-000..015 (landed through 296x-638)
+  296x-639 selfhost surface preflight task order (landed)
 ```
 
-Next selectable lane:
+Next selected lane:
 
 ```text
-MIRBUILDER-FMEM-000:
-  landed by the SSOT doc if this lane is selected
+SELFHOST-SURFACE-000:
+  add report/check evidence that Stage1 selfhost sources do not rely on
+  pending, transport-only, deferred, or prohibited semantics
 
-MIRBUILDER-FMEM-001:
-  add report/check inventory for the transitional dedicated fastmem source
-  lowerer before retiring any path
+OUTBOX-0:
+  close parser-accepted / MIR-missing outbox with narrow local binding and
+  transfer-intent metadata, not a rich ownership checker
 
 do_not_start_with:
+  reopening fastmem dedicated lowerer retirement from older review snapshots
   deleting src/mir/builder/fastmem.rs
   opening new broad AST semantic duplication in src/mir/builder/fastmem.rs
+  implementing pending/transport surfaces as Stage1 semantics
   product/provider allocator activation
 ```
 
