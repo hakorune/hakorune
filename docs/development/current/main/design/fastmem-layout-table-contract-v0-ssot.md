@@ -250,6 +250,33 @@ memory-specific table length, bounds, overflow, alignment, element-layout, and
 provenance proof. DirectArray consumes Array get/set route sites and keeps its
 own access plan.
 
+## Residual Task Stack
+
+The MIRBuilder retirement work is already closed elsewhere. The remaining
+contract work is a proof ladder:
+
+```text
+1. FMEM-TABLE-001
+   add FastMemory VerifiedTableAccessProof fields to FastMemTableAccessPlan
+
+2. FMEM-TABLE-002
+   consume RangeIndexFact as BoundsProof::RangeFact
+   require FastMemory-owned table length fact
+
+3. FMEM-TABLE-003
+   add OverflowProof for index * stride + field_offset
+
+4. FMEM-TABLE-004
+   emit JSON/report/check fields and reject verified TableIndex unless all
+   required proofs are present
+
+5. FMEM-TABLE-005
+   lower only VerifiedTableAccess
+```
+
+FieldLoad / FieldStore verified-plan work is part of that same ladder. It is
+not a separate fastmem syntax surface.
+
 Task routing:
 
 ```text

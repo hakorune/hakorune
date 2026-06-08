@@ -203,6 +203,42 @@ no new broad AST semantic duplication in fastmem.rs
 If a new AST shape appears necessary, add an access-site / planner-route design
 first. Do not extend the dedicated lowerer as the default answer.
 
+## Residual Work Map
+
+The MIRBuilder retirement lane is closed through `MIRBUILDER-FMEM-015`.
+Remaining work now lives in the proof/contract lane, not in a broader AST
+lowerer retirement slice.
+
+```text
+closed:
+  MIRBUILDER-FMEM-001..015
+
+open:
+  FMEM-TABLE-001..005
+
+parked:
+  DIRECTARRAY-FMEM-AUTO-LOWERING-LATER
+```
+
+What the remaining proof lane owns:
+
+```text
+TableIndex bounds proof
+OverflowProof
+FieldLoad / FieldStore verified plan
+JSON/report/check rejection of incomplete TableIndex
+VerifiedTableAccess lowering
+```
+
+What it does not own:
+
+```text
+product activation
+hook / global allocator claims
+AtomicRemoteHead
+new broad AST semantic duplication
+```
+
 ## Task Order
 
 ### MIRBUILDER-FMEM-000: Retirement SSOT
