@@ -1244,6 +1244,152 @@ def _route_summary_flags(
         remote_owner_branch_routing_any=remote_owner_branch_routing_any,
     )
 
+
+def _build_route_state_resolution(
+    route_context: dict[str, Any],
+    *,
+    refresh_spec: Any | None,
+    refresh_flag_rows: list[tuple[str, str]],
+) -> dict[str, Any]:
+    route_family_flags = _route_family_flags(route_context)
+    route_summary = _build_route_summary(
+        profile=route_context["profile"],
+        state=route_context,
+        refresh_spec=refresh_spec,
+        route_family_flags=route_family_flags,
+    )
+    route_candidate = route_summary["route_candidate"]
+    remote_free_open = route_summary["remote_free_open"]
+    route_family = route_summary["route_family"]
+    next_slice = route_summary["next_slice"]
+    deferred_remote_kinds = route_summary["deferred_remote_kinds"]
+    selected_remote_kind = route_summary["selected_remote_kind"]
+    selected_route = route_summary["selected_route"]
+    route_summary_flags = _route_summary_flags(
+        winner_claim_any=route_context["winner_claim_any"],
+        global_allocator_claim_any=route_context["global_allocator_claim_any"],
+        hook_install_any=route_context["hook_install_any"],
+        product_activation_any=route_context["product_activation_any"],
+        abandoned_reclaim_any=route_context["abandoned_reclaim_any"],
+        owner_slot_reuse_any=route_context["owner_slot_reuse_any"],
+        tls_backing_transfer_preflight_refresh=route_context["tls_backing_transfer_preflight_refresh"],
+        tls_backing_transfer_producer_refresh=route_context["tls_backing_transfer_producer_refresh"],
+        tls_backing_transfer_preflight=route_context["tls_backing_transfer_preflight"],
+        tls_backing_transfer_producer=route_context["tls_backing_transfer_producer"],
+        terminal_ladder_refresh_preflight=route_context["terminal_ladder_refresh_preflight"],
+        page_local_route_body_join_any=route_context["page_local_route_body_join_any"],
+        page_local_route_body_join_preflight=route_context["page_local_route_body_join_preflight"],
+        page_local_route_body_join_producer=route_context["page_local_route_body_join_producer"],
+        page_local_free_route_cfg_any=route_context["page_local_free_route_cfg_any"],
+        page_local_free_route_cfg_preflight=route_context["page_local_free_route_cfg_preflight"],
+        page_local_alloc_route_cfg_any=route_context["page_local_alloc_route_cfg_any"],
+        page_local_alloc_route_cfg_preflight=route_context["page_local_alloc_route_cfg_preflight"],
+        page_local_alloc_route_cfg_producer=route_context["page_local_alloc_route_cfg_producer"],
+        same_remote_free_body_preflight=route_context["same_remote_free_body_preflight"],
+        same_remote_free_body_producer=route_context["same_remote_free_body_producer"],
+        fastmem_branch_cfg_lowering_preflight=route_context["fastmem_branch_cfg_lowering_preflight"],
+        fastmem_branch_cfg_lowering_producer=route_context["fastmem_branch_cfg_lowering_producer"],
+        remote_owner_branch_routing_any=route_context["remote_owner_branch_routing_any"],
+    )
+    selected_memop_family = _selected_memop_family(route_summary_flags)
+    selected_memop_kinds = _selected_memop_kinds(
+        route_summary_flags,
+        selected_remote_kind,
+    )
+    flag_scope = _remote_free_flag_scope(
+        remote_free_open=remote_free_open,
+        page_local_alloc_route_cfg_any=route_context["page_local_alloc_route_cfg_any"],
+        remote_free_retry_preflight=route_context["remote_free_retry_preflight"],
+        remote_free_retry_producer=route_context["remote_free_retry_producer"],
+        remote_free_drain_preflight=route_context["remote_free_drain_preflight"],
+        remote_free_drain_exchange_selection=route_context["remote_free_drain_exchange_selection"],
+        remote_free_drain_exchange_producer=route_context["remote_free_drain_exchange_producer"],
+        remote_free_drain_to_local_selection=route_context["remote_free_drain_to_local_selection"],
+        remote_free_drain_to_local_producer=route_context["remote_free_drain_to_local_producer"],
+        remote_free_drain_local_list_mutation_preflight=route_context["remote_free_drain_local_list_mutation_preflight"],
+        remote_free_drain_local_list_mutation_proof=route_context["remote_free_drain_local_list_mutation_proof"],
+        remote_free_drain_local_list_mutation_vocabulary_preflight=route_context["remote_free_drain_local_list_mutation_vocabulary_preflight"],
+        remote_free_drain_local_list_mutation_verifier_preconditions=route_context["remote_free_drain_local_list_mutation_verifier_preconditions"],
+        remote_free_drain_local_list_mutation_lowering_producer=route_context["remote_free_drain_local_list_mutation_lowering_producer"],
+        remote_owner_branch_routing_preflight=route_context["remote_owner_branch_routing_preflight"],
+        remote_owner_branch_routing_lowering_preflight=route_context["remote_owner_branch_routing_lowering_preflight"],
+        remote_owner_branch_routing_lowering_producer=route_context["remote_owner_branch_routing_lowering_producer"],
+        remote_owner_branch_route_body_preflight=route_context["remote_owner_branch_route_body_preflight"],
+        fastmem_branch_cfg_preflight=route_context["fastmem_branch_cfg_preflight"],
+        fastmem_branch_cfg_lowering_preflight=route_context["fastmem_branch_cfg_lowering_preflight"],
+        fastmem_branch_cfg_lowering_producer=route_context["fastmem_branch_cfg_lowering_producer"],
+        same_remote_free_body_preflight=route_context["same_remote_free_body_preflight"],
+        same_remote_free_body_producer=route_context["same_remote_free_body_producer"],
+        page_local_free_route_cfg_preflight=route_context["page_local_free_route_cfg_preflight"],
+        page_local_alloc_route_cfg_preflight=route_context["page_local_alloc_route_cfg_preflight"],
+        page_local_alloc_route_cfg_producer=route_context["page_local_alloc_route_cfg_producer"],
+        page_local_free_route_cfg_producer=route_context["page_local_free_route_cfg_producer"],
+        page_local_route_body_join_preflight=route_context["page_local_route_body_join_preflight"],
+        page_local_route_body_join_producer=route_context["page_local_route_body_join_producer"],
+        tls_backing_transfer_preflight=route_context["tls_backing_transfer_preflight"],
+        tls_backing_transfer_producer=route_context["tls_backing_transfer_producer"],
+        page_local_free_route_cfg_any=route_context["page_local_free_route_cfg_any"],
+        tls_backing_transfer_or_later=route_context["tls_backing_transfer_or_later"],
+        owner_slot_reuse_preflight=route_context["owner_slot_reuse_preflight"],
+        owner_slot_reuse_producer=route_context["owner_slot_reuse_producer"],
+        abandoned_reclaim_preflight=route_context["abandoned_reclaim_preflight"],
+        abandoned_reclaim_producer=route_context["abandoned_reclaim_producer"],
+        product_activation_preflight=route_context["product_activation_preflight"],
+        product_activation_producer=route_context["product_activation_producer"],
+        hook_install_preflight=route_context["hook_install_preflight"],
+        hook_install_producer=route_context["hook_install_producer"],
+        global_allocator_claim_preflight=route_context["global_allocator_claim_preflight"],
+        global_allocator_claim_producer=route_context["global_allocator_claim_producer"],
+        winner_claim_preflight=route_context["winner_claim_preflight"],
+        winner_claim_producer=route_context["winner_claim_producer"],
+    )
+    slice_rows = _remote_free_slice_rows(
+        RemoteFreeSliceContext(
+            selected_route=selected_route,
+            next_slice=next_slice,
+            selected_memop_family=selected_memop_family,
+            selected_memop_kinds=selected_memop_kinds,
+            deferred_remote_kinds=deferred_remote_kinds,
+            remote_free_open=remote_free_open,
+            refresh_flag_rows=refresh_flag_rows,
+            flag_scope=flag_scope,
+        )
+    )
+    route_candidate = route_candidate
+    free_route_candidate = "none"
+    if not route_family:
+        (
+            route_candidate,
+            free_route_candidate,
+            selected_memop_family,
+            selected_memop_kinds,
+            slice_rows,
+        ) = _non_route_family_state(
+            profile=route_context["profile"],
+            verified_local_free_pop=route_context["verified_local_free_pop"],
+            verified_free_head_push=route_context["verified_free_head_push"],
+            verified_free_head_pop=route_context["verified_free_head_pop"],
+            verified_local_free_push=route_context["verified_local_free_push"],
+            selected_local_free_kinds=route_context["selected_local_free_kinds"],
+            deferred_local_free_kinds=route_context["deferred_local_free_kinds"],
+        )
+    return {
+        "route_candidate": route_candidate,
+        "remote_free_open": remote_free_open,
+        "route_family": route_family,
+        "next_slice": next_slice,
+        "deferred_remote_kinds": deferred_remote_kinds,
+        "selected_remote_kind": selected_remote_kind,
+        "selected_route": selected_route,
+        "free_route_candidate": free_route_candidate,
+        "route_family_flags": route_family_flags,
+        "route_summary_flags": route_summary_flags,
+        "selected_memop_family": selected_memop_family,
+        "selected_memop_kinds": selected_memop_kinds,
+        "slice_rows": slice_rows,
+        "flag_scope": flag_scope,
+    }
+
 def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     state = dict(state)
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
@@ -1391,127 +1537,24 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         remote_free_drain_to_local_any,
         remote_free_drain_local_list_mutation_any,
     )
-    route_family_flags = _route_family_flags(locals())
-    route_summary = _build_route_summary(
-        profile=profile,
-        state=state,
+    route_resolution = _build_route_state_resolution(
+        locals().copy(),
         refresh_spec=refresh_spec,
-        route_family_flags=route_family_flags,
+        refresh_flag_rows=refresh_flag_rows,
     )
-    route_candidate = route_summary["route_candidate"]
-    remote_free_open = route_summary["remote_free_open"]
-    route_family = route_summary["route_family"]
-    next_slice = route_summary["next_slice"]
-    deferred_remote_kinds = route_summary["deferred_remote_kinds"]
-    selected_remote_kind = route_summary["selected_remote_kind"]
-    selected_route = route_summary["selected_route"]
-    free_route_candidate = "none"
-    route_summary_flags = _route_summary_flags(
-        winner_claim_any=winner_claim_any,
-        global_allocator_claim_any=global_allocator_claim_any,
-        hook_install_any=hook_install_any,
-        product_activation_any=product_activation_any,
-        abandoned_reclaim_any=abandoned_reclaim_any,
-        owner_slot_reuse_any=owner_slot_reuse_any,
-        tls_backing_transfer_preflight_refresh=tls_backing_transfer_preflight_refresh,
-        tls_backing_transfer_producer_refresh=tls_backing_transfer_producer_refresh,
-        tls_backing_transfer_preflight=tls_backing_transfer_preflight,
-        tls_backing_transfer_producer=tls_backing_transfer_producer,
-        terminal_ladder_refresh_preflight=terminal_ladder_refresh_preflight,
-        page_local_route_body_join_any=page_local_route_body_join_any,
-        page_local_route_body_join_preflight=page_local_route_body_join_preflight,
-        page_local_route_body_join_producer=page_local_route_body_join_producer,
-        page_local_free_route_cfg_any=page_local_free_route_cfg_any,
-        page_local_free_route_cfg_preflight=page_local_free_route_cfg_preflight,
-        page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
-        page_local_alloc_route_cfg_preflight=page_local_alloc_route_cfg_preflight,
-        page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
-        same_remote_free_body_preflight=same_remote_free_body_preflight,
-        same_remote_free_body_producer=same_remote_free_body_producer,
-        fastmem_branch_cfg_lowering_preflight=fastmem_branch_cfg_lowering_preflight,
-        fastmem_branch_cfg_lowering_producer=fastmem_branch_cfg_lowering_producer,
-        remote_owner_branch_routing_any=remote_owner_branch_routing_any,
-    )
-    selected_memop_family = _selected_memop_family(route_summary_flags)
-    selected_memop_kinds = _selected_memop_kinds(
-        route_summary_flags,
-        selected_remote_kind,
-    )
-    flag_scope = _remote_free_flag_scope(
-        remote_free_open=remote_free_open,
-        page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
-        remote_free_retry_preflight=remote_free_retry_preflight,
-        remote_free_retry_producer=remote_free_retry_producer,
-        remote_free_drain_preflight=remote_free_drain_preflight,
-        remote_free_drain_exchange_selection=remote_free_drain_exchange_selection,
-        remote_free_drain_exchange_producer=remote_free_drain_exchange_producer,
-        remote_free_drain_to_local_selection=remote_free_drain_to_local_selection,
-        remote_free_drain_to_local_producer=remote_free_drain_to_local_producer,
-        remote_free_drain_local_list_mutation_preflight=remote_free_drain_local_list_mutation_preflight,
-        remote_free_drain_local_list_mutation_proof=remote_free_drain_local_list_mutation_proof,
-        remote_free_drain_local_list_mutation_vocabulary_preflight=remote_free_drain_local_list_mutation_vocabulary_preflight,
-        remote_free_drain_local_list_mutation_verifier_preconditions=remote_free_drain_local_list_mutation_verifier_preconditions,
-        remote_free_drain_local_list_mutation_lowering_producer=remote_free_drain_local_list_mutation_lowering_producer,
-        remote_owner_branch_routing_preflight=remote_owner_branch_routing_preflight,
-        remote_owner_branch_routing_lowering_preflight=remote_owner_branch_routing_lowering_preflight,
-        remote_owner_branch_routing_lowering_producer=remote_owner_branch_routing_lowering_producer,
-        remote_owner_branch_route_body_preflight=remote_owner_branch_route_body_preflight,
-        fastmem_branch_cfg_preflight=fastmem_branch_cfg_preflight,
-        fastmem_branch_cfg_lowering_preflight=fastmem_branch_cfg_lowering_preflight,
-        fastmem_branch_cfg_lowering_producer=fastmem_branch_cfg_lowering_producer,
-        same_remote_free_body_preflight=same_remote_free_body_preflight,
-        same_remote_free_body_producer=same_remote_free_body_producer,
-        page_local_free_route_cfg_preflight=page_local_free_route_cfg_preflight,
-        page_local_alloc_route_cfg_preflight=page_local_alloc_route_cfg_preflight,
-        page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
-        page_local_free_route_cfg_producer=page_local_free_route_cfg_producer,
-        page_local_route_body_join_preflight=page_local_route_body_join_preflight,
-        page_local_route_body_join_producer=page_local_route_body_join_producer,
-        tls_backing_transfer_preflight=tls_backing_transfer_preflight,
-        tls_backing_transfer_producer=tls_backing_transfer_producer,
-        page_local_free_route_cfg_any=page_local_free_route_cfg_any,
-        tls_backing_transfer_or_later=tls_backing_transfer_or_later,
-        owner_slot_reuse_preflight=owner_slot_reuse_preflight,
-        owner_slot_reuse_producer=owner_slot_reuse_producer,
-        abandoned_reclaim_preflight=abandoned_reclaim_preflight,
-        abandoned_reclaim_producer=abandoned_reclaim_producer,
-        product_activation_preflight=product_activation_preflight,
-        product_activation_producer=product_activation_producer,
-        hook_install_preflight=hook_install_preflight,
-        hook_install_producer=hook_install_producer,
-        global_allocator_claim_preflight=global_allocator_claim_preflight,
-        global_allocator_claim_producer=global_allocator_claim_producer,
-        winner_claim_preflight=winner_claim_preflight,
-        winner_claim_producer=winner_claim_producer,
-    )
-    slice_rows = _remote_free_slice_rows(
-        RemoteFreeSliceContext(
-            selected_route=selected_route,
-            next_slice=next_slice,
-            selected_memop_family=selected_memop_family,
-            selected_memop_kinds=selected_memop_kinds,
-            deferred_remote_kinds=deferred_remote_kinds,
-            remote_free_open=remote_free_open,
-            refresh_flag_rows=refresh_flag_rows,
-            flag_scope=flag_scope,
-        )
-    )
-    if not route_family:
-        (
-            route_candidate,
-            free_route_candidate,
-            selected_memop_family,
-            selected_memop_kinds,
-            slice_rows,
-        ) = _non_route_family_state(
-            profile=profile,
-            verified_local_free_pop=verified_local_free_pop,
-            verified_free_head_push=verified_free_head_push,
-            verified_free_head_pop=verified_free_head_pop,
-            verified_local_free_push=verified_local_free_push,
-            selected_local_free_kinds=selected_local_free_kinds,
-            deferred_local_free_kinds=deferred_local_free_kinds,
-        )
+    route_candidate = route_resolution["route_candidate"]
+    remote_free_open = route_resolution["remote_free_open"]
+    route_family = route_resolution["route_family"]
+    next_slice = route_resolution["next_slice"]
+    deferred_remote_kinds = route_resolution["deferred_remote_kinds"]
+    selected_remote_kind = route_resolution["selected_remote_kind"]
+    selected_route = route_resolution["selected_route"]
+    free_route_candidate = route_resolution["free_route_candidate"]
+    route_family_flags = route_resolution["route_family_flags"]
+    route_summary_flags = route_resolution["route_summary_flags"]
+    selected_memop_family = route_resolution["selected_memop_family"]
+    selected_memop_kinds = route_resolution["selected_memop_kinds"]
+    slice_rows = route_resolution["slice_rows"]
 
     state.update(locals())
     return state
