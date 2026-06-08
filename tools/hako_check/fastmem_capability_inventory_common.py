@@ -158,15 +158,20 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
 
     if is_node(expr, "BinaryOp", "Binary", "Compare"):
         op = expr.get("op")
-        add_count(counts, "fastmem_dedicated_binary_op_lowering_count")
         if op == ">>":
+            add_count(counts, "fastmem_numeric_verified_direct_count")
             add_count(counts, "fastmem_memop_logical_shr_count")
         elif op == "&":
+            add_count(counts, "fastmem_numeric_verified_direct_count")
             add_count(counts, "fastmem_memop_and_count")
         elif op == "+":
+            add_count(counts, "fastmem_numeric_verified_direct_count")
             add_count(counts, "fastmem_memop_add_count")
         elif op == "-":
+            add_count(counts, "fastmem_numeric_verified_direct_count")
             add_count(counts, "fastmem_memop_sub_count")
+        else:
+            add_count(counts, "fastmem_numeric_required_route_miss_count")
         analyze_expr(child_expr(expr, "left", "lhs"), counts)
         analyze_expr(child_expr(expr, "right", "rhs"), counts)
         return
@@ -412,14 +417,17 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
             "fastmem_dedicated_index_lowering_count": counts.get(
                 "fastmem_dedicated_index_lowering_count", 0
             ),
-            "fastmem_dedicated_binary_op_lowering_count": counts.get(
-                "fastmem_dedicated_binary_op_lowering_count", 0
-            ),
             "fastmem_dedicated_assignment_lowering_count": counts.get(
                 "fastmem_dedicated_assignment_lowering_count", 0
             ),
             "fastmem_dedicated_branch_lowering_count": counts.get(
                 "fastmem_dedicated_branch_lowering_count", 0
+            ),
+            "fastmem_numeric_verified_direct_count": counts.get(
+                "fastmem_numeric_verified_direct_count", 0
+            ),
+            "fastmem_numeric_required_route_miss_count": counts.get(
+                "fastmem_numeric_required_route_miss_count", 0
             ),
             "fastmem_field_access_site_count": counts.get("fastmem_field_access_site_count", 0),
             "fastmem_index_access_site_count": counts.get("fastmem_index_access_site_count", 0),
@@ -496,9 +504,10 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_source_dedicated_lowerer_retirement_required": 0,
         "fastmem_dedicated_field_access_lowering_count": 0,
         "fastmem_dedicated_index_lowering_count": 0,
-        "fastmem_dedicated_binary_op_lowering_count": 0,
         "fastmem_dedicated_assignment_lowering_count": 0,
         "fastmem_dedicated_branch_lowering_count": 0,
+        "fastmem_numeric_verified_direct_count": 0,
+        "fastmem_numeric_required_route_miss_count": 0,
         "fastmem_field_access_site_count": 0,
         "fastmem_index_access_site_count": 0,
         "index_access_required_verified_table_count": 0,

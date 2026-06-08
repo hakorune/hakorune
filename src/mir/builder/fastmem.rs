@@ -149,12 +149,7 @@ fn lower_fastmem_expr(
             left,
             right,
             ..
-        } => {
-            let lhs = lower_fastmem_expr(builder, region, *left)?;
-            let rhs = lower_fastmem_expr(builder, region, *right)?;
-            let kind = memop_kind_for_binary_operator(operator)?;
-            builder.emit_fastmem_value_memop(region, kind, vec![lhs, rhs])
-        }
+        } => lower_fastmem_numeric_binary_op(builder, region, operator, *left, *right),
         ASTNode::FunctionCall {
             name, arguments, ..
         } => lower_fastmem_function_call(builder, region, name, arguments),
@@ -214,6 +209,19 @@ fn memop_kind_for_binary_operator(operator: BinaryOperator) -> Result<MemOpKind,
             operator
         )),
     }
+}
+
+fn lower_fastmem_numeric_binary_op(
+    builder: &mut MirBuilder,
+    region: FastMemRegionId,
+    operator: BinaryOperator,
+    left: ASTNode,
+    right: ASTNode,
+) -> Result<ValueId, String> {
+    let lhs = lower_fastmem_expr(builder, region, left)?;
+    let rhs = lower_fastmem_expr(builder, region, right)?;
+    let kind = memop_kind_for_binary_operator(operator)?;
+    builder.emit_fastmem_value_memop(region, kind, vec![lhs, rhs])
 }
 
 fn fastmem_table_access(target: &ASTNode) -> Option<MemOpAccess> {

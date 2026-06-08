@@ -186,6 +186,42 @@ fn fastmem_source_emits_atomic_remote_head_drain_memop() {
 }
 
 #[test]
+fn fastmem_source_emits_numeric_binary_memops() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("fastmem_numeric_binary_ops/0".to_string());
+    let body = vec![
+        local("lhs", int_lit(16)),
+        local("rhs", int_lit(3)),
+        ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_string(),
+            body: vec![
+                local("sum", bin(BinaryOperator::Add, var("lhs"), var("rhs"))),
+                local(
+                    "diff",
+                    bin(BinaryOperator::Subtract, var("lhs"), var("rhs")),
+                ),
+                local("shr", bin(BinaryOperator::Shr, var("lhs"), var("rhs"))),
+                local("and", bin(BinaryOperator::BitAnd, var("lhs"), var("rhs"))),
+            ],
+            span: span(),
+        },
+    ];
+
+    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+
+    assert_eq!(
+        emitted_memop_kinds(function),
+        vec![
+            MemOpKind::Add,
+            MemOpKind::Sub,
+            MemOpKind::LogicalShr,
+            MemOpKind::BitAnd,
+        ]
+    );
+}
+
+#[test]
 fn fastmem_source_emits_drain_remote_list_to_local_memop() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("fastmem_drain_remote_list_to_local/0".to_string());

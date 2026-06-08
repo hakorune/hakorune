@@ -326,6 +326,10 @@ Target:
 ordinary BinOp
   -> exact numeric/address/page-key route facts
   -> planner/verifier required FastMemory numeric route when inside region
+
+source inventory:
+  fastmem_numeric_verified_direct_count tracks supported Add/Sub/Shr/BitAnd
+  fastmem_numeric_required_route_miss_count stays at 0
 ```
 
 Acceptance:
