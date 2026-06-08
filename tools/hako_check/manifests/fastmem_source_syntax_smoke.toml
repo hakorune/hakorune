@@ -2,6 +2,7 @@ schema_version = 0
 
 [[fixtures]]
 id = "SAME_REMOTE_FREE_PUBLISH_BODY"
+kind = "success"
 label = "same/remote free publish body preflight"
 source = "lang/src/hako_alloc/memory/page_meta_same_remote_free_publish_body_box.hako"
 features = "stage3,rune"
@@ -10,16 +11,19 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures.producers]]
 profile = "remote-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "SAME_OWNER_FREE_BODY"
+kind = "success"
 label = "same-owner free body preflight"
 source = "lang/src/hako_alloc/memory/page_meta_same_owner_free_body_box.hako"
 features = "stage3,rune"
@@ -28,11 +32,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_owne
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "LOCAL_FREE_ALLOC_BODY"
+kind = "success"
 label = "local-free alloc body preflight"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_alloc_body_box.hako"
 features = "stage3,rune"
@@ -41,11 +47,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_fre
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "LOCAL_FREE_TO_FREE_REFILL_BODY"
+kind = "mir_emit_failure"
 label = "local-free to free-head refill body"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_to_free_refill_body_box.hako"
 features = "stage3,rune"
@@ -56,11 +64,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_fre
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "success"
 report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_body.local.report.expected.kv"
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_body.local.check.expected.kv"
 
 [[fixtures]]
 id = "LOCAL_FREE_TO_FREE_REFILL_COUNTER_BODY"
+kind = "mir_emit_failure"
 label = "local-free to free-head refill counter body"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_to_free_refill_counter_body_box.hako"
 features = "stage3,rune"
@@ -71,11 +81,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_fre
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "success"
 report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_counter_body.local.report.expected.kv"
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_to_free_refill_counter_body.local.check.expected.kv"
 
 [[fixtures]]
 id = "FREE_HEAD_ALLOC_BODY"
+kind = "success"
 label = "free-head allocation body"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_alloc_body_box.hako"
 features = "stage3,rune"
@@ -84,11 +96,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "REFILL_THEN_FREE_HEAD_ALLOC_BODY"
+kind = "success"
 label = "refill-then-free-head allocation body"
 source = "lang/src/hako_alloc/memory/page_meta_refill_then_free_head_alloc_body_box.hako"
 features = "stage3,rune"
@@ -97,11 +111,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/refill_th
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT"
+kind = "success"
 label = "page-local alloc route CFG preflight"
 source = "lang/src/hako_alloc/memory/page_meta_page_local_alloc_route_cfg_preflight_box.hako"
 features = "stage3,rune"
@@ -110,11 +126,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_loca
 
 [[fixtures.producers]]
 profile = "page-local-alloc-route-cfg-preflight"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "PAGE_LOCAL_ALLOC_ROUTE_CFG_PRODUCER"
+kind = "success"
 label = "page-local alloc route CFG producer profile"
 source = "lang/src/hako_alloc/memory/page_meta_page_local_alloc_route_cfg_preflight_box.hako"
 features = "stage3,rune"
@@ -123,11 +141,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_loca
 
 [[fixtures.producers]]
 profile = "page-local-alloc-route-cfg"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "PAGE_LOCAL_ROUTE_BODY_JOIN_PREFLIGHT"
+kind = "success"
 label = "page-local route body join preflight"
 source = "lang/src/hako_alloc/memory/page_meta_page_local_alloc_route_cfg_preflight_box.hako"
 features = "stage3,rune"
@@ -136,11 +156,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_loca
 
 [[fixtures.producers]]
 profile = "page-local-route-body-join-preflight"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "PAGE_LOCAL_ROUTE_BODY_JOIN_PRODUCER"
+kind = "success"
 label = "page-local route body join producer profile"
 source = "lang/src/hako_alloc/memory/page_meta_page_local_alloc_route_cfg_preflight_box.hako"
 features = "stage3,rune"
@@ -149,11 +171,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_loca
 
 [[fixtures.producers]]
 profile = "page-local-route-body-join"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "PAGE_MAP_RELEASE_BOX"
+kind = "mir_failure"
 label = "page-map release seam smoke"
 source = "lang/src/hako_alloc/memory/page_map_release_box.hako"
 features = "stage3,rune"
@@ -163,11 +187,13 @@ mir_expect_failure = true
 
 [[fixtures.producers]]
 profile = "layout-table"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_release_box.blockislive.stderr.expected.txt"
 
 [[fixtures]]
 id = "FREE_HEAD"
+kind = "success"
 label = "free-head read fastmem pilot"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_read_fastmem_pilot_box.hako"
 features = "stage3,rune"
@@ -176,11 +202,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head
 
 [[fixtures.producers]]
 profile = "layout-table"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "PILOT"
+kind = "success"
 label = "fastmem layout-table producer pilot"
 source = "lang/src/hako_alloc/memory/page_meta_fastmem_pilot_box.hako"
 features = "stage3,rune"
@@ -189,11 +217,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.mir
 
 [[fixtures.producers]]
 profile = "layout-table"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "OWNER"
+kind = "success"
 label = "owner read fastmem pilot"
 source = "lang/src/hako_alloc/memory/page_meta_owner_read_fastmem_pilot_box.hako"
 features = "stage3,rune"
@@ -202,11 +232,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.mir
 
 [[fixtures.producers]]
 profile = "layout-table"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "OWNER_EQ"
+kind = "mir_emit_failure"
 label = "owner-equality fastmem pilot"
 source = "lang/src/hako_alloc/memory/page_meta_owner_eq_fastmem_pilot_box.hako"
 features = "stage3,rune"
@@ -217,11 +249,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "owner-runtime"
+kind = "success"
 report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner_eq.owner-runtime.report.expected.kv"
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner_eq.owner-runtime.check.expected.kv"
 
 [[fixtures]]
 id = "LOCAL_FREE_HEAD"
+kind = "mir_emit_failure"
 label = "local-free head preflight"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_head_preflight_box.hako"
 features = "stage3,rune"
@@ -232,11 +266,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "layout-table"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_head.layout-table.stderr.expected.txt"
 
 [[fixtures]]
 id = "LOCAL_FREE_MEMOP"
+kind = "mir_emit_failure"
 label = "local-free memop vocabulary preflight"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_memop_vocabulary_box.hako"
 features = "stage3,rune"
@@ -247,11 +283,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_memop.local-free.stderr.expected.txt"
 
 [[fixtures]]
 id = "LOCAL_FREE_PUSH_PRECONDITION"
+kind = "mir_emit_failure"
 label = "local-free push precondition"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_push_precondition_box.hako"
 features = "stage3,rune"
@@ -262,11 +300,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "LOCAL_FREE_POP_PRECONDITION"
+kind = "mir_emit_failure"
 label = "local-free pop precondition"
 source = "lang/src/hako_alloc/memory/page_meta_local_free_pop_precondition_box.hako"
 features = "stage3,rune"
@@ -277,11 +317,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "FREE_HEAD_PUSH_PRECONDITION"
+kind = "mir_emit_failure"
 label = "free-head push precondition"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_push_precondition_box.hako"
 features = "stage3,rune"
@@ -292,11 +334,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "FREE_HEAD_POP_PRECONDITION"
+kind = "mir_emit_failure"
 label = "free-head pop precondition"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_pop_precondition_box.hako"
 features = "stage3,rune"
@@ -307,11 +351,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "FREE_HEAD_PUSH_VOCABULARY"
+kind = "success"
 label = "free-head push vocabulary"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_push_vocabulary_box.hako"
 features = "stage3,rune"
@@ -320,11 +366,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head_push_vocabulary.local-free.stderr.expected.txt"
 
 [[fixtures]]
 id = "FREE_HEAD_POP_VOCABULARY"
+kind = "mir_emit_failure"
 label = "free-head pop vocabulary"
 source = "lang/src/hako_alloc/memory/page_meta_free_head_pop_vocabulary_box.hako"
 features = "stage3,rune"
@@ -335,11 +383,13 @@ mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smo
 
 [[fixtures.producers]]
 profile = "local-free"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head_pop_vocabulary.local-free.stderr.expected.txt"
 
 [[fixtures]]
 id = "ATOMIC_REMOTE_HEAD_PUSH_VOCABULARY"
+kind = "success"
 label = "atomic remote head push vocabulary"
 source = "lang/src/hako_alloc/memory/page_meta_atomic_remote_head_push_vocabulary_box.hako"
 features = "stage3,rune"
@@ -348,11 +398,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_re
 
 [[fixtures.producers]]
 profile = "remote-free-preflight"
+kind = "success"
 report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_remote_head_push_vocabulary.remote-free-preflight.report.expected.kv"
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_remote_head_push_vocabulary.remote-free-preflight.check.expected.kv"
 
 [[fixtures]]
 id = "ATOMIC_REMOTE_HEAD_DRAIN_VOCABULARY"
+kind = "success"
 label = "atomic remote head drain vocabulary"
 source = "lang/src/hako_alloc/memory/page_meta_atomic_remote_head_drain_vocabulary_box.hako"
 features = "stage3,rune"
@@ -361,11 +413,13 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_re
 
 [[fixtures.producers]]
 profile = "remote-free-drain-preflight"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
 id = "DRAIN_REMOTE_LIST_TO_LOCAL_VOCABULARY"
+kind = "success"
 label = "drain remote list to local vocabulary"
 source = "lang/src/hako_alloc/memory/page_meta_drain_remote_list_to_local_vocabulary_box.hako"
 features = "stage3,rune"
@@ -374,5 +428,6 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/drain_rem
 
 [[fixtures.producers]]
 profile = "remote-free-drain-to-local"
+kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
