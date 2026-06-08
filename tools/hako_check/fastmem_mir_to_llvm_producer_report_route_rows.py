@@ -762,6 +762,66 @@ def _build_route_summary(
     }
 
 
+def _non_route_family_state(
+    *,
+    profile: str,
+    verified_local_free_pop: list[dict[str, Any]],
+    verified_free_head_push: list[dict[str, Any]],
+    verified_free_head_pop: list[dict[str, Any]],
+    verified_local_free_push: list[dict[str, Any]],
+    selected_local_free_kinds: list[str],
+    deferred_local_free_kinds: list[str],
+) -> tuple[
+    str,
+    str,
+    str,
+    str,
+    list[tuple[str, str]],
+]:
+    if profile == "owner-runtime":
+        return (
+            "none",
+            "none",
+            "owner_runtime",
+            "CurrentAllocOwnerId,OwnerEq",
+            _owner_runtime_slice_rows(),
+        )
+    if profile == "local-free":
+        route_candidate = page_local_alloc_route_candidate(
+            local_free_pop_count=len(verified_local_free_pop),
+            free_head_push_count=len(verified_free_head_push),
+            free_head_pop_count=len(verified_free_head_pop),
+        )
+        free_route_candidate = page_local_free_route_candidate(
+            local_free_push_count=len(verified_local_free_push),
+            local_free_pop_count=len(verified_local_free_pop),
+            free_head_push_count=len(verified_free_head_push),
+            free_head_pop_count=len(verified_free_head_pop),
+        )
+        selected_local_free_kinds_str = (
+            ",".join(selected_local_free_kinds)
+            if selected_local_free_kinds
+            else "none"
+        )
+        return (
+            route_candidate,
+            free_route_candidate,
+            "local_free",
+            selected_local_free_kinds_str,
+            _local_free_slice_rows(
+                selected_local_free_kinds_str,
+                ",".join(deferred_local_free_kinds),
+            ),
+        )
+    return (
+        "none",
+        "none",
+        "layout_table",
+        "TableIndex,FieldLoad,FieldStore",
+        _layout_table_slice_rows(),
+    )
+
+
 def _owner_runtime_slice_rows() -> list[tuple[str, str]]:
     return [
         *_slice_prefix_rows(
@@ -1122,56 +1182,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         selected_remote_kind,
     )
 
-    def _non_route_family_state() -> tuple[
-        str,
-        str,
-        str,
-        str,
-        list[tuple[str, str]],
-    ]:
-        if profile == "owner-runtime":
-            return (
-                "none",
-                "none",
-                "owner_runtime",
-                "CurrentAllocOwnerId,OwnerEq",
-                _owner_runtime_slice_rows(),
-            )
-        if profile == "local-free":
-            route_candidate = page_local_alloc_route_candidate(
-                local_free_pop_count=len(verified_local_free_pop),
-                free_head_push_count=len(verified_free_head_push),
-                free_head_pop_count=len(verified_free_head_pop),
-            )
-            free_route_candidate = page_local_free_route_candidate(
-                local_free_push_count=len(verified_local_free_push),
-                local_free_pop_count=len(verified_local_free_pop),
-                free_head_push_count=len(verified_free_head_push),
-                free_head_pop_count=len(verified_free_head_pop),
-            )
-            selected_local_free_kinds_str = (
-                ",".join(selected_local_free_kinds)
-                if selected_local_free_kinds
-                else "none"
-            )
-            return (
-                route_candidate,
-                free_route_candidate,
-                "local_free",
-                selected_local_free_kinds_str,
-                _local_free_slice_rows(
-                    selected_local_free_kinds_str,
-                    ",".join(deferred_local_free_kinds),
-                ),
-            )
-        return (
-            "none",
-            "none",
-            "layout_table",
-            "TableIndex,FieldLoad,FieldStore",
-            _layout_table_slice_rows(),
-        )
-
     def _remote_free_slice_rows() -> list[tuple[str, str]]:
         flag_scope = _remote_free_flag_scope(
             remote_free_open=remote_free_open,
@@ -1248,7 +1258,15 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
             selected_memop_family,
             selected_memop_kinds,
             slice_rows,
-        ) = _non_route_family_state()
+        ) = _non_route_family_state(
+            profile=profile,
+            verified_local_free_pop=verified_local_free_pop,
+            verified_free_head_push=verified_free_head_push,
+            verified_free_head_pop=verified_free_head_pop,
+            verified_local_free_push=verified_local_free_push,
+            selected_local_free_kinds=selected_local_free_kinds,
+            deferred_local_free_kinds=deferred_local_free_kinds,
+        )
 
     state.update(locals())
     return state
