@@ -6,6 +6,7 @@ Scope: MIR representation boundary for `.hako` fastmem regions and memory dialec
 Related:
   - docs/development/current/main/design/contract-region-v0-ssot.md
   - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
+  - docs/development/current/main/design/fastmem-verified-direct-default-retirement-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
   - docs/development/current/main/workstreams/mimalloc-current.md
   - docs/development/current/main/phases/phase-296x/296x-437-MIRBUILDER-FASTMEM-MEMOP-DIALECT-DECISION.md
@@ -411,6 +412,32 @@ choose C vs LLVM backend
 choose fast vs slow route
 choose Type ABI or Provider ABI route
 claim product activation or keeper status
+```
+
+### Dedicated Source Lowering Retirement
+
+The current dedicated FastMemory source lowerer is transitional. It exists to
+support the Phase-1 explicit fastmem source vocabulary while verified-direct
+route planning is being introduced.
+
+Long-term direction:
+
+```text
+ordinary MIRBuilder:
+  emits canonical operations plus access-site metadata
+
+FastMemory contract:
+  requires verified-direct route and forbids fallback
+
+Planner / verifier:
+  select and prove the route
+```
+
+Do not add new broad AST semantic duplication to `src/mir/builder/fastmem.rs`.
+The retirement task order is tracked in:
+
+```text
+docs/development/current/main/design/fastmem-verified-direct-default-retirement-ssot.md
 ```
 
 ## Planner / Verifier / Lowering Boundary

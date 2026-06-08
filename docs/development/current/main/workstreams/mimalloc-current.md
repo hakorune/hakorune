@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/hotline-core-method-contract-ssot.md
   - docs/development/current/main/design/hako-alloc-mimalloc-port-identity-boundary-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
+  - docs/development/current/main/design/fastmem-verified-direct-default-retirement-ssot.md
   - docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md
 ---
 
@@ -137,6 +138,15 @@ free-list mutation direction:
   free-list plans only and must not open remote-owner routing, AtomicRemoteHead,
   TLS transfer, provider activation, hook installation, global allocator claim,
   or winner claim as a side effect.
+
+verified-direct default direction:
+  `fastmem` should not become a default language surface. The selected
+  direction is verified-direct route as the default optimization/check target
+  when proof exists. Explicit fastmem regions remain contract/check regions:
+  verified-direct route is required and fallback is forbidden. The current
+  dedicated FastMemory AST lowering is transitional and has a documented
+  retirement sequence. SSOT:
+  `docs/development/current/main/design/fastmem-verified-direct-default-retirement-ssot.md`
 ```
 
 ## Current Task Order
@@ -154,6 +164,23 @@ implementation_sequence:
   MIR-FMEM-008D-PRE..MIR-FMEM-008E (landed)
   FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
   MIM-PORT-FMEM-001..MIM-PORT-FMEM-129 (landed in phase cards)
+```
+
+Next selectable lane:
+
+```text
+MIRBUILDER-FMEM-000:
+  landed by the SSOT doc if this lane is selected
+
+MIRBUILDER-FMEM-001:
+  add report/check inventory for the transitional dedicated fastmem source
+  lowerer before retiring any path
+
+do_not_start_with:
+  deleting src/mir/builder/fastmem.rs
+  opening new broad AST semantic duplication in src/mir/builder/fastmem.rs
+  product/provider allocator activation
+```
 
 ## Task Granularity / Worker Handoff
 
