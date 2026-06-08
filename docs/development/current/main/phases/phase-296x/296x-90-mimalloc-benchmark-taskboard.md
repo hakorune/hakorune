@@ -27,6 +27,8 @@ short.
 
 Current lane and blocker pointers live in `CURRENT_STATE.toml`.
 
+The docs-slim maintenance rows have landed.
+
 The long historical queue is archived here:
 
 ```text
@@ -36,15 +38,6 @@ docs/development/current/main/investigations/phase-296x-90-taskboard-history-202
 ## Active Queue
 
 ```text
-DOCS-SLIM-296X-001:
-  slim docs/development/current/main/workstreams/mimalloc-current.md
-
-DOCS-SLIM-296X-002:
-  slim docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
-
-DOCS-SLIM-FMEM-SSOT-001:
-  split the capability-gap SSOT into compact decision and investigation docs
-
 DIRECTARRAY-FMEM-COMMON-001:
   proof/report adapter sidecar only; no auto-fastmem region
 ```

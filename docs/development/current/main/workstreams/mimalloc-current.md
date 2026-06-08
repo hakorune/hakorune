@@ -154,14 +154,12 @@ verified-direct default direction:
 The parser parity catch-up, owner-state foundation, and the fastmem proof /
 lowering ladder through `MIR-FMEM-008E`, `FASTMEM-REFERENCE-CLOSEOUT-AFTER-
 PRODUCER-BODY-296X-001`, and `MIM-PORT-FMEM-129` are landed in phase cards.
-The next active lane is docs/taskboard slimming and the DirectArray/FastMemory
-proof-envelope sidecar.
+The docs/taskboard/capability-gap slimming lane is landed. The next active lane
+is the DirectArray/FastMemory proof-envelope sidecar.
 
 ```text
 next_task:
-  DOCS-SLIM-296X-001 slim mimalloc-current.md
-  DOCS-SLIM-296X-002 slim phase-296x taskboard
-  DOCS-SLIM-FMEM-SSOT-001 split capability-gap SSOT
+  DIRECTARRAY-FMEM-COMMON-001 proof/report adapter sidecar
 ```
 
 Next selected lane:
@@ -169,15 +167,6 @@ Next selected lane:
 ```text
 DIRECTARRAY-FMEM-COMMON-001:
   proof/report adapter sidecar
-
-DOCS-SLIM-296X-001:
-  active docs length cleanup
-
-DOCS-SLIM-296X-002:
-  taskboard length cleanup
-
-DOCS-SLIM-FMEM-SSOT-001:
-  capability-gap SSOT split
 ```
 
 do_not_start_with:
