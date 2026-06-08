@@ -1387,10 +1387,6 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     winner_claim_preflight = progression.winner_claim_preflight
     winner_claim_producer = progression.winner_claim_producer
     winner_claim_any = progression.winner_claim_any
-    hook_install_or_later = progression.hook_install_or_later
-    product_activation_or_later = progression.product_activation_or_later
-    abandoned_reclaim_or_later = progression.abandoned_reclaim_or_later
-    owner_slot_reuse_or_later = progression.owner_slot_reuse_or_later
     tls_backing_transfer_or_later = progression.tls_backing_transfer_or_later
     remote_owner_branch_routing_any = _any_true(
         remote_owner_branch_routing_preflight,
