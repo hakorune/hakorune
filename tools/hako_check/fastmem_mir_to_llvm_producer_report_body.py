@@ -847,6 +847,37 @@ def _report_header_rows(state: dict[str, Any], slice_rows: list[tuple[str, str]]
     ]
 
 
+def _report_post_rows(
+    *,
+    profile: str,
+    route_candidate: str,
+    free_route_candidate: str,
+    page_local_alloc_route_cfg_any: bool,
+    page_local_route_body_join_any: bool,
+    page_local_alloc_route_cfg_producer: bool,
+    page_local_free_route_cfg_producer: bool,
+    tls_backing_transfer_or_later: bool,
+    free_head_non_empty_facts: list[dict[str, Any]],
+    state: dict[str, Any],
+    route_state: dict[str, Any],
+) -> list[tuple[str, str]]:
+    rows = _page_local_route_report_rows(
+        profile=profile,
+        route_candidate=route_candidate,
+        free_route_candidate=free_route_candidate,
+        page_local_alloc_route_cfg_any=page_local_alloc_route_cfg_any,
+        page_local_route_body_join_any=page_local_route_body_join_any,
+        page_local_alloc_route_cfg_producer=page_local_alloc_route_cfg_producer,
+        page_local_free_route_cfg_producer=page_local_free_route_cfg_producer,
+        tls_backing_transfer_or_later=tls_backing_transfer_or_later,
+        free_head_non_empty_facts=free_head_non_empty_facts,
+    )
+    tail_state = state.copy()
+    tail_state.update(route_state)
+    rows.extend(build_tail_rows(tail_state))
+    return rows
+
+
 def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) -> list[tuple[str, str]]:
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
@@ -1215,7 +1246,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
 
     rows = _report_header_rows(atomic_remote_state, slice_rows)
     rows.extend(
-        _page_local_route_report_rows(
+        _report_post_rows(
             profile=profile,
             route_candidate=route_candidate,
             free_route_candidate=free_route_candidate,
@@ -1225,9 +1256,8 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             page_local_free_route_cfg_producer=page_local_free_route_cfg_producer,
             tls_backing_transfer_or_later=tls_backing_transfer_or_later,
             free_head_non_empty_facts=free_head_non_empty_facts,
+            state=locals().copy(),
+            route_state=route_state,
         )
     )
-    state = locals().copy()
-    state.update(route_state)
-    rows.extend(build_tail_rows(state))
     return rows
