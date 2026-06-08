@@ -16,9 +16,9 @@ method_anchor = "docs/development/current/main/design/mimalloc-hako-port-capabil
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-629-MIM-PORT-FMEM-130-BRANCH-ROUTE-CONDITION-FACT-RETIREMENT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-629-MIM-PORT-FMEM-130-BRANCH-ROUTE-CONDITION-FACT-RETIREMENT.md"
-latest_card_summary = "fastmem branch conditions are now fact-backed through FastMemBranchConditionFact and the ordinary if lowering path owns the CFG shape, so the dedicated fastmem branch lowering row is retired while ownerEq evidence remains in inventory/check."
+latest_card = "296x-630-MIM-PORT-FMEM-131-FASTMEM-DEDICATED-LOWERER-REMAINING-TASK-ORDER"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-630-MIM-PORT-FMEM-131-FASTMEM-DEDICATED-LOWERER-REMAINING-TASK-ORDER.md"
+latest_card_summary = "the post-007 FastMemory lowerer status is now corrected: branch CFG ownership is ordinary-if backed, the ownerEq branch condition gate remains fastmem-owned, and MIRBUILDER-FMEM-008..015 split the remaining broad AST lowerer retirement work."
 current_blocker_token = "phase-296x next lane selection pending"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-08: 296x-630 landed MIM-PORT-FMEM-131 FastMemory dedicated lowerer remaining task order: the post-007 status correction distinguishes retired branch CFG ownership from the remaining ownerEq condition gate, and MIRBUILDER-FMEM-008..015 now split the remaining broad AST lowerer retirement work; MIRBUILDER-FMEM-008 post-007 debt inventory opens next.",
   "2026-06-08: 296x-629 landed MIM-PORT-FMEM-130 branch route condition fact retirement: FastMemBranchConditionFact now records ownerEq-backed branch evidence and the ordinary if lowering path owns the CFG shape while the dedicated fastmem branch lowering row stays closed; phase-296x next lane selection pending.",
   "2026-06-08: 296x-628 landed MIM-PORT-FMEM-129 branch / remote routing source-syntax fixture split: the dedicated route smoke manifest now owns the branch / remote routing source-syntax fixtures while the terminal ladder smoke keeps the shared route / ladder evidence; phase-296x next lane selection pending.",
   "2026-06-08: 296x-627 landed MIM-PORT-FMEM-128 atomic remote / drain vocabulary fixture promotion: the source-syntax smoke now seeds the atomic remote and drain vocabulary fixtures through the manifest runner while the dedicated terminal ladder smoke keeps the shared route / ladder evidence; 296x-628 branch / remote routing source-syntax fixture split opens next.",

@@ -75,12 +75,58 @@ ASTNode::BinaryOp:
   ordinary route  -> BinOp / Compare / short-circuit lowering
 
 fastmem branch:
-  fastmem region -> narrow OwnerEq/branch route owner
+  fastmem region -> OwnerEq condition gate + ordinary if CFG lowering
   ordinary route  -> ordinary if lowering
 ```
 
 This duplication is allowed only as a transition path for the existing
 mimalloc FastMemory producer work.
+
+## Current Status After MIRBUILDER-FMEM-007
+
+The retirement lane is partially landed. The direction is correct, but
+`src/mir/builder/fastmem.rs` is still a transitional source lowerer.
+
+Current score:
+
+```text
+docs / policy:
+  pass
+  transitional lowering and verified-direct default are SSOT-backed here
+
+inventory / guard:
+  mostly pass
+  dedicated lowerer fields and route miss counters exist in report/check
+
+implementation separation:
+  partial
+  metadata/plans/facts are split, but fastmem.rs still reads broad AST shapes
+
+legacy retirement:
+  partial
+  branch CFG ownership moved to ordinary if lowering in 007, but field/index/
+  numeric/assignment/source wrapper logic still has dedicated interpretation
+
+remaining work clarity:
+  open
+  008+ rows must retire broad AST interpretation without adding product,
+  allocator activation, or AtomicRemoteHead behavior
+```
+
+Important correction after 007:
+
+```text
+branch dedicated CFG lowering:
+  retired
+
+branch condition gate:
+  still fastmem-owned
+  records FastMemBranchConditionFact and requires region-local OwnerEq
+```
+
+This means branch is no longer a bespoke CFG producer, but it is not yet an
+ordinary `if` plus generic route fact all the way from the ordinary MIRBuilder
+entry point.
 
 ## Non-Goals
 
@@ -376,7 +422,7 @@ When continuing this lane, read in this order:
 7. src/mir/builder/fields.rs
 ```
 
-Then choose exactly one row from `MIRBUILDER-FMEM-001..007`.
+Then choose exactly one row from the active retirement rows below.
 
 Rules:
 
@@ -387,14 +433,139 @@ do not extend fastmem.rs for a new broad AST shape
 prefer report/check inventory before behavior changes
 ```
 
-First implementation row:
+Completed restart rows:
 
 ```text
-MIRBUILDER-FMEM-001
+MIRBUILDER-FMEM-001..007
 ```
 
-Reason:
+Current next row:
 
 ```text
-it makes the transitional lowerer visible before any retirement work starts
+MIRBUILDER-FMEM-008
+```
+
+## Remaining Retirement Rows
+
+### MIRBUILDER-FMEM-008: Post-007 Debt Inventory
+
+Freeze the exact remaining broad AST duplication after branch CFG retirement.
+
+Acceptance:
+
+```text
+fastmem_dedicated_local_lowering_count is visible
+fastmem_dedicated_assignment_lowering_count is visible
+fastmem_dedicated_literal_lowering_count is visible
+fastmem_dedicated_variable_lowering_count is visible
+fastmem_dedicated_call_lowering_count is visible
+fastmem_dedicated_method_call_lowering_count is visible
+fastmem_branch_condition_gate_count is visible
+fastmem_dedicated_branch_lowering_count=0 remains true
+behavior change: none
+```
+
+### MIRBUILDER-FMEM-009: Shared Statement Shell
+
+Make `fastmem` region lowering a statement shell that delegates ordinary-safe
+statement handling to shared builder entry points, while keeping only
+region-specific obligation checks.
+
+Acceptance:
+
+```text
+local / print / return / variable assignment use shared builder paths where safe
+fastmem region still forbids fallback for direct memory accesses
+no new accepted source shape
+fastmem_dedicated_local_lowering_count=0
+```
+
+### MIRBUILDER-FMEM-010: Field Route Retirement
+
+Retire direct `FieldAccess -> MemOp(FieldLoad/FieldStore)` interpretation from
+the fastmem source lowerer.
+
+Acceptance:
+
+```text
+fastmem field source emits ordinary FieldGet/FieldSet plus FieldAccessSite
+verified field route remains required inside fastmem regions
+fastmem_dedicated_field_access_lowering_count=0
+field_access_required_verified_direct_miss_count=0
+remote_head plain FieldStore remains rejected
+```
+
+### MIRBUILDER-FMEM-011: Index Route Retirement
+
+Retire direct `Index -> MemOp(TableIndex)` interpretation from the fastmem
+source lowerer.
+
+Acceptance:
+
+```text
+fastmem index source emits ordinary index origin plus IndexAccessSite
+verified table route remains required inside fastmem regions
+fastmem_dedicated_index_lowering_count=0
+index_access_required_verified_table_miss_count=0
+TableIndex without bounds/overflow proof remains non-lowerable
+```
+
+### MIRBUILDER-FMEM-012: Numeric Route Retirement
+
+Retire direct `BinaryOp -> MemOp(Add/Sub/Shr/BitAnd)` interpretation from the
+fastmem source lowerer.
+
+Acceptance:
+
+```text
+fastmem numeric source emits ordinary BinOp plus numeric route fact
+fastmem_numeric_verified_direct_count > 0
+fastmem_numeric_required_route_miss_count=0
+fastmem_dedicated_binary_op_lowering_count=0
+ordinary short-circuit remains ordinary lowering-owned
+```
+
+### MIRBUILDER-FMEM-013: Intrinsic Registry Cleanup
+
+Keep `mem.*` as FastMemory intrinsic vocabulary, but move hardcoded call
+matching behind a small registry descriptor.
+
+Acceptance:
+
+```text
+mem.currentAllocOwnerId / mem.ownerEq / free-list / remote-head intrinsics
+  are registry-backed
+arity and unsupported-intrinsic errors are stable
+no new intrinsic behavior
+no product activation / hook / global allocator claim
+```
+
+### MIRBUILDER-FMEM-014: Branch Condition Gate Generalization
+
+Move the remaining branch condition gate from fastmem-only AST handling toward
+ordinary condition route facts.
+
+Acceptance:
+
+```text
+ordinary if condition can carry required ownerEq route fact
+fastmem branch condition still requires ownerEq
+fastmem_branch_condition_required_owner_eq_count > 0
+fastmem_branch_condition_owner_eq_miss_count=0
+fastmem branch wrapper no longer owns condition AST interpretation
+```
+
+### MIRBUILDER-FMEM-015: Dedicated Lowerer Closeout
+
+Close the transitional source lowerer once field/index/numeric/branch-condition
+routes are ordinary-entry plus verified-direct obligations.
+
+Acceptance:
+
+```text
+fastmem.rs keeps only region entry / obligation shell
+fastmem_source_dedicated_lowerer_retirement_required=0
+all fastmem_dedicated_*_lowering_count=0
+verified-direct report/check gates remain positive where fixtures exercise them
+no allocator/product activation claims opened
 ```
