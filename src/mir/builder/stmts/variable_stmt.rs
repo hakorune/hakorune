@@ -72,64 +72,69 @@ pub(in crate::mir::builder) fn build_local_statement(
             true,
         );
     }
-    let mut last_value = None;
-    for (i, var_name) in variables.iter().enumerate() {
-        let var_id = if i < initial_values.len() && initial_values[i].is_some() {
-            // Evaluate the initializer expression
+    let mut evaluated_values = Vec::with_capacity(variables.len());
+    for (i, _var_name) in variables.iter().enumerate() {
+        let value_id = if i < initial_values.len() && initial_values[i].is_some() {
             let init_expr = initial_values[i].as_ref().unwrap();
-            let init_val = match init_expr.as_ref() {
+            match init_expr.as_ref() {
                 ASTNode::New {
                     class, arguments, ..
                 } if builder.is_record_constructor_class(class) => {
                     builder.build_record_constructor_value(class.clone(), arguments.clone())?
                 }
                 _ => builder.build_expression(*init_expr.clone())?,
-            };
-
-            // FIX: Allocate a new ValueId for this local variable
-            // Use next_value_id() which respects function context
-            let var_id = builder.next_value_id();
-
-            // Removed: debug-only observation tags (PHI issue resolved)
-
-            if crate::config::env::builder_loopform_debug() {
-                crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
-                    &format!(
-                        "[build_local_statement] '{}': init_val={:?}, allocated var_id={:?}",
-                        var_name, init_val, var_id
-                    ),
-                    true,
-                );
             }
-
-            builder.emit_instruction(crate::mir::MirInstruction::Copy {
-                dst: var_id,
-                src: init_val,
-            })?;
-
-            // Propagate metadata (type/origin) from initializer to variable
-            crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
-            builder
-                .comp_ctx
-                .propagate_record_local_value(init_val, var_id);
-
-            var_id
         } else {
             // `local x` is sugar for `local x = null` (SSOT: docs/reference/language/types.md)
             // At runtime, `null` and `void` are the same "no value" concept, but we preserve `Null`
             // at the MIR-const level for consistency with surface syntax.
-            let null_id = crate::mir::builder::emission::constant::emit_null(builder)?;
-            if crate::config::env::builder_loopform_debug() {
-                crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
-                    &format!(
-                        "[build_local_statement] '{}': default-initialized (null), null_id={:?}",
-                        var_name, null_id
-                    ),
-                    true,
-                );
-            }
-            null_id
+            crate::mir::builder::emission::constant::emit_null(builder)?
         };
+        evaluated_values.push(value_id);
+    }
+
+    build_local_statement_from_values(builder, variables, evaluated_values)
+}
+
+/// Build local variable declaration from already-evaluated initializer values.
+///
+/// This is the shared shell used by ordinary lowering and fastmem lowering.
+/// It preserves SSA behavior by copying each initializer into a fresh local
+/// ValueId before registering the binding.
+pub(in crate::mir::builder) fn build_local_statement_from_values(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+    initial_values: Vec<ValueId>,
+) -> Result<ValueId, String> {
+    let mut last_value = None;
+    for (index, var_name) in variables.iter().enumerate() {
+        let Some(init_val) = initial_values.get(index).copied() else {
+            return Err(format!(
+                "[freeze:contract][fastmem/local_missing_initializer] name={}",
+                var_name
+            ));
+        };
+
+        let var_id = builder.next_value_id();
+
+        if crate::config::env::builder_loopform_debug() {
+            crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
+                &format!(
+                    "[build_local_statement] '{}': init_val={:?}, allocated var_id={:?}",
+                    var_name, init_val, var_id
+                ),
+                true,
+            );
+        }
+
+        builder.emit_instruction(crate::mir::MirInstruction::Copy {
+            dst: var_id,
+            src: init_val,
+        })?;
+        crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
+        builder
+            .comp_ctx
+            .propagate_record_local_value(init_val, var_id);
 
         if crate::config::env::builder_loopform_debug() {
             crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
@@ -141,14 +146,12 @@ pub(in crate::mir::builder) fn build_local_statement(
             );
         }
         builder.declare_local_in_current_scope(var_name, var_id)?;
-        // SlotRegistry にもローカル変数スロットを登録しておくよ（観測専用）
         if let Some(reg) = builder.comp_ctx.current_slot_registry.as_mut() {
             let ty = builder.type_ctx.value_types.get(&var_id).cloned();
             reg.ensure_slot(&var_name, ty);
         }
         last_value = Some(var_id);
     }
-    // Phase 135 P0: Use function-level ValueId (SSOT) - build_local_statement is always in function context
     Ok(last_value.unwrap_or_else(|| builder.next_value_id()))
 }
 

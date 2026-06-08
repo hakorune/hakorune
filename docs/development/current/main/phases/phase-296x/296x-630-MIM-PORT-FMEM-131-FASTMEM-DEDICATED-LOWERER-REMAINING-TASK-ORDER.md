@@ -62,14 +62,17 @@ MIRBUILDER-FMEM-008 is landed:
   method-call counts plus the branch condition gate count.
 ```
 
+## 009 Status
+
+```text
+MIRBUILDER-FMEM-009 is landed:
+  local, print, return, and variable assignment now share the mechanical
+  statement-shell helpers while fastmem expression lowering remains in place.
+```
+
 ## Remaining Rows
 
 ```text
-MIRBUILDER-FMEM-009:
-  shared statement shell
-  local / print / return / variable assignment delegate shared builder paths
-  where safe
-
 MIRBUILDER-FMEM-010:
   field route retirement
   FieldAccess/FieldStore become ordinary FieldGet/FieldSet plus
@@ -129,5 +132,5 @@ inventory slice.
 ## Closeout
 
 ```text
-next: MIRBUILDER-FMEM-009 shared statement shell
+next: MIRBUILDER-FMEM-010 field route retirement
 ```

@@ -10,7 +10,7 @@
 //!
 //! Called by: `build_expression()` in expressions.rs (Print pattern)
 
-use super::super::{MirBuilder, MirInstruction, ValueId};
+use super::super::{CallTarget, MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, CallExpr};
 use crate::mir::TypeOpKind;
 
@@ -154,16 +154,22 @@ pub(in crate::mir::builder) fn build_print_statement(
     let value = builder.build_expression(expression)?;
     super::super::utils::builder_debug_log(&format!("general print value={}", value));
 
+    build_print_from_value(builder, value)
+}
+
+/// Emit print from an already-evaluated value.
+///
+/// This is the shared shell used by ordinary lowering and fastmem lowering.
+pub(in crate::mir::builder) fn build_print_from_value(
+    builder: &mut MirBuilder,
+    value: ValueId,
+) -> Result<ValueId, String> {
     // Phase 3.2: Use unified call for print statements
     let use_unified = super::super::calls::call_unified::is_unified_call_enabled();
 
     if use_unified {
         // Unified path: treat print as global function.
-        builder.emit_unified_call(
-            None, // print returns nothing
-            super::super::CallTarget::Global("print".to_string()),
-            vec![value],
-        )?;
+        builder.emit_unified_call(None, CallTarget::Global("print".to_string()), vec![value])?;
     } else {
         // Compatibility path when unified calls are disabled.
         builder.emit_extern_call("env.console", "log", vec![value], None)?;

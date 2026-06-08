@@ -11,7 +11,6 @@ mod ops;
 
 use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::builder::vars::assignment_resolver::AssignmentResolverBox;
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 
 use branch::lower_fastmem_if;
@@ -49,11 +48,14 @@ fn lower_fastmem_stmt(
         ASTNode::Assignment { target, value, .. } => {
             lower_fastmem_assignment(builder, region, *target, *value)
         }
-        ASTNode::Print { expression, .. }
-        | ASTNode::Return {
+        ASTNode::Print { expression, .. } => {
+            let value = lower_fastmem_expr(builder, region, *expression)?;
+            crate::mir::builder::stmts::print_stmt::build_print_from_value(builder, value)
+        }
+        ASTNode::Return {
             value: Some(expression),
             ..
-        } => lower_fastmem_expr(builder, region, *expression),
+        } => lower_fastmem_return(builder, region, *expression),
         ASTNode::If {
             condition,
             then_body,
@@ -61,7 +63,8 @@ fn lower_fastmem_stmt(
             ..
         } => lower_fastmem_if(builder, region, *condition, then_body, else_body),
         ASTNode::Return { value: None, .. } => {
-            crate::mir::builder::emission::constant::emit_void(builder)
+            let void_value = crate::mir::builder::emission::constant::emit_void(builder)?;
+            crate::mir::builder::stmts::return_stmt::emit_return_from_value(builder, void_value)
         }
         other => lower_fastmem_expr(builder, region, other),
     }
@@ -73,19 +76,18 @@ fn lower_fastmem_local(
     variables: Vec<String>,
     initial_values: Vec<Option<Box<ASTNode>>>,
 ) -> Result<ValueId, String> {
-    let mut last = None;
-    for (index, name) in variables.iter().enumerate() {
-        let Some(Some(init)) = initial_values.get(index) else {
-            return Err(format!(
-                "[freeze:contract][fastmem/local_missing_initializer] name={}",
-                name
-            ));
+    let mut values = Vec::with_capacity(variables.len());
+    for (index, _name) in variables.iter().enumerate() {
+        let value = if let Some(Some(init)) = initial_values.get(index) {
+            lower_fastmem_expr(builder, region, *init.clone())?
+        } else {
+            crate::mir::builder::emission::constant::emit_null(builder)?
         };
-        let value = lower_fastmem_expr(builder, region, *init.clone())?;
-        builder.declare_local_in_current_scope(name, value)?;
-        last = Some(value);
+        values.push(value);
     }
-    last.ok_or_else(|| "[freeze:contract][fastmem/local_empty]".to_string())
+    crate::mir::builder::stmts::variable_stmt::build_local_statement_from_values(
+        builder, variables, values,
+    )
 }
 
 fn lower_fastmem_assignment(
@@ -97,9 +99,7 @@ fn lower_fastmem_assignment(
     match target {
         ASTNode::Variable { name, .. } => {
             let value_id = lower_fastmem_expr(builder, region, value)?;
-            AssignmentResolverBox::ensure_declared(builder, &name)?;
-            builder.variable_ctx.variable_map.insert(name, value_id);
-            Ok(value_id)
+            builder.build_assignment_from_value(name, value_id)
         }
         ASTNode::FieldAccess { object, field, .. } => {
             let base = lower_fastmem_expr(builder, region, *object)?;
@@ -132,6 +132,25 @@ fn lower_fastmem_assignment(
             other.node_type()
         )),
     }
+}
+
+fn lower_fastmem_return(
+    builder: &mut MirBuilder,
+    region: FastMemRegionId,
+    expression: ASTNode,
+) -> Result<ValueId, String> {
+    if let Some(return_value) =
+        crate::mir::builder::stmts::return_stmt::try_apply_match_return_optimization(
+            builder,
+            Some(&expression),
+            true,
+        )?
+    {
+        return Ok(return_value);
+    }
+
+    let value = lower_fastmem_expr(builder, region, expression)?;
+    crate::mir::builder::stmts::return_stmt::emit_return_from_value(builder, value)
 }
 
 fn lower_fastmem_expr(

@@ -199,7 +199,17 @@ impl MirBuilder {
         vars::assignment_resolver::AssignmentResolverBox::ensure_declared(self, &var_name)?;
 
         let value_id = self.build_expression(value)?;
+        self.build_assignment_from_value(var_name, value_id)
+    }
 
+    /// Build assignment from an already-evaluated value.
+    ///
+    /// This is the shared shell used by ordinary lowering and fastmem lowering.
+    pub(in crate::mir::builder) fn build_assignment_from_value(
+        &mut self,
+        var_name: String,
+        value_id: ValueId,
+    ) -> Result<ValueId, String> {
         // Removed: [build_expression:GHOST_v36_result] observation (PHI issue resolved)
 
         // Step 5-5-E: FIX variable map corruption bug

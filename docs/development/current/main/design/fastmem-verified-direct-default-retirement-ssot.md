@@ -442,7 +442,7 @@ MIRBUILDER-FMEM-001..007
 Current next row:
 
 ```text
-MIRBUILDER-FMEM-009
+MIRBUILDER-FMEM-010
 ```
 
 ## Remaining Retirement Rows
@@ -474,18 +474,13 @@ explicit counts, so the next row can retire shared statement handling.
 
 ### MIRBUILDER-FMEM-009: Shared Statement Shell
 
-Make `fastmem` region lowering a statement shell that delegates ordinary-safe
-statement handling to shared builder entry points, while keeping only
-region-specific obligation checks.
+Landed: the fastmem statement shell now routes local, print, return, and
+variable assignment through shared builder helpers where safe, while keeping
+fastmem expression lowering and verified-direct obligations intact.
 
-Acceptance:
-
-```text
-local / print / return / variable assignment use shared builder paths where safe
-fastmem region still forbids fallback for direct memory accesses
-no new accepted source shape
-fastmem_dedicated_local_lowering_count=0
-```
+The shared shell now owns the mechanical statement handling, while the
+verified-direct fastmem expression route remains in place for the actual
+memory-profile semantics.
 
 ### MIRBUILDER-FMEM-010: Field Route Retirement
 

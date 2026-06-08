@@ -407,3 +407,28 @@ fn fastmem_source_records_access_sites() {
         "forbidden"
     );
 }
+
+#[test]
+fn fastmem_source_shared_shell_accepts_local_without_initializer_and_return() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("fastmem_shared_shell/0".to_string());
+    let body = vec![ASTNode::FastMemRegion {
+        contract: "PageMapV0".to_string(),
+        body: vec![
+            local_no_init("tmp"),
+            ASTNode::Return {
+                value: Some(Box::new(var("tmp"))),
+                span: span(),
+            },
+        ],
+        span: span(),
+    }];
+
+    super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
+    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+
+    assert!(function
+        .blocks
+        .values()
+        .any(|block| matches!(block.terminator, Some(MirInstruction::Return { .. }))));
+}

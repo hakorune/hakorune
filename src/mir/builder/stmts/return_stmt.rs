@@ -110,6 +110,79 @@ fn adopt_match_return_coreplan(
     Ok(Some(return_value))
 }
 
+/// Try to apply the match-return optimization before lowering the return value.
+///
+/// This is the shared shell used by ordinary lowering and fastmem lowering.
+pub(in crate::mir::builder) fn try_apply_match_return_optimization(
+    builder: &mut MirBuilder,
+    value: Option<&ASTNode>,
+    emit_tag: bool,
+) -> Result<Option<ValueId>, String> {
+    if builder.return_defer_active {
+        return Ok(None);
+    }
+
+    let Some(expr) = value else {
+        return Ok(None);
+    };
+
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled();
+    if strict_or_dev {
+        match try_extract_match_return_facts(expr, true) {
+            Ok(Some(facts)) => {
+                if let Some(return_value) = adopt_match_return_coreplan(builder, &facts, emit_tag)? {
+                    return Ok(Some(return_value));
+                }
+            }
+            Ok(None) => {}
+            Err(freeze) => return Err(freeze.to_string()),
+        }
+    } else if let Ok(Some(facts)) = try_extract_match_return_facts(expr, false) {
+        if let Ok(Some(return_value)) = adopt_match_return_coreplan(builder, &facts, emit_tag) {
+            return Ok(Some(return_value));
+        }
+    }
+
+    Ok(None)
+}
+
+/// Emit the final return instruction from an already-evaluated value.
+///
+/// This is the shared shell used by ordinary lowering and fastmem lowering.
+pub(in crate::mir::builder) fn emit_return_from_value(
+    builder: &mut MirBuilder,
+    return_value: ValueId,
+) -> Result<ValueId, String> {
+    if builder.return_defer_active {
+        // Defer: copy into slot and jump to target
+        if let (Some(slot), Some(target)) = (builder.return_defer_slot, builder.return_defer_target)
+        {
+            builder.return_deferred_emitted = true;
+            builder.emit_instruction(MirInstruction::Copy {
+                dst: slot,
+                src: return_value,
+            })?;
+            crate::mir::builder::metadata::propagate::propagate(builder, return_value, slot);
+            if !builder.is_current_block_terminated() {
+                crate::mir::builder::emission::branch::emit_jump(builder, target)?;
+            }
+            Ok(return_value)
+        } else {
+            // Fallback: no configured slot/target; emit a real return
+            builder.emit_instruction(MirInstruction::Return {
+                value: Some(return_value),
+            })?;
+            Ok(return_value)
+        }
+    } else {
+        // Normal return
+        builder.emit_instruction(MirInstruction::Return {
+            value: Some(return_value),
+        })?;
+        Ok(return_value)
+    }
+}
+
 /// Build return statement with match-return optimization
 ///
 /// # Process
@@ -156,28 +229,10 @@ pub(in crate::mir::builder) fn build_return_statement(
         return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
     }
 
-    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled();
-    if !builder.return_defer_active {
-        if let Some(expr) = value.as_deref() {
-            if strict_or_dev {
-                match try_extract_match_return_facts(expr, true) {
-                    Ok(Some(facts)) => {
-                        if let Some(return_value) =
-                            adopt_match_return_coreplan(builder, &facts, true)?
-                        {
-                            return Ok(return_value);
-                        }
-                    }
-                    Ok(None) => {}
-                    Err(freeze) => return Err(freeze.to_string()),
-                }
-            } else if let Ok(Some(facts)) = try_extract_match_return_facts(expr, false) {
-                if let Ok(Some(return_value)) = adopt_match_return_coreplan(builder, &facts, false)
-                {
-                    return Ok(return_value);
-                }
-            }
-        }
+    if let Some(return_value) =
+        try_apply_match_return_optimization(builder, value.as_deref(), true)?
+    {
+        return Ok(return_value);
     }
 
     let return_value = if let Some(expr) = value {
@@ -186,32 +241,5 @@ pub(in crate::mir::builder) fn build_return_statement(
         crate::mir::builder::emission::constant::emit_void(builder)?
     };
 
-    if builder.return_defer_active {
-        // Defer: copy into slot and jump to target
-        if let (Some(slot), Some(target)) = (builder.return_defer_slot, builder.return_defer_target)
-        {
-            builder.return_deferred_emitted = true;
-            builder.emit_instruction(MirInstruction::Copy {
-                dst: slot,
-                src: return_value,
-            })?;
-            crate::mir::builder::metadata::propagate::propagate(builder, return_value, slot);
-            if !builder.is_current_block_terminated() {
-                crate::mir::builder::emission::branch::emit_jump(builder, target)?;
-            }
-            Ok(return_value)
-        } else {
-            // Fallback: no configured slot/target; emit a real return
-            builder.emit_instruction(MirInstruction::Return {
-                value: Some(return_value),
-            })?;
-            Ok(return_value)
-        }
-    } else {
-        // Normal return
-        builder.emit_instruction(MirInstruction::Return {
-            value: Some(return_value),
-        })?;
-        Ok(return_value)
-    }
+    emit_return_from_value(builder, return_value)
 }

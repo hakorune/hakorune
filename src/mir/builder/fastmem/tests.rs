@@ -79,3 +79,12 @@ fn local(name: &str, value: ASTNode) -> ASTNode {
         span: span(),
     }
 }
+
+fn local_no_init(name: &str) -> ASTNode {
+    ASTNode::Local {
+        variables: vec![name.to_string()],
+        initial_values: vec![None],
+        declared_type_names: Vec::new(),
+        span: span(),
+    }
+}
