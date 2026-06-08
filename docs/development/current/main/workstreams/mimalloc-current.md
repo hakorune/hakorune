@@ -151,39 +151,34 @@ verified-direct default direction:
 
 ## Current Task Order
 
-The parser parity catch-up and owner-state foundation are complete for the
-fastmem source-syntax pilot. The docs-slim cleanup row is complete; the
-implementation ladder through `MIM-PORT-FMEM-129` is already represented in
-phase cards.
+The parser parity catch-up, owner-state foundation, and the fastmem proof /
+lowering ladder through `MIR-FMEM-008E`, `FASTMEM-REFERENCE-CLOSEOUT-AFTER-
+PRODUCER-BODY-296X-001`, and `MIM-PORT-FMEM-129` are landed in phase cards.
+The next active lane is docs/taskboard slimming and the DirectArray/FastMemory
+proof-envelope sidecar.
 
 ```text
 next_task:
-  MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
-
-implementation_sequence:
-  MIR-FMEM-008D-PRE..MIR-FMEM-008E (landed)
-  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
-  MIM-PORT-FMEM-001..MIM-PORT-FMEM-129 (landed in phase cards)
-  MIRBUILDER-FMEM-000..015 (landed through 296x-638)
-  296x-639 selfhost surface preflight task order (landed)
-  296x-640 outbox narrow lowering landing (landed)
-  296x-641 selfhost surface check landing (landed)
+  DOCS-SLIM-296X-001 slim mimalloc-current.md
+  DOCS-SLIM-296X-002 slim phase-296x taskboard
+  DOCS-SLIM-FMEM-SSOT-001 split capability-gap SSOT
 ```
 
 Next selected lane:
 
 ```text
-SELFHOST-SURFACE-000:
-  landed
+DIRECTARRAY-FMEM-COMMON-001:
+  proof/report adapter sidecar
 
-OUTBOX-0:
-  landed
+DOCS-SLIM-296X-001:
+  active docs length cleanup
 
-post-outbox selfhost gate refresh:
-  landed
+DOCS-SLIM-296X-002:
+  taskboard length cleanup
 
-MIM-PORT-FMEM-031:
-  AtomicRemoteHead CAS lowering producer selection is next
+DOCS-SLIM-FMEM-SSOT-001:
+  capability-gap SSOT split
+```
 
 do_not_start_with:
   reopening fastmem dedicated lowerer retirement from older review snapshots
@@ -195,69 +190,41 @@ do_not_start_with:
 
 ## Task Granularity / Worker Handoff
 
-Keep the AtomicRemoteHead lane in four buckets. Do not split these further
-unless a new verifier or lowering boundary appears.
+Keep the docs-slim and sidecar lanes compact. Do not expand old AtomicRemoteHead
+bucket history back into this active card.
 
 ```text
-bucket_1:
-  MIM-PORT-FMEM-031 AtomicRemoteHead CAS lowering producer selection
-  MIM-PORT-FMEM-032 AtomicRemoteHead CAS lowering report/check preflight
-  reason:
-    one selection decision and one report contract; keep together
+DOCS-SLIM-296X-001:
+  slim mimalloc-current.md while keeping current decisions, next tasks, daily
+  commands, and parking lot
 
-bucket_2:
-  MIM-PORT-FMEM-033 AtomicRemoteHead CAS lowering producer pilot
-  reason:
-    one minimal implementation slice for the single-attempt CAS path
+DOCS-SLIM-296X-002:
+  slim the phase-296x taskboard while keeping the current blocker and queue
+  summary
 
-bucket_3:
-  MIM-PORT-FMEM-034 AtomicRemoteHead Route/Drain Selection
-  MIM-PORT-FMEM-035 AtomicRemoteHead Retry Policy Preflight
-  MIM-PORT-FMEM-036 AtomicRemoteHead Retry Lowering Producer Pilot
-  reason:
-    retry evidence and bounded lowering stay coupled until drain/exchange is
-    selected
+DOCS-SLIM-FMEM-SSOT-001:
+  split the capability-gap SSOT into a compact current decision surface and a
+  companion investigation
 
-bucket_4:
-  MIM-PORT-FMEM-037 AtomicRemoteHead Drain Preflight
-  MIM-PORT-FMEM-038 AtomicRemoteHead Drain/Exchange Selection
-  reason:
-    drain/exchange vocabulary must be pinned before route selection or
-    lowering opens
-
-bucket_5:
-  MIM-PORT-FMEM-039 AtomicRemoteHead Drain/Exchange Lowering Producer Pilot
-  reason:
-    one producer implementation row for the exchange primitive only
-
-bucket_6:
-  MIM-PORT-FMEM-040 AtomicRemoteHead Drain-to-Local Route Selection
-  reason:
-    drain-to-local consumes the drained token and deserves its own
-    proof/precondition boundary
+DIRECTARRAY-FMEM-COMMON-001:
+  proof/report adapter only; no DirectArray auto-fastmem region and no shared
+  access-plan payload
 ```
 
 Worker handoff order for this lane:
 
-1. report/check gap inventory for the next bucket
-2. LLVM producer inventory for the next implementation bucket
-3. verifier BoxShape cleanup only after a lowering slice lands
-4. docs-slim / taskboard sync only if the lane notes grow past the current
-   compactness threshold
-5. fixture migration and negative-case audit stay sidecar only; they do not
-   change the mainline bucket order
+1. docs-slim the current workstream entry
+2. docs-slim the active taskboard
+3. split the capability-gap SSOT into current decision vs investigation
+4. keep DirectArray/FastMemory commonality as a proof/report adapter sidecar
+5. keep verifier / lowering cleanup parked until the next proof slice lands
 
 Sidecar worker tasks:
 
-- extract or refresh manifest-backed source fixtures for route ladder evidence
-- audit `fastmem-check` negative cases for missing proofs, premature open
-  flags, and activation/global/winner leakage
-- keep docs/ledger cleanup separate from lowering work
-- run a report-key consistency pass across `remote-free-*`, `remote-owner-*`,
-  and branch CFG profiles
-
-follow_up_cleanup_task:
-  FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001 (landed)
+- refresh the reference / investigation stubs that absorb old landed evidence
+- audit `fastmem-check` negative cases only when a new proof field lands
+- keep taskboard docs thin and move historical row detail to investigation docs
+- run a report-key consistency pass only after the active docs are slimmed
 
 proof_commonality_follow_up:
   DIRECTARRAY-FMEM-COMMON-001
