@@ -997,6 +997,45 @@ def _remote_free_slice_rows(
     ]
 
 
+
+
+def _route_family_flags(state: dict[str, Any]) -> dict[str, bool]:
+    return {
+        "remote_owner_branch_routing_preflight": state["remote_owner_branch_routing_preflight"],
+        "remote_owner_branch_routing_lowering_preflight": state["remote_owner_branch_routing_lowering_preflight"],
+        "remote_owner_branch_routing_lowering_producer": state["remote_owner_branch_routing_lowering_producer"],
+        "remote_owner_branch_route_body_preflight": state["remote_owner_branch_route_body_preflight"],
+        "fastmem_branch_cfg_preflight": state["fastmem_branch_cfg_preflight"],
+        "fastmem_branch_cfg_lowering_preflight": state["fastmem_branch_cfg_lowering_preflight"],
+        "fastmem_branch_cfg_lowering_producer": state["fastmem_branch_cfg_lowering_producer"],
+        "same_remote_free_body_preflight": state["same_remote_free_body_preflight"],
+        "same_remote_free_body_producer": state["same_remote_free_body_producer"],
+        "page_local_alloc_route_cfg_preflight": state["page_local_alloc_route_cfg_preflight"],
+        "page_local_alloc_route_cfg_producer": state["page_local_alloc_route_cfg_producer"],
+        "page_local_free_route_cfg_preflight": state["page_local_free_route_cfg_preflight"],
+        "page_local_free_route_cfg_producer": state["page_local_free_route_cfg_producer"],
+        "page_local_route_body_join_preflight": state["page_local_route_body_join_preflight"],
+        "page_local_route_body_join_producer": state["page_local_route_body_join_producer"],
+        "tls_backing_transfer_preflight": state["tls_backing_transfer_preflight"],
+        "tls_backing_transfer_producer": state["tls_backing_transfer_producer"],
+        "owner_slot_reuse_preflight": state["owner_slot_reuse_preflight"],
+        "owner_slot_reuse_producer": state["owner_slot_reuse_producer"],
+        "abandoned_reclaim_preflight": state["abandoned_reclaim_preflight"],
+        "abandoned_reclaim_producer": state["abandoned_reclaim_producer"],
+        "product_activation_preflight": state["product_activation_preflight"],
+        "product_activation_producer": state["product_activation_producer"],
+        "hook_install_preflight": state["hook_install_preflight"],
+        "hook_install_producer": state["hook_install_producer"],
+        "global_allocator_claim_preflight": state["global_allocator_claim_preflight"],
+        "global_allocator_claim_producer": state["global_allocator_claim_producer"],
+        "winner_claim_preflight": state["winner_claim_preflight"],
+        "winner_claim_producer": state["winner_claim_producer"],
+        "remote_free_drain_local_list_mutation_verifier_preconditions": state["remote_free_drain_local_list_mutation_verifier_preconditions"],
+        "remote_free_drain_local_list_mutation_lowering_producer": state["remote_free_drain_local_list_mutation_lowering_producer"],
+        "remote_free_drain_any": state["remote_free_drain_any"],
+        "remote_owner_branch_routing_any": state["remote_owner_branch_routing_any"],
+    }
+
 def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
     state = dict(state)
     deferred_local_free_kinds = state["deferred_local_free_kinds"]
@@ -1222,41 +1261,7 @@ def build_route_state(state: dict[str, Any]) -> dict[str, Any]:
         remote_free_drain_to_local_any,
         remote_free_drain_local_list_mutation_any,
     )
-    route_family_flags = {
-        "remote_owner_branch_routing_preflight": remote_owner_branch_routing_preflight,
-        "remote_owner_branch_routing_lowering_preflight": remote_owner_branch_routing_lowering_preflight,
-        "remote_owner_branch_routing_lowering_producer": remote_owner_branch_routing_lowering_producer,
-        "remote_owner_branch_route_body_preflight": remote_owner_branch_route_body_preflight,
-        "fastmem_branch_cfg_preflight": fastmem_branch_cfg_preflight,
-        "fastmem_branch_cfg_lowering_preflight": fastmem_branch_cfg_lowering_preflight,
-        "fastmem_branch_cfg_lowering_producer": fastmem_branch_cfg_lowering_producer,
-        "same_remote_free_body_preflight": same_remote_free_body_preflight,
-        "same_remote_free_body_producer": same_remote_free_body_producer,
-        "page_local_alloc_route_cfg_preflight": page_local_alloc_route_cfg_preflight,
-        "page_local_alloc_route_cfg_producer": page_local_alloc_route_cfg_producer,
-        "page_local_free_route_cfg_preflight": page_local_free_route_cfg_preflight,
-        "page_local_free_route_cfg_producer": page_local_free_route_cfg_producer,
-        "page_local_route_body_join_preflight": page_local_route_body_join_preflight,
-        "page_local_route_body_join_producer": page_local_route_body_join_producer,
-        "tls_backing_transfer_preflight": tls_backing_transfer_preflight,
-        "tls_backing_transfer_producer": tls_backing_transfer_producer,
-        "owner_slot_reuse_preflight": owner_slot_reuse_preflight,
-        "owner_slot_reuse_producer": owner_slot_reuse_producer,
-        "abandoned_reclaim_preflight": abandoned_reclaim_preflight,
-        "abandoned_reclaim_producer": abandoned_reclaim_producer,
-        "product_activation_preflight": product_activation_preflight,
-        "product_activation_producer": product_activation_producer,
-        "hook_install_preflight": hook_install_preflight,
-        "hook_install_producer": hook_install_producer,
-        "global_allocator_claim_preflight": global_allocator_claim_preflight,
-        "global_allocator_claim_producer": global_allocator_claim_producer,
-        "winner_claim_preflight": winner_claim_preflight,
-        "winner_claim_producer": winner_claim_producer,
-        "remote_free_drain_local_list_mutation_verifier_preconditions": remote_free_drain_local_list_mutation_verifier_preconditions,
-        "remote_free_drain_local_list_mutation_lowering_producer": remote_free_drain_local_list_mutation_lowering_producer,
-        "remote_free_drain_any": remote_free_drain_any,
-        "remote_owner_branch_routing_any": remote_owner_branch_routing_any,
-    }
+    route_family_flags = _route_family_flags(locals())
     route_summary = _build_route_summary(
         profile=profile,
         state=state,
