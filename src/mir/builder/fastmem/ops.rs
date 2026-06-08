@@ -7,9 +7,10 @@ use crate::ast::{LiteralValue, Span};
 use crate::mir::builder::{MirBuilder, MirInstruction, ValueId};
 use crate::mir::function::{
     FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFieldAccessSite,
-    FastMemFreeHeadNonEmptyFact, FastMemFreeHeadNonEmptyProofKind, FastMemIndexAccessSite,
-    FastMemLocalFreeNonEmptyFact, FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata,
-    FastMemRegionOrigin, FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
+    FastMemBranchConditionFact, FastMemBranchConditionProofKind, FastMemFreeHeadNonEmptyFact,
+    FastMemFreeHeadNonEmptyProofKind, FastMemIndexAccessSite, FastMemLocalFreeNonEmptyFact,
+    FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
+    FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,
     FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
     RangeIndexFact, RangeIndexFactOriginKind,
 };
@@ -194,6 +195,47 @@ impl MirBuilder {
                 fallback_policy: fallback_policy.to_string(),
             });
         Ok(())
+    }
+
+    pub(crate) fn record_fastmem_branch_condition_fact(
+        &mut self,
+        region: FastMemRegionId,
+        condition_value: ValueId,
+        proof_kind: FastMemBranchConditionProofKind,
+        owner_eq_required: bool,
+    ) -> Result<(), String> {
+        let function = self
+            .scope_ctx
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
+        let fact_id = function.metadata.fastmem_branch_condition_facts.len() as u32;
+        function
+            .metadata
+            .fastmem_branch_condition_facts
+            .push(FastMemBranchConditionFact {
+                fact_id,
+                region,
+                condition_value,
+                proof_kind,
+                owner_eq_required,
+            });
+        Ok(())
+    }
+
+    pub(super) fn add_fastmem_branch_condition_fact(
+        &mut self,
+        region: FastMemRegionId,
+        condition_value: ValueId,
+        proof_kind: FastMemBranchConditionProofKind,
+        owner_eq_required: bool,
+    ) -> Result<(), String> {
+        self.record_fastmem_branch_condition_fact(
+            region,
+            condition_value,
+            proof_kind,
+            owner_eq_required,
+        )
     }
 
     pub(super) fn add_fastmem_table_length_fact(

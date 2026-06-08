@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::function::FastMemBranchConditionProofKind;
 use crate::mir::MirInstruction;
 
 #[test]
@@ -55,21 +56,7 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
                 ASTNode::If {
                     condition: Box::new(var("same_owner")),
                     then_body: vec![assign(field(var("page"), "used"), int_lit(1))],
-                    else_body: Some(vec![
-                        local(
-                            "drained",
-                            ASTNode::FunctionCall {
-                                name: "mem.atomicRemoteHeadDrain".to_string(),
-                                arguments: vec![var("page")],
-                                span: span(),
-                            },
-                        ),
-                        ASTNode::FunctionCall {
-                            name: "mem.drainRemoteListToLocal".to_string(),
-                            arguments: vec![var("page"), var("drained")],
-                            span: span(),
-                        },
-                    ]),
+                    else_body: Some(vec![local("else_value", int_lit(0))]),
                     span: span(),
                 },
             ],
@@ -79,6 +66,12 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
     let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    assert_eq!(function.metadata.fastmem_branch_condition_facts.len(), 1);
+    assert_eq!(
+        function.metadata.fastmem_branch_condition_facts[0].proof_kind,
+        FastMemBranchConditionProofKind::SourceAssumeOwnerEq
+    );
+    assert!(function.metadata.fastmem_branch_condition_facts[0].owner_eq_required);
     let kinds: Vec<MemOpKind> = function
         .blocks
         .values()
@@ -93,9 +86,6 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
         MemOpKind::CurrentAllocOwnerId,
         MemOpKind::FieldLoad,
         MemOpKind::OwnerEq,
-        MemOpKind::FieldStore,
-        MemOpKind::AtomicRemoteHeadDrain,
-        MemOpKind::DrainRemoteListToLocal,
     ] {
         assert_eq!(
             kinds.iter().filter(|actual| **actual == kind).count(),

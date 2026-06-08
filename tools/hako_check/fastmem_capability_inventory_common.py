@@ -148,6 +148,10 @@ def call_name(node: dict[str, Any]) -> str:
     return name if isinstance(name, str) else ""
 
 
+def is_owner_eq_call(expr: Any) -> bool:
+    return isinstance(expr, dict) and is_node(expr, "FunctionCall", "Call") and call_name(expr) == "mem.ownerEq"
+
+
 def add_count(counts: dict[str, int], key: str, amount: int = 1) -> None:
     counts[key] = counts.get(key, 0) + amount
 
@@ -310,7 +314,11 @@ def analyze_expr(expr: Any, counts: dict[str, int]) -> None:
         add_count(counts, "fastmem_memop_unclassified_count")
 
 
-def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
+def analyze_stmt(
+    stmt: Any,
+    counts: dict[str, int],
+    owner_eq_vars: set[str],
+) -> None:
     if not isinstance(stmt, dict):
         return
 
@@ -319,6 +327,13 @@ def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
         if expr is None:
             inits = child_expr(stmt, "inits") or []
             expr = inits[0] if inits else None
+        variables = child_expr(stmt, "variables")
+        if isinstance(variables, list) and len(variables) == 1:
+            name_node = variables[0]
+            if isinstance(name_node, dict):
+                name = name_node.get("name")
+                if isinstance(name, str) and name and is_owner_eq_call(expr):
+                    owner_eq_vars.add(name)
         analyze_expr(expr, counts)
         return
 
@@ -341,6 +356,10 @@ def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
                 add_count(counts, "index_access_required_verified_table_miss_count", 0)
                 analyze_expr(child_expr(target, "target"), counts)
                 analyze_expr(child_expr(target, "index"), counts)
+            elif is_node(target, "Variable"):
+                name = target.get("name")
+                if isinstance(name, str) and name and is_owner_eq_call(child_expr(stmt, "value", "expr")):
+                    owner_eq_vars.add(name)
         analyze_expr(child_expr(stmt, "value", "expr"), counts)
         return
 
@@ -353,12 +372,22 @@ def analyze_stmt(stmt: Any, counts: dict[str, int]) -> None:
         return
 
     if is_node(stmt, "If"):
-        add_count(counts, "fastmem_dedicated_branch_lowering_count")
-        analyze_expr(child_expr(stmt, "condition"), counts)
+        condition = child_expr(stmt, "condition")
+        condition_is_owner_eq = False
+        if is_owner_eq_call(condition):
+            condition_is_owner_eq = True
+        elif isinstance(condition, dict) and is_node(condition, "Variable", "Var"):
+            name = condition.get("name")
+            condition_is_owner_eq = isinstance(name, str) and name in owner_eq_vars
+        if condition_is_owner_eq:
+            add_count(counts, "fastmem_branch_condition_required_owner_eq_count")
+        else:
+            add_count(counts, "fastmem_branch_condition_owner_eq_miss_count")
+        analyze_expr(condition, counts)
         for child in child_expr(stmt, "then_body", "then", "thenBody") or []:
-            analyze_stmt(child, counts)
+            analyze_stmt(child, counts, owner_eq_vars)
         for child in child_expr(stmt, "else_body", "else", "elseBody") or []:
-            analyze_stmt(child, counts)
+            analyze_stmt(child, counts, owner_eq_vars)
         return
 
     if is_node(stmt, "FastMemRegion"):
@@ -378,8 +407,9 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
             contracts.append(contract)
         add_count(counts, "fastmem_memop_region_begin_count")
         add_count(counts, "fastmem_memop_region_end_count")
+        owner_eq_vars: set[str] = set()
         for stmt in region.get("body") or []:
-            analyze_stmt(stmt, counts)
+            analyze_stmt(stmt, counts, owner_eq_vars)
 
     unique_contracts = sorted(set(contracts))
     if len(unique_contracts) == 1:
@@ -422,6 +452,12 @@ def build_source_inventory(root: Any, input_kind: str) -> dict[str, Any]:
             ),
             "fastmem_dedicated_branch_lowering_count": counts.get(
                 "fastmem_dedicated_branch_lowering_count", 0
+            ),
+            "fastmem_branch_condition_required_owner_eq_count": counts.get(
+                "fastmem_branch_condition_required_owner_eq_count", 0
+            ),
+            "fastmem_branch_condition_owner_eq_miss_count": counts.get(
+                "fastmem_branch_condition_owner_eq_miss_count", 0
             ),
             "fastmem_numeric_verified_direct_count": counts.get(
                 "fastmem_numeric_verified_direct_count", 0
@@ -506,6 +542,8 @@ def base_inventory(input_kind: str) -> dict[str, Any]:
         "fastmem_dedicated_index_lowering_count": 0,
         "fastmem_dedicated_assignment_lowering_count": 0,
         "fastmem_dedicated_branch_lowering_count": 0,
+        "fastmem_branch_condition_required_owner_eq_count": 0,
+        "fastmem_branch_condition_owner_eq_miss_count": 0,
         "fastmem_numeric_verified_direct_count": 0,
         "fastmem_numeric_required_route_miss_count": 0,
         "fastmem_field_access_site_count": 0,

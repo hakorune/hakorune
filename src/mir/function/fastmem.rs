@@ -199,6 +199,30 @@ pub struct FastMemIndexAccessSite {
     pub fallback_policy: String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FastMemBranchConditionProofKind {
+    SourceAssumeOwnerEq,
+}
+
+impl FastMemBranchConditionProofKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SourceAssumeOwnerEq => "source_assume_owner_eq",
+        }
+    }
+}
+
+/// Function-local proof that a FastMemory branch condition is backed by the
+/// owner-equality route fact required by the narrow branch lowering surface.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FastMemBranchConditionFact {
+    pub fact_id: u32,
+    pub region: FastMemRegionId,
+    pub condition_value: ValueId,
+    pub proof_kind: FastMemBranchConditionProofKind,
+    pub owner_eq_required: bool,
+}
+
 /// Function-local metadata for a source `fastmem ContractName { ... }` region.
 ///
 /// This is side-table contract metadata, not an executable begin/end marker.

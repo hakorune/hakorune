@@ -3,12 +3,11 @@
 //! This module owns the narrow CFG shape allowed inside `fastmem` regions:
 //! an `if/else` split whose condition is a region-local `OwnerEq` MemOp.
 
-use super::lower_fastmem_stmt;
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, Span};
 use crate::mir::builder::MirBuilder;
+use crate::mir::function::FastMemBranchConditionProofKind;
 use crate::mir::instruction::{FastMemRegionId, MemOpKind};
-use crate::mir::loop_api::LoopBuilderApi;
-use crate::mir::{MirInstruction, ValueId};
+use crate::mir::ValueId;
 
 pub(super) fn lower_fastmem_if(
     builder: &mut MirBuilder,
@@ -20,51 +19,24 @@ pub(super) fn lower_fastmem_if(
     let Some(else_body) = else_body else {
         return Err("[freeze:contract][fastmem/branch_cfg_requires_else]".to_string());
     };
-    let mut condition_value = lower_fastmem_branch_condition(builder, region, condition)?;
-    condition_value = builder.local_cond(condition_value);
-    crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut condition_value)?;
-
-    let pre_branch_bb = builder.current_block()?;
-    let pre_branch_var_map = builder.variable_ctx.variable_map.clone();
-    let then_block = builder.next_block_id();
-    let else_block = builder.next_block_id();
-    let merge_block = builder.next_block_id();
-
-    builder.start_new_block(then_block)?;
-    builder.hint_scope_enter(0);
-    lower_fastmem_branch_body(builder, region, then_body)?;
-    let then_exit_block = builder.current_block()?;
-    let then_reaches_merge = !builder.is_current_block_terminated();
-    if then_reaches_merge {
-        builder.hint_scope_leave(0);
-    }
-
-    builder.variable_ctx.variable_map = pre_branch_var_map.clone();
-    builder.start_new_block(else_block)?;
-    builder.hint_scope_enter(0);
-    lower_fastmem_branch_body(builder, region, else_body)?;
-    let else_exit_block = builder.current_block()?;
-    let else_reaches_merge = !builder.is_current_block_terminated();
-    if else_reaches_merge {
-        builder.hint_scope_leave(0);
-    }
-
-    crate::mir::builder::emission::branch::emit_conditional_edgecfg(
-        builder,
-        pre_branch_bb,
+    let condition_for_if = condition.clone();
+    let condition_value = lower_fastmem_branch_condition(builder, region, condition)?;
+    builder.add_fastmem_branch_condition_fact(
+        region,
         condition_value,
-        then_block,
-        then_exit_block,
-        then_reaches_merge,
-        else_block,
-        else_exit_block,
-        else_reaches_merge,
-        merge_block,
+        FastMemBranchConditionProofKind::SourceAssumeOwnerEq,
+        true,
     )?;
-    builder.suppress_next_entry_pin_copy();
-    builder.start_new_block(merge_block)?;
-    builder.variable_ctx.variable_map = pre_branch_var_map;
-    crate::mir::builder::emission::constant::emit_void(builder)
+
+    let then_node = ASTNode::Program {
+        statements: then_body,
+        span: Span::unknown(),
+    };
+    let else_node = ASTNode::Program {
+        statements: else_body,
+        span: Span::unknown(),
+    };
+    builder.lower_if_form(condition_for_if, then_node, Some(else_node))
 }
 
 fn lower_fastmem_branch_condition(
@@ -82,18 +54,6 @@ fn lower_fastmem_branch_condition(
     Ok(condition_value)
 }
 
-fn lower_fastmem_branch_body(
-    builder: &mut MirBuilder,
-    region: FastMemRegionId,
-    body: Vec<ASTNode>,
-) -> Result<Option<ValueId>, String> {
-    let mut last_value = None;
-    for stmt in body {
-        last_value = Some(lower_fastmem_stmt(builder, region, stmt)?);
-    }
-    Ok(last_value)
-}
-
 fn ensure_fastmem_owner_eq_condition(
     builder: &MirBuilder,
     region: FastMemRegionId,
@@ -108,7 +68,7 @@ fn ensure_fastmem_owner_eq_condition(
         block.instructions.iter().any(|instruction| {
             matches!(
                 instruction,
-                MirInstruction::MemOp {
+                crate::mir::MirInstruction::MemOp {
                     region: actual_region,
                     kind: MemOpKind::OwnerEq,
                     dst: Some(dst),

@@ -3,9 +3,9 @@ use super::facts::{
     RegionStabilityFact, RequiredFastPathRegion, SpanAccessPlan, SpanBorrowFact,
 };
 use super::fastmem::{
-    FastMemBlockNextFact, FastMemFieldAccessSite, FastMemFreeHeadNonEmptyFact,
-    FastMemIndexAccessSite, FastMemLocalFreeNonEmptyFact, FastMemRegionMetadata,
-    FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
+    FastMemBlockNextFact, FastMemBranchConditionFact, FastMemFieldAccessSite,
+    FastMemFreeHeadNonEmptyFact, FastMemIndexAccessSite, FastMemLocalFreeNonEmptyFact,
+    FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
 use super::types::{ExactNumericRuntimeCheckContract, MirParamDecl};
@@ -180,6 +180,12 @@ pub struct FunctionMetadata {
     /// These rows are the source-side site table for table/index accesses and
     /// the future verified-direct route planner.
     pub fastmem_index_access_sites: Vec<FastMemIndexAccessSite>,
+
+    /// Function-local FastMemory branch-condition proof facts.
+    ///
+    /// These rows record when a FastMemory branch condition is backed by the
+    /// owner-equality proof required by the narrow branch route surface.
+    pub fastmem_branch_condition_facts: Vec<FastMemBranchConditionFact>,
 
     /// Verified v0 links from TableIndex results to same-block field accesses.
     ///

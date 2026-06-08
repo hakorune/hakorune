@@ -107,6 +107,16 @@ def failure_reasons(rows: dict[str, str]) -> list[str]:
                 reasons.append("index_access_required_verified_table_count")
             if int_count(rows, "index_access_required_verified_table_miss_count") != 0:
                 reasons.append("index_access_required_verified_table_miss_count")
+            if int_count(rows, "fastmem_dedicated_branch_lowering_count") != 0:
+                reasons.append("fastmem_dedicated_branch_lowering_count")
+        branch_route_hits = int_count(rows, "fastmem_branch_condition_required_owner_eq_count") + int_count(
+            rows, "fastmem_branch_condition_owner_eq_miss_count"
+        )
+        if branch_route_hits > 0:
+            if int_count(rows, "fastmem_branch_condition_required_owner_eq_count") <= 0:
+                reasons.append("fastmem_branch_condition_required_owner_eq_count")
+            if int_count(rows, "fastmem_branch_condition_owner_eq_miss_count") != 0:
+                reasons.append("fastmem_branch_condition_owner_eq_miss_count")
         numeric_route_hits = int_count(rows, "fastmem_numeric_verified_direct_count") + int_count(
             rows, "fastmem_numeric_required_route_miss_count"
         )
