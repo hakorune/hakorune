@@ -13,7 +13,11 @@ APP = Path("apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-smal
 
 
 def find_method_body(source: str, method_name: str) -> str:
-    match = re.search(rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*\{{", source, re.M)
+    match = re.search(
+        rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*(?::[^\{{]+)?\s*\{{",
+        source,
+        re.M,
+    )
     if match is None:
         raise SystemExit(f"method not found: {method_name}")
     brace_start = source.find("{", match.start())
@@ -42,11 +46,9 @@ def main() -> int:
     source = FACADE.read_text(encoding="utf-8", errors="replace")
     body = find_method_body(source, "objectLifecycleSmallAlloc")
     require_text(body, "local queue = me.object_lifecycle_queue", "small alloc")
-    require_text(body, "if queue.page_count == 1", "small alloc")
-    require_text(body, "queue.request_count = queue.request_count + 1", "small alloc")
-    require_text(body, "queue.beginSelection()", "small alloc")
-    require_text(body, "queue.selectSinglePageFastPath()", "small alloc")
-    require_text(body, "} else {", "small alloc")
+    require_text(body, "local page = queue.trySelectSingleActivePage()", "small alloc")
+    require_text(body, "if page != null", "small alloc")
+    require_text(body, "page.acquireFreshSmall(size)", "small alloc")
     require_text(body, "queue.selectPage()", "small alloc")
     require_text(body, "queue.last_selected_page", "small alloc")
     require_text(body, "queue.last_selected_page_id", "small alloc")

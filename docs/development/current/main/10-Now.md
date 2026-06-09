@@ -1,28 +1,26 @@
----
 Status: SSOT
-Date: 2026-05-22
+Date: 2026-06-09
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
+  - docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
----
 
 # Self Current Task - Now (main)
 
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
+- inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
+- comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
-- method anchor: read `method_anchor` in `CURRENT_STATE.toml`
-- taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- update policy:
-  `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+- blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
+- implementation gaps: none; open work is direct-exact optimization selection and pointer thinning
 
 ## Next
 
@@ -30,22 +28,21 @@ Related:
   `latest_card_path` in `CURRENT_STATE.toml`
 - current day-to-day tasks live in `latest_workstream_card` from
   `CURRENT_STATE.toml`
+- use the inventory note first when pointer hunting is noisy
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
+- the next exact front comes from the direct-exact comparison note
 
 ## Rules
 
 - keep BoxShape and BoxCount separate
-- do not add hot inline lowering without proof/evidence gate
-- do not update current mirrors for every landed card
+- do not grow the restart mirrors with landed history
 - update `CURRENT_STATE.toml` and the active card first
 
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. read `method_anchor` in `CURRENT_STATE.toml`
-3. read `active_phase` in `CURRENT_STATE.toml`
-4. read `taskboard` in `CURRENT_STATE.toml`
-5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
+3. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 

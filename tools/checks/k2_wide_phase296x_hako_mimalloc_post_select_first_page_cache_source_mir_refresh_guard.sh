@@ -43,8 +43,8 @@ summary=ok
 EOF
 cat > "$tmp_dir/select-single.join" <<'EOF'
 output_contract=hako-source-mir-shape-join-v1
-selected_method=HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0
-source_target_method=selectSinglePageFastPath
+selected_method=HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0
+source_target_method=trySelectSingleActivePage
 method_hot_context=caller_repeated
 source_risk_confirmed_in_mir=1
 confirmed_risk_kind=field_access
@@ -62,7 +62,7 @@ python3 "$TOOL" \
 guard_expect_fixed_in_file "$TAG" 'output_contract=hako-mimalloc-post-select-first-page-cache-source-mir-refresh-v0' "$report" "tool must emit output contract"
 guard_expect_fixed_in_file "$TAG" 'inactive_select_loop_risk=1' "$report" "tool must record inactive select loop risk"
 guard_expect_fixed_in_file "$TAG" 'inactive_release_lookup_risk=1' "$report" "tool must record inactive release lookup risk"
-guard_expect_fixed_in_file "$TAG" 'selected_source_method=selectSinglePageFastPath' "$report" "tool must select selectSinglePageFastPath"
+guard_expect_fixed_in_file "$TAG" 'selected_source_method=trySelectSingleActivePage' "$report" "tool must select trySelectSingleActivePage"
 guard_expect_fixed_in_file "$TAG" 'selected_risk_kind=field_access' "$report" "tool must select field risk"
 guard_expect_fixed_in_file "$TAG" 'next_keeper=select_single_page_active_field_fast_path' "$report" "tool must select keeper"
 guard_expect_fixed_in_file "$TAG" 'next_keeper_kind=box_count' "$report" "tool must keep keeper kind narrow"

@@ -1,0 +1,244 @@
+// hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof
+// Purpose: prove the segment-arena reclaim/TLS read-only integration owner.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGate
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_derived_lookup_prerequisite_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerDerivedLookupPrerequisite
+using selfhost.hako_alloc.memory.worker_tls_pilot_box as HakoAllocWorkerTlsPilot
+using selfhost.hako_alloc.memory.segment_arena_reclaim_tls_readonly_integration_box as HakoAllocSegmentArenaReclaimTlsReadonlyIntegration
+
+static box Main {
+    makeMatrixReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.summary_present = 1
+        report.summary_summarized = 1
+        report.summary_reason = 0
+        report.row_index = 1
+        report.segment_id = 190
+        report.arena_id = 19
+        report.lifetime_generation = 3
+        report.release_applied_recycle_token = 97019005005
+        report.continuation_token = 98019005005
+        report.application_token = 99019005005
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        report.applied_state_ready = 1
+        report.closed_substrate_summary = 1
+        report.would_activate_provider = 0
+        report.would_run_thread = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    makeSupportGateReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateReport()
+        report.accepted = 1
+        report.reason = 0
+        report.gate_present = 1
+        report.outcome_present = 1
+        report.outcome_accepted = 1
+        report.outcome_reason = 0
+        report.execution_intent_requested = 1
+        report.execution_supported = 0
+        report.execution_gate_open = 0
+        report.blocked_by_unsupported_outcome = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        report.would_activate_provider = 0
+        report.would_run_thread = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    makePrerequisiteReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerDerivedLookupPrerequisiteReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerDerivedLookupPrerequisiteReport()
+        report.accepted = 1
+        report.reason = 0
+        report.prerequisite_present = 1
+        report.pointer_residence_prerequisite_present = 1
+        report.pointer_residence_prerequisite_accepted = 1
+        report.pointer_residence_prerequisite_reason = 0
+        report.pointer_residence_required = 1
+        report.pointer_residence_supported = 0
+        report.pointer_residence_ready = 0
+        report.pointer_residence_created = 0
+        report.pointer_lookup_required = 1
+        report.pointer_lookup_supported = 0
+        report.pointer_lookup_ready = 0
+        report.pointer_lookup_executed = 0
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        report.would_activate_provider = 0
+        report.would_replace_allocator_owner = 0
+        report.would_enable_hook = 0
+        report.would_claim_allocator = 0
+        report.would_claim_selection = 0
+        report.would_run_thread = 0
+        report.would_use_worker_tls = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    makeWorkerReport(): HakoAllocWorkerTlsPilotReport {
+        local report = new HakoAllocWorkerTlsPilotReport()
+        report.accepted = 1
+        report.reason = 0
+        report.worker_tls_present = 1
+        report.page_source_present = 1
+        report.page_source_accepted = 1
+        report.page_source_reason = 0
+        report.page_source_token = 99019005077
+        report.bitmap_token = 99019005066
+        report.mutation_token = 99019005055
+        report.lookup_result_token = 99019005044
+        report.arena_handle_token = 99019005033
+        report.private_pointer_token = 99019005022
+        report.worker_id = 0
+        report.worker_id_valid = 1
+        report.tls_slot = 7
+        report.tls_slot_valid = 1
+        report.tls_stored_value = 99019005088
+        report.tls_loaded_value = 99019005088
+        report.tls_cleared_value = 0
+        report.tls_store_rc = 0
+        report.tls_clear_rc = 0
+        report.tls_roundtrip_ok = 1
+        report.worker_tls_count = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        report.would_dereference = 0
+        report.would_release_arena_backing = 0
+        report.would_recycle_arena_backing = 0
+        report.would_mutate_segment_map = 1
+        report.would_execute_atomic_bitmap = 1
+        report.would_call_osvm = 1
+        report.would_use_worker_tls = 1
+        report.would_run_thread = 0
+        report.would_activate_provider = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    main(args) {
+        local integration = new HakoAllocSegmentArenaReclaimTlsReadonlyIntegration()
+        local matrix = Main.makeMatrixReport()
+        local support_gate = Main.makeSupportGateReport()
+        local prereq = Main.makePrerequisiteReport()
+        local worker = Main.makeWorkerReport()
+
+        local accepted = integration.recordReadonlyIntegration(matrix, support_gate, prereq, worker)
+
+        local missing_matrix = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixReport()
+        missing_matrix.matrix_present = 0
+        local missing_matrix_result = integration.recordReadonlyIntegration(missing_matrix, support_gate, prereq, worker)
+
+        local rejected_support_gate = Main.makeSupportGateReport()
+        rejected_support_gate.accepted = 0
+        rejected_support_gate.reason = 2
+        local rejected_support_gate_result = integration.recordReadonlyIntegration(matrix, rejected_support_gate, prereq, worker)
+
+        local missing_prereq = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerDerivedLookupPrerequisiteReport()
+        local missing_prereq_result = integration.recordReadonlyIntegration(matrix, support_gate, missing_prereq, worker)
+
+        local rejected_worker = Main.makeWorkerReport()
+        rejected_worker.accepted = 0
+        rejected_worker.reason = 2
+        local rejected_worker_result = integration.recordReadonlyIntegration(matrix, support_gate, prereq, rejected_worker)
+
+        local provider_leak_worker = Main.makeWorkerReport()
+        provider_leak_worker.would_activate_provider = 1
+        local provider_leak_result = integration.recordReadonlyIntegration(matrix, support_gate, prereq, provider_leak_worker)
+
+        local ok = check "segment arena reclaim tls readonly integration" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "integration present": accepted.integration_present == 1
+            "matrix present": accepted.matrix_present == 1
+            "matrix accepted": accepted.matrix_accepted == 1
+            "support gate present": accepted.support_gate_present == 1
+            "support gate accepted": accepted.support_gate_accepted == 1
+            "pointer lookup prereq present": accepted.pointer_lookup_prerequisite_present == 1
+            "pointer lookup prereq accepted": accepted.pointer_lookup_prerequisite_accepted == 1
+            "worker tls present": accepted.worker_tls_present == 1
+            "worker tls accepted": accepted.worker_tls_accepted == 1
+            "ready": accepted.readonly_integration_ready == 1
+            "provider inactive": accepted.provider_active == 0
+            "replacement inactive": accepted.replacement_active == 0
+            "hook inactive": accepted.hook_installed == 0
+            "global allocator inactive": accepted.allocator_claim == 0
+            "winner inactive": accepted.winner_gate == 0
+            "segment": accepted.report_segment_id == 190
+            "arena": accepted.report_arena_id == 19
+            "lifetime": accepted.report_lifetime_generation == 3
+            "recycle token": accepted.report_release_applied_recycle_token == 97019005005
+            "continuation token": accepted.report_continuation_token == 98019005005
+            "application token": accepted.report_application_token == 99019005005
+            "backing bytes": accepted.report_applied_backing_bytes == 4096
+            "committed bytes": accepted.report_applied_committed_bytes == 4096
+            "remaining bytes": accepted.report_remaining_source_bytes == 8192
+            "integration count": integration.integration_count == 6
+            "accepted count": integration.accepted_count == 1
+            "reject count": integration.reject_count == 5
+            "missing matrix reject": integration.missing_matrix_reject_count == 1
+            "missing support gate reject": integration.missing_support_gate_reject_count == 0
+            "rejected support gate reject": integration.rejected_support_gate_reject_count == 1
+            "missing prereq reject": integration.missing_pointer_lookup_prerequisite_reject_count == 1
+            "rejected prereq reject": integration.rejected_pointer_lookup_prerequisite_reject_count == 0
+            "missing worker reject": integration.missing_worker_tls_reject_count == 0
+            "rejected worker reject": integration.rejected_worker_tls_reject_count == 1
+            "closed provider reject": integration.closed_provider_reject_count == 1
+            "closed replacement reject": integration.closed_replacement_reject_count == 0
+            "closed hook reject": integration.closed_hook_reject_count == 0
+            "closed allocator claim reject": integration.closed_allocator_claim_reject_count == 0
+            "closed winner reject": integration.closed_winner_reject_count == 0
+            "missing matrix reason": missing_matrix_result.reason == 1
+            "rejected support gate reason": rejected_support_gate_result.reason == 4
+            "missing prereq reason": missing_prereq_result.reason == 5
+            "rejected worker reason": rejected_worker_result.reason == 8
+            "provider leak reason": provider_leak_result.reason == 9
+            "provider leak rejected": provider_leak_result.accepted == 0
+            "provider leak closed": provider_leak_result.provider_active == 0
+        }
+
+        print("hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof")
+        print("integration=" + accepted.accepted + "," + accepted.reason + "," + accepted.integration_present + "," + accepted.matrix_present + "," + accepted.support_gate_present + "," + accepted.pointer_lookup_prerequisite_present + "," + accepted.worker_tls_present + "," + accepted.readonly_integration_ready)
+        print("report=" + accepted.report_segment_id + "," + accepted.report_arena_id + "," + accepted.report_lifetime_generation + "," + accepted.report_release_applied_recycle_token + "," + accepted.report_continuation_token + "," + accepted.report_application_token)
+        print("counts=" + integration.integration_count + "," + integration.accepted_count + "," + integration.reject_count + "," + integration.missing_matrix_reject_count + "," + integration.rejected_support_gate_reject_count + "," + integration.missing_pointer_lookup_prerequisite_reject_count + "," + integration.rejected_worker_tls_reject_count + "," + integration.closed_provider_reject_count + "," + integration.last_reason)
+        print("reasons=" + missing_matrix_result.reason + "," + rejected_support_gate_result.reason + "," + missing_prereq_result.reason + "," + rejected_worker_result.reason + "," + provider_leak_result.reason)
+        print("closed=" + accepted.provider_active + "," + accepted.replacement_active + "," + accepted.hook_installed + "," + accepted.allocator_claim + "," + accepted.winner_gate)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -13,7 +13,11 @@ APP = Path("apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-smal
 
 
 def find_method_body(source: str, method_name: str) -> str:
-    match = re.search(rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*\{{", source, re.M)
+    match = re.search(
+        rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*(?::[^\{{]+)?\s*\{{",
+        source,
+        re.M,
+    )
     if match is None:
         raise SystemExit(f"method not found: {method_name}")
     brace_start = source.find("{", match.start())
@@ -46,16 +50,13 @@ def main() -> int:
 
     source = FACADE.read_text(encoding="utf-8", errors="replace")
     body = find_method_body(source, "objectLifecycleSmallAlloc")
-    require_text(body, "return me.recordSmallAllocFailure", "failure helpers")
-    require_text(body, "me.last_alloc_page_index = selected_index", "success inline")
-    require_text(body, "me.last_alloc_page_id = queue.last_selected_page_id", "success inline")
-    require_text(body, "me.last_alloc_page = page", "success inline")
-    require_text(body, "me.alloc_result.last_reason = 0", "success inline")
-    require_text(body, "me.alloc_result.last_ok = 1", "success inline")
-    require_text(body, "me.alloc_result.success_count = me.alloc_result.success_count + 1", "success inline")
-    require_text(body, "me.alloc_result.active_success_count = me.alloc_result.active_success_count + 1", "success inline")
+    require_text(body, "return alloc_result.recordFailureAfterSelectedPage", "failure helpers")
+    require_text(body, "return alloc_result.recordFailureNoSelection", "failure helpers")
+    require_text(body, "me.recordLastAllocPage(0, selected_page_id, page)", "success inline")
+    require_text(body, "me.recordLastAllocPage(selected_index, selected_page_id, page)", "success inline")
+    require_text(body, "return alloc_result.recordSuccess(2)", "success inline")
+    require_text(body, "return alloc_result.recordSuccess(selected_kind)", "success inline")
     forbid_text(body, "return me.recordSmallAllocSuccess(selected_kind)", "success wrapper")
-    forbid_text(body, "me.recordLastAllocPage(selected_index", "last alloc wrapper")
 
     app_source = APP.read_text(encoding="utf-8", errors="replace")
     require_text(app_source, "select_page_single_fast_path_count=", "proof app")

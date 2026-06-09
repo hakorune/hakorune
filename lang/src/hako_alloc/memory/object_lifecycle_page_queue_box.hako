@@ -104,6 +104,10 @@ box HakoAllocObjectLifecyclePageQueue {
         return page
     }
 
+    selectSinglePageFastPath(): HakoAllocPageModel {
+        return me.trySelectSingleActivePage()
+    }
+
     selectPage(): HakoAllocPageModel {
         me.request_count = me.request_count + 1
 

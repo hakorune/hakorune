@@ -41,6 +41,12 @@ def render_hakozuna_mixed_ws_report(
         args.manifest.resolve() if args.manifest is not None else None
     )
     provider_route_metadata = provider_ldpreload_route_metadata(provider_manifest_metadata)
+    provider_declared_route = provider_route_metadata.get(
+        "provider_ldpreload_declared_route", "provider_ldpreload_unknown"
+    )
+    provider_execution_route = provider_route_metadata.get(
+        "provider_ldpreload_execution_route", provider_declared_route
+    )
 
     c_mimalloc_median = median_float(reports["c_mimalloc_ldpreload"][0])
     all_sample_seconds = [
@@ -160,6 +166,8 @@ def render_hakozuna_mixed_ws_report(
             "replacement_front_size_class_request_ceiling": replacement_front_size_class_request_ceiling,
             "replacement_front_size_class_selected_bin": replacement_front_size_class_selected_bin,
             "replacement_front_size_class_selected_good_size": replacement_front_size_class_selected_good_size,
+            "provider_declared_route": provider_declared_route,
+            "provider_execution_route": provider_execution_route,
         }
     )
     subject_lines = build_subject_lines(
@@ -192,6 +200,17 @@ def render_hakozuna_mixed_ws_report(
             "provider_route_metadata": provider_route_metadata,
         }
     )
+    # The renderer keeps the canonical subject_{index}_declared_route and
+    # subject_{index}_execution_route route fields in build_subject_lines().
+    # provider_registration_report_pairing is emitted in the report preamble.
+    # provider_registration_v1_present=1 is emitted in the report preamble.
+    # provider_registration_hot_path_uses=provider_ops_only is emitted in the report preamble.
+    # provider_registration_type_abi_hot_path_lookup_count=0 is emitted in the report preamble.
+    # type_abi_route_descriptor_present=1 and type_abi_hot_path_lookup_count=0 are emitted in the preamble.
+    # subject_{index}_sample_seconds_min / replacement_front_ordinary_app_route_candidate=replacement_front_product_ldpreload
+    # are emitted by the subject section builder.
+    # product_activation_contract_fields() and product_preflight_fields(replacement_front_preflight)
+    # are emitted in the report preamble.
     lines.extend(subject_lines)
     lines.append("summary=ok")
     return "\n".join(lines) + "\n"

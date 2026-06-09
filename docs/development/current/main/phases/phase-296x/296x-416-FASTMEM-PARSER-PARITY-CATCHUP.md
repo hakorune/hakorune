@@ -1,5 +1,5 @@
 ---
-Status: Current
+Status: Landed
 Date: 2026-06-05
 Scope: cut a parser parity catch-up phase before accepting `fastmem ContractName { ... }` as source syntax.
 Blocker: FASTMEM-PARSER-PARITY-CATCHUP-296X-001

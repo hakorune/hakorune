@@ -1,5 +1,5 @@
 ---
-Status: Landed
+Status: Current
 Date: 2026-05-28
 Scope: lower the remaining same-module helper setter calls without reopening the nested-call wrapper path.
 Blocker: MIR-BUILDER-SAME-MODULE-HELPER-CALL-LOWERING-SEAM-296X-001
@@ -53,13 +53,13 @@ output_contract=hako-mimalloc-small-alloc-helper-copy-family-probe-v0
 input_contract=small-alloc-call-copy-shape-deep-dive-v0
 selected_owner=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 helper_call_count=5
-helper_copy_count=16
-receiver_copy_count=13
-arg_copy_count=0
-result_copy_count=3
-local_ssa_copy_count=85
+helper_copy_count=14
+receiver_copy_count=7
+arg_copy_count=1
+result_copy_count=6
+local_ssa_copy_count=77
 dominant_copy_family=helper_result_local_ssa
-dominant_callee_family=page_hotpath_helpers
+dominant_callee_family=facade_result_helpers
 selected_next=same_module_helper_call_lowering_seam
 winner_claim=0
 replacement_active=0

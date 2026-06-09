@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-06
 Scope: ESCAPE-COMMON-001 implementation for FastMemory verifier escape checks.
 Related:

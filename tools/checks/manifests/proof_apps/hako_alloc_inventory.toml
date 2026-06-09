@@ -27,3 +27,24 @@ app = "apps/hako-alloc-secure-entropy-inventory-proof"
 label = "secure entropy inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "M216"
+app = "apps/hako-alloc-secure-entropy-backed-free-list-proof"
+label = "secure entropy backed free list proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_secure_entropy_backed_free_list_guard.sh"]
+
+[[proof_apps]]
+id = "M217"
+app = "apps/hako-alloc-page-map-aligned-huge-osvm-facade-integration-proof"
+label = "page-map aligned huge osvm facade integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_map_aligned_huge_osvm_facade_integration_guard.sh"]
+
+[[proof_apps]]
+id = "M218"
+app = "apps/hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof"
+label = "segment-arena reclaim/tls read-only integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_reclaim_tls_readonly_integration_guard.sh"]

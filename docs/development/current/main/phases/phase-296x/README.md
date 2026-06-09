@@ -1,25 +1,22 @@
 ---
 Status: Active
-Date: 2026-05-27
-Scope: phase-296x mimalloc benchmark contract lane.
+Date: 2026-06-09
+Scope: phase-296x current docs pointers and mimalloc history index.
 Related:
-  - docs/development/current/main/design/mimalloc-benchmark-dll-roadmap-ssot.md
+  - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
   - docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
-  - docs/development/current/main/phases/phase-295x/README.md
+  - docs/development/current/main/investigations/phase-296x-90-taskboard-history-2026-06-08.md
 ---
 
 # Phase 296x - Mimalloc Benchmark Contract
 
-Phase-296x starts after the first `.hako` mimalloc port pass and the phase-295x
+Phase-296x started after the first `.hako` mimalloc port pass and the phase-295x
 comparison rows landed.
 
 ## Goal
 
-Turn the existing `.hako` mimalloc proof/comparison work and the external
-`hakmem` benchmark corpus into a stable benchmark contract.
-
-This phase prepares benchmark input and result adapters first. It does not
-activate DLL/provider or process-wide allocator replacement.
+Keep the current pointers thin enough that the active lane is easy to find.
 
 ## Stop Line
 
@@ -33,14 +30,14 @@ Keep closed unless a later row explicitly opens them:
 
 ## Current Work
 
-Read the taskboard:
+Read these first:
 
 ```text
+docs/development/current/main/CURRENT_STATE.toml
+docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
 docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
 ```
 
-The external benchmark corpus root is:
-
-```text
-/home/tomoaki/git/hakmem_20260525_extracted/hakmem
-```
+The active lane is the direct-exact optimization sweep selection row. Use the
+inventory note first when pointer hunting gets noisy, and use the comparison
+note when you want the exact-front diff that chooses the next workload.

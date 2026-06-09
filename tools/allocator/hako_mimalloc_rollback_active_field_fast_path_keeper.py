@@ -13,7 +13,11 @@ APP = Path("apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-smal
 
 
 def find_method_body(source: str, method_name: str) -> str:
-    match = re.search(rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*\{{", source, re.M)
+    match = re.search(
+        rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*(?::[^\{{]+)?\s*\{{",
+        source,
+        re.M,
+    )
     if match is None:
         raise SystemExit(f"method not found: {method_name}")
     brace_start = source.find("{", match.start())
@@ -47,13 +51,15 @@ def main() -> int:
     source = QUEUE.read_text(encoding="utf-8", errors="replace")
     require_text(source, "first_page: HakoAllocPageModel = null", "queue")
     require_text(source, "local page = me.first_page", "queue")
-    fast_body = find_method_body(source, "selectSinglePageFastPath")
+    fast_body = find_method_body(source, "trySelectSingleActivePage")
     forbid_text(fast_body, "if page.decommitted == 0", "rollback")
     forbid_text(fast_body, "if page.retired == 0", "rollback")
     forbid_text(fast_body, "if page.free_top > 0", "rollback")
-    require_text(fast_body, "if page.isDecommitted() != 0", "generic fallback")
-    require_text(fast_body, "if page.isRetired() != 0", "generic fallback")
-    require_text(fast_body, "if page.freeCount() > 0", "generic fallback")
+
+    generic_body = find_method_body(source, "selectPage")
+    require_text(generic_body, "if page.isDecommitted() != 0", "generic fallback")
+    require_text(generic_body, "if page.isRetired() != 0", "generic fallback")
+    require_text(generic_body, "if page.freeCount() > 0", "generic fallback")
 
     app_source = APP.read_text(encoding="utf-8", errors="replace")
     require_text(app_source, "select_page_single_fast_path_count=", "proof app")

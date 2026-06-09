@@ -237,6 +237,75 @@ def _load_exact_numeric_route_metadata(builder, func_data: Dict[str, Any]) -> No
     )
 
 
+def _load_map_lookup_fusion_metadata(builder, func_data: Dict[str, Any]) -> None:
+    metadata = _safe_metadata(func_data)
+    rows = metadata.get("map_lookup_fusion_routes", [])
+    by_site: Dict[tuple[int, int], List[Dict[str, Any]]] = {}
+    if not isinstance(rows, list):
+        builder.resolver.map_lookup_fusion_routes_by_site = {}
+        return
+
+    int_keys = (
+        "block",
+        "get_instruction_index",
+        "has_instruction_index",
+        "receiver_value",
+        "key_value",
+        "key_const",
+        "get_result_value",
+        "has_result_value",
+        "stored_value_const",
+    )
+    bool_keys = ("stored_value_known_nonzero",)
+
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        normalized = dict(row)
+        try:
+            block = int(normalized.get("block"))
+            get_instruction_index = int(normalized.get("get_instruction_index"))
+            has_instruction_index = int(normalized.get("has_instruction_index"))
+        except (TypeError, ValueError):
+            continue
+        normalized["block"] = block
+        normalized["get_instruction_index"] = get_instruction_index
+        normalized["has_instruction_index"] = has_instruction_index
+        for key in int_keys:
+            if key in {"block", "get_instruction_index", "has_instruction_index"}:
+                continue
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            try:
+                normalized[key] = int(value)
+            except (TypeError, ValueError):
+                pass
+        for key in bool_keys:
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            if isinstance(value, bool):
+                normalized[key] = value
+                continue
+            if isinstance(value, str):
+                lowered = value.strip().lower()
+                if lowered in {"1", "true", "yes"}:
+                    normalized[key] = True
+                    continue
+                if lowered in {"0", "false", "no"}:
+                    normalized[key] = False
+                    continue
+            normalized[key] = bool(value)
+
+        by_site.setdefault((block, get_instruction_index), []).append(normalized)
+        by_site.setdefault((block, has_instruction_index), []).append(normalized)
+
+    builder.resolver.map_lookup_fusion_routes_by_site = by_site
+
+
 def _load_direct_array_access_plan_metadata(builder, func_data: Dict[str, Any]) -> None:
     metadata = func_data.get("metadata", {}) if isinstance(func_data, dict) else {}
     rows = metadata.get("direct_array_access_plans", []) if isinstance(metadata, dict) else []

@@ -13,7 +13,11 @@ APP = Path("apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-smal
 
 
 def find_method_body(source: str, method_name: str) -> str:
-    match = re.search(rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*\{{", source, re.M)
+    match = re.search(
+        rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*(?::[^\{{]+)?\s*\{{",
+        source,
+        re.M,
+    )
     if match is None:
         raise SystemExit(f"method not found: {method_name}")
     brace_start = source.find("{", match.start())
@@ -40,14 +44,16 @@ def main() -> int:
     args = parser.parse_args()
 
     source = QUEUE.read_text(encoding="utf-8", errors="replace")
-    fast_body = find_method_body(source, "selectSinglePageFastPath")
-    require_text(fast_body, "if page.decommitted == 0", "fast path")
-    require_text(fast_body, "if page.retired == 0", "fast path")
-    require_text(fast_body, "if page.free_top > 0", "fast path")
-    require_text(fast_body, "return me.acceptSelectedPage(0, page, 2)", "fast path")
-    require_text(fast_body, "if page.isDecommitted() != 0", "generic fallback")
-    require_text(fast_body, "if page.isRetired() != 0", "generic fallback")
-    require_text(fast_body, "if page.freeCount() > 0", "generic fallback")
+    fast_body = find_method_body(source, "trySelectSingleActivePage")
+    require_text(fast_body, "if page.decommitted != 0", "fast path")
+    require_text(fast_body, "if page.retired != 0", "fast path")
+    require_text(fast_body, "if page.free_top <= 0", "fast path")
+    require_text(fast_body, "return page", "fast path")
+
+    generic_body = find_method_body(source, "selectPage")
+    require_text(generic_body, "if page.isDecommitted() != 0", "generic fallback")
+    require_text(generic_body, "if page.isRetired() != 0", "generic fallback")
+    require_text(generic_body, "if page.freeCount() > 0", "generic fallback")
 
     app_source = APP.read_text(encoding="utf-8", errors="replace")
     require_text(app_source, "select_page_single_fast_path_count=", "proof app")
@@ -57,7 +63,7 @@ def main() -> int:
         "input_contract=hako-mimalloc-post-select-first-page-cache-source-mir-refresh-v0",
         "keeper=select_single_page_active_field_fast_path",
         "keeper_kind=box_count",
-        "target_method=HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0",
+        "target_method=HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0",
         "active_field_fast_path_used=1",
         "generic_lifecycle_fallback_preserved=1",
         "proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako",

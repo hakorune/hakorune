@@ -13,7 +13,11 @@ APP = Path("apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-smal
 
 
 def find_method_body(source: str, method_name: str) -> str:
-    match = re.search(rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*\{{", source, re.M)
+    match = re.search(
+        rf"^\s*{re.escape(method_name)}\s*\([^)]*\)\s*(?::[^\{{]+)?\s*\{{",
+        source,
+        re.M,
+    )
     if match is None:
         raise SystemExit(f"method not found: {method_name}")
     brace_start = source.find("{", match.start())
@@ -50,7 +54,7 @@ def main() -> int:
     require_text(add_body, "if index == 0", "addPage")
     require_text(add_body, "me.first_page = page", "addPage")
 
-    fast_body = find_method_body(source, "selectSinglePageFastPath")
+    fast_body = find_method_body(source, "trySelectSingleActivePage")
     require_text(fast_body, "local page = me.first_page", "fast path")
     forbid_text(fast_body, "me.pages.get(0)", "fast path")
 
@@ -62,7 +66,7 @@ def main() -> int:
         "input_contract=hako-mimalloc-post-release-direct-cached-page-source-mir-refresh-v0",
         "keeper=select_single_page_first_page_cache",
         "keeper_kind=box_count",
-        "target_method=HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0",
+        "target_method=HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0",
         "first_page_cache_used=1",
         "removed_single_page_pages_get=1",
         "proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako",

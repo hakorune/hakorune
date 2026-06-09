@@ -92,6 +92,15 @@ Principles
     explicit page-map bridge, composes the landed same/remote free publish
     body from `HakoAllocPageMetaSameRemoteFreePublishBody`, and unregisters
     only after the publish body succeeds.
+  - `HakoAllocPageMapAlignedHugeOsVmFacadeIntegration` is the read-only
+    integration owner that composes aligned small-path, huge-page, huge-release,
+    and OSVM-backed heap seams while keeping provider activation, hooks,
+    replacement, and winner claims closed.
+  - `HakoAllocSegmentArenaReclaimTlsReadonlyIntegration` is the read-only
+    segment-arena reclaim/TLS integration owner. It composes the readiness
+    matrix, support gate, pointer-derived lookup prerequisite, and worker/TLS
+    evidence while keeping provider activation, replacement, hook, global
+    allocator, and winner claims closed.
   - `HakoAllocPageMapReleaseObserver` is the M173 invariant observer owner. It
     observes live-handle state around `HakoAllocPageMapReleaseSeam.releasePtr(...)`
     so realloc rows can reuse a frozen success-vs-reject contract without taking
@@ -195,6 +204,9 @@ Principles
     boundary owner. It classifies deterministic proof-key facts and rejected
     runtime entropy requests without sourcing entropy or claiming cryptographic
     hardening.
+  - `HakoAllocSecureEntropyBackedFreeList` is the read-only selector that
+    composes secure entropy inventory facts with the encoded-next free-list
+    policy without sourcing entropy or opening provider/replacement seams.
   - `allocator_metadata_records.hako` is the C205a declaration-only owner for
     future allocator metadata records. It names aligned-small and huge-page
     metadata shapes. C205c consumes the aligned-small record shape through a
@@ -266,6 +278,8 @@ Current modules
 - `memory.page_heap_box`
 - `memory.page_map_box`
 - `memory.page_map_bridge_box`
+- `memory.page_map_aligned_huge_osvm_facade_integration_box`
+- `memory.segment_arena_reclaim_tls_readonly_integration_box`
 - `memory.page_map_aligned_small_path_box`
 - `memory.page_map_release_box`
 - `memory.page_map_release_invariant_box`

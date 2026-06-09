@@ -69,7 +69,7 @@ def main() -> int:
     release_fast = as_int(measurement, "release_known_page_fast_path_count")
     release_fallback = as_int(measurement, "release_known_page_fallback_count")
 
-    selected = find_report(reports, "selectSinglePageFastPath")
+    selected = find_report(reports, "trySelectSingleActivePage")
     if not selected:
         selected = find_report(reports, "objectLifecycleSmallAlloc")
     if not selected:
@@ -78,7 +78,7 @@ def main() -> int:
     if (
         select_fast > 0
         and select_fallback == 0
-        and selected.get("source_target_method") == "selectSinglePageFastPath"
+        and selected.get("source_target_method") == "trySelectSingleActivePage"
         and selected.get("confirmed_risk_kind") == "field_access"
     ):
         next_keeper = "select_single_page_active_field_fast_path"

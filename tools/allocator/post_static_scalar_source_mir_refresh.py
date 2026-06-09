@@ -122,7 +122,7 @@ def main() -> int:
                     "--contract-version",
                     "v1",
                     "--methods",
-                    "objectLifecycleSmallAlloc,objectLifecycleReleaseBlock,objectLifecycleReleaseDirectCachedPage,objectLifecycleReleaseKnownPageIndex,objectLifecycleKnownPageIndexById",
+                    "objectLifecycleSmallAlloc,objectLifecycleReleaseBlock,objectLifecycleAddPage,objectLifecycleSelectPage,objectLifecycleKnownPageIndexById",
                 ]
             )
         )

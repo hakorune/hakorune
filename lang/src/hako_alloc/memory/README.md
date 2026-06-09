@@ -19,6 +19,16 @@ Scope
 - `page_map_bridge_box.hako`: the M172B release-side page-map bridge. It keeps
   explicit pointer ownership lookup/unregister routing narrow and named before
   any wider release, realloc, or allocator replacement work opens.
+- `page_map_aligned_huge_osvm_facade_integration_box.hako`: the read-only
+  page-map/aligned/huge/OSVM facade integration owner. It composes the aligned
+  small-path owner, huge page model, huge release seam, and OSVM-backed fast
+  path heap while keeping provider activation, hooks, replacement, and winner
+  claims closed.
+- `segment_arena_reclaim_tls_readonly_integration_box.hako`: the read-only
+  segment-arena reclaim/TLS integration owner. It composes the readiness
+  matrix, support gate, pointer-derived lookup prerequisite, and worker/TLS
+  evidence while keeping provider activation, replacement, hook, global
+  allocator, and winner claims closed.
 - `purge_candidate_policy_box.hako` owns M211 purge candidate policy inventory.
   It keeps the candidate classification route narrow, exact, and explicit
   before any wider purge or decommit policy work opens.
@@ -107,6 +117,10 @@ Scope
 - `stats_box.hako` owns M191 allocator stats snapshots. It keeps the stats
   surface read-only, exact, and explicit before any wider stats or reporting
   work opens.
+- `secure_entropy_backed_free_list_box.hako`: the secure entropy backed
+  free-list selector. It composes the read-only entropy inventory with the
+  encoded-next policy and keeps entropy sourcing, provider activation, hooks,
+  allocator replacement, and page mutation closed.
 - `segment_allocation_modeled_local_free_integration_box.hako` owns M119A
   segment allocation modeled local-free integration. It keeps the integration
   route narrow, exact, and explicit before any wider local-free integration

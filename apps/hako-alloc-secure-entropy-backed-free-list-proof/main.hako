@@ -1,0 +1,48 @@
+// hako-alloc-secure-entropy-backed-free-list-proof
+// Purpose: prove secure entropy facts can back a deterministic encoded-next
+// free-list policy without sourcing entropy or mutating allocator state.
+
+using selfhost.hako_alloc.memory.secure_entropy_backed_free_list_box as HakoAllocSecureEntropyBackedFreeList
+
+static box Main {
+    main(args) {
+        local selector = new HakoAllocSecureEntropyBackedFreeList()
+
+        local proof = selector.classify(1, 37, 0, 0, 3, 37, 4)
+        local unknown = selector.classify(9, 37, 0, 0, 3, 37, 4)
+        local runtime = selector.classify(1, 37, 1, 0, 3, 37, 4)
+        local crypto = selector.classify(1, 37, 0, 1, 3, 37, 4)
+        local invalid_key = selector.classify(1, 0, 0, 0, 3, 37, 4)
+        local invalid_cookie = selector.classify(1, 37, 0, 0, 3, 0, 4)
+        local invalid_capacity = selector.classify(1, 37, 0, 0, 4, 37, 4)
+
+        local ok = check "secure entropy backed free list" {
+            "proof accepted": proof.accepted == 1
+            "proof entropy eligible": proof.entropy_eligible == 1
+            "proof policy ready": proof.secure_list_policy_ready == 1
+            "proof encoded next": proof.encoded_next == 262181
+            "proof decoded next": proof.decoded_next == 3
+            "unknown reject": unknown.reason == 1
+            "runtime reject": runtime.reason == 2
+            "crypto reject": crypto.reason == 3
+            "invalid key reject": invalid_key.reason == 4
+            "invalid cookie reject": invalid_cookie.reason == 5
+            "invalid capacity reject": invalid_capacity.reason == 5
+            "inactive entropy surface": proof.would_call_random == 0 && proof.would_call_os_entropy == 0 && proof.would_change_secure_list_policy == 0
+        }
+
+        print("hako-alloc-secure-entropy-backed-free-list-proof")
+        print("proof=" + proof.accepted + "," + proof.reason + "," + proof.entropy_eligible + "," + proof.secure_list_policy_ready + "," + proof.encoded_next + "," + proof.decoded_next)
+        print("rejects=" + unknown.reason + "," + runtime.reason + "," + crypto.reason + "," + invalid_key.reason + "," + invalid_cookie.reason + "," + invalid_capacity.reason)
+        print("inactive=" + proof.would_call_random + "," + proof.would_call_os_entropy + "," + proof.would_change_secure_list_policy)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -1,0 +1,273 @@
+// page_map_aligned_huge_osvm_facade_integration_box.hako -- page-map/aligned/huge/OSVM facade integration owner
+// Responsibility:
+// - compose the aligned small-path owner, huge page model, huge release seam,
+//   and OSVM-backed fast-path heap into one read-only integration surface
+// - keep provider activation, hooks, replacement, and winner claims closed
+// Non-responsibility:
+// - exposing new provider behavior, host allocator replacement, hook install,
+//   or winner claims
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
+using selfhost.hako_alloc.memory.huge_threshold_router_box as HakoAllocHugeThresholdRouterBox
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+using selfhost.hako_alloc.memory.huge_release_seam_box as HakoAllocHugeReleaseSeamBox
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeapBox
+
+record HakoAllocPageMapAlignedHugeOsVmFacadeIntegrationReportFields {
+    accepted: i64
+    reason: i64
+    route_add: i64
+    small_route_ok: i64
+    small_route_kind: i64
+    small_route_ptr: i64
+    huge_class: i64
+    huge_route_ok: i64
+    huge_route_kind: i64
+    huge_route_count: i64
+    huge_reject_count: i64
+    huge_alloc: i64
+    huge_ptr: i64
+    huge_page: i64
+    huge_requested: i64
+    huge_committed: i64
+    huge_live_before: i64
+    huge_release_ok: i64
+    huge_live_after: i64
+    huge_unknown_release: i64
+    osvm_page1: i64
+    osvm_bytes0: i64
+    osvm_bytes1: i64
+    osvm_release_ok: i64
+    osvm_reserve_count: i64
+    osvm_commit_count: i64
+    osvm_decommit_count: i64
+    osvm_source_reject_count: i64
+    osvm_cleanup: i64
+    osvm_base0: i64
+    osvm_base1: i64
+    requested_bytes: i64
+    committed_bytes: i64
+    live_handles: i64
+    release_count: i64
+    source_ops: i64
+    rejects: i64
+    would_activate_provider: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_claim_winner: i64
+}
+
+box HakoAllocPageMapAlignedHugeOsVmFacadeIntegrationReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    route_add: i64 = 0
+    small_route_ok: i64 = 0
+    small_route_kind: i64 = 0
+    small_route_ptr: i64 = 0
+    huge_class: i64 = 0
+    huge_route_ok: i64 = 0
+    huge_route_kind: i64 = 0
+    huge_route_count: i64 = 0
+    huge_reject_count: i64 = 0
+    huge_alloc: i64 = 0
+    huge_ptr: i64 = 0
+    huge_page: i64 = 0
+    huge_requested: i64 = 0
+    huge_committed: i64 = 0
+    huge_live_before: i64 = 0
+    huge_release_ok: i64 = 0
+    huge_live_after: i64 = 0
+    huge_unknown_release: i64 = 0
+    osvm_page1: i64 = 0
+    osvm_bytes0: i64 = 0
+    osvm_bytes1: i64 = 0
+    osvm_release_ok: i64 = 0
+    osvm_reserve_count: i64 = 0
+    osvm_commit_count: i64 = 0
+    osvm_decommit_count: i64 = 0
+    osvm_source_reject_count: i64 = 0
+    osvm_cleanup: i64 = 0
+    osvm_base0: i64 = 0
+    osvm_base1: i64 = 0
+    requested_bytes: i64 = 0
+    committed_bytes: i64 = 0
+    live_handles: i64 = 0
+    release_count: i64 = 0
+    source_ops: i64 = 0
+    rejects: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_claim_winner: i64 = 0
+}
+
+box HakoAllocPageMapAlignedHugeOsVmFacadeIntegration {
+    makeReport(fields: HakoAllocPageMapAlignedHugeOsVmFacadeIntegrationReportFields): HakoAllocPageMapAlignedHugeOsVmFacadeIntegrationReport {
+        local result = new HakoAllocPageMapAlignedHugeOsVmFacadeIntegrationReport()
+        result.accepted = fields.accepted
+        result.reason = fields.reason
+        result.route_add = fields.route_add
+        result.small_route_ok = fields.small_route_ok
+        result.small_route_kind = fields.small_route_kind
+        result.small_route_ptr = fields.small_route_ptr
+        result.huge_class = fields.huge_class
+        result.huge_route_ok = fields.huge_route_ok
+        result.huge_route_kind = fields.huge_route_kind
+        result.huge_route_count = fields.huge_route_count
+        result.huge_reject_count = fields.huge_reject_count
+        result.huge_alloc = fields.huge_alloc
+        result.huge_ptr = fields.huge_ptr
+        result.huge_page = fields.huge_page
+        result.huge_requested = fields.huge_requested
+        result.huge_committed = fields.huge_committed
+        result.huge_live_before = fields.huge_live_before
+        result.huge_release_ok = fields.huge_release_ok
+        result.huge_live_after = fields.huge_live_after
+        result.huge_unknown_release = fields.huge_unknown_release
+        result.osvm_page1 = fields.osvm_page1
+        result.osvm_bytes0 = fields.osvm_bytes0
+        result.osvm_bytes1 = fields.osvm_bytes1
+        result.osvm_release_ok = fields.osvm_release_ok
+        result.osvm_reserve_count = fields.osvm_reserve_count
+        result.osvm_commit_count = fields.osvm_commit_count
+        result.osvm_decommit_count = fields.osvm_decommit_count
+        result.osvm_source_reject_count = fields.osvm_source_reject_count
+        result.osvm_cleanup = fields.osvm_cleanup
+        result.osvm_base0 = fields.osvm_base0
+        result.osvm_base1 = fields.osvm_base1
+        result.requested_bytes = fields.requested_bytes
+        result.committed_bytes = fields.committed_bytes
+        result.live_handles = fields.live_handles
+        result.release_count = fields.release_count
+        result.source_ops = fields.source_ops
+        result.rejects = fields.rejects
+        result.would_activate_provider = fields.would_activate_provider
+        result.would_replace_host_allocator = fields.would_replace_host_allocator
+        result.would_install_hook = fields.would_install_hook
+        result.would_claim_winner = fields.would_claim_winner
+        return result
+    }
+
+    probeAlignedHugeOsVm(small_size, small_alignment, huge_requested, huge_committed, osvm_size) {
+        local route_map = new HakoAllocPageMap()
+        local route_seam = new HakoAllocPageMapReleaseSeam(route_map)
+        local route_page = new HakoAllocPageModel(0, 64, 1, 1)
+        local route_add = route_seam.addPage(route_page)
+        local small_path = new HakoAllocPageMapAlignedSmallPath(route_seam)
+        local router = new HakoAllocHugeThresholdRouter(small_path)
+
+        local small_route_ok = router.allocateAlignedUsize(small_size, small_alignment)
+        local small_route_kind = router.last_route_kind
+        local small_route_ptr = router.last_result_ptr
+        local huge_class = router.classifyAlignedRequestUsize(huge_requested, small_alignment)
+        local huge_route_ok = router.allocateAlignedUsize(huge_requested, small_alignment)
+        local huge_route_kind = router.last_route_kind
+
+        local huge_map = new HakoAllocPageMap()
+        local huge_model = new HakoAllocHugePageModel(huge_map)
+        local huge_release = new HakoAllocHugeReleaseSeam(huge_model)
+        local huge_alloc = huge_model.allocateHuge(huge_requested, huge_committed)
+        local huge_ptr = huge_model.last_result_ptr
+        local huge_page = huge_model.last_page_id
+        local huge_requested_observed = huge_model.requestedSizeFor(huge_ptr)
+        local huge_committed_observed = huge_model.committedSizeFor(huge_ptr)
+        local huge_live_before = huge_model.isLiveHugePtr(huge_ptr)
+        local huge_release_ok = huge_release.releaseHugePtr(huge_ptr)
+        local huge_live_after = huge_model.isLiveHugePtr(huge_ptr)
+        local huge_unknown_release = huge_release.releaseHugePtr(99999)
+
+        local osvm_heap = new HakoAllocOsVmBackedFastPathHeap(4, 32, 2)
+        local osvm_handle = osvm_heap.allocate(osvm_size)
+        local osvm_release = osvm_heap.release(osvm_handle)
+        local osvm_release_ok = osvm_release
+        local osvm_page1 = osvm_heap.addFreshPage()
+        local osvm_base0 = osvm_heap.pageBase(0)
+        local osvm_base1 = osvm_heap.pageBase(1)
+        local osvm_bytes0 = osvm_heap.pageBackingBytes(0)
+        local osvm_bytes1 = osvm_heap.pageBackingBytes(1)
+        local osvm_cleanup = osvm_heap.decommitAll()
+
+        local requested_bytes = huge_requested_observed + osvm_heap.requestedBytes()
+        local committed_bytes = huge_committed_observed + osvm_bytes0 + osvm_bytes1
+        local live_handles = huge_map.live_count + osvm_heap.outstandingBlocks()
+        local release_count = huge_release.release_count + osvm_heap.release_count
+        local source_ops = osvm_heap.reserve_count + osvm_heap.commit_count + osvm_heap.decommit_count
+        local rejects = router.reject_count + huge_model.reject_count + huge_release.reject_count + osvm_heap.reject_count
+
+        local accepted = 1
+        local reason = 0
+        if route_add == 0 {
+            accepted = 0
+            reason = 1
+        }
+        if small_route_ok == 0 {
+            accepted = 0
+            reason = 2
+        }
+        if huge_alloc == 0 {
+            accepted = 0
+            reason = 3
+        }
+        if huge_release_ok == 0 {
+            accepted = 0
+            reason = 4
+        }
+        if osvm_release == 0 {
+            accepted = 0
+            reason = 5
+        }
+        if osvm_cleanup == 0 {
+            accepted = 0
+            reason = 6
+        }
+
+        return me.makeReport(
+            HakoAllocPageMapAlignedHugeOsVmFacadeIntegrationReportFields {
+                accepted: accepted,
+                reason: reason,
+                route_add: route_add,
+                small_route_ok: small_route_ok,
+                small_route_kind: small_route_kind,
+                small_route_ptr: small_route_ptr,
+                huge_class: huge_class,
+                huge_route_ok: huge_route_ok,
+                huge_route_kind: huge_route_kind,
+                huge_route_count: router.huge_route_count,
+                huge_reject_count: router.huge_reject_count,
+                huge_alloc: huge_alloc,
+                huge_ptr: huge_ptr,
+                huge_page: huge_page,
+                huge_requested: huge_requested_observed,
+                huge_committed: huge_committed_observed,
+                huge_live_before: huge_live_before,
+                huge_release_ok: huge_release_ok,
+                huge_live_after: huge_live_after,
+                huge_unknown_release: huge_unknown_release,
+                osvm_page1: osvm_page1,
+                osvm_bytes0: osvm_bytes0,
+                osvm_bytes1: osvm_bytes1,
+                osvm_release_ok: osvm_release_ok,
+                osvm_reserve_count: osvm_heap.reserve_count,
+                osvm_commit_count: osvm_heap.commit_count,
+                osvm_decommit_count: osvm_heap.decommit_count,
+                osvm_source_reject_count: osvm_heap.source_reject_count,
+                osvm_cleanup: osvm_cleanup,
+                osvm_base0: osvm_base0,
+                osvm_base1: osvm_base1,
+                requested_bytes: requested_bytes,
+                committed_bytes: committed_bytes,
+                live_handles: live_handles,
+                release_count: release_count,
+                source_ops: source_ops,
+                rejects: rejects,
+                would_activate_provider: 0,
+                would_replace_host_allocator: 0,
+                would_install_hook: 0,
+                would_claim_winner: 0
+            }
+        )
+    }
+}

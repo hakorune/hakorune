@@ -440,6 +440,50 @@ def _lower_store_map_value_current_lowering(
     return builder.call(callee, [recv_h, key, value], name="unified_map_slot_store_hhh")
 
 
+def _current_map_lookup_fusion_route(
+    *,
+    resolver,
+    box_name,
+    method_name: str,
+    receiver_vid,
+    arg_ids: List[int],
+):
+    if str(box_name or "") != "MapBox":
+        return None
+    if resolver is None or receiver_vid is None or not arg_ids:
+        return None
+    try:
+        block_id = int(getattr(resolver, "current_block_id"))
+        instruction_index = int(getattr(resolver, "current_instruction_index"))
+        receiver_vid = int(receiver_vid)
+        key_vid = int(arg_ids[0])
+    except _SAFE_COLLECTION_METHOD_EXC:
+        return None
+
+    routes_by_site = getattr(resolver, "map_lookup_fusion_routes_by_site", None)
+    if not isinstance(routes_by_site, dict):
+        return None
+    routes = routes_by_site.get((block_id, instruction_index), [])
+    if not isinstance(routes, list):
+        return None
+
+    for route in routes:
+        if not isinstance(route, dict):
+            continue
+        if route.get("receiver_value") != receiver_vid:
+            continue
+        if route.get("key_value") != key_vid:
+            continue
+        if method_name == "get" and route.get("get_instruction_index") != instruction_index:
+            continue
+        if method_name == "has" and route.get("has_instruction_index") != instruction_index:
+            continue
+        if route.get("receiver_origin_box") not in (None, "MapBox"):
+            continue
+        return route
+    return None
+
+
 def _lower_array_collection_method_call(
     *,
     builder: ir.IRBuilder,
@@ -504,6 +548,8 @@ def _lower_non_array_collection_method_call(
     recv_h,
     arg_ids: List[int],
     resolve_arg: Callable[[int], Optional[ir.Value]],
+    resolver=None,
+    receiver_vid=None,
 ):
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
@@ -526,6 +572,17 @@ def _lower_non_array_collection_method_call(
         return builder.call(callee, [recv_h, key], name="unified_map_delete_hh")
 
     if method_name == "get":
+        route = _current_map_lookup_fusion_route(
+            resolver=resolver,
+            box_name=box_name,
+            method_name=method_name,
+            receiver_vid=receiver_vid,
+            arg_ids=arg_ids,
+        )
+        if route is not None:
+            stored_value_const = route.get("stored_value_const")
+            if stored_value_const is not None:
+                return ir.Constant(i64, int(stored_value_const))
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         if not arg_ids:
             return zero
@@ -556,6 +613,17 @@ def _lower_non_array_collection_method_call(
         )
 
     if method_name == "has":
+        route = _current_map_lookup_fusion_route(
+            resolver=resolver,
+            box_name=box_name,
+            method_name=method_name,
+            receiver_vid=receiver_vid,
+            arg_ids=arg_ids,
+        )
+        if route is not None:
+            stored_value_proof = str(route.get("stored_value_proof") or "")
+            if stored_value_proof != "unknown_scalar":
+                return ir.Constant(i64, 1)
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         if not arg_ids:
             return zero
@@ -615,4 +683,6 @@ def lower_collection_method_call(
         recv_h=recv_h,
         arg_ids=arg_ids,
         resolve_arg=resolve_arg,
+        resolver=resolver,
+        receiver_vid=receiver_vid,
     )

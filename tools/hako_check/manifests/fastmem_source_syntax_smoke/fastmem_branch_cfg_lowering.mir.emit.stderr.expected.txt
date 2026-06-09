@@ -1,0 +1,3 @@
+[freeze:contract][emit-mir/direct-verify] route=mir errors=2
+[emit-mir/direct-verify] route=mir detail=[mir/verify:fastmem] function=HakoAllocPageMetaFastMemBranchCfgLowering.fastmemBranchCfgLoweringProbe/2 block=bb18 instruction=4 region=0 contract=PageMapV0 reason=[freeze:contract][fastmem/memop-value-escapes kind=OwnerEq barrier=store_like]
+[emit-mir/direct-verify] route=mir detail=[mir/verify:fastmem] function=HakoAllocPageMetaFastMemBranchCfgLowering.fastmemBranchCfgLoweringProbe/2 block=bb19 instruction=5 region=0 contract=PageMapV0 reason=[freeze:contract][fastmem/memop-value-escapes kind=AtomicRemoteHeadDrain barrier=ordinary_use]

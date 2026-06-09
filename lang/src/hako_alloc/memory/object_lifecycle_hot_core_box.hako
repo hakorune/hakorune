@@ -33,7 +33,7 @@ box HakoAllocObjectLifecycleHotCore {
             return 0
         }
 
-        local block_id = page.acquireFreshSmall(size)
+        local block_id = page.acquire_usize(size)
         if block_id < 0 {
             return 0
         }

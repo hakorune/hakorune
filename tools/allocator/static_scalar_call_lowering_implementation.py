@@ -14,7 +14,6 @@ METHODS = [
     "objectLifecycleSmallAlloc",
     "objectLifecycleRecordAlignmentRequest",
     "objectLifecycleSmallAllocAligned",
-    "objectLifecycleReleaseDirectCachedPage",
     "objectLifecycleReleaseBlock",
     "objectLifecycleReallocGrowFromPage",
     "objectLifecycleReallocShrink",

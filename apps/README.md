@@ -125,6 +125,34 @@ probe-only box で capacity / used / alloc_count / requested_bytes の
 bash apps/hako-alloc-usize-field-probe/test.sh
 ```
 
+#### hako-alloc-page-map-aligned-huge-osvm-facade-integration-proof
+**場所**: `hako-alloc-page-map-aligned-huge-osvm-facade-integration-proof/main.hako`
+page-map / aligned small-path / huge-page / huge-release / OSVM-backed heap
+seams を read-only に合成し、pure-first がこの形をまだ fail closed
+することを固定する小型 proof。
+
+```bash
+bash apps/hako-alloc-page-map-aligned-huge-osvm-facade-integration-proof/test.sh
+```
+
+#### hako-alloc-secure-entropy-backed-free-list-proof
+**場所**: `hako-alloc-secure-entropy-backed-free-list-proof/main.hako`
+secure entropy inventory と secure free-list policy を read-only に組み合わせ、
+deterministic encoded-next proof を固定する小型 proof。
+
+```bash
+bash apps/hako-alloc-secure-entropy-backed-free-list-proof/test.sh
+```
+
+#### hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof
+**場所**: `hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof/main.hako`
+segment-arena reclaim/TLS の readiness matrix / support gate / pointer-derived
+lookup prerequisite / worker-TLS evidence を read-only に合成する小型 proof。
+
+```bash
+bash apps/hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof/test.sh
+```
+
 #### mimalloc-alloc-fast-path-proof
 **場所**: `mimalloc-alloc-fast-path-proof/main.hako`
 M167 proof。`HakoAllocPageQueue` の page selection と
@@ -786,6 +814,8 @@ box TreeNode {
 - [x] hako-alloc-remote-free-policy-proof（M48 remote-free policy proof）
 - [x] hako-alloc-page-source-policy-proof（M49 OSVM page-source proof）
 - [x] hako-alloc-production-facade-stress（M50 production facade stress parity）
+- [x] hako-alloc-page-map-aligned-huge-osvm-facade-integration-proof（M217 page-map / aligned / huge / OSVM facade integration proof）
+- [x] hako-alloc-segment-arena-reclaim-tls-readonly-integration-proof（M218 segment-arena reclaim/TLS read-only integration proof）
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）

@@ -20,6 +20,10 @@ use support::{
     semantic_codegen_output, sha256_bytes, sha256_file,
 };
 
+const OBJECT_LIFECYCLE_PROVIDER_ENTRYPOINT: &str = "HakoProvider.objectLifecycleSmallAllocReleaseOk/0";
+const OBJECT_LIFECYCLE_ALLOC_ENTRYPOINT: &str = "HakoAllocPageModel.acquireFreshSmall/1";
+const OBJECT_LIFECYCLE_RELEASE_ENTRYPOINT: &str = "HakoAllocPageModel.releaseLocalKnownLive/1";
+
 mod config;
 mod contract;
 mod mir_json;
@@ -144,7 +148,12 @@ fn run_provider_package_hako_derived_build(config: &CliConfig) -> Result<(String
     };
     let semantic_object_lifecycle_verified =
         if semantic_codegen_uses_object_lifecycle(semantic_codegen) {
-            validate_hako_provider_object_lifecycle_entrypoint(&mir_json_path)?;
+            validate_hako_provider_object_lifecycle_entrypoint(
+                &mir_json_path,
+                OBJECT_LIFECYCLE_PROVIDER_ENTRYPOINT,
+                OBJECT_LIFECYCLE_ALLOC_ENTRYPOINT,
+                OBJECT_LIFECYCLE_RELEASE_ENTRYPOINT,
+            )?;
             true
         } else {
             false

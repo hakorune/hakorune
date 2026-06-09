@@ -29,7 +29,7 @@ fallback for retired/decommitted/unavailable pages.
 output_contract=hako-mimalloc-select-single-page-active-field-fast-path-keeper-v0
 input_contract=hako-mimalloc-post-select-first-page-cache-source-mir-refresh-v0
 keeper=select_single_page_active_field_fast_path
-target_method=HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0
+target_method=HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0
 active_field_fast_path_used=1
 generic_lifecycle_fallback_preserved=1
 proof_summary=ok
@@ -51,7 +51,7 @@ output_contract=hako-mimalloc-select-single-page-active-field-fast-path-keeper-v
 input_contract=hako-mimalloc-post-select-first-page-cache-source-mir-refresh-v0
 keeper=select_single_page_active_field_fast_path
 keeper_kind=box_count
-target_method=HakoAllocObjectLifecyclePageQueue.selectSinglePageFastPath/0
+target_method=HakoAllocObjectLifecyclePageQueue.trySelectSingleActivePage/0
 active_field_fast_path_used=1
 generic_lifecycle_fallback_preserved=1
 proof_app=apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block-proof/main.hako

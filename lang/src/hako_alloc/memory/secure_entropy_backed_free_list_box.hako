@@ -1,0 +1,172 @@
+// secure_entropy_backed_free_list_box.hako -- secure entropy backed free-list selector
+// Responsibility:
+// - compose secure entropy inventory facts with the encoded-next free-list policy
+// - keep the surface read-only and deterministic
+// Non-responsibility:
+// - sourcing entropy, calling OS/provider/TLS/atomic helpers, mutating page
+//   state, installing hooks, replacing allocators, or selecting a provider
+
+using selfhost.hako_alloc.memory.secure_entropy_inventory_box as HakoAllocSecureEntropyInventory
+using selfhost.hako_alloc.memory.secure_free_list_policy_box as HakoAllocSecureFreeListPolicy
+
+box HakoAllocSecureEntropyBackedFreeListDecision {
+    accepted: i64 = 0
+    reason: i64 = 0
+    source_id: i64 = -1
+    deterministic_key: i64 = 0
+    requested_runtime_entropy: i64 = 0
+    cryptographic_hardening_claim: i64 = 0
+    entropy_eligible: i64 = 0
+    entropy_reason: i64 = 0
+    secure_list_policy_ready: i64 = 0
+    policy_reason: i64 = 0
+    encoded_next: i64 = -2
+    decoded_next: i64 = -2
+    next_block: i64 = -1
+    cookie: i64 = 0
+    capacity: i64 = 0
+    would_call_random: i64 = 0
+    would_call_os_entropy: i64 = 0
+    would_change_secure_list_policy: i64 = 0
+}
+
+static box HakoAllocSecureEntropyBackedFreeList {
+    makeDecision(
+        accepted,
+        reason,
+        source_id,
+        deterministic_key,
+        requested_runtime_entropy,
+        cryptographic_hardening_claim,
+        entropy_eligible,
+        entropy_reason,
+        secure_list_policy_ready,
+        policy_reason,
+        encoded_next,
+        decoded_next,
+        next_block,
+        cookie,
+        capacity,
+        would_call_random,
+        would_call_os_entropy,
+        would_change_secure_list_policy
+    ) {
+        local result = new HakoAllocSecureEntropyBackedFreeListDecision()
+        result.accepted = accepted
+        result.reason = reason
+        result.source_id = source_id
+        result.deterministic_key = deterministic_key
+        result.requested_runtime_entropy = requested_runtime_entropy
+        result.cryptographic_hardening_claim = cryptographic_hardening_claim
+        result.entropy_eligible = entropy_eligible
+        result.entropy_reason = entropy_reason
+        result.secure_list_policy_ready = secure_list_policy_ready
+        result.policy_reason = policy_reason
+        result.encoded_next = encoded_next
+        result.decoded_next = decoded_next
+        result.next_block = next_block
+        result.cookie = cookie
+        result.capacity = capacity
+        result.would_call_random = would_call_random
+        result.would_call_os_entropy = would_call_os_entropy
+        result.would_change_secure_list_policy = would_change_secure_list_policy
+        return result
+    }
+
+    classify(source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim, next_block, cookie, capacity) {
+        local inventory = new HakoAllocSecureEntropyInventory()
+        local entropy = inventory.classifySource(source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim)
+
+        if entropy.eligible == 0 {
+            return me.makeDecision(
+                0,
+                entropy.reason,
+                source_id,
+                deterministic_key,
+                requested_runtime_entropy,
+                cryptographic_hardening_claim,
+                0,
+                entropy.reason,
+                0,
+                0,
+                HakoAllocSecureFreeListPolicy.invalid_next(),
+                HakoAllocSecureFreeListPolicy.invalid_next(),
+                next_block,
+                cookie,
+                capacity,
+                entropy.would_call_random,
+                entropy.would_call_os_entropy,
+                entropy.would_change_secure_list_policy
+            )
+        }
+
+        local encoded_next = HakoAllocSecureFreeListPolicy.encodeNextForCapacity(next_block, cookie, capacity)
+        if encoded_next == HakoAllocSecureFreeListPolicy.invalid_next() {
+            return me.makeDecision(
+                0,
+                5,
+                source_id,
+                deterministic_key,
+                requested_runtime_entropy,
+                cryptographic_hardening_claim,
+                entropy.eligible,
+                0,
+                0,
+                5,
+                encoded_next,
+                encoded_next,
+                next_block,
+                cookie,
+                capacity,
+                0,
+                0,
+                0
+            )
+        }
+
+        local decoded_next = HakoAllocSecureFreeListPolicy.decodeNextForCapacity(encoded_next, cookie, capacity)
+        if decoded_next == HakoAllocSecureFreeListPolicy.invalid_next() {
+            return me.makeDecision(
+                0,
+                6,
+                source_id,
+                deterministic_key,
+                requested_runtime_entropy,
+                cryptographic_hardening_claim,
+                entropy.eligible,
+                0,
+                0,
+                6,
+                encoded_next,
+                decoded_next,
+                next_block,
+                cookie,
+                capacity,
+                0,
+                0,
+                0
+            )
+        }
+
+        return me.makeDecision(
+            1,
+            0,
+            source_id,
+            deterministic_key,
+            requested_runtime_entropy,
+            cryptographic_hardening_claim,
+            1,
+            0,
+            1,
+            0,
+            encoded_next,
+            decoded_next,
+            next_block,
+            cookie,
+            capacity,
+            0,
+            0,
+            0
+        )
+    }
+}

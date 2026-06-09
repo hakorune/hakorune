@@ -51,6 +51,9 @@ pub(super) fn extract_hako_provider_owns_allocated_literal(
 
 pub(super) fn validate_hako_provider_object_lifecycle_entrypoint(
     mir_json_path: &Path,
+    provider_entrypoint: &str,
+    alloc_entrypoint: &str,
+    release_entrypoint: &str,
 ) -> Result<(), String> {
     let text = fs::read_to_string(mir_json_path)
         .map_err(|error| format!("[provider-package-hako-build/read-mir-json-failed] {error}"))?;
@@ -60,23 +63,23 @@ pub(super) fn validate_hako_provider_object_lifecycle_entrypoint(
         .get("functions")
         .and_then(serde_json::Value::as_array)
         .ok_or_else(|| "[provider-package-hako-build/mir-json-missing-functions]".to_string())?;
+    require_mir_function(functions, provider_entrypoint)?;
     require_mir_function(
         functions,
-        "HakoProvider.objectLifecycleSmallAllocReleaseOk/0",
+        "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
+    )?;
+    require_mir_function(
+        functions,
+        "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
     )?;
     for required in [
-        "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
-        "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
-        "HakoAllocPageModel.acquireFreshSmall/1",
-        "HakoAllocPageModel.releaseLocalKnownLive/1",
+        alloc_entrypoint,
+        release_entrypoint,
     ] {
         require_mir_function(functions, required)?;
     }
 
-    let provider_fn = find_mir_function(
-        functions,
-        "HakoProvider.objectLifecycleSmallAllocReleaseOk/0",
-    )?;
+    let provider_fn = find_mir_function(functions, provider_entrypoint)?;
     require_mir_method_call(
         provider_fn,
         "HakoAllocObjectLifecycleFacade",

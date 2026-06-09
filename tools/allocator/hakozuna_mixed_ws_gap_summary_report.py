@@ -42,6 +42,8 @@ def emit_summary(compare_report: Path) -> str:
         f"type_abi_route_descriptor_present={values.get('type_abi_route_descriptor_present', '0')}",
         f"type_abi_descriptor_plane={values.get('type_abi_descriptor_plane', 'unknown')}",
         f"type_abi_hot_path_lookup_count={values.get('type_abi_hot_path_lookup_count', 'unknown')}",
+        f"provider_declared_route={values.get('provider_declared_route', values.get('provider_ldpreload_declared_route', 'unknown'))}",
+        f"provider_execution_route={values.get('provider_execution_route', values.get('provider_ldpreload_execution_route', 'unknown'))}",
         f"benchmark_threads={values.get('benchmark_threads', 'unknown')}",
         f"benchmark_iters_per_thread={values.get('benchmark_iters_per_thread', 'unknown')}",
         f"benchmark_working_set={values.get('benchmark_working_set', 'unknown')}",

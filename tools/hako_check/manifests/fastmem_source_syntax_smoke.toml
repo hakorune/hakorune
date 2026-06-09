@@ -22,6 +22,22 @@ expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
 
 [[fixtures]]
+id = "SAME_REMOTE_FREE_PUBLISH_BODY_RUNTIME"
+kind = "mir_failure"
+label = "same/remote free publish body runtime bridge"
+source = "lang/src/hako_alloc/memory/page_meta_same_remote_free_publish_body_runtime_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body_runtime.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body_runtime.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_remote_free_publish_body_runtime.blockislive.stderr.expected.txt"
+
+[[fixtures]]
 id = "SAME_OWNER_FREE_BODY"
 kind = "success"
 label = "same-owner free body preflight"
@@ -205,6 +221,375 @@ profile = "layout-table"
 kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
+
+[[fixtures]]
+id = "FASTMEM_BRANCH_RETURN_SCOPE"
+kind = "success"
+label = "fastmem branch return scope"
+source = "lang/src/hako_alloc/memory/page_meta_fastmem_branch_return_scope_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/fastmem_branch_return_scope.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/fastmem_branch_return_scope.mir.expected.kv"
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
+
+[[fixtures]]
+id = "FASTMEM_BRANCH_CFG_LOWERING"
+kind = "mir_emit_failure"
+label = "fastmem branch cfg lowering"
+source = "lang/src/hako_alloc/memory/page_meta_fastmem_branch_cfg_lowering_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.mir.expected.kv"
+mir_emit_expect_failure = true
+mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/fastmem_branch_cfg_lowering.mir.emit.stderr.expected.txt"
+
+[[fixtures.producers]]
+profile = "fastmem-branch-cfg-lowering"
+kind = "check_failure"
+check_expect_failure = true
+report_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.fastmem-branch-cfg-lowering.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_route_cfg_smoke/fastmem_branch_cfg_lowering.fastmem-branch-cfg-lowering.check.expected.kv"
+
+[[fixtures]]
+id = "PROVIDER_ACTIVATION_MODELED_OPEN_PILOT_BOX"
+kind = "mir_failure"
+label = "provider activation modeled open pilot box"
+source = "lang/src/hako_alloc/memory/provider_activation_modeled_open_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_modeled_open_pilot_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_modeled_open_pilot_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_modeled_open_pilot_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_ACTIVATION_DRY_RUN_UNSUPPORTED_BEHAVIOR_BOX"
+kind = "mir_failure"
+label = "provider activation dry-run unsupported behavior box"
+source = "lang/src/hako_alloc/memory/provider_activation_dry_run_unsupported_behavior_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_dry_run_unsupported_behavior_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_dry_run_unsupported_behavior_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_dry_run_unsupported_behavior_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_ACTIVATION_INPUT_BUNDLE_INVENTORY_BOX"
+kind = "mir_failure"
+label = "provider activation input bundle inventory box"
+source = "lang/src/hako_alloc/memory/provider_activation_input_bundle_inventory_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_input_bundle_inventory_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_input_bundle_inventory_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_input_bundle_inventory_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_ACTIVATION_UNSUPPORTED_OUTCOME_LEDGER_BOX"
+kind = "mir_failure"
+label = "provider activation unsupported outcome ledger box"
+source = "lang/src/hako_alloc/memory/provider_activation_unsupported_outcome_ledger_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_unsupported_outcome_ledger_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_unsupported_outcome_ledger_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_activation_unsupported_outcome_ledger_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_BOUNDARY_DIAGNOSTIC_VOCABULARY_BOX"
+kind = "mir_failure"
+label = "provider boundary diagnostic vocabulary box"
+source = "lang/src/hako_alloc/memory/provider_boundary_diagnostic_vocabulary_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_boundary_diagnostic_vocabulary_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_boundary_diagnostic_vocabulary_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_boundary_diagnostic_vocabulary_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_INACTIVE_BOUNDARY_INVENTORY_BOX"
+kind = "mir_failure"
+label = "provider inactive boundary inventory box"
+source = "lang/src/hako_alloc/memory/provider_inactive_boundary_inventory_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_inactive_boundary_inventory_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_inactive_boundary_inventory_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_inactive_boundary_inventory_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_SELECTION_INVENTORY_BOX"
+kind = "mir_failure"
+label = "provider selection inventory box"
+source = "lang/src/hako_alloc/memory/provider_selection_inventory_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_selection_inventory_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_selection_inventory_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_selection_inventory_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "USIZE_FIELD_PROBE_BOX"
+kind = "mir_failure"
+label = "usize field probe box"
+source = "lang/src/hako_alloc/memory/usize_field_probe_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/usize_field_probe_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/usize_field_probe_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/usize_field_probe_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_READINESS_PREFLIGHT_BOX"
+kind = "mir_failure"
+label = "provider readiness preflight box"
+source = "lang/src/hako_alloc/memory/provider_readiness_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_readiness_preflight_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_readiness_preflight_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_readiness_preflight_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_CAPABILITY_GATE_INVENTORY_BOX"
+kind = "mir_failure"
+label = "provider call capability gate inventory box"
+source = "lang/src/hako_alloc/memory/provider_call_capability_gate_inventory_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_capability_gate_inventory_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_capability_gate_inventory_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_capability_gate_inventory_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_MODELED_OPEN_PILOT_BOX"
+kind = "mir_failure"
+label = "provider call modeled open pilot box"
+source = "lang/src/hako_alloc/memory/provider_call_modeled_open_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_modeled_open_pilot_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_modeled_open_pilot_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_modeled_open_pilot_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_NOOP_EXECUTION_SEAM_PILOT_BOX"
+kind = "mir_failure"
+label = "provider call noop execution seam pilot box"
+source = "lang/src/hako_alloc/memory/provider_call_noop_execution_seam_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_noop_execution_seam_pilot_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_noop_execution_seam_pilot_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_noop_execution_seam_pilot_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_REAL_API_EXECUTION_PREFLIGHT_BOX"
+kind = "mir_failure"
+label = "provider call real api execution preflight box"
+source = "lang/src/hako_alloc/memory/provider_call_real_api_execution_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_real_api_execution_preflight_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_real_api_execution_preflight_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_real_api_execution_preflight_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_REAL_API_STUB_EXECUTION_PILOT_BOX"
+kind = "mir_failure"
+label = "provider call real api stub execution pilot box"
+source = "lang/src/hako_alloc/memory/provider_call_real_api_stub_execution_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_real_api_stub_execution_pilot_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_real_api_stub_execution_pilot_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_real_api_stub_execution_pilot_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_EXTERNAL_API_CALL_STUB_EXECUTION_PILOT_BOX"
+kind = "mir_failure"
+label = "provider call external api call stub execution pilot box"
+source = "lang/src/hako_alloc/memory/provider_call_external_api_call_stub_execution_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_call_stub_execution_pilot_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_call_stub_execution_pilot_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_call_stub_execution_pilot_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_EXECUTION_CAPABILITY_PREFLIGHT_BOX"
+kind = "mir_failure"
+label = "provider call execution capability preflight box"
+source = "lang/src/hako_alloc/memory/provider_call_execution_capability_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_execution_capability_preflight_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_execution_capability_preflight_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_execution_capability_preflight_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_EXTERNAL_API_ADAPTER_PREFLIGHT_BOX"
+kind = "mir_failure"
+label = "provider call external api adapter preflight box"
+source = "lang/src/hako_alloc/memory/provider_call_external_api_adapter_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_adapter_preflight_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_adapter_preflight_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_adapter_preflight_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "REAL_EXTERNAL_PROVIDER_API_ADAPTER_EXECUTION_PREFLIGHT_BOX"
+kind = "mir_failure"
+label = "real external provider api adapter execution preflight box"
+source = "lang/src/hako_alloc/memory/real_external_provider_api_adapter_execution_preflight_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/real_external_provider_api_adapter_execution_preflight_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/real_external_provider_api_adapter_execution_preflight_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/real_external_provider_api_adapter_execution_preflight_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "REAL_EXTERNAL_PROVIDER_API_CALL_FIRST_PATTERN_PILOT_BOX"
+kind = "mir_failure"
+label = "real external provider api call first pattern pilot box"
+source = "lang/src/hako_alloc/memory/real_external_provider_api_call_first_pattern_pilot_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/real_external_provider_api_call_first_pattern_pilot_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/real_external_provider_api_call_first_pattern_pilot_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/real_external_provider_api_call_first_pattern_pilot_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_EXTERNAL_API_ADAPTER_INVENTORY_BOX"
+kind = "mir_failure"
+label = "provider call external api adapter inventory box"
+source = "lang/src/hako_alloc/memory/provider_call_external_api_adapter_inventory_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_adapter_inventory_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_adapter_inventory_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_external_api_adapter_inventory_box.report.stderr.expected.txt"
+
+[[fixtures]]
+id = "PROVIDER_CALL_DRY_RUN_UNSUPPORTED_BEHAVIOR_BOX"
+kind = "mir_failure"
+label = "provider call dry-run unsupported behavior box"
+source = "lang/src/hako_alloc/memory/provider_call_dry_run_unsupported_behavior_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_dry_run_unsupported_behavior_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_dry_run_unsupported_behavior_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/provider_call_dry_run_unsupported_behavior_box.report.stderr.expected.txt"
 
 [[fixtures]]
 id = "PILOT"
@@ -431,3 +816,54 @@ profile = "remote-free-drain-to-local"
 kind = "report_failure"
 expect_failure = true
 stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_missing_verified_table_plan.stderr.expected.txt"
+
+[[fixtures]]
+id = "REMOTE_OWNER_BRANCH_ROUTING_LOWERING_BOX"
+kind = "mir_emit_failure"
+label = "remote-owner branch routing lowering box"
+source = "lang/src/hako_alloc/memory/page_meta_remote_owner_branch_routing_lowering_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/remote_owner_branch_routing_lowering_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/remote_owner_branch_routing_lowering_box.mir.expected.kv"
+mir_emit_expect_failure = true
+mir_emit_stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/remote_owner_branch_routing_lowering_box.mir.emit.stderr.expected.txt"
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "check_failure"
+check_expect_failure = true
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/remote_owner_branch_routing_lowering_box.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/remote_owner_branch_routing_lowering_box.check.expected.kv"
+
+[[fixtures]]
+id = "PAGE_MAP_BRIDGE_BOX"
+kind = "mir_failure"
+label = "page-map bridge box"
+source = "lang/src/hako_alloc/memory/page_map_bridge_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_bridge_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_bridge_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "check_failure"
+check_expect_failure = true
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_bridge_box.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_bridge_box.check.expected.kv"
+
+[[fixtures]]
+id = "ALLOCATOR_FACADE_BOX"
+kind = "mir_failure"
+label = "allocator facade box"
+source = "lang/src/hako_alloc/memory/allocator_facade_box.hako"
+features = "stage3,rune"
+ast_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/allocator_facade_box.ast.expected.kv"
+mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/allocator_facade_box.mir.expected.kv"
+mir_expect_failure = true
+
+[[fixtures.producers]]
+profile = "layout-table"
+kind = "report_failure"
+expect_failure = true
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/allocator_facade_box.layout-table.stderr.expected.txt"

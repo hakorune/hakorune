@@ -35,14 +35,14 @@ input_contract=mir-builder-field-property-receiver-facts-cleanup-v0
 build_ok=1
 single_eval_surface_ok=1
 small_alloc_helper_copy_probe_ok=1
-helper_call_count=16
-helper_copy_count=62
-receiver_copy_count=38
-arg_copy_count=15
-result_copy_count=9
-local_ssa_copy_count=44
-dominant_callee_family=facade_result_helpers
-helper_copy_post_boxshape_status=unchanged
+helper_call_count=7
+helper_copy_count=28
+receiver_copy_count=10
+arg_copy_count=4
+result_copy_count=14
+local_ssa_copy_count=63
+dominant_callee_family=page_hotpath_helpers
+helper_copy_post_boxshape_status=changed
 generic_cse_opened=0
 post_boxshape_next=page_array_dynamic_weight_probe
 winner_claim=0
@@ -53,9 +53,10 @@ summary=ok
 Interpretation:
 
 ```text
-The BoxShape cleanup preserved correctness but did not change the helper-copy
-shape. Return to keeper selection via dynamic page-array weight measurement
-before choosing compiler helper lowering or .hako page-model work.
+The BoxShape cleanup preserved correctness but now the helper-copy family is
+smaller and shifts toward page-hotpath helpers. Return to keeper selection via
+dynamic page-array weight measurement before choosing compiler helper
+lowering or .hako page-model work.
 ```
 
 Guard:

@@ -345,6 +345,18 @@ Related:
   and `HakoAllocPageMapBridge.unregister(...)`, but it must not own
   registration, realloc, aligned/huge allocation, OSVM release, provider hooks,
   or allocator replacement.
+- `page_map_aligned_huge_osvm_facade_integration_box.hako` owns the read-only
+  page-map/aligned/huge/OSVM facade integration seam. It may compose
+  `HakoAllocPageMapAlignedSmallPath`, `HakoAllocHugeThresholdRouter`,
+  `HakoAllocHugePageModel`, `HakoAllocHugeReleaseSeam`, and
+  `HakoAllocOsVmBackedFastPathHeap`, but it must not activate providers,
+  install hooks, replace the host allocator, or claim winner behavior.
+- `segment_arena_reclaim_tls_readonly_integration_box.hako` owns the read-only
+  segment-arena reclaim/TLS integration seam. It may compose the readiness
+  matrix, support gate, pointer-derived lookup prerequisite, and worker/TLS
+  pilot evidence, but it must not activate providers, install hooks, replace
+  the host allocator, claim winner behavior, or open any wider release/reclaim
+  execution route.
 - `page_map_release_invariant_box.hako` owns M173 pre-realloc release
   observation. It may call `HakoAllocPageMap.lookup(...)` and
   `HakoAllocPageMapReleaseSeam.releasePtr(...)` to freeze handle lifetime and
@@ -400,6 +412,10 @@ Related:
   It may classify deterministic proof-key facts and rejected runtime entropy
   requests, but it must not source entropy, call random/OS/provider helpers,
   mutate secure-list behavior, or claim cryptographic hardening.
+- `secure_entropy_backed_free_list_box.hako` owns the secure entropy backed
+  free-list selector. It may compose read-only entropy inventory facts with the
+  encoded-next free-list policy, but it must not source entropy, mutate page
+  state, install hooks, replace allocators, or open provider/replacement work.
 - `secure_free_list_policy_box.hako` owns M184 secure-list encoded-next policy.
   It may encode/decode next indices and validate decoded capacity, but it must
   not source entropy, mutate page state, or claim hardening policy.

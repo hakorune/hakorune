@@ -131,6 +131,8 @@ Current modules
 - `page_heap_box.hako`
 - `page_map_box.hako`
 - `page_map_bridge_box.hako`
+- `page_map_aligned_huge_osvm_facade_integration_box.hako`
+- `segment_arena_reclaim_tls_readonly_integration_box.hako`
 - `page_map_aligned_small_path_box.hako`
 - `page_map_release_box.hako`
 - `page_map_release_invariant_box.hako`
@@ -202,6 +204,7 @@ Current modules
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
 - `secure_entropy_inventory_box.hako`
+- `secure_entropy_backed_free_list_box.hako`
 - `size_class_box.hako`
 - `stats_box.hako`
 - `usize_field_probe_box.hako`

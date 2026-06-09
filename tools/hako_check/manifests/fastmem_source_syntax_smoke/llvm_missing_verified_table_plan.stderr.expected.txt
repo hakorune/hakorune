@@ -1,1 +1,1 @@
-[llvm/fastmem:missing-verified-table-plan]
+RuntimeError: [llvm/fastmem:missing-verified-table-plan]

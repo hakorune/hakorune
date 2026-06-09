@@ -1,56 +1,49 @@
 ---
 Status: Active
-Date: 2026-06-08
-Scope: compact restart surface for the phase-296x mimalloc benchmark lane.
+Date: 2026-06-09
+Scope: compact restart surface for the phase-296x mimalloc source-level lane.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/investigations/phase-296x-90-taskboard-history-2026-06-08.md
-  - docs/development/current/main/phases/phase-296x/296x-480-DIRECTARRAY-FMEM-COMMONALITY-AND-DOC-LENGTH-CLEANUP.md
+  - docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
   - docs/development/current/main/workstreams/mimalloc-current.md
 ---
 
 # 296x-90 Mimalloc Benchmark Taskboard
 
-This card is now the compact restart surface for the phase-296x mimalloc lane.
-Keep the historical benchmark queue in the archive note and keep this card
-short.
+This card is now a thin pointer surface.
+Keep the historical queue in the archive note and keep this card short.
 
 ## Rule
 
-- benchmark contract work stays before provider/DLL activation
+- keep the current mirrors thin
+- keep provider/DLL activation closed
 - no product allocator replacement claim
 - no hook installation claim
 - no winner claim
-- no new smoke scripts for report-only rows unless a new execution boundary opens
 
 ## Current State
 
 Current lane and blocker pointers live in `CURRENT_STATE.toml`.
+Long queue history lives in the archive note.
 
-The docs-slim maintenance rows have landed.
-
-The long historical queue is archived here:
+## Current Lane
 
 ```text
-docs/development/current/main/investigations/phase-296x-90-taskboard-history-2026-06-08.md
+| 648 | `HAKO-MIMALLOC-DIRECT-EXACT-OPTIMIZATION-SWEEP-296X-001` | Current |
 ```
 
-## Active Queue
+## Archive Pointers
 
 ```text
-MIM-PORT-FMEM-109:
-  source-syntax smoke manifest runner only; keep new body fixtures on the
-  manifest runner
+docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
+docs/development/current/main/investigations/mimalloc-current-history-2026-06-02.md
+docs/development/current/main/investigations/phase-296x-90-taskboard-history-2026-06-08.md
 ```
 
 ## Restart Notes
 
 - read `CURRENT_STATE.toml` first for the current blocker token
-- use the archive note above for historical queue detail
-- keep the source-syntax smoke manifest runner separate from lowering payloads
-
-## Stop Line
-
-- do not re-expand archived benchmark rows into this active card
-- do not mix docs-slim work with MIR lowering rows
-- do not reopen provider activation or product replacement here
+- use the inventory note for pointer hunting
+- use the comparison note for the exact-front optimization sweep
+- keep current mirrors narrow and archive long queue history elsewhere

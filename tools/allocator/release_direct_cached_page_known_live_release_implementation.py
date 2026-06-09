@@ -35,16 +35,16 @@ def run_text(cmd: list[str], timeout_seconds: int) -> str:
 
 def direct_cached_uses_known_live() -> bool:
     text = FACADE.read_text(encoding="utf-8")
-    start = text.index("objectLifecycleReleaseDirectCachedPage")
-    end = text.index("objectLifecycleReleaseBlock", start)
+    start = text.index("objectLifecycleReleaseBlock(page_id, block_id)")
+    end = text.index("resetAlignmentResult()", start)
     body = text[start:end]
     return "page.releaseLocalKnownLive(block_id)" in body and "page.releaseLocal(block_id)" not in body
 
 
 def generic_release_preserved() -> bool:
     text = FACADE.read_text(encoding="utf-8")
-    start = text.index("objectLifecycleReleaseBlock")
-    end = text.index("objectLifecycleSmallAllocAligned", start)
+    start = text.index("objectLifecycleReleaseBlockSlow(page_id, block_id)")
+    end = text.index("objectLifecycleReleaseBlock(page_id, block_id)", start)
     body = text[start:end]
     return "page.releaseLocal(block_id)" in body
 

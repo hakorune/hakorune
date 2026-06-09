@@ -1,5 +1,5 @@
 ---
-Status: Landed
+Status: Current
 Date: 2026-05-27
 Scope: define the observation-only hako_check perf-surface report contract.
 Blocker: HAKO-CHECK-PERF-SURFACE-CONTRACT-296X-001

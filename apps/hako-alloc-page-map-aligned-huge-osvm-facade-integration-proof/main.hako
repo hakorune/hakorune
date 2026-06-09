@@ -1,0 +1,48 @@
+// hako-alloc-page-map-aligned-huge-osvm-facade-integration-proof
+// Purpose: prove aligned small-path, huge-page, and OSVM page-source seams can
+// be composed read-only behind one integration owner.
+
+using selfhost.hako_alloc.memory.page_map_aligned_huge_osvm_facade_integration_box as HakoAllocPageMapAlignedHugeOsVmFacadeIntegration
+
+static box Main {
+    main(args) {
+        local integration = new HakoAllocPageMapAlignedHugeOsVmFacadeIntegration()
+        local report = integration.probeAlignedHugeOsVm(24, 8, 4194305, 4194305, 16)
+
+        local ok = check "page-map aligned huge osvm facade integration" {
+            "accepted": report.accepted == 1
+            "reason": report.reason == 0
+            "small route ok": report.small_route_ok == 1
+            "small route kind": report.small_route_kind == 1
+            "huge class": report.huge_class == 2
+            "huge route kind": report.huge_route_kind == 2
+            "huge alloc": report.huge_alloc == 1
+            "huge release": report.huge_release_ok == 1
+            "huge live before": report.huge_live_before == 1
+            "huge live after": report.huge_live_after == 0
+            "osvm release": report.osvm_release_ok == 1
+            "osvm cleanup": report.osvm_cleanup == 1
+            "inactive provider": report.would_activate_provider == 0
+            "inactive replacement": report.would_replace_host_allocator == 0
+            "inactive hook": report.would_install_hook == 0
+            "inactive winner": report.would_claim_winner == 0
+        }
+
+        print("page-map-aligned-huge-osvm-facade-integration-proof")
+        print("route=" + report.route_add + "," + report.small_route_ok + "," + report.small_route_kind + "," + report.small_route_ptr + "," + report.huge_class + "," + report.huge_route_ok + "," + report.huge_route_kind + "," + report.huge_route_count + "," + report.huge_reject_count)
+        print("huge=" + report.huge_alloc + "," + report.huge_ptr + "," + report.huge_page + "," + report.huge_requested + "," + report.huge_committed + "," + report.huge_live_before + "," + report.huge_release_ok + "," + report.huge_live_after + "," + report.huge_unknown_release)
+        print("osvm=" + report.osvm_page1 + "," + report.osvm_bytes0 + "," + report.osvm_bytes1 + "," + report.osvm_reserve_count + "," + report.osvm_commit_count + "," + report.osvm_decommit_count + "," + report.osvm_source_reject_count + "," + report.osvm_cleanup)
+        print("osvm_release=" + report.osvm_release_ok)
+        print("summary_fields=" + report.requested_bytes + "," + report.committed_bytes + "," + report.live_handles + "," + report.release_count + "," + report.source_ops + "," + report.rejects)
+        print("inactive=" + report.would_activate_provider + "," + report.would_replace_host_allocator + "," + report.would_install_hook + "," + report.would_claim_winner)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

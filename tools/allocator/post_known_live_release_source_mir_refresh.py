@@ -20,7 +20,7 @@ MIR_SHAPE = ROOT / "tools/mir_check/method_shape_report.py"
 METHODS = (
     "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
     "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
-    "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2",
+    "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
     "HakoAllocPageModel.acquire/1",
     "HakoAllocPageModel.releaseLocal/1",
     "HakoAllocPageModel.releaseLocalKnownLive/1",
@@ -122,7 +122,7 @@ def main() -> int:
                     "--contract-version",
                     "v1",
                     "--methods",
-                    "objectLifecycleSmallAlloc,objectLifecycleReleaseBlock,objectLifecycleReleaseDirectCachedPage,objectLifecycleReleaseKnownPageIndex,objectLifecycleKnownPageIndexById",
+                    "objectLifecycleSmallAlloc,objectLifecycleReleaseBlock,objectLifecycleReleaseBlock,objectLifecycleKnownPageIndexById",
                 ]
             )
         )

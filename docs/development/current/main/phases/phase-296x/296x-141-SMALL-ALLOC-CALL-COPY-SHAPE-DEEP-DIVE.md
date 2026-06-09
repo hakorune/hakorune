@@ -53,14 +53,16 @@ Helper copy-family probe:
 
 ```text
 output_contract=hako-mimalloc-small-alloc-helper-copy-family-probe-v0
-helper_call_count=16
-helper_copy_count=62
-receiver_copy_count=38
-arg_copy_count=15
-result_copy_count=9
-local_ssa_copy_count=44
+input_contract=small-alloc-call-copy-shape-deep-dive-v0
+selected_owner=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+helper_call_count=7
+helper_copy_count=28
+receiver_copy_count=10
+arg_copy_count=4
+result_copy_count=14
+local_ssa_copy_count=63
 dominant_copy_family=helper_result_local_ssa
-dominant_callee_family=facade_result_helpers
+dominant_callee_family=page_hotpath_helpers
 selected_next=same_module_helper_call_lowering_seam
 summary=ok
 ```
@@ -69,8 +71,8 @@ Interpretation:
 
 ```text
 The remaining small-alloc surface is not a broad acceptance gap. The current
-evidence points to same-module facade result/state helper calls producing a
-receiver + local-SSA copy chain. A source-level facade wrapper inline trial
+evidence points to page-hotpath helper calls producing a receiver/arg/result
+copy chain with local-SSA churn. A source-level facade wrapper inline trial
 reduced helper calls but increased MIR copy/field surface, so that path is a
 non-keeper. The next compiler-side seam is same-module helper call lowering.
 ```

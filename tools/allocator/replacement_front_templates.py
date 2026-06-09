@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from replacement_front_bins_templates import generate_replacement_front_bins_shim_c
+from replacement_front_support import (
+    counter_value,
+    median_float,
+)
 from replacement_front_shim_templates import REPLACEMENT_FRONT_SHIM_C
 from replacement_front_smoke_templates import (
     REPLACEMENT_FRONT_ABANDONED_OWNER_SMOKE_C,
