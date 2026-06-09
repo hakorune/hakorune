@@ -1335,6 +1335,14 @@ summary=ok
   record-state access sites already have typed-object exact slot storage
   coverage; it is not permission to enable record-state lowering or
   RouteDecision rows.
+- Typed-object exact-slot inventory/report rows are route-decision-first when
+  `metadata.route_decisions` contains `TypedObjectExactSlotRoute` with
+  `selected_lowering_form=exact_helper_bridge`. In that case the exact-slot
+  counts come from the selected route rows, not from plan heuristics, so the
+  report reflects the actual selected bridge rather than a predicted one.
+  The same surface also emits `typed_object_exact_route_decision_count`,
+  `typed_object_exact_lowering_forms`, and `typed_object_exact_bridge_symbols`
+  so the exact-helper bridge can be inspected without reopening the MIR.
 
 Default test env (recommended)
 - `NYASH_DISABLE_PLUGINS=1` – avoid dynamic plugin path and noise

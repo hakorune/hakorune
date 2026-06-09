@@ -380,6 +380,15 @@ pub fn with_handle<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -
     reg().with_handle(h, f)
 }
 
+/// Borrow handle only when the registry is already initialized.
+/// This avoids the OnceCell `get_or_init` path on hot routes that are known to
+/// run after the registry has been touched.
+#[inline(always)]
+pub fn with_handle_ready<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> Option<R> {
+    let reg = REG.get()?;
+    Some(reg.with_handle(h, f))
+}
+
 #[inline(always)]
 pub fn with_handle_caller<R>(
     h: u64,
@@ -413,6 +422,14 @@ pub fn with_latest_fresh_stable_box<R>(
 #[inline(always)]
 pub fn with_str_handle<R>(h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
     reg().with_str_handle(h, f)
+}
+
+/// Borrow a string handle only when the registry is already initialized.
+/// This mirrors `with_text_read_session_ready` for hot string-only corridors.
+#[inline(always)]
+pub fn with_str_handle_ready<R>(h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
+    let reg = REG.get()?;
+    reg.with_str_handle(h, f)
 }
 
 /// Borrow a read-only string session under one registry read lock.

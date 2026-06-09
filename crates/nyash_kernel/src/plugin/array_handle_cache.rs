@@ -49,6 +49,29 @@ pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> 
 }
 
 #[inline(always)]
+pub(crate) fn with_array_box_direct<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
+    if handle <= 0 {
+        return None;
+    }
+    handles::with_handle(handle as u64, |obj| {
+        let arr = obj?.as_any().downcast_ref::<ArrayBox>()?;
+        Some(f(arr))
+    })
+}
+
+#[inline(always)]
+pub(crate) fn with_array_box_ready<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
+    if handle <= 0 {
+        return None;
+    }
+    handles::with_handle_ready(handle as u64, |obj| {
+        let arr = obj?.as_any().downcast_ref::<ArrayBox>()?;
+        Some(f(arr))
+    })
+    .flatten()
+}
+
+#[inline(always)]
 pub(crate) fn with_array_box_at_epoch<R>(
     handle: i64,
     drop_epoch: u64,

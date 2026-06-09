@@ -14,7 +14,7 @@ run_cargo_test_filter_group "$TAG" "inline plan preservation acceptance" \
 
 rg -F -q 'pub struct InlinePlan' src/mir/inline_plan.rs
 rg -F -q 'inline_plans_from_runes' src/mir/inline_plan.rs
-rg -F -q 'inline_plans' src/mir/function/types.rs
+rg -F -q 'inline_plans' src/mir/function/metadata.rs
 rg -F -q '"inline_plans"' src/runner/mir_json_emit/plan_metadata.rs
 rg -F -q 'refresh_function_rune_plans(function)' src/mir/semantic_refresh.rs
 rg -F -q 'refresh_function_inline_plans(function)' src/mir/rune_plan_refresh.rs

@@ -13,6 +13,9 @@ if str(ROOT) not in sys.path:
 from instructions.field_access import lower_field_get, lower_field_set
 from instructions.newbox import lower_newbox
 from builders.entry import ensure_ny_main
+from instructions.field_access_helpers_typed import (
+    _selected_typed_object_exact_slot_route_decision,
+)
 from type_facts import make_box_handle_fact
 
 
@@ -24,6 +27,10 @@ class _ResolverStub:
         self.thin_entry_selection_by_value = {}
         self.thin_entry_selection_by_subject = {}
         self.thin_entry_selections = []
+        self.route_decisions_by_site = {}
+        self.route_decisions_metadata_present = False
+        self.current_block_id = 0
+        self.current_instruction_index = 0
 
     def resolve_i64(self, value_id, current_block, preds, block_end_values, vmap, bb_map):
         if value_id in vmap:
@@ -119,6 +126,60 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
             else:
                 os.environ[key] = old_value
 
+    def _seed_typed_object_exact_slot_route_decision(
+        self,
+        resolver,
+        *,
+        semantic_op,
+        selected_route,
+        selected_bridge_symbol,
+        selected_slot,
+        selected_storage,
+        field_id,
+        receiver_box_name="Page",
+        block_id=0,
+        instruction_index=0,
+    ):
+        resolver.route_decisions_metadata_present = True
+        resolver.current_block_id = block_id
+        resolver.current_instruction_index = instruction_index
+        resolver.route_decisions_by_site[
+            (block_id, instruction_index)
+        ] = [
+            {
+                "route_id": "route.decision",
+                "site_id": f"b{block_id}.i{instruction_index}",
+                "block": block_id,
+                "instruction_index": instruction_index,
+                "semantic_op": semantic_op,
+                "access_kind": f"typed_object_exact_slot_{semantic_op.lower()}",
+                "preferred_route": selected_route,
+                "selected_route": selected_route,
+                "fallback_route": "compat_field_get_i64",
+                "fallback_policy": "fail_fast",
+                "proof_ids": [
+                    "typed_object_plan",
+                    "field_decl_authority",
+                    "receiver_exact_type_id",
+                    "slot_in_bounds",
+                    "storage_exact_slot",
+                    "non_weak_field",
+                    "materialization_boundary_known",
+                    "exact_slot_bridge_available",
+                ],
+                "miss_reason": None,
+                "source_plan_kind": "TypedObjectExactSlotRoute",
+                "selected_i64_const": None,
+                "selected_bool_const": None,
+                "selected_lowering_form": "exact_helper_bridge",
+                "selected_bridge_symbol": selected_bridge_symbol,
+                "selected_slot": selected_slot,
+                "selected_storage": selected_storage,
+                "receiver_box_name": receiver_box_name,
+                "field_id": field_id,
+            }
+        ]
+
     def test_newbox_uses_exact_typed_object_helper_for_exact_storage_plan(self):
         mod, builder, _bb, i64 = self._make_builder()
         resolver = _ResolverStub()
@@ -156,7 +217,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         )
 
         ir_txt = str(mod)
-        self.assertIn('call i64 @"nyash.object.field_get_u64_hii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"hako.object.exact_slot_get_u64_hii"', ir_txt, msg=ir_txt)
         self.assertIn("i64 0", ir_txt, msg=ir_txt)
         self.assertNotIn("nyash.instance.get_i64_field_h", ir_txt, msg=ir_txt)
         self.assertEqual(resolver.value_types[2], "i64")
@@ -184,7 +245,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         )
 
         ir_txt = str(mod)
-        self.assertIn('call i64 @"nyash.object.field_get_i64_hii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"hako.object.exact_slot_get_i64_hii"', ir_txt, msg=ir_txt)
         self.assertNotIn("nyash.instance.get_i64_field_h", ir_txt, msg=ir_txt)
         self.assertEqual(resolver.value_types[2], "i64")
 
@@ -215,7 +276,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         )
 
         ir_txt = str(mod)
-        self.assertIn('call i64 @"nyash.object.field_set_u64_hiu"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"hako.object.exact_slot_set_u64_hiu"', ir_txt, msg=ir_txt)
         self.assertIn("unreachable", ir_txt, msg=ir_txt)
         self.assertNotIn("nyash.instance.set_i64_field_h", ir_txt, msg=ir_txt)
 
@@ -246,9 +307,63 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         )
 
         ir_txt = str(mod)
-        self.assertIn('call i64 @"nyash.object.field_set_i64_hii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"hako.object.exact_slot_set_i64_hii"', ir_txt, msg=ir_txt)
         self.assertIn("unreachable", ir_txt, msg=ir_txt)
         self.assertNotIn("nyash.instance.set_i64_field_h", ir_txt, msg=ir_txt)
+
+    def test_selected_exact_slot_route_decision_is_resolved_for_field_get(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        resolver.value_types[1] = make_box_handle_fact("Page")
+        resolver.typed_object_plans = self._exact_page_plan()
+        vmap = {1: ir.Constant(i64, 101)}
+
+        self._seed_typed_object_exact_slot_route_decision(
+            resolver,
+            semantic_op="FieldGet",
+            selected_route="hako.typed_object.slot_load_u64",
+            selected_bridge_symbol="hako.object.exact_slot_get_u64_hii",
+            selected_slot=0,
+            selected_storage="u64",
+            field_id="capacity",
+        )
+
+        decision = _selected_typed_object_exact_slot_route_decision(
+            resolver=resolver,
+            box_vid=1,
+            field_name="capacity",
+            semantic_op="FieldGet",
+        )
+
+        self.assertIsNotNone(decision)
+        self.assertEqual(
+            decision["selected_route"],
+            "hako.typed_object.slot_load_u64",
+        )
+        self.assertEqual(
+            decision["selected_bridge_symbol"],
+            "hako.object.exact_slot_get_u64_hii",
+        )
+
+        lower_field_get(
+            builder,
+            mod,
+            1,
+            "capacity",
+            2,
+            "usize",
+            [],
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"hako.object.exact_slot_get_u64_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn("nyash.object.field_get_u64_hii", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[2], "i64")
 
     def test_direct_slot_nativedirect_selected_method_get_loads_payload(self):
         def run():
@@ -349,7 +464,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
             )
 
             ir_txt = str(mod)
-            self.assertIn('call i64 @"nyash.object.field_get_u64_hii"', ir_txt, msg=ir_txt)
+            self.assertIn('call i64 @"hako.object.exact_slot_get_u64_hii"', ir_txt, msg=ir_txt)
             self.assertNotIn("direct_slot_payload_ptr", ir_txt, msg=ir_txt)
 
         self._with_env("HAKO_TYPED_OBJECT_STORE", "direct_slot_exact", run)

@@ -32,8 +32,10 @@ field_get_hii_compat_legacy_adapter=1
 i64_field_benchmark_primary_route=hako.typed_object.slot_load_i64
 i64_field_helper_bridge=hako.object.exact_slot_get_i64_hii
 handle_field_helper_bridge=hako.object.exact_slot_get_handle_hii
+typed_object_exact_lowering_form=exact_helper_bridge
 helper_internal_dispatch_keeper=0
 native_direct_final_target=1
+native_direct_open_in_002=0
 ```
 
 ## Required Output
@@ -46,6 +48,8 @@ typed_object_get_compat_i64_count=0
 typed_object_exact_internal_dispatch_count=0
 typed_object_exact_silent_fallback_count=0
 typed_object_exact_name_lookup_count=0
+typed_object_exact_lowering_form=exact_helper_bridge
+typed_object_exact_bridge_symbol=hako.object.exact_slot_get_i64_hii
 provider_active=0
 replacement_active=0
 hook_installed=0
@@ -68,6 +72,8 @@ TYPEDOBJ-ABI-001:
 TYPEDOBJ-ABI-002:
   Route the i64 user-box benchmark through hako.typed_object.slot_load_i64
   and hako.object.exact_slot_get_i64_hii when proof is selected.
+  Keep lowering_form=exact_helper_bridge.
+  Do not open NativeDirect.
 
 TYPEDOBJ-ABI-003:
   Keep field_get_hii on compat/legacy only. It may exist, but it must not be
@@ -81,11 +87,27 @@ TYPEDOBJ-ABI-004:
 ## First Implementation Slice
 
 ```text
-target=TYPEDOBJ-ABI-001
-behavior_change=report/check vocabulary only
-must_not_change=runtime helper semantics
+target=TYPEDOBJ-ABI-002
+behavior_change=selected exact route to helper-backed bridge
+must_not_change=NativeDirect inline lowering
 must_not_add=benchmark-name special cases
 ```
+
+## TYPEDOBJ-ABI-002 Shape
+
+```text
+semantic_route=hako.typed_object.slot_load_i64
+lowering_form=exact_helper_bridge
+bridge_symbol=hako.object.exact_slot_get_i64_hii
+fallback_policy=fail_fast
+field_get_hii_used_as_exact_keeper=0
+get_compat_i64_used_by_selected_exact_route=0
+helper_internal_dispatch_keeper=0
+native_direct_ready=0
+```
+
+`nyash.object.exact_slot_get_i64_hii` may remain as a legacy export alias during
+the migration, but route/report truth stays in the `hako.*` namespace.
 
 ## First Commands
 
@@ -93,6 +115,15 @@ must_not_add=benchmark-name special cases
 bash tools/checks/current_state_pointer_guard.sh
 cargo fmt --check
 git diff --check
+```
+
+## Quick Gate Repair
+
+```text
+mir_metadata_catalog_guard_owner=src/mir/function/metadata.rs
+mir_root_facade_allowlist_sync=refresh_function_map_repr_plans,refresh_module_map_repr_plans
+allowlist_rationale=refresh orchestration entry points only; MapReprPlan vocabulary stays in src/mir/map_repr_plan.rs
+behavior_change=0
 ```
 
 ## Stop Line
@@ -108,11 +139,11 @@ git diff --check
 
 ```text
 HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001:
-  add report/check vocabulary for exact slot versus compat field routes
+  landed report/check vocabulary for exact slot versus compat field routes
 
-After green:
+Next:
   route the i64 user-box benchmark through selected
   hako.typed_object.slot_load_i64 and hako.object.exact_slot_get_i64_hii
-  evidence, then measure whether helper call or NativeDirect inline lowering
-  is the next owner.
+  evidence with lowering_form=exact_helper_bridge, then measure whether helper
+  call or NativeDirect inline lowering is the next owner.
 ```

@@ -8,7 +8,7 @@ ALLOCATOR_PROVIDER_FORBIDDEN_SELECTION_PATTERN='(^|[^A-Za-z0-9_])select_allocato
 ALLOCATOR_PROVIDER_FORBIDDEN_GLOBAL_ALLOCATOR_PATTERN='#\[global_allocator\]|GlobalAlloc'
 ALLOCATOR_PROVIDER_FORBIDDEN_PROOF_CONSUMPTION_PATTERN='consume_allocator_provider_proof|allocator_provider_proof_bundle_consume|consume_allocator_provider_proof_bundle|consume_provider_proof_bundle'
 ALLOCATOR_PROVIDER_FORBIDDEN_ROLLBACK_PREPARATION_PATTERN='(^|[^A-Za-z0-9_])prepare_rollback([^A-Za-z0-9_]|$)'
-ALLOCATOR_PROVIDER_FORBIDDEN_HOOK_ACTIVATION_PATTERN='allocator_hook_activate|activate_allocator|install_allocator_hook|replace_allocator'
+ALLOCATOR_PROVIDER_FORBIDDEN_HOOK_ACTIVATION_PATTERN='allocator_hook_activate|activate_allocator[[:space:]]*\(|install_allocator_hook|replace_allocator[[:space:]]*\(|replace_process_allocator[[:space:]]*\('
 ALLOCATOR_PROVIDER_FORBIDDEN_ACTIVATION_GATE_PATTERN='(^|[^A-Za-z0-9_])open_activation_gate([^A-Za-z0-9_]|$)'
 ALLOCATOR_PROVIDER_FORBIDDEN_INC_MATCHER_PATTERN='HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator|debug_guarded_allocator|hako_model_allocator|native_mimalloc|native_system_malloc'
 

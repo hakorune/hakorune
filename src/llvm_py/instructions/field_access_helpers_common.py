@@ -72,13 +72,6 @@ def _mark_float_immediate(resolver, vid: int) -> None:
     _mark_immediate_type(resolver, vid, "Float")
 
 
-def _exact_slot_helper_enabled() -> bool:
-    return (
-        os.environ.get("HAKO_TYPED_OBJECT_STORE") == "single_thread_exact"
-        and os.environ.get("HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER") == "1"
-    )
-
-
 def _is_exact_slot_u64_storage(storage: Any) -> bool:
     normalized = str(storage).strip().lower() if isinstance(storage, str) else None
     return normalized == "u64" or (

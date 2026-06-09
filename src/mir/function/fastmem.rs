@@ -177,6 +177,7 @@ pub struct FastMemFieldAccessSite {
     pub source_span: Span,
     pub region: Option<FastMemRegionId>,
     pub base_value: ValueId,
+    pub receiver_box_name: Option<String>,
     pub field_id: String,
     pub layout_id: Option<String>,
     pub access_kind: String,

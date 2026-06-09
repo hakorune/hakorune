@@ -575,10 +575,29 @@ typed_object_exact_slot_export!(
     fallback = 0;
     body = |handle, slot| get_exact_signed_i64(handle, slot).unwrap_or(0)
 );
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_get_i64_hii,
+    "hako.object.exact_slot_get_i64_hii",
+    slot: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot| get_exact_signed_i64(handle, slot).unwrap_or(0)
+);
 
 typed_object_exact_slot_export!(
     nyash_object_exact_slot_set_i64_hii,
     "nyash.object.exact_slot_set_i64_hii",
+    slot: i64,
+    value: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot, value| {
+        i64::from(set_exact_signed_i64(handle, slot, value))
+    }
+);
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_set_i64_hii,
+    "hako.object.exact_slot_set_i64_hii",
     slot: i64,
     value: i64;
     -> i64;
@@ -645,6 +664,16 @@ typed_object_exact_slot_export!(
         get_exact_unsigned_u64(handle, slot).unwrap_or(0)
     }
 );
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_get_u64_hii,
+    "hako.object.exact_slot_get_u64_hii",
+    slot: i64;
+    -> u64;
+    fallback = 0;
+    body = |handle, slot| {
+        get_exact_unsigned_u64(handle, slot).unwrap_or(0)
+    }
+);
 
 typed_object_exact_slot_export!(
     nyash_object_exact_slot_set_u64_hiu,
@@ -657,10 +686,32 @@ typed_object_exact_slot_export!(
         i64::from(set_exact_unsigned_u64(handle, slot, value))
     }
 );
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_set_u64_hiu,
+    "hako.object.exact_slot_set_u64_hiu",
+    slot: i64,
+    value: u64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot, value| {
+        i64::from(set_exact_unsigned_u64(handle, slot, value))
+    }
+);
 
 typed_object_exact_slot_export!(
     nyash_object_exact_slot_rmw_add_u64_hiii,
     "nyash.object.exact_slot_rmw_add_u64_hiii",
+    slot: i64,
+    delta: i64;
+    -> i64;
+    fallback = -1;
+    body = |handle, slot, delta| {
+        exact_slot_rmw_add_u64(handle, slot, delta).unwrap_or(-1)
+    }
+);
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_rmw_add_u64_hiii,
+    "hako.object.exact_slot_rmw_add_u64_hiii",
     slot: i64,
     delta: i64;
     -> i64;
@@ -688,10 +739,39 @@ typed_object_exact_slot_export!(
         }
     }
 );
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_get_handle_hii,
+    "hako.object.exact_slot_get_handle_hii",
+    slot: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot| {
+        if matches!(
+            super::typed_object_store_backend::selected_backend(),
+            super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
+        ) && handle >= 0
+        {
+            read_direct_slot_compat_i64(handle, slot).unwrap_or(0)
+        } else {
+            get_compat_i64(handle, slot).unwrap_or(0)
+        }
+    }
+);
 
 typed_object_exact_slot_export!(
     nyash_object_exact_slot_set_handle_hii,
     "nyash.object.exact_slot_set_handle_hii",
+    slot: i64,
+    value: i64;
+    -> i64;
+    fallback = 0;
+    body = |handle, slot, value| {
+        i64::from(set_compat_i64(handle, slot, value))
+    }
+);
+typed_object_exact_slot_export!(
+    hako_object_exact_slot_set_handle_hii,
+    "hako.object.exact_slot_set_handle_hii",
     slot: i64,
     value: i64;
     -> i64;
@@ -809,6 +889,13 @@ mod tests {
         let object = nyash_object_new_typed_hi(type_id, 3);
         assert!(object < 0);
 
+        assert_eq!(hako_object_exact_slot_set_i64_hii(object, 0, 11), 1);
+        assert_eq!(hako_object_exact_slot_get_i64_hii(object, 0), 11);
+        assert_eq!(hako_object_exact_slot_set_u64_hiu(object, 1, 20), 1);
+        assert_eq!(hako_object_exact_slot_rmw_add_u64_hiii(object, 1, 3), 23);
+        assert_eq!(hako_object_exact_slot_get_u64_hii(object, 1), 23);
+        assert_eq!(hako_object_exact_slot_set_handle_hii(object, 2, -9), 1);
+        assert_eq!(hako_object_exact_slot_get_handle_hii(object, 2), -9);
         assert_eq!(nyash_object_exact_slot_set_i64_hii(object, 0, 11), 1);
         assert_eq!(nyash_object_exact_slot_get_i64_hii(object, 0), 11);
         assert_eq!(nyash_object_exact_slot_set_u64_hiu(object, 1, 20), 1);

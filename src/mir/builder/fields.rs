@@ -78,9 +78,15 @@ impl super::MirBuilder {
         field: String,
     ) -> Result<ValueId, String> {
         let region = self.current_fastmem_region();
+        let receiver_box_name = self
+            .type_ctx
+            .value_origin_newbox
+            .get(&object_value)
+            .cloned();
         self.record_field_access_site(
             region,
             object_value,
+            receiver_box_name,
             field.clone(),
             None,
             "load",
@@ -156,9 +162,15 @@ impl super::MirBuilder {
         value_result: ValueId,
     ) -> Result<ValueId, String> {
         let region = region.or_else(|| self.current_fastmem_region());
+        let receiver_box_name = self
+            .type_ctx
+            .value_origin_newbox
+            .get(&object_value)
+            .cloned();
         self.record_field_access_site(
             region,
             object_value,
+            receiver_box_name,
             field.clone(),
             None,
             "store",

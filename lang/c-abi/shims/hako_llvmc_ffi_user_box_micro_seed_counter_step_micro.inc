@@ -7,11 +7,26 @@ static int hako_llvmc_emit_userbox_counter_step_micro_ir(
   FILE* f;
   int rc;
   long long final_sum;
+  char extra[128];
 
   if (!(obj_out && selection && ops == 2000000)) {
     return -1;
   }
   final_sum = step_value * (ops + 1);
+  if (hako_llvmc_route_trace_enabled()) {
+    snprintf(
+        extra,
+        sizeof(extra),
+        "ops=%lld step=%lld sum=%lld",
+        ops,
+        step_value,
+        final_sum);
+    hako_llvmc_emit_route_trace(
+        "userbox_known_receiver_method_seed",
+        "emit",
+        "micro_sum",
+        extra);
+  }
 
   snprintf(
       llpath,

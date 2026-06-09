@@ -1,5 +1,4 @@
 use super::{borrowed_handle::SourceLifetimeKeep, TextRef};
-use crate::observe;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -119,24 +118,12 @@ pub(crate) fn with_array_store_str_source<R>(
             .expect("array store source callback should run once");
         f(source_kind, source)
     };
-    if source_handle > 0 && observe::len_route_matches_latest_fresh_handle(source_handle) {
-        if let Some(result) =
-            handles::with_latest_fresh_stable_box(source_handle as u64, |source_obj| {
-                crate::observe::record_store_array_str_lookup_caller_latest_fresh_tag();
-                handles::perf_observe_object_with_handle_caller(
-                    source_handle as u64,
-                    handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
-                );
-                dispatch(Some(source_obj))
-            })
-        {
-            return result;
-        }
-    }
+    // Hot string-store paths favor one registry lookup over the latest-fresh
+    // TLS shortcut. The latest-fresh fast path stays available for other
+    // string corridors, but this route keeps the object lookup shape uniform.
     crate::observe::record_store_array_str_lookup_registry_slot_read();
     handles::with_handle(source_handle as u64, |source_obj| {
         if source_obj.is_some() {
-            crate::observe::record_store_array_str_lookup_caller_latest_fresh_tag();
             handles::perf_observe_object_with_handle_caller(
                 source_handle as u64,
                 handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,

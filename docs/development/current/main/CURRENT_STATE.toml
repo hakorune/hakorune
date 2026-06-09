@@ -9,7 +9,7 @@ status = "Active"
 date = "2026-06-09"
 
 active_lane = "Hako Mimalloc typed-object exact slot ABI split"
-active_lane_status = "User-box counter-heavy optimization is gated on separating exact slot routes from compat field_get_hii before further C-speed work."
+active_lane_status = "User-box counter-heavy optimization is moving from compat field_get_hii to selected exact slot routes through a helper-backed bridge before NativeDirect."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
 method_anchor = "docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md"
@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
-latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split: field_get_hii stays compat/legacy, selected exact routes use typed_object.slot_load/store_* and exact_slot_get/set_* bridges before NativeDirect."
+latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split: field_get_hii stays compat/legacy, TYPEDOBJ-ABI-002 uses hako.typed_object.slot_load_i64 with lowering_form=exact_helper_bridge, and NativeDirect stays a later slice."
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."

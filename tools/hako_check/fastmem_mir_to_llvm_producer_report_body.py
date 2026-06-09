@@ -26,7 +26,11 @@ from fastmem_mir_to_llvm_producer_report_common import (
 )
 from fastmem_mir_to_llvm_producer_report_tail_rows import build_tail_rows
 from fastmem_mir_to_llvm_producer_report_route_rows import build_route_state
-from typed_object_exact_slot_inventory import typed_object_exact_slot_inventory
+from typed_object_exact_slot_inventory import (
+    typed_object_exact_route_sample_rows,
+    typed_object_exact_slot_route_decisions,
+    typed_object_exact_slot_inventory,
+)
 from fastmem_route_profiles import (
     abandoned_reclaim_preflight_profile,
     abandoned_reclaim_producer_profile,
@@ -819,6 +823,31 @@ def _report_header_rows(state: dict[str, Any], slice_rows: list[tuple[str, str]]
             str(typed_object_inventory["typed_object_exact_helper_call_count"]),
         ),
         (
+            "typed_object_exact_slot_eligible_count",
+            str(typed_object_inventory["typed_object_exact_slot_eligible_count"]),
+        ),
+        (
+            "typed_object_exact_slot_compat_legacy_count",
+            str(typed_object_inventory["typed_object_exact_slot_compat_legacy_count"]),
+        ),
+        (
+            "typed_object_exact_route_decision_count",
+            str(typed_object_inventory["typed_object_exact_route_decision_count"]),
+        ),
+        (
+            "typed_object_exact_lowering_forms",
+            str(typed_object_inventory["typed_object_exact_lowering_forms"]),
+        ),
+        (
+            "typed_object_exact_bridge_symbols",
+            str(typed_object_inventory["typed_object_exact_bridge_symbols"]),
+        ),
+        (
+            "typed_object_exact_route_sample_count",
+            str(len(typed_object_exact_route_rows)),
+        ),
+        *typed_object_exact_route_sample_rows(typed_object_exact_route_rows),
+        (
             "typed_object_inline_slot_load_count",
             str(typed_object_inventory["typed_object_inline_slot_load_count"]),
         ),
@@ -921,6 +950,7 @@ def _report_post_rows(
     free_head_non_empty_facts: list[dict[str, Any]],
     state: dict[str, Any],
     route_state: dict[str, Any],
+    typed_object_exact_route_rows: list[dict[str, Any]],
 ) -> list[tuple[str, str]]:
     rows = _page_local_route_report_rows(
         profile=profile,
@@ -944,6 +974,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
     regions = fastmem_regions(mir)
     memops = fastmem_memops(mir)
     typed_object_inventory = typed_object_exact_slot_inventory(mir)
+    typed_object_exact_route_rows = typed_object_exact_slot_route_decisions(mir)
     free_head_non_empty_facts = fastmem_free_head_non_empty_facts(mir)
     verified_plans = [plan for plan in plans if is_verified(plan)]
     verified_table = [plan for plan in verified_plans if plan.get("kind") == "table_index"]
@@ -1320,6 +1351,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
             free_head_non_empty_facts=free_head_non_empty_facts,
             state=locals().copy(),
             route_state=route_state,
+            typed_object_exact_route_rows=typed_object_exact_route_rows,
         )
     )
     return rows

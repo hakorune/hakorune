@@ -34,7 +34,7 @@ env PYTHONPATH=src/llvm_py:src python3 -m unittest "${PYTHON_TESTS[@]}"
 echo "[k2-wide-rawmap-delete] --- route lock ---"
 rg -F -q 'pub(super) fn map_slot_delete_any(handle: i64, key_any: i64) -> i64' "$MAP_SLOT_MUTATE_FILE"
 rg -F -q 'nyash.map.delete_hh' "$MAP_ALIASES_FILE"
-rg -F -q 'method_name == "delete"' "$MIR_COLLECTION_FILE"
+rg -F -q 'method_name == MAP_METHOD_DELETE' "$MIR_COLLECTION_FILE"
 rg -F -q 'method in {"get", "push", "set", "has", "clear", "delete"}' "$METHOD_CALL_FILE"
 rg -F -q 'method_name == "delete"' "$BOXCALL_COLLECTION_FILE"
 

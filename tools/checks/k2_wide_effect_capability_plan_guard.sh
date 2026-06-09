@@ -17,8 +17,8 @@ run_cargo_test_filter_group "$TAG" "effect/capability plan acceptance" \
 rg -F -q 'pub mod effect_capability_plan' src/mir/mod.rs
 rg -F -q 'pub mod rune_plan_refresh' src/mir/mod.rs
 rg -F -q 'pub fn refresh_function_rune_plans' src/mir/rune_plan_refresh.rs
-rg -F -q 'pub effect_plans: Vec<EffectPlan>' src/mir/function/types.rs
-rg -F -q 'pub capability_plans: Vec<CapabilityPlan>' src/mir/function/types.rs
+rg -F -q 'pub effect_plans: Vec<EffectPlan>' src/mir/function/metadata.rs
+rg -F -q 'pub capability_plans: Vec<CapabilityPlan>' src/mir/function/metadata.rs
 rg -F -q 'refresh_function_rune_plans(function)' src/mir/semantic_refresh.rs
 rg -F -q 'insert_plan_metadata_json' src/runner/mir_json_emit/plan_metadata.rs
 rg -F -q 'build_function_metadata_json(f)' src/runner/mir_json_emit/root.rs

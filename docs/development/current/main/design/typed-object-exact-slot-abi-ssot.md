@@ -137,6 +137,39 @@ Example selected route:
 }
 ```
 
+TYPEDOBJ-ABI-002 uses one semantic route with an explicit lowering form:
+
+```json
+{
+  "selected_route": "hako.typed_object.slot_load_i64",
+  "lowering_form": "exact_helper_bridge",
+  "bridge_symbol": "hako.object.exact_slot_get_i64_hii",
+  "native_direct_ready": false
+}
+```
+
+NativeDirect later changes the lowering form, not the semantic route:
+
+```json
+{
+  "selected_route": "hako.typed_object.slot_load_i64",
+  "lowering_form": "native_direct",
+  "bridge_symbol": null,
+  "native_direct_ready": true
+}
+```
+
+Do not split the semantic route into helper and inline variants. The split is:
+
+```text
+semantic route:
+  hako.typed_object.slot_load_i64
+
+lowering forms:
+  exact_helper_bridge
+  native_direct
+```
+
 Rules:
 
 ```text
@@ -159,6 +192,11 @@ selected NativeDirect route:
 Exact helper calls are a transition step between compat helpers and inline
 NativeDirect lowering. They are allowed only behind a proof-bearing selected
 route.
+
+TYPEDOBJ-ABI-002 keeps this helper bridge by design. Its purpose is to move the
+i64 benchmark away from compat `field_get_hii`, make exact route evidence
+visible, and measure whether the helper call is the remaining owner. The helper
+bridge is not keeper evidence for the final C-speed route.
 
 Required proof for a selected exact load/store:
 
@@ -192,6 +230,21 @@ not rely on those values as semantic fallback.
 Legacy `nyash.object.*` exact-slot exports remain migration aliases only and
 must not become the preferred naming in new docs or routes.
 
+Implementation migration may choose one of these two forms:
+
+```text
+preferred:
+  add hako.object.exact_slot_get_i64_hii as the preferred export
+  keep nyash.object.exact_slot_get_i64_hii as a legacy alias
+
+minimal bridge:
+  call the existing nyash.object.exact_slot_get_i64_hii export
+  report migration_alias_used=1
+  keep RouteDecision selected_route=hako.typed_object.slot_load_i64
+```
+
+Both forms must keep the semantic route in the `hako.*` namespace.
+
 ## Lowering Ladder
 
 ```text
@@ -209,6 +262,19 @@ NativeDirect:
   no runtime helper in the selected hot region
 ```
 
+NativeDirect is not part of TYPEDOBJ-ABI-002. It requires storage/slot/address
+facts from the pinned typed-object arena contract:
+
+```text
+object_storage_pinned_required=1
+field_address_stable_required=1
+object_generation_required=1
+slot_layout_stable_required=1
+handle_generation_validation_required=1
+lease_region_required=1
+lease_barrier_policy_required=1
+```
+
 Do not reopen broad `field_get_hii` helper optimization once the owner is the
 exact ABI boundary. The next keeper must either move the benchmark route to
 `hako.object.exact_slot_get_i64_hii` or move the selected route to inline
@@ -222,6 +288,9 @@ Minimum evidence:
 typed_object_exact_slot_get_i64_count
 typed_object_exact_slot_set_i64_count
 typed_object_exact_helper_call_count
+typed_object_exact_lowering_form=exact_helper_bridge|native_direct|none
+typed_object_exact_bridge_symbol=hako.object.exact_slot_get_i64_hii|none
+typed_object_migration_alias_used=0|1
 typed_object_inline_slot_load_count
 typed_object_inline_slot_store_count
 typed_object_compat_field_get_count
@@ -236,6 +305,7 @@ Keeper gates:
 
 ```text
 selected_exact_route_present=1
+typed_object_exact_lowering_form=exact_helper_bridge
 typed_object_get_compat_i64_count=0
 typed_object_exact_internal_dispatch_count=0
 typed_object_exact_silent_fallback_count=0
@@ -262,6 +332,8 @@ TYPEDOBJ-ABI-002:
   hako.typed_object.slot_load_i64 and helper-backed
   hako.object.exact_slot_get_i64_hii.
   Keep field_get_hii as compat/legacy.
+  Keep lowering_form=exact_helper_bridge.
+  Do not open NativeDirect.
 
 TYPEDOBJ-ABI-003:
   Guard exact selected routes so helper internal dispatch is not counted as a

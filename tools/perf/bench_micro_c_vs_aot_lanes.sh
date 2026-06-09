@@ -62,6 +62,7 @@ cleanup() {
   rm -f \
     "${C_KERNEL_OBJ}" "${C_KERNEL_SRC}" "${C_KERNEL_BIN}" \
     "${NY_AOT_EXE}" "${NY_AOT_RET0}" "${NY_KERNEL_OBJ}" "${NY_KERNEL_SRC}" "${NY_KERNEL_BIN}" \
+    "${NY_KERNEL_OBJ%.o}.ny_main.o" \
     >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -139,10 +140,22 @@ build_ny_kernel_runner() {
   local out_obj="$4"
   local runner_src="$5"
   local out_bin="$6"
+  local link_obj="$out_obj"
+  local renamed_obj="${out_obj%.o}.ny_main.o"
 
   if ! perf_emit_and_build_aot_obj "${root_dir}" "${hako_bin}" "${hako_prog}" "${out_obj}"; then
     echo "[error] AOT object emit/build failed: status=${PERF_AOT_LAST_STATUS} reason=${PERF_AOT_LAST_REASON} stage=${PERF_AOT_LAST_STAGE}" >&2
     return 1
+  fi
+
+  if nm -g --defined-only "${out_obj}" 2>/dev/null | awk '$3 == "main" { found = 1 } END { exit(found ? 0 : 1) }'; then
+    if command -v objcopy >/dev/null 2>&1; then
+      objcopy --redefine-sym main=ny_main "${out_obj}" "${renamed_obj}"
+      link_obj="${renamed_obj}"
+    else
+      echo "[error] AOT kernel runner needs objcopy to rename main->ny_main for ${out_obj}" >&2
+      return 1
+    fi
   fi
 
   cat <<'EOF' >"${runner_src}"
@@ -177,7 +190,7 @@ int main(int argc, char** argv) {
 }
 EOF
 
-  cc -O2 -no-pie -o "${out_bin}" "${runner_src}" "${out_obj}" \
+  cc -O2 -no-pie -o "${out_bin}" "${runner_src}" "${link_obj}" \
     "${root_dir}/target/release/libnyash_kernel.a" -ldl -lpthread -lm
 }
 

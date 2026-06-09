@@ -1,4 +1,4 @@
-use super::super::array_handle_cache::with_array_box;
+use super::super::array_handle_cache::with_array_box_ready;
 use super::super::handle_cache::valid_handle_idx;
 use super::array_string_slot_helpers::{
     array_text_read_ref_demand, string_indexof_fast_str, with_compiler_const_utf8_ptr_len,
@@ -38,7 +38,7 @@ pub(in super::super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    with_array_box(handle, |arr| arr.slot_text_len_raw(idx).unwrap_or(0)).unwrap_or(0)
+    with_array_box_ready(handle, |arr| arr.slot_text_len_raw(idx).unwrap_or(0)).unwrap_or(0)
 }
 
 #[inline(always)]
@@ -71,7 +71,7 @@ fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64
     if needle.is_empty() {
         return 0;
     }
-    with_array_box(handle, |arr| {
+    with_array_box_ready(handle, |arr| {
         arr.slot_with_text_raw(idx, |hay| string_indexof_fast_str(hay, needle))
             .unwrap_or(-1)
     })

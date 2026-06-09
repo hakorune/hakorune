@@ -15,7 +15,10 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from typed_object_exact_slot_inventory import typed_object_exact_slot_inventory
+from typed_object_exact_slot_inventory import (
+    typed_object_exact_slot_route_decisions,
+    typed_object_exact_slot_inventory,
+)
 
 
 PRIMITIVE_TYPES = {
@@ -220,7 +223,6 @@ def main() -> int:
     record_state_field_access_plans = function_metadata_rows(
         data, "record_state_field_access_plans"
     )
-
     all_field_rows = iter_user_box_fields(user_box_decls)
     field_rows = selected_boxes(all_field_rows, args.box_filter)
 
@@ -238,6 +240,7 @@ def main() -> int:
         if args.box_filter is None or str(plan.get("box_name", "unknown")) == args.box_filter
     ]
     typed_object_exact_slot_inventory_rows = typed_object_exact_slot_inventory(data)
+    typed_object_exact_route_rows = typed_object_exact_slot_route_decisions(data)
     selected_direct_state_plans = [
         plan
         for plan in direct_state_plans
@@ -337,6 +340,12 @@ def main() -> int:
         f"typed_object_exact_slot_get_handle_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_get_handle_count']}",
         f"typed_object_exact_slot_set_handle_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_set_handle_count']}",
         f"typed_object_exact_helper_call_count={typed_object_exact_slot_inventory_rows['typed_object_exact_helper_call_count']}",
+        f"typed_object_exact_slot_eligible_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_eligible_count']}",
+        f"typed_object_exact_slot_compat_legacy_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_compat_legacy_count']}",
+        f"typed_object_exact_route_decision_count={typed_object_exact_slot_inventory_rows['typed_object_exact_route_decision_count']}",
+        f"typed_object_exact_lowering_forms={typed_object_exact_slot_inventory_rows['typed_object_exact_lowering_forms']}",
+        f"typed_object_exact_bridge_symbols={typed_object_exact_slot_inventory_rows['typed_object_exact_bridge_symbols']}",
+        f"typed_object_exact_route_sample_count={len(typed_object_exact_route_rows)}",
         f"typed_object_inline_slot_load_count={typed_object_exact_slot_inventory_rows['typed_object_inline_slot_load_count']}",
         f"typed_object_inline_slot_store_count={typed_object_exact_slot_inventory_rows['typed_object_inline_slot_store_count']}",
         f"typed_object_compat_field_get_count={typed_object_exact_slot_inventory_rows['typed_object_compat_field_get_count']}",
@@ -445,6 +454,22 @@ def main() -> int:
                 f"{prefix}_route={plan.get('route', 'unknown')}",
                 f"{prefix}_lowering_enabled={bool_text(bool(plan.get('lowering_enabled')))}",
                 f"{prefix}_fallback_policy={plan.get('fallback_policy', 'unknown')}",
+            ]
+        )
+
+    for idx, row in enumerate(typed_object_exact_route_rows[: max(0, args.topn)]):
+        prefix = f"typed_object_exact_route_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={row.get('function', 'unknown')}",
+                f"{prefix}_site_id={row.get('site_id', 'unknown')}",
+                f"{prefix}_semantic_op={row.get('semantic_op', 'unknown')}",
+                f"{prefix}_selected_route={row.get('selected_route', 'unknown')}",
+                f"{prefix}_selected_lowering_form={row.get('selected_lowering_form', 'unknown')}",
+                f"{prefix}_selected_bridge_symbol={row.get('selected_bridge_symbol', 'unknown')}",
+                f"{prefix}_selected_storage={row.get('selected_storage', 'unknown')}",
+                f"{prefix}_receiver_box_name={row.get('receiver_box_name', 'unknown')}",
+                f"{prefix}_field_id={row.get('field_id', 'unknown')}",
             ]
         )
 

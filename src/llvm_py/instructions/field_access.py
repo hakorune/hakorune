@@ -12,7 +12,6 @@ from instructions.field_access_helpers import (
     _direct_slot_nativedirect_selected,
     _direct_slot_nativedirect_storage_supported,
     _exact_field_plan_for_receiver,
-    _exact_slot_helper_enabled,
     _ensure_handle,
     _field_ptr,
     _floatish_llvm_value,

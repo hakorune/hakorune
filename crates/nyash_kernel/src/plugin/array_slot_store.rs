@@ -1,10 +1,13 @@
-use super::array_handle_cache::with_array_box;
+use super::array_handle_cache::{with_array_box, with_array_box_ready};
 use super::array_slot_backend;
 use super::array_string_slot::{
     array_string_store_handle_at, array_string_store_kernel_text_slot_at,
 };
 use super::handle_cache::valid_handle_idx;
-use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
+use super::value_codec::{
+    decode_array_fast_value, with_array_store_str_source, ArrayFastDecodedValue,
+    ArrayStoreStrSource, StringHandleSourceKind,
+};
 use super::value_demand::ARRAY_GENERIC_STORE_ANY;
 use super::KernelTextSlot;
 
@@ -30,6 +33,31 @@ pub(super) fn array_slot_store_any(handle: i64, idx: i64, val_any: i64) -> i64 {
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
+    let mut string_lane_result = None;
+    with_array_store_str_source(val_any, |source_kind, source| {
+        if !matches!(source_kind, StringHandleSourceKind::StringLike) {
+            return;
+        }
+        let Some(value) = (match source {
+            ArrayStoreStrSource::StringLike(source_text) => {
+                source_text.with_text(|text| text.as_str().to_owned())
+            }
+            ArrayStoreStrSource::OtherObject | ArrayStoreStrSource::Missing => None,
+        }) else {
+            return;
+        };
+        string_lane_result = Some(with_array_box_ready(handle, |arr| {
+            if arr.slot_store_text_raw(idx, value) {
+                1
+            } else {
+                0
+            }
+        })
+        .unwrap_or(0));
+    });
+    if let Some(result) = string_lane_result {
+        return result;
+    }
     match decode_array_fast_value(val_any) {
         ArrayFastDecodedValue::ImmediateI64(v) => array_slot_store_i64(handle, idx, v),
         ArrayFastDecodedValue::ImmediateBool(v) => array_slot_store_bool(handle, idx, v),
@@ -48,7 +76,7 @@ pub(super) fn array_slot_store_bool(handle: i64, idx: i64, value_bool: bool) -> 
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    with_array_box(handle, |arr| {
+    with_array_box_ready(handle, |arr| {
         if arr.slot_store_bool_raw(idx, value_bool) {
             1
         } else {
@@ -63,7 +91,7 @@ pub(super) fn array_slot_store_f64(handle: i64, idx: i64, value_f64: f64) -> i64
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    with_array_box(handle, |arr| {
+    with_array_box_ready(handle, |arr| {
         if arr.slot_store_f64_raw(idx, value_f64) {
             1
         } else {

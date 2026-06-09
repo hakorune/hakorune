@@ -5,7 +5,7 @@
 # - TAG
 # - DOC
 # - ROOT_EMIT
-# - FUNCTION_TYPES
+# - FUNCTION_METADATA
 # - SEMANTIC_REFRESH
 # - RUNE_CONTRACTS
 # - INLINE_REQUIRED
@@ -376,7 +376,7 @@ mir_metadata_catalog_check_keys() {
   )
   for key in "${seed_keys[@]}"; do
     mir_metadata_catalog_require_doc_token "\`$key\`"
-    mir_metadata_catalog_require_source_token "$key" "$FUNCTION_TYPES"
+    mir_metadata_catalog_require_source_token "$key" "$FUNCTION_METADATA"
   done
 
   mir_metadata_catalog_require_source_token "refresh_module_record_layout_plans" "$SEMANTIC_REFRESH"

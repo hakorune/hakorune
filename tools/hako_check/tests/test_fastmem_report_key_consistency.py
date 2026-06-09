@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 import unittest
+import tempfile
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 TOOLS = ROOT / "tools" / "hako_check"
@@ -10,7 +13,13 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from fastmem_mir_to_llvm_producer_report_body import build_report_rows
-from typed_object_exact_slot_inventory import typed_object_exact_slot_inventory
+import state_explain
+from typed_object_exact_slot_inventory import (
+    typed_object_exact_route_sample_rows,
+    typed_object_exact_bridge_symbol,
+    typed_object_exact_slot_route_decisions,
+    typed_object_exact_slot_inventory,
+)
 from report_kv import row_key_surface, shared_key_surface
 
 
@@ -174,6 +183,343 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
         self.assertEqual(inventory["typed_object_exact_internal_dispatch_count"], 0)
         self.assertEqual(inventory["typed_object_exact_silent_fallback_count"], 0)
         self.assertEqual(inventory["typed_object_required_route_failfast_count"], 1)
+
+    def test_typed_object_exact_slot_inventory_prefers_route_decisions_when_present(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "metadata": {
+                        "route_decisions": [
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldGet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "i64",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                            },
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldSet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "u64",
+                                "selected_route": "hako.typed_object.slot_store_u64",
+                            },
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldGet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "handle",
+                                "selected_route": "hako.typed_object.slot_load_handle",
+                            },
+                        ]
+                    }
+                }
+            ],
+            "typed_object_plans": [
+                {
+                    "box_name": "Point",
+                    "fields": [
+                        {"name": "x", "storage": "i64"},
+                        {"name": "y", "storage": "u64"},
+                        {"name": "owner", "storage": "handle"},
+                    ],
+                }
+            ],
+            "user_box_decls": [
+                {
+                    "name": "Point",
+                    "field_decls": [
+                        {"name": "x", "declared_type": "i64", "is_weak": False},
+                        {"name": "y", "declared_type": "u64", "is_weak": False},
+                        {"name": "owner", "declared_type": "handle", "is_weak": False},
+                        {"name": "compat_only", "declared_type": "i64", "is_weak": True},
+                    ],
+                }
+            ],
+        }
+
+        inventory = typed_object_exact_slot_inventory(mir)
+        self.assertEqual(inventory["typed_object_exact_slot_get_i64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_set_i64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_get_u64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_set_u64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_get_handle_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_set_handle_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_helper_call_count"], 3)
+        self.assertEqual(inventory["typed_object_exact_slot_eligible_count"], 3)
+        self.assertEqual(inventory["typed_object_compat_field_get_count"], 1)
+        self.assertEqual(inventory["typed_object_required_route_failfast_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_route_decision_count"], 3)
+        self.assertEqual(
+            inventory["typed_object_exact_lowering_forms"], "exact_helper_bridge"
+        )
+        self.assertEqual(
+            inventory["typed_object_exact_bridge_symbols"],
+            "hako.object.exact_slot_get_handle_hii,hako.object.exact_slot_get_i64_hii,hako.object.exact_slot_set_u64_hiu",
+        )
+
+    def test_typed_object_exact_route_sample_rows_infer_bridge_symbol(self) -> None:
+        rows = typed_object_exact_route_sample_rows(
+            [
+                {
+                    "function": "main",
+                    "site_id": "site-1",
+                    "semantic_op": "FieldGet",
+                    "selected_lowering_form": "exact_helper_bridge",
+                    "selected_storage": "i64",
+                    "selected_route": "hako.typed_object.slot_load_i64",
+                }
+            ]
+        )
+
+        self.assertEqual(
+            rows,
+            [
+                ("typed_object_exact_route_0_function", "main"),
+                ("typed_object_exact_route_0_site_id", "site-1"),
+                ("typed_object_exact_route_0_selected_route", "hako.typed_object.slot_load_i64"),
+                (
+                    "typed_object_exact_route_0_selected_lowering_form",
+                    "exact_helper_bridge",
+                ),
+                (
+                    "typed_object_exact_route_0_selected_bridge_symbol",
+                    "hako.object.exact_slot_get_i64_hii",
+                ),
+            ],
+        )
+
+    def test_typed_object_exact_slot_route_decisions_filter_exact_helper_bridge(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "metadata": {
+                        "route_decisions": [
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                            },
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "selected_lowering_form": "native_direct",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                            },
+                            {
+                                "source_plan_kind": "OtherRoute",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                            },
+                        ]
+                    },
+                }
+            ]
+        }
+
+        decisions = typed_object_exact_slot_route_decisions(mir)
+        self.assertEqual(len(decisions), 1)
+        self.assertEqual(decisions[0]["selected_route"], "hako.typed_object.slot_load_i64")
+        self.assertEqual(decisions[0]["selected_lowering_form"], "exact_helper_bridge")
+
+    def test_typed_object_exact_bridge_symbol_helper(self) -> None:
+        self.assertEqual(
+            typed_object_exact_bridge_symbol("FieldGet", "i64"),
+            "hako.object.exact_slot_get_i64_hii",
+        )
+        self.assertEqual(
+            typed_object_exact_bridge_symbol("FieldSet", "u64"),
+            "hako.object.exact_slot_set_u64_hiu",
+        )
+
+    def test_build_report_rows_uses_route_decision_typed_object_exact_slot_counts(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "metadata": {
+                        "route_decisions": [
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldGet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "i64",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                            },
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldSet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "u64",
+                                "selected_route": "hako.typed_object.slot_store_u64",
+                            },
+                        ],
+                        "fastmem_regions": [
+                            {
+                                "contract": "PageMapV0",
+                            }
+                        ],
+                        "fastmem_access_plans": [
+                            {
+                                "kind": "table_index",
+                                "verified": True,
+                                "status": "verified",
+                                "lowerable": True,
+                                "table_id": "page_table",
+                                "field_id": "page",
+                                "table_length_resolved": True,
+                                "stride_resolved": True,
+                                "field_offset_resolved": True,
+                                "element_layout_verified": True,
+                                "bounds_proof_valid": True,
+                                "overflow_proof_valid": True,
+                                "alignment_valid": True,
+                                "alignment": 8,
+                            }
+                        ],
+                    },
+                    "blocks": [
+                        {
+                            "instructions": [{"op": "branch"}],
+                            "terminator": {"op": "branch"},
+                        }
+                    ],
+                }
+            ],
+            "typed_object_plans": [
+                {
+                    "box_name": "Point",
+                    "fields": [
+                        {"name": "x", "storage": "i64"},
+                        {"name": "y", "storage": "u64"},
+                    ],
+                }
+            ],
+            "user_box_decls": [
+                {
+                    "name": "Point",
+                    "field_decls": [
+                        {"name": "x", "declared_type": "i64", "is_weak": False},
+                        {"name": "y", "declared_type": "u64", "is_weak": False},
+                    ],
+                }
+            ],
+        }
+
+        rows = build_report_rows(
+            mir,
+            object_out=Path("target/test-fastmem-report-row-uses-route-decisions.o"),
+            profile="remote-free-drain-to-local",
+        )
+        self.assertEqual(
+            sum(
+                1
+                for key, _ in rows
+                if key == "typed_object_exact_route_0_selected_bridge_symbol"
+            ),
+            1,
+        )
+        row_map = dict(rows)
+        self.assertEqual(row_map["typed_object_exact_slot_get_i64_count"], "1")
+        self.assertEqual(row_map["typed_object_exact_slot_set_i64_count"], "1")
+        self.assertEqual(row_map["typed_object_exact_slot_get_u64_count"], "1")
+        self.assertEqual(row_map["typed_object_exact_slot_set_u64_count"], "1")
+        self.assertEqual(row_map["typed_object_exact_helper_call_count"], "2")
+        self.assertEqual(row_map["typed_object_exact_slot_eligible_count"], "2")
+        self.assertEqual(row_map["typed_object_compat_field_get_count"], "0")
+        self.assertEqual(row_map["typed_object_required_route_failfast_count"], "0")
+        self.assertEqual(row_map["typed_object_exact_route_decision_count"], "2")
+        self.assertEqual(row_map["typed_object_exact_lowering_forms"], "exact_helper_bridge")
+        self.assertEqual(
+            row_map["typed_object_exact_bridge_symbols"],
+            "hako.object.exact_slot_get_i64_hii,hako.object.exact_slot_set_u64_hiu",
+        )
+        self.assertEqual(row_map["typed_object_exact_route_sample_count"], "2")
+        self.assertEqual(
+            row_map["typed_object_exact_route_0_selected_route"],
+            "hako.typed_object.slot_load_i64",
+        )
+        self.assertEqual(
+            row_map["typed_object_exact_route_0_selected_lowering_form"],
+            "exact_helper_bridge",
+        )
+        self.assertEqual(
+            row_map["typed_object_exact_route_0_selected_bridge_symbol"],
+            "hako.object.exact_slot_get_i64_hii",
+        )
+
+    def test_state_explain_emits_route_decision_exact_slot_rows(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "metadata": {
+                        "route_decisions": [
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldGet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "i64",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                                "selected_bridge_symbol": "hako.object.exact_slot_get_i64_hii",
+                            }
+                        ]
+                    }
+                }
+            ],
+            "typed_object_plans": [
+                {
+                    "box_name": "Page",
+                    "fields": [{"name": "capacity", "storage": "i64"}],
+                }
+            ],
+            "user_box_decls": [
+                {
+                    "name": "Page",
+                    "field_decls": [
+                        {"name": "capacity", "declared_type": "i64", "is_weak": False}
+                    ],
+                }
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mir_path = Path(tmpdir) / "mir.json"
+            out_path = Path(tmpdir) / "state.kv"
+            mir_path.write_text(json.dumps(mir), encoding="utf-8")
+            old_argv = sys.argv[:]
+            try:
+                sys.argv = [
+                    "state_explain.py",
+                    "--mir-json",
+                    str(mir_path),
+                    "--out",
+                    str(out_path),
+                ]
+                rc = state_explain.main()
+            finally:
+                sys.argv = old_argv
+
+            self.assertEqual(rc, 0)
+            text = out_path.read_text(encoding="utf-8")
+            self.assertIn("typed_object_exact_route_decision_count=1", text)
+            self.assertIn("typed_object_exact_lowering_forms=exact_helper_bridge", text)
+            self.assertIn(
+                "typed_object_exact_bridge_symbols=hako.object.exact_slot_get_i64_hii",
+                text,
+            )
+            self.assertIn(
+                "typed_object_exact_route_0_selected_route=hako.typed_object.slot_load_i64",
+                text,
+            )
+            self.assertIn(
+                "typed_object_exact_route_0_selected_lowering_form=exact_helper_bridge",
+                text,
+            )
+            self.assertIn(
+                "typed_object_exact_route_0_selected_bridge_symbol=hako.object.exact_slot_get_i64_hii",
+                text,
+            )
+            self.assertIn("typed_object_exact_route_sample_count=1", text)
 
 
 if __name__ == "__main__":

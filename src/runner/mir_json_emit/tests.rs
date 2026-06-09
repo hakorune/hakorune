@@ -22,6 +22,7 @@ mod proof_envelopes;
 mod string_corridor;
 mod string_direct_set_routes;
 mod thin_entry;
+mod typed_object_exact_slot_routes;
 
 fn make_function(name: &str, is_entry_point: bool) -> MirFunction {
     let signature = FunctionSignature {

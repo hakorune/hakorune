@@ -160,7 +160,7 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     }
     with_array_store_str_source(value_h, |source_kind, source| {
         let lane_plan = select_store_array_str_lane_plan(source_kind);
-        super::super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
+        super::super::array_handle_cache::with_array_box_ready(handle, |arr| {
             execute_store_array_str_contract_on_array(
                 arr,
                 idx,
@@ -179,6 +179,23 @@ pub(in super::super) fn array_string_store_handle_at(handle: i64, idx: i64, valu
     // The MIR-level `store.array.str` contract chooses the text source and
     // storage action. Runtime only stores text residence or degrades
     // mixed/generic arrays back to Boxed.
+    if !observe::enabled() {
+        if let Some(value) = handles::with_str_handle_ready(value_h as u64, str::to_owned) {
+            return super::super::array_handle_cache::with_array_box_ready(handle, |arr| {
+                let idx_usize = idx as usize;
+                let len = arr.len();
+                if idx_usize > len {
+                    return 0;
+                }
+                if arr.slot_store_text_raw(idx, value) {
+                    1
+                } else {
+                    0
+                }
+            })
+            .unwrap_or(0);
+        }
+    }
     execute_store_array_str_contract(handle, idx, value_h)
 }
 
@@ -193,7 +210,7 @@ pub(in super::super) fn array_string_store_kernel_text_slot_at(
         return 0;
     }
     observe::record_store_array_str_enter();
-    super::super::array_handle_cache::with_array_box(handle, |arr| {
+    super::super::array_handle_cache::with_array_box_ready(handle, |arr| {
         let idx_usize = idx as usize;
         let len = arr.len();
         if idx_usize > len {

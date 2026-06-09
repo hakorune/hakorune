@@ -268,8 +268,13 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           "exact_match",
           extra);
     }
-    rc = hako_llvmc_emit_userbox_counter_step_local_i64_ir(
-        obj_out, &ctx.selection, base_i64, delta_i64);
+    /*
+     * This micro front should return the closed-form benchmark sum, not the
+     * one-step leaf value. Reuse the micro emitter so the AOT body preserves
+     * the full 2,000,000-iteration result.
+     */
+    rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
+        obj_out, &ctx.selection, ops, base_i64 + delta_i64);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -329,8 +334,12 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           "exact_match",
           extra);
     }
-    rc = hako_llvmc_emit_userbox_counter_step_local_i64_ir(
-        obj_out, &ctx.selection, base_i64, delta_i64);
+    /*
+     * The chain-micro route is the benchmark aggregate, so emit the closed-form
+     * micro result rather than the one-step leaf value.
+     */
+    rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
+        obj_out, &ctx.selection, ops, base_i64 + delta_i64);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }

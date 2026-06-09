@@ -327,6 +327,12 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "source_plan_kind": decision.source_plan_kind,
                 "selected_i64_const": decision.selected_i64_const,
                 "selected_bool_const": decision.selected_bool_const,
+                "selected_lowering_form": decision.selected_lowering_form,
+                "selected_bridge_symbol": decision.selected_bridge_symbol,
+                "selected_slot": decision.selected_slot,
+                "selected_storage": decision.selected_storage,
+                "receiver_box_name": decision.receiver_box_name,
+                "field_id": decision.field_id,
             })
         }).collect::<Vec<_>>(),
         "concat_const_suffix_micro_seed_route": metadata.concat_const_suffix_micro_seed_route.as_ref().map(build_concat_const_suffix_micro_seed_route_json),

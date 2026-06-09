@@ -10,7 +10,7 @@ source "$ROOT_DIR/tools/checks/lib/mir_metadata_catalog_sections.sh"
 
 DOC="$ROOT_DIR/docs/reference/mir/metadata-facts-ssot.md"
 ROOT_EMIT="$ROOT_DIR/src/runner/mir_json_emit/root.rs"
-FUNCTION_TYPES="$ROOT_DIR/src/mir/function/types.rs"
+FUNCTION_METADATA="$ROOT_DIR/src/mir/function/metadata.rs"
 SEMANTIC_REFRESH="$ROOT_DIR/src/mir/semantic_refresh.rs"
 RUNE_CONTRACTS="$ROOT_DIR/src/mir/verification/rune_contracts.rs"
 INLINE_REQUIRED="$ROOT_DIR/src/mir/verification/inline_required.rs"
@@ -34,7 +34,7 @@ INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" realpath
 guard_require_files "$TAG" \
-  "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" \
+  "$DOC" "$ROOT_EMIT" "$FUNCTION_METADATA" \
   "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" \
   "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" \
   "$EXACT_NUMERIC_BACKEND" "$EXACT_SEED_BACKEND" "$ARRAY_RECORD_BOUNDARY" \
