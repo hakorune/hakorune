@@ -19,17 +19,20 @@ pub fn init_global_unified_registry() {
     GLOBAL_REGISTRY.get_or_init(|| {
         // Phase 15.5: Use environment variable policy (StrictPluginFirst for "Everything is Plugin")
         let mut registry = UnifiedBoxRegistry::with_env_policy();
+        let mut factories: Vec<Arc<dyn crate::box_factory::BoxFactory>> = Vec::new();
         // Default: enable builtins unless building with feature "plugins-only"
         #[cfg(not(feature = "plugins-only"))]
         {
-            registry.register(std::sync::Arc::new(BuiltinBoxFactory::new()));
+            factories.push(std::sync::Arc::new(BuiltinBoxFactory::new()));
         }
 
         // Register plugin Box factory (primary)
         #[cfg(feature = "plugins")]
         {
-            registry.register(Arc::new(PluginBoxFactory::new()));
+            factories.push(Arc::new(PluginBoxFactory::new()));
         }
+
+        registry.register_many(factories);
 
         // TODO: User-defined Box factory will be registered by interpreter
 

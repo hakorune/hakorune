@@ -78,6 +78,12 @@ MICRO_RUN_ENV=(
   NYASH_SKIP_TOML_ENV="${NYASH_SKIP_TOML_ENV:-1}"
 )
 
+if [[ "${KEY}" == kilo_micro_userbox_* ]]; then
+  MICRO_RUN_ENV+=(
+    HAKO_TYPED_OBJECT_STORE="${HAKO_TYPED_OBJECT_STORE:-direct_slot_exact}"
+  )
+fi
+
 # Build C baseline.
 cc -O3 -march=native -mtune=native -o "${C_BIN}" "${C_SRC}" 2>/dev/null || cc -O3 -o "${C_BIN}" "${C_SRC}"
 

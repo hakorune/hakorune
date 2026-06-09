@@ -3,6 +3,12 @@
 //! Phase 286B: Consolidates NYASH_BOX_FACTORY_* and NYASH_PLUGIN_* flags
 //! Prevents direct std::env::{var,set_var,remove_var} access (AGENTS.md 5.3)
 
+use crate::box_factory::FactoryPolicy;
+use std::sync::atomic::{AtomicU8, Ordering};
+
+const BOX_FACTORY_POLICY_MODE_UNSET: u8 = u8::MAX;
+static BOX_FACTORY_POLICY_MODE_CACHE: AtomicU8 = AtomicU8::new(BOX_FACTORY_POLICY_MODE_UNSET);
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PluginExecMode {
     ModuleFirst,
@@ -15,14 +21,73 @@ pub fn box_factory_policy() -> Option<String> {
     std::env::var("NYASH_BOX_FACTORY_POLICY").ok()
 }
 
+/// Parse NYASH_BOX_FACTORY_POLICY into a FactoryPolicy without allocating on the
+/// common default path.
+pub fn box_factory_policy_mode() -> Option<FactoryPolicy> {
+    let cached = BOX_FACTORY_POLICY_MODE_CACHE.load(Ordering::Relaxed);
+    if cached != BOX_FACTORY_POLICY_MODE_UNSET {
+        return decode_box_factory_policy_mode(cached);
+    }
+
+    let raw = std::env::var_os("NYASH_BOX_FACTORY_POLICY")?;
+    let raw = raw.to_str()?;
+    let parsed = parse_box_factory_policy(raw);
+    let _ = BOX_FACTORY_POLICY_MODE_CACHE.compare_exchange(
+        BOX_FACTORY_POLICY_MODE_UNSET,
+        encode_box_factory_policy_mode(parsed),
+        Ordering::Relaxed,
+        Ordering::Relaxed,
+    );
+    parsed
+}
+
+fn parse_box_factory_policy(raw: &str) -> Option<FactoryPolicy> {
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    if trimmed.eq_ignore_ascii_case("builtin_first") {
+        Some(FactoryPolicy::BuiltinFirst)
+    } else if trimmed.eq_ignore_ascii_case("compat_plugin_first") {
+        Some(FactoryPolicy::CompatPluginFirst)
+    } else if trimmed.eq_ignore_ascii_case("strict_plugin_first") {
+        Some(FactoryPolicy::StrictPluginFirst)
+    } else {
+        None
+    }
+}
+
+fn encode_box_factory_policy_mode(mode: Option<FactoryPolicy>) -> u8 {
+    match mode {
+        Some(FactoryPolicy::BuiltinFirst) => 1,
+        Some(FactoryPolicy::CompatPluginFirst) => 2,
+        Some(FactoryPolicy::StrictPluginFirst) => 3,
+        None => 0,
+    }
+}
+
+fn decode_box_factory_policy_mode(value: u8) -> Option<FactoryPolicy> {
+    match value {
+        1 => Some(FactoryPolicy::BuiltinFirst),
+        2 => Some(FactoryPolicy::CompatPluginFirst),
+        3 => Some(FactoryPolicy::StrictPluginFirst),
+        _ => None,
+    }
+}
+
 /// Set NYASH_BOX_FACTORY_POLICY (used for tests/scenarios)
 pub fn set_box_factory_policy(policy: &str) {
     std::env::set_var("NYASH_BOX_FACTORY_POLICY", policy);
+    BOX_FACTORY_POLICY_MODE_CACHE.store(
+        encode_box_factory_policy_mode(parse_box_factory_policy(policy)),
+        Ordering::Relaxed,
+    );
 }
 
 /// Reset NYASH_BOX_FACTORY_POLICY
 pub fn reset_box_factory_policy() {
     std::env::remove_var("NYASH_BOX_FACTORY_POLICY");
+    BOX_FACTORY_POLICY_MODE_CACHE.store(BOX_FACTORY_POLICY_MODE_UNSET, Ordering::Relaxed);
 }
 
 /// NYASH_USE_PLUGIN_BUILTINS enable
@@ -113,6 +178,50 @@ pub fn plugin_exec_mode() -> PluginExecMode {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::box_factory::FactoryPolicy;
+    use std::sync::Mutex;
+
+    static BOX_FACTORY_POLICY_ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn box_factory_policy_mode_defaults_to_none() {
+        let _lock = BOX_FACTORY_POLICY_ENV_LOCK.lock().unwrap();
+        let prev = box_factory_policy();
+        reset_box_factory_policy();
+
+        assert_eq!(box_factory_policy_mode(), None);
+
+        if let Some(v) = prev {
+            set_box_factory_policy(&v);
+        }
+    }
+
+    #[test]
+    fn box_factory_policy_mode_parses_known_values() {
+        let _lock = BOX_FACTORY_POLICY_ENV_LOCK.lock().unwrap();
+        let prev = box_factory_policy();
+
+        set_box_factory_policy("builtin_first");
+        assert_eq!(box_factory_policy_mode(), Some(FactoryPolicy::BuiltinFirst));
+
+        set_box_factory_policy("compat_plugin_first");
+        assert_eq!(
+            box_factory_policy_mode(),
+            Some(FactoryPolicy::CompatPluginFirst)
+        );
+
+        set_box_factory_policy("strict_plugin_first");
+        assert_eq!(
+            box_factory_policy_mode(),
+            Some(FactoryPolicy::StrictPluginFirst)
+        );
+
+        if let Some(v) = prev {
+            set_box_factory_policy(&v);
+        } else {
+            reset_box_factory_policy();
+        }
+    }
 
     #[test]
     fn plugin_exec_mode_defaults_to_module_first() {

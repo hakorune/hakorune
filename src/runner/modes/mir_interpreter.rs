@@ -90,7 +90,7 @@ impl NyashRunner {
                 };
 
                 // Pretty-print using MIR return type when available (only in verbose mode)
-                if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+                if crate::config::env::cli_verbose_enabled() {
                     println!("✅ MIR interpreter execution completed!");
                     if let Some(func) = module_interp.functions.get("main") {
                         use nyash_rust::mir::MirType;

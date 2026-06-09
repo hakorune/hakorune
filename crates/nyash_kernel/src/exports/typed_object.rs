@@ -6,6 +6,7 @@
 use std::collections::BTreeMap;
 use std::sync::{Mutex, OnceLock};
 
+use super::typed_object_pinned_arena::{read_direct_slot_compat_i64, write_direct_slot_compat_i64};
 use super::typed_object_store_backend::{
     exact_slot_record_alloc_success, exact_slot_record_release_success, exact_slot_rmw_add_u64,
     exact_slot_set4_i64, new_typed_object as backend_new_typed_object, with_field, with_field_mut,
@@ -24,6 +25,9 @@ const STORAGE_U8: i64 = 8;
 const STORAGE_U16: i64 = 9;
 const STORAGE_U32: i64 = 10;
 const STORAGE_U64: i64 = 11;
+
+type FieldGetHiiImpl = fn(i64, i64) -> i64;
+type FieldSetHiiImpl = fn(i64, i64, i64);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TypedSlotStorage {
@@ -149,6 +153,7 @@ impl TypedSlot {
         true
     }
 
+    #[inline(always)]
     pub(crate) fn set_compat_i64(&mut self, value: i64) -> bool {
         if !self.storage.supports_compat_i64() {
             return false;
@@ -160,6 +165,7 @@ impl TypedSlot {
         true
     }
 
+    #[inline(always)]
     pub(crate) fn as_compat_i64(&self) -> Option<i64> {
         if !self.storage.supports_compat_i64() {
             return None;
@@ -238,6 +244,8 @@ pub(crate) struct TypedSlotObject {
 }
 
 static TYPED_OBJECT_LAYOUTS: OnceLock<Mutex<BTreeMap<i64, TypedSlotLayout>>> = OnceLock::new();
+static FIELD_GET_HII_DISPATCH: OnceLock<FieldGetHiiImpl> = OnceLock::new();
+static FIELD_SET_HII_DISPATCH: OnceLock<FieldSetHiiImpl> = OnceLock::new();
 
 fn typed_layouts() -> &'static Mutex<BTreeMap<i64, TypedSlotLayout>> {
     TYPED_OBJECT_LAYOUTS.get_or_init(|| Mutex::new(BTreeMap::new()))
@@ -359,20 +367,12 @@ pub extern "C" fn nyash_object_new_typed_h(type_id: i64) -> i64 {
 
 #[export_name = "nyash.object.field_get_hii"]
 pub extern "C" fn nyash_object_field_get_hii(handle: i64, slot: i64) -> i64 {
-    if slot < 0 {
-        return 0;
-    }
-    let slot = slot as usize;
-    get_compat_i64(handle, slot).unwrap_or(0)
+    field_get_hii_dispatch()(handle, slot)
 }
 
 #[export_name = "nyash.object.field_set_hii"]
 pub extern "C" fn nyash_object_field_set_hii(handle: i64, slot: i64, value: i64) {
-    if slot < 0 {
-        return;
-    }
-    let slot = slot as usize;
-    let _ = set_compat_i64(handle, slot, value);
+    field_set_hii_dispatch()(handle, slot, value)
 }
 
 #[export_name = "nyash.object.field_storage_hii"]
@@ -442,32 +442,103 @@ fn exact_slot_index(slot: i64) -> Option<usize> {
     usize::try_from(slot).ok()
 }
 
+#[inline(always)]
+fn field_get_hii_dispatch() -> FieldGetHiiImpl {
+    *FIELD_GET_HII_DISPATCH.get_or_init(|| {
+        if matches!(
+            super::typed_object_store_backend::selected_backend(),
+            super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
+        ) {
+            field_get_hii_direct
+        } else {
+            field_get_hii_generic
+        }
+    })
+}
+
+#[inline(always)]
+fn field_set_hii_dispatch() -> FieldSetHiiImpl {
+    *FIELD_SET_HII_DISPATCH.get_or_init(|| {
+        if matches!(
+            super::typed_object_store_backend::selected_backend(),
+            super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
+        ) {
+            field_set_hii_direct
+        } else {
+            field_set_hii_generic
+        }
+    })
+}
+
+#[inline(always)]
+fn field_get_hii_generic(handle: i64, slot: i64) -> i64 {
+    if slot < 0 {
+        return 0;
+    }
+    let slot = slot as usize;
+    get_compat_i64(handle, slot).unwrap_or(0)
+}
+
+#[inline(always)]
+fn field_get_hii_direct(handle: i64, slot: i64) -> i64 {
+    if slot < 0 || handle < 0 {
+        return 0;
+    }
+    let slot = slot as usize;
+    read_direct_slot_compat_i64(handle, slot).unwrap_or(0)
+}
+
+#[inline(always)]
+fn field_set_hii_generic(handle: i64, slot: i64, value: i64) {
+    if slot < 0 {
+        return;
+    }
+    let slot = slot as usize;
+    let _ = set_compat_i64(handle, slot, value);
+}
+
+#[inline(always)]
+fn field_set_hii_direct(handle: i64, slot: i64, value: i64) {
+    if slot < 0 || handle < 0 {
+        return;
+    }
+    let slot = slot as usize;
+    let _ = write_direct_slot_compat_i64(handle, slot, value);
+}
+
+#[inline(always)]
 pub(crate) fn get_compat_i64(handle: i64, slot: usize) -> Option<i64> {
     with_field(handle, slot, |field| {
         Some(field.as_compat_i64().unwrap_or(0))
     })?
 }
 
+#[inline(always)]
 pub(crate) fn set_compat_i64(handle: i64, slot: usize, value: i64) -> bool {
     with_field_mut(handle, slot, |field| field.set_compat_i64(value)).unwrap_or(false)
 }
 
+#[inline(always)]
 pub(crate) fn field_storage_tag(handle: i64, slot: usize) -> Option<i64> {
     with_field(handle, slot, |field| field.storage.tag())
 }
 
+#[inline(always)]
 pub(crate) fn get_exact_unsigned_u64(handle: i64, slot: usize) -> Option<u64> {
     with_field(handle, slot, |field| field.as_exact_unsigned_u64())?
 }
 
+#[inline(always)]
 pub(crate) fn set_exact_unsigned_u64(handle: i64, slot: usize, value: u64) -> bool {
     with_field_mut(handle, slot, |field| field.set_exact_unsigned_u64(value)).unwrap_or(false)
 }
 
+#[inline(always)]
 pub(crate) fn get_exact_signed_i64(handle: i64, slot: usize) -> Option<i64> {
     with_field(handle, slot, |field| field.as_exact_signed_i64())?
 }
 
+#[inline(always)]
 pub(crate) fn set_exact_signed_i64(handle: i64, slot: usize, value: i64) -> bool {
     with_field_mut(handle, slot, |field| field.set_exact_signed_i64(value)).unwrap_or(false)
 }
@@ -605,7 +676,17 @@ typed_object_exact_slot_export!(
     slot: i64;
     -> i64;
     fallback = 0;
-    body = |handle, slot| get_compat_i64(handle, slot).unwrap_or(0)
+    body = |handle, slot| {
+        if matches!(
+            super::typed_object_store_backend::selected_backend(),
+            super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
+        ) && handle >= 0
+        {
+            read_direct_slot_compat_i64(handle, slot).unwrap_or(0)
+        } else {
+            get_compat_i64(handle, slot).unwrap_or(0)
+        }
+    }
 );
 
 typed_object_exact_slot_export!(

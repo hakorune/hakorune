@@ -150,14 +150,63 @@ pub fn gc_trace_level() -> u8 {
     }
 }
 
-// ---- GC mode and instrumentation ----
+use std::sync::atomic::{AtomicU8, Ordering};
+
+const GC_MODE_CACHE_UNSET: u8 = u8::MAX;
+static GC_MODE_CACHE: AtomicU8 = AtomicU8::new(GC_MODE_CACHE_UNSET);
+
+fn encode_gc_mode(raw: &str) -> Option<u8> {
+    match raw.trim().to_ascii_lowercase().as_str() {
+        "" | "auto" | "rc+cycle" => Some(1),
+        "off" => Some(2),
+        _ => None,
+    }
+}
+
+fn decode_gc_mode(code: u8) -> &'static str {
+    match code {
+        1 => "rc+cycle",
+        2 => "off",
+        _ => "rc+cycle",
+    }
+}
+
 /// Return current GC mode string (auto default = "rc+cycle").
 /// Allowed: "auto", "rc+cycle", "off"
 pub fn gc_mode() -> String {
-    match std::env::var("NYASH_GC_MODE").ok() {
-        Some(m) if !m.trim().is_empty() => m,
-        _ => "rc+cycle".to_string(),
+    let cached = GC_MODE_CACHE.load(Ordering::Relaxed);
+    if cached != GC_MODE_CACHE_UNSET {
+        return decode_gc_mode(cached).to_string();
     }
+
+    match std::env::var("NYASH_GC_MODE").ok() {
+        Some(m) if !m.trim().is_empty() => {
+            if let Some(code) = encode_gc_mode(&m) {
+                let _ = GC_MODE_CACHE.compare_exchange(
+                    GC_MODE_CACHE_UNSET,
+                    code,
+                    Ordering::Relaxed,
+                    Ordering::Relaxed,
+                );
+                decode_gc_mode(code).to_string()
+            } else {
+                m
+            }
+        }
+        _ => {
+            let _ = GC_MODE_CACHE.compare_exchange(
+                GC_MODE_CACHE_UNSET,
+                1,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
+            );
+            "rc+cycle".to_string()
+        }
+    }
+}
+
+pub fn reset_gc_mode_cache() {
+    GC_MODE_CACHE.store(GC_MODE_CACHE_UNSET, Ordering::Relaxed);
 }
 
 /// Typed GC mode getter (SSOT parser lives in runtime::gc_mode).

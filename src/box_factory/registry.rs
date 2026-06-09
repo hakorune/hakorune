@@ -8,6 +8,9 @@ pub struct UnifiedBoxRegistry {
     /// Ordered list of factories with policy-based priority
     pub factories: Vec<Arc<dyn BoxFactory>>,
 
+    /// Cached box types for each factory to avoid recomputing them during rebuilds.
+    factory_box_types: Vec<Vec<String>>,
+
     /// Quick lookup cache for performance
     type_cache: RwLock<HashMap<String, usize>>, // maps type name to factory index
 
@@ -26,6 +29,7 @@ impl UnifiedBoxRegistry {
     pub fn with_policy(policy: FactoryPolicy) -> Self {
         Self {
             factories: Vec::new(),
+            factory_box_types: Vec::new(),
             type_cache: RwLock::new(HashMap::new()),
             policy,
         }
@@ -33,11 +37,8 @@ impl UnifiedBoxRegistry {
 
     /// Create registry with policy from environment variable (Phase 15.5 setup)
     pub fn with_env_policy() -> Self {
-        let policy = match crate::config::env::box_factory_policy().as_deref() {
-            Some("compat_plugin_first") => FactoryPolicy::CompatPluginFirst,
-            Some("builtin_first") => FactoryPolicy::BuiltinFirst,
-            Some("strict_plugin_first") | _ => FactoryPolicy::StrictPluginFirst,
-        };
+        let policy = crate::config::env::box_factory_policy_mode()
+            .unwrap_or(FactoryPolicy::StrictPluginFirst);
 
         if crate::config::env::cli_verbose_enabled() {
             let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -64,15 +65,32 @@ impl UnifiedBoxRegistry {
 
     /// Rebuild type cache based on current policy
     fn rebuild_cache(&mut self) {
+        let factory_order = self.get_factory_order_by_policy();
+        let cli_verbose = crate::config::env::cli_verbose_enabled();
+        let plugin_builtins_enabled = crate::config::env::use_plugin_builtins();
+        let plugin_override_types = if plugin_builtins_enabled {
+            crate::config::env::plugin_override_types()
+        } else {
+            None
+        };
+        let estimated_types = factory_order
+            .iter()
+            .map(|&factory_index| self.factory_box_types[factory_index].len())
+            .sum::<usize>();
+
         let mut cache = self.type_cache.write().unwrap();
         cache.clear();
+        cache.reserve(estimated_types);
 
-        let factory_order = self.get_factory_order_by_policy();
-        for &factory_index in factory_order.iter() {
+        for factory_index in factory_order {
             if let Some(factory) = self.factories.get(factory_index) {
-                let types = factory.box_types();
-                for type_name in types {
-                    if is_reserved_type(type_name) && !factory.is_builtin_factory() {
+                for type_name in &self.factory_box_types[factory_index] {
+                    if is_reserved_type_with_policy(
+                        type_name,
+                        plugin_builtins_enabled,
+                        plugin_override_types.as_ref(),
+                    ) && !factory.is_builtin_factory()
+                    {
                         let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
                         ring0.log.error(&format!(
                             "[UnifiedBoxRegistry] ❌ Rejecting registration of reserved type '{}' by non-builtin factory #{}",
@@ -81,11 +99,11 @@ impl UnifiedBoxRegistry {
                         continue;
                     }
 
-                    let entry = cache.entry(type_name.to_string());
+                    let entry = cache.entry(type_name.clone());
                     use std::collections::hash_map::Entry;
                     match entry {
                         Entry::Occupied(existing) => {
-                            if crate::config::env::cli_verbose_enabled() {
+                            if cli_verbose {
                                 let ring0 =
                                     crate::runtime::ring0::ensure_global_ring0_initialized();
                                 ring0.log.warn(&format!("[UnifiedBoxRegistry] ⚠️ Policy '{}': type '{}' kept by higher priority factory #{}, ignoring factory #{}",
@@ -133,7 +151,24 @@ impl UnifiedBoxRegistry {
 
     /// Register a new factory (policy-aware)
     pub fn register(&mut self, factory: Arc<dyn BoxFactory>) {
-        self.factories.push(factory);
+        self.register_many([factory]);
+    }
+
+    /// Register multiple factories and rebuild the cache once.
+    pub fn register_many<I>(&mut self, factories: I)
+    where
+        I: IntoIterator<Item = Arc<dyn BoxFactory>>,
+    {
+        for factory in factories {
+            self.factory_box_types.push(
+                factory
+                    .box_types()
+                    .into_iter()
+                    .map(|s| s.to_string())
+                    .collect(),
+            );
+            self.factories.push(factory);
+        }
         self.rebuild_cache();
     }
 
@@ -180,8 +215,8 @@ impl UnifiedBoxRegistry {
                     continue;
                 }
 
-                let box_types = factory.box_types();
-                if !box_types.is_empty() && !box_types.contains(&name) {
+                let box_types = &self.factory_box_types[factory_index];
+                if !box_types.is_empty() && !box_types.iter().any(|t| t == name) {
                     continue;
                 }
 
@@ -263,27 +298,27 @@ impl UnifiedBoxRegistry {
                     ));
                 }
 
-                for factory in &self.factories {
-                    if factory.is_builtin_factory() && factory.box_types().contains(&name) {
-                        match factory.create_box(name, args) {
-                            Ok(boxed) => {
-                                if crate::config::env::cli_verbose_enabled() {
-                                    let ring0 =
-                                        crate::runtime::ring0::ensure_global_ring0_initialized();
-                                    ring0.log.debug(
-                                        "[FileBox] Successfully created with builtin factory",
-                                    );
-                                }
-                                return Some(Ok(boxed));
-                            }
-                            Err(e) => {
+                for (factory_index, factory) in self.factories.iter().enumerate() {
+                    let box_types = &self.factory_box_types[factory_index];
+                    if !factory.is_builtin_factory() || !box_types.iter().any(|t| t == name) {
+                        continue;
+                    }
+                    match factory.create_box(name, args) {
+                        Ok(boxed) => {
+                            if crate::config::env::cli_verbose_enabled() {
                                 let ring0 =
                                     crate::runtime::ring0::ensure_global_ring0_initialized();
-                                ring0.log.error(&format!(
-                                    "[FileBox] Builtin factory also failed: {}",
-                                    e
-                                ));
+                                ring0
+                                    .log
+                                    .debug("[FileBox] Successfully created with builtin factory");
                             }
+                            return Some(Ok(boxed));
+                        }
+                        Err(e) => {
+                            let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+                            ring0
+                                .log
+                                .error(&format!("[FileBox] Builtin factory also failed: {}", e));
                         }
                     }
                 }
@@ -296,15 +331,17 @@ impl UnifiedBoxRegistry {
                         .log
                         .debug("[FileBox] Using core-ro mode, trying builtin factory");
                 }
-                for factory in &self.factories {
-                    if factory.is_builtin_factory() && factory.box_types().contains(&name) {
-                        match factory.create_box(name, args) {
-                            Ok(boxed) => return Some(Ok(boxed)),
-                            Err(e) => {
-                                return Some(Err(RuntimeError::InvalidOperation {
-                                    message: format!("FileBox core-ro creation failed: {}", e),
-                                }));
-                            }
+                for (factory_index, factory) in self.factories.iter().enumerate() {
+                    let box_types = &self.factory_box_types[factory_index];
+                    if !factory.is_builtin_factory() || !box_types.iter().any(|t| t == name) {
+                        continue;
+                    }
+                    match factory.create_box(name, args) {
+                        Ok(boxed) => return Some(Ok(boxed)),
+                        Err(e) => {
+                            return Some(Err(RuntimeError::InvalidOperation {
+                                message: format!("FileBox core-ro creation failed: {}", e),
+                            }));
                         }
                     }
                 }
@@ -325,12 +362,12 @@ impl UnifiedBoxRegistry {
                 }
             }
         }
-        for factory in &self.factories {
+        for (factory_index, factory) in self.factories.iter().enumerate() {
             if !factory.is_available() {
                 continue;
             }
-            let types = factory.box_types();
-            if !types.is_empty() && types.contains(&name) {
+            let types = &self.factory_box_types[factory_index];
+            if !types.is_empty() && types.iter().any(|t| t == name) {
                 return true;
             }
         }
@@ -340,11 +377,9 @@ impl UnifiedBoxRegistry {
     /// Get all available Box types
     pub fn available_types(&self) -> Vec<String> {
         let mut types = Vec::new();
-        for factory in &self.factories {
+        for (factory_index, factory) in self.factories.iter().enumerate() {
             if factory.is_available() {
-                for type_name in factory.box_types() {
-                    types.push(type_name.to_string());
-                }
+                types.extend(self.factory_box_types[factory_index].iter().cloned());
             }
         }
         types.sort();
@@ -353,11 +388,15 @@ impl UnifiedBoxRegistry {
     }
 }
 
-fn is_reserved_type(name: &str) -> bool {
+fn is_reserved_type_with_policy(
+    name: &str,
+    plugin_builtins_enabled: bool,
+    plugin_override_types: Option<&Vec<String>>,
+) -> bool {
     use crate::runtime::CoreBoxId;
 
-    if crate::config::env::use_plugin_builtins() {
-        if let Some(types) = crate::config::env::plugin_override_types() {
+    if plugin_builtins_enabled {
+        if let Some(types) = plugin_override_types {
             if types.iter().any(|t| t == name) {
                 return false;
             }

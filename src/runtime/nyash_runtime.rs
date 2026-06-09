@@ -99,15 +99,17 @@ impl NyashRuntimeBuilder {
 
 fn create_default_registry() -> Arc<Mutex<UnifiedBoxRegistry>> {
     let mut registry = UnifiedBoxRegistry::new();
+    let mut factories: Vec<Arc<dyn BoxFactory>> = Vec::new();
     // Default: enable builtins unless explicitly building with feature "plugins-only"
     #[cfg(not(feature = "plugins-only"))]
     {
-        registry.register(Arc::new(BuiltinBoxFactory::new()));
+        factories.push(Arc::new(BuiltinBoxFactory::new()));
     }
     #[cfg(feature = "plugins")]
     {
-        registry.register(Arc::new(PluginBoxFactory::new()));
+        factories.push(Arc::new(PluginBoxFactory::new()));
     }
+    registry.register_many(factories);
     Arc::new(Mutex::new(registry))
 }
 

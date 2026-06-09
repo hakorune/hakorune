@@ -425,7 +425,7 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
     };
 
     if cfg.cli_verbose {
-        std::env::set_var("NYASH_CLI_VERBOSE", "1");
+        crate::config::env::set_cli_verbose(true);
     }
     if cfg.vm_stats {
         std::env::set_var("NYASH_VM_STATS", "1");

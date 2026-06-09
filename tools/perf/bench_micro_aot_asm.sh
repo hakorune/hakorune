@@ -10,6 +10,11 @@ set -euo pipefail
 # Usage:
 #   tools/perf/bench_micro_aot_asm.sh <bench_key> [symbol] [runs]
 #
+# Optional env:
+#   PERF_MICROASM_RUNNER_MODE=spawn|direct
+#     spawn  - default; use a tiny C runner that spawns the exe `runs` times
+#     direct - perf the AOT exe directly once; useful to cut spawn/loader noise
+#
 # Example:
 #   tools/perf/bench_micro_aot_asm.sh kilo_micro_indexof_line \
 #     'nyash_kernel::exports::string::find_substr_byte_index' 20
@@ -38,6 +43,7 @@ PERF_DATA="/tmp/${KEY}.microasm.${BASHPID}.perf.data"
 OBJDUMP_TXT="/tmp/${KEY}.microasm.${BASHPID}.objdump.txt"
 RUNNER_C="/tmp/${KEY}.microasm.${BASHPID}.runner.c"
 RUNNER_BIN="/tmp/${KEY}.microasm.${BASHPID}.runner.bin"
+RUNNER_MODE="${PERF_MICROASM_RUNNER_MODE:-spawn}"
 
 if [[ ! -x "${HAKORUNE_BIN}" ]]; then
   echo "[error] hakorune binary missing: ${HAKORUNE_BIN}" >&2
@@ -50,6 +56,9 @@ if [[ ! -f "${HAKO_PROG}" ]]; then
 fi
 
 cleanup() {
+  if [[ "${KEEP_PERF_MICROASM_ARTIFACTS:-0}" == "1" ]]; then
+    return 0
+  fi
   rm -f "${AOT_EXE}" "${PERF_DATA}" "${OBJDUMP_TXT}" "${RUNNER_C}" "${RUNNER_BIN}" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -61,12 +70,18 @@ if ! perf_emit_and_build_aot_exe "${ROOT_DIR}" "${HAKORUNE_BIN}" "${HAKO_PROG}" 
   exit 1
 fi
 
-if ! command -v "${CC:-cc}" >/dev/null 2>&1; then
-  echo "[error] microasm direct runner requires a C compiler (\$CC or cc)" >&2
+if [[ "${RUNNER_MODE}" != "spawn" && "${RUNNER_MODE}" != "direct" ]]; then
+  echo "[error] PERF_MICROASM_RUNNER_MODE must be spawn or direct; got '${RUNNER_MODE}'" >&2
   exit 2
 fi
 
-cat >"${RUNNER_C}" <<'EOF'
+if [[ "${RUNNER_MODE}" == "spawn" ]]; then
+  if ! command -v "${CC:-cc}" >/dev/null 2>&1; then
+    echo "[error] microasm spawn runner requires a C compiler (\$CC or cc)" >&2
+    exit 2
+  fi
+
+  cat >"${RUNNER_C}" <<'EOF'
 #include <errno.h>
 #include <spawn.h>
 #include <stdio.h>
@@ -110,16 +125,39 @@ int main(int argc, char **argv) {
 }
 EOF
 
-"${CC:-cc}" -O2 -std=c11 -Wall -Wextra -o "${RUNNER_BIN}" "${RUNNER_C}"
+  "${CC:-cc}" -O2 -std=c11 -Wall -Wextra -o "${RUNNER_BIN}" "${RUNNER_C}"
+  RUNNER_ENV=(
+    NYASH_GC_MODE="${NYASH_GC_MODE:-off}"
+    NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}"
+    NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}"
+    NYASH_SKIP_TOML_ENV="${NYASH_SKIP_TOML_ENV:-1}"
+  )
+  if [[ "${KEY}" == kilo_micro_userbox_* ]]; then
+    RUNNER_ENV+=(
+      HAKO_TYPED_OBJECT_STORE="${HAKO_TYPED_OBJECT_STORE:-direct_slot_exact}"
+    )
+  fi
+  env \
+    "${RUNNER_ENV[@]}" \
+    perf record -o "${PERF_DATA}" -F 999 -- "${RUNNER_BIN}" "${RUNS}" "${AOT_EXE}" >/dev/null 2>&1 || true
+else
+  RUNNER_ENV=(
+    NYASH_GC_MODE="${NYASH_GC_MODE:-off}"
+    NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}"
+    NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}"
+    NYASH_SKIP_TOML_ENV="${NYASH_SKIP_TOML_ENV:-1}"
+  )
+  if [[ "${KEY}" == kilo_micro_userbox_* ]]; then
+    RUNNER_ENV+=(
+      HAKO_TYPED_OBJECT_STORE="${HAKO_TYPED_OBJECT_STORE:-direct_slot_exact}"
+    )
+  fi
+  env \
+    "${RUNNER_ENV[@]}" \
+    perf record -o "${PERF_DATA}" -F 999 -- "${AOT_EXE}" >/dev/null 2>&1 || true
+fi
 
-env \
-  NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
-  NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
-  NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
-  NYASH_SKIP_TOML_ENV="${NYASH_SKIP_TOML_ENV:-1}" \
-  perf record -o "${PERF_DATA}" -F 999 -- "${RUNNER_BIN}" "${RUNS}" "${AOT_EXE}" >/dev/null 2>&1
-
-echo "[microasm] key=${KEY} runs=${RUNS} exe=${AOT_EXE} perf_data=${PERF_DATA} runner=direct-c"
+echo "[microasm] key=${KEY} runs=${RUNS} exe=${AOT_EXE} perf_data=${PERF_DATA} runner=${RUNNER_MODE}"
 echo "[microasm] top report (--no-children):"
 perf report --stdio --no-children -i "${PERF_DATA}" | sed -n '1,80p'
 

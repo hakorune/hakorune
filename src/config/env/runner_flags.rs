@@ -96,14 +96,13 @@ pub fn using_strict() -> bool {
 }
 
 pub fn set_cli_verbose(enabled: bool) {
-    if enabled {
-        std::env::set_var("NYASH_CLI_VERBOSE", "1");
-    }
+    super::dump::set_cli_verbose_level(if enabled { 1 } else { 0 });
 }
 
 pub fn set_gc_mode(mode: &str) {
     if !mode.trim().is_empty() {
         std::env::set_var("NYASH_GC_MODE", mode);
+        super::mir_flags::reset_gc_mode_cache();
     }
 }
 
