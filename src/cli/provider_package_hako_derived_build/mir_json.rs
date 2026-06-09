@@ -72,10 +72,7 @@ pub(super) fn validate_hako_provider_object_lifecycle_entrypoint(
         functions,
         "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock/2",
     )?;
-    for required in [
-        alloc_entrypoint,
-        release_entrypoint,
-    ] {
+    for required in [alloc_entrypoint, release_entrypoint] {
         require_mir_function(functions, required)?;
     }
 

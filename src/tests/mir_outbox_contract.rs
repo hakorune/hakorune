@@ -30,7 +30,10 @@ mod tests {
         );
 
         let function = first_outbox_function(&result.module);
-        assert_eq!(function.metadata.outbox_bindings, vec!["payload".to_string()]);
+        assert_eq!(
+            function.metadata.outbox_bindings,
+            vec!["payload".to_string()]
+        );
         assert!(function
             .metadata
             .value_types

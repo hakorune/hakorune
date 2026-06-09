@@ -9,6 +9,7 @@ fn build_mir_json_root_emits_map_lookup_fusion_routes() {
         .metadata
         .map_lookup_fusion_routes
         .push(map_lookup_fusion_fixture::same_key_nonzero_json_fixture());
+    crate::mir::route_decision::refresh_function_route_decisions(&mut function);
     let mut module = crate::mir::MirModule::new("json_map_lookup_fusion_routes_test".to_string());
     module.add_function(function);
 
@@ -39,4 +40,20 @@ fn build_mir_json_root_emits_map_lookup_fusion_routes() {
         route["effects"],
         serde_json::json!(["read.key", "probe.key", "metadata.only"])
     );
+
+    let decisions = root["functions"][0]["metadata"]["route_decisions"]
+        .as_array()
+        .expect("route_decisions");
+    assert_eq!(decisions.len(), 2);
+    assert_eq!(decisions[0]["site_id"], "b4.i10");
+    assert_eq!(decisions[0]["semantic_op"], "MapGet");
+    assert_eq!(decisions[0]["selected_route"], "map_lookup_const_fold");
+    assert_eq!(decisions[0]["source_plan_kind"], "MapLookupFusionRoute");
+    assert_eq!(decisions[0]["selected_i64_const"], 7);
+    assert_eq!(decisions[0]["selected_bool_const"], serde_json::Value::Null);
+    assert_eq!(decisions[1]["site_id"], "b4.i12");
+    assert_eq!(decisions[1]["semantic_op"], "MapHas");
+    assert_eq!(decisions[1]["selected_route"], "map_lookup_const_fold");
+    assert_eq!(decisions[1]["selected_i64_const"], serde_json::Value::Null);
+    assert_eq!(decisions[1]["selected_bool_const"], true);
 }

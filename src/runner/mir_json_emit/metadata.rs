@@ -325,6 +325,8 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "proof_ids": decision.proof_ids,
                 "miss_reason": decision.miss_reason,
                 "source_plan_kind": decision.source_plan_kind,
+                "selected_i64_const": decision.selected_i64_const,
+                "selected_bool_const": decision.selected_bool_const,
             })
         }).collect::<Vec<_>>(),
         "concat_const_suffix_micro_seed_route": metadata.concat_const_suffix_micro_seed_route.as_ref().map(build_concat_const_suffix_micro_seed_route_json),

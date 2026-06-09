@@ -42,10 +42,7 @@ fn fastmem_source_lowers_to_region_metadata_and_memops() {
             _ => None,
         })
         .collect();
-    assert_eq!(
-        memop_kinds,
-        vec![MemOpKind::AddrOf]
-    );
+    assert_eq!(memop_kinds, vec![MemOpKind::AddrOf]);
 
     let binop_kinds: Vec<crate::mir::BinaryOp> = function
         .blocks
@@ -123,7 +120,12 @@ fn fastmem_layout_table_source_preserves_symbolic_access_ids() {
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
-        .filter(|inst| matches!(inst, MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }))
+        .filter(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }
+            )
+        })
         .collect();
     assert!(field_insts.iter().any(|inst| matches!(
         inst,

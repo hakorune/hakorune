@@ -14,6 +14,7 @@ use super::{
     generic_method_route_plan::refresh_module_generic_method_routes,
     global_call_route_plan::refresh_module_global_call_routes,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
+    map_repr_plan::refresh_function_map_repr_plans,
     typed_object_plan::refresh_module_typed_object_field_value_types,
     user_box_method_route_plan::refresh_module_user_box_method_routes,
 };
@@ -61,6 +62,7 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) -> RouteFixpointRep
         // Some generic method routes depend on global-call target shapes
         // discovered only at module scope.
         refresh_function_map_lookup_fusion_routes(function);
+        refresh_function_map_repr_plans(function);
     }
     report.map_lookup_passes += 1;
 

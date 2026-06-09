@@ -13,8 +13,8 @@
 //! - Provides type-safe push/pop operations
 //! - Maintains deterministic iteration order (BTreeMap/BTreeSet)
 
-use crate::mir::{BasicBlockId, MirFunction};
 use crate::mir::instruction::FastMemRegionId;
+use crate::mir::{BasicBlockId, MirFunction};
 use std::collections::HashSet;
 
 pub(in crate::mir::builder) use super::vars::lexical_scope::LexicalScopeFrame;

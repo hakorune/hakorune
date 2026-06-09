@@ -41,6 +41,7 @@ use crate::mir::{
     hotcore_method_summary::HotCoreMethodSummary,
     inline_plan::InlinePlan,
     map_lookup_fusion_plan::MapLookupFusionRoute,
+    map_repr_plan::MapReprPlan,
     placement_effect::PlacementEffectRoute,
     receiver_snapshot_publication_plan::ReceiverSnapshotPublicationPlan,
     route_decision::RouteDecision,
@@ -352,6 +353,13 @@ pub struct FunctionMetadata {
     /// These are derived from `generic_method_routes` and do not change
     /// lowering; they only pin the exact pair a future plan may consume.
     pub map_lookup_fusion_routes: Vec<MapLookupFusionRoute>,
+
+    /// Metadata-only MapBox representation plans.
+    ///
+    /// v0 records the current generic hash runtime surface derived from
+    /// generic method routes. Later rows may promote fixed / enum / interned
+    /// subsets into the same family without changing lowering by themselves.
+    pub map_repr_plans: Vec<MapReprPlan>,
 
     /// Backend-consumable array RMW route plans.
     /// These own `array.get(i) -> + 1 -> array.set(i, ...)` legality in MIR

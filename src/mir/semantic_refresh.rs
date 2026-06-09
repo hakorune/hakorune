@@ -45,6 +45,7 @@ use super::{
     hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans,
     hotcore_method_summary::refresh_function_hotcore_method_summaries,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
+    map_repr_plan::refresh_function_map_repr_plans,
     placement_effect::refresh_function_placement_effect_routes,
     range_index_fact::refresh_function_range_index_facts,
     receiver_snapshot_publication_plan::refresh_function_receiver_snapshot_publication_plans,
@@ -111,6 +112,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_string_kernel_plans(function);
     refresh_function_string_direct_set_window_routes(function);
     refresh_function_generic_method_routes(function);
+    refresh_function_map_repr_plans(function);
     refresh_function_range_index_facts(function);
     refresh_function_direct_array_extent_facts(function);
     refresh_function_direct_array_access_plans(function);
@@ -201,6 +203,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         // function-local pass. Recompute route consumers here so metadata such
         // as DirectArrayAccessPlan observes the final route surface.
         refresh_function_direct_array_access_plans(function);
+        refresh_function_map_repr_plans(function);
         refresh_function_route_decisions(function);
         refresh_function_span_access_plans(function);
         refresh_function_record_state_field_access_plans(function, &module_metadata);

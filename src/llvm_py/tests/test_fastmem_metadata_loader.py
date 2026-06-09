@@ -12,6 +12,7 @@ for _path in (str(_REPO_ROOT), str(_LLVM_PY_ROOT)):
 from src.llvm_py.builders.function_metadata import (
     _load_fastmem_access_plan_metadata,
     _load_map_lookup_fusion_metadata,
+    _load_map_repr_metadata,
 )
 
 
@@ -19,6 +20,7 @@ class _DummyResolver:
     def __init__(self):
         self.fastmem_access_plans_by_site = {}
         self.map_lookup_fusion_routes_by_site = {}
+        self.map_repr_plans_by_site = {}
 
 
 class _DummyBuilder:
@@ -97,6 +99,43 @@ class TestFastMemMetadataLoader(unittest.TestCase):
         self.assertEqual(route["receiver_value"], 20)
         self.assertEqual(route["key_const"], -1)
         self.assertTrue(route["stored_value_known_nonzero"])
+
+    def test_map_repr_loader_indexes_sites(self):
+        builder = _DummyBuilder()
+        func_data = {
+            "metadata": {
+                "map_repr_plans": [
+                    {
+                        "route_id": "map_repr.generic_hash_runtime",
+                        "repr_kind": "generic_hash_runtime",
+                        "source_route_id": "generic_method.set",
+                        "source_route_kind": "map_store_any",
+                        "source_helper_symbol": "nyash.map.slot_store_hhh",
+                        "block": "3",
+                        "instruction_index": "9",
+                        "surface_box_name": "MapBox",
+                        "receiver_origin_box": "MapBox",
+                        "method": "set",
+                        "receiver_value": "20",
+                        "key_value": "21",
+                        "result_value": "22",
+                        "key_route": "i64_const",
+                        "value_demand": "write_any",
+                        "proof_tag": "set_surface_policy",
+                    }
+                ]
+            }
+        }
+
+        _load_map_repr_metadata(builder, func_data)
+
+        by_site = builder.resolver.map_repr_plans_by_site
+        self.assertIn((3, 9), by_site)
+        plan = by_site[(3, 9)][0]
+        self.assertEqual(plan["route_id"], "map_repr.generic_hash_runtime")
+        self.assertEqual(plan["receiver_value"], 20)
+        self.assertEqual(plan["key_value"], 21)
+        self.assertEqual(plan["result_value"], 22)
 
 
 if __name__ == "__main__":

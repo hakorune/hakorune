@@ -99,7 +99,12 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
-        .filter(|inst| matches!(inst, MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }))
+        .filter(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }
+            )
+        })
         .collect();
     assert_eq!(
         field_insts
@@ -113,7 +118,9 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
     assert_eq!(
         field_insts
             .iter()
-            .filter(|inst| matches!(inst, MirInstruction::FieldSet { field, .. } if field == "used"))
+            .filter(
+                |inst| matches!(inst, MirInstruction::FieldSet { field, .. } if field == "used")
+            )
             .count(),
         1,
         "field_insts={:?}",

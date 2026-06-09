@@ -83,6 +83,10 @@ class FunctionLowerContext:
         # Lowering may use this to collapse same-key get/has pairs when the
         # route carries a durable stored-value proof.
         self.map_lookup_fusion_routes_by_site: Dict[tuple[int, int], list[Dict[str, Any]]] = {}
+        # MIR-owned Map representation plans (function-local).
+        # Keys: (block_id, instruction_index) -> [plan dict, ...]
+        # This remains metadata-only in v0; backend consumers only read it.
+        self.map_repr_plans_by_site: Dict[tuple[int, int], list[Dict[str, Any]]] = {}
 
         # NewBox→string-arg hints (function-local)
         self.resolver_newbox_string_args: Dict = {}

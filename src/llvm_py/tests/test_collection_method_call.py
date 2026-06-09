@@ -124,6 +124,44 @@ def _seed_map_lookup_fusion_route(
     ).append(route)
 
 
+def _seed_map_lookup_route_decision(
+    resolver,
+    *,
+    selected_route="map_lookup_const_fold",
+    selected_i64_const=None,
+    selected_bool_const=None,
+):
+    resolver.route_decisions_by_site[
+        (resolver.current_block_id, resolver.current_instruction_index)
+    ] = [
+        {
+            "selected_route": selected_route,
+            "fallback_policy": "opportunistic",
+            "source_plan_kind": "MapLookupFusionRoute",
+            "semantic_op": "MapHas"
+            if int(resolver.current_instruction_index) == 1
+            else "MapGet",
+            "selected_i64_const": selected_i64_const,
+            "selected_bool_const": selected_bool_const,
+        }
+    ]
+
+
+def _seed_non_map_route_decision(resolver, *, selected_route="map_lookup_const_fold"):
+    resolver.route_decisions_by_site[
+        (resolver.current_block_id, resolver.current_instruction_index)
+    ] = [
+        {
+            "selected_route": selected_route,
+            "fallback_policy": "opportunistic",
+            "source_plan_kind": "DirectArrayAccessPlan",
+            "semantic_op": "MapGet",
+            "selected_i64_const": 7,
+            "selected_bool_const": None,
+        }
+    ]
+
+
 class TestCollectionMethodCall(unittest.TestCase):
     def _with_array_backend(self, value, fn):
         old = os.environ.get("HAKO_ARRAY_SLOT_STORE")
@@ -557,6 +595,7 @@ class TestCollectionMethodCall(unittest.TestCase):
             get_instruction_index=0,
             has_instruction_index=1,
         )
+        _seed_map_lookup_route_decision(resolver, selected_i64_const=7)
 
         result = lower_collection_method_call(
             builder=builder,
@@ -576,6 +615,94 @@ class TestCollectionMethodCall(unittest.TestCase):
         self.assertIn("ret i64 7", ir_text)
         self.assertNotIn("nyash.map.slot_load_hh", ir_text)
 
+    def test_mapbox_const_fold_uses_route_decision_payload_without_fusion_metadata(self):
+        i64, module, builder = _new_builder_named("MapFusion.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_map_lookup_route_decision(resolver, selected_i64_const=7)
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("ret i64 7", ir_text)
+        self.assertNotIn("nyash.map.slot_load_hh", ir_text)
+
+    def test_mapbox_same_key_fusion_get_without_route_decision_keeps_helper_path(self):
+        i64, module, builder = _new_builder_named("MapFusion.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_map_lookup_fusion_route(
+            resolver,
+            receiver_value=1,
+            key_value=2,
+            key_const=-1,
+            stored_value_const=7,
+            stored_value_proof="scalar_i64_const",
+            get_instruction_index=0,
+            has_instruction_index=1,
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("ret i64 7", ir_text)
+
+    def test_mapbox_same_key_fusion_get_ignores_non_map_route_decision(self):
+        i64, module, builder = _new_builder_named("MapFusion.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_map_lookup_fusion_route(
+            resolver,
+            receiver_value=1,
+            key_value=2,
+            key_const=-1,
+            stored_value_const=7,
+            stored_value_proof="scalar_i64_const",
+            get_instruction_index=0,
+            has_instruction_index=1,
+        )
+        _seed_non_map_route_decision(resolver)
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("ret i64 7", ir_text)
+
     def test_mapbox_same_key_fusion_has_constant_folds_known_presence(self):
         i64, module, builder = _new_builder_named("MapFusion.has/0")
         resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
@@ -590,6 +717,7 @@ class TestCollectionMethodCall(unittest.TestCase):
             has_instruction_index=1,
         )
         resolver.current_instruction_index = 1
+        _seed_map_lookup_route_decision(resolver, selected_bool_const=True)
 
         result = lower_collection_method_call(
             builder=builder,

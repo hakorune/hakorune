@@ -22,6 +22,18 @@ DIRECT_ARRAY_HEADER_CAPACITY_OFFSET_BYTES = 24
 DIRECT_ARRAY_DATA_OFFSET_BYTES = 32
 DIRECT_ARRAY_ELEMENT_BYTES = 8
 
+BOX_MAP = "MapBox"
+MAP_METHOD_CLEAR = "clear"
+MAP_METHOD_DELETE = "delete"
+MAP_METHOD_GET = "get"
+MAP_METHOD_HAS = "has"
+MAP_METHOD_PUSH = "push"
+MAP_METHOD_SET = "set"
+MAP_LOOKUP_CONST_FOLD_ROUTE = "map_lookup_const_fold"
+MAP_LOOKUP_FUSION_SOURCE_PLAN = "MapLookupFusionRoute"
+MAP_LOOKUP_GET_SEMANTIC_OP = "MapGet"
+MAP_LOOKUP_HAS_SEMANTIC_OP = "MapHas"
+
 _SAFE_COLLECTION_METHOD_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
 
 
@@ -34,9 +46,9 @@ def _resolve_or_zero(
 
 
 def _direct_array_op_for_method(method_name: str) -> Optional[str]:
-    if method_name == "get":
+    if method_name == MAP_METHOD_GET:
         return "load"
-    if method_name == "set":
+    if method_name == MAP_METHOD_SET:
         return "store"
     return None
 
@@ -125,6 +137,33 @@ def _route_decision_allows_direct_array_plan(
         if decision.get("selected_route") == expected_route:
             return True
     return False
+
+
+def _selected_map_lookup_fusion_decision(
+    *,
+    resolver,
+    block_id: int,
+    instruction_index: int,
+    expected_route: str,
+    expected_semantic_op: str,
+):
+    decisions_by_site = getattr(resolver, "route_decisions_by_site", None)
+    if not isinstance(decisions_by_site, dict):
+        return None
+    decisions = decisions_by_site.get((block_id, instruction_index), [])
+    if not decisions:
+        return None
+    for decision in decisions:
+        if not isinstance(decision, dict):
+            continue
+        if decision.get("source_plan_kind") != MAP_LOOKUP_FUSION_SOURCE_PLAN:
+            continue
+        if decision.get("semantic_op") != expected_semantic_op:
+            continue
+        if decision.get("selected_route") != expected_route:
+            continue
+        return decision
+    return None
 
 
 def _direct_array_base(builder: ir.IRBuilder, recv_h):
@@ -440,7 +479,7 @@ def _lower_store_map_value_current_lowering(
     return builder.call(callee, [recv_h, key, value], name="unified_map_slot_store_hhh")
 
 
-def _current_map_lookup_fusion_route(
+def _current_map_lookup_fusion_decision(
     *,
     resolver,
     box_name,
@@ -448,7 +487,7 @@ def _current_map_lookup_fusion_route(
     receiver_vid,
     arg_ids: List[int],
 ):
-    if str(box_name or "") != "MapBox":
+    if str(box_name or "") != BOX_MAP:
         return None
     if resolver is None or receiver_vid is None or not arg_ids:
         return None
@@ -459,29 +498,136 @@ def _current_map_lookup_fusion_route(
         key_vid = int(arg_ids[0])
     except _SAFE_COLLECTION_METHOD_EXC:
         return None
-
-    routes_by_site = getattr(resolver, "map_lookup_fusion_routes_by_site", None)
-    if not isinstance(routes_by_site, dict):
-        return None
-    routes = routes_by_site.get((block_id, instruction_index), [])
-    if not isinstance(routes, list):
+    expected_semantic_op = _map_lookup_semantic_op(method_name)
+    if expected_semantic_op is None:
         return None
 
-    for route in routes:
-        if not isinstance(route, dict):
-            continue
-        if route.get("receiver_value") != receiver_vid:
-            continue
-        if route.get("key_value") != key_vid:
-            continue
-        if method_name == "get" and route.get("get_instruction_index") != instruction_index:
-            continue
-        if method_name == "has" and route.get("has_instruction_index") != instruction_index:
-            continue
-        if route.get("receiver_origin_box") not in (None, "MapBox"):
-            continue
-        return route
+    decision = _selected_map_lookup_fusion_decision(
+        resolver=resolver,
+        block_id=block_id,
+        instruction_index=instruction_index,
+        expected_route=MAP_LOOKUP_CONST_FOLD_ROUTE,
+        expected_semantic_op=expected_semantic_op,
+    )
+    if not isinstance(decision, dict):
+        return None
+    if _as_optional_int(decision.get("receiver_value")) not in (None, receiver_vid):
+        return None
+    if _as_optional_int(decision.get("key_value")) not in (None, key_vid):
+        return None
+    return decision
+
+
+def _map_lookup_semantic_op(method_name: str) -> Optional[str]:
+    if method_name == MAP_METHOD_GET:
+        return MAP_LOOKUP_GET_SEMANTIC_OP
+    if method_name == MAP_METHOD_HAS:
+        return MAP_LOOKUP_HAS_SEMANTIC_OP
     return None
+
+
+def _as_optional_int(value) -> Optional[int]:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except _SAFE_COLLECTION_METHOD_EXC:
+        return None
+
+
+def _lower_map_clear_collection_method_call(
+    *, builder: ir.IRBuilder, declare: Callable, box_name, recv_h, arg_ids: List[int]
+):
+    if str(box_name or "") != BOX_MAP:
+        return None
+    if arg_ids:
+        return ir.Constant(ir.IntType(64), 0)
+    callee = declare("nyash.map.clear_h", ir.IntType(64), [ir.IntType(64)])
+    return builder.call(callee, [recv_h], name="unified_map_clear_h")
+
+
+def _lower_map_delete_collection_method_call(
+    *,
+    builder: ir.IRBuilder,
+    declare: Callable,
+    box_name,
+    recv_h,
+    arg_ids: List[int],
+    resolve_arg: Callable[[int], Optional[ir.Value]],
+):
+    i64 = ir.IntType(64)
+    zero = ir.Constant(i64, 0)
+    if str(box_name or "") != BOX_MAP:
+        return None
+    if len(arg_ids) < 1:
+        return zero
+    key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
+    callee = declare("nyash.map.delete_hh", i64, [i64, i64])
+    return builder.call(callee, [recv_h, key], name="unified_map_delete_hh")
+
+
+def _lower_map_get_collection_method_call(
+    *,
+    builder: ir.IRBuilder,
+    declare: Callable,
+    box_name,
+    method_name: str,
+    recv_h,
+    arg_ids: List[int],
+    resolve_arg: Callable[[int], Optional[ir.Value]],
+    resolver=None,
+    receiver_vid=None,
+):
+    i64 = ir.IntType(64)
+    zero = ir.Constant(i64, 0)
+    decision = _current_map_lookup_fusion_decision(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+    )
+    if decision is not None:
+        selected_i64_const = decision.get("selected_i64_const")
+        if selected_i64_const is not None:
+            return ir.Constant(i64, int(selected_i64_const))
+    key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
+    if not arg_ids:
+        return zero
+    callee = declare("nyash.map.slot_load_hh", i64, [i64, i64])
+    return builder.call(callee, [recv_h, key], name="unified_map_slot_load_hh")
+
+
+def _lower_map_has_collection_method_call(
+    *,
+    builder: ir.IRBuilder,
+    declare: Callable,
+    box_name,
+    method_name: str,
+    recv_h,
+    arg_ids: List[int],
+    resolve_arg: Callable[[int], Optional[ir.Value]],
+    resolver=None,
+    receiver_vid=None,
+):
+    i64 = ir.IntType(64)
+    zero = ir.Constant(i64, 0)
+    decision = _current_map_lookup_fusion_decision(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+    )
+    if decision is not None:
+        selected_bool_const = decision.get("selected_bool_const")
+        if selected_bool_const is not None:
+            return ir.Constant(i64, 1 if bool(selected_bool_const) else 0)
+    key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
+    if not arg_ids:
+        return zero
+    callee = declare("nyash.map.probe_hh", i64, [i64, i64])
+    return builder.call(callee, [recv_h, key], name="unified_map_probe_hh")
 
 
 def _lower_array_collection_method_call(
@@ -500,10 +646,11 @@ def _lower_array_collection_method_call(
     zero = ir.Constant(i64, 0)
 
     # Preserve the existing fail-safe return shape for missing arguments.
-    if method_name in ("get", "has") and not arg_ids:
+    if method_name in (MAP_METHOD_GET, MAP_METHOD_HAS) and not arg_ids:
         return zero
-    if method_name in ("push", "set") and (
-        (method_name == "push" and not arg_ids) or (method_name == "set" and len(arg_ids) < 2)
+    if method_name in (MAP_METHOD_PUSH, MAP_METHOD_SET) and (
+        (method_name == MAP_METHOD_PUSH and not arg_ids)
+        or (method_name == MAP_METHOD_SET and len(arg_ids) < 2)
     ):
         return recv_h
 
@@ -554,42 +701,39 @@ def _lower_non_array_collection_method_call(
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
 
-    if method_name == "clear":
-        if str(box_name or "") != "MapBox":
-            return None
-        if arg_ids:
-            return zero
-        callee = declare("nyash.map.clear_h", i64, [i64])
-        return builder.call(callee, [recv_h], name="unified_map_clear_h")
-
-    if method_name == "delete":
-        if str(box_name or "") != "MapBox":
-            return None
-        if len(arg_ids) < 1:
-            return zero
-        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        callee = declare("nyash.map.delete_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_map_delete_hh")
-
-    if method_name == "get":
-        route = _current_map_lookup_fusion_route(
-            resolver=resolver,
+    if method_name == MAP_METHOD_CLEAR:
+        return _lower_map_clear_collection_method_call(
+            builder=builder,
+            declare=declare,
             box_name=box_name,
-            method_name=method_name,
-            receiver_vid=receiver_vid,
+            recv_h=recv_h,
             arg_ids=arg_ids,
         )
-        if route is not None:
-            stored_value_const = route.get("stored_value_const")
-            if stored_value_const is not None:
-                return ir.Constant(i64, int(stored_value_const))
-        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        if not arg_ids:
-            return zero
-        callee = declare("nyash.map.slot_load_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_map_slot_load_hh")
 
-    if method_name == "push":
+    if method_name == MAP_METHOD_DELETE:
+        return _lower_map_delete_collection_method_call(
+            builder=builder,
+            declare=declare,
+            box_name=box_name,
+            recv_h=recv_h,
+            arg_ids=arg_ids,
+            resolve_arg=resolve_arg,
+        )
+
+    if method_name == MAP_METHOD_GET:
+        return _lower_map_get_collection_method_call(
+            builder=builder,
+            declare=declare,
+            box_name=box_name,
+            method_name=method_name,
+            recv_h=recv_h,
+            arg_ids=arg_ids,
+            resolve_arg=resolve_arg,
+            resolver=resolver,
+            receiver_vid=receiver_vid,
+        )
+
+    if method_name == MAP_METHOD_PUSH:
         # Legacy non-ArrayBox collection fallback. This is intentionally kept
         # separate from MapBox-only clear/delete until route metadata can
         # distinguish array-like unknown receivers from true map receivers.
@@ -599,7 +743,7 @@ def _lower_non_array_collection_method_call(
         callee = declare("nyash.array.slot_append_hh", i64, [i64, i64])
         return builder.call(callee, [recv_h, value], name="unified_array_slot_append_hh")
 
-    if method_name == "set":
+    if method_name == MAP_METHOD_SET:
         if len(arg_ids) < 2:
             return recv_h
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
@@ -612,23 +756,18 @@ def _lower_non_array_collection_method_call(
             value=value,
         )
 
-    if method_name == "has":
-        route = _current_map_lookup_fusion_route(
-            resolver=resolver,
+    if method_name == MAP_METHOD_HAS:
+        return _lower_map_has_collection_method_call(
+            builder=builder,
+            declare=declare,
             box_name=box_name,
             method_name=method_name,
-            receiver_vid=receiver_vid,
+            recv_h=recv_h,
             arg_ids=arg_ids,
+            resolve_arg=resolve_arg,
+            resolver=resolver,
+            receiver_vid=receiver_vid,
         )
-        if route is not None:
-            stored_value_proof = str(route.get("stored_value_proof") or "")
-            if stored_value_proof != "unknown_scalar":
-                return ir.Constant(i64, 1)
-        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        if not arg_ids:
-            return zero
-        callee = declare("nyash.map.probe_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_map_probe_hh")
 
     return None
 

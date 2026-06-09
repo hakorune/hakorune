@@ -6,8 +6,8 @@
 use crate::ast::{LiteralValue, Span};
 use crate::mir::builder::{MirBuilder, MirInstruction, ValueId};
 use crate::mir::function::{
-    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemFieldAccessSite,
-    FastMemBranchConditionFact, FastMemBranchConditionProofKind, FastMemFreeHeadNonEmptyFact,
+    FastMemBlockNextFact, FastMemBlockNextProofKind, FastMemBranchConditionFact,
+    FastMemBranchConditionProofKind, FastMemFieldAccessSite, FastMemFreeHeadNonEmptyFact,
     FastMemFreeHeadNonEmptyProofKind, FastMemIndexAccessSite, FastMemLocalFreeNonEmptyFact,
     FastMemLocalFreeNonEmptyProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
     FastMemRemoteOwnerFact, FastMemRemoteOwnerProofKind, FastMemSameOwnerFact,

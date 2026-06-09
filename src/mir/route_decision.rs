@@ -8,6 +8,7 @@
 
 use crate::mir::direct_array_access_plan::{DirectArrayAccessOp, DirectArrayAccessPlan};
 use crate::mir::direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan;
+use crate::mir::map_lookup_fusion_plan::MapLookupFusionRoute;
 use crate::mir::{BasicBlockId, MirFunction, MirModule};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -24,6 +25,8 @@ pub struct RouteDecision {
     pub proof_ids: Vec<&'static str>,
     pub miss_reason: Option<&'static str>,
     pub source_plan_kind: &'static str,
+    pub selected_i64_const: Option<i64>,
+    pub selected_bool_const: Option<bool>,
 }
 
 impl RouteDecision {
@@ -56,6 +59,8 @@ impl RouteDecision {
             proof_ids: plan.proof_ids().to_vec(),
             miss_reason: None,
             source_plan_kind: "DirectArrayAccessPlan",
+            selected_i64_const: None,
+            selected_bool_const: None,
         }
     }
 
@@ -86,6 +91,59 @@ impl RouteDecision {
             proof_ids,
             miss_reason: plan.failure_reason,
             source_plan_kind: "DirectExactHotCoreCallPlan",
+            selected_i64_const: None,
+            selected_bool_const: None,
+        }
+    }
+
+    fn from_map_lookup_fusion_route(
+        plan: &MapLookupFusionRoute,
+        fallback_policy: &'static str,
+        access_kind: &'static str,
+        fallback_route: &'static str,
+        instruction_index: usize,
+        semantic_op: &'static str,
+    ) -> Self {
+        let selected_route = if plan.stored_value_proof_tag() != "unknown_scalar" {
+            "map_lookup_const_fold"
+        } else {
+            fallback_route
+        };
+        let mut proof_ids = vec![plan.proof_tag()];
+        if plan.stored_value_proof_tag() != "unknown_scalar" {
+            proof_ids.push(plan.stored_value_proof_tag());
+        }
+        Self {
+            site_id: format!("b{}.i{}", plan.block().as_u32(), instruction_index),
+            block: plan.block(),
+            instruction_index,
+            semantic_op,
+            access_kind,
+            preferred_route: "map_lookup_const_fold",
+            selected_route,
+            fallback_route,
+            fallback_policy,
+            proof_ids,
+            miss_reason: if selected_route == "map_lookup_const_fold" {
+                None
+            } else {
+                Some("stored_value_proof_missing")
+            },
+            source_plan_kind: "MapLookupFusionRoute",
+            selected_i64_const: if selected_route == "map_lookup_const_fold"
+                && semantic_op == "MapGet"
+            {
+                plan.stored_value_const()
+            } else {
+                None
+            },
+            selected_bool_const: if selected_route == "map_lookup_const_fold"
+                && semantic_op == "MapHas"
+            {
+                Some(true)
+            } else {
+                None
+            },
         }
     }
 }
@@ -93,12 +151,48 @@ impl RouteDecision {
 pub fn refresh_function_route_decisions(function: &mut MirFunction) {
     let fallback_policy = direct_memory_route_policy(function);
 
-    function.metadata.route_decisions = function
+    let mut decisions = function
         .metadata
         .direct_array_access_plans
         .iter()
         .map(|plan| RouteDecision::from_direct_array_access_plan(plan, fallback_policy))
-        .collect();
+        .collect::<Vec<_>>();
+
+    let map_lookup_decisions = function
+        .metadata
+        .map_lookup_fusion_routes
+        .iter()
+        .flat_map(|plan| {
+            [
+                RouteDecision::from_map_lookup_fusion_route(
+                    plan,
+                    "opportunistic",
+                    "map_lookup_same_key_get",
+                    "generic_map_get_helper",
+                    plan.get_instruction_index(),
+                    "MapGet",
+                ),
+                RouteDecision::from_map_lookup_fusion_route(
+                    plan,
+                    "opportunistic",
+                    "map_lookup_same_key_has",
+                    "generic_map_has_helper",
+                    plan.has_instruction_index(),
+                    "MapHas",
+                ),
+            ]
+        });
+    decisions.extend(map_lookup_decisions);
+    decisions.sort_by_key(|decision| {
+        (
+            decision.block.as_u32(),
+            decision.instruction_index,
+            decision.source_plan_kind,
+            decision.semantic_op,
+            decision.access_kind,
+        )
+    });
+    function.metadata.route_decisions = decisions;
 }
 
 pub fn refresh_module_hotcore_route_decisions(module: &mut MirModule) {
@@ -248,6 +342,10 @@ mod tests {
         }
     }
 
+    fn map_lookup_fusion_route() -> MapLookupFusionRoute {
+        crate::mir::map_lookup_fusion_plan::test_support::same_key_nonzero_json_fixture()
+    }
+
     #[test]
     fn route_decision_reports_direct_array_selected_route() {
         let mut function = MirFunction::new(
@@ -278,6 +376,59 @@ mod tests {
         assert_eq!(decision.fallback_policy, "opportunistic");
         assert_eq!(decision.miss_reason, None);
         assert_eq!(decision.source_plan_kind, "DirectArrayAccessPlan");
+    }
+
+    #[test]
+    fn route_decision_reports_map_lookup_selected_route() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .map_lookup_fusion_routes
+            .push(map_lookup_fusion_route());
+
+        refresh_function_route_decisions(&mut function);
+
+        assert_eq!(function.metadata.route_decisions.len(), 2);
+        let get_decision = &function.metadata.route_decisions[0];
+        assert_eq!(get_decision.site_id, "b4.i10");
+        assert_eq!(get_decision.semantic_op, "MapGet");
+        assert_eq!(get_decision.access_kind, "map_lookup_same_key_get");
+        assert_eq!(get_decision.preferred_route, "map_lookup_const_fold");
+        assert_eq!(get_decision.selected_route, "map_lookup_const_fold");
+        assert_eq!(get_decision.fallback_route, "generic_map_get_helper");
+        assert_eq!(get_decision.fallback_policy, "opportunistic");
+        assert_eq!(get_decision.miss_reason, None);
+        assert_eq!(get_decision.source_plan_kind, "MapLookupFusionRoute");
+        assert_eq!(get_decision.selected_i64_const, Some(7));
+        assert_eq!(get_decision.selected_bool_const, None);
+        assert_eq!(
+            get_decision.proof_ids,
+            vec![
+                "same_receiver_same_i64_key_scalar_get_has",
+                "scalar_i64_nonzero"
+            ]
+        );
+
+        let has_decision = &function.metadata.route_decisions[1];
+        assert_eq!(has_decision.site_id, "b4.i12");
+        assert_eq!(has_decision.semantic_op, "MapHas");
+        assert_eq!(has_decision.access_kind, "map_lookup_same_key_has");
+        assert_eq!(has_decision.preferred_route, "map_lookup_const_fold");
+        assert_eq!(has_decision.selected_route, "map_lookup_const_fold");
+        assert_eq!(has_decision.fallback_route, "generic_map_has_helper");
+        assert_eq!(has_decision.fallback_policy, "opportunistic");
+        assert_eq!(has_decision.miss_reason, None);
+        assert_eq!(has_decision.source_plan_kind, "MapLookupFusionRoute");
+        assert_eq!(has_decision.selected_i64_const, None);
+        assert_eq!(has_decision.selected_bool_const, Some(true));
     }
 
     #[test]

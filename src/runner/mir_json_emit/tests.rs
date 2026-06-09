@@ -15,6 +15,7 @@ mod function_attrs;
 mod generic_method_routes;
 mod global_call_routes;
 mod map_lookup_fusion_routes;
+mod map_repr_plans;
 mod ordering;
 mod placement;
 mod proof_envelopes;

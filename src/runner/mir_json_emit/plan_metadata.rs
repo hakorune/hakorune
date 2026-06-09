@@ -64,4 +64,36 @@ pub(super) fn insert_plan_metadata_json(
                 .collect(),
         ),
     );
+    obj.insert(
+        "map_repr_plans".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .map_repr_plans
+                .iter()
+                .map(|plan| {
+                    json!({
+                        "route_id": plan.route_id(),
+                        "repr_kind": plan.repr_kind_tag(),
+                        "source_route_id": plan.source_route_id(),
+                        "source_route_kind": plan.source_route_kind(),
+                        "source_helper_symbol": plan.source_helper_symbol(),
+                        "block": plan.block().as_u32(),
+                        "instruction_index": plan.instruction_index(),
+                        "surface_box_name": plan.surface_box_name(),
+                        "receiver_origin_box": plan.receiver_origin_box(),
+                        "method": plan.method(),
+                        "receiver_value": plan.receiver_value().as_u32(),
+                        "key_value": plan.key_value().map(|value| value.as_u32()),
+                        "result_value": plan.result_value().map(|value| value.as_u32()),
+                        "key_route": plan.key_route_tag(),
+                        "return_shape": plan.return_shape_tag(),
+                        "value_demand": plan.value_demand_tag(),
+                        "publication_policy": plan.publication_policy_tag(),
+                        "proof_tag": plan.proof_tag(),
+                        "lowering_tier": plan.lowering_tier_tag(),
+                    })
+                })
+                .collect(),
+        ),
+    );
 }

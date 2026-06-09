@@ -428,8 +428,7 @@ fn extend_single_input_phi_aliases(
                         if produced.contains_key(dst) {
                             continue;
                         }
-                        let Some(origin @ (_, kind)) = produced.get(src).copied()
-                        else {
+                        let Some(origin @ (_, kind)) = produced.get(src).copied() else {
                             continue;
                         };
                         if memop_escape_tracked_kind(kind) {
@@ -464,7 +463,10 @@ fn phi_merge_origin(
 }
 
 fn phi_merge_aliasable_memop_kind(kind: MemOpKind) -> bool {
-    matches!(kind, MemOpKind::TableIndex | MemOpKind::AtomicRemoteHeadDrain)
+    matches!(
+        kind,
+        MemOpKind::TableIndex | MemOpKind::AtomicRemoteHeadDrain
+    )
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -530,12 +532,12 @@ fn allowed_fastmem_escape_use(inst: &MirInstruction, kind: MemOpKind, value: Val
             MirInstruction::FieldGet { base, .. }
         ) if *base == value
     ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::TableIndex,
-            MirInstruction::FieldSet { base, .. }
-        ) if *base == value
-        ) || matches!(
+    (kind, inst),
+    (
+        MemOpKind::TableIndex,
+        MirInstruction::FieldSet { base, .. }
+    ) if *base == value
+    ) || matches!(
         (kind, inst),
         (
             MemOpKind::TableIndex,
@@ -902,7 +904,11 @@ mod tests {
             },
         ]);
 
-        assert!(check_fastmem_regions(&function).is_ok(), "{}", error_text(&function));
+        assert!(
+            check_fastmem_regions(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
     }
 
     #[test]
@@ -933,7 +939,11 @@ mod tests {
             },
         ]);
 
-        assert!(check_fastmem_regions(&function).is_ok(), "{}", error_text(&function));
+        assert!(
+            check_fastmem_regions(&function).is_ok(),
+            "{}",
+            error_text(&function)
+        );
     }
 
     #[test]

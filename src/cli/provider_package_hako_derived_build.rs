@@ -20,7 +20,8 @@ use support::{
     semantic_codegen_output, sha256_bytes, sha256_file,
 };
 
-const OBJECT_LIFECYCLE_PROVIDER_ENTRYPOINT: &str = "HakoProvider.objectLifecycleSmallAllocReleaseOk/0";
+const OBJECT_LIFECYCLE_PROVIDER_ENTRYPOINT: &str =
+    "HakoProvider.objectLifecycleSmallAllocReleaseOk/0";
 const OBJECT_LIFECYCLE_ALLOC_ENTRYPOINT: &str = "HakoAllocPageModel.acquireFreshSmall/1";
 const OBJECT_LIFECYCLE_RELEASE_ENTRYPOINT: &str = "HakoAllocPageModel.releaseLocalKnownLive/1";
 

@@ -75,6 +75,7 @@ pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)
 pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
 pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
 pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
+pub mod map_repr_plan; // MIR-owned MapBox representation plan family
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
@@ -221,6 +222,7 @@ pub use instruction::MirInstruction;
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,
 };
+pub use map_repr_plan::{refresh_function_map_repr_plans, refresh_module_map_repr_plans};
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,

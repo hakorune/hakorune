@@ -56,10 +56,7 @@ impl MirBuilder {
         if let Some(region) = self.current_fastmem_region() {
             if name.starts_with("mem.") {
                 return crate::mir::builder::fastmem::calls::lower_fastmem_function_call(
-                    self,
-                    region,
-                    name,
-                    args,
+                    self, region, name, args,
                 );
             }
         }
@@ -134,11 +131,7 @@ impl MirBuilder {
             if let ASTNode::Variable { name, .. } = &object {
                 if name == "mem" {
                     return crate::mir::builder::fastmem::calls::lower_fastmem_method_call(
-                        self,
-                        region,
-                        object,
-                        method,
-                        arguments,
+                        self, region, object, method, arguments,
                     );
                 }
             }
