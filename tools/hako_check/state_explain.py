@@ -15,6 +15,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from typed_object_exact_slot_inventory import typed_object_exact_slot_inventory
+
 
 PRIMITIVE_TYPES = {
     "i8",
@@ -235,6 +237,7 @@ def main() -> int:
         for plan in typed_object_plans
         if args.box_filter is None or str(plan.get("box_name", "unknown")) == args.box_filter
     ]
+    typed_object_exact_slot_inventory_rows = typed_object_exact_slot_inventory(data)
     selected_direct_state_plans = [
         plan
         for plan in direct_state_plans
@@ -327,6 +330,21 @@ def main() -> int:
         f"record_layout_plan_count={len(record_layout_plans)}",
         f"typed_object_plan_count={len(typed_object_plans)}",
         f"selected_typed_object_plan_count={len(selected_typed_object_plans)}",
+        f"typed_object_exact_slot_get_i64_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_get_i64_count']}",
+        f"typed_object_exact_slot_set_i64_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_set_i64_count']}",
+        f"typed_object_exact_slot_get_u64_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_get_u64_count']}",
+        f"typed_object_exact_slot_set_u64_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_set_u64_count']}",
+        f"typed_object_exact_slot_get_handle_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_get_handle_count']}",
+        f"typed_object_exact_slot_set_handle_count={typed_object_exact_slot_inventory_rows['typed_object_exact_slot_set_handle_count']}",
+        f"typed_object_exact_helper_call_count={typed_object_exact_slot_inventory_rows['typed_object_exact_helper_call_count']}",
+        f"typed_object_inline_slot_load_count={typed_object_exact_slot_inventory_rows['typed_object_inline_slot_load_count']}",
+        f"typed_object_inline_slot_store_count={typed_object_exact_slot_inventory_rows['typed_object_inline_slot_store_count']}",
+        f"typed_object_compat_field_get_count={typed_object_exact_slot_inventory_rows['typed_object_compat_field_get_count']}",
+        f"typed_object_get_compat_i64_count={typed_object_exact_slot_inventory_rows['typed_object_get_compat_i64_count']}",
+        f"typed_object_exact_name_lookup_count={typed_object_exact_slot_inventory_rows['typed_object_exact_name_lookup_count']}",
+        f"typed_object_exact_internal_dispatch_count={typed_object_exact_slot_inventory_rows['typed_object_exact_internal_dispatch_count']}",
+        f"typed_object_exact_silent_fallback_count={typed_object_exact_slot_inventory_rows['typed_object_exact_silent_fallback_count']}",
+        f"typed_object_required_route_failfast_count={typed_object_exact_slot_inventory_rows['typed_object_required_route_failfast_count']}",
         f"direct_state_plan_count={len(direct_state_plans)}",
         f"direct_state_positive_candidate_count={len(positive_direct_state)}",
         f"direct_state_mixed_candidate_count={len(mixed_direct_state)}",

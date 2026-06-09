@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/phases/phase-296x/296x-297-MICRO-HELPER-LANE-CLOSEOUT-AND-REPRESENTATION-DIRECT-LOWERING-SELECTION.md
   - docs/development/current/main/phases/phase-296x/296x-278-CAPSULE-VALUE-RESULT-CONTRACT-SSOT.md
   - docs/development/current/main/phases/phase-296x/296x-207-MIR-TYPED-FIELD-RESIDENCE-SSOT.md
+  - docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
 ---
 
 # Representation Direct Lowering SSOT
@@ -35,6 +36,18 @@ MIR FieldGet / FieldSet
 ```
 
 That path remains the fallback/proof/debug surface, not the next hot-path goal.
+
+Typed-object exact slot helper calls are a bridge, not the final keeper. The
+ABI split owner is:
+
+```text
+docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
+```
+
+`field_get_hii` belongs to compat / legacy. The exact route truth is
+`typed_object.slot_load_*` / `typed_object.slot_store_*`, with
+`hako.object.exact_slot_get_*` / `hako.object.exact_slot_set_*` as the
+helper-backed transition before NativeDirect.
 
 ## Representation Ladder
 

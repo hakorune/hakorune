@@ -42,6 +42,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - optimization toolbox entry for `hako_check`, MIR shape adapters, exact-EXE measurement, and row guard surfaces
 - `design/hotline-core-method-contract-ssot.md`
   - zero-cost hot-line keeper gate and CoreMethodContract migration owner
+- `design/typed-object-exact-slot-abi-ssot.md`
+  - typed-object exact slot ABI split owner; keeps compat `field_get_hii`
+    separate from selected `typed_object.slot_load/store_*` exact routes
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
 - `design/current-docs-archive-policy-ssot.md`
@@ -126,6 +129,7 @@ Rule:
   - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
   - Mimalloc Replacement-Front Fidelity（mimalloc-shaped execution keeper guard）: `docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md`
   - MIR FastMem MemOp Dialect（FastMemory MIR representation boundary）: `docs/development/current/main/design/mir-fastmem-memop-dialect-ssot.md`
+  - Typed Object Exact Slot ABI（compat field route vs exact slot route boundary）: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 

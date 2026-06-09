@@ -10,6 +10,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from fastmem_mir_to_llvm_producer_report_body import build_report_rows
+from typed_object_exact_slot_inventory import typed_object_exact_slot_inventory
 from report_kv import row_key_surface, shared_key_surface
 
 
@@ -131,6 +132,48 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
             "fastmem_branch_cfg_selected",
         }
         self.assertTrue(required_keys.issubset(baseline))
+
+    def test_typed_object_exact_slot_inventory_reflects_storage_families(self) -> None:
+        mir = {
+            "user_box_decls": [
+                {
+                    "name": "Point",
+                    "field_decls": [
+                        {"name": "x", "declared_type": "i64", "is_weak": False},
+                        {"name": "y", "declared_type": "u64", "is_weak": False},
+                        {"name": "owner", "declared_type": "handle", "is_weak": False},
+                        {"name": "compat_only", "declared_type": "i64", "is_weak": True},
+                    ],
+                }
+            ],
+            "typed_object_plans": [
+                {
+                    "box_name": "Point",
+                    "fields": [
+                        {"name": "x", "storage": "i64"},
+                        {"name": "y", "storage": "u64"},
+                        {"name": "owner", "storage": "handle"},
+                    ],
+                }
+            ],
+        }
+
+        inventory = typed_object_exact_slot_inventory(mir)
+        self.assertEqual(inventory["typed_object_exact_slot_get_i64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_set_i64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_get_u64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_set_u64_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_get_handle_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_slot_set_handle_count"], 1)
+        self.assertEqual(inventory["typed_object_exact_helper_call_count"], 3)
+        self.assertEqual(inventory["typed_object_inline_slot_load_count"], 0)
+        self.assertEqual(inventory["typed_object_inline_slot_store_count"], 0)
+        self.assertEqual(inventory["typed_object_compat_field_get_count"], 1)
+        self.assertEqual(inventory["typed_object_get_compat_i64_count"], 0)
+        self.assertEqual(inventory["typed_object_exact_name_lookup_count"], 0)
+        self.assertEqual(inventory["typed_object_exact_internal_dispatch_count"], 0)
+        self.assertEqual(inventory["typed_object_exact_silent_fallback_count"], 0)
+        self.assertEqual(inventory["typed_object_required_route_failfast_count"], 1)
 
 
 if __name__ == "__main__":

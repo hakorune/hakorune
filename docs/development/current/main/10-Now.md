@@ -14,14 +14,14 @@ Related:
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-- map route SSOT: `docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md`
+- typed-object exact slot ABI SSOT: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 - comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- implementation gaps: none; open work is MapBox route-boundary cleanup and pointer thinning
+- implementation gaps: none; open work is typed-object exact slot ABI split and pointer thinning
 
 ## Next
 
@@ -31,7 +31,7 @@ Related:
   `CURRENT_STATE.toml`
 - use the inventory note first when pointer hunting is noisy
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
-- further MapBox optimization must consume selected proof-bearing routes, not metadata-only fusion rows
+- further user-box counter-heavy optimization must use selected exact slot routes, not compat `field_get_hii`
 
 ## Rules
 
@@ -43,7 +43,7 @@ Related:
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-3. `docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md`
+3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle

@@ -26,6 +26,7 @@ from fastmem_mir_to_llvm_producer_report_common import (
 )
 from fastmem_mir_to_llvm_producer_report_tail_rows import build_tail_rows
 from fastmem_mir_to_llvm_producer_report_route_rows import build_route_state
+from typed_object_exact_slot_inventory import typed_object_exact_slot_inventory
 from fastmem_route_profiles import (
     abandoned_reclaim_preflight_profile,
     abandoned_reclaim_producer_profile,
@@ -789,6 +790,66 @@ def _report_header_rows(state: dict[str, Any], slice_rows: list[tuple[str, str]]
         ("fastmem_region_count", str(len(regions))),
         ("fastmem_contract_count", str(len(contract_ids))),
         ("fastmem_contract_id", contract_id),
+        (
+            "typed_object_exact_slot_get_i64_count",
+            str(typed_object_inventory["typed_object_exact_slot_get_i64_count"]),
+        ),
+        (
+            "typed_object_exact_slot_set_i64_count",
+            str(typed_object_inventory["typed_object_exact_slot_set_i64_count"]),
+        ),
+        (
+            "typed_object_exact_slot_get_u64_count",
+            str(typed_object_inventory["typed_object_exact_slot_get_u64_count"]),
+        ),
+        (
+            "typed_object_exact_slot_set_u64_count",
+            str(typed_object_inventory["typed_object_exact_slot_set_u64_count"]),
+        ),
+        (
+            "typed_object_exact_slot_get_handle_count",
+            str(typed_object_inventory["typed_object_exact_slot_get_handle_count"]),
+        ),
+        (
+            "typed_object_exact_slot_set_handle_count",
+            str(typed_object_inventory["typed_object_exact_slot_set_handle_count"]),
+        ),
+        (
+            "typed_object_exact_helper_call_count",
+            str(typed_object_inventory["typed_object_exact_helper_call_count"]),
+        ),
+        (
+            "typed_object_inline_slot_load_count",
+            str(typed_object_inventory["typed_object_inline_slot_load_count"]),
+        ),
+        (
+            "typed_object_inline_slot_store_count",
+            str(typed_object_inventory["typed_object_inline_slot_store_count"]),
+        ),
+        (
+            "typed_object_compat_field_get_count",
+            str(typed_object_inventory["typed_object_compat_field_get_count"]),
+        ),
+        (
+            "typed_object_get_compat_i64_count",
+            str(typed_object_inventory["typed_object_get_compat_i64_count"]),
+        ),
+        (
+            "typed_object_exact_name_lookup_count",
+            str(typed_object_inventory["typed_object_exact_name_lookup_count"]),
+        ),
+        (
+            "typed_object_exact_internal_dispatch_count",
+            str(typed_object_inventory["typed_object_exact_internal_dispatch_count"]),
+        ),
+        (
+            "typed_object_exact_silent_fallback_count",
+            str(typed_object_inventory["typed_object_exact_silent_fallback_count"]),
+        ),
+        (
+            "typed_object_required_route_failfast_count",
+            str(typed_object_inventory["typed_object_required_route_failfast_count"]),
+        ),
         ("fastmem_verified_mem_access_plan_count", str(len(verified_plans))),
         ("fastmem_verified_table_access_count", str(len(verified_table))),
         ("fastmem_verified_field_access_count", str(len(verified_field_load) + len(verified_field_store))),
@@ -882,6 +943,7 @@ def build_report_rows(mir: dict[str, Any], *, object_out: Path, profile: str) ->
     plans = fastmem_access_plans(mir)
     regions = fastmem_regions(mir)
     memops = fastmem_memops(mir)
+    typed_object_inventory = typed_object_exact_slot_inventory(mir)
     free_head_non_empty_facts = fastmem_free_head_non_empty_facts(mir)
     verified_plans = [plan for plan in plans if is_verified(plan)]
     verified_table = [plan for plan in verified_plans if plan.get("kind") == "table_index"]

@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/type-system-policy-ssot.md
   - docs/development/current/main/design/auto-specialize-box-ssot.md
   - docs/development/current/main/design/record-and-packed-array-lowering-ssot.md
+  - docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
   - crates/nyash_kernel/src/exports/primitive.rs
   - crates/nyash_kernel/src/exports/user_box.rs
   - crates/nyash_kernel/src/user_box_registry.rs
@@ -29,6 +30,17 @@ Related:
 - `C/Rust が速い = 型だけ分かればよい` ではなく、`semantic type + storage class + boundary` が早く確定する状態を作る
 - `.hako syntax` を増やす前に、frontend lowering / canonical MIR / storage-class facts で速い path を作る
 - string で始めた `semantic primitive first` の考え方を、primitive boxes と user boxes に横展開する
+
+Typed-object exact slot ABI split:
+
+- `field_get_hii` is a compat / legacy adapter, not the exact-lane keeper ABI.
+- selected typed-object slot routes use `typed_object.slot_load_*` /
+  `typed_object.slot_store_*` as MIR/RouteDecision truth.
+  - helper-backed exact routes use `hako.object.exact_slot_get_*` /
+  `hako.object.exact_slot_set_*` as a bridge before NativeDirect inline
+  lowering.
+- owner SSOT:
+  `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 
 ## Current Reading
 
@@ -73,8 +85,8 @@ Current user-box / primitive cost reading:
     - recent value-lowering now accepts float literals and preserves `MirType::Float` for float arithmetic results on the same keeper path
   - `FloatBox` fast-path pilot on the current keeper slice:
     - primitive-handle lowering now recognizes `FloatBox` handles as the float family
-    - LLVM `field_get` now uses `nyash.instance.get_float_field_h` for typed non-weak `FloatBox` fields
-    - LLVM `field_set` now uses `nyash.instance.set_float_field_h` only when the source is float-safe (`FloatBox` handle or actual `f64`)
+    - LLVM `field_get` now uses `hako.instance.get_float_field_h` for typed non-weak `FloatBox` fields
+    - LLVM `field_set` now uses `hako.instance.set_float_field_h` only when the source is float-safe (`FloatBox` handle or actual `f64`)
   - `Float` storage-class promotion is now landed as MIR inventory only:
     - `MirType::Float` and typed `FloatBox` field facts now classify as `InlineF64`
     - dumps / MIR JSON surface the new storage fact without changing runtime behavior
