@@ -8,18 +8,18 @@
 status = "Active"
 date = "2026-06-09"
 
-active_lane = "Hako Mimalloc direct-exact optimization sweep selection"
-active_lane_status = "comparison sweep is recorded; next exact front is the userbox/counter-heavy optimization lane."
+active_lane = "Hako Mimalloc MapBox proof-bearing route cleanup"
+active_lane_status = "MapBox optimization is gated on separating metadata-only fusion candidates from selected proof-bearing lowering routes."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-648-HAKO-MIMALLOC-DIRECT-EXACT-OPTIMIZATION-SWEEP-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-650-HAKO-MIMALLOC-MAPBOX-PROOF-BEARING-ROUTE-CLEANUP.md"
 method_anchor = "docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-648-HAKO-MIMALLOC-DIRECT-EXACT-OPTIMIZATION-SWEEP-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-648-HAKO-MIMALLOC-DIRECT-EXACT-OPTIMIZATION-SWEEP-SELECTION.md"
-latest_card_summary = "296x-648 selects the next exact front from the direct-exact Hako vs C sweep."
-current_blocker_token = "HAKO-MIMALLOC-DIRECT-EXACT-OPTIMIZATION-SWEEP-296X-001"
+latest_card = "296x-650-HAKO-MIMALLOC-MAPBOX-PROOF-BEARING-ROUTE-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-650-HAKO-MIMALLOC-MAPBOX-PROOF-BEARING-ROUTE-CLEANUP.md"
+latest_card_summary = "296x-650 fixes the MapBox route boundary so metadata-only fusion candidates do not change backend lowering without selected RouteDecision evidence."
+current_blocker_token = "HAKO-MIMALLOC-MAPBOX-PROOF-BEARING-ROUTE-CLEANUP-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-09: 296x-650 opened the MapBox proof-bearing route cleanup lane so metadata-only same-key fusion candidates cannot affect backend lowering without selected RouteDecision evidence.",
   "2026-06-09: 296x-648 selected the next exact front from the direct-exact Hako vs C mimalloc sweep; the workstream now points to the userbox/counter-heavy optimization lane instead of the docs/status cleanup row.",
   "2026-06-09: 296x-647 docs pointer cleanup and mirror-slim landed; the inventory note is the compact map and the restart docs stay thin instead of carrying the long queue inline.",
   "2026-06-09: 296x-97 selected the post-release direct cached-page source MIR refresh as the next current lane after the release direct cached-page keeper measurement; the workstream now points to the select single-page first-page cache keeper instead of the refresh note.",

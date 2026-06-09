@@ -14,12 +14,13 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-3. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
-4. `docs/development/current/main/05-Restart-Quick-Resume.md`
-5. `docs/development/current/main/10-Now.md`
-6. `git status -sb`
-7. `bash tools/checks/current_state_pointer_guard.sh`
-8. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+3. `docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md`
+4. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
+5. `docs/development/current/main/05-Restart-Quick-Resume.md`
+6. `docs/development/current/main/10-Now.md`
+7. `git status -sb`
+8. `bash tools/checks/current_state_pointer_guard.sh`
+9. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -33,7 +34,7 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- current work is exact-front optimization selection
+- current work is MapBox proof-bearing route cleanup before further exact-front optimization
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules
@@ -47,4 +48,5 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-3. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+3. `docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md`
+4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

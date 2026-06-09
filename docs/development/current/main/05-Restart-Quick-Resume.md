@@ -29,16 +29,17 @@ cargo check -q
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
+- map route SSOT: `docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md`
 - comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- implementation gaps: none; remaining work is optimization selection and pointer cleanup
+- implementation gaps: none; current work is MapBox route-boundary cleanup before further optimization
 
 ## Restart Notes
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
-- the current lane is direct-exact optimization sweep selection
+- the current lane is MapBox proof-bearing route cleanup
 - use the inventory note when pointer hunting gets noisy

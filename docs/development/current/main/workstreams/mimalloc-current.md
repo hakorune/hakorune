@@ -17,20 +17,21 @@ the long history in the inventory note.
 
 ## Current Lane
 
-- active lane: `Hako Mimalloc direct-exact optimization sweep selection`
+- active lane: `Hako Mimalloc MapBox proof-bearing route cleanup`
 - blocker: read `CURRENT_STATE.toml`
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
 - comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
+- map route SSOT: `docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md`
 
 ## Thin Mirrors
 
 ```text
-active_lane=Hako Mimalloc direct-exact optimization sweep selection
+active_lane=Hako Mimalloc MapBox proof-bearing route cleanup
 current_state_pointer_guard=pass
 restart_surface_thin=1
 long_history_in_current_mirrors=0
 implementation_gap_count=0
-optimization_selection_active=1
+mapbox_route_boundary_cleanup_active=1
 ```
 
 ## Archived Lane Notes

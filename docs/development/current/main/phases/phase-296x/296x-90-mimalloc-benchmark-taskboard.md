@@ -30,7 +30,7 @@ Long queue history lives in the archive note.
 ## Current Lane
 
 ```text
-| 648 | `HAKO-MIMALLOC-DIRECT-EXACT-OPTIMIZATION-SWEEP-296X-001` | Current |
+| 650 | `HAKO-MIMALLOC-MAPBOX-PROOF-BEARING-ROUTE-CLEANUP-296X-001` | Current |
 ```
 
 ## Archive Pointers
@@ -46,4 +46,5 @@ docs/development/current/main/investigations/phase-296x-90-taskboard-history-202
 - read `CURRENT_STATE.toml` first for the current blocker token
 - use the inventory note for pointer hunting
 - use the comparison note for the exact-front optimization sweep
+- use the MapBox proof-bearing route SSOT before changing map lookup lowering
 - keep current mirrors narrow and archive long queue history elsewhere

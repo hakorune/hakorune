@@ -35,9 +35,11 @@ Read these first:
 ```text
 docs/development/current/main/CURRENT_STATE.toml
 docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
+docs/development/current/main/design/mapbox-proof-bearing-route-ssot.md
 docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
 ```
 
-The active lane is the direct-exact optimization sweep selection row. Use the
-inventory note first when pointer hunting gets noisy, and use the comparison
-note when you want the exact-front diff that chooses the next workload.
+The active lane is the MapBox proof-bearing route cleanup row. Use the
+inventory note first when pointer hunting gets noisy, use the MapBox route SSOT
+before changing map lookup lowering, and use the comparison note when you want
+the exact-front diff that chooses the next workload.
