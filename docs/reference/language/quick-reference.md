@@ -113,6 +113,13 @@ Declaration metadata
   the preferred source surface.
 - See: reference/language/runes.md.
 
+MIR observability (`__mir__`, dev-only)
+- `__mir__.log("label", v1, v2, ...)` records MIR-level debug values.
+- `__mir__.mark("label")` records a label-only marker.
+- The hook is for observation and debugging; it does not change program meaning.
+- Scope-wide MIR / assembly dumps are handled by tooling and `hako_check`,
+  not by adding a dump syntax to ordinary `.hako` code.
+
 Using / SSOT
 - Dev/CI: file‑based `using` allowed for convenience.
 - Prod: `nyash.toml` only. Duplicate imports or alias rebinding is an error.

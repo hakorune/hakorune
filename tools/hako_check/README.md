@@ -8,6 +8,8 @@ Quick entry (toolbox index):
   `docs/development/current/main/design/hako-optimization-toolbox-usability-ssot.md`
 - hako_check / MIR boundary SSOT:
   `docs/development/current/main/design/hako-check-mir-observation-boundary-ssot.md`
+- inspect scope dump SSOT:
+  `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
 
 Canonical helpers
 - `bash tools/hako_check/run_tests.sh`
@@ -110,6 +112,24 @@ Performance / MIR cache
   - cache use must be conservative and behavior-preserving
   - cache failure must not silently drop MIR-dependent rules; it must fall back to the existing emit route
   - an `emit-failed` marker is advisory only and must remain key-scoped (source/profile/toolchain changes naturally invalidate it)
+
+Planned Inspect Scope Dump
+- `hako_check inspect` is the planned read-only surface for source span /
+  anchor / function / route based MIR, LLVM IR, assembly, and report bundles.
+- Source files may provide optional anchors such as
+  `// hako:inspect begin <id>` and `// hako:inspect end <id>`.
+- Dumping remains a tool query. Do not add `.hako` source syntax such as
+  `__output__MIR__ { ... }` or `__output__ASM__ { ... }`.
+- Contract owner:
+  `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
+- First implementation target:
+
+```bash
+bash tools/hako_check.sh inspect scope \
+  --span src/hako_alloc.hako:120:145 \
+  --emit mir,mir-json,report \
+  --out target/hako-inspect/alloc_fastpath
+```
 
 Performance Surface Inventory
 - `hako_check perf-surface` is an observation-only surface for allocator hot-path

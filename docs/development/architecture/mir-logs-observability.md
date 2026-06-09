@@ -8,6 +8,10 @@
 
 `__mir__.log` は MIR レベルの観測・デバッグ用ログ出力。将来的にはdev向けの一時的なログと、本番でも使うMIR観測 APIに分離する予定。
 
+- 構文の入口は [Quick Reference](../../reference/language/quick-reference.md) の `MIR observability (__mir__, dev-only)` を参照する。
+- `__mir__` は source 上の観測フックであり、scope 単位の MIR / assembly dump は `hako_check` や compiler tooling 側の責務とする。
+- つまり `.hako` に dump 用の新構文を増やすのではなく、`mark` / `log` を目印にツール側で scope を切って出力する。
+
 ---
 
 ## 使用箇所一覧表

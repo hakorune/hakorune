@@ -16,6 +16,7 @@ Related:
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
 - typed-object exact slot ABI SSOT: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 - adjacent array-text session route SSOT: `docs/development/current/main/design/array-text-session-route-ssot.md`
+- inspect scope dump SSOT: `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
 - comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
@@ -34,6 +35,8 @@ Related:
 - if string hot-path work resumes, use the array-text session route SSOT
   instead of extending `nyash.array.string_indexof_hisi` as the semantic owner
   and continue through the selected-route cache-backed session boundary slice
+- if MIR / LLVM IR / assembly slices are needed, use the inspect scope dump
+  SSOT: source anchors are selectors, while dumps are `hako_check` artifacts
 - use the inventory note first when pointer hunting is noisy
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - further user-box counter-heavy optimization must use selected exact slot routes, not compat `field_get_hii`
@@ -50,7 +53,8 @@ Related:
 2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
 3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 4. `docs/development/current/main/design/array-text-session-route-ssot.md`
-5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+5. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
+6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 
