@@ -33,6 +33,8 @@ to `hako_check` / compiler tooling.
   evidence from helper names.
 - Optimization truth remains `Plan` / `RouteDecision` / verifier evidence /
   report keys.
+- Current implementation slice: MIR / report bundles are live; LLVM / ASM
+  artifact emission remains reserved for a future backend extension slice.
 
 ## Source Surface
 

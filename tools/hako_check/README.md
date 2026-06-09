@@ -113,16 +113,16 @@ Performance / MIR cache
   - cache failure must not silently drop MIR-dependent rules; it must fall back to the existing emit route
   - an `emit-failed` marker is advisory only and must remain key-scoped (source/profile/toolchain changes naturally invalidate it)
 
-Planned Inspect Scope Dump
-- `hako_check inspect` is the planned read-only surface for source span /
-  anchor / function / route based MIR, LLVM IR, assembly, and report bundles.
+Inspect Scope Dump
+- `hako_check inspect` is the read-only surface for source span / anchor /
+  function / route based MIR and report bundles.
 - Source files may provide optional anchors such as
   `// hako:inspect begin <id>` and `// hako:inspect end <id>`.
 - Dumping remains a tool query. Do not add `.hako` source syntax such as
   `__output__MIR__ { ... }` or `__output__ASM__ { ... }`.
 - Contract owner:
   `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-- First implementation target:
+- Current implementation target:
 
 ```bash
 bash tools/hako_check.sh inspect scope \
@@ -130,6 +130,9 @@ bash tools/hako_check.sh inspect scope \
   --emit mir,mir-json,report \
   --out target/hako-inspect/alloc_fastpath
 ```
+
+- `llvm` / `asm` artifacts are reserved for the next backend extension slice
+  and remain fail-fast unless a future implementation explicitly opens them.
 
 Performance Surface Inventory
 - `hako_check perf-surface` is an observation-only surface for allocator hot-path

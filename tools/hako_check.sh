@@ -22,6 +22,7 @@ Usage:
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
+  $0 inspect scope|route|mark|diff [options]
 
 Tool surfaces:
   default             .hako lint/analyzer rules
@@ -45,6 +46,7 @@ Tool surfaces:
   fastpath-check      CI-style RouteDecision profile check for current
                       direct-exact / replacement-front optimization work
   state-explain       read-only state bucket / direct-state metadata explanation
+  inspect             read-only scope/route/mark/diff artifact query surface
 
 Boundary:
   hako_check does not rewrite source, choose keepers, run benchmarks, or own MIR
@@ -72,6 +74,11 @@ fi
 if [ "${1:-}" = "state-explain" ]; then
   shift
   exec bash "$ROOT/tools/hako_check/state_explain.sh" "$@"
+fi
+
+if [ "${1:-}" = "inspect" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/inspect_scope_dump.py" "$@"
 fi
 
 if [ "${1:-}" = "perf-surface" ]; then
